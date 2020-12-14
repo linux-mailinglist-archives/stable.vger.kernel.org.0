@@ -2,201 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC262D994D
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 14:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 170912D9952
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 15:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408059AbgLNN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 08:57:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403852AbgLNN5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 08:57:17 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EB6C0613CF
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 05:56:36 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id e25so15345871wme.0
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 05:56:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=JeRGzMYkfrgcAX+72iJ7MD90GdmocGOA9ult9kTbgXo=;
-        b=uykiUM4c51UpeP/Rd99iKB9CoOUahJTv81dH5JtH0u0J8iQgMAlpoDZcQHAap2qqlB
-         BcI8rqm8WrSHqDU+c2wd8KC42HpEIGc65imT/YHKWY6KqvhGG90WB01RpFWHLg0T5kad
-         QlJoTjS8fr/qSxaZAfqj9ykK9fVs28WW6xNHueH2c6qe9jJV5bdC7TWd0kYWJDZ6MF1p
-         x5LZUJ2zWV01eNJry9YqleguoxohPpfW32LXDl3EjI9W1RYCZOcXrbyjOzmJRPqLEvDS
-         V5w8oRYKxJNZ7+HdAIfRB7yaAqnVulTB8XNMdlNG6WfTUetPlEB4CTOi5GWL0RROpwJo
-         NL1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=JeRGzMYkfrgcAX+72iJ7MD90GdmocGOA9ult9kTbgXo=;
-        b=q/9E80d+7OuYTC8+aa4fuEBRyAl03fvSzOXm8KcsJFdgssLzkgjXjyMKut3UUF/Z42
-         h9607fuqZSHOuHFCXogZxHEK55pKPT7gs0+7ezRtl3Sc/f/ym5zZ2L7e1LiOP0Nb70pN
-         YkGLQ13wE6XFBGpE1BpBVOyar7c0zlqhEkOUlO2J9xWv4dC2i/hV2/LcCzpVa2dw5cdo
-         jNhSeqmQT0oxareFWisRu1SVf68SWef6tl9t+rh4L22S51MV0gG4iwOKXMGlKwWnXpgB
-         JCnDj/RNsGKDMvQ/zxYuhm3sWk2SzAosc4RodbyZxNQwuWC+KF8NGuWwZt0ZJCpfy52b
-         E+EA==
-X-Gm-Message-State: AOAM533eNoE2CejQGCBeuubK0UaYexSl6WfoFxPVZ8L8XfKsgZ5dNbN+
-        qf53oC1jFnHNRlf8da5HExnna2EIiFLZLw==
-X-Google-Smtp-Source: ABdhPJyNzGGEfqgTA6hYPj1ezlbXoNUq/uNRqJlYga84/fFqddI2NTaFrSiEtnGD4ft+quqOWaeK6g==
-X-Received: by 2002:a7b:c8c5:: with SMTP id f5mr28017430wml.106.1607954195359;
-        Mon, 14 Dec 2020 05:56:35 -0800 (PST)
-Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id s205sm31997374wmf.46.2020.12.14.05.56.34
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 14 Dec 2020 05:56:34 -0800 (PST)
-Date:   Mon, 14 Dec 2020 13:56:32 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sashal@kernel.org
-Cc:     stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: request for 4.9-stable and 4.4-stable: ddf75be47ca7 ("spi: Prevent
- adding devices below an unregistering controller")
-Message-ID: <20201214135632.2qt4rokovnxjoujj@debian>
+        id S1726296AbgLNN75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 08:59:57 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:30454 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725811AbgLNN75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 08:59:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1607954309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=19AFvZsQ/zMIF0IpM05qhVWQsCmXclZCgWV07nIuE1I=;
+        b=XjHzig8FP/rlbjVdrj+UOAwbVZje3RZANo+GOzsebtIvlqzeUgUT8pe10FFYw3L11LpJ+F
+        FleVGX174Ed/7AH2O6lAeBTiRqHOU179t0+j2yndgiykQZWd/MSENEsYYONBthJ8UrSXKU
+        8hkOALnxRHk0xGAxB2kEIyfZYiFAJNA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-447-9JgNDnytNpi6Hmwov_4l4g-1; Mon, 14 Dec 2020 08:58:27 -0500
+X-MC-Unique: 9JgNDnytNpi6Hmwov_4l4g-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C336F107ACF6;
+        Mon, 14 Dec 2020 13:58:24 +0000 (UTC)
+Received: from mail (ovpn-119-164.rdu2.redhat.com [10.10.119.164])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 35C4A3828;
+        Mon, 14 Dec 2020 13:58:21 +0000 (UTC)
+Date:   Mon, 14 Dec 2020 08:58:20 -0500
+From:   Andrea Arcangeli <aarcange@redhat.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Baoquan He <bhe@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v2 1/2] mm: memblock: enforce overlap of memory.memblock
+ and memory.reserved
+Message-ID: <X9dvfDcSrlEj5y6K@redhat.com>
+References: <20201209214304.6812-1-rppt@kernel.org>
+ <20201209214304.6812-2-rppt@kernel.org>
+ <522640a5-32ab-2247-4c2a-f248c2528f97@redhat.com>
+ <20201214111221.GC198219@kernel.org>
+ <a512bd63-b171-3ed5-6996-2c99b6c9a226@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="vice3opgpb7xv5qi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <a512bd63-b171-3ed5-6996-2c99b6c9a226@redhat.com>
+User-Agent: Mutt/2.0.3 (2020-12-04)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Dec 14, 2020 at 12:18:07PM +0100, David Hildenbrand wrote:
+> On 14.12.20 12:12, Mike Rapoport wrote:
+> > On Mon, Dec 14, 2020 at 11:11:35AM +0100, David Hildenbrand wrote:
+> >> On 09.12.20 22:43, Mike Rapoport wrote:
+> >>> From: Mike Rapoport <rppt@linux.ibm.com>
+> >>>
+> >>> memblock does not require that the reserved memory ranges will be a subset
+> >>> of memblock.memory.
+> >>>
+> >>> As the result there maybe reserved pages that are not in the range of any
+> >>> zone or node because zone and node boundaries are detected based on
+> >>> memblock.memory and pages that only present in memblock.reserved are not
+> >>> taken into account during zone/node size detection.
+> >>>
+> >>> Make sure that all ranges in memblock.reserved are added to memblock.memory
+> >>> before calculating node and zone boundaries.
+> >>>
+> >>> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> >>> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> >>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> >>> ---
+> >>>  include/linux/memblock.h |  1 +
+> >>>  mm/memblock.c            | 24 ++++++++++++++++++++++++
+> >>>  mm/page_alloc.c          |  7 +++++++
+> >>>  3 files changed, 32 insertions(+)
+> >>>
+> >>> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+> >>> index ef131255cedc..e64dae2dd1ce 100644
+> >>> --- a/include/linux/memblock.h
+> >>> +++ b/include/linux/memblock.h
+> >>> @@ -120,6 +120,7 @@ int memblock_clear_nomap(phys_addr_t base, phys_addr_t size);
+> >>>  unsigned long memblock_free_all(void);
+> >>>  void reset_node_managed_pages(pg_data_t *pgdat);
+> >>>  void reset_all_zones_managed_pages(void);
+> >>> +void memblock_enforce_memory_reserved_overlap(void);
+> >>>  
+> >>>  /* Low level functions */
+> >>>  void __next_mem_range(u64 *idx, int nid, enum memblock_flags flags,
+> >>> diff --git a/mm/memblock.c b/mm/memblock.c
+> >>> index b68ee86788af..9277aca642b2 100644
+> >>> --- a/mm/memblock.c
+> >>> +++ b/mm/memblock.c
+> >>> @@ -1857,6 +1857,30 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
+> >>>  	}
+> >>>  }
+> >>>  
+> >>> +/**
+> >>> + * memblock_enforce_memory_reserved_overlap - make sure every range in
+> >>> + * @memblock.reserved is covered by @memblock.memory
+> >>> + *
+> >>> + * The data in @memblock.memory is used to detect zone and node boundaries
+> >>> + * during initialization of the memory map and the page allocator. Make
+> >>> + * sure that every memory range present in @memblock.reserved is also added
+> >>> + * to @memblock.memory even if the architecture specific memory
+> >>> + * initialization failed to do so
+> >>> + */
+> >>> +void __init memblock_enforce_memory_reserved_overlap(void)
+> >>> +{
+> >>> +	phys_addr_t start, end;
+> >>> +	int nid;
+> >>> +	u64 i;
+> >>> +
+> >>> +	__for_each_mem_range(i, &memblock.reserved, &memblock.memory,
+> >>> +			     NUMA_NO_NODE, MEMBLOCK_NONE, &start, &end, &nid) {
+> >>> +		pr_warn("memblock: reserved range [%pa-%pa] is not in memory\n",
+> >>> +			&start, &end);
+> >>> +		memblock_add_node(start, (end - start), nid);
+> >>> +	}
+> >>> +}
+> >>> +
+> >>>  void __init_memblock memblock_set_current_limit(phys_addr_t limit)
+> >>>  {
+> >>>  	memblock.current_limit = limit;
+> >>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> >>> index eaa227a479e4..dbc57dbbacd8 100644
+> >>> --- a/mm/page_alloc.c
+> >>> +++ b/mm/page_alloc.c
+> >>> @@ -7436,6 +7436,13 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+> >>>  	memset(arch_zone_highest_possible_pfn, 0,
+> >>>  				sizeof(arch_zone_highest_possible_pfn));
+> >>>  
+> >>> +	/*
+> >>> +	 * Some architectures (e.g. x86) have reserved pages outside of
+> >>> +	 * memblock.memory. Make sure these pages are taken into account
+> >>> +	 * when detecting zone and node boundaries
+> >>> +	 */
+> >>> +	memblock_enforce_memory_reserved_overlap();
+> >>> +
+> >>>  	start_pfn = find_min_pfn_with_active_regions();
+> >>>  	descending = arch_has_descending_max_zone_pfns();
+> >>>  
+> >>>
+> >>
+> >> CCing Dan.
+> >>
+> >> This implies that any memory that is E820_TYPE_SOFT_RESERVED that was
+> >> reserved via memblock_reserve() will be added via memblock_add_node() as
+> >> well, resulting in all such memory getting a memmap allocated right when
+> >> booting up, right?
+> >>
+> >> IIRC, there are use cases where that is absolutely not desired.
+> > 
+> > Hmm, if this is the case we need entirely different solution to ensure
+> > that we don't have partial pageblocks in a zone and we have all the
+> > memory map initialized to a known state.
+> > 
+> >> Am I missing something? (@Dan?)
+> > 
+> > BTW, @Dan, why did you need to memblock_reserve(E820_TYPE_SOFT_RESERVED)
+> > without memblock_add()ing it?
+> 
+> I suspect to cover cases where it might partially span memory sections
+> (or even sub-sections). Maybe we should focus on initializing that part
+> only - meaning, not adding all memory to .memory but only !section
+> aligned pieces.
 
---vice3opgpb7xv5qi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We had that information left in the memblock data structure with the
+previous implementation in -mm (before adding all memblock.reserved to
+memblock.memory). To avoid destroying that information we'll need a
+new flag for each range that is not originally in memblock.memory:
 
-Hi Greg, Sasha,
+===
+What you suggest would require adding extra information to flag which
+ranges must not have a direct mapping, but that information is already
+in memblock today, for each range in memblock_reserved but not in
+memblock.memory or did I misunderstand how that no-direct-map detail works?
+===
 
-This was missing in 4.9-stable and 4.4-stable. Please apply to your queue.
+I guess I was too optimistic that this was already implemented, thanks
+for noticing.
 
+For the record, I didn't have time to test the new implementation
+yet. Since I'm running the "hack" on all machines things have been
+stable on v5.9. I'm actually curious if the hack would also fail boot
+on the CI system or not, that would help localize the issue into the
+implicit memblock_add at least. The memblock debug output won't give
+us a direct reproducer, but we can try to generate one by reproducing
+the same e820 map in seabios.
 
---
-Regards
-Sudip
+Andrea
 
---vice3opgpb7xv5qi
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-spi-Prevent-adding-devices-below-an-unregistering-co.patch"
-
-From dd91772b0a8523e9f3d24b60dcb8f005ab62aba6 Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 3 Aug 2020 13:09:01 +0200
-Subject: [PATCH] spi: Prevent adding devices below an unregistering controller
-
-commit ddf75be47ca748f8b12d28ac64d624354fddf189 upstream
-
-CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
-using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
-same via sysfs.
-
-But there are no precautions to prevent adding a device below a
-controller that's being removed.  Such a device is unusable and may not
-even be able to unbind cleanly as it becomes inaccessible once the
-controller has been torn down.  E.g. it is then impossible to quiesce
-the device's interrupt.
-
-of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
-but otherwise run lockless against spi_unregister_controller().
-
-Fix by holding the spi_add_lock in spi_unregister_controller() and
-bailing out of spi_add_device() if the controller has been unregistered
-concurrently.
-
-Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.19+
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/spi/Kconfig |  3 +++
- drivers/spi/spi.c   | 21 ++++++++++++++++++++-
- 2 files changed, 23 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index b7995474148c..e9576658ff3f 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -763,4 +763,7 @@ endif # SPI_MASTER
- 
- # (slave support would go here)
- 
-+config SPI_DYNAMIC
-+	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
-+
- endif # SPI
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index e0632ee1723b..f0ba5eb26128 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -422,6 +422,12 @@ static LIST_HEAD(spi_master_list);
-  */
- static DEFINE_MUTEX(board_lock);
- 
-+/*
-+ * Prevents addition of devices with same chip select and
-+ * addition of devices below an unregistering controller.
-+ */
-+static DEFINE_MUTEX(spi_add_lock);
-+
- /**
-  * spi_alloc_device - Allocate a new SPI device
-  * @master: Controller to which device is connected
-@@ -500,7 +506,6 @@ static int spi_dev_check(struct device *dev, void *data)
-  */
- int spi_add_device(struct spi_device *spi)
- {
--	static DEFINE_MUTEX(spi_add_lock);
- 	struct spi_master *master = spi->master;
- 	struct device *dev = master->dev.parent;
- 	int status;
-@@ -529,6 +534,13 @@ int spi_add_device(struct spi_device *spi)
- 		goto done;
- 	}
- 
-+	/* Controller may unregister concurrently */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
-+	    !device_is_registered(&master->dev)) {
-+		status = -ENODEV;
-+		goto done;
-+	}
-+
- 	if (master->cs_gpios)
- 		spi->cs_gpio = master->cs_gpios[spi->chip_select];
- 
-@@ -2070,6 +2082,10 @@ static int __unregister(struct device *dev, void *null)
-  */
- void spi_unregister_master(struct spi_master *master)
- {
-+	/* Prevent addition of new devices, unregister existing ones */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_lock(&spi_add_lock);
-+
- 	device_for_each_child(&master->dev, NULL, __unregister);
- 
- 	if (master->queued) {
-@@ -2089,6 +2105,9 @@ void spi_unregister_master(struct spi_master *master)
- 	if (!devres_find(master->dev.parent, devm_spi_release_master,
- 			 devm_spi_match_master, master))
- 		put_device(&master->dev);
-+
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_unlock(&spi_add_lock);
- }
- EXPORT_SYMBOL_GPL(spi_unregister_master);
- 
--- 
-2.11.0
-
-
---vice3opgpb7xv5qi--
