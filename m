@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3212D9F92
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A98CD2DA08A
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440576AbgLNSvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:51:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S2440560AbgLNTbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:31:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502264AbgLNRhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:45 -0500
+        id S2502182AbgLNRgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:36:06 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Han Xu <han.xu@nxp.com>,
+        Ran Wang <ran.wang_1@nxp.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 024/105] can: m_can: tcan4x5x_can_probe(): fix error path: remove erroneous clk_disable_unprepare()
+Subject: [PATCH 5.4 14/36] spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts
 Date:   Mon, 14 Dec 2020 18:27:58 +0100
-Message-Id: <20201214172556.440531465@linuxfoundation.org>
+Message-Id: <20201214172544.004193533@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -31,60 +32,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Ran Wang <ran.wang_1@nxp.com>
 
-[ Upstream commit ad1f5e826d91d6c27ecd36a607ad7c7f4d0b0733 ]
+[ Upstream commit 71d80563b0760a411cd90a3680536f5d887fff6b ]
 
-The clocks mcan_class->cclk and mcan_class->hclk are not prepared by any call
-during tcan4x5x_can_probe(), so remove erroneous clk_disable_unprepare() on
-them.
+Given the case that bootloader(such as UEFI)'s FSPI driver might not
+handle all interrupts before loading kernel, those legacy interrupts
+would assert immidiately once kernel's FSPI driver enable them. Further,
+if it was FSPI_INTR_IPCMDDONE, the irq handler nxp_fspi_irq_handler()
+would call complete(&f->c) to notify others. However, f->c might not be
+initialized yet at that time, then cause kernel panic.
 
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Link: http://lore.kernel.org/r/20201130114252.215334-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Of cause, we should fix this issue within bootloader. But it would be
+better to have this pacth to make dirver more robust (by clearing all
+interrupt status bits before enabling interrupts).
+
+Suggested-by: Han Xu <han.xu@nxp.com>
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Link: https://lore.kernel.org/r/20201123025715.14635-1-ran.wang_1@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/tcan4x5x.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/spi/spi-nxp-fspi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/can/m_can/tcan4x5x.c b/drivers/net/can/m_can/tcan4x5x.c
-index e5d7d85e0b6d1..7347ab39c5b65 100644
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -489,18 +489,18 @@ static int tcan4x5x_can_probe(struct spi_device *spi)
- 	spi->bits_per_word = 32;
- 	ret = spi_setup(spi);
- 	if (ret)
--		goto out_clk;
-+		goto out_m_can_class_free_dev;
+diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
+index 28ae5229f889f..efd9e908e2248 100644
+--- a/drivers/spi/spi-nxp-fspi.c
++++ b/drivers/spi/spi-nxp-fspi.c
+@@ -948,6 +948,7 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct nxp_fspi *f;
+ 	int ret;
++	u32 reg;
  
- 	priv->regmap = devm_regmap_init(&spi->dev, &tcan4x5x_bus,
- 					&spi->dev, &tcan4x5x_regmap);
- 	if (IS_ERR(priv->regmap)) {
- 		ret = PTR_ERR(priv->regmap);
--		goto out_clk;
-+		goto out_m_can_class_free_dev;
+ 	ctlr = spi_alloc_master(&pdev->dev, sizeof(*f));
+ 	if (!ctlr)
+@@ -974,6 +975,12 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 		goto err_put_ctrl;
  	}
  
- 	ret = tcan4x5x_power_enable(priv->power, 1);
- 	if (ret)
--		goto out_clk;
-+		goto out_m_can_class_free_dev;
- 
- 	ret = tcan4x5x_parse_config(mcan_class);
- 	if (ret)
-@@ -519,11 +519,6 @@ static int tcan4x5x_can_probe(struct spi_device *spi)
- 
- out_power:
- 	tcan4x5x_power_enable(priv->power, 0);
--out_clk:
--	if (!IS_ERR(mcan_class->cclk)) {
--		clk_disable_unprepare(mcan_class->cclk);
--		clk_disable_unprepare(mcan_class->hclk);
--	}
-  out_m_can_class_free_dev:
- 	m_can_class_free_dev(mcan_class->net);
- 	dev_err(&spi->dev, "Probe failed, err=%d\n", ret);
++	/* Clear potential interrupts */
++	reg = fspi_readl(f, f->iobase + FSPI_INTR);
++	if (reg)
++		fspi_writel(f, reg, f->iobase + FSPI_INTR);
++
++
+ 	/* find the resources - controller memory mapped space */
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fspi_mmap");
+ 	f->ahb_addr = devm_ioremap_resource(dev, res);
 -- 
 2.27.0
 
