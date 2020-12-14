@@ -2,35 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2125B2D9EB4
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCA02D9EB5
 	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731989AbgLNSQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:16:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49836 "EHLO mail.kernel.org"
+        id S2440664AbgLNSQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:16:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502368AbgLNRjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502371AbgLNRjE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:39:04 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Marco Elver <elver@google.com>, Will Deacon <will@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Song Bao Hua (Barry Song)" <song.bao.hua@hisilicon.com>,
+        stable@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.9 097/105] proc: use untagged_addr() for pagemap_read addresses
-Date:   Mon, 14 Dec 2020 18:29:11 +0100
-Message-Id: <20201214172559.941178446@linuxfoundation.org>
+Subject: [PATCH 5.9 098/105] mm/hugetlb: clear compound_nr before freeing gigantic pages
+Date:   Mon, 14 Dec 2020 18:29:12 +0100
+Message-Id: <20201214172559.997198117@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -42,125 +37,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 40d6366e9d86d9a67b5642040e76082fdb5bdcf9 upstream.
+commit ba9c1201beaa86a773e83be5654602a0667e4a4d upstream.
 
-When we try to visit the pagemap of a tagged userspace pointer, we find
-that the start_vaddr is not correct because of the tag.
-To fix it, we should untag the userspace pointers in pagemap_read().
+Commit 1378a5ee451a ("mm: store compound_nr as well as compound_order")
+added compound_nr counter to first tail struct page, overlaying with
+page->mapping.  The overlay itself is fine, but while freeing gigantic
+hugepages via free_contig_range(), a "bad page" check will trigger for
+non-NULL page->mapping on the first tail page:
 
-I tested with 5.10-rc4 and the issue remains.
+  BUG: Bad page state in process bash  pfn:380001
+  page:00000000c35f0856 refcount:0 mapcount:0 mapping:00000000126b68aa index:0x0 pfn:0x380001
+  aops:0x0
+  flags: 0x3ffff00000000000()
+  raw: 3ffff00000000000 0000000000000100 0000000000000122 0000000100000000
+  raw: 0000000000000000 0000000000000000 ffffffff00000000 0000000000000000
+  page dumped because: non-NULL mapping
+  Modules linked in:
+  CPU: 6 PID: 616 Comm: bash Not tainted 5.10.0-rc7-next-20201208 #1
+  Hardware name: IBM 3906 M03 703 (LPAR)
+  Call Trace:
+    show_stack+0x6e/0xe8
+    dump_stack+0x90/0xc8
+    bad_page+0xd6/0x130
+    free_pcppages_bulk+0x26a/0x800
+    free_unref_page+0x6e/0x90
+    free_contig_range+0x94/0xe8
+    update_and_free_page+0x1c4/0x2c8
+    free_pool_huge_page+0x11e/0x138
+    set_max_huge_pages+0x228/0x300
+    nr_hugepages_store_common+0xb8/0x130
+    kernfs_fop_write+0xd2/0x218
+    vfs_write+0xb0/0x2b8
+    ksys_write+0xac/0xe0
+    system_call+0xe6/0x288
+  Disabling lock debugging due to kernel taint
 
-Explanation from Catalin in [1]:
+This is because only the compound_order is cleared in
+destroy_compound_gigantic_page(), and compound_nr is set to
+1U << order == 1 for order 0 in set_compound_order(page, 0).
 
- "Arguably, that's a user-space bug since tagged file offsets were never
-  supported. In this case it's not even a tag at bit 56 as per the arm64
-  tagged address ABI but rather down to bit 47. You could say that the
-  problem is caused by the C library (malloc()) or whoever created the
-  tagged vaddr and passed it to this function. It's not a kernel
-  regression as we've never supported it.
+Fix this by explicitly clearing compound_nr for first tail page after
+calling set_compound_order(page, 0).
 
-  Now, pagemap is a special case where the offset is usually not
-  generated as a classic file offset but rather derived by shifting a
-  user virtual address. I guess we can make a concession for pagemap
-  (only) and allow such offset with the tag at bit (56 - PAGE_SHIFT + 3)"
-
-My test code is based on [2]:
-
-A userspace pointer which has been tagged by 0xb4: 0xb400007662f541c8
-
-userspace program:
-
-  uint64 OsLayer::VirtualToPhysical(void *vaddr) {
-	uint64 frame, paddr, pfnmask, pagemask;
-	int pagesize = sysconf(_SC_PAGESIZE);
-	off64_t off = ((uintptr_t)vaddr) / pagesize * 8; // off = 0xb400007662f541c8 / pagesize * 8 = 0x5a00003b317aa0
-	int fd = open(kPagemapPath, O_RDONLY);
-	...
-
-	if (lseek64(fd, off, SEEK_SET) != off || read(fd, &frame, 8) != 8) {
-		int err = errno;
-		string errtxt = ErrorString(err);
-		if (fd >= 0)
-			close(fd);
-		return 0;
-	}
-  ...
-  }
-
-kernel fs/proc/task_mmu.c:
-
-  static ssize_t pagemap_read(struct file *file, char __user *buf,
-		size_t count, loff_t *ppos)
-  {
-	...
-	src = *ppos;
-	svpfn = src / PM_ENTRY_BYTES; // svpfn == 0xb400007662f54
-	start_vaddr = svpfn << PAGE_SHIFT; // start_vaddr == 0xb400007662f54000
-	end_vaddr = mm->task_size;
-
-	/* watch out for wraparound */
-	// svpfn == 0xb400007662f54
-	// (mm->task_size >> PAGE) == 0x8000000
-	if (svpfn > mm->task_size >> PAGE_SHIFT) // the condition is true because of the tag 0xb4
-		start_vaddr = end_vaddr;
-
-	ret = 0;
-	while (count && (start_vaddr < end_vaddr)) { // we cannot visit correct entry because start_vaddr is set to end_vaddr
-		int len;
-		unsigned long end;
-		...
-	}
-	...
-  }
-
-[1] https://lore.kernel.org/patchwork/patch/1343258/
-[2] https://github.com/stressapptest/stressapptest/blob/master/src/os.cc#L158
-
-Link: https://lkml.kernel.org/r/20201204024347.8295-1-miles.chen@mediatek.com
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrey Konovalov <andreyknvl@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Song Bao Hua (Barry Song) <song.bao.hua@hisilicon.com>
-Cc: <stable@vger.kernel.org>	[5.4-]
+Link: https://lkml.kernel.org/r/20201208182813.66391-2-gerald.schaefer@linux.ibm.com
+Fixes: 1378a5ee451a ("mm: store compound_nr as well as compound_order")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/task_mmu.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ mm/hugetlb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1541,11 +1541,15 @@ static ssize_t pagemap_read(struct file
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1227,6 +1227,7 @@ static void destroy_compound_gigantic_pa
+ 	}
  
- 	src = *ppos;
- 	svpfn = src / PM_ENTRY_BYTES;
--	start_vaddr = svpfn << PAGE_SHIFT;
- 	end_vaddr = mm->task_size;
+ 	set_compound_order(page, 0);
++	page[1].compound_nr = 0;
+ 	__ClearPageHead(page);
+ }
  
- 	/* watch out for wraparound */
--	if (svpfn > mm->task_size >> PAGE_SHIFT)
-+	start_vaddr = end_vaddr;
-+	if (svpfn <= (ULONG_MAX >> PAGE_SHIFT))
-+		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
-+
-+	/* Ensure the address is inside the task */
-+	if (start_vaddr > mm->task_size)
- 		start_vaddr = end_vaddr;
- 
- 	/*
 
 
