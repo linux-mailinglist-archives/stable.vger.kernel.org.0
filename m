@@ -2,25 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 390642D9F02
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9406A2D9F05
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407438AbgLNS2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:28:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S2408806AbgLNS3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:29:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502300AbgLNRiC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502296AbgLNRiC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:38:02 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.9 077/105] media: pulse8-cec: add support for FW v10 and up
-Date:   Mon, 14 Dec 2020 18:28:51 +0100
-Message-Id: <20201214172558.977883031@linuxfoundation.org>
+        stable@vger.kernel.org, Wenbin Mei <wenbin.mei@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.9 078/105] mmc: mediatek: Fix system suspend/resume support for CQHCI
+Date:   Mon, 14 Dec 2020 18:28:52 +0100
+Message-Id: <20201214172559.026817819@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -32,114 +31,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Wenbin Mei <wenbin.mei@mediatek.com>
 
-commit 45ba1c0ba3e589ad3ef0d0603c822eb27ea16563 upstream.
+commit c0a2074ac575fff2848c8ef804bdc8590466c36c upstream.
 
-Starting with firmware version 10 the GET/SET_HDMI_VERSION message
-was removed and GET/SET_AUTO_POWER_ON was added.
+Before we got these errors on MT8192 platform:
+[   59.153891] Restarting tasks ...
+[   59.154540] done.
+[   59.159175] PM: suspend exit
+[   59.218724] mtk-msdc 11f60000.mmc: phase: [map:fffffffe] [maxlen:31]
+[final:16]
+[  119.776083] mmc0: cqhci: timeout for tag 9
+[  119.780196] mmc0: cqhci: ============ CQHCI REGISTER DUMP ===========
+[  119.786709] mmc0: cqhci: Caps:      0x100020b6 | Version:  0x00000510
+[  119.793225] mmc0: cqhci: Config:    0x00000101 | Control:  0x00000000
+[  119.799706] mmc0: cqhci: Int stat:  0x00000000 | Int enab: 0x00000000
+[  119.806177] mmc0: cqhci: Int sig:   0x00000000 | Int Coal: 0x00000000
+[  119.812670] mmc0: cqhci: TDL base:  0x00000000 | TDL up32: 0x00000000
+[  119.819149] mmc0: cqhci: Doorbell:  0x003ffc00 | TCN:      0x00000200
+[  119.825656] mmc0: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x00000000
+[  119.832155] mmc0: cqhci: Task clr:  0x00000000 | SSC1:     0x00001000
+[  119.838627] mmc0: cqhci: SSC2:      0x00000000 | DCMD rsp: 0x00000000
+[  119.845174] mmc0: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x0000891c
+[  119.851654] mmc0: cqhci: Resp idx:  0x00000000 | Resp arg: 0x00000000
+[  119.865773] mmc0: cqhci: : ===========================================
+[  119.872358] mmc0: running CQE recovery
+>From these logs, we found TDL base was back to the default value.
 
-The removal of GET/SET_HDMI_VERSION caused the probe of the
-Pulse-Eight to fail. Add a version check to handle this gracefully.
+After suspend, the mmc host is powered off by HW, and bring CQE register
+to the default value, so we add system suspend/resume interface, then bring
+CQE to deactivated state before suspend, it will be enabled by CQE first
+request after resume.
 
-Also show (but do not set) the Auto Power On value.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Maxime Ripard <mripard@kernel.org>
-Tested-by: Maxime Ripard <mripard@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+Link: https://lore.kernel.org/r/20201118063405.24906-1-wenbin.mei@mediatek.com
+Fixes: 88bd652b3c74 ("mmc: mediatek: command queue support")
+Cc: stable@vger.kernel.org
+[Ulf: Renamed functions]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/cec/usb/pulse8/pulse8-cec.c |   43 ++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 13 deletions(-)
+ drivers/mmc/host/mtk-sd.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/media/cec/usb/pulse8/pulse8-cec.c
-+++ b/drivers/media/cec/usb/pulse8/pulse8-cec.c
-@@ -88,13 +88,15 @@ enum pulse8_msgcodes {
- 	MSGCODE_SET_PHYSICAL_ADDRESS,	/* 0x20 */
- 	MSGCODE_GET_DEVICE_TYPE,
- 	MSGCODE_SET_DEVICE_TYPE,
--	MSGCODE_GET_HDMI_VERSION,
-+	MSGCODE_GET_HDMI_VERSION,	/* Removed in FW >= 10 */
- 	MSGCODE_SET_HDMI_VERSION,
- 	MSGCODE_GET_OSD_NAME,
- 	MSGCODE_SET_OSD_NAME,
- 	MSGCODE_WRITE_EEPROM,
- 	MSGCODE_GET_ADAPTER_TYPE,	/* 0x28 */
- 	MSGCODE_SET_ACTIVE_SOURCE,
-+	MSGCODE_GET_AUTO_POWER_ON,	/* New for FW >= 10 */
-+	MSGCODE_SET_AUTO_POWER_ON,
- 
- 	MSGCODE_FRAME_EOM = 0x80,
- 	MSGCODE_FRAME_ACK = 0x40,
-@@ -143,6 +145,8 @@ static const char * const pulse8_msgname
- 	"WRITE_EEPROM",
- 	"GET_ADAPTER_TYPE",
- 	"SET_ACTIVE_SOURCE",
-+	"GET_AUTO_POWER_ON",
-+	"SET_AUTO_POWER_ON",
- };
- 
- static const char *pulse8_msgname(u8 cmd)
-@@ -579,12 +583,14 @@ static int pulse8_cec_adap_log_addr(stru
- 	if (err)
- 		goto unlock;
- 
--	cmd[0] = MSGCODE_SET_HDMI_VERSION;
--	cmd[1] = adap->log_addrs.cec_version;
--	err = pulse8_send_and_wait(pulse8, cmd, 2,
--				   MSGCODE_COMMAND_ACCEPTED, 0);
--	if (err)
--		goto unlock;
-+	if (pulse8->vers < 10) {
-+		cmd[0] = MSGCODE_SET_HDMI_VERSION;
-+		cmd[1] = adap->log_addrs.cec_version;
-+		err = pulse8_send_and_wait(pulse8, cmd, 2,
-+					   MSGCODE_COMMAND_ACCEPTED, 0);
-+		if (err)
-+			goto unlock;
-+	}
- 
- 	if (adap->log_addrs.osd_name[0]) {
- 		size_t osd_len = strlen(adap->log_addrs.osd_name);
-@@ -691,6 +697,14 @@ static int pulse8_setup(struct pulse8 *p
- 	dev_dbg(pulse8->dev, "Autonomous mode: %s",
- 		data[0] ? "on" : "off");
- 
-+	if (pulse8->vers >= 10) {
-+		cmd[0] = MSGCODE_GET_AUTO_POWER_ON;
-+		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
-+		if (!err)
-+			dev_dbg(pulse8->dev, "Auto Power On: %s",
-+				data[0] ? "on" : "off");
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2654,11 +2654,29 @@ static int msdc_runtime_resume(struct de
+ 	msdc_restore_reg(host);
+ 	return 0;
+ }
++
++static int msdc_suspend(struct device *dev)
++{
++	struct mmc_host *mmc = dev_get_drvdata(dev);
++	int ret;
++
++	if (mmc->caps2 & MMC_CAP2_CQE) {
++		ret = cqhci_suspend(mmc);
++		if (ret)
++			return ret;
 +	}
 +
- 	cmd[0] = MSGCODE_GET_DEVICE_TYPE;
- 	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
- 	if (err)
-@@ -752,12 +766,15 @@ static int pulse8_setup(struct pulse8 *p
- 	dev_dbg(pulse8->dev, "Physical address: %x.%x.%x.%x\n",
- 		cec_phys_addr_exp(*pa));
++	return pm_runtime_force_suspend(dev);
++}
++
++static int msdc_resume(struct device *dev)
++{
++	return pm_runtime_force_resume(dev);
++}
+ #endif
  
--	cmd[0] = MSGCODE_GET_HDMI_VERSION;
--	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
--	if (err)
--		return err;
--	log_addrs->cec_version = data[0];
--	dev_dbg(pulse8->dev, "CEC version: %d\n", log_addrs->cec_version);
-+	log_addrs->cec_version = CEC_OP_CEC_VERSION_1_4;
-+	if (pulse8->vers < 10) {
-+		cmd[0] = MSGCODE_GET_HDMI_VERSION;
-+		err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 1);
-+		if (err)
-+			return err;
-+		log_addrs->cec_version = data[0];
-+		dev_dbg(pulse8->dev, "CEC version: %d\n", log_addrs->cec_version);
-+	}
+ static const struct dev_pm_ops msdc_dev_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+-				pm_runtime_force_resume)
++	SET_SYSTEM_SLEEP_PM_OPS(msdc_suspend, msdc_resume)
+ 	SET_RUNTIME_PM_OPS(msdc_runtime_suspend, msdc_runtime_resume, NULL)
+ };
  
- 	cmd[0] = MSGCODE_GET_OSD_NAME;
- 	err = pulse8_send_and_wait(pulse8, cmd, 1, cmd[0], 0);
 
 
