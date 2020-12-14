@@ -2,125 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5B02D9CDF
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 17:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A90C2D9D01
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 17:57:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440260AbgLNQnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 11:43:16 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:35526 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726223AbgLNQnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 11:43:06 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 5131F20B717A;
-        Mon, 14 Dec 2020 08:42:24 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5131F20B717A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1607964144;
-        bh=17oy4+dXfaSLajpExnudcAmGMiMK3qcSh76GKO4RE2Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b2qc6msEewlTpaaV0pHx7Usu0G6P2kINFg1UemHsrAy0bPMmhv+KSd6uf9Ipt43F7
-         9ZVKoQrg73yNjw0u7uwhG92+h9a+KuVMhqxpH5ycdsnsUvuE2IjguASH0E3x3Yx3iV
-         XzTsxGp+NTbKbRHRyT9l877JRxZkgxsHU+0yRmnY=
-Date:   Mon, 14 Dec 2020 10:42:22 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
-        Bruno Meneguele <bmeneg@redhat.com>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with kernel
- measurements
-Message-ID: <20201214164222.GK4951@sequoia>
-References: <20200708154116.3199728-1-sashal@kernel.org>
- <20200708154116.3199728-3-sashal@kernel.org>
- <1594224793.23056.251.camel@linux.ibm.com>
- <20200709012735.GX2722994@sasha-vm>
- <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
- <20201211031008.GN489768@sequoia>
- <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
+        id S2440232AbgLNQ5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 11:57:11 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9052 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2440222AbgLNQ5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 11:57:11 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BEGWTZ1101299;
+        Mon, 14 Dec 2020 11:56:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=3cyEYzE/Ow9jjL5B0Midoc9R0devhKEwKmZgd6sWhps=;
+ b=eiQl7vhk9jFLkLddfp8cXLY/6HuGWJXBbyL5UVOys5M1ZApqLhS5ik4BZRmfTY/L3Kca
+ KHSGSYCq8WGlO71YM+i20lktVaQ9Y90qaTc4Akg8Tn5VgtaprAXAhcDTj24tT/CY/S/2
+ VMzRMTnomrE/bbCacbkjm5IhYtz8vwB7SGZPeRC+dCNxJVYOo/DiOP+mxTGcetb3Uo0X
+ 9Wyprm3tY4qdS9WMf1FGjRFDMLYY+igsd/cqd2+5cO4UtV3tPj9xq/2P9u5Eqf9eOFaI
+ Sgrspr0yGMXkY4oDb2KrP1nD+CBzzDJehUuz/GX2uL1WnTegJ1/PmITIneSCTyw/RM+b 1w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35ebcg19hy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Dec 2020 11:56:26 -0500
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BEGXNbQ106437;
+        Mon, 14 Dec 2020 11:56:26 -0500
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35ebcg19hm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Dec 2020 11:56:26 -0500
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BEGc13f018796;
+        Mon, 14 Dec 2020 16:56:25 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma04wdc.us.ibm.com with ESMTP id 35cng8s9rm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Dec 2020 16:56:25 +0000
+Received: from b01ledav002.gho.pok.ibm.com (b01ledav002.gho.pok.ibm.com [9.57.199.107])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BEGuPFn28180968
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 14 Dec 2020 16:56:25 GMT
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8DE5124053;
+        Mon, 14 Dec 2020 16:56:24 +0000 (GMT)
+Received: from b01ledav002.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 414E3124052;
+        Mon, 14 Dec 2020 16:56:24 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.193.150])
+        by b01ledav002.gho.pok.ibm.com (Postfix) with ESMTP;
+        Mon, 14 Dec 2020 16:56:24 +0000 (GMT)
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        sashal@kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
+        kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
+        Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v3] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
+Date:   Mon, 14 Dec 2020 11:56:17 -0500
+Message-Id: <20201214165617.28685-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-14_06:2020-12-11,2020-12-14 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ spamscore=0 mlxlogscore=999 suspectscore=0 clxscore=1015 bulkscore=0
+ phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012140111
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-12-11 06:01:54, Mimi Zohar wrote:
-> On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
-> > On 2020-11-29 08:17:38, Mimi Zohar wrote:
-> > > Hi Sasha,
-> > > 
-> > > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
-> > > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
-> > > > >Hi Sasha,
-> > > > >
-> > > > >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
-> > > > >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
-> > > > >>
-> > > > >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
-> > > > >>
-> > > > >> Registers 8-9 are used to store measurements of the kernel and its
-> > > > >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
-> > > > >> should include them in the boot aggregate. Registers 8-9 should be
-> > > > >> only included in non-SHA1 digests to avoid ambiguity.
-> > > > >
-> > > > >Prior to Linux 5.8, the SHA1 template data hashes were padded before
-> > > > >being extended into the TPM.  Support for calculating and extending
-> > > > >the per TPM bank template data digests is only being upstreamed in
-> > > > >Linux 5.8.
-> > > > >
-> > > > >How will attestation servers know whether to include PCRs 8 & 9 in the
-> > > > >the boot_aggregate calculation?  Now, there is a direct relationship
-> > > > >between the template data SHA1 padded digest not including PCRs 8 & 9,
-> > > > >and the new per TPM bank template data digest including them.
-> > > > 
-> > > > Got it, I'll drop it then, thank you!
-> > > 
-> > > After re-thinking this over, I realized that the attestation server can
-> > > verify the "boot_aggregate" based on the quoted PCRs without knowing
-> > > whether padded SHA1 hashes or per TPM bank hash values were extended
-> > > into the TPM[1], but non-SHA1 boot aggregate values [2] should always
-> > > include PCRs 8 & 9.
-> > 
-> > I'm still not clear on how an attestation server would know to include
-> > PCRs 8 and 9 after this change came through a stable kernel update. It
-> > doesn't seem like something appropriate for stable since it requires
-> > code changes to attestation servers to handle the change.
-> > 
-> > I know this has already been released in some stable releases, so I'm
-> > too late, but perhaps I'm missing something.
-> 
-> The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
-> was to avoid affecting existing attestation servers.  The intention was
-> when attestation servers added support for the non-sha1 boot_aggregate
-> values, they'd also include PCRs 8 & 9.  The existing SHA1
-> boot_aggregate value remains PCRs 0 - 7.
+The vfio_ap device driver registers a group notifier with VFIO when the
+file descriptor for a VFIO mediated device for a KVM guest is opened to
+receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+event). When the KVM pointer is set, the vfio_ap driver takes the
+following actions:
+1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
+   of the mediated device.
+2. Calls the kvm_get_kvm() function to increment its reference counter.
+3. Sets the function pointer to the function that handles interception of
+   the instruction that enables/disables interrupt processing.
+4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
+   the guest.
 
-AFAIK, there's nothing that prevents the non-SHA1 TPM 2.0 PCR banks from
-being used even before v5.8, albeit with zero padded SHA1 digests.
-Existing attestation servers that already support that configuration are
-broken by this stable backport.
+In order to avoid memory leaks, when the notifier is called to receive
+notification that the KVM pointer has been set to NULL, the vfio_ap device
+driver should reverse the actions taken when the KVM pointer was set.
 
-> To prevent this or something similar from happening again, what should
-> have been the proper way of including PCRs 8 & 9?
+Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-I don't think that commits like 6f1a1d103b48 ("ima: Switch to
-ima_hash_algo for boot aggregate") and 20c59ce010f8 ("ima: extend
-boot_aggregate with kernel measurements") should be backported to
-stable.
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e0bde8518745..cd22e85588e1 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1037,8 +1037,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ {
+ 	struct ap_matrix_mdev *m;
+ 
+-	mutex_lock(&matrix_dev->lock);
+-
+ 	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+ 		if ((m != matrix_mdev) && (m->kvm == kvm)) {
+ 			mutex_unlock(&matrix_dev->lock);
+@@ -1049,7 +1047,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+ 	matrix_mdev->kvm = kvm;
+ 	kvm_get_kvm(kvm);
+ 	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+-	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return 0;
+ }
+@@ -1083,35 +1080,49 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+ 	return NOTIFY_DONE;
+ }
+ 
++static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
++{
++	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
++	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
++	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
++	kvm_put_kvm(matrix_mdev->kvm);
++	matrix_mdev->kvm = NULL;
++}
++
+ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 				       unsigned long action, void *data)
+ {
+-	int ret;
++	int ret, notify_rc = NOTIFY_DONE;
+ 	struct ap_matrix_mdev *matrix_mdev;
+ 
+ 	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
+ 		return NOTIFY_OK;
+ 
+ 	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
++	mutex_lock(&matrix_dev->lock);
+ 
+ 	if (!data) {
+-		matrix_mdev->kvm = NULL;
+-		return NOTIFY_OK;
++		if (matrix_mdev->kvm)
++			vfio_ap_mdev_unset_kvm(matrix_mdev);
++		notify_rc = NOTIFY_OK;
++		goto notify_done;
+ 	}
+ 
+ 	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
+ 	if (ret)
+-		return NOTIFY_DONE;
++		goto notify_done;
+ 
+ 	/* If there is no CRYCB pointer, then we can't copy the masks */
+ 	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+-		return NOTIFY_DONE;
++		goto notify_done;
+ 
+ 	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+ 				  matrix_mdev->matrix.aqm,
+ 				  matrix_mdev->matrix.adm);
+ 
+-	return NOTIFY_OK;
++notify_done:
++	mutex_unlock(&matrix_dev->lock);
++	return notify_rc;
+ }
+ 
+ static void vfio_ap_irq_disable_apqn(int apqn)
+-- 
+2.21.1
 
-Including PCRs 8 and 9 definitely makes sense to include in the
-boot_aggregate value but limiting such a change to "starting in 5.8",
-rather than "starting in 5.8 and 5.4.82", is the safer approach when
-attestation server modifications are required.
-
-Tyler
-
-> 
-> thanks,
-> 
-> Mimi
-> 
