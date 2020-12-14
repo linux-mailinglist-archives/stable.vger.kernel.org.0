@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCAB2D9DAA
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:30:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A082D9DA5
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440447AbgLNR2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:28:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41262 "EHLO mail.kernel.org"
+        id S2440415AbgLNR2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:28:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440440AbgLNR2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:28:46 -0500
+        id S2440411AbgLNR2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:28:03 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/36] arm64: dts: broadcom: clear the warnings caused by empty dma-ranges
-Date:   Mon, 14 Dec 2020 18:27:52 +0100
-Message-Id: <20201214172543.724590092@linuxfoundation.org>
+Subject: [PATCH 5.4 10/36] scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
+Date:   Mon, 14 Dec 2020 18:27:54 +0100
+Message-Id: <20201214172543.819454966@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
 References: <20201214172543.302523401@linuxfoundation.org>
@@ -33,109 +33,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 2013a4b684b6eb614ee5c9a3c07b0ae6f5ca96d9 ]
+[ Upstream commit 73cc291c270248567245f084dcdf5078069af6b5 ]
 
-The scripts/dtc/checks.c requires that the node have empty "dma-ranges"
-property must have the same "#address-cells" and "#size-cells" values as
-the parent node. Otherwise, the following warnings is reported:
+If someone plays with the UFS clk scaling devfreq governor through sysfs,
+ufshcd_devfreq_scale may be called even when HBA is not runtime ACTIVE.
+This can lead to unexpected error. We cannot just protect it by calling
+pm_runtime_get_sync() because that may cause a race condition since HBA
+runtime suspend ops need to suspend clk scaling. To fix this call
+pm_runtime_get_noresume() and check HBA's runtime status. Only proceed if
+HBA is runtime ACTIVE, otherwise just bail.
 
-arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
-(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
-its #address-cells (1) differs from / (2)
-arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi:7.3-14: Warning \
-(dma_ranges_format): /usb:dma-ranges: empty "dma-ranges" property but \
-its #size-cells (1) differs from / (2)
+governor_store
+ devfreq_performance_handler
+  update_devfreq
+   devfreq_set_target
+    ufshcd_devfreq_target
+     ufshcd_devfreq_scale
 
-Arnd Bergmann figured out why it's necessary:
-Also note that the #address-cells=<1> means that any device under
-this bus is assumed to only support 32-bit addressing, and DMA will
-have to go through a slow swiotlb in the absence of an IOMMU.
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20201016090833.1892-2-thunder.leizhen@huawei.com'
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/1600758548-28576-1-git-send-email-cang@codeaurora.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/broadcom/stingray/stingray-usb.dtsi   | 20 +++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-index 55259f973b5a9..aef8f2b00778d 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
-@@ -5,20 +5,20 @@
- 	usb {
- 		compatible = "simple-bus";
- 		dma-ranges;
--		#address-cells = <1>;
--		#size-cells = <1>;
--		ranges = <0x0 0x0 0x68500000 0x00400000>;
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+		ranges = <0x0 0x0 0x0 0x68500000 0x0 0x00400000>;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b6ce880ddd153..675e16e61ebdd 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1257,8 +1257,15 @@ static int ufshcd_devfreq_target(struct device *dev,
+ 	}
+ 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
  
- 		usbphy0: usb-phy@0 {
- 			compatible = "brcm,sr-usb-combo-phy";
--			reg = <0x00000000 0x100>;
-+			reg = <0x0 0x00000000 0x0 0x100>;
- 			#phy-cells = <1>;
- 			status = "disabled";
- 		};
++	pm_runtime_get_noresume(hba->dev);
++	if (!pm_runtime_active(hba->dev)) {
++		pm_runtime_put_noidle(hba->dev);
++		ret = -EAGAIN;
++		goto out;
++	}
+ 	start = ktime_get();
+ 	ret = ufshcd_devfreq_scale(hba, scale_up);
++	pm_runtime_put(hba->dev);
  
- 		xhci0: usb@1000 {
- 			compatible = "generic-xhci";
--			reg = <0x00001000 0x1000>;
-+			reg = <0x0 0x00001000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0 1>, <&usbphy0 0>;
- 			phy-names = "phy0", "phy1";
-@@ -28,7 +28,7 @@
- 
- 		bdc0: usb@2000 {
- 			compatible = "brcm,bdc-v0.16";
--			reg = <0x00002000 0x1000>;
-+			reg = <0x0 0x00002000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy0 0>, <&usbphy0 1>;
- 			phy-names = "phy0", "phy1";
-@@ -38,21 +38,21 @@
- 
- 		usbphy1: usb-phy@10000 {
- 			compatible = "brcm,sr-usb-combo-phy";
--			reg = <0x00010000 0x100>;
-+			reg = <0x0 0x00010000 0x0 0x100>;
- 			#phy-cells = <1>;
- 			status = "disabled";
- 		};
- 
- 		usbphy2: usb-phy@20000 {
- 			compatible = "brcm,sr-usb-hs-phy";
--			reg = <0x00020000 0x100>;
-+			reg = <0x0 0x00020000 0x0 0x100>;
- 			#phy-cells = <0>;
- 			status = "disabled";
- 		};
- 
- 		xhci1: usb@11000 {
- 			compatible = "generic-xhci";
--			reg = <0x00011000 0x1000>;
-+			reg = <0x0 0x00011000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy1 1>, <&usbphy2>, <&usbphy1 0>;
- 			phy-names = "phy0", "phy1", "phy2";
-@@ -62,7 +62,7 @@
- 
- 		bdc1: usb@21000 {
- 			compatible = "brcm,bdc-v0.16";
--			reg = <0x00021000 0x1000>;
-+			reg = <0x0 0x00021000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 266 IRQ_TYPE_LEVEL_HIGH>;
- 			phys = <&usbphy2>;
- 			phy-names = "phy0";
+ 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
+ 		(scale_up ? "up" : "down"),
 -- 
 2.27.0
 
