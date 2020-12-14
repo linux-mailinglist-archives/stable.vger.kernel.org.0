@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C78F2D9FF3
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:10:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C582DA082
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502644AbgLNTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:07:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46002 "EHLO mail.kernel.org"
+        id S2440789AbgLNT1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:27:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408588AbgLNRhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:11 -0500
+        id S2408289AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:36:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 030/105] scsi: storvsc: Fix error return in storvsc_probe()
-Date:   Mon, 14 Dec 2020 18:28:04 +0100
-Message-Id: <20201214172556.729181109@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        russianneuromancer <russianneuromancer@ya.ru>
+Subject: [PATCH 5.4 21/36] platform/x86: touchscreen_dmi: Add info for the Irbis TW118 tablet
+Date:   Mon, 14 Dec 2020 18:28:05 +0100
+Message-Id: <20201214172544.344106850@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,38 +32,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6112ff4e8f393e7e297dff04eff0987f94d37fa1 ]
+[ Upstream commit c9aa128080cbce92f8715a9328f88d8ca3134279 ]
 
-Return -ENOMEM from the error handling case instead of 0.
+Add touchscreen info for the Irbis TW118 tablet.
 
-Link: https://lore.kernel.org/r/20201127030206.104616-1-jingxiangfeng@huawei.com
-Fixes: 436ad9413353 ("scsi: storvsc: Allow only one remove lun work item to be issued per lun")
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-and-tested-by: russianneuromancer <russianneuromancer@ya.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201124110454.114286-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/storvsc_drv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 8f5f5dc863a4a..719f9ae6c97ae 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -1952,8 +1952,10 @@ static int storvsc_probe(struct hv_device *device,
- 			alloc_ordered_workqueue("storvsc_error_wq_%d",
- 						WQ_MEM_RECLAIM,
- 						host->host_no);
--	if (!host_dev->handle_error_wq)
-+	if (!host_dev->handle_error_wq) {
-+		ret = -ENOMEM;
- 		goto err_out2;
-+	}
- 	INIT_WORK(&host_dev->host_scan_work, storvsc_host_scan);
- 	/* Register the HBA and start the scsi bus scan */
- 	ret = scsi_add_host(host, &device->device);
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 1c7d8324ff5c2..1e072dbba30d6 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -264,6 +264,21 @@ static const struct ts_dmi_data irbis_tw90_data = {
+ 	.properties	= irbis_tw90_props,
+ };
+ 
++static const struct property_entry irbis_tw118_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 30),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1960),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1510),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-irbis-tw118.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data irbis_tw118_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= irbis_tw118_props,
++};
++
+ static const struct property_entry itworks_tw891_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
+@@ -758,6 +773,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TW90"),
+ 		},
+ 	},
++	{
++		/* Irbis TW118 */
++		.driver_data = (void *)&irbis_tw118_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TW118"),
++		},
++	},
+ 	{
+ 		/* I.T.Works TW891 */
+ 		.driver_data = (void *)&itworks_tw891_data,
 -- 
 2.27.0
 
