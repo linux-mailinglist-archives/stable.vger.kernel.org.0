@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 537772DA045
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88612DA04A
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440837AbgLNTUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:20:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
+        id S2440567AbgLNTWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2440694AbgLNTUa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 14:20:30 -0500
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66AFBC0613D3
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 11:19:50 -0800 (PST)
-Received: by mail-wm1-x342.google.com with SMTP id v14so14790211wml.1
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 11:19:50 -0800 (PST)
+        with ESMTP id S2441042AbgLNTWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 14:22:03 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266CFC0613D3
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 11:21:23 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id r3so17590966wrt.2
+        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 11:21:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=asNcRPkAGuZAucIeskI3gXkj+rYqmbvG3dpJE/aYZvs=;
-        b=XBkRd9CpZJMBYHCFtETi9mqmnUmQ7krsJqjSCNVbkD8h1+MyxeyXwqYpTmoEDqFjfV
-         tWp9LkY87LBo2gSEis+6y3C6RPhUxZmAhFDZnIrYFSkt5G4BDtuTV2uVJHFRzmlmzQTD
-         Ex2rr+j/BihDrEZE5+bok2huTbc9nVva6k5vUXHI0fB4mH+72RgvdajH2BsyL71W4ffm
-         KWoHGALfJAbKwrBXKFG2eYunUPuXBxak5VVSgNIhtSRkr/OWtBaFSV7AqDEnE4m9L3me
-         7448u5xA+eVR2n/WSCCNtG1IxQA+Hd8HzcyKa2MQUSMQPHKJNL0YIK0EjjDIvuWQSWG4
-         +FCQ==
+        bh=+X7iw70TrrJxQc0dtfaHnv3RrOdb5AVxhDktjnDDcDE=;
+        b=qQ+dsVRunDvjCAy0g/PnviSLuz4UDPfhKtiURuMqkym1ibI5zIuhbd3M0VGwHZPu/Q
+         x3jWZmCn6itNfE1MZ4rlSfnvEfPdJXIPDDLFIJl/tA2TdaHsaMjaWM71GLTRl8PwmJzJ
+         0Y2QXwvLeUYgKrZSHl1hYz096HY8+3jyFLIqnE1l0zhwZ2PLdROciNgcKetkvn80cs/s
+         oVsFJsoZQPK1xmSIscod9HitHPDj9/S7QzWdKHO+/zE1eR4oyMrYehlvM7Qkhzkd5LKP
+         f74HXQ60E+DbvXtNRLzSKe9z/pa9Ylx5+pO5r/yfCr3zSdxBv6wYPBZJbX3+5sEV229U
+         h7/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=asNcRPkAGuZAucIeskI3gXkj+rYqmbvG3dpJE/aYZvs=;
-        b=PbneySodATpSChhfHdXNb3qmtW2vV/xgJcxMPvNMi4b45/dxC5feyKwCKDqPURoEPF
-         rruWmRq8to/SVDFH+RDhrhxn3EKMacyEVlesQBFnhlLeOuwQOwZXh6EWQhmMrbipG99i
-         QHB0AGYRKVi7CKRmEo1N/P2FeJtdmkfpCUjVTMeE0+StzE6z/EUIccDmHCzHyKIcN2IN
-         chq4lebmzq3kc0TXe8PLZxH8FFBPqjQwplSJzfW/yYRnHBknZVZaFs28lnOkMjXbdpB0
-         Ttp9SNUYIH50wFz/EDtscA+CNBlrXBFtep2TLoNVgsCf8UXaK8aVezlocFspftC7zReq
-         ZKMQ==
-X-Gm-Message-State: AOAM5339IKfqCrUJVMhVs+NDQuzR3ULxUpre2mEfJfLJW0lxSEITp1Qk
-        81Mrro64Yh/Mm/RVZuDZLAA=
-X-Google-Smtp-Source: ABdhPJzss3UNfcSmv9gw+d/sCfzwlbu/kiX1ptaUuVfi4uiNTbdNPDF73/dpGnUV3HOnyQNHcxkOQA==
-X-Received: by 2002:a7b:c088:: with SMTP id r8mr29647174wmh.45.1607973589139;
-        Mon, 14 Dec 2020 11:19:49 -0800 (PST)
+        bh=+X7iw70TrrJxQc0dtfaHnv3RrOdb5AVxhDktjnDDcDE=;
+        b=XdlLv759n6wCqX3djz0MGUfIihN2fJIxMbJ5M6y7G1YlPV0v+8/ovKI0xITKA6vXh7
+         Shcr089HpICIlbpvg3YVld0jbRoxCcE2vd5yvq0C2ns9U22tMCajcXhlTY0B7I4btiBl
+         2zvAiL8ASyj0iF9Uq8d3uEOnf3+48ZN8czfGJZiXCr6dLC49s02Kf4Z7zSVjiJc86Tt3
+         16QSMmyWK1wObfL9FYDh/eaLaO/76W4WaH513tF2ebyZt2Olgj1vLpFvTKKbX/HcA0QZ
+         ts1sxZ8cINsY/H5acPQ5jb88qxCIRXFZJ8wK2NZXmYQvvef7AxwX4UsLuoGMtqHyKhR2
+         0iJw==
+X-Gm-Message-State: AOAM530TlLSWwqymSVI0inSRE6mNlBGgLLL9LFhKj1dttrpLxB07PWxj
+        GH2GNIN+vAcr+WpWjZfUi+9cvsEV9DOjew==
+X-Google-Smtp-Source: ABdhPJwyP32c6WblyG416wg8CB9UTMee0Or/DSMzEDPmVL+lxB6koNBLAfA34C6AUhlnA+hlhhPg6w==
+X-Received: by 2002:a5d:5604:: with SMTP id l4mr30177409wrv.127.1607973681844;
+        Mon, 14 Dec 2020 11:21:21 -0800 (PST)
 Received: from debian (host-92-5-241-147.as43234.net. [92.5.241.147])
-        by smtp.gmail.com with ESMTPSA id g192sm33482759wme.48.2020.12.14.11.19.48
+        by smtp.gmail.com with ESMTPSA id l8sm32418053wmf.35.2020.12.14.11.21.20
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 14 Dec 2020 11:19:48 -0800 (PST)
-Date:   Mon, 14 Dec 2020 19:19:46 +0000
+        Mon, 14 Dec 2020 11:21:20 -0800 (PST)
+Date:   Mon, 14 Dec 2020 19:21:18 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     xiaochen.shen@intel.com, bp@suse.de, stable@vger.kernel.org,
         tony.luck@intel.com
 Subject: Re: FAILED: patch "[PATCH] x86/resctrl: Fix incorrect local
- bandwidth when mba_sc is" failed to apply to 5.9-stable tree
-Message-ID: <20201214191946.4ui7hza2eqtirzad@debian>
-References: <160795595120091@kroah.com>
+ bandwidth when mba_sc is" failed to apply to 5.4-stable tree
+Message-ID: <20201214192118.xae2vqn5y5qlcquy@debian>
+References: <1607955953140184@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="tod2mk2dayn5nwa2"
+Content-Type: multipart/mixed; boundary="2g5p6rywedvgbt4i"
 Content-Disposition: inline
-In-Reply-To: <160795595120091@kroah.com>
+In-Reply-To: <1607955953140184@kroah.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---tod2mk2dayn5nwa2
+--2g5p6rywedvgbt4i
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Dec 14, 2020 at 03:25:51PM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Dec 14, 2020 at 03:25:53PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 5.9-stable tree.
+> The patch below does not apply to the 5.4-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -84,13 +84,13 @@ which makes the backport easy.
 
 --
 Regards
-Sudip 
+Sudip
 
---tod2mk2dayn5nwa2
+--2g5p6rywedvgbt4i
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-x86-resctrl-Remove-unused-struct-mbm_state-chunks_bw.patch"
 
-From 2cff132ee9a2aab95c2700f2957c5c138f367445 Mon Sep 17 00:00:00 2001
+From 588bb4819bd29978d16081fd50f6c1d99d95b234 Mon Sep 17 00:00:00 2001
 From: James Morse <james.morse@arm.com>
 Date: Wed, 8 Jul 2020 16:39:20 +0000
 Subject: [PATCH 1/2] x86/resctrl: Remove unused struct mbm_state::chunks_bw
@@ -104,6 +104,7 @@ Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
 Link: https://lkml.kernel.org/r/20200708163929.2783-2-james.morse@arm.com
+[sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
  arch/x86/kernel/cpu/resctrl/internal.h | 2 --
@@ -111,10 +112,10 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  2 files changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/resctrl/internal.h b/arch/x86/kernel/cpu/resctrl/internal.h
-index 5ffa32256b3b..72bb21068466 100644
+index 17095435c875..499cb2e727a0 100644
 --- a/arch/x86/kernel/cpu/resctrl/internal.h
 +++ b/arch/x86/kernel/cpu/resctrl/internal.h
-@@ -283,7 +283,6 @@ struct rftype {
+@@ -276,7 +276,6 @@ struct rftype {
   * struct mbm_state - status for each MBM counter in each domain
   * @chunks:	Total data moved (multiply by rdt_group.mon_scale to get bytes)
   * @prev_msr	Value of IA32_QM_CTR for this RMID last time we read it
@@ -122,7 +123,7 @@ index 5ffa32256b3b..72bb21068466 100644
   * @prev_bw_msr:Value of previous IA32_QM_CTR for bandwidth counting
   * @prev_bw	The most recent bandwidth in MBps
   * @delta_bw	Difference between the current and previous bandwidth
-@@ -292,7 +291,6 @@ struct rftype {
+@@ -285,7 +284,6 @@ struct rftype {
  struct mbm_state {
  	u64	chunks;
  	u64	prev_msr;
@@ -131,13 +132,13 @@ index 5ffa32256b3b..72bb21068466 100644
  	u32	prev_bw;
  	u32	delta_bw;
 diff --git a/arch/x86/kernel/cpu/resctrl/monitor.c b/arch/x86/kernel/cpu/resctrl/monitor.c
-index 837d7d012b7b..d6b92d7487a7 100644
+index 0cf4f87f6012..f62db1353945 100644
 --- a/arch/x86/kernel/cpu/resctrl/monitor.c
 +++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -279,8 +279,7 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
+@@ -280,8 +280,7 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
  		return;
  
- 	chunks = mbm_overflow_count(m->prev_bw_msr, tval, rr->r->mbm_width);
+ 	chunks = mbm_overflow_count(m->prev_bw_msr, tval);
 -	m->chunks_bw += chunks;
 -	m->chunks = m->chunks_bw;
 +	m->chunks += chunks;
@@ -148,11 +149,11 @@ index 837d7d012b7b..d6b92d7487a7 100644
 2.11.0
 
 
---tod2mk2dayn5nwa2
+--2g5p6rywedvgbt4i
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0002-x86-resctrl-Fix-incorrect-local-bandwidth-when-mba_s.patch"
 
-From 1277dd8aa14b279cf86c131f6817f673b6429000 Mon Sep 17 00:00:00 2001
+From 6e4bf9f372b1c0fa200ac473979456db8c104d0d Mon Sep 17 00:00:00 2001
 From: Xiaochen Shen <xiaochen.shen@intel.com>
 Date: Fri, 4 Dec 2020 14:27:59 +0800
 Subject: [PATCH 2/2] x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
@@ -233,24 +234,25 @@ Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
 Link: https://lkml.kernel.org/r/1607063279-19437-1-git-send-email-xiaochen.shen@intel.com
+[sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
  arch/x86/kernel/cpu/resctrl/monitor.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/resctrl/monitor.c b/arch/x86/kernel/cpu/resctrl/monitor.c
-index d6b92d7487a7..ddd91344682c 100644
+index f62db1353945..50f683ecd2c6 100644
 --- a/arch/x86/kernel/cpu/resctrl/monitor.c
 +++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -279,7 +279,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
+@@ -280,7 +280,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
  		return;
  
- 	chunks = mbm_overflow_count(m->prev_bw_msr, tval, rr->r->mbm_width);
+ 	chunks = mbm_overflow_count(m->prev_bw_msr, tval);
 -	m->chunks += chunks;
  	cur_bw = (chunks * r->mon_scale) >> 20;
  
  	if (m->delta_comp)
-@@ -450,15 +449,14 @@ static void mbm_update(struct rdt_resource *r, struct rdt_domain *d, int rmid)
+@@ -450,15 +449,14 @@ static void mbm_update(struct rdt_domain *d, int rmid)
  	}
  	if (is_mbm_local_enabled()) {
  		rr.evtid = QOS_L3_MBM_LOCAL_EVENT_ID;
@@ -272,4 +274,4 @@ index d6b92d7487a7..ddd91344682c 100644
 2.11.0
 
 
---tod2mk2dayn5nwa2--
+--2g5p6rywedvgbt4i--
