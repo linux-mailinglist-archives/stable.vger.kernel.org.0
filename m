@@ -2,28 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0503B2D9DDB
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C78F2D9FF3
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408571AbgLNRhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:37:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S2502644AbgLNTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:07:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502223AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:36:55 -0500
+        id S2408588AbgLNRhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:11 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Verevkin <me@maxverevkin.tk>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/36] platform/x86: intel-vbtn: Support for tablet mode on HP Pavilion 13 x360 PC
+Subject: [PATCH 5.9 030/105] scsi: storvsc: Fix error return in storvsc_probe()
 Date:   Mon, 14 Dec 2020 18:28:04 +0100
-Message-Id: <20201214172544.294443290@linuxfoundation.org>
+Message-Id: <20201214172556.729181109@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,39 +33,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Verevkin <me@maxverevkin.tk>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 8b205d3e1bf52ab31cdd5c55f87c87a227793d84 ]
+[ Upstream commit 6112ff4e8f393e7e297dff04eff0987f94d37fa1 ]
 
-The Pavilion 13 x360 PC has a chassis-type which does not indicate it is
-a convertible, while it is actually a convertible. Add it to the
-dmi_switches_allow_list.
+Return -ENOMEM from the error handling case instead of 0.
 
-Signed-off-by: Max Verevkin <me@maxverevkin.tk>
-Link: https://lore.kernel.org/r/20201124131652.11165-1-me@maxverevkin.tk
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201127030206.104616-1-jingxiangfeng@huawei.com
+Fixes: 436ad9413353 ("scsi: storvsc: Allow only one remove lun work item to be issued per lun")
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/storvsc_drv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 5c103614a409a..701d1ddda4b11 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -197,6 +197,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Stream x360 Convertible PC 11"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
- 
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 8f5f5dc863a4a..719f9ae6c97ae 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -1952,8 +1952,10 @@ static int storvsc_probe(struct hv_device *device,
+ 			alloc_ordered_workqueue("storvsc_error_wq_%d",
+ 						WQ_MEM_RECLAIM,
+ 						host->host_no);
+-	if (!host_dev->handle_error_wq)
++	if (!host_dev->handle_error_wq) {
++		ret = -ENOMEM;
+ 		goto err_out2;
++	}
+ 	INIT_WORK(&host_dev->host_scan_work, storvsc_host_scan);
+ 	/* Register the HBA and start the scsi bus scan */
+ 	ret = scsi_add_host(host, &device->device);
 -- 
 2.27.0
 
