@@ -2,28 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B15C2D9FDF
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:07:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1922D9DD2
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408812AbgLNTBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:01:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S2502204AbgLNRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:35:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502219AbgLNRh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:29 -0500
+        id S2502101AbgLNRfv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:35:51 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 038/105] phy: usb: Fix incorrect clearing of tca_drv_sel bit in SETUP reg for 7211
+        stable@vger.kernel.org,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.4 28/36] drm/i915/display/dp: Compute the correct slice count for VDSC on DP
 Date:   Mon, 14 Dec 2020 18:28:12 +0100
-Message-Id: <20201214172557.114450633@linuxfoundation.org>
+Message-Id: <20201214172544.684101995@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,47 +34,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Manasi Navare <manasi.d.navare@intel.com>
 
-[ Upstream commit 209c805835b29495cf66cc705b206da8f4a68e6e ]
+commit f6cbe49be65ed800863ac5ba695555057363f9c2 upstream.
 
-The 7211a0 has a tca_drv_sel bit in the USB SETUP register that
-should never be enabled. This feature is only used if there is a
-USB Type-C PHY, and the 7211 does not have one. If the bit is
-enabled, the VBUS signal will never be asserted. In the 7211a0,
-the bit was incorrectly defaulted to on so the driver had to clear
-the bit. In the 7211c0 the state was inverted so the driver should
-no longer clear the bit. This hasn't been a problem because all
-current 7211 boards don't use the VBUS signal, but there are some
-future customer boards that may use it.
+This patch fixes the slice count computation algorithm
+for calculating the slice count based on Peak pixel rate
+and the max slice width allowed on the DSC engines.
+We need to ensure slice count > min slice count req
+as per DP spec based on peak pixel rate and that it is
+greater than min slice count based on the max slice width
+advertised by DPCD. So use max of these two.
+In the prev patch we were using min of these 2 causing it
+to violate the max slice width limitation causing a blank
+screen on 8K@60.
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20201002190115.48017-1-alcooperx@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d9218c8f6cf4 ("drm/i915/dp: Add helpers for Compressed BPP and Slice Count for DSC")
+Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Manasi Navare <manasi.d.navare@intel.com>
+Reviewed-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201204205804.25225-1-manasi.d.navare@intel.com
+(cherry picked from commit d371d6ea92ad2a47f42bbcaa786ee5f6069c9c14)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-index 456dc4a100c20..e63457e145c71 100644
---- a/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-+++ b/drivers/phy/broadcom/phy-brcm-usb-init-synopsys.c
-@@ -270,11 +270,6 @@ static void usb_init_common_7211b0(struct brcm_usb_init_params *params)
- 	reg |= params->mode << USB_PHY_UTMI_CTL_1_PHY_MODE_SHIFT;
- 	brcm_usb_writel(reg, usb_phy + USB_PHY_UTMI_CTL_1);
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -567,7 +567,7 @@ static u8 intel_dp_dsc_get_slice_count(s
+ 		return 0;
+ 	}
+ 	/* Also take into account max slice width */
+-	min_slice_count = min_t(u8, min_slice_count,
++	min_slice_count = max_t(u8, min_slice_count,
+ 				DIV_ROUND_UP(mode_hdisplay,
+ 					     max_slice_width));
  
--	/* Fix the incorrect default */
--	reg = brcm_usb_readl(ctrl + USB_CTRL_SETUP);
--	reg &= ~USB_CTRL_SETUP_tca_drv_sel_MASK;
--	brcm_usb_writel(reg, ctrl + USB_CTRL_SETUP);
--
- 	usb_init_common(params);
- 
- 	/*
--- 
-2.27.0
-
 
 
