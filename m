@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 378362D9FDA
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:06:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9514A2D9FDD
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408792AbgLNTA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:00:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
+        id S2408868AbgLNTBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:01:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502190AbgLNRh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2502222AbgLNRh3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Dec 2020 12:37:29 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Liu Zixian <liuzixian4@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Hongxiang Lou <louhongxiang@huawei.com>,
+        Hu Shiyuan <hushiyuan@huawei.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 036/105] zlib: export S390 symbols for zlib modules
-Date:   Mon, 14 Dec 2020 18:28:10 +0100
-Message-Id: <20201214172557.017083640@linuxfoundation.org>
+Subject: [PATCH 5.9 037/105] mm/mmap.c: fix mmap return value when vma is merged after call_mmap()
+Date:   Mon, 14 Dec 2020 18:28:11 +0100
+Message-Id: <20201214172557.067288162@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -39,59 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Liu Zixian <liuzixian4@huawei.com>
 
-[ Upstream commit 11fb479ff5d9872ddff02dd533c16d60372c86b2 ]
+[ Upstream commit 309d08d9b3a3659ab3f239d27d4e38b670b08fc9 ]
 
-Fix build errors when ZLIB_INFLATE=m and ZLIB_DEFLATE=m and ZLIB_DFLTCC=y
-by exporting the 2 needed symbols in dfltcc_inflate.c.
+On success, mmap should return the begin address of newly mapped area,
+but patch "mm: mmap: merge vma after call_mmap() if possible" set
+vm_start of newly merged vma to return value addr.  Users of mmap will
+get wrong address if vma is merged after call_mmap().  We fix this by
+moving the assignment to addr before merging vma.
 
-Fixes these build errors:
+We have a driver which changes vm_flags, and this bug is found by our
+testcases.
 
-  ERROR: modpost: "dfltcc_inflate" [lib/zlib_inflate/zlib_inflate.ko] undefined!
-  ERROR: modpost: "dfltcc_can_inflate" [lib/zlib_inflate/zlib_inflate.ko] undefined!
-
-Fixes: 126196100063 ("lib/zlib: add s390 hardware support for kernel zlib_inflate")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: d70cec898324 ("mm: mmap: merge vma after call_mmap() if possible")
+Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lkml.kernel.org/r/20201123191712.4882-1-rdunlap@infradead.org
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Hongxiang Lou <louhongxiang@huawei.com>
+Cc: Hu Shiyuan <hushiyuan@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Link: https://lkml.kernel.org/r/20201203085350.22624-1-liuzixian4@huawei.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/zlib_dfltcc/dfltcc_inflate.c | 3 +++
- 1 file changed, 3 insertions(+)
+ mm/mmap.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/lib/zlib_dfltcc/dfltcc_inflate.c b/lib/zlib_dfltcc/dfltcc_inflate.c
-index aa9ef23474df0..db107016d29b3 100644
---- a/lib/zlib_dfltcc/dfltcc_inflate.c
-+++ b/lib/zlib_dfltcc/dfltcc_inflate.c
-@@ -4,6 +4,7 @@
- #include "dfltcc_util.h"
- #include "dfltcc.h"
- #include <asm/setup.h>
-+#include <linux/export.h>
- #include <linux/zutil.h>
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 7a8987aa69962..c85a2875a9625 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -1774,6 +1774,17 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 		if (error)
+ 			goto unmap_and_free_vma;
  
- /*
-@@ -29,6 +30,7 @@ int dfltcc_can_inflate(
-     return is_bit_set(dfltcc_state->af.fns, DFLTCC_XPND) &&
-                is_bit_set(dfltcc_state->af.fmts, DFLTCC_FMT0);
- }
-+EXPORT_SYMBOL(dfltcc_can_inflate);
++		/* Can addr have changed??
++		 *
++		 * Answer: Yes, several device drivers can do it in their
++		 *         f_op->mmap method. -DaveM
++		 * Bug: If addr is changed, prev, rb_link, rb_parent should
++		 *      be updated for vma_link()
++		 */
++		WARN_ON_ONCE(addr != vma->vm_start);
++
++		addr = vma->vm_start;
++
+ 		/* If vm_flags changed after call_mmap(), we should try merge vma again
+ 		 * as we may succeed this time.
+ 		 */
+@@ -1788,25 +1799,12 @@ unsigned long mmap_region(struct file *file, unsigned long addr,
+ 				fput(vma->vm_file);
+ 				vm_area_free(vma);
+ 				vma = merge;
+-				/* Update vm_flags and possible addr to pick up the change. We don't
+-				 * warn here if addr changed as the vma is not linked by vma_link().
+-				 */
+-				addr = vma->vm_start;
++				/* Update vm_flags to pick up the change. */
+ 				vm_flags = vma->vm_flags;
+ 				goto unmap_writable;
+ 			}
+ 		}
  
- static int dfltcc_was_inflate_used(
-     z_streamp strm
-@@ -147,3 +149,4 @@ dfltcc_inflate_action dfltcc_inflate(
-     return (cc == DFLTCC_CC_OP1_TOO_SHORT || cc == DFLTCC_CC_OP2_TOO_SHORT) ?
-         DFLTCC_INFLATE_BREAK : DFLTCC_INFLATE_CONTINUE;
- }
-+EXPORT_SYMBOL(dfltcc_inflate);
+-		/* Can addr have changed??
+-		 *
+-		 * Answer: Yes, several device drivers can do it in their
+-		 *         f_op->mmap method. -DaveM
+-		 * Bug: If addr is changed, prev, rb_link, rb_parent should
+-		 *      be updated for vma_link()
+-		 */
+-		WARN_ON_ONCE(addr != vma->vm_start);
+-
+-		addr = vma->vm_start;
+ 		vm_flags = vma->vm_flags;
+ 	} else if (vm_flags & VM_SHARED) {
+ 		error = shmem_zero_setup(vma);
 -- 
 2.27.0
 
