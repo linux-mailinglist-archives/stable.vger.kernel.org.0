@@ -2,104 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA572D95BF
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 11:05:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F02D52D962B
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 11:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392056AbgLNKDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 05:03:36 -0500
-Received: from m43-15.mailgun.net ([69.72.43.15]:46539 "EHLO
-        m43-15.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2406294AbgLNKC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 05:02:57 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1607940149; h=Content-Type: MIME-Version: Message-ID:
- In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
- bh=yGhYtL6foUyLuEeIMQV5SXrQIq8elvpV73k2G+sb9vs=; b=on/Vi9NJCJGOJ4WywRFj47cqSLT0thophOoen8LEZCtCE1yralYwZkNAuO3U8sQxJZ06ewai
- l8JN0XlavT0AYulLW6N48Cbxg+18y8RSFFZcz8n8vJnH39GL7rYivWNUYrsUzKT+OIpL1b6d
- KQnZJF0ZKDfa+ldM9EspQfkAwwA=
-X-Mailgun-Sending-Ip: 69.72.43.15
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n08.prod.us-west-2.postgun.com with SMTP id
- 5fd7383553d7c5ba60a10d51 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 14 Dec 2020 10:02:29
- GMT
-Sender: kvalo=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 160A8C43463; Mon, 14 Dec 2020 10:02:29 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S2406308AbgLNKNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 05:13:11 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:36296 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729802AbgLNKNK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 05:13:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1607940703;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=707h+0X97qSXU9YyiMZs36jnPgGreBPrjTB3UVLUTiM=;
+        b=RN+Cwfnp2HA1NR2C6cGHv8317RphCkYItxaf4Kmd5Etu04JHuufuTYK82Lqd73xjaptem4
+        pnMtqmLwPsfFqKnC+5FSOiSl1YVHiCbLMGkQQeN7C5BhBl0fH8IEOYybbIuA2iHreYHLIo
+        YYtU4bB9LBJstJWHJVrKmVTw0/hGR9U=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-342-EoskWq0BPNu8QwkNCKR_BA-1; Mon, 14 Dec 2020 05:11:42 -0500
+X-MC-Unique: EoskWq0BPNu8QwkNCKR_BA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id D6097C433C6;
-        Mon, 14 Dec 2020 10:02:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org D6097C433C6
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=kvalo@codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Linus Walleij <linus.walleij@linaro.org>
-Cc:     David Hildenbrand <david@redhat.com>, arm-soc <arm@kernel.org>,
-        SoC Team <soc@kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>,
-        Pavel Procopiuc <pavel.procopiuc@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>, wi nk <wink@technolu.st>
-Subject: Re: [PATCH] ARM: dts: ux500: Reserve memory carveouts
-References: <20201213225517.3838501-1-linus.walleij@linaro.org>
-        <cc06e06b-ff24-68a2-f5f3-c8533118a34d@redhat.com>
-        <CACRpkdZp+gnJAo02OJkiN_KUX3bOPc2vzQGWHLZF2hQHvuQQkw@mail.gmail.com>
-Date:   Mon, 14 Dec 2020 12:02:23 +0200
-In-Reply-To: <CACRpkdZp+gnJAo02OJkiN_KUX3bOPc2vzQGWHLZF2hQHvuQQkw@mail.gmail.com>
-        (Linus Walleij's message of "Mon, 14 Dec 2020 10:27:28 +0100")
-Message-ID: <877dpk3du8.fsf@codeaurora.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 33E61190B2BF;
+        Mon, 14 Dec 2020 10:11:40 +0000 (UTC)
+Received: from [10.36.114.184] (ovpn-114-184.ams2.redhat.com [10.36.114.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7FA6B709AD;
+        Mon, 14 Dec 2020 10:11:36 +0000 (UTC)
+Subject: Re: [PATCH v2 1/2] mm: memblock: enforce overlap of memory.memblock
+ and memory.reserved
+To:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Mel Gorman <mgorman@suse.de>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>
+References: <20201209214304.6812-1-rppt@kernel.org>
+ <20201209214304.6812-2-rppt@kernel.org>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <522640a5-32ab-2247-4c2a-f248c2528f97@redhat.com>
+Date:   Mon, 14 Dec 2020 11:11:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20201209214304.6812-2-rppt@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Linus Walleij <linus.walleij@linaro.org> writes:
+On 09.12.20 22:43, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> memblock does not require that the reserved memory ranges will be a subset
+> of memblock.memory.
+> 
+> As the result there maybe reserved pages that are not in the range of any
+> zone or node because zone and node boundaries are detected based on
+> memblock.memory and pages that only present in memblock.reserved are not
+> taken into account during zone/node size detection.
+> 
+> Make sure that all ranges in memblock.reserved are added to memblock.memory
+> before calculating node and zone boundaries.
+> 
+> Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
+> Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  include/linux/memblock.h |  1 +
+>  mm/memblock.c            | 24 ++++++++++++++++++++++++
+>  mm/page_alloc.c          |  7 +++++++
+>  3 files changed, 32 insertions(+)
+> 
+> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+> index ef131255cedc..e64dae2dd1ce 100644
+> --- a/include/linux/memblock.h
+> +++ b/include/linux/memblock.h
+> @@ -120,6 +120,7 @@ int memblock_clear_nomap(phys_addr_t base, phys_addr_t size);
+>  unsigned long memblock_free_all(void);
+>  void reset_node_managed_pages(pg_data_t *pgdat);
+>  void reset_all_zones_managed_pages(void);
+> +void memblock_enforce_memory_reserved_overlap(void);
+>  
+>  /* Low level functions */
+>  void __next_mem_range(u64 *idx, int nid, enum memblock_flags flags,
+> diff --git a/mm/memblock.c b/mm/memblock.c
+> index b68ee86788af..9277aca642b2 100644
+> --- a/mm/memblock.c
+> +++ b/mm/memblock.c
+> @@ -1857,6 +1857,30 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
+>  	}
+>  }
+>  
+> +/**
+> + * memblock_enforce_memory_reserved_overlap - make sure every range in
+> + * @memblock.reserved is covered by @memblock.memory
+> + *
+> + * The data in @memblock.memory is used to detect zone and node boundaries
+> + * during initialization of the memory map and the page allocator. Make
+> + * sure that every memory range present in @memblock.reserved is also added
+> + * to @memblock.memory even if the architecture specific memory
+> + * initialization failed to do so
+> + */
+> +void __init memblock_enforce_memory_reserved_overlap(void)
+> +{
+> +	phys_addr_t start, end;
+> +	int nid;
+> +	u64 i;
+> +
+> +	__for_each_mem_range(i, &memblock.reserved, &memblock.memory,
+> +			     NUMA_NO_NODE, MEMBLOCK_NONE, &start, &end, &nid) {
+> +		pr_warn("memblock: reserved range [%pa-%pa] is not in memory\n",
+> +			&start, &end);
+> +		memblock_add_node(start, (end - start), nid);
+> +	}
+> +}
+> +
+>  void __init_memblock memblock_set_current_limit(phys_addr_t limit)
+>  {
+>  	memblock.current_limit = limit;
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index eaa227a479e4..dbc57dbbacd8 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -7436,6 +7436,13 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+>  	memset(arch_zone_highest_possible_pfn, 0,
+>  				sizeof(arch_zone_highest_possible_pfn));
+>  
+> +	/*
+> +	 * Some architectures (e.g. x86) have reserved pages outside of
+> +	 * memblock.memory. Make sure these pages are taken into account
+> +	 * when detecting zone and node boundaries
+> +	 */
+> +	memblock_enforce_memory_reserved_overlap();
+> +
+>  	start_pfn = find_min_pfn_with_active_regions();
+>  	descending = arch_has_descending_max_zone_pfns();
+>  
+> 
 
-> On Mon, Dec 14, 2020 at 10:21 AM David Hildenbrand <david@redhat.com> wrote:
->
->> > ARM SoC folks: please apply this directly for fixes.
->>
->> Can we come up with a Fixes: tag or has this been broken forever?
->> (assuming modern boot loaders)
->
-> It's been broken forever :/
->
->> > David: just FYI if you run into more of these type of
->> > regressions. Actually the patch is unintentionally good
->> > at smoking out other bugs :D
->>
->> Thanks for CCing - I'm adding some people that ran into similar issues,
->> but not sure if the other bugreports are related (or have similar root
->> causes).
->
-> Yeah we first were convinced there was something wrong with
-> the patch you made but I read it over and over again and there
-> is nothing wrong with it at all. It just alters the behaviour pattern of
-> memory management in some apparently drastic ways.
->
-> After a lot of silent crashes I finally got an external abort with
-> a reasonable backtrace showing the PTE pointing to this
-> modem memory and then we figured it out.
+CCing Dan.
 
-We had similar experiences with ath11k (Wi-Fi 6) and QCA6390 firmware.
-So indeed commit 7fef431be9c9 ("mm/page_alloc: place pages to tail in
-__free_pages_core()") is a great way to catch odd firmware or hardware
-problems, which most likely would have gone unnoticed otherwise and
-users would have end up experiencing random crashes.
+This implies that any memory that is E820_TYPE_SOFT_RESERVED that was
+reserved via memblock_reserve() will be added via memblock_add_node() as
+well, resulting in all such memory getting a memmap allocated right when
+booting up, right?
+
+IIRC, there are use cases where that is absolutely not desired.
+
+Am I missing something? (@Dan?)
 
 -- 
-https://patchwork.kernel.org/project/linux-wireless/list/
+Thanks,
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+David / dhildenb
+
