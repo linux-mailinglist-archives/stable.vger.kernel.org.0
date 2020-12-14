@@ -2,28 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C582DA082
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A832D9FE9
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 20:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440789AbgLNT1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 14:27:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47320 "EHLO mail.kernel.org"
+        id S2387448AbgLNTG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 14:06:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408289AbgLNRgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:36:55 -0500
+        id S2408589AbgLNRhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:37:11 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        russianneuromancer <russianneuromancer@ya.ru>
-Subject: [PATCH 5.4 21/36] platform/x86: touchscreen_dmi: Add info for the Irbis TW118 tablet
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Rasesh Mody <rmody@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.9 031/105] net: broadcom CNIC: requires MMU
 Date:   Mon, 14 Dec 2020 18:28:05 +0100
-Message-Id: <20201214172544.344106850@linuxfoundation.org>
+Message-Id: <20201214172556.777271267@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
-References: <20201214172543.302523401@linuxfoundation.org>
+In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
+References: <20201214172555.280929671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -32,61 +35,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit c9aa128080cbce92f8715a9328f88d8ca3134279 ]
+[ Upstream commit 14483cbf040fcb38113497161088a1ce8ce5d713 ]
 
-Add touchscreen info for the Irbis TW118 tablet.
+The CNIC kconfig symbol selects UIO and UIO depends on MMU.
+Since 'select' does not follow dependency chains, add the same MMU
+dependency to CNIC.
 
-Reported-and-tested-by: russianneuromancer <russianneuromancer@ya.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201124110454.114286-1-hdegoede@redhat.com
+Quietens this kconfig warning:
+
+WARNING: unmet direct dependencies detected for UIO
+  Depends on [n]: MMU [=n]
+  Selected by [m]:
+  - CNIC [=m] && NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_BROADCOM [=y] && PCI [=y] && (IPV6 [=m] || IPV6 [=m]=n)
+
+Fixes: adfc5217e9db ("broadcom: Move the Broadcom drivers")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: Rasesh Mody <rmody@marvell.com>
+Cc: GR-Linux-NIC-Dev@marvell.com
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/20201129070843.3859-1-rdunlap@infradead.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/net/ethernet/broadcom/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 1c7d8324ff5c2..1e072dbba30d6 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -264,6 +264,21 @@ static const struct ts_dmi_data irbis_tw90_data = {
- 	.properties	= irbis_tw90_props,
- };
- 
-+static const struct property_entry irbis_tw118_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 30),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1960),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1510),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-irbis-tw118.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data irbis_tw118_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= irbis_tw118_props,
-+};
-+
- static const struct property_entry itworks_tw891_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
-@@ -758,6 +773,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "TW90"),
- 		},
- 	},
-+	{
-+		/* Irbis TW118 */
-+		.driver_data = (void *)&irbis_tw118_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW118"),
-+		},
-+	},
- 	{
- 		/* I.T.Works TW891 */
- 		.driver_data = (void *)&itworks_tw891_data,
+diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
+index 7fb42f388d591..7b79528d6eed2 100644
+--- a/drivers/net/ethernet/broadcom/Kconfig
++++ b/drivers/net/ethernet/broadcom/Kconfig
+@@ -88,6 +88,7 @@ config BNX2
+ config CNIC
+ 	tristate "QLogic CNIC support"
+ 	depends on PCI && (IPV6 || IPV6=n)
++	depends on MMU
+ 	select BNX2
+ 	select UIO
+ 	help
 -- 
 2.27.0
 
