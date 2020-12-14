@@ -2,29 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1DA2D9FAC
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:57:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20C4C2D9DD9
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440658AbgLNSvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:51:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47320 "EHLO mail.kernel.org"
+        id S2502209AbgLNRgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:36:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502243AbgLNRhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:37:37 -0500
+        id S2502181AbgLNRge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:36:34 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.9 044/105] iwlwifi: pcie: set LTR to avoid completion timeout
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Shung-Hsi Yu <shung-hsi.yu@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 34/36] x86/apic/vector: Fix ordering in vector assignment
 Date:   Mon, 14 Dec 2020 18:28:18 +0100
-Message-Id: <20201214172557.402820686@linuxfoundation.org>
+Message-Id: <20201214172544.983917694@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
-References: <20201214172555.280929671@linuxfoundation.org>
+In-Reply-To: <20201214172543.302523401@linuxfoundation.org>
+References: <20201214172543.302523401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -33,79 +32,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit edb625208d84aef179e3f16590c1c582fc5fdae6 ]
+commit 190113b4c6531c8e09b31d5235f9b5175cbb0f72 upstream.
 
-On some platforms, the preset values aren't correct and then we may
-get a completion timeout in the firmware. Change the LTR configuration
-to avoid that. The firmware will do some more complex reinit of this
-later, but for the boot process we use ~250usec.
+Prarit reported that depending on the affinity setting the
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20201107104557.d83d591c05ba.I42885c9fb500bc08b9a4c07c4ff3d436cc7a3c84@changeid
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ ' irq $N: Affinity broken due to vector space exhaustion.'
+
+message is showing up in dmesg, but the vector space on the CPUs in the
+affinity mask is definitely not exhausted.
+
+Shung-Hsi provided traces and analysis which pinpoints the problem:
+
+The ordering of trying to assign an interrupt vector in
+assign_irq_vector_any_locked() is simply wrong if the interrupt data has a
+valid node assigned. It does:
+
+ 1) Try the intersection of affinity mask and node mask
+ 2) Try the node mask
+ 3) Try the full affinity mask
+ 4) Try the full online mask
+
+Obviously #2 and #3 are in the wrong order as the requested affinity
+mask has to take precedence.
+
+In the observed cases #1 failed because the affinity mask did not contain
+CPUs from node 0. That made it allocate a vector from node 0, thereby
+breaking affinity and emitting the misleading message.
+
+Revert the order of #2 and #3 so the full affinity mask without the node
+intersection is tried before actually affinity is broken.
+
+If no node is assigned then only the full affinity mask and if that fails
+the full online mask is tried.
+
+Fixes: d6ffc6ac83b1 ("x86/vector: Respect affinity mask in irq descriptor")
+Reported-by: Prarit Bhargava <prarit@redhat.com>
+Reported-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87ft4djtyp.fsf@nanos.tec.linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-csr.h  | 10 ++++++++++
- .../intel/iwlwifi/pcie/ctxt-info-gen3.c       | 20 +++++++++++++++++++
- 2 files changed, 30 insertions(+)
+ arch/x86/kernel/apic/vector.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
-index cb9e8e189a1a4..1d48c7d7fffd4 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
-@@ -147,6 +147,16 @@
- #define CSR_MAC_SHADOW_REG_CTL2		(CSR_BASE + 0x0AC)
- #define CSR_MAC_SHADOW_REG_CTL2_RX_WAKE	0xFFFF
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -272,20 +272,24 @@ static int assign_irq_vector_any_locked(
+ 	const struct cpumask *affmsk = irq_data_get_affinity_mask(irqd);
+ 	int node = irq_data_get_node(irqd);
  
-+/* LTR control (since IWL_DEVICE_FAMILY_22000) */
-+#define CSR_LTR_LONG_VAL_AD			(CSR_BASE + 0x0D4)
-+#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ	0x80000000
-+#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE	0x1c000000
-+#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL	0x03ff0000
-+#define CSR_LTR_LONG_VAL_AD_SNOOP_REQ		0x00008000
-+#define CSR_LTR_LONG_VAL_AD_SNOOP_SCALE		0x00001c00
-+#define CSR_LTR_LONG_VAL_AD_SNOOP_VAL		0x000003ff
-+#define CSR_LTR_LONG_VAL_AD_SCALE_USEC		2
-+
- /* GIO Chicken Bits (PCI Express bus link power management) */
- #define CSR_GIO_CHICKEN_BITS    (CSR_BASE+0x100)
- 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-index 1ab1366004159..0fc2a6e49f9ee 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-@@ -252,6 +252,26 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 
- 	iwl_set_bit(trans, CSR_CTXT_INFO_BOOT_CTRL,
- 		    CSR_AUTO_FUNC_BOOT_ENA);
-+
-+	if (trans->trans_cfg->device_family == IWL_DEVICE_FAMILY_AX210) {
-+		/*
-+		 * The firmware initializes this again later (to a smaller
-+		 * value), but for the boot process initialize the LTR to
-+		 * ~250 usec.
-+		 */
-+		u32 val = CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ |
-+			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
-+					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE) |
-+			  u32_encode_bits(250,
-+					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL) |
-+			  CSR_LTR_LONG_VAL_AD_SNOOP_REQ |
-+			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
-+					  CSR_LTR_LONG_VAL_AD_SNOOP_SCALE) |
-+			  u32_encode_bits(250, CSR_LTR_LONG_VAL_AD_SNOOP_VAL);
-+
-+		iwl_write32(trans, CSR_LTR_LONG_VAL_AD, val);
+-	if (node == NUMA_NO_NODE)
+-		goto all;
+-	/* Try the intersection of @affmsk and node mask */
+-	cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
+-	if (!assign_vector_locked(irqd, vector_searchmask))
+-		return 0;
+-	/* Try the node mask */
+-	if (!assign_vector_locked(irqd, cpumask_of_node(node)))
+-		return 0;
+-all:
++	if (node != NUMA_NO_NODE) {
++		/* Try the intersection of @affmsk and node mask */
++		cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
++		if (!assign_vector_locked(irqd, vector_searchmask))
++			return 0;
 +	}
 +
- 	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
- 		iwl_write_umac_prph(trans, UREG_CPU_INIT_RUN, 1);
- 	else
--- 
-2.27.0
-
+ 	/* Try the full affinity mask */
+ 	cpumask_and(vector_searchmask, affmsk, cpu_online_mask);
+ 	if (!assign_vector_locked(irqd, vector_searchmask))
+ 		return 0;
++
++	if (node != NUMA_NO_NODE) {
++		/* Try the node mask */
++		if (!assign_vector_locked(irqd, cpumask_of_node(node)))
++			return 0;
++	}
++
+ 	/* Try the full online mask */
+ 	return assign_vector_locked(irqd, cpu_online_mask);
+ }
 
 
