@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0386E2D9E24
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:49:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA20C2D9E3B
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 18:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407504AbgLNRrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 12:47:52 -0500
-Received: from mga14.intel.com ([192.55.52.115]:19540 "EHLO mga14.intel.com"
+        id S2405812AbgLNRwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 12:52:32 -0500
+Received: from mga06.intel.com ([134.134.136.31]:31424 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732524AbgLNRro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:47:44 -0500
-IronPort-SDR: 5UI4xznGNtkVOTKJkUG03b64/kXK2uyStJVnUsaNHzrMrUR1dLWVquPyBrGvVjMWvRt/dyymrD
- JZmRQRfjNLBw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9834"; a="173977026"
+        id S2405207AbgLNRwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:52:31 -0500
+IronPort-SDR: kXO12KTzcBQzN1GFsnfmaBn1NG/x064etYWXdAqBH1DN2KHVaPOiAKsDh+aao2x/9WFFskQijt
+ bZNOez+l/fig==
+X-IronPort-AV: E=McAfee;i="6000,8403,9834"; a="236332522"
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="173977026"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:47:04 -0800
-IronPort-SDR: bYxC9P1D5W5jixYLdnq7ggOsSl99k6PDZlIGELR09gwhpcB1xEeA6nqwg4GffYWdNo14iiaAIe
- olNoKpKjOr5g==
+   d="scan'208";a="236332522"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:51:40 -0800
+IronPort-SDR: swtEm6rJkgTpQUODoA6cPGsO5yAoFSyHCEZcx0t2WvBuWoF1o65tuwV396Fr5Lw5vXtz0PdTJy
+ Tvtg1ap/Oq+w==
 X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="333703977"
+   d="scan'208";a="367550992"
 Received: from xshen14-linux.bj.intel.com ([10.238.155.105])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:47:02 -0800
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2020 09:51:38 -0800
 From:   Xiaochen Shen <xiaochen.shen@intel.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
         sashal@kernel.org, bp@suse.de, tony.luck@intel.com
 Cc:     fenghua.yu@intel.com, reinette.chatre@intel.com,
         pei.p.jia@intel.com, xiaochen.shen@intel.com
-Subject: [PATCH 5.4] x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
-Date:   Tue, 15 Dec 2020 02:09:25 +0800
-Message-Id: <1607969365-3704-1-git-send-email-xiaochen.shen@intel.com>
+Subject: [PATCH 4.19] x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
+Date:   Tue, 15 Dec 2020 02:14:02 +0800
+Message-Id: <1607969642-4202-1-git-send-email-xiaochen.shen@intel.com>
 X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1607955953140184@kroah.com>
-References: <1607955953140184@kroah.com>
+In-Reply-To: <1607955955252233@kroah.com>
+References: <1607955955252233@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -111,6 +111,13 @@ After fix:
 
 Backporting notes:
 
+Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
+files to a separate directory"), the file
+arch/x86/kernel/cpu/intel_rdt_monitor.c has been renamed and moved to
+arch/x86/kernel/cpu/resctrl/monitor.c.
+Apply the change against file arch/x86/kernel/cpu/intel_rdt_monitor.c
+for older stable trees.
+
 Upstream commit abe8f12b4425 ("x86/resctrl: Remove unused struct
 mbm_state::chunks_bw") removed unused struct mbm_state::chunks_bw. It
 changes the code base in mbm_bw_count().
@@ -123,14 +130,14 @@ Reviewed-by: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
 Link: https://lkml.kernel.org/r/1607063279-19437-1-git-send-email-xiaochen.shen@intel.com
 ---
- arch/x86/kernel/cpu/resctrl/monitor.c | 6 ++----
+ arch/x86/kernel/cpu/intel_rdt_monitor.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/resctrl/monitor.c b/arch/x86/kernel/cpu/resctrl/monitor.c
-index 0cf4f87..3f0fe8b 100644
---- a/arch/x86/kernel/cpu/resctrl/monitor.c
-+++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -281,7 +281,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
+diff --git a/arch/x86/kernel/cpu/intel_rdt_monitor.c b/arch/x86/kernel/cpu/intel_rdt_monitor.c
+index 3d4ec80..344e049 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_monitor.c
++++ b/arch/x86/kernel/cpu/intel_rdt_monitor.c
+@@ -291,7 +291,6 @@ static void mbm_bw_count(u32 rmid, struct rmid_read *rr)
  
  	chunks = mbm_overflow_count(m->prev_bw_msr, tval);
  	m->chunks_bw += chunks;
@@ -138,7 +145,7 @@ index 0cf4f87..3f0fe8b 100644
  	cur_bw = (chunks * r->mon_scale) >> 20;
  
  	if (m->delta_comp)
-@@ -451,15 +450,14 @@ static void mbm_update(struct rdt_domain *d, int rmid)
+@@ -461,15 +460,14 @@ static void mbm_update(struct rdt_domain *d, int rmid)
  	}
  	if (is_mbm_local_enabled()) {
  		rr.evtid = QOS_L3_MBM_LOCAL_EVENT_ID;
