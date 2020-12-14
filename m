@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 071972D9E8B
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:09:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C612D9EC9
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:20:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439998AbgLNSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:07:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S2440782AbgLNSSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:18:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408613AbgLNRjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:39:19 -0500
+        id S2502365AbgLNRi7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:38:59 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.9 092/105] drm/i915/gt: Declare gen9 has 64 mocs entries!
-Date:   Mon, 14 Dec 2020 18:29:06 +0100
-Message-Id: <20201214172559.709389903@linuxfoundation.org>
+Subject: [PATCH 5.9 093/105] drm/i915/gt: Ignore repeated attempts to suspend request flow across reset
+Date:   Mon, 14 Dec 2020 18:29:07 +0100
+Message-Id: <20201214172559.749769840@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -34,50 +34,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 7c5c15dffe1e3c42f44735ce9552afb7207f1584 upstream.
+commit 5419d93ffd774127b195b8543b063b2b4fa5aea9 upstream.
 
-We checked the table size against a hardcoded number of entries, and
-that number was excluding the special mocs registers at the end.
+Before reseting the engine, we suspend the execution of the guilty
+request, so that we can continue execution with a new context while we
+slowly compress the captured error state for the guilty context. However,
+if the reset fails, we will promptly attempt to reset the same request
+again, and discover the ongoing capture. Ignore the second attempt to
+suspend and capture the same request.
 
-Fixes: 777a7717d60c ("drm/i915/gt: Program mocs:63 for cache eviction on gen9")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1168
+Fixes: 32ff621fd744 ("drm/i915/gt: Allow temporary suspension of inflight requests")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.3+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201127102540.13117-1-chris@chris-wilson.co.uk
-(cherry picked from commit 444fbf5d7058099447c5366ba8bb60d610aeb44b)
+Cc: <stable@vger.kernel.org> # v5.7+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201204151234.19729-1-chris@chris-wilson.co.uk
+(cherry picked from commit b969540500bce60cf1cdfff5464388af32b9a553)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-[backported and updated the Fixes sha]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_mocs.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_lrc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_mocs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_mocs.c
-@@ -59,8 +59,7 @@ struct drm_i915_mocs_table {
- #define _L3_CACHEABILITY(value)	((value) << 4)
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -2788,6 +2788,9 @@ static void __execlists_hold(struct i915
+ static bool execlists_hold(struct intel_engine_cs *engine,
+ 			   struct i915_request *rq)
+ {
++	if (i915_request_on_hold(rq))
++		return false;
++
+ 	spin_lock_irq(&engine->active.lock);
  
- /* Helper defines */
--#define GEN9_NUM_MOCS_ENTRIES	62  /* 62 out of 64 - 63 & 64 are reserved. */
--#define GEN11_NUM_MOCS_ENTRIES	64  /* 63-64 are reserved, but configured. */
-+#define GEN9_NUM_MOCS_ENTRIES	64  /* 63-64 are reserved, but configured. */
- 
- /* (e)LLC caching options */
- /*
-@@ -328,11 +327,11 @@ static unsigned int get_mocs_settings(co
- 	if (INTEL_GEN(i915) >= 12) {
- 		table->size  = ARRAY_SIZE(tgl_mocs_table);
- 		table->table = tgl_mocs_table;
--		table->n_entries = GEN11_NUM_MOCS_ENTRIES;
-+		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
- 	} else if (IS_GEN(i915, 11)) {
- 		table->size  = ARRAY_SIZE(icl_mocs_table);
- 		table->table = icl_mocs_table;
--		table->n_entries = GEN11_NUM_MOCS_ENTRIES;
-+		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
- 	} else if (IS_GEN9_BC(i915) || IS_CANNONLAKE(i915)) {
- 		table->size  = ARRAY_SIZE(skl_mocs_table);
- 		table->n_entries = GEN9_NUM_MOCS_ENTRIES;
+ 	if (i915_request_completed(rq)) { /* too late! */
 
 
