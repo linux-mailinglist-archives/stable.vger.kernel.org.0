@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 232AF2D9EA6
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA1A62D9EA5
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:15:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408535AbgLNRjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2408580AbgLNRjS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Dec 2020 12:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502376AbgLNRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:39:09 -0500
+        id S2502356AbgLNRjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:39:10 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.9 100/105] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
-Date:   Mon, 14 Dec 2020 18:29:14 +0100
-Message-Id: <20201214172600.097203955@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.9 101/105] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
+Date:   Mon, 14 Dec 2020 18:29:15 +0100
+Message-Id: <20201214172600.147066268@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -32,61 +32,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
+commit 29ac40cbed2bc06fa218ca25d7f5e280d3d08a25 upstream.
 
-My patch caused kernel Oopses and delays in boot.  Revert it.
+The PAT bit is in different locations for 4k and 2M/1G page table
+entries.
 
-The problem was that I moved the "mem->dma = paddr;" before the call to
-be_fill_queue().  But the first thing that the be_fill_queue() function
-does is memset the whole struct to zero which overwrites the assignment.
+Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
+caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
+and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
+index for write-protected pages.
 
-Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
-Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/be2iscsi/be_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/pgtable_types.h |    1 +
+ arch/x86/mm/mem_encrypt_identity.c   |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -3020,7 +3020,6 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -155,6 +155,7 @@ enum page_cache_mode {
+ #define _PAGE_ENC		(_AT(pteval_t, sme_me_mask))
  
--		mem->dma = paddr;
- 		mem->va = eq_vaddress;
- 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
- 				    sizeof(struct be_eq_entry), eq_vaddress);
-@@ -3030,6 +3029,7 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+ #define _PAGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT)
++#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
- 					    BEISCSI_EQ_DELAY_DEF);
- 		if (ret) {
-@@ -3086,7 +3086,6 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
+ #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
+ #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -45,8 +45,8 @@
+ #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
  
--		mem->dma = paddr;
- 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
- 				    sizeof(struct sol_cqe), cq_vaddress);
- 		if (ret) {
-@@ -3096,6 +3095,7 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
+ #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
+-#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
+-				 (_PAGE_PAT | _PAGE_PWT))
++#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
++				 (_PAGE_PAT_LARGE | _PAGE_PWT))
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
- 					    false, 0);
- 		if (ret) {
+ #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
+ 
 
 
