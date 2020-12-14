@@ -2,236 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0022D9271
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 06:09:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E82D82D9395
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 08:18:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbgLNFIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 00:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726357AbgLNFIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 00:08:32 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 851FCC0613CF
-        for <stable@vger.kernel.org>; Sun, 13 Dec 2020 21:07:52 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id f9so11301774pfc.11
-        for <stable@vger.kernel.org>; Sun, 13 Dec 2020 21:07:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=48D9mVelYKi7XjwMcBDqEngm6AwVBkSplbDctXfO5LQ=;
-        b=E8iZWouQf5Pz/kmLshLrKJBf1WyOxmgIsTh/49B6F8qHeU3L0xHXb2GZmS0w94XZfI
-         paCRfMRST1s7owJCGcNDXXiQ5dMoE/BqxdUMPf+e/w+cHcAXp/GTI9fsDm+tcv/Gx+Q3
-         qQqzCTWCnvAtdGoyD9GmwWQXp9/6ZP2wOgmqzJv1thDWB272GgEaWH0QyGA0BQJ1Ken1
-         R/c5bplr3+Hfs7v6hCmoQSfrk7Dat8bZwyi+ZLc91DtKa6fUUCOMIb0i3sjfibI1W74V
-         2+Lyx8rVAIbUZkN2r4EzqiiH/ioZ96zJ/5nMVjvxNjsghC7weEAiJiNp8tMDBnkU164g
-         FueQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=48D9mVelYKi7XjwMcBDqEngm6AwVBkSplbDctXfO5LQ=;
-        b=hqI77sjYOKCRrmmxd+WWpJkWT6vNr+lMrDjHGdBsVUUEALbO9WWzOQkDDVO6coaGym
-         Vuyy/hHh5lgc41B1V2FByMD15hM0unl4Wrm4n2cIV3xsPAznrgxoPE6/U/ZMElPECRjs
-         OX6k5/BnK5mMBiE4PC5X3A52y/c9Nf57WST1Yxg6aBaSkIL3rN4VcKnFvuj5I2xrIi82
-         EKY0pLuwLSoBnlGKHK6vN/aV+mF6hFz5aGc4AJgDovQqKhUUa0kAQs7IyB67I1XFsV5K
-         mSjzQ4d9B+S3cM+pskpD+HgC+MblaNWZAv7zuH+oqeZg8cElnLC33GOJjCW7U2k5xE0Z
-         0rpQ==
-X-Gm-Message-State: AOAM533iXFv8hxendQXHDravhsI1Zw6LKIlOf4XT1DniBOl9IH+W2+E9
-        6rAOx3M61IH+6e+5BcUn62JisG+bN80e5A==
-X-Google-Smtp-Source: ABdhPJz2QClevGHEcxJWnb1gpGIs1Xd1fwtf4CinjntjRwntdOXvggoTNOqW10qBC0dLtjQ+siEgug==
-X-Received: by 2002:a63:560b:: with SMTP id k11mr16847629pgb.407.1607922471812;
-        Sun, 13 Dec 2020 21:07:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p185sm15290391pfb.165.2020.12.13.21.07.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Dec 2020 21:07:51 -0800 (PST)
-Message-ID: <5fd6f327.1c69fb81.71994.069c@mx.google.com>
-Date:   Sun, 13 Dec 2020 21:07:51 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S2438915AbgLNHSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 02:18:32 -0500
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:45746 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbgLNHSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 02:18:31 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0BE7Gtgh074940;
+        Mon, 14 Dec 2020 01:16:55 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1607930215;
+        bh=8FHqPP8PBL/oO2YZ5LjA9fGaAwrrvB9dOJXSZMgKL24=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=i6wTFtj2r08OWxpTCqDKPlwFrEkRth5z4rhY833WWd0Ym490ManQwNO/x3t4p2HsH
+         JAURnj8+vPWgb/NgnBXeGb1ImDnoxyMrxOSIwWewpc5mhZbqNhBhUaLkKwZIzOGjb4
+         SI/ucIWQEk5QAhMGOwyCt/vMIAYfT2/d9h3eWcqc=
+Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0BE7GsmG105549
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 14 Dec 2020 01:16:55 -0600
+Received: from DLEE107.ent.ti.com (157.170.170.37) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Mon, 14
+ Dec 2020 01:16:54 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE107.ent.ti.com
+ (157.170.170.37) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Mon, 14 Dec 2020 01:16:54 -0600
+Received: from [10.250.233.179] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0BE7GpkQ093250;
+        Mon, 14 Dec 2020 01:16:51 -0600
+Subject: Re: ping // [PATCH] mtd:cfi_cmdset_0002: fix atomic sleep bug when
+ CONFIG_MTD_XIP=y
+To:     Xiaoming Ni <nixiaoming@huawei.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+CC:     <richard@nod.at>, <tudor.ambarus@microchip.com>,
+        <tglx@linutronix.de>, <linux-mtd@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>, <wangle6@huawei.com>
+References: <20201127130731.99270-1-nixiaoming@huawei.com>
+ <a02e1364-3b82-039a-4b65-e2a216663dd4@huawei.com>
+ <20201207115228.0a6de398@xps13> <73b539eb-616e-64d8-07d8-4606da2ea2ea@ti.com>
+ <b5c52547-b3cc-4217-cc69-067cee7d536f@huawei.com>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+Message-ID: <f14ccb94-cb53-f495-e95c-fe657122f16c@ti.com>
+Date:   Mon, 14 Dec 2020 12:46:50 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.248-6-g1d3e7d6f3f6f7
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 122 runs,
- 4 regressions (v4.9.248-6-g1d3e7d6f3f6f7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <b5c52547-b3cc-4217-cc69-067cee7d536f@huawei.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 122 runs, 4 regressions (v4.9.248-6-g1d3e7d6f=
-3f6f7)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.248-6-g1d3e7d6f3f6f7/plan/baseline/
+On 12/8/20 6:53 AM, Xiaoming Ni wrote:
+> On 2020/12/8 2:59, Vignesh Raghavendra wrote:
+>> Hi Xiaoming,
+>>
+[...]
+>>>>> ---
+>>>>>    drivers/mtd/chips/cfi_cmdset_0002.c | 16 ++++++++++++++++
+>>>>>    1 file changed, 16 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c
+>>>>> b/drivers/mtd/chips/cfi_cmdset_0002.c
+>>>>> index a1f3e1031c3d..12c3776f093a 100644
+>>>>> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
+>>>>> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+>>>>> @@ -1682,7 +1682,11 @@ static int __xipram
+>>>>> do_write_oneword_once(struct map_info *map,
+>>>>>                set_current_state(TASK_UNINTERRUPTIBLE);
+>>>>>                add_wait_queue(&chip->wq, &wait);
+>>>>>                mutex_unlock(&chip->mutex);
+>>>>> +            if (IS_ENABLED(CONFIG_MTD_XIP))
+>>>>> +                local_irq_enable();
+>>>>>                schedule();
+>>>>> +            if (IS_ENABLED(CONFIG_MTD_XIP))
+>>>>> +                local_irq_disable();
+>>>
+>>> The fix really seems strange to me. I will let Vignesh decide but I
+>>> think we should consider updating/fixing xip_disable instead.
+>>
+>> Agree with Miquel. Have you done any testing
+>> or is this purely based on code inspection?
+>>
+> I don't have the corresponding device test environment.
+> I found the problem through code review.
+> 
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.248-6-g1d3e7d6f3f6f7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1d3e7d6f3f6f7738efe4dd2cde946d0f7eac18d4 =
+Sorry, I am not comfortable applying this patch without proper testing
+that given the unknowns and legacy nature of the code.
 
+> 
+>> What about comment before xip_disable() function:
+>>
+>> /*
+>>   * No interrupt what so ever can be serviced while the flash isn't in
+>> array
+>>   * mode.  This is ensured by the xip_disable() and xip_enable()
+>> functions
+>>   * enclosing any code path where the flash is known not to be in
+>> array mode.
+>>   * And within a XIP disabled code path, only functions marked with
+>> __xipram
+>>   * may be called and nothing else (it's a good thing to inspect
+>> generated
+>>   * assembly to make sure inline functions were actually inlined and
+>> that gcc
+>>   * didn't emit calls to its own support functions). Also configuring
+>> MTD CFI
+>>   * support to a single buswidth and a single interleave is also
+>> recommended.
+>>   */
+>>
+>> So, I don't think the fix is as simple as this patch.
+>>
+> +xip_enable();
+>  schedule();
+> +xip_disable();
+> 
+> Do I need to change it to this?
+> 
 
+This just narrows the window, but an IRQ is still possible just after
+xip_enable() but before schedule().
 
-Test Regressions
----------------- =
+Regards
+Vignesh
 
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd6c0a1b8173424a1c94ce0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd6c0a1b8173424a1c94=
-ce1
-        failing since 30 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd6c0a3b8173424a1c94ce3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd6c0a3b8173424a1c94=
-ce4
-        failing since 30 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd6c06c1a7f1fd3e5c94d21
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd6c06c1a7f1fd3e5c94=
-d22
-        failing since 30 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd6c06fd2a2633b52c94cdb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-6=
--g1d3e7d6f3f6f7/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd6c06fd2a2633b52c94=
-cdc
-        failing since 30 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
