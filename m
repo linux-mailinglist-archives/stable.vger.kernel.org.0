@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1484D2D9EAD
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B392D9EC5
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 19:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732019AbgLNSO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 13:14:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50066 "EHLO mail.kernel.org"
+        id S2440324AbgLNSRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 13:17:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502372AbgLNRjS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Dec 2020 12:39:18 -0500
+        id S2502364AbgLNRi7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Dec 2020 12:38:59 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: [PATCH 5.9 102/105] x86/membarrier: Get rid of a dubious optimization
-Date:   Mon, 14 Dec 2020 18:29:16 +0100
-Message-Id: <20201214172600.195381237@linuxfoundation.org>
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Shung-Hsi Yu <shung-hsi.yu@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.9 103/105] x86/apic/vector: Fix ordering in vector assignment
+Date:   Mon, 14 Dec 2020 18:29:17 +0100
+Message-Id: <20201214172600.243594852@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201214172555.280929671@linuxfoundation.org>
 References: <20201214172555.280929671@linuxfoundation.org>
@@ -32,70 +32,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a493d1ca1a03b532871f1da27f8dbda2b28b04c4 upstream.
+commit 190113b4c6531c8e09b31d5235f9b5175cbb0f72 upstream.
 
-sync_core_before_usermode() had an incorrect optimization.  If the kernel
-returns from an interrupt, it can get to usermode without IRET. It just has
-to schedule to a different task in the same mm and do SYSRET.  Fortunately,
-there were no callers of sync_core_before_usermode() that could have had
-in_irq() or in_nmi() equal to true, because it's only ever called from the
-scheduler.
+Prarit reported that depending on the affinity setting the
 
-While at it, clarify a related comment.
+ ' irq $N: Affinity broken due to vector space exhaustion.'
 
-Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYNC_CORE")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
+message is showing up in dmesg, but the vector space on the CPUs in the
+affinity mask is definitely not exhausted.
+
+Shung-Hsi provided traces and analysis which pinpoints the problem:
+
+The ordering of trying to assign an interrupt vector in
+assign_irq_vector_any_locked() is simply wrong if the interrupt data has a
+valid node assigned. It does:
+
+ 1) Try the intersection of affinity mask and node mask
+ 2) Try the node mask
+ 3) Try the full affinity mask
+ 4) Try the full online mask
+
+Obviously #2 and #3 are in the wrong order as the requested affinity
+mask has to take precedence.
+
+In the observed cases #1 failed because the affinity mask did not contain
+CPUs from node 0. That made it allocate a vector from node 0, thereby
+breaking affinity and emitting the misleading message.
+
+Revert the order of #2 and #3 so the full affinity mask without the node
+intersection is tried before actually affinity is broken.
+
+If no node is assigned then only the full affinity mask and if that fails
+the full online mask is tried.
+
+Fixes: d6ffc6ac83b1 ("x86/vector: Respect affinity mask in irq descriptor")
+Reported-by: Prarit Bhargava <prarit@redhat.com>
+Reported-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Tested-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/5afc7632be1422f91eaf7611aaaa1b5b8580a086.1607058304.git.luto@kernel.org
+Link: https://lore.kernel.org/r/87ft4djtyp.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/sync_core.h |    9 +++++----
- arch/x86/mm/tlb.c                |   10 ++++++++--
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ arch/x86/kernel/apic/vector.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
---- a/arch/x86/include/asm/sync_core.h
-+++ b/arch/x86/include/asm/sync_core.h
-@@ -88,12 +88,13 @@ static inline void sync_core_before_user
- 	/* With PTI, we unconditionally serialize before running user code. */
- 	if (static_cpu_has(X86_FEATURE_PTI))
- 		return;
-+
- 	/*
--	 * Return from interrupt and NMI is done through iret, which is core
--	 * serializing.
-+	 * Even if we're in an interrupt, we might reschedule before returning,
-+	 * in which case we could switch to a different thread in the same mm
-+	 * and return using SYSRET or SYSEXIT.  Instead of trying to keep
-+	 * track of our need to sync the core, just sync right away.
- 	 */
--	if (in_irq() || in_nmi())
--		return;
- 	sync_core();
- }
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -273,20 +273,24 @@ static int assign_irq_vector_any_locked(
+ 	const struct cpumask *affmsk = irq_data_get_affinity_mask(irqd);
+ 	int node = irq_data_get_node(irqd);
  
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -475,8 +475,14 @@ void switch_mm_irqs_off(struct mm_struct
- 	/*
- 	 * The membarrier system call requires a full memory barrier and
- 	 * core serialization before returning to user-space, after
--	 * storing to rq->curr. Writing to CR3 provides that full
--	 * memory barrier and core serializing instruction.
-+	 * storing to rq->curr, when changing mm.  This is because
-+	 * membarrier() sends IPIs to all CPUs that are in the target mm
-+	 * to make them issue memory barriers.  However, if another CPU
-+	 * switches to/from the target mm concurrently with
-+	 * membarrier(), it can cause that CPU not to receive an IPI
-+	 * when it really should issue a memory barrier.  Writing to CR3
-+	 * provides that full memory barrier and core serializing
-+	 * instruction.
- 	 */
- 	if (real_prev == next) {
- 		VM_WARN_ON(this_cpu_read(cpu_tlbstate.ctxs[prev_asid].ctx_id) !=
+-	if (node == NUMA_NO_NODE)
+-		goto all;
+-	/* Try the intersection of @affmsk and node mask */
+-	cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
+-	if (!assign_vector_locked(irqd, vector_searchmask))
+-		return 0;
+-	/* Try the node mask */
+-	if (!assign_vector_locked(irqd, cpumask_of_node(node)))
+-		return 0;
+-all:
++	if (node != NUMA_NO_NODE) {
++		/* Try the intersection of @affmsk and node mask */
++		cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
++		if (!assign_vector_locked(irqd, vector_searchmask))
++			return 0;
++	}
++
+ 	/* Try the full affinity mask */
+ 	cpumask_and(vector_searchmask, affmsk, cpu_online_mask);
+ 	if (!assign_vector_locked(irqd, vector_searchmask))
+ 		return 0;
++
++	if (node != NUMA_NO_NODE) {
++		/* Try the node mask */
++		if (!assign_vector_locked(irqd, cpumask_of_node(node)))
++			return 0;
++	}
++
+ 	/* Try the full online mask */
+ 	return assign_vector_locked(irqd, cpu_online_mask);
+ }
 
 
