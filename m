@@ -2,63 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E27752DA145
-	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 21:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B37E42DA162
+	for <lists+stable@lfdr.de>; Mon, 14 Dec 2020 21:23:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502878AbgLNUPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Dec 2020 15:15:14 -0500
-Received: from mail-il1-f198.google.com ([209.85.166.198]:43815 "EHLO
-        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2503093AbgLNUMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 15:12:44 -0500
-Received: by mail-il1-f198.google.com with SMTP id p6so14524839ils.10
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 12:12:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=qwOdLt+7OtBCq8ntrHqjxb5zguAuKgGyZJXiIAiKLL8=;
-        b=INCzgsrJShMtBm4Hn7rHLb61J423v3KUSggjR9oexCD3s58Q2K5hduEESyhMZsBnkF
-         A0J86nvzmnmgNLZSEJeNHkYmwZgfrOCRGIrrnw4ELH4illGa58b7hdMj3ULUyZbhpynJ
-         o7i2hsjSdFYmiQonarnzQEjNGfPj44QKr34Z04i2my+7bJF2zymC1U8f8ydSHLeuVvI5
-         ovKbYwEX8JKSsfY5gnImURmKOhnm2SPqqMOeXiVBboeE+TrE/u+tVFxsfd5s4CguSpwU
-         Z+U4jZ0cuTzGfiPSwgHiufaZsBQowAFx0FjIYNZXvOYB1gnholDeda29yLRZ+VIMBdZJ
-         2gew==
-X-Gm-Message-State: AOAM532XytPFwpfVQWZ0SNU/XT1aTxSiA93nnPv6XNH7MspojkYci/gM
-        AklzqrCM3IB29H06P+i6VEdlXqcovrviV6WirEaL8opruQWl
-X-Google-Smtp-Source: ABdhPJxGk6qAN5y8QjwxmUH3VlUQvFFxBo49Eb4LJWyrkVn0YnMAjOK56iPxkABY0ATpU1RkoIaq5zvsHOalHb71CYGDQ0WV6ub+
-MIME-Version: 1.0
-X-Received: by 2002:a92:9a58:: with SMTP id t85mr38019496ili.172.1607976723542;
- Mon, 14 Dec 2020 12:12:03 -0800 (PST)
-Date:   Mon, 14 Dec 2020 12:12:03 -0800
-In-Reply-To: <X9eB5ZZMq6q5j4eW@localhost>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000069fb4f05b6724198@google.com>
-Subject: Re: WARNING in yurex_write/usb_submit_urb
-From:   syzbot <syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com>
-To:     andreyknvl@google.com, gregkh@linuxfoundation.org,
-        johan@kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+        id S2502973AbgLNUWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Dec 2020 15:22:01 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:36369 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2503125AbgLNUVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Dec 2020 15:21:50 -0500
+Received: from [192.188.8.81] (helo=ascalon)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kamal@canonical.com>)
+        id 1kouL3-0007W7-FK; Mon, 14 Dec 2020 20:20:57 +0000
+Received: from kamal by ascalon with local (Exim 4.90_1)
+        (envelope-from <kamal@ascalon>)
+        id 1kouL0-0001v1-Ls; Mon, 14 Dec 2020 12:20:54 -0800
+From:   Kamal Mostafa <kamal@canonical.com>
+To:     Shuah Khan <shuah@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Kamal Mostafa <kamal@canonical.com>, stable@vger.kernel.org
+Subject: [PATCH] selftests/bpf: clarify build error if no vmlinux
+Date:   Mon, 14 Dec 2020 12:20:48 -0800
+Message-Id: <20201214202049.7205-1-kamal@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+If Makefile cannot find any of the vmlinux's in its VMLINUX_BTF_PATHS list,
+it tries to run btftool incorrectly, with VMLINUX_BTF unset:
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+    bpftool btf dump file $(VMLINUX_BTF) format c
 
-Reported-and-tested-by: syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com
+Such that the keyword 'format' is misinterpreted as the path to vmlinux.
+The resulting build error message is fairly cryptic:
 
-Tested on:
+      GEN      vmlinux.h
+    Error: failed to load BTF from format: No such file or directory
 
-commit:         a256e240 usb: phy: convert comma to semicolon
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
-kernel config:  https://syzkaller.appspot.com/x/.config?x=4536e7f93c2bc8e9
-dashboard link: https://syzkaller.appspot.com/bug?extid=e87ebe0f7913f71f2ea5
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=11a9f703500000
+This patch makes the failure reason clearer by yielding this instead:
 
-Note: testing is done by a robot and is best-effort only.
+    Makefile:...: *** cannot find a vmlinux for VMLINUX_BTF at any of
+    "{paths}".  Stop.
+
+Fixes: acbd06206bbb ("selftests/bpf: Add vmlinux.h selftest exercising tracing of syscalls")
+Cc: stable@vger.kernel.org # 5.7+
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ tools/testing/selftests/bpf/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index 542768f5195b..93ed34ef6e3f 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -196,6 +196,9 @@ $(BUILD_DIR)/libbpf $(BUILD_DIR)/bpftool $(BUILD_DIR)/resolve_btfids $(INCLUDE_D
+ $(INCLUDE_DIR)/vmlinux.h: $(VMLINUX_BTF) | $(BPFTOOL) $(INCLUDE_DIR)
+ ifeq ($(VMLINUX_H),)
+ 	$(call msg,GEN,,$@)
++ifeq ($(VMLINUX_BTF),)
++$(error cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)")
++endif
+ 	$(Q)$(BPFTOOL) btf dump file $(VMLINUX_BTF) format c > $@
+ else
+ 	$(call msg,CP,,$@)
+-- 
+2.17.1
+
