@@ -2,271 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81A12DA87F
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 08:26:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1051B2DA8DC
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 09:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726176AbgLOH03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 02:26:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33474 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725976AbgLOH0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 02:26:22 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E44C06179C
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 23:25:42 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id h186so3483649pfe.0
-        for <stable@vger.kernel.org>; Mon, 14 Dec 2020 23:25:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=I5hOl0l/7i7gyhyhAgrAZcyRz3ADUzaDQuRzDsgepWk=;
-        b=rCTjJLrAbOcrAaXXIm0rO/TmwNHOUeVNTUnqn11Lyjs2CmqBYDTcm7wf5kb0wWQXtx
-         yaA1a6hAhXS1C/PTbmdqrTolp263tkXJqyQxAwPe2fIbXBhta4KnE/HT0h2RQF4AVGvL
-         X1CA42opuDMV9PTQ4Mum6gJMOkuuGuK4dRuDRaytUXH4+Vayp7ZnlI3cABEuJqqZ6ilF
-         JkrFi3QBKF2sdw7wOfUMFGZPrTEMJ5noMT55VN4fx6rzkT/Pk/93DrysU9rTpLMtZGGJ
-         DjzAZ5oR1L5jAqq1SYGzbbflmI3lLN4ElVAt8J7MdL4qfKJLLUS7zk11+bfN15pgv+cU
-         o3mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=I5hOl0l/7i7gyhyhAgrAZcyRz3ADUzaDQuRzDsgepWk=;
-        b=JVt0alSEmEZvORv+bfcTY81VsI56nUuSPeDzJaKoMurYHJwV9+9yYJ/0Hoe8nNXkKf
-         WZQ7QRZm6gRgIzOv5b83OUbIsjJWMRupvZufmpXizwLmnLbwTU18kle8F+QnqE1HXfKN
-         gp6um4+6BIMUNaX4JpPkdiv+SOaYJmiwWsGmoT4JRoMKuz7535qnetTXxPDGAkzA1sxT
-         QtSCbCn3c1S8lsdQtHhQWYVz0BU5o/VIKQYmdyq4D+8GMK/WTIKC4ilowmamHjDvTkaI
-         Zi9qxK2Qv4t1woY9HDlvY/bBVv667cP/SDZf/ifQZROjuxRtJYeg+TWfJssdSSAzGChz
-         DU3A==
-X-Gm-Message-State: AOAM533by5M6Z+/A1A4k6zgaLnc0tpW5nw1Ro4RwF8e0P1BokifiOS8R
-        M8s+6kCWYSNbhNoF0blyLVyZgRysb/PYGA==
-X-Google-Smtp-Source: ABdhPJzJ93kU4Lj7SOh4qk3YgOO8DP9G3AEkwWbhoOEOfesYiL143kMW0Xn9EWkxdDbH9sy+lNrxYQ==
-X-Received: by 2002:a62:37c4:0:b029:197:bfa9:2078 with SMTP id e187-20020a6237c40000b0290197bfa92078mr114570pfa.15.1608017141546;
-        Mon, 14 Dec 2020 23:25:41 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e29sm22409896pfj.174.2020.12.14.23.25.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Dec 2020 23:25:40 -0800 (PST)
-Message-ID: <5fd864f4.1c69fb81.5fa77.eee8@mx.google.com>
-Date:   Mon, 14 Dec 2020 23:25:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726617AbgLOIE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 03:04:57 -0500
+Received: from mga17.intel.com ([192.55.52.151]:59479 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726249AbgLOIEr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 03:04:47 -0500
+IronPort-SDR: iMSO8qop0vBUw73olcszh6hOc18CAY01VComXn0smvo87d8Ug3m1OvhAKLIXDByslBpwcQYLJz
+ a7hLZRnZ8gEA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9835"; a="154649322"
+X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
+   d="scan'208";a="154649322"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Dec 2020 00:04:05 -0800
+IronPort-SDR: X7w60umHBYVcg81LO00WjKgRfF1of3r81LUUCqpVwXv7b2knWPLG8UHmjWQoo5S6v5+8SEv6ng
+ j9cPVQfU3mQQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
+   d="scan'208";a="558613651"
+Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.94]) ([10.237.72.94])
+  by fmsmga005.fm.intel.com with ESMTP; 15 Dec 2020 00:04:02 -0800
+Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
+To:     Marcin Wojtas <mw@semihalf.com>, linux-kernel@vger.kernel.org,
+        linux-mmc@vger.kernel.org
+Cc:     ulf.hansson@linaro.org, huziji@marvell.com, jaz@semihalf.com,
+        tn@semihalf.com, kostap@marvell.com,
+        Alex Leibovich <alexl@marvell.com>, stable@vger.kernel.org
+References: <20201211141656.24915-1-mw@semihalf.com>
+From:   Adrian Hunter <adrian.hunter@intel.com>
+Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
+ Business Identity Code: 0357606 - 4, Domiciled in Helsinki
+Message-ID: <f6d0f22c-2a19-d1dc-b370-4238a7d2d9b3@intel.com>
+Date:   Tue, 15 Dec 2020 10:03:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.83-37-gfbaf54ae613a4
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 143 runs,
- 5 regressions (v5.4.83-37-gfbaf54ae613a4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20201211141656.24915-1-mw@semihalf.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 143 runs, 5 regressions (v5.4.83-37-gfbaf54=
-ae613a4)
+On 11/12/20 4:16 pm, Marcin Wojtas wrote:
+> From: Alex Leibovich <alexl@marvell.com>
+> 
+> Automatic Clock Gating is a feature used for the power
+> consumption optimisation. It turned out that
+> during early init phase it may prevent the stable voltage
+> switch to 1.8V - due to that on some platfroms an endless
 
-Regressions Summary
--------------------
+platfroms -> platforms
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-hifive-unleashed-a00       | riscv | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
+> printout in dmesg can be observed:
+> "mmc1: 1.8V regulator output did not became stable"
+> Fix the problem by disabling the ACG at very beginning
+> of the sdhci_init and let that be enabled later.
+> 
+> Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
+> Signed-off-by: Alex Leibovich <alexl@marvell.com>
+> Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+> Cc: stable@vger.kernel.org
 
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
+> ---
+>  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
+> index c67611fdaa8a..4b05f6fdefb4 100644
+> --- a/drivers/mmc/host/sdhci-xenon.c
+> +++ b/drivers/mmc/host/sdhci-xenon.c
+> @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *host,
+>  	/* Disable tuning request and auto-retuning again */
+>  	xenon_retune_setup(host);
+>  
+> -	xenon_set_acg(host, true);
+> +	/*
+> +	 * The ACG should be turned off at the early init time, in order
+> +	 * to solve a possile issues with the 1.8V regulator stabilization.
 
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
+a possile -> possible
 
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
+> +	 * The feature is enabled in later stage.
+> +	 */
+> +	xenon_set_acg(host, false);
+>  
+>  	xenon_set_sdclk_off_idle(host, sdhc_id, false);
+>  
+> 
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.83-37-gfbaf54ae613a4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.83-37-gfbaf54ae613a4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fbaf54ae613a47a62193642683ab9f23997aaa50 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-hifive-unleashed-a00       | riscv | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd8307b253fa2be8ac94cca
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleas=
-hed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd8307b253fa2be8ac94=
-ccb
-        failing since 24 days (last pass: v5.4.77-152-ga3746663c3479, first=
- fail: v5.4.78) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd82f244a4b4e0498c94cbc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
-5x-khadas-vim.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
-5x-khadas-vim.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd82f244a4b4e0498c94=
-cbd
-        new failure (last pass: v5.4.83) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd8323f44dd43f448c94cc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd8323f44dd43f448c94=
-cc9
-        failing since 30 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd8323e4c0a12a6f1c94cce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd8323e4c0a12a6f1c94=
-ccf
-        failing since 30 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fd86374943612c764c94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.83-=
-37-gfbaf54ae613a4/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fd86374943612c764c94=
-cba
-        failing since 30 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =20
