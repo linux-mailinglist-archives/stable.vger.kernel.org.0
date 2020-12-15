@@ -2,111 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E030C2DAA2F
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 10:39:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F2B2DAA9A
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 11:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727750AbgLOJhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 04:37:36 -0500
-Received: from spam01.hygon.cn ([110.188.70.11]:18259 "EHLO spam2.hygon.cn"
-        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727699AbgLOJh1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Dec 2020 04:37:27 -0500
-Received: from MK-FE.hygon.cn ([172.23.18.61])
-        by spam2.hygon.cn with ESMTP id 0BF9Zb9Q005328;
-        Tue, 15 Dec 2020 17:35:37 +0800 (GMT-8)
-        (envelope-from chenshan@hygon.cn)
-Received: from cncheex02.Hygon.cn ([172.23.18.12])
-        by MK-FE.hygon.cn with ESMTP id 0BF9ZbF0061133;
-        Tue, 15 Dec 2020 17:35:37 +0800 (GMT-8)
-        (envelope-from chenshan@hygon.cn)
-Received: from cncheex01.Hygon.cn (172.23.18.10) by cncheex02.Hygon.cn
- (172.23.18.12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1466.3; Tue, 15 Dec
- 2020 17:35:33 +0800
-Received: from cncheex01.Hygon.cn ([172.23.18.10]) by cncheex01.Hygon.cn
- ([172.23.18.10]) with mapi id 15.01.1466.003; Tue, 15 Dec 2020 17:35:33 +0800
-From:   Shan Chen <chenshan@hygon.cn>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "alikernel-developer@linux.alibaba.com" 
-        <alikernel-developer@linux.alibaba.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Yuanchen Ma <mayuanchen@hygon.cn>, Hao Feng <fenghao@hygon.cn>,
-        Zhiwei Ying <yingzhiwei@hygon.cn>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Shan Chen <chenshan@hygon.cn>
-Subject: =?gb2312?B?tPC4tDogW1BBVENIIEFsaU9TIDQuMTkgdjMgMTEvMTVdIEtFWVM6IHRydXN0?=
- =?gb2312?B?ZWQ6IGFsbG93IG1vZHVsZSBpbml0IGlmIFRQTSBpcyBpbmFjdGl2ZSBvciBk?=
- =?gb2312?Q?eactivated?=
-Thread-Topic: [PATCH AliOS 4.19 v3 11/15] KEYS: trusted: allow module init if
- TPM is inactive or deactivated
-Thread-Index: AQHW0rx6v7AcU4kPP0iNt+UcVbbCPqn3XIKAgACGRhA=
-Date:   Tue, 15 Dec 2020 09:35:33 +0000
-Message-ID: <8411d5fe0630417885e0d68dd30db7ad@hygon.cn>
-References: <cover.1608019826.git.chenshan@hygon.cn>
- <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
- <X9iAuzeS1wJDPVLg@kroah.com>
-In-Reply-To: <X9iAuzeS1wJDPVLg@kroah.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.23.18.44]
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+        id S1727278AbgLOKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 05:06:40 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30874 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725890AbgLOKGj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 05:06:39 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BFA1K23176476;
+        Tue, 15 Dec 2020 05:05:32 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=vg5nrvOnbBXg3RgxIUAr+F3NUfz7AVogdR11eVRzOtw=;
+ b=E3sYiFkPkk6iPrpxN4gcAlqF68odThuy9LxRQZBGtXPGmnj9CmQrzU3GwQx+mevFom2X
+ D5g0JD9v0WqyJ7dnKq8x5XK76at5LDduXNvq2j8sseWv/GnSkSDrzPG5sw57S/0UvYW5
+ b2/6yIUHetY+I2ZRlSH3Tc2JGRkatMavufR3LLgLN+B1kK6x7eD+7/VuFqom3w1XivxS
+ oJsK6ZU50exciKukdVW/ppUKlBwZpXZ136XCPkVvhGb8m/4GoZwbA/hlBYKsBorhPFNn
+ g7JsBI8yoyCepUvN+Lkz2LHYZHfzjFKAsUbir3a4mAIxW/onRc0DxV0pA9cnn6dZCCVJ 1g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35esxd2egb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Dec 2020 05:05:32 -0500
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BFA2CEX180944;
+        Tue, 15 Dec 2020 05:05:31 -0500
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35esxd2efd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Dec 2020 05:05:31 -0500
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BF9vRvj000727;
+        Tue, 15 Dec 2020 10:05:30 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03fra.de.ibm.com with ESMTP id 35cng8cm2q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Dec 2020 10:05:29 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BFA49mv63439168
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 15 Dec 2020 10:04:09 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 38288A405C;
+        Tue, 15 Dec 2020 10:04:09 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DA538A4060;
+        Tue, 15 Dec 2020 10:04:06 +0000 (GMT)
+Received: from localhost.localdomain.com (unknown [9.199.60.199])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 15 Dec 2020 10:04:06 +0000 (GMT)
+From:   Harish <harish@linux.ibm.com>
+To:     shuah@kernel.org, akpm@linux-foundation.org,
+        sandipan@linux.ibm.com, jhubbard@nvidia.com, dave.hansen@intel.com,
+        kirill.shutemov@linux.intel.com, bgeffon@google.com,
+        almasrymina@google.com, suxingxing@loongson.cn
+Cc:     Harish <harish@linux.ibm.com>, linux-kselftest@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] selftests/vm: Fix building protection keys test
+Date:   Tue, 15 Dec 2020 15:34:02 +0530
+Message-Id: <20201215100402.257376-1-harish@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-X-MAIL: spam2.hygon.cn 0BF9Zb9Q005328
-X-DNSRBL: 
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-15_08:2020-12-11,2020-12-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 mlxscore=0 lowpriorityscore=0 clxscore=1011 mlxlogscore=999
+ bulkscore=0 adultscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012150067
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCg0KLVNoYW4NCg0KPiAtLS0tLdPKvP7Urbz+LS0tLS0NCj4gt6K8/sjLOiBHcmVnIEtIIFtt
-YWlsdG86Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmddDQo+ILeiy83KsbzkOiAyMDIwxOoxMtTC
-MTXI1SAxNzoyNA0KPiDK1bz+yMs6IFNoYW4gQ2hlbiA8Y2hlbnNoYW5AaHlnb24uY24+DQo+ILOt
-y806IGFsaWtlcm5lbC1kZXZlbG9wZXJAbGludXguYWxpYmFiYS5jb207IFJvYmVydG8gU2Fzc3UN
-Cj4gPHJvYmVydG8uc2Fzc3VAaHVhd2VpLmNvbT47IFl1YW5jaGVuIE1hIDxtYXl1YW5jaGVuQGh5
-Z29uLmNuPjsgSGFvDQo+IEZlbmcgPGZlbmdoYW9AaHlnb24uY24+OyBaaGl3ZWkgWWluZyA8eWlu
-Z3poaXdlaUBoeWdvbi5jbj47DQo+IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc7IEphcmtrbyBTYWtr
-aW5lbiA8amFya2tvLnNha2tpbmVuQGxpbnV4LmludGVsLmNvbT4NCj4g1vfM4jogUmU6IFtQQVRD
-SCBBbGlPUyA0LjE5IHYzIDExLzE1XSBLRVlTOiB0cnVzdGVkOiBhbGxvdyBtb2R1bGUgaW5pdCBp
-ZiBUUE0NCj4gaXMgaW5hY3RpdmUgb3IgZGVhY3RpdmF0ZWQNCj4gDQo+IE9uIFR1ZSwgRGVjIDE1
-LCAyMDIwIGF0IDA0OjI5OjE4UE0gKzA4MDAsIFNoYW4gd3JvdGU6DQo+ID4gRnJvbTogUm9iZXJ0
-byBTYXNzdSA8cm9iZXJ0by5zYXNzdUBodWF3ZWkuY29tPg0KPiA+DQo+ID4gY29tbWl0IDJkNmMy
-NTIxNWFiMjZiYjAwOWRlMzU3NWZhYWI3YjY4NWYxMzhlOTIgdXBzdHJlYW0uDQo+ID4NCj4gPiBD
-b21taXQgYzc4NzE5MjAzZmM2ICgiS0VZUzogdHJ1c3RlZDogYWxsb3cgdHJ1c3RlZC5rbyB0byBp
-bml0aWFsaXplDQo+ID4gdy9vIGENCj4gPiBUUE0iKSBhbGxvd3MgdGhlIHRydXN0ZWQgbW9kdWxl
-IHRvIGJlIGxvYWRlZCBldmVuIGlmIGEgVFBNIGlzIG5vdA0KPiA+IGZvdW5kLCB0byBhdm9pZCBt
-b2R1bGUgZGVwZW5kZW5jeSBwcm9ibGVtcy4NCj4gPg0KPiA+IEhvd2V2ZXIsIHRydXN0ZWQgbW9k
-dWxlIGluaXRpYWxpemF0aW9uIGNhbiBzdGlsbCBmYWlsIGlmIHRoZSBUUE0gaXMNCj4gPiBpbmFj
-dGl2ZSBvciBkZWFjdGl2YXRlZC4gdHBtX2dldF9yYW5kb20oKSByZXR1cm5zIGFuIGVycm9yLg0K
-PiA+DQo+ID4gVGhpcyBwYXRjaCByZW1vdmVzIHRoZSBjYWxsIHRvIHRwbV9nZXRfcmFuZG9tKCkg
-YW5kIGluc3RlYWQgZXh0ZW5kcw0KPiA+IHRoZSBQQ1Igc3BlY2lmaWVkIGJ5IHRoZSB1c2VyIHdp
-dGggemVyb3MuIFRoZSBzZWN1cml0eSBvZiB0aGlzDQo+ID4gYWx0ZXJuYXRpdmUgaXMgZXF1aXZh
-bGVudCB0byB0aGUgcHJldmlvdXMgb25lLCBhcyBlaXRoZXIgb3B0aW9uDQo+ID4gcHJldmVudHMg
-d2l0aCBhIFBDUiB1cGRhdGUgdW5zZWFsaW5nIGFuZCBtaXN1c2Ugb2Ygc2VhbGVkIGRhdGEgYnkg
-YSB1c2VyDQo+IHNwYWNlIHByb2Nlc3MuDQo+ID4NCj4gPiBFdmVuIGlmIGEgUENSIGlzIGV4dGVu
-ZGVkIHdpdGggemVyb3MsIGluc3RlYWQgb2YgcmFuZG9tIGRhdGEsIGl0IGlzDQo+ID4gc3RpbGwg
-Y29tcHV0YXRpb25hbGx5IGluZmVhc2libGUgdG8gZmluZCBhIHZhbHVlIGFzIGlucHV0IGZvciBh
-IG5ldw0KPiA+IFBDUiBleHRlbmQgb3BlcmF0aW9uLCB0byBvYnRhaW4gYWdhaW4gdGhlIFBDUiB2
-YWx1ZSB0aGF0IHdvdWxkIGFsbG93DQo+IHVuc2VhbGluZy4NCj4gPg0KPiA+IENjOiBzdGFibGVA
-dmdlci5rZXJuZWwub3JnDQo+ID4gRml4ZXM6IDI0MDczMDQzN2RlYiAoIktFWVM6IHRydXN0ZWQ6
-IGV4cGxpY2l0bHkgdXNlIHRwbV9jaGlwDQo+ID4gc3RydWN0dXJlLi4uIikNCj4gPiBTaWduZWQt
-b2ZmLWJ5OiBSb2JlcnRvIFNhc3N1IDxyb2JlcnRvLnNhc3N1QGh1YXdlaS5jb20+DQo+ID4gUmV2
-aWV3ZWQtYnk6IFR5bGVyIEhpY2tzIDx0eWhpY2tzQGNhbm9uaWNhbC5jb20+DQo+ID4gU3VnZ2Vz
-dGVkLWJ5OiBNaW1pIFpvaGFyIDx6b2hhckBsaW51eC5pYm0uY29tPg0KPiA+IFJldmlld2VkLWJ5
-OiBKYXJra28gU2Fra2luZW4gPGphcmtrby5zYWtraW5lbkBsaW51eC5pbnRlbC5jb20+DQo+ID4g
-U2lnbmVkLW9mZi1ieTogSmFya2tvIFNha2tpbmVuIDxqYXJra28uc2Fra2luZW5AbGludXguaW50
-ZWwuY29tPg0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogbWF5dWFuY2hlbiA8bWF5dWFuY2hlbkBo
-eWdvbi5jbj4NCj4gPiBDaGFuZ2UtSWQ6IElhZGEwZTA1MmMyYWI0YTBmYmMyZGI0YWMyNjkwZGEz
-MTE1ZDk4NWM2DQo+ID4gU2lnbmVkLW9mZi1ieTogU2hhbiA8Y2hlbnNoYW5AaHlnb24uY24+DQo+
-ID4gLS0tDQo+ID4gIHNlY3VyaXR5L2tleXMvdHJ1c3RlZC5jIHwgMTMgLS0tLS0tLS0tLS0tLQ0K
-PiA+ICAxIGZpbGUgY2hhbmdlZCwgMTMgZGVsZXRpb25zKC0pDQo+IA0KPiBXaHkgaXMgdGhpcyBi
-ZWluZyBzZW50IHRvIHRoZSBzdGFibGUgbGlzdD8gIERvIHlvdSB3YW50IHRoaXMgYmFja3BvcnRl
-ZCB0bw0KPiA0LjE5Lnk/ICBJZiBzbywgd2h5LCBhbmQgd2hhdCBpcyB0aGUgY2hhbmdlLWlkIHN0
-dWZmIGluIHRoZXJlIGZvcj8NCj4gDQo+IGNvbmZ1c2VkLA0KPiANCj4gZ3JlZyBrLWgNCg0KU29y
-cnkgZm9yIHRoZSBkaXN0dXJiaW5nLCBpdCdzIG5vdCBtZWFudCBmb3IgdGhlIGtlcm5lbCBjb21t
-dW5pdHkuIFdlJ3JlIGJhY2twb3J0aW5nIHRoaXMgY29tbWl0IGZvciBzb21lIHByaXZhdGUgdXNh
-Z2UsIGFuZCBjYXJlbGVzc2x5IHNlbnQgb3V0IHRoaXMgbWFpbCBhcyBnaXQgc2VuZC1lbWFpbCBh
-dXRvbWF0aWNhbGx5IGNjJ2VkIHRoZSBzb2IgbGlzdGVkIGFkZHJlc3Nlcy4gSGF2ZSBoYWQgdGhl
-IGNjIHN1cHByZXNzZWQuIHBscyBpZ25vcmUuIFRoYW5rcyENCg0KU2hhbg0K
+The patch d8cbe8bfa7d tries to include a ARCH check for powerpc,
+however ARCH is not defined in the Makefile before including
+lib.mk. This makes test building to skip on both x86 and powerpc.
+Fix the arch check by replacing it using machine type as it is
+already defined and used in the test.
+
+Fixes: d8cbe8bfa7d ("tools/testing/selftests/vm: fix build error")
+Signed-off-by: Harish <harish@linux.ibm.com>
+---
+
+Changes from v1:
+ - Add cause for test skip
+ - Handle x86_64 architecture
+ - Minor fixes to handle ppc64/ppc64le
+ - Add Fixes tag
+---
+ tools/testing/selftests/vm/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index 691893afc15d..e63f31632708 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm selftests
+ uname_M := $(shell uname -m 2>/dev/null || echo not)
+-MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
++MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/' -e 's/ppc64.*/ppc64/')
+ 
+ # Without this, failed build products remain, with up-to-date timestamps,
+ # thus tricking Make (and you!) into believing that All Is Well, in subsequent
+@@ -39,7 +39,7 @@ TEST_GEN_FILES += transhuge-stress
+ TEST_GEN_FILES += userfaultfd
+ TEST_GEN_FILES += khugepaged
+ 
+-ifeq ($(ARCH),x86_64)
++ifeq ($(MACHINE),x86_64)
+ CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
+ CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
+ CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
+@@ -61,13 +61,13 @@ TEST_GEN_FILES += $(BINARIES_64)
+ endif
+ else
+ 
+-ifneq (,$(findstring $(ARCH),powerpc))
++ifneq (,$(findstring $(MACHINE),ppc64))
+ TEST_GEN_FILES += protection_keys
+ endif
+ 
+ endif
+ 
+-ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 ppc64le riscv64 s390x sh64 sparc64 x86_64))
++ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 riscv64 s390x sh64 sparc64 x86_64))
+ TEST_GEN_FILES += va_128TBswitch
+ TEST_GEN_FILES += virtual_address_range
+ TEST_GEN_FILES += write_to_hugetlbfs
+@@ -82,7 +82,7 @@ include ../lib.mk
+ 
+ $(OUTPUT)/hmm-tests: LDLIBS += -lhugetlbfs -lpthread
+ 
+-ifeq ($(ARCH),x86_64)
++ifeq ($(MACHINE),x86_64)
+ BINARIES_32 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
+ BINARIES_64 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
+ 
+-- 
+2.26.2
+
