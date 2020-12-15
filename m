@@ -2,98 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1051B2DA8DC
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 09:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4AA2DA90A
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 09:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbgLOIE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 03:04:57 -0500
-Received: from mga17.intel.com ([192.55.52.151]:59479 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726249AbgLOIEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Dec 2020 03:04:47 -0500
-IronPort-SDR: iMSO8qop0vBUw73olcszh6hOc18CAY01VComXn0smvo87d8Ug3m1OvhAKLIXDByslBpwcQYLJz
- a7hLZRnZ8gEA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9835"; a="154649322"
-X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="154649322"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Dec 2020 00:04:05 -0800
-IronPort-SDR: X7w60umHBYVcg81LO00WjKgRfF1of3r81LUUCqpVwXv7b2knWPLG8UHmjWQoo5S6v5+8SEv6ng
- j9cPVQfU3mQQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.78,420,1599548400"; 
-   d="scan'208";a="558613651"
-Received: from ahunter-desktop.fi.intel.com (HELO [10.237.72.94]) ([10.237.72.94])
-  by fmsmga005.fm.intel.com with ESMTP; 15 Dec 2020 00:04:02 -0800
-Subject: Re: [PATCH] mmc: sdhci-xenon: fix 1.8v regulator stabilization
-To:     Marcin Wojtas <mw@semihalf.com>, linux-kernel@vger.kernel.org,
-        linux-mmc@vger.kernel.org
-Cc:     ulf.hansson@linaro.org, huziji@marvell.com, jaz@semihalf.com,
-        tn@semihalf.com, kostap@marvell.com,
-        Alex Leibovich <alexl@marvell.com>, stable@vger.kernel.org
-References: <20201211141656.24915-1-mw@semihalf.com>
-From:   Adrian Hunter <adrian.hunter@intel.com>
-Organization: Intel Finland Oy, Registered Address: PL 281, 00181 Helsinki,
- Business Identity Code: 0357606 - 4, Domiciled in Helsinki
-Message-ID: <f6d0f22c-2a19-d1dc-b370-4238a7d2d9b3@intel.com>
-Date:   Tue, 15 Dec 2020 10:03:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1726736AbgLOIOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 03:14:46 -0500
+Received: from mail2.directv.syn-alias.com ([69.168.106.50]:19556 "EHLO
+        mail.directv.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725922AbgLOIOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 03:14:44 -0500
+DKIM-Signature: v=1; a=rsa-sha1; d=wildblue.net; s=20170921; c=relaxed/simple;
+        q=dns/txt; i=@wildblue.net; t=1608020040;
+        h=From:Subject:Date:To:MIME-Version:Content-Type;
+        bh=7QFBJ3ol0iIxaa51AmjyWQzIBkY=;
+        b=Inxnutk7D4umMSefCDdJeDBaYD8E127fizeYWe6ej4wfAJ8jH28WO1t5rAmKDtDx
+        SJ6fCoskJk5/aiApaHcHHsAylXKcLKVjY7BqqJ0nhUikxxooyBkZqps9+0D7a/mD
+        INr69nKqzJpuLubflopRrLE1om2osZigZyP37BrqXMRlgjbKts4T47Qdumw0oybr
+        OB6xgUf2LxgbemGnkPu3gY/g4ELCSW5NjiCy7FE+ONPTr73W+vErj3Nft7X4iSuu
+        3iIgW97oiPuAVuHbZZo1Hug8oMltvLb9uxHnQdO9ZazwvHZ3b5rEBwagXp3oTEC9
+        XR5clzzF2SHi5KQlpitjhQ==;
+X_CMAE_Category: , ,
+X-CNFS-Analysis: v=2.3 cv=W95Gqiek c=1 sm=1 tr=0 cx=a_idp_x a=2lFl+QxTouiIEabbTS0tYw==:117 a=9cW_t1CCXrUA:10 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=0HWvpWdjkFgA:10 a=8CtJfJBZR_UA:10 a=IkcTkHD0fZMA:10 a=zTNgK-yGK50A:10 a=A3tKBufkE8oA:10 a=q-lTWTPkEJ0A:10 a=x7bEGLp0ZPQA:10 a=rWLlr_ktIPNyxI42s1YA:9 a=QEXdDO2ut3YA:10 a=xo5jKAKm-U-Zyk2_beg_:22 a=jesCJw-TT3PGqT-kMy3s:22 a=pHzHmUro8NiASowvMSCR:22 a=Ew2E2A-JSTLzCXPT_086:22
+X-CM-Score: 0
+X-Scanned-by: Cloudmark Authority Engine
+X-Authed-Username: amFtZXNrbmlnaHRAd2lsZGJsdWUubmV0
+Received: from [10.80.118.14] ([10.80.118.14:56902] helo=md06.jasper.bos.sync.lan)
+        by mail2.directv.syn-alias.com (envelope-from <jamesknight@wildblue.net>)
+        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
+        id F9/6D-08087-74078DF5; Tue, 15 Dec 2020 03:13:59 -0500
+Date:   Tue, 15 Dec 2020 03:13:59 -0500 (EST)
+From:   Anders Karlsson <jamesknight@wildblue.net>
+Reply-To: andresk1470@gmail.com
+Message-ID: <1740542491.127856197.1608020039307.JavaMail.zimbra@wildblue.net>
+Subject: 
 MIME-Version: 1.0
-In-Reply-To: <20201211141656.24915-1-mw@semihalf.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [95.137.178.183]
+X-Mailer: Zimbra 8.7.6_GA_1776 (zclient/8.7.6_GA_1776)
+Thread-Index: W9J2L6T0gRyaHmKkknD+A2ITCtIt9A==
+Thread-Topic: 
+X-Vade-Verditct: spam:high
+X-Vade-Analysis: gggruggvucftvghtrhhoucdtuddrgedujedrudekledguddulecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfujgfpteevqfftpdggkfetufetvfdpqfgfvfenuceurghilhhouhhtmecufedtudenucgohfhorhgsihguuggvnhfjughrucdlhedttddmnecujfgurhepfffhrhfkufggtgfgihfothesthejtgdtredtjeenucfhrhhomheptehnuggvrhhsucfmrghrlhhsshhonhcuoehjrghmvghskhhnihhghhhtseifihhluggslhhuvgdrnhgvtheqnecuggftrfgrthhtvghrnhepgffhfeegteegffejhfelvdfhgeegleevtdduffehkeeugfdvueffjeekuefhfeejnecukfhppedutddrkedtrdduudekrddugedpleehrddufeejrddujeekrddukeefnecuhfhorhgsihguuggvnhfjughrpeffhfhrkffugggtgfhiofhtsehtjegttdertdejnecuvehluhhsthgvrhfuihiivgepudegnecurfgrrhgrmhepihhnvghtpedutddrkedtrdduudekrddugeenpdhmrghilhhfrhhomhepjhgrmhgvshhknhhighhhthesfihilhgusghluhgvrdhnvghtnedprhgtphhtthhopehsthgvtghhmhesudeifedrtghomhen
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/12/20 4:16 pm, Marcin Wojtas wrote:
-> From: Alex Leibovich <alexl@marvell.com>
-> 
-> Automatic Clock Gating is a feature used for the power
-> consumption optimisation. It turned out that
-> during early init phase it may prevent the stable voltage
-> switch to 1.8V - due to that on some platfroms an endless
-
-platfroms -> platforms
-
-> printout in dmesg can be observed:
-> "mmc1: 1.8V regulator output did not became stable"
-> Fix the problem by disabling the ACG at very beginning
-> of the sdhci_init and let that be enabled later.
-> 
-> Fixes: 3a3748dba881 ("mmc: sdhci-xenon: Add Marvell Xenon SDHC core functionality")
-> Signed-off-by: Alex Leibovich <alexl@marvell.com>
-> Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-> Cc: stable@vger.kernel.org
-
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-
-> ---
->  drivers/mmc/host/sdhci-xenon.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/mmc/host/sdhci-xenon.c b/drivers/mmc/host/sdhci-xenon.c
-> index c67611fdaa8a..4b05f6fdefb4 100644
-> --- a/drivers/mmc/host/sdhci-xenon.c
-> +++ b/drivers/mmc/host/sdhci-xenon.c
-> @@ -168,7 +168,12 @@ static void xenon_reset_exit(struct sdhci_host *host,
->  	/* Disable tuning request and auto-retuning again */
->  	xenon_retune_setup(host);
->  
-> -	xenon_set_acg(host, true);
-> +	/*
-> +	 * The ACG should be turned off at the early init time, in order
-> +	 * to solve a possile issues with the 1.8V regulator stabilization.
-
-a possile -> possible
-
-> +	 * The feature is enabled in later stage.
-> +	 */
-> +	xenon_set_acg(host, false);
->  
->  	xenon_set_sdclk_off_idle(host, sdhc_id, false);
->  
-> 
-
+Did you get my email
