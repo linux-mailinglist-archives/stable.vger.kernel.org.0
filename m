@@ -2,83 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F35072DB1E7
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 17:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95D962DB2ED
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 18:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731135AbgLOQwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 11:52:06 -0500
-Received: from mx2.suse.de ([195.135.220.15]:58476 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725947AbgLOQwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Dec 2020 11:52:01 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 947FAAC7F;
-        Tue, 15 Dec 2020 16:51:19 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 6FB70DA7C3; Tue, 15 Dec 2020 17:49:40 +0100 (CET)
-Date:   Tue, 15 Dec 2020 17:49:40 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] btrfs: fix possible free space tree corruption with
- online conversion
-Message-ID: <20201215164940.GW6430@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
-        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org
-References: <e5f7fe3ad3a612efeda53f016904aff332db6f8a.1607610739.git.josef@toxicpanda.com>
+        id S1731175AbgLORoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 12:44:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:52687 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726072AbgLORoQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 12:44:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608054170;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zn2O0Yhhu1DgJxagbxrqvVu4xN/sjNU7imuSGqsiR7U=;
+        b=dMcUcor0IkvDy3PUhFd1AKUEcgwy4VF8Ws5GsllTas9AWyUy8C6DT+lIkhjM2SAfACago6
+        86JSABG0ehAxhd9rNCLx20afvscoceZiqwqGwoOYkimv4S82cBqylmbaEbxq33zWHIe0En
+        47oeytJOpThZ7JvSG3EmnlD83JgNkZc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-596-z3d7gljTOCqguLxPk_neRg-1; Tue, 15 Dec 2020 12:42:46 -0500
+X-MC-Unique: z3d7gljTOCqguLxPk_neRg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0C064801AC1;
+        Tue, 15 Dec 2020 17:42:45 +0000 (UTC)
+Received: from gondolin (ovpn-114-220.ams2.redhat.com [10.36.114.220])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 29F905D9E8;
+        Tue, 15 Dec 2020 17:42:36 +0000 (UTC)
+Date:   Tue, 15 Dec 2020 18:42:34 +0100
+From:   Cornelia Huck <cohuck@redhat.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, sashal@kernel.org,
+        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v3] s390/vfio-ap: clean up vfio_ap resources when KVM
+ pointer invalidated
+Message-ID: <20201215184234.186b2971.cohuck@redhat.com>
+In-Reply-To: <20201214165617.28685-1-akrowiak@linux.ibm.com>
+References: <20201214165617.28685-1-akrowiak@linux.ibm.com>
+Organization: Red Hat GmbH
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e5f7fe3ad3a612efeda53f016904aff332db6f8a.1607610739.git.josef@toxicpanda.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 10, 2020 at 09:32:31AM -0500, Josef Bacik wrote:
-> While running btrfs/011 in a loop I would often ASSERT() while trying to
-> add a new free space entry that already existed, or get an -EEXIST while
-> adding a new block to the extent tree, which is another indication of
-> double allocation.
+On Mon, 14 Dec 2020 11:56:17 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Do you have the stack traces? I'll update the changelog if you send it.
-
-> This occurs because when we do the free space tree population, we create
-> the new root and then populate the tree and commit the transaction.
-> The problem is when you create a new root, the root node and commit root
-> node are the same.  This means that caching a block group before the
-> transaction is committed can race with other operations modifying the
-> free space tree, and thus you can get double adds and other sort of
-> shenanigans.  This is only a problem for the first transaction, once
-> we've committed the transaction we created the free space tree in we're
-> OK to use the free space tree to cache block groups.
+> The vfio_ap device driver registers a group notifier with VFIO when the
+> file descriptor for a VFIO mediated device for a KVM guest is opened to
+> receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+> event). When the KVM pointer is set, the vfio_ap driver takes the
+> following actions:
+> 1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
+>    of the mediated device.
+> 2. Calls the kvm_get_kvm() function to increment its reference counter.
+> 3. Sets the function pointer to the function that handles interception of
+>    the instruction that enables/disables interrupt processing.
+> 4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
+>    the guest.
 > 
-> Fix this by marking the fs_info as unsafe to load the free space tree,
-> and fall back on the old slow method.  We could be smarter than this,
-> for example caching the block group while we're populating the free
-> space tree, but since this is a serious problem I've opted for the
-> simplest solution.
+> In order to avoid memory leaks, when the notifier is called to receive
+> notification that the KVM pointer has been set to NULL, the vfio_ap device
+> driver should reverse the actions taken when the KVM pointer was set.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 29 ++++++++++++++++++++---------
+>  1 file changed, 20 insertions(+), 9 deletions(-)
 
-Makes sense, this is a one-time thing during setup.
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-> cc: stable@vger.kernel.org
-
-CC: stable@vger.kernel.org
-
-If you send patch with the tag it's good to also note the minimal
-version where it's relevant as you can easily reuse the knowledge from
-developing the fix. The patch may not apply due to other changes, but
-trivial context fixups are done by people interested in the backports.
-
-> Fixes: a5ed91828518 ("Btrfs: implement the free space B-tree")
-
-So if you know the offending commit, run
-
-  $ git describe --contains a5ed91828518
-  v4.5-rc1~21^2~22^2^2~3
-
-which is 4.9.
