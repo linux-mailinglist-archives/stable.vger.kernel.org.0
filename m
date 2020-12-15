@@ -2,82 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5B32DAC13
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 12:32:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B4F2DAEAA
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 15:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728588AbgLOL32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 06:29:28 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:48809 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728755AbgLOL3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 06:29:07 -0500
-X-UUID: d649938fcd7145598d56f9b38e2b3dc6-20201215
-X-UUID: d649938fcd7145598d56f9b38e2b3dc6-20201215
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kuan-ying.lee@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 2015639770; Tue, 15 Dec 2020 19:28:21 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Tue, 15 Dec 2020 19:28:07 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Tue, 15 Dec 2020 19:28:08 +0800
-From:   Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
-        <stable@vger.kernel.org>,
-        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Subject: [PATCH 1/1] kasan: fix memory leak of kasan quarantine
-Date:   Tue, 15 Dec 2020 19:28:03 +0800
-Message-ID: <1608031683-24967-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
-X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1608031683-24967-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
-References: <1608031683-24967-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
+        id S1727407AbgLOONZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 09:13:25 -0500
+Received: from mail.flowtrinidad.com ([200.1.104.38]:39873 "EHLO
+        mail.flowtrinidad.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725890AbgLOONZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 09:13:25 -0500
+X-Greylist: delayed 406 seconds by postgrey-1.27 at vger.kernel.org; Tue, 15 Dec 2020 09:13:24 EST
+Received: (qmail 48154 invoked by uid 0); 15 Dec 2020 14:05:56 -0000
+Received: from unknown (HELO mail.flowtrinidad.com) (127.0.0.1)
+  by mail.flowtrinidad.com with SMTP; 15 Dec 2020 14:05:56 -0000
+Received: from 196.47.133.52
+        (SquirrelMail authenticated user viti4388@flowtrinidad.net)
+        by mail.flowtrinidad.com with HTTP;
+        Tue, 15 Dec 2020 14:05:56 -0000 (UTC)
+Message-ID: <11407.196.47.133.52.1608041156.squirrel@mail.flowtrinidad.com>
+Date:   Tue, 15 Dec 2020 14:05:56 -0000 (UTC)
+Subject: please comfirm to me this mail.
+From:   "Geraldine" <geraldined@equityzen.com>
+Reply-To: fodegeraldined@gmail.com
+User-Agent: SquirrelMail/1.4.7
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type:   text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When cpu is going offline, set q->offline as true
-and interrupt happened. The interrupt may call the
-quarantine_put. But quarantine_put do not free the
-the object. The object will cause memory leak.
 
-Add qlink_free() to free the object.
 
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: <stable@vger.kernel.org>    [5.10-]
----
- mm/kasan/quarantine.c | 1 +
- 1 file changed, 1 insertion(+)
+Dear Sir/Madam
 
-diff --git a/mm/kasan/quarantine.c b/mm/kasan/quarantine.c
-index 0e3f8494628f..cac7c617df72 100644
---- a/mm/kasan/quarantine.c
-+++ b/mm/kasan/quarantine.c
-@@ -191,6 +191,7 @@ void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
- 
- 	q = this_cpu_ptr(&cpu_quarantine);
- 	if (q->offline) {
-+		qlink_free(&info->quarantine_link, cache);
- 		local_irq_restore(flags);
- 		return;
- 	}
--- 
-2.18.0
+My name is Geraldine Darina Fode. I have interest in investing in your
+country into a Joint-Investment and I have funds deposited in a Bank here
+by my late father. I am contacting you because I need your urgent help to
+secure my money that my late father kept in a bank in my name before he
+died. And i will tell you the actual amount involved upon receiving your
+response, because of my age I cannot be able to handle it by myself that
+is why I am contacting you due stability in your country and want you to
+invest the fund for me in a good venture while i will continue my
+education.
+
+Upon getting Response from you, I will let you know the actual amount of
+the money that is involved and the country where the money is being kept
+and as well send you the original copies of deposit documents in my
+possession. Note that I am doing this because of security reasons. You
+will stand as my guardian before the bank and receive the money in your
+account on my behalf through bank Trans.
+
+Please I will like you to reply to my message so that I will send to you
+the more details, so that you can contact them.
+
+Your Sincerely
+
+Geraldine.
+
+
 
