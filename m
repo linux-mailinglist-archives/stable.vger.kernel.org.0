@@ -2,85 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED262DB540
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 21:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A01452DB626
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 22:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbgLOUdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 15:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728482AbgLOUdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 15:33:09 -0500
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DADC0617A7;
-        Tue, 15 Dec 2020 12:32:29 -0800 (PST)
-Received: by mail-ot1-x343.google.com with SMTP id j20so16247321otq.5;
-        Tue, 15 Dec 2020 12:32:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=o+v89JGGhlvqA9wa+E0Hda0WsmZ5Ppq6XKpO4sojmPs=;
-        b=MuWijT/n+YlvF1vqbP+phEkZ2oS0ZmnmyQyBtyuJ3xbzY4geoaZKA550SwXH7eYldI
-         PRa4EFXR5D3tMqjjGOoUICAu5WZYhgqyB2nb8FuYY7wF9Ivc1pTuY6XQ7FCwaZxIzgOy
-         wTmkhy4C1AORV2SiVw5ME1Qfwe2/NN+WF9/P0xVGggCII01O3B983IOkViztKc81EJ0y
-         j9a1lumIYMVIv+tvoFXchH+w2/FEWeES8uUTgyvbCLANOHDXz6QEshcq7ZU7mXPYJEGD
-         512LyIzj4ewirLhE+00KmLLO7vX/51RBNEKvTf/+YjTCjtbf7OBprmsHkGq176QlNJ0b
-         ivFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=o+v89JGGhlvqA9wa+E0Hda0WsmZ5Ppq6XKpO4sojmPs=;
-        b=E8sa5bbr0orfrAThX5d8AIU1DdT2Qtz3Xp4mLz5ebsv/3LdjqBeVkxqBFS5yrQJcRa
-         9RmM5yjT/1jaJk0horFNb+HOHBwSnOFGr2sABNMrTY6vEYRestPB3+6uKGl7g14SQtnC
-         RtZnvEBi6O3i0PRQo+8QV9LiiZOCyn6U3SFEEjJq9yIJ9F1FNyB8fMb1LP+dAhcOnVt7
-         6T45trkRTRsAbxDnfVpFPXLdX345NwT7UgacyT6oVtTV3EhHfN/gTIHuB4NU3PGStn3a
-         odIC6F6KAgZR2vcEjJmoG2THOr2FISALQ6I6SKJYxZn6s5VPfuQxC8b2zOmcmRbXADUq
-         uMEw==
-X-Gm-Message-State: AOAM533hNIcm5AEE68V8NMn9Kb6Hg6edsJtpcStYjJoJkd8T5Mp18WGX
-        jzqR/cVxNs1u5+oDEKPiqjQ=
-X-Google-Smtp-Source: ABdhPJwvDZdVslicWgDRg4MHdoJQN1B/aOtdJQLhnQEGynOrYfGTHNHPHmshfUYdAtsJWmvV99PoUw==
-X-Received: by 2002:a9d:7851:: with SMTP id c17mr24871134otm.255.1608064348643;
-        Tue, 15 Dec 2020 12:32:28 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f25sm2312979oou.39.2020.12.15.12.32.27
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 15 Dec 2020 12:32:28 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 15 Dec 2020 12:32:26 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 0/2] 5.10.1-rc1 review
-Message-ID: <20201215203226.GC188376@roeck-us.net>
-References: <20201214170452.563016590@linuxfoundation.org>
+        id S1730506AbgLOVvs convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 15 Dec 2020 16:51:48 -0500
+Received: from mga07.intel.com ([134.134.136.100]:25460 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729920AbgLOVvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 16:51:42 -0500
+IronPort-SDR: zyaRk/CvN+1A4TtdfMq3UZPjHXB+eRU80nWdna4capArFYZou+UrVRjYo/dT21Q2Gjk9oXQzmO
+ YqV54HrDUMsg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9836"; a="239056056"
+X-IronPort-AV: E=Sophos;i="5.78,422,1599548400"; 
+   d="scan'208";a="239056056"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Dec 2020 13:50:55 -0800
+IronPort-SDR: hqM5EeESLg84gwPnKM4DQvb52gKJ0XJEMKkMb9b9b58E42vxikOFC4ieb3UdUbBCz59Yd3OvUY
+ OGnbig/Xfnaw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.78,422,1599548400"; 
+   d="scan'208";a="385599985"
+Received: from fmsmsx605.amr.corp.intel.com ([10.18.126.85])
+  by fmsmga002.fm.intel.com with ESMTP; 15 Dec 2020 13:50:54 -0800
+Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx605.amr.corp.intel.com (10.18.126.85) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 15 Dec 2020 13:50:54 -0800
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 15 Dec 2020 13:50:54 -0800
+Received: from fmsmsx611.amr.corp.intel.com ([10.18.126.91]) by
+ fmsmsx611.amr.corp.intel.com ([10.18.126.91]) with mapi id 15.01.1713.004;
+ Tue, 15 Dec 2020 13:50:54 -0800
+From:   "Tang, CQ" <cq.tang@intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] drm/i915: Fix mismatch between misplaced vma check and
+ vma insert
+Thread-Topic: [PATCH] drm/i915: Fix mismatch between misplaced vma check and
+ vma insert
+Thread-Index: AQHW0yFaZRo6vG6Mak+aWPfGnGQ8fqn4shPA
+Date:   Tue, 15 Dec 2020 21:50:53 +0000
+Message-ID: <3e4fe0b2533e48d19d78f3a4752b6508@intel.com>
+References: <20201215203111.650-1-chris@chris-wilson.co.uk>
+In-Reply-To: <20201215203111.650-1-chris@chris-wilson.co.uk>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.5.1.3
+x-originating-ip: [10.22.254.132]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201214170452.563016590@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 14, 2020 at 06:06:09PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.1 release.
-> There are 2 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+
+
+> -----Original Message-----
+> From: Chris Wilson <chris@chris-wilson.co.uk>
+> Sent: Tuesday, December 15, 2020 12:31 PM
+> To: intel-gfx@lists.freedesktop.org
+> Cc: Chris Wilson <chris@chris-wilson.co.uk>; Tang, CQ <cq.tang@intel.com>;
+> stable@vger.kernel.org
+> Subject: [PATCH] drm/i915: Fix mismatch between misplaced vma check and
+> vma insert
 > 
-> Responses should be made by Monday, 14 Dec 2020 18:04:42 +0000.
-> Anything received after that time might be too late.
+> When inserting a VMA, we restrict the placement to the low 4G unless the
+> caller opts into using the full range. This was done to allow usersapce the
+> opportunity to transition slowly from a 32b address space, and to avoid
+> breaking inherent 32b assumptions of some commands.
 > 
+> However, for insert we limited ourselves to 4G-4K, but on verification we
+> allowed the full 4G. This causes some attempts to bind a new buffer to
+> sporadically fail with -ENOSPC, but at other times be bound successfully.
+> 
+> commit 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1
+> page") suggests that there is a genuine problem with stateless addressing
+> that cannot utilize the last page in 4G and so we purposefully excluded it.
+> 
+> Reported-by: CQ Tang <cq.tang@intel.com>
+> Fixes: 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1
+> page")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: CQ Tang <cq.tang@intel.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> index 193996144c84..2ff32daa50bd 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+> @@ -382,7 +382,7 @@ eb_vma_misplaced(const struct
+> drm_i915_gem_exec_object2 *entry,
+>  		return true;
+> 
+>  	if (!(flags & EXEC_OBJECT_SUPPORTS_48B_ADDRESS) &&
+> -	    (vma->node.start + vma->node.size - 1) >> 32)
+> +	    (vma->node.start + vma->node.size + 4095) >> 32)
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 427 pass: 427 fail: 0
+Why 4095 not 4096?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+--CQ
 
-Guenter
+>  		return true;
+> 
+>  	if (flags & __EXEC_OBJECT_NEEDS_MAP &&
+> --
+> 2.20.1
+
