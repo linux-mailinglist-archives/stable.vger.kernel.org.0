@@ -2,110 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 115AD2DAEA6
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 15:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFF62DAF48
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 15:47:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbgLOOJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 09:09:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727536AbgLOOJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 09:09:13 -0500
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BEFC0617A7
-        for <stable@vger.kernel.org>; Tue, 15 Dec 2020 06:08:32 -0800 (PST)
-Received: by mail-pg1-x541.google.com with SMTP id k65so4993379pgk.0
-        for <stable@vger.kernel.org>; Tue, 15 Dec 2020 06:08:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UXP/yhOW54OxUPCaKQTwSdM8hA0xiTwzdIp/RAARgOk=;
-        b=sVeEouWwtVMGU4TMvuHzskNDquHq7/vzt0XJ/Yu+j8IUfuclj6x5PFEo+9ohwGfmCr
-         hz9LBVeDcJRINDcgaPOPCvE2vatr+COFpg4O50V3cL6TP6rebx0kLFrYS2ZLlGCKiPtY
-         DZyWxIB+sMoP0+TacKBBd0qLkbYk1hvEbrzznwpPpKy83RAmlj5TUPB8xJYVSw4DYEGC
-         h8wrgwMxqRqcKslRry75pwwSFli3pP3/oE6/fO8qAtJ8y9FJLXqnqBQTzr3MCQG5RFZD
-         ua52XIC8RQxKry30ToIrn/rZJV+Mw/T9Nv4DoJvFUNcoIUW4vh+C8/bGa8I2J4KBlVfu
-         WF3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UXP/yhOW54OxUPCaKQTwSdM8hA0xiTwzdIp/RAARgOk=;
-        b=ckfLk4CTbw4WWj1ghR08sQ6HtGTF3WJmxeLMP9WCz1G4QtaXCcG4+ACUSH40cOHOtw
-         czlmNL/yxDKR5trHnLPp+iQmjq1iBMv3Hgh+rLxK2yTslRYL8YPAg7PDojA1Zoz0jdU5
-         zGtUJkI8+8sCBp1JudPaLU0YIK612NajlNm53SUse+J310rc01I6Gq1LCOdOmYxO+NTN
-         PXK4B1w/eivd9+4GgoA8NaHl+ntY6loF0N6PQHon9sMx+ifBq6yS0ITNg1ovBXj2rqvr
-         HqK21V36EXNn/c9ssc97p6sM+RCK+txssi42prNP6vZ9H6Lp+VbNE6g5Zp/ug4qC+PYP
-         ELyg==
-X-Gm-Message-State: AOAM533b103WX1MbLIrsnofE9gV6E2wczmV29eEeeu4FT9zsI0nOODZU
-        xNNbi8r3w160yrmDAYy9uTgnCfMwFOhrD4tqIXE8Pw==
-X-Google-Smtp-Source: ABdhPJxoL7C6qilFV7beONl+ZdVTIU8HmH7/4XMT5rkMY+IKck7dbKj0qy7e/51skojZaAK8j2io0oWHB/vzEWucRcE=
-X-Received: by 2002:a62:3205:0:b029:197:f692:6a8b with SMTP id
- y5-20020a6232050000b0290197f6926a8bmr28471199pfy.2.1608041312046; Tue, 15 Dec
- 2020 06:08:32 -0800 (PST)
-MIME-Version: 1.0
-References: <X9dDkwlOTFeo9eZ6@localhost> <000000000000af6ec005b66dbaa2@google.com>
- <X9d+dZq/IA+tiw5v@localhost> <CAAeHK+xLiLjGMJLuWpyPHMO=zD6k33s5VYSBDMMbTkAEauF3dA@mail.gmail.com>
- <X9eB5ZZMq6q5j4eW@localhost>
-In-Reply-To: <X9eB5ZZMq6q5j4eW@localhost>
-From:   Andrey Konovalov <andreyknvl@google.com>
-Date:   Tue, 15 Dec 2020 15:08:20 +0100
-Message-ID: <CAAeHK+zLXqHSxr+e_WRVaYWtnLU8u_8Y=uHGmGfQHLYXqKmTYA@mail.gmail.com>
-Subject: Re: WARNING in yurex_write/usb_submit_urb
-To:     Johan Hovold <johan@kernel.org>
-Cc:     syzbot <syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com>,
+        id S1729684AbgLOOqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 09:46:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729673AbgLOOqN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 09:46:13 -0500
+Date:   Tue, 15 Dec 2020 06:45:31 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608043531;
+        bh=hkpf31UFUYyRxiF6BbOpG60WCQtb0yuT2eROaMYIk5Q=;
+        h=From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=oSv5SBsQhJpCuad94J3BmrL3IXIFGnarQv6YUL5zDK9G1ii8n+GoaxnxhE6WEd4Fb
+         uIYUQ+SUesWdCzXggoVvDKQvwu/3hS1bxkUw/sxrNI+lTjgmUuLX4PLF+cY+rnekqt
+         vQmw6aQTgkxEYO71TEhAseKXPKFcSWccZN0DLY/RR2vS3PBlnXRFjNvTjIeZZ8hg78
+         Xusvdxgjxtu98dpohJHGTb8JoRNd9haXugQue6Ru7avlCXinrrRQwFlIScdRB/qtlf
+         mF46nqMGbjV5ymrEYza61FS+JTjpoWKh4PMUGM5akdN5FZmTW7dCBdssOKJQNVSlxS
+         sysaA7xn5dqYA==
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>, rcu@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        lkft-triage@lists.linaro.org, Netdev <netdev@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: Re: [stabe-rc 5.9 ] sched: core.c:7270 Illegal context switch in
+ RCU-bh read-side critical section!
+Message-ID: <20201215144531.GZ2657@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <CA+G9fYtu1zOz8ErUzftNG4Dc9=cv1grsagBojJraGhm4arqXyw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYtu1zOz8ErUzftNG4Dc9=cv1grsagBojJraGhm4arqXyw@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 14, 2020 at 4:16 PM Johan Hovold <johan@kernel.org> wrote:
->
-> On Mon, Dec 14, 2020 at 04:06:49PM +0100, Andrey Konovalov wrote:
-> > On Mon, Dec 14, 2020 at 4:02 PM Johan Hovold <johan@kernel.org> wrote:
-> > >
-> > > On Mon, Dec 14, 2020 at 06:48:03AM -0800, syzbot wrote:
-> > > > Hello,
-> > > >
-> > > > syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-> > > > WARNING in yurex_write/usb_submit_urb
-> > >
-> > > It appears syzbot never tested the patch from the thread. Probably using
-> > > it's mail interface incorrectly, I don't know and I don't have time to
-> > > investigate. The patch itself is correct.
-> >
-> > Hi Johan,
-> >
-> > I wasn't CCed on the testing request, so I can't say what exactly was wrong.
->
-> Here's the patch and the "syz test" command in a reply:
->
->         https://lore.kernel.org/r/20201214104444.28386-1-johan@kernel.org
->
-> Probably needs to go in the same mail, right?
+On Tue, Dec 15, 2020 at 07:50:31AM +0530, Naresh Kamboju wrote:
+> There are two warnings "WARNING: suspicious RCU usage" noticed on arm64 juno-r2
+> device while running selftest bpf test_tc_edt.sh and net: udpgro_bench.sh.
+> These warnings are occurring intermittently.
+> 
+> metadata:
+>   git branch: linux-5.9.y
+>   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>   git describe: v5.9.14-106-g609d95a95925
+>   make_kernelversion: 5.9.15-rc1
+>   kernel-config:
+> http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-stable-rc-5.9/58/config
+> 
+> 
+> Steps to reproduce:
+> ------------------
+> Not easy to reproduce.
+> 
+> Crash log:
+> --------------
+> # selftests: bpf: test_tc_edt.sh
+> [  503.796362]
+> [  503.797960] =============================
+> [  503.802131] WARNING: suspicious RCU usage
+> [  503.806232] 5.9.15-rc1 #1 Tainted: G        W
+> [  503.811358] -----------------------------
+> [  503.815444] /usr/src/kernel/kernel/sched/core.c:7270 Illegal
+> context switch in RCU-bh read-side critical section!
+> [  503.825858]
+> [  503.825858] other info that might help us debug this:
+> [  503.825858]
+> [  503.833998]
+> [  503.833998] rcu_scheduler_active = 2, debug_locks = 1
+> [  503.840981] 3 locks held by kworker/u12:1/157:
+> [  503.845514]  #0: ffff0009754ed538
+> ((wq_completion)netns){+.+.}-{0:0}, at: process_one_work+0x208/0x768
+> [  503.855048]  #1: ffff800013e63df0 (net_cleanup_work){+.+.}-{0:0},
+> at: process_one_work+0x208/0x768
+> [  503.864201]  #2: ffff8000129fe3f0 (pernet_ops_rwsem){++++}-{3:3},
+> at: cleanup_net+0x64/0x3b8
+> [  503.872786]
+> [  503.872786] stack backtrace:
+> [  503.877229] CPU: 1 PID: 157 Comm: kworker/u12:1 Tainted: G        W
+>         5.9.15-rc1 #1
+> [  503.885433] Hardware name: ARM Juno development board (r2) (DT)
+> [  503.891382] Workqueue: netns cleanup_net
+> [  503.895324] Call trace:
+> [  503.897786]  dump_backtrace+0x0/0x1f8
+> [  503.901464]  show_stack+0x2c/0x38
+> [  503.904796]  dump_stack+0xec/0x158
+> [  503.908215]  lockdep_rcu_suspicious+0xd4/0xf8
+> [  503.912591]  ___might_sleep+0x1e4/0x208
 
-Yes, both the syz test command and the patch must be in the same
-email, which is sent as a response to the initial report.
+You really are forbidden to invoke ___might_sleep() while in a BH-disable
+region of code, whether due to rcu_read_lock_bh(), local_bh_disable(),
+or whatever else.
 
-> How about including the command needed to test a patch in the syzbot
-> report mail to assist the casual user of its interfaces? I had to browse
-> the web page you link to and still got it wrong apparently.
+I do see the cond_resched() in inet_twsk_purge(), but I don't immediately
+see a BH-disable region of code.  Maybe someone more familiar with this
+code would have some ideas.
 
-I think it's deliberately not included to not overload the report
-email with too many details.
+Or you could place checks for being in a BH-disable further up in
+the code.  Or build with CONFIG_DEBUG_INFO=y to allow more precise
+interpretation of this stack trace.
 
-> > Could you send me the patch you were trying to test?
->
-> Does this work better:
->
-> #syz test: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
+							Thanx, Paul
 
-This worked :)
-
-Thanks!
+> [  503.916444]  inet_twsk_purge+0x144/0x378
+> [  503.920384]  tcpv6_net_exit_batch+0x20/0x28
+> [  503.924585]  ops_exit_list.isra.10+0x78/0x88
+> [  503.928872]  cleanup_net+0x248/0x3b8
+> [  503.932462]  process_one_work+0x2b0/0x768
+> [  503.936487]  worker_thread+0x48/0x498
+> [  503.940166]  kthread+0x158/0x168
+> [  503.943409]  ret_from_fork+0x10/0x1c
+> [  504.165891] IPv6: ADDRCONF(NETDEV_CHANGE): veth_src: link becomes ready
+> [  504.459624] audit: type=1334 audit(1607978673.070:40866):
+> prog-id=20436 op=LOAD
+> <>
+> [  879.304684]
+> [  879.306200] =============================
+> [  879.310314] WARNING: suspicious RCU usage
+> [  879.314420] 5.9.15-rc1 #1 Tainted: G        W
+> [  879.319554] -----------------------------
+> [  879.323644] /usr/src/kernel/kernel/sched/core.c:7270 Illegal
+> context switch in RCU-sched read-side critical section!
+> [  879.334259]
+> [  879.334259] other info that might help us debug this:
+> [  879.334259]
+> [  879.342345]
+> [  879.342345] rcu_scheduler_active = 2, debug_locks = 1
+> [  879.348958] 3 locks held by kworker/u12:8/248:
+> [  879.353483]  #0: ffff0009754ed538
+> ((wq_completion)netns){+.+.}-{0:0}, at: process_one_work+0x208/0x768
+> [  879.362910]  #1: ffff800013bc3df0 (net_cleanup_work){+.+.}-{0:0},
+> at: process_one_work+0x208/0x768
+> [  879.371984]  #2: ffff8000129fe3f0 (pernet_ops_rwsem){++++}-{3:3},
+> at: cleanup_net+0x64/0x3b8
+> [  879.380540]
+> [  879.380540] stack backtrace:
+> [  879.384998] CPU: 1 PID: 248 Comm: kworker/u12:8 Tainted: G        W
+>         5.9.15-rc1 #1
+> [  879.393201] Hardware name: ARM Juno development board (r2) (DT)
+> [  879.399147] Workqueue: netns cleanup_net
+> [  879.403089] Call trace:
+> [  879.405550]  dump_backtrace+0x0/0x1f8
+> [  879.409228]  show_stack+0x2c/0x38
+> [  879.412561]  dump_stack+0xec/0x158
+> # ud[  879.415980]  lockdep_rcu_suspicious+0xd4/0xf8
+> [  879.420691]  ___might_sleep+0x1ac/0x208
+> p tx:     32 MB/s      546 calls/[  879.424570]
+> nf_ct_iterate_cleanup+0x1b8/0x2d8 [nf_conntrack]
+> s    546 msg/s[  879.433190]  nf_conntrack_cleanup_net_list+0x58/0x100
+> [nf_conntrack]
+> 
+> [  879.440765]  nf_conntrack_pernet_exit+0xa8/0xb8 [nf_conntrack]
+> [  879.446755]  ops_exit_list.isra.10+0x78/0x88
+> [  879.451043]  cleanup_net+0x248/0x3b8
+> [  879.454635]  process_one_work+0x2b0/0x768
+> [  879.458661]  worker_thread+0x48/0x498
+> [  879.462340]  kthread+0x158/0x168
+> [  879.465584]  ret_from_fork+0x10/0x1c
+> 
+> 
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> 
+> Full test log link,
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.9.y/build/v5.9.14-106-g609d95a95925/testrun/3586574/suite/linux-log-parser/test/check-kernel-warning-2049484/log
+> 
+> 
+> -- 
+> Linaro LKFT
+> https://lkft.linaro.org
