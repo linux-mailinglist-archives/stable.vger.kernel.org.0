@@ -2,51 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4AA2DA90A
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 09:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FECF2DA971
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 09:48:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726736AbgLOIOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 03:14:46 -0500
-Received: from mail2.directv.syn-alias.com ([69.168.106.50]:19556 "EHLO
-        mail.directv.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725922AbgLOIOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 03:14:44 -0500
-DKIM-Signature: v=1; a=rsa-sha1; d=wildblue.net; s=20170921; c=relaxed/simple;
-        q=dns/txt; i=@wildblue.net; t=1608020040;
-        h=From:Subject:Date:To:MIME-Version:Content-Type;
-        bh=7QFBJ3ol0iIxaa51AmjyWQzIBkY=;
-        b=Inxnutk7D4umMSefCDdJeDBaYD8E127fizeYWe6ej4wfAJ8jH28WO1t5rAmKDtDx
-        SJ6fCoskJk5/aiApaHcHHsAylXKcLKVjY7BqqJ0nhUikxxooyBkZqps9+0D7a/mD
-        INr69nKqzJpuLubflopRrLE1om2osZigZyP37BrqXMRlgjbKts4T47Qdumw0oybr
-        OB6xgUf2LxgbemGnkPu3gY/g4ELCSW5NjiCy7FE+ONPTr73W+vErj3Nft7X4iSuu
-        3iIgW97oiPuAVuHbZZo1Hug8oMltvLb9uxHnQdO9ZazwvHZ3b5rEBwagXp3oTEC9
-        XR5clzzF2SHi5KQlpitjhQ==;
-X_CMAE_Category: , ,
-X-CNFS-Analysis: v=2.3 cv=W95Gqiek c=1 sm=1 tr=0 cx=a_idp_x a=2lFl+QxTouiIEabbTS0tYw==:117 a=9cW_t1CCXrUA:10 a=KGjhK52YXX0A:10 a=FKkrIqjQGGEA:10 a=0HWvpWdjkFgA:10 a=8CtJfJBZR_UA:10 a=IkcTkHD0fZMA:10 a=zTNgK-yGK50A:10 a=A3tKBufkE8oA:10 a=q-lTWTPkEJ0A:10 a=x7bEGLp0ZPQA:10 a=rWLlr_ktIPNyxI42s1YA:9 a=QEXdDO2ut3YA:10 a=xo5jKAKm-U-Zyk2_beg_:22 a=jesCJw-TT3PGqT-kMy3s:22 a=pHzHmUro8NiASowvMSCR:22 a=Ew2E2A-JSTLzCXPT_086:22
-X-CM-Score: 0
-X-Scanned-by: Cloudmark Authority Engine
-X-Authed-Username: amFtZXNrbmlnaHRAd2lsZGJsdWUubmV0
-Received: from [10.80.118.14] ([10.80.118.14:56902] helo=md06.jasper.bos.sync.lan)
-        by mail2.directv.syn-alias.com (envelope-from <jamesknight@wildblue.net>)
-        (ecelerity 3.6.25.56547 r(Core:3.6.25.0)) with ESMTP
-        id F9/6D-08087-74078DF5; Tue, 15 Dec 2020 03:13:59 -0500
-Date:   Tue, 15 Dec 2020 03:13:59 -0500 (EST)
-From:   Anders Karlsson <jamesknight@wildblue.net>
-Reply-To: andresk1470@gmail.com
-Message-ID: <1740542491.127856197.1608020039307.JavaMail.zimbra@wildblue.net>
-Subject: 
+        id S1727210AbgLOIs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 03:48:26 -0500
+Received: from spam01.hygon.cn ([110.188.70.11]:57884 "EHLO spam2.hygon.cn"
+        rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727189AbgLOIsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 03:48:21 -0500
+Received: from spam2.hygon.cn (localhost [127.0.0.2] (may be forged))
+        by spam2.hygon.cn with ESMTP id 0BF8WTRL097445
+        for <stable@vger.kernel.org>; Tue, 15 Dec 2020 16:32:29 +0800 (GMT-8)
+        (envelope-from chenshan@hygon.cn)
+Received: from MK-DB.hygon.cn ([172.23.18.60])
+        by spam2.hygon.cn with ESMTP id 0BF8UABh097305;
+        Tue, 15 Dec 2020 16:30:10 +0800 (GMT-8)
+        (envelope-from chenshan@hygon.cn)
+Received: from cncheex01.Hygon.cn ([172.23.18.10])
+        by MK-DB.hygon.cn with ESMTP id 0BF8U3Nh019638;
+        Tue, 15 Dec 2020 16:30:03 +0800 (GMT-8)
+        (envelope-from chenshan@hygon.cn)
+Received: from CS-AMD.hygon.cn (172.23.18.44) by cncheex01.Hygon.cn
+ (172.23.18.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1466.3; Tue, 15 Dec
+ 2020 16:29:59 +0800
+From:   Shan <chenshan@hygon.cn>
+To:     <alikernel-developer@linux.alibaba.com>
+CC:     Roberto Sassu <roberto.sassu@huawei.com>, <mayuanchen@hygon.cn>,
+        <fenghao@hygon.cn>, <yingzhiwei@hygon.cn>,
+        <stable@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Shan <chenshan@hygon.cn>
+Subject: [PATCH AliOS 4.19 v3 11/15] KEYS: trusted: allow module init if TPM is inactive or deactivated
+Date:   Tue, 15 Dec 2020 16:29:18 +0800
+Message-ID: <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <cover.1608019826.git.chenshan@hygon.cn>
+References: <cover.1608019826.git.chenshan@hygon.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [95.137.178.183]
-X-Mailer: Zimbra 8.7.6_GA_1776 (zclient/8.7.6_GA_1776)
-Thread-Index: W9J2L6T0gRyaHmKkknD+A2ITCtIt9A==
-Thread-Topic: 
-X-Vade-Verditct: spam:high
-X-Vade-Analysis: gggruggvucftvghtrhhoucdtuddrgedujedrudekledguddulecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfujgfpteevqfftpdggkfetufetvfdpqfgfvfenuceurghilhhouhhtmecufedtudenucgohfhorhgsihguuggvnhfjughrucdlhedttddmnecujfgurhepfffhrhfkufggtgfgihfothesthejtgdtredtjeenucfhrhhomheptehnuggvrhhsucfmrghrlhhsshhonhcuoehjrghmvghskhhnihhghhhtseifihhluggslhhuvgdrnhgvtheqnecuggftrfgrthhtvghrnhepgffhfeegteegffejhfelvdfhgeegleevtdduffehkeeugfdvueffjeekuefhfeejnecukfhppedutddrkedtrdduudekrddugedpleehrddufeejrddujeekrddukeefnecuhfhorhgsihguuggvnhfjughrpeffhfhrkffugggtgfhiofhtsehtjegttdertdejnecuvehluhhsthgvrhfuihiivgepudegnecurfgrrhgrmhepihhnvghtpedutddrkedtrdduudekrddugeenpdhmrghilhhfrhhomhepjhgrmhgvshhknhhighhhthesfihilhgusghluhgvrdhnvghtnedprhgtphhtthhopehsthgvtghhmhesudeifedrtghomhen
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain
+X-Originating-IP: [172.23.18.44]
+X-ClientProxiedBy: cncheex01.Hygon.cn (172.23.18.10) To cncheex01.Hygon.cn
+ (172.23.18.10)
+X-MAIL: spam2.hygon.cn 0BF8UABh097305
+X-DNSRBL: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Did you get my email
+From: Roberto Sassu <roberto.sassu@huawei.com>
+
+commit 2d6c25215ab26bb009de3575faab7b685f138e92 upstream.
+
+Commit c78719203fc6 ("KEYS: trusted: allow trusted.ko to initialize w/o a
+TPM") allows the trusted module to be loaded even if a TPM is not found, to
+avoid module dependency problems.
+
+However, trusted module initialization can still fail if the TPM is
+inactive or deactivated. tpm_get_random() returns an error.
+
+This patch removes the call to tpm_get_random() and instead extends the PCR
+specified by the user with zeros. The security of this alternative is
+equivalent to the previous one, as either option prevents with a PCR update
+unsealing and misuse of sealed data by a user space process.
+
+Even if a PCR is extended with zeros, instead of random data, it is still
+computationally infeasible to find a value as input for a new PCR extend
+operation, to obtain again the PCR value that would allow unsealing.
+
+Cc: stable@vger.kernel.org
+Fixes: 240730437deb ("KEYS: trusted: explicitly use tpm_chip structure...")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+
+Signed-off-by: mayuanchen <mayuanchen@hygon.cn>
+Change-Id: Iada0e052c2ab4a0fbc2db4ac2690da3115d985c6
+Signed-off-by: Shan <chenshan@hygon.cn>
+---
+ security/keys/trusted.c | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/security/keys/trusted.c b/security/keys/trusted.c
+index 5e983eb9a..b03525d0f 100644
+--- a/security/keys/trusted.c
++++ b/security/keys/trusted.c
+@@ -1216,24 +1216,11 @@ static int __init trusted_shash_alloc(void)
+ 
+ static int __init init_digests(void)
+ {
+-	u8 digest[TPM_MAX_DIGEST_SIZE];
+-	int ret;
+-	int i;
+-
+-	ret = tpm_get_random(chip, digest, TPM_MAX_DIGEST_SIZE);
+-	if (ret < 0)
+-		return ret;
+-	if (ret < TPM_MAX_DIGEST_SIZE)
+-		return -EFAULT;
+-
+ 	digests = kcalloc(chip->nr_allocated_banks, sizeof(*digests),
+ 					  GFP_KERNEL);
+ 	if (!digests)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < chip->nr_allocated_banks; i++)
+-		memcpy(digests[i].digest, digest, TPM_MAX_DIGEST_SIZE);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.17.1
+
