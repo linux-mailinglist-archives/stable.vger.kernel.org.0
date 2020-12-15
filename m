@@ -2,81 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BC62DAA01
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 10:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A782DAA07
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 10:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728003AbgLOJX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 04:23:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
+        id S1727970AbgLOJYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 04:24:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727699AbgLOJXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Dec 2020 04:23:48 -0500
-Date:   Tue, 15 Dec 2020 10:24:11 +0100
+        id S1727998AbgLOJYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 04:24:34 -0500
+Date:   Tue, 15 Dec 2020 10:24:51 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608024188;
-        bh=IsO2yS/ol3Xi+Mbk1GmVVXTDvXEoYtREmj3diwOFMSk=;
+        s=korg; t=1608024228;
+        bh=MyNdnLJ4k+1GwRzFsj1LdOXGVC+xx0loit6VUv2Q4k4=;
         h=From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zNeUTfZr1nQSN/XBa/1aMoTKhO4A6YXJwXPyoTsMZk0bSsR3vV2IYejiD33oRPbh1
-         z9iAetQA6qHLqsb5M0bP9puw8q3EhmytWOab2elCx7SutaoeixvDdLNsvUxfV+/rp2
-         XKIj3vj8QDurDf/ymaM+F6AVjfJE4F0skqSjz0nk=
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Shan <chenshan@hygon.cn>
-Cc:     alikernel-developer@linux.alibaba.com,
-        Roberto Sassu <roberto.sassu@huawei.com>, mayuanchen@hygon.cn,
-        fenghao@hygon.cn, yingzhiwei@hygon.cn, stable@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: Re: [PATCH AliOS 4.19 v3 11/15] KEYS: trusted: allow module init if
- TPM is inactive or deactivated
-Message-ID: <X9iAuzeS1wJDPVLg@kroah.com>
-References: <cover.1608019826.git.chenshan@hygon.cn>
- <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
+        b=dicXN51XQnSBJB1FtgtV00vDBx6HeTkKVaAb99LY02NwQ2YpTBxqsDRPpF2ibliPR
+         q2lNTWrBu27RIeBnowrF0Y9aK73kr78W4BqEVXKxRPlLebtvIbNle0hF/4GDPqeSO/
+         Htr+06c8g6qezxGqHOg8E7FUxxKSBi5EkFYEJmxk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 0/2] 5.10.1-rc1 review
+Message-ID: <X9iA4xtJLyFkPgCW@kroah.com>
+References: <20201214170452.563016590@linuxfoundation.org>
+ <89f51647-625f-5319-24ed-60e538a32f13@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
+In-Reply-To: <89f51647-625f-5319-24ed-60e538a32f13@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 15, 2020 at 04:29:18PM +0800, Shan wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
+On Mon, Dec 14, 2020 at 03:20:38PM -0700, Shuah Khan wrote:
+> On 12/14/20 10:06 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.1 release.
+> > There are 2 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Monday, 14 Dec 2020 18:04:42 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.1-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> commit 2d6c25215ab26bb009de3575faab7b685f138e92 upstream.
+> Compiled and booted on my test system. No dmesg regressions.
 > 
-> Commit c78719203fc6 ("KEYS: trusted: allow trusted.ko to initialize w/o a
-> TPM") allows the trusted module to be loaded even if a TPM is not found, to
-> avoid module dependency problems.
-> 
-> However, trusted module initialization can still fail if the TPM is
-> inactive or deactivated. tpm_get_random() returns an error.
-> 
-> This patch removes the call to tpm_get_random() and instead extends the PCR
-> specified by the user with zeros. The security of this alternative is
-> equivalent to the previous one, as either option prevents with a PCR update
-> unsealing and misuse of sealed data by a user space process.
-> 
-> Even if a PCR is extended with zeros, instead of random data, it is still
-> computationally infeasible to find a value as input for a new PCR extend
-> operation, to obtain again the PCR value that would allow unsealing.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 240730437deb ("KEYS: trusted: explicitly use tpm_chip structure...")
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
-> Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> 
-> Signed-off-by: mayuanchen <mayuanchen@hygon.cn>
-> Change-Id: Iada0e052c2ab4a0fbc2db4ac2690da3115d985c6
-> Signed-off-by: Shan <chenshan@hygon.cn>
-> ---
->  security/keys/trusted.c | 13 -------------
->  1 file changed, 13 deletions(-)
+> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Why is this being sent to the stable list?  Do you want this backported
-to 4.19.y?  If so, why, and what is the change-id stuff in there for?
-
-confused,
+Thanks for testing this one and letting me know!
 
 greg k-h
