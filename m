@@ -2,105 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2610D2DA9F5
-	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 10:21:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92BC62DAA01
+	for <lists+stable@lfdr.de>; Tue, 15 Dec 2020 10:24:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727278AbgLOJV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 04:21:28 -0500
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:12015 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727984AbgLOJV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 04:21:27 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5fd87fe00000>; Tue, 15 Dec 2020 01:20:32 -0800
-Received: from [10.26.73.104] (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 15 Dec
- 2020 09:20:29 +0000
-Subject: Re: [PATCH 5.10 0/2] 5.10.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>
-References: <20201214170452.563016590@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <a1bff7f4-f6e9-506c-2c9f-5e7feba90acb@nvidia.com>
-Date:   Tue, 15 Dec 2020 09:20:26 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728003AbgLOJX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 04:23:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727699AbgLOJXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Dec 2020 04:23:48 -0500
+Date:   Tue, 15 Dec 2020 10:24:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1608024188;
+        bh=IsO2yS/ol3Xi+Mbk1GmVVXTDvXEoYtREmj3diwOFMSk=;
+        h=From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zNeUTfZr1nQSN/XBa/1aMoTKhO4A6YXJwXPyoTsMZk0bSsR3vV2IYejiD33oRPbh1
+         z9iAetQA6qHLqsb5M0bP9puw8q3EhmytWOab2elCx7SutaoeixvDdLNsvUxfV+/rp2
+         XKIj3vj8QDurDf/ymaM+F6AVjfJE4F0skqSjz0nk=
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Shan <chenshan@hygon.cn>
+Cc:     alikernel-developer@linux.alibaba.com,
+        Roberto Sassu <roberto.sassu@huawei.com>, mayuanchen@hygon.cn,
+        fenghao@hygon.cn, yingzhiwei@hygon.cn, stable@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: Re: [PATCH AliOS 4.19 v3 11/15] KEYS: trusted: allow module init if
+ TPM is inactive or deactivated
+Message-ID: <X9iAuzeS1wJDPVLg@kroah.com>
+References: <cover.1608019826.git.chenshan@hygon.cn>
+ <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
 MIME-Version: 1.0
-In-Reply-To: <20201214170452.563016590@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1608024032; bh=aVeWOMFVKMfDrIRqqkjUGH1g+Dw9sqCv0sGD4tQrR9U=;
-        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
-         MIME-Version:In-Reply-To:Content-Type:Content-Language:
-         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
-        b=rvZRDtB7GTnO+SOPrWKQGlthOz500rPzBDKxs1pPVme/fCaISY8mbYnZgMcouorZx
-         sru4yTloSsAYCnyOe96cdarR2lPXRLuuVEFLUSk4tz+rclGtWkb6rYt192iNCGnc9g
-         AT3+RZNagRGywdS3/TG15BU1EmAXwX7d8I8T7Yp6O8Pc2biH6GD0exmUmR/OC2Rbru
-         8sylbzsXqtpjJYvyhzYvFrpBfIodJNy0gWJxsNA/hlacaVHvxkhRVAWGnJgLL8B+YC
-         iXAi9h2OllyQgk33+8kdO2Z5OYru0VJlSEpfyjOhDmVdBHpjWQysaXbCOqsCvIA/n2
-         BRPKHteb3lIlg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a28cb67324fee8afabc7912f5045788e74e0aff9.1608019826.git.chenshan@hygon.cn>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 14/12/2020 17:06, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.1 release.
-> There are 2 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, Dec 15, 2020 at 04:29:18PM +0800, Shan wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 > 
-> Responses should be made by Monday, 14 Dec 2020 18:04:42 +0000.
-> Anything received after that time might be too late.
+> commit 2d6c25215ab26bb009de3575faab7b685f138e92 upstream.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> Commit c78719203fc6 ("KEYS: trusted: allow trusted.ko to initialize w/o a
+> TPM") allows the trusted module to be loaded even if a TPM is not found, to
+> avoid module dependency problems.
 > 
-> thanks,
+> However, trusted module initialization can still fail if the TPM is
+> inactive or deactivated. tpm_get_random() returns an error.
 > 
-> greg k-h
+> This patch removes the call to tpm_get_random() and instead extends the PCR
+> specified by the user with zeros. The security of this alternative is
+> equivalent to the previous one, as either option prevents with a PCR update
+> unsealing and misuse of sealed data by a user space process.
+> 
+> Even if a PCR is extended with zeros, instead of random data, it is still
+> computationally infeasible to find a value as input for a new PCR extend
+> operation, to obtain again the PCR value that would allow unsealing.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 240730437deb ("KEYS: trusted: explicitly use tpm_chip structure...")
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+> Suggested-by: Mimi Zohar <zohar@linux.ibm.com>
+> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> 
+> Signed-off-by: mayuanchen <mayuanchen@hygon.cn>
+> Change-Id: Iada0e052c2ab4a0fbc2db4ac2690da3115d985c6
+> Signed-off-by: Shan <chenshan@hygon.cn>
+> ---
+>  security/keys/trusted.c | 13 -------------
+>  1 file changed, 13 deletions(-)
 
+Why is this being sent to the stable list?  Do you want this backported
+to 4.19.y?  If so, why, and what is the change-id stuff in there for?
 
-Test results for stable-v5.10:
-    15 builds:	15 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    64 tests:	63 pass, 1 fail
+confused,
 
-Linux version:	5.10.1-g841fca5a32cc
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Test failures:	tegra194-p2972-0000: boot.py
-
-
-Some changes in v5.10 exposed a minor issue in the kernel that can cause
-a blank line warning to be seen. The above test is failing due to this
-blank warning. Thierry has posted a fix for this [0] and should be
-merged for v5.11. It was not tagged for stable, but if you OK to pull
-this in once in the mainline I can send a request. Otherwise all looks
-good, so ...
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Cheers
-Jon
-
-[0] https://lore.kernel.org/patchwork/patch/1336079/
-
--- 
-nvpublic
+greg k-h
