@@ -2,192 +2,1212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8579A2DC0DB
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 14:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4032DC0DD
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 14:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbgLPNNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Dec 2020 08:13:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
+        id S1726200AbgLPNN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Dec 2020 08:13:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726162AbgLPNNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Dec 2020 08:13:52 -0500
+        id S1726162AbgLPNN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Dec 2020 08:13:59 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.84
-Date:   Wed, 16 Dec 2020 14:14:10 +0100
-Message-Id: <16081244501780@kroah.com>
+Subject: Re: Linux 5.4.84
+Date:   Wed, 16 Dec 2020 14:14:11 +0100
+Message-Id: <1608124450203158@kroah.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <16081244501780@kroah.com>
+References: <16081244501780@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.84 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                                 |    5 +
- arch/arc/kernel/stacktrace.c                             |   23 ++++---
- arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi  |   20 +++---
- arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts       |   12 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi                 |    3 
- arch/powerpc/Makefile                                    |    1 
- arch/x86/include/asm/pgtable_types.h                     |    1 
- arch/x86/include/asm/sync_core.h                         |    9 +-
- arch/x86/kernel/apic/vector.c                            |   24 ++++---
- arch/x86/lib/memcpy_64.S                                 |    4 -
- arch/x86/lib/memmove_64.S                                |    4 -
- arch/x86/lib/memset_64.S                                 |    4 -
- arch/x86/mm/mem_encrypt_identity.c                       |    4 -
- arch/x86/mm/tlb.c                                        |   10 ++-
- drivers/gpu/drm/i915/display/intel_dp.c                  |    2 
- drivers/input/misc/cm109.c                               |    7 +-
- drivers/input/serio/i8042-x86ia64io.h                    |   42 +++++++++++++
- drivers/interconnect/qcom/qcs404.c                       |    4 -
- drivers/irqchip/irq-gic-v3-its.c                         |   16 -----
- drivers/mmc/core/block.c                                 |    2 
- drivers/net/can/m_can/m_can.c                            |    2 
- drivers/net/ethernet/ibm/ibmvnic.c                       |    6 +
- drivers/net/wireless/intel/iwlwifi/iwl-csr.h             |   10 +++
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c        |    2 
- drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c |   20 ++++++
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c          |   36 ++++++++---
- drivers/pinctrl/pinctrl-amd.c                            |    7 --
- drivers/platform/x86/acer-wmi.c                          |    1 
- drivers/platform/x86/intel-vbtn.c                        |    6 +
- drivers/platform/x86/thinkpad_acpi.c                     |   10 ++-
- drivers/platform/x86/touchscreen_dmi.c                   |   23 +++++++
- drivers/scsi/be2iscsi/be_main.c                          |    4 -
- drivers/scsi/ufs/ufshcd.c                                |    7 ++
- drivers/soc/fsl/dpio/dpio-driver.c                       |    5 -
- drivers/spi/spi-nxp-fspi.c                               |    7 ++
- fs/proc/task_mmu.c                                       |    8 +-
- include/linux/build_bug.h                                |    5 +
- include/linux/compiler-clang.h                           |    6 -
- include/linux/compiler-gcc.h                             |   19 ------
- include/linux/compiler.h                                 |   18 +++++
- include/linux/zsmalloc.h                                 |    1 
- mm/Kconfig                                               |   13 ----
- mm/zsmalloc.c                                            |   46 ---------------
- tools/testing/ktest/ktest.pl                             |    2 
- 44 files changed, 269 insertions(+), 192 deletions(-)
-
-Andy Lutomirski (1):
-      x86/membarrier: Get rid of a dubious optimization
-
-Arnd Bergmann (1):
-      kbuild: avoid static_assert for genksyms
-
-Arvind Sankar (2):
-      x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
-      compiler.h: fix barrier_data() on clang
-
-Bean Huo (1):
-      mmc: block: Fixup condition for CMD13 polling for RPMB requests
-
-Can Guo (1):
-      scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
-
-Chris Chiu (1):
-      Input: i8042 - add Acer laptops to the i8042 reset list
-
-Coiby Xu (1):
-      pinctrl: amd: remove debounce filter setting in IRQ type setting
-
-Dan Carpenter (1):
-      scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
-
-Dmitry Torokhov (1):
-      Input: cm109 - do not stomp on control URB
-
-Fangrui Song (1):
-      x86/lib: Change .weak to SYM_FUNC_START_WEAK for arch/x86/lib/mem*_64.S
-
-Georgi Djakov (1):
-      interconnect: qcom: qcs404: Remove GPU and display RPM IDs
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.84
-
-Hans de Goede (3):
-      platform/x86: thinkpad_acpi: Do not report SW_TABLET_MODE on Yoga 11e
-      platform/x86: thinkpad_acpi: Add BAT1 is primary battery quirk for Thinkpad Yoga 11e 4th gen
-      platform/x86: touchscreen_dmi: Add info for the Irbis TW118 tablet
-
-Hao Si (1):
-      soc: fsl: dpio: Get the cpumask through cpumask_of(cpu)
-
-Johannes Berg (2):
-      iwlwifi: pcie: limit memory read spin time
-      iwlwifi: pcie: set LTR to avoid completion timeout
-
-Jon Hunter (1):
-      arm64: tegra: Disable the ACONNECT for Jetson TX2
-
-Libo Chen (1):
-      ktest.pl: Fix incorrect reboot for grub2bls
-
-Lijun Pan (1):
-      ibmvnic: skip tx timeout reset while in resetting
-
-Manasi Navare (1):
-      drm/i915/display/dp: Compute the correct slice count for VDSC on DP
-
-Markus Reichl (1):
-      arm64: dts: rockchip: Assign a fixed index to mmc devices on rk3399 boards.
-
-Max Verevkin (1):
-      platform/x86: intel-vbtn: Support for tablet mode on HP Pavilion 13 x360 PC
-
-Michael Ellerman (1):
-      powerpc: Drop -me200 addition to build flags
-
-Miles Chen (1):
-      proc: use untagged_addr() for pagemap_read addresses
-
-Minchan Kim (1):
-      mm/zsmalloc.c: drop ZSMALLOC_PGTABLE_MAPPING
-
-Nick Desaulniers (1):
-      Kbuild: do not emit debug info for assembly with LLVM_IAS=1
-
-Pankaj Sharma (1):
-      can: m_can: m_can_dev_setup(): add support for bosch mcan version 3.3.0
-
-Ran Wang (1):
-      spi: spi-nxp-fspi: fix fspi panic by unexpected interrupts
-
-Sara Sharon (1):
-      iwlwifi: mvm: fix kernel panic in case of assert during CSA
-
-Thomas Gleixner (1):
-      x86/apic/vector: Fix ordering in vector assignment
-
-Timo Witte (1):
-      platform/x86: acer-wmi: add automatic keyboard background light toggle key as KEY_LIGHTS_TOGGLE
-
-Vineet Gupta (1):
-      ARC: stack unwinding: don't assume non-current task is sleeping
-
-Xu Qiang (1):
-      irqchip/gic-v3-its: Unconditionally save/restore the ITS state on suspend
-
-Zhen Lei (1):
-      arm64: dts: broadcom: clear the warnings caused by empty dma-ranges
-
+diff --git a/Makefile b/Makefile
+index eee1aa092ede..fe0ab15cfd83 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 83
++SUBLEVEL = 84
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+@@ -802,8 +802,11 @@ DEBUG_CFLAGS	+= -gsplit-dwarf
+ else
+ DEBUG_CFLAGS	+= -g
+ endif
++ifneq ($(LLVM_IAS),1)
+ KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+ endif
++endif
++
+ ifdef CONFIG_DEBUG_INFO_DWARF4
+ DEBUG_CFLAGS	+= -gdwarf-4
+ endif
+diff --git a/arch/arc/kernel/stacktrace.c b/arch/arc/kernel/stacktrace.c
+index fc65d2921e3b..fc3054c34db1 100644
+--- a/arch/arc/kernel/stacktrace.c
++++ b/arch/arc/kernel/stacktrace.c
+@@ -38,15 +38,15 @@
+ 
+ #ifdef CONFIG_ARC_DW2_UNWIND
+ 
+-static void seed_unwind_frame_info(struct task_struct *tsk,
+-				   struct pt_regs *regs,
+-				   struct unwind_frame_info *frame_info)
++static int
++seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
++		       struct unwind_frame_info *frame_info)
+ {
+ 	/*
+ 	 * synchronous unwinding (e.g. dump_stack)
+ 	 *  - uses current values of SP and friends
+ 	 */
+-	if (tsk == NULL && regs == NULL) {
++	if (regs == NULL && (tsk == NULL || tsk == current)) {
+ 		unsigned long fp, sp, blink, ret;
+ 		frame_info->task = current;
+ 
+@@ -65,11 +65,15 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->call_frame = 0;
+ 	} else if (regs == NULL) {
+ 		/*
+-		 * Asynchronous unwinding of sleeping task
+-		 *  - Gets SP etc from task's pt_regs (saved bottom of kernel
+-		 *    mode stack of task)
++		 * Asynchronous unwinding of a likely sleeping task
++		 *  - first ensure it is actually sleeping
++		 *  - if so, it will be in __switch_to, kernel mode SP of task
++		 *    is safe-kept and BLINK at a well known location in there
+ 		 */
+ 
++		if (tsk->state == TASK_RUNNING)
++			return -1;
++
+ 		frame_info->task = tsk;
+ 
+ 		frame_info->regs.r27 = TSK_K_FP(tsk);
+@@ -103,6 +107,8 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->regs.r63 = regs->ret;
+ 		frame_info->call_frame = 0;
+ 	}
++
++	return 0;
+ }
+ 
+ #endif
+@@ -116,7 +122,8 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
+ 	unsigned int address;
+ 	struct unwind_frame_info frame_info;
+ 
+-	seed_unwind_frame_info(tsk, regs, &frame_info);
++	if (seed_unwind_frame_info(tsk, regs, &frame_info))
++		return 0;
+ 
+ 	while (1) {
+ 		address = UNW_PC(&frame_info);
+diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
+index 55259f973b5a..aef8f2b00778 100644
+--- a/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
++++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-usb.dtsi
+@@ -5,20 +5,20 @@
+ 	usb {
+ 		compatible = "simple-bus";
+ 		dma-ranges;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges = <0x0 0x0 0x68500000 0x00400000>;
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges = <0x0 0x0 0x0 0x68500000 0x0 0x00400000>;
+ 
+ 		usbphy0: usb-phy@0 {
+ 			compatible = "brcm,sr-usb-combo-phy";
+-			reg = <0x00000000 0x100>;
++			reg = <0x0 0x00000000 0x0 0x100>;
+ 			#phy-cells = <1>;
+ 			status = "disabled";
+ 		};
+ 
+ 		xhci0: usb@1000 {
+ 			compatible = "generic-xhci";
+-			reg = <0x00001000 0x1000>;
++			reg = <0x0 0x00001000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 256 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy0 1>, <&usbphy0 0>;
+ 			phy-names = "phy0", "phy1";
+@@ -28,7 +28,7 @@
+ 
+ 		bdc0: usb@2000 {
+ 			compatible = "brcm,bdc-v0.16";
+-			reg = <0x00002000 0x1000>;
++			reg = <0x0 0x00002000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy0 0>, <&usbphy0 1>;
+ 			phy-names = "phy0", "phy1";
+@@ -38,21 +38,21 @@
+ 
+ 		usbphy1: usb-phy@10000 {
+ 			compatible = "brcm,sr-usb-combo-phy";
+-			reg = <0x00010000 0x100>;
++			reg = <0x0 0x00010000 0x0 0x100>;
+ 			#phy-cells = <1>;
+ 			status = "disabled";
+ 		};
+ 
+ 		usbphy2: usb-phy@20000 {
+ 			compatible = "brcm,sr-usb-hs-phy";
+-			reg = <0x00020000 0x100>;
++			reg = <0x0 0x00020000 0x0 0x100>;
+ 			#phy-cells = <0>;
+ 			status = "disabled";
+ 		};
+ 
+ 		xhci1: usb@11000 {
+ 			compatible = "generic-xhci";
+-			reg = <0x00011000 0x1000>;
++			reg = <0x0 0x00011000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy1 1>, <&usbphy2>, <&usbphy1 0>;
+ 			phy-names = "phy0", "phy1", "phy2";
+@@ -62,7 +62,7 @@
+ 
+ 		bdc1: usb@21000 {
+ 			compatible = "brcm,bdc-v0.16";
+-			reg = <0x00021000 0x1000>;
++			reg = <0x0 0x00021000 0x0 0x1000>;
+ 			interrupts = <GIC_SPI 266 IRQ_TYPE_LEVEL_HIGH>;
+ 			phys = <&usbphy2>;
+ 			phy-names = "phy0";
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
+index bdace01561ba..9df4782c90f3 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
++++ b/arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dts
+@@ -10,18 +10,6 @@
+ 	model = "NVIDIA Jetson TX2 Developer Kit";
+ 	compatible = "nvidia,p2771-0000", "nvidia,tegra186";
+ 
+-	aconnect {
+-		status = "okay";
+-
+-		dma-controller@2930000 {
+-			status = "okay";
+-		};
+-
+-		interrupt-controller@2a40000 {
+-			status = "okay";
+-		};
+-	};
+-
+ 	i2c@3160000 {
+ 		power-monitor@42 {
+ 			compatible = "ti,ina3221";
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+index c5d8d1c58291..bb7d0aac6b9d 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
+@@ -29,6 +29,9 @@
+ 		i2c6 = &i2c6;
+ 		i2c7 = &i2c7;
+ 		i2c8 = &i2c8;
++		mmc0 = &sdio0;
++		mmc1 = &sdmmc;
++		mmc2 = &sdhci;
+ 		serial0 = &uart0;
+ 		serial1 = &uart1;
+ 		serial2 = &uart2;
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index 37ac731a556b..9f73fb6b1cc9 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -250,7 +250,6 @@ KBUILD_CFLAGS		+= $(call cc-option,-mno-string)
+ 
+ cpu-as-$(CONFIG_4xx)		+= -Wa,-m405
+ cpu-as-$(CONFIG_ALTIVEC)	+= $(call as-option,-Wa$(comma)-maltivec)
+-cpu-as-$(CONFIG_E200)		+= -Wa,-me200
+ cpu-as-$(CONFIG_E500)		+= -Wa,-me500
+ 
+ # When using '-many -mpower4' gas will first try and find a matching power4
+diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
+index 8267dd426b15..ff77f561e11f 100644
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -147,6 +147,7 @@ enum page_cache_mode {
+ #endif
+ 
+ #define _PAGE_CACHE_MASK	(_PAGE_PAT | _PAGE_PCD | _PAGE_PWT)
++#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
+ #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
+ #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
+ 
+diff --git a/arch/x86/include/asm/sync_core.h b/arch/x86/include/asm/sync_core.h
+index c67caafd3381..43b5e02a7b4b 100644
+--- a/arch/x86/include/asm/sync_core.h
++++ b/arch/x86/include/asm/sync_core.h
+@@ -16,12 +16,13 @@ static inline void sync_core_before_usermode(void)
+ 	/* With PTI, we unconditionally serialize before running user code. */
+ 	if (static_cpu_has(X86_FEATURE_PTI))
+ 		return;
++
+ 	/*
+-	 * Return from interrupt and NMI is done through iret, which is core
+-	 * serializing.
++	 * Even if we're in an interrupt, we might reschedule before returning,
++	 * in which case we could switch to a different thread in the same mm
++	 * and return using SYSRET or SYSEXIT.  Instead of trying to keep
++	 * track of our need to sync the core, just sync right away.
+ 	 */
+-	if (in_irq() || in_nmi())
+-		return;
+ 	sync_core();
+ }
+ 
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index c8203694d9ce..bf6662d37a33 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -272,20 +272,24 @@ static int assign_irq_vector_any_locked(struct irq_data *irqd)
+ 	const struct cpumask *affmsk = irq_data_get_affinity_mask(irqd);
+ 	int node = irq_data_get_node(irqd);
+ 
+-	if (node == NUMA_NO_NODE)
+-		goto all;
+-	/* Try the intersection of @affmsk and node mask */
+-	cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
+-	if (!assign_vector_locked(irqd, vector_searchmask))
+-		return 0;
+-	/* Try the node mask */
+-	if (!assign_vector_locked(irqd, cpumask_of_node(node)))
+-		return 0;
+-all:
++	if (node != NUMA_NO_NODE) {
++		/* Try the intersection of @affmsk and node mask */
++		cpumask_and(vector_searchmask, cpumask_of_node(node), affmsk);
++		if (!assign_vector_locked(irqd, vector_searchmask))
++			return 0;
++	}
++
+ 	/* Try the full affinity mask */
+ 	cpumask_and(vector_searchmask, affmsk, cpu_online_mask);
+ 	if (!assign_vector_locked(irqd, vector_searchmask))
+ 		return 0;
++
++	if (node != NUMA_NO_NODE) {
++		/* Try the node mask */
++		if (!assign_vector_locked(irqd, cpumask_of_node(node)))
++			return 0;
++	}
++
+ 	/* Try the full online mask */
+ 	return assign_vector_locked(irqd, cpu_online_mask);
+ }
+diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
+index 92748660ba51..dc2fb886db2b 100644
+--- a/arch/x86/lib/memcpy_64.S
++++ b/arch/x86/lib/memcpy_64.S
+@@ -15,8 +15,6 @@
+  * to a jmp to memcpy_erms which does the REP; MOVSB mem copy.
+  */
+ 
+-.weak memcpy
+-
+ /*
+  * memcpy - Copy a memory block.
+  *
+@@ -29,7 +27,7 @@
+  * rax original destination
+  */
+ ENTRY(__memcpy)
+-ENTRY(memcpy)
++SYM_FUNC_START_WEAK(memcpy)
+ 	ALTERNATIVE_2 "jmp memcpy_orig", "", X86_FEATURE_REP_GOOD, \
+ 		      "jmp memcpy_erms", X86_FEATURE_ERMS
+ 
+diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+index bbec69d8223b..b292445467b6 100644
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -24,9 +24,7 @@
+  * Output:
+  * rax: dest
+  */
+-.weak memmove
+-
+-ENTRY(memmove)
++SYM_FUNC_START_WEAK(memmove)
+ ENTRY(__memmove)
+ 
+ 	/* Handle more 32 bytes in loop */
+diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
+index 9bc861c71e75..e3376c7d4c97 100644
+--- a/arch/x86/lib/memset_64.S
++++ b/arch/x86/lib/memset_64.S
+@@ -6,8 +6,6 @@
+ #include <asm/alternative-asm.h>
+ #include <asm/export.h>
+ 
+-.weak memset
+-
+ /*
+  * ISO C memset - set a memory block to a byte value. This function uses fast
+  * string to get better performance than the original function. The code is
+@@ -19,7 +17,7 @@
+  *
+  * rax   original destination
+  */
+-ENTRY(memset)
++SYM_FUNC_START_WEAK(memset)
+ ENTRY(__memset)
+ 	/*
+ 	 * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index e2b0e2ac07bb..84cda5dc0387 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -45,8 +45,8 @@
+ #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
+ 
+ #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
+-#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
+-				 (_PAGE_PAT | _PAGE_PWT))
++#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
++				 (_PAGE_PAT_LARGE | _PAGE_PWT))
+ 
+ #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
+ 
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index e6a9edc5baaf..851359b7edc5 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -327,8 +327,14 @@ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
+ 	/*
+ 	 * The membarrier system call requires a full memory barrier and
+ 	 * core serialization before returning to user-space, after
+-	 * storing to rq->curr. Writing to CR3 provides that full
+-	 * memory barrier and core serializing instruction.
++	 * storing to rq->curr, when changing mm.  This is because
++	 * membarrier() sends IPIs to all CPUs that are in the target mm
++	 * to make them issue memory barriers.  However, if another CPU
++	 * switches to/from the target mm concurrently with
++	 * membarrier(), it can cause that CPU not to receive an IPI
++	 * when it really should issue a memory barrier.  Writing to CR3
++	 * provides that full memory barrier and core serializing
++	 * instruction.
+ 	 */
+ 	if (real_prev == next) {
+ 		VM_WARN_ON(this_cpu_read(cpu_tlbstate.ctxs[prev_asid].ctx_id) !=
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 2efc317c90df..c2fccf97f7a4 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -567,7 +567,7 @@ static u8 intel_dp_dsc_get_slice_count(struct intel_dp *intel_dp,
+ 		return 0;
+ 	}
+ 	/* Also take into account max slice width */
+-	min_slice_count = min_t(u8, min_slice_count,
++	min_slice_count = max_t(u8, min_slice_count,
+ 				DIV_ROUND_UP(mode_hdisplay,
+ 					     max_slice_width));
+ 
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index c09b9628ad34..c872ba579b03 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -568,12 +568,15 @@ static int cm109_input_open(struct input_dev *idev)
+ 	dev->ctl_data->byte[HID_OR2] = dev->keybit;
+ 	dev->ctl_data->byte[HID_OR3] = 0x00;
+ 
++	dev->ctl_urb_pending = 1;
+ 	error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
+-	if (error)
++	if (error) {
++		dev->ctl_urb_pending = 0;
+ 		dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
+ 			__func__, error);
+-	else
++	} else {
+ 		dev->open = 1;
++	}
+ 
+ 	mutex_unlock(&dev->pm_mutex);
+ 
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 837911a15e44..eca931da76c3 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -611,6 +611,48 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "AOA150"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A114-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A314-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-132"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-332"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-432"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate Spin B118-RN"),
++		},
++	},
+ 	{
+ 		/* Advent 4211 */
+ 		.matches = {
+diff --git a/drivers/interconnect/qcom/qcs404.c b/drivers/interconnect/qcom/qcs404.c
+index 8e0735a87040..3a3ce6ea65ff 100644
+--- a/drivers/interconnect/qcom/qcs404.c
++++ b/drivers/interconnect/qcom/qcs404.c
+@@ -157,8 +157,8 @@ struct qcom_icc_desc {
+ 	}
+ 
+ DEFINE_QNODE(mas_apps_proc, QCS404_MASTER_AMPSS_M0, 8, 0, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+-DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, 6, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+-DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, 8, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
++DEFINE_QNODE(mas_oxili, QCS404_MASTER_GRAPHICS_3D, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
++DEFINE_QNODE(mas_mdp, QCS404_MASTER_MDP_PORT0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+ DEFINE_QNODE(mas_snoc_bimc_1, QCS404_SNOC_BIMC_1_MAS, 8, 76, -1, QCS404_SLAVE_EBI_CH0);
+ DEFINE_QNODE(mas_tcu_0, QCS404_MASTER_TCU_0, 8, -1, -1, QCS404_SLAVE_EBI_CH0, QCS404_BIMC_SNOC_SLV);
+ DEFINE_QNODE(mas_spdm, QCS404_MASTER_SPDM, 4, -1, -1, QCS404_PNOC_INT_3);
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 7966b19ceba7..f298313b87ac 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -40,7 +40,6 @@
+ #define ITS_FLAGS_CMDQ_NEEDS_FLUSHING		(1ULL << 0)
+ #define ITS_FLAGS_WORKAROUND_CAVIUM_22375	(1ULL << 1)
+ #define ITS_FLAGS_WORKAROUND_CAVIUM_23144	(1ULL << 2)
+-#define ITS_FLAGS_SAVE_SUSPEND_STATE		(1ULL << 3)
+ 
+ #define RDIST_FLAGS_PROPBASE_NEEDS_FLUSHING	(1 << 0)
+ #define RDIST_FLAGS_RD_TABLES_PREALLOCATED	(1 << 1)
+@@ -3367,9 +3366,6 @@ static int its_save_disable(void)
+ 	list_for_each_entry(its, &its_nodes, entry) {
+ 		void __iomem *base;
+ 
+-		if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-			continue;
+-
+ 		base = its->base;
+ 		its->ctlr_save = readl_relaxed(base + GITS_CTLR);
+ 		err = its_force_quiescent(base);
+@@ -3388,9 +3384,6 @@ static int its_save_disable(void)
+ 		list_for_each_entry_continue_reverse(its, &its_nodes, entry) {
+ 			void __iomem *base;
+ 
+-			if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-				continue;
+-
+ 			base = its->base;
+ 			writel_relaxed(its->ctlr_save, base + GITS_CTLR);
+ 		}
+@@ -3410,9 +3403,6 @@ static void its_restore_enable(void)
+ 		void __iomem *base;
+ 		int i;
+ 
+-		if (!(its->flags & ITS_FLAGS_SAVE_SUSPEND_STATE))
+-			continue;
+-
+ 		base = its->base;
+ 
+ 		/*
+@@ -3420,7 +3410,10 @@ static void its_restore_enable(void)
+ 		 * don't restore it since writing to CBASER or BASER<n>
+ 		 * registers is undefined according to the GIC v3 ITS
+ 		 * Specification.
++		 *
++		 * Firmware resuming with the ITS enabled is terminally broken.
+ 		 */
++		WARN_ON(readl_relaxed(base + GITS_CTLR) & GITS_CTLR_ENABLE);
+ 		ret = its_force_quiescent(base);
+ 		if (ret) {
+ 			pr_err("ITS@%pa: failed to quiesce on resume: %d\n",
+@@ -3687,9 +3680,6 @@ static int __init its_probe_one(struct resource *res,
+ 		ctlr |= GITS_CTLR_ImDe;
+ 	writel_relaxed(ctlr, its->base + GITS_CTLR);
+ 
+-	if (GITS_TYPER_HCC(typer))
+-		its->flags |= ITS_FLAGS_SAVE_SUSPEND_STATE;
+-
+ 	err = its_init_domain(handle, its);
+ 	if (err)
+ 		goto out_free_tables;
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 7f480c6b1981..63e838ec8af8 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -630,7 +630,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 
+ 	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
+ 
+-	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B)) {
++	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+ 		 * Ensure RPMB/R1B command has completed by polling CMD13
+ 		 * "Send Status".
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index f9a2a9ecbac9..c84114b44ee0 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1337,6 +1337,8 @@ static int m_can_dev_setup(struct m_can_classdev *m_can_dev)
+ 						&m_can_data_bittiming_const_31X;
+ 		break;
+ 	case 32:
++	case 33:
++		/* Support both MCAN version v3.2.x and v3.3.0 */
+ 		m_can_dev->can.bittiming_const = m_can_dev->bit_timing ?
+ 			m_can_dev->bit_timing : &m_can_bittiming_const_31X;
+ 
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 7056419461e7..47b8ce7822c0 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2266,6 +2266,12 @@ static void ibmvnic_tx_timeout(struct net_device *dev)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(dev);
+ 
++	if (test_bit(0, &adapter->resetting)) {
++		netdev_err(adapter->netdev,
++			   "Adapter is resetting, skip timeout reset\n");
++		return;
++	}
++
+ 	ibmvnic_reset(adapter, VNIC_RESET_TIMEOUT);
+ }
+ 
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+index 695bbaa86273..12ef3a042051 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+@@ -147,6 +147,16 @@
+ #define CSR_MAC_SHADOW_REG_CTL2		(CSR_BASE + 0x0AC)
+ #define CSR_MAC_SHADOW_REG_CTL2_RX_WAKE	0xFFFF
+ 
++/* LTR control (since IWL_DEVICE_FAMILY_22000) */
++#define CSR_LTR_LONG_VAL_AD			(CSR_BASE + 0x0D4)
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ	0x80000000
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE	0x1c000000
++#define CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL	0x03ff0000
++#define CSR_LTR_LONG_VAL_AD_SNOOP_REQ		0x00008000
++#define CSR_LTR_LONG_VAL_AD_SNOOP_SCALE		0x00001c00
++#define CSR_LTR_LONG_VAL_AD_SNOOP_VAL		0x000003ff
++#define CSR_LTR_LONG_VAL_AD_SCALE_USEC		2
++
+ /* GIO Chicken Bits (PCI Express bus link power management) */
+ #define CSR_GIO_CHICKEN_BITS    (CSR_BASE+0x100)
+ 
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 73b8bf0fbf16..daae86cd6114 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3022,7 +3022,7 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
+ 
+ 	/* this would be a mac80211 bug ... but don't crash */
+ 	if (WARN_ON_ONCE(!mvmvif->phy_ctxt))
+-		return -EINVAL;
++		return test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) ? 0 : -EINVAL;
+ 
+ 	/*
+ 	 * If we are in a STA removal flow and in DQA mode:
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+index 74980382e64c..7a5b024a6d38 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+@@ -180,6 +180,26 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
+ 
+ 	iwl_set_bit(trans, CSR_CTXT_INFO_BOOT_CTRL,
+ 		    CSR_AUTO_FUNC_BOOT_ENA);
++
++	if (trans->trans_cfg->device_family == IWL_DEVICE_FAMILY_AX210) {
++		/*
++		 * The firmware initializes this again later (to a smaller
++		 * value), but for the boot process initialize the LTR to
++		 * ~250 usec.
++		 */
++		u32 val = CSR_LTR_LONG_VAL_AD_NO_SNOOP_REQ |
++			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
++					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_SCALE) |
++			  u32_encode_bits(250,
++					  CSR_LTR_LONG_VAL_AD_NO_SNOOP_VAL) |
++			  CSR_LTR_LONG_VAL_AD_SNOOP_REQ |
++			  u32_encode_bits(CSR_LTR_LONG_VAL_AD_SCALE_USEC,
++					  CSR_LTR_LONG_VAL_AD_SNOOP_SCALE) |
++			  u32_encode_bits(250, CSR_LTR_LONG_VAL_AD_SNOOP_VAL);
++
++		iwl_write32(trans, CSR_LTR_LONG_VAL_AD, val);
++	}
++
+ 	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
+ 		iwl_write_umac_prph(trans, UREG_CPU_INIT_RUN, 1);
+ 	else
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index c76d26708e65..ef5a8ecabc60 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -2178,18 +2178,36 @@ static int iwl_trans_pcie_read_mem(struct iwl_trans *trans, u32 addr,
+ 				   void *buf, int dwords)
+ {
+ 	unsigned long flags;
+-	int offs, ret = 0;
++	int offs = 0;
+ 	u32 *vals = buf;
+ 
+-	if (iwl_trans_grab_nic_access(trans, &flags)) {
+-		iwl_write32(trans, HBUS_TARG_MEM_RADDR, addr);
+-		for (offs = 0; offs < dwords; offs++)
+-			vals[offs] = iwl_read32(trans, HBUS_TARG_MEM_RDAT);
+-		iwl_trans_release_nic_access(trans, &flags);
+-	} else {
+-		ret = -EBUSY;
++	while (offs < dwords) {
++		/* limit the time we spin here under lock to 1/2s */
++		ktime_t timeout = ktime_add_us(ktime_get(), 500 * USEC_PER_MSEC);
++
++		if (iwl_trans_grab_nic_access(trans, &flags)) {
++			iwl_write32(trans, HBUS_TARG_MEM_RADDR,
++				    addr + 4 * offs);
++
++			while (offs < dwords) {
++				vals[offs] = iwl_read32(trans,
++							HBUS_TARG_MEM_RDAT);
++				offs++;
++
++				/* calling ktime_get is expensive so
++				 * do it once in 128 reads
++				 */
++				if (offs % 128 == 0 && ktime_after(ktime_get(),
++								   timeout))
++					break;
++			}
++			iwl_trans_release_nic_access(trans, &flags);
++		} else {
++			return -EBUSY;
++		}
+ 	}
+-	return ret;
++
++	return 0;
+ }
+ 
+ static int iwl_trans_pcie_write_mem(struct iwl_trans *trans, u32 addr,
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 12b2707296b6..a85c679b6276 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -435,7 +435,6 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 
+@@ -443,7 +442,6 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 
+@@ -451,7 +449,6 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= BOTH_EADGE << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 
+@@ -459,8 +456,6 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 
+@@ -468,8 +463,6 @@ static int amd_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_HIGH_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 60c18f21588d..7fa27e753691 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -111,6 +111,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
+ 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+ 	{KE_IGNORE, 0x81, {KEY_SLEEP} },
+ 	{KE_KEY, 0x82, {KEY_TOUCHPAD_TOGGLE} },	/* Touch Pad Toggle */
++	{KE_IGNORE, 0x84, {KEY_KBDILLUMTOGGLE} }, /* Automatic Keyboard background light toggle */
+ 	{KE_KEY, KEY_TOUCHPAD_ON, {KEY_TOUCHPAD_ON} },
+ 	{KE_KEY, KEY_TOUCHPAD_OFF, {KEY_TOUCHPAD_OFF} },
+ 	{KE_IGNORE, 0x83, {KEY_TOUCHPAD_TOGGLE} },
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 5c103614a409..701d1ddda4b1 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -197,6 +197,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Stream x360 Convertible PC 11"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
++		},
++	},
+ 	{} /* Array terminator */
+ };
+ 
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 5081048f2356..8c54d3707fba 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -3232,7 +3232,14 @@ static int hotkey_init_tablet_mode(void)
+ 
+ 		in_tablet_mode = hotkey_gmms_get_tablet_mode(res,
+ 							     &has_tablet_mode);
+-		if (has_tablet_mode)
++		/*
++		 * The Yoga 11e series has 2 accelerometers described by a
++		 * BOSC0200 ACPI node. This setup relies on a Windows service
++		 * which calls special ACPI methods on this node to report
++		 * the laptop/tent/tablet mode to the EC. The bmc150 iio driver
++		 * does not support this, so skip the hotkey on these models.
++		 */
++		if (has_tablet_mode && !acpi_dev_present("BOSC0200", "1", -1))
+ 			tp_features.hotkey_tablet = TP_HOTKEY_TABLET_USES_GMMS;
+ 		type = "GMMS";
+ 	} else if (acpi_evalf(hkey_handle, &res, "MHKG", "qd")) {
+@@ -9690,6 +9697,7 @@ static const struct tpacpi_quirk battery_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('R', '0', 'B', true), /* Thinkpad 11e gen 3 */
+ 	TPACPI_Q_LNV3('R', '0', 'C', true), /* Thinkpad 13 */
+ 	TPACPI_Q_LNV3('R', '0', 'J', true), /* Thinkpad 13 gen 2 */
++	TPACPI_Q_LNV3('R', '0', 'K', true), /* Thinkpad 11e gen 4 celeron BIOS */
+ };
+ 
+ static int __init tpacpi_battery_init(struct ibm_init_struct *ibm)
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 1c7d8324ff5c..1e072dbba30d 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -264,6 +264,21 @@ static const struct ts_dmi_data irbis_tw90_data = {
+ 	.properties	= irbis_tw90_props,
+ };
+ 
++static const struct property_entry irbis_tw118_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 30),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1960),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1510),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-irbis-tw118.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data irbis_tw118_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= irbis_tw118_props,
++};
++
+ static const struct property_entry itworks_tw891_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 1),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 5),
+@@ -758,6 +773,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TW90"),
+ 		},
+ 	},
++	{
++		/* Irbis TW118 */
++		.driver_data = (void *)&irbis_tw118_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "IRBIS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TW118"),
++		},
++	},
+ 	{
+ 		/* I.T.Works TW891 */
+ 		.driver_data = (void *)&itworks_tw891_data,
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index 0fa455357594..0760d0bd8a10 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3020,7 +3020,6 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 			goto create_eq_error;
+ 		}
+ 
+-		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3030,6 +3029,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 			goto create_eq_error;
+ 		}
+ 
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    BEISCSI_EQ_DELAY_DEF);
+ 		if (ret) {
+@@ -3086,7 +3086,6 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 			goto create_cq_error;
+ 		}
+ 
+-		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3096,6 +3095,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 			goto create_cq_error;
+ 		}
+ 
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b6ce880ddd15..675e16e61ebd 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1257,8 +1257,15 @@ static int ufshcd_devfreq_target(struct device *dev,
+ 	}
+ 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
+ 
++	pm_runtime_get_noresume(hba->dev);
++	if (!pm_runtime_active(hba->dev)) {
++		pm_runtime_put_noidle(hba->dev);
++		ret = -EAGAIN;
++		goto out;
++	}
+ 	start = ktime_get();
+ 	ret = ufshcd_devfreq_scale(hba, scale_up);
++	pm_runtime_put(hba->dev);
+ 
+ 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
+ 		(scale_up ? "up" : "down"),
+diff --git a/drivers/soc/fsl/dpio/dpio-driver.c b/drivers/soc/fsl/dpio/dpio-driver.c
+index 7b642c330977..7f397b4ad878 100644
+--- a/drivers/soc/fsl/dpio/dpio-driver.c
++++ b/drivers/soc/fsl/dpio/dpio-driver.c
+@@ -95,7 +95,6 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
+ {
+ 	int error;
+ 	struct fsl_mc_device_irq *irq;
+-	cpumask_t mask;
+ 
+ 	irq = dpio_dev->irqs[0];
+ 	error = devm_request_irq(&dpio_dev->dev,
+@@ -112,9 +111,7 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
+ 	}
+ 
+ 	/* set the affinity hint */
+-	cpumask_clear(&mask);
+-	cpumask_set_cpu(cpu, &mask);
+-	if (irq_set_affinity_hint(irq->msi_desc->irq, &mask))
++	if (irq_set_affinity_hint(irq->msi_desc->irq, cpumask_of(cpu)))
+ 		dev_err(&dpio_dev->dev,
+ 			"irq_set_affinity failed irq %d cpu %d\n",
+ 			irq->msi_desc->irq, cpu);
+diff --git a/drivers/spi/spi-nxp-fspi.c b/drivers/spi/spi-nxp-fspi.c
+index 28ae5229f889..efd9e908e224 100644
+--- a/drivers/spi/spi-nxp-fspi.c
++++ b/drivers/spi/spi-nxp-fspi.c
+@@ -948,6 +948,7 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct nxp_fspi *f;
+ 	int ret;
++	u32 reg;
+ 
+ 	ctlr = spi_alloc_master(&pdev->dev, sizeof(*f));
+ 	if (!ctlr)
+@@ -974,6 +975,12 @@ static int nxp_fspi_probe(struct platform_device *pdev)
+ 		goto err_put_ctrl;
+ 	}
+ 
++	/* Clear potential interrupts */
++	reg = fspi_readl(f, f->iobase + FSPI_INTR);
++	if (reg)
++		fspi_writel(f, reg, f->iobase + FSPI_INTR);
++
++
+ 	/* find the resources - controller memory mapped space */
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fspi_mmap");
+ 	f->ahb_addr = devm_ioremap_resource(dev, res);
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 9442631fd4af..f51dadd1ce43 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -1567,11 +1567,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+ 
+ 	src = *ppos;
+ 	svpfn = src / PM_ENTRY_BYTES;
+-	start_vaddr = svpfn << PAGE_SHIFT;
+ 	end_vaddr = mm->task_size;
+ 
+ 	/* watch out for wraparound */
+-	if (svpfn > mm->task_size >> PAGE_SHIFT)
++	start_vaddr = end_vaddr;
++	if (svpfn <= (ULONG_MAX >> PAGE_SHIFT))
++		start_vaddr = untagged_addr(svpfn << PAGE_SHIFT);
++
++	/* Ensure the address is inside the task */
++	if (start_vaddr > mm->task_size)
+ 		start_vaddr = end_vaddr;
+ 
+ 	/*
+diff --git a/include/linux/build_bug.h b/include/linux/build_bug.h
+index 0fe5426f2bdc..1fb55c0ad78a 100644
+--- a/include/linux/build_bug.h
++++ b/include/linux/build_bug.h
+@@ -77,4 +77,9 @@
+ #define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+ #define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
+ 
++#ifdef __GENKSYMS__
++/* genksyms gets confused by _Static_assert */
++#define _Static_assert(expr, ...)
++#endif
++
+ #endif	/* _LINUX_BUILD_BUG_H */
+diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+index 333a6695a918..0e06df20928c 100644
+--- a/include/linux/compiler-clang.h
++++ b/include/linux/compiler-clang.h
+@@ -36,9 +36,3 @@
+     __has_builtin(__builtin_sub_overflow)
+ #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+ #endif
+-
+-/* The following are for compatibility with GCC, from compiler-gcc.h,
+- * and may be redefined here because they should not be shared with other
+- * compilers, like ICC.
+- */
+-#define barrier() __asm__ __volatile__("" : : : "memory")
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index e8579412ad21..d8fab3ecf512 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -14,25 +14,6 @@
+ # error Sorry, your compiler is too old - please upgrade it.
+ #endif
+ 
+-/* Optimization barrier */
+-
+-/* The "volatile" is due to gcc bugs */
+-#define barrier() __asm__ __volatile__("": : :"memory")
+-/*
+- * This version is i.e. to prevent dead stores elimination on @ptr
+- * where gcc and llvm may behave differently when otherwise using
+- * normal barrier(): while gcc behavior gets along with a normal
+- * barrier(), llvm needs an explicit input variable to be assumed
+- * clobbered. The issue is as follows: while the inline asm might
+- * access any memory it wants, the compiler could have fit all of
+- * @ptr into memory registers instead, and since @ptr never escaped
+- * from that, it proved that the inline asm wasn't touching any of
+- * it. This version works well with both compilers, i.e. we're telling
+- * the compiler that the inline asm absolutely may see the contents
+- * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
+- */
+-#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+-
+ /*
+  * This macro obfuscates arithmetic on a variable address so that gcc
+  * shouldn't recognize the original var, and make assumptions about it.
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 448c91bf543b..f164a9b12813 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -80,11 +80,25 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ 
+ /* Optimization barrier */
+ #ifndef barrier
+-# define barrier() __memory_barrier()
++/* The "volatile" is due to gcc bugs */
++# define barrier() __asm__ __volatile__("": : :"memory")
+ #endif
+ 
+ #ifndef barrier_data
+-# define barrier_data(ptr) barrier()
++/*
++ * This version is i.e. to prevent dead stores elimination on @ptr
++ * where gcc and llvm may behave differently when otherwise using
++ * normal barrier(): while gcc behavior gets along with a normal
++ * barrier(), llvm needs an explicit input variable to be assumed
++ * clobbered. The issue is as follows: while the inline asm might
++ * access any memory it wants, the compiler could have fit all of
++ * @ptr into memory registers instead, and since @ptr never escaped
++ * from that, it proved that the inline asm wasn't touching any of
++ * it. This version works well with both compilers, i.e. we're telling
++ * the compiler that the inline asm absolutely may see the contents
++ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
++ */
++# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+ #endif
+ 
+ /* workaround for GCC PR82365 if needed */
+diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
+index 2219cce81ca4..4807ca4d52e0 100644
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -20,7 +20,6 @@
+  * zsmalloc mapping modes
+  *
+  * NOTE: These only make a difference when a mapped object spans pages.
+- * They also have no effect when PGTABLE_MAPPING is selected.
+  */
+ enum zs_mapmode {
+ 	ZS_MM_RW, /* normal read-write mapping */
+diff --git a/mm/Kconfig b/mm/Kconfig
+index a5dae9a7eb51..fbdc5c70e487 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -576,19 +576,6 @@ config ZSMALLOC
+ 	  returned by an alloc().  This handle must be mapped in order to
+ 	  access the allocated space.
+ 
+-config PGTABLE_MAPPING
+-	bool "Use page table mapping to access object in zsmalloc"
+-	depends on ZSMALLOC
+-	help
+-	  By default, zsmalloc uses a copy-based object mapping method to
+-	  access allocations that span two pages. However, if a particular
+-	  architecture (ex, ARM) performs VM mapping faster than copying,
+-	  then you should select this. This causes zsmalloc to use page table
+-	  mapping rather than copying for object mapping.
+-
+-	  You can check speed with zsmalloc benchmark:
+-	  https://github.com/spartacus06/zsmapbench
+-
+ config ZSMALLOC_STAT
+ 	bool "Export zsmalloc statistics"
+ 	depends on ZSMALLOC
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 22d17ecfe7df..8a72a3b3837b 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -293,11 +293,7 @@ struct zspage {
+ };
+ 
+ struct mapping_area {
+-#ifdef CONFIG_PGTABLE_MAPPING
+-	struct vm_struct *vm; /* vm area for mapping object that span pages */
+-#else
+ 	char *vm_buf; /* copy buffer for objects that span pages */
+-#endif
+ 	char *vm_addr; /* address of kmap_atomic()'ed pages */
+ 	enum zs_mapmode vm_mm; /* mapping mode */
+ };
+@@ -1113,46 +1109,6 @@ static struct zspage *find_get_zspage(struct size_class *class)
+ 	return zspage;
+ }
+ 
+-#ifdef CONFIG_PGTABLE_MAPPING
+-static inline int __zs_cpu_up(struct mapping_area *area)
+-{
+-	/*
+-	 * Make sure we don't leak memory if a cpu UP notification
+-	 * and zs_init() race and both call zs_cpu_up() on the same cpu
+-	 */
+-	if (area->vm)
+-		return 0;
+-	area->vm = alloc_vm_area(PAGE_SIZE * 2, NULL);
+-	if (!area->vm)
+-		return -ENOMEM;
+-	return 0;
+-}
+-
+-static inline void __zs_cpu_down(struct mapping_area *area)
+-{
+-	if (area->vm)
+-		free_vm_area(area->vm);
+-	area->vm = NULL;
+-}
+-
+-static inline void *__zs_map_object(struct mapping_area *area,
+-				struct page *pages[2], int off, int size)
+-{
+-	BUG_ON(map_vm_area(area->vm, PAGE_KERNEL, pages));
+-	area->vm_addr = area->vm->addr;
+-	return area->vm_addr + off;
+-}
+-
+-static inline void __zs_unmap_object(struct mapping_area *area,
+-				struct page *pages[2], int off, int size)
+-{
+-	unsigned long addr = (unsigned long)area->vm_addr;
+-
+-	unmap_kernel_range(addr, PAGE_SIZE * 2);
+-}
+-
+-#else /* CONFIG_PGTABLE_MAPPING */
+-
+ static inline int __zs_cpu_up(struct mapping_area *area)
+ {
+ 	/*
+@@ -1233,8 +1189,6 @@ static void __zs_unmap_object(struct mapping_area *area,
+ 	pagefault_enable();
+ }
+ 
+-#endif /* CONFIG_PGTABLE_MAPPING */
+-
+ static int zs_cpu_prepare(unsigned int cpu)
+ {
+ 	struct mapping_area *area;
+diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
+index 42b6cd41d2ea..6c4f21db5fba 100755
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -2008,7 +2008,7 @@ sub reboot_to {
+ 
+     if ($reboot_type eq "grub") {
+ 	run_ssh "'(echo \"savedefault --default=$grub_number --once\" | grub --batch)'";
+-    } elsif ($reboot_type eq "grub2") {
++    } elsif (($reboot_type eq "grub2") or ($reboot_type eq "grub2bls")) {
+ 	run_ssh "$grub_reboot $grub_number";
+     } elsif ($reboot_type eq "syslinux") {
+ 	run_ssh "$syslinux --once \\\"$syslinux_label\\\" $syslinux_path";
