@@ -2,93 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E072DC582
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 18:42:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F298A2DC5F1
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 19:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727451AbgLPRmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Dec 2020 12:42:20 -0500
-Received: from foss.arm.com ([217.140.110.172]:37776 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727482AbgLPRmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Dec 2020 12:42:20 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BA60BD6E;
-        Wed, 16 Dec 2020 09:41:34 -0800 (PST)
-Received: from e113632-lin (e113632-lin.cambridge.arm.com [10.1.194.46])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C327B3F66E;
-        Wed, 16 Dec 2020 09:41:32 -0800 (PST)
-References: <cover.1607036601.git.reinette.chatre@intel.com> <c8eebc438e057e4bc2ce00256664b7bb0561b323.1607036601.git.reinette.chatre@intel.com> <jhjlfe4t6jq.mognet@arm.com> <e250875b-1c86-660c-b9f0-4060842939bf@intel.com>
-User-agent: mu4e 0.9.17; emacs 26.3
-From:   Valentin Schneider <valentin.schneider@arm.com>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de,
-        tony.luck@intel.com, kuo-lang.tseng@intel.com, shakeelb@google.com,
-        mingo@redhat.com, babu.moger@amd.com, james.morse@arm.com,
-        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/3] x86/resctrl: Update PQR_ASSOC MSR synchronously when moving task to resource group
-In-reply-to: <e250875b-1c86-660c-b9f0-4060842939bf@intel.com>
-Date:   Wed, 16 Dec 2020 17:41:30 +0000
-Message-ID: <jhj1rfptzqt.mognet@arm.com>
+        id S1729292AbgLPSH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Dec 2020 13:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727485AbgLPSH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 13:07:27 -0500
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94525C06179C;
+        Wed, 16 Dec 2020 10:06:46 -0800 (PST)
+Received: by mail-yb1-xb31.google.com with SMTP id y128so3610272ybf.10;
+        Wed, 16 Dec 2020 10:06:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VodWZpWl/+uWOhTMN//0IR82qShPVli3GP+B85kzebI=;
+        b=HgkKI4G/HgYCipvAAw6VhORa1cxXlRphEmiOOjtS8+2DFX+gWbUH4AgXZu1fKdwTSn
+         pSEwp3kHpSA4r7/4NxgDyoYMq0tKm/y85UCWN67D5z6XUY7lDLG22Qdtq6qYxvnvjbww
+         vpE5oMNJc7B6/xs9K2YdOq33yJV9YQTkCdIkFNfCYtqUjqu2RcgHZjRislkx1bLKOdB2
+         vKCiFImSSimyu3dWk69QIb5gQzSytCf8ye7F1iUMJgLBIAaX58tad+2YxLXOWsY63wv+
+         euV/PCLRJ3Ri7H7MY6D5AmdYQsejL4SNlH/xxbqY4xjMgJhgB1qJalD8gL2wA6C0a8Cg
+         N7rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VodWZpWl/+uWOhTMN//0IR82qShPVli3GP+B85kzebI=;
+        b=WBpr3s+nT07obq2vNyYuYfh8SSiFdX5lUAYG9YpKX7Nt/pYZBJ8r8/9BL1MTk09Nwh
+         +Y5D0m8utIxUdYEj6HfhVlsKdDG+vBUnsOVHoVsT73oU5fPIy0LZffOHNzMYJ4k+c1Vy
+         4AX/JX7BaVchwO59f6hBUkXkmAkS1ieYsi2DOmSZ3WWWbE2DJqXUokbkg3gs19lyDjjG
+         FqKdBF57qucwKoFw5yc6t008eDZCwkIurWI+6e+NVGCs/bKLxiNjQ8B0qTvOxUQybfQY
+         gZvjBuFZ843okEnVIATNXlpnOxLEG2/LcFQQtN1pQR+9/noYj8i+5TQ2Azid8LgB4drT
+         bFxA==
+X-Gm-Message-State: AOAM531ajL0MXaNg7ZM43zUEltXWJ0T0oNKrikzNEFKh4Z8x/+r3UBvJ
+        u1vgvhd72kIJ3BYbbn2fHQa/L28AcyYFcmhNJJg=
+X-Google-Smtp-Source: ABdhPJy3g5GfYo5WT+IeLrwHD6qpe8ngg3vhanZs6hYwZjszn/hqZ+Z9uHSwjKHHvo6ZnPgPboPTG5wVZW+geoDjMwc=
+X-Received: by 2002:a25:aea8:: with SMTP id b40mr52596024ybj.347.1608142005891;
+ Wed, 16 Dec 2020 10:06:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <CAEf4BzYBvz4TDayTE=Bc_bjqvOGaavmmw1sJhOCKhq9DwUpd4A@mail.gmail.com>
+ <20201215182011.15755-1-kamal@canonical.com>
+In-Reply-To: <20201215182011.15755-1-kamal@canonical.com>
+From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date:   Wed, 16 Dec 2020 10:06:35 -0800
+Message-ID: <CAEf4BzYgnDWRswYJPnMdtACs7K5mckbfHX2i68YXhha4q=ywFw@mail.gmail.com>
+Subject: Re: [PATCH v2] selftests/bpf: clarify build error if no vmlinux
+To:     Kamal Mostafa <kamal@canonical.com>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 14/12/20 18:41, Reinette Chatre wrote:
->>> -	return ret;
->>> +
->>> +	/*
->>> +	 * By now, the task's closid and rmid are set. If the task is current
->>> +	 * on a CPU, the PQR_ASSOC MSR needs to be updated to make the resource
->>> +	 * group go into effect. If the task is not current, the MSR will be
->>> +	 * updated when the task is scheduled in.
->>> +	 */
->>> +	update_task_closid_rmid(tsk);
->>
->> We need the above writes to be compile-ordered before the IPI is sent.
->> There *is* a preempt_disable() down in smp_call_function_single() that
->> gives us the required barrier(), can we deem that sufficient or would we
->> want one before update_task_closid_rmid() for the sake of clarity?
->>
+On Tue, Dec 15, 2020 at 10:20 AM Kamal Mostafa <kamal@canonical.com> wrote:
 >
-> Apologies, it is not clear to me why the preempt_disable() would be
-> insufficient. If it is not then there may be a few other areas (where
-> resctrl calls smp_call_function_xxx()) that needs to be re-evaluated.
+> If Makefile cannot find any of the vmlinux's in its VMLINUX_BTF_PATHS list,
+> it tries to run btftool incorrectly, with VMLINUX_BTF unset:
+>
+>     bpftool btf dump file $(VMLINUX_BTF) format c
+>
+> Such that the keyword 'format' is misinterpreted as the path to vmlinux.
+> The resulting build error message is fairly cryptic:
+>
+>       GEN      vmlinux.h
+>     Error: failed to load BTF from format: No such file or directory
+>
+> This patch makes the failure reason clearer by yielding this instead:
+>
+>     Makefile:...: *** cannot find a vmlinux for VMLINUX_BTF at any of
+>     "{paths}".  Stop.
+>
+> Fixes: acbd06206bbb ("selftests/bpf: Add vmlinux.h selftest exercising tracing of syscalls")
+> Cc: stable@vger.kernel.org # 5.7+
+> Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+> ---
 
-So that's part paranoia and part nonsense from my end - the contents of
-smp_call() shouldn't matter here.
-
-If we distill the code to:
-
-  tsk->closid = x;
-
-  if (task_curr(tsk))
-      smp_call(...);
-
-It is somewhat far fetched, but AFAICT this can be compiled as:
-
-  if (task_curr(tsk))
-      tsk->closid = x;
-      smp_call(...);
-  else
-      tsk->closid = x;
-
-IOW, there could be a sequence where the closid write is ordered *after*
-the task_curr() read. With
-
-  tsk->closid = x;
-
-  barrier();
-
-  if (task_curr(tsk))
-      smp_call(...);
-
-that explicitely cannot happen.
+Applied to bpf tree, thanks. This conflicted with a67079b03165
+("selftests/bpf: fix bpf_testmod.ko recompilation logic"), I resolved
+the conflict and capitalized "Cannot" in the error message.
 
 >
-> Thank you very much
+> [v2] moves the check to right after the VMLINUX_BTF definition.
 >
-> Reinette
+>  tools/testing/selftests/bpf/Makefile | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+> index 542768f5195b..7ba631f495f7 100644
+> --- a/tools/testing/selftests/bpf/Makefile
+> +++ b/tools/testing/selftests/bpf/Makefile
+> @@ -146,6 +146,9 @@ VMLINUX_BTF_PATHS ?= $(if $(O),$(O)/vmlinux)                                \
+>                      /sys/kernel/btf/vmlinux                            \
+>                      /boot/vmlinux-$(shell uname -r)
+>  VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
+> +ifeq ($(VMLINUX_BTF),)
+> +$(error cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)")
+> +endif
+>
+>  DEFAULT_BPFTOOL := $(SCRATCH_DIR)/sbin/bpftool
+>
+> --
+> 2.17.1
+>
