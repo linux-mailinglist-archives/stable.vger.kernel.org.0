@@ -2,385 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F592DB768
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 01:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C434D2DB862
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 02:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgLPAB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Dec 2020 19:01:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729405AbgLOXZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Dec 2020 18:25:08 -0500
-Date:   Tue, 15 Dec 2020 15:22:58 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1608074578;
-        bh=J4NmjXH8xAj+8S2DExgCME9WdYxZ0t2IQ9mAw05/EPk=;
-        h=From:To:Subject:From;
-        b=cuYD9dvwNEe3Y0JDK3enCs2BQOcDOWF3/36AJFa1mLDhgpCuTb98PgmzhNbg32Qpg
-         0KIHN7L4hD+2hmMgKzGBI4r6ea/S0Xf0jaZ+RP5JH/FEzw0JtpiZ/LwAGQ/BoHRipY
-         E6Krpb/xWX+H9fzbuV31J4v9obqiCnB0JxJhqLq8=
-From:   akpm@linux-foundation.org
-To:     bigeasy@linutronix.de, efault@gmx.de, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vitaly.wool@konsulko.com
-Subject:  [merged]
- z3fold-stricter-locking-and-more-careful-reclaim.patch removed from -mm
- tree
-Message-ID: <20201215232258.6t05h_QUM%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726053AbgLPBWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Dec 2020 20:22:38 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8018 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725952AbgLPBWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Dec 2020 20:22:38 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BG10x1x028450;
+        Tue, 15 Dec 2020 20:21:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=0+BnuKA8p1Jrwe6PPrdqKhHIW1sVQdnh7AMkQ8h2wWA=;
+ b=PUxN2HawcIcUXGlDLWk/G/PbfI4DzbDsJevw+pjpQgSAhet6dX4KQar6jHYFPsaVhrW9
+ 5I/MiCEeXMQDi5hxudlQ7QgptKQUT9cYAouWEycYjQjXTODYbAT1Yat7GGH+dI08AyVP
+ MNtWC0FzIh/QX5PzoSwXTYJvKL5NYfv+2qr79FcfDk33OcbkhlcPHjljUSM6XX0XWEV6
+ xXytFGWKxzNiiWzFcbk9Ey406fUiVMKKUNpgbfnuIJeX0d85U2ba9wMAu0DlNEdTn1dX
+ c/tI9hdo8NNg6GIwXnZ8I9XggHcXtI/wrF0WuSU4Oal7NpmZP4wp3PM3MEtupoTB/tjE 4w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35f5qe42ve-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Dec 2020 20:21:50 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BG1Ln4l094992;
+        Tue, 15 Dec 2020 20:21:49 -0500
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35f5qe42v2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Dec 2020 20:21:49 -0500
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BG1D8sk027041;
+        Wed, 16 Dec 2020 01:21:48 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma05fra.de.ibm.com with ESMTP id 35cng89y8e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Dec 2020 01:21:47 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BG1LjWR31457654
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Dec 2020 01:21:45 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E93EBAE045;
+        Wed, 16 Dec 2020 01:21:44 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4931AAE053;
+        Wed, 16 Dec 2020 01:21:44 +0000 (GMT)
+Received: from oc2783563651 (unknown [9.171.86.205])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 16 Dec 2020 01:21:44 +0000 (GMT)
+Date:   Wed, 16 Dec 2020 02:21:40 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        sashal@kernel.org, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v3] s390/vfio-ap: clean up vfio_ap resources when KVM
+ pointer invalidated
+Message-ID: <20201216022140.02741788.pasic@linux.ibm.com>
+In-Reply-To: <44ffb312-964a-95c3-d691-38221cee2c0a@de.ibm.com>
+References: <20201214165617.28685-1-akrowiak@linux.ibm.com>
+        <20201215115746.3552e873.pasic@linux.ibm.com>
+        <44ffb312-964a-95c3-d691-38221cee2c0a@de.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.11.1 (GTK+ 2.24.31; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-15_13:2020-12-15,2020-12-15 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ impostorscore=0 spamscore=0 mlxlogscore=999 adultscore=0
+ lowpriorityscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
+ mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012160001
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 15 Dec 2020 19:10:20 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-The patch titled
-     Subject: z3fold: stricter locking and more careful reclaim
-has been removed from the -mm tree.  Its filename was
-     z3fold-stricter-locking-and-more-careful-reclaim.patch
+> 
+> 
+> On 15.12.20 11:57, Halil Pasic wrote:
+> > On Mon, 14 Dec 2020 11:56:17 -0500
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> > 
+> >> The vfio_ap device driver registers a group notifier with VFIO when the
+> >> file descriptor for a VFIO mediated device for a KVM guest is opened to
+> >> receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+> >> event). When the KVM pointer is set, the vfio_ap driver takes the
+> >> following actions:
+> >> 1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
+> >>    of the mediated device.
+> >> 2. Calls the kvm_get_kvm() function to increment its reference counter.
+> >> 3. Sets the function pointer to the function that handles interception of
+> >>    the instruction that enables/disables interrupt processing.
+> >> 4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
+> >>    the guest.
+> >>
+> >> In order to avoid memory leaks, when the notifier is called to receive
+> >> notification that the KVM pointer has been set to NULL, the vfio_ap device
+> >> driver should reverse the actions taken when the KVM pointer was set.
+> >>
+> >> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> >> ---
+> >>  drivers/s390/crypto/vfio_ap_ops.c | 29 ++++++++++++++++++++---------
+> >>  1 file changed, 20 insertions(+), 9 deletions(-)
+> >>
+> >> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> >> index e0bde8518745..cd22e85588e1 100644
+> >> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> >> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> >> @@ -1037,8 +1037,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+> >>  {
+> >>  	struct ap_matrix_mdev *m;
+> >>
+> >> -	mutex_lock(&matrix_dev->lock);
+> >> -
+> >>  	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> >>  		if ((m != matrix_mdev) && (m->kvm == kvm)) {
+> >>  			mutex_unlock(&matrix_dev->lock);
+> >> @@ -1049,7 +1047,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+> >>  	matrix_mdev->kvm = kvm;
+> >>  	kvm_get_kvm(kvm);
+> >>  	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> >> -	mutex_unlock(&matrix_dev->lock);
+> >>
+> >>  	return 0;
+> >>  }
+> >> @@ -1083,35 +1080,49 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+> >>  	return NOTIFY_DONE;
+> >>  }
+> >>
+> >> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> >> +{
+> >> +	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> >> +	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> > 
+> > 
+> > This patch LGTM. The only concern I have with it is whether a
+> > different cpu is guaranteed to observe the above assignment as
+> > an atomic operation. I think we didn't finish this discussion
+> > at v1, or did we?
+> 
+> You mean just this assigment:
+> >> +	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> should either have the old or the new value, but not halve zero halve old?
+>
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Yes that is the assignment I was referring to. Old value will work as well because
+kvm holds a reference to this module while in the pqap_hook.
+ 
+> Normally this should be ok (and I would consider this a compiler bug if
+> this is split into 2 32 bit zeroes) But if you really want to be sure then we
+> can use WRITE_ONCE.
 
-------------------------------------------------------
-From: Vitaly Wool <vitaly.wool@konsulko.com>
-Subject: z3fold: stricter locking and more careful reclaim
+Just my curiosity: what would make this a bug? Is it the s390 elf ABI,
+or some gcc feature, or even the C standard? Also how exactly would
+WRITE_ONCE, also access via volatile help in this particular situation?
 
-Use temporary slots in reclaim function to avoid possible race when
-freeing those.
+I agree, if the member is properly aligned, (which it is),
+normally/probably we are fine on s390x (which is also a given). 
 
-While at it, make sure we check CLAIMED flag under page lock in the
-reclaim function to make sure we are not racing with z3fold_alloc().
+> I think we take this via the s390 tree? I can add the WRITE_ONCE when applying?
 
-Link: https://lkml.kernel.org/r/20201209145151.18994-4-vitaly.wool@konsulko.com
-Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
-Cc: <stable@vger.kernel.org>
-Cc: Mike Galbraith <efault@gmx.de>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Yes that works fine with me.
 
- mm/z3fold.c |  143 +++++++++++++++++++++++++++++---------------------
- 1 file changed, 85 insertions(+), 58 deletions(-)
-
---- a/mm/z3fold.c~z3fold-stricter-locking-and-more-careful-reclaim
-+++ a/mm/z3fold.c
-@@ -182,6 +182,13 @@ enum z3fold_page_flags {
- };
- 
- /*
-+ * handle flags, go under HANDLE_FLAG_MASK
-+ */
-+enum z3fold_handle_flags {
-+	HANDLES_NOFREE = 0,
-+};
-+
-+/*
-  * Forward declarations
-  */
- static struct z3fold_header *__z3fold_alloc(struct z3fold_pool *, size_t, bool);
-@@ -311,6 +318,12 @@ static inline void free_handle(unsigned
- 	slots = handle_to_slots(handle);
- 	write_lock(&slots->lock);
- 	*(unsigned long *)handle = 0;
-+
-+	if (test_bit(HANDLES_NOFREE, &slots->pool)) {
-+		write_unlock(&slots->lock);
-+		return; /* simple case, nothing else to do */
-+	}
-+
- 	if (zhdr->slots != slots)
- 		zhdr->foreign_handles--;
- 
-@@ -621,6 +634,28 @@ static inline void add_to_unbuddied(stru
- 	}
- }
- 
-+static inline enum buddy get_free_buddy(struct z3fold_header *zhdr, int chunks)
-+{
-+	enum buddy bud = HEADLESS;
-+
-+	if (zhdr->middle_chunks) {
-+		if (!zhdr->first_chunks &&
-+		    chunks <= zhdr->start_middle - ZHDR_CHUNKS)
-+			bud = FIRST;
-+		else if (!zhdr->last_chunks)
-+			bud = LAST;
-+	} else {
-+		if (!zhdr->first_chunks)
-+			bud = FIRST;
-+		else if (!zhdr->last_chunks)
-+			bud = LAST;
-+		else
-+			bud = MIDDLE;
-+	}
-+
-+	return bud;
-+}
-+
- static inline void *mchunk_memmove(struct z3fold_header *zhdr,
- 				unsigned short dst_chunk)
- {
-@@ -682,18 +717,7 @@ static struct z3fold_header *compact_sin
- 		if (WARN_ON(new_zhdr == zhdr))
- 			goto out_fail;
- 
--		if (new_zhdr->first_chunks == 0) {
--			if (new_zhdr->middle_chunks != 0 &&
--					chunks >= new_zhdr->start_middle) {
--				new_bud = LAST;
--			} else {
--				new_bud = FIRST;
--			}
--		} else if (new_zhdr->last_chunks == 0) {
--			new_bud = LAST;
--		} else if (new_zhdr->middle_chunks == 0) {
--			new_bud = MIDDLE;
--		}
-+		new_bud = get_free_buddy(new_zhdr, chunks);
- 		q = new_zhdr;
- 		switch (new_bud) {
- 		case FIRST:
-@@ -815,9 +839,8 @@ static void do_compact_page(struct z3fol
- 		return;
- 	}
- 
--	if (unlikely(PageIsolated(page) ||
--		     test_bit(PAGE_CLAIMED, &page->private) ||
--		     test_bit(PAGE_STALE, &page->private))) {
-+	if (test_bit(PAGE_STALE, &page->private) ||
-+	    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
-@@ -826,13 +849,16 @@ static void do_compact_page(struct z3fol
- 	    zhdr->mapped_count == 0 && compact_single_buddy(zhdr)) {
- 		if (kref_put(&zhdr->refcount, release_z3fold_page_locked))
- 			atomic64_dec(&pool->pages_nr);
--		else
-+		else {
-+			clear_bit(PAGE_CLAIMED, &page->private);
- 			z3fold_page_unlock(zhdr);
-+		}
- 		return;
- 	}
- 
- 	z3fold_compact_page(zhdr);
- 	add_to_unbuddied(pool, zhdr);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
- }
- 
-@@ -1080,17 +1106,8 @@ static int z3fold_alloc(struct z3fold_po
- retry:
- 		zhdr = __z3fold_alloc(pool, size, can_sleep);
- 		if (zhdr) {
--			if (zhdr->first_chunks == 0) {
--				if (zhdr->middle_chunks != 0 &&
--				    chunks >= zhdr->start_middle)
--					bud = LAST;
--				else
--					bud = FIRST;
--			} else if (zhdr->last_chunks == 0)
--				bud = LAST;
--			else if (zhdr->middle_chunks == 0)
--				bud = MIDDLE;
--			else {
-+			bud = get_free_buddy(zhdr, chunks);
-+			if (bud == HEADLESS) {
- 				if (kref_put(&zhdr->refcount,
- 					     release_z3fold_page_locked))
- 					atomic64_dec(&pool->pages_nr);
-@@ -1236,7 +1253,6 @@ static void z3fold_free(struct z3fold_po
- 		pr_err("%s: unknown bud %d\n", __func__, bud);
- 		WARN_ON(1);
- 		put_z3fold_header(zhdr);
--		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 
-@@ -1251,8 +1267,7 @@ static void z3fold_free(struct z3fold_po
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
--	if (unlikely(PageIsolated(page)) ||
--	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
-+	if (test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
- 		put_z3fold_header(zhdr);
- 		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
-@@ -1316,6 +1331,10 @@ static int z3fold_reclaim_page(struct z3
- 	struct page *page = NULL;
- 	struct list_head *pos;
- 	unsigned long first_handle = 0, middle_handle = 0, last_handle = 0;
-+	struct z3fold_buddy_slots slots __attribute__((aligned(SLOTS_ALIGN)));
-+
-+	rwlock_init(&slots.lock);
-+	slots.pool = (unsigned long)pool | (1 << HANDLES_NOFREE);
- 
- 	spin_lock(&pool->lock);
- 	if (!pool->ops || !pool->ops->evict || retries == 0) {
-@@ -1330,35 +1349,36 @@ static int z3fold_reclaim_page(struct z3
- 		list_for_each_prev(pos, &pool->lru) {
- 			page = list_entry(pos, struct page, lru);
- 
--			/* this bit could have been set by free, in which case
--			 * we pass over to the next page in the pool.
--			 */
--			if (test_and_set_bit(PAGE_CLAIMED, &page->private)) {
--				page = NULL;
--				continue;
--			}
--
--			if (unlikely(PageIsolated(page))) {
--				clear_bit(PAGE_CLAIMED, &page->private);
--				page = NULL;
--				continue;
--			}
- 			zhdr = page_address(page);
- 			if (test_bit(PAGE_HEADLESS, &page->private))
- 				break;
- 
-+			if (kref_get_unless_zero(&zhdr->refcount) == 0) {
-+				zhdr = NULL;
-+				break;
-+			}
- 			if (!z3fold_page_trylock(zhdr)) {
--				clear_bit(PAGE_CLAIMED, &page->private);
-+				if (kref_put(&zhdr->refcount,
-+						release_z3fold_page))
-+					atomic64_dec(&pool->pages_nr);
- 				zhdr = NULL;
- 				continue; /* can't evict at this point */
- 			}
--			if (zhdr->foreign_handles) {
--				clear_bit(PAGE_CLAIMED, &page->private);
--				z3fold_page_unlock(zhdr);
-+
-+			/* test_and_set_bit is of course atomic, but we still
-+			 * need to do it under page lock, otherwise checking
-+			 * that bit in __z3fold_alloc wouldn't make sense
-+			 */
-+			if (zhdr->foreign_handles ||
-+			    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
-+				if (kref_put(&zhdr->refcount,
-+						release_z3fold_page))
-+					atomic64_dec(&pool->pages_nr);
-+				else
-+					z3fold_page_unlock(zhdr);
- 				zhdr = NULL;
- 				continue; /* can't evict such page */
- 			}
--			kref_get(&zhdr->refcount);
- 			list_del_init(&zhdr->buddy);
- 			zhdr->cpu = -1;
- 			break;
-@@ -1380,12 +1400,16 @@ static int z3fold_reclaim_page(struct z3
- 			first_handle = 0;
- 			last_handle = 0;
- 			middle_handle = 0;
-+			memset(slots.slot, 0, sizeof(slots.slot));
- 			if (zhdr->first_chunks)
--				first_handle = encode_handle(zhdr, FIRST);
-+				first_handle = __encode_handle(zhdr, &slots,
-+								FIRST);
- 			if (zhdr->middle_chunks)
--				middle_handle = encode_handle(zhdr, MIDDLE);
-+				middle_handle = __encode_handle(zhdr, &slots,
-+								MIDDLE);
- 			if (zhdr->last_chunks)
--				last_handle = encode_handle(zhdr, LAST);
-+				last_handle = __encode_handle(zhdr, &slots,
-+								LAST);
- 			/*
- 			 * it's safe to unlock here because we hold a
- 			 * reference to this page
-@@ -1400,19 +1424,16 @@ static int z3fold_reclaim_page(struct z3
- 			ret = pool->ops->evict(pool, middle_handle);
- 			if (ret)
- 				goto next;
--			free_handle(middle_handle, zhdr);
- 		}
- 		if (first_handle) {
- 			ret = pool->ops->evict(pool, first_handle);
- 			if (ret)
- 				goto next;
--			free_handle(first_handle, zhdr);
- 		}
- 		if (last_handle) {
- 			ret = pool->ops->evict(pool, last_handle);
- 			if (ret)
- 				goto next;
--			free_handle(last_handle, zhdr);
- 		}
- next:
- 		if (test_bit(PAGE_HEADLESS, &page->private)) {
-@@ -1426,9 +1447,11 @@ next:
- 			spin_unlock(&pool->lock);
- 			clear_bit(PAGE_CLAIMED, &page->private);
- 		} else {
-+			struct z3fold_buddy_slots *slots = zhdr->slots;
- 			z3fold_page_lock(zhdr);
- 			if (kref_put(&zhdr->refcount,
- 					release_z3fold_page_locked)) {
-+				kmem_cache_free(pool->c_handle, slots);
- 				atomic64_dec(&pool->pages_nr);
- 				return 0;
- 			}
-@@ -1544,8 +1567,7 @@ static bool z3fold_page_isolate(struct p
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(PageIsolated(page), page);
- 
--	if (test_bit(PAGE_HEADLESS, &page->private) ||
--	    test_bit(PAGE_CLAIMED, &page->private))
-+	if (test_bit(PAGE_HEADLESS, &page->private))
- 		return false;
- 
- 	zhdr = page_address(page);
-@@ -1557,6 +1579,8 @@ static bool z3fold_page_isolate(struct p
- 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0)
- 		goto out;
- 
-+	if (test_and_set_bit(PAGE_CLAIMED, &page->private))
-+		goto out;
- 	pool = zhdr_to_pool(zhdr);
- 	spin_lock(&pool->lock);
- 	if (!list_empty(&zhdr->buddy))
-@@ -1583,16 +1607,17 @@ static int z3fold_page_migrate(struct ad
- 
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
-+	VM_BUG_ON_PAGE(!test_bit(PAGE_CLAIMED, &page->private), page);
- 	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
- 
- 	zhdr = page_address(page);
- 	pool = zhdr_to_pool(zhdr);
- 
--	if (!z3fold_page_trylock(zhdr)) {
-+	if (!z3fold_page_trylock(zhdr))
- 		return -EAGAIN;
--	}
- 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0) {
- 		z3fold_page_unlock(zhdr);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return -EBUSY;
- 	}
- 	if (work_pending(&zhdr->work)) {
-@@ -1634,6 +1659,7 @@ static int z3fold_page_migrate(struct ad
- 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
- 
- 	page_mapcount_reset(page);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	put_page(page);
- 	return 0;
- }
-@@ -1657,6 +1683,7 @@ static void z3fold_page_putback(struct p
- 	spin_lock(&pool->lock);
- 	list_add(&page->lru, &pool->lru);
- 	spin_unlock(&pool->lock);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
- }
- 
-_
-
-Patches currently in -mm which might be from vitaly.wool@konsulko.com are
-
-
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
