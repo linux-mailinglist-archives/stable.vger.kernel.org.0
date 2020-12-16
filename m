@@ -2,135 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 789962DBE99
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 11:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA682DBFED
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 12:58:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726202AbgLPK0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Dec 2020 05:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
+        id S1725874AbgLPL6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Dec 2020 06:58:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbgLPK0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 05:26:14 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5B2C0617B0
-        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 02:25:27 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id ga15so31924531ejb.4
-        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 02:25:27 -0800 (PST)
+        with ESMTP id S1725550AbgLPL6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 06:58:42 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1022BC061794
+        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 03:58:02 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id r3so22947456wrt.2
+        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 03:58:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ym85wg7PtkG2USwglGkEQbjEp6lBmKatepEQs0Sb5n8=;
-        b=h0B84yppIC6IiGOJapPayTD3ruNvsicUE+jHmSp6Jt7woATokjaUd9UoTFKL2KKM8h
-         ej4ySorPDcwIVVR51oP7VaTjFyTlxbM/yScABuw9M0AlgBcFykVFmIL3y5pASA9cCFOu
-         stXqIYxLmN4cdsIJKvw5yJ69S+PTzGtD2u3BkuvNaQrnwTKybrsn/os2ndz48VYMkvws
-         e5qeoHpzBHpfRkTsUTgCetkSRpsm63P422+safCYVnJvZ0i1K9bctSh+Z2BZS6oZHj/B
-         0k0FfNTxyfik78IEHOScK3YN941dQBtqGHmD3d/CBOpj+vQ3MJBxoOikwbUMYJhwkxFp
-         u9ew==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=i6L0wcN/v6BV1OjCau+a4mcjFW707Cfnvj17BxFD93A=;
+        b=SepKeRTkXawehkpJHtpFhwBdBY5iIJTZXGyuvnAP96iDuW0N0w5HC0Tjjm/CnJrys3
+         8JMjKjxCRxmV5YeCAUEpuZWonNZYBRRuw+2+XVP81S/2yWVqRMTdlaXaiGKumFqTLjlS
+         7q9nN5xOdxBQcVxdpqGPHtIcC3TVeJbgdUVWew+JusgSU48q2htxYteIW4LrmOYgVj7x
+         Mghwrt80JxveQaYYMCLC/N2O1LW8JNiDkxAtW45E8w4Rcu73w0c9Lr6+pYb1DwEatGNj
+         /UNzhqC10V4hKT3XCrqHb4woPYgfhxqDNYlsS9P4BlaDo2SAn0GhAWea+Xn11iKeHOtk
+         utuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ym85wg7PtkG2USwglGkEQbjEp6lBmKatepEQs0Sb5n8=;
-        b=FpnAQ+/BCmtHuc1QDFQ2FW1BuX5bHEJuK/OIHBNln3WE2Qh4kYx5GE1FJiIFC9SICi
-         w5b/d/zXdUYn/8ODJO3qI8elQYKXT966PaAHAfQz+iJYVHOC+MamIDrpxLXDG+P9rNrD
-         YEGGBFfGvEzy6yTpUkrqerN3sAQ8tsYbokbiM+ro6CQdwebow/0sQXJefw0KstP163wQ
-         loWq2Vl73cSkvtzTPY1npdSHFuUm60hZJJWpj7rlBwgqYEiv+N2Mw7+tumDkESts7s7l
-         Aa6SBNFMkF4TX8naB4OScMpu71Swj82myBM+w1LBBWh1RFQzIGGFRaDPE6Sb8AbTlDfP
-         sHZA==
-X-Gm-Message-State: AOAM530Y9ZXnQVKvHk9cfz88sPQyaEyCu/PJdan9L7Y21hVKQmZccGUr
-        juS+xIxnIhHDG6XMTVoAVXlXXCiqHDZ+m4nLi53OHQ==
-X-Google-Smtp-Source: ABdhPJzUzlL4dfw10lcm1m6wudRtiT3RMtghr3y3coNwH1YNtq227Ru0urZLsWzsMQTu8udtNGBBYdcJanwHlIz7hnQ=
-X-Received: by 2002:a17:906:3499:: with SMTP id g25mr6371983ejb.18.1608114326375;
- Wed, 16 Dec 2020 02:25:26 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=i6L0wcN/v6BV1OjCau+a4mcjFW707Cfnvj17BxFD93A=;
+        b=HcNecxorMaDr/GjaOwEuqXhlXNZVCh0aFSV7QaRiUBoV7AI0c70rnJfOE2BcCheJfG
+         sSDcipAiCAyVTyI+V2kRpuBjwpNXi1H1fuMWPh5Pn0PhBGKKl9NdNfv1/gMiFS4srd2P
+         5EznwFYDAaRlvIxBkCWEDbE5YdgyZdQEukRwLuF30Dvj9EKO8DfpZZLrpltMFBlRe5yn
+         GfwXmzhjFKpX1uGffaRH8tLO1XArFwQWhHxqfFaHV1SVNEHJPxUv8dANUdjZgQLi+/oV
+         wv01uxSAi5JUzWgZGHrHWpczKjn/0GXhv5NzI/ENZT2+cuI1wX5YIW5vibHCDSkaTEIK
+         QTgA==
+X-Gm-Message-State: AOAM530+6ZU48+ywQF48xhmJ2Jf5CsjoUgvMKrkSDg4OusOqGDHItjBT
+        ITZJkBLhUyxBP5Q4u4All7o=
+X-Google-Smtp-Source: ABdhPJyDxyrR4Mjk1Tfn05wbo+rHXpircsljh9F7wgS2kWdQpDUpAMEL1GTrZheVm1+qUP91hr9rLg==
+X-Received: by 2002:a5d:620a:: with SMTP id y10mr38051171wru.236.1608119880744;
+        Wed, 16 Dec 2020 03:58:00 -0800 (PST)
+Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
+        by smtp.gmail.com with ESMTPSA id h5sm2952437wrp.56.2020.12.16.03.57.59
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 16 Dec 2020 03:58:00 -0800 (PST)
+Date:   Wed, 16 Dec 2020 11:57:58 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     brant.merryman@silabs.com, johan@kernel.org, phu.luu@silabs.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] USB: serial: cp210x: enable usb generic
+ throttle/unthrottle" failed to apply to 4.4-stable tree
+Message-ID: <20201216115758.7gfz5oxcfghsbftx@debian>
+References: <159765869110835@kroah.com>
 MIME-Version: 1.0
-References: <CA+G9fYtu1zOz8ErUzftNG4Dc9=cv1grsagBojJraGhm4arqXyw@mail.gmail.com>
- <20201215144531.GZ2657@paulmck-ThinkPad-P72> <20201215102246.4bdca3d8@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201215102246.4bdca3d8@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 16 Dec 2020 15:55:14 +0530
-Message-ID: <CA+G9fYt_zxDSN5Qkx=rBE_ZkjirOBQ3QpFRy-gkqbjbJ=n1Z4Q@mail.gmail.com>
-Subject: Re: [stabe-rc 5.9 ] sched: core.c:7270 Illegal context switch in
- RCU-bh read-side critical section!
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>, rcu@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        lkft-triage@lists.linaro.org, Netdev <netdev@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <willy@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/mixed; boundary="sfnxgt663vwb5656"
+Content-Disposition: inline
+In-Reply-To: <159765869110835@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Dec 2020 at 23:52, Jakub Kicinski <kuba@kernel.org> wrote:
->
-> On Tue, 15 Dec 2020 06:45:31 -0800 Paul E. McKenney wrote:
-> > > Crash log:
-> > > --------------
-> > > # selftests: bpf: test_tc_edt.sh
-> > > [  503.796362]
-> > > [  503.797960] =============================
-> > > [  503.802131] WARNING: suspicious RCU usage
-> > > [  503.806232] 5.9.15-rc1 #1 Tainted: G        W
-> > > [  503.811358] -----------------------------
-> > > [  503.815444] /usr/src/kernel/kernel/sched/core.c:7270 Illegal
-> > > context switch in RCU-bh read-side critical section!
-> > > [  503.825858]
-> > > [  503.825858] other info that might help us debug this:
-> > > [  503.825858]
-> > > [  503.833998]
-> > > [  503.833998] rcu_scheduler_active = 2, debug_locks = 1
-> > > [  503.840981] 3 locks held by kworker/u12:1/157:
-> > > [  503.845514]  #0: ffff0009754ed538
-> > > ((wq_completion)netns){+.+.}-{0:0}, at: process_one_work+0x208/0x768
-> > > [  503.855048]  #1: ffff800013e63df0 (net_cleanup_work){+.+.}-{0:0},
-> > > at: process_one_work+0x208/0x768
-> > > [  503.864201]  #2: ffff8000129fe3f0 (pernet_ops_rwsem){++++}-{3:3},
-> > > at: cleanup_net+0x64/0x3b8
-> > > [  503.872786]
-> > > [  503.872786] stack backtrace:
-> > > [  503.877229] CPU: 1 PID: 157 Comm: kworker/u12:1 Tainted: G        W
-> > >         5.9.15-rc1 #1
-> > > [  503.885433] Hardware name: ARM Juno development board (r2) (DT)
-> > > [  503.891382] Workqueue: netns cleanup_net
-> > > [  503.895324] Call trace:
-> > > [  503.897786]  dump_backtrace+0x0/0x1f8
-> > > [  503.901464]  show_stack+0x2c/0x38
-> > > [  503.904796]  dump_stack+0xec/0x158
-> > > [  503.908215]  lockdep_rcu_suspicious+0xd4/0xf8
-> > > [  503.912591]  ___might_sleep+0x1e4/0x208
-> >
-> > You really are forbidden to invoke ___might_sleep() while in a BH-disable
-> > region of code, whether due to rcu_read_lock_bh(), local_bh_disable(),
-> > or whatever else.
-> >
-> > I do see the cond_resched() in inet_twsk_purge(), but I don't immediately
-> > see a BH-disable region of code.  Maybe someone more familiar with this
-> > code would have some ideas.
-> >
-> > Or you could place checks for being in a BH-disable further up in
-> > the code.  Or build with CONFIG_DEBUG_INFO=y to allow more precise
-> > interpretation of this stack trace.
 
-I will try to reproduce this warning with DEBUG_INFO=y enabled kernel and
-get back to you with a better crash log.
+--sfnxgt663vwb5656
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->
-> My money would be on the option that whatever run on this workqueue
-> before forgot to re-enable BH, but we already have a check for that...
-> Naresh, do you have the full log? Is there nothing like "BUG: workqueue
-> leaked lock" above the splat?
+Hi Greg,
 
-Yes [1] is the full test log link.
-But i do not see "BUG: workqueue leaked lock" in the log.
+On Mon, Aug 17, 2020 at 12:04:51PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-full log link,
-[1] https://lkft.validation.linaro.org/scheduler/job/2049484#L5979
+Here is the backport.
 
-- Naresh
+--
+Regards
+Sudip
+
+--sfnxgt663vwb5656
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-USB-serial-cp210x-enable-usb-generic-throttle-unthro.patch"
+
+From 51b1f86f8eb5d4f0aa7653fee5cf70555a5e6b85 Mon Sep 17 00:00:00 2001
+From: Brant Merryman <brant.merryman@silabs.com>
+Date: Fri, 26 Jun 2020 04:22:58 +0000
+Subject: [PATCH] USB: serial: cp210x: enable usb generic throttle/unthrottle
+
+commit 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 upstream
+
+Assign the .throttle and .unthrottle functions to be generic function
+in the driver structure to prevent data loss that can otherwise occur
+if the host does not enable USB throttling.
+
+Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
+Co-developed-by: Phu Luu <phu.luu@silabs.com>
+Signed-off-by: Phu Luu <phu.luu@silabs.com>
+Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
+[ johan: fix up tags ]
+Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
+Cc: stable <stable@vger.kernel.org>     # 2.6.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/usb/serial/cp210x.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
+index 205f31200264..13c718ebaee5 100644
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -252,6 +252,8 @@ static struct usb_serial_driver cp210x_device = {
+ 	.close			= cp210x_close,
+ 	.break_ctl		= cp210x_break_ctl,
+ 	.set_termios		= cp210x_set_termios,
++	.throttle		= usb_serial_generic_throttle,
++	.unthrottle		= usb_serial_generic_unthrottle,
+ 	.tiocmget		= cp210x_tiocmget,
+ 	.tiocmset		= cp210x_tiocmset,
+ 	.attach			= cp210x_startup,
+-- 
+2.11.0
+
+
+--sfnxgt663vwb5656--
