@@ -2,121 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F298A2DC5F1
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 19:07:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74CAE2DC600
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 19:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729292AbgLPSH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Dec 2020 13:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727485AbgLPSH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 13:07:27 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94525C06179C;
-        Wed, 16 Dec 2020 10:06:46 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id y128so3610272ybf.10;
-        Wed, 16 Dec 2020 10:06:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VodWZpWl/+uWOhTMN//0IR82qShPVli3GP+B85kzebI=;
-        b=HgkKI4G/HgYCipvAAw6VhORa1cxXlRphEmiOOjtS8+2DFX+gWbUH4AgXZu1fKdwTSn
-         pSEwp3kHpSA4r7/4NxgDyoYMq0tKm/y85UCWN67D5z6XUY7lDLG22Qdtq6qYxvnvjbww
-         vpE5oMNJc7B6/xs9K2YdOq33yJV9YQTkCdIkFNfCYtqUjqu2RcgHZjRislkx1bLKOdB2
-         vKCiFImSSimyu3dWk69QIb5gQzSytCf8ye7F1iUMJgLBIAaX58tad+2YxLXOWsY63wv+
-         euV/PCLRJ3Ri7H7MY6D5AmdYQsejL4SNlH/xxbqY4xjMgJhgB1qJalD8gL2wA6C0a8Cg
-         N7rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VodWZpWl/+uWOhTMN//0IR82qShPVli3GP+B85kzebI=;
-        b=WBpr3s+nT07obq2vNyYuYfh8SSiFdX5lUAYG9YpKX7Nt/pYZBJ8r8/9BL1MTk09Nwh
-         +Y5D0m8utIxUdYEj6HfhVlsKdDG+vBUnsOVHoVsT73oU5fPIy0LZffOHNzMYJ4k+c1Vy
-         4AX/JX7BaVchwO59f6hBUkXkmAkS1ieYsi2DOmSZ3WWWbE2DJqXUokbkg3gs19lyDjjG
-         FqKdBF57qucwKoFw5yc6t008eDZCwkIurWI+6e+NVGCs/bKLxiNjQ8B0qTvOxUQybfQY
-         gZvjBuFZ843okEnVIATNXlpnOxLEG2/LcFQQtN1pQR+9/noYj8i+5TQ2Azid8LgB4drT
-         bFxA==
-X-Gm-Message-State: AOAM531ajL0MXaNg7ZM43zUEltXWJ0T0oNKrikzNEFKh4Z8x/+r3UBvJ
-        u1vgvhd72kIJ3BYbbn2fHQa/L28AcyYFcmhNJJg=
-X-Google-Smtp-Source: ABdhPJy3g5GfYo5WT+IeLrwHD6qpe8ngg3vhanZs6hYwZjszn/hqZ+Z9uHSwjKHHvo6ZnPgPboPTG5wVZW+geoDjMwc=
-X-Received: by 2002:a25:aea8:: with SMTP id b40mr52596024ybj.347.1608142005891;
- Wed, 16 Dec 2020 10:06:45 -0800 (PST)
-MIME-Version: 1.0
-References: <CAEf4BzYBvz4TDayTE=Bc_bjqvOGaavmmw1sJhOCKhq9DwUpd4A@mail.gmail.com>
- <20201215182011.15755-1-kamal@canonical.com>
-In-Reply-To: <20201215182011.15755-1-kamal@canonical.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Wed, 16 Dec 2020 10:06:35 -0800
-Message-ID: <CAEf4BzYgnDWRswYJPnMdtACs7K5mckbfHX2i68YXhha4q=ywFw@mail.gmail.com>
-Subject: Re: [PATCH v2] selftests/bpf: clarify build error if no vmlinux
-To:     Kamal Mostafa <kamal@canonical.com>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1729783AbgLPSO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Dec 2020 13:14:58 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:55091 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727668AbgLPSO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 13:14:57 -0500
+Received: from 2.general.kamal.us.vpn ([10.172.68.52] helo=ascalon)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kamal@canonical.com>)
+        id 1kpbJX-00064u-1y; Wed, 16 Dec 2020 18:14:15 +0000
+Received: from kamal by ascalon with local (Exim 4.90_1)
+        (envelope-from <kamal@ascalon>)
+        id 1kpbJS-00082a-Rg; Wed, 16 Dec 2020 10:14:10 -0800
+From:   Kamal Mostafa <kamal@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Kamal Mostafa <kamal@canonical.com>, stable@vger.kernel.org
+Subject: [PATCH 5.4.y] Revert "selftests/ftrace: check for do_sys_openat2 in user-memory test"
+Date:   Wed, 16 Dec 2020 10:13:53 -0800
+Message-Id: <20201216181353.30321-1-kamal@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 15, 2020 at 10:20 AM Kamal Mostafa <kamal@canonical.com> wrote:
->
-> If Makefile cannot find any of the vmlinux's in its VMLINUX_BTF_PATHS list,
-> it tries to run btftool incorrectly, with VMLINUX_BTF unset:
->
->     bpftool btf dump file $(VMLINUX_BTF) format c
->
-> Such that the keyword 'format' is misinterpreted as the path to vmlinux.
-> The resulting build error message is fairly cryptic:
->
->       GEN      vmlinux.h
->     Error: failed to load BTF from format: No such file or directory
->
-> This patch makes the failure reason clearer by yielding this instead:
->
->     Makefile:...: *** cannot find a vmlinux for VMLINUX_BTF at any of
->     "{paths}".  Stop.
->
-> Fixes: acbd06206bbb ("selftests/bpf: Add vmlinux.h selftest exercising tracing of syscalls")
-> Cc: stable@vger.kernel.org # 5.7+
-> Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-> ---
+This reverts commit 9110e2f2633dc9383a3a4711a0067094f6948783.
 
-Applied to bpf tree, thanks. This conflicted with a67079b03165
-("selftests/bpf: fix bpf_testmod.ko recompilation logic"), I resolved
-the conflict and capitalized "Cannot" in the error message.
+This commit is not suitable for 5.4-stable because the openat2 system
+call does not exist in v5.4.
 
->
-> [v2] moves the check to right after the VMLINUX_BTF definition.
->
->  tools/testing/selftests/bpf/Makefile | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-> index 542768f5195b..7ba631f495f7 100644
-> --- a/tools/testing/selftests/bpf/Makefile
-> +++ b/tools/testing/selftests/bpf/Makefile
-> @@ -146,6 +146,9 @@ VMLINUX_BTF_PATHS ?= $(if $(O),$(O)/vmlinux)                                \
->                      /sys/kernel/btf/vmlinux                            \
->                      /boot/vmlinux-$(shell uname -r)
->  VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
-> +ifeq ($(VMLINUX_BTF),)
-> +$(error cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)")
-> +endif
->
->  DEFAULT_BPFTOOL := $(SCRATCH_DIR)/sbin/bpftool
->
-> --
-> 2.17.1
->
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ .../selftests/ftrace/test.d/kprobe/kprobe_args_user.tc        | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
+index a753c73d869a..0f60087583d8 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_user.tc
+@@ -11,16 +11,12 @@ grep -A10 "fetcharg:" README | grep -q '\[u\]<offset>' || exit_unsupported
+ :;: "user-memory access syntax and ustring working on user memory";:
+ echo 'p:myevent do_sys_open path=+0($arg2):ustring path2=+u0($arg2):string' \
+ 	> kprobe_events
+-echo 'p:myevent2 do_sys_openat2 path=+0($arg2):ustring path2=+u0($arg2):string' \
+-	>> kprobe_events
+ 
+ grep myevent kprobe_events | \
+ 	grep -q 'path=+0($arg2):ustring path2=+u0($arg2):string'
+ echo 1 > events/kprobes/myevent/enable
+-echo 1 > events/kprobes/myevent2/enable
+ echo > /dev/null
+ echo 0 > events/kprobes/myevent/enable
+-echo 0 > events/kprobes/myevent2/enable
+ 
+ grep myevent trace | grep -q 'path="/dev/null" path2="/dev/null"'
+ 
+-- 
+2.17.1
+
