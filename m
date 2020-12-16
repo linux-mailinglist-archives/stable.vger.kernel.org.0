@@ -2,135 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DC82DBE88
-	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 11:20:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 789962DBE99
+	for <lists+stable@lfdr.de>; Wed, 16 Dec 2020 11:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726279AbgLPKUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Dec 2020 05:20:14 -0500
-Received: from mx2.suse.de ([195.135.220.15]:49054 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726278AbgLPKUN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Dec 2020 05:20:13 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 8429AAF2F;
-        Wed, 16 Dec 2020 10:18:50 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id E41911E136A; Wed, 16 Dec 2020 11:18:49 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>,
-        harshad shirwadkar <harshadshirwadkar@gmail.com>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
-        Tahsin Erdogan <tahsin@google.com>
-Subject: [PATCH 6/8] ext4: Fix deadlock with fs freezing and EA inodes
-Date:   Wed, 16 Dec 2020 11:18:42 +0100
-Message-Id: <20201216101844.22917-7-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20201216101844.22917-1-jack@suse.cz>
-References: <20201216101844.22917-1-jack@suse.cz>
+        id S1726202AbgLPK0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Dec 2020 05:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbgLPK0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Dec 2020 05:26:14 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5B2C0617B0
+        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 02:25:27 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id ga15so31924531ejb.4
+        for <stable@vger.kernel.org>; Wed, 16 Dec 2020 02:25:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ym85wg7PtkG2USwglGkEQbjEp6lBmKatepEQs0Sb5n8=;
+        b=h0B84yppIC6IiGOJapPayTD3ruNvsicUE+jHmSp6Jt7woATokjaUd9UoTFKL2KKM8h
+         ej4ySorPDcwIVVR51oP7VaTjFyTlxbM/yScABuw9M0AlgBcFykVFmIL3y5pASA9cCFOu
+         stXqIYxLmN4cdsIJKvw5yJ69S+PTzGtD2u3BkuvNaQrnwTKybrsn/os2ndz48VYMkvws
+         e5qeoHpzBHpfRkTsUTgCetkSRpsm63P422+safCYVnJvZ0i1K9bctSh+Z2BZS6oZHj/B
+         0k0FfNTxyfik78IEHOScK3YN941dQBtqGHmD3d/CBOpj+vQ3MJBxoOikwbUMYJhwkxFp
+         u9ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ym85wg7PtkG2USwglGkEQbjEp6lBmKatepEQs0Sb5n8=;
+        b=FpnAQ+/BCmtHuc1QDFQ2FW1BuX5bHEJuK/OIHBNln3WE2Qh4kYx5GE1FJiIFC9SICi
+         w5b/d/zXdUYn/8ODJO3qI8elQYKXT966PaAHAfQz+iJYVHOC+MamIDrpxLXDG+P9rNrD
+         YEGGBFfGvEzy6yTpUkrqerN3sAQ8tsYbokbiM+ro6CQdwebow/0sQXJefw0KstP163wQ
+         loWq2Vl73cSkvtzTPY1npdSHFuUm60hZJJWpj7rlBwgqYEiv+N2Mw7+tumDkESts7s7l
+         Aa6SBNFMkF4TX8naB4OScMpu71Swj82myBM+w1LBBWh1RFQzIGGFRaDPE6Sb8AbTlDfP
+         sHZA==
+X-Gm-Message-State: AOAM530Y9ZXnQVKvHk9cfz88sPQyaEyCu/PJdan9L7Y21hVKQmZccGUr
+        juS+xIxnIhHDG6XMTVoAVXlXXCiqHDZ+m4nLi53OHQ==
+X-Google-Smtp-Source: ABdhPJzUzlL4dfw10lcm1m6wudRtiT3RMtghr3y3coNwH1YNtq227Ru0urZLsWzsMQTu8udtNGBBYdcJanwHlIz7hnQ=
+X-Received: by 2002:a17:906:3499:: with SMTP id g25mr6371983ejb.18.1608114326375;
+ Wed, 16 Dec 2020 02:25:26 -0800 (PST)
+MIME-Version: 1.0
+References: <CA+G9fYtu1zOz8ErUzftNG4Dc9=cv1grsagBojJraGhm4arqXyw@mail.gmail.com>
+ <20201215144531.GZ2657@paulmck-ThinkPad-P72> <20201215102246.4bdca3d8@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201215102246.4bdca3d8@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 16 Dec 2020 15:55:14 +0530
+Message-ID: <CA+G9fYt_zxDSN5Qkx=rBE_ZkjirOBQ3QpFRy-gkqbjbJ=n1Z4Q@mail.gmail.com>
+Subject: Re: [stabe-rc 5.9 ] sched: core.c:7270 Illegal context switch in
+ RCU-bh read-side critical section!
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>, rcu@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        lkft-triage@lists.linaro.org, Netdev <netdev@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Xattr code using inodes with large xattr data can end up dropping last
-inode reference (and thus deleting the inode) from places like
-ext4_xattr_set_entry(). That function is called with transaction started
-and so ext4_evict_inode() can deadlock against fs freezing like:
+On Tue, 15 Dec 2020 at 23:52, Jakub Kicinski <kuba@kernel.org> wrote:
+>
+> On Tue, 15 Dec 2020 06:45:31 -0800 Paul E. McKenney wrote:
+> > > Crash log:
+> > > --------------
+> > > # selftests: bpf: test_tc_edt.sh
+> > > [  503.796362]
+> > > [  503.797960] =============================
+> > > [  503.802131] WARNING: suspicious RCU usage
+> > > [  503.806232] 5.9.15-rc1 #1 Tainted: G        W
+> > > [  503.811358] -----------------------------
+> > > [  503.815444] /usr/src/kernel/kernel/sched/core.c:7270 Illegal
+> > > context switch in RCU-bh read-side critical section!
+> > > [  503.825858]
+> > > [  503.825858] other info that might help us debug this:
+> > > [  503.825858]
+> > > [  503.833998]
+> > > [  503.833998] rcu_scheduler_active = 2, debug_locks = 1
+> > > [  503.840981] 3 locks held by kworker/u12:1/157:
+> > > [  503.845514]  #0: ffff0009754ed538
+> > > ((wq_completion)netns){+.+.}-{0:0}, at: process_one_work+0x208/0x768
+> > > [  503.855048]  #1: ffff800013e63df0 (net_cleanup_work){+.+.}-{0:0},
+> > > at: process_one_work+0x208/0x768
+> > > [  503.864201]  #2: ffff8000129fe3f0 (pernet_ops_rwsem){++++}-{3:3},
+> > > at: cleanup_net+0x64/0x3b8
+> > > [  503.872786]
+> > > [  503.872786] stack backtrace:
+> > > [  503.877229] CPU: 1 PID: 157 Comm: kworker/u12:1 Tainted: G        W
+> > >         5.9.15-rc1 #1
+> > > [  503.885433] Hardware name: ARM Juno development board (r2) (DT)
+> > > [  503.891382] Workqueue: netns cleanup_net
+> > > [  503.895324] Call trace:
+> > > [  503.897786]  dump_backtrace+0x0/0x1f8
+> > > [  503.901464]  show_stack+0x2c/0x38
+> > > [  503.904796]  dump_stack+0xec/0x158
+> > > [  503.908215]  lockdep_rcu_suspicious+0xd4/0xf8
+> > > [  503.912591]  ___might_sleep+0x1e4/0x208
+> >
+> > You really are forbidden to invoke ___might_sleep() while in a BH-disable
+> > region of code, whether due to rcu_read_lock_bh(), local_bh_disable(),
+> > or whatever else.
+> >
+> > I do see the cond_resched() in inet_twsk_purge(), but I don't immediately
+> > see a BH-disable region of code.  Maybe someone more familiar with this
+> > code would have some ideas.
+> >
+> > Or you could place checks for being in a BH-disable further up in
+> > the code.  Or build with CONFIG_DEBUG_INFO=y to allow more precise
+> > interpretation of this stack trace.
 
-CPU1					CPU2
+I will try to reproduce this warning with DEBUG_INFO=y enabled kernel and
+get back to you with a better crash log.
 
-removexattr()				freeze_super()
-  vfs_removexattr()
-    ext4_xattr_set()
-      handle = ext4_journal_start()
-      ...
-      ext4_xattr_set_entry()
-        iput(old_ea_inode)
-          ext4_evict_inode(old_ea_inode)
-					  sb->s_writers.frozen = SB_FREEZE_FS;
-					  sb_wait_write(sb, SB_FREEZE_FS);
-					  ext4_freeze()
-					    jbd2_journal_lock_updates()
-					      -> blocks waiting for all
-					         handles to stop
-            sb_start_intwrite()
-	      -> blocks as sb is already in SB_FREEZE_FS state
+>
+> My money would be on the option that whatever run on this workqueue
+> before forgot to re-enable BH, but we already have a check for that...
+> Naresh, do you have the full log? Is there nothing like "BUG: workqueue
+> leaked lock" above the splat?
 
-Generally it is advisable to delete inodes from a separate transaction
-as it can consume quite some credits however in this case it would be
-quite clumsy and furthermore the credits for inode deletion are quite
-limited and already accounted for. So just tweak ext4_evict_inode() to
-avoid freeze protection if we have transaction already started and thus
-it is not really needed anyway.
+Yes [1] is the full test log link.
+But i do not see "BUG: workqueue leaked lock" in the log.
 
-CC: stable@vger.kernel.org
-Fixes: dec214d00e0d ("ext4: xattr inode deduplication")
-CC: Tahsin Erdogan <tahsin@google.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/inode.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+full log link,
+[1] https://lkft.validation.linaro.org/scheduler/job/2049484#L5979
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 72534319fae5..777eb08b29cd 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -175,6 +175,7 @@ void ext4_evict_inode(struct inode *inode)
- 	 */
- 	int extra_credits = 6;
- 	struct ext4_xattr_inode_array *ea_inode_array = NULL;
-+	bool freeze_protected = false;
- 
- 	trace_ext4_evict_inode(inode);
- 
-@@ -232,9 +233,14 @@ void ext4_evict_inode(struct inode *inode)
- 
- 	/*
- 	 * Protect us against freezing - iput() caller didn't have to have any
--	 * protection against it
-+	 * protection against it. When we are in a running transaction though,
-+	 * we are already protected against freezing and we cannot grab further
-+	 * protection due to lock ordering constraints.
- 	 */
--	sb_start_intwrite(inode->i_sb);
-+	if (!ext4_journal_current_handle()) {
-+		sb_start_intwrite(inode->i_sb);
-+		freeze_protected = true;
-+	}
- 
- 	if (!IS_NOQUOTA(inode))
- 		extra_credits += EXT4_MAXQUOTAS_DEL_BLOCKS(inode->i_sb);
-@@ -253,7 +259,8 @@ void ext4_evict_inode(struct inode *inode)
- 		 * cleaned up.
- 		 */
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		goto no_delete;
- 	}
- 
-@@ -294,7 +301,8 @@ void ext4_evict_inode(struct inode *inode)
- stop_handle:
- 		ext4_journal_stop(handle);
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		ext4_xattr_inode_array_free(ea_inode_array);
- 		goto no_delete;
- 	}
-@@ -323,7 +331,8 @@ void ext4_evict_inode(struct inode *inode)
- 	else
- 		ext4_free_inode(handle, inode);
- 	ext4_journal_stop(handle);
--	sb_end_intwrite(inode->i_sb);
-+	if (freeze_protected)
-+		sb_end_intwrite(inode->i_sb);
- 	ext4_xattr_inode_array_free(ea_inode_array);
- 	return;
- no_delete:
--- 
-2.16.4
-
+- Naresh
