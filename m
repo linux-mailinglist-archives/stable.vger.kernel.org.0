@@ -2,101 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B662DDA85
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 22:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C350E2DDA90
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 22:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731672AbgLQVEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 16:04:37 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38856 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731327AbgLQVEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 16:04:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608238991;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=LDk3al9WN9CjrSshmYFpMOAVo+EkiN7I7g+n8jNbjPU=;
-        b=VovQIHkfMqk0s2CYUkWhhff5/q38XiszST8LPqYqUGT7bambBK3mffq9cHmOVDEkTrLEYW
-        13QqqKH/afJKj4DqtP52yXB4vJgRdoDJxRwak6RO6u8fZRrIarpqo+Ny7m4cgGwYFoIBP/
-        wNnRFq72clDtVuTnhl7c+lq6W//UxyE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-547-EHZetAnpMZisEy-Lb6axRQ-1; Thu, 17 Dec 2020 16:03:07 -0500
-X-MC-Unique: EHZetAnpMZisEy-Lb6axRQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 868133E75F;
-        Thu, 17 Dec 2020 21:03:05 +0000 (UTC)
-Received: from dhcp16-201-106.khw1.lab.eng.bos.redhat.com (dhcp16-201-106.khw1.lab.eng.bos.redhat.com [10.16.201.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4C3F65D9D2;
-        Thu, 17 Dec 2020 21:03:01 +0000 (UTC)
-From:   Terry Bowman <tbowman@redhat.com>
-To:     ahs3@redhat.com, lszubowi@redhat.com, prarit@redhat.com,
-        darcari@redhat.com, WeHuang@redhat.com
-Cc:     rhkernel-list@redhat.com, Wei Huang <wei.huang2@amd.com>,
-        "3 . 10+" <stable@vger.kernel.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Terry Bowman <tbowman@redhat.com>
-Subject: [RHEL8.4 bz1886943] acpi-cpufreq: Honor _PSD table setting on new AMD CPUs
-Date:   Thu, 17 Dec 2020 16:01:20 -0500
-Message-Id: <20201217210120.912748-1-tbowman@redhat.com>
+        id S1731493AbgLQVIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 16:08:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41530 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727106AbgLQVIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 16:08:34 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C1C6C061794
+        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 13:07:54 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id d2so171369pfq.5
+        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 13:07:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Pn64gL1PFy3T6aEaSewOwhAXHuHI8RuWQ88aIPK+DJ0=;
+        b=uyu8VTEGuSZJ0tQIowYFWiWOKwtj8ojCTOGEEPNHCr+oMko3vIj0fZovNXF+Nv1bTc
+         FNlgWZ3tCl922WpnP24+KDKTMn4LfkkmC9Ns8nlTVkXZUpHszNhSKY2E5m5Ux608etcq
+         hE4Yg4C8NzZRbwp9lKUgnt2nxh82PHB1jglyNUIy45lqWzNgoQ41DSKXLVkKYH0VPDE2
+         byzdgK7duzdAd6HEfmhoGfzQs8HLXZYTV27g+zQjQfbUBnSnoiOqwUnwQdIuuQHrTj5H
+         rlcMivKS17p8O4KTXR991kOqB/0W1Ksk+RXmVQZp9Bb5xacWLEFzhL9TeN4BrV3bpg4E
+         C3mw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Pn64gL1PFy3T6aEaSewOwhAXHuHI8RuWQ88aIPK+DJ0=;
+        b=rd+tf/b+qH8UlvSOu5Z4h195h2FjPLn+KSdvIC2iM9jkPXWf85asVgJrIshC9/9Eoc
+         fNdr/+GuCpLjNyI2MHz4CCOIf6YBqUiYjb+FCZHu3Zp07mNKb2ShaF5+XoPMaIebHAtq
+         bhCGmtKaArEeQYq/VdH8jt7YDJduMTH+l1UReW9Uq/hj/LX6apxqGrcu3lpKbarDevfl
+         O+zCj5NMisVhdeq2GerO5j84gXW9o2nOa696W7hp90cctt102QA9s1H7sNExrltkZ1Tw
+         ckWEM2WGZyEZi3fEI7E6vR1Cz0iqQOZqU9Mdhr6Rtd8WSZRlvU7gO+9IelsxS23l6S9D
+         b8ng==
+X-Gm-Message-State: AOAM532eGvznn8GHsW2F/nO7gDZ67m7q+JFX/2FRutTyasETQbOWR7C5
+        wZ+iT/iDYlapp0rY6Q7plWImeFrWpkaDGkkDnnO5Zg==
+X-Google-Smtp-Source: ABdhPJz3jvfkQ9M2KieaKXlZ+y7+G09Fr99taIeBU736VGaEPEFeJG9VWWIeJZQyHK3N9mXp0nghhrT28HFDshpOaNY=
+X-Received: by 2002:a63:1142:: with SMTP id 2mr1079220pgr.263.1608239273686;
+ Thu, 17 Dec 2020 13:07:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <CAKwvOdkP8vHidFPWczC24XwNHhQaXovQiQ43Yb6Csp_+kPR9XQ@mail.gmail.com>
+ <20201217004051.1247544-1-ndesaulniers@google.com> <20201217120118.GC17544@willie-the-truck>
+In-Reply-To: <20201217120118.GC17544@willie-the-truck>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 17 Dec 2020 13:07:41 -0800
+Message-ID: <CAKwvOd=LZHzR11kuhT2EjFnUdFwu5hQmxiwqeLB2sKC0hWFY=g@mail.gmail.com>
+Subject: Re: [PATCH] arm64: link with -z norelro for LLD or aarch64-elf
+To:     Will Deacon <will@kernel.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        kernel-team <kernel-team@android.com>,
+        Peter Smith <Peter.Smith@arm.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        stable <stable@vger.kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        =?UTF-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Alan Modra <amodra@gmail.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bugzilla: http://bugzilla.redhat.com/1886943
-Brew: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33761621
-Upstream: 5.10-rc, https://lkml.org/lkml/2020/10/19/488
-Test: Manual testing looking for PSD override in dmesg.
-Using amd-daytona-01.khw1.lab.eng.bos.redhat.com, EPYC Milan
+On Thu, Dec 17, 2020 at 4:01 AM Will Deacon <will@kernel.org> wrote:
+>
+> On Wed, Dec 16, 2020 at 04:40:51PM -0800, Nick Desaulniers wrote:
+> > With newer GNU binutils, linking with BFD produces warnings for vmlinux:
+> > aarch64-linux-gnu-ld: warning: -z norelro ignored
+> >
+> Given that, prior to 3b92fa7485eb, we used to pass '-z norelro' if
+> CONFIG_RELOCATABLE then was this already broken with the ELF toolchain?
 
-commit 5368512abe08 ("acpi-cpufreq: Honor _PSD table setting on new AMD CPUs")
-Author: Wei Huang <wei.huang2@amd.com>
-Date:   Sun Oct 18 22:57:41 2020 -0500
+Yes, though it would have been hard to foresee the change to BFD ~6
+months later.
 
-    acpi-cpufreq: Honor _PSD table setting on new AMD CPUs
+Specifically, binutils-gdb
+commit 5fd104addfddb ("Emit a warning when -z relro is unsupported")
+was committed Fri Jun 19 09:50:20 2020 +0930. The first git tag that
+describes this commit was binutils-2_35 which was tagged Fri Jul 24
+11:05:23 2020 +0100.
 
-    acpi-cpufreq has a old quirk that overrides the _PSD table supplied by
-    BIOS on AMD CPUs. However the _PSD table of new AMD CPUs (Family 19h+)
-    now accurately reports the P-state dependency of CPU cores. Hence this
-    quirk needs to be fixed in order to support new CPUs' frequency
-    control.
+I noticed about a month ago that the version of
+binutils-aarch64-linux-gnu installed on my gLinux workstation had auto
+updated to version 2.35.1; I was authoring kernel patches for DWARF v5
+support, which relied on 2.35 for DWARF v5 assembler support.  I
+suspect Quentin's host was auto updated as well, at which point he
+noticed and mentioned to me since I had touched `-z norelro` last.
 
-Fixes: acd316248205 ("acpi-cpufreq: Add quirk to disable _PSD usage on all AMD CPUs")
-Signed-off-by: Wei Huang <wei.huang2@amd.com>
-[ rjw: Subject edit ]
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-[ tb: reformat for checkpatch ]
-Signed-off-by: Terry Bowman <tbowman@redhat.com>
+But if we look at
+commit 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in
+linker script and options")
+which was committed at Tue Dec 4 12:48:25 2018 +0000, it was not
+possible to foresee that binutils-gdb would change to produce such a
+warning for such an emulation mode.
 
-Cc: Al Stone <ahs3@redhat.com> 
-Cc: Lenny Szubowicz <lszubowi@redhat.com> 
-Cc: Prarit Bhargava <prarit@redhat.com> 
-Cc: David Arcari <darcari@redhat.com> 
----
- drivers/cpufreq/acpi-cpufreq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+So I'm not sure whether my patch should either:
+- have a fixes tag for just the latest commit that touched anything
+related to `-z norelro`, mine, 3b92fa7485eb.
+- have an additional fixes tag for 3bbd3db86470 which first introduced
+`-z norelro`.
+- have no fixes tag
 
-diff --git a/drivers/cpufreq/acpi-cpufreq.c b/drivers/cpufreq/acpi-cpufreq.c
-index 2705b4c86a83..3a4efb282807 100644
---- a/drivers/cpufreq/acpi-cpufreq.c
-+++ b/drivers/cpufreq/acpi-cpufreq.c
-@@ -686,7 +686,8 @@ static int acpi_cpufreq_cpu_init(struct cpufreq_policy *policy)
- 		cpumask_copy(policy->cpus, topology_core_cpumask(cpu));
- 	}
- 
--	if (check_amd_hwpstate_cpu(cpu) && !acpi_pstate_strict) {
-+	if (check_amd_hwpstate_cpu(cpu) && boot_cpu_data.x86 < 0x19 &&
-+	    !acpi_pstate_strict) {
- 		cpumask_clear(policy->cpus);
- 		cpumask_set_cpu(cpu, policy->cpus);
- 		cpumask_copy(data->freqdomain_cpus,
+I'll respin a v2 folding in Ard's suggestions.  Meanwhile, I've filed:
+- https://bugs.llvm.org/show_bug.cgi?id=48549 against LLD
+- https://sourceware.org/bugzilla/show_bug.cgi?id=27093 against BFD
 -- 
-2.27.0
-
+Thanks,
+~Nick Desaulniers
