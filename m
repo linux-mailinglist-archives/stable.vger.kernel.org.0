@@ -2,83 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC752DD162
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 13:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56E42DD186
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 13:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728648AbgLQMTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 07:19:18 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:51185 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727215AbgLQMTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 07:19:13 -0500
-X-UUID: d8bec07d2f73466d908a195ff5aef059-20201217
-X-UUID: d8bec07d2f73466d908a195ff5aef059-20201217
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kuan-ying.lee@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 624995331; Thu, 17 Dec 2020 20:18:27 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 17 Dec 2020 20:18:23 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 17 Dec 2020 20:18:24 +0800
-From:   Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
-        <stable@vger.kernel.org>,
-        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Subject: [PATCH v2 1/1] kasan: fix memory leak of kasan quarantine
-Date:   Thu, 17 Dec 2020 20:18:07 +0800
-Message-ID: <1608207487-30537-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
+        id S1727147AbgLQMdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 07:33:35 -0500
+Received: from mx0a-0016f401.pphosted.com ([67.231.148.174]:3394 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726999AbgLQMdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 07:33:35 -0500
+Received: from pps.filterd (m0045849.ppops.net [127.0.0.1])
+        by mx0a-0016f401.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0BHCU3tB004926
+        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 04:32:55 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=Ap/aus3ouGDmYmnWKWyOzG9JI0lzi5MlksBkZIcjP4M=;
+ b=UXDB2SKLHMD2UzKCNnWuOFRW8RG+Jx9ilONY7TjQg0lEmS5PzgaN389C22ngy5D7R6oQ
+ XfGG+KSbrcXw/4diMp28CYfLvLBiVZt1/iEQCNHc7HgN05zkVeiVEQe4tWiRgvPF8eqM
+ T6FvRioPJc374wHiBRQC8C9PxPTsSGdnJM8Mf2BWcCA4bHNV6+Ni9/dv0Ysg7RXV9xyv
+ VYSBAf6Aq/ymDxnfbMbMTId+J21ePs3adTz6LIOuL38hNtxgmUPEa/3KU9iJxoSL4tpt
+ lbCtTPUsKZEu+wnCxQn+BwLPJXGPo7jx5SSZ3JqLTcuaCnXNqiqR6QJ4Cz80pEuzSN6o 7w== 
+Received: from sc-exch03.marvell.com ([199.233.58.183])
+        by mx0a-0016f401.pphosted.com with ESMTP id 35g4rp0e3x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 04:32:55 -0800
+Received: from DC5-EXCH01.marvell.com (10.69.176.38) by SC-EXCH03.marvell.com
+ (10.93.176.83) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 17 Dec
+ 2020 04:32:54 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 17 Dec 2020 04:32:54 -0800
+Received: from stefan-pc.marvell.com (unknown [10.5.25.21])
+        by maili.marvell.com (Postfix) with ESMTP id 730773F703F;
+        Thu, 17 Dec 2020 04:32:53 -0800 (PST)
+From:   <stefanc@marvell.com>
+To:     <stefanc@marvell.com>
+CC:     <stable@vger.kernel.org>
+Subject: [PATCH net v3] net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
+Date:   Thu, 17 Dec 2020 14:32:50 +0200
+Message-ID: <1608208370-13607-1-git-send-email-stefanc@marvell.com>
 X-Mailer: git-send-email 1.9.1
-In-Reply-To: <1608207487-30537-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
-References: <1608207487-30537-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-MTK:  N
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-17_08:2020-12-15,2020-12-17 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When cpu is going offline, set q->offline as true
-and interrupt happened. The interrupt may call the
-quarantine_put. But quarantine_put do not free the
-the object. The object will cause memory leak.
+From: Stefan Chulski <stefanc@marvell.com>
 
-Add qlink_free() to free the object.
+During GoP port 2 Networking Complex Control mode of operation configurations,
+also GoP port 3 mode of operation was wrongly set.
+Patch removes these configurations.
+GENCONF_CTRL0_PORTX naming also fixed.
 
-Fixes: 6c82d45c7f03 (kasan: fix object remaining in offline per-cpu quarantine)
-Signed-off-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: <stable@vger.kernel.org>    [5.10-]
+Cc: stable@vger.kernel.org
+Fixes: f84bf386f395 ("net: mvpp2: initialize the GoP")
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
 ---
- mm/kasan/quarantine.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/mm/kasan/quarantine.c b/mm/kasan/quarantine.c
-index 0e3f8494628f..cac7c617df72 100644
---- a/mm/kasan/quarantine.c
-+++ b/mm/kasan/quarantine.c
-@@ -191,6 +191,7 @@ void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
+Changes in v3:
+- No changes
+Changes in v2:
+- Added Fixes tag.
+
+ drivers/net/ethernet/marvell/mvpp2/mvpp2.h      | 6 +++---
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 8 ++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+index 6bd7e40..39c4e5c 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+@@ -651,9 +651,9 @@
+ #define     GENCONF_PORT_CTRL1_EN(p)			BIT(p)
+ #define     GENCONF_PORT_CTRL1_RESET(p)			(BIT(p) << 28)
+ #define GENCONF_CTRL0					0x1120
+-#define     GENCONF_CTRL0_PORT0_RGMII			BIT(0)
+-#define     GENCONF_CTRL0_PORT1_RGMII_MII		BIT(1)
+-#define     GENCONF_CTRL0_PORT1_RGMII			BIT(2)
++#define     GENCONF_CTRL0_PORT2_RGMII			BIT(0)
++#define     GENCONF_CTRL0_PORT3_RGMII_MII		BIT(1)
++#define     GENCONF_CTRL0_PORT3_RGMII			BIT(2)
  
- 	q = this_cpu_ptr(&cpu_quarantine);
- 	if (q->offline) {
-+		qlink_free(&info->quarantine_link, cache);
- 		local_irq_restore(flags);
- 		return;
+ /* Various constants */
+ 
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index d64dc12..d2b0506 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -1231,9 +1231,9 @@ static void mvpp22_gop_init_rgmii(struct mvpp2_port *port)
+ 
+ 	regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
+ 	if (port->gop_id == 2)
+-		val |= GENCONF_CTRL0_PORT0_RGMII | GENCONF_CTRL0_PORT1_RGMII;
++		val |= GENCONF_CTRL0_PORT2_RGMII;
+ 	else if (port->gop_id == 3)
+-		val |= GENCONF_CTRL0_PORT1_RGMII_MII;
++		val |= GENCONF_CTRL0_PORT3_RGMII_MII;
+ 	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
+ }
+ 
+@@ -1250,9 +1250,9 @@ static void mvpp22_gop_init_sgmii(struct mvpp2_port *port)
+ 	if (port->gop_id > 1) {
+ 		regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
+ 		if (port->gop_id == 2)
+-			val &= ~GENCONF_CTRL0_PORT0_RGMII;
++			val &= ~GENCONF_CTRL0_PORT2_RGMII;
+ 		else if (port->gop_id == 3)
+-			val &= ~GENCONF_CTRL0_PORT1_RGMII_MII;
++			val &= ~GENCONF_CTRL0_PORT3_RGMII_MII;
+ 		regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
  	}
+ }
 -- 
-2.18.0
+1.9.1
 
