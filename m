@@ -2,78 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB1A2DD4C1
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 17:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0572DD4D9
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 17:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726012AbgLQQCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 11:02:18 -0500
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:56979 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725468AbgLQQCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 11:02:18 -0500
-Received: from callcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 0BHG1P1f013698
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Dec 2020 11:01:26 -0500
-Received: by callcc.thunk.org (Postfix, from userid 15806)
-        id 72807420280; Thu, 17 Dec 2020 11:01:25 -0500 (EST)
-Date:   Thu, 17 Dec 2020 11:01:25 -0500
-From:   "Theodore Y. Ts'o" <tytso@mit.edu>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-ext4@vger.kernel.org,
-        harshad shirwadkar <harshadshirwadkar@gmail.com>,
-        stable@vger.kernel.org, Tahsin Erdogan <tahsin@google.com>
-Subject: Re: [PATCH 6/8] ext4: Fix deadlock with fs freezing and EA inodes
-Message-ID: <X9uA1Wo0tD8sUgAB@mit.edu>
-References: <20201216101844.22917-1-jack@suse.cz>
- <20201216101844.22917-7-jack@suse.cz>
+        id S1727185AbgLQQFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 11:05:16 -0500
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:23689 "EHLO
+        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729322AbgLQQFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 11:05:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1608221115; x=1639757115;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=IZTMRACT5Z0nH+RTJp7IYNQQKSOJfHOu4NGys+BUEro=;
+  b=f/CBK/3JIY6qcpetJ+GREO851q5+qiWvyyZcaLCwpR4w7XG8p5OZ0ufo
+   kRLA998VkMz0/Or7ZHiEq6eNaYcnp5XB77RuGxegsFa/Hc3pFNyT09LOU
+   FdYCSGQk8SDOzH7QVQpbUAlOJ+26+tp4R5GcGMMSQi5W0ePwxA5KBfaF4
+   8=;
+X-IronPort-AV: E=Sophos;i="5.78,428,1599523200"; 
+   d="scan'208";a="903962096"
+Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2c-c6afef2e.us-west-2.amazon.com) ([10.47.23.38])
+  by smtp-border-fw-out-9103.sea19.amazon.com with ESMTP; 17 Dec 2020 16:04:28 +0000
+Received: from EX13D31EUA004.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2c-c6afef2e.us-west-2.amazon.com (Postfix) with ESMTPS id E872FA2226;
+        Thu, 17 Dec 2020 16:04:27 +0000 (UTC)
+Received: from u3f2cd687b01c55.ant.amazon.com (10.43.162.146) by
+ EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 17 Dec 2020 16:04:21 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     SeongJae Park <sjpark@amazon.de>, <doebel@amazon.de>,
+        <aams@amazon.de>, <mku@amazon.de>, <jgross@suse.com>,
+        <julien@xen.org>, <wipawel@amazon.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v3 0/5] Backport of patch series for stable 4.4 branch
+Date:   Thu, 17 Dec 2020 17:03:57 +0100
+Message-ID: <20201217160402.26303-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201216101844.22917-7-jack@suse.cz>
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.146]
+X-ClientProxiedBy: EX13D14UWC001.ant.amazon.com (10.43.162.5) To
+ EX13D31EUA004.ant.amazon.com (10.43.165.161)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 16, 2020 at 11:18:42AM +0100, Jan Kara wrote:
-> Xattr code using inodes with large xattr data can end up dropping last
-> inode reference (and thus deleting the inode) from places like
-> ext4_xattr_set_entry(). That function is called with transaction started
-> and so ext4_evict_inode() can deadlock against fs freezing like:
-> 
-> CPU1					CPU2
-> 
-> removexattr()				freeze_super()
->   vfs_removexattr()
->     ext4_xattr_set()
->       handle = ext4_journal_start()
->       ...
->       ext4_xattr_set_entry()
->         iput(old_ea_inode)
->           ext4_evict_inode(old_ea_inode)
-> 					  sb->s_writers.frozen = SB_FREEZE_FS;
-> 					  sb_wait_write(sb, SB_FREEZE_FS);
-> 					  ext4_freeze()
-> 					    jbd2_journal_lock_updates()
-> 					      -> blocks waiting for all
-> 					         handles to stop
->             sb_start_intwrite()
-> 	      -> blocks as sb is already in SB_FREEZE_FS state
-> 
-> Generally it is advisable to delete inodes from a separate transaction
-> as it can consume quite some credits however in this case it would be
-> quite clumsy and furthermore the credits for inode deletion are quite
-> limited and already accounted for. So just tweak ext4_evict_inode() to
-> avoid freeze protection if we have transaction already started and thus
-> it is not really needed anyway.
-> 
-> CC: stable@vger.kernel.org
-> Fixes: dec214d00e0d ("ext4: xattr inode deduplication")
-> CC: Tahsin Erdogan <tahsin@google.com>
-> Signed-off-by: Jan Kara <jack@suse.cz>
+From: SeongJae Park <sjpark@amazon.de>
 
-Already applied.
+Changes from v2
+(https://lore.kernel.org/stable/20201217130501.12702-1-sjpark@amazon.com/)
+- Move 'nr_pending' increase from 5th patch to 4th patch
 
-						- Ted
+Changes from v1
+(https://lore.kernel.org/stable/20201217081727.8253-1-sjpark@amazon.com/)
+- Remove wrong 'Signed-off-by' lines for 'Author Redacted'
+
+
+SeongJae Park (5):
+  xen/xenbus: Allow watches discard events before queueing
+  xen/xenbus: Add 'will_handle' callback support in xenbus_watch_path()
+  xen/xenbus/xen_bus_type: Support will_handle watch callback
+  xen/xenbus: Count pending messages for each watch
+  xenbus/xenbus_backend: Disallow pending watch messages
+
+ drivers/block/xen-blkback/xenbus.c        |  3 +-
+ drivers/net/xen-netback/xenbus.c          |  4 ++-
+ drivers/xen/xen-pciback/xenbus.c          |  2 +-
+ drivers/xen/xenbus/xenbus_client.c        |  8 ++++-
+ drivers/xen/xenbus/xenbus_probe.c         |  1 +
+ drivers/xen/xenbus/xenbus_probe.h         |  2 ++
+ drivers/xen/xenbus/xenbus_probe_backend.c |  7 +++++
+ drivers/xen/xenbus/xenbus_xs.c            | 38 +++++++++++++++--------
+ include/xen/xenbus.h                      | 15 ++++++++-
+ 9 files changed, 62 insertions(+), 18 deletions(-)
+
+-- 
+2.17.1
+
