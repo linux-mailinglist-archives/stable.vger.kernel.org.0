@@ -2,88 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F372DCF9D
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 11:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 249762DD032
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 12:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726631AbgLQKkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 05:40:36 -0500
-Received: from foss.arm.com ([217.140.110.172]:56082 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725871AbgLQKkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Dec 2020 05:40:35 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 408FF31B;
-        Thu, 17 Dec 2020 02:39:50 -0800 (PST)
-Received: from e113632-lin (e113632-lin.cambridge.arm.com [10.1.194.46])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 453883F66E;
-        Thu, 17 Dec 2020 02:39:48 -0800 (PST)
-References: <cover.1607036601.git.reinette.chatre@intel.com> <c8eebc438e057e4bc2ce00256664b7bb0561b323.1607036601.git.reinette.chatre@intel.com> <jhjlfe4t6jq.mognet@arm.com> <e250875b-1c86-660c-b9f0-4060842939bf@intel.com> <jhj1rfptzqt.mognet@arm.com> <b75d780d-d067-12bf-b0e6-706dda200511@intel.com>
-User-agent: mu4e 0.9.17; emacs 26.3
-From:   Valentin Schneider <valentin.schneider@arm.com>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de,
-        tony.luck@intel.com, kuo-lang.tseng@intel.com, shakeelb@google.com,
-        mingo@redhat.com, babu.moger@amd.com, james.morse@arm.com,
-        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/3] x86/resctrl: Update PQR_ASSOC MSR synchronously when moving task to resource group
-In-reply-to: <b75d780d-d067-12bf-b0e6-706dda200511@intel.com>
-Date:   Thu, 17 Dec 2020 10:39:43 +0000
-Message-ID: <jhjwnxgsols.mognet@arm.com>
+        id S1726998AbgLQLO6 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 17 Dec 2020 06:14:58 -0500
+Received: from mail-ot1-f46.google.com ([209.85.210.46]:44081 "EHLO
+        mail-ot1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726964AbgLQLO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 06:14:57 -0500
+Received: by mail-ot1-f46.google.com with SMTP id f16so26841638otl.11;
+        Thu, 17 Dec 2020 03:14:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=KJvh92esfWyHpcdkLeM+bdzabnEWcD1A6t+as3ieGWU=;
+        b=WV9VhZu6Ov55FKLJ++nMcGJHPMkzXEAWCGY0XYDyDDH2A+Aa6288/zX5z6OB6NmkEQ
+         EAsE/53+3S38wZDTMzTeoUz6Wp8J9qyHobBAGBY4hZYNaNgDPj4CJBCbhiqvaJW52pkD
+         KnjRAJxf+h8uokCseCHNIKmHzRdJoj91WquIh2JbkEdi+cOOkj+L8SW4AGNT8jBr7EUs
+         7mUfISGW+v+UUbHLwZFXX6g33kmXasLVlrxeytaOagH7iF+A8AyUMl9KncAbw3JYWocL
+         5MSBPOKQfNdv0zF5mEWoX4pkHdU+FjWz8Z5hLyM+xOdQcXtIMxgWQjRIyF9SXvG2DBhc
+         c5dA==
+X-Gm-Message-State: AOAM532/E4hFyvx93GilWhPrfW3YPY7f/sye1LtDzZGmnPNWqfeQDORW
+        k6fa4E6FDi/xlXnJ7Z7URFhhIiC5q/dGRlbQKKM=
+X-Google-Smtp-Source: ABdhPJzfh/T4FJJMaSbA8072V/qZfQ6UcGpwTzGY99OQj+SuzW1sn57JfH4h5kRcjaVbSgyJMKv/z+WPO2hipu/hULw=
+X-Received: by 2002:a9d:63cd:: with SMTP id e13mr29394063otl.37.1608203656271;
+ Thu, 17 Dec 2020 03:14:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20201216233956.280068-1-paul@crapouillou.net>
+In-Reply-To: <20201216233956.280068-1-paul@crapouillou.net>
+From:   =?UTF-8?Q?Philippe_Mathieu=2DDaud=C3=A9?= <f4bug@amsat.org>
+Date:   Thu, 17 Dec 2020 12:14:04 +0100
+Message-ID: <CAAdtpL7kP_+VWJHNhiqybh9PbnLbbgiT-d29sj7arSk8Ckpwvg@mail.gmail.com>
+Subject: Re: [PATCH] MIPS: boot: Fix unaligned access with CONFIG_MIPS_RAW_APPENDED_DTB
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>, od@zcrc.me,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        clang-built-linux@googlegroups.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 16/12/20 18:26, Reinette Chatre wrote:
-> Hi Valentin,
->> So that's part paranoia and part nonsense from my end - the contents of
->> smp_call() shouldn't matter here.
->>
->> If we distill the code to:
->>
->>    tsk->closid = x;
->>
->>    if (task_curr(tsk))
->>        smp_call(...);
->>
->> It is somewhat far fetched, but AFAICT this can be compiled as:
->>
->>    if (task_curr(tsk))
->>        tsk->closid = x;
->>        smp_call(...);
->>    else
->>        tsk->closid = x;
->>
->> IOW, there could be a sequence where the closid write is ordered *after*
->> the task_curr() read.
+On Thu, Dec 17, 2020 at 12:41 AM Paul Cercueil <paul@crapouillou.net> wrote:
 >
-> Could you please elaborate why it would be an issue is the closid write
-> is ordered after the task_curr() read? task_curr() does not depend on
-> the closid.
+> The compressed payload is not necesarily 4-byte aligned, at least when
+> compiling with Clang. In that case, the 4-byte value appended to the
+> compressed payload that corresponds to the uncompressed kernel image
+> size must be read using get_unaligned_le().
 >
-
-IMO the 'task_curr()' check only makes sense if it happens *after* the
-write, the logic being: 'closid/rmid has been written to, does the task now
-need interrupting?'
-
-In the above 'else' clause, task_curr() would need to be re-evaluated after
-the write: the task wasn't current *before* the write, but nothing
-guarantees this still holds *after* the write.
-
->> With
->>
->>    tsk->closid = x;
->>
->>    barrier();
->>
->>    if (task_curr(tsk))
->>        smp_call(...);
->>
->> that explicitely cannot happen.
->>
+> This fixes Clang-built kernels not booting on MIPS (tested on a Ingenic
+> JZ4770 board).
 >
->
-> Reinette
+> Fixes: b8f54f2cde78 ("MIPS: ZBOOT: copy appended dtb to the end of the kernel")
+> Cc: <stable@vger.kernel.org> # v4.7
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  arch/mips/boot/compressed/decompress.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
