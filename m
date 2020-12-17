@@ -2,205 +2,296 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826EC2DD2F2
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:23:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 067A82DD344
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbgLQOWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 09:22:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41571 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728122AbgLQOWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 09:22:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608214880;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+        id S1727185AbgLQOvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 09:51:24 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34590 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726488AbgLQOvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Dec 2020 09:51:23 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1608216636; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=q3zX9nGma2sc+foBdiZDz1vjiexa9yeL6J3v7SV/DL0=;
-        b=OHdnMYEeKD1Rnb6k21BtFfHS5ODMFEogVq/5Xz/5NRkAr02/EbiaxQNxOIgT5RmImRzCMd
-        I18ZVrsWpwNgl9bypB9dpQynLzaBWIHSh18STqY0UH/2UvHuvKtkooIw2RIsS71AKoV0oL
-        G7roUYpx7qEt51jrTDWMSmYuNVWIEwU=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-442-3ooM3LWfMrqj6YUJY9kbIw-1; Thu, 17 Dec 2020 09:21:19 -0500
-X-MC-Unique: 3ooM3LWfMrqj6YUJY9kbIw-1
-Received: by mail-ed1-f70.google.com with SMTP id f19so13433152edq.20
-        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 06:21:18 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=q3zX9nGma2sc+foBdiZDz1vjiexa9yeL6J3v7SV/DL0=;
-        b=dG7abKSeeGa6G8ABwm9XDiqj2Xs1CHQ2cEfnmaJDbrAZyXyrb4f80i83XlF4Qy+V6u
-         LoO1p++H3XXOy8TunHof/NiVA2u6FVzvuKT0AOIewHHscOIiq3pmgzW/XYosUB4/lGXJ
-         DXCm8Jwnh4fCov3MnEXUNf0lanpHHGIpH6xKPV9KXQnns2kQkDHDUAW0nanx3VFQcQre
-         4aqzLiQShmt1bNWIxnskfR8aflnwxy6WyrLn27gA32i1PalqVVxtgvEajNlRYmsl5gUv
-         ZBBTg71JHuYmJNz7ZhO8qCgTY5ve3Uri6L4W+lOap6K3LIirO6j7ZhCEOjOwZ48Gym3e
-         Qoag==
-X-Gm-Message-State: AOAM5332xeICaJLPENudE7kOOUa3vNwEsqzo0v7PrRdcZuNtZCEMClLm
-        ZhEOyjeEF6r5rtHuXZupBObubNFFTAHX1aLoTVQaqc/dD9kJjOyhHQxEehkifcdy9WWyIn4i9++
-        RYGGsOpMvrVDXYNw3
-X-Received: by 2002:a17:906:9250:: with SMTP id c16mr36252413ejx.355.1608214877749;
-        Thu, 17 Dec 2020 06:21:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwBtuAn/5oKnQJimo74RKWwWmYaG5Jtmtqkhyj0v4zAd/vGeoPQ6Ib4nnTFsSMeyLfi3tLVrw==
-X-Received: by 2002:a17:906:9250:: with SMTP id c16mr36252384ejx.355.1608214877492;
-        Thu, 17 Dec 2020 06:21:17 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id dd18sm3881873ejb.53.2020.12.17.06.21.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Dec 2020 06:21:16 -0800 (PST)
-Subject: Re: [PATCH] KVM: mmu: Fix SPTE encoding of MMIO generation upper half
-To:     "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Jim Mattson <jmattson@google.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org
-References: <1607955408254166@kroah.com>
- <8bf9d5caf338d705744764c60256ace1d3f1d252.1608168540.git.maciej.szmigiero@oracle.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <41d60554-ba04-b877-1189-6cb33bc3600b@redhat.com>
-Date:   Thu, 17 Dec 2020 15:21:15 +0100
+        bh=YogHC27dUfdxMyB22ud/NJqrAhXEpWbGzc1AtvrRMlw=;
+        b=PHV83dhaP+aTMkKJl0013KHSZ71xxPmZwkeT7qualG09NoQLG7Qmiqqjq0RXYcn1OKC4eq
+        dEZdO1vhDnMsZ17m2cQepTmw9K06IGMxWY2/QF3mYRRiO7K0TEONCxAURVHQONOekwqCut
+        NhkWXH4cdJYhx02TyriUichjjkjK4jQ=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EE897AE91;
+        Thu, 17 Dec 2020 14:50:35 +0000 (UTC)
+Subject: Re: [PATCH 4/5] xen/xenbus: Count pending messages for each watch
+To:     SeongJae Park <sjpark@amazon.com>, stable@vger.kernel.org
+Cc:     SeongJae Park <sjpark@amazon.de>, doebel@amazon.de, aams@amazon.de,
+        mku@amazon.de, julien@xen.org, wipawel@amazon.de,
+        linux-kernel@vger.kernel.org, Author Redacted <security@xen.org>
+References: <20201217081727.8253-1-sjpark@amazon.com>
+ <20201217081727.8253-5-sjpark@amazon.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <76711b5d-4166-19ff-e817-694675051f90@suse.com>
+Date:   Thu, 17 Dec 2020 15:50:34 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <8bf9d5caf338d705744764c60256ace1d3f1d252.1608168540.git.maciej.szmigiero@oracle.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20201217081727.8253-5-sjpark@amazon.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="BTFEMFwHXxBd5wmigQYtzuEXr1td99gpv"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17/12/20 14:46, Maciej S. Szmigiero wrote:
-> From: "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>
-> 
-> Commit cae7ed3c2cb0 ("KVM: x86: Refactor the MMIO SPTE generation handling")
-> cleaned up the computation of MMIO generation SPTE masks, however it
-> introduced a bug how the upper part was encoded:
-> SPTE bits 52-61 were supposed to contain bits 10-19 of the current
-> generation number, however a missing shift encoded bits 1-10 there instead
-> (mostly duplicating the lower part of the encoded generation number that
-> then consisted of bits 1-9).
-> 
-> In the meantime, the upper part was shrunk by one bit and moved by
-> subsequent commits to become an upper half of the encoded generation number
-> (bits 9-17 of bits 0-17 encoded in a SPTE).
-> 
-> In addition to the above, commit 56871d444bc4 ("KVM: x86: fix overlap between SPTE_MMIO_MASK and generation")
-> has changed the SPTE bit range assigned to encode the generation number and
-> the total number of bits encoded but did not update them in the comment
-> attached to their defines, nor in the KVM MMU doc.
-> Let's do it here, too, since it is too trivial thing to warrant a separate
-> commit.
-> 
-> This is a backport of the upstream commit for 5.4.x stable series, which
-> has KVM docs still in a raw text format and the x86 KVM MMU isn't yet split
-> into separate files under "mmu" directory.
-> Other than that, it's a straightforward port.
-> 
-> Fixes: cae7ed3c2cb0 ("KVM: x86: Refactor the MMIO SPTE generation handling")
-> Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-> [Reorganize macros so that everything is computed from the bit ranges. - Paolo]
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> (cherry picked from commit 34c0f6f2695a2db81e09a3ab7bdb2853f45d4d3d)
-> Cc: stable@vger.kernel.org # 5.4.x
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--BTFEMFwHXxBd5wmigQYtzuEXr1td99gpv
+Content-Type: multipart/mixed; boundary="SQpQFETUAy8uNs8fWFqgHqcxQAkJt9N2F";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: SeongJae Park <sjpark@amazon.com>, stable@vger.kernel.org
+Cc: SeongJae Park <sjpark@amazon.de>, doebel@amazon.de, aams@amazon.de,
+ mku@amazon.de, julien@xen.org, wipawel@amazon.de,
+ linux-kernel@vger.kernel.org, Author Redacted <security@xen.org>
+Message-ID: <76711b5d-4166-19ff-e817-694675051f90@suse.com>
+Subject: Re: [PATCH 4/5] xen/xenbus: Count pending messages for each watch
+References: <20201217081727.8253-1-sjpark@amazon.com>
+ <20201217081727.8253-5-sjpark@amazon.com>
+In-Reply-To: <20201217081727.8253-5-sjpark@amazon.com>
+
+--SQpQFETUAy8uNs8fWFqgHqcxQAkJt9N2F
+Content-Type: multipart/mixed;
+ boundary="------------CA64A13DB928E42B8023DDC0"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------CA64A13DB928E42B8023DDC0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 17.12.20 09:17, SeongJae Park wrote:
+> From: SeongJae Park <sjpark@amazon.de>
+>=20
+> This commit adds a counter of pending messages for each watch in the
+> struct.  It is used to skip unnecessary pending messages lookup in
+> 'unregister_xenbus_watch()'.  It could also be used in 'will_handle'
+> callback.
+>=20
+> This is part of XSA-349
+>=20
+> This is upstream commit 3dc86ca6b4c8cfcba9da7996189d1b5a358a94fc
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: SeongJae Park <sjpark@amazon.de>
+> Reported-by: Michael Kurth <mku@amazon.de>
+> Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+> Signed-off-by: Author Redacted <security@xen.org>
+> Reviewed-by: Juergen Gross <jgross@suse.com>
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 > ---
->   Documentation/virt/kvm/mmu.txt |  2 +-
->   arch/x86/kvm/mmu.c             | 29 ++++++++++++++++++++---------
->   2 files changed, 21 insertions(+), 10 deletions(-)
-> 
-> diff --git a/Documentation/virt/kvm/mmu.txt b/Documentation/virt/kvm/mmu.txt
-> index dadb29e8738f..ec072c6bc03f 100644
-> --- a/Documentation/virt/kvm/mmu.txt
-> +++ b/Documentation/virt/kvm/mmu.txt
-> @@ -420,7 +420,7 @@ If the generation number of the spte does not equal the global generation
->   number, it will ignore the cached MMIO information and handle the page
->   fault through the slow path.
->   
-> -Since only 19 bits are used to store generation-number on mmio spte, all
-> +Since only 18 bits are used to store generation-number on mmio spte, all
->   pages are zapped when there is an overflow.
->   
->   Unfortunately, a single memory access might access kvm_memslots(kvm) multiple
-> diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-> index b90e8fd2f6ce..47c27c6e3842 100644
-> --- a/arch/x86/kvm/mmu.c
-> +++ b/arch/x86/kvm/mmu.c
-> @@ -407,11 +407,11 @@ static inline bool is_access_track_spte(u64 spte)
->   }
->   
->   /*
-> - * Due to limited space in PTEs, the MMIO generation is a 19 bit subset of
-> + * Due to limited space in PTEs, the MMIO generation is a 18 bit subset of
->    * the memslots generation and is derived as follows:
->    *
->    * Bits 0-8 of the MMIO generation are propagated to spte bits 3-11
-> - * Bits 9-18 of the MMIO generation are propagated to spte bits 52-61
-> + * Bits 9-17 of the MMIO generation are propagated to spte bits 54-62
->    *
->    * The KVM_MEMSLOT_GEN_UPDATE_IN_PROGRESS flag is intentionally not included in
->    * the MMIO generation number, as doing so would require stealing a bit from
-> @@ -420,18 +420,29 @@ static inline bool is_access_track_spte(u64 spte)
->    * requires a full MMU zap).  The flag is instead explicitly queried when
->    * checking for MMIO spte cache hits.
->    */
-> -#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(17, 0)
->   
->   #define MMIO_SPTE_GEN_LOW_START		3
->   #define MMIO_SPTE_GEN_LOW_END		11
-> -#define MMIO_SPTE_GEN_LOW_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_END, \
-> -						    MMIO_SPTE_GEN_LOW_START)
->   
->   #define MMIO_SPTE_GEN_HIGH_START	PT64_SECOND_AVAIL_BITS_SHIFT
->   #define MMIO_SPTE_GEN_HIGH_END		62
+>   drivers/xen/xenbus/xenbus_xs.c | 30 ++++++++++++++++++------------
+>   include/xen/xenbus.h           |  2 ++
+>   2 files changed, 20 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus=
+_xs.c
+> index 0ea1c259f2f1..420d478e1708 100644
+> --- a/drivers/xen/xenbus/xenbus_xs.c
+> +++ b/drivers/xen/xenbus/xenbus_xs.c
+> @@ -701,6 +701,8 @@ int register_xenbus_watch(struct xenbus_watch *watc=
+h)
+>  =20
+>   	sprintf(token, "%lX", (long)watch);
+>  =20
+> +	watch->nr_pending =3D 0;
 > +
-> +#define MMIO_SPTE_GEN_LOW_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_END, \
-> +						    MMIO_SPTE_GEN_LOW_START)
->   #define MMIO_SPTE_GEN_HIGH_MASK		GENMASK_ULL(MMIO_SPTE_GEN_HIGH_END, \
->   						    MMIO_SPTE_GEN_HIGH_START)
->   
-> +#define MMIO_SPTE_GEN_LOW_BITS		(MMIO_SPTE_GEN_LOW_END - MMIO_SPTE_GEN_LOW_START + 1)
-> +#define MMIO_SPTE_GEN_HIGH_BITS		(MMIO_SPTE_GEN_HIGH_END - MMIO_SPTE_GEN_HIGH_START + 1)
-> +
-> +/* remember to adjust the comment above as well if you change these */
-> +static_assert(MMIO_SPTE_GEN_LOW_BITS == 9 && MMIO_SPTE_GEN_HIGH_BITS == 9);
-> +
-> +#define MMIO_SPTE_GEN_LOW_SHIFT		(MMIO_SPTE_GEN_LOW_START - 0)
-> +#define MMIO_SPTE_GEN_HIGH_SHIFT	(MMIO_SPTE_GEN_HIGH_START - MMIO_SPTE_GEN_LOW_BITS)
-> +
-> +#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_BITS + MMIO_SPTE_GEN_HIGH_BITS - 1, 0)
-> +
->   static u64 generation_mmio_spte_mask(u64 gen)
->   {
->   	u64 mask;
-> @@ -439,8 +450,8 @@ static u64 generation_mmio_spte_mask(u64 gen)
->   	WARN_ON(gen & ~MMIO_SPTE_GEN_MASK);
->   	BUILD_BUG_ON((MMIO_SPTE_GEN_HIGH_MASK | MMIO_SPTE_GEN_LOW_MASK) & SPTE_SPECIAL_MASK);
->   
-> -	mask = (gen << MMIO_SPTE_GEN_LOW_START) & MMIO_SPTE_GEN_LOW_MASK;
-> -	mask |= (gen << MMIO_SPTE_GEN_HIGH_START) & MMIO_SPTE_GEN_HIGH_MASK;
-> +	mask = (gen << MMIO_SPTE_GEN_LOW_SHIFT) & MMIO_SPTE_GEN_LOW_MASK;
-> +	mask |= (gen << MMIO_SPTE_GEN_HIGH_SHIFT) & MMIO_SPTE_GEN_HIGH_MASK;
->   	return mask;
->   }
->   
-> @@ -448,8 +459,8 @@ static u64 get_mmio_spte_generation(u64 spte)
->   {
->   	u64 gen;
->   
-> -	gen = (spte & MMIO_SPTE_GEN_LOW_MASK) >> MMIO_SPTE_GEN_LOW_START;
-> -	gen |= (spte & MMIO_SPTE_GEN_HIGH_MASK) >> MMIO_SPTE_GEN_HIGH_START;
-> +	gen = (spte & MMIO_SPTE_GEN_LOW_MASK) >> MMIO_SPTE_GEN_LOW_SHIFT;
-> +	gen |= (spte & MMIO_SPTE_GEN_HIGH_MASK) >> MMIO_SPTE_GEN_HIGH_SHIFT;
->   	return gen;
->   }
->   
-> 
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+I'm missing the incrementing of nr_pending, which was present in the
+upstream patch.
 
+
+Juergen
+
+>   	down_read(&xs_state.watch_mutex);
+>  =20
+>   	spin_lock(&watches_lock);
+> @@ -750,12 +752,15 @@ void unregister_xenbus_watch(struct xenbus_watch =
+*watch)
+>  =20
+>   	/* Cancel pending watch events. */
+>   	spin_lock(&watch_events_lock);
+> -	list_for_each_entry_safe(msg, tmp, &watch_events, list) {
+> -		if (msg->u.watch.handle !=3D watch)
+> -			continue;
+> -		list_del(&msg->list);
+> -		kfree(msg->u.watch.vec);
+> -		kfree(msg);
+> +	if (watch->nr_pending) {
+> +		list_for_each_entry_safe(msg, tmp, &watch_events, list) {
+> +			if (msg->u.watch.handle !=3D watch)
+> +				continue;
+> +			list_del(&msg->list);
+> +			kfree(msg->u.watch.vec);
+> +			kfree(msg);
+> +		}
+> +		watch->nr_pending =3D 0;
+>   	}
+>   	spin_unlock(&watch_events_lock);
+>  =20
+> @@ -802,7 +807,6 @@ void xs_suspend_cancel(void)
+>  =20
+>   static int xenwatch_thread(void *unused)
+>   {
+> -	struct list_head *ent;
+>   	struct xs_stored_msg *msg;
+>  =20
+>   	for (;;) {
+> @@ -815,13 +819,15 @@ static int xenwatch_thread(void *unused)
+>   		mutex_lock(&xenwatch_mutex);
+>  =20
+>   		spin_lock(&watch_events_lock);
+> -		ent =3D watch_events.next;
+> -		if (ent !=3D &watch_events)
+> -			list_del(ent);
+> +		msg =3D list_first_entry_or_null(&watch_events,
+> +				struct xs_stored_msg, list);
+> +		if (msg) {
+> +			list_del(&msg->list);
+> +			msg->u.watch.handle->nr_pending--;
+> +		}
+>   		spin_unlock(&watch_events_lock);
+>  =20
+> -		if (ent !=3D &watch_events) {
+> -			msg =3D list_entry(ent, struct xs_stored_msg, list);
+> +		if (msg) {
+>   			msg->u.watch.handle->callback(
+>   				msg->u.watch.handle,
+>   				(const char **)msg->u.watch.vec,
+> diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+> index 1772507dc2c9..ed9e7e3307b7 100644
+> --- a/include/xen/xenbus.h
+> +++ b/include/xen/xenbus.h
+> @@ -58,6 +58,8 @@ struct xenbus_watch
+>   	/* Path being watched. */
+>   	const char *node;
+>  =20
+> +	unsigned int nr_pending;
+> +
+>   	/*
+>   	 * Called just before enqueing new event while a spinlock is held.
+>   	 * The event will be discarded if this callback returns false.
+>=20
+
+
+--------------CA64A13DB928E42B8023DDC0
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------CA64A13DB928E42B8023DDC0--
+
+--SQpQFETUAy8uNs8fWFqgHqcxQAkJt9N2F--
+
+--BTFEMFwHXxBd5wmigQYtzuEXr1td99gpv
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/bcDsFAwAAAAAACgkQsN6d1ii/Ey+s
+bwgAhqfxReFrMWGCDysNruAEcZR/t8BjDsh/rTAdFEaFG9b4JmLLsEt/85UoiFenooU7jAFdL+AK
+dv/RnWhMD+iFUNDGDIYPHejGPoBw3H7+EBVdSt9p4+d4WhIS+AlEQq7960KhNFVsP58jn4m2Elv9
+hC08kBoRgffQFE2YZb5pztCWgHyh9KTP9LBEFwebmzCp1/rNSb5AOT+Yh8wkQIGP2Y+IYFgOaGcM
+KnAXnuax+41/FP6ZZMCQ0peGpLCJcXKGNFzyi9LlvPscVSAGh5ufNBepRupSFv3dg/oTORz7F84j
+LjeGBlzwrooIYcw63agNCJEcND2wlSKIcddRWhMvlQ==
+=0c7Y
+-----END PGP SIGNATURE-----
+
+--BTFEMFwHXxBd5wmigQYtzuEXr1td99gpv--
