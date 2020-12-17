@@ -2,64 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9132DCCC0
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 07:53:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E6532DCD84
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 09:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgLQGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 01:52:43 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:9460 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbgLQGwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 01:52:43 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4CxN2B4G3BzhrYm;
-        Thu, 17 Dec 2020 14:51:30 +0800 (CST)
-Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
- (10.3.19.201) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 17 Dec
- 2020 14:51:57 +0800
-Subject: Re: [PATCH] f2fs: fix out-of-repair __setattr_copy()
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <jaegeuk@kernel.org>, <linux-f2fs-devel@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>, <chao@kernel.org>,
-        <stable@vger.kernel.org>
-References: <20201216091523.21411-1-yuchao0@huawei.com>
- <X9nXCdp1ssMHKdNI@kroah.com>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <a8291621-e472-5b00-d2b3-8d8016386e47@huawei.com>
-Date:   Thu, 17 Dec 2020 14:51:55 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1726613AbgLQISp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 03:18:45 -0500
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:22048 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725988AbgLQISo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 03:18:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1608193125; x=1639729125;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=prFN0av+RelE2tmiEvc2jgseRO3BsOAUQRTZxLgjkN4=;
+  b=MPwAkivS9KSWchujzHzAthdw6FFxqkMHJR7sB/0ItNB5JBmq40GsGpAe
+   dTwoMN1AqIpgwWN81uTM3kF/tBHVT3d4LluPsQRyoUas8/g73f2cu/IOm
+   S02UnEzGkgBwFG+GWElwtoG7Wn9hZizCJ7QbOHanQxweTdLvAfspCL6sF
+   o=;
+X-IronPort-AV: E=Sophos;i="5.78,426,1599523200"; 
+   d="scan'208";a="69667039"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-74cf8b49.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 17 Dec 2020 08:17:57 +0000
+Received: from EX13D31EUA004.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-1d-74cf8b49.us-east-1.amazon.com (Postfix) with ESMTPS id A7F36C097F;
+        Thu, 17 Dec 2020 08:17:55 +0000 (UTC)
+Received: from u3f2cd687b01c55.ant.amazon.com (10.43.162.144) by
+ EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Thu, 17 Dec 2020 08:17:50 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     SeongJae Park <sjpark@amazon.de>, <doebel@amazon.de>,
+        <aams@amazon.de>, <mku@amazon.de>, <jgross@suse.com>,
+        <julien@xen.org>, <wipawel@amazon.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/5] Backport of patch series for stable 4.4 branch
+Date:   Thu, 17 Dec 2020 09:17:22 +0100
+Message-ID: <20201217081727.8253-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <X9nXCdp1ssMHKdNI@kroah.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.114.67]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.144]
+X-ClientProxiedBy: EX13D30UWC002.ant.amazon.com (10.43.162.235) To
+ EX13D31EUA004.ant.amazon.com (10.43.165.161)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/12/16 17:44, Greg KH wrote:
-> On Wed, Dec 16, 2020 at 05:15:23PM +0800, Chao Yu wrote:
->> __setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
->> two missing patches doesn't cover this inner function, fix it.
->>
->> Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
->> Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
-> 
-> Are these lines supposed to be "Fixes:" instead of "Commit "?
+From: SeongJae Park <sjpark@amazon.de>
 
-IMO, the issue was introduced when f2fs module was added, and above two commits
-missed to cover f2fs module... so I guess we can add Fixes line as below?
+SeongJae Park (5):
+  xen/xenbus: Allow watches discard events before queueing
+  xen/xenbus: Add 'will_handle' callback support in xenbus_watch_path()
+  xen/xenbus/xen_bus_type: Support will_handle watch callback
+  xen/xenbus: Count pending messages for each watch
+  xenbus/xenbus_backend: Disallow pending watch messages
 
-Fixes: fbfa2cc58d53 ("f2fs: add file operations")
+ drivers/block/xen-blkback/xenbus.c        |  3 +-
+ drivers/net/xen-netback/xenbus.c          |  4 ++-
+ drivers/xen/xen-pciback/xenbus.c          |  2 +-
+ drivers/xen/xenbus/xenbus_client.c        |  8 ++++-
+ drivers/xen/xenbus/xenbus_probe.c         |  1 +
+ drivers/xen/xenbus/xenbus_probe.h         |  2 ++
+ drivers/xen/xenbus/xenbus_probe_backend.c |  7 +++++
+ drivers/xen/xenbus/xenbus_xs.c            | 38 +++++++++++++++--------
+ include/xen/xenbus.h                      | 15 ++++++++-
+ 9 files changed, 62 insertions(+), 18 deletions(-)
 
-Thanks,
+-- 
+2.17.1
 
-> 
-> thanks,
-> 
-> greg k-h
-> .
-> 
