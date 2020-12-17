@@ -2,134 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A8B2DD890
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 19:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8482DD95C
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 20:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbgLQSnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 13:43:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729157AbgLQSnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 13:43:39 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A16FC0617B0
-        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 10:42:58 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id s26so25429258lfc.8
-        for <stable@vger.kernel.org>; Thu, 17 Dec 2020 10:42:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7NUIuWcc29XAhs44U0unGtez+GUKQ8v4NObLnMMMLsA=;
-        b=mx7R8WMlj7qwCo/5oc/okBGcqQbMg1FfOFbeWqXdd0aETnkp+fb001QcUblgJOfj0G
-         Nf6avRedgOYRuipQiK6FkBJy6wnWxn5HhBrERPNMJx4VpoUk46dg5AFt7tr7KDKUt4Ga
-         D3TU8SIpNauyYKmq/NYUn2LNVFCOIUAui+fnplUHYMIGXJjqI/lzvoFd/yh+s1bfEYgv
-         Iumf1Mv3Ex50/NRBxfWSzDL94S+z70QTMcok11LdeMMPlrcz1IZLAcG910Sm8Q1BhJiu
-         1LaiZcHvlHuenrCuUqJd1bM1WV/z/lPljY+fcSIzl9FL+MGHLw5iqTXdKgwDb7keqgHA
-         1Wng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7NUIuWcc29XAhs44U0unGtez+GUKQ8v4NObLnMMMLsA=;
-        b=pxI8pMjeAu04c9cDT/D3chhGshAprXCLB0aL8nS4dYNHhIIngEUVi7i5T3tMr0/bIn
-         50hlDX8Go9R3XM8kXOWDkZgWVoOGnTNqI+mktf5Uj4GGwRd4Q2lEvFYabae/04zLeR4B
-         9JQOecJhRiVqjXu+XfTcrYzXJt3OrgrvpZH7ZD4dE6FEh8cK4ocbXMxyyXstfg3MPXSe
-         QaWjYeWe6ZmwQEfLUee4j7pmcLW4L8k0W4+d1mmU8DKXl+AogUJ+vcn380yIHxTUgpv7
-         eg/xx8CA2RK4Jax+DWNnmOBZ1VNCcYtXUYVNDdydiASX8977HeH0XyATUqoMIHOWSKpj
-         EztA==
-X-Gm-Message-State: AOAM530074r3hp+/Na/wDJbhCHgCBzfDbkiDMFTHy+eWjDvWT0mR6vzF
-        hBdACZ00NJkDTUuTceyfuUOz/6ztruRS+XtjnLUNgtxC5GhLDA==
-X-Google-Smtp-Source: ABdhPJxVWi5gqix+VnBa8ML8j5+gKLfpG9o5wdSxpgtfI6wubLZ3enzXSw4dbuUdjDNq58Q8604iIlfBnolwcT4y2rk=
-X-Received: by 2002:a2e:2244:: with SMTP id i65mr288265lji.111.1608230576758;
- Thu, 17 Dec 2020 10:42:56 -0800 (PST)
+        id S1725930AbgLQTa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 14:30:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725468AbgLQTa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Dec 2020 14:30:28 -0500
+X-Gm-Message-State: AOAM531jhmcd5QMKEaZnxNxiAcD2kX0u3SAYaHxgGm+buQuwC7p9mMgX
+        cy7GwwHOhkBCsIX0MoYFY9FxgWBDvR4BiObGM9Y=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608233387;
+        bh=HRY8YeVLSHAvObD2gzi1HyscgTfOcaMV6u6OwjX/7Vo=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=tM3fpjtJciyI5a8jL4IU2Yi9/zPHcWryWiiJczOp7eL2q4Ygc3zJqn/a2+DUhntrJ
+         BELyh8lz0GqKdx3emD/xgKVXlp/AQYf2KYJt/+74jcEk8kXHQ74S5G8MgabaLzYYYN
+         zfTGYOmRAN45wSNaoTGJP1xOOyUI1yAg+gcMPsBV/vQVF190pPHUAb3Fv7EmXlLRSR
+         Vfund6xxHGGiwurZ6MGcAWdOr4IGw/MBpiH36Tr7dlwKrxoMkylSOZjwc0DnbfxBDp
+         ADmPcigMY+umWLN2ETAKhygS9rK8ezLQ/4zUysQzlFU+eLtIWfufHLPkR9DlIjYIHZ
+         9OsGggSdj1UbA==
+X-Google-Smtp-Source: ABdhPJw2VdBQyPZ697Di5+5hmP4B46nBT/YDOuvakmMna4r2mnr1HGQCYk9mcrj4BtUaYcvzpnxWhv9ew4Z4L6Yc41o=
+X-Received: by 2002:a05:6830:1c24:: with SMTP id f4mr362030ote.108.1608233386622;
+ Thu, 17 Dec 2020 11:29:46 -0800 (PST)
 MIME-Version: 1.0
-References: <20201205004848.2541215-1-willmcvicker@google.com>
- <X9e5vl+nw4GQNYEw@google.com> <nycvar.YFH.7.76.2012171119240.25826@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.2012171119240.25826@cbobk.fhfr.pm>
-From:   Will McVicker <willmcvicker@google.com>
-Date:   Thu, 17 Dec 2020 10:42:40 -0800
-Message-ID: <CABYd82Z-HJfn1Ts=k7RYrvWCHj=1578--9Y7A0giFn2=RRWcVA@mail.gmail.com>
-Subject: Re: [PATCH v1] HID: make arrays usage and value to be the same
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        security@kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Will Coster <willcoster@google.com>,
-        stable <stable@vger.kernel.org>
+References: <CAKwvOdkP8vHidFPWczC24XwNHhQaXovQiQ43Yb6Csp_+kPR9XQ@mail.gmail.com>
+ <20201217004051.1247544-1-ndesaulniers@google.com>
+In-Reply-To: <20201217004051.1247544-1-ndesaulniers@google.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Thu, 17 Dec 2020 20:29:35 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXHpVDmZqgULT5Jsjwbfd8a5a6D4ojZXwTUUxi-DWvAFOA@mail.gmail.com>
+Message-ID: <CAMj1kXHpVDmZqgULT5Jsjwbfd8a5a6D4ojZXwTUUxi-DWvAFOA@mail.gmail.com>
+Subject: Re: [PATCH] arm64: link with -z norelro for LLD or aarch64-elf
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        Peter Smith <Peter.Smith@arm.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Alan Modra <amodra@gmail.com>,
+        "kernelci . org bot" <bot@kernelci.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Great! Thanks for the reply.
+On Thu, 17 Dec 2020 at 01:41, Nick Desaulniers <ndesaulniers@google.com> wr=
+ote:
+>
+> With newer GNU binutils, linking with BFD produces warnings for vmlinux:
+> aarch64-linux-gnu-ld: warning: -z norelro ignored
+>
+> BFD can produce this warning when the target emulation mode does not
+> support RELRO relocation types, and -z relro or -z norelro is passed.
+>
 
---Will
+RELRO is not a relocation type, it is a type of program header which
+we might simply ignore, if it weren't for the fact that it can only be
+emitted if the layout of the sections adheres to certain rules (and
+ours doesn't), and we get an error otherwise.
 
-On Thu, Dec 17, 2020 at 2:19 AM Jiri Kosina <jikos@kernel.org> wrote:
+It amounts to implicit __ro_after_init annotations for statically
+initialized const pointers, but given that we don't compile with
+-fpie, those const pointers reside in .rodata already, so RELRO adds
+no value for us.
+
+> Alan Modra clarifies:
+>   The default linker emulation for an aarch64-linux ld.bfd is
+>   -maarch64linux, the default for an aarch64-elf linker is
+>   -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
+>   you get an emulation that doesn't support -z relro.
 >
-> On Mon, 14 Dec 2020, Will McVicker wrote:
+> The ARCH=3Darm64 kernel prefers -maarch64elf, but may fall back to
+> -maarch64linux based on the toolchain configuration.
 >
-> > > The HID subsystem allows an "HID report field" to have a different
-> > > number of "values" and "usages" when it is allocated. When a field
-> > > struct is created, the size of the usage array is guaranteed to be at
-> > > least as large as the values array, but it may be larger. This leads to
-> > > a potential out-of-bounds write in
-> > > __hidinput_change_resolution_multipliers() and an out-of-bounds read in
-> > > hidinput_count_leds().
-> > >
-> > > To fix this, let's make sure that both the usage and value arrays are
-> > > the same size.
-> > >
-> > > Signed-off-by: Will McVicker <willmcvicker@google.com>
-> > > ---
-> > >  drivers/hid/hid-core.c | 6 +++---
-> > >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > index 56172fe6995c..8a8b2b982f83 100644
-> > > --- a/drivers/hid/hid-core.c
-> > > +++ b/drivers/hid/hid-core.c
-> > > @@ -90,7 +90,7 @@ EXPORT_SYMBOL_GPL(hid_register_report);
-> > >   * Register a new field for this report.
-> > >   */
-> > >
-> > > -static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
-> > > +static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages)
-> > >  {
-> > >     struct hid_field *field;
-> > >
-> > > @@ -101,7 +101,7 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
-> > >
-> > >     field = kzalloc((sizeof(struct hid_field) +
-> > >                      usages * sizeof(struct hid_usage) +
-> > > -                    values * sizeof(unsigned)), GFP_KERNEL);
-> > > +                    usages * sizeof(unsigned)), GFP_KERNEL);
-> > >     if (!field)
-> > >             return NULL;
-> > >
-> > > @@ -300,7 +300,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
-> > >     usages = max_t(unsigned, parser->local.usage_index,
-> > >                              parser->global.report_count);
-> > >
-> > > -   field = hid_register_field(report, usages, parser->global.report_count);
-> > > +   field = hid_register_field(report, usages);
-> > >     if (!field)
-> > >             return 0;
-> > >
-> > > --
-> > > 2.29.2.576.ga3fc446d84-goog
-> > >
-> >
-> > Hi Jiri and Benjamin,
-> >
-> > This is a friendly reminder in case this got lost in your inbox.
+> LLD will always create RELRO relocation types regardless of target
+> emulation.
 >
-> Hi Will,
+
+RELRO program header
+
+> To avoid the above warning when linking with BFD, pass -z norelro only
+> when linking with LLD or with -maarch64linux.
 >
-> I am planning to merge it once the merge window is over.
+> Cc: Alan Modra <amodra@gmail.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: F=C4=81ng-ru=C3=AC S=C3=B2ng <maskray@google.com>
+> Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RE=
+LOCATABLE")
+> Reported-by: kernelci.org bot <bot@kernelci.org>
+> Reported-by: Quentin Perret <qperret@google.com>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+
+With mentions of 'RELRO relocation types' fixed:
+
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+
+
+
+> ---
+>  arch/arm64/Makefile | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
 >
+> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+> index 6be9b3750250..90309208bb28 100644
+> --- a/arch/arm64/Makefile
+> +++ b/arch/arm64/Makefile
+> @@ -10,7 +10,7 @@
+>  #
+>  # Copyright (C) 1995-2001 by Russell King
+>
+> -LDFLAGS_vmlinux        :=3D--no-undefined -X -z norelro
+> +LDFLAGS_vmlinux        :=3D--no-undefined -X
+>
+>  ifeq ($(CONFIG_RELOCATABLE), y)
+>  # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
+> @@ -115,16 +115,20 @@ KBUILD_CPPFLAGS   +=3D -mbig-endian
+>  CHECKFLAGS     +=3D -D__AARCH64EB__
+>  # Prefer the baremetal ELF build target, but not all toolchains include
+>  # it so fall back to the standard linux version if needed.
+> -KBUILD_LDFLAGS +=3D -EB $(call ld-option, -maarch64elfb, -maarch64linuxb=
+)
+> +KBUILD_LDFLAGS +=3D -EB $(call ld-option, -maarch64elfb, -maarch64linuxb=
+ -z norelro)
+>  UTS_MACHINE    :=3D aarch64_be
+>  else
+>  KBUILD_CPPFLAGS        +=3D -mlittle-endian
+>  CHECKFLAGS     +=3D -D__AARCH64EL__
+>  # Same as above, prefer ELF but fall back to linux target if needed.
+> -KBUILD_LDFLAGS +=3D -EL $(call ld-option, -maarch64elf, -maarch64linux)
+> +KBUILD_LDFLAGS +=3D -EL $(call ld-option, -maarch64elf, -maarch64linux -=
+z norelro)
+>  UTS_MACHINE    :=3D aarch64
+>  endif
+>
+> +ifeq ($(CONFIG_LD_IS_LLD), y)
+> +KBUILD_LDFLAGS +=3D -z norelro
+> +endif
+> +
+>  CHECKFLAGS     +=3D -D__aarch64__
+>
+>  ifeq ($(CONFIG_DYNAMIC_FTRACE_WITH_REGS),y)
 > --
-> Jiri Kosina
-> SUSE Labs
+> 2.29.2.684.gfbc64c5ab5-goog
 >
