@@ -2,105 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B236C2DCF6B
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 11:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2B92DCF81
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 11:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbgLQKUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 05:20:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49628 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726548AbgLQKUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Dec 2020 05:20:34 -0500
-Date:   Thu, 17 Dec 2020 11:19:49 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608200393;
-        bh=jY4ps8uCooV8u+Tl4ow1NrBJT3axma8765wOmVWvCms=;
-        h=From:To:cc:Subject:In-Reply-To:References:From;
-        b=bDzAOWdWkiylXciUAaXTaWJ++rWAkAoqv4JbnLXdT1Q2S3NQAPZSx2AR1UAdDQuKP
-         plVmdqMipkq79AQxGlHyQrZ82ER/9coeZTqg9p5pWz4c53qaYYYkbLprnbiwZGyKna
-         Urf5313gKOa2uE6rM1MmzTo3m4tkfq4ko3mpjm9mdxZ9grcSKL6gDbMoajBvs9zlmo
-         1X6RE+vuche5ZWwgj2rGZJ9wZh77iZ7qZrW3MGzKBZN9XFr2x7XuOoa8wqZjNkPQsO
-         Ip5vEm8C878kjvG6+Xkg5sehQ9vzuGdKMB4TcOmsbxpSlCVmTXgBzG0tdlvkCNB7T4
-         Furjq/TRPR0gA==
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Will McVicker <willmcvicker@google.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        security@kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Will Coster <willcoster@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1] HID: make arrays usage and value to be the same
-In-Reply-To: <X9e5vl+nw4GQNYEw@google.com>
-Message-ID: <nycvar.YFH.7.76.2012171119240.25826@cbobk.fhfr.pm>
-References: <20201205004848.2541215-1-willmcvicker@google.com> <X9e5vl+nw4GQNYEw@google.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1727495AbgLQK3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 05:29:40 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:34951 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726488AbgLQK3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 05:29:39 -0500
+X-UUID: 93d1136e26624109865faab7044a0562-20201217
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=NJ+Woh3w6z3vlb9GDrGYWFJxOWvffKrwn6YuBZHwOtc=;
+        b=Ppqa+J3vMg1YMA91Ftz9KtwxAUJaoiiFnP8wTshgK0X34nG1coQ+oZlNT88mVpfbxQ3V8Bf7KXY4uqsNYKqS5kdTuhOWhZ8NG8xZOgVweGQGAw6GKw0A/I6FDgHH20KShSDgMiPI+reX8+jpwWC+ImwKF1SupzQkKbzA7I38NRo=;
+X-UUID: 93d1136e26624109865faab7044a0562-20201217
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
+        (envelope-from <kuan-ying.lee@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1630589223; Thu, 17 Dec 2020 18:28:51 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 17 Dec 2020 18:28:47 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 17 Dec 2020 18:28:47 +0800
+Message-ID: <1608200928.31376.37.camel@mtksdccf07>
+Subject: Re: [PATCH 1/1] kasan: fix memory leak of kasan quarantine
+From:   Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+To:     Andrey Ryabinin <aryabinin@virtuozzo.com>
+CC:     Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Matthias Brugger" <matthias.bgg@gmail.com>,
+        <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
+        <stable@vger.kernel.org>
+Date:   Thu, 17 Dec 2020 18:28:48 +0800
+In-Reply-To: <1608031683-24967-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
+References: <1608031683-24967-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
+         <1608031683-24967-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-TM-SNTS-SMTP: 2752E72A10EB865FFDCC2B6C40094E72E1BF4CF53284D1973037E26C5DE696AE2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Dec 2020, Will McVicker wrote:
-
-> > The HID subsystem allows an "HID report field" to have a different
-> > number of "values" and "usages" when it is allocated. When a field
-> > struct is created, the size of the usage array is guaranteed to be at
-> > least as large as the values array, but it may be larger. This leads to
-> > a potential out-of-bounds write in
-> > __hidinput_change_resolution_multipliers() and an out-of-bounds read in
-> > hidinput_count_leds().
-> > 
-> > To fix this, let's make sure that both the usage and value arrays are
-> > the same size.
-> > 
-> > Signed-off-by: Will McVicker <willmcvicker@google.com>
-> > ---
-> >  drivers/hid/hid-core.c | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 56172fe6995c..8a8b2b982f83 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -90,7 +90,7 @@ EXPORT_SYMBOL_GPL(hid_register_report);
-> >   * Register a new field for this report.
-> >   */
-> >  
-> > -static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
-> > +static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages)
-> >  {
-> >  	struct hid_field *field;
-> >  
-> > @@ -101,7 +101,7 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned
-> >  
-> >  	field = kzalloc((sizeof(struct hid_field) +
-> >  			 usages * sizeof(struct hid_usage) +
-> > -			 values * sizeof(unsigned)), GFP_KERNEL);
-> > +			 usages * sizeof(unsigned)), GFP_KERNEL);
-> >  	if (!field)
-> >  		return NULL;
-> >  
-> > @@ -300,7 +300,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
-> >  	usages = max_t(unsigned, parser->local.usage_index,
-> >  				 parser->global.report_count);
-> >  
-> > -	field = hid_register_field(report, usages, parser->global.report_count);
-> > +	field = hid_register_field(report, usages);
-> >  	if (!field)
-> >  		return 0;
-> >  
-> > -- 
-> > 2.29.2.576.ga3fc446d84-goog
-> > 
-> 
-> Hi Jiri and Benjamin,
-> 
-> This is a friendly reminder in case this got lost in your inbox.
-
-Hi Will,
-
-I am planning to merge it once the merge window is over.
-
--- 
-Jiri Kosina
-SUSE Labs
+T24gVHVlLCAyMDIwLTEyLTE1IGF0IDE5OjI4ICswODAwLCBLdWFuLVlpbmcgTGVlIHdyb3RlOg0K
+PiBXaGVuIGNwdSBpcyBnb2luZyBvZmZsaW5lLCBzZXQgcS0+b2ZmbGluZSBhcyB0cnVlDQo+IGFu
+ZCBpbnRlcnJ1cHQgaGFwcGVuZWQuIFRoZSBpbnRlcnJ1cHQgbWF5IGNhbGwgdGhlDQo+IHF1YXJh
+bnRpbmVfcHV0LiBCdXQgcXVhcmFudGluZV9wdXQgZG8gbm90IGZyZWUgdGhlDQo+IHRoZSBvYmpl
+Y3QuIFRoZSBvYmplY3Qgd2lsbCBjYXVzZSBtZW1vcnkgbGVhay4NCj4gDQo+IEFkZCBxbGlua19m
+cmVlKCkgdG8gZnJlZSB0aGUgb2JqZWN0Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogS3Vhbi1ZaW5n
+IExlZSA8S3Vhbi1ZaW5nLkxlZUBtZWRpYXRlay5jb20+DQo+IENjOiBBbmRyZXkgUnlhYmluaW4g
+PGFyeWFiaW5pbkB2aXJ0dW96em8uY29tPg0KPiBDYzogQWxleGFuZGVyIFBvdGFwZW5rbyA8Z2xp
+ZGVyQGdvb2dsZS5jb20+DQo+IENjOiBEbWl0cnkgVnl1a292IDxkdnl1a292QGdvb2dsZS5jb20+
+DQo+IENjOiBBbmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiBDYzog
+TWF0dGhpYXMgQnJ1Z2dlciA8bWF0dGhpYXMuYmdnQGdtYWlsLmNvbT4NCj4gQ2M6IDxzdGFibGVA
+dmdlci5rZXJuZWwub3JnPiAgICBbNS4xMC1dDQo+IC0tLQ0KPiAgbW0va2FzYW4vcXVhcmFudGlu
+ZS5jIHwgMSArDQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4gDQo+IGRpZmYg
+LS1naXQgYS9tbS9rYXNhbi9xdWFyYW50aW5lLmMgYi9tbS9rYXNhbi9xdWFyYW50aW5lLmMNCj4g
+aW5kZXggMGUzZjg0OTQ2MjhmLi5jYWM3YzYxN2RmNzIgMTAwNjQ0DQo+IC0tLSBhL21tL2thc2Fu
+L3F1YXJhbnRpbmUuYw0KPiArKysgYi9tbS9rYXNhbi9xdWFyYW50aW5lLmMNCj4gQEAgLTE5MSw2
+ICsxOTEsNyBAQCB2b2lkIHF1YXJhbnRpbmVfcHV0KHN0cnVjdCBrYXNhbl9mcmVlX21ldGEgKmlu
+Zm8sIHN0cnVjdCBrbWVtX2NhY2hlICpjYWNoZSkNCj4gIA0KPiAgCXEgPSB0aGlzX2NwdV9wdHIo
+JmNwdV9xdWFyYW50aW5lKTsNCj4gIAlpZiAocS0+b2ZmbGluZSkgew0KPiArCQlxbGlua19mcmVl
+KCZpbmZvLT5xdWFyYW50aW5lX2xpbmssIGNhY2hlKTsNCj4gIAkJbG9jYWxfaXJxX3Jlc3RvcmUo
+ZmxhZ3MpOw0KPiAgCQlyZXR1cm47DQo+ICAJfQ0KDQpTb3JyeS4NCg0KUGxlYXNlIGlnbm9yZSB0
+aGlzIHBhdGNoLg0KDQpUaGFua3MuDQo=
 
