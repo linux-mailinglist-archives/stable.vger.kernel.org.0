@@ -2,77 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2B92DCF81
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 11:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F372DCF9D
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 11:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727495AbgLQK3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 05:29:40 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:34951 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726488AbgLQK3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 05:29:39 -0500
-X-UUID: 93d1136e26624109865faab7044a0562-20201217
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=NJ+Woh3w6z3vlb9GDrGYWFJxOWvffKrwn6YuBZHwOtc=;
-        b=Ppqa+J3vMg1YMA91Ftz9KtwxAUJaoiiFnP8wTshgK0X34nG1coQ+oZlNT88mVpfbxQ3V8Bf7KXY4uqsNYKqS5kdTuhOWhZ8NG8xZOgVweGQGAw6GKw0A/I6FDgHH20KShSDgMiPI+reX8+jpwWC+ImwKF1SupzQkKbzA7I38NRo=;
-X-UUID: 93d1136e26624109865faab7044a0562-20201217
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <kuan-ying.lee@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1630589223; Thu, 17 Dec 2020 18:28:51 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 17 Dec 2020 18:28:47 +0800
-Received: from [172.21.84.99] (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 17 Dec 2020 18:28:47 +0800
-Message-ID: <1608200928.31376.37.camel@mtksdccf07>
-Subject: Re: [PATCH 1/1] kasan: fix memory leak of kasan quarantine
-From:   Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>
-CC:     Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Matthias Brugger" <matthias.bgg@gmail.com>,
-        <kasan-dev@googlegroups.com>, <linux-mm@kvack.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <wsd_upstream@mediatek.com>,
-        <stable@vger.kernel.org>
-Date:   Thu, 17 Dec 2020 18:28:48 +0800
-In-Reply-To: <1608031683-24967-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
-References: <1608031683-24967-1-git-send-email-Kuan-Ying.Lee@mediatek.com>
-         <1608031683-24967-2-git-send-email-Kuan-Ying.Lee@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1726631AbgLQKkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 05:40:36 -0500
+Received: from foss.arm.com ([217.140.110.172]:56082 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725871AbgLQKkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Dec 2020 05:40:35 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 408FF31B;
+        Thu, 17 Dec 2020 02:39:50 -0800 (PST)
+Received: from e113632-lin (e113632-lin.cambridge.arm.com [10.1.194.46])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 453883F66E;
+        Thu, 17 Dec 2020 02:39:48 -0800 (PST)
+References: <cover.1607036601.git.reinette.chatre@intel.com> <c8eebc438e057e4bc2ce00256664b7bb0561b323.1607036601.git.reinette.chatre@intel.com> <jhjlfe4t6jq.mognet@arm.com> <e250875b-1c86-660c-b9f0-4060842939bf@intel.com> <jhj1rfptzqt.mognet@arm.com> <b75d780d-d067-12bf-b0e6-706dda200511@intel.com>
+User-agent: mu4e 0.9.17; emacs 26.3
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de,
+        tony.luck@intel.com, kuo-lang.tseng@intel.com, shakeelb@google.com,
+        mingo@redhat.com, babu.moger@amd.com, james.morse@arm.com,
+        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] x86/resctrl: Update PQR_ASSOC MSR synchronously when moving task to resource group
+In-reply-to: <b75d780d-d067-12bf-b0e6-706dda200511@intel.com>
+Date:   Thu, 17 Dec 2020 10:39:43 +0000
+Message-ID: <jhjwnxgsols.mognet@arm.com>
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 2752E72A10EB865FFDCC2B6C40094E72E1BF4CF53284D1973037E26C5DE696AE2000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTEyLTE1IGF0IDE5OjI4ICswODAwLCBLdWFuLVlpbmcgTGVlIHdyb3RlOg0K
-PiBXaGVuIGNwdSBpcyBnb2luZyBvZmZsaW5lLCBzZXQgcS0+b2ZmbGluZSBhcyB0cnVlDQo+IGFu
-ZCBpbnRlcnJ1cHQgaGFwcGVuZWQuIFRoZSBpbnRlcnJ1cHQgbWF5IGNhbGwgdGhlDQo+IHF1YXJh
-bnRpbmVfcHV0LiBCdXQgcXVhcmFudGluZV9wdXQgZG8gbm90IGZyZWUgdGhlDQo+IHRoZSBvYmpl
-Y3QuIFRoZSBvYmplY3Qgd2lsbCBjYXVzZSBtZW1vcnkgbGVhay4NCj4gDQo+IEFkZCBxbGlua19m
-cmVlKCkgdG8gZnJlZSB0aGUgb2JqZWN0Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogS3Vhbi1ZaW5n
-IExlZSA8S3Vhbi1ZaW5nLkxlZUBtZWRpYXRlay5jb20+DQo+IENjOiBBbmRyZXkgUnlhYmluaW4g
-PGFyeWFiaW5pbkB2aXJ0dW96em8uY29tPg0KPiBDYzogQWxleGFuZGVyIFBvdGFwZW5rbyA8Z2xp
-ZGVyQGdvb2dsZS5jb20+DQo+IENjOiBEbWl0cnkgVnl1a292IDxkdnl1a292QGdvb2dsZS5jb20+
-DQo+IENjOiBBbmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiBDYzog
-TWF0dGhpYXMgQnJ1Z2dlciA8bWF0dGhpYXMuYmdnQGdtYWlsLmNvbT4NCj4gQ2M6IDxzdGFibGVA
-dmdlci5rZXJuZWwub3JnPiAgICBbNS4xMC1dDQo+IC0tLQ0KPiAgbW0va2FzYW4vcXVhcmFudGlu
-ZS5jIHwgMSArDQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4gDQo+IGRpZmYg
-LS1naXQgYS9tbS9rYXNhbi9xdWFyYW50aW5lLmMgYi9tbS9rYXNhbi9xdWFyYW50aW5lLmMNCj4g
-aW5kZXggMGUzZjg0OTQ2MjhmLi5jYWM3YzYxN2RmNzIgMTAwNjQ0DQo+IC0tLSBhL21tL2thc2Fu
-L3F1YXJhbnRpbmUuYw0KPiArKysgYi9tbS9rYXNhbi9xdWFyYW50aW5lLmMNCj4gQEAgLTE5MSw2
-ICsxOTEsNyBAQCB2b2lkIHF1YXJhbnRpbmVfcHV0KHN0cnVjdCBrYXNhbl9mcmVlX21ldGEgKmlu
-Zm8sIHN0cnVjdCBrbWVtX2NhY2hlICpjYWNoZSkNCj4gIA0KPiAgCXEgPSB0aGlzX2NwdV9wdHIo
-JmNwdV9xdWFyYW50aW5lKTsNCj4gIAlpZiAocS0+b2ZmbGluZSkgew0KPiArCQlxbGlua19mcmVl
-KCZpbmZvLT5xdWFyYW50aW5lX2xpbmssIGNhY2hlKTsNCj4gIAkJbG9jYWxfaXJxX3Jlc3RvcmUo
-ZmxhZ3MpOw0KPiAgCQlyZXR1cm47DQo+ICAJfQ0KDQpTb3JyeS4NCg0KUGxlYXNlIGlnbm9yZSB0
-aGlzIHBhdGNoLg0KDQpUaGFua3MuDQo=
 
+On 16/12/20 18:26, Reinette Chatre wrote:
+> Hi Valentin,
+>> So that's part paranoia and part nonsense from my end - the contents of
+>> smp_call() shouldn't matter here.
+>>
+>> If we distill the code to:
+>>
+>>    tsk->closid = x;
+>>
+>>    if (task_curr(tsk))
+>>        smp_call(...);
+>>
+>> It is somewhat far fetched, but AFAICT this can be compiled as:
+>>
+>>    if (task_curr(tsk))
+>>        tsk->closid = x;
+>>        smp_call(...);
+>>    else
+>>        tsk->closid = x;
+>>
+>> IOW, there could be a sequence where the closid write is ordered *after*
+>> the task_curr() read.
+>
+> Could you please elaborate why it would be an issue is the closid write
+> is ordered after the task_curr() read? task_curr() does not depend on
+> the closid.
+>
+
+IMO the 'task_curr()' check only makes sense if it happens *after* the
+write, the logic being: 'closid/rmid has been written to, does the task now
+need interrupting?'
+
+In the above 'else' clause, task_curr() would need to be re-evaluated after
+the write: the task wasn't current *before* the write, but nothing
+guarantees this still holds *after* the write.
+
+>> With
+>>
+>>    tsk->closid = x;
+>>
+>>    barrier();
+>>
+>>    if (task_curr(tsk))
+>>        smp_call(...);
+>>
+>> that explicitely cannot happen.
+>>
+>
+>
+> Reinette
