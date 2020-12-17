@@ -2,20 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FB92DD298
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:06:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1FCE2DD296
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727303AbgLQOFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 09:05:06 -0500
-Received: from vps-vb.mhejs.net ([37.28.154.113]:42342 "EHLO vps-vb.mhejs.net"
+        id S1726569AbgLQOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 09:04:22 -0500
+Received: from vps-vb.mhejs.net ([37.28.154.113]:42116 "EHLO vps-vb.mhejs.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726613AbgLQOFF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Dec 2020 09:05:05 -0500
+        id S1726488AbgLQOEW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Dec 2020 09:04:22 -0500
+X-Greylist: delayed 1029 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Dec 2020 09:04:21 EST
 Received: from MUA
         by vps-vb.mhejs.net with esmtps (TLS1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
         (Exim 4.93.0.4)
         (envelope-from <mail@maciej.szmigiero.name>)
-        id 1kptbo-0007Nj-Md; Thu, 17 Dec 2020 14:46:21 +0100
+        id 1kptcO-0007O0-36; Thu, 17 Dec 2020 14:46:56 +0100
 From:   "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
 To:     stable@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
@@ -26,11 +27,11 @@ Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         Vitaly Kuznetsov <vkuznets@redhat.com>,
         Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org
 Subject: [PATCH] KVM: mmu: Fix SPTE encoding of MMIO generation upper half
-Date:   Thu, 17 Dec 2020 14:46:13 +0100
-Message-Id: <8bf9d5caf338d705744764c60256ace1d3f1d252.1608168540.git.maciej.szmigiero@oracle.com>
+Date:   Thu, 17 Dec 2020 14:46:49 +0100
+Message-Id: <f5cb26d9a45cbaf617928d1314e7c0efea597e05.1608169775.git.maciej.szmigiero@oracle.com>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <1607955408254166@kroah.com>
-References: <1607955408254166@kroah.com>
+In-Reply-To: <1607955407131211@kroah.com>
+References: <1607955407131211@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -58,9 +59,8 @@ attached to their defines, nor in the KVM MMU doc.
 Let's do it here, too, since it is too trivial thing to warrant a separate
 commit.
 
-This is a backport of the upstream commit for 5.4.x stable series, which
-has KVM docs still in a raw text format and the x86 KVM MMU isn't yet split
-into separate files under "mmu" directory.
+This is a backport of the upstream commit for 5.9.x stable series, in which
+the x86 KVM MMU SPTE handling isn't yet split out to spte.{c,h} files.
 Other than that, it's a straightforward port.
 
 Fixes: cae7ed3c2cb0 ("KVM: x86: Refactor the MMIO SPTE generation handling")
@@ -68,17 +68,17 @@ Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
 [Reorganize macros so that everything is computed from the bit ranges. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 (cherry picked from commit 34c0f6f2695a2db81e09a3ab7bdb2853f45d4d3d)
-Cc: stable@vger.kernel.org # 5.4.x
+Cc: stable@vger.kernel.org # 5.9.x
 ---
- Documentation/virt/kvm/mmu.txt |  2 +-
- arch/x86/kvm/mmu.c             | 29 ++++++++++++++++++++---------
+ Documentation/virt/kvm/mmu.rst |  2 +-
+ arch/x86/kvm/mmu/mmu.c         | 29 ++++++++++++++++++++---------
  2 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/virt/kvm/mmu.txt b/Documentation/virt/kvm/mmu.txt
-index dadb29e8738f..ec072c6bc03f 100644
---- a/Documentation/virt/kvm/mmu.txt
-+++ b/Documentation/virt/kvm/mmu.txt
-@@ -420,7 +420,7 @@ If the generation number of the spte does not equal the global generation
+diff --git a/Documentation/virt/kvm/mmu.rst b/Documentation/virt/kvm/mmu.rst
+index 1c030dbac7c4..5bfe28b0728e 100644
+--- a/Documentation/virt/kvm/mmu.rst
++++ b/Documentation/virt/kvm/mmu.rst
+@@ -455,7 +455,7 @@ If the generation number of the spte does not equal the global generation
  number, it will ignore the cached MMIO information and handle the page
  fault through the slow path.
  
@@ -87,11 +87,11 @@ index dadb29e8738f..ec072c6bc03f 100644
  pages are zapped when there is an overflow.
  
  Unfortunately, a single memory access might access kvm_memslots(kvm) multiple
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index b90e8fd2f6ce..47c27c6e3842 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -407,11 +407,11 @@ static inline bool is_access_track_spte(u64 spte)
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index d0ca3ab38952..c1b48d04a306 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -402,11 +402,11 @@ static inline bool is_access_track_spte(u64 spte)
  }
  
  /*
@@ -105,7 +105,7 @@ index b90e8fd2f6ce..47c27c6e3842 100644
   *
   * The KVM_MEMSLOT_GEN_UPDATE_IN_PROGRESS flag is intentionally not included in
   * the MMIO generation number, as doing so would require stealing a bit from
-@@ -420,18 +420,29 @@ static inline bool is_access_track_spte(u64 spte)
+@@ -415,18 +415,29 @@ static inline bool is_access_track_spte(u64 spte)
   * requires a full MMU zap).  The flag is instead explicitly queried when
   * checking for MMIO spte cache hits.
   */
@@ -138,7 +138,7 @@ index b90e8fd2f6ce..47c27c6e3842 100644
  static u64 generation_mmio_spte_mask(u64 gen)
  {
  	u64 mask;
-@@ -439,8 +450,8 @@ static u64 generation_mmio_spte_mask(u64 gen)
+@@ -434,8 +445,8 @@ static u64 generation_mmio_spte_mask(u64 gen)
  	WARN_ON(gen & ~MMIO_SPTE_GEN_MASK);
  	BUILD_BUG_ON((MMIO_SPTE_GEN_HIGH_MASK | MMIO_SPTE_GEN_LOW_MASK) & SPTE_SPECIAL_MASK);
  
@@ -149,7 +149,7 @@ index b90e8fd2f6ce..47c27c6e3842 100644
  	return mask;
  }
  
-@@ -448,8 +459,8 @@ static u64 get_mmio_spte_generation(u64 spte)
+@@ -443,8 +454,8 @@ static u64 get_mmio_spte_generation(u64 spte)
  {
  	u64 gen;
  
