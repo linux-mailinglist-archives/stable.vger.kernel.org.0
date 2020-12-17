@@ -2,131 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBAA12DCB0B
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 03:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9132DCCC0
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 07:53:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727240AbgLQCgM convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 16 Dec 2020 21:36:12 -0500
-Received: from aposti.net ([89.234.176.197]:53254 "EHLO aposti.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbgLQCgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Dec 2020 21:36:10 -0500
-Date:   Thu, 17 Dec 2020 02:35:14 +0000
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] MIPS: boot: Fix unaligned access with
- CONFIG_MIPS_RAW_APPENDED_DTB
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Nathan Chancellor <natechancellor@gmail.com>, od@zcrc.me,
-        linux-mips@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Message-Id: <QUPGLQ.GMF1AOUMK24W@crapouillou.net>
-In-Reply-To: <CAKwvOdnmt7v=+QdZbVYw9fDTeAhhHn0X++aLBa3uQVp7Gp=New@mail.gmail.com>
-References: <20201216233956.280068-1-paul@crapouillou.net>
-        <CAKwvOdnmt7v=+QdZbVYw9fDTeAhhHn0X++aLBa3uQVp7Gp=New@mail.gmail.com>
+        id S1726548AbgLQGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 01:52:43 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:9460 "EHLO
+        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726291AbgLQGwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 01:52:43 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4CxN2B4G3BzhrYm;
+        Thu, 17 Dec 2020 14:51:30 +0800 (CST)
+Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
+ (10.3.19.201) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 17 Dec
+ 2020 14:51:57 +0800
+Subject: Re: [PATCH] f2fs: fix out-of-repair __setattr_copy()
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <jaegeuk@kernel.org>, <linux-f2fs-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>, <chao@kernel.org>,
+        <stable@vger.kernel.org>
+References: <20201216091523.21411-1-yuchao0@huawei.com>
+ <X9nXCdp1ssMHKdNI@kroah.com>
+From:   Chao Yu <yuchao0@huawei.com>
+Message-ID: <a8291621-e472-5b00-d2b3-8d8016386e47@huawei.com>
+Date:   Thu, 17 Dec 2020 14:51:55 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <X9nXCdp1ssMHKdNI@kroah.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.136.114.67]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Nick,
-
-Le mer. 16 déc. 2020 à 18:08, Nick Desaulniers 
-<ndesaulniers@google.com> a écrit :
-> On Wed, Dec 16, 2020 at 3:40 PM Paul Cercueil <paul@crapouillou.net> 
-> wrote:
->> 
->>  The compressed payload is not necesarily 4-byte aligned, at least 
->> when
->>  compiling with Clang. In that case, the 4-byte value appended to the
->>  compressed payload that corresponds to the uncompressed kernel image
->>  size must be read using get_unaligned_le().
+On 2020/12/16 17:44, Greg KH wrote:
+> On Wed, Dec 16, 2020 at 05:15:23PM +0800, Chao Yu wrote:
+>> __setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
+>> two missing patches doesn't cover this inner function, fix it.
+>>
+>> Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
+>> Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
 > 
-> Should it be get_unaligned_le32()?
+> Are these lines supposed to be "Fixes:" instead of "Commit "?
 
-Indeed.
+IMO, the issue was introduced when f2fs module was added, and above two commits
+missed to cover f2fs module... so I guess we can add Fixes line as below?
 
->> 
->>  This fixes Clang-built kernels not booting on MIPS (tested on a 
->> Ingenic
->>  JZ4770 board).
->> 
->>  Fixes: b8f54f2cde78 ("MIPS: ZBOOT: copy appended dtb to the end of 
->> the kernel")
->>  Cc: <stable@vger.kernel.org> # v4.7
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
+
+Thanks,
+
 > 
-> Hi Paul, thanks for the patch (and for testing with Clang)!
-> Alternatively, we could re-align __image_end to the next 4B multiple
-> via:
+> thanks,
 > 
-> diff --git a/arch/mips/boot/compressed/ld.script
-> b/arch/mips/boot/compressed/ld.script
-> index 0ebb667274d6..349919eff5fb 100644
-> --- a/arch/mips/boot/compressed/ld.script
-> +++ b/arch/mips/boot/compressed/ld.script
-> @@ -27,6 +27,7 @@ SECTIONS
->                 /* Put the compressed image here */
->                 __image_begin = .;
->                 *(.image)
-> +               . = ALIGN(4);
->                 __image_end = .;
->                 CONSTRUCTORS
->                 . = ALIGN(16);
-
-Actually that would not work (I did try that), since the 4-byte size 
-appended to the compressed payload is inside the *(.image) section. The 
-code that appends it (in scripts/Makefile.lib, I think) doesn't seem to 
-take care about aligning it to a 4-byte offset. I have no idea why it 
-does with GCC and doesn't with Clang, and I have no idea why the 
-compressed payload's size isn't aligned either.
-
-> The tradeoff being up to 3 wasted bytes of padding in the compressed
-> image, vs fetching one value slower (assuming unaligned loads are
-> slower than aligned loads MIPS, IDK).  I doubt decompress_kernel is
-> called repeatedly, so let's take the byte saving approach of yours by
-> using unaligned loads!
+> greg k-h
+> .
 > 
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-
-Thanks.
-
-Cheers,
--Paul
-
->>  ---
->>   arch/mips/boot/compressed/decompress.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->> 
->>  diff --git a/arch/mips/boot/compressed/decompress.c 
->> b/arch/mips/boot/compressed/decompress.c
->>  index c61c641674e6..47c07990432b 100644
->>  --- a/arch/mips/boot/compressed/decompress.c
->>  +++ b/arch/mips/boot/compressed/decompress.c
->>  @@ -117,7 +117,7 @@ void decompress_kernel(unsigned long 
->> boot_heap_start)
->>                  dtb_size = fdt_totalsize((void *)&__appended_dtb);
->> 
->>                  /* last four bytes is always image size in little 
->> endian */
->>  -               image_size = le32_to_cpup((void *)&__image_end - 4);
->>  +               image_size = get_unaligned_le32((void 
->> *)&__image_end - 4);
->> 
->>                  /* copy dtb to where the booted kernel will expect 
->> it */
->>                  memcpy((void *)VMLINUX_LOAD_ADDRESS_ULL + 
->> image_size,
->>  --
->>  2.29.2
->> 
-> 
-> 
-> --
-> Thanks,
-> ~Nick Desaulniers
-
-
