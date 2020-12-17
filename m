@@ -2,155 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6522DD1D6
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 14:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FB92DD298
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbgLQNG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 08:06:29 -0500
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:44507 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726773AbgLQNG2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 08:06:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1608210389; x=1639746389;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=L+iPJy9r/41c1x3RGh3ZKA/4/rrTzk+owrFyYlVX9Iw=;
-  b=n08Q5fTy7XsqzlXcHyykpEY31c7LqAL2LwCdcuGRZTSLpr6R6+GgGdaa
-   kX5ZHPUyw1M7K4ZArkRPBpl12/mKUx1Krn3af0yB1oIKJoh8XgdMw9MNJ
-   02YlpnNu9H9lQZhBNdaLOs+aFPGVMCy+eztm5GQ4YOo25ZghL3lKE2XFP
-   c=;
-X-IronPort-AV: E=Sophos;i="5.78,428,1599523200"; 
-   d="scan'208";a="69710441"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1e-c7f73527.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 17 Dec 2020 13:05:41 +0000
-Received: from EX13D31EUA004.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1e-c7f73527.us-east-1.amazon.com (Postfix) with ESMTPS id E9D44405248;
-        Thu, 17 Dec 2020 13:05:39 +0000 (UTC)
-Received: from u3f2cd687b01c55.ant.amazon.com (10.43.160.66) by
- EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 17 Dec 2020 13:05:35 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     SeongJae Park <sjpark@amazon.de>, <doebel@amazon.de>,
-        <aams@amazon.de>, <mku@amazon.de>, <jgross@suse.com>,
-        <julien@xen.org>, <wipawel@amazon.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 4/5] xen/xenbus: Count pending messages for each watch
-Date:   Thu, 17 Dec 2020 14:05:00 +0100
-Message-ID: <20201217130501.12702-5-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201217130501.12702-1-sjpark@amazon.com>
-References: <20201217130501.12702-1-sjpark@amazon.com>
+        id S1727303AbgLQOFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 09:05:06 -0500
+Received: from vps-vb.mhejs.net ([37.28.154.113]:42342 "EHLO vps-vb.mhejs.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726613AbgLQOFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Dec 2020 09:05:05 -0500
+Received: from MUA
+        by vps-vb.mhejs.net with esmtps (TLS1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.93.0.4)
+        (envelope-from <mail@maciej.szmigiero.name>)
+        id 1kptbo-0007Nj-Md; Thu, 17 Dec 2020 14:46:21 +0100
+From:   "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+To:     stable@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Jim Mattson <jmattson@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>, kvm@vger.kernel.org
+Subject: [PATCH] KVM: mmu: Fix SPTE encoding of MMIO generation upper half
+Date:   Thu, 17 Dec 2020 14:46:13 +0100
+Message-Id: <8bf9d5caf338d705744764c60256ace1d3f1d252.1608168540.git.maciej.szmigiero@oracle.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <1607955408254166@kroah.com>
+References: <1607955408254166@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.66]
-X-ClientProxiedBy: EX13D39UWA002.ant.amazon.com (10.43.160.20) To
- EX13D31EUA004.ant.amazon.com (10.43.165.161)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: "Maciej S. Szmigiero" <maciej.szmigiero@oracle.com>
 
-This commit adds a counter of pending messages for each watch in the
-struct.  It is used to skip unnecessary pending messages lookup in
-'unregister_xenbus_watch()'.  It could also be used in 'will_handle'
-callback.
+Commit cae7ed3c2cb0 ("KVM: x86: Refactor the MMIO SPTE generation handling")
+cleaned up the computation of MMIO generation SPTE masks, however it
+introduced a bug how the upper part was encoded:
+SPTE bits 52-61 were supposed to contain bits 10-19 of the current
+generation number, however a missing shift encoded bits 1-10 there instead
+(mostly duplicating the lower part of the encoded generation number that
+then consisted of bits 1-9).
 
-This is part of XSA-349
+In the meantime, the upper part was shrunk by one bit and moved by
+subsequent commits to become an upper half of the encoded generation number
+(bits 9-17 of bits 0-17 encoded in a SPTE).
 
-This is upstream commit 3dc86ca6b4c8cfcba9da7996189d1b5a358a94fc
+In addition to the above, commit 56871d444bc4 ("KVM: x86: fix overlap between SPTE_MMIO_MASK and generation")
+has changed the SPTE bit range assigned to encode the generation number and
+the total number of bits encoded but did not update them in the comment
+attached to their defines, nor in the KVM MMU doc.
+Let's do it here, too, since it is too trivial thing to warrant a separate
+commit.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This is a backport of the upstream commit for 5.4.x stable series, which
+has KVM docs still in a raw text format and the x86 KVM MMU isn't yet split
+into separate files under "mmu" directory.
+Other than that, it's a straightforward port.
+
+Fixes: cae7ed3c2cb0 ("KVM: x86: Refactor the MMIO SPTE generation handling")
+Signed-off-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
+[Reorganize macros so that everything is computed from the bit ranges. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit 34c0f6f2695a2db81e09a3ab7bdb2853f45d4d3d)
+Cc: stable@vger.kernel.org # 5.4.x
 ---
- drivers/xen/xenbus/xenbus_xs.c | 30 ++++++++++++++++++------------
- include/xen/xenbus.h           |  2 ++
- 2 files changed, 20 insertions(+), 12 deletions(-)
+ Documentation/virt/kvm/mmu.txt |  2 +-
+ arch/x86/kvm/mmu.c             | 29 ++++++++++++++++++++---------
+ 2 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index 0ea1c259f2f1..420d478e1708 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -701,6 +701,8 @@ int register_xenbus_watch(struct xenbus_watch *watch)
+diff --git a/Documentation/virt/kvm/mmu.txt b/Documentation/virt/kvm/mmu.txt
+index dadb29e8738f..ec072c6bc03f 100644
+--- a/Documentation/virt/kvm/mmu.txt
++++ b/Documentation/virt/kvm/mmu.txt
+@@ -420,7 +420,7 @@ If the generation number of the spte does not equal the global generation
+ number, it will ignore the cached MMIO information and handle the page
+ fault through the slow path.
  
- 	sprintf(token, "%lX", (long)watch);
+-Since only 19 bits are used to store generation-number on mmio spte, all
++Since only 18 bits are used to store generation-number on mmio spte, all
+ pages are zapped when there is an overflow.
  
-+	watch->nr_pending = 0;
+ Unfortunately, a single memory access might access kvm_memslots(kvm) multiple
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index b90e8fd2f6ce..47c27c6e3842 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -407,11 +407,11 @@ static inline bool is_access_track_spte(u64 spte)
+ }
+ 
+ /*
+- * Due to limited space in PTEs, the MMIO generation is a 19 bit subset of
++ * Due to limited space in PTEs, the MMIO generation is a 18 bit subset of
+  * the memslots generation and is derived as follows:
+  *
+  * Bits 0-8 of the MMIO generation are propagated to spte bits 3-11
+- * Bits 9-18 of the MMIO generation are propagated to spte bits 52-61
++ * Bits 9-17 of the MMIO generation are propagated to spte bits 54-62
+  *
+  * The KVM_MEMSLOT_GEN_UPDATE_IN_PROGRESS flag is intentionally not included in
+  * the MMIO generation number, as doing so would require stealing a bit from
+@@ -420,18 +420,29 @@ static inline bool is_access_track_spte(u64 spte)
+  * requires a full MMU zap).  The flag is instead explicitly queried when
+  * checking for MMIO spte cache hits.
+  */
+-#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(17, 0)
+ 
+ #define MMIO_SPTE_GEN_LOW_START		3
+ #define MMIO_SPTE_GEN_LOW_END		11
+-#define MMIO_SPTE_GEN_LOW_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_END, \
+-						    MMIO_SPTE_GEN_LOW_START)
+ 
+ #define MMIO_SPTE_GEN_HIGH_START	PT64_SECOND_AVAIL_BITS_SHIFT
+ #define MMIO_SPTE_GEN_HIGH_END		62
 +
- 	down_read(&xs_state.watch_mutex);
++#define MMIO_SPTE_GEN_LOW_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_END, \
++						    MMIO_SPTE_GEN_LOW_START)
+ #define MMIO_SPTE_GEN_HIGH_MASK		GENMASK_ULL(MMIO_SPTE_GEN_HIGH_END, \
+ 						    MMIO_SPTE_GEN_HIGH_START)
  
- 	spin_lock(&watches_lock);
-@@ -750,12 +752,15 @@ void unregister_xenbus_watch(struct xenbus_watch *watch)
- 
- 	/* Cancel pending watch events. */
- 	spin_lock(&watch_events_lock);
--	list_for_each_entry_safe(msg, tmp, &watch_events, list) {
--		if (msg->u.watch.handle != watch)
--			continue;
--		list_del(&msg->list);
--		kfree(msg->u.watch.vec);
--		kfree(msg);
-+	if (watch->nr_pending) {
-+		list_for_each_entry_safe(msg, tmp, &watch_events, list) {
-+			if (msg->u.watch.handle != watch)
-+				continue;
-+			list_del(&msg->list);
-+			kfree(msg->u.watch.vec);
-+			kfree(msg);
-+		}
-+		watch->nr_pending = 0;
- 	}
- 	spin_unlock(&watch_events_lock);
- 
-@@ -802,7 +807,6 @@ void xs_suspend_cancel(void)
- 
- static int xenwatch_thread(void *unused)
++#define MMIO_SPTE_GEN_LOW_BITS		(MMIO_SPTE_GEN_LOW_END - MMIO_SPTE_GEN_LOW_START + 1)
++#define MMIO_SPTE_GEN_HIGH_BITS		(MMIO_SPTE_GEN_HIGH_END - MMIO_SPTE_GEN_HIGH_START + 1)
++
++/* remember to adjust the comment above as well if you change these */
++static_assert(MMIO_SPTE_GEN_LOW_BITS == 9 && MMIO_SPTE_GEN_HIGH_BITS == 9);
++
++#define MMIO_SPTE_GEN_LOW_SHIFT		(MMIO_SPTE_GEN_LOW_START - 0)
++#define MMIO_SPTE_GEN_HIGH_SHIFT	(MMIO_SPTE_GEN_HIGH_START - MMIO_SPTE_GEN_LOW_BITS)
++
++#define MMIO_SPTE_GEN_MASK		GENMASK_ULL(MMIO_SPTE_GEN_LOW_BITS + MMIO_SPTE_GEN_HIGH_BITS - 1, 0)
++
+ static u64 generation_mmio_spte_mask(u64 gen)
  {
--	struct list_head *ent;
- 	struct xs_stored_msg *msg;
+ 	u64 mask;
+@@ -439,8 +450,8 @@ static u64 generation_mmio_spte_mask(u64 gen)
+ 	WARN_ON(gen & ~MMIO_SPTE_GEN_MASK);
+ 	BUILD_BUG_ON((MMIO_SPTE_GEN_HIGH_MASK | MMIO_SPTE_GEN_LOW_MASK) & SPTE_SPECIAL_MASK);
  
- 	for (;;) {
-@@ -815,13 +819,15 @@ static int xenwatch_thread(void *unused)
- 		mutex_lock(&xenwatch_mutex);
+-	mask = (gen << MMIO_SPTE_GEN_LOW_START) & MMIO_SPTE_GEN_LOW_MASK;
+-	mask |= (gen << MMIO_SPTE_GEN_HIGH_START) & MMIO_SPTE_GEN_HIGH_MASK;
++	mask = (gen << MMIO_SPTE_GEN_LOW_SHIFT) & MMIO_SPTE_GEN_LOW_MASK;
++	mask |= (gen << MMIO_SPTE_GEN_HIGH_SHIFT) & MMIO_SPTE_GEN_HIGH_MASK;
+ 	return mask;
+ }
  
- 		spin_lock(&watch_events_lock);
--		ent = watch_events.next;
--		if (ent != &watch_events)
--			list_del(ent);
-+		msg = list_first_entry_or_null(&watch_events,
-+				struct xs_stored_msg, list);
-+		if (msg) {
-+			list_del(&msg->list);
-+			msg->u.watch.handle->nr_pending--;
-+		}
- 		spin_unlock(&watch_events_lock);
+@@ -448,8 +459,8 @@ static u64 get_mmio_spte_generation(u64 spte)
+ {
+ 	u64 gen;
  
--		if (ent != &watch_events) {
--			msg = list_entry(ent, struct xs_stored_msg, list);
-+		if (msg) {
- 			msg->u.watch.handle->callback(
- 				msg->u.watch.handle,
- 				(const char **)msg->u.watch.vec,
-diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
-index 1772507dc2c9..ed9e7e3307b7 100644
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -58,6 +58,8 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
+-	gen = (spte & MMIO_SPTE_GEN_LOW_MASK) >> MMIO_SPTE_GEN_LOW_START;
+-	gen |= (spte & MMIO_SPTE_GEN_HIGH_MASK) >> MMIO_SPTE_GEN_HIGH_START;
++	gen = (spte & MMIO_SPTE_GEN_LOW_MASK) >> MMIO_SPTE_GEN_LOW_SHIFT;
++	gen |= (spte & MMIO_SPTE_GEN_HIGH_MASK) >> MMIO_SPTE_GEN_HIGH_SHIFT;
+ 	return gen;
+ }
  
-+	unsigned int nr_pending;
-+
- 	/*
- 	 * Called just before enqueing new event while a spinlock is held.
- 	 * The event will be discarded if this callback returns false.
--- 
-2.17.1
-
