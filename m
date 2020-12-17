@@ -2,119 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 391432DD401
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 16:21:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5C102DD324
+	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 15:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728143AbgLQPUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 10:20:44 -0500
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:54354 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727246AbgLQPUn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 10:20:43 -0500
+        id S1726488AbgLQOlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 09:41:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38072 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726291AbgLQOlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 09:41:25 -0500
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 513E1C061794;
+        Thu, 17 Dec 2020 06:40:45 -0800 (PST)
+Received: by mail-pf1-x42e.google.com with SMTP id w6so19185002pfu.1;
+        Thu, 17 Dec 2020 06:40:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1608218443; x=1639754443;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=VOFDcpN/HdhneyE9MEhTVbZj3lArp/QwANe0Gz7bY0U=;
-  b=sWjci4LvY/lZ72Bv1bsiLD7Yvyqzrj1AozE3C6tKAnokv1pOTINeaCmF
-   cZKVltnNkgoS83WH0CrwOXvFOnAT7Ah9Am3HFZO+1MOkIHBjVX+c42Aub
-   PMJxoo6vKfMZRahL8xry6aWirlOOCkSlIz78C3Qw+jiKYpenl91j6GjSL
-   g=;
-X-IronPort-AV: E=Sophos;i="5.78,428,1599523200"; 
-   d="scan'208";a="103910716"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 17 Dec 2020 15:19:55 +0000
-Received: from EX13D31EUA004.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1e-303d0b0e.us-east-1.amazon.com (Postfix) with ESMTPS id 620CFA06B0;
-        Thu, 17 Dec 2020 15:19:54 +0000 (UTC)
-Received: from u3f2cd687b01c55.ant.amazon.com (10.43.162.211) by
- EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 17 Dec 2020 15:19:49 +0000
-From:   SeongJae Park <sjpark@amazon.com>
-To:     =?UTF-8?q?J=C3=BCrgen=20Gro=C3=9F?= <jgross@suse.com>
-CC:     SeongJae Park <sjpark@amazon.com>, <stable@vger.kernel.org>,
-        SeongJae Park <sjpark@amazon.de>, <doebel@amazon.de>,
-        <aams@amazon.de>, <mku@amazon.de>, <julien@xen.org>,
-        <wipawel@amazon.de>, <linux-kernel@vger.kernel.org>,
-        "Author Redacted" <security@xen.org>
-Subject: Re: [PATCH 4/5] xen/xenbus: Count pending messages for each watch
-Date:   Thu, 17 Dec 2020 16:19:31 +0100
-Message-ID: <20201217151931.8078-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=enLPOtX+RwuUEW41weEYdgVO7wJosn5W764QBKADpC0=;
+        b=MIwIlFomCfpcfTP7hoYKE80dMrXthuwfQfIE41Eh9iO9XuLzVC0MHAVozM9FFECa4u
+         4auSn9F6mNrNxMIow8KyfmaaUqNnMwtiJ920yky/TQomMa2FqHvTDSCDrBMBKlMXG5gk
+         JsrjEq79Q0zxgvWEEH3w99F88LWoPr8/8A3UCCSaBvFhfE3NIBoU5sm7aSRlG6JbuRpr
+         Do2E8DA14oXXi9EOclDV2pGwUg6m+RPSTg7zzZYx+Bti4MpgiqDH80cibISlp4Dybgs8
+         mfWQZmMbFrv3yCD7xTNjUxBWuiQ/2p4egc0gxipwIPMiszEbN3gxHjL256OVu04uNZyA
+         qSWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=enLPOtX+RwuUEW41weEYdgVO7wJosn5W764QBKADpC0=;
+        b=J7ZZYeLzzxGogyT83B1+y7a5S1ZSuKwXFEYDa1n7DS1caOBWPrXJM4SNFa9Tp8wZ7z
+         TSm1dg8qIxJqxi383QYeUfK6y9c6oTpfHhWr4n+dkw+NmK9J6CSfcOJRGI710vIUg7vB
+         ecgJaex1ONLI7zAXJ1GVKpO/9Ku9atmfgCO0D5qwoeyNk3RNeTxSgMDKkL18enbpHQ0H
+         AVFmKg9eqAOPjk7VRYW3hi6lOrxlDiIBkXXVgTCzbea6RopADYRwV6bIFYANBEF6CCMv
+         GBIdYoWxaN6Fx65+vqxhnafq6Ugy4FZ9RrNAkWIRf4let5jsX84Z291dOt2iJqTnHDST
+         eVjw==
+X-Gm-Message-State: AOAM532C7YFqSMLSpwcpxZ+iRVB8EziYRW1Q9Gj4Uwk5J12K7sBhowV0
+        FUeHYIqwwVXjLLfYMdURYekDYo96leX8PA==
+X-Google-Smtp-Source: ABdhPJyHFpraaFLk+3QhMHDpQ4btopHivgWaat0v6SLM6H6sHi26qZvrt5X38vYkRmFQBca9pqKJcw==
+X-Received: by 2002:a65:534d:: with SMTP id w13mr37761820pgr.107.1608216044599;
+        Thu, 17 Dec 2020 06:40:44 -0800 (PST)
+Received: from localhost ([47.251.4.198])
+        by smtp.gmail.com with ESMTPSA id p16sm5294396pju.47.2020.12.17.06.40.43
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Dec 2020 06:40:44 -0800 (PST)
+From:   Lai Jiangshan <jiangshanlai@gmail.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Lai Jiangshan <laijs@linux.alibaba.com>, stable@vger.kernel.org
+Subject: [PATCH V3] kvm: check tlbs_dirty directly
+Date:   Thu, 17 Dec 2020 23:41:18 +0800
+Message-Id: <20201217154118.16497-1-jiangshanlai@gmail.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <X9kEAh7z1rmlmyhZ@google.com>
+References: <X9kEAh7z1rmlmyhZ@google.com>
 MIME-Version: 1.0
-In-Reply-To: <76711b5d-4166-19ff-e817-694675051f90@suse.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.43.162.211]
-X-ClientProxiedBy: EX13D27UWB001.ant.amazon.com (10.43.161.169) To
- EX13D31EUA004.ant.amazon.com (10.43.165.161)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Dec 2020 15:50:34 +0100 "Jürgen Groß" <jgross@suse.com> wrote:
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-> [-- Attachment #1.1.1: Type: text/plain, Size: 3509 bytes --]
-> 
-> On 17.12.20 09:17, SeongJae Park wrote:
-> > From: SeongJae Park <sjpark@amazon.de>
-> > 
-> > This commit adds a counter of pending messages for each watch in the
-> > struct.  It is used to skip unnecessary pending messages lookup in
-> > 'unregister_xenbus_watch()'.  It could also be used in 'will_handle'
-> > callback.
-> > 
-> > This is part of XSA-349
-> > 
-> > This is upstream commit 3dc86ca6b4c8cfcba9da7996189d1b5a358a94fc
-> > 
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: SeongJae Park <sjpark@amazon.de>
-> > Reported-by: Michael Kurth <mku@amazon.de>
-> > Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-> > Signed-off-by: Author Redacted <security@xen.org>
-> > Reviewed-by: Juergen Gross <jgross@suse.com>
-> > Signed-off-by: Juergen Gross <jgross@suse.com>
-> > ---
-> >   drivers/xen/xenbus/xenbus_xs.c | 30 ++++++++++++++++++------------
-> >   include/xen/xenbus.h           |  2 ++
-> >   2 files changed, 20 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-> > index 0ea1c259f2f1..420d478e1708 100644
-> > --- a/drivers/xen/xenbus/xenbus_xs.c
-> > +++ b/drivers/xen/xenbus/xenbus_xs.c
-> > @@ -701,6 +701,8 @@ int register_xenbus_watch(struct xenbus_watch *watch)
-> >   
-> >   	sprintf(token, "%lX", (long)watch);
-> >   
-> > +	watch->nr_pending = 0;
-> > +
-> 
-> I'm missing the incrementing of nr_pending, which was present in the
-> upstream patch.
+In kvm_mmu_notifier_invalidate_range_start(), tlbs_dirty is used as:
+        need_tlb_flush |= kvm->tlbs_dirty;
+with need_tlb_flush's type being int and tlbs_dirty's type being long.
 
-Oops, it should be in this patch, but I mistakenly put it in the fifth patch.
+It means that tlbs_dirty is always used as int and the higher 32 bits
+is useless.  We need to check tlbs_dirty in a correct way and this
+change checks it directly without propagating it to need_tlb_flush.
 
-  67 --- a/drivers/xen/xenbus/xenbus_xs.c
-  68 +++ b/drivers/xen/xenbus/xenbus_xs.c
-  69 @@ -917,6 +917,7 @@ static int process_msg(void)
-  70                                          msg->u.watch.vec_size))) {
-  71                         spin_lock(&watch_events_lock);
-  72                         list_add_tail(&msg->list, &watch_events);
-  73 +                       msg->u.watch.handle->nr_pending++;
-  74                         wake_up(&watch_events_waitq);
-  75                         spin_unlock(&watch_events_lock);
-  76                 } else {
-  77 --
+Note: it's _extremely_ unlikely this neglecting of higher 32 bits can
+cause problems in practice.  It would require encountering tlbs_dirty
+on a 4 billion count boundary, and KVM would need to be using shadow
+paging or be running a nested guest.
 
-And I just realized I even didn't post the fifth patch.
+Cc: stable@vger.kernel.org
+Fixes: a4ee1ca4a36e ("KVM: MMU: delay flush all tlbs on sync_page path")
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+---
+Changed from V1:
+        Update the patch and the changelog as Sean Christopherson suggested.
 
-I will fix this and post new version (v3) soon.
+Changed from v2:
+	don't change the type of need_tlb_flush
 
-Thank you for catching this, Juergen.
+ virt/kvm/kvm_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2541a17ff1c4..3083fb53861d 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -482,9 +482,8 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ 	kvm->mmu_notifier_count++;
+ 	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end,
+ 					     range->flags);
+-	need_tlb_flush |= kvm->tlbs_dirty;
+ 	/* we've to flush the tlb before the pages can be freed */
+-	if (need_tlb_flush)
++	if (need_tlb_flush || kvm->tlbs_dirty)
+ 		kvm_flush_remote_tlbs(kvm);
+ 
+ 	spin_unlock(&kvm->mmu_lock);
+-- 
+2.19.1.6.gb485710b
 
-Thanks,
-SeongJae Park
