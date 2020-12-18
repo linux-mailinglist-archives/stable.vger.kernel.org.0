@@ -2,140 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 668F72DE9DA
-	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 20:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 610E82DEC11
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 00:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733212AbgLRTkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 14:40:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38952 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgLRTkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Dec 2020 14:40:02 -0500
-Date:   Fri, 18 Dec 2020 11:39:21 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1608320362;
-        bh=1EC5O6cMBUtln6vfplhf3raQksT8CFKls9i3WFU7BXg=;
-        h=From:To:Subject:From;
-        b=dc1pGgzSfLPHRqVqiHy1I+f/9sC6YBHv3DmdBdIy5M1VjekiPojCaiGrpX1pSXuXK
-         NKUmYhiADnMR0iK9KDY+Kf9EQq/BH/9fl6Ud15FnvWeGD0badcxJY77rAc+0uO3+1z
-         8wMWpJpHVm1v5HILffFwy+l2bP8EPb0O0kwPgtpM=
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        n-horiguchi@ah.jp.nec.com, mhocko@kernel.org, hughd@google.com,
-        dave@stgolabs.net, aneesh.kumar@linux.vnet.ibm.com,
-        mike.kravetz@oracle.com
-Subject:  + mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path.patch
- added to -mm tree
-Message-ID: <20201218193921.AbdXS%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1725831AbgLRXdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 18:33:53 -0500
+Received: from plasma4.jpberlin.de ([80.241.57.33]:41827 "EHLO
+        plasma4.jpberlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725824AbgLRXdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 18:33:53 -0500
+X-Greylist: delayed 470 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Dec 2020 18:33:52 EST
+Received: from spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116])
+        by plasma.jpberlin.de (Postfix) with ESMTP id 2F3F7AAB69;
+        Sat, 19 Dec 2020 00:25:19 +0100 (CET)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from plasma.jpberlin.de ([80.241.56.68])
+        by spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116]) (amavisd-new, port 10030)
+        with ESMTP id zj22D1gFzuNA; Sat, 19 Dec 2020 00:25:18 +0100 (CET)
+Received: from webmail.opensynergy.com (unknown [217.66.60.5])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (Client CN "*.opensynergy.com", Issuer "Starfield Secure Certificate Authority - G2" (not verified))
+        (Authenticated sender: opensynergy@jpberlin.de)
+        by plasma.jpberlin.de (Postfix) with ESMTPSA id 5F3B3AA60B;
+        Sat, 19 Dec 2020 00:25:18 +0100 (CET)
+Subject: Re: [PATCH RESEND v2] virtio-input: add multi-touch support
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+CC:     <virtualization@lists.linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <stable@vger.kernel.org>, Jason Wang <jasowang@redhat.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Mathias Crombez <mathias.crombez@faurecia.com>
+References: <20201208210150.20001-1-vasyl.vavrychuk@opensynergy.com>
+ <20201209030635-mutt-send-email-mst@kernel.org>
+From:   Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
+Message-ID: <84310558-729b-d6d0-cf1a-e48febc3f001@opensynergy.com>
+Date:   Sat, 19 Dec 2020 01:25:15 +0200
+MIME-Version: 1.0
+In-Reply-To: <20201209030635-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
+ SR-MAIL-01.open-synergy.com (10.26.10.21)
+X-MBO-SPAM-Probability: 
+X-Rspamd-Score: -6.50 / 15.00 / 15.00
+X-Rspamd-Queue-Id: 2F3F7AAB69
+X-Rspamd-UID: 9ec262
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/hugetlb: fix deadlock in hugetlb_cow error path
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path.patch
+On 09.12.20 10:28, Michael S. Tsirkin wrote:
+> On Tue, Dec 08, 2020 at 11:01:50PM +0200, Vasyl Vavrychuk wrote:
+>> From: Mathias Crombez <mathias.crombez@faurecia.com>
+>> Cc: stable@vger.kernel.org
+> 
+> I don't believe this is appropriate for stable, looks like
+> a new feature to me.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Agree, removed.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+>>
+>> +config VIRTIO_INPUT_MULTITOUCH_SLOTS
+>> +     depends on VIRTIO_INPUT
+>> +     int "Number of multitouch slots"
+>> +     range 0 64
+>> +     default 10
+>> +     help
+>> +      Define the number of multitouch slots used. Default to 10.
+>> +      This parameter is unused if there is no multitouch capability.
+>> +
+>> +      0 will disable the feature.
+>> +
+> 
+> Most people won't be using this config so the defaults matter. So why 10? 10 fingers?
+> 
+> And where does 64 come from?
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+I have sent v3 version where number of slots it obtained from the host.
 
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: mm/hugetlb: fix deadlock in hugetlb_cow error path
+>> +     if (is_mt)
+>> +             input_mt_init_slots(vi->idev,
+>> +                                 CONFIG_VIRTIO_INPUT_MULTITOUCH_SLOTS,
+>> +                                 INPUT_MT_DIRECT);
+> 
+> 
+> Do we need the number in config space maybe? And maybe with a feature
+> bit so host can find out whether guest supports MT?
 
-syzbot reported the deadlock here [1].  The issue is in hugetlb cow error
-handling when there are not enough huge pages for the faulting task which
-took the original reservation.  It is possible that other (child) tasks
-could have consumed pages associated with the reservation.  In this case,
-we want the task which took the original reservation to succeed.  So, we
-unmap any associated pages in children so that they can be used by the
-faulting task that owns the reservation.
-
-The unmapping code needs to hold i_mmap_rwsem in write mode.  However, due
-to commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
-synchronization") we are already holding i_mmap_rwsem in read mode when
-hugetlb_cow is called.  Technically, i_mmap_rwsem does not need to be held
-in read mode for COW mappings as they can not share pmd's.  Modifying the
-fault code to not take i_mmap_rwsem in read mode for COW (and other
-non-sharable) mappings is too involved for a stable fix.  Instead, we
-simply drop the hugetlb_fault_mutex and i_mmap_rwsem before unmapping. 
-This is OK as it is technically not needed.  They are reacquired after
-unmapping as expected by calling code.  Since this is done in an uncommon
-error path, the overhead of dropping and reacquiring mutexes is
-acceptable.
-
-While making changes, remove redundant BUG_ON after unmap_ref_private.
-
-[1] https://lkml.kernel.org/r/000000000000b73ccc05b5cf8558@google.com
-
-Link: https://lkml.kernel.org/r/4c5781b8-3b00-761e-c0c7-c5edebb6ec1a@oracle.com
-Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: syzbot+5eee4145df3c15e96625@syzkaller.appspotmail.com
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path
-+++ a/mm/hugetlb.c
-@@ -4105,10 +4105,30 @@ retry_avoidcopy:
- 		 * may get SIGKILLed if it later faults.
- 		 */
- 		if (outside_reserve) {
-+			struct address_space *mapping = vma->vm_file->f_mapping;
-+			pgoff_t idx;
-+			u32 hash;
-+
- 			put_page(old_page);
- 			BUG_ON(huge_pte_none(pte));
-+			/*
-+			 * Drop hugetlb_fault_mutex and i_mmap_rwsem before
-+			 * unmapping.  unmapping needs to hold i_mmap_rwsem
-+			 * in write mode.  Dropping i_mmap_rwsem in read mode
-+			 * here is OK as COW mappings do not interact with
-+			 * PMD sharing.
-+			 *
-+			 * Reacquire both after unmap operation.
-+			 */
-+			idx = vma_hugecache_offset(h, vma, haddr);
-+			hash = hugetlb_fault_mutex_hash(mapping, idx);
-+			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
-+			i_mmap_unlock_read(mapping);
-+
- 			unmap_ref_private(mm, vma, old_page, haddr);
--			BUG_ON(huge_pte_none(pte));
-+
-+			i_mmap_lock_read(mapping);
-+			mutex_lock(&hugetlb_fault_mutex_table[hash]);
- 			spin_lock(ptl);
- 			ptep = huge_pte_offset(mm, haddr, huge_page_size(h));
- 			if (likely(ptep &&
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
-
-mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path.patch
-
+I think it is not applicable in v3 which I sent, because number of slots 
+is commit from the host. So, now host controls whether guest support MT.
