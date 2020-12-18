@@ -2,92 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E57B92DDB80
-	for <lists+stable@lfdr.de>; Thu, 17 Dec 2020 23:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2442DDC44
+	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 01:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732090AbgLQWcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Dec 2020 17:32:24 -0500
-Received: from mga12.intel.com ([192.55.52.136]:41197 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732203AbgLQWcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Dec 2020 17:32:23 -0500
-IronPort-SDR: iIKQ4Ca/5PTsczxJmfAyUadvNRbG7G80o7ywYlFAUl9WPl/bSsLZ0Ca5T49lpjM3PQRzC2sz7x
- aJiRc/0PkqYA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9838"; a="154567843"
-X-IronPort-AV: E=Sophos;i="5.78,428,1599548400"; 
-   d="scan'208";a="154567843"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Dec 2020 14:31:42 -0800
-IronPort-SDR: VqKR+OZkx2vGMgXKQh2kve/nbEtSTYgcQ33lmw/l/rw7KucudRcdkxnHiMLEFLpTCEszZL+B4S
- Kbw+WwiDruTQ==
-X-IronPort-AV: E=Sophos;i="5.78,428,1599548400"; 
-   d="scan'208";a="387836632"
-Received: from rchatre-mobl1.jf.intel.com ([10.54.70.7])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Dec 2020 14:31:41 -0800
-From:   Reinette Chatre <reinette.chatre@intel.com>
-To:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de,
-        tony.luck@intel.com
-Cc:     kuo-lang.tseng@intel.com, shakeelb@google.com,
-        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
-        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH V2 2/4] x86/resctrl: Don't move a task to the same resource group
-Date:   Thu, 17 Dec 2020 14:31:19 -0800
-Message-Id: <962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <cover.1608243147.git.reinette.chatre@intel.com>
-References: <cover.1608243147.git.reinette.chatre@intel.com>
+        id S1732053AbgLRAFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Dec 2020 19:05:02 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50719 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732048AbgLRAFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Dec 2020 19:05:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608249815;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=hsHIgptIUWqDowDErBWPgRz3UILwytr0YhHQPDtbkNY=;
+        b=W2slQ1BBYwu8WuZsHkyXC2RAAkvVWtF4rOcJ5U3NyIQNKrNeJZMdkmI/4X+Qajefe0jvnz
+        El5AgVjvyY86XrP+Cxok2IOGNCgKYrKKD1f6OGCRDohgA1nEEZ3QoAuklzVCjcUbIFhnPJ
+        FJtNqZM2eILvrDk6aEzArcFqq7/k9yk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-153-Rdu6uv2CNWWvPBQ5eJYlFA-1; Thu, 17 Dec 2020 19:03:30 -0500
+X-MC-Unique: Rdu6uv2CNWWvPBQ5eJYlFA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6C4D5800402;
+        Fri, 18 Dec 2020 00:03:14 +0000 (UTC)
+Received: from prarit.bos.redhat.com (prarit-guest.7a2m.lab.eng.bos.redhat.com [10.16.222.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5EFD41042989;
+        Fri, 18 Dec 2020 00:02:32 +0000 (UTC)
+Subject: Re: [RHEL8.4 bz1886943] acpi-cpufreq: Honor _PSD table setting on new
+ AMD CPUs
+To:     Terry Bowman <tbowman@redhat.com>, ahs3@redhat.com,
+        lszubowi@redhat.com, darcari@redhat.com, WeHuang@redhat.com
+Cc:     Wei Huang <wei.huang2@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        "3 . 10+" <stable@vger.kernel.org>, rhkernel-list@redhat.com
+References: <20201217210120.912748-1-tbowman@redhat.com>
+From:   Prarit Bhargava <prarit@redhat.com>
+Message-ID: <bdd50db6-d72f-a8d7-56ab-0ad4ff46c4e8@redhat.com>
+Date:   Thu, 17 Dec 2020 19:02:31 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201217210120.912748-1-tbowman@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fenghua Yu <fenghua.yu@intel.com>
 
-Shakeel Butt reported in [1] that a user can request a task to be moved
-to a resource group even if the task is already in the group. It just
-wastes time to do the move operation which could be costly to send IPI
-to a different CPU.
 
-Add a sanity check to ensure that the move operation only happens when
-the task is not already in the resource group.
+On 12/17/20 4:01 PM, Terry Bowman wrote:
+> Bugzilla: http://bugzilla.redhat.com/1886943
+> Brew: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33761621
+> Upstream: 5.10-rc, https://lkml.org/lkml/2020/10/19/488
+> Test: Manual testing looking for PSD override in dmesg.
+> Using amd-daytona-01.khw1.lab.eng.bos.redhat.com, EPYC Milan
+>
+> commit 5368512abe08 ("acpi-cpufreq: Honor _PSD table setting on new AMD CPUs")
+> Author: Wei Huang <wei.huang2@amd.com>
+> Date:   Sun Oct 18 22:57:41 2020 -0500
+>
+>     acpi-cpufreq: Honor _PSD table setting on new AMD CPUs
+>
+>     acpi-cpufreq has a old quirk that overrides the _PSD table supplied by
+>     BIOS on AMD CPUs. However the _PSD table of new AMD CPUs (Family 19h+)
+>     now accurately reports the P-state dependency of CPU cores. Hence this
+>     quirk needs to be fixed in order to support new CPUs' frequency
+>     control.
+>
+> Fixes: acd316248205 ("acpi-cpufreq: Add quirk to disable _PSD usage on all AMD
+CPUs")
+> Signed-off-by: Wei Huang <wei.huang2@amd.com>
+> [ rjw: Subject edit ]
+> Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> [ tb: reformat for checkpatch ]
+> Signed-off-by: Terry Bowman <tbowman@redhat.com>
+>
 
-[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
+Acked-by: Prarit Bhargava <prarit@redhat.com>
 
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Reported-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: stable@vger.kernel.org
----
-V1->V2:
-* No changes
-
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index c5937a12d731..4042e1eb4f5d 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -552,6 +552,13 @@ static void update_task_closid_rmid(struct task_struct *t)
- static int __rdtgroup_move_task(struct task_struct *tsk,
- 				struct rdtgroup *rdtgrp)
- {
-+	/* If the task is already in rdtgrp, no need to move the task. */
-+	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
-+	     tsk->rmid == rdtgrp->mon.rmid) ||
-+	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
-+	     tsk->closid == rdtgrp->mon.parent->closid))
-+		return 0;
-+
- 	/*
- 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
- 	 * updated by them.
--- 
-2.26.2
+P.
 
