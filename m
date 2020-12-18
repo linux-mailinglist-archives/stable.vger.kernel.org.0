@@ -2,222 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B594A2DE2C9
-	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 13:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB052DE329
+	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 14:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbgLRMZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 07:25:06 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:50995 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726335AbgLRMZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 07:25:06 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23366109-1500050 
-        for multiple; Fri, 18 Dec 2020 12:24:22 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915: Check for rq->hwsp validity after acquiring RCU lock
-Date:   Fri, 18 Dec 2020 12:24:21 +0000
-Message-Id: <20201218122421.18344-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201218091944.32417-1-chris@chris-wilson.co.uk>
-References: <20201218091944.32417-1-chris@chris-wilson.co.uk>
+        id S1726483AbgLRNQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 08:16:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725885AbgLRNQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 08:16:42 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9103BC0617B0;
+        Fri, 18 Dec 2020 05:16:01 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id r3so2123690wrt.2;
+        Fri, 18 Dec 2020 05:16:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=dL/AuyeUrHnEUUtiBzoq8HJknDkLU9BE5SB7vIR5M88=;
+        b=LTWbVkA83xVri9kA9HrLn3WR1O6C6WriKA6xHX9uiKof18y4TxvCqJDNDsdUaRn8c0
+         IP7MHYGohE4JhlyXI+Ezd5HS+iG9kVqRG1Zi6DDYJ6zRhh8IWjk9n+L//jh/hNX+G/UM
+         5CLIYIcRylRon05ZvAnJ64yTKD4GK3n1Hn3y2bP/OnaYb2+kjTMTTNW8C8CwVKZ4I6K5
+         /YgvUgBW4YxMoN7EZiJFU0KDN3JhyoawEum7b/B3sjw0yxHdMTKGNSrIBhvzaDCcC6TC
+         eR7K8SuPrxZ3WR393aBfVKzvMPXmu4dRRx1i3vAoKNTIcxBWlS7HkjDBAwp0Gam2M2RB
+         G2qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=dL/AuyeUrHnEUUtiBzoq8HJknDkLU9BE5SB7vIR5M88=;
+        b=TpvVKEyqrzzvn7eWIuOlCF6nxW8fVgpFoL6w8VHfZOoucFJwWPlUDMa1YWRIiwXtwn
+         Gjh6DyHBZVFLLgZ7vqMOVmp/hnpO1TGhUh3yj/vvvNlVa3TJcVAIKx7Yn+G9SfenrJTp
+         mMKF4kIujRGITq9ELgR8l0JYYpvlBZTgjoFDt9CVPH1J5Ci51emgSUsE3/HLQHobmVA2
+         9S3yAi8G2FYhPYk3c0ZXQP1hUNUDFWt6r7oAeVKdyA+o4Zxi8KxkNs/bJSJhL0hlCeBs
+         OQHvngvt2PGiVTuFC6Armv56wL1ibno545esoFy+Zvr0N92SFUuGcE+pskKFJNueL3Xj
+         oRLA==
+X-Gm-Message-State: AOAM530AOsnI2FyNUACBkKXy8xK4/OVDivgOrLifDWDxyEzt+FGisz14
+        K260JVuRypSOpvp9rtvQzys=
+X-Google-Smtp-Source: ABdhPJzkal/zsfw97AgYHxggEHOuyyMDqzwc7vHzT44iPN/PKW14jdvtXv+QPpwTSUp6sc5FYqwYOQ==
+X-Received: by 2002:adf:f6cc:: with SMTP id y12mr4427787wrp.35.1608297360336;
+        Fri, 18 Dec 2020 05:16:00 -0800 (PST)
+Received: from localhost.localdomain ([85.255.234.120])
+        by smtp.gmail.com with ESMTPSA id b9sm12778595wmd.32.2020.12.18.05.15.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Dec 2020 05:15:59 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/8] io_uring: close a small race gap for files cancel
+Date:   Fri, 18 Dec 2020 13:12:21 +0000
+Message-Id: <68b267b21b29369fb553eb70c0c3f359c6a119c0.1608296656.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1608296656.git.asml.silence@gmail.com>
+References: <cover.1608296656.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since we allow removing the timeline map at runtime, there is a risk
-that rq->hwsp points into a stale page. To control that risk, we hold
-the RCU read lock while reading *rq->hwsp, but we missed a couple of
-important barriers. First, the unpinning / removal of the timeline map
-must be after all RCU readers into that map are complete, i.e. after an
-rcu barrier (in this case courtesy of call_rcu()). Secondly, we must
-make sure that the rq->hwsp we are about to dereference under the RCU
-lock is valid. In this case, we make the rq->hwsp pointer safe during
-i915_request_retire() and so we know that rq->hwsp may become invalid
-only after the request has been signaled. Therefore is the request is
-not yet signaled when we acquire rq->hwsp under the RCU, we know that
-rq->hwsp will remain valid for the duration of the RCU read lock.
+The purpose of io_uring_cancel_files() is to wait for all requests
+matching ->files to go/be cancelled. We should first drop files of a
+request in io_req_drop_files() and only then make it undiscoverable for
+io_uring_cancel_files.
 
-This is a very small window that may lead to either considering the
-request not completed (causing a delay until the request is checked
-again, any wait for the request is not affected) or dereferencing an
-invalid pointer.
+First drop, then delete from list. It's ok to leave req->id->files
+dangling, because it's not dereferenced by cancellation code, only
+compared against. It would potentially go to sleep and be awaken by
+following in io_req_drop_files() wake_up().
 
-Fixes: 3adac4689f58 ("drm/i915: Introduce concept of per-timeline (context) HWSP")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.1+
+Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
+Cc: <stable@vger.kernel.org> # 5.5+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- drivers/gpu/drm/i915/gt/intel_breadcrumbs.c | 11 ++----
- drivers/gpu/drm/i915/gt/intel_timeline.c    | 10 +++---
- drivers/gpu/drm/i915/i915_request.h         | 37 ++++++++++++++++++---
- 3 files changed, 39 insertions(+), 19 deletions(-)
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index 3c62fd6daa76..f96cd7d9b419 100644
---- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -134,11 +134,6 @@ static bool remove_signaling_context(struct intel_breadcrumbs *b,
- 	return true;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 8cf6f22afc5e..b74957856e68 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6098,15 +6098,15 @@ static void io_req_drop_files(struct io_kiocb *req)
+ 	struct io_uring_task *tctx = req->task->io_uring;
+ 	unsigned long flags;
+ 
++	put_files_struct(req->work.identity->files);
++	put_nsproxy(req->work.identity->nsproxy);
+ 	spin_lock_irqsave(&ctx->inflight_lock, flags);
+ 	list_del(&req->inflight_entry);
+-	if (atomic_read(&tctx->in_idle))
+-		wake_up(&tctx->wait);
+ 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
+ 	req->flags &= ~REQ_F_INFLIGHT;
+-	put_files_struct(req->work.identity->files);
+-	put_nsproxy(req->work.identity->nsproxy);
+ 	req->work.flags &= ~IO_WQ_WORK_FILES;
++	if (atomic_read(&tctx->in_idle))
++		wake_up(&tctx->wait);
  }
  
--static inline bool __request_completed(const struct i915_request *rq)
--{
--	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
--}
--
- __maybe_unused static bool
- check_signal_order(struct intel_context *ce, struct i915_request *rq)
- {
-@@ -245,7 +240,7 @@ static void signal_irq_work(struct irq_work *work)
- 		list_for_each_entry_rcu(rq, &ce->signals, signal_link) {
- 			bool release;
- 
--			if (!__request_completed(rq))
-+			if (!__i915_request_is_complete(rq))
- 				break;
- 
- 			if (!test_and_clear_bit(I915_FENCE_FLAG_SIGNAL,
-@@ -380,7 +375,7 @@ static void insert_breadcrumb(struct i915_request *rq)
- 	 * straight onto a signaled list, and queue the irq worker for
- 	 * its signal completion.
- 	 */
--	if (__request_completed(rq)) {
-+	if (__i915_request_is_complete(rq)) {
- 		irq_signal_request(rq, b);
- 		return;
- 	}
-@@ -468,7 +463,7 @@ void i915_request_cancel_breadcrumb(struct i915_request *rq)
- 	if (release)
- 		intel_context_put(ce);
- 
--	if (__request_completed(rq))
-+	if (__i915_request_is_complete(rq))
- 		irq_signal_request(rq, b);
- 
- 	i915_request_put(rq);
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index 512afacd2bdc..a005d0165bf4 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -126,6 +126,10 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
- 	struct intel_timeline_cacheline *cl =
- 		container_of(rcu, typeof(*cl), rcu);
- 
-+	/* Must wait until after all *rq->hwsp are complete before removing */
-+	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
-+	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
-+
- 	i915_active_fini(&cl->active);
- 	kfree(cl);
- }
-@@ -133,11 +137,6 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
- static void __idle_cacheline_free(struct intel_timeline_cacheline *cl)
- {
- 	GEM_BUG_ON(!i915_active_is_idle(&cl->active));
--
--	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
--	i915_vma_put(cl->hwsp->vma);
--	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
--
- 	call_rcu(&cl->rcu, __rcu_cacheline_free);
- }
- 
-@@ -179,7 +178,6 @@ cacheline_alloc(struct intel_timeline_hwsp *hwsp, unsigned int cacheline)
- 		return ERR_CAST(vaddr);
- 	}
- 
--	i915_vma_get(hwsp->vma);
- 	cl->hwsp = hwsp;
- 	cl->vaddr = page_pack_bits(vaddr, cacheline);
- 
-diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
-index 92e4320c50c4..7c4453e60323 100644
---- a/drivers/gpu/drm/i915/i915_request.h
-+++ b/drivers/gpu/drm/i915/i915_request.h
-@@ -440,7 +440,7 @@ static inline u32 hwsp_seqno(const struct i915_request *rq)
- 
- static inline bool __i915_request_has_started(const struct i915_request *rq)
- {
--	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno - 1);
-+	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno - 1);
- }
- 
- /**
-@@ -471,11 +471,19 @@ static inline bool __i915_request_has_started(const struct i915_request *rq)
-  */
- static inline bool i915_request_started(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (i915_request_signaled(rq))
- 		return true;
- 
--	/* Remember: started but may have since been preempted! */
--	return __i915_request_has_started(rq);
-+	result = true;
-+	rcu_read_lock(); /* the HWSP may be freed at runtime */
-+	if (likely(!i915_request_signaled(rq)))
-+		/* Remember: started but may have since been preempted! */
-+		result = __i915_request_has_started(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- /**
-@@ -488,10 +496,16 @@ static inline bool i915_request_started(const struct i915_request *rq)
-  */
- static inline bool i915_request_is_running(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (!i915_request_is_active(rq))
- 		return false;
- 
--	return __i915_request_has_started(rq);
-+	rcu_read_lock();
-+	result = __i915_request_has_started(rq) && i915_request_is_active(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- /**
-@@ -515,12 +529,25 @@ static inline bool i915_request_is_ready(const struct i915_request *rq)
- 	return !list_empty(&rq->sched.link);
- }
- 
-+static inline bool __i915_request_is_complete(const struct i915_request *rq)
-+{
-+	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
-+}
-+
- static inline bool i915_request_completed(const struct i915_request *rq)
- {
-+	bool result;
-+
- 	if (i915_request_signaled(rq))
- 		return true;
- 
--	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno);
-+	result = true;
-+	rcu_read_lock(); /* the HWSP may be freed at runtime */
-+	if (likely(!i915_request_signaled(rq)))
-+		result = __i915_request_is_complete(rq);
-+	rcu_read_unlock();
-+
-+	return result;
- }
- 
- static inline void i915_request_mark_complete(struct i915_request *rq)
+ static void __io_clean_op(struct io_kiocb *req)
 -- 
-2.20.1
+2.24.0
 
