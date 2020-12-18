@@ -2,107 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB052DE329
-	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 14:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA952DE3E0
+	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 15:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726483AbgLRNQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 08:16:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725885AbgLRNQm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 08:16:42 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9103BC0617B0;
-        Fri, 18 Dec 2020 05:16:01 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id r3so2123690wrt.2;
-        Fri, 18 Dec 2020 05:16:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=dL/AuyeUrHnEUUtiBzoq8HJknDkLU9BE5SB7vIR5M88=;
-        b=LTWbVkA83xVri9kA9HrLn3WR1O6C6WriKA6xHX9uiKof18y4TxvCqJDNDsdUaRn8c0
-         IP7MHYGohE4JhlyXI+Ezd5HS+iG9kVqRG1Zi6DDYJ6zRhh8IWjk9n+L//jh/hNX+G/UM
-         5CLIYIcRylRon05ZvAnJ64yTKD4GK3n1Hn3y2bP/OnaYb2+kjTMTTNW8C8CwVKZ4I6K5
-         /YgvUgBW4YxMoN7EZiJFU0KDN3JhyoawEum7b/B3sjw0yxHdMTKGNSrIBhvzaDCcC6TC
-         eR7K8SuPrxZ3WR393aBfVKzvMPXmu4dRRx1i3vAoKNTIcxBWlS7HkjDBAwp0Gam2M2RB
-         G2qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=dL/AuyeUrHnEUUtiBzoq8HJknDkLU9BE5SB7vIR5M88=;
-        b=TpvVKEyqrzzvn7eWIuOlCF6nxW8fVgpFoL6w8VHfZOoucFJwWPlUDMa1YWRIiwXtwn
-         Gjh6DyHBZVFLLgZ7vqMOVmp/hnpO1TGhUh3yj/vvvNlVa3TJcVAIKx7Yn+G9SfenrJTp
-         mMKF4kIujRGITq9ELgR8l0JYYpvlBZTgjoFDt9CVPH1J5Ci51emgSUsE3/HLQHobmVA2
-         9S3yAi8G2FYhPYk3c0ZXQP1hUNUDFWt6r7oAeVKdyA+o4Zxi8KxkNs/bJSJhL0hlCeBs
-         OQHvngvt2PGiVTuFC6Armv56wL1ibno545esoFy+Zvr0N92SFUuGcE+pskKFJNueL3Xj
-         oRLA==
-X-Gm-Message-State: AOAM530AOsnI2FyNUACBkKXy8xK4/OVDivgOrLifDWDxyEzt+FGisz14
-        K260JVuRypSOpvp9rtvQzys=
-X-Google-Smtp-Source: ABdhPJzkal/zsfw97AgYHxggEHOuyyMDqzwc7vHzT44iPN/PKW14jdvtXv+QPpwTSUp6sc5FYqwYOQ==
-X-Received: by 2002:adf:f6cc:: with SMTP id y12mr4427787wrp.35.1608297360336;
-        Fri, 18 Dec 2020 05:16:00 -0800 (PST)
-Received: from localhost.localdomain ([85.255.234.120])
-        by smtp.gmail.com with ESMTPSA id b9sm12778595wmd.32.2020.12.18.05.15.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Dec 2020 05:15:59 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 1/8] io_uring: close a small race gap for files cancel
-Date:   Fri, 18 Dec 2020 13:12:21 +0000
-Message-Id: <68b267b21b29369fb553eb70c0c3f359c6a119c0.1608296656.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1608296656.git.asml.silence@gmail.com>
-References: <cover.1608296656.git.asml.silence@gmail.com>
+        id S1727320AbgLROTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 09:19:00 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35302 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725883AbgLROS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 09:18:59 -0500
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BIECwCW154079;
+        Fri, 18 Dec 2020 09:18:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=aKpVq/XXmlbmksUUEQfZRzUNkWSdVwgJWNs4QCIYb+g=;
+ b=nI5N54pkILIUWO0+CSWtEeTDjgUtNWAWt/0npRSu/Oq56JHn6NyyScdNGCMnm3/P+SdQ
+ /Em0YSOo5llQa5hbwE8aLyfQQgqV2OLcpoReFj7WtpwdJW/IKW/u50ubagIIpUUEH6Q2
+ DlPmc/RICla61G0tgPHa4l/fhwSMtiFaUx/lLupebOP6ihALdqkkQeV4Ln4VQsPkmsBr
+ JZPEg6YuKSn3MqE0BU0KSpFfg1+FfqQFFEx+/jQWHECb8cgnF+J9y2B3CepmAZwSpZhL
+ +1oYVi2qYdbxitll5VaF+SdgDWD0oaluE2g8mMKaB2Ci8hFZDX117zEQ/v4wg1W1lms0 Bg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35gx01850p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Dec 2020 09:18:17 -0500
+Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BIEDn4F155745;
+        Fri, 18 Dec 2020 09:18:17 -0500
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35gx018501-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Dec 2020 09:18:17 -0500
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BIEIFSh012363;
+        Fri, 18 Dec 2020 14:18:15 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma02fra.de.ibm.com with ESMTP id 35cng889na-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Dec 2020 14:18:15 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BIEICcK37224838
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Dec 2020 14:18:12 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A298DA405B;
+        Fri, 18 Dec 2020 14:18:12 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 453EDA4064;
+        Fri, 18 Dec 2020 14:18:12 +0000 (GMT)
+Received: from ibm-vm.ibmuc.com (unknown [9.145.12.102])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Dec 2020 14:18:12 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v1 1/4] s390/kvm: VSIE: stop leaking host addresses
+Date:   Fri, 18 Dec 2020 15:18:08 +0100
+Message-Id: <20201218141811.310267-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-18_09:2020-12-18,2020-12-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 mlxlogscore=999
+ impostorscore=0 malwarescore=0 adultscore=0 clxscore=1011 mlxscore=0
+ bulkscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2012180095
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The purpose of io_uring_cancel_files() is to wait for all requests
-matching ->files to go/be cancelled. We should first drop files of a
-request in io_req_drop_files() and only then make it undiscoverable for
-io_uring_cancel_files.
+The addresses in the SIE control block of the host should not be
+forwarded to the guest. They are only meaningful to the host, and
+moreover it would be a clear security issue.
 
-First drop, then delete from list. It's ok to leave req->id->files
-dangling, because it's not dereferenced by cancellation code, only
-compared against. It would potentially go to sleep and be awaken by
-following in io_req_drop_files() wake_up().
+Subsequent patches will actually put the right values in the guest SIE
+control block.
 
-Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: stable@vger.kernel.org
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kvm/vsie.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8cf6f22afc5e..b74957856e68 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6098,15 +6098,15 @@ static void io_req_drop_files(struct io_kiocb *req)
- 	struct io_uring_task *tctx = req->task->io_uring;
- 	unsigned long flags;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 4f3cbf6003a9..ada49583e530 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -416,11 +416,6 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		memcpy((void *)((u64)scb_o + 0xc0),
+ 		       (void *)((u64)scb_s + 0xc0), 0xf0 - 0xc0);
+ 		break;
+-	case ICPT_PARTEXEC:
+-		/* MVPG only */
+-		memcpy((void *)((u64)scb_o + 0xc0),
+-		       (void *)((u64)scb_s + 0xc0), 0xd0 - 0xc0);
+-		break;
+ 	}
  
-+	put_files_struct(req->work.identity->files);
-+	put_nsproxy(req->work.identity->nsproxy);
- 	spin_lock_irqsave(&ctx->inflight_lock, flags);
- 	list_del(&req->inflight_entry);
--	if (atomic_read(&tctx->in_idle))
--		wake_up(&tctx->wait);
- 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
- 	req->flags &= ~REQ_F_INFLIGHT;
--	put_files_struct(req->work.identity->files);
--	put_nsproxy(req->work.identity->nsproxy);
- 	req->work.flags &= ~IO_WQ_WORK_FILES;
-+	if (atomic_read(&tctx->in_idle))
-+		wake_up(&tctx->wait);
- }
- 
- static void __io_clean_op(struct io_kiocb *req)
+ 	if (scb_s->ihcpu != 0xffffU)
 -- 
-2.24.0
+2.26.2
 
