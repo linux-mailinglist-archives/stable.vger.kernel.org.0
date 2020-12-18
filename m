@@ -2,183 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 852622DE3DA
-	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 15:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3622DE6FD
+	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 16:54:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbgLROTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 09:19:01 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13754 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725908AbgLROTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 09:19:01 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BIE5qDO022031;
-        Fri, 18 Dec 2020 09:18:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=3iYoFMACVWQh4220baHiiCssGjisDx4QieQjyKEbMY0=;
- b=ksOWUHNkWdzmp9aMv2BiUwNzemMrQPy8E8LH4Lnu+8we6hYc1iq8cu9X4n6r8b9cILKk
- KCylKOf1V5Z0/ULANe8xpAG05ImSXpYFrMyWW1VTpqxUFrRGrYnRW+kc9PX/NJzH3HpN
- bb2gFtj5uEO+pLu1dOJ6A9AyusPGouVryQodG+qQxWnLcHa5TRo5PfvVV5Y7C3YLSZqX
- 01GvBsT1eL1L089iozcUzElE+erGjAefcyHOYmvJncw9fQh6EjYUDQMmm4Djx1bbvXqO
- FD3mkgCKEcI1u7a084LQCiD2vwT/Dr2oC7LUaxhOmLZTbHfcFDaYcyNH+BUdHeuPFg9F 9A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35gw6ehqwg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Dec 2020 09:18:19 -0500
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BIE7geK033629;
-        Fri, 18 Dec 2020 09:18:19 -0500
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35gw6ehqvv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Dec 2020 09:18:19 -0500
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BIEIGpm012367;
-        Fri, 18 Dec 2020 14:18:17 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 35cng889nc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Dec 2020 14:18:17 +0000
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BIEIEnE43516186
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Dec 2020 14:18:14 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 012F5A405B;
-        Fri, 18 Dec 2020 14:18:14 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9ABECA4064;
-        Fri, 18 Dec 2020 14:18:13 +0000 (GMT)
-Received: from ibm-vm.ibmuc.com (unknown [9.145.12.102])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 18 Dec 2020 14:18:13 +0000 (GMT)
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v1 4/4] s390/kvm: VSIE: correctly handle MVPG when in VSIE
-Date:   Fri, 18 Dec 2020 15:18:11 +0100
-Message-Id: <20201218141811.310267-5-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201218141811.310267-1-imbrenda@linux.ibm.com>
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+        id S1726616AbgLRPx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 10:53:57 -0500
+Received: from mga03.intel.com ([134.134.136.65]:62565 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728730AbgLRPx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Dec 2020 10:53:56 -0500
+IronPort-SDR: Tp1N4LOYswT5nj6cymGoaeYDg/L7D7gSqGQtU+U1KojAuu8sP0CfnGj5EmZZ/G/f+7n4r0+GJi
+ VdzifkmpKOrg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9839"; a="175556680"
+X-IronPort-AV: E=Sophos;i="5.78,430,1599548400"; 
+   d="scan'208";a="175556680"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Dec 2020 07:52:10 -0800
+IronPort-SDR: tpWylOKWSnLLxOhZQZB6YK+FYfHvd6Yr1p6CVd9XITHvbltnKm2LgYNUaS5upliVkyyP0CENbr
+ O2YegGBz51og==
+X-IronPort-AV: E=Sophos;i="5.78,430,1599548400"; 
+   d="scan'208";a="370633187"
+Received: from mizrahid-mobl.ger.corp.intel.com (HELO [10.214.205.41]) ([10.214.205.41])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Dec 2020 07:52:09 -0800
+Subject: Re: [Intel-gfx] [PATCH v2] drm/i915: Check for rq->hwsp validity
+ after acquiring RCU lock
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20201218091944.32417-1-chris@chris-wilson.co.uk>
+ <20201218122421.18344-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <68b73001-3179-5aca-c206-449a1ff12d01@linux.intel.com>
+Date:   Fri, 18 Dec 2020 15:52:05 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-18_09:2020-12-18,2020-12-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 mlxscore=0 mlxlogscore=899
- lowpriorityscore=0 malwarescore=0 clxscore=1015 bulkscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012180099
+In-Reply-To: <20201218122421.18344-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Correctly handle the MVPG instruction when issued by a VSIE guest.
 
-Fixes: a3508fbe9dc6d ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: stable@vger.kernel.org
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/kvm/vsie.c | 73 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 73 insertions(+)
+On 18/12/2020 12:24, Chris Wilson wrote:
+> Since we allow removing the timeline map at runtime, there is a risk
+> that rq->hwsp points into a stale page. To control that risk, we hold
+> the RCU read lock while reading *rq->hwsp, but we missed a couple of
+> important barriers. First, the unpinning / removal of the timeline map
+> must be after all RCU readers into that map are complete, i.e. after an
+> rcu barrier (in this case courtesy of call_rcu()). Secondly, we must
+> make sure that the rq->hwsp we are about to dereference under the RCU
+> lock is valid. In this case, we make the rq->hwsp pointer safe during
+> i915_request_retire() and so we know that rq->hwsp may become invalid
+> only after the request has been signaled. Therefore is the request is
+> not yet signaled when we acquire rq->hwsp under the RCU, we know that
+> rq->hwsp will remain valid for the duration of the RCU read lock.
+> 
+> This is a very small window that may lead to either considering the
+> request not completed (causing a delay until the request is checked
+> again, any wait for the request is not affected) or dereferencing an
+> invalid pointer.
+> 
+> Fixes: 3adac4689f58 ("drm/i915: Introduce concept of per-timeline (context) HWSP")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.1+
+> ---
+>   drivers/gpu/drm/i915/gt/intel_breadcrumbs.c | 11 ++----
+>   drivers/gpu/drm/i915/gt/intel_timeline.c    | 10 +++---
+>   drivers/gpu/drm/i915/i915_request.h         | 37 ++++++++++++++++++---
+>   3 files changed, 39 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> index 3c62fd6daa76..f96cd7d9b419 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+> @@ -134,11 +134,6 @@ static bool remove_signaling_context(struct intel_breadcrumbs *b,
+>   	return true;
+>   }
+>   
+> -static inline bool __request_completed(const struct i915_request *rq)
+> -{
+> -	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
+> -}
+> -
+>   __maybe_unused static bool
+>   check_signal_order(struct intel_context *ce, struct i915_request *rq)
+>   {
+> @@ -245,7 +240,7 @@ static void signal_irq_work(struct irq_work *work)
+>   		list_for_each_entry_rcu(rq, &ce->signals, signal_link) {
+>   			bool release;
+>   
+> -			if (!__request_completed(rq))
+> +			if (!__i915_request_is_complete(rq))
+>   				break;
+>   
+>   			if (!test_and_clear_bit(I915_FENCE_FLAG_SIGNAL,
+> @@ -380,7 +375,7 @@ static void insert_breadcrumb(struct i915_request *rq)
+>   	 * straight onto a signaled list, and queue the irq worker for
+>   	 * its signal completion.
+>   	 */
+> -	if (__request_completed(rq)) {
+> +	if (__i915_request_is_complete(rq)) {
+>   		irq_signal_request(rq, b);
+>   		return;
+>   	}
+> @@ -468,7 +463,7 @@ void i915_request_cancel_breadcrumb(struct i915_request *rq)
+>   	if (release)
+>   		intel_context_put(ce);
+>   
+> -	if (__request_completed(rq))
+> +	if (__i915_request_is_complete(rq))
+>   		irq_signal_request(rq, b);
+>   
+>   	i915_request_put(rq);
+> diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
+> index 512afacd2bdc..a005d0165bf4 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_timeline.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
+> @@ -126,6 +126,10 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
+>   	struct intel_timeline_cacheline *cl =
+>   		container_of(rcu, typeof(*cl), rcu);
+>   
+> +	/* Must wait until after all *rq->hwsp are complete before removing */
+> +	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
+> +	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
+> +
+>   	i915_active_fini(&cl->active);
+>   	kfree(cl);
+>   }
+> @@ -133,11 +137,6 @@ static void __rcu_cacheline_free(struct rcu_head *rcu)
+>   static void __idle_cacheline_free(struct intel_timeline_cacheline *cl)
+>   {
+>   	GEM_BUG_ON(!i915_active_is_idle(&cl->active));
+> -
+> -	i915_gem_object_unpin_map(cl->hwsp->vma->obj);
+> -	i915_vma_put(cl->hwsp->vma);
+> -	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
+> -
+>   	call_rcu(&cl->rcu, __rcu_cacheline_free);
+>   }
+>   
+> @@ -179,7 +178,6 @@ cacheline_alloc(struct intel_timeline_hwsp *hwsp, unsigned int cacheline)
+>   		return ERR_CAST(vaddr);
+>   	}
+>   
+> -	i915_vma_get(hwsp->vma);
+>   	cl->hwsp = hwsp;
+>   	cl->vaddr = page_pack_bits(vaddr, cacheline);
+>   
+> diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
+> index 92e4320c50c4..7c4453e60323 100644
+> --- a/drivers/gpu/drm/i915/i915_request.h
+> +++ b/drivers/gpu/drm/i915/i915_request.h
+> @@ -440,7 +440,7 @@ static inline u32 hwsp_seqno(const struct i915_request *rq)
+>   
+>   static inline bool __i915_request_has_started(const struct i915_request *rq)
+>   {
+> -	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno - 1);
+> +	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno - 1);
+>   }
+>   
+>   /**
+> @@ -471,11 +471,19 @@ static inline bool __i915_request_has_started(const struct i915_request *rq)
+>    */
+>   static inline bool i915_request_started(const struct i915_request *rq)
+>   {
+> +	bool result;
+> +
+>   	if (i915_request_signaled(rq))
+>   		return true;
+>   
+> -	/* Remember: started but may have since been preempted! */
+> -	return __i915_request_has_started(rq);
+> +	result = true;
+> +	rcu_read_lock(); /* the HWSP may be freed at runtime */
+> +	if (likely(!i915_request_signaled(rq)))
+> +		/* Remember: started but may have since been preempted! */
+> +		result = __i915_request_has_started(rq);
+> +	rcu_read_unlock();
+> +
+> +	return result;
+>   }
+>   
+>   /**
+> @@ -488,10 +496,16 @@ static inline bool i915_request_started(const struct i915_request *rq)
+>    */
+>   static inline bool i915_request_is_running(const struct i915_request *rq)
+>   {
+> +	bool result;
+> +
+>   	if (!i915_request_is_active(rq))
+>   		return false;
+>   
+> -	return __i915_request_has_started(rq);
+> +	rcu_read_lock();
+> +	result = __i915_request_has_started(rq) && i915_request_is_active(rq);
+> +	rcu_read_unlock();
+> +
+> +	return result;
+>   }
+>   
+>   /**
+> @@ -515,12 +529,25 @@ static inline bool i915_request_is_ready(const struct i915_request *rq)
+>   	return !list_empty(&rq->sched.link);
+>   }
+>   
+> +static inline bool __i915_request_is_complete(const struct i915_request *rq)
+> +{
+> +	return i915_seqno_passed(__hwsp_seqno(rq), rq->fence.seqno);
+> +}
+> +
+>   static inline bool i915_request_completed(const struct i915_request *rq)
+>   {
+> +	bool result;
+> +
+>   	if (i915_request_signaled(rq))
+>   		return true;
+>   
+> -	return i915_seqno_passed(hwsp_seqno(rq), rq->fence.seqno);
+> +	result = true;
+> +	rcu_read_lock(); /* the HWSP may be freed at runtime */
+> +	if (likely(!i915_request_signaled(rq)))
+> +		result = __i915_request_is_complete(rq);
+> +	rcu_read_unlock();
+> +
+> +	return result; >   }
+>   
+>   static inline void i915_request_mark_complete(struct i915_request *rq)
+> 
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index ada49583e530..6c3069868acd 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -977,6 +977,75 @@ static int handle_stfle(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	return 0;
- }
- 
-+static u64 vsie_get_register(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, u8 reg)
-+{
-+	reg &= 0xf;
-+	switch (reg) {
-+	case 15:
-+		return vsie_page->scb_s.gg15;
-+	case 14:
-+		return vsie_page->scb_s.gg14;
-+	default:
-+		return vcpu->run->s.regs.gprs[reg];
-+	}
-+}
-+
-+static int vsie_handle_mvpg(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
-+{
-+	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-+	unsigned long r1, r2, mask = PAGE_MASK;
-+	int rc;
-+
-+	if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_24BIT)
-+		mask = 0xfff000;
-+	else if (psw_bits(scb_s->gpsw).eaba == PSW_BITS_AMODE_31BIT)
-+		mask = 0x7ffff000;
-+
-+	r1 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 20) & mask;
-+	r2 = vsie_get_register(vcpu, vsie_page, scb_s->ipb >> 16) & mask;
-+	rc = kvm_s390_vsie_mvpg_check(vcpu, r1, r2, &vsie_page->scb_o->mcic);
-+
-+	/*
-+	 * Guest translation was not successful. The host needs to forward
-+	 * the intercept to the guest and let the guest fix its page tables.
-+	 * The guest needs then to retry the instruction.
-+	 */
-+	if (rc == -ENOENT)
-+		return 1;
-+
-+	retry_vsie_icpt(vsie_page);
-+
-+	/*
-+	 * Guest translation was not successful. The page tables of the guest
-+	 * are broken. Try again and let the hardware deliver the fault.
-+	 */
-+	if (rc == -EFAULT)
-+		return 0;
-+
-+	/*
-+	 * Guest translation was successful. The host needs to fix up its
-+	 * page tables and retry the instruction in the nested guest.
-+	 * In case of failure, the instruction will intercept again, and
-+	 * a different path will be taken.
-+	 */
-+	if (!rc) {
-+		kvm_s390_shadow_fault(vcpu, vsie_page->gmap, r2);
-+		kvm_s390_shadow_fault(vcpu, vsie_page->gmap, r1);
-+		return 0;
-+	}
-+
-+	/*
-+	 * An exception happened during guest translation, it needs to be
-+	 * delivered to the guest. This can happen if the host has EDAT1
-+	 * enabled and the guest has not, or for other causes. The guest
-+	 * needs to process the exception and return to the nested guest.
-+	 */
-+	if (rc > 0)
-+		return kvm_s390_inject_prog_cond(vcpu, rc);
-+
-+	return 1;
-+}
-+
- /*
-  * Run the vsie on a shadow scb and a shadow gmap, without any further
-  * sanity checks, handling SIE faults.
-@@ -1063,6 +1132,10 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		if ((scb_s->ipa & 0xf000) != 0xf000)
- 			scb_s->ipa += 0x1000;
- 		break;
-+	case ICPT_PARTEXEC:
-+		if (scb_s->ipa == 0xb254)
-+			rc = vsie_handle_mvpg(vcpu, vsie_page);
-+		break;
- 	}
- 	return rc;
- }
--- 
-2.26.2
+Should rq->hwsp_seqno be marked as rcu pointer?
 
+We reset the fence signaled status before re-assigning the timeline. So 
+if we were to query a request in the process of being allocated, do we 
+need to do something extra to make sure !signaled status is not seen 
+before the rq->hwsp_seqno is replaced? Like should the order of re-init 
+be inverted?
+
+Regards,
+
+Tvrtko
