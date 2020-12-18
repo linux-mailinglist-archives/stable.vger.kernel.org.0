@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE182DE3D8
+	by mail.lfdr.de (Postfix) with ESMTP id 311CE2DE3D7
 	for <lists+stable@lfdr.de>; Fri, 18 Dec 2020 15:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727403AbgLROTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 09:19:02 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5082 "EHLO
+        id S1727421AbgLROTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 09:19:03 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42526 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725911AbgLROTA (ORCPT
+        by vger.kernel.org with ESMTP id S1726047AbgLROTA (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 09:19:00 -0500
 Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BIE2xYK063507;
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BIE31Bx063640;
         Fri, 18 Dec 2020 09:18:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=THKVBcdGhN1X/toN+0kOB7VjP8oEr99mpBGOO2BGxNU=;
- b=SUR3pHHwMRsxRvzmliOhvCAL/IVoF7ahriolPt9egrMHxx5rOk6l+qs2rIv/aTGLHxuJ
- DPntxLzcQ5JzyWsyDUnH1p1WH33NSkV9J6Km7hAcBa2Qpsj2Sljm6WGF2nEF+AGpD1gF
- 67crGqZmHpy2I9eVw++MZlv3a8rTt9laX6VuG3T0SK/JOmqpidh5y5KAcK5D/8PwyfIV
- IBvp0qzq5LVdXFcMPXiCy4LA+0rRFM+Cvf+F56HFgGS+s3SkKxi+oTboZFyStdRx35MU
- qpbQbPl5lMkFWcAKuOpv9XdBhVVCJMqPSqovGqJ6/ziyj5nlOABdNrFC0l0iIQt8T3k4 yg== 
+ bh=TfbnlqyNfW5YJJ7mzLhRypVA0089I6ipr+CSsWxxKq8=;
+ b=NEGDfbg2go61ylUBMyCI+jxEx/pe24cDhMhRJVcENfkINQB+0Zg4wnHaaTx/pmo1/8Ei
+ QbmIWB7ftr644p8inYNImUdXI819G3Ac0A0BKoCg2XrXTAdDoL+jYnvv4UXy4BwYfsF2
+ zgcn+nPJsIjsWAe5JRI9rDn1X8lTEVAOpwX5KoFENq8r4ZO0PyMv6NmIGIXDHmPTM8xi
+ XJDBcRVPEXJd7T4WiHG9NedavlISSa7G76rEZQnDAHN5fKYEOTRtmaG0jPMCuDQEGZHH
+ eGVFb6qoUP30okgoNgTnColsXHLNnXuzL4xCp0XU4lK2Fr5KafvT+O6S5vOX+Qdt8VMG og== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35gwk7h2bh-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35gwk7h2bn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 18 Dec 2020 09:18:18 -0500
 Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BIE57Do076147;
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BIE3ftp067502;
         Fri, 18 Dec 2020 09:18:18 -0500
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 35gwk7h2aw-1
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 35gwk7h2b1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 18 Dec 2020 09:18:18 -0500
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BIEGle6015069;
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BIEIGpl012367;
         Fri, 18 Dec 2020 14:18:16 GMT
 Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04fra.de.ibm.com with ESMTP id 35cng8bbw4-1
+        by ppma02fra.de.ibm.com with ESMTP id 35cng889nb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Fri, 18 Dec 2020 14:18:16 +0000
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BIEIDU850987518
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BIEIDST48103764
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Fri, 18 Dec 2020 14:18:13 GMT
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1E22BA4062;
+        by IMSVA (Postfix) with ESMTP id 89D57A4060;
         Fri, 18 Dec 2020 14:18:13 +0000 (GMT)
 Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B40FCA4060;
-        Fri, 18 Dec 2020 14:18:12 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 2FB8AA4066;
+        Fri, 18 Dec 2020 14:18:13 +0000 (GMT)
 Received: from ibm-vm.ibmuc.com (unknown [9.145.12.102])
         by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri, 18 Dec 2020 14:18:12 +0000 (GMT)
+        Fri, 18 Dec 2020 14:18:13 +0000 (GMT)
 From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
         kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH v1 2/4] s390/kvm: extend guest_translate for MVPG interpretation
-Date:   Fri, 18 Dec 2020 15:18:09 +0100
-Message-Id: <20201218141811.310267-3-imbrenda@linux.ibm.com>
+Subject: [PATCH v1 3/4] s390/kvm: add kvm_s390_vsie_mvpg_check needed for VSIE MVPG
+Date:   Fri, 18 Dec 2020 15:18:10 +0100
+Message-Id: <20201218141811.310267-4-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201218141811.310267-1-imbrenda@linux.ibm.com>
 References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
@@ -79,143 +79,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Extend guest_translate to optionally return the address of the guest
-DAT table which caused the exception, and change the return value to int.
-
-Also return the appropriate values in the low order bits of the address
-indicating protection or EDAT.
+Add kvm_s390_vsie_mvpg_check to perform the necessary checks in case an
+MVPG instruction intercepts in a VSIE guest.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 33 ++++++++++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 5 deletions(-)
+ arch/s390/kvm/gaccess.c | 55 +++++++++++++++++++++++++++++++++++++++++
+ arch/s390/kvm/gaccess.h |  3 +++
+ 2 files changed, 58 insertions(+)
 
 diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 6d6b57059493..8e256a233583 100644
+index 8e256a233583..90e9baff6eac 100644
 --- a/arch/s390/kvm/gaccess.c
 +++ b/arch/s390/kvm/gaccess.c
-@@ -598,6 +598,10 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-  * @asce: effective asce
-  * @mode: indicates the access mode to be used
-  * @prot: returns the type for protection exceptions
-+ * @entryptr: returns the physical address of the last DAT table entry
-+ *            processed, additionally setting a few flags in the lower bits
-+ *            to indicate whether a translation exception or a protection
-+ *            exception were encountered during the address translation.
-  *
-  * Translate a guest virtual address into a guest absolute address by means
-  * of dynamic address translation as specified by the architecture.
-@@ -611,9 +615,10 @@ static int deref_table(struct kvm *kvm, unsigned long gpa, unsigned long *val)
-  *	      the returned value is the program interruption code as defined
-  *	      by the architecture
-  */
--static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
--				     unsigned long *gpa, const union asce asce,
--				     enum gacc_mode mode, enum prot_type *prot)
-+static int guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
-+			   unsigned long *gpa, const union asce asce,
-+			   enum gacc_mode mode, enum prot_type *prot,
-+			   unsigned long *entryptr)
- {
- 	union vaddress vaddr = {.addr = gva};
- 	union raddress raddr = {.addr = gva};
-@@ -628,6 +633,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 	edat1 = ctlreg0.edat && test_kvm_facility(vcpu->kvm, 8);
- 	edat2 = edat1 && test_kvm_facility(vcpu->kvm, 78);
- 	iep = ctlreg0.iep && test_kvm_facility(vcpu->kvm, 130);
-+	if (entryptr)
-+		*entryptr = 0;
- 	if (asce.r)
- 		goto real_address;
- 	ptr = asce.origin * PAGE_SIZE;
-@@ -667,6 +674,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			return PGM_ADDRESSING;
- 		if (deref_table(vcpu->kvm, ptr, &rfte.val))
- 			return -EFAULT;
-+		if (entryptr)
-+			*entryptr = ptr;
- 		if (rfte.i)
- 			return PGM_REGION_FIRST_TRANS;
- 		if (rfte.tt != TABLE_TYPE_REGION1)
-@@ -685,6 +694,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			return PGM_ADDRESSING;
- 		if (deref_table(vcpu->kvm, ptr, &rste.val))
- 			return -EFAULT;
-+		if (entryptr)
-+			*entryptr = ptr;
- 		if (rste.i)
- 			return PGM_REGION_SECOND_TRANS;
- 		if (rste.tt != TABLE_TYPE_REGION2)
-@@ -703,6 +714,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			return PGM_ADDRESSING;
- 		if (deref_table(vcpu->kvm, ptr, &rtte.val))
- 			return -EFAULT;
-+		if (entryptr)
-+			*entryptr = ptr;
- 		if (rtte.i)
- 			return PGM_REGION_THIRD_TRANS;
- 		if (rtte.tt != TABLE_TYPE_REGION3)
-@@ -713,6 +726,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			dat_protection |= rtte.fc1.p;
- 			iep_protection = rtte.fc1.iep;
- 			raddr.rfaa = rtte.fc1.rfaa;
-+			if (entryptr)
-+				*entryptr |= dat_protection ? 6 : 4;
- 			goto absolute_address;
- 		}
- 		if (vaddr.sx01 < rtte.fc0.tf)
-@@ -731,6 +746,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			return PGM_ADDRESSING;
- 		if (deref_table(vcpu->kvm, ptr, &ste.val))
- 			return -EFAULT;
-+		if (entryptr)
-+			*entryptr = ptr;
- 		if (ste.i)
- 			return PGM_SEGMENT_TRANSLATION;
- 		if (ste.tt != TABLE_TYPE_SEGMENT)
-@@ -741,6 +758,8 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 			dat_protection |= ste.fc1.p;
- 			iep_protection = ste.fc1.iep;
- 			raddr.sfaa = ste.fc1.sfaa;
-+			if (entryptr)
-+				*entryptr |= dat_protection ? 6 : 4;
- 			goto absolute_address;
- 		}
- 		dat_protection |= ste.fc0.p;
-@@ -751,10 +770,14 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
- 		return PGM_ADDRESSING;
- 	if (deref_table(vcpu->kvm, ptr, &pte.val))
- 		return -EFAULT;
-+	if (entryptr)
-+		*entryptr = ptr;
- 	if (pte.i)
- 		return PGM_PAGE_TRANSLATION;
- 	if (pte.z)
- 		return PGM_TRANSLATION_SPEC;
-+	if (entryptr && dat_protection)
-+		*entryptr |= 2;
- 	dat_protection |= pte.p;
- 	iep_protection = pte.iep;
- 	raddr.pfra = pte.pfra;
-@@ -810,7 +833,7 @@ static int guest_page_range(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
- 					 PROT_TYPE_LA);
- 		ga &= PAGE_MASK;
- 		if (psw_bits(*psw).dat) {
--			rc = guest_translate(vcpu, ga, pages, asce, mode, &prot);
-+			rc = guest_translate(vcpu, ga, pages, asce, mode, &prot, NULL);
- 			if (rc < 0)
- 				return rc;
- 		} else {
-@@ -920,7 +943,7 @@ int guest_translate_address(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- 	}
+@@ -1228,3 +1228,58 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 	mmap_read_unlock(sg->mm);
+ 	return rc;
+ }
++
++static int kvm_s390_mvpg_check_one(struct kvm_vcpu *vcpu, unsigned long *addr,
++			     const int edat, const union asce asce,
++			     const enum gacc_mode mode, unsigned long *pteptr)
++{
++	enum prot_type prot;
++	int rc;
++
++	rc = guest_translate(vcpu, *addr, addr, asce, mode, &prot, pteptr);
++	if (rc <= 0)
++		return rc;
++
++	switch (rc) {
++	case PGM_REGION_FIRST_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_SEGMENT_TRANSLATION:
++		if (!edat)
++			return trans_exc(vcpu, rc, *addr, 0, mode, prot);
++		*pteptr |= 4;
++		fallthrough;
++	case PGM_PAGE_TRANSLATION:
++		return -ENOENT;
++	default:
++		return rc;
++	}
++}
++
++int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
++			     unsigned long r2, void *gpei)
++{
++	unsigned long pei[2] = {0};
++	union ctlreg0 cr0;
++	union asce cr1;
++	int edat, rc1, rc2;
++
++	cr0.val = vcpu->arch.sie_block->gcr[0];
++	cr1.val = vcpu->arch.sie_block->gcr[1];
++	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
++
++	rc1 = kvm_s390_mvpg_check_one(vcpu, &r1, edat, cr1, GACC_FETCH, pei);
++	rc2 = kvm_s390_mvpg_check_one(vcpu, &r2, edat, cr1, GACC_STORE, pei + 1);
++
++	if (rc1 == -ENOENT || rc2 == -ENOENT) {
++		memcpy(gpei, pei, sizeof(pei));
++		return -ENOENT;
++	}
++
++	if (rc2 < 0)
++		return rc2;
++	if (rc1 < 0)
++		return rc1;
++
++	return 0;
++}
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index f4c51756c462..2c53cee3b29f 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -166,6 +166,9 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+ int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
+ 		 unsigned long len, enum gacc_mode mode);
  
- 	if (psw_bits(*psw).dat && !asce.r) {	/* Use DAT? */
--		rc = guest_translate(vcpu, gva, gpa, asce, mode, &prot);
-+		rc = guest_translate(vcpu, gva, gpa, asce, mode, &prot, NULL);
- 		if (rc > 0)
- 			return trans_exc(vcpu, rc, gva, 0, mode, prot);
- 	} else {
++int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
++			     unsigned long r2, void *gpei);
++
+ int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+ 		      void *data, unsigned long len, enum gacc_mode mode);
+ 
 -- 
 2.26.2
 
