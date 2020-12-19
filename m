@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81BC2DEF2F
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9779F2DEF49
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbgLSNAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:00:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47422 "EHLO mail.kernel.org"
+        id S1728026AbgLSM7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728424AbgLSNAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 08:00:05 -0500
+        id S1728019AbgLSM7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:12 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
@@ -18,9 +18,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
         Tariq Toukan <tariqt@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.9 25/49] net/mlx4_en: Avoid scheduling restart task if it is already running
-Date:   Sat, 19 Dec 2020 13:58:29 +0100
-Message-Id: <20201219125345.910092309@linuxfoundation.org>
+Subject: [PATCH 5.9 26/49] net/mlx4_en: Handle TX error CQE
+Date:   Sat, 19 Dec 2020 13:58:30 +0100
+Message-Id: <20201219125345.958958829@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -34,122 +34,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit fed91613c9dd455dd154b22fa8e11b8526466082 ]
+[ Upstream commit ba603d9d7b1215c72513d7c7aa02b6775fd4891b ]
 
-Add restarting state flag to avoid scheduling another restart task while
-such task is already running. Change task name from watchdog_task to
-restart_task to better fit the task role.
+In case error CQE was found while polling TX CQ, the QP is in error
+state and all posted WQEs will generate error CQEs without any data
+transmitted. Fix it by reopening the channels, via same method used for
+TX timeout handling.
 
-Fixes: 1e338db56e5a ("mlx4_en: Fix a race at restart task")
+In addition add some more info on error CQE and WQE for debug.
+
+Fixes: bd2f631d7c60 ("net/mlx4_en: Notify user when TX ring in error state")
 Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
 Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |   20 +++++++++++++-------
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    7 ++++++-
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    1 
+ drivers/net/ethernet/mellanox/mlx4/en_tx.c     |   40 ++++++++++++++++++++-----
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    5 +++
+ 3 files changed, 39 insertions(+), 7 deletions(-)
 
 --- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
 +++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1378,8 +1378,10 @@ static void mlx4_en_tx_timeout(struct ne
- 		tx_ring->cons, tx_ring->prod);
- 
- 	priv->port_stats.tx_timeout++;
--	en_dbg(DRV, priv, "Scheduling watchdog\n");
--	queue_work(mdev->workqueue, &priv->watchdog_task);
-+	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
-+		en_dbg(DRV, priv, "Scheduling port restart\n");
-+		queue_work(mdev->workqueue, &priv->restart_task);
-+	}
+@@ -1735,6 +1735,7 @@ int mlx4_en_start_port(struct net_device
+ 				mlx4_en_deactivate_cq(priv, cq);
+ 				goto tx_err;
+ 			}
++			clear_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &tx_ring->state);
+ 			if (t != TX_XDP) {
+ 				tx_ring->tx_queue = netdev_get_tx_queue(dev, i);
+ 				tx_ring->recycle_ring = NULL;
+--- a/drivers/net/ethernet/mellanox/mlx4/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
+@@ -392,6 +392,35 @@ int mlx4_en_free_tx_buf(struct net_devic
+ 	return cnt;
  }
  
- 
-@@ -1829,6 +1831,7 @@ int mlx4_en_start_port(struct net_device
- 		local_bh_enable();
- 	}
- 
-+	clear_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state);
- 	netif_tx_start_all_queues(dev);
- 	netif_device_attach(dev);
- 
-@@ -1999,7 +2002,7 @@ void mlx4_en_stop_port(struct net_device
- static void mlx4_en_restart(struct work_struct *work)
++static void mlx4_en_handle_err_cqe(struct mlx4_en_priv *priv, struct mlx4_err_cqe *err_cqe,
++				   u16 cqe_index, struct mlx4_en_tx_ring *ring)
++{
++	struct mlx4_en_dev *mdev = priv->mdev;
++	struct mlx4_en_tx_info *tx_info;
++	struct mlx4_en_tx_desc *tx_desc;
++	u16 wqe_index;
++	int desc_size;
++
++	en_err(priv, "CQE error - cqn 0x%x, ci 0x%x, vendor syndrome: 0x%x syndrome: 0x%x\n",
++	       ring->sp_cqn, cqe_index, err_cqe->vendor_err_syndrome, err_cqe->syndrome);
++	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, err_cqe, sizeof(*err_cqe),
++		       false);
++
++	wqe_index = be16_to_cpu(err_cqe->wqe_index) & ring->size_mask;
++	tx_info = &ring->tx_info[wqe_index];
++	desc_size = tx_info->nr_txbb << LOG_TXBB_SIZE;
++	en_err(priv, "Related WQE - qpn 0x%x, wqe index 0x%x, wqe size 0x%x\n", ring->qpn,
++	       wqe_index, desc_size);
++	tx_desc = ring->buf + (wqe_index << LOG_TXBB_SIZE);
++	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, tx_desc, desc_size, false);
++
++	if (test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
++		return;
++
++	en_err(priv, "Scheduling port restart\n");
++	queue_work(mdev->workqueue, &priv->restart_task);
++}
++
+ int mlx4_en_process_tx_cq(struct net_device *dev,
+ 			  struct mlx4_en_cq *cq, int napi_budget)
  {
- 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
--						 watchdog_task);
-+						 restart_task);
- 	struct mlx4_en_dev *mdev = priv->mdev;
- 	struct net_device *dev = priv->dev;
+@@ -438,13 +467,10 @@ int mlx4_en_process_tx_cq(struct net_dev
+ 		dma_rmb();
  
-@@ -2377,7 +2380,7 @@ static int mlx4_en_change_mtu(struct net
- 	if (netif_running(dev)) {
- 		mutex_lock(&mdev->state_lock);
- 		if (!mdev->device_up) {
--			/* NIC is probably restarting - let watchdog task reset
-+			/* NIC is probably restarting - let restart task reset
- 			 * the port */
- 			en_dbg(DRV, priv, "Change MTU called with card down!?\n");
- 		} else {
-@@ -2386,7 +2389,9 @@ static int mlx4_en_change_mtu(struct net
- 			if (err) {
- 				en_err(priv, "Failed restarting port:%d\n",
- 					 priv->port);
--				queue_work(mdev->workqueue, &priv->watchdog_task);
-+				if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING,
-+						      &priv->state))
-+					queue_work(mdev->workqueue, &priv->restart_task);
- 			}
- 		}
- 		mutex_unlock(&mdev->state_lock);
-@@ -2792,7 +2797,8 @@ static int mlx4_xdp_set(struct net_devic
- 		if (err) {
- 			en_err(priv, "Failed starting port %d for XDP change\n",
- 			       priv->port);
--			queue_work(mdev->workqueue, &priv->watchdog_task);
-+			if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
-+				queue_work(mdev->workqueue, &priv->restart_task);
- 		}
- 	}
+ 		if (unlikely((cqe->owner_sr_opcode & MLX4_CQE_OPCODE_MASK) ==
+-			     MLX4_CQE_OPCODE_ERROR)) {
+-			struct mlx4_err_cqe *cqe_err = (struct mlx4_err_cqe *)cqe;
+-
+-			en_err(priv, "CQE error - vendor syndrome: 0x%x syndrome: 0x%x\n",
+-			       cqe_err->vendor_err_syndrome,
+-			       cqe_err->syndrome);
+-		}
++			     MLX4_CQE_OPCODE_ERROR))
++			if (!test_and_set_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &ring->state))
++				mlx4_en_handle_err_cqe(priv, (struct mlx4_err_cqe *)cqe, index,
++						       ring);
  
-@@ -3165,7 +3171,7 @@ int mlx4_en_init_netdev(struct mlx4_en_d
- 	priv->counter_index = MLX4_SINK_COUNTER_INDEX(mdev->dev);
- 	spin_lock_init(&priv->stats_lock);
- 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
--	INIT_WORK(&priv->watchdog_task, mlx4_en_restart);
-+	INIT_WORK(&priv->restart_task, mlx4_en_restart);
- 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
- 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
- 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
+ 		/* Skip over last polled CQE */
+ 		new_index = be16_to_cpu(cqe->wqe_index) & size_mask;
 --- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
 +++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -530,6 +530,10 @@ struct mlx4_en_stats_bitmap {
- 	struct mutex mutex; /* for mutual access to stats bitmap */
+@@ -271,6 +271,10 @@ struct mlx4_en_page_cache {
+ 	} buf[MLX4_EN_CACHE_SIZE];
  };
  
 +enum {
-+	MLX4_EN_STATE_FLAG_RESTARTING,
++	MLX4_EN_TX_RING_STATE_RECOVERING,
 +};
 +
- struct mlx4_en_priv {
- 	struct mlx4_en_dev *mdev;
- 	struct mlx4_en_port_profile *prof;
-@@ -595,7 +599,7 @@ struct mlx4_en_priv {
- 	struct mlx4_en_cq *rx_cq[MAX_RX_RINGS];
- 	struct mlx4_qp drop_qp;
- 	struct work_struct rx_mode_task;
--	struct work_struct watchdog_task;
-+	struct work_struct restart_task;
- 	struct work_struct linkstate_task;
- 	struct delayed_work stats_task;
- 	struct delayed_work service_task;
-@@ -641,6 +645,7 @@ struct mlx4_en_priv {
- 	u32 pflags;
- 	u8 rss_key[MLX4_EN_RSS_KEY_SIZE];
- 	u8 rss_hash_fn;
-+	unsigned long state;
- };
+ struct mlx4_en_priv;
  
- enum mlx4_en_wol {
+ struct mlx4_en_tx_ring {
+@@ -317,6 +321,7 @@ struct mlx4_en_tx_ring {
+ 	 * Only queue_stopped might be used if BQL is not properly working.
+ 	 */
+ 	unsigned long		queue_stopped;
++	unsigned long		state;
+ 	struct mlx4_hwq_resources sp_wqres;
+ 	struct mlx4_qp		sp_qp;
+ 	struct mlx4_qp_context	sp_context;
 
 
