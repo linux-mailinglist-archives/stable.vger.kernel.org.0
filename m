@@ -2,25 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 681932DEF42
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1052DEF24
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbgLSM7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:59:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46570 "EHLO mail.kernel.org"
+        id S1728278AbgLSM7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728229AbgLSM7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:59:34 -0500
+        id S1728270AbgLSM7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:38 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 44/49] ALSA: pcm: oss: Fix potential out-of-bounds shift
-Date:   Sat, 19 Dec 2020 13:58:48 +0100
-Message-Id: <20201219125346.823690385@linuxfoundation.org>
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Subject: [PATCH 5.9 45/49] serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
+Date:   Sat, 19 Dec 2020 13:58:49 +0100
+Message-Id: <20201219125346.872315993@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -32,46 +31,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
 
-commit 175b8d89fe292796811fdee87fa39799a5b6b87a upstream.
+commit d96f04d347e4011977abdbb4da5d8f303ebd26f8 upstream.
 
-syzbot spotted a potential out-of-bounds shift in the PCM OSS layer
-where it calculates the buffer size with the arbitrary shift value
-given via an ioctl.
+It has been observed that once per 300-1300 port openings the first
+transmitted byte is being corrupted on AM3352 ("v" written to FIFO appeared
+as "e" on the wire). It only happened if single byte has been transmitted
+right after port open, which means, DMA is not used for this transfer and
+the corruption never happened afterwards.
 
-Add a range check for avoiding the undefined behavior.
-As the value can be treated by a signed integer, the max shift should
-be 30.
+Therefore I've carefully re-read the MDR1 errata (link below), which says
+"when accessing the MDR1 registers that causes a dummy under-run condition
+that will freeze the UART in IrDA transmission. In UART mode, this may
+corrupt the transferred data". Strictly speaking,
+omap_8250_mdr1_errataset() performs a read access and if the value is the
+same as should be written, exits without errata-recommended FIFO reset.
 
-Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209084552.17109-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+A brief check of the serial_omap_mdr1_errataset() from the competing
+omap-serial driver showed it has no read access of MDR1. After removing the
+read access from omap_8250_mdr1_errataset() the data corruption never
+happened any more.
+
+Link: https://www.ti.com/lit/er/sprz360i/sprz360i.pdf
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Link: https://lore.kernel.org/r/20201210055257.1053028-1-alexander.sverdlin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/pcm_oss.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_omap.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -1935,11 +1935,15 @@ static int snd_pcm_oss_set_subdivide(str
- static int snd_pcm_oss_set_fragment1(struct snd_pcm_substream *substream, unsigned int val)
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -184,11 +184,6 @@ static void omap_8250_mdr1_errataset(str
+ 				     struct omap8250_priv *priv)
  {
- 	struct snd_pcm_runtime *runtime;
-+	int fragshift;
+ 	u8 timeout = 255;
+-	u8 old_mdr1;
+-
+-	old_mdr1 = serial_in(up, UART_OMAP_MDR1);
+-	if (old_mdr1 == priv->mdr1)
+-		return;
  
- 	runtime = substream->runtime;
- 	if (runtime->oss.subdivision || runtime->oss.fragshift)
- 		return -EINVAL;
--	runtime->oss.fragshift = val & 0xffff;
-+	fragshift = val & 0xffff;
-+	if (fragshift >= 31)
-+		return -EINVAL;
-+	runtime->oss.fragshift = fragshift;
- 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
- 	if (runtime->oss.fragshift < 4)		/* < 16 */
- 		runtime->oss.fragshift = 4;
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
 
 
