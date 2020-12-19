@@ -2,24 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846272DEF55
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A322DEF1B
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:00:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726811AbgLSNCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:02:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45308 "EHLO mail.kernel.org"
+        id S1727943AbgLSM7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726761AbgLSM66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:58 -0500
+        id S1726552AbgLSM7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:00 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Jun <jun.li@nxp.com>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.9 39/49] xhci: Give USB2 ports time to enter U3 in bus suspend
-Date:   Sat, 19 Dec 2020 13:58:43 +0100
-Message-Id: <20201219125346.578741877@linuxfoundation.org>
+Subject: [PATCH 5.9 40/49] xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
+Date:   Sat, 19 Dec 2020 13:58:44 +0100
+Message-Id: <20201219125346.627251411@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -31,43 +33,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit c1373f10479b624fb6dba0805d673e860f1b421d upstream.
+commit c4d1ca05b8e68a4b5a3c4455cb6ec25b3df6d9dd upstream.
 
-If a USB2 device wakeup is not enabled/supported the link state may
-still be in U0 in xhci_bus_suspend(), where it's then manually put
-to suspended U3 state.
+The xHCI controller on Alpine Ridge LP keeps the whole Thunderbolt
+controller awake if the host controller is not allowed to sleep.
+This is the case even if no USB devices are connected to the host.
 
-Just as with selective suspend the device needs time to enter U3
-suspend before continuing with further suspend operations
-(e.g. system suspend), otherwise we may enter system suspend with link
-state in U0.
+Add the Intel Alpine Ridge LP product-id to the list of product-ids
+for which we allow runtime PM by default.
 
-[commit message rewording -Mathias]
-
+Fixes: 2815ef7fe4d4 ("xhci-pci: allow host runtime PM as default for Intel Alpine and Titan Ridge")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Li Jun <jun.li@nxp.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20201208092912.1773650-6-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20201208092912.1773650-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-hub.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci-pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1712,6 +1712,10 @@ retry:
- 	hcd->state = HC_STATE_SUSPENDED;
- 	bus_state->next_statechange = jiffies + msecs_to_jiffies(10);
- 	spin_unlock_irqrestore(&xhci->lock, flags);
-+
-+	if (bus_state->bus_suspended)
-+		usleep_range(5000, 10000);
-+
- 	return 0;
- }
- 
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -46,6 +46,7 @@
+ #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI	0x15b5
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI	0x15b6
++#define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI	0x15c1
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI	0x15db
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI	0x15d4
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
+@@ -231,6 +232,7 @@ static void xhci_pci_quirks(struct devic
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
 
 
