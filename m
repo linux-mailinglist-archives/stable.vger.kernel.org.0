@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5988E2DEFB0
+	by mail.lfdr.de (Postfix) with ESMTP id D10132DEFB1
 	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727645AbgLSM6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:58:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
+        id S1727688AbgLSM6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:58:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727623AbgLSM6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:33 -0500
+        id S1727662AbgLSM6f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:35 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
@@ -18,9 +18,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
         Joakim Zhang <qiangqing.zhang@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.9 15/49] net: stmmac: start phylink instance before stmmac_hw_setup()
-Date:   Sat, 19 Dec 2020 13:58:19 +0100
-Message-Id: <20201219125345.424895485@linuxfoundation.org>
+Subject: [PATCH 5.9 16/49] net: stmmac: free tx skb buffer in stmmac_resume()
+Date:   Sat, 19 Dec 2020 13:58:20 +0100
+Message-Id: <20201219125345.473599991@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -34,54 +34,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 36d18b5664ef617ccf4da266291d2f2342fab89d ]
+[ Upstream commit 4ec236c7c51f89abb0224a4da4a6b77f9beb6600 ]
 
-Start phylink instance and resume back the PHY to supply
-RX clock to MAC before MAC layer initialization by calling
-.stmmac_hw_setup(), since DMA reset depends on the RX clock,
-otherwise DMA reset cost maximum timeout value then finally
-timeout.
+When do suspend/resume test, there have WARN_ON() log dump from
+stmmac_xmit() funciton, the code logic:
+	entry = tx_q->cur_tx;
+	first_entry = entry;
+	WARN_ON(tx_q->tx_skbuff[first_entry]);
 
-Fixes: 74371272f97f ("net: stmmac: Convert to phylink and remove phylib logic")
+In normal case, tx_q->tx_skbuff[txq->cur_tx] should be NULL because
+the skb should be handled and freed in stmmac_tx_clean().
+
+But stmmac_resume() reset queue parameters like below, skb buffers
+may not be freed.
+	tx_q->cur_tx = 0;
+	tx_q->dirty_tx = 0;
+
+So free tx skb buffer in stmmac_resume() to avoid warning and
+memory leak.
+
+log:
+[   46.139824] ------------[ cut here ]------------
+[   46.144453] WARNING: CPU: 0 PID: 0 at drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:3235 stmmac_xmit+0x7a0/0x9d0
+[   46.154969] Modules linked in: crct10dif_ce vvcam(O) flexcan can_dev
+[   46.161328] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      5.4.24-2.1.0+g2ad925d15481 #1
+[   46.170369] Hardware name: NXP i.MX8MPlus EVK board (DT)
+[   46.175677] pstate: 80000005 (Nzcv daif -PAN -UAO)
+[   46.180465] pc : stmmac_xmit+0x7a0/0x9d0
+[   46.184387] lr : dev_hard_start_xmit+0x94/0x158
+[   46.188913] sp : ffff800010003cc0
+[   46.192224] x29: ffff800010003cc0 x28: ffff000177e2a100
+[   46.197533] x27: ffff000176ef0840 x26: ffff000176ef0090
+[   46.202842] x25: 0000000000000000 x24: 0000000000000000
+[   46.208151] x23: 0000000000000003 x22: ffff8000119ddd30
+[   46.213460] x21: ffff00017636f000 x20: ffff000176ef0cc0
+[   46.218769] x19: 0000000000000003 x18: 0000000000000000
+[   46.224078] x17: 0000000000000000 x16: 0000000000000000
+[   46.229386] x15: 0000000000000079 x14: 0000000000000000
+[   46.234695] x13: 0000000000000003 x12: 0000000000000003
+[   46.240003] x11: 0000000000000010 x10: 0000000000000010
+[   46.245312] x9 : ffff00017002b140 x8 : 0000000000000000
+[   46.250621] x7 : ffff00017636f000 x6 : 0000000000000010
+[   46.255930] x5 : 0000000000000001 x4 : ffff000176ef0000
+[   46.261238] x3 : 0000000000000003 x2 : 00000000ffffffff
+[   46.266547] x1 : ffff000177e2a000 x0 : 0000000000000000
+[   46.271856] Call trace:
+[   46.274302]  stmmac_xmit+0x7a0/0x9d0
+[   46.277874]  dev_hard_start_xmit+0x94/0x158
+[   46.282056]  sch_direct_xmit+0x11c/0x338
+[   46.285976]  __qdisc_run+0x118/0x5f0
+[   46.289549]  net_tx_action+0x110/0x198
+[   46.293297]  __do_softirq+0x120/0x23c
+[   46.296958]  irq_exit+0xb8/0xd8
+[   46.300098]  __handle_domain_irq+0x64/0xb8
+[   46.304191]  gic_handle_irq+0x5c/0x148
+[   46.307936]  el1_irq+0xb8/0x180
+[   46.311076]  cpuidle_enter_state+0x84/0x360
+[   46.315256]  cpuidle_enter+0x34/0x48
+[   46.318829]  call_cpuidle+0x18/0x38
+[   46.322314]  do_idle+0x1e0/0x280
+[   46.325539]  cpu_startup_entry+0x24/0x40
+[   46.329460]  rest_init+0xd4/0xe0
+[   46.332687]  arch_call_rest_init+0xc/0x14
+[   46.336695]  start_kernel+0x420/0x44c
+[   46.340353] ---[ end trace bc1ee695123cbacd ]---
+
+Fixes: 47dd7a540b8a0 ("net: add support for STMicroelectronics Ethernet controllers.")
 Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
 Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
 +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -5170,6 +5170,14 @@ int stmmac_resume(struct device *dev)
- 			return ret;
- 	}
+@@ -1530,6 +1530,19 @@ static void dma_free_tx_skbufs(struct st
+ }
  
-+	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
-+		rtnl_lock();
-+		phylink_start(priv->phylink);
-+		/* We may have called phylink_speed_down before */
-+		phylink_speed_up(priv->phylink);
-+		rtnl_unlock();
-+	}
+ /**
++ * stmmac_free_tx_skbufs - free TX skb buffers
++ * @priv: private structure
++ */
++static void stmmac_free_tx_skbufs(struct stmmac_priv *priv)
++{
++	u32 tx_queue_cnt = priv->plat->tx_queues_to_use;
++	u32 queue;
 +
- 	rtnl_lock();
- 	mutex_lock(&priv->lock);
++	for (queue = 0; queue < tx_queue_cnt; queue++)
++		dma_free_tx_skbufs(priv, queue);
++}
++
++/**
+  * free_dma_rx_desc_resources - free RX dma desc resources
+  * @priv: private structure
+  */
+@@ -5183,6 +5196,7 @@ int stmmac_resume(struct device *dev)
  
-@@ -5188,14 +5196,6 @@ int stmmac_resume(struct device *dev)
- 	mutex_unlock(&priv->lock);
- 	rtnl_unlock();
+ 	stmmac_reset_queues_param(priv);
  
--	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
--		rtnl_lock();
--		phylink_start(priv->phylink);
--		/* We may have called phylink_speed_down before */
--		phylink_speed_up(priv->phylink);
--		rtnl_unlock();
--	}
--
- 	phylink_mac_change(priv->phylink, true);
++	stmmac_free_tx_skbufs(priv);
+ 	stmmac_clear_descriptors(priv);
  
- 	netif_device_attach(ndev);
+ 	stmmac_hw_setup(ndev, false);
 
 
