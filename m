@@ -2,27 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45A92DEFAF
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D3B2DEF51
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727651AbgLSM6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:58:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
+        id S1727407AbgLSNCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:02:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727633AbgLSM6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:33 -0500
+        id S1726090AbgLSM67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:59 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Sujit Kautkar <sujitka@chromium.org>,
-        Alex Elder <elder@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 03/49] net: ipa: pass the correct size when freeing DMA memory
-Date:   Sat, 19 Dec 2020 13:58:07 +0100
-Message-Id: <20201219125344.843872853@linuxfoundation.org>
+Subject: [PATCH 5.9 04/49] ipv4: fix error return code in rtm_to_fib_config()
+Date:   Sat, 19 Dec 2020 13:58:08 +0100
+Message-Id: <20201219125344.891904723@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -34,48 +33,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 1130b252480f3c98cf468e78c1c5c516b390a29c ]
+[ Upstream commit b410f04eb5b482b5efc4eee90de81ad35d3d923b ]
 
-When the coherent memory is freed in gsi_trans_pool_exit_dma(), we
-are mistakenly passing the size of a single element in the pool
-rather than the actual allocated size.  Fix this bug.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 9dd441e4ed575 ("soc: qcom: ipa: GSI transactions")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Tested-by: Sujit Kautkar <sujitka@chromium.org>
-Signed-off-by: Alex Elder <elder@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20201203215106.17450-1-elder@linaro.org
+Fixes: d15662682db2 ("ipv4: Allow ipv6 gateway with ipv4 routes")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/1607071695-33740-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/gsi_trans.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ipv4/fib_frontend.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ipa/gsi_trans.c
-+++ b/drivers/net/ipa/gsi_trans.c
-@@ -157,6 +157,9 @@ int gsi_trans_pool_init_dma(struct devic
- 	/* The allocator will give us a power-of-2 number of pages.  But we
- 	 * can't guarantee that, so request it.  That way we won't waste any
- 	 * memory that would be available beyond the required space.
-+	 *
-+	 * Note that gsi_trans_pool_exit_dma() assumes the total allocated
-+	 * size is exactly (count * size).
- 	 */
- 	total_size = get_order(total_size) << PAGE_SHIFT;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -825,7 +825,7 @@ static int rtm_to_fib_config(struct net
+ 	if (has_gw && has_via) {
+ 		NL_SET_ERR_MSG(extack,
+ 			       "Nexthop configuration can not contain both GATEWAY and VIA");
+-		goto errout;
++		return -EINVAL;
+ 	}
  
-@@ -176,7 +179,9 @@ int gsi_trans_pool_init_dma(struct devic
- 
- void gsi_trans_pool_exit_dma(struct device *dev, struct gsi_trans_pool *pool)
- {
--	dma_free_coherent(dev, pool->size, pool->base, pool->addr);
-+	size_t total_size = pool->count * pool->size;
-+
-+	dma_free_coherent(dev, total_size, pool->base, pool->addr);
- 	memset(pool, 0, sizeof(*pool));
- }
- 
+ 	return 0;
 
 
