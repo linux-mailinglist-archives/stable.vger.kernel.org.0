@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA2E52DEF4D
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 681932DEF42
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbgLSNCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:02:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
+        id S1728235AbgLSM7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727986AbgLSM7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:59:06 -0500
+        id S1728229AbgLSM7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:34 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        linux-usb@vger.kernel.org
-Subject: [PATCH 5.9 43/49] USB: sisusbvga: Make console support depend on BROKEN
-Date:   Sat, 19 Dec 2020 13:58:47 +0100
-Message-Id: <20201219125346.774463378@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 44/49] ALSA: pcm: oss: Fix potential out-of-bounds shift
+Date:   Sat, 19 Dec 2020 13:58:48 +0100
+Message-Id: <20201219125346.823690385@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -32,46 +32,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 862ee699fefe1e6d6f2c1518395f0b999b8beb15 upstream.
+commit 175b8d89fe292796811fdee87fa39799a5b6b87a upstream.
 
-The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
-to detect contexts in which it cannot sleep despite the big fat comment in
-preempt.h which says: Do not use in_atomic() in driver code.
+syzbot spotted a potential out-of-bounds shift in the PCM OSS layer
+where it calculates the buffer size with the arbitrary shift value
+given via an ioctl.
 
-in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
-means that spin/rw_lock held regions are not detected by it.
+Add a range check for avoiding the undefined behavior.
+As the value can be treated by a signed integer, the max shift should
+be 30.
 
-There is no way to make this work by handing context information through to
-the driver and this only can be solved once the core printk infrastructure
-supports sleepable console drivers.
-
-Make it depend on BROKEN for now.
-
-Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201019101109.603244207@linutronix.de
+Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201209084552.17109-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/sisusbvga/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/oss/pcm_oss.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/sisusbvga/Kconfig
-+++ b/drivers/usb/misc/sisusbvga/Kconfig
-@@ -16,7 +16,7 @@ config USB_SISUSBVGA
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1935,11 +1935,15 @@ static int snd_pcm_oss_set_subdivide(str
+ static int snd_pcm_oss_set_fragment1(struct snd_pcm_substream *substream, unsigned int val)
+ {
+ 	struct snd_pcm_runtime *runtime;
++	int fragshift;
  
- config USB_SISUSBVGA_CON
- 	bool "Text console and mode switching support" if USB_SISUSBVGA
--	depends on VT
-+	depends on VT && BROKEN
- 	select FONT_8x16
- 	help
- 	  Say Y here if you want a VGA text console via the USB dongle or
+ 	runtime = substream->runtime;
+ 	if (runtime->oss.subdivision || runtime->oss.fragshift)
+ 		return -EINVAL;
+-	runtime->oss.fragshift = val & 0xffff;
++	fragshift = val & 0xffff;
++	if (fragshift >= 31)
++		return -EINVAL;
++	runtime->oss.fragshift = fragshift;
+ 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
+ 	if (runtime->oss.fragshift < 4)		/* < 16 */
+ 		runtime->oss.fragshift = 4;
 
 
