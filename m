@@ -2,29 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09682DEF58
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1942DEF19
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727899AbgLSM6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:58:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45528 "EHLO mail.kernel.org"
+        id S1727922AbgLSM64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:58:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727881AbgLSM6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:53 -0500
+        id S1727908AbgLSM6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:55 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ingemar Johansson <ingemar.s.johansson@ericsson.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 23/49] tcp: fix cwnd-limited bug for TSO deferral where we send nothing
-Date:   Sat, 19 Dec 2020 13:58:27 +0100
-Message-Id: <20201219125345.818656912@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Chris Mi <cmi@nvidia.com>, Roi Dayan <roid@nvidia.com>
+Subject: [PATCH 5.9 24/49] net: flow_offload: Fix memory leak for indirect flow block
+Date:   Sat, 19 Dec 2020 13:58:28 +0100
+Message-Id: <20201219125345.861105375@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -36,86 +31,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Chris Mi <cmi@nvidia.com>
 
-[ Upstream commit 299bcb55ecd1412f6df606e9dc0912d55610029e ]
+[ Upstream commit 5137d303659d8c324e67814b1cc2e1bc0c0d9836 ]
 
-When cwnd is not a multiple of the TSO skb size of N*MSS, we can get
-into persistent scenarios where we have the following sequence:
+The offending commit introduces a cleanup callback that is invoked
+when the driver module is removed to clean up the tunnel device
+flow block. But it returns on the first iteration of the for loop.
+The remaining indirect flow blocks will never be freed.
 
-(1) ACK for full-sized skb of N*MSS arrives
-  -> tcp_write_xmit() transmit full-sized skb with N*MSS
-  -> move pacing release time forward
-  -> exit tcp_write_xmit() because pacing time is in the future
-
-(2) TSQ callback or TCP internal pacing timer fires
-  -> try to transmit next skb, but TSO deferral finds remainder of
-     available cwnd is not big enough to trigger an immediate send
-     now, so we defer sending until the next ACK.
-
-(3) repeat...
-
-So we can get into a case where we never mark ourselves as
-cwnd-limited for many seconds at a time, even with
-bulk/infinite-backlog senders, because:
-
-o In case (1) above, every time in tcp_write_xmit() we have enough
-cwnd to send a full-sized skb, we are not fully using the cwnd
-(because cwnd is not a multiple of the TSO skb size). So every time we
-send data, we are not cwnd limited, and so in the cwnd-limited
-tracking code in tcp_cwnd_validate() we mark ourselves as not
-cwnd-limited.
-
-o In case (2) above, every time in tcp_write_xmit() that we try to
-transmit the "remainder" of the cwnd but defer, we set the local
-variable is_cwnd_limited to true, but we do not send any packets, so
-sent_pkts is zero, so we don't call the cwnd-limited logic to update
-tp->is_cwnd_limited.
-
-Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
-Reported-by: Ingemar Johansson <ingemar.s.johansson@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201209035759.1225145-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1fac52da5942 ("net: flow_offload: consolidate indirect flow_block infrastructure")
+CC: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Chris Mi <cmi@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/core/flow_offload.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1723,7 +1723,8 @@ static void tcp_cwnd_validate(struct soc
- 	 * window, and remember whether we were cwnd-limited then.
- 	 */
- 	if (!before(tp->snd_una, tp->max_packets_seq) ||
--	    tp->packets_out > tp->max_packets_out) {
-+	    tp->packets_out > tp->max_packets_out ||
-+	    is_cwnd_limited) {
- 		tp->max_packets_out = tp->packets_out;
- 		tp->max_packets_seq = tp->snd_nxt;
- 		tp->is_cwnd_limited = is_cwnd_limited;
-@@ -2545,6 +2546,10 @@ repair:
- 	else
- 		tcp_chrono_stop(sk, TCP_CHRONO_RWND_LIMITED);
+--- a/net/core/flow_offload.c
++++ b/net/core/flow_offload.c
+@@ -381,10 +381,8 @@ static void __flow_block_indr_cleanup(vo
  
-+	is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
-+	if (likely(sent_pkts || is_cwnd_limited))
-+		tcp_cwnd_validate(sk, is_cwnd_limited);
-+
- 	if (likely(sent_pkts)) {
- 		if (tcp_in_cwnd_reduction(sk))
- 			tp->prr_out += sent_pkts;
-@@ -2552,8 +2557,6 @@ repair:
- 		/* Send one loss probe per tail loss episode. */
- 		if (push_one != 2)
- 			tcp_schedule_loss_probe(sk, false);
--		is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
--		tcp_cwnd_validate(sk, is_cwnd_limited);
- 		return false;
+ 	list_for_each_entry_safe(this, next, &flow_block_indr_list, indr.list) {
+ 		if (this->release == release &&
+-		    this->indr.cb_priv == cb_priv) {
++		    this->indr.cb_priv == cb_priv)
+ 			list_move(&this->indr.list, cleanup_list);
+-			return;
+-		}
  	}
- 	return !tp->packets_out && !tcp_write_queue_empty(sk);
+ }
+ 
 
 
