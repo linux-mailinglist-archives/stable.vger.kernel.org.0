@@ -2,25 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AAA2DEF60
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C04292DEF45
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726742AbgLSNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:02:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        id S1726774AbgLSNBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:01:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727894AbgLSM6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:53 -0500
+        id S1728090AbgLSM7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:21 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.9 37/49] ALSA: usb-audio: Fix potential out-of-bounds shift
-Date:   Sat, 19 Dec 2020 13:58:41 +0100
-Message-Id: <20201219125346.486923224@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.9 38/49] ALSA: usb-audio: Fix control access overflow errors from chmap
+Date:   Sat, 19 Dec 2020 13:58:42 +0100
+Message-Id: <20201219125346.529694025@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -34,34 +32,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 43d5ca88dfcd35e43010fdd818e067aa9a55f5ba upstream.
+commit c6dde8ffd071aea9d1ce64279178e470977b235c upstream.
 
-syzbot spotted a potential out-of-bounds shift in the USB-audio format
-parser that receives the arbitrary shift value from the USB
-descriptor.
+The current channel-map control implementation in USB-audio driver may
+lead to an error message like
+  "control 3:0:0:Playback Channel Map:0: access overflow"
+when CONFIG_SND_CTL_VALIDATION is set.  It's because the chmap get
+callback clears the whole array no matter which count is set, and
+rather the false-positive detection.
 
-Add a range check for avoiding the undefined behavior.
+This patch fixes the problem by clearing only the needed array range
+at usb_chmap_ctl_get().
 
-Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209084552.17109-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20201211130048.6358-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/format.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/stream.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -40,6 +40,8 @@ static u64 parse_audio_format_i_type(str
- 	case UAC_VERSION_1:
- 	default: {
- 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
-+		if (format >= 64)
-+			return 0; /* invalid format */
- 		sample_width = fmt->bBitResolution;
- 		sample_bytes = fmt->bSubframeSize;
- 		format = 1ULL << format;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -193,16 +193,16 @@ static int usb_chmap_ctl_get(struct snd_
+ 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
+ 	struct snd_usb_substream *subs = info->private_data;
+ 	struct snd_pcm_chmap_elem *chmap = NULL;
+-	int i;
++	int i = 0;
+ 
+-	memset(ucontrol->value.integer.value, 0,
+-	       sizeof(ucontrol->value.integer.value));
+ 	if (subs->cur_audiofmt)
+ 		chmap = subs->cur_audiofmt->chmap;
+ 	if (chmap) {
+ 		for (i = 0; i < chmap->channels; i++)
+ 			ucontrol->value.integer.value[i] = chmap->map[i];
+ 	}
++	for (; i < subs->channels_max; i++)
++		ucontrol->value.integer.value[i] = 0;
+ 	return 0;
+ }
+ 
 
 
