@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787F32DEF39
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:01:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D70042DEF43
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728310AbgLSNBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46866 "EHLO mail.kernel.org"
+        id S1727180AbgLSNBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:01:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728288AbgLSM7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:59:43 -0500
+        id S1728293AbgLSM7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:45 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: [PATCH 5.9 47/49] membarrier: Explicitly sync remote cores when SYNC_CORE is requested
-Date:   Sat, 19 Dec 2020 13:58:51 +0100
-Message-Id: <20201219125346.965378603@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.9 48/49] x86/resctrl: Remove unused struct mbm_state::chunks_bw
+Date:   Sat, 19 Dec 2020 13:58:52 +0100
+Message-Id: <20201219125347.013831067@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -32,88 +33,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: James Morse <james.morse@arm.com>
 
-commit 758c9373d84168dc7d039cf85a0e920046b17b41 upstream.
+commit abe8f12b44250d02937665033a8b750c1bfeb26e upstream
 
-membarrier() does not explicitly sync_core() remote CPUs; instead, it
-relies on the assumption that an IPI will result in a core sync.  On x86,
-this may be true in practice, but it's not architecturally reliable.  In
-particular, the SDM and APM do not appear to guarantee that interrupt
-delivery is serializing.  While IRET does serialize, IPI return can
-schedule, thereby switching to another task in the same mm that was
-sleeping in a syscall.  The new task could then SYSRET back to usermode
-without ever executing IRET.
+Nothing reads struct mbm_states's chunks_bw value, its a copy of
+chunks. Remove it.
 
-Make this more robust by explicitly calling sync_core_before_usermode()
-on remote cores.  (This also helps people who search the kernel tree for
-instances of sync_core() and sync_core_before_usermode() -- one might be
-surprised that the core membarrier code doesn't currently show up in a
-such a search.)
-
-Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYNC_CORE")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/776b448d5f7bd6b12690707f5ed67bcda7f1d427.1607058304.git.luto@kernel.org
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Link: https://lkml.kernel.org/r/20200708163929.2783-2-james.morse@arm.com
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- kernel/sched/membarrier.c |   21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/resctrl/internal.h |    2 --
+ arch/x86/kernel/cpu/resctrl/monitor.c  |    3 +--
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
---- a/kernel/sched/membarrier.c
-+++ b/kernel/sched/membarrier.c
-@@ -30,6 +30,23 @@ static void ipi_mb(void *info)
- 	smp_mb();	/* IPIs should be serializing but paranoid. */
- }
+--- a/arch/x86/kernel/cpu/resctrl/internal.h
++++ b/arch/x86/kernel/cpu/resctrl/internal.h
+@@ -283,7 +283,6 @@ struct rftype {
+  * struct mbm_state - status for each MBM counter in each domain
+  * @chunks:	Total data moved (multiply by rdt_group.mon_scale to get bytes)
+  * @prev_msr	Value of IA32_QM_CTR for this RMID last time we read it
+- * @chunks_bw	Total local data moved. Used for bandwidth calculation
+  * @prev_bw_msr:Value of previous IA32_QM_CTR for bandwidth counting
+  * @prev_bw	The most recent bandwidth in MBps
+  * @delta_bw	Difference between the current and previous bandwidth
+@@ -292,7 +291,6 @@ struct rftype {
+ struct mbm_state {
+ 	u64	chunks;
+ 	u64	prev_msr;
+-	u64	chunks_bw;
+ 	u64	prev_bw_msr;
+ 	u32	prev_bw;
+ 	u32	delta_bw;
+--- a/arch/x86/kernel/cpu/resctrl/monitor.c
++++ b/arch/x86/kernel/cpu/resctrl/monitor.c
+@@ -279,8 +279,7 @@ static void mbm_bw_count(u32 rmid, struc
+ 		return;
  
-+static void ipi_sync_core(void *info)
-+{
-+	/*
-+	 * The smp_mb() in membarrier after all the IPIs is supposed to
-+	 * ensure that memory on remote CPUs that occur before the IPI
-+	 * become visible to membarrier()'s caller -- see scenario B in
-+	 * the big comment at the top of this file.
-+	 *
-+	 * A sync_core() would provide this guarantee, but
-+	 * sync_core_before_usermode() might end up being deferred until
-+	 * after membarrier()'s smp_mb().
-+	 */
-+	smp_mb();	/* IPIs should be serializing but paranoid. */
-+
-+	sync_core_before_usermode();
-+}
-+
- static void ipi_sync_rq_state(void *info)
- {
- 	struct mm_struct *mm = (struct mm_struct *) info;
-@@ -134,6 +151,7 @@ static int membarrier_private_expedited(
- 	int cpu;
- 	cpumask_var_t tmpmask;
- 	struct mm_struct *mm = current->mm;
-+	smp_call_func_t ipi_func = ipi_mb;
+ 	chunks = mbm_overflow_count(m->prev_bw_msr, tval, rr->r->mbm_width);
+-	m->chunks_bw += chunks;
+-	m->chunks = m->chunks_bw;
++	m->chunks += chunks;
+ 	cur_bw = (chunks * r->mon_scale) >> 20;
  
- 	if (flags & MEMBARRIER_FLAG_SYNC_CORE) {
- 		if (!IS_ENABLED(CONFIG_ARCH_HAS_MEMBARRIER_SYNC_CORE))
-@@ -141,6 +159,7 @@ static int membarrier_private_expedited(
- 		if (!(atomic_read(&mm->membarrier_state) &
- 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_SYNC_CORE_READY))
- 			return -EPERM;
-+		ipi_func = ipi_sync_core;
- 	} else {
- 		if (!(atomic_read(&mm->membarrier_state) &
- 		      MEMBARRIER_STATE_PRIVATE_EXPEDITED_READY))
-@@ -181,7 +200,7 @@ static int membarrier_private_expedited(
- 	rcu_read_unlock();
- 
- 	preempt_disable();
--	smp_call_function_many(tmpmask, ipi_mb, NULL, 1);
-+	smp_call_function_many(tmpmask, ipi_func, NULL, 1);
- 	preempt_enable();
- 
- 	free_cpumask_var(tmpmask);
+ 	if (m->delta_comp)
 
 
