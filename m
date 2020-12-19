@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 196AA2DEF75
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9375F2DEF86
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727934AbgLSNE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:04:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52348 "EHLO mail.kernel.org"
+        id S1727217AbgLSNE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728844AbgLSNEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728850AbgLSNEZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 19 Dec 2020 08:04:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Huang <Joseph.Huang@garmin.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 09/34] bridge: Fix a deadlock when enabling multicast snooping
-Date:   Sat, 19 Dec 2020 14:03:06 +0100
-Message-Id: <20201219125341.836671807@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 10/34] net: stmmac: free tx skb buffer in stmmac_resume()
+Date:   Sat, 19 Dec 2020 14:03:07 +0100
+Message-Id: <20201219125341.885707300@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125341.384025953@linuxfoundation.org>
 References: <20201219125341.384025953@linuxfoundation.org>
@@ -32,201 +32,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Huang <Joseph.Huang@garmin.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 851d0a73c90e6c8c63fef106c6c1e73df7e05d9d ]
+[ Upstream commit 4ec236c7c51f89abb0224a4da4a6b77f9beb6600 ]
 
-When enabling multicast snooping, bridge module deadlocks on multicast_lock
-if 1) IPv6 is enabled, and 2) there is an existing querier on the same L2
-network.
+When do suspend/resume test, there have WARN_ON() log dump from
+stmmac_xmit() funciton, the code logic:
+	entry = tx_q->cur_tx;
+	first_entry = entry;
+	WARN_ON(tx_q->tx_skbuff[first_entry]);
 
-The deadlock was caused by the following sequence: While holding the lock,
-br_multicast_open calls br_multicast_join_snoopers, which eventually causes
-IP stack to (attempt to) send out a Listener Report (in igmp6_join_group).
-Since the destination Ethernet address is a multicast address, br_dev_xmit
-feeds the packet back to the bridge via br_multicast_rcv, which in turn
-calls br_multicast_add_group, which then deadlocks on multicast_lock.
+In normal case, tx_q->tx_skbuff[txq->cur_tx] should be NULL because
+the skb should be handled and freed in stmmac_tx_clean().
 
-The fix is to move the call br_multicast_join_snoopers outside of the
-critical section. This works since br_multicast_join_snoopers only deals
-with IP and does not modify any multicast data structures of the bridge,
-so there's no need to hold the lock.
+But stmmac_resume() reset queue parameters like below, skb buffers
+may not be freed.
+	tx_q->cur_tx = 0;
+	tx_q->dirty_tx = 0;
 
-Steps to reproduce:
-1. sysctl net.ipv6.conf.all.force_mld_version=1
-2. have another querier
-3. ip link set dev bridge type bridge mcast_snooping 0 && \
-   ip link set dev bridge type bridge mcast_snooping 1 < deadlock >
+So free tx skb buffer in stmmac_resume() to avoid warning and
+memory leak.
 
-A typical call trace looks like the following:
+log:
+[   46.139824] ------------[ cut here ]------------
+[   46.144453] WARNING: CPU: 0 PID: 0 at drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:3235 stmmac_xmit+0x7a0/0x9d0
+[   46.154969] Modules linked in: crct10dif_ce vvcam(O) flexcan can_dev
+[   46.161328] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      5.4.24-2.1.0+g2ad925d15481 #1
+[   46.170369] Hardware name: NXP i.MX8MPlus EVK board (DT)
+[   46.175677] pstate: 80000005 (Nzcv daif -PAN -UAO)
+[   46.180465] pc : stmmac_xmit+0x7a0/0x9d0
+[   46.184387] lr : dev_hard_start_xmit+0x94/0x158
+[   46.188913] sp : ffff800010003cc0
+[   46.192224] x29: ffff800010003cc0 x28: ffff000177e2a100
+[   46.197533] x27: ffff000176ef0840 x26: ffff000176ef0090
+[   46.202842] x25: 0000000000000000 x24: 0000000000000000
+[   46.208151] x23: 0000000000000003 x22: ffff8000119ddd30
+[   46.213460] x21: ffff00017636f000 x20: ffff000176ef0cc0
+[   46.218769] x19: 0000000000000003 x18: 0000000000000000
+[   46.224078] x17: 0000000000000000 x16: 0000000000000000
+[   46.229386] x15: 0000000000000079 x14: 0000000000000000
+[   46.234695] x13: 0000000000000003 x12: 0000000000000003
+[   46.240003] x11: 0000000000000010 x10: 0000000000000010
+[   46.245312] x9 : ffff00017002b140 x8 : 0000000000000000
+[   46.250621] x7 : ffff00017636f000 x6 : 0000000000000010
+[   46.255930] x5 : 0000000000000001 x4 : ffff000176ef0000
+[   46.261238] x3 : 0000000000000003 x2 : 00000000ffffffff
+[   46.266547] x1 : ffff000177e2a000 x0 : 0000000000000000
+[   46.271856] Call trace:
+[   46.274302]  stmmac_xmit+0x7a0/0x9d0
+[   46.277874]  dev_hard_start_xmit+0x94/0x158
+[   46.282056]  sch_direct_xmit+0x11c/0x338
+[   46.285976]  __qdisc_run+0x118/0x5f0
+[   46.289549]  net_tx_action+0x110/0x198
+[   46.293297]  __do_softirq+0x120/0x23c
+[   46.296958]  irq_exit+0xb8/0xd8
+[   46.300098]  __handle_domain_irq+0x64/0xb8
+[   46.304191]  gic_handle_irq+0x5c/0x148
+[   46.307936]  el1_irq+0xb8/0x180
+[   46.311076]  cpuidle_enter_state+0x84/0x360
+[   46.315256]  cpuidle_enter+0x34/0x48
+[   46.318829]  call_cpuidle+0x18/0x38
+[   46.322314]  do_idle+0x1e0/0x280
+[   46.325539]  cpu_startup_entry+0x24/0x40
+[   46.329460]  rest_init+0xd4/0xe0
+[   46.332687]  arch_call_rest_init+0xc/0x14
+[   46.336695]  start_kernel+0x420/0x44c
+[   46.340353] ---[ end trace bc1ee695123cbacd ]---
 
-[  936.251495]  _raw_spin_lock+0x5c/0x68
-[  936.255221]  br_multicast_add_group+0x40/0x170 [bridge]
-[  936.260491]  br_multicast_rcv+0x7ac/0xe30 [bridge]
-[  936.265322]  br_dev_xmit+0x140/0x368 [bridge]
-[  936.269689]  dev_hard_start_xmit+0x94/0x158
-[  936.273876]  __dev_queue_xmit+0x5ac/0x7f8
-[  936.277890]  dev_queue_xmit+0x10/0x18
-[  936.281563]  neigh_resolve_output+0xec/0x198
-[  936.285845]  ip6_finish_output2+0x240/0x710
-[  936.290039]  __ip6_finish_output+0x130/0x170
-[  936.294318]  ip6_output+0x6c/0x1c8
-[  936.297731]  NF_HOOK.constprop.0+0xd8/0xe8
-[  936.301834]  igmp6_send+0x358/0x558
-[  936.305326]  igmp6_join_group.part.0+0x30/0xf0
-[  936.309774]  igmp6_group_added+0xfc/0x110
-[  936.313787]  __ipv6_dev_mc_inc+0x1a4/0x290
-[  936.317885]  ipv6_dev_mc_inc+0x10/0x18
-[  936.321677]  br_multicast_open+0xbc/0x110 [bridge]
-[  936.326506]  br_multicast_toggle+0xec/0x140 [bridge]
-
-Fixes: 4effd28c1245 ("bridge: join all-snoopers multicast address")
-Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Link: https://lore.kernel.org/r/20201204235628.50653-1-Joseph.Huang@garmin.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 47dd7a540b8a0 ("net: add support for STMicroelectronics Ethernet controllers.")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_device.c    |    6 ++++++
- net/bridge/br_multicast.c |   34 +++++++++++++++++++++++++---------
- net/bridge/br_private.h   |   10 ++++++++++
- 3 files changed, 41 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -168,6 +168,9 @@ static int br_dev_open(struct net_device
- 	br_stp_enable_bridge(br);
- 	br_multicast_open(br);
- 
-+	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
-+		br_multicast_join_snoopers(br);
-+
- 	return 0;
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1442,6 +1442,19 @@ static void dma_free_tx_skbufs(struct st
  }
  
-@@ -188,6 +191,9 @@ static int br_dev_stop(struct net_device
- 	br_stp_disable_bridge(br);
- 	br_multicast_stop(br);
- 
-+	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
-+		br_multicast_leave_snoopers(br);
-+
- 	netif_stop_queue(dev);
- 
- 	return 0;
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1848,7 +1848,7 @@ static inline void br_ip6_multicast_join
- }
- #endif
- 
--static void br_multicast_join_snoopers(struct net_bridge *br)
-+void br_multicast_join_snoopers(struct net_bridge *br)
- {
- 	br_ip4_multicast_join_snoopers(br);
- 	br_ip6_multicast_join_snoopers(br);
-@@ -1879,7 +1879,7 @@ static inline void br_ip6_multicast_leav
- }
- #endif
- 
--static void br_multicast_leave_snoopers(struct net_bridge *br)
-+void br_multicast_leave_snoopers(struct net_bridge *br)
- {
- 	br_ip4_multicast_leave_snoopers(br);
- 	br_ip6_multicast_leave_snoopers(br);
-@@ -1898,9 +1898,6 @@ static void __br_multicast_open(struct n
- 
- void br_multicast_open(struct net_bridge *br)
- {
--	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
--		br_multicast_join_snoopers(br);
--
- 	__br_multicast_open(br, &br->ip4_own_query);
- #if IS_ENABLED(CONFIG_IPV6)
- 	__br_multicast_open(br, &br->ip6_own_query);
-@@ -1916,9 +1913,6 @@ void br_multicast_stop(struct net_bridge
- 	del_timer_sync(&br->ip6_other_query.timer);
- 	del_timer_sync(&br->ip6_own_query.timer);
- #endif
--
--	if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
--		br_multicast_leave_snoopers(br);
- }
- 
- void br_multicast_dev_del(struct net_bridge *br)
-@@ -2049,6 +2043,7 @@ static void br_multicast_start_querier(s
- int br_multicast_toggle(struct net_bridge *br, unsigned long val)
- {
- 	struct net_bridge_port *port;
-+	bool change_snoopers = false;
- 
- 	spin_lock_bh(&br->multicast_lock);
- 	if (!!br_opt_get(br, BROPT_MULTICAST_ENABLED) == !!val)
-@@ -2057,7 +2052,7 @@ int br_multicast_toggle(struct net_bridg
- 	br_mc_disabled_update(br->dev, val);
- 	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
- 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
--		br_multicast_leave_snoopers(br);
-+		change_snoopers = true;
- 		goto unlock;
- 	}
- 
-@@ -2068,9 +2063,30 @@ int br_multicast_toggle(struct net_bridg
- 	list_for_each_entry(port, &br->port_list, list)
- 		__br_multicast_enable_port(port);
- 
-+	change_snoopers = true;
-+
- unlock:
- 	spin_unlock_bh(&br->multicast_lock);
- 
-+	/* br_multicast_join_snoopers has the potential to cause
-+	 * an MLD Report/Leave to be delivered to br_multicast_rcv,
-+	 * which would in turn call br_multicast_add_group, which would
-+	 * attempt to acquire multicast_lock. This function should be
-+	 * called after the lock has been released to avoid deadlocks on
-+	 * multicast_lock.
-+	 *
-+	 * br_multicast_leave_snoopers does not have the problem since
-+	 * br_multicast_rcv first checks BROPT_MULTICAST_ENABLED, and
-+	 * returns without calling br_multicast_ipv4/6_rcv if it's not
-+	 * enabled. Moved both functions out just for symmetry.
-+	 */
-+	if (change_snoopers) {
-+		if (br_opt_get(br, BROPT_MULTICAST_ENABLED))
-+			br_multicast_join_snoopers(br);
-+		else
-+			br_multicast_leave_snoopers(br);
-+	}
-+
- 	return 0;
- }
- 
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -665,6 +665,8 @@ void br_multicast_del_port(struct net_br
- void br_multicast_enable_port(struct net_bridge_port *port);
- void br_multicast_disable_port(struct net_bridge_port *port);
- void br_multicast_init(struct net_bridge *br);
-+void br_multicast_join_snoopers(struct net_bridge *br);
-+void br_multicast_leave_snoopers(struct net_bridge *br);
- void br_multicast_open(struct net_bridge *br);
- void br_multicast_stop(struct net_bridge *br);
- void br_multicast_dev_del(struct net_bridge *br);
-@@ -792,6 +794,14 @@ static inline void br_multicast_init(str
- {
- }
- 
-+static inline void br_multicast_join_snoopers(struct net_bridge *br)
+ /**
++ * stmmac_free_tx_skbufs - free TX skb buffers
++ * @priv: private structure
++ */
++static void stmmac_free_tx_skbufs(struct stmmac_priv *priv)
 +{
++	u32 tx_queue_cnt = priv->plat->tx_queues_to_use;
++	u32 queue;
++
++	for (queue = 0; queue < tx_queue_cnt; queue++)
++		dma_free_tx_skbufs(priv, queue);
 +}
 +
-+static inline void br_multicast_leave_snoopers(struct net_bridge *br)
-+{
-+}
-+
- static inline void br_multicast_open(struct net_bridge *br)
- {
- }
++/**
+  * free_dma_rx_desc_resources - free RX dma desc resources
+  * @priv: private structure
+  */
+@@ -4846,6 +4859,7 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_reset_queues_param(priv);
+ 
++	stmmac_free_tx_skbufs(priv);
+ 	stmmac_clear_descriptors(priv);
+ 
+ 	stmmac_hw_setup(ndev, false);
 
 
