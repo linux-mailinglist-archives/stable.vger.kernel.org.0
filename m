@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BDA2DEF31
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1BC22DEF23
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726790AbgLSNAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:00:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47284 "EHLO mail.kernel.org"
+        id S1728271AbgLSM7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728381AbgLSNAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 08:00:00 -0500
+        id S1727970AbgLSM7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:37 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.9 33/49] ktest.pl: If size of log is too big to email, email error message
-Date:   Sat, 19 Dec 2020 13:58:37 +0100
-Message-Id: <20201219125346.291323430@linuxfoundation.org>
+Subject: [PATCH 5.9 34/49] ktest.pl: Fix the logic for truncating the size of the log file for email
+Date:   Sat, 19 Dec 2020 13:58:38 +0100
+Message-Id: <20201219125346.341459473@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -33,41 +33,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 8cd6bc0359deebd8500e6de95899a8a78d3ec4ba upstream.
+commit 170f4869e66275f498ae4736106fb54c0fdcd036 upstream.
 
-If the size of the error log is too big to send via email, and the sending
-fails, it wont email any result. This can be confusing for the user who is
-waiting for an email on the completion of the tests.
-
-If it fails to send email, then try again without the log file stating that
-it failed to send an email. Obviously this will not be of use if the sending
-of email failed for some other reasons, but it will at least give the user
-some information when it fails for the most common reason.
+The logic for truncating the log file for emailing based on the
+MAIL_MAX_SIZE option is confusing and incorrect. Simplify it and have the
+tail of the log file truncated to the max size specified in the config.
 
 Cc: stable@vger.kernel.org
-Fixes: c2d84ddb338c8 ("ktest.pl: Add MAIL_COMMAND option to define how to send email")
+Fixes: 855d8abd2e8ff ("ktest.pl: Change the logic to control the size of the log file emailed")
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/ktest/ktest.pl |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ tools/testing/ktest/ktest.pl |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
 --- a/tools/testing/ktest/ktest.pl
 +++ b/tools/testing/ktest/ktest.pl
-@@ -4253,7 +4253,12 @@ sub do_send_mail {
-     $mail_command =~ s/\$SUBJECT/$subject/g;
-     $mail_command =~ s/\$MESSAGE/$message/g;
+@@ -1499,17 +1499,16 @@ sub dodie {
+ 	my $log_file;
  
--    run_command $mail_command;
-+    my $ret = run_command $mail_command;
-+    if (!$ret && defined($file)) {
-+	# try again without the file
-+	$message .= "\n\n*** FAILED TO SEND LOG ***\n\n";
-+	do_send_email($subject, $message);
-+    }
- }
+ 	if (defined($opt{"LOG_FILE"})) {
+-	    my $whence = 0; # beginning of file
+-	    my $pos = $test_log_start;
++	    my $whence = 2; # End of file
++	    my $log_size = tell LOG;
++	    my $size = $log_size - $test_log_start;
  
- sub send_email {
+ 	    if (defined($mail_max_size)) {
+-		my $log_size = tell LOG;
+-		$log_size -= $test_log_start;
+-		if ($log_size > $mail_max_size) {
+-		    $whence = 2; # end of file
+-		    $pos = - $mail_max_size;
++		if ($size > $mail_max_size) {
++		    $size = $mail_max_size;
+ 		}
+ 	    }
++	    my $pos = - $size;
+ 	    $log_file = "$tmpdir/log";
+ 	    open (L, "$opt{LOG_FILE}") or die "Can't open $opt{LOG_FILE} to read)";
+ 	    open (O, "> $tmpdir/log") or die "Can't open $tmpdir/log\n";
 
 
