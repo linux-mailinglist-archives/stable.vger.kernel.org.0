@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CF42DEFB3
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BA62DEFAC
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:07:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbgLSNHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:07:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45308 "EHLO mail.kernel.org"
+        id S1727208AbgLSNHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:07:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727754AbgLSM6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:39 -0500
+        id S1727779AbgLSM6l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:41 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Esben Haabendal <esben@geanix.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.9 18/49] net: stmmac: overwrite the dma_cap.addr64 according to HW design
-Date:   Sat, 19 Dec 2020 13:58:22 +0100
-Message-Id: <20201219125345.573322209@linuxfoundation.org>
+Subject: [PATCH 5.9 19/49] net: ll_temac: Fix potential NULL dereference in temac_probe()
+Date:   Sat, 19 Dec 2020 13:58:23 +0100
+Message-Id: <20201219125345.623282459@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -32,77 +33,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit f119cc9818eb33b66e977ad3af75aef6500bbdc3 ]
+[ Upstream commit cc6596fc7295e9dcd78156ed42f9f8e1221f7530 ]
 
-The current IP register MAC_HW_Feature1[ADDR64] only defines
-32/40/64 bit width, but some SOCs support others like i.MX8MP
-support 34 bits but it maps to 40 bits width in MAC_HW_Feature1[ADDR64].
-So overwrite dma_cap.addr64 according to HW real design.
+platform_get_resource() may fail and in this case a NULL dereference
+will occur.
 
-Fixes: 94abdad6974a ("net: ethernet: dwmac: add ethernet glue logic for NXP imx8 chip")
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Fix it to use devm_platform_ioremap_resource() instead of calling
+platform_get_resource() and devm_ioremap().
+
+This is detected by Coccinelle semantic patch.
+
+@@
+expression pdev, res, n, t, e, e1, e2;
+@@
+
+res = \(platform_get_resource\|platform_get_resource_byname\)(pdev, t, n);
++ if (!res)
++   return -EINVAL;
+... when != res == NULL
+e = devm_ioremap(e1, res->start, e2);
+
+Fixes: 8425c41d1ef7 ("net: ll_temac: Extend support to non-device-tree platforms")
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Esben Haabendal <esben@geanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c   |    9 +--------
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    8 ++++++++
- include/linux/stmmac.h                            |    1 +
- 3 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.c
-@@ -247,13 +247,7 @@ static int imx_dwmac_probe(struct platfo
- 		goto err_parse_dt;
- 	}
- 
--	ret = dma_set_mask_and_coherent(&pdev->dev,
--					DMA_BIT_MASK(dwmac->ops->addr_width));
--	if (ret) {
--		dev_err(&pdev->dev, "DMA mask set failed\n");
--		goto err_dma_mask;
--	}
--
-+	plat_dat->addr64 = dwmac->ops->addr_width;
- 	plat_dat->init = imx_dwmac_init;
- 	plat_dat->exit = imx_dwmac_exit;
- 	plat_dat->fix_mac_speed = imx_dwmac_fix_speed;
-@@ -273,7 +267,6 @@ static int imx_dwmac_probe(struct platfo
- err_dwmac_init:
- err_drv_probe:
- 	imx_dwmac_exit(pdev, plat_dat->bsp_priv);
--err_dma_mask:
- err_parse_dt:
- err_match_data:
- 	stmmac_remove_config_dt(pdev, plat_dat);
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4842,6 +4842,14 @@ int stmmac_dvr_probe(struct device *devi
- 		dev_info(priv->device, "SPH feature enabled\n");
- 	}
- 
-+	/* The current IP register MAC_HW_Feature1[ADDR64] only define
-+	 * 32/40/64 bit width, but some SOC support others like i.MX8MP
-+	 * support 34 bits but it map to 40 bits width in MAC_HW_Feature1[ADDR64].
-+	 * So overwrite dma_cap.addr64 according to HW real design.
-+	 */
-+	if (priv->plat->addr64)
-+		priv->dma_cap.addr64 = priv->plat->addr64;
-+
- 	if (priv->dma_cap.addr64) {
- 		ret = dma_set_mask_and_coherent(device,
- 				DMA_BIT_MASK(priv->dma_cap.addr64));
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -170,6 +170,7 @@ struct plat_stmmacenet_data {
- 	int unicast_filter_entries;
- 	int tx_fifo_size;
- 	int rx_fifo_size;
-+	u32 addr64;
- 	u32 rx_queues_to_use;
- 	u32 tx_queues_to_use;
- 	u8 rx_sched_algorithm;
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -1351,7 +1351,6 @@ static int temac_probe(struct platform_d
+ 	struct device_node *temac_np = dev_of_node(&pdev->dev), *dma_np;
+ 	struct temac_local *lp;
+ 	struct net_device *ndev;
+-	struct resource *res;
+ 	const void *addr;
+ 	__be32 *p;
+ 	bool little_endian;
+@@ -1500,13 +1499,11 @@ static int temac_probe(struct platform_d
+ 		of_node_put(dma_np);
+ 	} else if (pdata) {
+ 		/* 2nd memory resource specifies DMA registers */
+-		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-		lp->sdma_regs = devm_ioremap(&pdev->dev, res->start,
+-						     resource_size(res));
+-		if (!lp->sdma_regs) {
++		lp->sdma_regs = devm_platform_ioremap_resource(pdev, 1);
++		if (IS_ERR(lp->sdma_regs)) {
+ 			dev_err(&pdev->dev,
+ 				"could not map DMA registers\n");
+-			return -ENOMEM;
++			return PTR_ERR(lp->sdma_regs);
+ 		}
+ 		if (pdata->dma_little_endian) {
+ 			lp->dma_in = temac_dma_in32_le;
 
 
