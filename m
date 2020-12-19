@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E832DEEF4
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 13:58:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697CE2DEEEF
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 13:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726814AbgLSM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:56:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43550 "EHLO mail.kernel.org"
+        id S1726852AbgLSM44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:56:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726479AbgLSM4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:56:53 -0500
+        id S1726479AbgLSM44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:56:56 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 03/16] ktest.pl: Fix the logic for truncating the size of the log file for email
-Date:   Sat, 19 Dec 2020 13:57:10 +0100
-Message-Id: <20201219125339.238687837@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+9be25235b7a69b24d117@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 04/16] USB: legotower: fix logical error in recent commit
+Date:   Sat, 19 Dec 2020 13:57:11 +0100
+Message-Id: <20201219125339.283055949@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125339.066340030@linuxfoundation.org>
 References: <20201219125339.066340030@linuxfoundation.org>
@@ -31,48 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 170f4869e66275f498ae4736106fb54c0fdcd036 upstream.
+commit b175d273d4e4100b66e68f0675fef7a3c07a7957 upstream.
 
-The logic for truncating the log file for emailing based on the
-MAIL_MAX_SIZE option is confusing and incorrect. Simplify it and have the
-tail of the log file truncated to the max size specified in the config.
+Commit d9f0d82f06c6 ("USB: legousbtower: use usb_control_msg_recv()")
+contained an elementary logical error.  The check of the return code
+from the new usb_control_msg_recv() function was inverted.
 
-Cc: stable@vger.kernel.org
-Fixes: 855d8abd2e8ff ("ktest.pl: Change the logic to control the size of the log file emailed")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-and-tested-by: syzbot+9be25235b7a69b24d117@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201208163042.GD1298255@rowland.harvard.edu
+Fixes: d9f0d82f06c6 ("USB: legousbtower: use usb_control_msg_recv()")
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/ktest/ktest.pl |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/usb/misc/legousbtower.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/ktest/ktest.pl
-+++ b/tools/testing/ktest/ktest.pl
-@@ -1499,17 +1499,16 @@ sub dodie {
- 	my $log_file;
- 
- 	if (defined($opt{"LOG_FILE"})) {
--	    my $whence = 0; # beginning of file
--	    my $pos = $test_log_start;
-+	    my $whence = 2; # End of file
-+	    my $log_size = tell LOG;
-+	    my $size = $log_size - $test_log_start;
- 
- 	    if (defined($mail_max_size)) {
--		my $log_size = tell LOG;
--		$log_size -= $test_log_start;
--		if ($log_size > $mail_max_size) {
--		    $whence = 2; # end of file
--		    $pos = - $mail_max_size;
-+		if ($size > $mail_max_size) {
-+		    $size = $mail_max_size;
- 		}
- 	    }
-+	    my $pos = - $size;
- 	    $log_file = "$tmpdir/log";
- 	    open (L, "$opt{LOG_FILE}") or die "Can't open $opt{LOG_FILE} to read)";
- 	    open (O, "> $tmpdir/log") or die "Can't open $tmpdir/log\n";
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -797,7 +797,7 @@ static int tower_probe(struct usb_interf
+ 				      &get_version_reply,
+ 				      sizeof(get_version_reply),
+ 				      1000, GFP_KERNEL);
+-	if (!result) {
++	if (result) {
+ 		dev_err(idev, "get version request failed: %d\n", result);
+ 		retval = result;
+ 		goto error;
 
 
