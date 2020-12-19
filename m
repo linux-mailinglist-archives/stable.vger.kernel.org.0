@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610E82DEC11
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 00:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25AC92DEC4B
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 01:15:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725831AbgLRXdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Dec 2020 18:33:53 -0500
-Received: from plasma4.jpberlin.de ([80.241.57.33]:41827 "EHLO
-        plasma4.jpberlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725824AbgLRXdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 18:33:53 -0500
-X-Greylist: delayed 470 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Dec 2020 18:33:52 EST
-Received: from spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116])
-        by plasma.jpberlin.de (Postfix) with ESMTP id 2F3F7AAB69;
-        Sat, 19 Dec 2020 00:25:19 +0100 (CET)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from plasma.jpberlin.de ([80.241.56.68])
-        by spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116]) (amavisd-new, port 10030)
-        with ESMTP id zj22D1gFzuNA; Sat, 19 Dec 2020 00:25:18 +0100 (CET)
-Received: from webmail.opensynergy.com (unknown [217.66.60.5])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (Client CN "*.opensynergy.com", Issuer "Starfield Secure Certificate Authority - G2" (not verified))
-        (Authenticated sender: opensynergy@jpberlin.de)
-        by plasma.jpberlin.de (Postfix) with ESMTPSA id 5F3B3AA60B;
-        Sat, 19 Dec 2020 00:25:18 +0100 (CET)
-Subject: Re: [PATCH RESEND v2] virtio-input: add multi-touch support
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-CC:     <virtualization@lists.linux-foundation.org>,
-        <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <stable@vger.kernel.org>, Jason Wang <jasowang@redhat.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Mathias Crombez <mathias.crombez@faurecia.com>
-References: <20201208210150.20001-1-vasyl.vavrychuk@opensynergy.com>
- <20201209030635-mutt-send-email-mst@kernel.org>
-From:   Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-Message-ID: <84310558-729b-d6d0-cf1a-e48febc3f001@opensynergy.com>
-Date:   Sat, 19 Dec 2020 01:25:15 +0200
+        id S1725287AbgLSAPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Dec 2020 19:15:06 -0500
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:18444 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725858AbgLSAPF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Dec 2020 19:15:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1608336905; x=1639872905;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=qlA8wVBPQMAANB3GBWMbUoKFu0jCd9V1TTnxbjRptVE=;
+  b=orEd1bUX7yPS51q465iDf/H0xs0NtbIM/Xd095BzN2U88OkDqqGMpskW
+   T8yum5jjDyt9R/j10PZQIKT+I3F4VMgj77K228SY+PJaY4ROYVL5+9jYV
+   B1eklVrlglsOPcD5N01/aoxGZNEOeknmvMmHm9NUA+SswKBxNCztsKiLT
+   Al3A7+MM+HW4JEtOFxKYetG+iYZ4qFzXmZFO9l3dDKHBcfNNlM10M1bu+
+   kFu0Ob6UFrFE1eTxXLFO/rfH7uGs2PJW5koVgCeWH2VQdKCSDSmKmIWTN
+   J0QcdAumK9VK8CsY9qn/2aocL9EBEL11AekAthqJQczNEsSpsXdvqmTuh
+   g==;
+IronPort-SDR: pR05DOFXl4viZEZG0UiBMm68t2KYsJ6tSjcq3jruHUpgAjXDQHm2eU1uHEyc9/DUhmVWUzsKYU
+ 94ty0tdUAEt9VG1HcznCrpnHMxw06yJq4wRWWWSvaopgDEBFnvxY001oL3aVzJi3phhnwnoqYj
+ BRrBI7dWKKbcYir7VIpDL+RLzNEfJZUHVFGFyhrt/2O/T9xYOSxdY8EDnSJAf9J7q+n37lgxnR
+ K++RPxNDeJuUSjNjJtNYJBkDNyH6i1lItJ5pguaNcYVc0tUAYRtvYnb7ee08iLTxgLoO06zoHz
+ Too=
+X-IronPort-AV: E=Sophos;i="5.78,431,1599494400"; 
+   d="scan'208";a="155556594"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 19 Dec 2020 08:13:59 +0800
+IronPort-SDR: RZJrYHJf1yM9b7+GDFCYB02QTTwDGv2mi1/1V3uW9XG4dw3T/PzBsTLdOj8ON1FlgTgUwQ298l
+ JKottS0K7bX1yz9W+IOqdv9m6SXrBTq3nca0JFxFykt99xV4cmgaOFixx6ir+jQYko5PdbJwhA
+ lo7c9u1cnUZMcSyQVCI/kXBLktT9iM74r9Pjml9YUBsnrHdlBE/ucLzy8ztFLEY1DEPhtZz+Ez
+ 7Mp9aehbY4MCqc3CRs6ZVXnGSqPZxdj0yaf1HT9sqZXMq0anYdzHjNGK6iaI1SlS5WlR7LFvrz
+ vEHuWz9wiqohHiWyxwgIE1gD
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Dec 2020 15:59:14 -0800
+IronPort-SDR: 6d/6ygrnX1yCCBilFFyUWFPZTNYhYNlq4sBOFOEotphNj/FE7NISXMQhQ3bMV8BkNncDGWRasv
+ XSC0e9XwPgoqtU10GzCtaz6rzTnTvSdVXkFGVWBlxQT18yut9LUnbx2GqgrKdQl7LE+CgGukbw
+ oX+g+IsuitkPV8VbGTVxu2fVt2erlBkQ7SZ9wSMNekkp1Id+4DeEEq+V6xaJZ9D5WFtC5tM+l6
+ fAGrwpstglEYIbW1x4ln3ElFHo4RIAQpDXQvnO3R0aQiILDd3yBzc7iFC1HuCyJ5hlDIwZAEhF
+ xuQ=
+WDCIronportException: Internal
+Received: from cnf009746.ad.shared (HELO jedi-01.hgst.com) ([10.86.62.26])
+  by uls-op-cesaip01.wdc.com with ESMTP; 18 Dec 2020 16:14:00 -0800
+From:   Atish Patra <atish.patra@wdc.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Atish Patra <atish.patra@wdc.com>, stable@vger.kernel.org,
+        Bin Meng <bin.meng@windriver.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anup Patel <anup.patel@wdc.com>,
+        linux-riscv@lists.infradead.org, Mike Rapoport <rppt@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Bin Meng <bmeng.cn@gmail.com>
+Subject: [PATCH v2] RISC-V: Fix usage of memblock_enforce_memory_limit
+Date:   Fri, 18 Dec 2020 16:13:56 -0800
+Message-Id: <20201219001356.2887782-1-atish.patra@wdc.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20201209030635-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
- SR-MAIL-01.open-synergy.com (10.26.10.21)
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -6.50 / 15.00 / 15.00
-X-Rspamd-Queue-Id: 2F3F7AAB69
-X-Rspamd-UID: 9ec262
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+memblock_enforce_memory_limit accepts the maximum memory size not the
+maximum address that can be handled by kernel. Fix the function invocation
+accordingly.
 
+Fixes: 1bd14a66ee52 ("RISC-V: Remove any memblock representing unusable memory area")
+Cc: stable@vger.kernel.org
 
-On 09.12.20 10:28, Michael S. Tsirkin wrote:
-> On Tue, Dec 08, 2020 at 11:01:50PM +0200, Vasyl Vavrychuk wrote:
->> From: Mathias Crombez <mathias.crombez@faurecia.com>
->> Cc: stable@vger.kernel.org
-> 
-> I don't believe this is appropriate for stable, looks like
-> a new feature to me.
+Reported-by: Bin Meng <bin.meng@windriver.com>
+Tested-by: Bin Meng <bin.meng@windriver.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+---
+Changes from v1->v2:
+1. Added stable-kernel in cc.
+2. Added reported/tested by tag.
+---
+ arch/riscv/mm/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Agree, removed.
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 13ba533f462b..bf5379135e39 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -176,7 +176,7 @@ void __init setup_bootmem(void)
+ 	 * Make sure that any memory beyond mem_start + (-PAGE_OFFSET) is removed
+ 	 * as it is unusable by kernel.
+ 	 */
+-	memblock_enforce_memory_limit(mem_start - PAGE_OFFSET);
++	memblock_enforce_memory_limit(-PAGE_OFFSET);
+ 
+ 	/* Reserve from the start of the kernel to the end of the kernel */
+ 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
+-- 
+2.25.1
 
->>
->> +config VIRTIO_INPUT_MULTITOUCH_SLOTS
->> +     depends on VIRTIO_INPUT
->> +     int "Number of multitouch slots"
->> +     range 0 64
->> +     default 10
->> +     help
->> +      Define the number of multitouch slots used. Default to 10.
->> +      This parameter is unused if there is no multitouch capability.
->> +
->> +      0 will disable the feature.
->> +
-> 
-> Most people won't be using this config so the defaults matter. So why 10? 10 fingers?
-> 
-> And where does 64 come from?
-
-I have sent v3 version where number of slots it obtained from the host.
-
->> +     if (is_mt)
->> +             input_mt_init_slots(vi->idev,
->> +                                 CONFIG_VIRTIO_INPUT_MULTITOUCH_SLOTS,
->> +                                 INPUT_MT_DIRECT);
-> 
-> 
-> Do we need the number in config space maybe? And maybe with a feature
-> bit so host can find out whether guest supports MT?
-
-I think it is not applicable in v3 which I sent, because number of slots 
-is commit from the host. So, now host controls whether guest support MT.
