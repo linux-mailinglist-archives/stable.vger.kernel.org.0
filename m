@@ -2,216 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 813472DEF59
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA9F2DEF8A
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:06:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727527AbgLSNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:02:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49988 "EHLO mail.kernel.org"
+        id S1727284AbgLSNFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726572AbgLSNCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 08:02:52 -0500
+        id S1728847AbgLSNEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 08:04:25 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/34] 5.4.85-rc1 review
-Date:   Sat, 19 Dec 2020 14:02:57 +0100
-Message-Id: <20201219125341.384025953@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.4 01/34] ptrace: Prevent kernel-infoleak in ptrace_get_syscall_info()
+Date:   Sat, 19 Dec 2020 14:02:58 +0100
+Message-Id: <20201219125341.454853868@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-MIME-Version: 1.0
+In-Reply-To: <20201219125341.384025953@linuxfoundation.org>
+References: <20201219125341.384025953@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.85-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.85-rc1
-X-KernelTest-Deadline: 2020-12-21T12:53+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.85 release.
-There are 34 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-Responses should be made by Mon, 21 Dec 2020 12:53:29 +0000.
-Anything received after that time might be too late.
+commit 0032ce0f85a269a006e91277be5fdbc05fad8426 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.85-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+ptrace_get_syscall_info() is potentially copying uninitialized stack
+memory to userspace, since the compiler may leave a 3-byte hole near the
+beginning of `info`. Fix it by adding a padding field to `struct
+ptrace_syscall_info`.
 
-thanks,
+Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200801152044.230416-1-yepeilin.cs@gmail.com
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-greg k-h
+---
+ include/uapi/linux/ptrace.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.85-rc1
-
-Xiaochen Shen <xiaochen.shen@intel.com>
-    x86/resctrl: Fix incorrect local bandwidth when mba_sc is enabled
-
-James Morse <james.morse@arm.com>
-    x86/resctrl: Remove unused struct mbm_state::chunks_bw
-
-Andy Lutomirski <luto@kernel.org>
-    membarrier: Explicitly sync remote cores when SYNC_CORE is requested
-
-Kamal Mostafa <kamal@canonical.com>
-    Revert "selftests/ftrace: check for do_sys_openat2 in user-memory test"
-
-Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
-    KVM: mmu: Fix SPTE encoding of MMIO generation upper half
-
-Alexander Sverdlin <alexander.sverdlin@gmail.com>
-    serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: oss: Fix potential out-of-bounds shift
-
-Thomas Gleixner <tglx@linutronix.de>
-    USB: sisusbvga: Make console support depend on BROKEN
-
-Oliver Neukum <oneukum@suse.com>
-    USB: UAS: introduce a quirk to set no_write_same
-
-Hans de Goede <hdegoede@redhat.com>
-    xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
-
-Li Jun <jun.li@nxp.com>
-    xhci: Give USB2 ports time to enter U3 in bus suspend
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Fix control 'access overflow' errors from chmap
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Fix potential out-of-bounds shift
-
-Oliver Neukum <oneukum@suse.com>
-    USB: add RESET_RESUME quirk for Snapscan 1212
-
-Bui Quang Minh <minhquangbui99@gmail.com>
-    USB: dummy-hcd: Fix uninitialized array use in init()
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    ktest.pl: If size of log is too big to email, email error message
-
-Fugang Duan <fugang.duan@nxp.com>
-    net: stmmac: delete the eee_ctrl_timer after napi disabled
-
-Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-    net: stmmac: dwmac-meson8b: fix mask definition of the m250_sel mux
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    net: ll_temac: Fix potential NULL dereference in temac_probe()
-
-Moshe Shemesh <moshe@mellanox.com>
-    net/mlx4_en: Handle TX error CQE
-
-Sergej Bauer <sbauer@blackbox.su>
-    lan743x: fix for potential NULL pointer dereference with bare card
-
-Moshe Shemesh <moshe@mellanox.com>
-    net/mlx4_en: Avoid scheduling restart task if it is already running
-
-Neal Cardwell <ncardwell@google.com>
-    tcp: fix cwnd-limited bug for TSO deferral where we send nothing
-
-Eric Dumazet <edumazet@google.com>
-    tcp: select sane initial rcvq_space.space for big MSS
-
-Fugang Duan <fugang.duan@nxp.com>
-    net: stmmac: free tx skb buffer in stmmac_resume()
-
-Joseph Huang <Joseph.Huang@garmin.com>
-    bridge: Fix a deadlock when enabling multicast snooping
-
-Claudiu Manoil <claudiu.manoil@nxp.com>
-    enetc: Fix reporting of h/w packet counters
-
-Xin Long <lucien.xin@gmail.com>
-    udp: fix the proto value passed to ip_protocol_deliver_rcu for the segments
-
-Huazhong Tan <tanhuazhong@huawei.com>
-    net: hns3: remove a misused pragma packed
-
-Stephen Suryaputra <ssuryaextr@gmail.com>
-    vrf: packets with lladdr src needs dst at input with orig_iif when needs strict
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    net: bridge: vlan: fix error return code in __vlan_add()
-
-Eric Dumazet <edumazet@google.com>
-    mac80211: mesh: fix mesh_pathtbl_init() error path
-
-Zhang Changzhong <zhangchangzhong@huawei.com>
-    ipv4: fix error return code in rtm_to_fib_config()
-
-Peilin Ye <yepeilin.cs@gmail.com>
-    ptrace: Prevent kernel-infoleak in ptrace_get_syscall_info()
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/kernel-parameters.txt    |  1 +
- Documentation/virt/kvm/mmu.txt                     |  2 +-
- Makefile                                           |  4 +-
- arch/x86/kernel/cpu/resctrl/internal.h             |  2 -
- arch/x86/kernel/cpu/resctrl/monitor.c              |  7 +-
- arch/x86/kvm/mmu.c                                 | 29 +++++--
- .../net/ethernet/freescale/enetc/enetc_ethtool.c   | 10 ++-
- drivers/net/ethernet/freescale/enetc/enetc_hw.h    | 10 ++-
- .../ethernet/hisilicon/hns3/hns3pf/hclge_debugfs.h |  4 -
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c     | 21 +++--
- drivers/net/ethernet/mellanox/mlx4/en_tx.c         | 40 +++++++--
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h       | 12 ++-
- drivers/net/ethernet/microchip/lan743x_ethtool.c   |  9 +-
- .../net/ethernet/stmicro/stmmac/dwmac-meson8b.c    |  6 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  | 27 +++++-
- drivers/net/ethernet/xilinx/ll_temac_main.c        |  4 +-
- drivers/net/vrf.c                                  | 10 ++-
- drivers/tty/serial/8250/8250_omap.c                |  5 --
- drivers/usb/core/quirks.c                          |  3 +
- drivers/usb/gadget/udc/dummy_hcd.c                 |  2 +-
- drivers/usb/host/xhci-hub.c                        |  4 +
- drivers/usb/host/xhci-pci.c                        |  2 +
- drivers/usb/misc/sisusbvga/Kconfig                 |  2 +-
- drivers/usb/storage/uas.c                          |  3 +
- drivers/usb/storage/unusual_uas.h                  |  7 +-
- drivers/usb/storage/usb.c                          |  3 +
- include/linux/usb_usual.h                          |  2 +
- include/uapi/linux/ptrace.h                        |  3 +-
- kernel/sched/membarrier.c                          | 21 ++++-
- net/bridge/br_device.c                             |  6 ++
- net/bridge/br_multicast.c                          | 34 ++++++--
- net/bridge/br_private.h                            | 10 +++
- net/bridge/br_vlan.c                               |  4 +-
- net/ipv4/fib_frontend.c                            |  2 +-
- net/ipv4/tcp_input.c                               |  3 +-
- net/ipv4/tcp_output.c                              |  9 +-
- net/ipv4/udp.c                                     |  2 +-
- net/mac80211/mesh_pathtbl.c                        |  4 +-
- sound/core/oss/pcm_oss.c                           |  6 +-
- sound/usb/format.c                                 |  2 +
- sound/usb/stream.c                                 |  6 +-
- tools/testing/ktest/ktest.pl                       |  7 +-
- .../ftrace/test.d/kprobe/kprobe_args_user.tc       |  4 -
- tools/testing/selftests/net/fcnal-test.sh          | 95 ++++++++++++++++++++++
- 44 files changed, 351 insertions(+), 98 deletions(-)
+--- a/include/uapi/linux/ptrace.h
++++ b/include/uapi/linux/ptrace.h
+@@ -81,7 +81,8 @@ struct seccomp_metadata {
+ 
+ struct ptrace_syscall_info {
+ 	__u8 op;	/* PTRACE_SYSCALL_INFO_* */
+-	__u32 arch __attribute__((__aligned__(sizeof(__u32))));
++	__u8 pad[3];
++	__u32 arch;
+ 	__u64 instruction_pointer;
+ 	__u64 stack_pointer;
+ 	union {
 
 
