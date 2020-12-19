@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFFA2DEF07
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 13:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5988E2DEFB0
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727429AbgLSM6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:58:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S1727645AbgLSM6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:58:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727428AbgLSM6F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:58:05 -0500
+        id S1727623AbgLSM6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:33 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 14/49] net: stmmac: dwmac-meson8b: fix mask definition of the m250_sel mux
-Date:   Sat, 19 Dec 2020 13:58:18 +0100
-Message-Id: <20201219125345.376925474@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.9 15/49] net: stmmac: start phylink instance before stmmac_hw_setup()
+Date:   Sat, 19 Dec 2020 13:58:19 +0100
+Message-Id: <20201219125345.424895485@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -33,50 +32,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 82ca4c922b8992013a238d65cf4e60cc33e12f36 ]
+[ Upstream commit 36d18b5664ef617ccf4da266291d2f2342fab89d ]
 
-The m250_sel mux clock uses bit 4 in the PRG_ETH0 register. Fix this by
-shifting the PRG_ETH0_CLK_M250_SEL_MASK accordingly as the "mask" in
-struct clk_mux expects the mask relative to the "shift" field in the
-same struct.
+Start phylink instance and resume back the PHY to supply
+RX clock to MAC before MAC layer initialization by calling
+.stmmac_hw_setup(), since DMA reset depends on the RX clock,
+otherwise DMA reset cost maximum timeout value then finally
+timeout.
 
-While here, get rid of the PRG_ETH0_CLK_M250_SEL_SHIFT macro and use
-__ffs() to determine it from the existing PRG_ETH0_CLK_M250_SEL_MASK
-macro.
-
-Fixes: 566e8251625304 ("net: stmmac: add a glue driver for the Amlogic Meson 8b / GXBB DWMAC")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20201205213207.519341-1-martin.blumenstingl@googlemail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 74371272f97f ("net: stmmac: Convert to phylink and remove phylib logic")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-@@ -30,7 +30,6 @@
- #define PRG_ETH0_EXT_RMII_MODE		4
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -5170,6 +5170,14 @@ int stmmac_resume(struct device *dev)
+ 			return ret;
+ 	}
  
- /* mux to choose between fclk_div2 (bit unset) and mpll2 (bit set) */
--#define PRG_ETH0_CLK_M250_SEL_SHIFT	4
- #define PRG_ETH0_CLK_M250_SEL_MASK	GENMASK(4, 4)
++	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
++		rtnl_lock();
++		phylink_start(priv->phylink);
++		/* We may have called phylink_speed_down before */
++		phylink_speed_up(priv->phylink);
++		rtnl_unlock();
++	}
++
+ 	rtnl_lock();
+ 	mutex_lock(&priv->lock);
  
- /* TX clock delay in ns = "8ns / 4 * tx_dly_val" (where 8ns are exactly one
-@@ -155,8 +154,9 @@ static int meson8b_init_rgmii_tx_clk(str
- 		return -ENOMEM;
+@@ -5188,14 +5196,6 @@ int stmmac_resume(struct device *dev)
+ 	mutex_unlock(&priv->lock);
+ 	rtnl_unlock();
  
- 	clk_configs->m250_mux.reg = dwmac->regs + PRG_ETH0;
--	clk_configs->m250_mux.shift = PRG_ETH0_CLK_M250_SEL_SHIFT;
--	clk_configs->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK;
-+	clk_configs->m250_mux.shift = __ffs(PRG_ETH0_CLK_M250_SEL_MASK);
-+	clk_configs->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK >>
-+				     clk_configs->m250_mux.shift;
- 	clk = meson8b_dwmac_register_clk(dwmac, "m250_sel", mux_parents,
- 					 ARRAY_SIZE(mux_parents), &clk_mux_ops,
- 					 &clk_configs->m250_mux.hw);
+-	if (!device_may_wakeup(priv->device) || !priv->plat->pmt) {
+-		rtnl_lock();
+-		phylink_start(priv->phylink);
+-		/* We may have called phylink_speed_down before */
+-		phylink_speed_up(priv->phylink);
+-		rtnl_unlock();
+-	}
+-
+ 	phylink_mac_change(priv->phylink, true);
+ 
+ 	netif_device_attach(ndev);
 
 
