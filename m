@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DF22DEF00
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 13:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E0E2DEFA8
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727298AbgLSM5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:57:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
+        id S1727796AbgLSM6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727127AbgLSM5t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:57:49 -0500
+        id S1727291AbgLSM6o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:58:44 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Peilin Ye <yepeilin.cs@gmail.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.9 01/49] ptrace: Prevent kernel-infoleak in ptrace_get_syscall_info()
-Date:   Sat, 19 Dec 2020 13:58:05 +0100
-Message-Id: <20201219125344.739111117@linuxfoundation.org>
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 02/49] net/sched: fq_pie: initialize timer earlier in fq_pie_init()
+Date:   Sat, 19 Dec 2020 13:58:06 +0100
+Message-Id: <20201219125344.789306610@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,39 +32,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit 0032ce0f85a269a006e91277be5fdbc05fad8426 upstream.
+[ Upstream commit 4eef8b1f36f2ff06966b8f7c2143ef0c447877de ]
 
-ptrace_get_syscall_info() is potentially copying uninitialized stack
-memory to userspace, since the compiler may leave a 3-byte hole near the
-beginning of `info`. Fix it by adding a padding field to `struct
-ptrace_syscall_info`.
+with the following tdc testcase:
 
-Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200801152044.230416-1-yepeilin.cs@gmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+ 83be: (qdisc, fq_pie) Create FQ-PIE with invalid number of flows
+
+as fq_pie_init() fails, fq_pie_destroy() is called to clean up. Since the
+timer is not yet initialized, it's possible to observe a splat like this:
+
+  INFO: trying to register non-static key.
+  the code is fine but needs lockdep annotation.
+  turning off the locking correctness validator.
+  CPU: 0 PID: 975 Comm: tc Not tainted 5.10.0-rc4+ #298
+  Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+  Call Trace:
+   dump_stack+0x99/0xcb
+   register_lock_class+0x12dd/0x1750
+   __lock_acquire+0xfe/0x3970
+   lock_acquire+0x1c8/0x7f0
+   del_timer_sync+0x49/0xd0
+   fq_pie_destroy+0x3f/0x80 [sch_fq_pie]
+   qdisc_create+0x916/0x1160
+   tc_modify_qdisc+0x3c4/0x1630
+   rtnetlink_rcv_msg+0x346/0x8e0
+   netlink_unicast+0x439/0x630
+   netlink_sendmsg+0x719/0xbf0
+   sock_sendmsg+0xe2/0x110
+   ____sys_sendmsg+0x5ba/0x890
+   ___sys_sendmsg+0xe9/0x160
+   __sys_sendmsg+0xd3/0x170
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [...]
+  ODEBUG: assert_init not available (active state 0) object type: timer_list hint: 0x0
+  WARNING: CPU: 0 PID: 975 at lib/debugobjects.c:508 debug_print_object+0x162/0x210
+  [...]
+  Call Trace:
+   debug_object_assert_init+0x268/0x380
+   try_to_del_timer_sync+0x6a/0x100
+   del_timer_sync+0x9e/0xd0
+   fq_pie_destroy+0x3f/0x80 [sch_fq_pie]
+   qdisc_create+0x916/0x1160
+   tc_modify_qdisc+0x3c4/0x1630
+   rtnetlink_rcv_msg+0x346/0x8e0
+   netlink_rcv_skb+0x120/0x380
+   netlink_unicast+0x439/0x630
+   netlink_sendmsg+0x719/0xbf0
+   sock_sendmsg+0xe2/0x110
+   ____sys_sendmsg+0x5ba/0x890
+   ___sys_sendmsg+0xe9/0x160
+   __sys_sendmsg+0xd3/0x170
+   do_syscall_64+0x33/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+fix it moving timer_setup() before any failure, like it was done on 'red'
+with former commit 608b4adab178 ("net_sched: initialize timer earlier in
+red_init()").
+
+Fixes: ec97ecf1ebe4 ("net: sched: add Flow Queue PIE packet scheduler")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/2e78e01c504c633ebdff18d041833cf2e079a3a4.1607020450.git.dcaratti@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/uapi/linux/ptrace.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sched/sch_fq_pie.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/ptrace.h
-+++ b/include/uapi/linux/ptrace.h
-@@ -81,7 +81,8 @@ struct seccomp_metadata {
+--- a/net/sched/sch_fq_pie.c
++++ b/net/sched/sch_fq_pie.c
+@@ -401,6 +401,7 @@ static int fq_pie_init(struct Qdisc *sch
  
- struct ptrace_syscall_info {
- 	__u8 op;	/* PTRACE_SYSCALL_INFO_* */
--	__u32 arch __attribute__((__aligned__(sizeof(__u32))));
-+	__u8 pad[3];
-+	__u32 arch;
- 	__u64 instruction_pointer;
- 	__u64 stack_pointer;
- 	union {
+ 	INIT_LIST_HEAD(&q->new_flows);
+ 	INIT_LIST_HEAD(&q->old_flows);
++	timer_setup(&q->adapt_timer, fq_pie_timer, 0);
+ 
+ 	if (opt) {
+ 		err = fq_pie_change(sch, opt, extack);
+@@ -426,7 +427,6 @@ static int fq_pie_init(struct Qdisc *sch
+ 		pie_vars_init(&flow->vars);
+ 	}
+ 
+-	timer_setup(&q->adapt_timer, fq_pie_timer, 0);
+ 	mod_timer(&q->adapt_timer, jiffies + HZ / 2);
+ 
+ 	return 0;
 
 
