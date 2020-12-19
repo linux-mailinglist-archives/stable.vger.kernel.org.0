@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 709962DEFBB
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F562DEF09
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 13:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727605AbgLSNHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:07:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44164 "EHLO mail.kernel.org"
+        id S1727342AbgLSM5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:57:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727129AbgLSM5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:57:34 -0500
+        id S1726752AbgLSM5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:57:36 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "David C. Partridge" <david.partridge@perdrix.co.uk>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.10 13/16] USB: UAS: introduce a quirk to set no_write_same
-Date:   Sat, 19 Dec 2020 13:57:20 +0100
-Message-Id: <20201219125339.721605603@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Winischhofer <thomas@winischhofer.net>,
+        linux-usb@vger.kernel.org
+Subject: [PATCH 5.10 14/16] USB: sisusbvga: Make console support depend on BROKEN
+Date:   Sat, 19 Dec 2020 13:57:21 +0100
+Message-Id: <20201219125339.772799620@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125339.066340030@linuxfoundation.org>
 References: <20201219125339.066340030@linuxfoundation.org>
@@ -32,94 +32,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 8010622c86ca5bb44bc98492f5968726fc7c7a21 upstream.
+commit 862ee699fefe1e6d6f2c1518395f0b999b8beb15 upstream.
 
-UAS does not share the pessimistic assumption storage is making that
-devices cannot deal with WRITE_SAME.  A few devices supported by UAS,
-are reported to not deal well with WRITE_SAME. Those need a quirk.
+The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
+to detect contexts in which it cannot sleep despite the big fat comment in
+preempt.h which says: Do not use in_atomic() in driver code.
 
-Add it to the device that needs it.
+in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
+means that spin/rw_lock held regions are not detected by it.
 
-Reported-by: David C. Partridge <david.partridge@perdrix.co.uk>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209152639.9195-1-oneukum@suse.com
+There is no way to make this work by handing context information through to
+the driver and this only can be solved once the core printk infrastructure
+supports sleepable console drivers.
+
+Make it depend on BROKEN for now.
+
+Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201019101109.603244207@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/admin-guide/kernel-parameters.txt |    1 +
- drivers/usb/storage/uas.c                       |    3 +++
- drivers/usb/storage/unusual_uas.h               |    7 +++++--
- drivers/usb/storage/usb.c                       |    3 +++
- include/linux/usb_usual.h                       |    2 ++
- 5 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/usb/misc/sisusbvga/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5663,6 +5663,7 @@
- 					device);
- 				j = NO_REPORT_LUNS (don't use report luns
- 					command, uas only);
-+				k = NO_SAME (do not use WRITE_SAME, uas only)
- 				l = NOT_LOCKABLE (don't try to lock and
- 					unlock ejectable media, not on uas);
- 				m = MAX_SECTORS_64 (don't transfer more
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -867,6 +867,9 @@ static int uas_slave_configure(struct sc
- 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
- 		sdev->no_read_capacity_16 = 1;
+--- a/drivers/usb/misc/sisusbvga/Kconfig
++++ b/drivers/usb/misc/sisusbvga/Kconfig
+@@ -16,7 +16,7 @@ config USB_SISUSBVGA
  
-+	/* Some disks cannot handle WRITE_SAME */
-+	if (devinfo->flags & US_FL_NO_SAME)
-+		sdev->no_write_same = 1;
- 	/*
- 	 * Some disks return the total number of blocks in response
- 	 * to READ CAPACITY rather than the highest block number.
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -35,12 +35,15 @@ UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x99
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES),
- 
--/* Reported-by: Julian Groß <julian.g@posteo.de> */
-+/*
-+ *  Initially Reported-by: Julian Groß <julian.g@posteo.de>
-+ *  Further reports David C. Partridge <david.partridge@perdrix.co.uk>
-+ */
- UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
- 		"LaCie",
- 		"2Big Quadra USB3",
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
--		US_FL_NO_REPORT_OPCODES),
-+		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
- 
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
---- a/drivers/usb/storage/usb.c
-+++ b/drivers/usb/storage/usb.c
-@@ -541,6 +541,9 @@ void usb_stor_adjust_quirks(struct usb_d
- 		case 'j':
- 			f |= US_FL_NO_REPORT_LUNS;
- 			break;
-+		case 'k':
-+			f |= US_FL_NO_SAME;
-+			break;
- 		case 'l':
- 			f |= US_FL_NOT_LOCKABLE;
- 			break;
---- a/include/linux/usb_usual.h
-+++ b/include/linux/usb_usual.h
-@@ -84,6 +84,8 @@
- 		/* Cannot handle REPORT_LUNS */			\
- 	US_FLAG(ALWAYS_SYNC, 0x20000000)			\
- 		/* lies about caching, so always sync */	\
-+	US_FLAG(NO_SAME, 0x40000000)				\
-+		/* Cannot handle WRITE_SAME */			\
- 
- #define US_FLAG(name, value)	US_FL_##name = value ,
- enum { US_DO_ALL_FLAGS };
+ config USB_SISUSBVGA_CON
+ 	bool "Text console and mode switching support" if USB_SISUSBVGA
+-	depends on VT
++	depends on VT && BROKEN
+ 	select FONT_8x16
+ 	help
+ 	  Say Y here if you want a VGA text console via the USB dongle or
 
 
