@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 881D82DEF35
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712C42DEF40
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbgLSNAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 08:00:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47090 "EHLO mail.kernel.org"
+        id S1728182AbgLSM73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 07:59:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728328AbgLSM7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:59:51 -0500
+        id S1728164AbgLSM72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:28 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Sergej Bauer <sbauer@blackbox.su>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.9 29/49] ch_ktls: fix build warning for ipv4-only config
-Date:   Sat, 19 Dec 2020 13:58:33 +0100
-Message-Id: <20201219125346.104892973@linuxfoundation.org>
+Subject: [PATCH 5.9 30/49] lan743x: fix for potential NULL pointer dereference with bare card
+Date:   Sat, 19 Dec 2020 13:58:34 +0100
+Message-Id: <20201219125346.153511072@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -31,63 +31,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sergej Bauer <sbauer@blackbox.su>
 
-[ Upstream commit a54ba3465d86fa5dd7d41bb88c0b5e71fb3b627e ]
+[ Upstream commit e9e13b6adc338be1eb88db87bcb392696144bd02 ]
 
-When CONFIG_IPV6 is disabled, clang complains that a variable
-is uninitialized for non-IPv4 data:
+This is the 3rd revision of the patch fix for potential null pointer dereference
+with lan743x card.
 
-drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c:1046:6: error: variable 'cntrl1' is used uninitialized whenever 'if' condition is false [-Werror,-Wsometimes-uninitialized]
-        if (tx_info->ip_family == AF_INET) {
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/inline_crypto/ch_ktls/chcr_ktls.c:1059:2: note: uninitialized use occurs here
-        cntrl1 |= T6_TXPKT_ETHHDR_LEN_V(maclen - ETH_HLEN) |
-        ^~~~~~
+The simpliest way to reproduce: boot with bare lan743x and issue "ethtool ethN"
+commant where ethN is the interface with lan743x card. Example:
 
-Replace the preprocessor conditional with the corresponding C version,
-and make the ipv4 case unconditional in this configuration to improve
-readability and avoid the warning.
+$ sudo ethtool eth7
+dmesg:
+[  103.510336] BUG: kernel NULL pointer dereference, address: 0000000000000340
+...
+[  103.510836] RIP: 0010:phy_ethtool_get_wol+0x5/0x30 [libphy]
+...
+[  103.511629] Call Trace:
+[  103.511666]  lan743x_ethtool_get_wol+0x21/0x40 [lan743x]
+[  103.511724]  dev_ethtool+0x1507/0x29d0
+[  103.511769]  ? avc_has_extended_perms+0x17f/0x440
+[  103.511820]  ? tomoyo_init_request_info+0x84/0x90
+[  103.511870]  ? tomoyo_path_number_perm+0x68/0x1e0
+[  103.511919]  ? tty_insert_flip_string_fixed_flag+0x82/0xe0
+[  103.511973]  ? inet_ioctl+0x187/0x1d0
+[  103.512016]  dev_ioctl+0xb5/0x560
+[  103.512055]  sock_do_ioctl+0xa0/0x140
+[  103.512098]  sock_ioctl+0x2cb/0x3c0
+[  103.512139]  __x64_sys_ioctl+0x84/0xc0
+[  103.512183]  do_syscall_64+0x33/0x80
+[  103.512224]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  103.512274] RIP: 0033:0x7f54a9cba427
+...
 
-Fixes: 86716b51d14f ("ch_ktls: Update cheksum information")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20201203222641.964234-1-arnd@kernel.org
+Previous versions can be found at:
+v1:
+initial version
+    https://lkml.org/lkml/2020/10/28/921
+
+v2:
+do not return from lan743x_ethtool_set_wol if netdev->phydev == NULL, just skip
+the call of phy_ethtool_set_wol() instead.
+    https://lkml.org/lkml/2020/10/31/380
+
+v3:
+in function lan743x_ethtool_set_wol:
+use ternary operator instead of if-else sentence (review by Markus Elfring)
+return -ENETDOWN insted of -EIO (review by Andrew Lunn)
+
+Signed-off-by: Sergej Bauer <sbauer@blackbox.su>
+
+Link: https://lore.kernel.org/r/20201101223556.16116-1-sbauer@blackbox.su
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chcr_ktls.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/ethernet/microchip/lan743x_ethtool.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/crypto/chelsio/chcr_ktls.c
-+++ b/drivers/crypto/chelsio/chcr_ktls.c
-@@ -921,9 +921,7 @@ chcr_ktls_write_tcp_options(struct chcr_
- 	struct fw_eth_tx_pkt_wr *wr;
- 	struct cpl_tx_pkt_core *cpl;
- 	u32 ctrl, iplen, maclen;
--#if IS_ENABLED(CONFIG_IPV6)
- 	struct ipv6hdr *ip6;
--#endif
- 	unsigned int ndesc;
- 	struct tcphdr *tcp;
- 	int len16, pktlen;
-@@ -971,17 +969,15 @@ chcr_ktls_write_tcp_options(struct chcr_
- 	cpl->len = htons(pktlen);
+--- a/drivers/net/ethernet/microchip/lan743x_ethtool.c
++++ b/drivers/net/ethernet/microchip/lan743x_ethtool.c
+@@ -780,7 +780,9 @@ static void lan743x_ethtool_get_wol(stru
  
- 	memcpy(buf, skb->data, pktlen);
--	if (tx_info->ip_family == AF_INET) {
-+	if (!IS_ENABLED(CONFIG_IPV6) || tx_info->ip_family == AF_INET) {
- 		/* we need to correct ip header len */
- 		ip = (struct iphdr *)(buf + maclen);
- 		ip->tot_len = htons(pktlen - maclen);
- 		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP);
--#if IS_ENABLED(CONFIG_IPV6)
- 	} else {
- 		ip6 = (struct ipv6hdr *)(buf + maclen);
- 		ip6->payload_len = htons(pktlen - maclen - iplen);
- 		cntrl1 = TXPKT_CSUM_TYPE_V(TX_CSUM_TCPIP6);
--#endif
- 	}
+ 	wol->supported = 0;
+ 	wol->wolopts = 0;
+-	phy_ethtool_get_wol(netdev->phydev, wol);
++
++	if (netdev->phydev)
++		phy_ethtool_get_wol(netdev->phydev, wol);
  
- 	cntrl1 |= T6_TXPKT_ETHHDR_LEN_V(maclen - ETH_HLEN) |
+ 	wol->supported |= WAKE_BCAST | WAKE_UCAST | WAKE_MCAST |
+ 		WAKE_MAGIC | WAKE_PHY | WAKE_ARP;
+@@ -809,9 +811,8 @@ static int lan743x_ethtool_set_wol(struc
+ 
+ 	device_set_wakeup_enable(&adapter->pdev->dev, (bool)wol->wolopts);
+ 
+-	phy_ethtool_set_wol(netdev->phydev, wol);
+-
+-	return 0;
++	return netdev->phydev ? phy_ethtool_set_wol(netdev->phydev, wol)
++			: -ENETDOWN;
+ }
+ #endif /* CONFIG_PM */
+ 
 
 
