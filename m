@@ -2,24 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E243C2DEF4B
-	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9010A2DEF37
+	for <lists+stable@lfdr.de>; Sat, 19 Dec 2020 14:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727803AbgLSM7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 07:59:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        id S1726668AbgLSNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 08:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728013AbgLSM7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 07:59:11 -0500
+        id S1728310AbgLSM7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 07:59:50 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.9 27/49] net: sched: Fix dump of MPLS_OPT_LSE_LABEL attribute in cls_flower
-Date:   Sat, 19 Dec 2020 13:58:31 +0100
-Message-Id: <20201219125346.007154943@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
+        Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Jarod Wilson <jarod@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.9 28/49] bonding: fix feature flag setting at init time
+Date:   Sat, 19 Dec 2020 13:58:32 +0100
+Message-Id: <20201219125346.056624222@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201219125344.671832095@linuxfoundation.org>
 References: <20201219125344.671832095@linuxfoundation.org>
@@ -31,47 +35,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Jarod Wilson <jarod@redhat.com>
 
-[ Upstream commit 7fdd375e383097a785bb65c66802e468f398bf82 ]
+[ Upstream commit 007ab5345545aba2f9cbe4c096cc35d2fd3275ac ]
 
-TCA_FLOWER_KEY_MPLS_OPT_LSE_LABEL is a u32 attribute (MPLS label is
-20 bits long).
+Don't try to adjust XFRM support flags if the bond device isn't yet
+registered. Bad things can currently happen when netdev_change_features()
+is called without having wanted_features fully filled in yet. This code
+runs both on post-module-load mode changes, as well as at module init
+time, and when run at module init time, it is before register_netdevice()
+has been called and filled in wanted_features. The empty wanted_features
+led to features also getting emptied out, which was definitely not the
+intended behavior, so prevent that from happening.
 
-Fixes the following bug:
+Originally, I'd hoped to stop adjusting wanted_features at all in the
+bonding driver, as it's documented as being something only the network
+core should touch, but we actually do need to do this to properly update
+both the features and wanted_features fields when changing the bond type,
+or we get to a situation where ethtool sees:
 
- $ tc filter add dev ethX ingress protocol mpls_uc \
-     flower mpls lse depth 2 label 256             \
-     action drop
+    esp-hw-offload: off [requested on]
 
- $ tc filter show dev ethX ingress
-   filter protocol mpls_uc pref 49152 flower chain 0
-   filter protocol mpls_uc pref 49152 flower chain 0 handle 0x1
-     eth_type 8847
-     mpls
-       lse depth 2 label 0  <-- invalid label 0, should be 256
-   ...
+I do think we should be using netdev_update_features instead of
+netdev_change_features here though, so we only send notifiers when the
+features actually changed.
 
-Fixes: 61aec25a6db5 ("cls_flower: Support filtering on multiple MPLS Label Stack Entries")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a3b658cfb664 ("bonding: allow xfrm offload setup post-module-load")
+Reported-by: Ivan Vecera <ivecera@redhat.com>
+Suggested-by: Ivan Vecera <ivecera@redhat.com>
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Link: https://lore.kernel.org/r/20201205172229.576587-1-jarod@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_flower.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_options.c |   22 +++++++++++++++-------
+ include/net/bonding.h              |    2 --
+ 2 files changed, 15 insertions(+), 9 deletions(-)
 
---- a/net/sched/cls_flower.c
-+++ b/net/sched/cls_flower.c
-@@ -2424,8 +2424,8 @@ static int fl_dump_key_mpls_opt_lse(stru
- 			return err;
- 	}
- 	if (lse_mask->mpls_label) {
--		err = nla_put_u8(skb, TCA_FLOWER_KEY_MPLS_OPT_LSE_LABEL,
--				 lse_key->mpls_label);
-+		err = nla_put_u32(skb, TCA_FLOWER_KEY_MPLS_OPT_LSE_LABEL,
-+				  lse_key->mpls_label);
- 		if (err)
- 			return err;
- 	}
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -745,6 +745,19 @@ const struct bond_option *bond_opt_get(u
+ 	return &bond_opts[option];
+ }
+ 
++static void bond_set_xfrm_features(struct net_device *bond_dev, u64 mode)
++{
++	if (!IS_ENABLED(CONFIG_XFRM_OFFLOAD))
++		return;
++
++	if (mode == BOND_MODE_ACTIVEBACKUP)
++		bond_dev->wanted_features |= BOND_XFRM_FEATURES;
++	else
++		bond_dev->wanted_features &= ~BOND_XFRM_FEATURES;
++
++	netdev_update_features(bond_dev);
++}
++
+ static int bond_option_mode_set(struct bonding *bond,
+ 				const struct bond_opt_value *newval)
+ {
+@@ -767,13 +780,8 @@ static int bond_option_mode_set(struct b
+ 	if (newval->value == BOND_MODE_ALB)
+ 		bond->params.tlb_dynamic_lb = 1;
+ 
+-#ifdef CONFIG_XFRM_OFFLOAD
+-	if (newval->value == BOND_MODE_ACTIVEBACKUP)
+-		bond->dev->wanted_features |= BOND_XFRM_FEATURES;
+-	else
+-		bond->dev->wanted_features &= ~BOND_XFRM_FEATURES;
+-	netdev_change_features(bond->dev);
+-#endif /* CONFIG_XFRM_OFFLOAD */
++	if (bond->dev->reg_state == NETREG_REGISTERED)
++		bond_set_xfrm_features(bond->dev, newval->value);
+ 
+ 	/* don't cache arp_validate between modes */
+ 	bond->params.arp_validate = BOND_ARP_VALIDATE_NONE;
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
+@@ -86,10 +86,8 @@
+ #define bond_for_each_slave_rcu(bond, pos, iter) \
+ 	netdev_for_each_lower_private_rcu((bond)->dev, pos, iter)
+ 
+-#ifdef CONFIG_XFRM_OFFLOAD
+ #define BOND_XFRM_FEATURES (NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
+ 			    NETIF_F_GSO_ESP)
+-#endif /* CONFIG_XFRM_OFFLOAD */
+ 
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ extern atomic_t netpoll_block_tx;
 
 
