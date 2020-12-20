@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6497D2DF308
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5F82DF35E
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727689AbgLTDgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:36:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
+        id S1727072AbgLTDi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:38:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727651AbgLTDgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727661AbgLTDgC (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 19 Dec 2020 22:36:02 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Barret Rhoden <brho@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 12/15] selftests/bpf: Fix "dubious pointer arithmetic" test
-Date:   Sat, 19 Dec 2020 22:34:30 -0500
-Message-Id: <20201220033434.2728348-12-sashal@kernel.org>
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.9 13/15] initramfs: fix clang build failure
+Date:   Sat, 19 Dec 2020 22:34:31 -0500
+Message-Id: <20201220033434.2728348-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033434.2728348-1-sashal@kernel.org>
 References: <20201220033434.2728348-1-sashal@kernel.org>
@@ -34,49 +36,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3615bdf6d9b19db12b1589861609b4f1c6a8d303 ]
+[ Upstream commit 55d5b7dd6451b58489ce384282ca5a4a289eb8d5 ]
 
-The verifier trace changed following a bugfix. After checking the 64-bit
-sign, only the upper bit mask is known, not bit 31. Update the test
-accordingly.
+There is only one function in init/initramfs.c that is in the .text
+section, and it is marked __weak.  When building with clang-12 and the
+integrated assembler, this leads to a bug with recordmcount:
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+  ./scripts/recordmcount  "init/initramfs.o"
+  Cannot find symbol for section 2: .text.
+  init/initramfs.o: failed
+
+I'm not quite sure what exactly goes wrong, but I notice that this
+function is only ever called from an __init function, and normally
+inlined.  Marking it __init as well is clearly correct and it leads to
+recordmcount no longer complaining.
+
+Link: https://lkml.kernel.org/r/20201204165742.3815221-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Barret Rhoden <brho@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/align.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ init/initramfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/align.c b/tools/testing/selftests/bpf/prog_tests/align.c
-index c548aded65859..2a15aa3d49c74 100644
---- a/tools/testing/selftests/bpf/prog_tests/align.c
-+++ b/tools/testing/selftests/bpf/prog_tests/align.c
-@@ -456,10 +456,10 @@ static struct bpf_align_test tests[] = {
- 			 */
- 			{7, "R5_w=inv(id=0,smin_value=-9223372036854775806,smax_value=9223372036854775806,umin_value=2,umax_value=18446744073709551614,var_off=(0x2; 0xfffffffffffffffc)"},
- 			/* Checked s>=0 */
--			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{9, "R5=inv(id=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 			/* packet pointer + nonnegative (4n+2) */
--			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
--			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{11, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
-+			{13, "R4_w=pkt(id=1,off=4,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 			/* NET_IP_ALIGN + (4n+2) == (4n), alignment is fine.
- 			 * We checked the bounds, but it might have been able
- 			 * to overflow if the packet pointer started in the
-@@ -467,7 +467,7 @@ static struct bpf_align_test tests[] = {
- 			 * So we did not get a 'range' on R6, and the access
- 			 * attempt will fail.
- 			 */
--			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372034707292158,var_off=(0x2; 0x7fffffff7ffffffc)"},
-+			{15, "R6_w=pkt(id=1,off=0,r=0,umin_value=2,umax_value=9223372036854775806,var_off=(0x2; 0x7ffffffffffffffc)"},
- 		}
- 	},
- 	{
+diff --git a/init/initramfs.c b/init/initramfs.c
+index 1f97c0328a7ae..55b74d7e52607 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -535,7 +535,7 @@ extern unsigned long __initramfs_size;
+ #include <linux/initrd.h>
+ #include <linux/kexec.h>
+ 
+-void __weak free_initrd_mem(unsigned long start, unsigned long end)
++void __weak __init free_initrd_mem(unsigned long start, unsigned long end)
+ {
+ #ifdef CONFIG_ARCH_KEEP_MEMBLOCK
+ 	unsigned long aligned_start = ALIGN_DOWN(start, PAGE_SIZE);
 -- 
 2.27.0
 
