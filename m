@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E7E2DF429
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 07:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 958722DF462
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 09:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726113AbgLTGGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Dec 2020 01:06:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55824 "EHLO
+        id S1727010AbgLTIH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Dec 2020 03:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726304AbgLTGGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 01:06:13 -0500
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9751DC0617B0
-        for <stable@vger.kernel.org>; Sat, 19 Dec 2020 22:05:33 -0800 (PST)
-Received: by mail-il1-x130.google.com with SMTP id v3so6045033ilo.5
-        for <stable@vger.kernel.org>; Sat, 19 Dec 2020 22:05:33 -0800 (PST)
+        with ESMTP id S1726696AbgLTIH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 03:07:29 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D90C0613CF;
+        Sun, 20 Dec 2020 00:06:42 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id b5so4663591pjl.0;
+        Sun, 20 Dec 2020 00:06:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=3PPLg+PyRHcRYpZXYU0/asVVIWhX7CVrUOdST+JsHR0=;
-        b=e9wxcQKAFmPoEefwuZbY4XDYd4tBIR1mNJrmj/KVWvI/UZUztU7+L4iHz+Ve9enOI+
-         E2lrFuoODyJXy71rDvSN4jQw1/jWVkaHsoHX8wOHb2M0vig7rxn0n3iT9Jr5ij4N+5Op
-         FUID7+AbzTYOVJ1KMLZsFkggc51AVCic7CrJd31xeO34IKxcmQQD7SjEAOT2tSv3WueV
-         jrWSVojFo//oZQnc8LOGMxJxPVxHA/Sp9paANaQEYBlp2RZkxJ0I38bCB8jI1OG+VxtS
-         Zwddmly0CxNmChMl8rVCN5c2w1PqfAOk35/xeloRR92oDb42Hcy1egNuuW3yeIWjVB6G
-         qFvQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=3Wcun+zv/hhQE2K3TcWCKWB24fTPBiCA4UQ28awSatM=;
+        b=I7yhK5wXqmGnt4AwF/BbAz/ynHIuyVIarnQXVsSVeupjujJdEMpZ6QnSvmvqaZE5fg
+         AGk5XJbnKwCrWDICN0byKxPNEYzqXPCQkZHrjG0XPebHvPK9D8kHudqiwmBAgZs7KBt+
+         i+Ff8k3SQWJdFj6Byu434Xs9126dZnExTR5qvwjNCyi6SS+R4TD4gIxNJnuGDQ+2/+7m
+         icjJp+JmD29qB2fZfnD6eEuhffOk5Dsio5fJmoGOdazVwFJEiL333USGDYPqlBeioLcs
+         Qh8tsnahBUi2M/nMggb4SLqn63m5HU9CeOOSgZtbhWIaZRj5czh/HZFbsfnL8D+dA5IH
+         m3ig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=3PPLg+PyRHcRYpZXYU0/asVVIWhX7CVrUOdST+JsHR0=;
-        b=DFbEz1JHnJkRlmW29eo9MH0r9QV+unEpzLEgberm/dQpmkhQbdiV/9bOf3yAm59GvA
-         LKASTQaRYcvPoDLqu5sRstRXoYYpuEv3W4dYGLmfzQEyZraW0j+7UBThz3D4u5uJcSyK
-         qGNI8xVVHwP60gbie6LmlHciC7LxkC7UGQ+xIOgxJjs8wwm5NAWKgTMvHdmU08uZM92Z
-         ORJFhg+Fr+G8rZUozn9K8FfrtT/Gjl1PRutvuXlGhCtU6YYLjdz5j9NZs9vpm6xryiqh
-         ViF7FbW81ZMztqVABaQHryGXw02n/9mPMdLlMh9TmSznRR4OWESP5gYkgNoF5udMvcTg
-         w94Q==
-X-Gm-Message-State: AOAM530JAaulzo0v753hJcnQsB4ffXsNJiP+9g1LJbQV+VNpPf4i9/r3
-        A1VNq4xGt17Bq+D/Bvc32/ih9A==
-X-Google-Smtp-Source: ABdhPJyy9yVMnwfNic7VftM2KcUqOrVxMDy8+CIcb0HITMOOPzzKatb6Pr6CA9cJOtnPTOc4U8HISA==
-X-Received: by 2002:a92:d7d2:: with SMTP id g18mr11631723ilq.2.1608444331660;
-        Sat, 19 Dec 2020 22:05:31 -0800 (PST)
-Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
-        by smtp.gmail.com with ESMTPSA id f13sm12714253iog.18.2020.12.19.22.05.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Dec 2020 22:05:30 -0800 (PST)
-Date:   Sat, 19 Dec 2020 23:05:26 -0700
-From:   Yu Zhao <yuzhao@google.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=3Wcun+zv/hhQE2K3TcWCKWB24fTPBiCA4UQ28awSatM=;
+        b=bV2V5kDIUtBConrNnXxtB3GzZs2ILaIh5iHXign8FE6FoBwqcni3G332Dqg/dUa6qF
+         hsIIgcmo7by4YUbt/vf1ck6XBqA6fCPyzrZezeB55bp9CIPpq+xj1dzMDuE9r0W8Q2is
+         o5FaF6waolLXSidvtknWoevRYprR3AJUVUwwMGXkbtwh6Wc6ksdV0sMAsDysBeTiWd1N
+         4pdQBXSOmitMQbZxsCebv9szQyk9b0iZ3AkyxwTVF5azv4BcaSWGVtR24ZZu+OvUDbUm
+         19aquWFpCqHWwRgBPmOd8yhwMCG4eU5lSHggEphQh9OVzaCAKXTUm2OyhDYRv6D+22Qd
+         xWQg==
+X-Gm-Message-State: AOAM5312kgZoQ3wGtLIu7b8/6pPizhj1Ge5ZSGXvWQWDktYpTZUpKyII
+        akiQxElcHsuRNDPapFtsnEY=
+X-Google-Smtp-Source: ABdhPJwPlS6ZPqw+MisTBKarDSPQd+plS4TfpstHjZVwno3BIEi3z/ZaweENtfBX2IsioSakFZ/DaQ==
+X-Received: by 2002:a17:90a:398d:: with SMTP id z13mr12209076pjb.1.1608451601658;
+        Sun, 20 Dec 2020 00:06:41 -0800 (PST)
+Received: from [10.0.1.10] (c-24-4-128-201.hsd1.ca.comcast.net. [24.4.128.201])
+        by smtp.gmail.com with ESMTPSA id s29sm13830137pgn.65.2020.12.20.00.06.39
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 20 Dec 2020 00:06:40 -0800 (PST)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <X97pprdcRXusLGnq@google.com>
+Date:   Sun, 20 Dec 2020 00:06:38 -0800
 Cc:     Andrea Arcangeli <aarcange@redhat.com>,
         linux-mm <linux-mm@kvack.org>, Peter Xu <peterx@redhat.com>,
         lkml <linux-kernel@vger.kernel.org>,
@@ -61,115 +64,136 @@ Cc:     Andrea Arcangeli <aarcange@redhat.com>,
         Andy Lutomirski <luto@kernel.org>,
         Will Deacon <will@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X97pprdcRXusLGnq@google.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
 References: <20201219043006.2206347-1-namit@vmware.com>
  <X95RRZ3hkebEmmaj@redhat.com>
  <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
+ <X97pprdcRXusLGnq@google.com>
+To:     Yu Zhao <yuzhao@google.com>
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 19, 2020 at 01:34:29PM -0800, Nadav Amit wrote:
-> [ cc’ing some more people who have experience with similar problems ]
-> 
-> > On Dec 19, 2020, at 11:15 AM, Andrea Arcangeli <aarcange@redhat.com> wrote:
-> > 
-> > Hello,
-> > 
-> > On Fri, Dec 18, 2020 at 08:30:06PM -0800, Nadav Amit wrote:
-> >> Analyzing this problem indicates that there is a real bug since
-> >> mmap_lock is only taken for read in mwriteprotect_range(). This might
-> > 
-> > Never having to take the mmap_sem for writing, and in turn never
-> > blocking, in order to modify the pagetables is quite an important
-> > feature in uffd that justifies uffd instead of mprotect. It's not the
-> > most important reason to use uffd, but it'd be nice if that guarantee
-> > would remain also for the UFFDIO_WRITEPROTECT API, not only for the
-> > other pgtable manipulations.
-> > 
-> >> Consider the following scenario with 3 CPUs (cpu2 is not shown):
-> >> 
-> >> cpu0				cpu1
-> >> ----				----
-> >> userfaultfd_writeprotect()
-> >> [ write-protecting ]
-> >> mwriteprotect_range()
-> >> mmap_read_lock()
-> >> change_protection()
-> >>  change_protection_range()
-> >>   ...
-> >>   change_pte_range()
-> >>   [ defer TLB flushes]
-> >> 				userfaultfd_writeprotect()
-> >> 				 mmap_read_lock()
-> >> 				 change_protection()
-> >> 				 [ write-unprotect ]
-> >> 				 ...
-> >> 				  [ unprotect PTE logically ]
-> >> 				...
-> >> 				[ page-fault]
-> >> 				...
-> >> 				wp_page_copy()
-> >> 				[ set new writable page in PTE]
+> On Dec 19, 2020, at 10:05 PM, Yu Zhao <yuzhao@google.com> wrote:
+>=20
+> On Sat, Dec 19, 2020 at 01:34:29PM -0800, Nadav Amit wrote:
+>> [ cc=E2=80=99ing some more people who have experience with similar =
+problems ]
+>>=20
+>>> On Dec 19, 2020, at 11:15 AM, Andrea Arcangeli <aarcange@redhat.com> =
+wrote:
+>>>=20
+>>> Hello,
+>>>=20
+>>> On Fri, Dec 18, 2020 at 08:30:06PM -0800, Nadav Amit wrote:
+>>>> Analyzing this problem indicates that there is a real bug since
+>>>> mmap_lock is only taken for read in mwriteprotect_range(). This =
+might
+>>>=20
+>>> Never having to take the mmap_sem for writing, and in turn never
+>>> blocking, in order to modify the pagetables is quite an important
+>>> feature in uffd that justifies uffd instead of mprotect. It's not =
+the
+>>> most important reason to use uffd, but it'd be nice if that =
+guarantee
+>>> would remain also for the UFFDIO_WRITEPROTECT API, not only for the
+>>> other pgtable manipulations.
+>>>=20
+>>>> Consider the following scenario with 3 CPUs (cpu2 is not shown):
+>>>>=20
+>>>> cpu0				cpu1
+>>>> ----				----
+>>>> userfaultfd_writeprotect()
+>>>> [ write-protecting ]
+>>>> mwriteprotect_range()
+>>>> mmap_read_lock()
+>>>> change_protection()
+>>>> change_protection_range()
+>>>>  ...
+>>>>  change_pte_range()
+>>>>  [ defer TLB flushes]
+>>>> 				userfaultfd_writeprotect()
+>>>> 				 mmap_read_lock()
+>>>> 				 change_protection()
+>>>> 				 [ write-unprotect ]
+>>>> 				 ...
+>>>> 				  [ unprotect PTE logically ]
+>>>> 				...
+>>>> 				[ page-fault]
+>>>> 				...
+>>>> 				wp_page_copy()
+>>>> 				[ set new writable page in PTE]
+>=20
+> I don't see any problem in this example -- wp_page_copy() calls
+> ptep_clear_flush_notify(), which should take care of the stale entry
+> left by cpu0.
+>=20
+> That being said, I suspect the memory corruption you observed is
+> related this example, with cpu1 running something else that flushes
+> conditionally depending on pte_write().
+>=20
+> Do you know which type of pages were corrupted? file, anon, etc.
 
-I don't see any problem in this example -- wp_page_copy() calls
-ptep_clear_flush_notify(), which should take care of the stale entry
-left by cpu0.
+First, Yu, you are correct. My analysis is incorrect, but let me have
+another try (below). To answer your (and Andrea=E2=80=99s) question - =
+this happens
+with upstream without any changes, excluding a small fix to the =
+selftest,
+since it failed (got stuck) due to missing wake events. [1]
 
-That being said, I suspect the memory corruption you observed is
-related this example, with cpu1 running something else that flushes
-conditionally depending on pte_write().
+We are talking about anon memory.
 
-Do you know which type of pages were corrupted? file, anon, etc.
+So to correct myself, I think that what I really encountered was =
+actually
+during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). The
+problem was that in this case the =E2=80=9Cwrite=E2=80=9D-bit was =
+removed during unprotect.
+Sorry for the strange formatting to fit within 80 columns:
 
-> > Can't we check mm_tlb_flush_pending(vma->vm_mm) if MM_CP_UFFD_WP_ALL
-> > is set and do an explicit (potentially spurious) tlb flush before
-> > write-unprotect?
-> 
-> There is a concrete scenario that I actually encountered and then there is a
-> general problem.
-> 
-> In general, the kernel code assumes that PTEs that are read from the
-> page-tables are coherent across all the TLBs, excluding permission promotion
-> (i.e., the PTE may have higher permissions in the page-tables than those
-> that are cached in the TLBs).
-> 
-> We therefore need to both: (a) protect change_protection_range() from the
-> changes of others who might defer TLB flushes without taking mmap_sem for
-> write (e.g., try_to_unmap_one()); and (b) to protect others (e.g.,
-> page-fault handlers) from concurrent changes of change_protection().
-> 
-> We have already encountered several similar bugs, and debugging such issues
-> s time consuming and these bugs impact is substantial (memory corruption,
-> security). So I think we should only stick to general solutions.
-> 
-> So perhaps your the approach of your proposed solution is feasible, but it
-> would have to be applied all over the place: we will need to add a check for
-> mm_tlb_flush_pending() and conditionally flush the TLB in every case in
-> which PTEs are read and there might be an assumption that the
-> access-permission reflect what the TLBs hold. This includes page-fault
-> handlers, but also NUMA migration code in change_protection(), softdirty
-> cleanup in clear_refs_write() and maybe others.
-> 
-> [ I have in mind another solution, such as keeping in each page-table a 
-> “table-generation” which is the mm-generation at the time of the change,
-> and only flush if “table-generation”==“mm-generation”, but it requires
-> some thought on how to avoid adding new memory barriers. ]
-> 
-> IOW: I think the change that you suggest is insufficient, and a proper
-> solution is too intrusive for “stable".
-> 
-> As for performance, I can add another patch later to remove the TLB flush
-> that is unnecessarily performed during change_protection_range() that does
-> permission promotion. I know that your concern is about the “protect” case
-> but I cannot think of a good immediate solution that avoids taking mmap_lock
-> for write.
-> 
-> Thoughts?
-> 
+
+[ Start: PTE is writable ]
+
+cpu0				cpu1			cpu2
+----				----			----
+							[ Writable PTE=20=
+
+							  cached in TLB =
+]
+userfaultfd_writeprotect()			=09
+[ write-*unprotect* ]
+mwriteprotect_range()
+mmap_read_lock()
+change_protection()
+
+change_protection_range()
+ ...
+ change_pte_range()
+ [ *clear* =E2=80=9Cwrite=E2=80=9D-bit ]
+ [ defer TLB flushes]
+				[ page-fault ]
+				=E2=80=A6
+				wp_page_copy()
+				 cow_user_page()
+				  [ copy page ]
+							[ write to old
+							  page ]
+				=E2=80=A6
+				 set_pte_at_notify()
+
+[ End: cpu2 write not copied form old to new page. ]
+
+
+So this was actually resolved by the second part of the patch - changing
+preserve_write in change_pte_range(). I removed the acquisition of =
+mmap_lock
+for write, left the change in change_pte_range() and the test passes.
+
+Let me give some more thought on whether a mmap_lock is needed=20
+for write. I need to rehash this TLB flushing algorithm.
+
+Thanks,
+Nadav
+
+[1] https://lore.kernel.org/patchwork/patch/1346386=
