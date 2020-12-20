@@ -2,212 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3FF22DF4F2
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 10:55:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B63362DF4FD
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 11:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727339AbgLTJzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Dec 2020 04:55:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34342 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727211AbgLTJzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 04:55:35 -0500
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392A7C0617B0
-        for <stable@vger.kernel.org>; Sun, 20 Dec 2020 01:54:50 -0800 (PST)
-Received: by mail-il1-x134.google.com with SMTP id 2so6249385ilg.9
-        for <stable@vger.kernel.org>; Sun, 20 Dec 2020 01:54:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=g1f+hTqJ01sTRRK/QRqCfkwd/KCqqcEThWLus7s2oL8=;
-        b=KO0s5hkNfoe/HC+Lo6UxShdkpn5i8FtDgEZQeFoyZOnSVPubj7oYpPjvH0tqybGefX
-         3ecsUHL0N6yBTXk+jSaYiDXIcqr0hpOF21yjZ77YkbVYaO4lcqfZcS1l/E/YHAiw7WJp
-         CYgDTmQs3gbTipvWuc+UOZsXMCv6g3xJJJOMaqZvHoKW3qpDH2Awrg/6t/jybqU7M4m+
-         86g+qtJLaID/LToDTFQT84HVzxwXys5m7LykpSMAQe/8D3wvNBsE4TFFNF32ADkBYMfK
-         OiaIbVfChL+FJJ2yDOjBGwUNPjv4tHPJ8LZHeOewEkrmgi4lsPOauaFRfJNqvWCtUmWC
-         XZjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=g1f+hTqJ01sTRRK/QRqCfkwd/KCqqcEThWLus7s2oL8=;
-        b=jx9wTkdz2g8ViDLBuTI6N7M47ukkSvj/CCZFaGD9+mHKnxcogOxkCF7O7bCn88uR7v
-         9dIluWodqXCEUHImOFIfS5qjDG3IywmwbjUziuFq5tsKjYv096k89ZqyLVWTPY28sgcB
-         eSXKUshjeISHRSEi6LqzwLv9uT4CorAkv8gXMkFiQBeT2zuP6O8s6/XY3EYVWJ1E1guP
-         prgp/LdwNsigJ0pgnnmsH7CZVmxUeK58OXhMJosUJpx3an0np3Ia/9krqAQ7LZR9tpSQ
-         9wJDlEy2sh6rl51Ynre1DLz1FslA9KUlgBbQF+NSIW0XQrF9d2/j4hXoIREaF74K50Gj
-         Qbtw==
-X-Gm-Message-State: AOAM532AEaGuQgjqmFEaEEcZITcU3nliDej7m2BW9zZZ/JyFQPiXO0wB
-        FWlrQpaa+e+phBpfnT9YTnqHhg==
-X-Google-Smtp-Source: ABdhPJwFXRHS7o4frczZ+ABNBpZU+cZA2RhD15NOmpz8TH5RvcGdGctXc98YQroLdgxv8GyB8XuMjg==
-X-Received: by 2002:a92:d0d:: with SMTP id 13mr1203977iln.209.1608458089138;
-        Sun, 20 Dec 2020 01:54:49 -0800 (PST)
-Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
-        by smtp.gmail.com with ESMTPSA id d1sm20445472ioh.3.2020.12.20.01.54.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Dec 2020 01:54:48 -0800 (PST)
-Date:   Sun, 20 Dec 2020 02:54:44 -0700
-From:   Yu Zhao <yuzhao@google.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     Andrea Arcangeli <aarcange@redhat.com>,
-        linux-mm <linux-mm@kvack.org>, Peter Xu <peterx@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, minchan@kernel.org,
-        Andy Lutomirski <luto@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X98fZOiLNmnDQKhN@google.com>
-References: <20201219043006.2206347-1-namit@vmware.com>
- <X95RRZ3hkebEmmaj@redhat.com>
- <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
- <X97pprdcRXusLGnq@google.com>
- <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+        id S1726849AbgLTKPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Dec 2020 05:15:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52423 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727322AbgLTKPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 05:15:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608459245;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=L7WBlnc4uBH3yp60EsaVmDi0Gnm0WESlPJ7pAkexlYE=;
+        b=UTDlLgLW6FYsj6LN3L/1CkbZwDDd9lQZ2wncHtNhlUfCghg+fJFpSlmK4jX4j9PNp+yS06
+        ymVZ4pURrHZRWthFDWxRdYfCx0hmMtLNOyUuigrMuDq6Z4dEM47Vxt3GQpZ7uX1j/R1h3G
+        ljooRgGXryBQD8GkQNrn7ebehu7eTY4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-99-EkyDCo7HO9-EaJpq7SKZJg-1; Sun, 20 Dec 2020 05:14:01 -0500
+X-MC-Unique: EkyDCo7HO9-EaJpq7SKZJg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2519615720;
+        Sun, 20 Dec 2020 10:14:00 +0000 (UTC)
+Received: from [10.36.112.16] (ovpn-112-16.ams2.redhat.com [10.36.112.16])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A9D996294D;
+        Sun, 20 Dec 2020 10:13:58 +0000 (UTC)
+Subject: Re: [PATCH v1 4/4] s390/kvm: VSIE: correctly handle MVPG when in VSIE
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, stable@vger.kernel.org
+References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+ <20201218141811.310267-5-imbrenda@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <6836573a-a49d-9d9f-49e0-96b5aa479c52@redhat.com>
+Date:   Sun, 20 Dec 2020 11:13:57 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
+In-Reply-To: <20201218141811.310267-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 20, 2020 at 12:06:38AM -0800, Nadav Amit wrote:
-> > On Dec 19, 2020, at 10:05 PM, Yu Zhao <yuzhao@google.com> wrote:
-> > 
-> > On Sat, Dec 19, 2020 at 01:34:29PM -0800, Nadav Amit wrote:
-> >> [ cc’ing some more people who have experience with similar problems ]
-> >> 
-> >>> On Dec 19, 2020, at 11:15 AM, Andrea Arcangeli <aarcange@redhat.com> wrote:
-> >>> 
-> >>> Hello,
-> >>> 
-> >>> On Fri, Dec 18, 2020 at 08:30:06PM -0800, Nadav Amit wrote:
-> >>>> Analyzing this problem indicates that there is a real bug since
-> >>>> mmap_lock is only taken for read in mwriteprotect_range(). This might
-> >>> 
-> >>> Never having to take the mmap_sem for writing, and in turn never
-> >>> blocking, in order to modify the pagetables is quite an important
-> >>> feature in uffd that justifies uffd instead of mprotect. It's not the
-> >>> most important reason to use uffd, but it'd be nice if that guarantee
-> >>> would remain also for the UFFDIO_WRITEPROTECT API, not only for the
-> >>> other pgtable manipulations.
-> >>> 
-> >>>> Consider the following scenario with 3 CPUs (cpu2 is not shown):
-> >>>> 
-> >>>> cpu0				cpu1
-> >>>> ----				----
-> >>>> userfaultfd_writeprotect()
-> >>>> [ write-protecting ]
-> >>>> mwriteprotect_range()
-> >>>> mmap_read_lock()
-> >>>> change_protection()
-> >>>> change_protection_range()
-> >>>>  ...
-> >>>>  change_pte_range()
-> >>>>  [ defer TLB flushes]
-> >>>> 				userfaultfd_writeprotect()
-> >>>> 				 mmap_read_lock()
-> >>>> 				 change_protection()
-> >>>> 				 [ write-unprotect ]
-> >>>> 				 ...
-> >>>> 				  [ unprotect PTE logically ]
-> >>>> 				...
-> >>>> 				[ page-fault]
-> >>>> 				...
-> >>>> 				wp_page_copy()
-> >>>> 				[ set new writable page in PTE]
-> > 
-> > I don't see any problem in this example -- wp_page_copy() calls
-> > ptep_clear_flush_notify(), which should take care of the stale entry
-> > left by cpu0.
-> > 
-> > That being said, I suspect the memory corruption you observed is
-> > related this example, with cpu1 running something else that flushes
-> > conditionally depending on pte_write().
-> > 
-> > Do you know which type of pages were corrupted? file, anon, etc.
+On 18.12.20 15:18, Claudio Imbrenda wrote:
+> Correctly handle the MVPG instruction when issued by a VSIE guest.
 > 
-> First, Yu, you are correct. My analysis is incorrect, but let me have
-> another try (below). To answer your (and Andrea’s) question - this happens
-> with upstream without any changes, excluding a small fix to the selftest,
-> since it failed (got stuck) due to missing wake events. [1]
-> 
-> We are talking about anon memory.
-> 
-> So to correct myself, I think that what I really encountered was actually
-> during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). The
-> problem was that in this case the “write”-bit was removed during unprotect.
 
-Thanks. You are right about when the problem happens: UFD write-
-UNprotecting. But it's not UFD write-UNprotecting that removes the
-writable bit -- the bit can only be removed during COW or UFD
-write-protecting. So your original example was almost correct, except
-the last line describing cpu1.
+I remember that MVPG SIE documentation was completely crazy and full of
+corner cases. :)
 
-The problem is how do_wp_page() handles non-COW pages. (For COW pages,
-do_wp_page() works correctly by either reusing an existing page or
-make a new copy out of it.) In UFD case, the existing page may not
-have been properly write-protected. As you pointed out, the tlb flush
-may not be done yet. Making a copy can potentially race with the
-writer on cpu2.
+Looking at arch/s390/kvm/intercept.c:handle_mvpg_pei(), I can spot that
 
-Should we fix the problem by ensuring integrity of the copy? IMO, no,
-because do_wp_page() shouldn't copy at all in this case. It seems it
-was recently broken by
+1. "This interception can only happen for guests with DAT disabled ..."
+2. KVM does not make use of any mvpg state inside the SCB.
 
-  be068f29034f mm: fix misplaced unlock_page in do_wp_page()
-  09854ba94c6a mm: do_wp_page() simplification
+Can this be observed with Linux guests?
 
-I haven't study them carefully. But if you could just revert them and
-run the test again, we'd know where exactly to look at next.
 
-> Sorry for the strange formatting to fit within 80 columns:
+Can I get some information on what information is stored at [0xc0, 0xd)
+inside the SCB? I assume it's:
+
+0xc0: guest physical address of source PTE
+0xc8: guest physical address of target PTE
+
+
+Also, which conditions have to be met such that we get a ICPT_PARTEXEC:
+
+a) State of guest DAT (I assume off?)
+b) State of PTEs: What happens if there is no PTE (I assume we need two
+PTEs, otherwise no such intercept)? I assume we get an intercept if one
+of both PTEs is not present or the destination PTE is protected. Correct?
+
+So, when we (g1) get an intercept for g3, can we be sure 0xc0 and 0xc8
+in the scb are both valid g1 addresses pointing at our PTE, and what do
+we know about these PTEs (one not present or destination protected)?
+
+[...]
+>  /*
+>   * Run the vsie on a shadow scb and a shadow gmap, without any further
+>   * sanity checks, handling SIE faults.
+> @@ -1063,6 +1132,10 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>  		if ((scb_s->ipa & 0xf000) != 0xf000)
+>  			scb_s->ipa += 0x1000;
+>  		break;
+> +	case ICPT_PARTEXEC:
+> +		if (scb_s->ipa == 0xb254)
+
+Old code hat "/* MVPG only */" - why is this condition now necessary?
+
+> +			rc = vsie_handle_mvpg(vcpu, vsie_page);
+> +		break;
+>  	}
+>  	return rc;
+>  }
 > 
-> 
-> [ Start: PTE is writable ]
-> 
-> cpu0				cpu1			cpu2
-> ----				----			----
-> 							[ Writable PTE 
-> 							  cached in TLB ]
-> userfaultfd_writeprotect()				
-> [ write-*unprotect* ]
-> mwriteprotect_range()
-> mmap_read_lock()
-> change_protection()
-> 
-> change_protection_range()
->  ...
->  change_pte_range()
->  [ *clear* “write”-bit ]
->  [ defer TLB flushes]
-> 				[ page-fault ]
-> 				…
-> 				wp_page_copy()
-> 				 cow_user_page()
-> 				  [ copy page ]
-> 							[ write to old
-> 							  page ]
-> 				…
-> 				 set_pte_at_notify()
-> 
-> [ End: cpu2 write not copied form old to new page. ]
-> 
-> 
-> So this was actually resolved by the second part of the patch - changing
-> preserve_write in change_pte_range(). I removed the acquisition of mmap_lock
-> for write, left the change in change_pte_range() and the test passes.
-> 
-> Let me give some more thought on whether a mmap_lock is needed 
-> for write. I need to rehash this TLB flushing algorithm.
-> 
-> Thanks,
-> Nadav
-> 
-> [1] https://lore.kernel.org/patchwork/patch/1346386
+
+
+-- 
+Thanks,
+
+David / dhildenb
+
