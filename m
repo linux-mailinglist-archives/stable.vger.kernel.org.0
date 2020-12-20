@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B5F82DF35E
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8232DF309
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgLTDi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:38:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58032 "EHLO mail.kernel.org"
+        id S1727707AbgLTDgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:36:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727661AbgLTDgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:02 -0500
+        id S1727678AbgLTDgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:03 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
@@ -22,9 +22,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
         clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.9 13/15] initramfs: fix clang build failure
-Date:   Sat, 19 Dec 2020 22:34:31 -0500
-Message-Id: <20201220033434.2728348-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 14/15] elfcore: fix building with clang
+Date:   Sat, 19 Dec 2020 22:34:32 -0500
+Message-Id: <20201220033434.2728348-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033434.2728348-1-sashal@kernel.org>
 References: <20201220033434.2728348-1-sashal@kernel.org>
@@ -38,22 +38,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 55d5b7dd6451b58489ce384282ca5a4a289eb8d5 ]
+[ Upstream commit 6e7b64b9dd6d96537d816ea07ec26b7dedd397b9 ]
 
-There is only one function in init/initramfs.c that is in the .text
-section, and it is marked __weak.  When building with clang-12 and the
-integrated assembler, this leads to a bug with recordmcount:
+kernel/elfcore.c only contains weak symbols, which triggers a bug with
+clang in combination with recordmcount:
 
-  ./scripts/recordmcount  "init/initramfs.o"
   Cannot find symbol for section 2: .text.
-  init/initramfs.o: failed
+  kernel/elfcore.o: failed
 
-I'm not quite sure what exactly goes wrong, but I notice that this
-function is only ever called from an __init function, and normally
-inlined.  Marking it __init as well is clearly correct and it leads to
-recordmcount no longer complaining.
+Move the empty stubs into linux/elfcore.h as inline functions.  As only
+two architectures use these, just use the architecture specific Kconfig
+symbols to key off the declaration.
 
-Link: https://lkml.kernel.org/r/20201204165742.3815221-1-arnd@kernel.org
+Link: https://lkml.kernel.org/r/20201204165742.3815221-2-arnd@kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Cc: Nathan Chancellor <natechancellor@gmail.com>
 Cc: Nick Desaulniers <ndesaulniers@google.com>
@@ -62,22 +59,95 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/initramfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/elfcore.h | 22 ++++++++++++++++++++++
+ kernel/Makefile         |  1 -
+ kernel/elfcore.c        | 26 --------------------------
+ 3 files changed, 22 insertions(+), 27 deletions(-)
+ delete mode 100644 kernel/elfcore.c
 
-diff --git a/init/initramfs.c b/init/initramfs.c
-index 1f97c0328a7ae..55b74d7e52607 100644
---- a/init/initramfs.c
-+++ b/init/initramfs.c
-@@ -535,7 +535,7 @@ extern unsigned long __initramfs_size;
- #include <linux/initrd.h>
- #include <linux/kexec.h>
+diff --git a/include/linux/elfcore.h b/include/linux/elfcore.h
+index 46c3d691f6776..de51c1bef27da 100644
+--- a/include/linux/elfcore.h
++++ b/include/linux/elfcore.h
+@@ -104,6 +104,7 @@ static inline int elf_core_copy_task_fpregs(struct task_struct *t, struct pt_reg
+ #endif
+ }
  
--void __weak free_initrd_mem(unsigned long start, unsigned long end)
-+void __weak __init free_initrd_mem(unsigned long start, unsigned long end)
- {
- #ifdef CONFIG_ARCH_KEEP_MEMBLOCK
- 	unsigned long aligned_start = ALIGN_DOWN(start, PAGE_SIZE);
++#if defined(CONFIG_UM) || defined(CONFIG_IA64)
+ /*
+  * These functions parameterize elf_core_dump in fs/binfmt_elf.c to write out
+  * extra segments containing the gate DSO contents.  Dumping its
+@@ -118,5 +119,26 @@ elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset);
+ extern int
+ elf_core_write_extra_data(struct coredump_params *cprm);
+ extern size_t elf_core_extra_data_size(void);
++#else
++static inline Elf_Half elf_core_extra_phdrs(void)
++{
++	return 0;
++}
++
++static inline int elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
++{
++	return 1;
++}
++
++static inline int elf_core_write_extra_data(struct coredump_params *cprm)
++{
++	return 1;
++}
++
++static inline size_t elf_core_extra_data_size(void)
++{
++	return 0;
++}
++#endif
+ 
+ #endif /* _LINUX_ELFCORE_H */
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 9a20016d4900d..55e25e1739a31 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -100,7 +100,6 @@ obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
+ obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
+ obj-$(CONFIG_TRACEPOINTS) += tracepoint.o
+ obj-$(CONFIG_LATENCYTOP) += latencytop.o
+-obj-$(CONFIG_ELFCORE) += elfcore.o
+ obj-$(CONFIG_FUNCTION_TRACER) += trace/
+ obj-$(CONFIG_TRACING) += trace/
+ obj-$(CONFIG_TRACE_CLOCK) += trace/
+diff --git a/kernel/elfcore.c b/kernel/elfcore.c
+deleted file mode 100644
+index 57fb4dcff4349..0000000000000
+--- a/kernel/elfcore.c
++++ /dev/null
+@@ -1,26 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-#include <linux/elf.h>
+-#include <linux/fs.h>
+-#include <linux/mm.h>
+-#include <linux/binfmts.h>
+-#include <linux/elfcore.h>
+-
+-Elf_Half __weak elf_core_extra_phdrs(void)
+-{
+-	return 0;
+-}
+-
+-int __weak elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
+-{
+-	return 1;
+-}
+-
+-int __weak elf_core_write_extra_data(struct coredump_params *cprm)
+-{
+-	return 1;
+-}
+-
+-size_t __weak elf_core_extra_data_size(void)
+-{
+-	return 0;
+-}
 -- 
 2.27.0
 
