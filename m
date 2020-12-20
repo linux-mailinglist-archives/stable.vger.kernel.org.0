@@ -2,383 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00AD52DF63F
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 18:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CCD82DF902
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 06:58:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727665AbgLTRJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Dec 2020 12:09:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
+        id S1728409AbgLUF5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 00:57:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727112AbgLTRJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 12:09:16 -0500
-Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1769CC061285
-        for <stable@vger.kernel.org>; Sun, 20 Dec 2020 09:08:33 -0800 (PST)
-Received: by mail-qt1-x82c.google.com with SMTP id y15so5130509qtv.5
-        for <stable@vger.kernel.org>; Sun, 20 Dec 2020 09:08:32 -0800 (PST)
+        with ESMTP id S1727328AbgLUF5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 00:57:15 -0500
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88545C0613D3;
+        Sun, 20 Dec 2020 21:56:34 -0800 (PST)
+Received: by mail-wm1-x32d.google.com with SMTP id g185so9768254wmf.3;
+        Sun, 20 Dec 2020 21:56:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=d6i41u5qop6J0rX2ZasNEBHniIXG6ZeMKP3xoQK5BJ8=;
-        b=nBUxAD/kRdvEfbBp/+hN1RFOn/KFysq1z/ULZRimWX1X9UeZFthEF6P2hMwKGNqxiD
-         Aw+24W/8JeMAuWmYlsQgQA7lGfrjJLEIy255kWPmT4uhBZTjlXzgjsj2bWN1qzRx763/
-         mTwdNMKPGBtOnj5wCh5OOmNU1KPtTAynPeNO8fYmEpOOx7h4KyqlKXUUQuxpDRz8l5UT
-         ruVkrpi8qXk80O4NLX8L4ndv5xRYQDTiXAvj60/BiRKVDZhdB41u7IYNHL+reT/b5pC5
-         T7K4bp92UOLJUrbM/53illdgHPIzaiI2sBb4y3ZxiYqtkgGhfbKv8lF1Lc8Dw9PFoujJ
-         3Ifw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bAr93S7XxzBhRyTRLedeIC+1dK6qMEq1sl4Ck9Ycn1A=;
+        b=hyzkl7LXfRZEIGQUwGQuH0hYBMD9FpeI88IreSQQnmA2nLd3mzjflNiB2uppU4UrPi
+         /rq3GCupXKbtPjTHRkN0DRoy2GAm49HUvSlIDZURVJnTFjy1gJB9V5ggsUJXAS1q8uHC
+         W6YLGBBcNsUjcEIzkWCsMbv/qyPA8MAOjAlJYVIK+llvCQDyPsdVNeFJ1VVU2oy8O24n
+         2tBuZ9Cv9vtnEzqb4IIEuNDfcNyccTCyr7Ycst1TwpHneD/p6dTVaDY4604S9X8eQ07t
+         Uy4Plk5yq55vBfjowCk0E19Tj9rk5ZVnx0LdPbAc3uAyP0rtnTqTLbdK2pUQvgnr69SW
+         RivA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=d6i41u5qop6J0rX2ZasNEBHniIXG6ZeMKP3xoQK5BJ8=;
-        b=iEzlHMZT1r/S5Pq3uHQPDV87RuusvbIyCqvgbKpuUvO/NvzmJM7/WnSxlmAMus4FXj
-         Al31bH/qbRXQe6abpydhbu6QgZg1yNviptx5SieRjmMcRAtSAdsLK/Xilb++zzga6df+
-         vMj+wAft0hIBMIGA/+H/bna8mChfsYPBtPeHE3q7CUusT7i5JulX3vPPKYSyv0Pcp25z
-         785MyrRJBz5yY08lIlOhgX3WIlPr8rnlxHEtPjMJNMS7K3r3SGFeq8J25UIo5wMtI9lB
-         9g9HK5qpUjUcvG/USTKpL6NXQ0OyeTH2kPXoYYL/DmzACuMxW+4JZsq1JsRz2zIAzw+7
-         LQBg==
-X-Gm-Message-State: AOAM533I4DKkwhw9UE5ouTUOIitub4I7a8bYAZs5Dm8HoAFs74SbBWnC
-        EkxoBDsuXpYFQEKfoap0bKJPOOnWUkJJsrg5jmxZmw==
-X-Google-Smtp-Source: ABdhPJwq8QvrsHxwVJG96yMLoqevjil3F37xVgVWMOQ9OPAHjvvt4xFZtyIpEmnmf4ioQWEEK1LJy/0zG9xEQaBeR3s=
-X-Received: by 2002:a05:622a:18d:: with SMTP id s13mr13535142qtw.306.1608484111850;
- Sun, 20 Dec 2020 09:08:31 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=bAr93S7XxzBhRyTRLedeIC+1dK6qMEq1sl4Ck9Ycn1A=;
+        b=iuaHIaQWex+dK92hOLB8stw7HmHkxSfnV4GkzeLViMO9ROYm/3vCv0kckpsrK38uiz
+         aND3yNDXU4JcMGZQUSdpoMk5I/lFoJ+dMy2Bk1v1YU2ojYXdtkvcoFw2ihmmHHkMjfqP
+         dAOCZyklmzjPCfDa4//BTgaRdhNxVwWXz+t/WregWtvisQhxadBykTwvRW5XnDHPKKV3
+         GPxCgLFvItyTbulRIdYVSsS/ZTBry7inXht3G5QlPrucbtURiuJROUvkXaQshfFFe0Dw
+         5gtvcZ1Jek2ijjJkwXy27hQ8A36q/L2vrmx3sDzd9iYuErvcQxF3YoMm0YvJsofYWwJK
+         PmKA==
+X-Gm-Message-State: AOAM5303hvHQj3NZJMGdJj3cWi9vNVnWnJXR+vFQENxQIkwtQDjtYdUe
+        fAlIQww1Yp9N34AWOE4mGnxJvpxl/JF6Xg==
+X-Google-Smtp-Source: ABdhPJxqIw8Bz+R+tvjwAXw1klZC9IKrduF0JNuK6wr28d81Xm7gCUSykybSx+BxY1NF3tSIpO3I0Q==
+X-Received: by 2002:a7b:cb93:: with SMTP id m19mr13539506wmi.45.1608491814848;
+        Sun, 20 Dec 2020 11:16:54 -0800 (PST)
+Received: from localhost.localdomain ([85.255.237.164])
+        by smtp.gmail.com with ESMTPSA id n14sm20577295wmi.1.2020.12.20.11.16.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Dec 2020 11:16:54 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
+        Dmitry Kadashev <dkadashev@gmail.com>
+Subject: [PATCH 1/1] io_uring: actively cancel poll/timeouts on exit
+Date:   Sun, 20 Dec 2020 19:13:12 +0000
+Message-Id: <ea52c20eba8ab65ce1e716fe8627a1938a354268.1608491503.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-References: <20200620092047.GR1551@shell.armlinux.org.uk> <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
- <CAPv3WKdJKAEwCoj5z6NzP2xRFfT1HG+2o0wigt=Czi4bG7EQcg@mail.gmail.com>
- <CAPv3WKfEN22cKbM8=+qDANefQE67KQ1zwURrCqAsrbo1+gBCDA@mail.gmail.com>
- <20201102180326.GA2416734@kroah.com> <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
- <20201208133532.GH643756@sasha-vm> <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
- <X9CuTjdgD3tDKWwo@kroah.com> <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
-In-Reply-To: <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Sun, 20 Dec 2020 18:08:19 +0100
-Message-ID: <CAPv3WKfCfECmwjtXLAMbNe-vuGkws_icoQ+MrgJhZJqFcgGDyw@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Jon Nettleton <jon@solid-run.com>,
-        Andrew Elwell <andrew.elwell@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jakub,
+If io_ring_ctx_wait_and_kill() haven't killed all requests on the first
+attempt, new timeouts or requests enqueued for polling may appear. They
+won't be ever cancelled by io_ring_exit_work() unless we specifically
+handle that case. That hangs of the exit work locking up grabbed by
+io_uring resources.
 
-czw., 10 gru 2020 o 15:35 Marcin Wojtas <mw@semihalf.com> napisa=C5=82(a):
->
-> Hi Greg,
->
-> =C5=9Br., 9 gru 2020 o 11:59 Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> napisa=C5=82(a):
-> >
-> > On Tue, Dec 08, 2020 at 04:02:50PM +0100, Marcin Wojtas wrote:
-> > > Hi Sasha,
-> > >
-> > > wt., 8 gru 2020 o 14:35 Sasha Levin <sashal@kernel.org> napisa=C5=82(=
-a):
-> > > >
-> > > > On Tue, Dec 08, 2020 at 01:03:38PM +0100, Marcin Wojtas wrote:
-> > > > >Hi Greg,
-> > > > >
-> > > > >Apologies for delayed response:.
-> > > > >
-> > > > >
-> > > > >pon., 2 lis 2020 o 19:02 Greg Kroah-Hartman
-> > > > ><gregkh@linuxfoundation.org> napisa=C5=82(a):
-> > > > >>
-> > > > >> On Mon, Nov 02, 2020 at 06:38:54PM +0100, Marcin Wojtas wrote:
-> > > > >> > Hi Greg and Sasha,
-> > > > >> >
-> > > > >> > pt., 9 pa=C5=BA 2020 o 05:43 Marcin Wojtas <mw@semihalf.com> n=
-apisa=C5=82(a):
-> > > > >> > >
-> > > > >> > > Hi,
-> > > > >> > >
-> > > > >> > > sob., 20 cze 2020 o 11:21 Russell King <rmk+kernel@armlinux.=
-org.uk> napisa=C5=82(a):
-> > > > >> > > >
-> > > > >> > > > Add a helper to convert the struct phylink_config pointer =
-passed in
-> > > > >> > > > from phylink to the drivers internal struct mvpp2_port.
-> > > > >> > > >
-> > > > >> > > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > > > >> > > > ---
-> > > > >> > > >  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 29 ++++++=
-+++----------
-> > > > >> > > >  1 file changed, 14 insertions(+), 15 deletions(-)
-> > > > >> > > >
-> > > > >> > > > diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main=
-.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > > >> > > > index 7653277d03b7..313f5a60a605 100644
-> > > > >> > > > --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > > >> > > > +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> > > > >> > > > @@ -4767,12 +4767,16 @@ static void mvpp2_port_copy_mac_ad=
-dr(struct net_device *dev, struct mvpp2 *priv,
-> > > > >> > > >         eth_hw_addr_random(dev);
-> > > > >> > > >  }
-> > > > >> > > >
-> > > > >> > > > +static struct mvpp2_port *mvpp2_phylink_to_port(struct ph=
-ylink_config *config)
-> > > > >> > > > +{
-> > > > >> > > > +       return container_of(config, struct mvpp2_port, phy=
-link_config);
-> > > > >> > > > +}
-> > > > >> > > > +
-> > > > >> > > >  static void mvpp2_phylink_validate(struct phylink_config =
-*config,
-> > > > >> > > >                                    unsigned long *supporte=
-d,
-> > > > >> > > >                                    struct phylink_link_sta=
-te *state)
-> > > > >> > > >  {
-> > > > >> > > > -       struct mvpp2_port *port =3D container_of(config, s=
-truct mvpp2_port,
-> > > > >> > > > -                                              phylink_con=
-fig);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >         __ETHTOOL_DECLARE_LINK_MODE_MASK(mask) =3D { 0, };
-> > > > >> > > >
-> > > > >> > > >         /* Invalid combinations */
-> > > > >> > > > @@ -4913,8 +4917,7 @@ static void mvpp2_gmac_pcs_get_state=
-(struct mvpp2_port *port,
-> > > > >> > > >  static void mvpp2_phylink_mac_pcs_get_state(struct phylin=
-k_config *config,
-> > > > >> > > >                                             struct phylink=
-_link_state *state)
-> > > > >> > > >  {
-> > > > >> > > > -       struct mvpp2_port *port =3D container_of(config, s=
-truct mvpp2_port,
-> > > > >> > > > -                                              phylink_con=
-fig);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >
-> > > > >> > > >         if (port->priv->hw_version =3D=3D MVPP22 && port->=
-gop_id =3D=3D 0) {
-> > > > >> > > >                 u32 mode =3D readl(port->base + MVPP22_XLG=
-_CTRL3_REG);
-> > > > >> > > > @@ -4931,8 +4934,7 @@ static void mvpp2_phylink_mac_pcs_ge=
-t_state(struct phylink_config *config,
-> > > > >> > > >
-> > > > >> > > >  static void mvpp2_mac_an_restart(struct phylink_config *c=
-onfig)
-> > > > >> > > >  {
-> > > > >> > > > -       struct mvpp2_port *port =3D container_of(config, s=
-truct mvpp2_port,
-> > > > >> > > > -                                              phylink_con=
-fig);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >         u32 val =3D readl(port->base + MVPP2_GMAC_AUTONEG_=
-CONFIG);
-> > > > >> > > >
-> > > > >> > > >         writel(val | MVPP2_GMAC_IN_BAND_RESTART_AN,
-> > > > >> > > > @@ -5105,13 +5107,12 @@ static void mvpp2_gmac_config(stru=
-ct mvpp2_port *port, unsigned int mode,
-> > > > >> > > >  static void mvpp2_mac_config(struct phylink_config *confi=
-g, unsigned int mode,
-> > > > >> > > >                              const struct phylink_link_sta=
-te *state)
-> > > > >> > > >  {
-> > > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev)=
-;
-> > > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >         bool change_interface =3D port->phy_interface !=3D=
- state->interface;
-> > > > >> > > >
-> > > > >> > > >         /* Check for invalid configuration */
-> > > > >> > > >         if (mvpp2_is_xlg(state->interface) && port->gop_id=
- !=3D 0) {
-> > > > >> > > > -               netdev_err(dev, "Invalid mode on %s\n", de=
-v->name);
-> > > > >> > > > +               netdev_err(port->dev, "Invalid mode on %s\=
-n", port->dev->name);
-> > > > >> > > >                 return;
-> > > > >> > > >         }
-> > > > >> > > >
-> > > > >> > > > @@ -5151,8 +5152,7 @@ static void mvpp2_mac_link_up(struct=
- phylink_config *config,
-> > > > >> > > >                               int speed, int duplex,
-> > > > >> > > >                               bool tx_pause, bool rx_pause=
-)
-> > > > >> > > >  {
-> > > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev)=
-;
-> > > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >         u32 val;
-> > > > >> > > >
-> > > > >> > > >         if (mvpp2_is_xlg(interface)) {
-> > > > >> > > > @@ -5199,14 +5199,13 @@ static void mvpp2_mac_link_up(stru=
-ct phylink_config *config,
-> > > > >> > > >
-> > > > >> > > >         mvpp2_egress_enable(port);
-> > > > >> > > >         mvpp2_ingress_enable(port);
-> > > > >> > > > -       netif_tx_wake_all_queues(dev);
-> > > > >> > > > +       netif_tx_wake_all_queues(port->dev);
-> > > > >> > > >  }
-> > > > >> > > >
-> > > > >> > > >  static void mvpp2_mac_link_down(struct phylink_config *co=
-nfig,
-> > > > >> > > >                                 unsigned int mode, phy_int=
-erface_t interface)
-> > > > >> > > >  {
-> > > > >> > > > -       struct net_device *dev =3D to_net_dev(config->dev)=
-;
-> > > > >> > > > -       struct mvpp2_port *port =3D netdev_priv(dev);
-> > > > >> > > > +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(=
-config);
-> > > > >> > > >         u32 val;
-> > > > >> > > >
-> > > > >> > > >         if (!phylink_autoneg_inband(mode)) {
-> > > > >> > > > @@ -5223,7 +5222,7 @@ static void mvpp2_mac_link_down(stru=
-ct phylink_config *config,
-> > > > >> > > >                 }
-> > > > >> > > >         }
-> > > > >> > > >
-> > > > >> > > > -       netif_tx_stop_all_queues(dev);
-> > > > >> > > > +       netif_tx_stop_all_queues(port->dev);
-> > > > >> > > >         mvpp2_egress_disable(port);
-> > > > >> > > >         mvpp2_ingress_disable(port);
-> > > > >> > > >
-> > > > >> > > > --
-> > > > >> > > > 2.20.1
-> > > > >> > > >
-> > > > >> > >
-> > > > >> > > This patch fixes a regression that was introduced in v5.3:
-> > > > >> > > Commit 44cc27e43fa3 ("net: phylink: Add struct phylink_confi=
-g to PHYLINK API")
-> > > > >> > >
-> > > > >> > > Above results in a NULL pointer dereference when booting the
-> > > > >> > > Armada7k8k/CN913x with ACPI between 5.3 and 5.8, which will =
-be
-> > > > >> > > problematic especially for the distros using LTSv5.4 and abo=
-ve (the
-> > > > >> > > issue was reported on Fedora 32).
-> > > > >> > >
-> > > > >> > > Please help with backporting to the stable v5.3+ branches (i=
-t applies
-> > > > >> > > smoothly on v5.4/v5.6/v5.8).
-> > > > >> > >
-> > > > >> >
-> > > > >> > Any chances to backport this patch to relevant v5.3+ stable br=
-anches?
-> > > > >>
-> > > > >> What patch?  What git commit id needs to be backported?
-> > > > >>
-> > > > >
-> > > > >The actual patch is:
-> > > > >Commit 6c2b49eb9671  ("net: mvpp2: add mvpp2_phylink_to_port() hel=
-per").
-> > > > >
-> > > > >URL for reference:
-> > > > >https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git=
-/commit/drivers/net/ethernet/marvell/mvpp2?h=3Dv5.10-rc7&id=3D6c2b49eb96716=
-e91f202756bfbd3f5fea3b2b172
-> > > > >
-> > > > >Do you think it would be possible to get it merged to v5.3+ stable=
- branches?
-> > > >
-> > > > Could you explain how that patch fixes anything? It reads like a
-> > > > cleanup.
-> > > >
-> > >
-> > > Indeed, I am aware of it, but I'm not sure about the best way to fix
-> > > it. In fact the mentioned patch is an unintentional fix. Commit
-> > > 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK
-> > > API") reworked an argument list of mvpp2_mac_config() routine in a wa=
-y
-> > > that resulted in a NULL pointer dereference when booting the
-> > > Armada7k8k/CN913x with ACPI between 5.3 and 5.8. Part of Russell's
-> > > patch resolves this issue.
-> >
-> > What part fixes the issue?  I can't see it...
-> >
->
-> I re-checked in my setup and here's the smallest part of the original
-> patch, that fixes previously described issue:
-> diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> index e98be8372780..9d71a4fe1750 100644
-> --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> @@ -4767,6 +4767,11 @@ static void mvpp2_port_copy_mac_addr(struct
-> net_device *dev, struct mvpp2 *priv,
->         eth_hw_addr_random(dev);
->  }
->
-> +static struct mvpp2_port *mvpp2_phylink_to_port(struct phylink_config *c=
-onfig)
-> +{
-> +       return container_of(config, struct mvpp2_port, phylink_config);
-> +}
-> +
->  static void mvpp2_phylink_validate(struct phylink_config *config,
->                                    unsigned long *supported,
->                                    struct phylink_link_state *state)
-> @@ -5105,13 +5110,12 @@ static void mvpp2_gmac_config(struct
-> mvpp2_port *port, unsigned int mode,
->  static void mvpp2_mac_config(struct phylink_config *config, unsigned int=
- mode,
->                              const struct phylink_link_state *state)
->  {
-> -       struct net_device *dev =3D to_net_dev(config->dev);
-> -       struct mvpp2_port *port =3D netdev_priv(dev);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         bool change_interface =3D port->phy_interface !=3D state->interfa=
-ce;
->
->         /* Check for invalid configuration */
->         if (mvpp2_is_xlg(state->interface) && port->gop_id !=3D 0) {
-> -               netdev_err(dev, "Invalid mode on %s\n", dev->name);
-> +               netdev_err(port->dev, "Invalid mode on %s\n", port->dev->=
-name);
->                 return;
->         }
->
-> @@ -5151,8 +5155,7 @@ static void mvpp2_mac_link_up(struct
-> phylink_config *config,
->                               int speed, int duplex,
->                               bool tx_pause, bool rx_pause)
->  {
-> -       struct net_device *dev =3D to_net_dev(config->dev);
-> -       struct mvpp2_port *port =3D netdev_priv(dev);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         u32 val;
->
->         if (mvpp2_is_xlg(interface)) {
-> @@ -5199,7 +5202,7 @@ static void mvpp2_mac_link_up(struct
-> phylink_config *config,
->
->         mvpp2_egress_enable(port);
->         mvpp2_ingress_enable(port);
-> -       netif_tx_wake_all_queues(dev);
-> +       netif_tx_wake_all_queues(port->dev);
->  }
->
->  static void mvpp2_mac_link_down(struct phylink_config *config,
-> --
->
-> Do you think there is a point of slicing the original patch or rather
-> cherry-pick as-is?
->
+Cc: <stable@vger.kernel.org> # 5.5+
+Cc: Josef <josef.grieb@gmail.com>
+Reported-by: Dmitry Kadashev <dkadashev@gmail.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 55 +++++++++++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 26 deletions(-)
 
-Do you think there is a chance to get the above fix merged to stable (v5.3+=
-)?
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fbf747803dbc..c1acc668fe96 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8620,6 +8620,32 @@ static int io_remove_personalities(int id, void *p, void *data)
+ 	return 0;
+ }
+ 
++static void io_cancel_defer_files(struct io_ring_ctx *ctx,
++				  struct task_struct *task,
++				  struct files_struct *files)
++{
++	struct io_defer_entry *de = NULL;
++	LIST_HEAD(list);
++
++	spin_lock_irq(&ctx->completion_lock);
++	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
++		if (io_match_task(de->req, task, files)) {
++			list_cut_position(&list, &ctx->defer_list, &de->list);
++			break;
++		}
++	}
++	spin_unlock_irq(&ctx->completion_lock);
++
++	while (!list_empty(&list)) {
++		de = list_first_entry(&list, struct io_defer_entry, list);
++		list_del_init(&de->list);
++		req_set_fail_links(de->req);
++		io_put_req(de->req);
++		io_req_complete(de->req, -ECANCELED);
++		kfree(de);
++	}
++}
++
+ static void io_ring_exit_work(struct work_struct *work)
+ {
+ 	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
+@@ -8633,6 +8659,8 @@ static void io_ring_exit_work(struct work_struct *work)
+ 	 */
+ 	do {
+ 		io_iopoll_try_reap_events(ctx);
++		io_poll_remove_all(ctx, NULL, NULL);
++		io_kill_timeouts(ctx, NULL, NULL);
+ 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+ 	io_ring_ctx_free(ctx);
+ }
+@@ -8654,6 +8682,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 		io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
++	io_cancel_defer_files(ctx, NULL, NULL);
+ 	io_kill_timeouts(ctx, NULL, NULL);
+ 	io_poll_remove_all(ctx, NULL, NULL);
+ 
+@@ -8716,32 +8745,6 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
+ 	return ret;
+ }
+ 
+-static void io_cancel_defer_files(struct io_ring_ctx *ctx,
+-				  struct task_struct *task,
+-				  struct files_struct *files)
+-{
+-	struct io_defer_entry *de = NULL;
+-	LIST_HEAD(list);
+-
+-	spin_lock_irq(&ctx->completion_lock);
+-	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
+-		if (io_match_task(de->req, task, files)) {
+-			list_cut_position(&list, &ctx->defer_list, &de->list);
+-			break;
+-		}
+-	}
+-	spin_unlock_irq(&ctx->completion_lock);
+-
+-	while (!list_empty(&list)) {
+-		de = list_first_entry(&list, struct io_defer_entry, list);
+-		list_del_init(&de->list);
+-		req_set_fail_links(de->req);
+-		io_put_req(de->req);
+-		io_req_complete(de->req, -ECANCELED);
+-		kfree(de);
+-	}
+-}
+-
+ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				  struct task_struct *task,
+ 				  struct files_struct *files)
+-- 
+2.24.0
 
-Best regards,
-Marcin
