@@ -2,30 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C9F2DF32E
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A602DF310
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728374AbgLTDgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:36:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58444 "EHLO mail.kernel.org"
+        id S1727759AbgLTDgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:36:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728328AbgLTDgh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:37 -0500
+        id S1727746AbgLTDgM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:12 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/10] cfg80211: initialize rekey_data
-Date:   Sat, 19 Dec 2020 22:34:49 -0500
-Message-Id: <20201220033457.2728519-2-sashal@kernel.org>
+Cc:     Serge Hallyn <shallyn@cisco.com>,
+        =?UTF-8?q?Herv=C3=A9=20Guillemet?= <herve@guillemet.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Andrew G . Morgan" <morgan@kernel.org>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 03/10] [SECURITY] fix namespaced fscaps when !CONFIG_SECURITY
+Date:   Sat, 19 Dec 2020 22:34:50 -0500
+Message-Id: <20201220033457.2728519-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033457.2728519-1-sashal@kernel.org>
 References: <20201220033457.2728519-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -33,34 +35,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Serge Hallyn <shallyn@cisco.com>
 
-[ Upstream commit f495acd8851d7b345e5f0e521b2645b1e1f928a0 ]
+[ Upstream commit ed9b25d1970a4787ac6a39c2091e63b127ecbfc1 ]
 
-In case we have old supplicant, the akm field is uninitialized.
+Namespaced file capabilities were introduced in 8db6c34f1dbc .
+When userspace reads an xattr for a namespaced capability, a
+virtualized representation of it is returned if the caller is
+in a user namespace owned by the capability's owning rootid.
+The function which performs this virtualization was not hooked
+up if CONFIG_SECURITY=n.  Therefore in that case the original
+xattr was shown instead of the virtualized one.
 
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201129172929.930f0ab7ebee.Ic546e384efab3f4a89f318eafddc3eb7d556aecb@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+To test this using libcap-bin (*1),
+
+$ v=$(mktemp)
+$ unshare -Ur setcap cap_sys_admin-eip $v
+$ unshare -Ur setcap -v cap_sys_admin-eip $v
+/tmp/tmp.lSiIFRvt8Y: OK
+
+"setcap -v" verifies the values instead of setting them, and
+will check whether the rootid value is set.  Therefore, with
+this bug un-fixed, and with CONFIG_SECURITY=n, setcap -v will
+fail:
+
+$ v=$(mktemp)
+$ unshare -Ur setcap cap_sys_admin=eip $v
+$ unshare -Ur setcap -v cap_sys_admin=eip $v
+nsowner[got=1000, want=0],/tmp/tmp.HHDiOOl9fY differs in []
+
+Fix this bug by calling cap_inode_getsecurity() in
+security_inode_getsecurity() instead of returning
+-EOPNOTSUPP, when CONFIG_SECURITY=n.
+
+*1 - note, if libcap is too old for getcap to have the '-n'
+option, then use verify-caps instead.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=209689
+Cc: Hervé Guillemet <herve@guillemet.org>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Serge Hallyn <shallyn@cisco.com>
+Signed-off-by: Andrew G. Morgan <morgan@kernel.org>
+Signed-off-by: James Morris <jamorris@linux.microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 2 +-
+ include/linux/security.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index dbac5c0995a0f..5bb2316befb98 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -12033,7 +12033,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
- 	struct net_device *dev = info->user_ptr[1];
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
- 	struct nlattr *tb[NUM_NL80211_REKEY_DATA];
--	struct cfg80211_gtk_rekey_data rekey_data;
-+	struct cfg80211_gtk_rekey_data rekey_data = {};
- 	int err;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index fd022768e91df..df90399a8af98 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -852,7 +852,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
  
- 	if (!info->attrs[NL80211_ATTR_REKEY_DATA])
+ static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+ {
+-	return -EOPNOTSUPP;
++	return cap_inode_getsecurity(inode, name, buffer, alloc);
+ }
+ 
+ static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
 -- 
 2.27.0
 
