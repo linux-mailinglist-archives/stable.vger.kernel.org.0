@@ -2,26 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED7322DF334
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB432DF31B
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728480AbgLTDgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:36:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58468 "EHLO mail.kernel.org"
+        id S1727841AbgLTDgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:36:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727090AbgLTDgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:43 -0500
+        id S1727960AbgLTDgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:18 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongdong Wang <wangdongdong.6@bytedance.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/6] lwt: Disable BH too in run_lwt_bpf()
-Date:   Sat, 19 Dec 2020 22:35:09 -0500
-Message-Id: <20201220033511.2728659-4-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rajat Jain <rajatja@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 5/6] Input: cros_ec_keyb - send 'scancodes' in addition to key events
+Date:   Sat, 19 Dec 2020 22:35:10 -0500
+Message-Id: <20201220033511.2728659-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033511.2728659-1-sashal@kernel.org>
 References: <20201220033511.2728659-1-sashal@kernel.org>
@@ -33,63 +31,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongdong Wang <wangdongdong.6@bytedance.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit d9054a1ff585ba01029584ab730efc794603d68f ]
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-The per-cpu bpf_redirect_info is shared among all skb_do_redirect()
-and BPF redirect helpers. Callers on RX path are all in BH context,
-disabling preemption is not sufficient to prevent BH interruption.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-In production, we observed strange packet drops because of the race
-condition between LWT xmit and TC ingress, and we verified this issue
-is fixed after we disable BH.
-
-Although this bug was technically introduced from the beginning, that
-is commit 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure"),
-at that time call_rcu() had to be call_rcu_bh() to match the RCU context.
-So this patch may not work well before RCU flavor consolidation has been
-completed around v5.0.
-
-Update the comments above the code too, as call_rcu() is now BH friendly.
-
-Signed-off-by: Dongdong Wang <wangdongdong.6@bytedance.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/bpf/20201205075946.497763-1-xiyou.wangcong@gmail.com
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/lwt_bpf.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index a648568c5e8fe..4a5f4fbffd836 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -44,12 +44,11 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- {
- 	int ret;
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index d560011815983..1edf0e8322ccc 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -183,6 +183,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
--	/* Preempt disable is needed to protect per-cpu redirect_info between
--	 * BPF prog and skb_do_redirect(). The call_rcu in bpf_prog_put() and
--	 * access to maps strictly require a rcu_read_lock() for protection,
--	 * mixing with BH RCU lock doesn't work.
-+	/* Preempt disable and BH disable are needed to protect per-cpu
-+	 * redirect_info between BPF prog and skb_do_redirect().
- 	 */
- 	preempt_disable();
-+	local_bh_disable();
- 	bpf_compute_data_pointers(skb);
- 	ret = bpf_prog_run_save_cb(lwt->prog, skb);
- 
-@@ -82,6 +81,7 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- 		break;
- 	}
- 
-+	local_bh_enable();
- 	preempt_enable();
- 
- 	return ret;
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
 -- 
 2.27.0
 
