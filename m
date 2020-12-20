@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7D262DF2F1
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD11C2DF2FA
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727391AbgLTDfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:35:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
+        id S1727437AbgLTDf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:35:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727318AbgLTDfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:35:22 -0500
+        id S1726953AbgLTDf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:35:57 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Hallyn <shallyn@cisco.com>,
-        =?UTF-8?q?Herv=C3=A9=20Guillemet?= <herve@guillemet.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Andrew G . Morgan" <morgan@kernel.org>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 05/15] [SECURITY] fix namespaced fscaps when !CONFIG_SECURITY
-Date:   Sat, 19 Dec 2020 22:34:23 -0500
-Message-Id: <20201220033434.2728348-5-sashal@kernel.org>
+Cc:     Dongdong Wang <wangdongdong.6@bytedance.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.9 06/15] lwt: Disable BH too in run_lwt_bpf()
+Date:   Sat, 19 Dec 2020 22:34:24 -0500
+Message-Id: <20201220033434.2728348-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033434.2728348-1-sashal@kernel.org>
 References: <20201220033434.2728348-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -35,66 +33,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Hallyn <shallyn@cisco.com>
+From: Dongdong Wang <wangdongdong.6@bytedance.com>
 
-[ Upstream commit ed9b25d1970a4787ac6a39c2091e63b127ecbfc1 ]
+[ Upstream commit d9054a1ff585ba01029584ab730efc794603d68f ]
 
-Namespaced file capabilities were introduced in 8db6c34f1dbc .
-When userspace reads an xattr for a namespaced capability, a
-virtualized representation of it is returned if the caller is
-in a user namespace owned by the capability's owning rootid.
-The function which performs this virtualization was not hooked
-up if CONFIG_SECURITY=n.  Therefore in that case the original
-xattr was shown instead of the virtualized one.
+The per-cpu bpf_redirect_info is shared among all skb_do_redirect()
+and BPF redirect helpers. Callers on RX path are all in BH context,
+disabling preemption is not sufficient to prevent BH interruption.
 
-To test this using libcap-bin (*1),
+In production, we observed strange packet drops because of the race
+condition between LWT xmit and TC ingress, and we verified this issue
+is fixed after we disable BH.
 
-$ v=$(mktemp)
-$ unshare -Ur setcap cap_sys_admin-eip $v
-$ unshare -Ur setcap -v cap_sys_admin-eip $v
-/tmp/tmp.lSiIFRvt8Y: OK
+Although this bug was technically introduced from the beginning, that
+is commit 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure"),
+at that time call_rcu() had to be call_rcu_bh() to match the RCU context.
+So this patch may not work well before RCU flavor consolidation has been
+completed around v5.0.
 
-"setcap -v" verifies the values instead of setting them, and
-will check whether the rootid value is set.  Therefore, with
-this bug un-fixed, and with CONFIG_SECURITY=n, setcap -v will
-fail:
+Update the comments above the code too, as call_rcu() is now BH friendly.
 
-$ v=$(mktemp)
-$ unshare -Ur setcap cap_sys_admin=eip $v
-$ unshare -Ur setcap -v cap_sys_admin=eip $v
-nsowner[got=1000, want=0],/tmp/tmp.HHDiOOl9fY differs in []
-
-Fix this bug by calling cap_inode_getsecurity() in
-security_inode_getsecurity() instead of returning
--EOPNOTSUPP, when CONFIG_SECURITY=n.
-
-*1 - note, if libcap is too old for getcap to have the '-n'
-option, then use verify-caps instead.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=209689
-Cc: Hervé Guillemet <herve@guillemet.org>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Serge Hallyn <shallyn@cisco.com>
-Signed-off-by: Andrew G. Morgan <morgan@kernel.org>
-Signed-off-by: James Morris <jamorris@linux.microsoft.com>
+Signed-off-by: Dongdong Wang <wangdongdong.6@bytedance.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/bpf/20201205075946.497763-1-xiyou.wangcong@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/security.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/lwt_bpf.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 0a0a03b36a3bb..2befc0a25eb37 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -864,7 +864,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
- 
- static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
+index 7d3438215f32c..4f3cb7c15ddfe 100644
+--- a/net/core/lwt_bpf.c
++++ b/net/core/lwt_bpf.c
+@@ -39,12 +39,11 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
  {
--	return -EOPNOTSUPP;
-+	return cap_inode_getsecurity(inode, name, buffer, alloc);
- }
+ 	int ret;
  
- static inline int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
+-	/* Preempt disable is needed to protect per-cpu redirect_info between
+-	 * BPF prog and skb_do_redirect(). The call_rcu in bpf_prog_put() and
+-	 * access to maps strictly require a rcu_read_lock() for protection,
+-	 * mixing with BH RCU lock doesn't work.
++	/* Preempt disable and BH disable are needed to protect per-cpu
++	 * redirect_info between BPF prog and skb_do_redirect().
+ 	 */
+ 	preempt_disable();
++	local_bh_disable();
+ 	bpf_compute_data_pointers(skb);
+ 	ret = bpf_prog_run_save_cb(lwt->prog, skb);
+ 
+@@ -78,6 +77,7 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
+ 		break;
+ 	}
+ 
++	local_bh_enable();
+ 	preempt_enable();
+ 
+ 	return ret;
 -- 
 2.27.0
 
