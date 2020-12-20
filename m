@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90642DF322
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E64322DF353
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728278AbgLTDg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
+        id S1728347AbgLTDh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:37:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728277AbgLTDg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:28 -0500
+        id S1728284AbgLTDga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:30 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rajat Jain <rajatja@google.com>,
+Cc:     Simon Beginn <linux@simonmicro.de>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/3] Input: cros_ec_keyb - send 'scancodes' in addition to key events
-Date:   Sat, 19 Dec 2020 22:35:25 -0500
-Message-Id: <20201220033526.2728841-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 3/3] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
+Date:   Sat, 19 Dec 2020 22:35:26 -0500
+Message-Id: <20201220033526.2728841-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033526.2728841-1-sashal@kernel.org>
 References: <20201220033526.2728841-1-sashal@kernel.org>
@@ -31,35 +32,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Simon Beginn <linux@simonmicro.de>
 
-[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
+[ Upstream commit cffdd6d90482316e18d686060a4397902ea04bd2 ]
 
-To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
-and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
-addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
-capability, so it is only matter of actually sending the events.
+The touchscreen on the Teclast x98 Pro is also mounted upside-down in
+relation to the display orientation.
 
-Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
-Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Simon Beginn <linux@simonmicro.de>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20201117004253.27A5A27EFD@localhost
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/cros_ec_keyb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/touchscreen/goodix.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 25943e9bc8bff..328792e26a9f6 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -140,6 +140,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
- 					"changed: [r%d c%d]: byte %02x\n",
- 					row, col, new_state);
- 
-+				input_event(idev, EV_MSC, MSC_SCAN, pos);
- 				input_report_key(idev, keycodes[pos],
- 						 new_state);
- 			}
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 6a02e7301297d..ba0ab9963f3cd 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -98,6 +98,18 @@ static const struct dmi_system_id rotated_screen[] = {
+ 			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
+ 		},
+ 	},
++	{
++		.ident = "Teclast X98 Pro",
++		.matches = {
++			/*
++			 * Only match BIOS date, because the manufacturers
++			 * BIOS does not report the board name at all
++			 * (sometimes)...
++			 */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
++		},
++	},
+ 	{
+ 		.ident = "WinBook TW100",
+ 		.matches = {
 -- 
 2.27.0
 
