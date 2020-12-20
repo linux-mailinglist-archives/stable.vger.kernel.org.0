@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CD12DF34E
-	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 061DA2DF35C
+	for <lists+stable@lfdr.de>; Sun, 20 Dec 2020 04:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728639AbgLTDho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Dec 2020 22:37:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
+        id S1727282AbgLTDin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Dec 2020 22:38:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728347AbgLTDgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Dec 2020 22:36:38 -0500
+        id S1727826AbgLTDgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Dec 2020 22:36:14 -0500
 From:   Sasha Levin <sashal@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongdong Wang <wangdongdong.6@bytedance.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/10] lwt: Disable BH too in run_lwt_bpf()
-Date:   Sat, 19 Dec 2020 22:34:51 -0500
-Message-Id: <20201220033457.2728519-4-sashal@kernel.org>
+Cc:     Chris Park <Chris.Park@amd.com>, Wenjing Liu <Wenjing.Liu@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 05/10] drm/amd/display: Prevent bandwidth overflow
+Date:   Sat, 19 Dec 2020 22:34:52 -0500
+Message-Id: <20201220033457.2728519-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201220033457.2728519-1-sashal@kernel.org>
 References: <20201220033457.2728519-1-sashal@kernel.org>
@@ -33,63 +33,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongdong Wang <wangdongdong.6@bytedance.com>
+From: Chris Park <Chris.Park@amd.com>
 
-[ Upstream commit d9054a1ff585ba01029584ab730efc794603d68f ]
+[ Upstream commit 80089dd8410f356d5104496d5ab71a66a4f4646b ]
 
-The per-cpu bpf_redirect_info is shared among all skb_do_redirect()
-and BPF redirect helpers. Callers on RX path are all in BH context,
-disabling preemption is not sufficient to prevent BH interruption.
+[Why]
+At very high pixel clock, bandwidth calculation exceeds 32 bit size
+and overflow value. This causes the resulting selection of link rate
+to be inaccurate.
 
-In production, we observed strange packet drops because of the race
-condition between LWT xmit and TC ingress, and we verified this issue
-is fixed after we disable BH.
+[How]
+Change order of operation and use fixed point to deal with integer
+accuracy. Also address bug found when forcing link rate.
 
-Although this bug was technically introduced from the beginning, that
-is commit 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure"),
-at that time call_rcu() had to be call_rcu_bh() to match the RCU context.
-So this patch may not work well before RCU flavor consolidation has been
-completed around v5.0.
-
-Update the comments above the code too, as call_rcu() is now BH friendly.
-
-Signed-off-by: Dongdong Wang <wangdongdong.6@bytedance.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/bpf/20201205075946.497763-1-xiyou.wangcong@gmail.com
+Signed-off-by: Chris Park <Chris.Park@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/lwt_bpf.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index 99a6de52b21da..a5502c5aa44e7 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -39,12 +39,11 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 47cefc05fd3f5..f933791f1fbbb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2906,11 +2906,14 @@ uint32_t dc_bandwidth_in_kbps_from_timing(
  {
- 	int ret;
+ 	uint32_t bits_per_channel = 0;
+ 	uint32_t kbps;
++	struct fixed31_32 link_bw_kbps;
  
--	/* Preempt disable is needed to protect per-cpu redirect_info between
--	 * BPF prog and skb_do_redirect(). The call_rcu in bpf_prog_put() and
--	 * access to maps strictly require a rcu_read_lock() for protection,
--	 * mixing with BH RCU lock doesn't work.
-+	/* Preempt disable and BH disable are needed to protect per-cpu
-+	 * redirect_info between BPF prog and skb_do_redirect().
- 	 */
- 	preempt_disable();
-+	local_bh_disable();
- 	bpf_compute_data_pointers(skb);
- 	ret = bpf_prog_run_save_cb(lwt->prog, skb);
- 
-@@ -78,6 +77,7 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- 		break;
+ #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
+ 	if (timing->flags.DSC) {
+-		kbps = (timing->pix_clk_100hz * timing->dsc_cfg.bits_per_pixel);
+-		kbps = kbps / 160 + ((kbps % 160) ? 1 : 0);
++		link_bw_kbps = dc_fixpt_from_int(timing->pix_clk_100hz);
++		link_bw_kbps = dc_fixpt_div_int(link_bw_kbps, 160);
++		link_bw_kbps = dc_fixpt_mul_int(link_bw_kbps, timing->dsc_cfg.bits_per_pixel);
++		kbps = dc_fixpt_ceil(link_bw_kbps);
+ 		return kbps;
  	}
- 
-+	local_bh_enable();
- 	preempt_enable();
- 
- 	return ret;
+ #endif
 -- 
 2.27.0
 
