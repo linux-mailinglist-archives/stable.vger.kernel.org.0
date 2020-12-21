@@ -2,117 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A692E01D2
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 22:13:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C7152E0208
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 22:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725820AbgLUVNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 16:13:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49980 "EHLO
+        id S1726103AbgLUVZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 16:25:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbgLUVNR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 16:13:17 -0500
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146DEC0613D3
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 13:12:37 -0800 (PST)
-Received: by mail-qv1-xf2f.google.com with SMTP id l14so5098851qvh.2
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 13:12:37 -0800 (PST)
+        with ESMTP id S1726095AbgLUVZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 16:25:19 -0500
+Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1F1C0613D3
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 13:24:39 -0800 (PST)
+Received: by mail-il1-x131.google.com with SMTP id g1so10181889ilk.7
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 13:24:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=+WOcy9/zFWjAy/cnSZdM3quM5/ns6g+r9EnHa3AUEvs=;
-        b=byJl2EOCeyXfUbVnmmrQrKoVJESZL3ZBx7wa4cBFup83V/0mcOOZkpFf8yqNUL3oma
-         WntBzVY3V7JeY/w2vhFVzH1j0y4AGVb6KJ24mhaad0CH9AvewJ+2iDgeP2LKuEXk46u1
-         BXOc/oKF/BjSzrXcfVPmvnhy/4LOENPLUo3LpGzzwRLnDTOyqUpiDCTZ1x9pm4BZHK0Q
-         kYyRqhsxpg/oq07HKBOMQxKHRiKxvcPbIiF5WiDHiFZYandsmFYSu0wg49Tcmf03uRZ3
-         wiJHjIeuB3EbuoxDtZLz71F8w7309o9CSPY9pxvlAL4BlhlXsaFZBWkXO7J5koqq8NDR
-         ESqA==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=gt0GOM+mu9eCAi9ZwxTkAxhSO6qei0FrG7NI5v/BoDI=;
+        b=ACpDdyiwt4yzErIqLdCpeaNIBrR4/bgLdfjMt1/9F8ZZFOMHGNH56+Edfr2m9edLS8
+         YJoTMl2xATIDPeDCMciiGgJDwtllCD0RR+tXlKRWRIR5DHsL67/Qwmes3l7G1WpZrOgO
+         FmbDWZqJa+20i6x4NSrn35qd2TAUf06sM+fTT4kZ4yzPg2Ri3E/RGJRGYUHLazaLlgh0
+         Z6GfhQWEW9PuoSOR0RgQdp9JucsYj5Oxj6SQ9qj3B9e7jB0lW9pz6jCnm6gmiPNM8sN5
+         gAAUGlXFu7zyctRCrFwGHfnFgyBtXYb6kAsE3rukf71mRYJ/HBcRNBBRWloAU77Sywxg
+         kcdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=+WOcy9/zFWjAy/cnSZdM3quM5/ns6g+r9EnHa3AUEvs=;
-        b=Ig7WD2zlSNcOQG3KHYTYXlEAqfMI4nmuP9k/XUWjduzx6HVmEi/QIyXRZtu4MI/ZKc
-         SA2ddPAjLViQj7I9pjjvIgMIGfKZ7kCIJbCdum9/TgPApdDfIcN8dr4goWgTCej3DHiL
-         n8r+VCSLNs11Afb5eMI61KHxV8s80srLBCvRG0i51s0GjegM/2bXzMG2CjDu5OZV5TJ+
-         XoqZre7JWglVvWvgGKlpMJHTynEPEsHk9ncRkF6T0tFu/ABvlf1AYqZBSzUpSIGE6ZfT
-         GoVLkyMI5SjqRfNCOWHUfUbmFuPKFpEQFYNQ2iX2xp4E0Ip6nOXwdnCYmf3BO+mtCHEC
-         RiyA==
-X-Gm-Message-State: AOAM5338N/z/81MZy0MZxsUaNvChMH7T7OLZeT/RRWzpuBoBz75ALhZg
-        q8hluHeA6uoaoYVt2JDHE5lMG+J6/y/jvhLsdcPJLkXeflMAfA==
-X-Google-Smtp-Source: ABdhPJwkV3K1zmg1hOcr/zrvR5tmKGs8hh32twqJveHYBrFX/1CQ8OGGW4WIoxJLJg4oCH3/UVdT66u3d/UTg7ft+u4=
-X-Received: by 2002:a05:6214:20a7:: with SMTP id 7mr18940616qvd.59.1608585156192;
- Mon, 21 Dec 2020 13:12:36 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=gt0GOM+mu9eCAi9ZwxTkAxhSO6qei0FrG7NI5v/BoDI=;
+        b=FQ6JqJ9ufHbMiHGFpuj+xspsjL6eajXuHIPGdMmajEDuVv55/XqUuw+tir1e5UJEVf
+         QeUDc6AS2WkGr2o+6Wj4w7zHvZBkNR68QVNM6n4UogYwfYJ0Q9fosBLrVbhqDRgR3/2t
+         tFlwimKX3ZSt9sp4OqOsALtbVBu45XvRZgyNoDLMntAoF8Ly0grOFa8pXqn2GkfnLHUO
+         4v0FKB94ND65qqfVkCw70sx1WUB40F+wO9DSBHT7dR0GG8ZhlIflTB7ZivuU9kFQSGaM
+         IVR7Kh6+T+QRgiCmsf80j1nKYJ826W+IJyHcOAVgi/BsM7k/ENhTbi69/bISLHj/FI5W
+         yt/g==
+X-Gm-Message-State: AOAM533Pz+QHwJfvCac++3nVLkxvIHKmTqT5C0bI/ZvlD/9IybzuQvgM
+        cjNtfJ+EgfUM2XJBPk2y6owrvw==
+X-Google-Smtp-Source: ABdhPJychXn0XslNMBwA9JjNdnXAOfUJzvSg3VkeXylKiLgYPfJfDi/cgzqACLTvDBwEhNJyinzdTg==
+X-Received: by 2002:a92:d8cc:: with SMTP id l12mr17823222ilo.64.1608585878937;
+        Mon, 21 Dec 2020 13:24:38 -0800 (PST)
+Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
+        by smtp.gmail.com with ESMTPSA id t2sm14659937ili.31.2020.12.21.13.24.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Dec 2020 13:24:38 -0800 (PST)
+Date:   Mon, 21 Dec 2020 14:24:34 -0700
+From:   Yu Zhao <yuzhao@google.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Nadav Amit <nadav.amit@gmail.com>, Peter Xu <peterx@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X+ESkna2z3WjjniN@google.com>
+References: <X95RRZ3hkebEmmaj@redhat.com>
+ <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
+ <X97pprdcRXusLGnq@google.com>
+ <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+ <20201221172711.GE6640@xz-x1>
+ <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
+ <X+D0hTZCrWS3P5Pi@google.com>
+ <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+ <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
+ <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
 MIME-Version: 1.0
-References: <20201102180326.GA2416734@kroah.com> <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
- <20201208133532.GH643756@sasha-vm> <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
- <X9CuTjdgD3tDKWwo@kroah.com> <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
- <CAPv3WKfCfECmwjtXLAMbNe-vuGkws_icoQ+MrgJhZJqFcgGDyw@mail.gmail.com>
- <20201221102539.6bdb9f5c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20201221183032.GA1551@shell.armlinux.org.uk> <20201221104757.2cd8d68c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20201221190742.GE643756@sasha-vm>
-In-Reply-To: <20201221190742.GE643756@sasha-vm>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Mon, 21 Dec 2020 22:12:24 +0100
-Message-ID: <CAPv3WKfR7tF5E1NSGdb_0vLkLqPPaBn52B0wo19ZN7EO7QWv=A@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        stable@vger.kernel.org,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Jon Nettleton <jon@solid-run.com>,
-        Andrew Elwell <andrew.elwell@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pon., 21 gru 2020 o 20:07 Sasha Levin <sashal@kernel.org> napisa=C5=82(a):
->
-> On Mon, Dec 21, 2020 at 10:47:57AM -0800, Jakub Kicinski wrote:
-> >On Mon, 21 Dec 2020 18:30:32 +0000 Russell King - ARM Linux admin wrote:
-> >> On Mon, Dec 21, 2020 at 10:25:39AM -0800, Jakub Kicinski wrote:
-> >> > We need to work with stable maintainers on this, let's see..
-> >> >
-> >> > Greg asked for a clear description of what happens, from your
-> >> > previous response it sounds like a null-deref in mvpp2_mac_config().
-> >> > Is the netdev -> config -> netdev linking not ready by the time
-> >> > mvpp2_mac_config() is called?
-> >>
-> >> We are going round in circles, so nothing is going to happen.
-> >>
-> >> I stated in detail in one of my emails on the 10th December why the
-> >> problem occurs. So, Greg has the description already. There is no
-> >> need to repeat it.
-> >>
-> >> Can we please move forward with this?
+On Mon, Dec 21, 2020 at 12:26:22PM -0800, Linus Torvalds wrote:
+> On Mon, Dec 21, 2020 at 12:23 PM Nadav Amit <nadav.amit@gmail.com> wrote:
 > >
-> >Well, the fact it wasn't quoted in Marcin's reply and that I didn't
-> >spot it when scanning the 30 email thread should be a clear enough
-> >indication whether pinging threads is a good strategy..
-> >
-> >A clear, fresh backport request would had been much more successful
-> >and easier for Greg to process. If you still don't see a reply in
-> >2 weeks, please just do that.
-> >
-> >In case Greg is in fact reading this:
-> >
-> >
-> >Greg, can we backport:
-> >
-> >6c2b49eb9671 ("net: mvpp2: add mvpp2_phylink_to_port() helper")
->
-> I've queued it for 5.4, thanks!
->
+> > Using mmap_write_lock() was my initial fix and there was a strong pushback
+> > on this approach due to its potential impact on performance.
+> 
+> From whom?
+> 
+> Somebody who doesn't understand that correctness is more important
+> than performance? And that userfaultfd is not the most important part
+> of the system?
+> 
+> The fact is, userfaultfd is CLEARLY BUGGY.
+> 
+>           Linus
 
-Thank you!
+Fair enough.
 
-Best regards,
-Marcin
+Nadav, for your patch (you might want to update the commit message).
+
+Reviewed-by: Yu Zhao <yuzhao@google.com>
+
+While we are all here, there is also clear_soft_dirty() that could
+use a similar fix...
