@@ -2,108 +2,380 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EAA52DFC42
+	by mail.lfdr.de (Postfix) with ESMTP id EBF8C2DFC43
 	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 14:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726048AbgLUNUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 08:20:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36858 "EHLO mail.kernel.org"
+        id S1726699AbgLUNUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 08:20:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725891AbgLUNUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Dec 2020 08:20:39 -0500
+        id S1725891AbgLUNUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Dec 2020 08:20:48 -0500
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.10.2
-Date:   Mon, 21 Dec 2020 14:21:13 +0100
-Message-Id: <1608556873196225@kroah.com>
+Subject: Re: Linux 5.10.2
+Date:   Mon, 21 Dec 2020 14:21:14 +0100
+Message-Id: <1608556873174183@kroah.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <1608556873196225@kroah.com>
+References: <1608556873196225@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.10.2 kernel.
-
-All users of the 5.10 kernel series must upgrade.
-
-The updated 5.10.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Documentation/admin-guide/kernel-parameters.txt |    1 +
- Makefile                                        |    2 +-
- drivers/tty/serial/8250/8250_omap.c             |    5 -----
- drivers/usb/core/quirks.c                       |    3 +++
- drivers/usb/gadget/udc/dummy_hcd.c              |    2 +-
- drivers/usb/host/xhci-hub.c                     |    4 ++++
- drivers/usb/host/xhci-pci.c                     |    6 +++++-
- drivers/usb/host/xhci-plat.c                    |    3 +++
- drivers/usb/host/xhci.h                         |    1 +
- drivers/usb/misc/legousbtower.c                 |    2 +-
- drivers/usb/misc/sisusbvga/Kconfig              |    2 +-
- drivers/usb/storage/uas.c                       |    3 +++
- drivers/usb/storage/unusual_uas.h               |    7 +++++--
- drivers/usb/storage/usb.c                       |    3 +++
- include/linux/usb_usual.h                       |    2 ++
- include/uapi/linux/ptrace.h                     |    3 ++-
- sound/core/oss/pcm_oss.c                        |    6 +++++-
- sound/usb/format.c                              |    2 ++
- sound/usb/stream.c                              |    6 +++---
- tools/testing/ktest/ktest.pl                    |   20 ++++++++++++--------
- 20 files changed, 58 insertions(+), 25 deletions(-)
-
-Alan Stern (1):
-      USB: legotower: fix logical error in recent commit
-
-Alexander Sverdlin (1):
-      serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
-
-Bui Quang Minh (1):
-      USB: dummy-hcd: Fix uninitialized array use in init()
-
-Greg Kroah-Hartman (1):
-      Linux 5.10.2
-
-Hans de Goede (1):
-      xhci-pci: Allow host runtime PM as default for Intel Alpine Ridge LP
-
-Li Jun (1):
-      xhci: Give USB2 ports time to enter U3 in bus suspend
-
-Mika Westerberg (1):
-      xhci-pci: Allow host runtime PM as default for Intel Maple Ridge xHCI
-
-Oliver Neukum (2):
-      USB: add RESET_RESUME quirk for Snapscan 1212
-      USB: UAS: introduce a quirk to set no_write_same
-
-Peilin Ye (1):
-      ptrace: Prevent kernel-infoleak in ptrace_get_syscall_info()
-
-Steven Rostedt (VMware) (2):
-      ktest.pl: If size of log is too big to email, email error message
-      ktest.pl: Fix the logic for truncating the size of the log file for email
-
-Takashi Iwai (3):
-      ALSA: usb-audio: Fix potential out-of-bounds shift
-      ALSA: usb-audio: Fix control 'access overflow' errors from chmap
-      ALSA: pcm: oss: Fix potential out-of-bounds shift
-
-Tejas Joglekar (1):
-      usb: xhci: Set quirk for XHCI_SG_TRB_CACHE_SIZE_QUIRK
-
-Thomas Gleixner (1):
-      USB: sisusbvga: Make console support depend on BROKEN
-
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 44fde25bb221..f6a1513dfb76 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5663,6 +5663,7 @@
+ 					device);
+ 				j = NO_REPORT_LUNS (don't use report luns
+ 					command, uas only);
++				k = NO_SAME (do not use WRITE_SAME, uas only)
+ 				l = NOT_LOCKABLE (don't try to lock and
+ 					unlock ejectable media, not on uas);
+ 				m = MAX_SECTORS_64 (don't transfer more
+diff --git a/Makefile b/Makefile
+index 076d4e6b9ccc..44f4cd2e58a8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 10
+-SUBLEVEL = 1
++SUBLEVEL = 2
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 562087df7d33..0cc6d35a0815 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -184,11 +184,6 @@ static void omap_8250_mdr1_errataset(struct uart_8250_port *up,
+ 				     struct omap8250_priv *priv)
+ {
+ 	u8 timeout = 255;
+-	u8 old_mdr1;
+-
+-	old_mdr1 = serial_in(up, UART_OMAP_MDR1);
+-	if (old_mdr1 == priv->mdr1)
+-		return;
+ 
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index fad31ccd1fa8..1b4eb7046b07 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -342,6 +342,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x06a3, 0x0006), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
+ 
++	/* Agfa SNAPSCAN 1212U */
++	{ USB_DEVICE(0x06bd, 0x0001), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* Guillemot Webcam Hercules Dualpix Exchange (2nd ID) */
+ 	{ USB_DEVICE(0x06f8, 0x0804), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index 53a227217f1c..99c1ebe86f6a 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2734,7 +2734,7 @@ static int __init init(void)
+ {
+ 	int	retval = -ENOMEM;
+ 	int	i;
+-	struct	dummy *dum[MAX_NUM_UDC];
++	struct	dummy *dum[MAX_NUM_UDC] = {};
+ 
+ 	if (usb_disabled())
+ 		return -ENODEV;
+diff --git a/drivers/usb/host/xhci-hub.c b/drivers/usb/host/xhci-hub.c
+index c799ca5361d4..74c497fd3476 100644
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1712,6 +1712,10 @@ int xhci_bus_suspend(struct usb_hcd *hcd)
+ 	hcd->state = HC_STATE_SUSPENDED;
+ 	bus_state->next_statechange = jiffies + msecs_to_jiffies(10);
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
++
++	if (bus_state->bus_suspended)
++		usleep_range(5000, 10000);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index bf89172c43ca..84da8406d5b4 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -47,6 +47,7 @@
+ #define PCI_DEVICE_ID_INTEL_DNV_XHCI			0x19d0
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI	0x15b5
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI	0x15b6
++#define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI	0x15c1
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI	0x15db
+ #define PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI	0x15d4
+ #define PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI		0x15e9
+@@ -55,6 +56,7 @@
+ #define PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI		0x8a13
+ #define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
++#define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ 
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+@@ -232,13 +234,15 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	if (pdev->vendor == PCI_VENDOR_ID_INTEL &&
+ 	    (pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_4C_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_LP_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ALPINE_RIDGE_C_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_2C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_4C_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI))
++	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index aa2d35f98200..4d34f6005381 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -333,6 +333,9 @@ static int xhci_plat_probe(struct platform_device *pdev)
+ 	if (priv && (priv->quirks & XHCI_SKIP_PHY_INIT))
+ 		hcd->skip_phy_initialization = 1;
+ 
++	if (priv && (priv->quirks & XHCI_SG_TRB_CACHE_SIZE_QUIRK))
++		xhci->quirks |= XHCI_SG_TRB_CACHE_SIZE_QUIRK;
++
+ 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+ 	if (ret)
+ 		goto disable_usb_phy;
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index ebb359ebb261..d90c0d5df3b3 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1878,6 +1878,7 @@ struct xhci_hcd {
+ #define XHCI_RENESAS_FW_QUIRK	BIT_ULL(36)
+ #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
++#define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
+ 
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
+diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
+index ba655b4af4fc..1c9e09138c10 100644
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -797,7 +797,7 @@ static int tower_probe(struct usb_interface *interface, const struct usb_device_
+ 				      &get_version_reply,
+ 				      sizeof(get_version_reply),
+ 				      1000, GFP_KERNEL);
+-	if (!result) {
++	if (result) {
+ 		dev_err(idev, "get version request failed: %d\n", result);
+ 		retval = result;
+ 		goto error;
+diff --git a/drivers/usb/misc/sisusbvga/Kconfig b/drivers/usb/misc/sisusbvga/Kconfig
+index 655d9cb0651a..c12cdd015410 100644
+--- a/drivers/usb/misc/sisusbvga/Kconfig
++++ b/drivers/usb/misc/sisusbvga/Kconfig
+@@ -16,7 +16,7 @@ config USB_SISUSBVGA
+ 
+ config USB_SISUSBVGA_CON
+ 	bool "Text console and mode switching support" if USB_SISUSBVGA
+-	depends on VT
++	depends on VT && BROKEN
+ 	select FONT_8x16
+ 	help
+ 	  Say Y here if you want a VGA text console via the USB dongle or
+diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
+index 652d6d6f1f36..ff6f41e7e068 100644
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -867,6 +867,9 @@ static int uas_slave_configure(struct scsi_device *sdev)
+ 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
+ 		sdev->no_read_capacity_16 = 1;
+ 
++	/* Some disks cannot handle WRITE_SAME */
++	if (devinfo->flags & US_FL_NO_SAME)
++		sdev->no_write_same = 1;
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index 711ab240058c..870e9cf3d5dc 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -35,12 +35,15 @@ UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_OPCODES),
+ 
+-/* Reported-by: Julian Groß <julian.g@posteo.de> */
++/*
++ *  Initially Reported-by: Julian Groß <julian.g@posteo.de>
++ *  Further reports David C. Partridge <david.partridge@perdrix.co.uk>
++ */
+ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
+ 		"LaCie",
+ 		"2Big Quadra USB3",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_NO_REPORT_OPCODES),
++		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+ 
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+diff --git a/drivers/usb/storage/usb.c b/drivers/usb/storage/usb.c
+index 94a64729dc27..90aa9c12ffac 100644
+--- a/drivers/usb/storage/usb.c
++++ b/drivers/usb/storage/usb.c
+@@ -541,6 +541,9 @@ void usb_stor_adjust_quirks(struct usb_device *udev, unsigned long *fflags)
+ 		case 'j':
+ 			f |= US_FL_NO_REPORT_LUNS;
+ 			break;
++		case 'k':
++			f |= US_FL_NO_SAME;
++			break;
+ 		case 'l':
+ 			f |= US_FL_NOT_LOCKABLE;
+ 			break;
+diff --git a/include/linux/usb_usual.h b/include/linux/usb_usual.h
+index 4a19ac3f24d0..6b03fdd69d27 100644
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -84,6 +84,8 @@
+ 		/* Cannot handle REPORT_LUNS */			\
+ 	US_FLAG(ALWAYS_SYNC, 0x20000000)			\
+ 		/* lies about caching, so always sync */	\
++	US_FLAG(NO_SAME, 0x40000000)				\
++		/* Cannot handle WRITE_SAME */			\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
+diff --git a/include/uapi/linux/ptrace.h b/include/uapi/linux/ptrace.h
+index a71b6e3b03eb..83ee45fa634b 100644
+--- a/include/uapi/linux/ptrace.h
++++ b/include/uapi/linux/ptrace.h
+@@ -81,7 +81,8 @@ struct seccomp_metadata {
+ 
+ struct ptrace_syscall_info {
+ 	__u8 op;	/* PTRACE_SYSCALL_INFO_* */
+-	__u32 arch __attribute__((__aligned__(sizeof(__u32))));
++	__u8 pad[3];
++	__u32 arch;
+ 	__u64 instruction_pointer;
+ 	__u64 stack_pointer;
+ 	union {
+diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
+index 327ec42a36b0..de1917484647 100644
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1935,11 +1935,15 @@ static int snd_pcm_oss_set_subdivide(struct snd_pcm_oss_file *pcm_oss_file, int
+ static int snd_pcm_oss_set_fragment1(struct snd_pcm_substream *substream, unsigned int val)
+ {
+ 	struct snd_pcm_runtime *runtime;
++	int fragshift;
+ 
+ 	runtime = substream->runtime;
+ 	if (runtime->oss.subdivision || runtime->oss.fragshift)
+ 		return -EINVAL;
+-	runtime->oss.fragshift = val & 0xffff;
++	fragshift = val & 0xffff;
++	if (fragshift >= 31)
++		return -EINVAL;
++	runtime->oss.fragshift = fragshift;
+ 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
+ 	if (runtime->oss.fragshift < 4)		/* < 16 */
+ 		runtime->oss.fragshift = 4;
+diff --git a/sound/usb/format.c b/sound/usb/format.c
+index 3bfead393aa3..91f0ed4a2e7e 100644
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -40,6 +40,8 @@ static u64 parse_audio_format_i_type(struct snd_usb_audio *chip,
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
++		if (format >= 64)
++			return 0; /* invalid format */
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1ULL << format;
+diff --git a/sound/usb/stream.c b/sound/usb/stream.c
+index ca76ba5b5c0b..2f6d39c2ba7c 100644
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -193,16 +193,16 @@ static int usb_chmap_ctl_get(struct snd_kcontrol *kcontrol,
+ 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
+ 	struct snd_usb_substream *subs = info->private_data;
+ 	struct snd_pcm_chmap_elem *chmap = NULL;
+-	int i;
++	int i = 0;
+ 
+-	memset(ucontrol->value.integer.value, 0,
+-	       sizeof(ucontrol->value.integer.value));
+ 	if (subs->cur_audiofmt)
+ 		chmap = subs->cur_audiofmt->chmap;
+ 	if (chmap) {
+ 		for (i = 0; i < chmap->channels; i++)
+ 			ucontrol->value.integer.value[i] = chmap->map[i];
+ 	}
++	for (; i < subs->channels_max; i++)
++		ucontrol->value.integer.value[i] = 0;
+ 	return 0;
+ }
+ 
+diff --git a/tools/testing/ktest/ktest.pl b/tools/testing/ktest/ktest.pl
+index 54188ee16c48..4e2450964517 100755
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1499,17 +1499,16 @@ sub dodie {
+ 	my $log_file;
+ 
+ 	if (defined($opt{"LOG_FILE"})) {
+-	    my $whence = 0; # beginning of file
+-	    my $pos = $test_log_start;
++	    my $whence = 2; # End of file
++	    my $log_size = tell LOG;
++	    my $size = $log_size - $test_log_start;
+ 
+ 	    if (defined($mail_max_size)) {
+-		my $log_size = tell LOG;
+-		$log_size -= $test_log_start;
+-		if ($log_size > $mail_max_size) {
+-		    $whence = 2; # end of file
+-		    $pos = - $mail_max_size;
++		if ($size > $mail_max_size) {
++		    $size = $mail_max_size;
+ 		}
+ 	    }
++	    my $pos = - $size;
+ 	    $log_file = "$tmpdir/log";
+ 	    open (L, "$opt{LOG_FILE}") or die "Can't open $opt{LOG_FILE} to read)";
+ 	    open (O, "> $tmpdir/log") or die "Can't open $tmpdir/log\n";
+@@ -4253,7 +4252,12 @@ sub do_send_mail {
+     $mail_command =~ s/\$SUBJECT/$subject/g;
+     $mail_command =~ s/\$MESSAGE/$message/g;
+ 
+-    run_command $mail_command;
++    my $ret = run_command $mail_command;
++    if (!$ret && defined($file)) {
++	# try again without the file
++	$message .= "\n\n*** FAILED TO SEND LOG ***\n\n";
++	do_send_email($subject, $message);
++    }
+ }
+ 
+ sub send_email {
