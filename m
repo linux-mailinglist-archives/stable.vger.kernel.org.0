@@ -2,171 +2,506 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F442E00D6
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 20:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA332E0113
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 20:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726015AbgLUTRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 14:17:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60274 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725913AbgLUTRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 14:17:07 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44482C0613D6
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 11:16:27 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id w18so9868031iot.0
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 11:16:27 -0800 (PST)
+        id S1726174AbgLUTgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 14:36:17 -0500
+Received: from smtp-fw-6001.amazon.com ([52.95.48.154]:10082 "EHLO
+        smtp-fw-6001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726121AbgLUTgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 14:36:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=L3Gs6WqmH8kL8ZhxKYgFmuIwY0FVCfgjiIRrG/rLCoQ=;
-        b=XR1oBnHY+FNDw8Pofg87UATPJwTQibIHCH0Wtd8KJvWHmSPCZRxXSfyyWDthuOtjpz
-         eUEwuy4LEK+L7MORftyvnd3nSvXZM4VTd15C+RXRfz2XUWlMdOaGDfdHfR1QXaUseVO6
-         gIBis0u7qXKe8TzrNEGpL0BxU2h7AAGZihNGcDMktPLtjZdjlYJNnvs3klod/1dOfcFu
-         wvZd7rZZOO926AziaTBTKvMeVO+b7cG1etMxlCrwvNLpR7qsCUovMewcZtn+4rKqWvOW
-         0Q+LAbozXG3rhB6WbprSCV/ddPOXiHpgoQKrJt+vGt6bjMu0c0Im9Ncl8ob9qQXnFcnq
-         UYwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=L3Gs6WqmH8kL8ZhxKYgFmuIwY0FVCfgjiIRrG/rLCoQ=;
-        b=NyPDBsVgZxrcT/kuRapKij6wAIPFz6si4LhqrnhqCo1MA4MaSUxxdBGyIoNWSrBfKM
-         eIFyClU5mMbnReefX8dIG0mPpC1ej4mrzEwINomBbspf0jdCiJEXuictNQuPdvtEp7wD
-         cWUKO5pJ8vy8b9BUYcj9B/r6AvSBUyw2ehnrbtDWonCFH93Ocy6Lp67H44BxtkkhaVlO
-         5sZWMTOV/Px/z2n8TORsNklQGBf2g7gXVceDpuEHDP5fdMAOh1AonyS2fCyboU9j7NPt
-         3Ah84A/+pL0d5dSDe+/RZ0efNMxq1QTWG0KgA4ZlBg9img8XDBSQ5czyzAIrE+9qw7oc
-         NZPA==
-X-Gm-Message-State: AOAM533LrL5ftT2hDRCB5JZaq/EDDHN2O9Ih/UzJ1sL7oAO6pUi696jj
-        zUIItL7xNqIeAkQrwXISmocWOQ==
-X-Google-Smtp-Source: ABdhPJwOsREO3Cv01bkG3byoUcuKvOsFEAK5JGQ1eGqIHRODacDApA3vawIoWmAz77JL8ZnCmtxJhA==
-X-Received: by 2002:a5e:9b06:: with SMTP id j6mr15203388iok.171.1608578186432;
-        Mon, 21 Dec 2020 11:16:26 -0800 (PST)
-Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
-        by smtp.gmail.com with ESMTPSA id o10sm14812859ili.82.2020.12.21.11.16.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Dec 2020 11:16:25 -0800 (PST)
-Date:   Mon, 21 Dec 2020 12:16:21 -0700
-From:   Yu Zhao <yuzhao@google.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Peter Xu <peterx@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, minchan@kernel.org,
-        Andy Lutomirski <luto@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Nadav Amit <nadav.amit@gmail.com>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+D0hTZCrWS3P5Pi@google.com>
-References: <20201219043006.2206347-1-namit@vmware.com>
- <X95RRZ3hkebEmmaj@redhat.com>
- <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
- <X97pprdcRXusLGnq@google.com>
- <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
- <20201221172711.GE6640@xz-x1>
- <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1608579374; x=1640115374;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=m6EpAD2OtZZtxPPuXfD/jOW7AJekwtDyFOmj/gESvgA=;
+  b=JWDeq0yu1gHFXnG+H/WtB7uwVaQEPAfDS6vFxrQN0ewiauFkg/n3guze
+   AgfTz6lbAsKRpDk1iYV28Jc1bqlivOCXKXjZJyJEOHhpapG4fyfX5jSY/
+   Ct8wm1Xh1r0KT45mY0+s4mKdEVwBjmy9I7Sf7EYY30LBR4wcL4YeN+aR7
+   w=;
+X-IronPort-AV: E=Sophos;i="5.78,437,1599523200"; 
+   d="scan'208";a="74291982"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1e-a70de69e.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-out-6001.iad6.amazon.com with ESMTP; 21 Dec 2020 19:35:33 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-1e-a70de69e.us-east-1.amazon.com (Postfix) with ESMTPS id EF52FA1D86
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 19:35:32 +0000 (UTC)
+Received: from EX13D01UWA002.ant.amazon.com (10.43.160.74) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 21 Dec 2020 19:35:32 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
+ EX13d01UWA002.ant.amazon.com (10.43.160.74) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 21 Dec 2020 19:35:32 +0000
+Received: from dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (172.22.152.76)
+ by mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP Server id
+ 15.0.1497.2 via Frontend Transport; Mon, 21 Dec 2020 19:35:32 +0000
+Received: by dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (Postfix, from userid 13116433)
+        id 638B34558D; Mon, 21 Dec 2020 19:35:31 +0000 (UTC)
+Date:   Mon, 21 Dec 2020 19:35:31 +0000
+From:   Shaoying Xu <shaoyi@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <fllinden@amazon.com>, <samjonas@amazon.com>, <surajjs@amazon.com>,
+        <shaoyi@amazon.com>
+Subject: [PATCH 4.14] mm: memcontrol: fix excessive complexity in memory.stat
+ reporting
+Message-ID: <20201221193531.GA10070@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 10:31:57AM -0800, Nadav Amit wrote:
-> > On Dec 21, 2020, at 9:27 AM, Peter Xu <peterx@redhat.com> wrote:
-> > 
-> > Hi, Nadav,
-> > 
-> > On Sun, Dec 20, 2020 at 12:06:38AM -0800, Nadav Amit wrote:
-> > 
-> > [...]
-> > 
-> >> So to correct myself, I think that what I really encountered was actually
-> >> during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). The
-> >> problem was that in this case the “write”-bit was removed during unprotect.
-> >> Sorry for the strange formatting to fit within 80 columns:
-> > 
-> > I assume I can ignore the race mentioned in the commit message but only refer
-> > to this one below.  However I'm still confused.  Please see below.
-> > 
-> >> [ Start: PTE is writable ]
-> >> 
-> >> cpu0				cpu1			cpu2
-> >> ----				----			----
-> >> 							[ Writable PTE 
-> >> 							  cached in TLB ]
-> > 
-> > Here cpu2 got writable pte in tlb.  But why?
-> > 
-> > If below is an unprotect, it means it must have been protected once by
-> > userfaultfd, right?  If so, the previous change_protection_range() which did
-> > the wr-protect should have done a tlb flush already before it returns (since
-> > pages>0 - we protected one pte at least).  Then I can't see why cpu2 tlb has
-> > stall data.
-> 
-> Thanks, Peter. Just as you can munprotect() a region which was not protected
-> before, you can ufff-unprotect a region that was not protected before. It
-> might be that the user tried to unprotect a large region, which was
-> partially protected and partially unprotected.
-> 
-> The selftest obviously blindly unprotect some regions to check for bugs.
-> 
-> So to your question - it was not write-protected (think about initial copy
-> without write-protecting).
-> 
-> > If I assume cpu2 doesn't have that cached tlb, then "write to old page" won't
-> > happen either, because cpu1/cpu2 will all go through the cow path and pgtable
-> > lock should serialize them.
-> > 
-> >> userfaultfd_writeprotect()				
-> >> [ write-*unprotect* ]
-> >> mwriteprotect_range()
-> >> mmap_read_lock()
-> >> change_protection()
-> >> 
-> >> change_protection_range()
-> >> ...
-> >> change_pte_range()
-> >> [ *clear* “write”-bit ]
-> >> [ defer TLB flushes]
-> >> 				[ page-fault ]
-> >> 				…
-> >> 				wp_page_copy()
-> >> 				 cow_user_page()
-> >> 				  [ copy page ]
-> >> 							[ write to old
-> >> 							  page ]
-> >> 				…
-> >> 				 set_pte_at_notify()
-> >> 
-> >> [ End: cpu2 write not copied form old to new page. ]
-> > 
-> > Could you share how to reproduce the problem?  I would be glad to give it a
-> > shot as well.
-> 
-> You can run the selftests/userfaultfd with my small patch [1]. I ran it with
-> the following parameters: “ ./userfaultfd anon 100 100 “. I think that it is
-> more easily reproducible with “mitigations=off idle=poll” as kernel
-> parameters.
-> 
-> [1] https://lore.kernel.org/patchwork/patch/1346386/
+From: Johannes Weiner <hannes@cmpxchg.org>
 
-Hi Linus,
+[ Upstream commit a983b5ebee57209c99f68c8327072f25e0e6e3da ]
 
-Nadav Amit found memory corruptions when running userfaultfd test above.
-It seems to me the problem is related to commit 09854ba94c6a ("mm:
-do_wp_page() simplification"). Can you please take a look? Thanks.
+We've seen memory.stat reads in top-level cgroups take up to fourteen
+seconds during a userspace bug that created tens of thousands of ghost
+cgroups pinned by lingering page cache.
 
-TL;DR: it may not safe to make copies of singly mapped (non-COW) pages
-when it's locked or has additional ref count because concurrent
-clear_soft_dirty or change_pte_range may have removed pte_write but yet
-to flush tlb.
+Even with a more reasonable number of cgroups, aggregating memory.stat
+is unnecessarily heavy.  The complexity is this:
+
+	nr_cgroups * nr_stat_items * nr_possible_cpus
+
+where the stat items are ~70 at this point.  With 128 cgroups and 128
+CPUs - decent, not enormous setups - reading the top-level memory.stat
+has to aggregate over a million per-cpu counters.  This doesn't scale.
+
+Instead of spreading the source of truth across all CPUs, use the
+per-cpu counters merely to batch updates to shared atomic counters.
+
+This is the same as the per-cpu stocks we use for charging memory to the
+shared atomic page_counters, and also the way the global vmstat counters
+are implemented.
+
+Vmstat has elaborate spilling thresholds that depend on the number of
+CPUs, amount of memory, and memory pressure - carefully balancing the
+cost of counter updates with the amount of per-cpu error.  That's
+because the vmstat counters are system-wide, but also used for decisions
+inside the kernel (e.g.  NR_FREE_PAGES in the allocator).  Neither is
+true for the memory controller.
+
+Use the same static batch size we already use for page_counter updates
+during charging.  The per-cpu error in the stats will be 128k, which is
+an acceptable ratio of cores to memory accounting granularity.
+
+[hannes@cmpxchg.org: fix warning in __this_cpu_xchg() calls]
+  Link: http://lkml.kernel.org/r/20171201135750.GB8097@cmpxchg.org
+Link: http://lkml.kernel.org/r/20171103153336.24044-3-hannes@cmpxchg.org
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org c9019e9: mm: memcontrol: eliminate raw access to stat and event counters
+Cc: stable@vger.kernel.org 2845426: mm: memcontrol: implement lruvec stat functions on top of each other
+Cc: stable@vger.kernel.org
+[shaoyi@amazon.com: resolved the conflict brought by commit 17ffa29c355658c8e9b19f56cbf0388500ca7905 in mm/memcontrol.c by contextual fix]
+Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
+---
+The excessive complexity in memory.stat reporting was fixed in v4.16 but didn't appear to make it to 4.14 stable. When backporting this patch, there is a small conflict brought by commit 17ffa29c355658c8e9b19f56cbf0388500ca7905 within free_mem_cgroup_per_node_info() of mm/memcontrol.c and can be resolved by contextual fix.
+
+ include/linux/memcontrol.h |  96 +++++++++++++++++++++++++++---------------
+ mm/memcontrol.c            | 101 +++++++++++++++++++++++----------------------
+ 2 files changed, 113 insertions(+), 84 deletions(-)
+
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index 1ffc54ac4cc9..882046863581 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -108,7 +108,10 @@ struct lruvec_stat {
+  */
+ struct mem_cgroup_per_node {
+ 	struct lruvec		lruvec;
+-	struct lruvec_stat __percpu *lruvec_stat;
++
++	struct lruvec_stat __percpu *lruvec_stat_cpu;
++	atomic_long_t		lruvec_stat[NR_VM_NODE_STAT_ITEMS];
++
+ 	unsigned long		lru_zone_size[MAX_NR_ZONES][NR_LRU_LISTS];
+ 
+ 	struct mem_cgroup_reclaim_iter	iter[DEF_PRIORITY + 1];
+@@ -227,10 +230,10 @@ struct mem_cgroup {
+ 	spinlock_t		move_lock;
+ 	struct task_struct	*move_lock_task;
+ 	unsigned long		move_lock_flags;
+-	/*
+-	 * percpu counter.
+-	 */
+-	struct mem_cgroup_stat_cpu __percpu *stat;
++
++	struct mem_cgroup_stat_cpu __percpu *stat_cpu;
++	atomic_long_t		stat[MEMCG_NR_STAT];
++	atomic_long_t		events[MEMCG_NR_EVENTS];
+ 
+ 	unsigned long		socket_pressure;
+ 
+@@ -265,6 +268,12 @@ struct mem_cgroup {
+ 	/* WARNING: nodeinfo must be the last member here */
+ };
+ 
++/*
++ * size of first charge trial. "32" comes from vmscan.c's magic value.
++ * TODO: maybe necessary to use big numbers in big irons.
++ */
++#define MEMCG_CHARGE_BATCH 32U
++
+ extern struct mem_cgroup *root_mem_cgroup;
+ 
+ static inline bool mem_cgroup_disabled(void)
+@@ -485,32 +494,38 @@ void unlock_page_memcg(struct page *page);
+ static inline unsigned long memcg_page_state(struct mem_cgroup *memcg,
+ 					     int idx)
+ {
+-	long val = 0;
+-	int cpu;
+-
+-	for_each_possible_cpu(cpu)
+-		val += per_cpu(memcg->stat->count[idx], cpu);
+-
+-	if (val < 0)
+-		val = 0;
+-
+-	return val;
++	long x = atomic_long_read(&memcg->stat[idx]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
+ }
+ 
+ /* idx can be of type enum memcg_stat_item or node_stat_item */
+ static inline void __mod_memcg_state(struct mem_cgroup *memcg,
+ 				     int idx, int val)
+ {
+-	if (!mem_cgroup_disabled())
+-		__this_cpu_add(memcg->stat->count[idx], val);
++	long x;
++
++	if (mem_cgroup_disabled())
++		return;
++
++	x = val + __this_cpu_read(memcg->stat_cpu->count[idx]);
++	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
++		atomic_long_add(x, &memcg->stat[idx]);
++		x = 0;
++	}
++	__this_cpu_write(memcg->stat_cpu->count[idx], x);
+ }
+ 
+ /* idx can be of type enum memcg_stat_item or node_stat_item */
+ static inline void mod_memcg_state(struct mem_cgroup *memcg,
+ 				   int idx, int val)
+ {
+-	if (!mem_cgroup_disabled())
+-		this_cpu_add(memcg->stat->count[idx], val);
++	preempt_disable();
++	__mod_memcg_state(memcg, idx, val);
++	preempt_enable();
+ }
+ 
+ /**
+@@ -548,26 +563,25 @@ static inline unsigned long lruvec_page_state(struct lruvec *lruvec,
+ 					      enum node_stat_item idx)
+ {
+ 	struct mem_cgroup_per_node *pn;
+-	long val = 0;
+-	int cpu;
++	long x;
+ 
+ 	if (mem_cgroup_disabled())
+ 		return node_page_state(lruvec_pgdat(lruvec), idx);
+ 
+ 	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
+-	for_each_possible_cpu(cpu)
+-		val += per_cpu(pn->lruvec_stat->count[idx], cpu);
+-
+-	if (val < 0)
+-		val = 0;
+-
+-	return val;
++	x = atomic_long_read(&pn->lruvec_stat[idx]);
++#ifdef CONFIG_SMP
++	if (x < 0)
++		x = 0;
++#endif
++	return x;
+ }
+ 
+ static inline void __mod_lruvec_state(struct lruvec *lruvec,
+ 				      enum node_stat_item idx, int val)
+ {
+ 	struct mem_cgroup_per_node *pn;
++	long x;
+ 
+ 	/* Update node */
+ 	__mod_node_page_state(lruvec_pgdat(lruvec), idx, val);
+@@ -581,7 +595,12 @@ static inline void __mod_lruvec_state(struct lruvec *lruvec,
+ 	__mod_memcg_state(pn->memcg, idx, val);
+ 
+ 	/* Update lruvec */
+-	__this_cpu_add(pn->lruvec_stat->count[idx], val);
++	x = val + __this_cpu_read(pn->lruvec_stat_cpu->count[idx]);
++	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
++		atomic_long_add(x, &pn->lruvec_stat[idx]);
++		x = 0;
++	}
++	__this_cpu_write(pn->lruvec_stat_cpu->count[idx], x);
+ }
+ 
+ static inline void mod_lruvec_state(struct lruvec *lruvec,
+@@ -624,16 +643,25 @@ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
+ static inline void __count_memcg_events(struct mem_cgroup *memcg,
+ 					int idx, unsigned long count)
+ {
+-	if (!mem_cgroup_disabled())
+-		__this_cpu_add(memcg->stat->events[idx], count);
++	unsigned long x;
++
++	if (mem_cgroup_disabled())
++		return;
++
++	x = count + __this_cpu_read(memcg->stat_cpu->events[idx]);
++	if (unlikely(x > MEMCG_CHARGE_BATCH)) {
++		atomic_long_add(x, &memcg->events[idx]);
++		x = 0;
++	}
++	__this_cpu_write(memcg->stat_cpu->events[idx], x);
+ }
+ 
+-/* idx can be of type enum memcg_event_item or vm_event_item */
+ static inline void count_memcg_events(struct mem_cgroup *memcg,
+ 				      int idx, unsigned long count)
+ {
+-	if (!mem_cgroup_disabled())
+-		this_cpu_add(memcg->stat->events[idx], count);
++	preempt_disable();
++	__count_memcg_events(memcg, idx, count);
++	preempt_enable();
+ }
+ 
+ /* idx can be of type enum memcg_event_item or vm_event_item */
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index eba9dc4795b5..4e763cdccb33 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -542,39 +542,10 @@ mem_cgroup_largest_soft_limit_node(struct mem_cgroup_tree_per_node *mctz)
+ 	return mz;
+ }
+ 
+-/*
+- * Return page count for single (non recursive) @memcg.
+- *
+- * Implementation Note: reading percpu statistics for memcg.
+- *
+- * Both of vmstat[] and percpu_counter has threshold and do periodic
+- * synchronization to implement "quick" read. There are trade-off between
+- * reading cost and precision of value. Then, we may have a chance to implement
+- * a periodic synchronization of counter in memcg's counter.
+- *
+- * But this _read() function is used for user interface now. The user accounts
+- * memory usage by memory cgroup and he _always_ requires exact value because
+- * he accounts memory. Even if we provide quick-and-fuzzy read, we always
+- * have to visit all online cpus and make sum. So, for now, unnecessary
+- * synchronization is not implemented. (just implemented for cpu hotplug)
+- *
+- * If there are kernel internal actions which can make use of some not-exact
+- * value, and reading all cpu value can be performance bottleneck in some
+- * common workload, threshold and synchronization as vmstat[] should be
+- * implemented.
+- *
+- * The parameter idx can be of type enum memcg_event_item or vm_event_item.
+- */
+-
+ static unsigned long memcg_sum_events(struct mem_cgroup *memcg,
+ 				      int event)
+ {
+-	unsigned long val = 0;
+-	int cpu;
+-
+-	for_each_possible_cpu(cpu)
+-		val += per_cpu(memcg->stat->events[event], cpu);
+-	return val;
++	return atomic_long_read(&memcg->events[event]);
+ }
+ 
+ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
+@@ -606,7 +577,7 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
+ 		nr_pages = -nr_pages; /* for event */
+ 	}
+ 
+-	__this_cpu_add(memcg->stat->nr_page_events, nr_pages);
++	__this_cpu_add(memcg->stat_cpu->nr_page_events, nr_pages);
+ }
+ 
+ unsigned long mem_cgroup_node_nr_lru_pages(struct mem_cgroup *memcg,
+@@ -642,8 +613,8 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
+ {
+ 	unsigned long val, next;
+ 
+-	val = __this_cpu_read(memcg->stat->nr_page_events);
+-	next = __this_cpu_read(memcg->stat->targets[target]);
++	val = __this_cpu_read(memcg->stat_cpu->nr_page_events);
++	next = __this_cpu_read(memcg->stat_cpu->targets[target]);
+ 	/* from time_after() in jiffies.h */
+ 	if ((long)(next - val) < 0) {
+ 		switch (target) {
+@@ -659,7 +630,7 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
+ 		default:
+ 			break;
+ 		}
+-		__this_cpu_write(memcg->stat->targets[target], next);
++		__this_cpu_write(memcg->stat_cpu->targets[target], next);
+ 		return true;
+ 	}
+ 	return false;
+@@ -1726,11 +1697,6 @@ void unlock_page_memcg(struct page *page)
+ }
+ EXPORT_SYMBOL(unlock_page_memcg);
+ 
+-/*
+- * size of first charge trial. "32" comes from vmscan.c's magic value.
+- * TODO: maybe necessary to use big numbers in big irons.
+- */
+-#define CHARGE_BATCH	32U
+ struct memcg_stock_pcp {
+ 	struct mem_cgroup *cached; /* this never be root cgroup */
+ 	unsigned int nr_pages;
+@@ -1758,7 +1724,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+ 	unsigned long flags;
+ 	bool ret = false;
+ 
+-	if (nr_pages > CHARGE_BATCH)
++	if (nr_pages > MEMCG_CHARGE_BATCH)
+ 		return ret;
+ 
+ 	local_irq_save(flags);
+@@ -1827,7 +1793,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
+ 	}
+ 	stock->nr_pages += nr_pages;
+ 
+-	if (stock->nr_pages > CHARGE_BATCH)
++	if (stock->nr_pages > MEMCG_CHARGE_BATCH)
+ 		drain_stock(stock);
+ 
+ 	local_irq_restore(flags);
+@@ -1877,9 +1843,44 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
+ static int memcg_hotplug_cpu_dead(unsigned int cpu)
+ {
+ 	struct memcg_stock_pcp *stock;
++	struct mem_cgroup *memcg;
+ 
+ 	stock = &per_cpu(memcg_stock, cpu);
+ 	drain_stock(stock);
++
++	for_each_mem_cgroup(memcg) {
++		int i;
++
++		for (i = 0; i < MEMCG_NR_STAT; i++) {
++			int nid;
++			long x;
++
++			x = this_cpu_xchg(memcg->stat_cpu->count[i], 0);
++			if (x)
++				atomic_long_add(x, &memcg->stat[i]);
++
++			if (i >= NR_VM_NODE_STAT_ITEMS)
++				continue;
++
++			for_each_node(nid) {
++				struct mem_cgroup_per_node *pn;
++
++				pn = mem_cgroup_nodeinfo(memcg, nid);
++				x = this_cpu_xchg(pn->lruvec_stat_cpu->count[i], 0);
++				if (x)
++					atomic_long_add(x, &pn->lruvec_stat[i]);
++			}
++		}
++
++		for (i = 0; i < MEMCG_NR_EVENTS; i++) {
++			long x;
++
++			x = this_cpu_xchg(memcg->stat_cpu->events[i], 0);
++			if (x)
++				atomic_long_add(x, &memcg->events[i]);
++		}
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1900,7 +1901,7 @@ static void high_work_func(struct work_struct *work)
+ 	struct mem_cgroup *memcg;
+ 
+ 	memcg = container_of(work, struct mem_cgroup, high_work);
+-	reclaim_high(memcg, CHARGE_BATCH, GFP_KERNEL);
++	reclaim_high(memcg, MEMCG_CHARGE_BATCH, GFP_KERNEL);
+ }
+ 
+ /*
+@@ -1924,7 +1925,7 @@ void mem_cgroup_handle_over_high(void)
+ static int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
+ 		      unsigned int nr_pages)
+ {
+-	unsigned int batch = max(CHARGE_BATCH, nr_pages);
++	unsigned int batch = max(MEMCG_CHARGE_BATCH, nr_pages);
+ 	int nr_retries = MEM_CGROUP_RECLAIM_RETRIES;
+ 	struct mem_cgroup *mem_over_limit;
+ 	struct page_counter *counter;
+@@ -4203,8 +4204,8 @@ static int alloc_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
+ 	if (!pn)
+ 		return 1;
+ 
+-	pn->lruvec_stat = alloc_percpu(struct lruvec_stat);
+-	if (!pn->lruvec_stat) {
++	pn->lruvec_stat_cpu = alloc_percpu(struct lruvec_stat);
++	if (!pn->lruvec_stat_cpu) {
+ 		kfree(pn);
+ 		return 1;
+ 	}
+@@ -4225,7 +4226,7 @@ static void free_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
+ 	if (!pn)
+ 		return;
+ 
+-	free_percpu(pn->lruvec_stat);
++	free_percpu(pn->lruvec_stat_cpu);
+ 	kfree(pn);
+ }
+ 
+@@ -4235,7 +4236,7 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
+ 
+ 	for_each_node(node)
+ 		free_mem_cgroup_per_node_info(memcg, node);
+-	free_percpu(memcg->stat);
++	free_percpu(memcg->stat_cpu);
+ 	kfree(memcg);
+ }
+ 
+@@ -4264,8 +4265,8 @@ static struct mem_cgroup *mem_cgroup_alloc(void)
+ 	if (memcg->id.id < 0)
+ 		goto fail;
+ 
+-	memcg->stat = alloc_percpu(struct mem_cgroup_stat_cpu);
+-	if (!memcg->stat)
++	memcg->stat_cpu = alloc_percpu(struct mem_cgroup_stat_cpu);
++	if (!memcg->stat_cpu)
+ 		goto fail;
+ 
+ 	for_each_node(node)
+@@ -5686,7 +5687,7 @@ static void uncharge_batch(const struct uncharge_gather *ug)
+ 	__mod_memcg_state(ug->memcg, MEMCG_RSS_HUGE, -ug->nr_huge);
+ 	__mod_memcg_state(ug->memcg, NR_SHMEM, -ug->nr_shmem);
+ 	__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
+-	__this_cpu_add(ug->memcg->stat->nr_page_events, nr_pages);
++	__this_cpu_add(ug->memcg->stat_cpu->nr_page_events, nr_pages);
+ 	memcg_check_events(ug->memcg, ug->dummy_page);
+ 	local_irq_restore(flags);
+ 
+-- 
+2.16.6
+
