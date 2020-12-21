@@ -2,123 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A04E2DFFD8
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 19:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F92B2DFFD4
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 19:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726883AbgLUSd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 13:33:27 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21574 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727071AbgLUSdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 13:33:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608575517;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=K9FeuGmQgyv7B/8HpfW7JWOxHabUVt0zhGvyltedBTw=;
-        b=XqmakEukUe4JzhHGspKOolL2ByruBE/ssJxUsTD+WldvQaVjViB6R7Cf6VVxQain+RKwDZ
-        CvkwGrIDwDCzknvfIEMk0tVFrwYM+ONTKYIZ1IBphr4ANXQlWgvpyM5LgapfBQU40wuuGD
-        zFXxAKxhe+2lwJf12a+1y5ub7vzyoO0=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-IpuT7952Nl6WE6Mle0Xsug-1; Mon, 21 Dec 2020 13:31:55 -0500
-X-MC-Unique: IpuT7952Nl6WE6Mle0Xsug-1
-Received: by mail-wr1-f70.google.com with SMTP id v5so9254200wrr.0
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 10:31:55 -0800 (PST)
+        id S1726515AbgLUScl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 13:32:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725962AbgLUScl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 13:32:41 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CEEFC0613D6;
+        Mon, 21 Dec 2020 10:32:01 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id h186so6949350pfe.0;
+        Mon, 21 Dec 2020 10:32:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=HCY8w6wAd8FcQcRYUZs1swNNxWTGmV4HkMU4xhZmf5g=;
+        b=PfmrzFqttYHr+qoFvUFefQjYiMHfeA+60gzbWd15gpG17mHkTC9KsHiFQdIuIjtj6c
+         yewrJepM7uUGnPB5TpGejklEnCzxA3Ey0OO8Wse6VqTzWCNvXMTIZkmvYFRqHYdSfoJk
+         N0CNw0vycja9C1HqyLM6TWWPEyMHxcFy2ch5QioPDVYLTqaaDWxZrKP3tU7mUqt3Noz8
+         1YlnP2pbrQzrrIfC6g5culARrcmSRbYdEfpYx+8J/uSz4hXM88DWhw3tMEIvon/csl9j
+         piXUzoLub2Zqmzq4F215ZNxDWchtEB4LQs1Tvve1QX+zqLBNtU3RjsviIfkTsxycZfOV
+         CwtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=K9FeuGmQgyv7B/8HpfW7JWOxHabUVt0zhGvyltedBTw=;
-        b=BhQjtpN+m+CyulDodVfx2r0PiggRHYP2THUaBfY+13enhKH8j6pm7gkeMteTgKWn4m
-         mg8fMYOJM1Jhgqy3OppB0+McIxzgnO7KzzjB827GUPXlxYyy9/HNXFr34iLHFTIwmggO
-         SPYZyNQ58TqvfPnIDw7qMphS3WWZKYT0D+HAFsPqiITq7D2NVmr+Z98KMeod+ILeDaQc
-         d8DS+XH3wwA7CFTbncMSTYAH4HMXALlPvCFl4XN5bLsXA331LgqjZlxH6H/1aDw8QaKw
-         W9dGp3o4OGTaQbNvEVe0eO5hq5aNArZlGGgJVk02s2cSee1OKwt96VIZO3prlVPmcCKc
-         RnyQ==
-X-Gm-Message-State: AOAM531gZkLqXDU8cJXErvOqODNmML9+0pF4FSfjdIHlcOT/XhEstZnx
-        OWeh4Z77VWRRmTB5p4/STVkWLmQnZagx22kRKJcR2RNdS6o0Rjl829eJmrLz9rRn45l1P+KEFeG
-        CH2fFFkJ9cs7AYNUpxy7Kzj/qWBe3VQGH5VeGSLnmbsbKgRW9Go4fDk5lssh0ZjFSxjtj
-X-Received: by 2002:a5d:62c8:: with SMTP id o8mr20536526wrv.51.1608575513771;
-        Mon, 21 Dec 2020 10:31:53 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwSeg8I2cfYyaGyf0kM/XC//Jnj5R+Jg+aS41jlXlZ40yng81myXCqLuP6DCmIHPLCq7CfQHA==
-X-Received: by 2002:a5d:62c8:: with SMTP id o8mr20536508wrv.51.1608575513589;
-        Mon, 21 Dec 2020 10:31:53 -0800 (PST)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
-        by smtp.gmail.com with ESMTPSA id u83sm11568628wmu.12.2020.12.21.10.31.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Dec 2020 10:31:52 -0800 (PST)
-Subject: Re: [PATCH V3] kvm: check tlbs_dirty directly
-To:     Lai Jiangshan <jiangshanlai@gmail.com>,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>,
-        Lai Jiangshan <laijs@linux.alibaba.com>, stable@vger.kernel.org
-References: <X9kEAh7z1rmlmyhZ@google.com>
- <20201217154118.16497-1-jiangshanlai@gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <8c5f3503-860d-b3c0-4838-0a4a04f64a47@redhat.com>
-Date:   Mon, 21 Dec 2020 19:31:51 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
-MIME-Version: 1.0
-In-Reply-To: <20201217154118.16497-1-jiangshanlai@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=HCY8w6wAd8FcQcRYUZs1swNNxWTGmV4HkMU4xhZmf5g=;
+        b=snfhKiaM9bbovXokng+80ZY85m7RD0Wx5FOLxRDdzUx5YxZXCRN9YvpkQCPD0WZJyv
+         cvIHxSN427F3HBsYsmrHIGjvrC3dmCdtL6Ufiz95Xe4MfaU+uSexlVh8qMgdfgVzASiR
+         SLbXf0vzh43Ok9cuzecMfbY5/Ihw1QyzEFlt1JpjYblY3MPeo1gSKpYTiQ/vBbfZhPpE
+         Pfd+e3KUoc5si2/NhM+oLA4Ud9MwT2F1hUzi4Wo7kzYSRvsIABZfEynJVZ/JK45UUcSK
+         DrpilN7+WUxkxuyeVpmyEDg2zrOerl4NTVpDXZlFUR2YLEs73cEj/7dtRiu9HtuhwLYO
+         Zf/g==
+X-Gm-Message-State: AOAM530C9q90cw4SxSTcotKlgjqnhEnHkO0Kh5kgmPaaD5/BHbiJ4jEz
+        ENomiQcSaKyfK94rCF/44ZU=
+X-Google-Smtp-Source: ABdhPJzDuUUuKqtLU7584aeLXqn4qvLTbBvwOuj3NGYyNc7XzZ5zLZRRkrrvAtr+sUMza55iYtZriw==
+X-Received: by 2002:a63:1d12:: with SMTP id d18mr16202857pgd.314.1608575520652;
+        Mon, 21 Dec 2020 10:32:00 -0800 (PST)
+Received: from ?IPv6:2601:647:4700:9b2:104c:8d35:de28:b8dc? ([2601:647:4700:9b2:104c:8d35:de28:b8dc])
+        by smtp.gmail.com with ESMTPSA id k21sm16041734pfu.7.2020.12.21.10.31.58
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 21 Dec 2020 10:31:59 -0800 (PST)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <20201221172711.GE6640@xz-x1>
+Date:   Mon, 21 Dec 2020 10:31:57 -0800
+Cc:     Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, minchan@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
+References: <20201219043006.2206347-1-namit@vmware.com>
+ <X95RRZ3hkebEmmaj@redhat.com>
+ <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
+ <X97pprdcRXusLGnq@google.com>
+ <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+ <20201221172711.GE6640@xz-x1>
+To:     Peter Xu <peterx@redhat.com>
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17/12/20 16:41, Lai Jiangshan wrote:
-> From: Lai Jiangshan <laijs@linux.alibaba.com>
-> 
-> In kvm_mmu_notifier_invalidate_range_start(), tlbs_dirty is used as:
->          need_tlb_flush |= kvm->tlbs_dirty;
-> with need_tlb_flush's type being int and tlbs_dirty's type being long.
-> 
-> It means that tlbs_dirty is always used as int and the higher 32 bits
-> is useless.  We need to check tlbs_dirty in a correct way and this
-> change checks it directly without propagating it to need_tlb_flush.
-> 
-> Note: it's _extremely_ unlikely this neglecting of higher 32 bits can
-> cause problems in practice.  It would require encountering tlbs_dirty
-> on a 4 billion count boundary, and KVM would need to be using shadow
-> paging or be running a nested guest.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: a4ee1ca4a36e ("KVM: MMU: delay flush all tlbs on sync_page path")
-> Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-> ---
-> Changed from V1:
->          Update the patch and the changelog as Sean Christopherson suggested.
-> 
-> Changed from v2:
-> 	don't change the type of need_tlb_flush
-> 
->   virt/kvm/kvm_main.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 2541a17ff1c4..3083fb53861d 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -482,9 +482,8 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
->   	kvm->mmu_notifier_count++;
->   	need_tlb_flush = kvm_unmap_hva_range(kvm, range->start, range->end,
->   					     range->flags);
-> -	need_tlb_flush |= kvm->tlbs_dirty;
->   	/* we've to flush the tlb before the pages can be freed */
-> -	if (need_tlb_flush)
-> +	if (need_tlb_flush || kvm->tlbs_dirty)
->   		kvm_flush_remote_tlbs(kvm);
->   
->   	spin_unlock(&kvm->mmu_lock);
-> 
+> On Dec 21, 2020, at 9:27 AM, Peter Xu <peterx@redhat.com> wrote:
+>=20
+> Hi, Nadav,
+>=20
+> On Sun, Dec 20, 2020 at 12:06:38AM -0800, Nadav Amit wrote:
+>=20
+> [...]
+>=20
+>> So to correct myself, I think that what I really encountered was =
+actually
+>> during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). =
+The
+>> problem was that in this case the =E2=80=9Cwrite=E2=80=9D-bit was =
+removed during unprotect.
+>> Sorry for the strange formatting to fit within 80 columns:
+>=20
+> I assume I can ignore the race mentioned in the commit message but =
+only refer
+> to this one below.  However I'm still confused.  Please see below.
+>=20
+>> [ Start: PTE is writable ]
+>>=20
+>> cpu0				cpu1			cpu2
+>> ----				----			----
+>> 							[ Writable PTE=20=
 
-Queued, thanks.
+>> 							  cached in TLB =
+]
+>=20
+> Here cpu2 got writable pte in tlb.  But why?
+>=20
+> If below is an unprotect, it means it must have been protected once by
+> userfaultfd, right?  If so, the previous change_protection_range() =
+which did
+> the wr-protect should have done a tlb flush already before it returns =
+(since
+> pages>0 - we protected one pte at least).  Then I can't see why cpu2 =
+tlb has
+> stall data.
 
-Paolo
+Thanks, Peter. Just as you can munprotect() a region which was not =
+protected
+before, you can ufff-unprotect a region that was not protected before. =
+It
+might be that the user tried to unprotect a large region, which was
+partially protected and partially unprotected.
+
+The selftest obviously blindly unprotect some regions to check for bugs.
+
+So to your question - it was not write-protected (think about initial =
+copy
+without write-protecting).
+
+> If I assume cpu2 doesn't have that cached tlb, then "write to old =
+page" won't
+> happen either, because cpu1/cpu2 will all go through the cow path and =
+pgtable
+> lock should serialize them.
+>=20
+>> userfaultfd_writeprotect()			=09
+>> [ write-*unprotect* ]
+>> mwriteprotect_range()
+>> mmap_read_lock()
+>> change_protection()
+>>=20
+>> change_protection_range()
+>> ...
+>> change_pte_range()
+>> [ *clear* =E2=80=9Cwrite=E2=80=9D-bit ]
+>> [ defer TLB flushes]
+>> 				[ page-fault ]
+>> 				=E2=80=A6
+>> 				wp_page_copy()
+>> 				 cow_user_page()
+>> 				  [ copy page ]
+>> 							[ write to old
+>> 							  page ]
+>> 				=E2=80=A6
+>> 				 set_pte_at_notify()
+>>=20
+>> [ End: cpu2 write not copied form old to new page. ]
+>=20
+> Could you share how to reproduce the problem?  I would be glad to give =
+it a
+> shot as well.
+
+You can run the selftests/userfaultfd with my small patch [1]. I ran it =
+with
+the following parameters: =E2=80=9C ./userfaultfd anon 100 100 =E2=80=9C. =
+I think that it is
+more easily reproducible with =E2=80=9Cmitigations=3Doff idle=3Dpoll=E2=80=
+=9D as kernel
+parameters.
+
+[1] https://lore.kernel.org/patchwork/patch/1346386/
+
+>=20
+>> [1] https://lore.kernel.org/patchwork/patch/1346386
+>=20
+> PS: Sorry to not have read the other series of yours.  It seems to =
+need some
+> chunk of time so I postponed it a bit due to other things; but I'll =
+read at
+> least the fixes very soon.
+
+Thanks again, I will post RFCv2 with some numbers soon.
 
