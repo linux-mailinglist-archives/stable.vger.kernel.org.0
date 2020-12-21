@@ -2,76 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA7F42DFFA0
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 19:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 073DB2DFFAA
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 19:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726261AbgLUSXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 13:23:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46756 "EHLO mail.kernel.org"
+        id S1726274AbgLUS0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 13:26:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726259AbgLUSXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Dec 2020 13:23:32 -0500
-X-Gm-Message-State: AOAM533ju5yvu7RoFE545XABZ1X3vsW1vk7I4c4NkPmHYysdo2n08lHS
-        lTWsIwABt7zDdNmZ3q7J+bYJmpR70oMiAOoMzpbwww==
+        id S1725785AbgLUS0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Dec 2020 13:26:21 -0500
+Date:   Mon, 21 Dec 2020 10:25:39 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608574971;
-        bh=09s/7/3Abqx6UuMNj0u19lQ8gCTkTlZe5NqmmaxK9+4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Bo2Fa9gWLOSAKLQOzb6Oj9YP9nN27xyxcbVrrkxKTgaUUis9adXsAlE2/PQ08Uour
-         5ZXP8SsubuI5xmfpmWXU21mr+asURMlTMcL11Tuiyw8dcRfdrofSVP77gCtiTk6SfP
-         IPdvY2lQIoggfdku1N5Os27Lp/UWEHNZa6Jn72Iwo4rpHUAF3Vn2q6w6ubIbhZ+EwB
-         +8Cc9hqwT2ogGzrD48wKxfs6128Ln/14xdpWV17jgR7fpdIzaU/2iDlSypRZqflsX/
-         36Sp7GH5M9zSlW8VmJyOrL1xQO+qqc3WLwdmRlieo+GiTaaU/ogXQ9qHelRL4WEjrA
-         DFuE9CfYmVvqg==
-X-Google-Smtp-Source: ABdhPJwjTRqYw8V9Gi4qEwVzEP3KAOAipT6YS4V/aZhUnVFW91AADzWb0GD1KyN5B6hdVMCwN/jvFo6XDpkmv5gcYbs=
-X-Received: by 2002:a1c:630b:: with SMTP id x11mr17742545wmb.138.1608574969815;
- Mon, 21 Dec 2020 10:22:49 -0800 (PST)
+        s=k20201202; t=1608575140;
+        bh=NzyDKbSpNFfRnN3VsafpplD3Q/O8witvPQs21aT4BTY=;
+        h=From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Kt2xoIzQV21HnsZ6nFoAD3Siae9kSxWyti/StkwSTCJ3xrjeLzbakIAa8K0tFq7bs
+         EdjsQnfFhcV2PLYqSQNp//GfUZkFQwkYl1/3rP3wAF0koyesxBDfw69JE0xcWFJ6W2
+         xeaQLUt2tnL1V39CiJzTCLEPuhzIq8zNS4xBv5xzKfiBS3mEH2aDBpeLi7hW8BgVmb
+         25tbNOlocH4gUDlWuASsLZWrEqhKeEk8MiU5OyJqbn2uWmTjyb5y44ZgCIUKLksrzk
+         ikTtbG3/WaX3lL2KpNVsm76kWnbSXwCpM8sw5fuavNSK/zAVdHfiL9Sy4fSHAft0ZL
+         kRrOJXCML2dSA==
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Marcin Wojtas <mw@semihalf.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        netdev <netdev@vger.kernel.org>,
+        Gabor Samu <samu_gabor@yahoo.ca>,
+        Jon Nettleton <jon@solid-run.com>,
+        Andrew Elwell <andrew.elwell@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port()
+ helper
+Message-ID: <20201221102539.6bdb9f5c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <CAPv3WKfCfECmwjtXLAMbNe-vuGkws_icoQ+MrgJhZJqFcgGDyw@mail.gmail.com>
+References: <20200620092047.GR1551@shell.armlinux.org.uk>
+        <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
+        <CAPv3WKdJKAEwCoj5z6NzP2xRFfT1HG+2o0wigt=Czi4bG7EQcg@mail.gmail.com>
+        <CAPv3WKfEN22cKbM8=+qDANefQE67KQ1zwURrCqAsrbo1+gBCDA@mail.gmail.com>
+        <20201102180326.GA2416734@kroah.com>
+        <CAPv3WKf0fNOOovq9UzoxoAXwGLMe_MHdfCZ6U9sjgKxarUKA+Q@mail.gmail.com>
+        <20201208133532.GH643756@sasha-vm>
+        <CAPv3WKed9zhe0q2noGKiKdzd=jBNLtN6vRW0fnQddJhhiD=rkg@mail.gmail.com>
+        <X9CuTjdgD3tDKWwo@kroah.com>
+        <CAPv3WKdKOnd+iBkfcVkoOZkHj16jOpBprY3A01ERJeq6ZQCkVQ@mail.gmail.com>
+        <CAPv3WKfCfECmwjtXLAMbNe-vuGkws_icoQ+MrgJhZJqFcgGDyw@mail.gmail.com>
 MIME-Version: 1.0
-References: <20201219043006.2206347-1-namit@vmware.com> <X95RRZ3hkebEmmaj@redhat.com>
- <EDC00345-B46E-4396-8379-98E943723809@gmail.com> <CALCETrVtsdeOtGWMUcmT1dzDBxRpecpZDe02L61qEmJmFxSvYw@mail.gmail.com>
- <X967yWAoaTejRk5y@redhat.com> <CALCETrVVa-cfogKZirRrP5tmy-gCDtb=jTpLk648BpBQsK9Z5A@mail.gmail.com>
- <X+Djjd8dW12u+rSR@redhat.com>
-In-Reply-To: <X+Djjd8dW12u+rSR@redhat.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Mon, 21 Dec 2020 10:22:38 -0800
-X-Gmail-Original-Message-ID: <CALCETrUUkGj00Z0HRuYOpjP8uGgbbs539EwG8tc71+PJR_=z_Q@mail.gmail.com>
-Message-ID: <CALCETrUUkGj00Z0HRuYOpjP8uGgbbs539EwG8tc71+PJR_=z_Q@mail.gmail.com>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-To:     Andrea Arcangeli <aarcange@redhat.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        linux-mm <linux-mm@kvack.org>, Peter Xu <peterx@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>, Yu Zhao <yuzhao@google.com>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 10:04 AM Andrea Arcangeli <aarcange@redhat.com> wrote:
->
-> Hello,
->
-> On Sat, Dec 19, 2020 at 09:08:55PM -0800, Andy Lutomirski wrote:
-> > On Sat, Dec 19, 2020 at 6:49 PM Andrea Arcangeli <aarcange@redhat.com> wrote:
-> > > The ptes are changed always with the PT lock, in fact there's no
-> > > problem with the PTE updates. The only difference with mprotect
-> > > runtime is that the mmap_lock is taken for reading. And the effect
-> > > contested for this change doesn't affect the PTE, but supposedly the
-> > > tlb flushing deferral.
+On Sun, 20 Dec 2020 18:08:19 +0100 Marcin Wojtas wrote:
+> > > > > >> > > This patch fixes a regression that was introduced in v5.3:
+> > > > > >> > > Commit 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK API")
+> > > > > >> > >
+> > > > > >> > > Above results in a NULL pointer dereference when booting the
+> > > > > >> > > Armada7k8k/CN913x with ACPI between 5.3 and 5.8, which will be
+> > > > > >> > > problematic especially for the distros using LTSv5.4 and above (the
+> > > > > >> > > issue was reported on Fedora 32).
+> > > > > >> > >
+> > > > > >> > > Please help with backporting to the stable v5.3+ branches (it applies
+> > > > > >> > > smoothly on v5.4/v5.6/v5.8).
+> > > > > >> > >  
+> > > > > >> >
+> > > > > >> > Any chances to backport this patch to relevant v5.3+ stable branches?  
+> > > > > >>
+> > > > > >> What patch?  What git commit id needs to be backported?
+> > > > > >>  
+> > > > > >
+> > > > > >The actual patch is:
+> > > > > >Commit 6c2b49eb9671  ("net: mvpp2: add mvpp2_phylink_to_port() helper").
+> > > > > >
+> > > > > >URL for reference:
+> > > > > >https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/net/ethernet/marvell/mvpp2?h=v5.10-rc7&id=6c2b49eb96716e91f202756bfbd3f5fea3b2b172
+> > > > > >
+> > > > > >Do you think it would be possible to get it merged to v5.3+ stable branches?  
+> > > > >
+> > > > > Could you explain how that patch fixes anything? It reads like a
+> > > > > cleanup.
+> > > > >  
+> > > >
+> > > > Indeed, I am aware of it, but I'm not sure about the best way to fix
+> > > > it. In fact the mentioned patch is an unintentional fix. Commit
+> > > > 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK
+> > > > API") reworked an argument list of mvpp2_mac_config() routine in a way
+> > > > that resulted in a NULL pointer dereference when booting the
+> > > > Armada7k8k/CN913x with ACPI between 5.3 and 5.8. Part of Russell's
+> > > > patch resolves this issue.  
+> > >
+> > > What part fixes the issue?  I can't see it...
+> > >  
 > >
-> > Can you point me at where the lock ends up being taken in this path?
->
-> pte_offset_map_lock in change_pte_range, as in mprotect, no difference.
->
-> As I suspected on my follow up, the bug described wasn't there, but
-> I'll look at the new theory posted.
+> > I re-checked in my setup and here's the smallest part of the original
+> > patch, that fixes previously described issue:
+> > diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > index e98be8372780..9d71a4fe1750 100644
+> > --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> > @@ -4767,6 +4767,11 @@ static void mvpp2_port_copy_mac_addr(struct
+> > net_device *dev, struct mvpp2 *priv,
+> >         eth_hw_addr_random(dev);
+> >  }
+> >
+> > +static struct mvpp2_port *mvpp2_phylink_to_port(struct phylink_config *config)
+> > +{
+> > +       return container_of(config, struct mvpp2_port, phylink_config);
+> > +}
+> > +
+> >  static void mvpp2_phylink_validate(struct phylink_config *config,
+> >                                    unsigned long *supported,
+> >                                    struct phylink_link_state *state)
+> > @@ -5105,13 +5110,12 @@ static void mvpp2_gmac_config(struct
+> > mvpp2_port *port, unsigned int mode,
+> >  static void mvpp2_mac_config(struct phylink_config *config, unsigned int mode,
+> >                              const struct phylink_link_state *state)
+> >  {
+> > -       struct net_device *dev = to_net_dev(config->dev);
+> > -       struct mvpp2_port *port = netdev_priv(dev);
+> > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> >         bool change_interface = port->phy_interface != state->interface;
+> >
+> >         /* Check for invalid configuration */
+> >         if (mvpp2_is_xlg(state->interface) && port->gop_id != 0) {
+> > -               netdev_err(dev, "Invalid mode on %s\n", dev->name);
+> > +               netdev_err(port->dev, "Invalid mode on %s\n", port->dev->name);
+> >                 return;
+> >         }
+> >
+> > @@ -5151,8 +5155,7 @@ static void mvpp2_mac_link_up(struct
+> > phylink_config *config,
+> >                               int speed, int duplex,
+> >                               bool tx_pause, bool rx_pause)
+> >  {
+> > -       struct net_device *dev = to_net_dev(config->dev);
+> > -       struct mvpp2_port *port = netdev_priv(dev);
+> > +       struct mvpp2_port *port = mvpp2_phylink_to_port(config);
+> >         u32 val;
+> >
+> >         if (mvpp2_is_xlg(interface)) {
+> > @@ -5199,7 +5202,7 @@ static void mvpp2_mac_link_up(struct
+> > phylink_config *config,
+> >
+> >         mvpp2_egress_enable(port);
+> >         mvpp2_ingress_enable(port);
+> > -       netif_tx_wake_all_queues(dev);
+> > +       netif_tx_wake_all_queues(port->dev);
+> >  }
+> >
+> >  static void mvpp2_mac_link_down(struct phylink_config *config,
+> > --
+> >
+> > Do you think there is a point of slicing the original patch or rather
+> > cherry-pick as-is?
+> >  
+> 
+> Do you think there is a chance to get the above fix merged to stable (v5.3+)?
 
-Indeed.
+We need to work with stable maintainers on this, let's see..
+
+Greg asked for a clear description of what happens, from your 
+previous response it sounds like a null-deref in mvpp2_mac_config(). 
+Is the netdev -> config -> netdev linking not ready by the time
+mvpp2_mac_config() is called?
