@@ -2,219 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5FA62DF86C
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 05:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5A82DF842
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 05:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbgLUEyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Dec 2020 23:54:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38634 "EHLO
+        id S1727066AbgLUEdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Dec 2020 23:33:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728367AbgLUEyi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 23:54:38 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB86AC0613D3;
-        Sun, 20 Dec 2020 20:53:57 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id a6so8699777wmc.2;
-        Sun, 20 Dec 2020 20:53:57 -0800 (PST)
+        with ESMTP id S1726864AbgLUEdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Dec 2020 23:33:04 -0500
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B36DC0613D3;
+        Sun, 20 Dec 2020 20:32:24 -0800 (PST)
+Received: by mail-qv1-xf34.google.com with SMTP id et9so3925613qvb.10;
+        Sun, 20 Dec 2020 20:32:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=lX32/8Xuph8eHK0o6FlvjN3ViQPYOiihsp675ptbfAw=;
-        b=TqiXC4GG8qMgAuFnnSaFFBni/YcP/e7+y876Ug82Ki1OWZ0Kf7ZznRilzfcXqgPQIT
-         WuDzJoa4yQXBiWW61LM52ms1gOIIHTOSkbxttTu4SQqi+/3ahRzNVjY0KpX/E0wMnU6x
-         YslHHkHyzY5mDowedT1deD+5n9QOoUjCtjo4H9rdUmHDYqyFaPpaYbDBxBOooRQULl+Z
-         qVDi0ixfIoZT4jfWQXX5ChAMPpkfqgpEwaSvGAfrQ5CCCyI7PJkmAQO/P5nuK/SwPWOG
-         Rsbfr7gskb5P2LCX9gkUOpnYMjzrMORo8bSGu3CogcXprMPiKLaSGp6Y/h/H2NE8Carj
-         FEgA==
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=RGHUG3YS9PlJTlCOsXIUaVWRNdpgvr2K2PPmz+gxhDY=;
+        b=XEmACCz/oBW8KpdmFP65y2OmfKersoYJGYoS1JM6sPEmGnRoCz4pfVKQoOIYr5lrk+
+         iq02YDaAT+f4A6P1moYcyl2LXknuPsaYb480dNRK/YN6ZC5mnU7gkao+G1z00dUqO2+m
+         MNwZXf3+7myWlnIN2tndHM3SlE6pNG5Uued4fvxQ6eZnme4wydgN0tyAxO5GpNi4e39y
+         iCGo1K2dhnw2omUsh+rbiD9UbxRaiUIvuoiZl5xIS/Oqr+r44dGRAAssAS/huehr40ca
+         vjbDKHkuJsUhfHenof7ljlJCkl8vXS6dfhHA4YNvuWlMuK+lBX/MpLf/BlQPHzBuxwRM
+         WIJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=lX32/8Xuph8eHK0o6FlvjN3ViQPYOiihsp675ptbfAw=;
-        b=sIo3dzFITOLeIkdlelFT0yOyYU8vvnaBKNwCDAppGvZR91Sd+TTn9rtR/aJQiZh2t0
-         v36PeQVFJ2bJss9ga/izwLiUc3X8uyHWtejKCsbtPmeQ+bzQVNy28iL0XxBAPbO4jJ6u
-         A8EMXNaoo/G8G07RTe4PYozG+YYAvKDILOhOg3wdSIhg4SEoZSjg+aT3PmNzOzZOBom6
-         7hzvCavfSl+/j3kw9pbrWkW8ypIoaxqcZald3dSvqTLiDDKdt3tashcNgAEie/ByqOZT
-         EIgdmCVL6SZYA1tDOMVBkrxGsfOobiKA1ItZjIf/yI713D6FU7bucc0gk2BHDG8+snZh
-         ALlQ==
-X-Gm-Message-State: AOAM530qDnrLFGKWDkevLjXZkcytHr4oPYnSxIYNme1juai8dR4r2CV6
-        MVdOTcc82CIR5B9nC7S5PCoHL+u97kXDXw==
-X-Google-Smtp-Source: ABdhPJxTZliArfzYy9vO3j/qg6/aPevSm9akngxStZgZbAek13d+gqEq+mShTQGqsY3qng6y2mVFlQ==
-X-Received: by 2002:a1c:2b05:: with SMTP id r5mr13053926wmr.179.1608491906090;
-        Sun, 20 Dec 2020 11:18:26 -0800 (PST)
-Received: from [192.168.8.142] ([85.255.237.164])
-        by smtp.gmail.com with ESMTPSA id r7sm15802727wmh.2.2020.12.20.11.18.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 20 Dec 2020 11:18:25 -0800 (PST)
-Subject: Re: [PATCH 1/1] io_uring: actively cancel poll/timeouts on exit
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org, Josef <josef.grieb@gmail.com>,
-        Dmitry Kadashev <dkadashev@gmail.com>
-References: <ea52c20eba8ab65ce1e716fe8627a1938a354268.1608491503.git.asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Message-ID: <a195a207-db03-6e23-b642-0d04bf7777ec@gmail.com>
-Date:   Sun, 20 Dec 2020 19:15:05 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
-MIME-Version: 1.0
-In-Reply-To: <ea52c20eba8ab65ce1e716fe8627a1938a354268.1608491503.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=RGHUG3YS9PlJTlCOsXIUaVWRNdpgvr2K2PPmz+gxhDY=;
+        b=Y67tDx3iSbK6SvB/LuZ/q2gJtPqd1L3uVgs4GX5h9XfG1rt/mKI2Azk6lj4zkd3rwJ
+         kVDw2av3RRJTwIasncPaktqWxR5s+fjrvQG6FIGKUdPiP4ElNAYmUvgueRt4y2DClGJG
+         dmyICn977bpUmrWP4vm0Y+COeeYs55mE+mstJVpi1NHjB4eCDU1ZllWutRPV4MMIq8jB
+         g2x4wjya+zNc8Ifrgs9aL+2oyh/SyeUj3eF835ao4jQ9fFDLApkK3O5yg1cislzvTkRt
+         lOxRGKEl6pOp/zfsSRcQ4h/7A2YLR0G/OG4q9n+6OVZ16fjOGbNRn9k63uKYl2J/N84A
+         rwvA==
+X-Gm-Message-State: AOAM530QlASdP0IF9BKikuu/2EXJ+VAjNjx0rHm1MvZjqYPs/zY0m4oE
+        5v7bMTYaPzmuHMw5Xu810NzCC/824e1LaQ==
+X-Google-Smtp-Source: ABdhPJy2vx8dxbMeNtjO8DuPkEpXCO2mR8iu5ujBlJatrx8oO4h8ea5O0c7MzCAJxH0Ztkx1Q3WtKA==
+X-Received: by 2002:a17:902:b90c:b029:db:f23d:d684 with SMTP id bf12-20020a170902b90cb02900dbf23dd684mr14617589plb.43.1608521592635;
+        Sun, 20 Dec 2020 19:33:12 -0800 (PST)
+Received: from [10.0.1.14] (c-24-4-128-201.hsd1.ca.comcast.net. [24.4.128.201])
+        by smtp.gmail.com with ESMTPSA id jx4sm13608056pjb.24.2020.12.20.19.33.10
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 20 Dec 2020 19:33:11 -0800 (PST)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <X98fZOiLNmnDQKhN@google.com>
+Date:   Sun, 20 Dec 2020 19:33:09 -0800
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>, Peter Xu <peterx@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, minchan@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <3680387D-65F1-4078-A19D-F77DE8544B96@gmail.com>
+References: <20201219043006.2206347-1-namit@vmware.com>
+ <X95RRZ3hkebEmmaj@redhat.com>
+ <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
+ <X97pprdcRXusLGnq@google.com>
+ <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+ <X98fZOiLNmnDQKhN@google.com>
+To:     Yu Zhao <yuzhao@google.com>
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20/12/2020 19:13, Pavel Begunkov wrote:
-> If io_ring_ctx_wait_and_kill() haven't killed all requests on the first
-> attempt, new timeouts or requests enqueued for polling may appear. They
-> won't be ever cancelled by io_ring_exit_work() unless we specifically
-> handle that case. That hangs of the exit work locking up grabbed by
-> io_uring resources.
+> On Dec 20, 2020, at 1:54 AM, Yu Zhao <yuzhao@google.com> wrote:
+>=20
+> On Sun, Dec 20, 2020 at 12:06:38AM -0800, Nadav Amit wrote:
+>>> On Dec 19, 2020, at 10:05 PM, Yu Zhao <yuzhao@google.com> wrote:
+>>>=20
+>>> On Sat, Dec 19, 2020 at 01:34:29PM -0800, Nadav Amit wrote:
+>>>> [ cc=E2=80=99ing some more people who have experience with similar =
+problems ]
+>>>>=20
+>>>>> On Dec 19, 2020, at 11:15 AM, Andrea Arcangeli =
+<aarcange@redhat.com> wrote:
+>>>>>=20
+>>>>> Hello,
+>>>>>=20
+>>>>> On Fri, Dec 18, 2020 at 08:30:06PM -0800, Nadav Amit wrote:
+>>>>>> Analyzing this problem indicates that there is a real bug since
+>>>>>> mmap_lock is only taken for read in mwriteprotect_range(). This =
+might
+>>>>>=20
+>>>>> Never having to take the mmap_sem for writing, and in turn never
+>>>>> blocking, in order to modify the pagetables is quite an important
+>>>>> feature in uffd that justifies uffd instead of mprotect. It's not =
+the
+>>>>> most important reason to use uffd, but it'd be nice if that =
+guarantee
+>>>>> would remain also for the UFFDIO_WRITEPROTECT API, not only for =
+the
+>>>>> other pgtable manipulations.
+>>>>>=20
+>>>>>> Consider the following scenario with 3 CPUs (cpu2 is not shown):
+>>>>>>=20
+>>>>>> cpu0				cpu1
+>>>>>> ----				----
+>>>>>> userfaultfd_writeprotect()
+>>>>>> [ write-protecting ]
+>>>>>> mwriteprotect_range()
+>>>>>> mmap_read_lock()
+>>>>>> change_protection()
+>>>>>> change_protection_range()
+>>>>>> ...
+>>>>>> change_pte_range()
+>>>>>> [ defer TLB flushes]
+>>>>>> 				userfaultfd_writeprotect()
+>>>>>> 				 mmap_read_lock()
+>>>>>> 				 change_protection()
+>>>>>> 				 [ write-unprotect ]
+>>>>>> 				 ...
+>>>>>> 				  [ unprotect PTE logically ]
+>>>>>> 				...
+>>>>>> 				[ page-fault]
+>>>>>> 				...
+>>>>>> 				wp_page_copy()
+>>>>>> 				[ set new writable page in PTE]
+>>>=20
+>>> I don't see any problem in this example -- wp_page_copy() calls
+>>> ptep_clear_flush_notify(), which should take care of the stale entry
+>>> left by cpu0.
+>>>=20
+>>> That being said, I suspect the memory corruption you observed is
+>>> related this example, with cpu1 running something else that flushes
+>>> conditionally depending on pte_write().
+>>>=20
+>>> Do you know which type of pages were corrupted? file, anon, etc.
+>>=20
+>> First, Yu, you are correct. My analysis is incorrect, but let me have
+>> another try (below). To answer your (and Andrea=E2=80=99s) question - =
+this happens
+>> with upstream without any changes, excluding a small fix to the =
+selftest,
+>> since it failed (got stuck) due to missing wake events. [1]
+>>=20
+>> We are talking about anon memory.
+>>=20
+>> So to correct myself, I think that what I really encountered was =
+actually
+>> during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). =
+The
+>> problem was that in this case the =E2=80=9Cwrite=E2=80=9D-bit was =
+removed during unprotect.
+>=20
+> Thanks. You are right about when the problem happens: UFD write-
+> UNprotecting. But it's not UFD write-UNprotecting that removes the
+> writable bit -- the bit can only be removed during COW or UFD
+> write-protecting. So your original example was almost correct, except
+> the last line describing cpu1.
 
-Josef and Dmitry, it would be great to have your Tested-by: <>
- 
-> Cc: <stable@vger.kernel.org> # 5.5+
-> Cc: Josef <josef.grieb@gmail.com>
-> Reported-by: Dmitry Kadashev <dkadashev@gmail.com>
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  fs/io_uring.c | 55 +++++++++++++++++++++++++++------------------------
->  1 file changed, 29 insertions(+), 26 deletions(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index fbf747803dbc..c1acc668fe96 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -8620,6 +8620,32 @@ static int io_remove_personalities(int id, void *p, void *data)
->  	return 0;
->  }
->  
-> +static void io_cancel_defer_files(struct io_ring_ctx *ctx,
-> +				  struct task_struct *task,
-> +				  struct files_struct *files)
-> +{
-> +	struct io_defer_entry *de = NULL;
-> +	LIST_HEAD(list);
-> +
-> +	spin_lock_irq(&ctx->completion_lock);
-> +	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
-> +		if (io_match_task(de->req, task, files)) {
-> +			list_cut_position(&list, &ctx->defer_list, &de->list);
-> +			break;
-> +		}
-> +	}
-> +	spin_unlock_irq(&ctx->completion_lock);
-> +
-> +	while (!list_empty(&list)) {
-> +		de = list_first_entry(&list, struct io_defer_entry, list);
-> +		list_del_init(&de->list);
-> +		req_set_fail_links(de->req);
-> +		io_put_req(de->req);
-> +		io_req_complete(de->req, -ECANCELED);
-> +		kfree(de);
-> +	}
-> +}
-> +
->  static void io_ring_exit_work(struct work_struct *work)
->  {
->  	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
-> @@ -8633,6 +8659,8 @@ static void io_ring_exit_work(struct work_struct *work)
->  	 */
->  	do {
->  		io_iopoll_try_reap_events(ctx);
-> +		io_poll_remove_all(ctx, NULL, NULL);
-> +		io_kill_timeouts(ctx, NULL, NULL);
->  	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
->  	io_ring_ctx_free(ctx);
->  }
-> @@ -8654,6 +8682,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
->  		io_cqring_overflow_flush(ctx, true, NULL, NULL);
->  	mutex_unlock(&ctx->uring_lock);
->  
-> +	io_cancel_defer_files(ctx, NULL, NULL);
->  	io_kill_timeouts(ctx, NULL, NULL);
->  	io_poll_remove_all(ctx, NULL, NULL);
->  
-> @@ -8716,32 +8745,6 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
->  	return ret;
->  }
->  
-> -static void io_cancel_defer_files(struct io_ring_ctx *ctx,
-> -				  struct task_struct *task,
-> -				  struct files_struct *files)
-> -{
-> -	struct io_defer_entry *de = NULL;
-> -	LIST_HEAD(list);
-> -
-> -	spin_lock_irq(&ctx->completion_lock);
-> -	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
-> -		if (io_match_task(de->req, task, files)) {
-> -			list_cut_position(&list, &ctx->defer_list, &de->list);
-> -			break;
-> -		}
-> -	}
-> -	spin_unlock_irq(&ctx->completion_lock);
-> -
-> -	while (!list_empty(&list)) {
-> -		de = list_first_entry(&list, struct io_defer_entry, list);
-> -		list_del_init(&de->list);
-> -		req_set_fail_links(de->req);
-> -		io_put_req(de->req);
-> -		io_req_complete(de->req, -ECANCELED);
-> -		kfree(de);
-> -	}
-> -}
-> -
->  static void io_uring_cancel_files(struct io_ring_ctx *ctx,
->  				  struct task_struct *task,
->  				  struct files_struct *files)
-> 
+The scenario is a bit confusing, so stay with me. The idea behind uffd
+unprotect is indeed only to mark the PTE logically as uffd-unprotected, =
+and
+not to *set* the writable bit, allowing the #PF handler to do COW or
+whatever correctly upon #PF.
 
--- 
-Pavel Begunkov
+However, the problem that we have is that if a page is already writable,
+write-unprotect *clears* the writable bit, making it write-protected (at
+least for anonymous pages). This is not good from performance =
+point-of-view,
+but also a correctness issue, as I pointed out.
+
+In some more detail: mwriteprotect_range() uses vm_get_page_prot() to
+compute the new protection. For anonymous private memory, at least on =
+x86,
+this means the write-bit in the protection is clear. So later,
+change_pte_range() *clears* the write-bit during *unprotection*.
+
+That=E2=80=99s the reason the second part of my patch - the change to =
+preserve_write
+- fixes the problem.
+
+> The problem is how do_wp_page() handles non-COW pages. (For COW pages,
+> do_wp_page() works correctly by either reusing an existing page or
+> make a new copy out of it.) In UFD case, the existing page may not
+> have been properly write-protected. As you pointed out, the tlb flush
+> may not be done yet. Making a copy can potentially race with the
+> writer on cpu2.
+
+Just to clarify the difference - You regard a scenario of UFFD
+write-protect, while I am pretty sure the problem I encountered is =
+during
+write-unprotect.
+
+I am not sure we are on the same page (but we may be). The problem I =
+have is
+with cow_user_page() that is called by do_wp_page() before any TLB flush
+took place (either by change_protection_range() or by do_wp_page() which
+does flush, but after the copy).
+
+Let me know if you regard a different scenario.
+
+> Should we fix the problem by ensuring integrity of the copy? IMO, no,
+> because do_wp_page() shouldn't copy at all in this case. It seems it
+> was recently broken by
+>=20
+>  be068f29034f mm: fix misplaced unlock_page in do_wp_page()
+>  09854ba94c6a mm: do_wp_page() simplification
+>=20
+> I haven't study them carefully. But if you could just revert them and
+> run the test again, we'd know where exactly to look at next.
+
+These patches regard the wp_page_reuse() case, which makes me think we
+are not on the same page. I do not see a problem with wp_page_reuse()
+since it does not make a copy of the page. If you can explain what I
+am missing, it would be great.
+
