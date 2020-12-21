@@ -2,213 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E9B2E0150
-	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 20:54:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5611A2E0152
+	for <lists+stable@lfdr.de>; Mon, 21 Dec 2020 20:55:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbgLUTyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 14:54:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37756 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725807AbgLUTyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 14:54:00 -0500
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC9AC0613D3
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 11:53:20 -0800 (PST)
-Received: by mail-wm1-x329.google.com with SMTP id v14so46511wml.1
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 11:53:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=uuPY0CQ5Pg5RJus7LV7SldZ9CpkwpeioinKADBvFUMc=;
-        b=UL6wYwFMsG5nKPnWNbfiwZ+r+tAW/hwpeomPs0B+7fJuPmWODpBlaWzC6EPE7hFTSL
-         mrSv9TCP8B1IDn8m3b92fNgyWHKL/F4Gccy13Z9McB1mRIN7r94A3IAGPHeMswuoU/p+
-         zOibAU4Ih0wcyQBa+htLR0E6V4LPwHGZLoquEjMug+rg9yJsvTtWkLrN7lIwl9c8twMM
-         ghlhs9GoJKRE9HS9QwgfRIZHpN37HRd6pHU8HBfNJ0VxyFbie6vvNBn7Lc7ZpTDef6n0
-         PqqAVQr8cROilkAIPnMevHqvbZxv/EIIf6fH+A/zCH+69mQ0NZykue1hOgRr9kEQWXWC
-         RF0g==
+        id S1726264AbgLUTza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 14:55:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:23878 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726025AbgLUTza (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 14:55:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608580443;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zU38n9umUo1jYRE3cwoN9aCysH5tPAi2O3MLmmeDuyM=;
+        b=AndW9m30jvE45JldbMVluUebmmc9w1KUT83OSTApCpyi3N+Ka4ISibveUuFLSiB4VXgVso
+        shyGbDm/nSc0GF1GTpfYjY65KdQkC7gMb9ZuOTuLIsGPamG2HE+UF8cF+Khykv0EntsiY2
+        yCGGmkqTbDIqnQiM5OgkDJWbd9eHlRs=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-511-i0cflK4YPkaCqkR7oHa-bA-1; Mon, 21 Dec 2020 14:54:00 -0500
+X-MC-Unique: i0cflK4YPkaCqkR7oHa-bA-1
+Received: by mail-qt1-f199.google.com with SMTP id v9so8589462qtw.12
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 11:54:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=uuPY0CQ5Pg5RJus7LV7SldZ9CpkwpeioinKADBvFUMc=;
-        b=AepMs+tKiXoYe0HJhSqp6+XoWmyAIDM7+MdU0th8v9z46zzkCHe+Kc26DV6B7AMedo
-         2xLRokAMzw0MZGYHVNnnGTfuvOARyGCvmqmvmRZL3dHLyJBjdOH/Ivhf9pplkOPPVd5M
-         5cjdNdfNIf0/KfTaaGKmDas6rsiDmRP2ZA0UlS09jax+6bii1UcwmqwA4+4/B8UPd3yY
-         zIsJ2nTRlsx5aPChauh87tV4cMwR/exSeuhyMR8kAIyigBK75vTPakto9nDBgN+XIWeA
-         Ne2JnTyeBIr9sAjqe79jZt7ALSDust3kzR0HpdMIQGtY9kS5WX8Kp3iR2QHZmD1Yae4p
-         8J9g==
-X-Gm-Message-State: AOAM530OXzqMhCUxTJ+XAitarfaho6wO3dqtHz/RbyFx5vGRkhkFZWJE
-        WSpYTynXzvHEJ6rvXA3+pJbi2BpRqA+1GyKJ
-X-Google-Smtp-Source: ABdhPJwG8M2z3MLuHZf/T3x/JDSxCHQMH1QNosQNtufnPNifBHhQyZD8y4wEgea3iDuu+KqzsoJGiw==
-X-Received: by 2002:a7b:c397:: with SMTP id s23mr18066687wmj.63.1608580399234;
-        Mon, 21 Dec 2020 11:53:19 -0800 (PST)
-Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
-        by smtp.gmail.com with ESMTPSA id c4sm25387717wmf.19.2020.12.21.11.53.18
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 21 Dec 2020 11:53:18 -0800 (PST)
-Date:   Mon, 21 Dec 2020 19:53:16 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     wqu@suse.com, dsterba@suse.com, fdmanana@suse.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] btrfs: trim: fix underflow in trim length
- to prevent access" failed to apply to 5.4-stable tree
-Message-ID: <20201221195316.2ghzag6fblousbu7@debian>
-References: <15978369934613@kroah.com>
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=zU38n9umUo1jYRE3cwoN9aCysH5tPAi2O3MLmmeDuyM=;
+        b=duYvawdnIBbDVRgRZXjoyNGTWoLBjKPnWRu0+yJ8lcAmLZivGsFDhlLiswWkFXvUYs
+         N3F+TDBhno6jzPW627U5Z4v9baGWBHdcWcIK0pPtVrD2HZVnjjBRe7K/hg0DOVDyz3EG
+         efHn+r++7cfiE4aqKD7ydc4JxEJXysdWCMAPEMGyVm8Zrn1L/K0u4hXhRalf9Vir63oo
+         CC5G5nAw2IausfCCFzXkfwv0kCUQp3ut5vLpjfRMUnVLgPyEA0xqHA7g0W9NcHecOVkX
+         GLSRvGUTzcikINNBlqEkGCX9KK05fiVZonyObLHfF2Mk7o1vPdiv+3T4bmxQ7lo/D6G4
+         ALDw==
+X-Gm-Message-State: AOAM533ik34w25QnnEMSTNz01uqN2hk/qFnipVms56065TqeZgvVspg8
+        qC/BNA1BKlCW0+8ZvQQXXx6GdLUXFHhDEMJ6OzV31MSFY7cAMbQbJSNrO954SMSlTOPHzPt21EJ
+        TkVW95fsm3+7HOsGb
+X-Received: by 2002:a05:6214:13a3:: with SMTP id h3mr18853337qvz.5.1608580440173;
+        Mon, 21 Dec 2020 11:54:00 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxZUFJ0EpSQHCnxqLVRZJf/1yoKx4zvQDrvPQ1qmp6MpiTzd+fKsVYX8djRGDxm9PLeaE8t5g==
+X-Received: by 2002:a05:6214:13a3:: with SMTP id h3mr18853313qvz.5.1608580439943;
+        Mon, 21 Dec 2020 11:53:59 -0800 (PST)
+Received: from xz-x1 ([142.126.83.202])
+        by smtp.gmail.com with ESMTPSA id w33sm10147410qth.34.2020.12.21.11.53.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Dec 2020 11:53:59 -0800 (PST)
+Date:   Mon, 21 Dec 2020 14:53:57 -0500
+From:   Peter Xu <peterx@redhat.com>
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, minchan@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <20201221195357.GI6640@xz-x1>
+References: <20201219043006.2206347-1-namit@vmware.com>
+ <X95RRZ3hkebEmmaj@redhat.com>
+ <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
+ <X97pprdcRXusLGnq@google.com>
+ <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
+ <20201221172711.GE6640@xz-x1>
+ <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="rjv344vw4tbv43i4"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <15978369934613@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---rjv344vw4tbv43i4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Greg,
-
-On Wed, Aug 19, 2020 at 01:36:33PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Dec 21, 2020 at 10:31:57AM -0800, Nadav Amit wrote:
+> > On Dec 21, 2020, at 9:27 AM, Peter Xu <peterx@redhat.com> wrote:
+> > 
+> > Hi, Nadav,
+> > 
+> > On Sun, Dec 20, 2020 at 12:06:38AM -0800, Nadav Amit wrote:
+> > 
+> > [...]
+> > 
+> >> So to correct myself, I think that what I really encountered was actually
+> >> during MM_CP_UFFD_WP_RESOLVE (i.e., when the protection is removed). The
+> >> problem was that in this case the “write”-bit was removed during unprotect.
+> >> Sorry for the strange formatting to fit within 80 columns:
+> > 
+> > I assume I can ignore the race mentioned in the commit message but only refer
+> > to this one below.  However I'm still confused.  Please see below.
+> > 
+> >> [ Start: PTE is writable ]
+> >> 
+> >> cpu0				cpu1			cpu2
+> >> ----				----			----
+> >> 							[ Writable PTE 
+> >> 							  cached in TLB ]
+> > 
+> > Here cpu2 got writable pte in tlb.  But why?
+> > 
+> > If below is an unprotect, it means it must have been protected once by
+> > userfaultfd, right?  If so, the previous change_protection_range() which did
+> > the wr-protect should have done a tlb flush already before it returns (since
+> > pages>0 - we protected one pte at least).  Then I can't see why cpu2 tlb has
+> > stall data.
 > 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Thanks, Peter. Just as you can munprotect() a region which was not protected
+> before, you can ufff-unprotect a region that was not protected before. It
+> might be that the user tried to unprotect a large region, which was
+> partially protected and partially unprotected.
+> 
+> The selftest obviously blindly unprotect some regions to check for bugs.
+> 
+> So to your question - it was not write-protected (think about initial copy
+> without write-protecting).
 
-Here is the backport.
+If that's the only case, how about we don't touch the ptes at all? Instead of
+playing with preserve_write, I'm thinking something like this right before
+ptep_modify_prot_start(), even for uffd_wp==true:
 
---
-Regards
-Sudip
+  if (uffd_wp && pte_uffd_wp(old_pte)) {
+    WARN_ON_ONCE(pte_write(old_pte));
+    continue;
+  }
 
---rjv344vw4tbv43i4
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-btrfs-trim-fix-underflow-in-trim-length-to-prevent-a.patch"
+  if (uffd_wp_resolve && !pte_uffd_wp(old_pte))
+      continue;
 
-From 310079d12dd563fe3a065b6dfe66629e3b6611ee Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Fri, 31 Jul 2020 19:29:11 +0800
-Subject: [PATCH] btrfs: trim: fix underflow in trim length to prevent access beyond device boundary
+Then we can also avoid the heavy operations on changing ptes back and forth.
 
-commit c57dd1f2f6a7cd1bb61802344f59ccdc5278c983 upstream
+> 
+> > If I assume cpu2 doesn't have that cached tlb, then "write to old page" won't
+> > happen either, because cpu1/cpu2 will all go through the cow path and pgtable
+> > lock should serialize them.
+> > 
+> >> userfaultfd_writeprotect()				
+> >> [ write-*unprotect* ]
+> >> mwriteprotect_range()
+> >> mmap_read_lock()
+> >> change_protection()
+> >> 
+> >> change_protection_range()
+> >> ...
+> >> change_pte_range()
+> >> [ *clear* “write”-bit ]
+> >> [ defer TLB flushes]
+> >> 				[ page-fault ]
+> >> 				…
+> >> 				wp_page_copy()
+> >> 				 cow_user_page()
+> >> 				  [ copy page ]
+> >> 							[ write to old
+> >> 							  page ]
+> >> 				…
+> >> 				 set_pte_at_notify()
+> >> 
+> >> [ End: cpu2 write not copied form old to new page. ]
+> > 
+> > Could you share how to reproduce the problem?  I would be glad to give it a
+> > shot as well.
+> 
+> You can run the selftests/userfaultfd with my small patch [1]. I ran it with
+> the following parameters: “ ./userfaultfd anon 100 100 “. I think that it is
+> more easily reproducible with “mitigations=off idle=poll” as kernel
+> parameters.
+> 
+> [1] https://lore.kernel.org/patchwork/patch/1346386/
 
-[BUG]
-The following script can lead to tons of beyond device boundary access:
+Thanks.
 
-  mkfs.btrfs -f $dev -b 10G
-  mount $dev $mnt
-  trimfs $mnt
-  btrfs filesystem resize 1:-1G $mnt
-  trimfs $mnt
+> 
+> > 
+> >> [1] https://lore.kernel.org/patchwork/patch/1346386
+> > 
+> > PS: Sorry to not have read the other series of yours.  It seems to need some
+> > chunk of time so I postponed it a bit due to other things; but I'll read at
+> > least the fixes very soon.
+> 
+> Thanks again, I will post RFCv2 with some numbers soon.
 
-[CAUSE]
-Since commit 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to
-find_first_clear_extent_bit"), we try to avoid trimming ranges that's
-already trimmed.
+I read the patch 1/3 of the series.  Would it be better to post them separately
+just in case Andrew would like to pick them earlier?
 
-So we check device->alloc_state by finding the first range which doesn't
-have CHUNK_TRIMMED and CHUNK_ALLOCATED not set.
+Since you seem to be heavily working on uffd-wp - I do still have a few uffd-wp
+fixes locally even for anonymous.  I think they're related to some corner cases
+like either thp or migration entry convertions, but anyway I'll see whether I
+should post them even earlier (I planned to add smap/pagemap support for
+uffd-wp so maybe I can even write some test case to verify some of them).  Just
+a FYI...
 
-But if we shrunk the device, that bits are not cleared, thus we could
-easily got a range starts beyond the shrunk device size.
+Thanks,
 
-This results the returned @start and @end are all beyond device size,
-then we call "end = min(end, device->total_bytes -1);" making @end
-smaller than device size.
-
-Then finally we goes "len = end - start + 1", totally underflow the
-result, and lead to the beyond-device-boundary access.
-
-[FIX]
-This patch will fix the problem in two ways:
-
-- Clear CHUNK_TRIMMED | CHUNK_ALLOCATED bits when shrinking device
-  This is the root fix
-
-- Add extra safety check when trimming free device extents
-  We check and warn if the returned range is already beyond current
-  device.
-
-Link: https://github.com/kdave/btrfs-progs/issues/282
-Fixes: 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to find_first_clear_extent_bit")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[sudip: adjust context and use extent_io.h]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- fs/btrfs/extent-tree.c | 14 ++++++++++++++
- fs/btrfs/extent_io.h   |  2 ++
- fs/btrfs/volumes.c     |  4 ++++
- 3 files changed, 20 insertions(+)
-
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index c6d9e8c07c23..833266de785c 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -32,6 +32,7 @@
- #include "block-rsv.h"
- #include "delalloc-space.h"
- #include "block-group.h"
-+#include "rcu-string.h"
- 
- #undef SCRAMBLE_DELAYED_REFS
- 
-@@ -5618,6 +5619,19 @@ static int btrfs_trim_free_extents(struct btrfs_device *device, u64 *trimmed)
- 					    &start, &end,
- 					    CHUNK_TRIMMED | CHUNK_ALLOCATED);
- 
-+		/* Check if there are any CHUNK_* bits left */
-+		if (start > device->total_bytes) {
-+			WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
-+			btrfs_warn_in_rcu(fs_info,
-+"ignoring attempt to trim beyond device size: offset %llu length %llu device %s device size %llu",
-+					  start, end - start + 1,
-+					  rcu_str_deref(device->name),
-+					  device->total_bytes);
-+			mutex_unlock(&fs_info->chunk_mutex);
-+			ret = 0;
-+			break;
-+		}
-+
- 		/* Ensure we skip the reserved area in the first 1M */
- 		start = max_t(u64, start, SZ_1M);
- 
-diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
-index bc858c8cef0a..fcf1807cc8dd 100644
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -35,6 +35,8 @@
-  */
- #define CHUNK_ALLOCATED EXTENT_DIRTY
- #define CHUNK_TRIMMED   EXTENT_DEFRAG
-+#define CHUNK_STATE_MASK			(CHUNK_ALLOCATED |		\
-+						 CHUNK_TRIMMED)
- 
- /*
-  * flags for bio submission. The high bits indicate the compression
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 457f8f858a3f..67ffbe92944c 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4908,6 +4908,10 @@ int btrfs_shrink_device(struct btrfs_device *device, u64 new_size)
- 	}
- 
- 	mutex_lock(&fs_info->chunk_mutex);
-+	/* Clear all state bits beyond the shrunk device size */
-+	clear_extent_bits(&device->alloc_state, new_size, (u64)-1,
-+			  CHUNK_STATE_MASK);
-+
- 	btrfs_device_set_disk_total_bytes(device, new_size);
- 	if (list_empty(&device->post_commit_list))
- 		list_add_tail(&device->post_commit_list,
 -- 
-2.11.0
+Peter Xu
 
-
---rjv344vw4tbv43i4--
