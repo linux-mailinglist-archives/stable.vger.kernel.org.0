@@ -2,68 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C0D2E02E3
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 00:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD2EC2E02ED
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 00:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726260AbgLUXXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 18:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41770 "EHLO
+        id S1725783AbgLUXbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 18:31:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725844AbgLUXXh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 18:23:37 -0500
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E98A5C0613D6
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:22:56 -0800 (PST)
-Received: by mail-lf1-x130.google.com with SMTP id m12so27667191lfo.7
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:22:56 -0800 (PST)
+        with ESMTP id S1725780AbgLUXbb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 18:31:31 -0500
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C26DC0613D3
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:30:51 -0800 (PST)
+Received: by mail-lf1-x129.google.com with SMTP id o19so27774655lfo.1
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:30:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=buZJFKyPYBzgbeXC66/N/0dTpo1YFcNm0CccjQ3HclY=;
-        b=BaAudlumzhLJFyMaOvrwQsrDy2D4LVnE2wm1c82U854eO+hECKkarKXbDK2eQaxVB+
-         FUFFWTdEOS/xy8UHt0PWSrAWdiRa763LeATnu6tLnSSMu9m0wgZkjpHp47KRSyeS3zOC
-         K5sYkTtO4S/K/zSR0sI9++ObqZ1CbYGik3uQo=
+        bh=XEUwJ1B3pcWLfpPQa7kvc+ABD9Wxu3JslOygXEvY+B8=;
+        b=bCl/WjkG/28ydsHCZmu2DitVaP/UIuwhWRUv8tqqH3u57qnFChPk7QRY0Gm/j0xM+l
+         QXIwccH+sYgnsJnnIQRTGBvSqky0hhZ+Wyg74kg3WSEgQ9Kgpb60E8qMgykEKt/a7ynR
+         5O+oTVRihSdPgZEpioYQ+5DuwGB1Vxz7Yi8OE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=buZJFKyPYBzgbeXC66/N/0dTpo1YFcNm0CccjQ3HclY=;
-        b=PlmLWdDDsTL0V3ZkusEgPHOdtwO1NlAaTTzMf4Tf0+xpwGJNzuTQ4j8PuaGCQ6kZ1l
-         Ru+vGht3DFhqDghOZwxhpeeH7u1BxtkxemsNkcmszaCgpXRN9SUSfrbHo+WaOiLD0606
-         Avz+crB+hCKi75VJ1xW3psclmrD3/GqMNWIZdjpsoIZJIB0nFBfBmIXxd+1F/ysDR3bY
-         xj3d/MKSNI9b9FB3z5xQdGM4o8QQeaKnHWUO32SMvWjmQV8igKdo0+8D7oVDmbDif5o4
-         000PawFYXrfs11l0TeUsx8NytCZw+1ylAz/TR3vneSZ34Ybbv+P1theWEe32tEIVpprL
-         UwYA==
-X-Gm-Message-State: AOAM530MxLzOqw6eq/49xQhKmIChbx6YIHHaaNy+590oWWNSkndQ6HAZ
-        L3dsTpCQNVjv4BIZ8aRo7nKSmOsdnqulyQ==
-X-Google-Smtp-Source: ABdhPJx8T1mWiqQBqJWtd6wqjU+5bK+BikrYEGZsaqf+HSW3OEY53ghI9lON1Bd7EWd5MNoRr9BJuw==
-X-Received: by 2002:a19:4191:: with SMTP id o139mr7581463lfa.224.1608592974903;
-        Mon, 21 Dec 2020 15:22:54 -0800 (PST)
+        bh=XEUwJ1B3pcWLfpPQa7kvc+ABD9Wxu3JslOygXEvY+B8=;
+        b=sB293HnxVvpwGuiSOi0ee8sS2D2wltYZ/MvlUdxTM0Nwijr7ryBEGWwePOrUOxxGLu
+         F5ksGAfpfC2Z0hdD7D6EtbnnzlHffux2Tc8DXNXmBi37JbrdkrvhvbDU63Glb20PRIOR
+         WmaDCK3T8VWyhOqQgs2Qxxq8y7azpp2LLSp1BaymBG1/XBlXzmWEZnmQ/WPXzUfPSD/u
+         TcgRtZbgkPAu7JYH3dk7GxdSIf9CfZD8jQChwiSWOtnSdo3FKzSOe03bVxVeRGYRzdK3
+         Kr0C7NGiVLK1oA7U1+0H06dYNRuJFiHdHZ2VFBgpk/36dwAhnuQK5LAcwswNGyDG5tO8
+         7uIw==
+X-Gm-Message-State: AOAM531E/BSLNzeguMiU73YxKRQGaucfcmduJXnbUIXYu0dvNB+PVExM
+        NzMmSKLWrjhD4wL7KlELy9LXHAsup120gg==
+X-Google-Smtp-Source: ABdhPJyuGFbNMZPq8rKOpJyAQ2Z2cLL0XxA+MJNtmMkdoAOCnyqttZFhIpfmBw0bilrIwqGshJbSBw==
+X-Received: by 2002:a05:6512:210c:: with SMTP id q12mr7452981lfr.601.1608593449201;
+        Mon, 21 Dec 2020 15:30:49 -0800 (PST)
 Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com. [209.85.167.53])
-        by smtp.gmail.com with ESMTPSA id r81sm2275543lff.215.2020.12.21.15.22.53
+        by smtp.gmail.com with ESMTPSA id g2sm2273972lfb.255.2020.12.21.15.30.47
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Dec 2020 15:22:53 -0800 (PST)
-Received: by mail-lf1-f53.google.com with SMTP id a12so27670994lfl.6
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:22:53 -0800 (PST)
-X-Received: by 2002:a19:7d85:: with SMTP id y127mr7803717lfc.253.1608592973153;
- Mon, 21 Dec 2020 15:22:53 -0800 (PST)
+        Mon, 21 Dec 2020 15:30:47 -0800 (PST)
+Received: by mail-lf1-f53.google.com with SMTP id y19so27577370lfa.13
+        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 15:30:47 -0800 (PST)
+X-Received: by 2002:ac2:4987:: with SMTP id f7mr7298452lfl.41.1608593446798;
+ Mon, 21 Dec 2020 15:30:46 -0800 (PST)
 MIME-Version: 1.0
 References: <X97pprdcRXusLGnq@google.com> <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
  <20201221172711.GE6640@xz-x1> <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
  <X+D0hTZCrWS3P5Pi@google.com> <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
  <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com> <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
  <X+ESkna2z3WjjniN@google.com> <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
- <20201221223041.GL6640@xz-x1>
-In-Reply-To: <20201221223041.GL6640@xz-x1>
+ <20201221223041.GL6640@xz-x1> <B8095F3C-81E3-4AF9-A6A5-F597D51264BD@gmail.com>
+In-Reply-To: <B8095F3C-81E3-4AF9-A6A5-F597D51264BD@gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 21 Dec 2020 15:22:37 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
-Message-ID: <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+Date:   Mon, 21 Dec 2020 15:30:30 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wihkGVvXXQL_qSPWF6s4NJYWyEkq+D3CUWQf9H5V1jqtg@mail.gmail.com>
+Message-ID: <CAHk-=wihkGVvXXQL_qSPWF6s4NJYWyEkq+D3CUWQf9H5V1jqtg@mail.gmail.com>
 Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-To:     Peter Xu <peterx@redhat.com>
-Cc:     Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
+To:     Nadav Amit <nadav.amit@gmail.com>
+Cc:     Peter Xu <peterx@redhat.com>, Yu Zhao <yuzhao@google.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         linux-mm <linux-mm@kvack.org>,
         lkml <linux-kernel@vger.kernel.org>,
@@ -80,47 +80,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 2:30 PM Peter Xu <peterx@redhat.com> wrote:
+On Mon, Dec 21, 2020 at 2:55 PM Nadav Amit <nadav.amit@gmail.com> wrote:
 >
-> AFAIU mprotect() is the only one who modifies the pte using the mmap write
-> lock.  NUMA balancing is also using read mmap lock when changing pte
-> protections, while my understanding is mprotect() used write lock only because
-> it manipulates the address space itself (aka. vma layout) rather than modifying
-> the ptes, so it needs to.
+> So as an alternative solution, I can do copying under the PTL after
+> flushing, which seems to solve the problem.
 
-So it's ok to change the pte holding only the PTE lock, if it's a
-*one*way* conversion.
+I think that's a valid model, but note that we do the "re-check ptl"
+in a (*completely(* different part than we do the actual PTE install.
 
-That doesn't break the "re-check the PTE contents" model (which
-predates _all_ of the rest: NUMA, userfaultfd, everything - it's
-pretty much the original model for our page table operations, and goes
-back to the dark ages even before SMP and the existence of a page
-table lock).
+Note that the "Re-validate under PTL" code in cow_user_page() is *not*
+the "now we are installing the copy". No, that's actually for the
+"uhhuh, the copy using the virtual address outside the ptl failed, now
+we need to do something special".
 
-So for example, a COW will always create a different pte (not just
-because the page number itself changes - you could imagine a page
-getting re-used and changing back - but because it's always a RO->RW
-transition).
+The real "we hold teh ptl" actually happens in wp_page_copy(), after
+cow_user_page() has already returned.
 
-So two COW operations cannot "undo" each other and fool us into
-thinking nothing changed.
+So you'd have to change how all of that works.
 
-Anything that changes RW->RO - like fork(), for example - needs to
-take the mmap_lock.
+And honestly, I'm not sure it's worth it - if this was the *only*
+case, then yes. But that whole "we load the original pte first, then
+we do whatever we _think_ we will need to do, and then we install the
+final pte after checking" is actually the case for every other page
+fault handling case too.
 
-NUMA balancing should be ok wrt COW, because it doesn't do that RW->RO
-thing, it uses the present bit.
+So are we sure the COW case is so special?
 
-I think that you are right that NUMA balancing itself might cause
-other issues, because it can cause that "pte changed and then came
-back" (for numa protectoipn and then a numa fault) all with just the
-mmap lock for reading.
+I really think this is clearly just a userfaultfd bug that we hadn't
+realized until now, and had possibly been hidden by timings or other
+random stuff before.
 
-However, even that shouldn't matter for COW, because the write protect
-bit is the one that proptects the *contents* of the page, so even if
-NUMA balancing caused that "load original PTE, then re-check later" to
-succeed (despite the PTE actually changing in the middle), the
-_contents_ of the page cannot have changed, so COW is ok. NUMA
-balancing won't be making a read-only page temporarily writable.
-
-           Linus
+    Linus
