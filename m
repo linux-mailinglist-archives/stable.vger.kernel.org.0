@@ -2,106 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9FF2E03BB
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 02:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E68F32E03E4
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 02:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725820AbgLVBU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 20:20:27 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:9908 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725780AbgLVBU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 20:20:27 -0500
-Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4D0JQ31hdDz7JFd;
-        Tue, 22 Dec 2020 09:18:51 +0800 (CST)
-Received: from szvp000203569.huawei.com (10.120.216.130) by
- DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 22 Dec 2020 09:16:48 +0800
-From:   Chao Yu <yuchao0@huawei.com>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-CC:     <linux-f2fs-devel@lists.sourceforge.net>, <chao@kernel.org>,
-        <jaegeuk@kernel.org>, <yuchao0@huawei.com>,
-        kitestramuort <kitestramuort@autistici.org>
-Subject: [PATCH 5.10.y] f2fs: fix to seek incorrect data offset in inline data file
-Date:   Tue, 22 Dec 2020 09:16:34 +0800
-Message-ID: <20201222011634.124180-1-yuchao0@huawei.com>
-X-Mailer: git-send-email 2.29.2
+        id S1725780AbgLVBiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 20:38:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725790AbgLVBiU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Dec 2020 20:38:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA22722A83;
+        Tue, 22 Dec 2020 01:37:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608601059;
+        bh=e7GHyBCLykEq+OsooOpe6AvMkhb0yvGEjUzLLmtB5IE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=S7TnUXef7HAgNM9UvcVjzz9/YclUeXE2EBjXHv5/T6NTyXeiBMnX6El6uTPGRz8dY
+         dqxOvd99PntUO68BcqKlKkcx6X/Hbq1nP38mTmSRcVsj41rlZ7FUCujyZiqZUJ1KEE
+         yHb68dgxti+G3QWfGI3IYW33oogMLTlffaO92JePCJtruNW/TGC49JVnWM/JYL65CV
+         kh5ZOvUE6PDPzZ3c5Fmdgk56EzW5JUROpIebdKMKhlIZqi5nkhSmrLWqpNUbpQMsij
+         MI7s2xYizsPCdpDx2Sm/pNOuujG2wJaBH9c1TelE0XNwAY2EqNHKjUJIALX0rtzkkD
+         qcGJn6dMhOR+g==
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>
+Subject: [PATCH 0/4] sched/idle: Fix missing need_resched() checks after rcu_idle_enter()
+Date:   Tue, 22 Dec 2020 02:37:08 +0100
+Message-Id: <20201222013712.15056-1-frederic@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.120.216.130]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As kitestramuort reported:
+With Paul, we've been thinking that the idle loop wasn't twisted enough
+yet to deserve 2020.
 
-F2FS-fs (nvme0n1p4): access invalid blkaddr:1598541474
-[   25.725898] ------------[ cut here ]------------
-[   25.725903] WARNING: CPU: 6 PID: 2018 at f2fs_is_valid_blkaddr+0x23a/0x250
-[   25.725923] Call Trace:
-[   25.725927]  ? f2fs_llseek+0x204/0x620
-[   25.725929]  ? ovl_copy_up_data+0x14f/0x200
-[   25.725931]  ? ovl_copy_up_inode+0x174/0x1e0
-[   25.725933]  ? ovl_copy_up_one+0xa22/0xdf0
-[   25.725936]  ? ovl_copy_up_flags+0xa6/0xf0
-[   25.725938]  ? ovl_aio_cleanup_handler+0xd0/0xd0
-[   25.725939]  ? ovl_maybe_copy_up+0x86/0xa0
-[   25.725941]  ? ovl_open+0x22/0x80
-[   25.725943]  ? do_dentry_open+0x136/0x350
-[   25.725945]  ? path_openat+0xb7e/0xf40
-[   25.725947]  ? __check_sticky+0x40/0x40
-[   25.725948]  ? do_filp_open+0x70/0x100
-[   25.725950]  ? __check_sticky+0x40/0x40
-[   25.725951]  ? __check_sticky+0x40/0x40
-[   25.725953]  ? __x64_sys_openat+0x1db/0x2c0
-[   25.725955]  ? do_syscall_64+0x2d/0x40
-[   25.725957]  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
+rcutorture, after some recent parameter changes, has been complaining
+about a hung task.
 
-llseek() reports invalid block address access, the root cause is if
-file has inline data, f2fs_seek_block() will access inline data regard
-as block address index in inode block, which should be wrong, fix it.
+It appears that rcu_idle_enter() may wake up a NOCB kthread but this
+happens after the last generic need_resched() check. Some cpuidle drivers
+fix it by chance but many others don't.
 
-Fixes: 788e96d1d3994 ("f2fs: code cleanup by removing unnecessary check")
-Fixes: 267378d4de69 ("f2fs: introduce f2fs_seek_block to support SEEK_{DATA, HOLE} in llseek")
-Cc: stable <stable@vger.kernel.org> # 3.16+
-Reported-by: kitestramuort <kitestramuort@autistici.org>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Here is a proposed bunch of fixes. I will need to also fix the
+rcu_user_enter() case, likely using irq_work, since nohz_full requires
+irq work to support self IPI.
+
+Also more generally, this raise the question of local task wake_up()
+under disabled interrupts. When a wake up occurs in a preempt disabled
+section, it gets handled by the outer preempt_enable() call. There is no
+similar mechanism when a wake up occurs with interrupts disabled. I guess
+it is assumed to be handled, at worst, in the next tick. But a local irq
+work would provide instant preemption once IRQs are re-enabled. Of course
+this would only make sense in CONFIG_PREEMPTION, and when the tick is
+disabled...
+
+git://git.kernel.org/pub/scm/linux/kernel/git/frederic/linux-dynticks.git
+	sched/idle
+
+HEAD: f2fa6e4a070c1535b9edc9ee097167fd2b15d235
+
+Thanks,
+	Frederic
 ---
 
-This will cause boot failure in f2fs image, which was reported in gentoo
-community, I'd like to fix them in stable kernel 5.10 first as request in
-bugzilla:
+Frederic Weisbecker (4):
+      sched/idle: Fix missing need_resched() check after rcu_idle_enter()
+      cpuidle: Fix missing need_resched() check after rcu_idle_enter()
+      ARM: imx6q: Fix missing need_resched() check after rcu_idle_enter()
+      ACPI: processor: Fix missing need_resched() check after rcu_idle_enter()
 
-https://bugzilla.kernel.org/show_bug.cgi?id=210825
 
- fs/f2fs/file.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index ee861c6d9ff0..fe39e591e5b4 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -412,9 +412,14 @@ static loff_t f2fs_seek_block(struct file *file, loff_t offset, int whence)
- 		goto fail;
- 
- 	/* handle inline data case */
--	if (f2fs_has_inline_data(inode) && whence == SEEK_HOLE) {
--		data_ofs = isize;
--		goto found;
-+	if (f2fs_has_inline_data(inode)) {
-+		if (whence == SEEK_HOLE) {
-+			data_ofs = isize;
-+			goto found;
-+		} else if (whence == SEEK_DATA) {
-+			data_ofs = offset;
-+			goto found;
-+		}
- 	}
- 
- 	pgofs = (pgoff_t)(offset >> PAGE_SHIFT);
--- 
-2.29.2
-
+ arch/arm/mach-imx/cpuidle-imx6q.c |  7 ++++++-
+ drivers/acpi/processor_idle.c     | 10 ++++++++--
+ drivers/cpuidle/cpuidle.c         | 33 +++++++++++++++++++++++++--------
+ kernel/sched/idle.c               | 18 ++++++++++++------
+ 4 files changed, 51 insertions(+), 17 deletions(-)
