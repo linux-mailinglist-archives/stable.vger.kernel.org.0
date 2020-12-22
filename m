@@ -2,135 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 241D32E0CF7
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 17:00:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6C42E0CFD
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 17:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727319AbgLVP6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 10:58:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:29741 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727311AbgLVP6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 10:58:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608652637;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=E8+776tfhwtQApMj/Gr6fVjPBAX3N+dBT+pgqbNf1eg=;
-        b=YXy0KZYeC4qcVljbqlnHR/KgUi6FNG7j+HWkVV3KfslbbaxUgQSS/HHxZY9IV0bsqsFPXt
-        TtBQNxuIZA3krj21dTl+Zl79tlTL2Tlzzbdx+eTjxPJscDAoF3nZs6kwMNlsdqZQMOwYSL
-        p6k4JAV3dH/eRSxN2KhMFreApfjbvQY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-218-xYsRpUhgM7WQc78o2fGQVw-1; Tue, 22 Dec 2020 10:57:16 -0500
-X-MC-Unique: xYsRpUhgM7WQc78o2fGQVw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 719D8800D53;
-        Tue, 22 Dec 2020 15:57:14 +0000 (UTC)
-Received: from gondolin (ovpn-113-192.ams2.redhat.com [10.36.113.192])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DDB5D60C5B;
-        Tue, 22 Dec 2020 15:57:08 +0000 (UTC)
-Date:   Tue, 22 Dec 2020 16:57:06 +0100
-From:   Cornelia Huck <cohuck@redhat.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org, borntraeger@de.ibm.com,
-        kwankhede@nvidia.com, pbonzini@redhat.com,
-        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH v4] s390/vfio-ap: clean up vfio_ap resources when KVM
- pointer invalidated
-Message-ID: <20201222165706.66e0120d.cohuck@redhat.com>
-In-Reply-To: <853da84f-092b-6b94-62d5-628f440abc40@linux.ibm.com>
-References: <20201221185625.24914-1-akrowiak@linux.ibm.com>
-        <20201222050521.46af2bf1.pasic@linux.ibm.com>
-        <853da84f-092b-6b94-62d5-628f440abc40@linux.ibm.com>
-Organization: Red Hat GmbH
+        id S1727121AbgLVQB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 11:01:26 -0500
+Received: from mout.web.de ([212.227.17.12]:46535 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727094AbgLVQB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 11:01:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1608652762;
+        bh=QrbUl+8o1v4JAKjJmCXghHju1SqM8R1qqFdskEoSBIQ=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=ZSuypYwZBEMe4zlm6yLjSAJXCEoAwcNlLLMbv2/E7oH5Fi6NAU2WMBgs+EG+OqYs/
+         jXS56btpScWjE42rV7vcV4tpzunucLbcJZRwjGs9CrUq0DVCxlvkzDNNdYK8yB1e8B
+         oKMwT8xt66C+QpuJZS+79Nx5wiXC5L2ZPJRbGmaQ=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from platinum.fritz.box ([77.11.15.76]) by smtp.web.de (mrweb101
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 0MgwZQ-1keate1uIS-00M2Ar; Tue, 22
+ Dec 2020 16:59:22 +0100
+From:   Soeren Moch <smoch@web.de>
+To:     Shawn Guo <shawnguo@kernel.org>
+Cc:     Soeren Moch <smoch@web.de>, stable@vger.kernel.org,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] ARM: dts: tbs2910: rename MMC node aliases
+Date:   Tue, 22 Dec 2020 16:59:08 +0100
+Message-Id: <20201222155908.48600-1-smoch@web.de>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:FVblaNpwjDCfwkVmf2G/7IebB7EwmFPZNLpGiBThuFqqhQmAXCD
+ sPsPl8li7thEf57P6Q03bOUEceh/qfxVIZsaFMSA97vNJhqhGF5L4vApsG6Fyq+TEFIH295
+ nef/pDO8w/pI4cB9N3LlfEWLZkNeTJD1i5KKh8thmdS1qJzQgDniqmrCC5FyCLmh5zIWiT1
+ 29a/IGEX3NNxrWbKKvJuA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:xVc9fShvYqc=:UA8GVkEb5rDfCRxmoL6uzm
+ 3NJNdSlGx/3KrxkhDDkuM/8qz10QW54ax+OvBXL4Zho1V9/J0dD6KfoD29Bxd0c2MTMOo1nqk
+ h5hHdJvmROznKVhzM6b4LUOvAlg2zfZ+dAv9xOr4Cl2a8L+8LBPpzVowSWvDTlOtyj6RWkLzH
+ k4DjXM5+cbPUJrzIi8OwgvbJA7bJhl7IEZso7x0KhTxK77Xadw+dlV9al0Dn9H6m5MTNickdg
+ wjf0WQLVyTZnNc2TijeEtd3xNyXlu2/nTE9QJAdy2saLQ7oAud0yqfYalLwmR0nBqBr5o7DV7
+ wyUQcTWMeIdavSUOfebJoFcjA3NwbmfsexGm6tHyjujjz0h8Nf9O3hHRYkmgDQ2wxLx/8tqdg
+ 4Evok7958RcINvUC+GKTJvpMNha/WnVMS2X3aKwwLYA/PGoQ258koWK1+RbiNZKhv8Kx1rb7f
+ X0gfk2Vvy75IAMUvduXsox/hs7VZb7Qbm4z+6UvluwRI+gew66/7evXx7vRpf7HLvtFm/fA4A
+ 3MH+DRw+ahS33KJncZgkmmstXXXFo1IvBZEJtDPNlevrwOum4BNEbUrod0YqtloHA54i6Qx45
+ jEtE6Mchi1LnHRKaabPdh2gG6Wj5gS5qVd5aqw+0n1Z+I9N8Sqrwa5Ppw7bzqIw3TIpURGfgF
+ F8a11jAwa9cgnx3b1ufe+Gtk5OQK/UONpQ2JUXsqroQyvD8Xn6/gc49yxfT9AM6arvbeS5gF5
+ uflCqpF2lXwiN6eyZIQSQCUPTrh5JEPqypiuvyflmxx6/FU/PwgdqKseMg1DsvOoHMbpdNiz3
+ He/vsD8oGEpZ0wQCJkSut+ITgWn8FUcGImCU4xY0isCX1XZu1XeBu575NUF0kOa9kfsNANDak
+ kJazq6tV25auvr7qIwSw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 22 Dec 2020 10:37:01 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+to be consistent with kernel versions up to v5.9 (mmc aliases not used her=
+e).
+usdhc1 is not wired up on this board and therefore cannot be used.
+Start mmc aliases with usdhc2.
 
-> On 12/21/20 11:05 PM, Halil Pasic wrote:
-> > On Mon, 21 Dec 2020 13:56:25 -0500
-> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Signed-off-by: Soeren Moch <smoch@web.de>
+Cc: stable@vger.kernel.org                # 5.10.x
+=2D--
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: linux-arm-kernel@lists.infradead.org
+=2D--
+ arch/arm/boot/dts/imx6q-tbs2910.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> >>   static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
-> >>   				       unsigned long action, void *data)
-> >>   {
-> >> -	int ret;
-> >> +	int ret, notify_rc = NOTIFY_DONE;
-> >>   	struct ap_matrix_mdev *matrix_mdev;
-> >>   
-> >>   	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
-> >>   		return NOTIFY_OK;
-> >>   
-> >>   	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-> >> +	mutex_lock(&matrix_dev->lock);
-> >>   
-> >>   	if (!data) {
-> >> -		matrix_mdev->kvm = NULL;
-> >> -		return NOTIFY_OK;
-> >> +		if (matrix_mdev->kvm)
-> >> +			vfio_ap_mdev_unset_kvm(matrix_mdev);
-> >> +		notify_rc = NOTIFY_OK;
-> >> +		goto notify_done;
-> >>   	}
-> >>   
-> >>   	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
-> >>   	if (ret)
-> >> -		return NOTIFY_DONE;
-> >> +		goto notify_done;
-> >>   
-> >>   	/* If there is no CRYCB pointer, then we can't copy the masks */
-> >>   	if (!matrix_mdev->kvm->arch.crypto.crycbd)
-> >> -		return NOTIFY_DONE;
-> >> +		goto notify_done;
-> >>   
-> >>   	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
-> >>   				  matrix_mdev->matrix.aqm,
-> >>   				  matrix_mdev->matrix.adm);
-> >>   
-> >> -	return NOTIFY_OK;  
-> > Shouldn't there be an
-> >   +	notify_rc = NOTIFY_OK;
-> > here? I mean you initialize notify_rc to NOTIFY_DONE, in the !data branch
-> > on success you set notify_rc to NOTIFY_OK, but in the !!data branch it
-> > just stays NOTIFY_DONE. Or am I missing something?  
-> 
-> I don't think it matters much since NOTIFY_OK and NOTIFY_DONE have
-> no further effect on processing of the notification queue, but I believe
-> you are correct, this is a change from what we originally had. I can
-> restore the original return values if you'd prefer.
+diff --git a/arch/arm/boot/dts/imx6q-tbs2910.dts b/arch/arm/boot/dts/imx6q=
+-tbs2910.dts
+index cb591233035b..6a6e27b35e34 100644
+=2D-- a/arch/arm/boot/dts/imx6q-tbs2910.dts
++++ b/arch/arm/boot/dts/imx6q-tbs2910.dts
+@@ -16,6 +16,13 @@ chosen {
+ 		stdout-path =3D &uart1;
+ 	};
 
-Even if they have the same semantics now, that might change in the
-future; restoring the original behaviour looks like the right thing to
-do.
-
-> 
-> >
-> > Otherwise LGTM!
-
-Same here.
-
-> >
-> > Regards,
-> > Halil
-> >  
-> >> +notify_done:
-> >> +	mutex_unlock(&matrix_dev->lock);
-> >> +	return notify_rc;
-> >>   }
-> >>  
-> > [..]  
-> 
++	aliases {
++		mmc0 =3D &usdhc2;
++		mmc1 =3D &usdhc3;
++		mmc2 =3D &usdhc4;
++		/delete-property/ mmc3;
++	};
++
+ 	memory@10000000 {
+ 		device_type =3D "memory";
+ 		reg =3D <0x10000000 0x80000000>;
+=2D-
+2.25.1
 
