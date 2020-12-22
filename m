@@ -2,193 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6133B2E054B
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 05:17:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EDD2E054E
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 05:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725790AbgLVERM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 23:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58564 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725782AbgLVERM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Dec 2020 23:17:12 -0500
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB09BC0613D3
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 20:16:31 -0800 (PST)
-Received: by mail-lf1-x129.google.com with SMTP id o17so28895181lfg.4
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 20:16:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C/IyHJco45Qv6BHyymqm5fsLF1iVOYE2Rc667l3brbw=;
-        b=IR0T55DmJ9mkOAt5PW8Gqr31ryut37JKHFwkKEKNUnz84Mk9NwhsAQe1HxZsHQ7zmB
-         MdR95VrHiV3LKUGcBK3v6VgHVBsa/aLcrgAlzNjpqqiV6O7hKjnM4BwDsBhDCmFtduFt
-         aGec+wYY5jH8H2b3n90B1OMSiOJSvUAF62wS0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C/IyHJco45Qv6BHyymqm5fsLF1iVOYE2Rc667l3brbw=;
-        b=mwisor20//RyTwRSDxlgp+puAxgwI+vsk26NohUDGIWmgRrCSxG0VgE5P17SX1zyHI
-         c9HMnH81xiRgQxMchlsYkwf2Wc6+24SBayzlbePu1twtNxwEL6Z1EL+nqKaec6A/M6+u
-         PQsRd1Z809AzA5LRMOhGfF0hTPzgZ2DFdbF1qD7mellYsjY6qLKSqfS/XFF22R3Mo5ep
-         tqvNkkwE90VmWXpWUfDX5ezkeJC8sylsumMAVkjeZqfcnL23X/HFyTRQ+bnJPyNjChWc
-         DcONHEn7oJZB2PA6uQnDLhT4jZ0WuzZGIQZLs4n/3JgCXL6U12947QEk9HMWWH8MOR2K
-         0tog==
-X-Gm-Message-State: AOAM530MKqx4xSc/k3tXvHhoH9o3dJEDYlkjrhZ0lN8ihMaYYlVbzqtN
-        AjmXx5Z2ar+Qu3PrhtcaSptKzk5aE7zzuA==
-X-Google-Smtp-Source: ABdhPJylvP81PK4aRu/oVTVtHT3KXRO96ylGj72ujes15syJukVQosRVrwwENoa4oIXDALBYGn6zqg==
-X-Received: by 2002:a05:6512:3048:: with SMTP id b8mr8274706lfb.421.1608610589336;
-        Mon, 21 Dec 2020 20:16:29 -0800 (PST)
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com. [209.85.167.44])
-        by smtp.gmail.com with ESMTPSA id h6sm2171244lfj.285.2020.12.21.20.16.27
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Dec 2020 20:16:28 -0800 (PST)
-Received: by mail-lf1-f44.google.com with SMTP id y19so28727668lfa.13
-        for <stable@vger.kernel.org>; Mon, 21 Dec 2020 20:16:27 -0800 (PST)
-X-Received: by 2002:a2e:b4af:: with SMTP id q15mr8557233ljm.507.1608610587583;
- Mon, 21 Dec 2020 20:16:27 -0800 (PST)
+        id S1725825AbgLVEV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 23:21:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725820AbgLVEV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Dec 2020 23:21:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5363722ADC;
+        Tue, 22 Dec 2020 04:20:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608610847;
+        bh=6WW6bchu/hFRXl913wHiGV8Ial4KKNDAr7VAEGblU1k=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=isn+vkb2O2t1irCOzkUOYOdSMqy+yOtuxF87CSzxlAvcWAcwNi54j0JcfGXKRt6zc
+         a4SaC9U98fX9aQ+wLOtvw9DS2wD3Qi37ZWqvjHkGc5/fJ+bPGor6kU4LdyBv03Bdap
+         9cn21kZyAEAXB/F+fOhH2UJrIjp0Vaxs674CeiZLXVGFElT8naGhToaaOs0NOZMcmb
+         NdilQ8w/aQD0WtDzuPG9qwTG6TMbT0Qm9Pjm1bu7QBgV/2suoW557rM8bR1vFFhnn+
+         G0JXefyQdtqGzduDWA0dHjQKhrXI6ISrXpLxqiEjb6cO8p3LGl48jcZ1mL/BfjYDYC
+         oOcpiTzOZn/Wg==
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 16D8C352275F; Mon, 21 Dec 2020 20:20:47 -0800 (PST)
+Date:   Mon, 21 Dec 2020 20:20:47 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Frederic Weisbecker <frederic@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Len Brown <lenb@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 1/4] sched/idle: Fix missing need_resched() check after
+ rcu_idle_enter()
+Message-ID: <20201222042047.GZ2657@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20201222013712.15056-1-frederic@kernel.org>
+ <20201222013712.15056-2-frederic@kernel.org>
 MIME-Version: 1.0
-References: <X97pprdcRXusLGnq@google.com> <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
- <20201221172711.GE6640@xz-x1> <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
- <X+D0hTZCrWS3P5Pi@google.com> <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
- <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com> <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
- <X+ESkna2z3WjjniN@google.com> <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
- <20201221223041.GL6640@xz-x1> <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
- <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
-In-Reply-To: <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 21 Dec 2020 20:16:11 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
-Message-ID: <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Peter Xu <peterx@redhat.com>, Nadav Amit <nadav.amit@gmail.com>,
-        Yu Zhao <yuzhao@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201222013712.15056-2-frederic@kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 21, 2020 at 7:19 PM Andy Lutomirski <luto@kernel.org> wrote:
->
-> Ugh, this is unpleasantly complicated.
+On Tue, Dec 22, 2020 at 02:37:09AM +0100, Frederic Weisbecker wrote:
+> Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+> kthread (rcuog) to be serviced.
+> 
+> Usually a wake up happening while running the idle task is spotted in
+> one of the need_resched() checks carefully placed within the idle loop
+> that can break to the scheduler.
+> 
+> Unfortunately in default_idle_call(), the call to rcu_idle_enter() is
+> already beyond the last need_resched() check and we may halt the CPU
+> with a resched request unhandled, leaving the task hanging.
+> 
+> Fix this with performing a last minute need_resched() check after
+> calling rcu_idle_enter().
+> 
+> Reported-by: Paul E. McKenney <paulmck@kernel.org>
+> Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
+> Cc: stable@vger.kernel.org
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar<mingo@kernel.org>
+> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 
-I probably should have phrased it differently, because the case you
-quote is actually a good one:
+Tested-by: Paul E. McKenney <paulmck@kernel.org>
 
->  I will admit that any API that
-> takes an address and more-or-less-blindly marks it RO makes me quite
-> nervous even assuming all the relevant locks are held.  At least
-> userfaultfd refuses to operate on VM_SHARED VMAs, but we have another
-> instance of this (with mmap_sem held for write) in x86:
-> mark_screen_rdonly().  Dare I ask how broken this is?  We could likely
-> get away with deleting it entirely.
-
-So I think the basic rule is that "if you hold mmap_sem for writing,
-you're always safe". And that really should be considered the
-"default" locking.
-
-ANY time you make a modification to the VM layer, you should basically
-always treat it as a write operation, and get the mmap_sem for
-writing.
-
-Yeah, yeah, that's a bit simplified, and it ignores various special
-cases (and the hardware page table walkers that obviously take no
-locks at all), but if you hold the mmap_sem for writing you won't
-really race with anything else - not page faults, and not other
-"modify this VM".
-
-So mark_screen_rdonly() looks trivially fine to me. I don't think it
-really necessarily matters any more, and it's a legacy thing for a
-legacy hardware issue, but I don't think there's any reason at all to
-remove it either.
-
-To a first approximation, everybody that changes the VM should take
-the mmap_sem for writing, and the readers should just be just about
-page fault handling (and I count GUP as "page fault handling" too -
-it's kind of the same "look up page" rather than "modify vm" kind of
-operation).
-
-And there are just a _lot_ more page faults than there are things that
-modify the page tables and the vma's.
-
-So having that mental model of "lookup of pages in a VM take mmap_semn
-for reading, any modification of the VM uses it for writing" makes
-sense both from a performance angle and a logical standpoint. It's the
-correct model.
-
-And it's worth noting that COW is still "lookup of pages", even though
-it might modify the page tables in the process. The same way lookup
-can modify the page tables to mark things accessed or dirty.
-
-So COW is still a lookup operation, in ways that "change the
-writabiility of this range" very much is not. COW is "lookup for
-write", and the magic we do to copy to make that write valid is still
-all about the lookup of the page.
-
-Which brings up another mental mistake I saw earlier in this thread:
-you should not think "mmap_sem is for vma, and the page table lock is
-for the page table changes".
-
-mmap_sem is the primary lock for any modifications to the VM layout,
-whether it be in the vma's or in the page tables.
-
-Now, the page table lock does exist _in_addition_to_ the mmap_sem, but
-it is partly because
-
- (a) we have things that historically walked the page tables _without_
-walking the vma's (notably the virtual memory scanning)
-
- (b) we do allow concurrent page faults, so we then need a lower-level
-lock to serialize the parallelism we _do_ have.
-
-And yes, we have ended up allowing some of those "modify the VM state"
-to then take the mmap_sem for reading, just because their
-modifications are slight enough that we can then say "ok, this is a
-write modification, but the writes it does are protected by the page
-table lock, we'll just get the mmap_sem for reading". It's an
-optimization, but it should be considered exactly that: not
-fundamental, but just a clever trick and an optimization.
-
-It's why I went "userfaultfd is buggy" immediately when I noticed. It
-basically became clear that "oh, that's an optimization, but it's an
-*invalid* one", in that it didn't actually work and give the same end
-result.
-
-So when I said:
-
-> Anything that changes RW->RO - like fork(), for example - needs to
-> take the mmap_lock.
-
-I didn't mean that we should consider that RW->RO change to be this
-complex semantic marker that we should honor and say "ok, because it's
-a RW->RO change, we need to hold the mmap_sem".
-
-I phrased it really badly, in other words.
-
-What I *should* have said is that *because* userfaultfd is changing
-the VM layout, it should always act as if it had to take the mmap_sem
-for writing, and that the RW->RO change is an example of when
-downgrading that write-lock to a read lock is simply not valid -
-because it basically breaks the rules about what a lookup (ie a read)
-can do.
-
-A lookup can never turn a writable page non-writable. A lookup -
-through COW - _can_ turn a read-only page writable. So that's why
-"RO->RW" can be ok under the read lock, but RW->RO is not.
-
-Does that clarify the situation when I phrase it that way instead?
-
-             Linus
+> ---
+>  kernel/sched/idle.c | 18 ++++++++++++------
+>  1 file changed, 12 insertions(+), 6 deletions(-)
+> 
+> diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+> index 305727ea0677..1af60dc50beb 100644
+> --- a/kernel/sched/idle.c
+> +++ b/kernel/sched/idle.c
+> @@ -109,15 +109,21 @@ void __cpuidle default_idle_call(void)
+>  		rcu_idle_enter();
+>  		lockdep_hardirqs_on(_THIS_IP_);
+>  
+> -		arch_cpu_idle();
+> +		/*
+> +		 * Last need_resched() check must come after rcu_idle_enter()
+> +		 * which may wake up RCU internal tasks.
+> +		 */
+> +		if (!need_resched()) {
+> +			arch_cpu_idle();
+> +			raw_local_irq_disable();
+> +		}
+>  
+>  		/*
+> -		 * OK, so IRQs are enabled here, but RCU needs them disabled to
+> -		 * turn itself back on.. funny thing is that disabling IRQs
+> -		 * will cause tracing, which needs RCU. Jump through hoops to
+> -		 * make it 'work'.
+> +		 * OK, so IRQs are enabled after arch_cpu_idle(), but RCU needs
+> +		 * them disabled to turn itself back on.. funny thing is that
+> +		 * disabling IRQs will cause tracing, which needs RCU. Jump through
+> +		 * hoops to make it 'work'.
+>  		 */
+> -		raw_local_irq_disable();
+>  		lockdep_hardirqs_off(_THIS_IP_);
+>  		rcu_idle_exit();
+>  		lockdep_hardirqs_on(_THIS_IP_);
+> -- 
+> 2.25.1
+> 
