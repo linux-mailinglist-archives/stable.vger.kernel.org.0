@@ -2,60 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4309D2E0F53
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 21:21:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24C82E0F5B
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 21:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727409AbgLVUUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 15:20:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727402AbgLVUUd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 15:20:33 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4FB2C0613D3;
-        Tue, 22 Dec 2020 12:19:53 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id e2so7974885plt.12;
-        Tue, 22 Dec 2020 12:19:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=j4sUJIy8wLuwpZsZfzIF114nw0eLg2dUa60AVRCoc8g=;
-        b=SlSrm1Zf8I148uovJZ4yrLOIIiMXlHyoYYswc9MaAYCxM2v+qS//fKYPvao7/elQo9
-         QPT7eIDI6IkiUT+z1qF1bRKgaclRQVMwD3XhSQ0Prj6JzYG7fg8MhFr4Y+tknVV5l0Oq
-         AFUMYg6U6r4eexQY4rUeZF1OOKC6ZzTdcIyGrIKsWVHuGj7lVUyjGIMbVE3FbfFfiAZI
-         J/KFi78UdE+isI8e0223fb/ieu4zoh/W8qIS4uL+hT5suTLarOkI61X4ZcaMaFzumFRD
-         DxX1lPilLYAzmtQaXuJACeBrwQe0j2GHVhBg9WL7mw+f0OPj/adTmTi47rPZM0HxUi3P
-         lnyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=j4sUJIy8wLuwpZsZfzIF114nw0eLg2dUa60AVRCoc8g=;
-        b=KKWORjyqC8cXBWrbdW3w8Zcsg3hOHYFyEZJNNus71h0jDK4foEXaXUm6+WhlrTsLIj
-         aH076vyul5ao0qBo4ODBp0gBitRcwhlqTtdnKr5xWB9sv2//yfYP6xEbNsiE9rMMZGzc
-         XLDtCLPc6jQ8lBEoY3KEN2NwIGSH3OAJVd2y9JGmfss3en9xoniE6Qh6Tm7Q0DojFVTF
-         sLQLCDh35aDaZRL/Vc9yTwZ2PfGiWNWrbR0A+cSQxFKjXEhy07XH0zlVHNqcddsVwUB5
-         qtEkcWOeiyS3Jgs+p9mIz9pbbML9zGJAHSQCdObi5kgvLX60l8OR+pgYhSUk/umgMRyW
-         ORog==
-X-Gm-Message-State: AOAM533c1g+BU8ga2F2JFHIeuN07/QbTtTjtODuRe+n7XxdXAhS7OQqR
-        Qn8t8QR599LbigbxBAvmN1c=
-X-Google-Smtp-Source: ABdhPJzbbZJAZ9xswxx5s+dKtNYOGHbcK8PivtV62oYliLZktRGGHuObQH+oZ+72B+bmbjVVNeQfXg==
-X-Received: by 2002:a17:90a:5782:: with SMTP id g2mr24259306pji.124.1608668393091;
-        Tue, 22 Dec 2020 12:19:53 -0800 (PST)
-Received: from ?IPv6:2601:647:4700:9b2:9423:6a08:cbd0:8220? ([2601:647:4700:9b2:9423:6a08:cbd0:8220])
-        by smtp.gmail.com with ESMTPSA id bf3sm20719301pjb.45.2020.12.22.12.19.50
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 22 Dec 2020 12:19:51 -0800 (PST)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-From:   Nadav Amit <nadav.amit@gmail.com>
-In-Reply-To: <X+JMiHv+EktzyZgr@redhat.com>
-Date:   Tue, 22 Dec 2020 12:19:49 -0800
-Cc:     Peter Xu <peterx@redhat.com>, Yu Zhao <yuzhao@google.com>,
+        id S1727243AbgLVU1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 15:27:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:44179 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727231AbgLVU1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 15:27:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608668770;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=s7akrYpynUQd+BLDMzyxOvN0FZj7YM32yeR9YZxTgZw=;
+        b=hjiglSOhEJ8p3qdrhk0jrBvcpfIhE7bH56urC7EakRZgGDrj3YxGsnhSJApVKZY9gIXxkF
+        fWipWpk4DXp9S10T2ZQuFJ3IA3Mp/bU3EiGt4N6dFzxDVkeNE8vAuDvg99Xw5evXHDcOCX
+        U9InMe57kIGlWC+kHf7Qpm4nfR8KC7U=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-44-KhixZ06fOeqJknDg46z2uA-1; Tue, 22 Dec 2020 15:26:08 -0500
+X-MC-Unique: KhixZ06fOeqJknDg46z2uA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE031180E469;
+        Tue, 22 Dec 2020 20:26:06 +0000 (UTC)
+Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A34BB5D9CC;
+        Tue, 22 Dec 2020 20:26:03 +0000 (UTC)
+Date:   Tue, 22 Dec 2020 15:26:03 -0500
+From:   Andrea Arcangeli <aarcange@redhat.com>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
         linux-mm <linux-mm@kvack.org>,
         lkml <linux-kernel@vger.kernel.org>,
         Pavel Emelyanov <xemul@openvz.org>,
@@ -63,81 +46,69 @@ Cc:     Peter Xu <peterx@redhat.com>, Yu Zhao <yuzhao@google.com>,
         Mike Rapoport <rppt@linux.vnet.ibm.com>,
         stable <stable@vger.kernel.org>,
         Minchan Kim <minchan@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
         Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <E9A1084A-30B3-4328-8B0D-31AD978375AD@gmail.com>
-References: <20201221172711.GE6640@xz-x1>
- <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
- <X+D0hTZCrWS3P5Pi@google.com>
- <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+        Peter Zijlstra <peterz@infradead.org>,
+        Kent Overstreet <kent.overstreet@gmail.com>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X+JWW/Q5kNGhG8JM@redhat.com>
+References: <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
  <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
  <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
  <X+ESkna2z3WjjniN@google.com>
  <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
  <20201221223041.GL6640@xz-x1>
- <B8095F3C-81E3-4AF9-A6A5-F597D51264BD@gmail.com>
- <X+JMiHv+EktzyZgr@redhat.com>
-To:     Andrea Arcangeli <aarcange@redhat.com>
-X-Mailer: Apple Mail (2.3608.120.23.2.4)
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <20201222201553.GM874@casper.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201222201553.GM874@casper.infradead.org>
+User-Agent: Mutt/2.0.3 (2020-12-04)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> On Dec 22, 2020, at 11:44 AM, Andrea Arcangeli <aarcange@redhat.com> =
-wrote:
->=20
-> On Mon, Dec 21, 2020 at 02:55:12PM -0800, Nadav Amit wrote:
->> wouldn=E2=80=99t mmap_write_downgrade() be executed before =
-mprotect_fixup() (so
->=20
-> I assume you mean "in" mprotect_fixup, after change_protection.
->=20
-> If you would downgrade the mmap_lock to read there, then it'd severely
-> slowdown the non contention case, if there's more than vma that needs
-> change_protection.
->=20
-> You'd need to throw away the prev->vm_next info and you'd need to do a
-> new find_vma after droping the mmap_lock for reading and re-taking the
-> mmap_lock for writing at every iteration of the loop.
->=20
-> To do less harm to the non-contention case you could perhaps walk
-> vma->vm_next and check if it's outside the mprotect range and only
-> downgrade in such case. So let's assume we intend to optimize with
-> mmap_write_downgrade only the last vma.
-=E2=80=A6
+On Tue, Dec 22, 2020 at 08:15:53PM +0000, Matthew Wilcox wrote:
+> On Tue, Dec 22, 2020 at 02:31:52PM -0500, Andrea Arcangeli wrote:
+> > My previous suggestion to use a mutex to serialize
+> > userfaultfd_writeprotect with a mutex will still work, but we can run
+> > as many wrprotect and un-wrprotect as we want in parallel, as long as
+> > they're not simultaneous, we can do much better than a mutex.
+> > 
+> > Ideally we would need a new two_group_semaphore, where each group can
+> > run as many parallel instances as it wants, but no instance of one
+> > group can run in parallel with any instance of the other group. AFIK
+> > such a kind of lock doesn't exist right now.
+> 
+> Kent and I worked on one for a bit, and we called it a red-black mutex.
+> If team red had the lock, more members of team red could join in.
+> If team black had the lock, more members of team black could join in.
+> I forget what our rule was around fairness (if team red has the lock,
+> and somebody from team black is waiting, can another member of team red
+> take the lock, or must they block?)
 
-I read in detail your response and you make great points. To be fair,
-I did not think it through and just tried to make a point that not
-taking mmap_lock for write is an unrelated optimization.
+In this case they would need to block and provide full fairness.
 
-So you make a great point that it is actually related and can only(?)
-benefit uffd and arguably soft-dirty, to which I am going to add
-mmap_write_lock().
+Well maybe just a bit of unfariness (to let a few more through the
+door before it shuts) wouldn't be a deal breaker but it would need to
+be bound or it'd starve the other color/side indefinitely. Otherwise
+an ioctl mode_wp = true would block forever, if more ioctl mode_wp =
+false keep coming in other CPUs (or the other way around).
 
-Yet, my confidence in doing the optimization that you suggested (keep =
-using
-mmap_read_lock()) as part of the bug fix is very low and just got lower
-since we discussed. So I do want in the future to try to avoid the =
-overheads
-I introduce (sorry), but it requires a systematic solution and some =
-thought.
+The approximation with rwsem and two atomics provides full fariness in
+both read and write mode (originally the read would stave the write
+IIRC which was an issue for all mprotect etc.. not anymore thankfully).
 
-Perhaps any change to PTE in a page-table should increase a page-table
-generation that we would save in the page-table page-struct (next to the
-PTL) and pte_same() would also look at the original and updated =
-"page-table
-generation=E2=80=9D when it checks if a PTE changed. So if a PTE went =
-through
-not-writable -> writable -> not-writable cycle without a TLB flush this =
-can
-go detected. Yet, there is still a question of how to detect pending TLB
-flushes in finer granularity to avoid frequent unwarranted TLB flushes =
-while
-a TLB flush is pending.
+> It was to solve the direct-IO vs buffered-IO problem (you can have as many
+> direct-IO readers/writers at once or you can have as many buffered-IO
+> readers/writers at once, but exclude a mix of direct and buffered I/O).
+> In the end, we decided it didn't work all that well.
 
-It all requires some thought, and the fact that soft-dirty appears to be
-broken too indicates that bugs can get unnoticed for some time.
+Well mixing buffered and direct-IO is certainly not a good practice so
+it's reasonable to leave it up to userland to serialize if such mix is
+needed, the kernel behavior is undefined if the mix is concurrent out
+of order.
 
-Sorry for being a chicken, but I prefer to be safe than sorry.=
