@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48132E03EA
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 02:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C78F02E03ED
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 02:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725899AbgLVBib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Dec 2020 20:38:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
+        id S1726263AbgLVBie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Dec 2020 20:38:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbgLVBib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Dec 2020 20:38:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5678C22D2A;
-        Tue, 22 Dec 2020 01:37:47 +0000 (UTC)
+        id S1725782AbgLVBie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Dec 2020 20:38:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2FDF22D2B;
+        Tue, 22 Dec 2020 01:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608601070;
-        bh=MeYXpqcMTMTSxXo9myNzlaCJWYUZpYsgfWatXDD+ovg=;
+        s=k20201202; t=1608601073;
+        bh=J2A07UapJ9Zvfvi9rpOI6/cGmgTq6Q7dkbg2GukmBZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThaPZomNGCHrdE37arzcq8ZPvosdLLUMzbe25QxLPIlNUhpymz7LdSBOGO1QTPb1D
-         6O6oqs5hKQ5h+P+3VLAJQaI/t+G4twIrYcs7Qpjsn/qiA8TF3rLpHDBa6B6La2Eprb
-         DDdk1r1AJDI8vmzJQDR9X47VHtzTYyKJFVzk7CEf12tSp+6Iu56Ow1c5Z5cIH7/ic6
-         YuIq66cqmO5TnaunxbN18o8XCaf2tqcGP+GSJ06Kartxlu6kZyPgljgvtftKL0MOWW
-         HlEEreOf0yiKqGMhO+p0YjQ/1Y0Qvmo3IhrAA575SlazMBChVG/Ek5NXztO1ERv4TF
-         ghX+MZG3giDIw==
+        b=qf3dbitO+T00caFyyj+oNhxf/MdBORy5xOXVPl1t0hG55p0qTiCQ6K4mZg3SrAxT3
+         S2cnDRLWADxAyY9/6Q27QuzgcgqSahau4v0BZilUAlcvuQBVCaHQpviZC56Acym9N8
+         7A9mnAqgyvCF0KLquyvDwboej/LRYNlUovWREptyP08LolBzvFOTMaO0G1OwFKzWhF
+         64TQueiqO1WA/3e8fmXrr9H3EJ3d3PvXofDfuKXDqXI856EDTjowNewHY5kjpCVaFk
+         /wXQd/rUnG2wznxqW7lI+tM8HXjbRi8v3l1E1Z3S4Xs8qy3bLd5TCGqQjtbtUnjYBS
+         0uJ6DmCH/Nfbw==
 From:   Frederic Weisbecker <frederic@kernel.org>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Frederic Weisbecker <frederic@kernel.org>,
@@ -38,9 +38,9 @@ Cc:     Frederic Weisbecker <frederic@kernel.org>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH 3/4] ARM: imx6q: Fix missing need_resched() check after rcu_idle_enter()
-Date:   Tue, 22 Dec 2020 02:37:11 +0100
-Message-Id: <20201222013712.15056-4-frederic@kernel.org>
+Subject: [PATCH 4/4] ACPI: processor: Fix missing need_resched() check after rcu_idle_enter()
+Date:   Tue, 22 Dec 2020 02:37:12 +0100
+Message-Id: <20201222013712.15056-5-frederic@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201222013712.15056-1-frederic@kernel.org>
 References: <20201222013712.15056-1-frederic@kernel.org>
@@ -57,49 +57,51 @@ Usually a wake up happening while running the idle task is spotted in
 one of the need_resched() checks carefully placed within the idle loop
 that can break to the scheduler.
 
-Unfortunately imx6q_enter_wait() is beyond the last generic
-need_resched() check and it performs a wfi right away after the call to
-rcu_idle_enter(). We may halt the CPU with a resched request unhandled,
-leaving the task hanging.
+Unfortunately within acpi_idle_enter_bm() the call to rcu_idle_enter()
+is already beyond the last generic need_resched() check. The cpu idle
+implementation happens to be ok because it ends up calling
+mwait_idle_with_hints() or acpi_safe_halt() which both perform their own
+need_resched() checks. But the suspend to idle implementation doesn't so
+it may suspend the CPU with a resched request unhandled, leaving the
+task hanging.
 
 Fix this with performing a last minute need_resched() check after
 calling rcu_idle_enter().
 
 Reported-by: Paul E. McKenney <paulmck@kernel.org>
-Fixes: 1a67b9263e06 (ARM: imx6q: Fixup RCU usage for cpuidle)
+Fixes: 1fecfdbb7acc (ACPI: processor: Take over RCU-idle for C3-BM idle)
 Cc: stable@vger.kernel.org
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: Len Brown <lenb@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar<mingo@kernel.org>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 ---
- arch/arm/mach-imx/cpuidle-imx6q.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/acpi/processor_idle.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-imx/cpuidle-imx6q.c b/arch/arm/mach-imx/cpuidle-imx6q.c
-index 094337dc1bc7..31a60d257d3d 100644
---- a/arch/arm/mach-imx/cpuidle-imx6q.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6q.c
-@@ -25,7 +25,12 @@ static int imx6q_enter_wait(struct cpuidle_device *dev,
- 	raw_spin_unlock(&cpuidle_lock);
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index d93e400940a3..c4939c49d972 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -604,8 +604,14 @@ static int acpi_idle_enter_bm(struct cpuidle_driver *drv,
+ 	}
  
  	rcu_idle_enter();
--	cpu_do_idle();
+-
+-	acpi_idle_do_entry(cx);
 +	/*
 +	 * Last need_resched() check must come after rcu_idle_enter()
-+	 * which may wake up RCU internal tasks.
++	 * which may wake up RCU internal tasks. mwait_idle_with_hints()
++	 * and acpi_safe_halt() have their own checks but s2idle
++	 * implementation doesn't.
 +	 */
 +	if (!need_resched())
-+		cpu_do_idle();
++		acpi_idle_do_entry(cx);
+ 
  	rcu_idle_exit();
  
- 	raw_spin_lock(&cpuidle_lock);
 -- 
 2.25.1
 
