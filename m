@@ -2,127 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9EA22E0FDC
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 22:37:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 654CB2E0FFF
+	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 23:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbgLVVft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 16:35:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:36532 "EHLO
+        id S1727486AbgLVWEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 17:04:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58896 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726384AbgLVVfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 16:35:48 -0500
+        by vger.kernel.org with ESMTP id S1726652AbgLVWEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 17:04:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608672862;
+        s=mimecast20190719; t=1608674565;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=yBqsHakSTD7XDsy5mwErSb3uXLotZdoXMrPlsNRLmNc=;
-        b=IthgD/QzXJjm9B5+5HhsZodOzf7dzrpPkI9z0uiFqUbf6pj3wiNaY0thGB+6DhhwTqLUEz
-        xTq0weRIXIF8+AY3+mbQqqVPnSo1Xiw/s4wkPxzy6YhGNTTnIirpA5SVXO5icinN+q/enB
-        sSChuqtiCW+8PZAh1FX/UyONthPtYP8=
+        bh=urX6b7Ar6vf2kG6DWZuX4Gwil4+VQz0Wx+qVJUk6lNk=;
+        b=CpTMyTP8Ypzqz/lF66NWyQie0EmIrbmkGn6ydR7TvGk1sUcUxHbmWkd88Kner6ZlupnaG3
+        nqsDuiYWkg/fanlSdj9LAo08zZ8zgJPaNDcsk+q2lb62gRCEMkwQrcPelz8aQEidp2YOvC
+        0CeHauo5EKWt2Qjitfk9p4FOklA2SRw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-124-yRAbj35rPkKUEfuqOGmmYg-1; Tue, 22 Dec 2020 16:34:20 -0500
-X-MC-Unique: yRAbj35rPkKUEfuqOGmmYg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-263-bjp8P9mIOo6Shx9mSuMVew-1; Tue, 22 Dec 2020 17:02:43 -0500
+X-MC-Unique: bjp8P9mIOo6Shx9mSuMVew-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6AD9C1005513;
-        Tue, 22 Dec 2020 21:34:18 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C5502801817;
+        Tue, 22 Dec 2020 22:02:41 +0000 (UTC)
 Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 43C8E10013C1;
-        Tue, 22 Dec 2020 21:34:15 +0000 (UTC)
-Date:   Tue, 22 Dec 2020 16:34:14 -0500
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7C97D60C66;
+        Tue, 22 Dec 2020 22:02:38 +0000 (UTC)
+Date:   Tue, 22 Dec 2020 17:02:37 -0500
 From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     Andy Lutomirski <luto@kernel.org>, linux-mm <linux-mm@kvack.org>,
+To:     Yu Zhao <yuzhao@google.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        linux-mm <linux-mm@kvack.org>,
         lkml <linux-kernel@vger.kernel.org>,
         Pavel Emelyanov <xemul@openvz.org>,
         Mike Kravetz <mike.kravetz@oracle.com>,
         Mike Rapoport <rppt@linux.vnet.ibm.com>,
         stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Minchan Kim <minchan@kernel.org>,
         Will Deacon <will@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+JmVmDvBOYuw5Zl@redhat.com>
-References: <20201219043006.2206347-1-namit@vmware.com>
- <X95RRZ3hkebEmmaj@redhat.com>
- <EDC00345-B46E-4396-8379-98E943723809@gmail.com>
- <DD367393-D1B3-4A84-AF92-9C6BAEAB40DC@gmail.com>
- <CALCETrXLH7vPep-h4fBFSft1YEkyZQo_7W2uh017rHKYT=Occw@mail.gmail.com>
- <719DF2CD-A0BC-4B67-9FBA-A9E0A98AA45E@gmail.com>
+Message-ID: <X+Js/dFbC5P7C3oO@redhat.com>
+References: <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+ <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
+ <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
+ <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <X+JhwVX3s5mU9ZNx@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <719DF2CD-A0BC-4B67-9FBA-A9E0A98AA45E@gmail.com>
+In-Reply-To: <X+JhwVX3s5mU9ZNx@google.com>
 User-Agent: Mutt/2.0.3 (2020-12-04)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 22, 2020 at 12:58:18PM -0800, Nadav Amit wrote:
-> I had somewhat similar ideas - saving in each page-struct the generation,
-> which would allow to: (1) extend pte_same() to detect interim changes
-> that were reverted (RO->RW->RO) and (2) per-PTE pending flushes.
+On Tue, Dec 22, 2020 at 02:14:41PM -0700, Yu Zhao wrote:
+> This works but I don't prefer this option because 1) this is new
+> way of making pte_wrprotect safe and 2) it's specific to ufd and
+> can't be applied to clear_soft_dirty() which has no "catcher". No
 
-What don't you feel safe about, what's the problem with RO->RO->RO, I
-don't get it.
+I didn't look into clear_soft_dirty issue, I can look into that.
 
-The pte_same is perfectly ok without sequence counter in my view, I
-never seen anything that would not be ok with pte_same given all the
-invariant are respected. It's actually a great optimization compared
-to any unscalable sequence counter.
+To avoid having to deal with a 3rd solution it will have to use one of
+the two:
 
-The counter would slowdown everything, having to increase a counter
-every time you change a pte, no matter if it's a counter per pgtable
-or per-vma or per-mm, sounds very bad.
+1) avoid deferring tlb flush and enforce a sync flush before dropping
+  the PT lock even if mm_mm_tlb_flush_pending is true ->
+  write_protect_page in KSM
 
-I'd rather prefer to take mmap_lock_write across the whole userfaultfd
-ioctl, than having to deal with a new sequence counter increase for
-every pte modification on a heavily contended cacheline.
+2) add its own new catcher for its own specific marker (for UFFD-WP
+   the marker is _PAGE_UFFD_WP, for change_prot_numa is PROT_NONE on a
+   vma->vm_pgprot not PROT_NONE, for soft dirty it could be
+   _PAGE_SOFT_DIRTY) to send the page fault to a dead end before the
+   pte value is interpreted.
 
-Also note the counter would have solved nothing for
-userfaultfd_writeprotect, it's useless to detect stale TLB entries.
+> matter how good the documentation about this new way is now, it
+> will be out of date, speaking from my personal experience.
 
-See how !pte_write check happens after the counter was already increased:
+A common catcher for all 3 is not possible because each catcher
+depends on whatever marker and whatever pte value they set that may
+lead to a different deterministic path where to put the catcher or
+multiple paths even. do_numa_page requires a catcher in a different
+place already.
 
-CPU0			CPU 1		CPU 2
-------			--------	-------
-userfaultfd_wrprotect(mode_wp = true)
-PT lock
-atomic set _PAGE_UFFD_WP and clear _PAGE_WRITE
-false_shared_counter_counter++ 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-PT unlock
+Or well, a common catcher for all 3 is technically possible but it'd
+perform slower requiring to check things twice.
 
-			do_page_fault FAULT_FLAG_WRITE
-					userfaultfd_wrprotect(mode_wp = false)
-					PT lock
-					ATOMIC clear _PAGE_UFFD_WP <- problem
-					/* _PAGE_WRITE not set */
-					false_shared_counter_counter++ 
-					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-					PT unlock
-					XXXXXXXXXXXXXX BUG RACE window open here
+But perhaps the soft_dirty can use the same catcher of uffd-wp given
+the similarity?
 
-			PT lock
-			counter = false_shared_counter_counter
-			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-			FAULT_FLAG_WRITE is set by CPU
-			_PAGE_WRITE is still clear in pte
-			PT unlock
+> I'd go with what Nadav has -- the memory corruption problem has been
+> there for a while and nobody has complained except Nadav. This makes
+> me think people is less likely to notice any performance issues from
+> holding mmap_lock for write in his patch either.
 
-			wp_page_copy
-			copy_user_page runs with stale TLB
+uffd-wp is a fairly new feature, the current users are irrelevant,
+keeping it optimal is just for the future potential.
 
-			pte_same(counter, orig_pte, pte) -> PASS
-				 ^^^^^^^                    ^^^^
-			commit the copy to the pte with the lost writes
+> But I can't say I have zero concern with the potential performance
+> impact given that I have been expecting the fix to go to stable,
+> which I care most. So the next option on my list is to have a
 
-deferred tlb flush <- too late
-XXXXXXXXXXXXXX BUG RACE window close here
-================================================================================
+Actually stable would be very fine to go with Nadav patch and use the
+mmap_lock_write unconditionally. The optimal fix is only relevant for
+the future potential, so it's only relevant for Linus's tree.
+
+However the feature is recent enough that it won't require a deep
+backport so the optimal fix is likely fine for stable as well,
+generally stable prefers the same fix as in the upstream when there's
+no major backport rejection issue.
+
+The alternative solution for uffd is to do the deferred flush under
+mmap_lock_write if len is > HPAGE_PMD_SIZE, or to tell
+change_protection not to defer the flush and to take the
+mmap_lock_read for <= HPAGE_PMD_SIZE. That will avoid depending on the
+catcher and then userfaultfd_writeprotect(mode_wp=true)
+userfaultfd_writeprotect(mode_wp=false) can even run in parallel at
+all times. The cons is large userfaultfd_writeprotect will block for
+I/O and those would happen at least in the postcopy live snapshotting
+use case.
+
+The main cons is that it'd require modification to change_protection
+so it actually looks more intrusive, not less.
+
+Overall anything that allows to wrprotect 1 pte with only the
+mmap_lock_read exactly like KSM write_protect_page, would be enough for
+uffd-wp.
+
+What isn't ok in terms of future potential is unconditional
+mmap_lock_write as in the original suggested patch in my view. It
+doesn't mean we can take mmap_lock_write when the operation is large
+and there is actually more benefit from deferring the flush.
+
+> common "catcher" in do_wp_page() which singles out pages that have
+> page_mapcount equal to one and reuse them instead of trying to
+
+I don't think the page_mapcount matters here. If the wp page reuse was
+more accurate (as it was before) we wouldn't notice this issue, but it
+still would be a bug that there were stale TLB entries. It worked by
+luck.
+
+Thanks,
+Andrea
 
