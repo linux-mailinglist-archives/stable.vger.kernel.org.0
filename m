@@ -2,160 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 654CB2E0FFF
-	for <lists+stable@lfdr.de>; Tue, 22 Dec 2020 23:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 532ED2E1093
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 00:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727486AbgLVWEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 17:04:12 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58896 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726652AbgLVWEM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 17:04:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608674565;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=urX6b7Ar6vf2kG6DWZuX4Gwil4+VQz0Wx+qVJUk6lNk=;
-        b=CpTMyTP8Ypzqz/lF66NWyQie0EmIrbmkGn6ydR7TvGk1sUcUxHbmWkd88Kner6ZlupnaG3
-        nqsDuiYWkg/fanlSdj9LAo08zZ8zgJPaNDcsk+q2lb62gRCEMkwQrcPelz8aQEidp2YOvC
-        0CeHauo5EKWt2Qjitfk9p4FOklA2SRw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-263-bjp8P9mIOo6Shx9mSuMVew-1; Tue, 22 Dec 2020 17:02:43 -0500
-X-MC-Unique: bjp8P9mIOo6Shx9mSuMVew-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C5502801817;
-        Tue, 22 Dec 2020 22:02:41 +0000 (UTC)
-Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7C97D60C66;
-        Tue, 22 Dec 2020 22:02:38 +0000 (UTC)
-Date:   Tue, 22 Dec 2020 17:02:37 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Yu Zhao <yuzhao@google.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+Js/dFbC5P7C3oO@redhat.com>
-References: <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
- <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
- <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
- <X+ESkna2z3WjjniN@google.com>
- <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
- <20201221223041.GL6640@xz-x1>
- <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
- <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
- <X+JJqK91plkBVisG@redhat.com>
- <X+JhwVX3s5mU9ZNx@google.com>
+        id S1726384AbgLVXPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 18:15:43 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55582 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726072AbgLVXPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 18:15:42 -0500
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BMN31dK072272;
+        Tue, 22 Dec 2020 18:15:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ZtQAqW+aoUQ3m2BY2MTZhN3S/IClfuJ0mEZszdUQKBU=;
+ b=SLPqepw+uFuQ7ovveiyJEagyDZyKeCXyhTBBXTnzsldRtnGZyIgw+0v28fYkJBIRSq85
+ Gl/EQAd42P+yZ1GCTJOuIAJTj4yOUG3412O24bzvRPRYzPzDQXbi/f1RqeqSc3t+iajN
+ /HIFkRuBgSRryNcJL/Obw2KpNuVZG1ZUVMFfIphnOzXW4ErKHHz0QaDuSfIZRzxvpcCQ
+ Iv+hD794xjAbrtzI8zpJinyanfDxfNDC6o0I3Gt4QnVgdxW/otVayYohRyrPizoaYy1C
+ N9SiTqKI7dEkmHFsQNDYDA9JFgxzCWMD2Qh/jrYu2gvTchzppUm+m1pzVtSH3fLYNGdI Gg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ksxsgf6u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Dec 2020 18:15:01 -0500
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BMN5r0u086825;
+        Tue, 22 Dec 2020 18:15:01 -0500
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ksxsgf6c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Dec 2020 18:15:01 -0500
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BMNDBs1023642;
+        Tue, 22 Dec 2020 23:15:00 GMT
+Received: from b01cxnp22036.gho.pok.ibm.com (b01cxnp22036.gho.pok.ibm.com [9.57.198.26])
+        by ppma03dal.us.ibm.com with ESMTP id 35k02euesv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 22 Dec 2020 23:15:00 +0000
+Received: from b01ledav003.gho.pok.ibm.com (b01ledav003.gho.pok.ibm.com [9.57.199.108])
+        by b01cxnp22036.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BMNExkd8979010
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 22 Dec 2020 23:14:59 GMT
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A36DEB2064;
+        Tue, 22 Dec 2020 23:14:59 +0000 (GMT)
+Received: from b01ledav003.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 05199B205F;
+        Tue, 22 Dec 2020 23:14:58 +0000 (GMT)
+Received: from cpe-66-24-58-13.stny.res.rr.com (unknown [9.85.193.150])
+        by b01ledav003.gho.pok.ibm.com (Postfix) with ESMTP;
+        Tue, 22 Dec 2020 23:14:58 +0000 (GMT)
+Subject: Re: [PATCH v4] s390/vfio-ap: clean up vfio_ap resources when KVM
+ pointer invalidated
+To:     Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
+References: <20201221185625.24914-1-akrowiak@linux.ibm.com>
+ <20201222050521.46af2bf1.pasic@linux.ibm.com>
+ <853da84f-092b-6b94-62d5-628f440abc40@linux.ibm.com>
+ <20201222165706.66e0120d.cohuck@redhat.com>
+ <20201222204335.1b456342.pasic@linux.ibm.com>
+From:   Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <5b10c838-bdc6-1923-bae7-ede1a0efe933@linux.ibm.com>
+Date:   Tue, 22 Dec 2020 18:14:58 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X+JhwVX3s5mU9ZNx@google.com>
-User-Agent: Mutt/2.0.3 (2020-12-04)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <20201222204335.1b456342.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-22_13:2020-12-21,2020-12-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ bulkscore=0 priorityscore=1501 spamscore=0 malwarescore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012220167
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 22, 2020 at 02:14:41PM -0700, Yu Zhao wrote:
-> This works but I don't prefer this option because 1) this is new
-> way of making pte_wrprotect safe and 2) it's specific to ufd and
-> can't be applied to clear_soft_dirty() which has no "catcher". No
 
-I didn't look into clear_soft_dirty issue, I can look into that.
 
-To avoid having to deal with a 3rd solution it will have to use one of
-the two:
+On 12/22/20 2:43 PM, Halil Pasic wrote:
+> On Tue, 22 Dec 2020 16:57:06 +0100
+> Cornelia Huck <cohuck@redhat.com> wrote:
+>
+>> On Tue, 22 Dec 2020 10:37:01 -0500
+>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>
+>>> On 12/21/20 11:05 PM, Halil Pasic wrote:
+>>>> On Mon, 21 Dec 2020 13:56:25 -0500
+>>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>>>    static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>>>>>    				       unsigned long action, void *data)
+>>>>>    {
+>>>>> -	int ret;
+>>>>> +	int ret, notify_rc = NOTIFY_DONE;
+>>>>>    	struct ap_matrix_mdev *matrix_mdev;
+>>>>>    
+>>>>>    	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
+>>>>>    		return NOTIFY_OK;
+>>>>>    
+>>>>>    	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
+>>>>> +	mutex_lock(&matrix_dev->lock);
+>>>>>    
+>>>>>    	if (!data) {
+>>>>> -		matrix_mdev->kvm = NULL;
+>>>>> -		return NOTIFY_OK;
+>>>>> +		if (matrix_mdev->kvm)
+>>>>> +			vfio_ap_mdev_unset_kvm(matrix_mdev);
+>>>>> +		notify_rc = NOTIFY_OK;
+>>>>> +		goto notify_done;
+>>>>>    	}
+>>>>>    
+>>>>>    	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
+>>>>>    	if (ret)
+>>>>> -		return NOTIFY_DONE;
+>>>>> +		goto notify_done;
+>>>>>    
+>>>>>    	/* If there is no CRYCB pointer, then we can't copy the masks */
+>>>>>    	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+>>>>> -		return NOTIFY_DONE;
+>>>>> +		goto notify_done;
+>>>>>    
+>>>>>    	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+>>>>>    				  matrix_mdev->matrix.aqm,
+>>>>>    				  matrix_mdev->matrix.adm);
+>>>>>    
+>>>>> -	return NOTIFY_OK;
+>>>> Shouldn't there be an
+>>>>    +	notify_rc = NOTIFY_OK;
+>>>> here? I mean you initialize notify_rc to NOTIFY_DONE, in the !data branch
+>>>> on success you set notify_rc to NOTIFY_OK, but in the !!data branch it
+>>>> just stays NOTIFY_DONE. Or am I missing something?
+>>> I don't think it matters much since NOTIFY_OK and NOTIFY_DONE have
+>>> no further effect on processing of the notification queue, but I believe
+>>> you are correct, this is a change from what we originally had. I can
+>>> restore the original return values if you'd prefer.
+>> Even if they have the same semantics now, that might change in the
+>> future; restoring the original behaviour looks like the right thing to
+>> do.
+> I agree. Especially since we do care to preserve the behavior in
+> the !data branch. If there is no difference between the two, then it
+> would probably make sense to clean that up globally.
 
-1) avoid deferring tlb flush and enforce a sync flush before dropping
-  the PT lock even if mm_mm_tlb_flush_pending is true ->
-  write_protect_page in KSM
+Got it. I'm going to do a quick turnaround on the next version so we
+can get this merged if need be. I will be taking off for Christmas vacation
+and will be gone until sometime the first week in January.
 
-2) add its own new catcher for its own specific marker (for UFFD-WP
-   the marker is _PAGE_UFFD_WP, for change_prot_numa is PROT_NONE on a
-   vma->vm_pgprot not PROT_NONE, for soft dirty it could be
-   _PAGE_SOFT_DIRTY) to send the page fault to a dead end before the
-   pte value is interpreted.
-
-> matter how good the documentation about this new way is now, it
-> will be out of date, speaking from my personal experience.
-
-A common catcher for all 3 is not possible because each catcher
-depends on whatever marker and whatever pte value they set that may
-lead to a different deterministic path where to put the catcher or
-multiple paths even. do_numa_page requires a catcher in a different
-place already.
-
-Or well, a common catcher for all 3 is technically possible but it'd
-perform slower requiring to check things twice.
-
-But perhaps the soft_dirty can use the same catcher of uffd-wp given
-the similarity?
-
-> I'd go with what Nadav has -- the memory corruption problem has been
-> there for a while and nobody has complained except Nadav. This makes
-> me think people is less likely to notice any performance issues from
-> holding mmap_lock for write in his patch either.
-
-uffd-wp is a fairly new feature, the current users are irrelevant,
-keeping it optimal is just for the future potential.
-
-> But I can't say I have zero concern with the potential performance
-> impact given that I have been expecting the fix to go to stable,
-> which I care most. So the next option on my list is to have a
-
-Actually stable would be very fine to go with Nadav patch and use the
-mmap_lock_write unconditionally. The optimal fix is only relevant for
-the future potential, so it's only relevant for Linus's tree.
-
-However the feature is recent enough that it won't require a deep
-backport so the optimal fix is likely fine for stable as well,
-generally stable prefers the same fix as in the upstream when there's
-no major backport rejection issue.
-
-The alternative solution for uffd is to do the deferred flush under
-mmap_lock_write if len is > HPAGE_PMD_SIZE, or to tell
-change_protection not to defer the flush and to take the
-mmap_lock_read for <= HPAGE_PMD_SIZE. That will avoid depending on the
-catcher and then userfaultfd_writeprotect(mode_wp=true)
-userfaultfd_writeprotect(mode_wp=false) can even run in parallel at
-all times. The cons is large userfaultfd_writeprotect will block for
-I/O and those would happen at least in the postcopy live snapshotting
-use case.
-
-The main cons is that it'd require modification to change_protection
-so it actually looks more intrusive, not less.
-
-Overall anything that allows to wrprotect 1 pte with only the
-mmap_lock_read exactly like KSM write_protect_page, would be enough for
-uffd-wp.
-
-What isn't ok in terms of future potential is unconditional
-mmap_lock_write as in the original suggested patch in my view. It
-doesn't mean we can take mmap_lock_write when the operation is large
-and there is actually more benefit from deferring the flush.
-
-> common "catcher" in do_wp_page() which singles out pages that have
-> page_mapcount equal to one and reuse them instead of trying to
-
-I don't think the page_mapcount matters here. If the wp page reuse was
-more accurate (as it was before) we wouldn't notice this issue, but it
-still would be a bug that there were stale TLB entries. It worked by
-luck.
-
-Thanks,
-Andrea
+>
+> Regards,
+> Halil
 
