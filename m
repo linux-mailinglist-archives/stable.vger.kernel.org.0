@@ -2,162 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 356962E1F84
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 17:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 105CA2E1FA0
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 17:55:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbgLWQfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 11:35:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54258 "EHLO
+        id S1726475AbgLWQyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 11:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726855AbgLWQfp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 11:35:45 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95066C061794;
-        Wed, 23 Dec 2020 08:35:05 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id y8so9369674plp.8;
-        Wed, 23 Dec 2020 08:35:05 -0800 (PST)
+        with ESMTP id S1726424AbgLWQyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 11:54:54 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27FE2C061794
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 08:54:14 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id b5so78494pjk.2
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 08:54:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YKLya63O9OPmb39PggAXfzBzc8CM0KuCvVCzsL4AHrw=;
-        b=CguGTLtF+TmdS1SzJqSvku4TDe/8Og2cXflNWgrkMz0EAKJMMTXTTM7Y5ItPddqz5W
-         +2aGIEVLx1oVQ793XwNHOimUl7yYbFTZcgJ3vE3CxR9jqdBmeNk82SK+0DeJKmaq7426
-         Wt8H5qHMIjUXlt4XNCdM7N2937pNOX6Pj5Q5OzVz7hOx5Nv/PCLXjKif3sdfhZWTZSoy
-         hXncvQAsmTQb0daFhdT1dld5ZmbVKdgtrC/U+KAsRC+RixPg7NJN5muVho8BmshGqnxp
-         zbWFIVzuK9kVMZ+42vhgBDVf68buhzHLMtDGfLDizEtB+yVZOnboCF1u1pNT6rISWsZA
-         aQSA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=MUE9rWtM39yZX4aVcHM6fVkEJ6mlMioa2IjnbGk8PGA=;
+        b=XPNNgC5E7i4we9Vm85N7ZzsLti/dhVg9PuLaqvZZTehEeqhEceH9ILE5GfvaXJe+jr
+         dGc9Zk+dPt8SrZTS62PqJKjQVQw256Qh375NJLZHpjqp1klmulZjceH382xt3VSIaonk
+         SGqMphmHPvKNzeANV7YLpMGjJoj/ZisyGikjPIdVQbfS2JydIr/A093O7JMBfoYSoQwj
+         4aCqxCY0fzJsgngwZ6TmOg1yZdFQMT1D2BYouwD7Rd5ibVRKX2tuo0tHZhhqhVPqYwGM
+         hMRkg601qzG1E4Yg3D3mKGA3jvQE0pfrVEjucbs5R4nPx+aYhMXzM5HgTVIa+Krvn4n6
+         xTHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YKLya63O9OPmb39PggAXfzBzc8CM0KuCvVCzsL4AHrw=;
-        b=W33p2DAV40+IOTR+U3k4z2u3e5VHxwSPOgu3EcN2HK956QORqJZxG4puoN7amMKhWd
-         eQFY2QeHt0v4VQ8Dx0TL9jJyEY7KZwWwD3HO1iyz24Wqpr+S5NmcNkfOcDkLfXwMciou
-         FSz+kYIKrPeylSUKm/1e7z8gUShd2JlJt+r8/6qD+y1ie/gvzXXXykBRMTFEmVbEtSV5
-         TLNnRM7a7yzRMGjp1qtfyJfzRl807BA2yZb8qhVpzpJuyFv954A6yuOeuW/LQIZ29uFJ
-         HhRYZK7BqtvUS6oSJhxyRbSWgivOWH+uc7+ZSOQBxIPyrZyvYZdNJ6LU1hi1NUTHEejZ
-         EQLg==
-X-Gm-Message-State: AOAM531yNyYCMVHWoHVI5AUPtkSOGLjin5CM1tr6V3mwBITpCuxMvUxF
-        7exFj+d0dr4ZYw6EbbCkubR5mO0hkp7vCy7UgyE=
-X-Google-Smtp-Source: ABdhPJyKc3NwgiBD9RfcHWJAcTPoN1uetzI1b87xhDxBNF6fNypqVKlIzypC4UZBz88rxxMUy9n/hSGbYNh9Zp1djrA=
-X-Received: by 2002:a17:90a:1050:: with SMTP id y16mr447073pjd.181.1608741305080;
- Wed, 23 Dec 2020 08:35:05 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=MUE9rWtM39yZX4aVcHM6fVkEJ6mlMioa2IjnbGk8PGA=;
+        b=ajkzhiSAdzawX79in1M+GjSXkAzPM0Sm5J4N8pqCfAOPL14cNVuwT88DUmPv9q3QUz
+         iRBg33NELS3m1zcNlolTSkavZfNWdz1Ou+G6t+VaVAFZzN8aAj1IkjSvtIoRIDXII35F
+         cmY3f7UPRsyDOmfXbD0ydzZyWRsrCb8sA3c9B0+DwOGNtGM3B2RH4DdCxu4SDqJgEaYw
+         p8489btdLRj+qKlDh5vj14dACGM5t3aI2BxbiFe8CHY3dGYTCPtr8QnpLxsnwQRvRcdi
+         uBPm/G05HlqTAujYWx1MrqCkeEU2XFB/9Xy1mO3MeRJvpT5ClVtKtV+OB4IqxFRksfxM
+         QK/Q==
+X-Gm-Message-State: AOAM530TUAFZCfQ/WDw6VQ7LgiC0wuOobJYiYsEeo0KcQdU11SYDqhgA
+        Jqoxtv8CppQdw7CMq1t6kFpoK6GW1GbkxXI=
+X-Google-Smtp-Source: ABdhPJwEMjA4tyapfQJCf3up5B53d4gh7TrOvpdsafa03vwT9/+25qSmOzbwZJkCu/UlNncH3x03MQ==
+X-Received: by 2002:a17:902:d210:b029:da:578f:741 with SMTP id t16-20020a170902d210b02900da578f0741mr26323469ply.82.1608742453682;
+        Wed, 23 Dec 2020 08:54:13 -0800 (PST)
+Received: from PWN (59-125-13-244.HINET-IP.hinet.net. [59.125.13.244])
+        by smtp.gmail.com with ESMTPSA id b26sm25023801pgm.25.2020.12.23.08.54.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 08:54:13 -0800 (PST)
+Date:   Wed, 23 Dec 2020 11:54:07 -0500
+From:   Peilin Ye <yepeilin.cs@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     marcel@holtmann.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Bluetooth: Fix slab-out-of-bounds read
+ in" failed to apply to 4.14-stable tree
+Message-ID: <20201223165407.GA15371@PWN>
+References: <160873541518385@kroah.com>
 MIME-Version: 1.0
-References: <20201223143644.33341-1-heikki.krogerus@linux.intel.com>
-In-Reply-To: <20201223143644.33341-1-heikki.krogerus@linux.intel.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Wed, 23 Dec 2020 18:34:48 +0200
-Message-ID: <CAHp75Vc=m+9qpCyY-vfAdNttFkZCN4u6JQKdjWV6b2=iU95t9w@mail.gmail.com>
-Subject: Re: [PATCH] ACPI / scan: Don't create platform device for INT3515
- ACPI nodes
-To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Moody Salem <moody@uniswap.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <160873541518385@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 23, 2020 at 4:40 PM Heikki Krogerus
-<heikki.krogerus@linux.intel.com> wrote:
->
-> There are several reports about the tps6598x causing
-> interrupt flood on boards with the INT3515 ACPI node, which
-> then causes instability. There appears to be several
-> problems with the interrupt. One problem is that the
-> I2CSerialBus resources do not always map to the Interrupt
-> resource with the same index, but that is not the only
-> problem. We have not been able to come up with a solution
-> for all the issues, and because of that disabling the device
-> for now.
->
-> The PD controller on these platforms is autonomous, and the
-> purpose for the driver is primarily to supply status to the
-> userspace, so this will not affect any functionality.
->
-> Reported-by: Moody Salem <moody@uniswap.org>
-> Fixes: a3dd034a1707 ("ACPI / scan: Create platform device for INT3515 ACPI nodes")
-> Cc: stable@vger.kernel.org
+Hi all,
 
-> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1883511
+On Wed, Dec 23, 2020 at 03:56:55PM +0100, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-BugLink: ?
+I just generated a rebased patch that applies to 4.4, 4.9 and 4.14.  I
+have sent it to syzbot for testing (once again, but against 4.14), and I
+will send it here once syzbot is happy.
 
-> Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> ---
->  drivers/platform/x86/i2c-multi-instantiate.c | 31 +++++++++++++++-----
->  1 file changed, 23 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-> index 6acc8457866e1..e1df665d3ad31 100644
-> --- a/drivers/platform/x86/i2c-multi-instantiate.c
-> +++ b/drivers/platform/x86/i2c-multi-instantiate.c
-> @@ -166,13 +166,29 @@ static const struct i2c_inst_data bsg2150_data[]  = {
->         {}
->  };
->
-> -static const struct i2c_inst_data int3515_data[]  = {
-> -       { "tps6598x", IRQ_RESOURCE_APIC, 0 },
-> -       { "tps6598x", IRQ_RESOURCE_APIC, 1 },
-> -       { "tps6598x", IRQ_RESOURCE_APIC, 2 },
-> -       { "tps6598x", IRQ_RESOURCE_APIC, 3 },
-> -       {}
-> -};
-> +/*
-> + * Device with _HID INT3515 (TI PD controllers) has some unresolved interrupt
-> + * issues. The most common problem seen is interrupt flood.
-> + *
-> + * There are at least two known causes. Firstly, on some boards, the
-> + * I2CSerialBus resource index does not match the Interrupt resource, i.e. they
-> + * are not one-to-one mapped like in the array below. Secondly, on some boards
-> + * the irq line from the PD controller is not actually connected at all. But the
+Cheers,
+Peilin Ye
 
-irq -> IRQ
-
-> + * interrupt flood is also seen on some boards where those are not a problem, so
-> + * there are some other problems as well.
-> + *
-> + * Because of the issues with the interrupt, the device is disabled for now. If
-> + * you wish to debug the issues, uncomment the below, and add an entry for the
-> + * INT3515 device to the i2c_multi_instance__ids table.
-
-Extra _ (underscore).
-
-> + *
-> + * static const struct i2c_inst_data int3515_data[]  = {
-> + *     { "tps6598x", IRQ_RESOURCE_APIC, 0 },
-> + *     { "tps6598x", IRQ_RESOURCE_APIC, 1 },
-> + *     { "tps6598x", IRQ_RESOURCE_APIC, 2 },
-> + *     { "tps6598x", IRQ_RESOURCE_APIC, 3 },
-> + *     { }
-> + * };
-> + */
->
->  /*
->   * Note new device-ids must also be added to i2c_multi_instantiate_ids in
-> @@ -181,7 +197,6 @@ static const struct i2c_inst_data int3515_data[]  = {
->  static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
->         { "BSG1160", (unsigned long)bsg1160_data },
->         { "BSG2150", (unsigned long)bsg2150_data },
-> -       { "INT3515", (unsigned long)int3515_data },
-
-Perhaps also comment it out and refer to the above note?
-
->         { }
->  };
->  MODULE_DEVICE_TABLE(acpi, i2c_multi_inst_acpi_ids);
-> --
-> 2.29.2
->
-
-
--- 
-With Best Regards,
-Andy Shevchenko
