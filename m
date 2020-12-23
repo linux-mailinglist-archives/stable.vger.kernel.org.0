@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7662E155D
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9F12E15D1
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbgLWCVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:21:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1729237AbgLWCxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:53:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729220AbgLWCVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D3622248;
-        Wed, 23 Dec 2020 02:20:50 +0000 (UTC)
+        id S1729070AbgLWCVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D75A022202;
+        Wed, 23 Dec 2020 02:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690051;
-        bh=YwjFq9eQoOMILFRZBYqTpmj9LvL2hqjEzS9MxOIB9DQ=;
+        s=k20201202; t=1608690052;
+        bh=R6D6DinLQkwsTEj+oAoz+BSoIoP0Brp4/RFWhwlJQro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuicxnknObDioFiQZkaCG0Vrdr6+rEYwJvrX8NYGAcgrqyy3Wd4ZGimX32INahoTL
-         JZMKtE9xLYTHmFwSsL4b51iG1c1jkJnNhfOSjSdUDjKGbxIr8/SJuXfdJOS3GYl5MS
-         vsIDI0M8dRDI+Qb4ujjsBLNudiDESL0mpx51VheXAAVCU6LtqWzRG8NegeIpqG+Daw
-         NdJzBUff4eOH9U2L+8OOM/k5LZrCQQL8EJS1nrrH8ARG+ZIX8b1U3ODVzFb+S73UDr
-         2yybu3uAktmSBRd7b8WMOOLL0RChc+jK++XYzYB24LNBhQCAkogOUEgTC5ZRHKZi+L
-         czPxAlRGNTfDg==
+        b=GbNgvvI7lR1PLq8lt5aJ7/YuB4McVij1s980pOA8/ml++QBbsRgbSKQbPb3Z91Zeq
+         HSeOZJYF3hK8SLoLgkmDi4edJYaWgDRezP3Sr2a1PxBKA3HMWVJjr9Egl8T5TSFSLC
+         BNfXxNcZ5jfqntGeHxsHiYOm1+lYsEgYvRcUech3NV51bH2PN3rsM3jkvwfRrMBCYq
+         V5Dfwj25VgwE+Dkuorns46ZG61CCXJhmkGNSOZv6HF+pukGwZClXWJxGuGJk/ctnUG
+         ys148z26mVxhBNN2lcdqnROljRB79FQoWn79/GL5joL5oaSvkmHaoVfAa5BcdpF3Uo
+         VJSU8VUY11XqA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
+Cc:     Ilan Peer <ilan.peer@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 122/130] mac80211: ignore country element TX power on 6 GHz
-Date:   Tue, 22 Dec 2020 21:18:05 -0500
-Message-Id: <20201223021813.2791612-122-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 123/130] mac80211: Fix calculation of minimal channel width
+Date:   Tue, 22 Dec 2020 21:18:06 -0500
+Message-Id: <20201223021813.2791612-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -43,48 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 2dedfe1dbdf27ac344584ed03c3876c85d2779fb ]
+[ Upstream commit bbf31e88df2f5da20ce613c340ce508d732046b3 ]
 
-Updates to the 802.11ax draft are coming that deprecate the
-country element in favour of the transmit power envelope
-element, and make the maximum transmit power level field in
-the triplets reserved, so if we parse them we'd use 0 dBm
-transmit power.
+When calculating the minimal channel width for channel context,
+the current operation Rx channel width of a station was used and not
+the overall channel width capability of the station, i.e., both for
+Tx and Rx.
 
-Follow suit and completely ignore the element on 6 GHz for
-purposes of determining TX power.
+Fix ieee80211_get_sta_bw() to use the maximal channel width the
+station is capable. While at it make the function static.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201206145305.9abf9f6b4f88.Icb6e52af586edcc74f1f0360e8f6fc9ef2bfe8f5@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20201206145305.4387040b99a0.I74bcf19238f75a5960c4098b10e355123d933281@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/mac80211/chan.c        | 10 ++++++----
+ net/mac80211/ieee80211_i.h |  1 -
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 236ddc6b891c2..ba1e5cac32adb 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1487,6 +1487,15 @@ ieee80211_find_80211h_pwr_constr(struct ieee80211_sub_if_data *sdata,
- 	case NL80211_BAND_5GHZ:
- 		chan_increment = 4;
- 		break;
-+	case NL80211_BAND_6GHZ:
-+		/*
-+		 * In the 6 GHz band, the "maximum transmit power level"
-+		 * field in the triplets is reserved, and thus will be
-+		 * zero and we shouldn't use it to control TX power.
-+		 * The actual TX power will be given in the transmit
-+		 * power envelope element instead.
-+		 */
-+		return false;
- 	}
+diff --git a/net/mac80211/chan.c b/net/mac80211/chan.c
+index 9c94baaf693cb..aae4b36dd78d1 100644
+--- a/net/mac80211/chan.c
++++ b/net/mac80211/chan.c
+@@ -191,11 +191,13 @@ ieee80211_find_reservation_chanctx(struct ieee80211_local *local,
+ 	return NULL;
+ }
  
- 	/* find channel */
+-enum nl80211_chan_width ieee80211_get_sta_bw(struct ieee80211_sta *sta)
++static enum nl80211_chan_width ieee80211_get_sta_bw(struct sta_info *sta)
+ {
+-	switch (sta->bandwidth) {
++	enum ieee80211_sta_rx_bandwidth width = ieee80211_sta_cap_rx_bw(sta);
++
++	switch (width) {
+ 	case IEEE80211_STA_RX_BW_20:
+-		if (sta->ht_cap.ht_supported)
++		if (sta->sta.ht_cap.ht_supported)
+ 			return NL80211_CHAN_WIDTH_20;
+ 		else
+ 			return NL80211_CHAN_WIDTH_20_NOHT;
+@@ -232,7 +234,7 @@ ieee80211_get_max_required_bw(struct ieee80211_sub_if_data *sdata)
+ 		    !(sta->sdata->bss && sta->sdata->bss == sdata->bss))
+ 			continue;
+ 
+-		max_bw = max(max_bw, ieee80211_get_sta_bw(&sta->sta));
++		max_bw = max(max_bw, ieee80211_get_sta_bw(sta));
+ 	}
+ 	rcu_read_unlock();
+ 
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 7ad21d041f063..7445c12acf2c4 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -2217,7 +2217,6 @@ int ieee80211_check_combinations(struct ieee80211_sub_if_data *sdata,
+ 				 enum ieee80211_chanctx_mode chanmode,
+ 				 u8 radar_detect);
+ int ieee80211_max_num_channels(struct ieee80211_local *local);
+-enum nl80211_chan_width ieee80211_get_sta_bw(struct ieee80211_sta *sta);
+ void ieee80211_recalc_chanctx_chantype(struct ieee80211_local *local,
+ 				       struct ieee80211_chanctx *ctx);
+ 
 -- 
 2.27.0
 
