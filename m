@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418CD2E164A
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A20572E1642
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731343AbgLWC7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:59:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
+        id S1728864AbgLWCUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728852AbgLWCUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728856AbgLWCUE (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:20:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9B0E2256F;
-        Wed, 23 Dec 2020 02:19:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53C082222D;
+        Wed, 23 Dec 2020 02:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689986;
-        bh=yJRRFSfrUWMNVGR1aJmIOLD3je5SKkACdB7S9UENrAY=;
+        s=k20201202; t=1608689989;
+        bh=ldNz5vXD1guP6blJUNlKPp5ii5h/xOr3sKr0u7xES9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKhmnEyDOztZt/Rg7KiZFnGCfsrQbG6iVVa5f1bPJVHHCQa0vdRww6RP/gj8y/dg1
-         SHlsTYOFg7z+AHXoYuK6qiAw241Fp5dVzhboctoB2iHI6N8GVNm6A+sBR9i3ZKKjOK
-         EwkNfsmrYxpxMlX0gJ3sKDbxLEEh20BAF7dPA+mgUinWvebTphDrYuOLnjAZqaUQUz
-         9f5u83+nPBc+//qmoCFmLj8GQ05JrLngrCOeQQaDhy2YWY3ebg6XAhRbLk6TLTz0lS
-         Y1zybisAG4LTUlKdDGQULisaWnrQGHG2S8ZOAfcS/34ro23TqTVyuYSr74hy90BKC4
-         kmOcW4DnNfsyw==
+        b=omD04PEp4hUW4vO4g6uSt19boHcEGV7yXLafcLT019b2bhnEbTNWGh658Yz+4Dx74
+         jrkOztBMUf9YYrToQi1vJ2Q0ES1epCUk8fKQ96rjJhPKFk1I2TFB2caCABS7dDGQj8
+         +0UIK8ysIxAvQKNpyS5L8E6N+xQkcXD2532o2yXW4XZE5Z0FMVLy/pFQvTsigi+ZPy
+         8hkYElQZlFiELMVfWQvRncyFkDNJeFy5dZoSesCxgxPncqC8qRpS/vHlleg0S9SBvp
+         8Zw4ExTMHV69U/336rXEx+0DdTegIBWZhFNh5vguqYEeR76kLNG5IVUFw0U/rP1EOC
+         91nP5SBkKLIgw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 072/130] arm64: tegra: Fix GIC400 missing GICH/GICV register regions
-Date:   Tue, 22 Dec 2020 21:17:15 -0500
-Message-Id: <20201223021813.2791612-72-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 074/130] media: gp8psk: initialize stats at power control logic
+Date:   Tue, 22 Dec 2020 21:17:17 -0500
+Message-Id: <20201223021813.2791612-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,40 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 776a3c04da9fa144241476f4a0d263899d6cad26 ]
+[ Upstream commit d0ac1a26ed5943127cb0156148735f5f52a07075 ]
 
-GIC400 has full support for virtualization, and yet the tegra186
-DT doesn't expose the GICH/GICV regions (despite exposing the
-maintenance interrupt that only makes sense for virtualization).
+As reported on:
+	https://lore.kernel.org/linux-media/20190627222020.45909-1-willemdebruijn.kernel@gmail.com/
 
-Add the missing regions, based on the hunch that the HW doesn't
-use the CPU build-in interfaces, but instead the external ones
-provided by the GIC. KVM's virtual GIC now works with this change.
+if gp8psk_usb_in_op() returns an error, the status var is not
+initialized. Yet, this var is used later on, in order to
+identify:
+	- if the device was already started;
+	- if firmware has loaded;
+	- if the LNBf was powered on.
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Using status = 0 seems to ensure that everything will be
+properly powered up.
+
+So, instead of the proposed solution, let's just set
+status = 0.
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra186.dtsi | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/gp8psk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index 9abf0cb1dd67f..f72c97fe4afc8 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -569,7 +569,9 @@ gic: interrupt-controller@3881000 {
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
- 		reg = <0x0 0x03881000 0x0 0x1000>,
--		      <0x0 0x03882000 0x0 0x2000>;
-+		      <0x0 0x03882000 0x0 0x2000>,
-+		      <0x0 0x03884000 0x0 0x2000>,
-+		      <0x0 0x03886000 0x0 0x2000>;
- 		interrupts = <GIC_PPI 9
- 			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
- 		interrupt-parent = <&gic>;
+diff --git a/drivers/media/usb/dvb-usb/gp8psk.c b/drivers/media/usb/dvb-usb/gp8psk.c
+index 1282f701f1857..ac8b8bf6ee1d3 100644
+--- a/drivers/media/usb/dvb-usb/gp8psk.c
++++ b/drivers/media/usb/dvb-usb/gp8psk.c
+@@ -182,7 +182,7 @@ static int gp8psk_load_bcm4500fw(struct dvb_usb_device *d)
+ 
+ static int gp8psk_power_ctrl(struct dvb_usb_device *d, int onoff)
+ {
+-	u8 status, buf;
++	u8 status = 0, buf;
+ 	int gp_product_id = le16_to_cpu(d->udev->descriptor.idProduct);
+ 
+ 	if (onoff) {
 -- 
 2.27.0
 
