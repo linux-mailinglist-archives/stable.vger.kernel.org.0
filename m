@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA8B2E16F1
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E820C2E1676
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731590AbgLWDD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+        id S1728635AbgLWCT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:19:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728625AbgLWCT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728624AbgLWCT1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:19:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A43C23384;
-        Wed, 23 Dec 2020 02:18:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C00802337F;
+        Wed, 23 Dec 2020 02:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689928;
-        bh=T/VZIlNzE9W1wJeFx/Oo2JyFg8ywD/lUvkfv0SXgFmg=;
+        s=k20201202; t=1608689929;
+        bh=fRf/fdmkTF7jK4KfdRY3JEN9qMmApPMEhYWE3+jAHow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZmvrS862fNjHDSPjFbR5fiMq/9Bol++ABZ0lFkA/hG4WcWkUrpeOHKlTvJUmNTNiC
-         ssUAAwu0Q4tDqiIrpHeAhtsKYSQA7xfSeFTYPKfs3DpaXR/VLL94lSgW1Gy8jMCqPX
-         W4cb94VcdeO77Se9VLdHmrms4cirYp/O+P1CDCDbz3TUTzgtKHBHxaHIFYXdwLrmgS
-         8fcmriB8N7/Tey4rgDdewIabddIkhW8rzNgo65jH4of2jQXP29ep6/aD5r3Mza2Znr
-         syErjhIBIH0jOkwrIujI6SadzRD35R+mJvOrYRRcwkVhOUEJ/V51xV5k7nZNu8JEOs
-         ae1bd78iGwgkg==
+        b=VaeDX6zEzN9cFJuO2QfaCpcrMOdDfwZDTaSFP5IVEW3sfN0x2+B708z6PbjG4CUFq
+         ReXZrMFS9YtLokVQuJqNuLFGhqpksZBdfj56Fxi3gG3F8IE1yo557/LxUTyZldzcy0
+         ej40PByWbNbmKlYzw5ZXFbu4buBpcuYXD9YPnKzfT4lc0fYzCnjK/61rRbWsGEoWxJ
+         hDWQ4TaLYiHAuFgcSCRbiabFjLxcPPQRnjuC6EkxIBgxFcmh8qqUrdcvfWQsSG6uJz
+         HwQYFZjWlxAzBsWgJefMvKmTbNO4bQtS6Vn4Cz6XD5pmUIS8NYT8VxInQtmhN2vGhU
+         H24X+FW/Md8gQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 027/130] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-Date:   Tue, 22 Dec 2020 21:16:30 -0500
-Message-Id: <20201223021813.2791612-27-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Martijn Coenen <maco@android.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.4 028/130] binder: change error code from postive to negative in binder_transaction
+Date:   Tue, 22 Dec 2020 21:16:31 -0500
+Message-Id: <20201223021813.2791612-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,72 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Bjørn Midtbø <omidtbo@cisco.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
+[ Upstream commit 88f6c77927e4aee04e0193fd94e13a55753a72b0 ]
 
-A different wait queue was used when removing ctrl_wait than when adding
-it. This effectively made the remove operation without locking compared
-to other operations on the wait queue ctrl_wait was part of. This caused
-issues like below where dead000000000100 is LIST_POISON1 and
-dead000000000200 is LIST_POISON2.
+Depending on the context, the error return value
+here (extra_buffers_size < added_size) should be
+negative.
 
- list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
-	but was dead000000000200. (next=ffffffc03ac77de0).
- ------------[ cut here ]------------
- CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
- ...
- ---[ end trace 0adc2158f0646eac ]---
- Call trace:
- [<ffffffc000443f78>] __list_add+0x38/0xb0
- [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
- [<ffffffc00020eecc>] __pollwait+0xec/0x100
- [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
- [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
- [<ffffffc000210378>] do_sys_poll+0x220/0x480
- [<ffffffc0002106f0>] SyS_poll+0x80/0x138
- [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
-
- Unable to handle kernel paging request at virtual address dead000000000100
- ...
- CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
- ...
- Call trace:
-  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
-  [<ffffffc0000f0818>] __wake_up+0x50/0x70
-  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
-  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
-  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
-  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
-  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
-  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
-  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
-  [<ffffffc0000c2218>] process_one_work+0x268/0x460
-  [<ffffffc0000c2678>] worker_thread+0x268/0x480
-  [<ffffffc0000c94e0>] kthread+0x118/0x128
-  [<ffffffc000085070>] ret_from_fork+0x10/0x20
-  ---[ end trace 0adc2158f0646ead ]---
-
-Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Acked-by: Martijn Coenen <maco@android.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201026110314.135481-1-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hidp/core.c | 2 +-
+ drivers/android/binder.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index bef84b95e2c47..ac98e3b37ab47 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -1290,7 +1290,7 @@ static int hidp_session_thread(void *arg)
- 
- 	/* cleanup runtime environment */
- 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
--	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
-+	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
- 	wake_up_interruptible(&session->report_queue);
- 	hidp_del_timer(session);
- 
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index b62b1ab6bb699..6091a3e20506d 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3107,7 +3107,7 @@ static void binder_transaction(struct binder_proc *proc,
+ 		if (extra_buffers_size < added_size) {
+ 			/* integer overflow of extra_buffers_size */
+ 			return_error = BR_FAILED_REPLY;
+-			return_error_param = EINVAL;
++			return_error_param = -EINVAL;
+ 			return_error_line = __LINE__;
+ 			goto err_bad_extra_size;
+ 		}
 -- 
 2.27.0
 
