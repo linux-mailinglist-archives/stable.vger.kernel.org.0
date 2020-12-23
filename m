@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20532E15D6
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7662E155D
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729225AbgLWCyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:54:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S1729229AbgLWCVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:21:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729212AbgLWCVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71F3C22525;
-        Wed, 23 Dec 2020 02:20:49 +0000 (UTC)
+        id S1729220AbgLWCVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D3622248;
+        Wed, 23 Dec 2020 02:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690050;
-        bh=OOvL48awBBRzLmQEbK7Ney9ldGZAun+UOni2ZChnpxE=;
+        s=k20201202; t=1608690051;
+        bh=YwjFq9eQoOMILFRZBYqTpmj9LvL2hqjEzS9MxOIB9DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hV6XjnIpEL4Ynhy6s9qhNMDU5/u1e4DT8B+M0IIhuS7iQqn77fvpHJ8Hna50JKyZc
-         cUX05FxKJDfySGxv1jNzn5+e5lDuvPFHO7woqnktGp7RfDFaSuzgVea6AjA9yOUmDp
-         seJOIhzhJ1ZoUOLwKQTdtXilgpwf30n91XJ9mcc1EVZRFzC59sdE4Pba7idWP8Hv+u
-         XGPvQFE78P1+iCriiikJB2fO/be9d6Tq7SZsHVODEHYOxvZvMt7RCOqYQbhtuUGy60
-         bC5jBOI7q1gzGpxl6J6Dj8rrxDsqwOGd82G3xx5n90qu9HUYrCbX7gBQu9+uhGCJNu
-         aux+FyaAtC/5A==
+        b=AuicxnknObDioFiQZkaCG0Vrdr6+rEYwJvrX8NYGAcgrqyy3Wd4ZGimX32INahoTL
+         JZMKtE9xLYTHmFwSsL4b51iG1c1jkJnNhfOSjSdUDjKGbxIr8/SJuXfdJOS3GYl5MS
+         vsIDI0M8dRDI+Qb4ujjsBLNudiDESL0mpx51VheXAAVCU6LtqWzRG8NegeIpqG+Daw
+         NdJzBUff4eOH9U2L+8OOM/k5LZrCQQL8EJS1nrrH8ARG+ZIX8b1U3ODVzFb+S73UDr
+         2yybu3uAktmSBRd7b8WMOOLL0RChc+jK++XYzYB24LNBhQCAkogOUEgTC5ZRHKZi+L
+         czPxAlRGNTfDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johannes Berg <johannes.berg@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 121/130] mac80211: use bitfield helpers for BA session action frames
-Date:   Tue, 22 Dec 2020 21:18:04 -0500
-Message-Id: <20201223021813.2791612-121-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 122/130] mac80211: ignore country element TX power on 6 GHz
+Date:   Tue, 22 Dec 2020 21:18:05 -0500
+Message-Id: <20201223021813.2791612-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -45,71 +45,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit db8ebd06ccb87b7bea8e50f3d4ba5dc0142093b8 ]
+[ Upstream commit 2dedfe1dbdf27ac344584ed03c3876c85d2779fb ]
 
-Use the appropriate bitfield helpers for encoding and decoding
-the capability field in the BA session action frames instead of
-open-coding the shifts/masks.
+Updates to the 802.11ax draft are coming that deprecate the
+country element in favour of the transmit power envelope
+element, and make the maximum transmit power level field in
+the triplets reserved, so if we parse them we'd use 0 dBm
+transmit power.
+
+Follow suit and completely ignore the element on 6 GHz for
+purposes of determining TX power.
 
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201206145305.0c46e5097cc0.I06e75706770c40b9ba1cabd1f8a78ab7a05c5b73@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20201206145305.9abf9f6b4f88.Icb6e52af586edcc74f1f0360e8f6fc9ef2bfe8f5@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/agg-rx.c |  8 ++++----
- net/mac80211/agg-tx.c | 12 ++++++------
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ net/mac80211/mlme.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/mac80211/agg-rx.c b/net/mac80211/agg-rx.c
-index 4d1c335e06e57..93285f9a2bbd5 100644
---- a/net/mac80211/agg-rx.c
-+++ b/net/mac80211/agg-rx.c
-@@ -250,10 +250,10 @@ static void ieee80211_send_addba_resp(struct sta_info *sta, u8 *da, u16 tid,
- 	mgmt->u.action.u.addba_resp.action_code = WLAN_ACTION_ADDBA_RESP;
- 	mgmt->u.action.u.addba_resp.dialog_token = dialog_token;
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 236ddc6b891c2..ba1e5cac32adb 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1487,6 +1487,15 @@ ieee80211_find_80211h_pwr_constr(struct ieee80211_sub_if_data *sdata,
+ 	case NL80211_BAND_5GHZ:
+ 		chan_increment = 4;
+ 		break;
++	case NL80211_BAND_6GHZ:
++		/*
++		 * In the 6 GHz band, the "maximum transmit power level"
++		 * field in the triplets is reserved, and thus will be
++		 * zero and we shouldn't use it to control TX power.
++		 * The actual TX power will be given in the transmit
++		 * power envelope element instead.
++		 */
++		return false;
+ 	}
  
--	capab = (u16)(amsdu << 0);	/* bit 0 A-MSDU support */
--	capab |= (u16)(policy << 1);	/* bit 1 aggregation policy */
--	capab |= (u16)(tid << 2); 	/* bit 5:2 TID number */
--	capab |= (u16)(buf_size << 6);	/* bit 15:6 max size of aggregation */
-+	capab = u16_encode_bits(amsdu, IEEE80211_ADDBA_PARAM_AMSDU_MASK);
-+	capab |= u16_encode_bits(policy, IEEE80211_ADDBA_PARAM_POLICY_MASK);
-+	capab |= u16_encode_bits(tid, IEEE80211_ADDBA_PARAM_TID_MASK);
-+	capab |= u16_encode_bits(buf_size, IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK);
- 
- 	mgmt->u.action.u.addba_resp.capab = cpu_to_le16(capab);
- 	mgmt->u.action.u.addba_resp.timeout = cpu_to_le16(timeout);
-diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
-index b11883d268759..ea6bc02c900bf 100644
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -95,10 +95,10 @@ static void ieee80211_send_addba_request(struct ieee80211_sub_if_data *sdata,
- 	mgmt->u.action.u.addba_req.action_code = WLAN_ACTION_ADDBA_REQ;
- 
- 	mgmt->u.action.u.addba_req.dialog_token = dialog_token;
--	capab = (u16)(1 << 0);		/* bit 0 A-MSDU support */
--	capab |= (u16)(1 << 1);		/* bit 1 aggregation policy */
--	capab |= (u16)(tid << 2); 	/* bit 5:2 TID number */
--	capab |= (u16)(agg_size << 6);	/* bit 15:6 max size of aggergation */
-+	capab = IEEE80211_ADDBA_PARAM_AMSDU_MASK;
-+	capab |= IEEE80211_ADDBA_PARAM_POLICY_MASK;
-+	capab |= u16_encode_bits(tid, IEEE80211_ADDBA_PARAM_TID_MASK);
-+	capab |= u16_encode_bits(agg_size, IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK);
- 
- 	mgmt->u.action.u.addba_req.capab = cpu_to_le16(capab);
- 
-@@ -921,8 +921,8 @@ void ieee80211_process_addba_resp(struct ieee80211_local *local,
- 
- 	capab = le16_to_cpu(mgmt->u.action.u.addba_resp.capab);
- 	amsdu = capab & IEEE80211_ADDBA_PARAM_AMSDU_MASK;
--	tid = (capab & IEEE80211_ADDBA_PARAM_TID_MASK) >> 2;
--	buf_size = (capab & IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK) >> 6;
-+	tid = u16_get_bits(capab, IEEE80211_ADDBA_PARAM_TID_MASK);
-+	buf_size = u16_get_bits(capab, IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK);
- 	buf_size = min(buf_size, local->hw.max_tx_aggregation_subframes);
- 
- 	txq = sta->sta.txq[tid];
+ 	/* find channel */
 -- 
 2.27.0
 
