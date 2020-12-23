@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD892E1738
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 717042E1737
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731863AbgLWDHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
+        id S1728339AbgLWDHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:07:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbgLWCSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728338AbgLWCSx (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:18:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A137233FA;
-        Wed, 23 Dec 2020 02:17:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5F82335A;
+        Wed, 23 Dec 2020 02:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689868;
-        bh=O0S+26ciccrfnNwun4+sPx00DqUVef45cMQSOJcp3sk=;
+        s=k20201202; t=1608689870;
+        bh=OadBbSy1UMgihY3hq7EoSVBsV7KQP8tHyMccEAoqSXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAWT/8dpRc93NUNbgeKfj5/tApF2OYV1WSqGdT160BLLn3p2IUkDKZRY08jUisCf7
-         o+nuHsOF/tIl0B6K5HeICiXv/Q49oZJVXiLvn8EC2SevGLKCGP4aqgJcLIn2uHFlsv
-         Tbq4vMs3k5Jzup+wxO8zhVcW/mDq39NeEJOoQaZw//4HfWCFt42A7UA6GnsrAA+x0L
-         mm+HIcCIcNsc2V5hfNvVyUuZ1AH0QcaBFCS4nWix0D63Ajldq8rygl++ZpP37zhq4F
-         LCc/0J9OirOtBWtRBSJgGZDYqwr2RnFEfFqhaPuWIXunkOjsL+gxQ6aqBDGk1ljgJ3
-         Uq/ZICO/Mirdg==
+        b=ZzcG1f0eXU9xwq9twH3Q8qvdyXKe77YvrkKoqyC/qiPJzwwSspAI/lhE7S+0cy+yd
+         /zvcsqz4ICD8P12YZUeBVhNiEB/nWjcM8QfZe5/Og8RoxP7+8AV144d8zXVyLm5w+G
+         u8Ij2n1wlrN4Sb9//s0EvxHYFJbNFPkFK7svqtYrAGpReeqZZIcSA2Q7KChyEOwTD1
+         lj4bGoiq+VRMG1kOY5ryWB8aD9VTUBxlDchYY37NKJ6akYnVAaaCf3nXhFY/2lV01r
+         Mm8RXS6Hie9wGX+yodtbCH2WkJOP9YCPmY1Hb4oEIRDITjXivRU9biBmFPJgFcJAb4
+         6tnn9W8B+KYog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 063/217] net: skb_vlan_untag(): don't reset transport offset if set by GRO layer
-Date:   Tue, 22 Dec 2020 21:13:52 -0500
-Message-Id: <20201223021626.2790791-63-sashal@kernel.org>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 064/217] drm/omap: Fix runtime PM imbalance on error
+Date:   Tue, 22 Dec 2020 21:13:53 -0500
+Message-Id: <20201223021626.2790791-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -42,48 +43,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 8be33ecfc1ffd2da20cc29e957e4cb6eb99310cb ]
+[ Upstream commit a5d704d33245b0799947a3008f9f376dba4d5c91 ]
 
-Similar to commit fda55eca5a33f
-("net: introduce skb_transport_header_was_set()"), avoid resetting
-transport offsets that were already set by GRO layer. This not only
-mirrors the behavior of __netif_receive_skb_core(), but also makes
-sense when it comes to UDP GSO fraglists forwarding: transport offset
-of such skbs is set only once by GRO receive callback and remains
-untouched and correct up to the xmitting driver in 1:1 case, but
-becomes junk after untagging in ingress VLAN case and breaks UDP
-GSO offload. This does not happen after this change, and all types
-of forwarding of UDP GSO fraglists work as expected.
+pm_runtime_get_sync() increments the runtime PM usage counter
+even when it returns an error code. However, users of its
+direct wrappers in omapdrm assume that PM usage counter will
+not change on error. Thus a pairing decrement is needed on
+the error handling path for these wrappers to keep the counter
+balanced.
 
-Since v1 [1]:
- - keep the code 1:1 with __netif_receive_skb_core() (Jakub).
-
-[1] https://lore.kernel.org/netdev/zYurwsZRN7BkqSoikWQLVqHyxz18h4LhHU4NFa2Vw@cp4-web-038.plabs.ch
-
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Link: https://lore.kernel.org/r/7JgIkgEztzt0W6ZtC9V9Cnk5qfkrUFYcpN871syCi8@cp4-web-040.plabs.ch
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200822065743.13671-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/omapdrm/dss/dispc.c | 7 +++++--
+ drivers/gpu/drm/omapdrm/dss/dsi.c   | 7 +++++--
+ drivers/gpu/drm/omapdrm/dss/dss.c   | 7 +++++--
+ drivers/gpu/drm/omapdrm/dss/hdmi4.c | 6 +++---
+ drivers/gpu/drm/omapdrm/dss/hdmi5.c | 6 +++---
+ drivers/gpu/drm/omapdrm/dss/venc.c  | 7 +++++--
+ 6 files changed, 26 insertions(+), 14 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index e578544b2cc71..08d69e062eca6 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5430,7 +5430,8 @@ struct sk_buff *skb_vlan_untag(struct sk_buff *skb)
- 		goto err_free;
+diff --git a/drivers/gpu/drm/omapdrm/dss/dispc.c b/drivers/gpu/drm/omapdrm/dss/dispc.c
+index 48593932bddf5..599183879caf6 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dispc.c
++++ b/drivers/gpu/drm/omapdrm/dss/dispc.c
+@@ -653,8 +653,11 @@ int dispc_runtime_get(struct dispc_device *dispc)
+ 	DSSDBG("dispc_runtime_get\n");
  
- 	skb_reset_network_header(skb);
--	skb_reset_transport_header(skb);
-+	if (!skb_transport_header_was_set(skb))
-+		skb_reset_transport_header(skb);
- 	skb_reset_mac_len(skb);
+ 	r = pm_runtime_get_sync(&dispc->pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(&dispc->pdev->dev);
++		return r;
++	}
++	return 0;
+ }
  
- 	return skb;
+ void dispc_runtime_put(struct dispc_device *dispc)
+diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
+index eeccf40bae416..973bfa14a1044 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dsi.c
++++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
+@@ -1112,8 +1112,11 @@ static int dsi_runtime_get(struct dsi_data *dsi)
+ 	DSSDBG("dsi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(dsi->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(dsi->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void dsi_runtime_put(struct dsi_data *dsi)
+diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+index 6ccbc29c4ce4b..d7b2f5bcac169 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dss.c
++++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+@@ -858,8 +858,11 @@ int dss_runtime_get(struct dss_device *dss)
+ 	DSSDBG("dss_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&dss->pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(&dss->pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ void dss_runtime_put(struct dss_device *dss)
+diff --git a/drivers/gpu/drm/omapdrm/dss/hdmi4.c b/drivers/gpu/drm/omapdrm/dss/hdmi4.c
+index a14fbf06cb301..d120e7e3ca502 100644
+--- a/drivers/gpu/drm/omapdrm/dss/hdmi4.c
++++ b/drivers/gpu/drm/omapdrm/dss/hdmi4.c
+@@ -43,10 +43,10 @@ static int hdmi_runtime_get(struct omap_hdmi *hdmi)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi->pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(&hdmi->pdev->dev);
+ 		return r;
+-
++	}
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/omapdrm/dss/hdmi5.c b/drivers/gpu/drm/omapdrm/dss/hdmi5.c
+index b738d9750686a..5a04c281900c5 100644
+--- a/drivers/gpu/drm/omapdrm/dss/hdmi5.c
++++ b/drivers/gpu/drm/omapdrm/dss/hdmi5.c
+@@ -44,10 +44,10 @@ static int hdmi_runtime_get(struct omap_hdmi *hdmi)
+ 	DSSDBG("hdmi_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&hdmi->pdev->dev);
+-	WARN_ON(r < 0);
+-	if (r < 0)
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(&hdmi->pdev->dev);
+ 		return r;
+-
++	}
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/omapdrm/dss/venc.c b/drivers/gpu/drm/omapdrm/dss/venc.c
+index 5c027c81760f4..94cf50d837b07 100644
+--- a/drivers/gpu/drm/omapdrm/dss/venc.c
++++ b/drivers/gpu/drm/omapdrm/dss/venc.c
+@@ -361,8 +361,11 @@ static int venc_runtime_get(struct venc_device *venc)
+ 	DSSDBG("venc_runtime_get\n");
+ 
+ 	r = pm_runtime_get_sync(&venc->pdev->dev);
+-	WARN_ON(r < 0);
+-	return r < 0 ? r : 0;
++	if (WARN_ON(r < 0)) {
++		pm_runtime_put_noidle(&venc->pdev->dev);
++		return r;
++	}
++	return 0;
+ }
+ 
+ static void venc_runtime_put(struct venc_device *venc)
 -- 
 2.27.0
 
