@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AC42E147A
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A9C2E1421
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730844AbgLWCjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:39:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52102 "EHLO mail.kernel.org"
+        id S1730618AbgLWCiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:38:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730062AbgLWCXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:23:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45263225AA;
-        Wed, 23 Dec 2020 02:23:26 +0000 (UTC)
+        id S1730138AbgLWCYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:24:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF0E623137;
+        Wed, 23 Dec 2020 02:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690207;
-        bh=K+bioDO4Ah8YGIttvteziuXMngBp1zEMtnN2NnFVgUU=;
+        s=k20201202; t=1608690208;
+        bh=J17Ye1tVNmhTMAZKXijNIjI7waSIU7anezzCCWHNJIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNlSmq4SOvFwvfGXd5ljoOKdmKCC+BD7bZ3h0nK/IA+KRBBjzXZyIoKfhlQxW+fE2
-         WKcTDbRd4xWBbTldiaDD+rtqWc0irahz2ndgaYOC9hli1obm7iy33aHIkntfCynbtQ
-         GVcRcgXXq7q9nKKxrpayOJKi0PxPf2FL6TA2I6SpRkG8a0FBvL5iFOEhNGUjDNEjsp
-         xjsTH1hTMJzkcQFxieKHN4DpUrukYI651LOwPhEiSYrbajGyFcbGkKBOSe66sFivbU
-         vN7kCG8JMXA6hOqQLrMGDrW5e/xHDdWZHJ3wQGFrOZUGl67ukXueKFFIWNkOoFIVXF
-         dsp6D6mv9pLqQ==
+        b=Q324Z9kls1ppv48JJqo2Kbr05KJAZ2as7eCowFTFgCZJ6A/2Ys3ZDvq2l6pQltHe2
+         XLWQFsUWRmxbuVF2naQSrEdKkMDrsyqzKzBKz4OSzUT8nXj7slcBhGUHqAwEziQzG6
+         pv+LjYJbsjAOxV9yEYk9hABKJsMwIVBN1fSrTE8+p8O6/j5WWpbf7qpOWmnZxVwuyL
+         mfH1y2PD6YRanP3is3Os9G53IsZv05BflrucFT1E9qvLQGxXkyFV5RdXUiy4YyPArO
+         Hhov+bhLb2DJnChEbxtHCbPTAOxyxB6VpgYoreychW8tx6pgy5cRipz4WExliAl3lJ
+         +bTIJ7bYiOBbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/66] mmc: tmio: do not print real IOMEM pointer
-Date:   Tue, 22 Dec 2020 21:22:13 -0500
-Message-Id: <20201223022253.2793452-27-sashal@kernel.org>
+Cc:     Youling Tang <tangyouling@loongson.cn>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 28/66] ARM: OMAP2+: Fix memleak in omap2xxx_clkt_vps_init
+Date:   Tue, 22 Dec 2020 21:22:14 -0500
+Message-Id: <20201223022253.2793452-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 References: <20201223022253.2793452-1-sashal@kernel.org>
@@ -44,39 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Youling Tang <tangyouling@loongson.cn>
 
-[ Upstream commit ade8e9d3fb9232ddfb87a4bc641b35b988d9757b ]
+[ Upstream commit 3c5902d270edb6ccc3049acfe5d3e96653c87dcd ]
 
-Printing kernel pointers is discouraged because they might leak kernel
-memory layout.  This fixes smatch warning:
+If the clk_register fails, we should free hw before function returns to
+prevent memleak.
 
-    drivers/mmc/host/tmio_mmc.c:177 tmio_mmc_probe() warn: argument 3 to %08lx specifier is cast from pointer
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201116164252.44078-1-krzk@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/tmio_mmc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/mach-omap2/clkt2xxx_virt_prcm_set.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mmc/host/tmio_mmc.c b/drivers/mmc/host/tmio_mmc.c
-index 64b7e9f18361d..3b96c9cebbafa 100644
---- a/drivers/mmc/host/tmio_mmc.c
-+++ b/drivers/mmc/host/tmio_mmc.c
-@@ -109,8 +109,7 @@ static int tmio_mmc_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto host_remove;
+diff --git a/arch/arm/mach-omap2/clkt2xxx_virt_prcm_set.c b/arch/arm/mach-omap2/clkt2xxx_virt_prcm_set.c
+index b64d717bfab6c..45fa2a87d5715 100644
+--- a/arch/arm/mach-omap2/clkt2xxx_virt_prcm_set.c
++++ b/arch/arm/mach-omap2/clkt2xxx_virt_prcm_set.c
+@@ -247,6 +247,12 @@ void omap2xxx_clkt_vps_init(void)
+ 	hw->hw.init = &init;
  
--	pr_info("%s at 0x%08lx irq %d\n", mmc_hostname(host->mmc),
--		(unsigned long)host->ctl, irq);
-+	pr_info("%s at 0x%p irq %d\n", mmc_hostname(host->mmc), host->ctl, irq);
- 
- 	return 0;
- 
+ 	clk = clk_register(NULL, &hw->hw);
++	if (IS_ERR(clk)) {
++		printk(KERN_ERR "Failed to register clock\n");
++		kfree(hw);
++		return;
++	}
++
+ 	clkdev_create(clk, "cpufreq_ck", NULL);
+ 	return;
+ cleanup:
 -- 
 2.27.0
 
