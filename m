@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0052E15D8
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78DA02E1547
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730966AbgLWCyN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:54:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49842 "EHLO mail.kernel.org"
+        id S1729065AbgLWCUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727042AbgLWCVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C4D22D73;
-        Wed, 23 Dec 2020 02:20:24 +0000 (UTC)
+        id S1729059AbgLWCUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E41752256F;
+        Wed, 23 Dec 2020 02:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690025;
-        bh=SswW3qNL+ETTgMTJlwZZ9/3Bt0tqzb74Kujpw7k9mtI=;
+        s=k20201202; t=1608690026;
+        bh=7HC+ObMbUp1xd/+6H5gDUxI+7+qfuTziLd2e8cpkwQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1TZLo4bu7r643vMoCh9YuuwnGcKHeqETMD6gegZP48ZlMeeFKA6p43koYmhwm4tT
-         HUb5D/6N/FJrFPKgmntNxwYGh/0MiKFwKlzsnmRr2ey9dieER4Z0ZDrKIKlvdikujP
-         QVgSqkkHsNFMZ2+EcZqDqiAWCS7WPlFclXcqKNclxEJrFBfzYC4wKX2DV2jjEGqMRf
-         +Fae6rAbu5pZAR2/uOOxoHJnYUpOTPVM2u+JdFt8migT5YyHHSgDlvDMvGXeYqi9Eo
-         GPPESEHeN8RPTxBblW6cvtfO5OSBXLhi3t865JfFkRfEtumQYxr5arwiboB5KE7j7W
-         WvwHd42pUBFDg==
+        b=jyAdkcbGcaRz0soS79QckBf091q5/aa3StFN6zG8G9ocC+f4124NN4pOLTLOtFj/J
+         qTsQRYvpWmWM/yjOwCdiQ7h23YHCUgN0ObCdApvDAkTM7FD2bEZlidggTLCFNzEuzS
+         6wSwmlztyeshk1uqu7fByW1rKxre4L4zmmmCPc1EyibT6p5Ji2qJnVtR7iNdyMc/jx
+         CWKMcgVn1GX0M2E+eft03ssS+Pfn6UvIddinr/3IoLf2DU4iyjsiN/hzlreHvjdlAp
+         DLC0z0ujD5U1YanCcqd2JjGB8HIV499u93hTRCUxwvd5OCA6MPMKtatLResQyGskMa
+         JKIyeILClcbug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 102/130] btrfs: fix race that makes inode logging fallback to transaction commit
-Date:   Tue, 22 Dec 2020 21:17:45 -0500
-Message-Id: <20201223021813.2791612-102-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 103/130] btrfs: fix race leading to unnecessary transaction commit when logging inode
+Date:   Tue, 22 Dec 2020 21:17:46 -0500
+Message-Id: <20201223021813.2791612-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -43,97 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 47d3db41e190ca4a9c6e4a848052f4c5ca633db1 ]
+[ Upstream commit 639bd575b7c7fa326abadd2ef3e374a5a24eb40b ]
 
-When logging an inode and the previous transaction is still committing, we
-have a time window where we can end up incorrectly think an inode has its
-last_unlink_trans field with a value greater than the last transaction
-committed, which results in the logging to fallback to a full transaction
-commit, which is usually much more expensive than doing a log commit.
+When logging an inode we may often have to fallback to a full transaction
+commit, either because a new block group was allocated, there is some case
+we can not deal with without a transaction commit or some error like an
+ENOMEM happened. However after we fallback to a transaction commit, we
+have a time window where we can make the next attempt to log any inode
+commit the next transaction unnecessarily, adding additional overhead and
+increasing latency.
 
-The race is described by the following steps:
+A sequence of steps that leads to this issue is the following:
 
-1) We are at transaction 1000;
+1) The current open transaction has a generation of 1000;
 
-2) We modify an inode X (a directory) using transaction 1000 and set its
-   last_unlink_trans field to 1000, because for example we removed one
-   of its subdirectories;
+2) A new block group is allocated, and as a consequence we must make sure
+   any attempts to commit a log fallback to a transaction commit, so
+   btrfs_set_log_full_commit() is called from btrfs_make_block_group().
+   This sets fs_info->last_trans_log_full_commit to 1000;
 
-3) We create a new inode Y with a dentry in inode X using transaction 1000,
-   so its generation field is set to 1000;
+3) Task A is holding a handle on transaction 1000 and tries to log inode X.
+   Once it gets to start_log_trans(), it calls btrfs_need_log_full_commit()
+   which returns true, since fs_info->last_trans_log_full_commit has a
+   value of 1000. So we end up returning EAGAIN and propagating it up to
+   btrfs_sync_file(), where we commit transaction 1000;
 
-4) The commit for transaction 1000 is started by task A;
+4) The transaction commit task (task A) sets the transaction state to
+   unblocked (TRANS_STATE_UNBLOCKED);
 
-5) The task committing transaction 1000 sets the transaction state to
-   unblocked, writes the dirty extent buffers and the super blocks, then
-   unlocks tree_log_mutex;
+5) Some other task, task B, starts a new transaction with a generation of
+   1001;
 
-6) Some task starts a new transaction with a generation of 1001;
+6) Some stuff is done with transaction 1001, some btree blocks COWed, etc;
 
-7) We do some modification to inode Y (using transaction 1001);
+7) Transaction 1000 has not fully committed yet, we are still writing all
+   the extent buffers it created;
 
-8) The transaction 1000 commit starts unpinning extents. At this point
-   fs_info->last_trans_committed still has a value of 999;
+8) Some new task, task C, starts an fsync of inode Y, gets a handle for
+   transaction 1001, and it gets to btrfs_log_inode_parent() which does
+   the following check:
 
-9) Task B starts an fsync on inode Y, and gets a handle for transaction
-   1001. When it gets to check_parent_dirs_for_sync() it does the checking
-   of the ancestor dentries because the following check does not evaluate
-   to true:
+     if (fs_info->last_trans_log_full_commit > last_committed) {
+         ret = 1;
+         goto end_no_trans;
+     }
 
-       if (S_ISREG(inode->vfs_inode.i_mode) &&
-           inode->generation <= last_committed &&
-           inode->last_unlink_trans <= last_committed)
-               goto out;
+   At that point last_trans_log_full_commit has a value of 1000 and
+   last_committed (value of fs_info->last_trans_committed) has a value of
+   999, since transaction 1000 has not yet committed - it is either still
+   writing out dirty extent buffers, its super blocks or unpinning
+   extents.
 
-   The generation value for inode Y is 1000 and last_committed, which has
-   the value read from fs_info->last_trans_committed, has a value of 999,
-   so that check evaluates to false and we proceed to check the ancestor
-   inodes.
+   As a consequence we return 1, which gets propagated up to
+   btrfs_sync_file(), which will then call btrfs_commit_transaction()
+   for transaction 1001.
 
-   Once we get to the first ancestor, inode X, we call
-   btrfs_must_commit_transaction() on it, which evaluates to true:
+   As a consequence we have an unnecessary second transaction commit, we
+   previously committed transaction 1000 and now commit transaction 1001
+   as well, resulting in more overhead and increased latency.
 
-   static bool btrfs_must_commit_transaction(...)
-   {
-       struct btrfs_fs_info *fs_info = inode->root->fs_info;
-       bool ret = false;
+So fix this double transaction commit issue simply by removing that check,
+because all we need to do is wait for the previous transaction to finish
+its commit, which we already do later when starting the log transaction at
+start_log_trans(), because there we acquire the tree_log_mutex lock, which
+is held by a transaction commit and only released after the transaction
+commits its super blocks.
 
-       mutex_lock(&inode->log_mutex);
-       if (inode->last_unlink_trans > fs_info->last_trans_committed) {
-           /*
-            * Make sure any commits to the log are forced to be full
-            * commits.
-            */
-            btrfs_set_log_full_commit(trans);
-            ret = true;
-       }
-    (...)
+Another issue that check has is that it reads last_trans_log_full_commit
+without using READ_ONCE(), which is incorrect since that member of
+struct btrfs_fs_info is always updated with WRITE_ONCE() through the
+helper btrfs_set_log_full_commit().
 
-    because inode's X last_unlink_trans has a value of 1000 and
-    fs_info->last_trans_committed still has a value of 999, it returns
-    true to check_parent_dirs_for_sync(), making it return 1 which is
-    propagated up to btrfs_sync_file(), causing it to fallback to a full
-    transaction commit of transaction 1001.
-
-    We should have not fallen back to commit transaction 1001, since inode
-    X had last_unlink_trans set to 1000 and the super blocks for
-    transaction 1000 were already written. So while not resulting in a
-    functional problem, it leads to a lot more work and higher latencies
-    for a fsync since committing a transaction is usually more expensive
-    than committing a log (if other filesystem changes happened under that
-    transaction).
-
-Similar problem happens when logging directories, for the same reason as
-btrfs_must_commit_transaction() returns true on an inode with its
-last_unlink_trans having the generation of the previous transaction and
-that transaction is still committing, unpinning its freed extents.
-
-So fix this by comparing last_unlink_trans with the id of the current
-transaction instead of fs_info->last_trans_committed.
-
-This case is often hit when running dbench for a long enough duration, as
-it does lots of rename and rmdir operations (both update the field
-last_unlink_trans of an inode) and fsyncs of files and directories.
+This double transaction commit issue can actually be triggered quite often
+in long runs of dbench, since besides the creation of new block groups
+that force inode logging to fallback to a transaction commit, there are
+cases where dbench asks to fsync a directory which had files in it that
+were previously renamed or subdirectories that were removed, resulting in
+the inode logging to fallback to a full transaction commit.
 
 This patch belongs to a patch set that is comprised of the following
 patches:
@@ -151,85 +137,30 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ fs/btrfs/tree-log.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
 diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 72e0ff38646a7..54095753f84f0 100644
+index 54095753f84f0..d0f4629bdfaf8 100644
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -5418,11 +5418,10 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- static bool btrfs_must_commit_transaction(struct btrfs_trans_handle *trans,
- 					  struct btrfs_inode *inode)
- {
--	struct btrfs_fs_info *fs_info = inode->root->fs_info;
- 	bool ret = false;
- 
- 	mutex_lock(&inode->log_mutex);
--	if (inode->last_unlink_trans > fs_info->last_trans_committed) {
-+	if (inode->last_unlink_trans >= trans->transid) {
- 		/*
- 		 * Make sure any commits to the log are forced to be full
- 		 * commits.
-@@ -5444,8 +5443,7 @@ static bool btrfs_must_commit_transaction(struct btrfs_trans_handle *trans,
- static noinline int check_parent_dirs_for_sync(struct btrfs_trans_handle *trans,
- 					       struct btrfs_inode *inode,
- 					       struct dentry *parent,
--					       struct super_block *sb,
--					       u64 last_committed)
-+					       struct super_block *sb)
- {
- 	int ret = 0;
- 	struct dentry *old_parent = NULL;
-@@ -5457,8 +5455,8 @@ static noinline int check_parent_dirs_for_sync(struct btrfs_trans_handle *trans,
- 	 * and other fun in this file.
- 	 */
- 	if (S_ISREG(inode->vfs_inode.i_mode) &&
--	    inode->generation <= last_committed &&
--	    inode->last_unlink_trans <= last_committed)
-+	    inode->generation < trans->transid &&
-+	    inode->last_unlink_trans < trans->transid)
- 		goto out;
- 
- 	if (!S_ISDIR(inode->vfs_inode.i_mode)) {
-@@ -5993,7 +5991,6 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct super_block *sb;
- 	int ret = 0;
--	u64 last_committed = fs_info->last_trans_committed;
- 	bool log_dentries = false;
- 
- 	sb = inode->vfs_inode.i_sb;
-@@ -6018,8 +6015,7 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
+@@ -6000,16 +6000,6 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
  		goto end_no_trans;
  	}
  
--	ret = check_parent_dirs_for_sync(trans, inode, parent, sb,
--			last_committed);
-+	ret = check_parent_dirs_for_sync(trans, inode, parent, sb);
- 	if (ret)
+-	/*
+-	 * The prev transaction commit doesn't complete, we need do
+-	 * full commit by ourselves.
+-	 */
+-	if (fs_info->last_trans_log_full_commit >
+-	    fs_info->last_trans_committed) {
+-		ret = 1;
+-		goto end_no_trans;
+-	}
+-
+ 	if (btrfs_root_refs(&root->root_item) == 0) {
+ 		ret = 1;
  		goto end_no_trans;
- 
-@@ -6049,8 +6045,8 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 	 * and other fun in this file.
- 	 */
- 	if (S_ISREG(inode->vfs_inode.i_mode) &&
--	    inode->generation <= last_committed &&
--	    inode->last_unlink_trans <= last_committed) {
-+	    inode->generation < trans->transid &&
-+	    inode->last_unlink_trans < trans->transid) {
- 		ret = 0;
- 		goto end_trans;
- 	}
-@@ -6099,7 +6095,7 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 	 * but the file inode does not have a matching BTRFS_INODE_REF_KEY item
- 	 * and has a link count of 2.
- 	 */
--	if (inode->last_unlink_trans > last_committed) {
-+	if (inode->last_unlink_trans >= trans->transid) {
- 		ret = btrfs_log_all_parents(trans, inode, ctx);
- 		if (ret)
- 			goto end_trans;
 -- 
 2.27.0
 
