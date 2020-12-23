@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C972E1327
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D8842E1325
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730413AbgLWC2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:28:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55968 "EHLO mail.kernel.org"
+        id S1730349AbgLWC2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:28:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730808AbgLWC0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:26:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 584C4225AB;
-        Wed, 23 Dec 2020 02:25:56 +0000 (UTC)
+        id S1729788AbgLWC0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:26:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7967C22A83;
+        Wed, 23 Dec 2020 02:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690357;
-        bh=TFGy+LQiUGgRTyrcomJE+0sOywuluX9VF45YyfZGh7g=;
+        s=k20201202; t=1608690358;
+        bh=OmvrlJhJ/YifQyy3+guv6v5apGg8Wr1Wj2N56B5e2zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHBaInAvUBhbFiTackzYQYzkWpZlM10cSXweFsXU/19ZdblFnMD22v28dSAzdOc1H
-         rU0G+sV6YP+ZTvBJrM41OH0EZrwv0Hs9mwGVnNjNp1LY+XDkTlAiZjkcZmB9In5xFO
-         BtYLNGHNGbaIirJoE3uy5iJ53m7REmcHEUXan1js9snG+/A+pM0wjlRZSMhe4hJfb1
-         Eshw3C3+zdjP5w+NW492WuXx6WrTSgIQ6MBgSWlh1Hi//tLZdteqQNaQMw0OEU3Bjq
-         xuZcPlmlx+/V2MovIOSVVf7/+C17wgfQry0hH2JYA+OfeJ+vhLuWH3vrVDJdExwjhY
-         NHZdvuzfTu8GQ==
+        b=fYr65u/xeS1819Ej0P23U3kwT24+mBwwH5DYImWiOSyR/uS6zjYfyclayIUT7Dj61
+         LWGNRoIAh3hM56LFFUpw1dfFQkf+UXGNmAZFZZ19+GjoReYooqKI/JCpnnvKisXGKX
+         RM4vhQNSgfjBBZMCphBnL7krhr1W3nfLTaLdQ+GJcsInnj1+Uf0x3FG2uyrdrLaYhT
+         mV4bVhhW0DSsduEHDCl9GaYll2hRwWlAiJ5DjMtrzwLlbiO+2fB7LlEwkmHuW5UNuH
+         H6oPRYes6SRkDYE/+WnujIFCj1zZGbTfP/VE+yfmxNEYififQVhLHZDWbODjq8gmjt
+         n5ceuRYYDCggw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 32/38] misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
-Date:   Tue, 22 Dec 2020 21:25:10 -0500
-Message-Id: <20201223022516.2794471-32-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 33/38] iwlwifi: trans: consider firmware dead after errors
+Date:   Tue, 22 Dec 2020 21:25:11 -0500
+Message-Id: <20201223022516.2794471-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
@@ -43,37 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 31dcb6c30a26d32650ce134820f27de3c675a45a ]
+[ Upstream commit 152fdc0f698896708f9d7889a4ba4da6944b74f7 ]
 
-A kernel-infoleak was reported by syzbot, which was caused because
-dbells was left uninitialized.
-Using kzalloc() instead of kmalloc() fixes this issue.
+If we get an error, no longer consider the firmware to be
+in IWL_TRANS_FW_ALIVE state.
 
-Reported-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Tested-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201122224534.333471-1-anant.thazhemadam@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201209231352.a9d01e79c1c7.Ib2deb076b392fb516a7230bac91d7ab8a9586d86@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_context.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/iwlwifi/iwl-trans.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_context.c b/drivers/misc/vmw_vmci/vmci_context.c
-index b9da2c6cc9818..0bdfa90ea6cda 100644
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -750,7 +750,7 @@ static int vmci_ctx_get_chkpt_doorbells(struct vmci_ctx *context,
- 			return VMCI_ERROR_MORE_DATA;
- 		}
+diff --git a/drivers/net/wireless/iwlwifi/iwl-trans.h b/drivers/net/wireless/iwlwifi/iwl-trans.h
+index 6f76525088f0e..8dd30de1976f0 100644
+--- a/drivers/net/wireless/iwlwifi/iwl-trans.h
++++ b/drivers/net/wireless/iwlwifi/iwl-trans.h
+@@ -1102,8 +1102,10 @@ static inline void iwl_trans_fw_error(struct iwl_trans *trans)
+ 		return;
  
--		dbells = kmalloc(data_size, GFP_ATOMIC);
-+		dbells = kzalloc(data_size, GFP_ATOMIC);
- 		if (!dbells)
- 			return VMCI_ERROR_NO_MEM;
+ 	/* prevent double restarts due to the same erroneous FW */
+-	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status))
++	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status)) {
+ 		iwl_op_mode_nic_error(trans->op_mode);
++		trans->state = IWL_TRANS_NO_FW;
++	}
+ }
  
+ /*****************************************************
 -- 
 2.27.0
 
