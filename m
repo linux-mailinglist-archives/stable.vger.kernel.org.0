@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D812E152F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46EF22E1527
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729681AbgLWCsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:48:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51014 "EHLO mail.kernel.org"
+        id S1729826AbgLWCsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:48:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729581AbgLWCWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52EA123137;
-        Wed, 23 Dec 2020 02:21:54 +0000 (UTC)
+        id S1728450AbgLWCWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:22:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A34542312E;
+        Wed, 23 Dec 2020 02:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690115;
-        bh=4blxh07H2tMfDMZoR942Zt0UzBtjoqsp3/jQySLE300=;
+        s=k20201202; t=1608690116;
+        bh=un0cieuQXduU8ykd0LiZTiK8/nwwTiR0gABskFJ+b9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvFpF1u85LtMA7/Eoz/0R773wo9np9jDKE+VUbiSmozf8fwqn78JMmptXDI5ZyyJq
-         17eglgzHTOySxmle+ILcbVxR+8SpWFMOGBCspxel1dDQFzTWSjfk/OSANzvqDylQLo
-         ex5Hq2D2nPvyLFv5xmRZlhQH69+Uch++8THfmSTxbaizrmNpIYRreYAGmQKVUrIfDo
-         uc8G/g217LiARgFN0Wcny5KqwME4DSz8H2TCPbUPCAVufDt1rEk+JYXHf1ud3fy6Tr
-         GL7Tkw+R/dMKZOSyBGD2cJXQhW3xUqpL5LA2DLucilupyLZkK/9YFs0ZSdebV1gt1i
-         5H+NDCsOq0ekA==
+        b=RMjbViU0E+JnnWKy1P1XT3MljTlxbbIUIl870tMAigaxzxaiUT8Y2tpjcxwI5hYTJ
+         mqDG5DuWdaoDyIv/5a0TdCFPcST9wCjy/hd9xCePSDdOGM/vJw28NbZff6L82qRS2r
+         UMKhahc3Zxmh9Q6H0a/JeXPLlG6wCn7bW7a1gbsksjK5W8u5Xr2Tp5sKBze/lg3HSB
+         HbW4UIpBlYtl8IEHrRrtpFP47df65KEYBVA8Z8TGx93BYp6bl0zMhBAKma0AdeGdKR
+         FoHYmVA7P0O3ThpwK2fhIRPYmgduNozhFYW1ydzTF0cqbyQPdSHbDQM4IJ3BhxJbQB
+         hrx5JE6yzD3qA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
         Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 42/87] ARM: dts: hisilicon: fix errors detected by usb yaml
-Date:   Tue, 22 Dec 2020 21:20:18 -0500
-Message-Id: <20201223022103.2792705-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 43/87] ARM: dts: hisilicon: fix errors detected by simple-bus.yaml
+Date:   Tue, 22 Dec 2020 21:20:19 -0500
+Message-Id: <20201223022103.2792705-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -44,40 +44,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 64f5b52554a1de47a53972a47b9b58d8d66ee5aa ]
+[ Upstream commit 8e9e8dd7ce093344a89792deaeb6caedde636dcf ]
 
-1. Change node name to match '^usb(@.*)?'
-
-These errors are detected by generic-ehci.yaml and generic-ohci.yaml.
+Change bus node name from "amba" to "amba-bus" to match
+'^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
 
 Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/hisi-x5hd2.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/hi3620-hi4511.dts | 2 +-
+ arch/arm/boot/dts/hi3620.dtsi       | 2 +-
+ arch/arm/boot/dts/hip01.dtsi        | 2 +-
+ arch/arm/boot/dts/hisi-x5hd2.dtsi   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/arch/arm/boot/dts/hi3620-hi4511.dts b/arch/arm/boot/dts/hi3620-hi4511.dts
+index 847920004f34c..65df6b8684ffc 100644
+--- a/arch/arm/boot/dts/hi3620-hi4511.dts
++++ b/arch/arm/boot/dts/hi3620-hi4511.dts
+@@ -25,7 +25,7 @@ memory {
+ 		reg = <0x40000000 0x20000000>;
+ 	};
+ 
+-	amba {
++	amba-bus {
+ 		dual_timer0: dual_timer@800000 {
+ 			status = "ok";
+ 		};
+diff --git a/arch/arm/boot/dts/hi3620.dtsi b/arch/arm/boot/dts/hi3620.dtsi
+index 9c12f3df78fd7..40bf9ed299458 100644
+--- a/arch/arm/boot/dts/hi3620.dtsi
++++ b/arch/arm/boot/dts/hi3620.dtsi
+@@ -66,7 +66,7 @@ cpu@3 {
+ 		};
+ 	};
+ 
+-	amba {
++	amba-bus {
+ 
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+diff --git a/arch/arm/boot/dts/hip01.dtsi b/arch/arm/boot/dts/hip01.dtsi
+index db4c813896b96..a1acc7bfc4325 100644
+--- a/arch/arm/boot/dts/hip01.dtsi
++++ b/arch/arm/boot/dts/hip01.dtsi
+@@ -38,7 +38,7 @@ soc {
+ 		interrupt-parent = <&gic>;
+ 		ranges = <0 0x10000000 0x20000000>;
+ 
+-		amba {
++		amba-bus {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			compatible = "simple-bus";
 diff --git a/arch/arm/boot/dts/hisi-x5hd2.dtsi b/arch/arm/boot/dts/hisi-x5hd2.dtsi
-index 3e8395f9c8d8f..d199dbe318a66 100644
+index d199dbe318a66..cf98f7adab462 100644
 --- a/arch/arm/boot/dts/hisi-x5hd2.dtsi
 +++ b/arch/arm/boot/dts/hisi-x5hd2.dtsi
-@@ -455,14 +455,14 @@ gmac1: ethernet@1841000 {
- 			status = "disabled";
- 		};
+@@ -33,7 +33,7 @@ soc {
+ 		interrupt-parent = <&gic>;
+ 		ranges = <0 0xf8000000 0x8000000>;
  
--		usb0: ehci@1890000 {
-+		usb0: usb@1890000 {
- 			compatible = "generic-ehci";
- 			reg = <0x1890000 0x1000>;
- 			interrupts = <0 66 4>;
- 			clocks = <&clock HIX5HD2_USB_CLK>;
- 		};
- 
--		usb1: ohci@1880000 {
-+		usb1: usb@1880000 {
- 			compatible = "generic-ohci";
- 			reg = <0x1880000 0x1000>;
- 			interrupts = <0 67 4>;
+-		amba {
++		amba-bus {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			compatible = "simple-bus";
 -- 
 2.27.0
 
