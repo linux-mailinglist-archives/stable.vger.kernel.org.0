@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D88982E137E
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC3B2E136F
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730834AbgLWCah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:30:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55404 "EHLO mail.kernel.org"
+        id S1730541AbgLWCaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:30:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730537AbgLWCZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C1B22202;
-        Wed, 23 Dec 2020 02:25:17 +0000 (UTC)
+        id S1730540AbgLWCZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:25:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FAAB2313F;
+        Wed, 23 Dec 2020 02:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690318;
-        bh=zHAXgintszTEn94mqTcrle1JwyCDLOMBGU4/rP5FDzw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hZhX3HpWWdm1IF+y9NKcXiGTd6/DbrYLOGwjqTXxD4y4yeyLwjEZ+X7mL0oJ8JKEG
-         txEdw7NMoI64zT/yftQ2fOY11BdkHCBW+7lWf2fND7VrssoelAhqL6ySlw53mt/Blq
-         2ckQ5lPzhPd2CpMwwXe8VvCNAfX6LRgVQQsgWkgzZL1cp2xoamNbHs0hGKssTcEQ8N
-         fh9ITFsfApMsWrSwE/KJUMETMKDQ9ZQUHjWrUjLxCRnXUfecZ2etyEqAoaaJfEjaap
-         1fBpuTgFMkHoNUOEjZqLweURdAYU14vyfYEI+i/k/QHfFF0j2nLWaQ3ZkBJkf06HLV
-         is64S5Okxb3Dw==
+        s=k20201202; t=1608690320;
+        bh=dgoLXAAdcQbHhpRGNFEm//O45/57BGHrz1JH3GoEqEo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ovb4JvWrX8AatjWXkD1fNRj6WQI5PaocxW9GQ1wAGXEVW4wzT9PUXXFmfh+4RC51P
+         KoGEvol6pHtpcAYF589aO4W8gKISfF8Jte/7uuui9RWF/2uwFjcOZDyObpqUt0c6u4
+         E/R/MfuEi8EkU4qPvNW2hAeJ02lA551jG21VP15g5PDnklnY1pUhrlaI7t9i7xmJLH
+         drpdfXqD8FQSxeYgFNU+NGQkwXzomtVVBQ72ydd6bklOV3zTtcqrVGNP7RQEcXA7q4
+         K4mvQlUr6kDbH0h/XomQe22CDFr3TjH4KtVqUjZ5p221lFn1ANFcRhmc/oHAcPPdQ/
+         twEwLGZQNuPQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luo Meng <luomeng12@huawei.com>, Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 01/38] locks: Fix UBSAN undefined behaviour in flock64_to_posix_lock
-Date:   Tue, 22 Dec 2020 21:24:39 -0500
-Message-Id: <20201223022516.2794471-1-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 02/38] tomoyo: fix clang pointer arithmetic warning
+Date:   Tue, 22 Dec 2020 21:24:40 -0500
+Message-Id: <20201223022516.2794471-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
+References: <20201223022516.2794471-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -39,53 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Meng <luomeng12@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 16238415eb9886328a89fe7a3cb0b88c7335fe16 ]
+[ Upstream commit d9594e0409651a237903a13c9718df889f43d43b ]
 
-When the sum of fl->fl_start and l->l_len overflows,
-UBSAN shows the following warning:
+clang warns about additions on NULL pointers being undefined in C:
 
-UBSAN: Undefined behaviour in fs/locks.c:482:29
-signed integer overflow: 2 + 9223372036854775806
-cannot be represented in type 'long long int'
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xe4/0x14e lib/dump_stack.c:118
- ubsan_epilogue+0xe/0x81 lib/ubsan.c:161
- handle_overflow+0x193/0x1e2 lib/ubsan.c:192
- flock64_to_posix_lock fs/locks.c:482 [inline]
- flock_to_posix_lock+0x595/0x690 fs/locks.c:515
- fcntl_setlk+0xf3/0xa90 fs/locks.c:2262
- do_fcntl+0x456/0xf60 fs/fcntl.c:387
- __do_sys_fcntl fs/fcntl.c:483 [inline]
- __se_sys_fcntl fs/fcntl.c:468 [inline]
- __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:468
- do_syscall_64+0xc8/0x5a0 arch/x86/entry/common.c:293
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+security/tomoyo/securityfs_if.c:226:59: warning: arithmetic on a null pointer treated as a cast from integer to pointer is a GNU extension [-Wnull-pointer-arithmetic]
+        securityfs_create_file(name, mode, parent, ((u8 *) NULL) + key,
 
-Fix it by parenthesizing 'l->l_len - 1'.
+Change the code to instead use a cast through uintptr_t to avoid
+the warning.
 
-Signed-off-by: Luo Meng <luomeng12@huawei.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/locks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/tomoyo/securityfs_if.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/locks.c b/fs/locks.c
-index 2c8e1e429cf7e..5cb012e4a2fc4 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -434,7 +434,7 @@ static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl,
- 	if (l->l_len > 0) {
- 		if (l->l_len - 1 > OFFSET_MAX - fl->fl_start)
- 			return -EOVERFLOW;
--		fl->fl_end = fl->fl_start + l->l_len - 1;
-+		fl->fl_end = fl->fl_start + (l->l_len - 1);
+diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
+index 179a955b319df..1e6a4ed5ae54d 100644
+--- a/security/tomoyo/securityfs_if.c
++++ b/security/tomoyo/securityfs_if.c
+@@ -135,8 +135,8 @@ static const struct file_operations tomoyo_self_operations = {
+  */
+ static int tomoyo_open(struct inode *inode, struct file *file)
+ {
+-	const int key = ((u8 *) file_inode(file)->i_private)
+-		- ((u8 *) NULL);
++	const u8 key = (uintptr_t) file_inode(file)->i_private;
++
+ 	return tomoyo_open_control(key, file);
+ }
  
- 	} else if (l->l_len < 0) {
- 		if (fl->fl_start + l->l_len < 0)
+@@ -227,7 +227,7 @@ static const struct file_operations tomoyo_operations = {
+ static void __init tomoyo_create_entry(const char *name, const umode_t mode,
+ 				       struct dentry *parent, const u8 key)
+ {
+-	securityfs_create_file(name, mode, parent, ((u8 *) NULL) + key,
++	securityfs_create_file(name, mode, parent, (void *) (uintptr_t) key,
+ 			       &tomoyo_operations);
+ }
+ 
 -- 
 2.27.0
 
