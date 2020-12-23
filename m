@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CB22E1761
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17CEE2E1652
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728619AbgLWDJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:09:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
+        id S1728191AbgLWCSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:18:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728165AbgLWCSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03BEB23355;
-        Wed, 23 Dec 2020 02:17:09 +0000 (UTC)
+        id S1728173AbgLWCSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4097F22955;
+        Wed, 23 Dec 2020 02:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689831;
-        bh=stsrBN/bDUlaywKYazUhbuTFa67XYpXFxp5ZYh4rJrY=;
+        s=k20201202; t=1608689834;
+        bh=hCW/it/g77Aj7RN5m1MC9PS3Hvxp3zWGZFGJpeXSXkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKdvrBmy7zAt3wtyw0zZet5AUH3KW7DlEj6kguXASeiBAelOzQCAVCg/8jTN5wcgA
-         kX4mVF2PYHRbxOXvgCnaI3BajNRmMpfJW78r2vqtY7ko8007z31OMJcwbfyRnvWe7K
-         p7OihpBOiwdkcfK+3ebf/NB+7rooSa2xBbo6z6Jw8sifNCyn/EcXvtwkbr3NKq7dGT
-         UfN5ale+pmmBqW0bImtEnqJoLn3QifvWqLIc2MlsaRIYEQtdmKodcV6q5WGK8e85rK
-         YAQ/+RRVsATIK7NBl+Z/a6JfCjHsDhqYo0/Pxev4KQvIU8XEJoi/K2IpSOUMLPvK8H
-         DSndENn6M8TTA==
+        b=f93wvcqtSjlL4/EwC2i9qJ5EymyghpD7pkONMrdVQrR9P/uyHiuIqi8ubPiF15zkX
+         VZ3GmDnitVjZRbmswMS3YBk9ZHmJjCuI79p7fcoBmG8F+W3gnj97IRvWIeFBT3YTMd
+         r0vJbU5RfjiBnkZunUNNQwP29q1l57Gb348GEyG43hI2hxRAtQNwCWoiMXlt22v42m
+         UGsrxlAflNA7Bk5pI0RUDNeCvkBDQck7Yn9+6euDqwXffU08zwvckPlpRiqKlF8Rhc
+         JtehtDlY6OVjdGKvsVV5z5L6O0F+LBWhauOsDa04ZVH3sJCcXtS2sxUk+gLS1kgqPk
+         rwt8Zjc18XTwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yuuzheng <yuuzheng@google.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        Ruksar Devadi <Ruksar.devadi@microchip.com>,
-        Radha Ramachandran <radha@google.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 033/217] scsi: pm80xx: Fix pm8001_mpi_get_nvmd_resp() race condition
-Date:   Tue, 22 Dec 2020 21:13:22 -0500
-Message-Id: <20201223021626.2790791-33-sashal@kernel.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>,
+        syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com,
+        syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com,
+        Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 035/217] fcntl: Fix potential deadlock in send_sig{io, urg}()
+Date:   Tue, 22 Dec 2020 21:13:24 -0500
+Message-Id: <20201223021626.2790791-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -46,54 +44,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yuuzheng <yuuzheng@google.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 1f889b58716a5f5e3e4fe0e6742c1a4472f29ac1 ]
+[ Upstream commit 8d1ddb5e79374fb277985a6b3faa2ed8631c5b4c ]
 
-A use-after-free or null-pointer error occurs when the 251-byte response
-data is copied from IOMB buffer to response message buffer in function
-pm8001_mpi_get_nvmd_resp().
+Syzbot reports a potential deadlock found by the newly added recursive
+read deadlock detection in lockdep:
 
-After sending the command get_nvmd_data(), the caller begins to sleep by
-calling wait_for_complete() and waits for the wake-up from calling
-complete() in pm8001_mpi_get_nvmd_resp(). Due to unexpected events (e.g.,
-interrupt), if response buffer gets freed before memcpy(), a use-after-free
-error will occur. To fix this, the complete() should be called after
-memcpy().
+[...] ========================================================
+[...] WARNING: possible irq lock inversion dependency detected
+[...] 5.9.0-rc2-syzkaller #0 Not tainted
+[...] --------------------------------------------------------
+[...] syz-executor.1/10214 just changed the state of lock:
+[...] ffff88811f506338 (&f->f_owner.lock){.+..}-{2:2}, at: send_sigurg+0x1d/0x200
+[...] but this lock was taken by another, HARDIRQ-safe lock in the past:
+[...]  (&dev->event_lock){-...}-{2:2}
+[...]
+[...]
+[...] and interrupts could create inverse lock ordering between them.
+[...]
+[...]
+[...] other info that might help us debug this:
+[...] Chain exists of:
+[...]   &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
+[...]
+[...]  Possible interrupt unsafe locking scenario:
+[...]
+[...]        CPU0                    CPU1
+[...]        ----                    ----
+[...]   lock(&f->f_owner.lock);
+[...]                                local_irq_disable();
+[...]                                lock(&dev->event_lock);
+[...]                                lock(&new->fa_lock);
+[...]   <Interrupt>
+[...]     lock(&dev->event_lock);
+[...]
+[...]  *** DEADLOCK ***
 
-Link: https://lore.kernel.org/r/20201102165528.26510-5-Viswas.G@microchip.com.com
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: yuuzheng <yuuzheng@google.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Ruksar Devadi <Ruksar.devadi@microchip.com>
-Signed-off-by: Radha Ramachandran <radha@google.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The corresponding deadlock case is as followed:
+
+	CPU 0		CPU 1		CPU 2
+	read_lock(&fown->lock);
+			spin_lock_irqsave(&dev->event_lock, ...)
+					write_lock_irq(&filp->f_owner.lock); // wait for the lock
+			read_lock(&fown-lock); // have to wait until the writer release
+					       // due to the fairness
+	<interrupted>
+	spin_lock_irqsave(&dev->event_lock); // wait for the lock
+
+The lock dependency on CPU 1 happens if there exists a call sequence:
+
+	input_inject_event():
+	  spin_lock_irqsave(&dev->event_lock,...);
+	  input_handle_event():
+	    input_pass_values():
+	      input_to_handler():
+	        handler->event(): // evdev_event()
+	          evdev_pass_values():
+	            spin_lock(&client->buffer_lock);
+	            __pass_event():
+	              kill_fasync():
+	                kill_fasync_rcu():
+	                  read_lock(&fa->fa_lock);
+	                  send_sigio():
+	                    read_lock(&fown->lock);
+
+To fix this, make the reader in send_sigurg() and send_sigio() use
+read_lock_irqsave() and read_lock_irqrestore().
+
+Reported-by: syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com
+Reported-by: syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/fcntl.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 9e9a546da9590..2054c2b03d928 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -3279,10 +3279,15 @@ pm8001_mpi_get_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		pm8001_ha->memoryMap.region[NVMD].virt_ptr,
- 		fw_control_context->len);
- 	kfree(ccb->fw_control_context);
-+	/* To avoid race condition, complete should be
-+	 * called after the message is copied to
-+	 * fw_control_context->usrAddr
-+	 */
-+	complete(pm8001_ha->nvmd_completion);
-+	PM8001_MSG_DBG(pm8001_ha, pm8001_printk("Set nvm data complete!\n"));
- 	ccb->task = NULL;
- 	ccb->ccb_tag = 0xFFFFFFFF;
- 	pm8001_tag_free(pm8001_ha, tag);
--	complete(pm8001_ha->nvmd_completion);
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index 19ac5baad50fd..05b36b28f2e87 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -781,9 +781,10 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
+ {
+ 	struct task_struct *p;
+ 	enum pid_type type;
++	unsigned long flags;
+ 	struct pid *pid;
+ 	
+-	read_lock(&fown->lock);
++	read_lock_irqsave(&fown->lock, flags);
+ 
+ 	type = fown->pid_type;
+ 	pid = fown->pid;
+@@ -804,7 +805,7 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
+ 		read_unlock(&tasklist_lock);
+ 	}
+  out_unlock_fown:
+-	read_unlock(&fown->lock);
++	read_unlock_irqrestore(&fown->lock, flags);
  }
  
- int pm8001_mpi_local_phy_ctl(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ static void send_sigurg_to_task(struct task_struct *p,
+@@ -819,9 +820,10 @@ int send_sigurg(struct fown_struct *fown)
+ 	struct task_struct *p;
+ 	enum pid_type type;
+ 	struct pid *pid;
++	unsigned long flags;
+ 	int ret = 0;
+ 	
+-	read_lock(&fown->lock);
++	read_lock_irqsave(&fown->lock, flags);
+ 
+ 	type = fown->pid_type;
+ 	pid = fown->pid;
+@@ -844,7 +846,7 @@ int send_sigurg(struct fown_struct *fown)
+ 		read_unlock(&tasklist_lock);
+ 	}
+  out_unlock_fown:
+-	read_unlock(&fown->lock);
++	read_unlock_irqrestore(&fown->lock, flags);
+ 	return ret;
+ }
+ 
 -- 
 2.27.0
 
