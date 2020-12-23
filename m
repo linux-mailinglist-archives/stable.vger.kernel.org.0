@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C44C2E1615
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D87D82E154A
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727554AbgLWC5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:57:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
+        id S1729075AbgLWCUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729063AbgLWCUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:20:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D06D22202;
-        Wed, 23 Dec 2020 02:20:02 +0000 (UTC)
+        id S1729070AbgLWCUo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C00822573;
+        Wed, 23 Dec 2020 02:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690002;
-        bh=O4qMQroSwZ+/X2Ecyn7WFV296lPaetdg1kz/ioPO50Y=;
+        s=k20201202; t=1608690004;
+        bh=EsNvLFz5OMm3fi/Rz/8846BS5lwNO6VkQMdzcAwBS5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPLBh5bVa1rW67lWELGYteOWxbtO7CfANo7XsjxBJSMIQrWiGELFPi1dQvuzuI84s
-         sso/PXmqgy7YDiN5O8NL6/NEsFHned2pvwjEFHSLGI+ZXLCxrj9B5CfIQvIC4jebj/
-         9R79ydcnF9wUk2w5xrRSIhXie1alIV9eh6TGOs/hPgfKMaE7gR3OA4j1FimVVCSGlt
-         ZFToUahRrr1Wh5phaP7WnpDXaaLdHOFoiMSJ5eT2yx1Hwes1MuRSVPnFZA8bI8pA4z
-         r6arHjgdY0G9m9XfZbqxsJ1l+8avUoCrY9dfqcjxfEiTrw6ZtJvtpcQmQLhLGDMX91
-         w/2fO9wBCMsEQ==
+        b=hpAJM4JT5lPTuYnu/gsebWwGLlHT7w7iR8p5KGBdsRm8y09az0TVrKr5thdqPPa2E
+         DqK73g4OIiOSfYkOp96qE0QxFn2OfQsGQtNxN8jMnS7EszCcu0lEfaYGknalRZ/HCO
+         sJxYe7BqYg3e1vVMaJZzokLG+3i76lMQ86ip0ZjyaK2nm9yXTpqSm82gmA77USk+9p
+         oeIQPB9fvhxjXdTzfh/akHAENeEf1bfDPkI6svXc4L08xvQUnqQyWBA8JM2O/Gp+jI
+         mmk6bzEiC2Q46Z7Z/m+WYJDizak9i8XZttPrlQ5KKesTJ7lysxB35Xgur3Skac9k6h
+         B0xaFxsi3eZDA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mingrui Ren <jiladahe1997@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 084/130] tty/serial/imx: Enable TXEN bit in imx_poll_init().
-Date:   Tue, 22 Dec 2020 21:17:27 -0500
-Message-Id: <20201223021813.2791612-84-sashal@kernel.org>
+Cc:     Jinyang He <hejinyang@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 085/130] MIPS: KASLR: Avoid endless loop in sync_icache if synci_step is zero
+Date:   Tue, 22 Dec 2020 21:17:28 -0500
+Message-Id: <20201223021813.2791612-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -43,43 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mingrui Ren <jiladahe1997@gmail.com>
+From: Jinyang He <hejinyang@loongson.cn>
 
-[ Upstream commit aef1b6a27970607721a618a0b990716ca8dbbf97 ]
+[ Upstream commit c0aac3a51cb6364bed367ee3e1a96ed414f386b4 ]
 
-As described in Documentation, poll_init() is called by kgdb to initialize
-hardware which supports both poll_put_char() and poll_get_char().
+Most platforms do not need to do synci instruction operations when
+synci_step is 0. But for example, the synci implementation on Loongson64
+platform has some changes. On the one hand, it ensures that the memory
+access instructions have been completed. On the other hand, it guarantees
+that all prefetch instructions need to be fetched again. And its address
+information is useless. Thus, only one synci operation is required when
+synci_step is 0 on Loongson64 platform. I guess that some other platforms
+have similar implementations on synci, so add judgment conditions in
+`while` to ensure that at least all platforms perform synci operations
+once. For those platforms that do not need synci, they just do one more
+operation similar to nop.
 
-It's necessary to enable TXEN bit, otherwise, it will cause hardware fault
-and kernel panic when calling imx_poll_put_char().
-
-Generally, if use /dev/ttymxc0 as kgdb console as well as system
-console, ttymxc0 is initialized early by system console which does enable
-TXEN bit.But when use /dev/ttymxc1 as kgbd console, ttymxc1 is only
-initialized by imx_poll_init() cannot enable the TXEN bit, which will
-cause kernel panic.
-
-Signed-off-by: Mingrui Ren <jiladahe1997@gmail.com>
-Link: https://lore.kernel.org/r/20201202072543.151-1-972931182@qq.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jinyang He <hejinyang@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 2 +-
+ arch/mips/kernel/relocate.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index e5ed4ab2b08df..982953db58e95 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1811,7 +1811,7 @@ static int imx_uart_poll_init(struct uart_port *port)
- 	ucr1 |= UCR1_UARTEN;
- 	ucr1 &= ~(UCR1_TRDYEN | UCR1_RTSDEN | UCR1_RRDYEN);
+diff --git a/arch/mips/kernel/relocate.c b/arch/mips/kernel/relocate.c
+index 3d80a51256de6..cf92196ab6145 100644
+--- a/arch/mips/kernel/relocate.c
++++ b/arch/mips/kernel/relocate.c
+@@ -64,7 +64,7 @@ static void __init sync_icache(void *kbase, unsigned long kernel_length)
+ 			: "r" (kbase));
  
--	ucr2 |= UCR2_RXEN;
-+	ucr2 |= UCR2_RXEN | UCR2_TXEN;
- 	ucr2 &= ~UCR2_ATEN;
+ 		kbase += step;
+-	} while (kbase < kend);
++	} while (step && kbase < kend);
  
- 	imx_uart_writel(sport, ucr1, UCR1);
+ 	/* Completion barrier */
+ 	__sync();
 -- 
 2.27.0
 
