@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B64B2E1E22
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA79F2E1DFC
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbgLWPer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46274 "EHLO mail.kernel.org"
+        id S1726390AbgLWPdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:33:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729020AbgLWPer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D2E233EF;
-        Wed, 23 Dec 2020 15:33:48 +0000 (UTC)
+        id S1726558AbgLWPdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 10:33:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7725E23355;
+        Wed, 23 Dec 2020 15:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737629;
-        bh=xstIiTdL/JaB9tfEibRhQgl3dK49EDZPT8HZkj5uJvk=;
+        s=korg; t=1608737570;
+        bh=1dQhSI+dob1gFEXz9OXKomPDYDL6Nskav45NYb5yp0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=taw2vLhHWmUFvmKGF8WSvUJwjcn53+yGChorQGXP5BmIluKzGu9esi4RPgjew512U
-         dM23RU+OAHDj+N1OetkTDwcxdI1iKpyQeAHc7mw83MnXz5pBb7RvS/jk3jniLLy284
-         hFzrJdeQKh7AIpOSDRWroQzQ7EpDIeAe84K+bGqo=
+        b=DGPL0TNQyZLGcJqOTcheQwN/t2cu+LEdfteKy+QWeEH5TZUtakp2+VvGNi1Tbxud6
+         wp9MtlTelFzGOUV5+RRtS+nNpbqYfzvy9jjyBtDYBjt9V2kvpMg4TPvmUI/qHhkVik
+         zzgVu4/pTK3pv8qxe8yIlsOyaAT6a1R8hu07bdzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.10 11/40] usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to imx6ul
-Date:   Wed, 23 Dec 2020 16:33:12 +0100
-Message-Id: <20201223150516.110788092@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 5.10 12/40] ARM: dts: exynos: fix roles of USB 3.0 ports on Odroid XU
+Date:   Wed, 23 Dec 2020 16:33:13 +0100
+Message-Id: <20201223150516.159866485@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 References: <20201223150515.553836647@linuxfoundation.org>
@@ -39,38 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit c7721e15f434920145c376e8fe77e1c079fc3726 upstream.
+commit ecc1ff532b499d20304a4f682247137025814c34 upstream.
 
-According to the i.MX6UL Errata document:
-https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
+On Odroid XU board the USB3-0 port is a microUSB and USB3-1 port is USB
+type A (host).  The roles were copied from Odroid XU3 (Exynos5422)
+design which has it reversed.
 
-ERR007881 also affects i.MX6UL, so pass the
-CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
-
-Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
+Fixes: 8149afe4dbf9 ("ARM: dts: exynos: Add initial support for Odroid XU board")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201207020909.22483-2-peter.chen@kernel.org
+Link: https://lore.kernel.org/r/20201015182044.480562-1-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5410-odroidxu.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform
- 
- static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
- 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
--		CI_HDRC_TURN_VBUS_EARLY_ON,
-+		CI_HDRC_TURN_VBUS_EARLY_ON |
-+		CI_HDRC_DISABLE_DEVICE_STREAMING,
+--- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
++++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+@@ -637,11 +637,11 @@
  };
  
- static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+ &usbdrd_dwc3_0 {
+-	dr_mode = "host";
++	dr_mode = "peripheral";
+ };
+ 
+ &usbdrd_dwc3_1 {
+-	dr_mode = "peripheral";
++	dr_mode = "host";
+ };
+ 
+ &usbdrd3_0 {
 
 
