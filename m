@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645A02E1E15
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174D12E1E2F
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728901AbgLWPed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
+        id S1728914AbgLWPeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:34:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728818AbgLWPed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E6A32335A;
-        Wed, 23 Dec 2020 15:34:07 +0000 (UTC)
+        id S1728908AbgLWPef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 10:34:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DAE23371;
+        Wed, 23 Dec 2020 15:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737647;
-        bh=SBCnZ+eIEoohM9+McIZXqBpzhwBJR0HiRLkkUZYRDSk=;
+        s=korg; t=1608737649;
+        bh=PYQsgOD9N/AodpfwR8UQ6zdkT19rv7GcP8maEXE6IDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySSIyKbzCsJGBG0rRGCdNRehk5EoZppNpQk7sWohpwcGnNdZ3FQwJKr6O8Bkw48Os
-         4W30Uca409+yUT/hKvU+iXBhYjkQZvyred/ngex+58/jNGf5m6Vute2MHDNghye0wm
-         jL5tyJlN2Y2K0gAxF3BKcuLbp0zF21bGsykE5zmU=
+        b=zaIvyzGd7fe/SEt9g7NZ960yjJkVzF0qHaZqTlgaaKIcnJBY3nm0R5lsBf7eo+UaP
+         HXkqiFbwymtL3r8PfbVd7LPmsCkjz8/FQhr0DcYzmu8Nkd3N5m6TNzfRk4NyXG6IGg
+         ieTL94466ggw/w5Jodqi6F9nOnY/KrZQC+EDsT+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 39/40] nl80211: validate key indexes for cfg80211_registered_device
-Date:   Wed, 23 Dec 2020 16:33:40 +0100
-Message-Id: <20201223150517.414201577@linuxfoundation.org>
+        syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com,
+        "Dae R. Jeong" <dae.r.jeong@kaist.ac.kr>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.10 40/40] md: fix a warning caused by a race between concurrent md_ioctl()s
+Date:   Wed, 23 Dec 2020 16:33:41 +0100
+Message-Id: <20201223150517.462984079@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 References: <20201223150515.553836647@linuxfoundation.org>
@@ -42,136 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
 
-commit 2d9463083ce92636a1bdd3e30d1236e3e95d859e upstream.
+commit c731b84b51bf7fe83448bea8f56a6d55006b0615 upstream.
 
-syzbot discovered a bug in which an OOB access was being made because
-an unsuitable key_idx value was wrongly considered to be acceptable
-while deleting a key in nl80211_del_key().
+Syzkaller reports a warning as belows.
+WARNING: CPU: 0 PID: 9647 at drivers/md/md.c:7169
+...
+Call Trace:
+...
+RIP: 0010:md_ioctl+0x4017/0x5980 drivers/md/md.c:7169
+RSP: 0018:ffff888096027950 EFLAGS: 00010293
+RAX: ffff88809322c380 RBX: 0000000000000932 RCX: ffffffff84e266f2
+RDX: 0000000000000000 RSI: ffffffff84e299f7 RDI: 0000000000000007
+RBP: ffff888096027bc0 R08: ffff88809322c380 R09: ffffed101341a482
+R10: ffff888096027940 R11: ffff88809a0d240f R12: 0000000000000932
+R13: ffff8880a2c14100 R14: ffff88809a0d2268 R15: ffff88809a0d2408
+ __blkdev_driver_ioctl block/ioctl.c:304 [inline]
+ blkdev_ioctl+0xece/0x1c10 block/ioctl.c:606
+ block_ioctl+0xee/0x130 fs/block_dev.c:1930
+ vfs_ioctl fs/ioctl.c:46 [inline]
+ file_ioctl fs/ioctl.c:509 [inline]
+ do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
+ ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+ __do_sys_ioctl fs/ioctl.c:720 [inline]
+ __se_sys_ioctl fs/ioctl.c:718 [inline]
+ __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+ do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Since we don't know the cipher at the time of deletion, if
-cfg80211_validate_key_settings() were to be called directly in
-nl80211_del_key(), even valid keys would be wrongly determined invalid,
-and deletion wouldn't occur correctly.
-For this reason, a new function - cfg80211_valid_key_idx(), has been
-created, to determine if the key_idx value provided is valid or not.
-cfg80211_valid_key_idx() is directly called in 2 places -
-nl80211_del_key(), and cfg80211_validate_key_settings().
+This is caused by a race between two concurrenct md_ioctl()s closing
+the array.
+CPU1 (md_ioctl())                   CPU2 (md_ioctl())
+------                              ------
+set_bit(MD_CLOSING, &mddev->flags);
+did_set_md_closing = true;
+                                    WARN_ON_ONCE(test_bit(MD_CLOSING,
+                                            &mddev->flags));
+if(did_set_md_closing)
+    clear_bit(MD_CLOSING, &mddev->flags);
 
-Reported-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
-Tested-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
-Suggested-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201204215825.129879-1-anant.thazhemadam@gmail.com
+Fix the warning by returning immediately if the MD_CLOSING bit is set
+in &mddev->flags which indicates that the array is being closed.
+
+Fixes: 065e519e71b2 ("md: MD_CLOSING needs to be cleared after called md_set_readonly or do_md_stop")
+Reported-by: syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-[also disallow IGTK key IDs if no IGTK cipher is supported]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/core.h    |    2 +
- net/wireless/nl80211.c |    7 +++---
- net/wireless/util.c    |   51 +++++++++++++++++++++++++++++++++++++++++--------
- 3 files changed, 49 insertions(+), 11 deletions(-)
+ drivers/md/md.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/wireless/core.h
-+++ b/net/wireless/core.h
-@@ -433,6 +433,8 @@ void cfg80211_sme_abandon_assoc(struct w
- 
- /* internal helpers */
- bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher);
-+bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
-+			    int key_idx, bool pairwise);
- int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
- 				   struct key_params *params, int key_idx,
- 				   bool pairwise, const u8 *mac_addr);
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -4260,9 +4260,6 @@ static int nl80211_del_key(struct sk_buf
- 	if (err)
- 		return err;
- 
--	if (key.idx < 0)
--		return -EINVAL;
--
- 	if (info->attrs[NL80211_ATTR_MAC])
- 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
- 
-@@ -4278,6 +4275,10 @@ static int nl80211_del_key(struct sk_buf
- 	    key.type != NL80211_KEYTYPE_GROUP)
- 		return -EINVAL;
- 
-+	if (!cfg80211_valid_key_idx(rdev, key.idx,
-+				    key.type == NL80211_KEYTYPE_PAIRWISE))
-+		return -EINVAL;
-+
- 	if (!rdev->ops->del_key)
- 		return -EOPNOTSUPP;
- 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -272,18 +272,53 @@ bool cfg80211_supported_cipher_suite(str
- 	return false;
- }
- 
--int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
--				   struct key_params *params, int key_idx,
--				   bool pairwise, const u8 *mac_addr)
-+static bool
-+cfg80211_igtk_cipher_supported(struct cfg80211_registered_device *rdev)
-+{
-+	struct wiphy *wiphy = &rdev->wiphy;
-+	int i;
-+
-+	for (i = 0; i < wiphy->n_cipher_suites; i++) {
-+		switch (wiphy->cipher_suites[i]) {
-+		case WLAN_CIPHER_SUITE_AES_CMAC:
-+		case WLAN_CIPHER_SUITE_BIP_CMAC_256:
-+		case WLAN_CIPHER_SUITE_BIP_GMAC_128:
-+		case WLAN_CIPHER_SUITE_BIP_GMAC_256:
-+			return true;
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7590,8 +7590,11 @@ static int md_ioctl(struct block_device
+ 			err = -EBUSY;
+ 			goto out;
+ 		}
+-		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
+-		set_bit(MD_CLOSING, &mddev->flags);
++		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
++			mutex_unlock(&mddev->open_mutex);
++			err = -EBUSY;
++			goto out;
 +		}
-+	}
-+
-+	return false;
-+}
-+
-+bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
-+			    int key_idx, bool pairwise)
- {
--	int max_key_idx = 5;
-+	int max_key_idx;
- 
--	if (wiphy_ext_feature_isset(&rdev->wiphy,
--				    NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
--	    wiphy_ext_feature_isset(&rdev->wiphy,
--				    NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
-+	if (pairwise)
-+		max_key_idx = 3;
-+	else if (wiphy_ext_feature_isset(&rdev->wiphy,
-+					 NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
-+		 wiphy_ext_feature_isset(&rdev->wiphy,
-+					 NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
- 		max_key_idx = 7;
-+	else if (cfg80211_igtk_cipher_supported(rdev))
-+		max_key_idx = 5;
-+	else
-+		max_key_idx = 3;
-+
- 	if (key_idx < 0 || key_idx > max_key_idx)
-+		return false;
-+
-+	return true;
-+}
-+
-+int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
-+				   struct key_params *params, int key_idx,
-+				   bool pairwise, const u8 *mac_addr)
-+{
-+	if (!cfg80211_valid_key_idx(rdev, key_idx, pairwise))
- 		return -EINVAL;
- 
- 	if (!pairwise && mac_addr && !(rdev->wiphy.flags & WIPHY_FLAG_IBSS_RSN))
+ 		did_set_md_closing = true;
+ 		mutex_unlock(&mddev->open_mutex);
+ 		sync_blockdev(bdev);
 
 
