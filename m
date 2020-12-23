@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD452E14C4
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 339292E14DD
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbgLWCnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:43:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S1730110AbgLWCpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:45:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729873AbgLWCXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:23:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F14F22248;
-        Wed, 23 Dec 2020 02:22:22 +0000 (UTC)
+        id S1729753AbgLWCWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:22:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 867F422202;
+        Wed, 23 Dec 2020 02:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690143;
-        bh=qF9l755odwp307/T/N4iq49b/ec7+MuRGg7fKtWJgkU=;
+        s=k20201202; t=1608690144;
+        bh=+CvmP7h7ifvCjPAvGp8HAlcP5mWWxkFw3PAXocRx5yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GG3fI/0uKfXHDg7UO1rqpzI3WHly6c8nyu0srm88rM2uu4/lBxP5v3dOonIWMRRYu
-         EwZwLtMN0j4LXXR2F6Npfi3uRvq3RPWkWSPK3SgRUiWqrxG68CDPwAjxog9aaJ7nNP
-         ZR0lQaxXHOU55mj41ukWT9GbtDA0lJ4e0WRmddIocmeOZyjDh5KvUsmYY0+zOF+sZV
-         l2Pr+x+3vpYtouj7KsCnwCAy5AXcZZnTh7JheUX49J6f06RtlXUnku+u3aA3iBuT47
-         CUmJtQvLygv4+OlJGseV+KazpZdpU+ZJKKFMMcLAoP7Ct5hFOF6n0JBhVNx4KKj/Xr
-         9BxTLNRoQ1WNA==
+        b=gBFwF7vy+iBV4hzz1rX9VbcDXchQ87poXEyfynd62zCencsciHAF9Eok9xdznEmDV
+         +hE5Vwq5qtzWQQyD0NWJ1xYkHOgs0rEdHzZTwABjmzE2PaLlrYb+5sG/cRHc6VdP28
+         +NxuR4br31LccqMzEpjK6uzZKWHPcQfy691xN+gNorDQX2qr2UctDQyzzxMMjYKz6D
+         N5mL7v8pGFtwyHSwbP0bs6AHuDdJEQ78q+GYTl5Vlb6SB4mA3ahswqCbnSeAGSOoVV
+         r/fReuH2tyqvJfQ153tmoBm9UPt0T1ZnJ8rQTe+hwa7lFc0s+7QBhwXtvS3YyCLEOu
+         Tcgky5ks+gODA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
         <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 64/87] media: rcar-vin: Mask VNCSI_IFMD register
-Date:   Tue, 22 Dec 2020 21:20:40 -0500
-Message-Id: <20201223022103.2792705-64-sashal@kernel.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 65/87] clocksource/drivers/sh_cmt: Fix potential deadlock when calling runtime PM
+Date:   Tue, 22 Dec 2020 21:20:41 -0500
+Message-Id: <20201223022103.2792705-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -47,84 +45,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit fb25ca37317200fa97ea6b8952e07958f06da7a6 ]
+[ Upstream commit 8ae954caf49ac403c177d117fb8e05cbc866aa3c ]
 
-The VNCSI_IFMD register controls the data expansion mode and the
-channel routing between the CSI-2 receivers and VIN instances.
+The ch->lock is used to protect the whole enable() and read() of
+sh_cmt's implementation of struct clocksource. The enable()
+implementation calls pm_runtime_get_sync() which may result in the clock
+source to be read() triggering a cyclic lockdep warning for the
+ch->lock.
 
-According to the chip manual revision 2.20 not all fields are available
-for all the SoCs:
-- V3M, V3H and E3 do not support the DES1 field has they do not feature
-  a CSI20 receiver.
-- D3 only supports parallel input, and the whole register shall always
-  be written as 0.
+The sh_cmt driver implement its own balancing of calls to
+sh_cmt_{enable,disable}() with flags in sh_cmt_{start,stop}(). It does
+this to deal with that start and stop are shared between the clock
+source and clock event providers. While this could be improved on
+verifying corner cases based on any substantial rework on all devices
+this driver supports might prove hard.
 
-Inspect the per-SoC channel routing table where the available CSI-2
-instances are reported and configure VNCSI_IFMD accordingly.
+As a first step separate the PM handling for clock event and clock
+source. Always put/get the device when enabling/disabling the clock
+source but keep the clock event logic unchanged. This allows the sh_cmt
+implementation of struct clocksource to call PM without holding the
+ch->lock and avoiding the deadlock.
 
-This patch supports this BSP change commit:
+Triggering and log of the deadlock warning,
 
-https://github.com/renesas-rcar/linux-bsp/commit/f54697394457
-("media: rcar-vin: Fix VnCSI_IFMD register access for r8a77990")
+  # echo e60f0000.timer > /sys/devices/system/clocksource/clocksource0/current_clocksource
+  [   46.948370] ======================================================
+  [   46.954730] WARNING: possible circular locking dependency detected
+  [   46.961094] 5.10.0-rc6-arm64-renesas-00001-g0e5fd7414e8b #36 Not tainted
+  [   46.967985] ------------------------------------------------------
+  [   46.974342] migration/0/11 is trying to acquire lock:
+  [   46.979543] ffff0000403ed220 (&dev->power.lock){-...}-{2:2}, at: __pm_runtime_resume+0x40/0x74
+  [   46.988445]
+  [   46.988445] but task is already holding lock:
+  [   46.994441] ffff000040ad0298 (&ch->lock){....}-{2:2}, at: sh_cmt_start+0x28/0x210
+  [   47.002173]
+  [   47.002173] which lock already depends on the new lock.
+  [   47.002173]
+  [   47.010573]
+  [   47.010573] the existing dependency chain (in reverse order) is:
+  [   47.018262]
+  [   47.018262] -> #3 (&ch->lock){....}-{2:2}:
+  [   47.024033]        lock_acquire.part.0+0x120/0x330
+  [   47.028970]        lock_acquire+0x64/0x80
+  [   47.033105]        _raw_spin_lock_irqsave+0x7c/0xc4
+  [   47.038130]        sh_cmt_start+0x28/0x210
+  [   47.042352]        sh_cmt_clocksource_enable+0x28/0x50
+  [   47.047644]        change_clocksource+0x9c/0x160
+  [   47.052402]        multi_cpu_stop+0xa4/0x190
+  [   47.056799]        cpu_stopper_thread+0x90/0x154
+  [   47.061557]        smpboot_thread_fn+0x244/0x270
+  [   47.066310]        kthread+0x154/0x160
+  [   47.070175]        ret_from_fork+0x10/0x20
+  [   47.074390]
+  [   47.074390] -> #2 (tk_core.seq.seqcount){----}-{0:0}:
+  [   47.081136]        lock_acquire.part.0+0x120/0x330
+  [   47.086070]        lock_acquire+0x64/0x80
+  [   47.090203]        seqcount_lockdep_reader_access.constprop.0+0x74/0x100
+  [   47.097096]        ktime_get+0x28/0xa0
+  [   47.100960]        hrtimer_start_range_ns+0x210/0x2dc
+  [   47.106164]        generic_sched_clock_init+0x70/0x88
+  [   47.111364]        sched_clock_init+0x40/0x64
+  [   47.115853]        start_kernel+0x494/0x524
+  [   47.120156]
+  [   47.120156] -> #1 (hrtimer_bases.lock){-.-.}-{2:2}:
+  [   47.126721]        lock_acquire.part.0+0x120/0x330
+  [   47.136042]        lock_acquire+0x64/0x80
+  [   47.144461]        _raw_spin_lock_irqsave+0x7c/0xc4
+  [   47.153721]        hrtimer_start_range_ns+0x68/0x2dc
+  [   47.163054]        rpm_suspend+0x308/0x5dc
+  [   47.171473]        rpm_idle+0xc4/0x2a4
+  [   47.179550]        pm_runtime_work+0x98/0xc0
+  [   47.188209]        process_one_work+0x294/0x6f0
+  [   47.197142]        worker_thread+0x70/0x45c
+  [   47.205661]        kthread+0x154/0x160
+  [   47.213673]        ret_from_fork+0x10/0x20
+  [   47.221957]
+  [   47.221957] -> #0 (&dev->power.lock){-...}-{2:2}:
+  [   47.236292]        check_noncircular+0x128/0x140
+  [   47.244907]        __lock_acquire+0x13b0/0x204c
+  [   47.253332]        lock_acquire.part.0+0x120/0x330
+  [   47.262033]        lock_acquire+0x64/0x80
+  [   47.269826]        _raw_spin_lock_irqsave+0x7c/0xc4
+  [   47.278430]        __pm_runtime_resume+0x40/0x74
+  [   47.286758]        sh_cmt_start+0x84/0x210
+  [   47.294537]        sh_cmt_clocksource_enable+0x28/0x50
+  [   47.303449]        change_clocksource+0x9c/0x160
+  [   47.311783]        multi_cpu_stop+0xa4/0x190
+  [   47.319720]        cpu_stopper_thread+0x90/0x154
+  [   47.328022]        smpboot_thread_fn+0x244/0x270
+  [   47.336298]        kthread+0x154/0x160
+  [   47.343708]        ret_from_fork+0x10/0x20
+  [   47.351445]
+  [   47.351445] other info that might help us debug this:
+  [   47.351445]
+  [   47.370225] Chain exists of:
+  [   47.370225]   &dev->power.lock --> tk_core.seq.seqcount --> &ch->lock
+  [   47.370225]
+  [   47.392003]  Possible unsafe locking scenario:
+  [   47.392003]
+  [   47.405314]        CPU0                    CPU1
+  [   47.413569]        ----                    ----
+  [   47.421768]   lock(&ch->lock);
+  [   47.428425]                                lock(tk_core.seq.seqcount);
+  [   47.438701]                                lock(&ch->lock);
+  [   47.447930]   lock(&dev->power.lock);
+  [   47.455172]
+  [   47.455172]  *** DEADLOCK ***
+  [   47.455172]
+  [   47.471433] 3 locks held by migration/0/11:
+  [   47.479099]  #0: ffff8000113c9278 (timekeeper_lock){-.-.}-{2:2}, at: change_clocksource+0x2c/0x160
+  [   47.491834]  #1: ffff8000113c8f88 (tk_core.seq.seqcount){----}-{0:0}, at: multi_cpu_stop+0xa4/0x190
+  [   47.504727]  #2: ffff000040ad0298 (&ch->lock){....}-{2:2}, at: sh_cmt_start+0x28/0x210
+  [   47.516541]
+  [   47.516541] stack backtrace:
+  [   47.528480] CPU: 0 PID: 11 Comm: migration/0 Not tainted 5.10.0-rc6-arm64-renesas-00001-g0e5fd7414e8b #36
+  [   47.542147] Hardware name: Renesas Salvator-X 2nd version board based on r8a77965 (DT)
+  [   47.554241] Call trace:
+  [   47.560832]  dump_backtrace+0x0/0x190
+  [   47.568670]  show_stack+0x14/0x30
+  [   47.576144]  dump_stack+0xe8/0x130
+  [   47.583670]  print_circular_bug+0x1f0/0x200
+  [   47.592015]  check_noncircular+0x128/0x140
+  [   47.600289]  __lock_acquire+0x13b0/0x204c
+  [   47.608486]  lock_acquire.part.0+0x120/0x330
+  [   47.616953]  lock_acquire+0x64/0x80
+  [   47.624582]  _raw_spin_lock_irqsave+0x7c/0xc4
+  [   47.633114]  __pm_runtime_resume+0x40/0x74
+  [   47.641371]  sh_cmt_start+0x84/0x210
+  [   47.649115]  sh_cmt_clocksource_enable+0x28/0x50
+  [   47.657916]  change_clocksource+0x9c/0x160
+  [   47.666165]  multi_cpu_stop+0xa4/0x190
+  [   47.674056]  cpu_stopper_thread+0x90/0x154
+  [   47.682308]  smpboot_thread_fn+0x244/0x270
+  [   47.690560]  kthread+0x154/0x160
+  [   47.697927]  ret_from_fork+0x10/0x20
+  [   47.708447] clocksource: Switched to clocksource e60f0000.timer
 
-[hverkuil: replace BSP commit ID with BSP URL]
-
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Suggested-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201205021921.1456190-2-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-dma.c | 25 +++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ drivers/clocksource/sh_cmt.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index 70a8cc433a03f..4fee9132472bb 100644
---- a/drivers/media/platform/rcar-vin/rcar-dma.c
-+++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -1319,7 +1319,9 @@ int rvin_dma_register(struct rvin_dev *vin, int irq)
-  */
- int rvin_set_channel_routing(struct rvin_dev *vin, u8 chsel)
+diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
+index cec90a4c79b34..8eeaaaa4b6e32 100644
+--- a/drivers/clocksource/sh_cmt.c
++++ b/drivers/clocksource/sh_cmt.c
+@@ -323,7 +323,6 @@ static int sh_cmt_enable(struct sh_cmt_channel *ch)
  {
--	u32 ifmd, vnmc;
-+	const struct rvin_group_route *route;
-+	u32 ifmd = 0;
-+	u32 vnmc;
- 	int ret;
+ 	int k, ret;
  
- 	ret = pm_runtime_get_sync(vin->dev);
-@@ -1332,9 +1334,26 @@ int rvin_set_channel_routing(struct rvin_dev *vin, u8 chsel)
- 	vnmc = rvin_read(vin, VNMC_REG);
- 	rvin_write(vin, vnmc & ~VNMC_VUP, VNMC_REG);
+-	pm_runtime_get_sync(&ch->cmt->pdev->dev);
+ 	dev_pm_syscore_device(&ch->cmt->pdev->dev, true);
  
--	ifmd = VNCSI_IFMD_DES1 | VNCSI_IFMD_DES0 | VNCSI_IFMD_CSI_CHSEL(chsel);
-+	/*
-+	 * Set data expansion mode to "pad with 0s" by inspecting the routes
-+	 * table to find out which bit fields are available in the IFMD
-+	 * register. IFMD_DES1 controls data expansion mode for CSI20/21,
-+	 * IFMD_DES0 controls data expansion mode for CSI40/41.
-+	 */
-+	for (route = vin->info->routes; route->mask; route++) {
-+		if (route->csi == RVIN_CSI20 || route->csi == RVIN_CSI21)
-+			ifmd |= VNCSI_IFMD_DES1;
-+		else
-+			ifmd |= VNCSI_IFMD_DES0;
+ 	/* enable clock */
+@@ -398,7 +397,6 @@ static void sh_cmt_disable(struct sh_cmt_channel *ch)
+ 	clk_disable(ch->cmt->clk);
  
--	rvin_write(vin, ifmd, VNCSI_IFMD_REG);
-+		if (ifmd == (VNCSI_IFMD_DES0 | VNCSI_IFMD_DES1))
-+			break;
-+	}
+ 	dev_pm_syscore_device(&ch->cmt->pdev->dev, false);
+-	pm_runtime_put(&ch->cmt->pdev->dev);
+ }
+ 
+ /* private flags */
+@@ -566,10 +564,16 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
+ 	int ret = 0;
+ 	unsigned long flags;
+ 
++	if (flag & FLAG_CLOCKSOURCE)
++		pm_runtime_get_sync(&ch->cmt->pdev->dev);
 +
-+	if (ifmd) {
-+		ifmd |= VNCSI_IFMD_CSI_CHSEL(chsel);
-+		rvin_write(vin, ifmd, VNCSI_IFMD_REG);
+ 	raw_spin_lock_irqsave(&ch->lock, flags);
+ 
+-	if (!(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE)))
++	if (!(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE))) {
++		if (flag & FLAG_CLOCKEVENT)
++			pm_runtime_get_sync(&ch->cmt->pdev->dev);
+ 		ret = sh_cmt_enable(ch);
 +	}
  
- 	vin_dbg(vin, "Set IFMD 0x%x\n", ifmd);
+ 	if (ret)
+ 		goto out;
+@@ -594,14 +598,20 @@ static void sh_cmt_stop(struct sh_cmt_channel *ch, unsigned long flag)
+ 	f = ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE);
+ 	ch->flags &= ~flag;
  
+-	if (f && !(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE)))
++	if (f && !(ch->flags & (FLAG_CLOCKEVENT | FLAG_CLOCKSOURCE))) {
+ 		sh_cmt_disable(ch);
++		if (flag & FLAG_CLOCKEVENT)
++			pm_runtime_put(&ch->cmt->pdev->dev);
++	}
+ 
+ 	/* adjust the timeout to maximum if only clocksource left */
+ 	if ((flag == FLAG_CLOCKEVENT) && (ch->flags & FLAG_CLOCKSOURCE))
+ 		__sh_cmt_set_next(ch, ch->max_match_value);
+ 
+ 	raw_spin_unlock_irqrestore(&ch->lock, flags);
++
++	if (flag & FLAG_CLOCKSOURCE)
++		pm_runtime_put(&ch->cmt->pdev->dev);
+ }
+ 
+ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
 -- 
 2.27.0
 
