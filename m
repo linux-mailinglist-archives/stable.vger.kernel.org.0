@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07042E1519
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 961B62E1514
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729854AbgLWCrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:47:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51386 "EHLO mail.kernel.org"
+        id S1727647AbgLWCra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:47:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729615AbgLWCWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 958EE22273;
-        Wed, 23 Dec 2020 02:21:37 +0000 (UTC)
+        id S1729624AbgLWCWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:22:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B97C723159;
+        Wed, 23 Dec 2020 02:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690098;
-        bh=YFCf/K6x0IbCVbZnAKkWfkebrtjn3sDvj8SZ8ephOYE=;
+        s=k20201202; t=1608690099;
+        bh=ST061G8MW2LBbseYmREPujE3LibuuL27qmDShgwhKoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9vesQ6M8M1AL8GMqXdcMBeVuZfjbOSvoRlwjf2mzNct7RBFcBXrljiSDAlKo3+en
-         nae34/PBW31fMAs50PuCbFzA8wQPWhqBXNHaCkqhD1t891SZZZcQ4MAmK7zYlyiJyn
-         lS+jItFU4AGF7/zzOJIxBewkIV25/L/J7EhazKHGpMBptbOGNTC1volAVMBBoR1kp4
-         Bmggz1imyjJzHZwRZjGsNKntcl5tDwy8CB/qKvQLPo6i1ihUtPCQ8XJPqCE5RXtjGR
-         XFFMaIy7Jfxx2XBvLaujQgeEnK3Yupo9hFfPnqZ6HDURHTYnXvgTQXQgWmPNsnuxy6
-         gnnXhMl6dJsQQ==
+        b=t2J4tuoOee2mrYMXjfqi+q/XzR15fOSFIMYHwV5CvrfNsG/wgv4Iqh+xnalqRlxsq
+         ZjuV6cW8AzWKz+4EipFmQQK9UT7VxkhFuoi4tLp9/H2mCYcNrcvADI1hqEJwCXdUmr
+         oaslTEO3RfXjWJLt8ltb01ZUtCQLvRShFt2ZlQhmdDQaVWFzudaYC7lMH9Mi5B4ghs
+         EAlR3y/U3DjFwjqjbyxyjCw+aKdSPQpwMQSTrYYF3d+tXKwAX9/ZwhmYREvkD3nnn3
+         LAfnrZ4ptfVbslZdzS2LH8i5RF4ETOMYm2lotAMnaZeGAmdHiEvEPp2t8XAfdN61MW
+         VVVUsgvnz3fCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 28/87] media: isif: reset global state
-Date:   Tue, 22 Dec 2020 21:20:04 -0500
-Message-Id: <20201223022103.2792705-28-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 29/87] s390/dasd: Fix operational path inconsistency
+Date:   Tue, 22 Dec 2020 21:20:05 -0500
+Message-Id: <20201223022103.2792705-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,58 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit 6651dba2bd838f34cf5a1e84229aaa579b1a94fe ]
+[ Upstream commit 9e34c8ba91697cb7441805c36d92ab3e695df6e0 ]
 
-isif_probe() invokes iounmap() on error handling paths, but it does not
-reset the global state. So, later it can invoke iounmap() even when
-ioremap() fails. This is the case also for isif_remove(). The patch
-resets the global state after invoking iounmap() to avoid this.
+During online processing and setting up a DASD device, the configuration
+data for operational paths is read and validated two times
+(dasd_eckd_read_conf()). The first time to provide information that are
+necessary for the LCU setup. A second time after the LCU setup as a
+device might report different configuration data then.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+When the configuration setup for each operational path is being
+validated, an initial call to dasd_eckd_clear_conf_data() is issued.
+This call wipes all previously available configuration data and path
+information for each path.
+However, the operational path mask is not updated during this process.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+As a result, the stored operational path mask might no longer correspond
+to the operational paths mask reported by the CIO layer, as several
+paths might be gone between the two dasd_eckd_read_conf() calls.
+
+This inconsistency leads to more severe issues in later path handling
+changes. Fix this by removing the channel paths from the operational
+path mask during the dasd_eckd_clear_conf_data() call.
+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/isif.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/davinci/isif.c b/drivers/media/platform/davinci/isif.c
-index 80fa60a4c4489..d91634d529bb3 100644
---- a/drivers/media/platform/davinci/isif.c
-+++ b/drivers/media/platform/davinci/isif.c
-@@ -1084,10 +1084,14 @@ static int isif_probe(struct platform_device *pdev)
- 	release_mem_region(res->start, resource_size(res));
- 	i--;
- fail_nobase_res:
--	if (isif_cfg.base_addr)
-+	if (isif_cfg.base_addr) {
- 		iounmap(isif_cfg.base_addr);
--	if (isif_cfg.linear_tbl0_addr)
-+		isif_cfg.base_addr = NULL;
-+	}
-+	if (isif_cfg.linear_tbl0_addr) {
- 		iounmap(isif_cfg.linear_tbl0_addr);
-+		isif_cfg.linear_tbl0_addr = NULL;
-+	}
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index a2e34c853ca98..a801ee11843c3 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -981,6 +981,7 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
+ 		device->path[i].cssid = 0;
+ 		device->path[i].ssid = 0;
+ 		device->path[i].chpid = 0;
++		dasd_path_notoper(device, i);
+ 	}
+ }
  
- 	while (i >= 0) {
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
-@@ -1105,8 +1109,11 @@ static int isif_remove(struct platform_device *pdev)
- 	int i = 0;
- 
- 	iounmap(isif_cfg.base_addr);
-+	isif_cfg.base_addr = NULL;
- 	iounmap(isif_cfg.linear_tbl0_addr);
-+	isif_cfg.linear_tbl0_addr = NULL;
- 	iounmap(isif_cfg.linear_tbl1_addr);
-+	isif_cfg.linear_tbl1_addr = NULL;
- 	while (i < 3) {
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
- 		if (res)
 -- 
 2.27.0
 
