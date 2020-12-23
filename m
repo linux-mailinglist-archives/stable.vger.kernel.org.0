@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C4A2E1342
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFC12E13AC
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbgLWCZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:25:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
+        id S1728681AbgLWCdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:33:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730419AbgLWCZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0475923331;
-        Wed, 23 Dec 2020 02:24:57 +0000 (UTC)
+        id S1730426AbgLWCZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:25:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C9C52313F;
+        Wed, 23 Dec 2020 02:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690298;
-        bh=qTIW01HslnQB8/7Do60W1UDScsQm6zVFr5VugLYSJ4o=;
+        s=k20201202; t=1608690299;
+        bh=W87wdJFW4bn3OwkdIbOKX3tnUCR9vIptM5VXATAwiQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prbHZdsSXkx1Ya23WNa1FhBke1yDuyajeBTyT5wGeDT7OhwKUtXF3tkph60Ly5Ci4
-         3qwZ3Ghu4cTlU6wrKknoxay/elr+jhyaa29MVdRjgLpBv5MdIOz+i7WfmDUIenCdYh
-         3oAQ9lKcjpLBQDIotcVzBZmNC3fGZiZ2AVTlEdcL7MfyEIB0sUIxB7+62xc7C6Nxmw
-         WBHGC2DzA/9hK3DIsRyUxldMNcQ93xALK5YnY6lmu5R0OSKGsSpkFeBNab0vnkUDjP
-         XcmBB8Y9y/CCOS/7kD5VvwuWO18WoxOR26PPgQ53GAvt3agAoYiQ/j91jg8Xz1mZM9
-         gb46/yIXzmiUA==
+        b=BepywIVE4FwqVknpdgZDYJSUp04hJDE8AbECVYgS4STKzb1EnE6WKZ+KikOGV19nr
+         uANXY/2c94p19O6jQVPYGs081K2b+MQ5XG1oosdZ2e704U/24QmV5PsU1rp2umOTo4
+         x4r4XattYoCfMttE9+uSWbuxkBPL3kw3HeC2faJokWs3wh2f95N5UivSleo5HA/3Jd
+         A/v3eNZyblSjfLqYipV4SimW05mDltUhvo6SpkvAJ7eje6o2AyUIhcWkZ3xRrRu/3E
+         pheYGwNvrowQrsv5XKfI9BY2CCowS4EUbI3mGqCO0wZ/lvvYqlGgc0cbMrmFZkzc1y
+         XOph15j/M6/Xw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Schiller <ms@dev.tdt.de>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-x25@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 34/48] net/lapb: fix t1 timer handling for LAPB_STATE_0
-Date:   Tue, 22 Dec 2020 21:24:02 -0500
-Message-Id: <20201223022417.2794032-34-sashal@kernel.org>
+Cc:     Gabriele Paoloni <gabriele.paoloni@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 35/48] x86/mce: Panic for LMCE only if mca_cfg.tolerant < 3
+Date:   Tue, 22 Dec 2020 21:24:03 -0500
+Message-Id: <20201223022417.2794032-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022417.2794032-1-sashal@kernel.org>
 References: <20201223022417.2794032-1-sashal@kernel.org>
@@ -42,48 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Schiller <ms@dev.tdt.de>
+From: Gabriele Paoloni <gabriele.paoloni@intel.com>
 
-[ Upstream commit 62480b992ba3fb1d7260b11293aed9d6557831c7 ]
+[ Upstream commit 3a866b16fd2360a9c4ebf71cfbf7ebfe968c1409 ]
 
-1. DTE interface changes immediately to LAPB_STATE_1 and start sending
-   SABM(E).
+Right now for LMCE, if no_way_out is set, mce_panic() is called
+regardless of mca_cfg.tolerant. This is not correct as, if
+mca_cfg.tolerant = 3, the code should never panic.
 
-2. DCE interface sends N2-times DM and changes to LAPB_STATE_1
-   afterwards if there is no response in the meantime.
+Add that check.
 
-Signed-off-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ [ bp: use local ptr 'cfg'. ]
+
+Signed-off-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20201127161819.3106432-4-gabriele.paoloni@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/lapb/lapb_timer.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
-index 355cc3b6fa4d3..3d99205f003da 100644
---- a/net/lapb/lapb_timer.c
-+++ b/net/lapb/lapb_timer.c
-@@ -92,11 +92,18 @@ static void lapb_t1timer_expiry(unsigned long param)
- 	switch (lapb->state) {
- 
- 		/*
--		 *	If we are a DCE, keep going DM .. DM .. DM
-+		 *	If we are a DCE, send DM up to N2 times, then switch to
-+		 *	STATE_1 and send SABM(E).
- 		 */
- 		case LAPB_STATE_0:
--			if (lapb->mode & LAPB_DCE)
-+			if (lapb->mode & LAPB_DCE &&
-+			    lapb->n2count != lapb->n2) {
-+				lapb->n2count++;
- 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
-+			} else {
-+				lapb->state = LAPB_STATE_1;
-+				lapb_establish_data_link(lapb);
-+			}
- 			break;
- 
- 		/*
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index 07188a0124922..c0e85ad111de8 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -1182,7 +1182,7 @@ void do_machine_check(struct pt_regs *regs, long error_code)
+ 	 * to see it will clear it.
+ 	 */
+ 	if (lmce) {
+-		if (no_way_out)
++		if (no_way_out && cfg->tolerant < 3)
+ 			mce_panic("Fatal local machine check", &m, msg);
+ 	} else {
+ 		order = mce_start(&no_way_out);
 -- 
 2.27.0
 
