@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2592E12F3
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F212E1307
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730898AbgLWC0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:26:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57076 "EHLO mail.kernel.org"
+        id S1730905AbgLWC0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:26:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730893AbgLWC0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:26:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9BE2225AC;
-        Wed, 23 Dec 2020 02:25:48 +0000 (UTC)
+        id S1730899AbgLWC0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:26:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B7CF2312E;
+        Wed, 23 Dec 2020 02:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690349;
-        bh=LFPNS1AsxzYl6KvbGpsDsMJTi8DK61Ijpwo7Hclcj/0=;
+        s=k20201202; t=1608690351;
+        bh=NNCFBDuLLqFp6ftvXf7COSELfRLsMdRJuLGXYhRX+OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUD9qr2tVUH39PzmU2+sQtMrlN5RBsMYE8GdG1z+pwIRfTYAVyF570RciT6BVfVl5
-         6bSYLmuoSSmvHMPIqWsW+yOj/oM0XCA9j0uZukIQMLO82RBCd5IiIkB5WFfES6z29y
-         t9kBF2EIqqziMg4hRIvkueqPojXhyTaeJ82w0XGIwpqCgOKV8/6wGAJwUH2AleaHPl
-         Oe/1ugBNElUFk09IyS0N3rxJR274I5Jmj2xUC5uDGbGsK9IfxnpSR5leq+PRsLDKSZ
-         q7LxxGnIEQAI6VmuswegZYHgRaDTRs4zy3Tk9HQVo8S0joq/4A7pZqo4e/ZJUuq52d
-         ObBDdJT9L1Jyg==
+        b=lPFwEAJh937mfRE60lBE8C2BIXAsIOfx7tBF42zYoJYSdlJxXMnJU38DgXZI2TlQu
+         t7HKZoEeWQUJX9ENySqHg0sobz/0qbU+zxTRzM5ow3R8JD+Q0/Ic/SuYj2HoKKneUd
+         hbpaEgpVDj1KXZ7Q2OB7uCvmboqv1qHLZnZB/T9UdPPLq+nGScwqiwYi+Pk8IXJc9f
+         ES7MZnOSZ4nMhWz1woQClCzwwDagPjDv9fSgrR4IlzrFCRvIefGyDJzQmT8sqeszhu
+         zn4JcOPf1B7/f/pVQjtdclu0NJAzpsKxgCksq4Z+YHHRrNKATttXk6osOWprxj3vZx
+         woQUDPUcGtT4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolin Chen <nicoleotsuka@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-tegra@vger.kernel.org, iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.4 26/38] iommu/tegra-smmu: Expand mutex protection range
-Date:   Tue, 22 Dec 2020 21:25:04 -0500
-Message-Id: <20201223022516.2794471-26-sashal@kernel.org>
+Cc:     Thara Gopinath <thara.gopinath@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 27/38] crypto: qce - Fix SHA result buffer corruption issues
+Date:   Tue, 22 Dec 2020 21:25:05 -0500
+Message-Id: <20201223022516.2794471-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
@@ -44,120 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicoleotsuka@gmail.com>
+From: Thara Gopinath <thara.gopinath@linaro.org>
 
-[ Upstream commit d5f583bf8654c231b781096bc1a186065cda72b3 ]
+[ Upstream commit 1148a9654b5a69611d33e14719251c6ec20f5f2c ]
 
-This is used to protect potential race condition at use_count.
-since probes of client drivers, calling attach_dev(), may run
-concurrently.
+Partial hash was being copied into the final result buffer without the
+entire message block processed. Depending on how the end user processes
+this result buffer, errors vary from result buffer corruption to result
+buffer poisoing. Fix this issue by ensuring that only the final hash value
+is copied into the result buffer.
 
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20201125101013.14953-3-nicoleotsuka@gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Thara Gopinath <thara.gopinath@linaro.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/tegra-smmu.c | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ drivers/crypto/qce/sha.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index 04cec050e42bf..ae796342717a6 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -241,26 +241,19 @@ static int tegra_smmu_alloc_asid(struct tegra_smmu *smmu, unsigned int *idp)
- {
- 	unsigned long id;
+diff --git a/drivers/crypto/qce/sha.c b/drivers/crypto/qce/sha.c
+index 0c9973ec80ebd..f55c665756724 100644
+--- a/drivers/crypto/qce/sha.c
++++ b/drivers/crypto/qce/sha.c
+@@ -55,7 +55,7 @@ static void qce_ahash_done(void *data)
+ 	dma_unmap_sg(qce->dev, &rctx->result_sg, 1, DMA_FROM_DEVICE);
  
--	mutex_lock(&smmu->lock);
--
- 	id = find_first_zero_bit(smmu->asids, smmu->soc->num_asids);
--	if (id >= smmu->soc->num_asids) {
--		mutex_unlock(&smmu->lock);
-+	if (id >= smmu->soc->num_asids)
- 		return -ENOSPC;
--	}
+ 	memcpy(rctx->digest, result->auth_iv, digestsize);
+-	if (req->result)
++	if (req->result && rctx->last_blk)
+ 		memcpy(req->result, result->auth_iv, digestsize);
  
- 	set_bit(id, smmu->asids);
- 	*idp = id;
- 
--	mutex_unlock(&smmu->lock);
- 	return 0;
- }
- 
- static void tegra_smmu_free_asid(struct tegra_smmu *smmu, unsigned int id)
- {
--	mutex_lock(&smmu->lock);
- 	clear_bit(id, smmu->asids);
--	mutex_unlock(&smmu->lock);
- }
- 
- static bool tegra_smmu_capable(enum iommu_cap cap)
-@@ -395,17 +388,21 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
- 				 struct tegra_smmu_as *as)
- {
- 	u32 value;
--	int err;
-+	int err = 0;
-+
-+	mutex_lock(&smmu->lock);
- 
- 	if (as->use_count > 0) {
- 		as->use_count++;
--		return 0;
-+		goto unlock;
- 	}
- 
- 	as->pd_dma = dma_map_page(smmu->dev, as->pd, 0, SMMU_SIZE_PD,
- 				  DMA_TO_DEVICE);
--	if (dma_mapping_error(smmu->dev, as->pd_dma))
--		return -ENOMEM;
-+	if (dma_mapping_error(smmu->dev, as->pd_dma)) {
-+		err = -ENOMEM;
-+		goto unlock;
-+	}
- 
- 	/* We can't handle 64-bit DMA addresses */
- 	if (!smmu_dma_addr_valid(smmu, as->pd_dma)) {
-@@ -428,24 +425,35 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
- 	as->smmu = smmu;
- 	as->use_count++;
- 
-+	mutex_unlock(&smmu->lock);
-+
- 	return 0;
- 
- err_unmap:
- 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
-+unlock:
-+	mutex_unlock(&smmu->lock);
-+
- 	return err;
- }
- 
- static void tegra_smmu_as_unprepare(struct tegra_smmu *smmu,
- 				    struct tegra_smmu_as *as)
- {
--	if (--as->use_count > 0)
-+	mutex_lock(&smmu->lock);
-+
-+	if (--as->use_count > 0) {
-+		mutex_unlock(&smmu->lock);
- 		return;
-+	}
- 
- 	tegra_smmu_free_asid(smmu, as->id);
- 
- 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
- 
- 	as->smmu = NULL;
-+
-+	mutex_unlock(&smmu->lock);
- }
- 
- static int tegra_smmu_attach_dev(struct iommu_domain *domain,
+ 	rctx->byte_count[0] = cpu_to_be32(result->auth_byte_count[0]);
 -- 
 2.27.0
 
