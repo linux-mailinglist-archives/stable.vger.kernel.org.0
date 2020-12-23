@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594DD2E1632
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E14842E1631
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728943AbgLWCUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:20:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1728951AbgLWCUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728937AbgLWCUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:20:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 721C222285;
-        Wed, 23 Dec 2020 02:20:04 +0000 (UTC)
+        id S1727282AbgLWCUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F07122273;
+        Wed, 23 Dec 2020 02:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690005;
-        bh=9qIZ7qEwWZrzmjNnKLhTBmkGweEftqFRXHnyrccTVI0=;
+        s=k20201202; t=1608690006;
+        bh=77ZSZWfbcvJpjRQEnqkDrt0xG/D+qCn+Gkdj4HHB7FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gl1NKBarhbL+sbCDiyplJQUNi5h+FpufPC5PvSQLm5Bd6cyitXvNC1zinWtBLQspS
-         H7RKdxUZeRqh4qhsRHAdrMswFwpcD5F4lyPsrf/+MnZpvFjDqw5Wqc8GIFMGsaJs3J
-         Wxb6IsuueY1uBlsB/0kRoKGOI93Ofd3LsAXY8xdGtip8rEVG2pDd5D9TqUE4w9DF8W
-         mEBU1ylXRCQ9EdzkDlamFWNWTMRcgYyx5Z+4RUz3rD6uKouzXtAlz/QgoHlt+s6e/Q
-         o7cUa7SX5/1pzfVMrVmpFR4XYpCkLnbfmUN5TZY9cv4RqTHAkhxklCWt78DmclNoT/
-         1zfLgiWn4q0BQ==
+        b=Y9/tE8cFqtclvml2JS0MyGLo0JSqeUHRHcpa50ETCxfSvMhpTutIhs4URS7f2nTyp
+         7B0gUtkt6OisQO5+jDUBzyaUJz1CtJKxHvNLDP6VHNZvFEQkKiUojLY12df10t9O37
+         LcbU3izLpzMERUNi8sVO9I3+m768dBMtrAeOfBDp/xebexjw4Qydyjo5G2I5ipu40g
+         QZNlGZBD+r+IljCS2K2ASSTj+ImoXoh7yoCU5ahsCL2k/jsA2GqPJ9fEGmYkutnvyT
+         /YhZccO6TZVkcE5WWG7XZ21wZko0p/HaIfQ2XcR5TZk6wtSCavOm9Ia6x3cgiC90nu
+         87U1G95KyeR2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinh Nguyen <dinguyen@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 086/130] clocksource/drivers/dw_apb_timer_of: Add error handling if no clock available
-Date:   Tue, 22 Dec 2020 21:17:29 -0500
-Message-Id: <20201223021813.2791612-86-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        syzbot+a23a6f1215c84756577c@syzkaller.appspotmail.com,
+        syzbot+3d367d1df1d2b67f5c19@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 087/130] ALSA: rawmidi: Access runtime->avail always in spinlock
+Date:   Tue, 22 Dec 2020 21:17:30 -0500
+Message-Id: <20201223021813.2791612-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,166 +43,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 5d9814df0aec56a638bbf20795abb4cfaf3cd331 ]
+[ Upstream commit 88a06d6fd6b369d88cec46c62db3e2604a2f50d5 ]
 
-commit ("b0fc70ce1f02 arm64: berlin: Select DW_APB_TIMER_OF") added the
-support for the dw_apb_timer into the arm64 defconfig. However, for some
-platforms like the Intel Stratix10 and Agilex, the clock manager doesn't
-get loaded until after the timer driver get loaded. Thus, the driver hits
-the panic "No clock nor clock-frequency property for" because it cannot
-properly get the clock.
+The runtime->avail field may be accessed concurrently while some
+places refer to it without taking the runtime->lock spinlock, as
+detected by KCSAN.  Usually this isn't a big problem, but for
+consistency and safety, we should take the spinlock at each place
+referencing this field.
 
-This patch adds the error handling needed for the timer driver so that
-the kernel can continue booting instead of just hitting the panic.
-
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201205105223.208604-1-dinguyen@kernel.org
+Reported-by: syzbot+a23a6f1215c84756577c@syzkaller.appspotmail.com
+Reported-by: syzbot+3d367d1df1d2b67f5c19@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20201206083527.21163-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/dw_apb_timer_of.c | 57 ++++++++++++++++++---------
- 1 file changed, 39 insertions(+), 18 deletions(-)
+ sound/core/rawmidi.c | 49 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 35 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 6921b91b61ef3..3e8ad6818ff3d 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -14,12 +14,13 @@
- #include <linux/reset.h>
- #include <linux/sched_clock.h>
- 
--static void __init timer_get_base_and_rate(struct device_node *np,
-+static int __init timer_get_base_and_rate(struct device_node *np,
- 				    void __iomem **base, u32 *rate)
- {
- 	struct clk *timer_clk;
- 	struct clk *pclk;
- 	struct reset_control *rstc;
-+	int ret;
- 
- 	*base = of_iomap(np, 0);
- 
-@@ -46,55 +47,67 @@ static void __init timer_get_base_and_rate(struct device_node *np,
- 			pr_warn("pclk for %pOFn is present, but could not be activated\n",
- 				np);
- 
-+	if (!of_property_read_u32(np, "clock-freq", rate) &&
-+	    !of_property_read_u32(np, "clock-frequency", rate))
-+		return 0;
-+
- 	timer_clk = of_clk_get_by_name(np, "timer");
- 	if (IS_ERR(timer_clk))
--		goto try_clock_freq;
-+		return PTR_ERR(timer_clk);
- 
--	if (!clk_prepare_enable(timer_clk)) {
--		*rate = clk_get_rate(timer_clk);
--		return;
--	}
-+	ret = clk_prepare_enable(timer_clk);
-+	if (ret)
-+		return ret;
-+
-+	*rate = clk_get_rate(timer_clk);
-+	if (!(*rate))
-+		return -EINVAL;
- 
--try_clock_freq:
--	if (of_property_read_u32(np, "clock-freq", rate) &&
--	    of_property_read_u32(np, "clock-frequency", rate))
--		panic("No clock nor clock-frequency property for %pOFn", np);
-+	return 0;
- }
- 
--static void __init add_clockevent(struct device_node *event_timer)
-+static int __init add_clockevent(struct device_node *event_timer)
- {
- 	void __iomem *iobase;
- 	struct dw_apb_clock_event_device *ced;
- 	u32 irq, rate;
-+	int ret = 0;
- 
- 	irq = irq_of_parse_and_map(event_timer, 0);
- 	if (irq == 0)
- 		panic("No IRQ for clock event timer");
- 
--	timer_get_base_and_rate(event_timer, &iobase, &rate);
-+	ret = timer_get_base_and_rate(event_timer, &iobase, &rate);
-+	if (ret)
-+		return ret;
- 
- 	ced = dw_apb_clockevent_init(0, event_timer->name, 300, iobase, irq,
- 				     rate);
- 	if (!ced)
--		panic("Unable to initialise clockevent device");
-+		return -EINVAL;
- 
- 	dw_apb_clockevent_register(ced);
-+
-+	return 0;
- }
- 
- static void __iomem *sched_io_base;
- static u32 sched_rate;
- 
--static void __init add_clocksource(struct device_node *source_timer)
-+static int __init add_clocksource(struct device_node *source_timer)
- {
- 	void __iomem *iobase;
- 	struct dw_apb_clocksource *cs;
- 	u32 rate;
-+	int ret;
- 
--	timer_get_base_and_rate(source_timer, &iobase, &rate);
-+	ret = timer_get_base_and_rate(source_timer, &iobase, &rate);
-+	if (ret)
-+		return ret;
- 
- 	cs = dw_apb_clocksource_init(300, source_timer->name, iobase, rate);
- 	if (!cs)
--		panic("Unable to initialise clocksource device");
-+		return -EINVAL;
- 
- 	dw_apb_clocksource_start(cs);
- 	dw_apb_clocksource_register(cs);
-@@ -106,6 +119,8 @@ static void __init add_clocksource(struct device_node *source_timer)
- 	 */
- 	sched_io_base = iobase + 0x04;
- 	sched_rate = rate;
-+
-+	return 0;
- }
- 
- static u64 notrace read_sched_clock(void)
-@@ -146,10 +161,14 @@ static struct delay_timer dw_apb_delay_timer = {
- static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
-+	int ret = 0;
-+
- 	switch (num_called) {
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
--		add_clocksource(timer);
-+		ret = add_clocksource(timer);
-+		if (ret)
-+			return ret;
- 		init_sched_clock();
- #ifdef CONFIG_ARM
- 		dw_apb_delay_timer.freq = sched_rate;
-@@ -158,7 +177,9 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- 		break;
- 	default:
- 		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
-+		ret = add_clockevent(timer);
-+		if (ret)
-+			return ret;
- 		break;
+diff --git a/sound/core/rawmidi.c b/sound/core/rawmidi.c
+index 94db4683cfaff..6a3543b8455fc 100644
+--- a/sound/core/rawmidi.c
++++ b/sound/core/rawmidi.c
+@@ -72,11 +72,21 @@ static inline unsigned short snd_rawmidi_file_flags(struct file *file)
  	}
+ }
  
+-static inline int snd_rawmidi_ready(struct snd_rawmidi_substream *substream)
++static inline bool __snd_rawmidi_ready(struct snd_rawmidi_runtime *runtime)
++{
++	return runtime->avail >= runtime->avail_min;
++}
++
++static bool snd_rawmidi_ready(struct snd_rawmidi_substream *substream)
+ {
+ 	struct snd_rawmidi_runtime *runtime = substream->runtime;
++	unsigned long flags;
++	bool ready;
+ 
+-	return runtime->avail >= runtime->avail_min;
++	spin_lock_irqsave(&runtime->lock, flags);
++	ready = __snd_rawmidi_ready(runtime);
++	spin_unlock_irqrestore(&runtime->lock, flags);
++	return ready;
+ }
+ 
+ static inline int snd_rawmidi_ready_append(struct snd_rawmidi_substream *substream,
+@@ -945,7 +955,7 @@ int snd_rawmidi_receive(struct snd_rawmidi_substream *substream,
+ 	if (result > 0) {
+ 		if (runtime->event)
+ 			schedule_work(&runtime->event_work);
+-		else if (snd_rawmidi_ready(substream))
++		else if (__snd_rawmidi_ready(runtime))
+ 			wake_up(&runtime->sleep);
+ 	}
+ 	spin_unlock_irqrestore(&runtime->lock, flags);
+@@ -1024,7 +1034,7 @@ static ssize_t snd_rawmidi_read(struct file *file, char __user *buf, size_t coun
+ 	result = 0;
+ 	while (count > 0) {
+ 		spin_lock_irq(&runtime->lock);
+-		while (!snd_rawmidi_ready(substream)) {
++		while (!__snd_rawmidi_ready(runtime)) {
+ 			wait_queue_entry_t wait;
+ 
+ 			if ((file->f_flags & O_NONBLOCK) != 0 || result > 0) {
+@@ -1041,9 +1051,11 @@ static ssize_t snd_rawmidi_read(struct file *file, char __user *buf, size_t coun
+ 				return -ENODEV;
+ 			if (signal_pending(current))
+ 				return result > 0 ? result : -ERESTARTSYS;
+-			if (!runtime->avail)
+-				return result > 0 ? result : -EIO;
+ 			spin_lock_irq(&runtime->lock);
++			if (!runtime->avail) {
++				spin_unlock_irq(&runtime->lock);
++				return result > 0 ? result : -EIO;
++			}
+ 		}
+ 		spin_unlock_irq(&runtime->lock);
+ 		count1 = snd_rawmidi_kernel_read1(substream,
+@@ -1181,7 +1193,7 @@ int __snd_rawmidi_transmit_ack(struct snd_rawmidi_substream *substream, int coun
+ 	runtime->avail += count;
+ 	substream->bytes += count;
+ 	if (count > 0) {
+-		if (runtime->drain || snd_rawmidi_ready(substream))
++		if (runtime->drain || __snd_rawmidi_ready(runtime))
+ 			wake_up(&runtime->sleep);
+ 	}
+ 	return count;
+@@ -1370,9 +1382,11 @@ static ssize_t snd_rawmidi_write(struct file *file, const char __user *buf,
+ 				return -ENODEV;
+ 			if (signal_pending(current))
+ 				return result > 0 ? result : -ERESTARTSYS;
+-			if (!runtime->avail && !timeout)
+-				return result > 0 ? result : -EIO;
+ 			spin_lock_irq(&runtime->lock);
++			if (!runtime->avail && !timeout) {
++				spin_unlock_irq(&runtime->lock);
++				return result > 0 ? result : -EIO;
++			}
+ 		}
+ 		spin_unlock_irq(&runtime->lock);
+ 		count1 = snd_rawmidi_kernel_write1(substream, buf, NULL, count);
+@@ -1452,6 +1466,7 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
+ 	struct snd_rawmidi *rmidi;
+ 	struct snd_rawmidi_substream *substream;
+ 	struct snd_rawmidi_runtime *runtime;
++	unsigned long buffer_size, avail, xruns;
+ 
+ 	rmidi = entry->private_data;
+ 	snd_iprintf(buffer, "%s\n\n", rmidi->name);
+@@ -1470,13 +1485,16 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
+ 				    "  Owner PID    : %d\n",
+ 				    pid_vnr(substream->pid));
+ 				runtime = substream->runtime;
++				spin_lock_irq(&runtime->lock);
++				buffer_size = runtime->buffer_size;
++				avail = runtime->avail;
++				spin_unlock_irq(&runtime->lock);
+ 				snd_iprintf(buffer,
+ 				    "  Mode         : %s\n"
+ 				    "  Buffer size  : %lu\n"
+ 				    "  Avail        : %lu\n",
+ 				    runtime->oss ? "OSS compatible" : "native",
+-				    (unsigned long) runtime->buffer_size,
+-				    (unsigned long) runtime->avail);
++				    buffer_size, avail);
+ 			}
+ 		}
+ 	}
+@@ -1494,13 +1512,16 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
+ 					    "  Owner PID    : %d\n",
+ 					    pid_vnr(substream->pid));
+ 				runtime = substream->runtime;
++				spin_lock_irq(&runtime->lock);
++				buffer_size = runtime->buffer_size;
++				avail = runtime->avail;
++				xruns = runtime->xruns;
++				spin_unlock_irq(&runtime->lock);
+ 				snd_iprintf(buffer,
+ 					    "  Buffer size  : %lu\n"
+ 					    "  Avail        : %lu\n"
+ 					    "  Overruns     : %lu\n",
+-					    (unsigned long) runtime->buffer_size,
+-					    (unsigned long) runtime->avail,
+-					    (unsigned long) runtime->xruns);
++					    buffer_size, avail, xruns);
+ 			}
+ 		}
+ 	}
 -- 
 2.27.0
 
