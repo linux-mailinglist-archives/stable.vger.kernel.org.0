@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0052E1622
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10DE12E15ED
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbgLWC6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:58:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S1729127AbgLWCzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:55:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729013AbgLWCUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:20:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6241422AAF;
-        Wed, 23 Dec 2020 02:20:17 +0000 (UTC)
+        id S1729157AbgLWCVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E526022A83;
+        Wed, 23 Dec 2020 02:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690018;
-        bh=1Ak0DNfpo2bDXa6xfS4gXunyiBMMc+ttsGorulc+4hM=;
+        s=k20201202; t=1608690019;
+        bh=QYRAE2X+HHZqjjCwgB3WBYTMKTi+/y4nGivXKqzuziE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3Xjnx+gbnFrk1XHGyi3ANCh9plPZZdDIpyoctZDePaF5liDCNY2U90I7XJTzISZu
-         P+I8NRUVCzI30qLx8Tbov1tEVpSUwNBlAmx4MuJC/ishTXGvPfBHSy+oztwDTGoL9O
-         e//2B4vYd0bKh4A+1Aq+ZIfYJ9KSddBfuN8m/ukyZ3EX5bF5hFA/jEwd/To5gxA17d
-         nGLYr8DD8p5HUz6dUtQfyers+y/P6FlEYVpmORgccCSLafCo4nB73eTXW2FPpq0m+1
-         m+kRcTXHllbTc/ccYM6uTHKyVGxIDlCuRD2ezS3AHuEQwI8JNNQIYP/LHeA2GGWVoL
-         TYmeawN2LMsDg==
+        b=QXK0Akfmg084XlbK6qFzXmVqLk/fwiz8K7qAl76mSCR9fOIY+QSg3UV5zWJWXyOmA
+         gbFOAx0I7HxI281mHnG6efsDCBdpKZdcvZT+WcNEXuUZPSQzZ5dnNp2eVOQ8ctf0ea
+         rZmY4nTh7TxjgmtR8yV6I4zHjaKcqoG2kQhGtm+ApWy/sLsmloqDZOpM1z4Zu6+6g3
+         1vvRhbAif1mAJV8Uo1Y1VMuwZGbZb62N3UFRXRuUavX6yPfMEKsrNhkFwQCs4hXIdX
+         HZmSzX+XRxwnPtHaLnkE00+o6hWUmvrqr0hh94hGi+pbYeR7tq2eXxYFakU83q8w3Y
+         ZYcpFfes7Py8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Strauss <michael.strauss@amd.com>,
-        Sung Lee <sung.lee@amd.com>,
-        Yongqiang Sun <yongqiang.sun@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 096/130] drm/amd/display: Revert DCN2.1 dram_clock_change_latency update
-Date:   Tue, 22 Dec 2020 21:17:39 -0500
-Message-Id: <20201223021813.2791612-96-sashal@kernel.org>
+Cc:     Ping-Ke Shih <pkshih@realtek.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 097/130] rtlwifi: rtl8192de: fix ofdm power compensation
+Date:   Tue, 22 Dec 2020 21:17:40 -0500
+Message-Id: <20201223021813.2791612-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -46,36 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Strauss <michael.strauss@amd.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 3abad347c432b9f5904cfad40f417d5cff90300c ]
+[ Upstream commit 3f79e541593fecc2a90687eb7162e15a499caa33 ]
 
-[Why]
-New value breaks VSR on high refresh panels, reverting until a fix is developed
+ofdm_index[] is used to indicate how many power compensation is needed to
+current thermal value. For internal PA module or 2.4G band, the min_index
+is different from other cases.
 
-Signed-off-by: Michael Strauss <michael.strauss@amd.com>
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This issue originally is reported by Dan. He found the size of ofdm_index[]
+is 2, but access index 'i' may be equal to 2 if 'rf' is 2 in case of
+'is2t'.
+
+In fact, the chunk of code is added to wrong place, so move it back to
+proper place, and then power compensation and buffer overflow are fixed.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201207031903.7599-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/dm.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index a6d5beada6634..bb7add5ea2273 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -257,7 +257,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.num_banks = 8,
- 	.num_chans = 4,
- 	.vmm_page_size_bytes = 4096,
--	.dram_clock_change_latency_us = 11.72,
-+	.dram_clock_change_latency_us = 23.84,
- 	.return_bus_width_bytes = 64,
- 	.dispclk_dppclk_vco_speed_mhz = 3600,
- 	.xfc_bus_transport_time_us = 4,
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/dm.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/dm.c
+index 71f3b6b5d7bd9..5baa1b127fff0 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/dm.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/dm.c
+@@ -986,18 +986,19 @@ static void rtl92d_dm_txpower_tracking_callback_thermalmeter(
+ 			 rtlpriv->dm.cck_index);
+ 	}
+ 	for (i = 0; i < rf; i++) {
+-		if (ofdm_index[i] > OFDM_TABLE_SIZE_92D - 1)
++		if (ofdm_index[i] > OFDM_TABLE_SIZE_92D - 1) {
+ 			ofdm_index[i] = OFDM_TABLE_SIZE_92D - 1;
+-		else if (ofdm_index[i] < ofdm_min_index)
++		} else if (internal_pa ||
++			   rtlhal->current_bandtype == BAND_ON_2_4G) {
++			if (ofdm_index[i] < ofdm_min_index_internal_pa)
++				ofdm_index[i] = ofdm_min_index_internal_pa;
++		} else if (ofdm_index[i] < ofdm_min_index) {
+ 			ofdm_index[i] = ofdm_min_index;
++		}
+ 	}
+ 	if (rtlhal->current_bandtype == BAND_ON_2_4G) {
+ 		if (cck_index > CCK_TABLE_SIZE - 1) {
+ 			cck_index = CCK_TABLE_SIZE - 1;
+-		} else if (internal_pa ||
+-			   rtlhal->current_bandtype == BAND_ON_2_4G) {
+-			if (ofdm_index[i] < ofdm_min_index_internal_pa)
+-				ofdm_index[i] = ofdm_min_index_internal_pa;
+ 		} else if (cck_index < 0) {
+ 			cck_index = 0;
+ 		}
 -- 
 2.27.0
 
