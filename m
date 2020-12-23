@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 538492E1E0C
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E872E1E41
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728735AbgLWPeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:21 -0500
+        id S1729149AbgLWPfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:35:40 -0500
 Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728729AbgLWPeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A63C233EE;
-        Wed, 23 Dec 2020 15:33:33 +0000 (UTC)
+        id S1728915AbgLWPeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 10:34:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A87CD23447;
+        Wed, 23 Dec 2020 15:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737613;
-        bh=hFB7eW25blF7fQD/Zd+ns6NF8K01gCOZW3qFTAAxAY0=;
+        s=korg; t=1608737652;
+        bh=aEq2feRiEVLGOUeAsaSIV9YVOkPKuHsJouzCm6a2sJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRMXkwb4gvHbIQ3OIOqmXtfiwoAAuAkOrxqWdjp47za91JYJ7AOw86+rlqYuDsqrS
-         qHB4etUUh/Fcb9Eyh4pxBNyQK8jzvGLblUi5cI87irQ1IIg6h3o7YvE2P9PHjbiVEY
-         gSsFT2HV/XhuQN0zCtAwf2VqYNP5OphT+H5XNdY0=
+        b=Btc5EHfnwzTHHibFzkZkUuroagNbyd5aehW7BO8nVp4rpL7OVBUoHS/DwEHtUH2O6
+         FcTFjJfoT/VRggNx4aZabphA01RvB+bZIcTrrPuYI/Lka0BZnXXDcQ1bkxrXO5GrIs
+         +W2crdMBdQ/z6dV5a9Jq1hn3NH/KbxK9XHUvWKgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 30/40] fscrypt: add fscrypt_is_nokey_name()
-Date:   Wed, 23 Dec 2020 16:33:31 +0100
-Message-Id: <20201223150516.992929347@linuxfoundation.org>
+Subject: [PATCH 5.10 31/40] ubifs: prevent creating duplicate encrypted filenames
+Date:   Wed, 23 Dec 2020 16:33:32 +0100
+Message-Id: <20201223150517.033346173@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 References: <20201223150515.553836647@linuxfoundation.org>
@@ -40,112 +40,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 159e1de201b6fca10bfec50405a3b53a561096a8 upstream.
+commit 76786a0f083473de31678bdb259a3d4167cf756d upstream.
 
-It's possible to create a duplicate filename in an encrypted directory
-by creating a file concurrently with adding the encryption key.
+As described in "fscrypt: add fscrypt_is_nokey_name()", it's possible to
+create a duplicate filename in an encrypted directory by creating a file
+concurrently with adding the directory's encryption key.
 
-Specifically, sys_open(O_CREAT) (or sys_mkdir(), sys_mknod(), or
-sys_symlink()) can lookup the target filename while the directory's
-encryption key hasn't been added yet, resulting in a negative no-key
-dentry.  The VFS then calls ->create() (or ->mkdir(), ->mknod(), or
-->symlink()) because the dentry is negative.  Normally, ->create() would
-return -ENOKEY due to the directory's key being unavailable.  However,
-if the key was added between the dentry lookup and ->create(), then the
-filesystem will go ahead and try to create the file.
+Fix this bug on ubifs by rejecting no-key dentries in ubifs_create(),
+ubifs_mkdir(), ubifs_mknod(), and ubifs_symlink().
 
-If the target filename happens to already exist as a normal name (not a
-no-key name), a duplicate filename may be added to the directory.
+Note that ubifs doesn't actually report the duplicate filenames from
+readdir, but rather it seems to replace the original dentry with a new
+one (which is still wrong, just a different effect from ext4).
 
-In order to fix this, we need to fix the filesystems to prevent
-->create(), ->mkdir(), ->mknod(), and ->symlink() on no-key names.
-(->rename() and ->link() need it too, but those are already handled
-correctly by fscrypt_prepare_rename() and fscrypt_prepare_link().)
+On ubifs, this fixes xfstest generic/595 as well as the new xfstest I
+wrote specifically for this bug.
 
-In preparation for this, add a helper function fscrypt_is_nokey_name()
-that filesystems can use to do this check.  Use this helper function for
-the existing checks that fs/crypto/ does for rename and link.
-
+Fixes: f4f61d2cc6d8 ("ubifs: Implement encrypted filenames")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201118075609.120337-2-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20201118075609.120337-5-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/crypto/hooks.c       |    5 +++--
- include/linux/fscrypt.h |   34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 37 insertions(+), 2 deletions(-)
+ fs/ubifs/dir.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -61,7 +61,7 @@ int __fscrypt_prepare_link(struct inode
- 		return err;
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -270,6 +270,15 @@ done:
+ 	return d_splice_alias(inode, dentry);
+ }
  
- 	/* ... in case we looked up no-key name before key was added */
--	if (dentry->d_flags & DCACHE_NOKEY_NAME)
++static int ubifs_prepare_create(struct inode *dir, struct dentry *dentry,
++				struct fscrypt_name *nm)
++{
 +	if (fscrypt_is_nokey_name(dentry))
- 		return -ENOKEY;
- 
- 	if (!fscrypt_has_permitted_context(dir, inode))
-@@ -86,7 +86,8 @@ int __fscrypt_prepare_rename(struct inod
++		return -ENOKEY;
++
++	return fscrypt_setup_filename(dir, &dentry->d_name, 0, nm);
++}
++
+ static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+ 			bool excl)
+ {
+@@ -293,7 +302,7 @@ static int ubifs_create(struct inode *di
+ 	if (err)
  		return err;
  
- 	/* ... in case we looked up no-key name(s) before key was added */
--	if ((old_dentry->d_flags | new_dentry->d_flags) & DCACHE_NOKEY_NAME)
-+	if (fscrypt_is_nokey_name(old_dentry) ||
-+	    fscrypt_is_nokey_name(new_dentry))
- 		return -ENOKEY;
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
  
- 	if (old_dir != new_dir) {
---- a/include/linux/fscrypt.h
-+++ b/include/linux/fscrypt.h
-@@ -111,6 +111,35 @@ static inline void fscrypt_handle_d_move
- 	dentry->d_flags &= ~DCACHE_NOKEY_NAME;
- }
+@@ -953,7 +962,7 @@ static int ubifs_mkdir(struct inode *dir
+ 	if (err)
+ 		return err;
  
-+/**
-+ * fscrypt_is_nokey_name() - test whether a dentry is a no-key name
-+ * @dentry: the dentry to check
-+ *
-+ * This returns true if the dentry is a no-key dentry.  A no-key dentry is a
-+ * dentry that was created in an encrypted directory that hasn't had its
-+ * encryption key added yet.  Such dentries may be either positive or negative.
-+ *
-+ * When a filesystem is asked to create a new filename in an encrypted directory
-+ * and the new filename's dentry is a no-key dentry, it must fail the operation
-+ * with ENOKEY.  This includes ->create(), ->mkdir(), ->mknod(), ->symlink(),
-+ * ->rename(), and ->link().  (However, ->rename() and ->link() are already
-+ * handled by fscrypt_prepare_rename() and fscrypt_prepare_link().)
-+ *
-+ * This is necessary because creating a filename requires the directory's
-+ * encryption key, but just checking for the key on the directory inode during
-+ * the final filesystem operation doesn't guarantee that the key was available
-+ * during the preceding dentry lookup.  And the key must have already been
-+ * available during the dentry lookup in order for it to have been checked
-+ * whether the filename already exists in the directory and for the new file's
-+ * dentry not to be invalidated due to it incorrectly having the no-key flag.
-+ *
-+ * Return: %true if the dentry is a no-key name
-+ */
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return dentry->d_flags & DCACHE_NOKEY_NAME;
-+}
-+
- /* crypto.c */
- void fscrypt_enqueue_decrypt_work(struct work_struct *);
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
  
-@@ -244,6 +273,11 @@ static inline void fscrypt_handle_d_move
- {
- }
+@@ -1038,7 +1047,7 @@ static int ubifs_mknod(struct inode *dir
+ 		return err;
+ 	}
  
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return false;
-+}
-+
- /* crypto.c */
- static inline void fscrypt_enqueue_decrypt_work(struct work_struct *work)
- {
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err) {
+ 		kfree(dev);
+ 		goto out_budg;
+@@ -1122,7 +1131,7 @@ static int ubifs_symlink(struct inode *d
+ 	if (err)
+ 		return err;
+ 
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
+ 
 
 
