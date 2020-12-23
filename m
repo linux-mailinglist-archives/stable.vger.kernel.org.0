@@ -2,132 +2,314 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B53632E229E
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 00:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD01A2E22A0
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 00:07:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727268AbgLWXGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 18:06:34 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40398 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726319AbgLWXGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 18:06:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608764708;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4IW+6Ci7VWnkZSEHQFQsV4N3ToaQGHBeykrTby9wxas=;
-        b=NC4AKFw531KPD4dcvwrFk6dKvYYAX6E6XfLtVVGD7NH29XQtGz3VKMifUPje+W2qrF/uUi
-        JgEKLa6DPj9n5jgwIs2nu+ZRO8h2Ao9L4N2DyNIDGkZ5WGYe7IgFrv7wG7A9SFFaMbv+5j
-        pZT0BPsiDn44KjawBiCMwYIuRsM+UHg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-333-wDBks589Py2W9rDH4oAFuQ-1; Wed, 23 Dec 2020 18:05:04 -0500
-X-MC-Unique: wDBks589Py2W9rDH4oAFuQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E5A721005504;
-        Wed, 23 Dec 2020 23:05:01 +0000 (UTC)
-Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 47D0D63747;
-        Wed, 23 Dec 2020 23:04:58 +0000 (UTC)
-Date:   Wed, 23 Dec 2020 18:04:57 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Yu Zhao <yuzhao@google.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+PNGYH6LkzZo0SU@redhat.com>
-References: <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
- <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
- <X+JJqK91plkBVisG@redhat.com>
- <X+JhwVX3s5mU9ZNx@google.com>
- <X+Js/dFbC5P7C3oO@redhat.com>
- <X+KDwu1PRQ93E2LK@google.com>
- <X+Kxy3oBMSLz8Eaq@redhat.com>
- <X+K7JMrTEC9SpVIB@google.com>
- <X+O49HrcK1fBDk0Q@redhat.com>
- <X+PE38s2Egq4nzKv@google.com>
+        id S1727621AbgLWXG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 18:06:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727254AbgLWXG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 18:06:59 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16713C061794
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 15:06:19 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id t8so267464pfg.8
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 15:06:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=t+wXJe6p6nHyI8wEzAWQ2QkiqKn/L9KNK47+cI2+3O8=;
+        b=HveSCuE7M7C3fYNJ83Cr42wfxpYc+3UlucnLRhNuEeYhYozh3T4JDc2ypKAoCf0rbk
+         5lHx2i7ts2Vu1r4e8pPDS8mCS7yXVryaTInRuOJRLs+xGfVih155Tkv6kM7EceVvl9zi
+         7r+tePJURbvuZRSRQgXneWtHcY0qhBTbnbbiyVgdTatMxcBLxe4oK7HA4fTBPEShrXgp
+         Fe/utGyHY0ZJ4cM5qEru41vHeTjW1J6Yq+rFb5sIfkeVjQBK9z0SRwB6JtcyRR9oI1MD
+         EYM2Wz4gkstDWQdrLZHX251pE9P5lrmw7u+KxPez8UozO1cYOQrBrLfqK3HQjU0iSNhX
+         o4vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=t+wXJe6p6nHyI8wEzAWQ2QkiqKn/L9KNK47+cI2+3O8=;
+        b=aIeDi9gkfQnN/r2CYgcNH0EL2+5PGho/Uw9jXk36bd3KAg6c1i4eRYsbQKdqrO446G
+         RuWjidA7YUNHduL5phZbFD7jAzCI9siqBEookjo2BOljOcpef3z1VvmclUkACds6/+OD
+         0Scnu/GEoSe1cTJzTwLkSvpKw6lmmWGvPspljy/ShL0xR+nX5psVHEjjivi0vR6i43WC
+         ezHhAjmXoYUZM3Z4JyIyByapD0J5DnEHVQpCQeL7ICNTyg41+EImLvalqsLVOOZ6nu+5
+         m/kG/Nmxs1Txd//nV2G4scVo3VJz/ZS0r2syvs00SCQxlGlaAQr1ns2sXmdcnRkjoRiR
+         gOww==
+X-Gm-Message-State: AOAM531322CggcTVQABB6i9VJsgdKWRdiTBbgAw9+OTalDyJU3rvqmyB
+        HBsCKxMTM2IgDE6lRQ2dJ3INGCoCYGf9rw==
+X-Google-Smtp-Source: ABdhPJwfzhL5+klMwY1MDdRSlqIpzswqfjoYyy+sWw7OQOph/fbLyYGdnTCLtUXNuA/L97yiRGt/zA==
+X-Received: by 2002:aa7:8421:0:b029:1a9:3a46:8555 with SMTP id q1-20020aa784210000b02901a93a468555mr5736119pfn.16.1608764777992;
+        Wed, 23 Dec 2020 15:06:17 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id jx4sm574534pjb.24.2020.12.23.15.06.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 15:06:17 -0800 (PST)
+Message-ID: <5fe3cd69.1c69fb81.d913f.1f12@mx.google.com>
+Date:   Wed, 23 Dec 2020 15:06:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X+PE38s2Egq4nzKv@google.com>
-User-Agent: Mutt/2.0.3 (2020-12-04)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.163-96-gb31e46a7c4d6
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 180 runs,
+ 6 regressions (v4.19.163-96-gb31e46a7c4d6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 23, 2020 at 03:29:51PM -0700, Yu Zhao wrote:
-> I was hesitant to suggest the following because it isn't that straight
-> forward. But since you seem to be less concerned with the complexity,
-> I'll just bring it on the table -- it would take care of both ufd and
-> clear_refs_write, wouldn't it?
+stable-rc/linux-4.19.y baseline: 180 runs, 6 regressions (v4.19.163-96-gb31=
+e46a7c4d6)
 
-It certainly would since this is basically declaring "leaving stale
-TLB entries past mmap_read_lock" is now permitted as long as the
-pending flush counter is elevated under mmap_sem for reading.
+Regressions Summary
+-------------------
 
-Anything that prevents uffd-wp to take mmap_write_lock looks great to
-me, anything, the below included, as long as it looks like easy to
-enforce and understand. And the below certainly is.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-My view is that the below is at the very least an improvement in terms
-of total complexity, compared to v5.10. At least it'll be documented.
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-So what would be not ok to me is to depend on undocumented not
-guaranteed behavior in do_wp_page like the page_mapcount, which is
-what we had until now in clear_refs_write and in uffd-wp (but only if
-wrprotect raced against un-wrprotect, a tiny window if compared to
-clear_refs_write).
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Documenting that clearing pte_write and deferring the flush is allowed
-if mm_tlb_flush_pending was elevated before taking the PT lock is less
-complex and very well defined rule, if compared to what we had before
-in the page_mapcount dependency of clear_refs_write which was prone to
-break, and in fact it just did.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-We'll need a commentary in both userfaultfd_writeprotect and
-clear_refs_write that links to the below snippet.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-If we abstract it in a header we can hide there also a #ifdef
-CONFIG_HAVE_ARCH_SOFT_DIRTY=y && CONFIG_HAVE_ARCH_USERFAULTFD_WP=y &&
-CONFIG_USERFAULTFD=y to make it even more explicit.
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-However it may be simpler to keep it unconditional, I don't mind
-either ways. If it was up to me I'd write it to those 3 config options
-to be sure I remember where it comes from and to force any other user
-to register to be explicit they depend on that.
 
-> 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 5e9ca612d7d7..af38c5ee327e 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -4403,8 +4403,11 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
->  		goto unlock;
->  	}
->  	if (vmf->flags & FAULT_FLAG_WRITE) {
-> -		if (!pte_write(entry))
-> +		if (!pte_write(entry)) {
-> +			if (mm_tlb_flush_pending(vmf->vma->vm_mm))
-> +				flush_tlb_page(vmf->vma, vmf->address);
->  			return do_wp_page(vmf);
-> +		}
->  		entry = pte_mkdirty(entry);
->  	}
->  	entry = pte_mkyoung(entry);
-> 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.163-96-gb31e46a7c4d6/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.163-96-gb31e46a7c4d6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b31e46a7c4d6c0103dea15ed808c7a1b4a9c578f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe39a12e303a7a3cec94cb9
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fe39a12e303a7a=
+3cec94cbe
+        failing since 42 days (last pass: v4.19.155-42-g97cf958a4cd1, first=
+ fail: v4.19.157)
+        2 lines
+
+    2020-12-23 19:27:09.293000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/102
+    2020-12-23 19:27:09.302000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe398a83652aaa06cc94cda
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe398a83652aaa06cc94=
+cdb
+        failing since 35 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
+ fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe398b2f8eb6bd376c94cd7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe398b2f8eb6bd376c94=
+cd8
+        failing since 35 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
+ fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe398aff8eb6bd376c94cbf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe398aff8eb6bd376c94=
+cc0
+        failing since 35 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
+ fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe3986721ac5772fcc94cd0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe3986721ac5772fcc94=
+cd1
+        failing since 35 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
+ fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe3c94efed04592aac94cce
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-=
+qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+63-96-gb31e46a7c4d6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-=
+qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe3c94efed04592aac94=
+ccf
+        failing since 35 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
+ fail: v4.19.157-102-g1d674327c1b7) =
+
+ =20
