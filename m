@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F092E1662
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:09:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2DB2E1729
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728400AbgLWCS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:18:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
+        id S1727098AbgLWDGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:06:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728393AbgLWCS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 502B522273;
-        Wed, 23 Dec 2020 02:18:03 +0000 (UTC)
+        id S1728351AbgLWCS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11074225AA;
+        Wed, 23 Dec 2020 02:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689884;
-        bh=dcKGcc8LJFotWqH60ZoaCCXcl+NNe4MGdqgqI7AAO7s=;
+        s=k20201202; t=1608689886;
+        bh=LDFuMUAXiZ3amM/WmFke8arjKEy476VT1qkqeIukd18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4UJL3MytaTUg62B6Ohqsuo6/Po/vriChbEWi4ax2jMxy/zdCnDvy2MbYtVxqlRlL
-         icBa9MRBB32AVCMq2SXrJjZkGYbfQaS0634zmvuH4BaTJu7HeQ+ROoL3qjt/1F6vgF
-         J+h0DkHIkh7TUcJI1/nwgEhREIpklBB+R5El3aFKHpfZQ6fSdzzRR1lUFhGoGyu/ro
-         F5oSm6pt3moN5qXDR5fmRZRbcUIuYEsc2twrq0q8/yS2AG+jKSnRaobYKQ8le9vew8
-         2omIvtlQXMfd40prvpkWQah3I+yS03w7hSh7EbDgAt2/Yh0F5t70tcG47z/ZfpSieI
-         cF6pEtbrrSVNw==
+        b=RWCP9i3FnLwpEZoRZ7HCDmWfGHemA4hMdtwsNac5Jh4sk6DOv+gVThuq13I4G9uvZ
+         cstBewP7jgXDQLXPYOf5SS70jrN+iBw90vrPUWVw3fHEG+IpQcUzAAoLwcmT0CoOjM
+         84XQ4d9ZIKGF86BWwZ/S5rfLLlreJXzKqe2e9wXt1pY3eZJ9nosqZVKl0uo+jjZbDS
+         XXn+HVx0Wd3ni0Eg6bf8N+TtLsPtOuOWFeNQvgslcEZxPW8w+D378Xvsexq2s5dnu7
+         ueHC1gFywCQVBVqmhso6aZgX7OBzGg33NI98T1H/ck5JzlRk3aN14FbPfNi2FG7P0s
+         2c/aPx0HGmiBg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 073/217] net: ipconfig: Avoid spurious blank lines in boot log
-Date:   Tue, 22 Dec 2020 21:14:02 -0500
-Message-Id: <20201223021626.2790791-73-sashal@kernel.org>
+Cc:     Hawking Zhang <Hawking.Zhang@amd.com>,
+        Kevin Wang <kevin1.wang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 075/217] drm/amdgpu: check hive pointer before access
+Date:   Tue, 22 Dec 2020 21:14:04 -0500
+Message-Id: <20201223021626.2790791-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -43,80 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Hawking Zhang <Hawking.Zhang@amd.com>
 
-[ Upstream commit c9f64d1fc101c64ea2be1b2e562b4395127befc9 ]
+[ Upstream commit a9f5f98f796ee93a865b9886bf7cb694cf124eb5 ]
 
-When dumping the name and NTP servers advertised by DHCP, a blank line
-is emitted if either of the lists is empty. This can lead to confusing
-issues such as the blank line getting flagged as warning. This happens
-because the blank line is the result of pr_cont("\n") and that may see
-its level corrupted by some other driver concurrently writing to the
-console.
+in case it is an invalid one
 
-Fix this by making sure that the terminating newline is only emitted
-if at least one entry in the lists was printed before.
-
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20201110073757.1284594-1-thierry.reding@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Kevin Wang <kevin1.wang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ipconfig.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
-index 561f15b5a944e..3cd13e1bc6a70 100644
---- a/net/ipv4/ipconfig.c
-+++ b/net/ipv4/ipconfig.c
-@@ -1441,7 +1441,7 @@ static int __init ip_auto_config(void)
- 	int retries = CONF_OPEN_RETRIES;
- #endif
- 	int err;
--	unsigned int i;
-+	unsigned int i, count;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 1162913c8bf42..ffb74fba9d867 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -395,12 +395,17 @@ void amdgpu_put_xgmi_hive(struct amdgpu_hive_info *hive)
+ int amdgpu_xgmi_set_pstate(struct amdgpu_device *adev, int pstate)
+ {
+ 	int ret = 0;
+-	struct amdgpu_hive_info *hive = amdgpu_get_xgmi_hive(adev);
+-	struct amdgpu_device *request_adev = hive->hi_req_gpu ?
+-						hive->hi_req_gpu : adev;
++	struct amdgpu_hive_info *hive;
++	struct amdgpu_device *request_adev;
+ 	bool is_hi_req = pstate == AMDGPU_XGMI_PSTATE_MAX_VEGA20;
+-	bool init_low = hive->pstate == AMDGPU_XGMI_PSTATE_UNKNOWN;
++	bool init_low;
++
++	hive = amdgpu_get_xgmi_hive(adev);
++	if (!hive)
++		return 0;
  
- 	/* Initialise all name servers and NTP servers to NONE (but only if the
- 	 * "ip=" or "nfsaddrs=" kernel command line parameters weren't decoded,
-@@ -1575,7 +1575,7 @@ static int __init ip_auto_config(void)
- 	if (ic_dev_mtu)
- 		pr_cont(", mtu=%d", ic_dev_mtu);
- 	/* Name servers (if any): */
--	for (i = 0; i < CONF_NAMESERVERS_MAX; i++) {
-+	for (i = 0, count = 0; i < CONF_NAMESERVERS_MAX; i++) {
- 		if (ic_nameservers[i] != NONE) {
- 			if (i == 0)
- 				pr_info("     nameserver%u=%pI4",
-@@ -1583,12 +1583,14 @@ static int __init ip_auto_config(void)
- 			else
- 				pr_cont(", nameserver%u=%pI4",
- 					i, &ic_nameservers[i]);
-+
-+			count++;
- 		}
--		if (i + 1 == CONF_NAMESERVERS_MAX)
-+		if ((i + 1 == CONF_NAMESERVERS_MAX) && count > 0)
- 			pr_cont("\n");
- 	}
- 	/* NTP servers (if any): */
--	for (i = 0; i < CONF_NTP_SERVERS_MAX; i++) {
-+	for (i = 0, count = 0; i < CONF_NTP_SERVERS_MAX; i++) {
- 		if (ic_ntp_servers[i] != NONE) {
- 			if (i == 0)
- 				pr_info("     ntpserver%u=%pI4",
-@@ -1596,8 +1598,10 @@ static int __init ip_auto_config(void)
- 			else
- 				pr_cont(", ntpserver%u=%pI4",
- 					i, &ic_ntp_servers[i]);
-+
-+			count++;
- 		}
--		if (i + 1 == CONF_NTP_SERVERS_MAX)
-+		if ((i + 1 == CONF_NTP_SERVERS_MAX) && count > 0)
- 			pr_cont("\n");
- 	}
- #endif /* !SILENT */
++	request_adev = hive->hi_req_gpu ? hive->hi_req_gpu : adev;
++	init_low = hive->pstate == AMDGPU_XGMI_PSTATE_UNKNOWN;
+ 	amdgpu_put_xgmi_hive(hive);
+ 	/* fw bug so temporarily disable pstate switching */
+ 	return 0;
 -- 
 2.27.0
 
