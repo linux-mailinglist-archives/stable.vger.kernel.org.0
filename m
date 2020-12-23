@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3957E2E120B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A82B2E121A
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727904AbgLWCSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        id S1728409AbgLWCS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:18:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727828AbgLWCSL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C951221E5;
-        Wed, 23 Dec 2020 02:17:11 +0000 (UTC)
+        id S1728391AbgLWCS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3548F22573;
+        Wed, 23 Dec 2020 02:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689832;
-        bh=yYA+MGHW/+TtHZWGYi2rBWDMZ0naSYSzdR8S3kuTsrE=;
+        s=k20201202; t=1608689882;
+        bh=0MXOZf7yd2wC/JO392G22Rc0EIixdSQRG1LJ3EE8zhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zx88YomxhB5Kw3zBAtaWmBB89/MDI996ICvSEIdBZOwjXIC0HGzfMjdtAY1NMb85g
-         igmGvEjO97wKIMgFBJ65iDmEeZaJoch8Kb08niOkvZPLHSNvBmTwrVaIGO4f+VtFG2
-         8jbWOA83UvJy0r7wWUkCBusH+todr5v/fwfPRzdAXehUYXWYu7W7BT5NS/AwA4Youz
-         1Nsysa+Gr/bEj9+Ro3L6ZpnL9ZD+qdykaulDcEvuwdLSzgaRoOU0ekbZnHIMzz6E4h
-         0C3tNJZVqC8VN3zNpjDGbIERrTMqJQNXp7SfpGS8No0gTfT/VuEUpcU/8IJwoehvcY
-         Tx1i+DMNRe/3Q==
+        b=j1XaqcCXQvou592cGc87YFlQmqOKcT2i9TIUofpZbjM91y058aneSW7nw3NmCPvQi
+         OaumLSL+NWy/Nna64lkIBgfMW3FSMqIs5TT0Zyrg84x7FAwlrCREYgHHBnuRaagsRX
+         3TQVlJic3dcxNlaosmPu64NpzRrZxbhuqmdSw2GgkjXfW/hr9sSDqBxkVpvskkW73h
+         tzD0m+0p07lsUAhYL9ujcaH99a0gVO0d3fphXNShadxFTEOntN+KyxutqP0C8B56hx
+         KxGQouVToSwIrhzmPu2s++4MJSNprZ8KNsASf6dPBL9N/QVhWCtPZJ05E0cLJyRvU4
+         Yr/1nFIPEms8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bean huo <beanhuo@micron.com>, Can Guo <cang@codeaurora.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 034/217] scsi: ufs: Allow an error return value from ->device_reset()
-Date:   Tue, 22 Dec 2020 21:13:23 -0500
-Message-Id: <20201223021626.2790791-34-sashal@kernel.org>
+Cc:     Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 072/217] MIPS: BMC47xx: fix kconfig dependency bug for BCM47XX_SSB
+Date:   Tue, 22 Dec 2020 21:14:01 -0500
+Message-Id: <20201223021626.2790791-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -47,111 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 151f1b664ffbb847c7fbbce5a5b8580f1b9b1d98 ]
+[ Upstream commit 09a48cbcd7af9203296938044f1100bb113ce01a ]
 
-It is simpler for drivers to provide a ->device_reset() callback
-irrespective of whether the GPIO, or firmware interface necessary to do the
-reset, is discovered during probe.
+When BCM47XX_SSB is enabled and SSB_PCIHOST is disabled, it results in the
+following Kbuild warning:
 
-Change ->device_reset() to return an error code.  Drivers that provide the
-callback, but do not do the reset operation should return -EOPNOTSUPP.
+WARNING: unmet direct dependencies detected for SSB_B43_PCI_BRIDGE
+  Depends on [n]: SSB [=y] && SSB_PCIHOST [=n]
+  Selected by [y]:
+  - BCM47XX_SSB [=y] && BCM47XX [=y] && PCI [=y]
 
-Link: https://lore.kernel.org/r/20201103141403.2142-3-adrian.hunter@intel.com
-Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Bean huo <beanhuo@micron.com>
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The reason is that BCM47XX_SSB selects SSB_B43_PCI_BRIDGE without
+depending on or selecting SSB_PCIHOST while SSB_B43_PCI_BRIDGE depends on
+SSB_PCIHOST. This can also fail building the kernel as demonstrated in a
+bug report.
+
+Honor the kconfig dependency to remove unmet direct dependency warnings
+and avoid any potential build failures.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=210051
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c |  4 +++-
- drivers/scsi/ufs/ufs-qcom.c     |  6 ++++--
- drivers/scsi/ufs/ufshcd.h       | 11 +++++++----
- 3 files changed, 14 insertions(+), 7 deletions(-)
+ arch/mips/bcm47xx/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 8df73bc2f8cb2..914a827a93ee8 100644
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -743,7 +743,7 @@ static int ufs_mtk_link_startup_notify(struct ufs_hba *hba,
- 	return ret;
- }
- 
--static void ufs_mtk_device_reset(struct ufs_hba *hba)
-+static int ufs_mtk_device_reset(struct ufs_hba *hba)
- {
- 	struct arm_smccc_res res;
- 
-@@ -764,6 +764,8 @@ static void ufs_mtk_device_reset(struct ufs_hba *hba)
- 	usleep_range(10000, 15000);
- 
- 	dev_info(hba->dev, "device reset done\n");
-+
-+	return 0;
- }
- 
- static int ufs_mtk_link_set_hpm(struct ufs_hba *hba)
-diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-index f9d6ef3565407..a244c8ae1b4eb 100644
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -1421,13 +1421,13 @@ static void ufs_qcom_dump_dbg_regs(struct ufs_hba *hba)
-  *
-  * Toggles the (optional) reset line to reset the attached device.
-  */
--static void ufs_qcom_device_reset(struct ufs_hba *hba)
-+static int ufs_qcom_device_reset(struct ufs_hba *hba)
- {
- 	struct ufs_qcom_host *host = ufshcd_get_variant(hba);
- 
- 	/* reset gpio is optional */
- 	if (!host->device_reset)
--		return;
-+		return -EOPNOTSUPP;
- 
- 	/*
- 	 * The UFS device shall detect reset pulses of 1us, sleep for 10us to
-@@ -1438,6 +1438,8 @@ static void ufs_qcom_device_reset(struct ufs_hba *hba)
- 
- 	gpiod_set_value_cansleep(host->device_reset, 0);
- 	usleep_range(10, 15);
-+
-+	return 0;
- }
- 
- #if IS_ENABLED(CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND)
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index e0f00a42371c5..de97971e2d865 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -318,7 +318,7 @@ struct ufs_hba_variant_ops {
- 	int     (*resume)(struct ufs_hba *, enum ufs_pm_op);
- 	void	(*dbg_register_dump)(struct ufs_hba *hba);
- 	int	(*phy_initialization)(struct ufs_hba *);
--	void	(*device_reset)(struct ufs_hba *hba);
-+	int	(*device_reset)(struct ufs_hba *hba);
- 	void	(*config_scaling_param)(struct ufs_hba *hba,
- 					struct devfreq_dev_profile *profile,
- 					void *data);
-@@ -1181,9 +1181,12 @@ static inline void ufshcd_vops_dbg_register_dump(struct ufs_hba *hba)
- static inline void ufshcd_vops_device_reset(struct ufs_hba *hba)
- {
- 	if (hba->vops && hba->vops->device_reset) {
--		hba->vops->device_reset(hba);
--		ufshcd_set_ufs_dev_active(hba);
--		ufshcd_update_reg_hist(&hba->ufs_stats.dev_reset, 0);
-+		int err = hba->vops->device_reset(hba);
-+
-+		if (!err)
-+			ufshcd_set_ufs_dev_active(hba);
-+		if (err != -EOPNOTSUPP)
-+			ufshcd_update_reg_hist(&hba->ufs_stats.dev_reset, err);
- 	}
- }
- 
+diff --git a/arch/mips/bcm47xx/Kconfig b/arch/mips/bcm47xx/Kconfig
+index 6889f74e06f54..40876654423c6 100644
+--- a/arch/mips/bcm47xx/Kconfig
++++ b/arch/mips/bcm47xx/Kconfig
+@@ -9,6 +9,7 @@ config BCM47XX_SSB
+ 	select SSB_DRIVER_MIPS
+ 	select SSB_DRIVER_EXTIF
+ 	select SSB_EMBEDDED
++	select SSB_PCIHOST if PCI
+ 	select SSB_B43_PCI_BRIDGE if PCI
+ 	select SSB_DRIVER_PCICORE if PCI
+ 	select SSB_PCICORE_HOSTMODE if PCI
 -- 
 2.27.0
 
