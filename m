@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1F02E127F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:27:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A192E1281
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:27:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729303AbgLWCVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:21:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+        id S1729321AbgLWCVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:21:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgLWCVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C45602222D;
-        Wed, 23 Dec 2020 02:21:00 +0000 (UTC)
+        id S1727757AbgLWCVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC3EF2256F;
+        Wed, 23 Dec 2020 02:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690061;
-        bh=SQNednguxrm2iuf7rpcDAon7g61iexbjQdihHuPcsgU=;
+        s=k20201202; t=1608690066;
+        bh=SlXT8szZKSZsLWWHMYmsFWGBamP8ytWKV+iCTXyRrX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Njtr94jIlZdvp+0qyaUG97BaeCL9ho/8LUanMzmH0SqidI4gNnWP8ObP+1Otre0Wr
-         f9+7WkUr8z7VNlMlU1agd3uopthUlrQ0ieryG+PnLKt2/JOeS0sYPS3mH4q/11ojFY
-         jsVGMR/wTmdQF3OzSW4XjGGw2r24kOzkOq2qY9iUan2gmi30Mz69zTi06g2mPlbudL
-         5Iuivu3m64c4TChwFp8gwSbKguiEyzLI1Giy4gebpDWfwvQHOKmbsfeK3sAe29rCjA
-         Z8/5ExVRzkFgGl8bfPgGjO94FnlHr0JInVQcJrdvIcljvwpEidCfcG8rCmfcTjijIC
-         gSphuBKFwPBGA==
+        b=rKpzl2HErxIsxoml3y+TJwD46yo+P4j4NnxCeLAQipNk0QlCj2Qpj3rSP7FGHHwLG
+         LDmmbq8X9rmCgMCyJKT7zRy5U4sAmRAf7mx4Jrs6C1aA59QU1OiqzUHV8KPOWyuOJl
+         daXhoa/IGs3tPo2wiSngEe9W5yDt/BFIbq+EQBXe2jYTD79kNThTqsvqEVHhdB3Atw
+         qBmUsMHyXppRv6dIIa6Lx+iVTmyuF4fYUHEVnQcjv8xu1h6A4xLCS77wE3yiasVXv3
+         YFI69qnb5MVPm7w/GSXgJLGgMWU7umtdPWgFaITxBAezFwPhlxH2ieeP3phSrxNUBs
+         YuC79y3DPdkQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 130/130] PCI: Add function 1 DMA alias quirk for Marvell 9215 SATA controller
-Date:   Tue, 22 Dec 2020 21:18:13 -0500
-Message-Id: <20201223021813.2791612-130-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 02/87] tomoyo: fix clang pointer arithmetic warning
+Date:   Tue, 22 Dec 2020 21:19:38 -0500
+Message-Id: <20201223022103.2792705-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
-References: <20201223021813.2791612-1-sashal@kernel.org>
+In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
+References: <20201223022103.2792705-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,35 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 059983790a4c963d92943e55a61fca55be427d55 ]
+[ Upstream commit d9594e0409651a237903a13c9718df889f43d43b ]
 
-Add function 1 DMA alias quirk for Marvell 88SS9215 PCIe SSD Controller.
+clang warns about additions on NULL pointers being undefined in C:
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135
-Link: https://lore.kernel.org/r/20201110220516.697934-1-helgaas@kernel.org
-Reported-by: John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+security/tomoyo/securityfs_if.c:226:59: warning: arithmetic on a null pointer treated as a cast from integer to pointer is a GNU extension [-Wnull-pointer-arithmetic]
+        securityfs_create_file(name, mode, parent, ((u8 *) NULL) + key,
+
+Change the code to instead use a cast through uintptr_t to avoid
+the warning.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/tomoyo/securityfs_if.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index c98067579e9f3..53376bcda1f3f 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4055,6 +4055,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9183,
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c46 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x91a0,
- 			 quirk_dma_func1_alias);
-+/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135 */
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9215,
-+			 quirk_dma_func1_alias);
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c127 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9220,
- 			 quirk_dma_func1_alias);
+diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
+index 1d3d7e7a1f055..6f1161f4e613d 100644
+--- a/security/tomoyo/securityfs_if.c
++++ b/security/tomoyo/securityfs_if.c
+@@ -131,8 +131,8 @@ static const struct file_operations tomoyo_self_operations = {
+  */
+ static int tomoyo_open(struct inode *inode, struct file *file)
+ {
+-	const int key = ((u8 *) file_inode(file)->i_private)
+-		- ((u8 *) NULL);
++	const u8 key = (uintptr_t) file_inode(file)->i_private;
++
+ 	return tomoyo_open_control(key, file);
+ }
+ 
+@@ -223,7 +223,7 @@ static const struct file_operations tomoyo_operations = {
+ static void __init tomoyo_create_entry(const char *name, const umode_t mode,
+ 				       struct dentry *parent, const u8 key)
+ {
+-	securityfs_create_file(name, mode, parent, ((u8 *) NULL) + key,
++	securityfs_create_file(name, mode, parent, (void *) (uintptr_t) key,
+ 			       &tomoyo_operations);
+ }
+ 
 -- 
 2.27.0
 
