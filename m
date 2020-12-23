@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D212E1784
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A98F02E1783
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727968AbgLWCSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727975AbgLWCSY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 22 Dec 2020 21:18:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727898AbgLWCSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727828AbgLWCSX (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:18:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2A472222A;
-        Wed, 23 Dec 2020 02:17:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1385922202;
+        Wed, 23 Dec 2020 02:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689836;
-        bh=55FbdZozjY9wsOB2yAn394jO2YjjJI+sp8UYjuYc7aM=;
+        s=k20201202; t=1608689837;
+        bh=YKhg6n2NEbJnGtJdq++WzvE6avrtrzUoOovc1QxUGps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdHLz//Al/C241hU3rDkSn10rFYH9hiA4pdHL0GR3DtXbLpFxxqVDR4TTLZXubdEC
-         xBA/C2lpN1fJLHh4TACxlrZTCQr4kqKXh/x+/aR0991oPjm5IrCboXGNC4GEOFqJVu
-         cQ/82fCrwDXGR6e4TCu+8s5oV4QayAmLxoEJiAH6HYK+REaju0ZTJsSBbbJqsCczPa
-         +4S2u1M5l5ByVsFxDer8Muug10uE2MvqRUrfoI5/I7+v0fAT4b4GTlfjS8N6sJQ1Ep
-         SFyU5EeHAYS8/GgFq8tMWfs6HImCKR3M6yc2XJuJ1+fleiUNZjg9WMUh8cnE4nNRBd
-         THWO3sbxPfF2w==
+        b=nJzyxJapHJwHITdzKM6j5hJOy0hNyZaPK1CWlsYTOhJfgGhW3IbA6WFu8gIMrR3ZV
+         szGvxvJpjBVjV9O5AsuqaGtX62mhehU07f0aZy2+xNEwwfLb/FDZ4EU+8sVhP7QM2v
+         HXp3GJKRzOQjPKnHt80ndWhdxy2/ov0Kuav2vyeVotsyeOj/VJTDE/uaz3gnf4SWp4
+         soEsn5Kfs451SuuaP4n+PskU9pa3eCEDRGGXrHtsPya4u5xiBkN58qlZratgA2GhVB
+         ML2wDSfrhMos45uEuAJuysWrZ4bd3LiHOjOAfMdcuaIVSz8E00uUwSBkFMfXxq/HVR
+         VKPlICxjZPP5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 037/217] mac80211: don't overwrite QoS TID of injected frames
-Date:   Tue, 22 Dec 2020 21:13:26 -0500
-Message-Id: <20201223021626.2790791-37-sashal@kernel.org>
+Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.10 038/217] staging: ks7010: fix missing destroy_workqueue() on error in ks7010_sdio_probe
+Date:   Tue, 22 Dec 2020 21:13:27 -0500
+Message-Id: <20201223021626.2790791-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -43,70 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 527d675969a1dff17baa270d4447ac1c87058299 ]
+[ Upstream commit d1e7550ad081fa5e9260f636dd51e1c496e0fd5f ]
 
-Currently ieee80211_set_qos_hdr sets the QoS TID of all frames based
-on the value assigned to skb->priority. This means it will also
-overwrite the QoS TID of injected frames. The commit 753ffad3d624
-("mac80211: fix TID field in monitor mode transmit") prevented
-injected frames from being modified because of this by setting
-skb->priority to the TID of the injected frame, which assured the
-QoS TID will not be changed to a different value. Unfortunately,
-this workaround complicates the handling of injected frames because
-we can't set skb->priority without affecting the TID value in the
-QoS field of injected frames.
+Add the missing destroy_workqueue() before return from
+ks7010_sdio_probe in the error handling case.
 
-To avoid this, and to simplify the next patch, detect if a frame is
-injected in ieee80211_set_qos_hdr and if so do not change its QoS
-field.
-
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20201104061823.197407-4-Mathy.Vanhoef@kuleuven.be
-[fix typos in commit message]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201028091552.136445-1-miaoqinglang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c  | 5 +----
- net/mac80211/wme.c | 8 ++++++++
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/staging/ks7010/ks7010_sdio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 56a4d0d20a267..bedb9d85f3d65 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -2279,10 +2279,7 @@ netdev_tx_t ieee80211_monitor_start_xmit(struct sk_buff *skb,
- 						    payload[7]);
- 	}
+diff --git a/drivers/staging/ks7010/ks7010_sdio.c b/drivers/staging/ks7010/ks7010_sdio.c
+index 78dc8beeae98e..cbc0032c16045 100644
+--- a/drivers/staging/ks7010/ks7010_sdio.c
++++ b/drivers/staging/ks7010/ks7010_sdio.c
+@@ -1029,10 +1029,12 @@ static int ks7010_sdio_probe(struct sdio_func *func,
  
--	/*
--	 * Initialize skb->priority for QoS frames. This is put in the TID field
--	 * of the frame before passing it to the driver.
--	 */
-+	/* Initialize skb->priority for QoS frames */
- 	if (ieee80211_is_data_qos(hdr->frame_control)) {
- 		u8 *p = ieee80211_get_qos_ctl(hdr);
- 		skb->priority = *p & IEEE80211_QOS_CTL_TAG1D_MASK;
-diff --git a/net/mac80211/wme.c b/net/mac80211/wme.c
-index 2fb99325135a0..b74cd9bd5f95e 100644
---- a/net/mac80211/wme.c
-+++ b/net/mac80211/wme.c
-@@ -249,6 +249,14 @@ void ieee80211_set_qos_hdr(struct ieee80211_sub_if_data *sdata,
+ 	ret = register_netdev(priv->net_dev);
+ 	if (ret)
+-		goto err_free_netdev;
++		goto err_destroy_wq;
  
- 	p = ieee80211_get_qos_ctl(hdr);
+ 	return 0;
  
-+	/* don't overwrite the QoS field of injected frames */
-+	if (info->flags & IEEE80211_TX_CTL_INJECTED) {
-+		/* do take into account Ack policy of injected frames */
-+		if (*p & IEEE80211_QOS_CTL_ACK_POLICY_NOACK)
-+			info->flags |= IEEE80211_TX_CTL_NO_ACK;
-+		return;
-+	}
-+
- 	/* set up the first byte */
- 
- 	/*
++ err_destroy_wq:
++	destroy_workqueue(priv->wq);
+  err_free_netdev:
+ 	free_netdev(netdev);
+  err_release_irq:
 -- 
 2.27.0
 
