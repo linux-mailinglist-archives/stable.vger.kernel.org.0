@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C7C2E157C
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DB2B2E1570
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729558AbgLWCWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:22:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S1729447AbgLWCVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:21:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729556AbgLWCWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D169F22525;
-        Wed, 23 Dec 2020 02:21:25 +0000 (UTC)
+        id S1729440AbgLWCVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C0F22256F;
+        Wed, 23 Dec 2020 02:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690086;
-        bh=kFX56l2DA+/DCghewOJUSjVM9juC4QCbi3IWQQGPhCU=;
+        s=k20201202; t=1608690087;
+        bh=BMOzuK7goc7lyIgUrqsjQrJDXK5vhvo9v2GD2jclSpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrBcZq9oG90tTn0BQkUT/PlzOZc1j1jemIb9IUa9k4MFJbaU4T9P8AbG4t/oDAImM
-         /NKXhNWmlZ7gcNfAqS9aies4ddyP7omgTIxifL3KTunca8Bj+q0JBfK9OlSah2M6CG
-         VRkL9d3zcDbYq59hF/okOluwH1AsN33TmENbb+T3a9Yi6Rf0lK0oF6Qz4NagxikqxE
-         eP3cSD318v2X3DKQu9kvpcVR1ToKXEv6+5dKPBbHhBf/gfRZFydqKES6RCzM/79Whp
-         BXfldA3dOIzlTT27wrrsMFwqFZBjOYJ/sco96wJ2E7SygY3hps7NR5hCAA/H9bH1Us
-         g0gkz4Pg1aDrQ==
+        b=MYDvh5Mknk2y54AZ8WJTVXgk3n4v4cYO8I8+oEt2o9a9aVLRPVSPq9XOQt6ObZE+l
+         6sQIjL9aRZQbLa30hpCj+m6Hc23ngB5FSmrTHR/ZI9aAgFRu5FnfBrF3nsAOLp1W6E
+         bYaApyZ/WTu3c+P1iwlD8j2Pf9KK4y6X88slLZLxRaKXUeZbMNGUBK4ijNMZ4hvUak
+         9OQdoUbezISprbSKXuoQjq/BjLSh9KtPF0Lnb7ZNSfUDLvUyeXmtEx3C6fFTfmLHYn
+         C9XAMr36OCbStqablvSCQx9aQ4FsSJCLadFQoMCHqAsE/iHGr7BxBhCyJuCeYTi9M2
+         IqasO9GXlpa1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 18/87] s390/trng: set quality to 1024
-Date:   Tue, 22 Dec 2020 21:19:54 -0500
-Message-Id: <20201223022103.2792705-18-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/87] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
+Date:   Tue, 22 Dec 2020 21:19:55 -0500
+Message-Id: <20201223022103.2792705-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,50 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Ole Bjørn Midtbø <omidtbo@cisco.com>
 
-[ Upstream commit d041315ef75cf52df19613f56a2da2c5911c163c ]
+[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
 
-The s390-trng does provide 100% entropy. The quality value is supported
-to be between 1 and 1024 and not 1..1000.  Use 1024 to make this driver
-the preferred one. If we ever have a better driver that has the same
-quality but is faster we can change this again when merging the new
-driver. No need to be conservative.
+A different wait queue was used when removing ctrl_wait than when adding
+it. This effectively made the remove operation without locking compared
+to other operations on the wait queue ctrl_wait was part of. This caused
+issues like below where dead000000000100 is LIST_POISON1 and
+dead000000000200 is LIST_POISON2.
 
-This makes sure that the hw variant is preferred over things like
-virtio-rng, where the hypervisor has a potential to be misconfigured
-and thus should have a slightly lower confidence.
+ list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
+	but was dead000000000200. (next=ffffffc03ac77de0).
+ ------------[ cut here ]------------
+ CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
+ ...
+ ---[ end trace 0adc2158f0646eac ]---
+ Call trace:
+ [<ffffffc000443f78>] __list_add+0x38/0xb0
+ [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
+ [<ffffffc00020eecc>] __pollwait+0xec/0x100
+ [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
+ [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
+ [<ffffffc000210378>] do_sys_poll+0x220/0x480
+ [<ffffffc0002106f0>] SyS_poll+0x80/0x138
+ [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
 
-Cc: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+ Unable to handle kernel paging request at virtual address dead000000000100
+ ...
+ CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
+ ...
+ Call trace:
+  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
+  [<ffffffc0000f0818>] __wake_up+0x50/0x70
+  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
+  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
+  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
+  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
+  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
+  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
+  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
+  [<ffffffc0000c2218>] process_one_work+0x268/0x460
+  [<ffffffc0000c2678>] worker_thread+0x268/0x480
+  [<ffffffc0000c94e0>] kthread+0x118/0x128
+  [<ffffffc000085070>] ret_from_fork+0x10/0x20
+  ---[ end trace 0adc2158f0646ead ]---
+
+Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/s390-trng.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/bluetooth/hidp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/hw_random/s390-trng.c b/drivers/char/hw_random/s390-trng.c
-index aca48e893fca1..14747fb23a57f 100644
---- a/drivers/char/hw_random/s390-trng.c
-+++ b/drivers/char/hw_random/s390-trng.c
-@@ -196,14 +196,15 @@ static int trng_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 253975cce943e..0cbd0bca971ff 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -1282,7 +1282,7 @@ static int hidp_session_thread(void *arg)
  
- /*
-  * hwrng register struct
-- * The trng is suppost to have 100% entropy, and thus
-- * we register with a very high quality value.
-+ * The trng is supposed to have 100% entropy, and thus we register with a very
-+ * high quality value. If we ever have a better driver in the future, we should
-+ * change this value again when we merge this driver.
-  */
- static struct hwrng trng_hwrng_dev = {
- 	.name		= "s390-trng",
- 	.data_read	= trng_hwrng_data_read,
- 	.read		= trng_hwrng_read,
--	.quality	= 999,
-+	.quality	= 1024,
- };
- 
+ 	/* cleanup runtime environment */
+ 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
+-	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
++	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
+ 	wake_up_interruptible(&session->report_queue);
+ 	hidp_del_timer(session);
  
 -- 
 2.27.0
