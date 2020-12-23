@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DCE2E1649
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418CD2E164A
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbgLWCUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:20:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1731343AbgLWC7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:59:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728853AbgLWCUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728852AbgLWCUE (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:20:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFE9322273;
-        Wed, 23 Dec 2020 02:19:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9B0E2256F;
+        Wed, 23 Dec 2020 02:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689985;
-        bh=BpYYrIroZeEadG384ALHViSRfqvGh85UKmTLB9sMrvw=;
+        s=k20201202; t=1608689986;
+        bh=yJRRFSfrUWMNVGR1aJmIOLD3je5SKkACdB7S9UENrAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XcQdkC0GoWA/zWXA+6BdjfdGAybt0MqhHGtG83IWOOLcXeGqPt8qX1MDMuNLGvJFz
-         KsFGd+uA2uCCCPLQnk5zR9s+aDcGYj5Gg7K5z4IRIbmsqwrFdVXPf21FNKTnUgscoP
-         +ZaZPd/ka7w23ZDVa4d33+OzqtDh2LeTsdL/o40s46ONfXP7XkOBmngeMC1G17/5z4
-         icsXX/zkwqKArfhN2i4JMzNuLfTjmcHqJCAv0BArgmKwkL02N3xcbnjX9r/2BM/0Q7
-         YemBUrEgUrKh/4Au6meke0GwkDc+Cu2ltexILlNRgJRuzTAOpfjA1lqfONHIfax0D3
-         322I1D0tZFo2g==
+        b=VKhmnEyDOztZt/Rg7KiZFnGCfsrQbG6iVVa5f1bPJVHHCQa0vdRww6RP/gj8y/dg1
+         SHlsTYOFg7z+AHXoYuK6qiAw241Fp5dVzhboctoB2iHI6N8GVNm6A+sBR9i3ZKKjOK
+         EwkNfsmrYxpxMlX0gJ3sKDbxLEEh20BAF7dPA+mgUinWvebTphDrYuOLnjAZqaUQUz
+         9f5u83+nPBc+//qmoCFmLj8GQ05JrLngrCOeQQaDhy2YWY3ebg6XAhRbLk6TLTz0lS
+         Y1zybisAG4LTUlKdDGQULisaWnrQGHG2S8ZOAfcS/34ro23TqTVyuYSr74hy90BKC4
+         kmOcW4DnNfsyw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ethan Warth <redyoshi49q@gmail.com>,
-        "Wladimir J . van der Laan" <laanwj@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 071/130] HID: mf: add support for 0079:1846 Mayflash/Dragonrise USB Gamecube Adapter
-Date:   Tue, 22 Dec 2020 21:17:14 -0500
-Message-Id: <20201223021813.2791612-71-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 072/130] arm64: tegra: Fix GIC400 missing GICH/GICV register regions
+Date:   Tue, 22 Dec 2020 21:17:15 -0500
+Message-Id: <20201223021813.2791612-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -43,73 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ethan Warth <redyoshi49q@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 1008230f2abeb624f6d71b2e1c424fa4eeebbf84 ]
+[ Upstream commit 776a3c04da9fa144241476f4a0d263899d6cad26 ]
 
-Mayflash/Dragonrise seems to have yet another device ID for one of their
-Gamecube controller adapters.  Previous to this commit, the adapter
-registered only one /dev/input/js* device, and all controller inputs (from
-any controller) were mapped to this device.  This patch defines the 1846
-USB device ID and enables the HID_QUIRK_MULTI_INPUT quirk for it, which
-fixes that (with the patch, four /dev/input/js* devices are created, one
-for each of the four controller ports).
+GIC400 has full support for virtualization, and yet the tegra186
+DT doesn't expose the GICH/GICV regions (despite exposing the
+maintenance interrupt that only makes sense for virtualization).
 
-Signed-off-by: Ethan Warth <redyoshi49q@gmail.com>
-Tested-by: Wladimir J. van der Laan <laanwj@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Add the missing regions, based on the hunch that the HW doesn't
+use the CPU build-in interfaces, but instead the external ones
+provided by the GIC. KVM's virtual GIC now works with this change.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-mf.c     | 2 ++
- drivers/hid/hid-quirks.c | 2 ++
- 3 files changed, 5 insertions(+)
+ arch/arm64/boot/dts/nvidia/tegra186.dtsi | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 2aa810665a78c..d28b9ac8b9959 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -365,6 +365,7 @@
- #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR	0x1803
- #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE1	0x1843
- #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE2	0x1844
-+#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE3	0x1846
- 
- #define USB_VENDOR_ID_DWAV		0x0eef
- #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
-diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
-index fc75f30f537c9..92d7ecd41a78f 100644
---- a/drivers/hid/hid-mf.c
-+++ b/drivers/hid/hid-mf.c
-@@ -153,6 +153,8 @@ static const struct hid_device_id mf_devices[] = {
- 		.driver_data = HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2),
- 		.driver_data = 0 }, /* No quirk required */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3),
-+		.driver_data = HID_QUIRK_MULTI_INPUT },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, mf_devices);
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 60d188a704e5e..f35d919c4ebab 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -72,6 +72,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER), HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET },
-@@ -491,6 +492,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3) },
- #endif
- #if IS_ENABLED(CONFIG_HID_MICROSOFT)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+index 9abf0cb1dd67f..f72c97fe4afc8 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+@@ -569,7 +569,9 @@ gic: interrupt-controller@3881000 {
+ 		#interrupt-cells = <3>;
+ 		interrupt-controller;
+ 		reg = <0x0 0x03881000 0x0 0x1000>,
+-		      <0x0 0x03882000 0x0 0x2000>;
++		      <0x0 0x03882000 0x0 0x2000>,
++		      <0x0 0x03884000 0x0 0x2000>,
++		      <0x0 0x03886000 0x0 0x2000>;
+ 		interrupts = <GIC_PPI 9
+ 			(GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_HIGH)>;
+ 		interrupt-parent = <&gic>;
 -- 
 2.27.0
 
