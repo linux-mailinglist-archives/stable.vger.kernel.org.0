@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2AEA2E15C0
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE51F2E15BE
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbgLWCxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:53:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46404 "EHLO mail.kernel.org"
+        id S1727755AbgLWCwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:52:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729285AbgLWCVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E1B229CA;
-        Wed, 23 Dec 2020 02:20:59 +0000 (UTC)
+        id S1729307AbgLWCVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDF05221E5;
+        Wed, 23 Dec 2020 02:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690060;
-        bh=fRCDfTFtMa1rQGWD8TuTb2Kx5o6ANhOkvCmNWyhVMlw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SwwYvD3AJ3xrBqdaikDHkDfAYWulm3l54SlGR2PKRI7Pt0Kl3YU0sKlvRXECxSJyM
-         YZuUa/a5JRqURi/1fULRSfM204YeBsQUal7UQ9Mhkj3yKqwlkjRJbS40S4RSap/Ep4
-         wgC9vSrC/U6pRx/1wMrXk4LRsTZVANp6LgAfADuoSrereaPRI/yTq45mg0F/K6JkN4
-         pkEYE6pj5zoY0stK1Ac4uwl7456UYgFIdLtpDCZB7FwB/sLSqFkkMdV9/4MgNVjKeG
-         hcRb2dncZ3TAl4kkLq3M0bm8XWL3E0dTR9CwBRTfqrxe/XzIbMM+x7ZOSpsiWk9J5l
-         45KrFM73zlRSQ==
+        s=k20201202; t=1608690065;
+        bh=oyo0dMFmeIP9On4Qxj8Vvt0/uXxaCwSpx7Tdp1BfnGo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JZmRrE17llySnJSzzSqlah2zq6SkUD/4llBQ476eL6SW119FwU1JvD/r8OabNU8a8
+         dyn8ynz9wORih+kDwtahVeg/KHres9t6S4hYWj3zsLjx1zJrsnM615HxMyfKneKGV4
+         LdW49ABOkxrwPMh7ktAtBWUYkJcvkckMOdAcVQu5DufvXPjJR53X6EsAtwxTFiEqpg
+         6IlbQ1nDGBfNfDRvsALkrg03ouVSoS7ug/DHSgBlCCGS6MgPEFhEqk/IDDDc1FARhn
+         /FvKglcqqhrCh7waRSaYCMgJY94tYZryk+4zhSfOiyOySs1OUyKf3t2ZCsxdtG3IZy
+         PY45El5I+pIhg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 129/130] cdrom: Reset sector_size back it is not 2048.
-Date:   Tue, 22 Dec 2020 21:18:12 -0500
-Message-Id: <20201223021813.2791612-129-sashal@kernel.org>
+Cc:     Luo Meng <luomeng12@huawei.com>, Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/87] locks: Fix UBSAN undefined behaviour in flock64_to_posix_lock
+Date:   Tue, 22 Dec 2020 21:19:37 -0500
+Message-Id: <20201223022103.2792705-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
-References: <20201223021813.2791612-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,54 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit b5f32555567cfe0a5d5dbe7c1e85ebe37b3f545a ]
+[ Upstream commit 16238415eb9886328a89fe7a3cb0b88c7335fe16 ]
 
-In v2.4.0-test2pre2 mmc_ioctl_cdrom_read_data() was extended by issuing
-a MODE_SELECT opcode to change the sector size and READ_10 to perform
-the actual read if the READ_CD opcode is not support.
-The sector size is never changed back to the previous value of 2048
-bytes which is however denoted by the comment for version 3.09 of the
-cdrom.c file.
+When the sum of fl->fl_start and l->l_len overflows,
+UBSAN shows the following warning:
 
-Use cdrom_switch_blocksize() to change the sector size only if the
-requested size deviates from 2048. Change it back to 2048 after the read
-operation if a change was mode.
+UBSAN: Undefined behaviour in fs/locks.c:482:29
+signed integer overflow: 2 + 9223372036854775806
+cannot be represented in type 'long long int'
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xe4/0x14e lib/dump_stack.c:118
+ ubsan_epilogue+0xe/0x81 lib/ubsan.c:161
+ handle_overflow+0x193/0x1e2 lib/ubsan.c:192
+ flock64_to_posix_lock fs/locks.c:482 [inline]
+ flock_to_posix_lock+0x595/0x690 fs/locks.c:515
+ fcntl_setlk+0xf3/0xa90 fs/locks.c:2262
+ do_fcntl+0x456/0xf60 fs/fcntl.c:387
+ __do_sys_fcntl fs/fcntl.c:483 [inline]
+ __se_sys_fcntl fs/fcntl.c:468 [inline]
+ __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:468
+ do_syscall_64+0xc8/0x5a0 arch/x86/entry/common.c:293
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Link: https://lkml.kernel.org/r/20201204164803.ovwurzs3257em2rp@linutronix.de
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix it by parenthesizing 'l->l_len - 1'.
+
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cdrom/cdrom.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ fs/locks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
-index eebdcbef0578f..f2e82390ef70c 100644
---- a/drivers/cdrom/cdrom.c
-+++ b/drivers/cdrom/cdrom.c
-@@ -2996,13 +2996,15 @@ static noinline int mmc_ioctl_cdrom_read_data(struct cdrom_device_info *cdi,
- 		 * SCSI-II devices are not required to support
- 		 * READ_CD, so let's try switching block size
- 		 */
--		/* FIXME: switch back again... */
--		ret = cdrom_switch_blocksize(cdi, blocksize);
--		if (ret)
--			goto out;
-+		if (blocksize != CD_FRAMESIZE) {
-+			ret = cdrom_switch_blocksize(cdi, blocksize);
-+			if (ret)
-+				goto out;
-+		}
- 		cgc->sshdr = NULL;
- 		ret = cdrom_read_cd(cdi, cgc, lba, blocksize, 1);
--		ret |= cdrom_switch_blocksize(cdi, blocksize);
-+		if (blocksize != CD_FRAMESIZE)
-+			ret |= cdrom_switch_blocksize(cdi, CD_FRAMESIZE);
- 	}
- 	if (!ret && copy_to_user(arg, cgc->buffer, blocksize))
- 		ret = -EFAULT;
+diff --git a/fs/locks.c b/fs/locks.c
+index 28270e74be342..465917362eca3 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -479,7 +479,7 @@ static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl,
+ 	if (l->l_len > 0) {
+ 		if (l->l_len - 1 > OFFSET_MAX - fl->fl_start)
+ 			return -EOVERFLOW;
+-		fl->fl_end = fl->fl_start + l->l_len - 1;
++		fl->fl_end = fl->fl_start + (l->l_len - 1);
+ 
+ 	} else if (l->l_len < 0) {
+ 		if (fl->fl_start + l->l_len < 0)
 -- 
 2.27.0
 
