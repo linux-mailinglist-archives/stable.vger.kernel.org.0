@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 650492E1461
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 207A92E145C
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbgLWCiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:38:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52102 "EHLO mail.kernel.org"
+        id S1727100AbgLWCik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:38:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730119AbgLWCYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:24:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 968302256F;
-        Wed, 23 Dec 2020 02:23:46 +0000 (UTC)
+        id S1730115AbgLWCYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:24:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1C00225AA;
+        Wed, 23 Dec 2020 02:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690227;
-        bh=OXgRtkIRsH66civE9i6UM8dPNLRzdDaX3Z6b5P29/IE=;
+        s=k20201202; t=1608690229;
+        bh=/c4YffwbuflVEpdaKVkVhdpanUfzt8myrSXK6LvF4OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNRvzC/2q9UjAGBmBzeocNvl9zeyBllWqPxWCAgiTFTIb9dvtOMey+yKB/0lYkHEu
-         UKomNl1WMbfeVJk0WIUYk95RM3sXry27YEvm7eJTpOXaoC5Clr0Fpd2HyHh5JtMWPU
-         vo7QChqXe1a6D3yoNxJKyQm6gWO+QOvKkbiXZQkvYavXAMQUY4PXgZuuRXLf36ZhQf
-         Cy3HUjSvnS87Q+LfPRlZ72ooZKHaaN9kNGbTjp/d+jDuaaZ215v7eqNEaVQuo0odfm
-         R6/5wzrkOe7qZO7Y3gyyd6CGz8od1YzMYOi4xKhpo0cNgtG87RHWMYhVsZ1lBb61E5
-         8sQ23nAeg/l3w==
+        b=YSVihZkZzyQWWNx6DK8R7U4lRJfAxXgtBk5ylUb/ANQBtaJRgFBfQvx5TCOVmgro1
+         uqgIaxWLfHTg9vdkdBANPex/6sqRfyMFesWNATDyIazC1gqNDlmeKl00fTCOet2Ma0
+         9DEO7xTgQtCGw7GEV9jkOow5lJkjCirJksZQT6bXLrX/WN4R86Mf356/1MYfby7BUO
+         YePW4zK2HR6u+HTd0vNkR/V1uRoJGwF5hC4rAVSlcqjWUdp8a3Z8m0p4kX39pDEIQa
+         Jl77AKddfKaUwhjYW7Qw6j3MaS0oI+jyGtULaAwa4B4plj4WFHYaXd7ouJYhLmBbxk
+         qbi1UBQDsOYAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thara Gopinath <thara.gopinath@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 43/66] crypto: qce - Fix SHA result buffer corruption issues
-Date:   Tue, 22 Dec 2020 21:22:29 -0500
-Message-Id: <20201223022253.2793452-43-sashal@kernel.org>
+Cc:     Martin Schiller <ms@dev.tdt.de>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-x25@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 45/66] net/lapb: fix t1 timer handling for LAPB_STATE_0
+Date:   Tue, 22 Dec 2020 21:22:31 -0500
+Message-Id: <20201223022253.2793452-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 References: <20201223022253.2793452-1-sashal@kernel.org>
@@ -43,37 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thara Gopinath <thara.gopinath@linaro.org>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit 1148a9654b5a69611d33e14719251c6ec20f5f2c ]
+[ Upstream commit 62480b992ba3fb1d7260b11293aed9d6557831c7 ]
 
-Partial hash was being copied into the final result buffer without the
-entire message block processed. Depending on how the end user processes
-this result buffer, errors vary from result buffer corruption to result
-buffer poisoing. Fix this issue by ensuring that only the final hash value
-is copied into the result buffer.
+1. DTE interface changes immediately to LAPB_STATE_1 and start sending
+   SABM(E).
 
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+2. DCE interface sends N2-times DM and changes to LAPB_STATE_1
+   afterwards if there is no response in the meantime.
+
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qce/sha.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/lapb/lapb_timer.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qce/sha.c b/drivers/crypto/qce/sha.c
-index 47e114ac09d01..5502a89c4b01e 100644
---- a/drivers/crypto/qce/sha.c
-+++ b/drivers/crypto/qce/sha.c
-@@ -55,7 +55,7 @@ static void qce_ahash_done(void *data)
- 	dma_unmap_sg(qce->dev, &rctx->result_sg, 1, DMA_FROM_DEVICE);
+diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
+index 1a5535bc3b8d8..57882eb654c07 100644
+--- a/net/lapb/lapb_timer.c
++++ b/net/lapb/lapb_timer.c
+@@ -92,11 +92,18 @@ static void lapb_t1timer_expiry(unsigned long param)
+ 	switch (lapb->state) {
  
- 	memcpy(rctx->digest, result->auth_iv, digestsize);
--	if (req->result)
-+	if (req->result && rctx->last_blk)
- 		memcpy(req->result, result->auth_iv, digestsize);
+ 		/*
+-		 *	If we are a DCE, keep going DM .. DM .. DM
++		 *	If we are a DCE, send DM up to N2 times, then switch to
++		 *	STATE_1 and send SABM(E).
+ 		 */
+ 		case LAPB_STATE_0:
+-			if (lapb->mode & LAPB_DCE)
++			if (lapb->mode & LAPB_DCE &&
++			    lapb->n2count != lapb->n2) {
++				lapb->n2count++;
+ 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
++			} else {
++				lapb->state = LAPB_STATE_1;
++				lapb_establish_data_link(lapb);
++			}
+ 			break;
  
- 	rctx->byte_count[0] = cpu_to_be32(result->auth_byte_count[0]);
+ 		/*
 -- 
 2.27.0
 
