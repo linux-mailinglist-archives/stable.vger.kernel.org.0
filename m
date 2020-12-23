@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC032E1769
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6062E17B1
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:18:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731947AbgLWDJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:09:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46368 "EHLO mail.kernel.org"
+        id S1728215AbgLWDNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:13:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728146AbgLWCSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B159823331;
-        Wed, 23 Dec 2020 02:17:01 +0000 (UTC)
+        id S1727817AbgLWCSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBD1823333;
+        Wed, 23 Dec 2020 02:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689822;
-        bh=slLvqsqHnC8JapO+m9u5I9+dSWBpjs/s0tl4hUefA+A=;
+        s=k20201202; t=1608689823;
+        bh=LzfZCtv9f0T68Y0kzTc6SDeo8zWnuF2OlmwvB5h+inQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCvQXCxSRLFtJt0eClQKGtrn89NF7m9FzKaTQURQeAgLJmQQGeV1Te6oqHY2xyI+g
-         0eIEhCN061EsPSFW0I0Yw/vUoz6nb5U7tOHQlT7XJXeKW6bccXl7kOm7Idw8yW4w5e
-         keUYba1J2xEvJun6SQMxRNuBpmz7WyK5naK0pGlkblEEBoKBcHSq2FNv4GLc6g3V+1
-         WZ+ktFmqo4sAWV62FUEnzFGMWvAva69sCzPQLZiL5S2EadAHkLffKYTDKR2s2PMSLO
-         orCWcpIYr09S8wFWUnBX1G36UeDe2gwENlJ8wCi2KkoYgw5U7Rc7xkuxrIJURByVSp
-         p90wCotIk7Gxg==
+        b=mDz0f1VS2x9iEOee5G/OCqlgzMCCLGdiWZY8r8ITRMZa0V5g0afT81zCT8iQb2CPJ
+         ijH2P4fNbwD4ciGRzBWma378UjVagg4SRN1kIhvfvAQfhwni1xPffclSchJs9Z+cEJ
+         03uvmMmhKLJl7d8ho2Vh+ooo2CsrnmfDe2et/K/UPNZI3wdyOBCjDReTN0RQVtDemP
+         J8auvBYf8IQ5HbuvR+E5aTp2HVQWeUMRp7TLsT9XZPBRrJk0tEK9wUBNm9OaYTbv4r
+         7lZoYIue3GkHIyHNm9RXLFYXOrDMJkJkqr7U7EW0XlOR8FqGIP+FGCJNNpEHBT5FAy
+         peezz2J72yvLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 027/217] net: mscc: ocelot: don't reset the pvid to 0 when deleting it
-Date:   Tue, 22 Dec 2020 21:13:16 -0500
-Message-Id: <20201223021626.2790791-27-sashal@kernel.org>
+Cc:     =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 028/217] drm/amdgpu: set LDS_CONFIG=0x20 on Navy Flounder to fix a GPU hang (v2)
+Date:   Tue, 22 Dec 2020 21:13:17 -0500
+Message-Id: <20201223021626.2790791-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,61 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Marek Olšák <marek.olsak@amd.com>
 
-[ Upstream commit 110e847ca7d5e712cabc8cb866a66b629832f4a2 ]
+[ Upstream commit 4b60bb0dde1baf347540253f856c54bc908e525c ]
 
-I have no idea why this code is here, but I have 2 hypotheses:
+v2: squash in build fix
 
-1.
-A desperate attempt to keep untagged traffic working when the bridge
-deletes the pvid on a port.
-
-There was a fairly okay discussion here:
-https://lore.kernel.org/netdev/CA+h21hrRMrLH-RjBGhEJSTZd6_QPRSd3RkVRQF-wNKkrgKcRSA@mail.gmail.com/#t
-which established that in vlan_filtering=1 mode, the absence of a pvid
-should denote that the ingress port should drop untagged and priority
-tagged traffic. While in vlan_filtering=0 mode, nothing should change.
-
-So in vlan_filtering=1 mode, we should simply let things happen, and not
-attempt to save the day. And in vlan_filtering=0 mode, the pvid is 0
-anyway, no need to do anything.
-
-2.
-The driver encodes the native VLAN (ocelot_port->vid) value of 0 as
-special, meaning "not valid". There are checks based on that. But there
-are no such checks for the ocelot_port->pvid value of 0. In fact, that's
-a perfectly valid value, which is used in standalone mode. Maybe there
-was some confusion and the author thought that 0 means "invalid" here as
-well.
-
-In conclusion, delete the code*.
-
-*in fact we'll add it back later, in a slightly different form, but for
-an entirely different reason than the one for which this exists now.
-
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Marek Olšák <marek.olsak@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index a53bd36b11c60..ba17cd64c352e 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -289,10 +289,6 @@ int ocelot_vlan_del(struct ocelot *ocelot, int port, u16 vid)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 55f4b8c3b9338..66bdfbdcdf2b8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -3183,7 +3183,10 @@ static const struct soc15_reg_golden golden_settings_gc_10_3_2[] =
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_PERFCOUNTER9_SELECT, 0xf0f001ff, 0x00000000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmTA_CNTL_AUX, 0xfff7ffff, 0x01030000),
+ 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmUTCL1_CTRL, 0xffbfffff, 0x00a00000),
+-	SOC15_REG_GOLDEN_VALUE(GC, 0, mmVGT_GS_MAX_WAVE_ID, 0x00000fff, 0x000003ff)
++	SOC15_REG_GOLDEN_VALUE(GC, 0, mmVGT_GS_MAX_WAVE_ID, 0x00000fff, 0x000003ff),
++
++	/* This is not in GDB yet. Don't remove it. It fixes a GPU hang on Navy Flounder. */
++	SOC15_REG_GOLDEN_VALUE(GC, 0, mmLDS_CONFIG,  0x00000020, 0x00000020),
+ };
  
--	/* Ingress */
--	if (ocelot_port->pvid == vid)
--		ocelot_port_set_pvid(ocelot, port, 0);
--
- 	/* Egress */
- 	if (ocelot_port->vid == vid)
- 		ocelot_port_set_native_vlan(ocelot, port, 0);
+ #define DEFAULT_SH_MEM_CONFIG \
 -- 
 2.27.0
 
