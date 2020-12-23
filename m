@@ -2,206 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D982E2251
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 23:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 604F22E2266
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 23:21:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726247AbgLWWGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 17:06:55 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:37073 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726240AbgLWWGy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 17:06:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608761127;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=J9PT4G77O+Zst6KgeP/0LAqq9JqEQB90UKtHEK4FMsE=;
-        b=h/2rGD0VG9ZHjbdPWJFY9NGpVeUt+eFVtsCjsinH7Y+kHpGfaymn5A3HTcC6ZSOr6+a08U
-        MFZO+d8eFY/jFDGOTqBPXPJ9GNPPcMZcTN8B8zJBcDgVjjEjPgWa4X1+L/TSkm4WrqJ3Mw
-        pJsOjLeI0/kS6WRe5XJXSRd+kYZ8tHo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-576-jQP4-k7iP7G1dHd36IjpLg-1; Wed, 23 Dec 2020 17:05:23 -0500
-X-MC-Unique: jQP4-k7iP7G1dHd36IjpLg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 71CC01005D52;
-        Wed, 23 Dec 2020 22:05:21 +0000 (UTC)
-Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9737571C86;
-        Wed, 23 Dec 2020 22:05:17 +0000 (UTC)
-Date:   Wed, 23 Dec 2020 17:05:17 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Nadav Amit <nadav.amit@gmail.com>
-Cc:     Yu Zhao <yuzhao@google.com>, Peter Zijlstra <peterz@infradead.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Xu <peterx@redhat.com>, linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+O/HT6d+UOa4GfB@redhat.com>
-References: <X97pprdcRXusLGnq@google.com>
- <DDA15360-D6D4-46A8-95A4-5EE34107A407@gmail.com>
- <20201221172711.GE6640@xz-x1>
- <76B4F49B-ED61-47EA-9BE4-7F17A26B610D@gmail.com>
- <X+D0hTZCrWS3P5Pi@google.com>
- <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
- <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
- <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
- <X+ESkna2z3WjjniN@google.com>
- <D4916F41-DE4A-42C6-8702-944382631A02@gmail.com>
+        id S1726735AbgLWWVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 17:21:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50694 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbgLWWVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 17:21:32 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A079C06179C
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 14:20:52 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id n25so449618pgb.0
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 14:20:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mtTxzLNpqq0EU4jmClJJVwtiruCH2rOlURJjcWQMMc8=;
+        b=rp+klHtLSMqkfTeESYE/Q8YEMD8svBfGglM3j95AC/Ku61vO03FjsgJku+vgPIw44v
+         WrpRoInNw7adzC/hgVCA14ndiSQ7VRY93BuzpIxop9Gx0oMV9oC6fRadwa2xtIXBFCp+
+         919dQ+mbqh7kfDt5zX/kHFvpRzDvsBVEz/bx+E9VwADdW6IrkaCDTQx9ZiizVEOfgrlR
+         Izs1+AaMYx7TICAUI4JzcQqOt3bZGKiPp8AJZfkm0xjcdxPSv+CSzyCJLqs4zaATiEy7
+         CBw/PgQ11JVfphBxEkCrP7Uup7HGvbAAQnYKn1fu9LCpkQ3hVXvjA9n30fMY4DlJfCHR
+         Aieg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mtTxzLNpqq0EU4jmClJJVwtiruCH2rOlURJjcWQMMc8=;
+        b=qQCFliAnM14oi6ZDzl/eKFqk0pOK4fWHGWx4PgpyXKdjpatGQ26Yv7OnakmGlebbP+
+         G3YN8HtGbkJ4MtZ9Cs1nvB8eH8C6hZQAfBtNqP5f763lzvbjcer84N4M7L/3P1y+lvbP
+         Z6Gu+qAomuCB6ob166cRbEAtKTu4x0Ygaj3HLlhIGQdNBLK4eUz8Qz2KOIS4TlsLAeTH
+         6iLLJJVkRFPUwNrCzIL1bHz5eIK+/F8qx8UZV637f7KthUoUkWrzUWY4xsbVREskLugr
+         CBAXc6tMqtcgUkrPdR/v0DkMdxywPMj+72wEVWLpWIzgRaYwTkHVgEwKN1EoLs++dk+t
+         L1aw==
+X-Gm-Message-State: AOAM531f3ofzHmoukSwXaNKnNEYB2Gj7OsHfr9wucfIZ+fLGfO5iAj5y
+        a/4zwNeTF7i8be0wws5mMSvOihvYAkw0jw==
+X-Google-Smtp-Source: ABdhPJwgFHBfP7FE9KAC2RnNFJKPqnVC366y9ckRd45OWy8ssIIOIcA4mIF86nLdlRVc4maV5EodRw==
+X-Received: by 2002:a63:1152:: with SMTP id 18mr26224684pgr.268.1608762051215;
+        Wed, 23 Dec 2020 14:20:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o193sm19317742pfg.27.2020.12.23.14.20.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 14:20:50 -0800 (PST)
+Message-ID: <5fe3c2c2.1c69fb81.f3f42.6580@mx.google.com>
+Date:   Wed, 23 Dec 2020 14:20:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <D4916F41-DE4A-42C6-8702-944382631A02@gmail.com>
-User-Agent: Mutt/2.0.3 (2020-12-04)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.248-48-g718e3a8728c0d
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 124 runs,
+ 4 regressions (v4.9.248-48-g718e3a8728c0d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 22, 2020 at 04:40:32AM -0800, Nadav Amit wrote:
-> > On Dec 21, 2020, at 1:24 PM, Yu Zhao <yuzhao@google.com> wrote:
-> > 
-> > On Mon, Dec 21, 2020 at 12:26:22PM -0800, Linus Torvalds wrote:
-> >> On Mon, Dec 21, 2020 at 12:23 PM Nadav Amit <nadav.amit@gmail.com> wrote:
-> >>> Using mmap_write_lock() was my initial fix and there was a strong pushback
-> >>> on this approach due to its potential impact on performance.
-> >> 
-> >> From whom?
-> >> 
-> >> Somebody who doesn't understand that correctness is more important
-> >> than performance? And that userfaultfd is not the most important part
-> >> of the system?
-> >> 
-> >> The fact is, userfaultfd is CLEARLY BUGGY.
-> >> 
-> >>          Linus
-> > 
-> > Fair enough.
-> > 
-> > Nadav, for your patch (you might want to update the commit message).
-> > 
-> > Reviewed-by: Yu Zhao <yuzhao@google.com>
-> > 
-> > While we are all here, there is also clear_soft_dirty() that could
-> > use a similar fix…
-> 
-> Just an update as for why I have still not sent v2: I fixed
-> clear_soft_dirty(), created a reproducer, and the reproducer kept failing.
-> 
-> So after some debugging, it appears that clear_refs_write() does not flush
-> the TLB. It indeed calls tlb_finish_mmu() but since 0758cd830494
-> ("asm-generic/tlb: avoid potential double flush”), tlb_finish_mmu() does not
-> flush the TLB since there is clear_refs_write() does not call to
-> __tlb_adjust_range() (unless there are nested TLBs are pending).
-> 
-> So I have a patch for this issue too: arguably the tlb_gather interface is
-> not the right one for clear_refs_write() that does not clear PTEs but
-> changes them.
-> 
-> Yet, sadly, my reproducer keeps falling (less frequently, but still). So I
-> will keep debugging to see what goes wrong. I will send v2 once I figure out
-> what the heck is wrong in the code or my reproducer.
+stable-rc/queue/4.9 baseline: 124 runs, 4 regressions (v4.9.248-48-g718e3a8=
+728c0d)
 
-If you put the page_mapcount check back in do_wp_page instead of
-page_count, it'll stop reproducing but the bug is still very much
-there...
+Regressions Summary
+-------------------
 
-It's a feature page_count finally shows you the corruption now by
-virtue of the page_count being totally unreliable with all speculative
-pagecache lookups randomly elevating it in the background.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-The proof it worked by luck is that an unrelated change
-(s/page_mapcount/page_count/) made the page fault behave slightly
-different and broke clear_refs_write.
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Even before page_mapcount was replaced with page_count, it has always
-been forbidden to leave too permissive stale TLB entries out of sync
-with a more restrictive pte/hugepmd permission past the PT unlock,
-unless you're holding the mmap_write_lock.
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-So for example all rmap code has to flush before PT unlock release
-too, usually it clears the pte as a whole but it's still a
-downgrade.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-The rmap_lock and the mmap_read_lock achieve the same: they keep the
-vma stable but they can't stop the page fault from running (that's a
-feature) so they have to flush inside the PT lock.
 
-The tlb gather deals with preventing use after free (where userland
-can modify kernel memory), but it cannot deal with the guarantee the
-page fault requires.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.248-48-g718e3a8728c0d/plan/baseline/
 
-So the clear_refs_write patch linked that alters the tlb flushing
-appears a noop with respect to this bug. It cannot do anything to
-prevent the page fault run with writable stale TLB entries with the
-!pte_write.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.248-48-g718e3a8728c0d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      718e3a8728c0d445daf135989ab890ef6a0a9f27 =
 
-If you don't add a marker here (it clears it, the exact opposite of
-what should be happening), there's no way to avoid the mmap_write_lock
-in my view.
 
-static inline void clear_soft_dirty(struct vm_area_struct *vma,
-		unsigned long addr, pte_t *pte)
-{
-	/*
-	 * The soft-dirty tracker uses #PF-s to catch writes
-	 * to pages, so write-protect the pte as well. See the
-	 * Documentation/admin-guide/mm/soft-dirty.rst for full description
-	 * of how soft-dirty works.
-	 */
-	pte_t ptent = *pte;
 
-	if (pte_present(ptent)) {
-		pte_t old_pte;
+Test Regressions
+---------------- =
 
-		old_pte = ptep_modify_prot_start(vma, addr, pte);
-		ptent = pte_wrprotect(old_pte);
-		ptent = pte_clear_soft_dirty(ptent);
-+		ptent = pte_mkuffd_wp(ptent);
-		ptep_modify_prot_commit(vma, addr, pte, old_pte, ptent);
 
-One solution that would fix the userland mm corruption in
-clear_refs_write is to take the mmap_read_lock, take some mutex
-somewhere (vma/mm whatever), then in clear_soft_dirty make the above
-modification adding the _PAGE_UFFD_WP, then flush tlb, release the
-mutex and then release the mmap_read_lock.
 
-Then here:
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-	if (userfaultfd_pte_wp(vma, *vmf->pte)) {
-		pte_unmap_unlock(vmf->pte, vmf->ptl);
-+		if (vma->vm_flags & VM_SOFTDIRTY)
-+		   return handle_soft_dirty(vma);
-		return handle_userfault(vmf, VM_UFFD_WP);
 
-Of course handle_soft_dirty will have to take the mutex once (1
-mutex_lock/unlock cycle to run after any pending flush).
+  Details:     https://kernelci.org/test/plan/id/5fe38f161028119b43c94cc6
 
-And then we'll have to enforce uffd-wp cannot be registered if
-VM_SOFTDIRTY is set or the other way around so that VM_UFFD* is
-mutually exclusive with VM_SOFTDIRTY. So then we can also unify the
-bit so they all use the same software bit in the pgtable (that's
-something I considered anyway originally since it doesn't make whole
-lot of sense to use the two features on the same vma at the same
-time).
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
 
-If the above is too complex, clear_refs_write will have to grind down
-to I/O disk spindle speed as mprotect with
-s/mmap_read_lock/mmap_write_lock/, unless it stops triggering
-wrprotect faults altogether.
 
-Thanks,
-Andrea
 
+  * baseline.login: https://kernelci.org/test/case/id/5fe38f161028119b43c94=
+cc7
+        failing since 39 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe38f1076f6148722c94ce2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe38f1076f6148722c94=
+ce3
+        failing since 39 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe38f0b76f6148722c94cd9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe38f0b76f6148722c94=
+cda
+        failing since 39 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe38ec0bf494d16efc94cbf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.248-4=
+8-g718e3a8728c0d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe38ec0bf494d16efc94=
+cc0
+        failing since 39 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
