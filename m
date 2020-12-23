@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF332E16DC
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DB42E1677
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgLWDDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:03:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        id S1728671AbgLWCTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:19:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728647AbgLWCT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:19:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79107206EC;
-        Wed, 23 Dec 2020 02:18:58 +0000 (UTC)
+        id S1728665AbgLWCTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:19:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF4F722573;
+        Wed, 23 Dec 2020 02:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689939;
-        bh=RtqJsKm5KDbxgsapWnnxMcKyIwnfwCzHQepqTKGp/0E=;
+        s=k20201202; t=1608689940;
+        bh=CmCTXlo5QOeMaTIF2kxMvmLAeNqkCnl3FUaR/jTtx0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+Ha4qujhKtL78BfBbckxubv18MA7taVYEKJVAWGAep9z9ic9PiiCoKSBqYOlseY/
-         e+QCdqHJosefkbymwWGqZTw7IHHf0RjnuD2qfN/0V7YcWL0b1ODz7O3rzRvfSL27Ym
-         1ztJ0+qUFoCJouQv1ILWrKFFnlEfhLrM1i89GGyzV+HP17QsnFD6uHhsYFuJSGkq48
-         ciRsxLimyjdXA/oezwi81Dyu014WUfIAQEZcQCAH9HJ3s10MV2GSHpxPBp0iMAMIZ0
-         GtpafRNr/CX7QCzt/e3fX4s2Gbjv0QtC0ublKwa0Hxv6fC88ltKqY9hXSY25m5tav/
-         ik5B59RektkKg==
+        b=r5zcuA2IYTU6f8inH9SsD4vYIVn0pgec+lKsgSElGOqslJz+KIi/t6/w4XOk40ISP
+         PXT1dOfhy+70MCAKunxVbMZQyRrJRy0aPsCQdLJpZYBAj1vHY3aY4PrLDIrsMOeG9y
+         9B/UOQn7JCvUW6345PUxjCE6m3DEdrYLbDh7ecTNF+IOw6roFeshkffhAemHLqH4be
+         2wb8zXg/a/gbPPMlJyse6Z01USZbvVcLis1VSBA7oDdSuLRmcxPGpawZIDp9XHfMuh
+         2mpXAsPODxZn6UvtMpgW5LNeAj4LrxAnqo/jtN9uUjdGc5X9MNTUsSVUxdNx9XNaXu
+         N6YCtiOa2bD1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        jfs-discussion@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 035/130] jfs: Fix memleak in dbAdjCtl
-Date:   Tue, 22 Dec 2020 21:16:38 -0500
-Message-Id: <20201223021813.2791612-35-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 036/130] r8169: use READ_ONCE in rtl_tx_slots_avail
+Date:   Tue, 22 Dec 2020 21:16:39 -0500
+Message-Id: <20201223021813.2791612-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -43,46 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 751341b4d7841e2b76e78eec382c2e119165497f ]
+[ Upstream commit 95f3c5458dfa5856bb110e31d156e00d894d0134 ]
 
-When dbBackSplit() fails, mp should be released to
-prevent memleak. It's the same when dbJoin() fails.
+tp->dirty_tx and tp->cur_tx may be changed by a racing rtl_tx() or
+rtl8169_start_xmit(). Use READ_ONCE() to annotate the races and ensure
+that the compiler doesn't use cached values.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/5676fee3-f6b4-84f2-eba5-c64949a371ad@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index caade185e568d..51b2c8f6ef35d 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -2549,15 +2549,19 @@ dbAdjCtl(struct bmap * bmp, s64 blkno, int newval, int alloc, int level)
- 		 */
- 		if (oldval == NOFREE) {
- 			rc = dbBackSplit((dmtree_t *) dcp, leafno);
--			if (rc)
-+			if (rc) {
-+				release_metapage(mp);
- 				return rc;
-+			}
- 			oldval = dcp->stree[ti];
- 		}
- 		dbSplit((dmtree_t *) dcp, leafno, dcp->budmin, newval);
- 	} else {
- 		rc = dbJoin((dmtree_t *) dcp, leafno, newval);
--		if (rc)
-+		if (rc) {
-+			release_metapage(mp);
- 			return rc;
-+		}
- 	}
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index fd5adb0c54d29..fca8252b4f21d 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -5856,7 +5856,8 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
+ static bool rtl_tx_slots_avail(struct rtl8169_private *tp,
+ 			       unsigned int nr_frags)
+ {
+-	unsigned int slots_avail = tp->dirty_tx + NUM_TX_DESC - tp->cur_tx;
++	unsigned int slots_avail = READ_ONCE(tp->dirty_tx) + NUM_TX_DESC
++					- READ_ONCE(tp->cur_tx);
  
- 	/* check if the root of the current dmap control page changed due
+ 	/* A skbuff with nr_frags needs nr_frags+1 entries in the tx queue */
+ 	return slots_avail > nr_frags;
 -- 
 2.27.0
 
