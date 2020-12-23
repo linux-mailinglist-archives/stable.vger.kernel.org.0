@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B512E1313
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DCE2E1649
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729655AbgLWC1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:27:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55796 "EHLO mail.kernel.org"
+        id S1728860AbgLWCUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730856AbgLWC0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:26:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA4B322482;
-        Wed, 23 Dec 2020 02:26:03 +0000 (UTC)
+        id S1728853AbgLWCUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFE9322273;
+        Wed, 23 Dec 2020 02:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690364;
-        bh=/BtB7X0mFViLHPMe49bObwfi69oqmf3DXJFj3M85d+8=;
+        s=k20201202; t=1608689985;
+        bh=BpYYrIroZeEadG384ALHViSRfqvGh85UKmTLB9sMrvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtIdjM2uJHwWphQa9NdhKnwb3XHY6li24nmGCWC+U4rpq7EcrlnfMY+bmjA3GSAk8
-         RHpEPtfHAVHGuQydN2GspjORMZnQV9eswwuLAbM7Nze+4vv7NJu77stMAYspY9LvVv
-         4whQkAxwHEUFhjwHRI0+q36w9PCZezrRsoaI6QB855xISECn6IFTLFGaxgBV8y4e80
-         9xSaYLpDMMv0gV13kGxLiHrNPGQboN7FapOKqGMvY0VQs5U0T36gNanHphuLkrN3vE
-         9buun2bMXxc3ByS/RdGJ3sZJshwEGmyp8fQyU+b/JV3N4sJexeq0m6IWepRK+Rcv2w
-         U0tDz2LQtFdpw==
+        b=XcQdkC0GoWA/zWXA+6BdjfdGAybt0MqhHGtG83IWOOLcXeGqPt8qX1MDMuNLGvJFz
+         KsFGd+uA2uCCCPLQnk5zR9s+aDcGYj5Gg7K5z4IRIbmsqwrFdVXPf21FNKTnUgscoP
+         +ZaZPd/ka7w23ZDVa4d33+OzqtDh2LeTsdL/o40s46ONfXP7XkOBmngeMC1G17/5z4
+         icsXX/zkwqKArfhN2i4JMzNuLfTjmcHqJCAv0BArgmKwkL02N3xcbnjX9r/2BM/0Q7
+         YemBUrEgUrKh/4Au6meke0GwkDc+Cu2ltexILlNRgJRuzTAOpfjA1lqfONHIfax0D3
+         322I1D0tZFo2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 38/38] PCI: Add function 1 DMA alias quirk for Marvell 9215 SATA controller
-Date:   Tue, 22 Dec 2020 21:25:16 -0500
-Message-Id: <20201223022516.2794471-38-sashal@kernel.org>
+Cc:     Ethan Warth <redyoshi49q@gmail.com>,
+        "Wladimir J . van der Laan" <laanwj@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 071/130] HID: mf: add support for 0079:1846 Mayflash/Dragonrise USB Gamecube Adapter
+Date:   Tue, 22 Dec 2020 21:17:14 -0500
+Message-Id: <20201223021813.2791612-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
-References: <20201223022516.2794471-1-sashal@kernel.org>
+In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
+References: <20201223021813.2791612-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,35 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Ethan Warth <redyoshi49q@gmail.com>
 
-[ Upstream commit 059983790a4c963d92943e55a61fca55be427d55 ]
+[ Upstream commit 1008230f2abeb624f6d71b2e1c424fa4eeebbf84 ]
 
-Add function 1 DMA alias quirk for Marvell 88SS9215 PCIe SSD Controller.
+Mayflash/Dragonrise seems to have yet another device ID for one of their
+Gamecube controller adapters.  Previous to this commit, the adapter
+registered only one /dev/input/js* device, and all controller inputs (from
+any controller) were mapped to this device.  This patch defines the 1846
+USB device ID and enables the HID_QUIRK_MULTI_INPUT quirk for it, which
+fixes that (with the patch, four /dev/input/js* devices are created, one
+for each of the four controller ports).
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135
-Link: https://lore.kernel.org/r/20201110220516.697934-1-helgaas@kernel.org
-Reported-by: John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Ethan Warth <redyoshi49q@gmail.com>
+Tested-by: Wladimir J. van der Laan <laanwj@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-mf.c     | 2 ++
+ drivers/hid/hid-quirks.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index bdaeccafa261b..bc0aa0849e72e 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3649,6 +3649,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x917a,
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c46 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x91a0,
- 			 quirk_dma_func1_alias);
-+/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135 */
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9215,
-+			 quirk_dma_func1_alias);
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c127 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9220,
- 			 quirk_dma_func1_alias);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 2aa810665a78c..d28b9ac8b9959 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -365,6 +365,7 @@
+ #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR	0x1803
+ #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE1	0x1843
+ #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE2	0x1844
++#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE3	0x1846
+ 
+ #define USB_VENDOR_ID_DWAV		0x0eef
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
+index fc75f30f537c9..92d7ecd41a78f 100644
+--- a/drivers/hid/hid-mf.c
++++ b/drivers/hid/hid-mf.c
+@@ -153,6 +153,8 @@ static const struct hid_device_id mf_devices[] = {
+ 		.driver_data = HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2),
+ 		.driver_data = 0 }, /* No quirk required */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3),
++		.driver_data = HID_QUIRK_MULTI_INPUT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mf_devices);
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 60d188a704e5e..f35d919c4ebab 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -72,6 +72,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER), HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET },
+@@ -491,6 +492,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_MICROSOFT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
 -- 
 2.27.0
 
