@@ -2,127 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10BF02E17C9
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:35:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B23A2E17CE
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:37:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727369AbgLWDfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:35:17 -0500
-Received: from mx0b-00190b01.pphosted.com ([67.231.157.127]:4788 "EHLO
-        mx0b-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726387AbgLWDfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 22:35:17 -0500
-X-Greylist: delayed 2325 seconds by postgrey-1.27 at vger.kernel.org; Tue, 22 Dec 2020 22:35:16 EST
-Received: from pps.filterd (m0050102.ppops.net [127.0.0.1])
-        by m0050102.ppops.net-00190b01. (8.16.0.43/8.16.0.43) with SMTP id 0BN2sm2P023335;
-        Wed, 23 Dec 2020 02:54:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=jan2016.eng;
- bh=DgrY6qCoqWi+YhMnrptnnl8bfOZQ2OvTKc2L4lgpPos=;
- b=oNMojHZ8kFkQIQzWDGFn16T9EHDj6qp/XP1HKq5rxbi7QzWABYrNBROsLjBtmASx9jmu
- Oxee5DaKo5m+E9urrCXPsz/zs7lkvzBfpStP1LjuTCNCtweIE+2okDX/wjQjyPWNMwLD
- KFu1S/TRnn5M/44NjIr9dl9RzaLiRfA1vD+4YBpokOSfnyNGoZdnr2/77qAb6cylOmwV
- H0q2Mm5inaDaaKZQkJjAEfTn8vTDMnsA4Bpo7VgHdvcEkhr6EH9iq53AGyNSrOE1ByxQ
- dpMwgauxypaomZVUcJsAa0L00UXhEjOQyCXmC0MafuGIEcvqONGovrFE/OE1XzGW9fWS 1Q== 
-Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60] (may be forged))
-        by m0050102.ppops.net-00190b01. with ESMTP id 35k0e3emkk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Dec 2020 02:54:48 +0000
-Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
-        by prod-mail-ppoint5.akamai.com (8.16.0.43/8.16.0.43) with SMTP id 0BN2pRfn009175;
-        Tue, 22 Dec 2020 18:54:47 -0800
-Received: from email.msg.corp.akamai.com ([172.27.123.30])
-        by prod-mail-ppoint5.akamai.com with ESMTP id 35k0ftkj6q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Tue, 22 Dec 2020 18:54:47 -0800
-Received: from usma1ex-cas4.msg.corp.akamai.com (172.27.123.57) by
- usma1ex-dag3mb4.msg.corp.akamai.com (172.27.123.56) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Tue, 22 Dec 2020 21:54:47 -0500
-Received: from bos-lp1yy.kendall.corp.akamai.com (172.28.3.205) by
- usma1ex-cas4.msg.corp.akamai.com (172.27.123.57) with Microsoft SMTP Server
- id 15.0.1497.2 via Frontend Transport; Tue, 22 Dec 2020 21:54:47 -0500
-Received: by bos-lp1yy.kendall.corp.akamai.com (Postfix, from userid 45189)
-        id 051D715F777; Tue, 22 Dec 2020 21:54:46 -0500 (EST)
-From:   Jeff Dike <jdike@akamai.com>
-To:     <netdev@vger.kernel.org>
-CC:     <jdike@akamai.com>, <virtualization@lists.linux-foundation.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>, <stable@vger.kernel.org>
-Subject: [PATCH Repost to netdev] virtio_net: Fix recursive call to cpus_read_lock()
-Date:   Tue, 22 Dec 2020 21:54:21 -0500
-Message-ID: <20201223025421.671-1-jdike@akamai.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727486AbgLWDgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:36:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727372AbgLWDgu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 22:36:50 -0500
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF50C0613D6
+        for <stable@vger.kernel.org>; Tue, 22 Dec 2020 19:36:10 -0800 (PST)
+Received: by mail-il1-x12f.google.com with SMTP id w12so13834258ilm.12
+        for <stable@vger.kernel.org>; Tue, 22 Dec 2020 19:36:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ZIOrZp4VvbHbVHD6MydQhHnSb1pJwOMWKWbLXpdZOFI=;
+        b=Vhrl2m3iMIa3mMtWmRqOmKoxmGP2khypurHxy69cJjigQyZicp85E1PyetI5yR1mGU
+         QmUfzICRUzgBG35f210h8TMBpFciYgz+OzdbHRXJsDFlHg/i2bTTH7RalU4NzLIjd4Qf
+         NnbDl1P02SGx/vxNyx72IrFpoKUlJLnXxXoIIuuDqUidX4Uu/zQSG7C2OrEVYjVXIqpn
+         g2IWiiCHQQ9KJFzkdtCJOiZhVvSVzcgU+s/d+fLabWmPGTIzBB9VMJyHJyYGFRrb9l+o
+         TIZ+0ggvpr4uSrtVQ6ikNCv1K6n+8koWhp7eU5/Jyd3iGMLG6igiwIlJgE6DVNhAR2QW
+         y3SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ZIOrZp4VvbHbVHD6MydQhHnSb1pJwOMWKWbLXpdZOFI=;
+        b=BzMDUPG8jTtlPm5jW5zrtFWbPJwN/mlx6v7gLKXc4IGM0beKFZeKs7o2aWUqZsbQqE
+         1MozeWjrpEaBCpPW0ET5rUy1YfG+R47qQqroLxRV6NFZsRSEEnbe5/Q19aZ5J2PLih8a
+         YTe+vG/HQAySohO0IPP//3x+mJ/yRokBAW18aOpnlNrvF4EC3dCyzEktyxH6wFFvQRkR
+         aXn/Pgl5NiGSA3mgXzmKN7z9DVlsdL+nw8x+RPk5JTufC8yrlF+i1Du2+Pvknb/tngSl
+         Wo2roqfdY6D93JjQSSLbG33rQYQuCoTUKFc3qGJ44nUWlZGbRCblz0pAR48UbZrBXc13
+         jO6Q==
+X-Gm-Message-State: AOAM532lTQXgYkTGBQEKLQbng9bNV2isxVZnpJgPCs1J99HvE5myN/5Z
+        glJL8BSTTUk3CGdTsVWH3XZfvg==
+X-Google-Smtp-Source: ABdhPJwmFsNaiUtYb57RZoZls9iOlEmeZLPp8r+adegWDnYyoLjPiAj7KYKM5riNKEWykKA2igcNCQ==
+X-Received: by 2002:a92:1e10:: with SMTP id e16mr15481208ile.65.1608694569458;
+        Tue, 22 Dec 2020 19:36:09 -0800 (PST)
+Received: from google.com ([2620:15c:183:200:7220:84ff:fe09:2d90])
+        by smtp.gmail.com with ESMTPSA id y12sm17546969ilk.32.2020.12.22.19.36.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Dec 2020 19:36:08 -0800 (PST)
+Date:   Tue, 22 Dec 2020 20:36:04 -0700
+From:   Yu Zhao <yuzhao@google.com>
+To:     Andrea Arcangeli <aarcange@redhat.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X+K7JMrTEC9SpVIB@google.com>
+References: <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <X+JhwVX3s5mU9ZNx@google.com>
+ <X+Js/dFbC5P7C3oO@redhat.com>
+ <X+KDwu1PRQ93E2LK@google.com>
+ <X+Kxy3oBMSLz8Eaq@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-22_13:2020-12-21,2020-12-22 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 adultscore=0 mlxscore=0
- mlxlogscore=999 bulkscore=0 suspectscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012230020
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-23_01:2020-12-21,2020-12-23 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 mlxscore=0
- clxscore=1011 lowpriorityscore=0 phishscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 impostorscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012230021
-X-Agari-Authentication-Results: mx.akamai.com; spf=${SPFResult} (sender IP is 184.51.33.60)
- smtp.mailfrom=jdike@akamai.com smtp.helo=prod-mail-ppoint5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X+Kxy3oBMSLz8Eaq@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
-and CONFIG_HOTPLUG are enabled.
+On Tue, Dec 22, 2020 at 09:56:11PM -0500, Andrea Arcangeli wrote:
+> On Tue, Dec 22, 2020 at 04:39:46PM -0700, Yu Zhao wrote:
+> > We are talking about non-COW anon pages here -- they can't be mapped
+> > more than once. So why not just identify them by checking
+> > page_mapcount == 1 and then unconditionally reuse them? (This is
+> > probably where I've missed things.)
+> 
+> The problem in depending on page_mapcount to decide if it's COW or
+> non-COW (respectively wp_page_copy or wp_page_reuse) is that is GUP
+> may elevate the count of a COW anon page that become a non-COW anon
+> page.
+> 
+> This is Jann's idea not mine.
+> 
+> The problem is we have an unprivileged long term GUP like vmsplice
+> that facilitates elevating the page count indefinitely, until the
+> parent finally writes a secret to it. Theoretically a short term pin
+> would do it too so it's not just vmpslice, but the short term pin
+> would be incredibly more challenging to become a concern since it'd
+> kill a phone battery and flash before it can read any data.
+> 
+> So what happens with your page_mapcount == 1 check is that it doesn't
+> mean non-COW (we thought it did until it didn't for the long term gup
+> pin in vmsplice).
+> 
+> Jann's testcases does fork() and set page_mapcount 2 and page_count to
+> 2, vmsplice, take unprivileged infinitely long GUP pin to set
+> page_count to 3, queue the page in the pipe with page_count elevated,
+> munmap to drop page_count to 2 and page_mapcount to 1.
+> 
+> page_mapcount is 1, so you'd think the page is non-COW and owned by
+> the parent, but the child can still read it so it's very much still
+> wp_page_copy material if the parent tries to modify it. Otherwise the
+> child can read the content.
+> 
+> This was supposed to be solvable by just doing the COW in gup(write=0)
+> case if page_mapcount > 1 with commit 17839856fd58. I'm not exactly
+> sure why that didn't fly and it had to be reverted by Peter in
+> a308c71bf1e6e19cc2e4ced31853ee0fc7cb439a but at the time this was
+> happening I was side tracked by urgent issues and I didn't manage to
+> look back of how we ended up with the big hammer page_count == 1 check
+> instead to decide if to call wp_page_reuse or wp_page_shared.
+> 
+> So anyway, the only thing that is clear to me is that keeping the
+> child from reading the page_mapcount == 1 pages of the parent, is the
+> only reason why wp_page_reuse(vmf) will only be called on
+> page_count(page) == 1 and not on page_mapcount(page) == 1.
+> 
+> It's also the reason why your page_mapcount assumption will risk to
+> reintroduce the issue, and I only wish we could put back page_mapcount
+> == 1 back there.
+> 
+> Still even if we put back page_mapcount there, it is not ok to leave
+> the page fault with stale TLB entries and to rely on the fact
+> wp_page_shared won't run. It'd also avoid the problem but I think if
+> you leave stale TLB entries in change_protection just like NUMA
+> balancing does, it also requires a catcher just like NUMA balancing
+> has, or it'd truly work by luck.
+> 
+> So until we can put a page_mapcount == 1 check back there, the
+> page_count will be by definition unreliable because of the speculative
+> lookups randomly elevating all non zero page_counts at any time in the
+> background on all pages, so you will never be able to tell if a page
+> is true COW or if it's just a spurious COW because of a speculative
+> lookup. It is impossible to differentiate a speculative lookup from a
+> vmsplice ref in a child.
 
-The path is:
-    virtnet_set_channels - calls get_online_cpus(), which is a trivial
-wrapper around cpus_read_lock()
-    netif_set_real_num_tx_queues
-    netif_reset_xps_queues_gt
-    netif_reset_xps_queues - calls cpus_read_lock()
+Thanks for the details.
 
-This call chain and potential deadlock happens when the number of TX
-queues is reduced.
-
-This commit the removes netif_set_real_num_[tr]x_queues calls from
-inside the get/put_online_cpus section, as they don't require that it
-be held.
-
-Signed-off-by: Jeff Dike <jdike@akamai.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: stable@vger.kernel.org
----
- drivers/net/virtio_net.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 052975ea0af4..e02c7e0f1cf9 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2093,14 +2093,16 @@ static int virtnet_set_channels(struct net_device *dev,
- 
- 	get_online_cpus();
- 	err = _virtnet_set_queues(vi, queue_pairs);
--	if (!err) {
--		netif_set_real_num_tx_queues(dev, queue_pairs);
--		netif_set_real_num_rx_queues(dev, queue_pairs);
--
--		virtnet_set_affinity(vi);
-+	if (err){
-+		put_online_cpus();
-+		goto err;
- 	}
-+	virtnet_set_affinity(vi);
- 	put_online_cpus();
- 
-+	netif_set_real_num_tx_queues(dev, queue_pairs);
-+	netif_set_real_num_rx_queues(dev, queue_pairs);
-+ err:
- 	return err;
- }
- 
--- 
-2.17.1
-
+In your patch, do we need to take wrprotect_rwsem in
+handle_userfault() as well? Otherwise, it seems userspace would have
+to synchronize between its wrprotect ioctl and fault handler? i.e.,
+the fault hander needs to be aware that the content of write-
+protected pages can actually change before the iotcl returns.
