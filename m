@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A202E130A
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E1D2E131D
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728346AbgLWC1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:27:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57120 "EHLO mail.kernel.org"
+        id S1730816AbgLWC0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:26:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730802AbgLWC0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:26:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9949022AAF;
-        Wed, 23 Dec 2020 02:25:51 +0000 (UTC)
+        id S1730802AbgLWC0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:26:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7C1F229C5;
+        Wed, 23 Dec 2020 02:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690352;
-        bh=3JzEDSdlPUHADGcCfZQrhJmuQmbiDrqk88eT18lBLfI=;
+        s=k20201202; t=1608690353;
+        bh=qTIW01HslnQB8/7Do60W1UDScsQm6zVFr5VugLYSJ4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtALJMkZhenXrVptehtAooPI/bltp5NZBp7kdnM+2CVgX20w3aG263xvnS2mZPsVl
-         dfhNAxw/OiQnM+559A+eFIJ+6yGEDhj5pZHSqU5e3GKSqGfYAfJlSPeKK776PeHWVk
-         7Bb6qFdBogGbLKRCwV5jdWtIA/bfoDq7NEUWLMYXj6p8qxefiDIo5KY+T26Pfm3MlS
-         HzJyGmUojTCrRn78P+KKuc7PB+tjmtxa9pn99Xp5koTLIjTXD3/g4HuqYu/pmH5w7V
-         7i1P8qi61qtIegI357BxAO8oJ0KUTXpQZzjsJOzngmUnHsiQAm8jJa9W1CEwyCteEA
-         YWLJeqyEGx/9Q==
+        b=tZl8Hnlb+8zXAtmfCFvoZUFtT7FLfLdpJ9eP9mavIYDSSF3mPwUzLqw8DEV7EgKqH
+         kmt3pogvZIj6jCN5uU0xAGtlYT1mfRBFdvBTpAs9q4UfkZXoqZUeqtdPmFpW996wdU
+         U6/krs2HzDCKWfgM2tH67Yr1+zX8x3D1VeMiBi9Rn+51y3bHwWrfpXciOcKWpjp7R+
+         d9KBHS4/XKnK8rl2OC0Vd7gd/0pGi7dd4x67GjlNwn9zcyrNqtZFX2g2rc1O5NIhs9
+         FJHRqdmlJZb2yGI7gZdNT1LV3TxOZgmZ/XjTuWhOFFAld853edkwsq7c2Vb+2S/Jnb
+         Jd4BYgv7Uuz2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 28/38] media: gp8psk: initialize stats at power control logic
-Date:   Tue, 22 Dec 2020 21:25:06 -0500
-Message-Id: <20201223022516.2794471-28-sashal@kernel.org>
+Cc:     Martin Schiller <ms@dev.tdt.de>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-x25@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 29/38] net/lapb: fix t1 timer handling for LAPB_STATE_0
+Date:   Tue, 22 Dec 2020 21:25:07 -0500
+Message-Id: <20201223022516.2794471-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
@@ -43,47 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit d0ac1a26ed5943127cb0156148735f5f52a07075 ]
+[ Upstream commit 62480b992ba3fb1d7260b11293aed9d6557831c7 ]
 
-As reported on:
-	https://lore.kernel.org/linux-media/20190627222020.45909-1-willemdebruijn.kernel@gmail.com/
+1. DTE interface changes immediately to LAPB_STATE_1 and start sending
+   SABM(E).
 
-if gp8psk_usb_in_op() returns an error, the status var is not
-initialized. Yet, this var is used later on, in order to
-identify:
-	- if the device was already started;
-	- if firmware has loaded;
-	- if the LNBf was powered on.
+2. DCE interface sends N2-times DM and changes to LAPB_STATE_1
+   afterwards if there is no response in the meantime.
 
-Using status = 0 seems to ensure that everything will be
-properly powered up.
-
-So, instead of the proposed solution, let's just set
-status = 0.
-
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/gp8psk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/lapb/lapb_timer.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/gp8psk.c b/drivers/media/usb/dvb-usb/gp8psk.c
-index 5d0384dd45b5e..7225ae1905eb9 100644
---- a/drivers/media/usb/dvb-usb/gp8psk.c
-+++ b/drivers/media/usb/dvb-usb/gp8psk.c
-@@ -163,7 +163,7 @@ static int gp8psk_load_bcm4500fw(struct dvb_usb_device *d)
+diff --git a/net/lapb/lapb_timer.c b/net/lapb/lapb_timer.c
+index 355cc3b6fa4d3..3d99205f003da 100644
+--- a/net/lapb/lapb_timer.c
++++ b/net/lapb/lapb_timer.c
+@@ -92,11 +92,18 @@ static void lapb_t1timer_expiry(unsigned long param)
+ 	switch (lapb->state) {
  
- static int gp8psk_power_ctrl(struct dvb_usb_device *d, int onoff)
- {
--	u8 status, buf;
-+	u8 status = 0, buf;
- 	int gp_product_id = le16_to_cpu(d->udev->descriptor.idProduct);
+ 		/*
+-		 *	If we are a DCE, keep going DM .. DM .. DM
++		 *	If we are a DCE, send DM up to N2 times, then switch to
++		 *	STATE_1 and send SABM(E).
+ 		 */
+ 		case LAPB_STATE_0:
+-			if (lapb->mode & LAPB_DCE)
++			if (lapb->mode & LAPB_DCE &&
++			    lapb->n2count != lapb->n2) {
++				lapb->n2count++;
+ 				lapb_send_control(lapb, LAPB_DM, LAPB_POLLOFF, LAPB_RESPONSE);
++			} else {
++				lapb->state = LAPB_STATE_1;
++				lapb_establish_data_link(lapb);
++			}
+ 			break;
  
- 	if (onoff) {
+ 		/*
 -- 
 2.27.0
 
