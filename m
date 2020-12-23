@@ -2,100 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C7D2E135A
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 102972E145E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729137AbgLWC0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:26:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52102 "EHLO mail.kernel.org"
+        id S1730516AbgLWCio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:38:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730660AbgLWCZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7112922202;
-        Wed, 23 Dec 2020 02:25:42 +0000 (UTC)
+        id S1730115AbgLWCin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:38:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58CE72245C;
+        Wed, 23 Dec 2020 02:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690343;
-        bh=B+8l2agkKDcZLAW+qbtt2QYxTPDQoPOWLdsRuzdY8ko=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQO0d9k6S74vHpHrv5RZcCG53plCEwkDpHRZcbsyN3rV65HxKHGu4Mm6CLedcEvlZ
-         qTsF9D1EJIE+GSSivj4p8TuRkt1DNRCIHEVEy4pOJeqjrqAwb6/CMndvlIuHs38dSA
-         dcLUeIIq3mPKWV4Q2f8j+FZTlHx/PUZr2Y9bH2Xx/fnCGUlPhPxupu/4PahiNbrJ2V
-         t8kMXfOnj/DCVsSk09EB4Q5eshr6UnwQ/GftZetqjLo5DxMMXZf8gUrzyZNtUy+Mfi
-         bFI0inP4sd4bznD4nRufX+di1IZHl1NEe2hsCL/SR5unXPruklrfHprWfhjz1N/i1Q
-         6RvEo3aHnIs7w==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        keyrings@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 21/38] rxrpc: Don't leak the service-side session key to userspace
-Date:   Tue, 22 Dec 2020 21:24:59 -0500
-Message-Id: <20201223022516.2794471-21-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
+        s=k20201202; t=1608691082;
+        bh=aDwJGnKtC5b+/IhpLBbDVnB03LBgSAU4U6/zGDqihoY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=c2+RnXuYXJy0qyj0d6ajKFyiB4IyWrrYH5wGApxtEFESZ1YNFveJslWiUN2/S7KeG
+         bB/fjo3eG4MD7u1t4xQslNTfBQiXM63XAF15S+qe2ZQ4y169r5VNX5KXA+Jeol3NYN
+         QmViRpKk7HSDR3u1gZaRj5QcBXa2nr2oofD8kFGxqEBgrhLQ88I9U6AS7lzjTxzzS5
+         lmAw7I5YOTJojBruphP5xlgqJh6nj4wuP+NiSL+1lhBBe73mbtsEFaHS52y2GIIUdr
+         WaHNM6pec7h2h9BQ4+kJObVC9U6y8Jiufue6lX7+/lO8Wsbz7jQK3NKOW/gX+ezd/W
+         8PXIO6d1qGZ8A==
+Date:   Tue, 22 Dec 2020 18:38:01 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 03/38] staging: wimax: depends on NET
+Message-ID: <20201222183801.327b964f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201223022516.2794471-3-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
+        <20201223022516.2794471-3-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Tue, 22 Dec 2020 21:24:41 -0500 Sasha Levin wrote:
+> From: Randy Dunlap <rdunlap@infradead.org>
+> 
+> [ Upstream commit 9364a2cf567187c0a075942c22d1f434c758de5d ]
+> 
+> Fix build errors when CONFIG_NET is not enabled. E.g. (trimmed):
 
-[ Upstream commit d2ae4e918218f543214fbd906db68a6c580efbbb ]
-
-Don't let someone reading a service-side rxrpc-type key get access to the
-session key that was exchanged with the client.  The server application
-will, at some point, need to be able to read the information in the ticket,
-but this probably shouldn't include the key material.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- include/keys/rxrpc-type.h | 1 +
- net/rxrpc/ar-key.c        | 8 ++++++--
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/include/keys/rxrpc-type.h b/include/keys/rxrpc-type.h
-index fc48754338179..5bd32114a51ad 100644
---- a/include/keys/rxrpc-type.h
-+++ b/include/keys/rxrpc-type.h
-@@ -88,6 +88,7 @@ struct rxk5_key {
-  */
- struct rxrpc_key_token {
- 	u16	security_index;		/* RxRPC header security index */
-+	bool	no_leak_key;		/* Don't copy the key to userspace */
- 	struct rxrpc_key_token *next;	/* the next token in the list */
- 	union {
- 		struct rxkad_key *kad;
-diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
-index ea615e53eab28..ab4e21ffb4de9 100644
---- a/net/rxrpc/ar-key.c
-+++ b/net/rxrpc/ar-key.c
-@@ -1081,7 +1081,8 @@ static long rxrpc_read(const struct key *key,
- 		case RXRPC_SECURITY_RXKAD:
- 			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
- 						 * end, primary, tktlen */
--			toksize += RND(token->kad->ticket_len);
-+			if (!token->no_leak_key)
-+				toksize += RND(token->kad->ticket_len);
- 			break;
- 
- 		case RXRPC_SECURITY_RXK5:
-@@ -1190,7 +1191,10 @@ static long rxrpc_read(const struct key *key,
- 			ENCODE(token->kad->start);
- 			ENCODE(token->kad->expiry);
- 			ENCODE(token->kad->primary_flag);
--			ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
-+			if (token->no_leak_key)
-+				ENCODE(0);
-+			else
-+				ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
- 			break;
- 
- 		case RXRPC_SECURITY_RXK5:
--- 
-2.27.0
-
+This one can be dropped, before wimax moved to staging the dependency
+was met thru the directory structure.
