@@ -2,45 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA7F2E1D14
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E92B2E1D35
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728963AbgLWOM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 09:12:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54456 "EHLO mail.kernel.org"
+        id S1729143AbgLWOPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 09:15:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728742AbgLWOM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 09:12:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7AE72313C;
-        Wed, 23 Dec 2020 14:11:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608732707;
-        bh=uB10nrkeqve7Hly9rNtAzo2O1fQAFouPxvX1ah9BIc8=;
+        id S1728705AbgLWOPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 09:15:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1276C2313C;
+        Wed, 23 Dec 2020 14:14:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608732861;
+        bh=A37SSG8eWeOuwQ8uyZJAhWEriNMTI/mw/UyINjzNu4A=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JjvPpK8I00YA2JonE4DIXnHT6MZzAg8rmWzQ7iyUzEfmFWPN3qt7vr4eT5sOXYZTX
-         Qb9Bjm/mSwEfQY/OmUkRSHdJEIDg2OzPef9OgxWXARaaLXjGQ3323YH4B1Gj1WVSwJ
-         lVhWt/7N0L8q8tYKguXbNByaVYs+mOKTD7SzfOBE=
-Date:   Wed, 23 Dec 2020 15:12:58 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     ebiggers@google.com
-Cc:     stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] f2fs: prevent creating duplicate
- encrypted filenames" failed to apply to 4.9-stable tree
-Message-ID: <X+NQalRwl81mfnyV@kroah.com>
-References: <1608732531208141@kroah.com>
+        b=p6zvua8a42L42/819eIXq6I+lLKWtfzjstmWe8yYFS6kifaHIm/rPDJriH5BOmBOG
+         JgQJ5n+b0kFkmCcG3BDmbvEWHlGP929GWvQogCOQrI+mzj+QPUoyPA/CT012cmEfM+
+         HSdYSgXTdkUz2Cy9ngCVWlzsXSwB8YS3ZhYuu7qE78GKL6rKttultdNGfx82006/Vj
+         hT2QqVHvQJ1jtLjvim62kQNuMoDRvaXKs6VzKGAFc4dG2AHAI2Ek4dwi5FH5QL+A7/
+         nTJxMZs+UfMayIhkaBz32pTSnLdPFBuMqvgB0khXTTuqS7LSHD/95IrRGW7TAcQMU3
+         yWxzNTYgN99Eg==
+Date:   Wed, 23 Dec 2020 09:14:19 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 03/38] staging: wimax: depends on NET
+Message-ID: <20201223141419.GA2790422@sasha-vm>
+References: <20201223022516.2794471-1-sashal@kernel.org>
+ <20201223022516.2794471-3-sashal@kernel.org>
+ <20201222183801.327b964f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1608732531208141@kroah.com>
+In-Reply-To: <20201222183801.327b964f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 23, 2020 at 03:08:51PM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+On Tue, Dec 22, 2020 at 06:38:01PM -0800, Jakub Kicinski wrote:
+>On Tue, 22 Dec 2020 21:24:41 -0500 Sasha Levin wrote:
+>> From: Randy Dunlap <rdunlap@infradead.org>
+>>
+>> [ Upstream commit 9364a2cf567187c0a075942c22d1f434c758de5d ]
+>>
+>> Fix build errors when CONFIG_NET is not enabled. E.g. (trimmed):
+>
+>This one can be dropped, before wimax moved to staging the dependency
+>was met thru the directory structure.
 
-Oops, got these out of order, my fault, let me try this again...
+I'll drop it, thanks.
+
+-- 
+Thanks,
+Sasha
