@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DB42E1677
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C0F2E16D4
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbgLWCTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:19:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
+        id S1728814AbgLWDCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:02:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbgLWCTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727525AbgLWCTe (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:19:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF4F722573;
-        Wed, 23 Dec 2020 02:18:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F04225AC;
+        Wed, 23 Dec 2020 02:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689940;
-        bh=CmCTXlo5QOeMaTIF2kxMvmLAeNqkCnl3FUaR/jTtx0U=;
+        s=k20201202; t=1608689942;
+        bh=UXq0LZfpd6ooODibQK/KgNlqWEtnJY6cHmBeQMYx+2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5zcuA2IYTU6f8inH9SsD4vYIVn0pgec+lKsgSElGOqslJz+KIi/t6/w4XOk40ISP
-         PXT1dOfhy+70MCAKunxVbMZQyRrJRy0aPsCQdLJpZYBAj1vHY3aY4PrLDIrsMOeG9y
-         9B/UOQn7JCvUW6345PUxjCE6m3DEdrYLbDh7ecTNF+IOw6roFeshkffhAemHLqH4be
-         2wb8zXg/a/gbPPMlJyse6Z01USZbvVcLis1VSBA7oDdSuLRmcxPGpawZIDp9XHfMuh
-         2mpXAsPODxZn6UvtMpgW5LNeAj4LrxAnqo/jtN9uUjdGc5X9MNTUsSVUxdNx9XNaXu
-         N6YCtiOa2bD1Q==
+        b=maLFT5pQwEv+bSeu4yCfE9HRLR54QQp29o/fLPZmy+yy/8cnEHJ6QytVyIfSiIya4
+         h+40jjoITTP9sd4dbcZm4yG09aIqDC5NyETR7gUh0iEAdc3kyqJLthu+pz+FDcffwO
+         8yfflI6TWBn6xIAZjnByhHZ8w8toUrlULaOaTESMfGFF6IZuh1ZS+6p50rLJOH44ma
+         prd0twHUhUfIY3efmlVQ4c/g78+uYU54ixWrMfvYzvYj4UYZD1lbCpB6JvQstrlKLk
+         dSeq7BejmGy7fG5ai7n+mjo18E9h06tVzVUkXpaWrAo3paCueL9VjM7fJF3eDkkcJz
+         e0QSh+2hD51xA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 036/130] r8169: use READ_ONCE in rtl_tx_slots_avail
-Date:   Tue, 22 Dec 2020 21:16:39 -0500
-Message-Id: <20201223021813.2791612-36-sashal@kernel.org>
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 037/130] media: zr364xx: propagate errors from zr364xx_start_readpipe()
+Date:   Tue, 22 Dec 2020 21:16:40 -0500
+Message-Id: <20201223021813.2791612-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,36 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 95f3c5458dfa5856bb110e31d156e00d894d0134 ]
+[ Upstream commit af0321a5be3e5647441eb6b79355beaa592df97a ]
 
-tp->dirty_tx and tp->cur_tx may be changed by a racing rtl_tx() or
-rtl8169_start_xmit(). Use READ_ONCE() to annotate the races and ensure
-that the compiler doesn't use cached values.
+zr364xx_start_readpipe() can fail but callers do not care about that.
+This can result in various negative consequences. The patch adds missed
+error handling.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/5676fee3-f6b4-84f2-eba5-c64949a371ad@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/zr364xx/zr364xx.c | 31 ++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index fd5adb0c54d29..fca8252b4f21d 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -5856,7 +5856,8 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
- static bool rtl_tx_slots_avail(struct rtl8169_private *tp,
- 			       unsigned int nr_frags)
+diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
+index 637962825d7a8..32f463f05eacd 100644
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -1330,6 +1330,7 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
  {
--	unsigned int slots_avail = tp->dirty_tx + NUM_TX_DESC - tp->cur_tx;
-+	unsigned int slots_avail = READ_ONCE(tp->dirty_tx) + NUM_TX_DESC
-+					- READ_ONCE(tp->cur_tx);
+ 	struct zr364xx_pipeinfo *pipe = cam->pipe;
+ 	unsigned long i;
++	int err;
  
- 	/* A skbuff with nr_frags needs nr_frags+1 entries in the tx queue */
- 	return slots_avail > nr_frags;
+ 	DBG("board init: %p\n", cam);
+ 	memset(pipe, 0, sizeof(*pipe));
+@@ -1362,9 +1363,8 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
+ 
+ 	if (i == 0) {
+ 		printk(KERN_INFO KBUILD_MODNAME ": out of memory. Aborting\n");
+-		kfree(cam->pipe->transfer_buffer);
+-		cam->pipe->transfer_buffer = NULL;
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto err_free;
+ 	} else
+ 		cam->buffer.dwFrames = i;
+ 
+@@ -1379,9 +1379,17 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
+ 	/*** end create system buffers ***/
+ 
+ 	/* start read pipe */
+-	zr364xx_start_readpipe(cam);
++	err = zr364xx_start_readpipe(cam);
++	if (err)
++		goto err_free;
++
+ 	DBG(": board initialized\n");
+ 	return 0;
++
++err_free:
++	kfree(cam->pipe->transfer_buffer);
++	cam->pipe->transfer_buffer = NULL;
++	return err;
+ }
+ 
+ static int zr364xx_probe(struct usb_interface *intf,
+@@ -1578,10 +1586,19 @@ static int zr364xx_resume(struct usb_interface *intf)
+ 	if (!cam->was_streaming)
+ 		return 0;
+ 
+-	zr364xx_start_readpipe(cam);
++	res = zr364xx_start_readpipe(cam);
++	if (res)
++		return res;
++
+ 	res = zr364xx_prepare(cam);
+-	if (!res)
+-		zr364xx_start_acquire(cam);
++	if (res)
++		goto err_prepare;
++
++	zr364xx_start_acquire(cam);
++	return 0;
++
++err_prepare:
++	zr364xx_stop_readpipe(cam);
+ 	return res;
+ }
+ #endif
 -- 
 2.27.0
 
