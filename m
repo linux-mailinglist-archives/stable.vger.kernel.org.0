@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 053EA2E130F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 094712E12EA
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727029AbgLWC1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:27:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
+        id S1729741AbgLWC0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:26:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbgLWC0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:26:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2644F22285;
-        Wed, 23 Dec 2020 02:25:41 +0000 (UTC)
+        id S1730677AbgLWC0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:26:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2BB2222D;
+        Wed, 23 Dec 2020 02:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690341;
-        bh=fqqoJ6c25WDyUQ3LnEJinxarDF9+HA/F6SZz+5ToHXg=;
+        s=k20201202; t=1608690344;
+        bh=+zTDPWYPg5RqayqffvwcII5EQJ9k1EZ9gYbfAZ+CHGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/QIzde3ncYr0W2Z6DRrevFnquhey6M78yTfp1MZ8/oMb6B7FaPjtnL8x3H0nZhom
-         V7mjWrM7d4nN7AY6f7OH8/ohycr0rnmVhpV4BVkiS6IZP2Q5wna9gg/6YlQ/Z8dseD
-         zerMyms2pGK7eZv5hBqoU3tvYjlEjX7C1hDQbC/nS8GLNmdJ/65ZyOAYLJtVZ/2QnO
-         mGiLMLw2E5PbkShpiQAtBnDbm6UomvQ70PCn0CGe4QrRwPjx86NvToufuj3QSToLes
-         wzqabv3LUcTuBi7xr/RDMxXcsNEpdd9VaBB8fSRWiB0RSZexJ4SEL1om8xIb3DZmxT
-         JboNu2Dzr0QgA==
+        b=Zyh5FPpfih98f68r2ZAy3SwOKThyYAKCO4Jb2bTkkMQLFn++47Gpu4iShiPvY/1Fl
+         e8jpVv4zGaqY3KPJysbd1/nFT5f93yE1rZAzrH+nHX4dl02IMrgKjzBTjvJV2NXCOg
+         fhT9zHtmeGWIusCD3uLB56QLNabSzofWrirfEIPelAOIL/WT+GRoVG9ygAB8qI9iBr
+         iwFhe3f5CY4+Pk2kdrp50yyNQ7hNPxYsC1uI9NU2JksPDtDtlJ2Unf8iYyyj+2Sk45
+         61uAp/7aKtasXrYumxqxRxkCGMHDSIm1/3pPr6Wp+hD3Eydc7HhMzvUUSnUscptXcA
+         m5VXUFUMht2Uw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Keith Milner <kamilner@superlative.org>,
-        Dylan Robinson <dylan_robinson@motu.com>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.4 20/38] ALSA: usb-audio: Don't call usb_set_interface() at trigger callback
-Date:   Tue, 22 Dec 2020 21:24:58 -0500
-Message-Id: <20201223022516.2794471-20-sashal@kernel.org>
+Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
+        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 22/38] ARM: dts: hisilicon: fix errors detected by snps-dw-apb-uart.yaml
+Date:   Tue, 22 Dec 2020 21:25:00 -0500
+Message-Id: <20201223022516.2794471-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
@@ -43,73 +42,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 4974b7950929e4a28d4eaee48e4ad07f168ac132 ]
+[ Upstream commit 30ea026e33c6dda48849d9fe0d15c1d280a92d53 ]
 
-The PCM trigger callback is atomic, hence we must not call a function
-like usb_set_interface() there.  Calling it from there would lead to a
-kernel Oops.
+1. Change node name to match '^serial(@[0-9a-f,]+)*$'
+2. Change clock-names to "baudclk", "apb_pclk". Both of them use the same
+   clock.
 
-Fix it by moving the usb_set_interface() call to set_sync_endpoint().
-
-Also, apply the snd_usb_set_interface_quirk() for consistency, too.
-
-Tested-by: Keith Milner <kamilner@superlative.org>
-Tested-by: Dylan Robinson <dylan_robinson@motu.com>
-Link: https://lore.kernel.org/r/20201123085347.19667-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ arch/arm/boot/dts/hip01.dtsi    | 24 ++++++++++++------------
+ arch/arm/boot/dts/hip04-d01.dts |  2 +-
+ arch/arm/boot/dts/hip04.dtsi    |  6 +++---
+ 3 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 366813f1a5f80..59f3a9492d74b 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -242,21 +242,6 @@ static int start_endpoints(struct snd_usb_substream *subs)
- 	    !test_and_set_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags)) {
- 		struct snd_usb_endpoint *ep = subs->sync_endpoint;
+diff --git a/arch/arm/boot/dts/hip01.dtsi b/arch/arm/boot/dts/hip01.dtsi
+index 33130f8461c37..96f6bd0312d09 100644
+--- a/arch/arm/boot/dts/hip01.dtsi
++++ b/arch/arm/boot/dts/hip01.dtsi
+@@ -46,41 +46,41 @@ amba {
+ 			compatible = "arm,amba-bus";
+ 			ranges;
  
--		if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
--		    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
--			err = usb_set_interface(subs->dev,
--						subs->sync_endpoint->iface,
--						subs->sync_endpoint->altsetting);
--			if (err < 0) {
--				clear_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags);
--				dev_err(&subs->dev->dev,
--					   "%d:%d: cannot set interface (%d)\n",
--					   subs->sync_endpoint->iface,
--					   subs->sync_endpoint->altsetting, err);
--				return -EIO;
--			}
--		}
--
- 		dev_dbg(&subs->dev->dev, "Starting sync EP @%p\n", ep);
+-			uart0: uart@10001000 {
++			uart0: serial@10001000 {
+ 				compatible = "snps,dw-apb-uart";
+ 				reg = <0x10001000 0x1000>;
+-				clocks = <&hisi_refclk144mhz>;
+-				clock-names = "apb_pclk";
++				clocks = <&hisi_refclk144mhz>, <&hisi_refclk144mhz>;
++				clock-names = "baudclk", "apb_pclk";
+ 				reg-shift = <2>;
+ 				interrupts = <0 32 4>;
+ 				status = "disabled";
+ 			};
  
- 		ep->sync_slave = subs->data_endpoint;
-@@ -489,6 +474,19 @@ static int set_sync_endpoint(struct snd_usb_substream *subs,
+-			uart1: uart@10002000 {
++			uart1: serial@10002000 {
+ 				compatible = "snps,dw-apb-uart";
+ 				reg = <0x10002000 0x1000>;
+-				clocks = <&hisi_refclk144mhz>;
+-				clock-names = "apb_pclk";
++				clocks = <&hisi_refclk144mhz>, <&hisi_refclk144mhz>;
++				clock-names = "baudclk", "apb_pclk";
+ 				reg-shift = <2>;
+ 				interrupts = <0 33 4>;
+ 				status = "disabled";
+ 			};
  
- 	subs->data_endpoint->sync_master = subs->sync_endpoint;
+-			uart2: uart@10003000 {
++			uart2: serial@10003000 {
+ 				compatible = "snps,dw-apb-uart";
+ 				reg = <0x10003000 0x1000>;
+-				clocks = <&hisi_refclk144mhz>;
+-				clock-names = "apb_pclk";
++				clocks = <&hisi_refclk144mhz>, <&hisi_refclk144mhz>;
++				clock-names = "baudclk", "apb_pclk";
+ 				reg-shift = <2>;
+ 				interrupts = <0 34 4>;
+ 				status = "disabled";
+ 			};
  
-+	if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
-+	    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
-+		err = usb_set_interface(subs->dev,
-+					subs->sync_endpoint->iface,
-+					subs->sync_endpoint->altsetting);
-+		if (err < 0)
-+			return err;
-+		dev_dbg(&dev->dev, "setting usb interface %d:%d\n",
-+			subs->sync_endpoint->iface,
-+			subs->sync_endpoint->altsetting);
-+		snd_usb_set_interface_quirk(dev);
-+	}
-+
- 	return 0;
- }
+-			uart3: uart@10006000 {
++			uart3: serial@10006000 {
+ 				compatible = "snps,dw-apb-uart";
+ 				reg = <0x10006000 0x1000>;
+-				clocks = <&hisi_refclk144mhz>;
+-				clock-names = "apb_pclk";
++				clocks = <&hisi_refclk144mhz>, <&hisi_refclk144mhz>;
++				clock-names = "baudclk", "apb_pclk";
+ 				reg-shift = <2>;
+ 				interrupts = <0 4 4>;
+ 				status = "disabled";
+diff --git a/arch/arm/boot/dts/hip04-d01.dts b/arch/arm/boot/dts/hip04-d01.dts
+index 40a9e33c2654e..9b2499635dc76 100644
+--- a/arch/arm/boot/dts/hip04-d01.dts
++++ b/arch/arm/boot/dts/hip04-d01.dts
+@@ -25,7 +25,7 @@ memory@00000000,10000000 {
+ 	};
  
+ 	soc {
+-		uart0: uart@4007000 {
++		uart0: serial@4007000 {
+ 			status = "ok";
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/hip04.dtsi b/arch/arm/boot/dts/hip04.dtsi
+index 44044f2751151..9593a78ccf067 100644
+--- a/arch/arm/boot/dts/hip04.dtsi
++++ b/arch/arm/boot/dts/hip04.dtsi
+@@ -253,12 +253,12 @@ arm-pmu {
+ 				     <0 79 4>;
+ 		};
+ 
+-		uart0: uart@4007000 {
++		uart0: serial@4007000 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0x4007000 0x1000>;
+ 			interrupts = <0 381 4>;
+-			clocks = <&clk_168m>;
+-			clock-names = "uartclk";
++			clocks = <&clk_168m>, <&clk_168m>;
++			clock-names = "baudclk", "apb_pclk";
+ 			reg-shift = <2>;
+ 			status = "disabled";
+ 		};
 -- 
 2.27.0
 
