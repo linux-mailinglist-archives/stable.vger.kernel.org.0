@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B122F2E11C8
+	by mail.lfdr.de (Postfix) with ESMTP id 44E342E11C7
 	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:17:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726361AbgLWCRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:17:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44560 "EHLO mail.kernel.org"
+        id S1725300AbgLWCRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:17:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725300AbgLWCRL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:17:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6893D22202;
-        Wed, 23 Dec 2020 02:16:29 +0000 (UTC)
+        id S1726069AbgLWCRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:17:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 970222222A;
+        Wed, 23 Dec 2020 02:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689790;
-        bh=H4fX8Jv2Oxuo+GyoGMn6H8Tb6++/vP4bLQ21Kywy0OI=;
+        s=k20201202; t=1608689791;
+        bh=ZSA41/q39HXg0SItUW1TBhjquHbuv7/iDv3p9HfPKpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fscbrdx9SlH6wVCrvt3am0BgMGbpLuaCwk36lKijvCchEqZUqIOijbuKc3uzsTgDC
-         Svnz1NaqgefWsEc3ImExOtF8/Lxr+59YfcT4ADw8AEY8YO0uZHmM35gAiCQQopsmpV
-         rX6V0ZEONOH5tgwV9AcIgbNxGIAXjNz6WCbfw5ZJZviaS0T9OaE1us1tpZMilxCAqH
-         ZEMJjnUGd3kpOtJ1vEe26DCKpGPXScMRym2rRObARi6zDoafcG7/2SeTEG0kPFavLv
-         Ls5SUvYXVJgl8tZCn4a87Hem5FdgE6amBrfLRkS9/CDEMNDPZyqpNfAq/eRKFbDPAp
-         /DnXWhks7gEwg==
+        b=VCYfxuhc70scrJX79WjWacYJQIr8egDKknyQ5sx1zbaj2BpuQ4PmCcDGgu7YA7rHB
+         PHBZhwr00Prpuw1tfV6KxIYR2Ifgx++WSWwN8sVVhUIiVPaDWOEWEd7CrRXBr+2Xyw
+         U2E11VEkQpbPO0iLtpMH6gPkPcG4qlQjHjjsQkt4zszovkhZ0BtE4lvn4O2G59ZdK2
+         7Dt6EvwGjSUErcEkkMeyGZei+w6W5VM+XaH2AcLRIqaIPO/xMHMPz4rKmy4GS7kZN2
+         675d74DnlXeiFcRFGYaImIfRBaHQOsampW9g4OO/9UzbslbQhLqNRsjoVLAchoInJU
+         w3AJMm5vdw4uw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Cercueil <paul@crapouillou.net>,
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Steev Klimaszewski <steev@kali.org>,
         Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 002/217] drm/ingenic: Reset pixclock rate when parent clock rate changes
-Date:   Tue, 22 Dec 2020 21:12:51 -0500
-Message-Id: <20201223021626.2790791-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 003/217] drm/bridge: ti-sn65dsi86: Add retries for link training
+Date:   Tue, 22 Dec 2020 21:12:52 -0500
+Message-Id: <20201223021626.2790791-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -43,150 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 33700f6f7d9f6b4e1e6df933ef7fd388889c662c ]
+[ Upstream commit 137655d1ed353806b8591855b569efd090d84135 ]
 
-Old Ingenic SoCs can overclock very well, up to +50% of their nominal
-clock rate, whithout requiring overvolting or anything like that, just
-by changing the rate of the main PLL. Unfortunately, all clocks on the
-system are derived from that PLL, and when the PLL rate is updated, so
-is our pixel clock.
+On some panels hooked up to the ti-sn65dsi86 bridge chip we found that
+link training was failing.  Specifically, we'd see:
 
-To counter that issue, we make sure that the panel is in VBLANK before
-the rate change happens, and we will then re-set the pixel clock rate
-afterwards, once the PLL has been changed, to be as close as possible to
-the pixel rate requested by the encoder.
+  ti_sn65dsi86 2-002d: [drm:ti_sn_bridge_enable] *ERROR* Link training failed, link is off (-5)
 
-v2: Add comment about mutex usage
+The panel was hooked up to a logic analyzer and it was found that, as
+part of link training, the bridge chip was writing a 0x1 to DPCD
+address 00600h and the panel responded NACK.  As can be seen in header
+files, the write of 0x1 to DPCD address 0x600h means we were trying to
+write the value DP_SET_POWER_D0 to the register DP_SET_POWER.  The
+panel vendor says that a NACK in this case is not unexpected and means
+"not ready, try again".
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200926170501.1109197-2-paul@crapouillou.net
+In testing, we found that this panel would respond with a NACK in
+about 1/25 times.  Adding the retry logic worked fine and the most
+number of tries needed was 3.  Just to be safe, we'll add 10 tries
+here and we'll add a little blurb to the logs if we ever need more
+than 5.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Tested-By: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201002135920.1.I2adbc90b2db127763e2444bd5a4e5bf30e1db8e5@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 61 ++++++++++++++++++++++-
- 1 file changed, 60 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c | 40 +++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-index a3d1617d7c67e..819744d7d5897 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -10,6 +10,7 @@
- #include <linux/clk.h>
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
-@@ -68,6 +69,21 @@ struct ingenic_drm {
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+index ecdf9b01340f5..c9ab9d8296940 100644
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+@@ -106,6 +106,8 @@
+ #define SN_NUM_GPIOS			4
+ #define SN_GPIO_PHYSICAL_OFFSET		1
  
- 	bool panel_is_sharp;
- 	bool no_vblank;
++#define SN_LINK_TRAINING_TRIES		10
 +
+ /**
+  * struct ti_sn_bridge - Platform data for ti-sn65dsi86 driver.
+  * @dev:          Pointer to our device.
+@@ -673,6 +675,7 @@ static int ti_sn_link_training(struct ti_sn_bridge *pdata, int dp_rate_idx,
+ {
+ 	unsigned int val;
+ 	int ret;
++	int i;
+ 
+ 	/* set dp clk frequency value */
+ 	regmap_update_bits(pdata->regmap, SN_DATARATE_CONFIG_REG,
+@@ -689,19 +692,34 @@ static int ti_sn_link_training(struct ti_sn_bridge *pdata, int dp_rate_idx,
+ 		goto exit;
+ 	}
+ 
+-	/* Semi auto link training mode */
+-	regmap_write(pdata->regmap, SN_ML_TX_MODE_REG, 0x0A);
+-	ret = regmap_read_poll_timeout(pdata->regmap, SN_ML_TX_MODE_REG, val,
+-				       val == ML_TX_MAIN_LINK_OFF ||
+-				       val == ML_TX_NORMAL_MODE, 1000,
+-				       500 * 1000);
+-	if (ret) {
+-		*last_err_str = "Training complete polling failed";
+-	} else if (val == ML_TX_MAIN_LINK_OFF) {
+-		*last_err_str = "Link training failed, link is off";
+-		ret = -EIO;
 +	/*
-+	 * clk_mutex is used to synchronize the pixel clock rate update with
-+	 * the VBLANK. When the pixel clock's parent clock needs to be updated,
-+	 * clock_nb's notifier function will lock the mutex, then wait until the
-+	 * next VBLANK. At that point, the parent clock's rate can be updated,
-+	 * and the mutex is then unlocked. If an atomic commit happens in the
-+	 * meantime, it will lock on the mutex, effectively waiting until the
-+	 * clock update process finishes. Finally, the pixel clock's rate will
-+	 * be recomputed when the mutex has been released, in the pending atomic
-+	 * commit, or a future one.
++	 * We'll try to link train several times.  As part of link training
++	 * the bridge chip will write DP_SET_POWER_D0 to DP_SET_POWER.  If
++	 * the panel isn't ready quite it might respond NAK here which means
++	 * we need to try again.
 +	 */
-+	struct mutex clk_mutex;
-+	bool update_clk_rate;
-+	struct notifier_block clock_nb;
- };
- 
- static const u32 ingenic_drm_primary_formats[] = {
-@@ -111,6 +127,29 @@ static inline struct ingenic_drm *drm_crtc_get_priv(struct drm_crtc *crtc)
- 	return container_of(crtc, struct ingenic_drm, crtc);
- }
- 
-+static inline struct ingenic_drm *drm_nb_get_priv(struct notifier_block *nb)
-+{
-+	return container_of(nb, struct ingenic_drm, clock_nb);
-+}
++	for (i = 0; i < SN_LINK_TRAINING_TRIES; i++) {
++		/* Semi auto link training mode */
++		regmap_write(pdata->regmap, SN_ML_TX_MODE_REG, 0x0A);
++		ret = regmap_read_poll_timeout(pdata->regmap, SN_ML_TX_MODE_REG, val,
++					       val == ML_TX_MAIN_LINK_OFF ||
++					       val == ML_TX_NORMAL_MODE, 1000,
++					       500 * 1000);
++		if (ret) {
++			*last_err_str = "Training complete polling failed";
++		} else if (val == ML_TX_MAIN_LINK_OFF) {
++			*last_err_str = "Link training failed, link is off";
++			ret = -EIO;
++			continue;
++		}
 +
-+static int ingenic_drm_update_pixclk(struct notifier_block *nb,
-+				     unsigned long action,
-+				     void *data)
-+{
-+	struct ingenic_drm *priv = drm_nb_get_priv(nb);
-+
-+	switch (action) {
-+	case PRE_RATE_CHANGE:
-+		mutex_lock(&priv->clk_mutex);
-+		priv->update_clk_rate = true;
-+		drm_crtc_wait_one_vblank(&priv->crtc);
-+		return NOTIFY_OK;
-+	default:
-+		mutex_unlock(&priv->clk_mutex);
-+		return NOTIFY_OK;
-+	}
-+}
-+
- static void ingenic_drm_crtc_atomic_enable(struct drm_crtc *crtc,
- 					   struct drm_crtc_state *state)
- {
-@@ -276,8 +315,14 @@ static void ingenic_drm_crtc_atomic_flush(struct drm_crtc *crtc,
- 
- 	if (drm_atomic_crtc_needs_modeset(state)) {
- 		ingenic_drm_crtc_update_timings(priv, &state->mode);
-+		priv->update_clk_rate = true;
-+	}
- 
-+	if (priv->update_clk_rate) {
-+		mutex_lock(&priv->clk_mutex);
- 		clk_set_rate(priv->pix_clk, state->adjusted_mode.clock * 1000);
-+		priv->update_clk_rate = false;
-+		mutex_unlock(&priv->clk_mutex);
++		break;
  	}
  
- 	if (event) {
-@@ -934,16 +979,28 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
- 	if (soc_info->has_osd)
- 		regmap_write(priv->map, JZ_REG_LCD_OSDC, JZ_LCD_OSDC_OSDEN);
- 
-+	mutex_init(&priv->clk_mutex);
-+	priv->clock_nb.notifier_call = ingenic_drm_update_pixclk;
++	/* If we saw quite a few retries, add a note about it */
++	if (!ret && i > SN_LINK_TRAINING_TRIES / 2)
++		DRM_DEV_INFO(pdata->dev, "Link training needed %d retries\n", i);
 +
-+	parent_clk = clk_get_parent(priv->pix_clk);
-+	ret = clk_notifier_register(parent_clk, &priv->clock_nb);
-+	if (ret) {
-+		dev_err(dev, "Unable to register clock notifier\n");
-+		goto err_devclk_disable;
-+	}
-+
- 	ret = drm_dev_register(drm, 0);
- 	if (ret) {
- 		dev_err(dev, "Failed to register DRM driver\n");
--		goto err_devclk_disable;
-+		goto err_clk_notifier_unregister;
- 	}
- 
- 	drm_fbdev_generic_setup(drm, 32);
- 
- 	return 0;
- 
-+err_clk_notifier_unregister:
-+	clk_notifier_unregister(parent_clk, &priv->clock_nb);
- err_devclk_disable:
- 	if (priv->lcd_clk)
- 		clk_disable_unprepare(priv->lcd_clk);
-@@ -965,7 +1022,9 @@ static int compare_of(struct device *dev, void *data)
- static void ingenic_drm_unbind(struct device *dev)
- {
- 	struct ingenic_drm *priv = dev_get_drvdata(dev);
-+	struct clk *parent_clk = clk_get_parent(priv->pix_clk);
- 
-+	clk_notifier_unregister(parent_clk, &priv->clock_nb);
- 	if (priv->lcd_clk)
- 		clk_disable_unprepare(priv->lcd_clk);
- 	clk_disable_unprepare(priv->pix_clk);
+ exit:
+ 	/* Disable the PLL if we failed */
+ 	if (ret)
 -- 
 2.27.0
 
