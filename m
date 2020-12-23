@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DACE82E1E0B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E3182E1E26
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728730AbgLWPeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44870 "EHLO mail.kernel.org"
+        id S1726462AbgLWPfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:35:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbgLWPeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC4AB233F8;
-        Wed, 23 Dec 2020 15:33:35 +0000 (UTC)
+        id S1728910AbgLWPep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 10:34:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED20D23355;
+        Wed, 23 Dec 2020 15:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737616;
-        bh=OqhHtuOdgaauMQMONCSX+P4cGrOeVwc6S4p25cYuAAE=;
+        s=korg; t=1608737618;
+        bh=tBsx2KdAvoC5HYiI6USyasBd4jn2kMi3TDAdAjnRUV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hz6RY7Ue//j4F2FLScpiSuLgzGZPQMhh8624gxX5eMKqEyz4mhMUmlhJPBPOoEVc
-         ZV4UHOpCkw5OdSgjgjGk+eJ8TkwSw6sxYTSSh9+ez296r9CKluUcyHR74SKQlc5WcK
-         BB3ox/pWz3mUSjtVqZPGsozqirJvgTi4DogKSVdo=
+        b=LNMHhPpOslFSAfx63akIz0MpxeoFzBxMYOE7bAC6A0mY4dlq2AjzgSbLXtseMqwpB
+         kUiwvVUj7LSbiVzhjfr2/W76dtt0GpvwNCJ9tv1eJma1myJjYT2BGcpXp3cyfss61W
+         qWwJMZWobH9HMsA+xs3ROKduh1+XTGu2mm0kCOMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 05/40] usb: mtu3: fix memory corruption in mtu3_debugfs_regset()
-Date:   Wed, 23 Dec 2020 16:33:06 +0100
-Message-Id: <20201223150515.830504325@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+8881b478dad0a7971f79@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 06/40] USB: serial: option: add interface-number sanity check to flag handling
+Date:   Wed, 23 Dec 2020 16:33:07 +0100
+Message-Id: <20201223150515.874644556@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 References: <20201223150515.553836647@linuxfoundation.org>
@@ -38,33 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 3f6f6343a29d9ea7429306b83b18e66dc1331d5c upstream.
+commit a251963f76fa0226d0fdf0c4f989496f18d9ae7f upstream.
 
-This code is using the wrong sizeof() so it does not allocate enough
-memory.  It allocates 32 bytes but 72 are required.  That will lead to
-memory corruption.
+Add an interface-number sanity check before testing the device flags to
+avoid relying on undefined behaviour when left shifting in case a device
+uses an interface number greater than or equal to BITS_PER_LONG (i.e. 64
+or 32).
 
-Fixes: ae07809255d3 ("usb: mtu3: add debugfs interface files")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X8ikqc4Mo2/0G72j@mwanda
-Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+8881b478dad0a7971f79@syzkaller.appspotmail.com
+Fixes: c3a65808f04a ("USB: serial: option: reimplement interface masking")
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/mtu3/mtu3_debugfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/mtu3/mtu3_debugfs.c
-+++ b/drivers/usb/mtu3/mtu3_debugfs.c
-@@ -127,7 +127,7 @@ static void mtu3_debugfs_regset(struct m
- 	struct debugfs_regset32 *regset;
- 	struct mtu3_regset *mregs;
+---
+ drivers/usb/serial/option.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -563,6 +563,9 @@ static void option_instat_callback(struc
  
--	mregs = devm_kzalloc(mtu->dev, sizeof(*regset), GFP_KERNEL);
-+	mregs = devm_kzalloc(mtu->dev, sizeof(*mregs), GFP_KERNEL);
- 	if (!mregs)
- 		return;
+ /* Device flags */
  
++/* Highest interface number which can be used with NCTRL() and RSVD() */
++#define FLAG_IFNUM_MAX	7
++
+ /* Interface does not support modem-control requests */
+ #define NCTRL(ifnum)	((BIT(ifnum) & 0xff) << 8)
+ 
+@@ -2101,6 +2104,14 @@ static struct usb_serial_driver * const
+ 
+ module_usb_serial_driver(serial_drivers, option_ids);
+ 
++static bool iface_is_reserved(unsigned long device_flags, u8 ifnum)
++{
++	if (ifnum > FLAG_IFNUM_MAX)
++		return false;
++
++	return device_flags & RSVD(ifnum);
++}
++
+ static int option_probe(struct usb_serial *serial,
+ 			const struct usb_device_id *id)
+ {
+@@ -2117,7 +2128,7 @@ static int option_probe(struct usb_seria
+ 	 * the same class/subclass/protocol as the serial interfaces.  Look at
+ 	 * the Windows driver .INF files for reserved interface numbers.
+ 	 */
+-	if (device_flags & RSVD(iface_desc->bInterfaceNumber))
++	if (iface_is_reserved(device_flags, iface_desc->bInterfaceNumber))
+ 		return -ENODEV;
+ 
+ 	/*
+@@ -2133,6 +2144,14 @@ static int option_probe(struct usb_seria
+ 	return 0;
+ }
+ 
++static bool iface_no_modem_control(unsigned long device_flags, u8 ifnum)
++{
++	if (ifnum > FLAG_IFNUM_MAX)
++		return false;
++
++	return device_flags & NCTRL(ifnum);
++}
++
+ static int option_attach(struct usb_serial *serial)
+ {
+ 	struct usb_interface_descriptor *iface_desc;
+@@ -2148,7 +2167,7 @@ static int option_attach(struct usb_seri
+ 
+ 	iface_desc = &serial->interface->cur_altsetting->desc;
+ 
+-	if (!(device_flags & NCTRL(iface_desc->bInterfaceNumber)))
++	if (!iface_no_modem_control(device_flags, iface_desc->bInterfaceNumber))
+ 		data->use_send_setup = 1;
+ 
+ 	if (device_flags & ZLP)
 
 
