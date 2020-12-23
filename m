@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C223B2E1478
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B6C2E1412
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:38:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729113AbgLWCjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:39:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52560 "EHLO mail.kernel.org"
+        id S1730145AbgLWCYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730064AbgLWCXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:23:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18CC422AAF;
-        Wed, 23 Dec 2020 02:23:30 +0000 (UTC)
+        id S1728523AbgLWCYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:24:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B01622273;
+        Wed, 23 Dec 2020 02:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690210;
-        bh=rMAraAbSoN60xGi383renZXB910pyJXmXglFmSTIQzQ=;
+        s=k20201202; t=1608690212;
+        bh=8/9mTcfvkzgNMCWVtLKeifjY/iJKLM5eRp/Y9Ydkqtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+yu7555hEc5NmGAB5IIp6n9vX9i46vLhXjdvtaeZKFJX55axlGukCdqz+X21VQTP
-         tWS1zLLxCJW8F4BXzMxEhbYcp7NCUvr8TkvQuxVBSSzx2prS7c1MQy1m89Mp7uR/5/
-         QkfOCWLUGvErqJ8YfXOMN8+yERsVcoqu3uPjcrIjiLvS4QdadGTLLT6wy7vV6tTTUj
-         9qdC736l8j6NVk+4rvnq9qgyiCe3OhyFsNuGHpc9zLyybRFLJGH+8VYSQOckf4wjJL
-         lKhz/8LH37gNbFMoGQo6qOeBA65z/Q29zmkWSiCeXYO3929Jp3w22xeyvS70b1cLnb
-         SP2KrHcqhoSKw==
+        b=gq56vUSDYk8v65Q0GCi70H4MXF7n9C9LPmZN4e1/CHQW/CGbeh0GvfSAjOwAHi9n8
+         j4we64PbPxpov9aqL7O+kF12f/LVn0+iyvh0GbLO5sEM6UxcINK1Z/GrFI6poYmCKg
+         5j8nUE3lxeQkmrRDu8yX3t5lg988QzAc+V7412509xbKxG3i8ai9iB2cEIjGoAYH6Q
+         htqs7a2zbFGVeVHyYsSJYzwpgo6/pjTokH3BlTLLRnYNd5S1P19Omfmb1OFO20CmOY
+         bgIM4dljobpxp+OHG74ltPWVF/jVeiIhsA6Tw4j7Q2IuvGQNIzGbvuG7eX0JwlMNkF
+         s63weQF808EpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@google.com>, Can Guo <cang@codeaurora.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 30/66] scsi: ufs: Atomic update for clkgating_enable
-Date:   Tue, 22 Dec 2020 21:22:16 -0500
-Message-Id: <20201223022253.2793452-30-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Keith Milner <kamilner@superlative.org>,
+        Dylan Robinson <dylan_robinson@motu.com>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 31/66] ALSA: usb-audio: Don't call usb_set_interface() at trigger callback
+Date:   Tue, 22 Dec 2020 21:22:17 -0500
+Message-Id: <20201223022253.2793452-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 References: <20201223022253.2793452-1-sashal@kernel.org>
@@ -42,51 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b664511297644eac34038df877b3ad7bcaa81913 ]
+[ Upstream commit 4974b7950929e4a28d4eaee48e4ad07f168ac132 ]
 
-While running a stress test which enables/disables clkgating, we
-occasionally hit device timeout. This patch avoids a subtle race condition
-to address it.
+The PCM trigger callback is atomic, hence we must not call a function
+like usb_set_interface() there.  Calling it from there would lead to a
+kernel Oops.
 
-Link: https://lore.kernel.org/r/20201117165839.1643377-3-jaegeuk@kernel.org
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@google.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix it by moving the usb_set_interface() call to set_sync_endpoint().
+
+Also, apply the snd_usb_set_interface_quirk() for consistency, too.
+
+Tested-by: Keith Milner <kamilner@superlative.org>
+Tested-by: Dylan Robinson <dylan_robinson@motu.com>
+Link: https://lore.kernel.org/r/20201123085347.19667-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/usb/pcm.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a3a3ee6e2a002..68d3d463e2e16 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1649,19 +1649,19 @@ static ssize_t ufshcd_clkgate_enable_store(struct device *dev,
- 		return -EINVAL;
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 6caf94581a0e8..1ed4a7c094c48 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -242,21 +242,6 @@ static int start_endpoints(struct snd_usb_substream *subs)
+ 	    !test_and_set_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags)) {
+ 		struct snd_usb_endpoint *ep = subs->sync_endpoint;
  
- 	value = !!value;
+-		if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
+-		    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
+-			err = usb_set_interface(subs->dev,
+-						subs->sync_endpoint->iface,
+-						subs->sync_endpoint->altsetting);
+-			if (err < 0) {
+-				clear_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags);
+-				dev_err(&subs->dev->dev,
+-					   "%d:%d: cannot set interface (%d)\n",
+-					   subs->sync_endpoint->iface,
+-					   subs->sync_endpoint->altsetting, err);
+-				return -EIO;
+-			}
+-		}
+-
+ 		dev_dbg(&subs->dev->dev, "Starting sync EP @%p\n", ep);
+ 
+ 		ep->sync_slave = subs->data_endpoint;
+@@ -499,6 +484,19 @@ static int set_sync_endpoint(struct snd_usb_substream *subs,
+ 
+ 	subs->data_endpoint->sync_master = subs->sync_endpoint;
+ 
++	if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
++	    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
++		err = usb_set_interface(subs->dev,
++					subs->sync_endpoint->iface,
++					subs->sync_endpoint->altsetting);
++		if (err < 0)
++			return err;
++		dev_dbg(&dev->dev, "setting usb interface %d:%d\n",
++			subs->sync_endpoint->iface,
++			subs->sync_endpoint->altsetting);
++		snd_usb_set_interface_quirk(dev);
++	}
 +
-+	spin_lock_irqsave(hba->host->host_lock, flags);
- 	if (value == hba->clk_gating.is_enabled)
- 		goto out;
- 
--	if (value) {
--		ufshcd_release(hba);
--	} else {
--		spin_lock_irqsave(hba->host->host_lock, flags);
-+	if (value)
-+		__ufshcd_release(hba);
-+	else
- 		hba->clk_gating.active_reqs++;
--		spin_unlock_irqrestore(hba->host->host_lock, flags);
--	}
- 
- 	hba->clk_gating.is_enabled = value;
- out:
-+	spin_unlock_irqrestore(hba->host->host_lock, flags);
- 	return count;
+ 	return 0;
  }
  
 -- 
