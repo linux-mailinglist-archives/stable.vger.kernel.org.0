@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B5C2E165D
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:09:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD892E1738
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbgLWCSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:18:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46404 "EHLO mail.kernel.org"
+        id S1731863AbgLWDHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:07:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728334AbgLWCSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCF6F233FB;
-        Wed, 23 Dec 2020 02:17:46 +0000 (UTC)
+        id S1728335AbgLWCSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A137233FA;
+        Wed, 23 Dec 2020 02:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689867;
-        bh=Bdz7K2+IYgGhLbm1Wpd9GxL24Md95bh/X7Jqy9dm9is=;
+        s=k20201202; t=1608689868;
+        bh=O0S+26ciccrfnNwun4+sPx00DqUVef45cMQSOJcp3sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BoYW5MOIhhCgIHV3163sR2BNka9K13iuwJJjDh/Mo/6nGftdo7FJH1UnLJatd7WkL
-         FBqGGsiBdIx1D0E67iJLusDZhMtfG9qVA/JPp5e0Q/CKhU9ZLlEKAKjs3Ff041KDao
-         EsMjOZrG0yIl9IV5NWA0yJV0uHpGD4xukuhMVJ5Zc4E1dkVCpv5u3HBRnVqN1JCeTa
-         tVlSeKQ3pOM+GvMAyRHMVQ1sFSCqCgJqfnrT+KEQFpCxj81/4U9huY+mwniMvjAKdV
-         MM3PTkhOVvGh8ExARJONcxrKxAP96Exkc/oPUEVhy2Rk9F1rv7BJF1/gYtg3DiR5mH
-         zOfpOy6H+bzZQ==
+        b=oAWT/8dpRc93NUNbgeKfj5/tApF2OYV1WSqGdT160BLLn3p2IUkDKZRY08jUisCf7
+         o+nuHsOF/tIl0B6K5HeICiXv/Q49oZJVXiLvn8EC2SevGLKCGP4aqgJcLIn2uHFlsv
+         Tbq4vMs3k5Jzup+wxO8zhVcW/mDq39NeEJOoQaZw//4HfWCFt42A7UA6GnsrAA+x0L
+         mm+HIcCIcNsc2V5hfNvVyUuZ1AH0QcaBFCS4nWix0D63Ajldq8rygl++ZpP37zhq4F
+         LCc/0J9OirOtBWtRBSJgGZDYqwr2RnFEfFqhaPuWIXunkOjsL+gxQ6aqBDGk1ljgJ3
+         Uq/ZICO/Mirdg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
-        Martijn Coenen <maco@android.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.10 062/217] binder: change error code from postive to negative in binder_transaction
-Date:   Tue, 22 Dec 2020 21:13:51 -0500
-Message-Id: <20201223021626.2790791-62-sashal@kernel.org>
+Cc:     Alexander Lobakin <alobakin@pm.me>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 063/217] net: skb_vlan_untag(): don't reset transport offset if set by GRO layer
+Date:   Tue, 22 Dec 2020 21:13:52 -0500
+Message-Id: <20201223021626.2790791-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -44,37 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit 88f6c77927e4aee04e0193fd94e13a55753a72b0 ]
+[ Upstream commit 8be33ecfc1ffd2da20cc29e957e4cb6eb99310cb ]
 
-Depending on the context, the error return value
-here (extra_buffers_size < added_size) should be
-negative.
+Similar to commit fda55eca5a33f
+("net: introduce skb_transport_header_was_set()"), avoid resetting
+transport offsets that were already set by GRO layer. This not only
+mirrors the behavior of __netif_receive_skb_core(), but also makes
+sense when it comes to UDP GSO fraglists forwarding: transport offset
+of such skbs is set only once by GRO receive callback and remains
+untouched and correct up to the xmitting driver in 1:1 case, but
+becomes junk after untagging in ingress VLAN case and breaks UDP
+GSO offload. This does not happen after this change, and all types
+of forwarding of UDP GSO fraglists work as expected.
 
-Acked-by: Martijn Coenen <maco@android.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201026110314.135481-1-zhangqilong3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since v1 [1]:
+ - keep the code 1:1 with __netif_receive_skb_core() (Jakub).
+
+[1] https://lore.kernel.org/netdev/zYurwsZRN7BkqSoikWQLVqHyxz18h4LhHU4NFa2Vw@cp4-web-038.plabs.ch
+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Link: https://lore.kernel.org/r/7JgIkgEztzt0W6ZtC9V9Cnk5qfkrUFYcpN871syCi8@cp4-web-040.plabs.ch
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index b5117576792bc..8bbfb9124fa29 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -3103,7 +3103,7 @@ static void binder_transaction(struct binder_proc *proc,
- 		if (extra_buffers_size < added_size) {
- 			/* integer overflow of extra_buffers_size */
- 			return_error = BR_FAILED_REPLY;
--			return_error_param = EINVAL;
-+			return_error_param = -EINVAL;
- 			return_error_line = __LINE__;
- 			goto err_bad_extra_size;
- 		}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index e578544b2cc71..08d69e062eca6 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -5430,7 +5430,8 @@ struct sk_buff *skb_vlan_untag(struct sk_buff *skb)
+ 		goto err_free;
+ 
+ 	skb_reset_network_header(skb);
+-	skb_reset_transport_header(skb);
++	if (!skb_transport_header_was_set(skb))
++		skb_reset_transport_header(skb);
+ 	skb_reset_mac_len(skb);
+ 
+ 	return skb;
 -- 
 2.27.0
 
