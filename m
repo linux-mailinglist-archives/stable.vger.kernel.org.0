@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583D12E1437
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FB12E14D6
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729785AbgLWCWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:22:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51014 "EHLO mail.kernel.org"
+        id S1727335AbgLWCop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:44:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728490AbgLWCWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 923BB22273;
-        Wed, 23 Dec 2020 02:22:30 +0000 (UTC)
+        id S1729762AbgLWCWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:22:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF211221E5;
+        Wed, 23 Dec 2020 02:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690151;
-        bh=PNzbCRIG/yIP/e2lUq+1swsm+0VlMdlrCzWkPbqYMm8=;
+        s=k20201202; t=1608690152;
+        bh=hgehVMq8mURlrBR5kRfraFXCWYe/naiOqIOAOfTz+3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9l7rn/7FAhaQclTuXzIgADJfGy6/ArU20gPU4g9sSflwbqhPOpBP9AupzyM+oyMs
-         OlYRCT3vDl6DhZBGIsF8MSg9q1S5p2McERnRUmumkjoqXZgft5Js5gLIS4/FukpInh
-         SnrCqti658CX9BczbY6TFuJqu2nQ8G1q/zzbaIzNVjO7uBdtvb3ehQv6RsGcyfIppP
-         ACDA/h39zvWlw7tiVptsHfPT1ni9J0phb8COncn5IuTOlhGrXzk0O0g95+qtIIxNDd
-         ABCYaz806cxTJFJs0Jsm5eoyZbjsSO6LVIEpYiX+JN4OSIGmyIk1vVMhmz33sqjUda
-         5vTOq6yAxOgGg==
+        b=svv25BerBj/pxaENIuRvV5SBwEWWQ1AHdyxMM0Woeb3AQi+9JrzGKxZnp9NdHUlBd
+         Mb6miTG+kUCKFBVFTPPhwGC3JZRL1ORJsg50j8FDYVHTOpdCQSMMliWUDriB7znqfZ
+         ZWap4od1vnGDiWV+j8rOTHkIZ0l4Fb8GiEPTxtc2jfhXKStASkawM9NUTNPM7okyQs
+         Nis/fRYkZE1TbJ9tHwFq+UXM1P32ajX2PT42y0CkIWXrX09jumWK9KQAHd3dMYzH9S
+         1ivy/NxdNrZk6CXNqR02v5IYNTcrlYXF2ejCphnWqYy2flb0Yh/1RiG40B3+bKTuxt
+         LuWOcFOy9keWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 71/87] misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
-Date:   Tue, 22 Dec 2020 21:20:47 -0500
-Message-Id: <20201223022103.2792705-71-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 72/87] iwlwifi: pcie: validate RX descriptor length
+Date:   Tue, 22 Dec 2020 21:20:48 -0500
+Message-Id: <20201223022103.2792705-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -43,37 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 31dcb6c30a26d32650ce134820f27de3c675a45a ]
+[ Upstream commit df72138de4bc4e85e427aabc60fc51be6cc57fc7 ]
 
-A kernel-infoleak was reported by syzbot, which was caused because
-dbells was left uninitialized.
-Using kzalloc() instead of kmalloc() fixes this issue.
+Validate the maximum RX descriptor length against the size
+of the buffers we gave the device - if it doesn't fit then
+the hardware messed up.
 
-Reported-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Tested-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201122224534.333471-1-anant.thazhemadam@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201209231352.6378fb435cc0.Ib07485f3dc5999c74b03f21e7a808c50a05e353c@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_context.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_context.c b/drivers/misc/vmw_vmci/vmci_context.c
-index bc089e634a751..26e20b091160a 100644
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -751,7 +751,7 @@ static int vmci_ctx_get_chkpt_doorbells(struct vmci_ctx *context,
- 			return VMCI_ERROR_MORE_DATA;
- 		}
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index 80a1a50f5da51..ebdb143b1b5a1 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -1256,6 +1256,13 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
  
--		dbells = kmalloc(data_size, GFP_ATOMIC);
-+		dbells = kzalloc(data_size, GFP_ATOMIC);
- 		if (!dbells)
- 			return VMCI_ERROR_NO_MEM;
+ 		len = iwl_rx_packet_len(pkt);
+ 		len += sizeof(u32); /* account for status word */
++
++		offset += ALIGN(len, FH_RSCSR_FRAME_ALIGN);
++
++		/* check that what the device tells us made sense */
++		if (offset > max_len)
++			break;
++
+ 		trace_iwlwifi_dev_rx(trans->dev, trans, pkt, len);
+ 		trace_iwlwifi_dev_rx_data(trans->dev, trans, pkt, len);
  
+@@ -1313,7 +1320,6 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
+ 		page_stolen |= rxcb._page_stolen;
+ 		if (trans->cfg->device_family >= IWL_DEVICE_FAMILY_22560)
+ 			break;
+-		offset += ALIGN(len, FH_RSCSR_FRAME_ALIGN);
+ 	}
+ 
+ 	/* page was stolen from us -- free our reference */
 -- 
 2.27.0
 
