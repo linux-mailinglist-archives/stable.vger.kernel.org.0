@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAF352E1557
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC4B2E161E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbgLWCVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:21:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+        id S1731225AbgLWC5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:57:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729176AbgLWCVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6899822A99;
-        Wed, 23 Dec 2020 02:20:21 +0000 (UTC)
+        id S1729040AbgLWCUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D7022273;
+        Wed, 23 Dec 2020 02:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690022;
-        bh=UkGeKJkcCoTLxKNZoeNdLRsTAEj6DMtSyChkrv5bYHw=;
+        s=k20201202; t=1608690023;
+        bh=SGdl1bYJJOC8B55sbmgtI5mC/kAXIsBDiYgc2YSAk50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftSi2EHDP/mzmb88YzPSF4HMdhiXt/IC2Ht+/DJqruPwqP474a8qhoYV0oX445UXI
-         K/EJQickXfIxjS9tm3zZeaJAvx6ydL+nYa0yloHeorwNJu4Kc0uRsfGXAJxQGTBhcS
-         XexhIuFfJkyD0fgDPyFdQybi19w21nAWgjwwSkEgnE8g9xbGau2Lr+sopl3VgJuqny
-         hzboB40O2JYdwsCLqgCInRQU7Z4yitJebvJqNDAjBUBJxY1ME4cBLJ/BuyZn+hD5f7
-         bDTRl5Ww5uzjlcMzuS3VR8ud9xNzm8kjbGoRMr/X7LWR2AGT38raJ9GoeiRUaBXwad
-         Gv6DAmlr2BBEg==
+        b=qOgs8sDk7MurtV3olF21SrDQrXGWkQNTcLivFB1zdufC2Flc+T7eFnh3mZuk//Ow2
+         Q23TmjyJLSNOQpWhBkajScppO4DavHXX385zQp2VzVuzWIlprnHDbWUlnnynTXjy/J
+         2D4YeM583PpzH4+VH05oQfiBB7RzrUIfnN6LJigGQeZiGP5S9iY4TREjHeeMwWrlRK
+         5ioLX9B+y4cZ7PhEWIzEyqoKwOUFy1OOD7Y+v6s3WRrObtR1ezyJ36t/IHQl5l7BfZ
+         RJo5OMAj6/YPJksU6kmhJkYt5bD6H+EFAz+gEz6+fINH+rjXjtptjuCw3rj0IhPw6l
+         f80LQaAm2YmMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michal Simek <michal.simek@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 099/130] ARM: zynq: Fix leds subnode name for zc702/zybo-z7
-Date:   Tue, 22 Dec 2020 21:17:42 -0500
-Message-Id: <20201223021813.2791612-99-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 100/130] btrfs: fix race that results in logging old extents during a fast fsync
+Date:   Tue, 22 Dec 2020 21:17:43 -0500
+Message-Id: <20201223021813.2791612-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,57 +41,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Simek <michal.simek@xilinx.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 38d1985fdfcf20dc246b552580479ae602f735d1 ]
+[ Upstream commit 5f96bfb7633c55b578c6b32f32624061f25010db ]
 
-Fix the leds subnode names to match (^led-[0-9a-f]$|led).
+When logging the extents of an inode during a fast fsync, we have a time
+window where we can log extents that are from the previous transaction and
+already persisted. This only makes us waste time unnecessarily.
 
-Similar change has been also done by commit 9a19a39ee48b ("arm64: dts:
-zynqmp: Fix leds subnode name for zcu100/ultra96 v1").
+The following sequence of steps shows how this can happen:
 
-The patch is fixing these warnings:
-.../zynq-zc702.dt.yaml: leds: 'ds23' does not match any of the regexes:
-'(^led-[0-9a-f]$|led)', 'pinctrl-[0-9]+'
->From schema: .../Documentation/devicetree/bindings/leds/leds-gpio.yaml
-.../zynq-zybo-z7.dt.yaml: gpio-leds: 'ld4' does not match any of the
-regexes: '(^led-[0-9a-f]$|led)', 'pinctrl-[0-9]+'
->From schema: .../Documentation/devicetree/bindings/leds/leds-gpio.yaml
+1) We are at transaction 1000;
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/607a66783b129294364abf09a6fc8abd241ff4ee.1606397101.git.michal.simek@xilinx.com
+2) An ordered extent E from inode I completes, that is it has gone through
+   btrfs_finish_ordered_io(), and it set the extent maps' generation to
+   1000 when we unpin the extent, which is the generation of the current
+   transaction;
+
+3) The commit for transaction 1000 starts by task A;
+
+4) The task committing transaction 1000 sets the transaction state to
+   unblocked, writes the dirty extent buffers and the super blocks, then
+   unlocks tree_log_mutex;
+
+5) Some change is made to inode I, resulting in creation of a new
+   transaction with a generation of 1001;
+
+6) The transaction 1000 commit starts unpinning extents. At this point
+   fs_info->last_trans_committed still has a value of 999;
+
+7) Task B starts an fsync on inode I, and when it gets to
+   btrfs_log_changed_extents() sees the extent map for extent E in the
+   list of modified extents. It sees the extent map has a generation of
+   1000 and fs_info->last_trans_committed has a value of 999, so it
+   proceeds to logging the respective file extent item and all the
+   checksums covering its range.
+
+   So we end up wasting time since the extent was already persisted and
+   is reachable through the trees pointed to by the super block committed
+   by transaction 1000.
+
+So just fix this by comparing the extent maps generation against the
+generation of the transaction handle - if it is smaller then the id in the
+handle, we know the extent was already persisted and we do not need to log
+it.
+
+This patch belongs to a patch set that is comprised of the following
+patches:
+
+  btrfs: fix race causing unnecessary inode logging during link and rename
+  btrfs: fix race that results in logging old extents during a fast fsync
+  btrfs: fix race that causes unnecessary logging of ancestor inodes
+  btrfs: fix race that makes inode logging fallback to transaction commit
+  btrfs: fix race leading to unnecessary transaction commit when logging inode
+  btrfs: do not block inode logging for so long during transaction commit
+
+Performance results are mentioned in the change log of the last patch.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/zynq-zc702.dts   | 2 +-
- arch/arm/boot/dts/zynq-zybo-z7.dts | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/zynq-zc702.dts b/arch/arm/boot/dts/zynq-zc702.dts
-index 27cd6cb52f1ba..10a7d0b8cf8b9 100644
---- a/arch/arm/boot/dts/zynq-zc702.dts
-+++ b/arch/arm/boot/dts/zynq-zc702.dts
-@@ -49,7 +49,7 @@ sw13 {
- 	leds {
- 		compatible = "gpio-leds";
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index de53e51669976..12182db88222b 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4372,14 +4372,12 @@ static int btrfs_log_changed_extents(struct btrfs_trans_handle *trans,
+ 	struct extent_map *em, *n;
+ 	struct list_head extents;
+ 	struct extent_map_tree *tree = &inode->extent_tree;
+-	u64 test_gen;
+ 	int ret = 0;
+ 	int num = 0;
  
--		ds23 {
-+		led-ds23 {
- 			label = "ds23";
- 			gpios = <&gpio0 10 0>;
- 			linux,default-trigger = "heartbeat";
-diff --git a/arch/arm/boot/dts/zynq-zybo-z7.dts b/arch/arm/boot/dts/zynq-zybo-z7.dts
-index 357b78a5c11b1..7b87e10d3953b 100644
---- a/arch/arm/boot/dts/zynq-zybo-z7.dts
-+++ b/arch/arm/boot/dts/zynq-zybo-z7.dts
-@@ -25,7 +25,7 @@ chosen {
- 	gpio-leds {
- 		compatible = "gpio-leds";
+ 	INIT_LIST_HEAD(&extents);
  
--		ld4 {
-+		led-ld4 {
- 			label = "zynq-zybo-z7:green:ld4";
- 			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
- 		};
+ 	write_lock(&tree->lock);
+-	test_gen = root->fs_info->last_trans_committed;
+ 
+ 	list_for_each_entry_safe(em, n, &tree->modified_extents, list) {
+ 		/*
+@@ -4412,7 +4410,7 @@ static int btrfs_log_changed_extents(struct btrfs_trans_handle *trans,
+ 			goto process;
+ 		}
+ 
+-		if (em->generation <= test_gen)
++		if (em->generation < trans->transid)
+ 			continue;
+ 
+ 		/* We log prealloc extents beyond eof later. */
 -- 
 2.27.0
 
