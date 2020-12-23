@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E02F2E163F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD532E163E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727639AbgLWC7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46328 "EHLO mail.kernel.org"
+        id S1728883AbgLWCUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbgLWCUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:20:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41B4122D73;
-        Wed, 23 Dec 2020 02:19:52 +0000 (UTC)
+        id S1728722AbgLWCUJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98064229C5;
+        Wed, 23 Dec 2020 02:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689993;
-        bh=dbXis86xDPTQu+i1OtGK9IHLf/s7gH+4ybqoclpUXCI=;
+        s=k20201202; t=1608689994;
+        bh=8zxW0Coq79vbFKcoFtkC/3t6V/TI80uwbocuc8zfZKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sAiltPmwOvjn2PScHFcpzxf45AxxFGAEeaNEhTfnRwhMC1rVfFZTN404ZA2scd5Ta
-         CTOWmcmr+K2R8qKIqxYslYn02ajge2txPiuJo5ry+AoSJNmshK70ZU70bF5wFcsdZx
-         Am5lvdEhB/LsJzGF3U9tccSLOtfvOWQk4yJwFOZLg/6uqwgQCGjN1/S1XDR24xMrrd
-         h3x+hjdal+OnaVnJqflbazCZSDkGpU0WlpU8GEhDwbsSRvzhAdQhsOx/LdI8tUf4VH
-         Gm5sRC2sEOEJd3lLc9DXbRiZrBZ1POvFRg0XSeLXOGj6npxnMKfHbHrAVdO074FW5d
-         9nXH+fClwqApw==
+        b=Z+zSVQVPQw3Bxj6OdH4XybodwVrKyZYOqI59X0rG7ynAl8DH2NEH5KYBSTxXV2NRn
+         r/9qYsllMDKLtXfqWY7ripXDPjNT8MxHwr7OTSRVt37S51zRFJOnnnbt1i2eHw7rxa
+         GsbWfCI9lq99kWGzP9ZxL7eo3ogghCj6/FjZ8JzVvg59Y72iJkUiL58QhA5eSRpfq0
+         l7G0FzrSDZVpTGMEbR5eDHUwy82iZUSqC9aztHLHp5nXkEqgCnOL1v/XHLpm2SOb8X
+         OWhmbi/WMbkhh8aqTjcnWppTYorL0i5slDZdPPnaDI0KYmKyegCjBzHtqkcUOLbz69
+         FsXmjyQQBhnWQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sami Tolvanen <samitolvanen@google.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 077/130] x86/pci: Fix the function type for check_reserved_t
-Date:   Tue, 22 Dec 2020 21:17:20 -0500
-Message-Id: <20201223021813.2791612-77-sashal@kernel.org>
+Cc:     Gabriele Paoloni <gabriele.paoloni@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 078/130] x86/mce: Move the mce_panic() call and 'kill_it' assignments to the right places
+Date:   Tue, 22 Dec 2020 21:17:21 -0500
+Message-Id: <20201223021813.2791612-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -44,55 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Gabriele Paoloni <gabriele.paoloni@intel.com>
 
-[ Upstream commit 83321c335dccba262a57378361d63da96b8166d6 ]
+[ Upstream commit e273e6e12ab1db3eb57712bd60655744d0091fa3 ]
 
-e820__mapped_all() is passed as a callback to is_mmconf_reserved(),
-which expects a function of type:
+Right now, for local MCEs the machine calls panic(), if needed, right
+after lmce is set. For MCE broadcasting, mce_reign() takes care of
+calling mce_panic().
 
-  typedef bool (*check_reserved_t)(u64 start, u64 end, unsigned type);
+Hence:
+- improve readability by moving the conditional evaluation of
+tolerant up to when kill_it is set first;
+- move the mce_panic() call up into the statement where mce_end()
+fails.
 
-However, e820__mapped_all() accepts enum e820_type as the last argument
-and this type mismatch trips indirect call checking with Clang's
-Control-Flow Integrity (CFI).
+ [ bp: Massage, remove comment in the mce_end() failure case because it
+   is superfluous; use local ptr 'cfg' in both tests. ]
 
-As is_mmconf_reserved() only passes enum e820_type values for the
-type argument, change the typedef and the unused type argument in
-is_acpi_reserved() to enum e820_type to fix the type mismatch.
-
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Suggested-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Gabriele Paoloni <gabriele.paoloni@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201130193900.456726-1-samitolvanen@google.com
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20201127161819.3106432-3-gabriele.paoloni@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/pci/mmconfig-shared.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/pci/mmconfig-shared.c b/arch/x86/pci/mmconfig-shared.c
-index 6fa42e9c4e6fa..234998f196d4d 100644
---- a/arch/x86/pci/mmconfig-shared.c
-+++ b/arch/x86/pci/mmconfig-shared.c
-@@ -425,7 +425,7 @@ static acpi_status find_mboard_resource(acpi_handle handle, u32 lvl,
- 	return AE_OK;
- }
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index c2a9762d278dd..10f69e045d3ea 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1328,8 +1328,7 @@ void do_machine_check(struct pt_regs *regs, long error_code)
+ 	 * severity is MCE_AR_SEVERITY we have other options.
+ 	 */
+ 	if (!(m.mcgstatus & MCG_STATUS_RIPV))
+-		kill_it = 1;
+-
++		kill_it = (cfg->tolerant == 3) ? 0 : 1;
+ 	/*
+ 	 * Check if this MCE is signaled to only this logical processor,
+ 	 * on Intel only.
+@@ -1364,6 +1363,9 @@ void do_machine_check(struct pt_regs *regs, long error_code)
+ 		if (mce_end(order) < 0) {
+ 			if (!no_way_out)
+ 				no_way_out = worst >= MCE_PANIC_SEVERITY;
++
++			if (no_way_out && cfg->tolerant < 3)
++				mce_panic("Fatal machine check on current CPU", &m, msg);
+ 		}
+ 	} else {
+ 		/*
+@@ -1380,15 +1382,6 @@ void do_machine_check(struct pt_regs *regs, long error_code)
+ 		}
+ 	}
  
--static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
-+static bool is_acpi_reserved(u64 start, u64 end, enum e820_type not_used)
- {
- 	struct resource mcfg_res;
+-	/*
+-	 * If tolerant is at an insane level we drop requests to kill
+-	 * processes and continue even when there is no way out.
+-	 */
+-	if (cfg->tolerant == 3)
+-		kill_it = 0;
+-	else if (no_way_out)
+-		mce_panic("Fatal machine check on current CPU", &m, msg);
+-
+ 	if (worst > 0)
+ 		irq_work_queue(&mce_irq_work);
  
-@@ -442,7 +442,7 @@ static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
- 	return mcfg_res.flags;
- }
- 
--typedef bool (*check_reserved_t)(u64 start, u64 end, unsigned type);
-+typedef bool (*check_reserved_t)(u64 start, u64 end, enum e820_type type);
- 
- static bool __ref is_mmconf_reserved(check_reserved_t is_reserved,
- 				     struct pci_mmcfg_region *cfg,
 -- 
 2.27.0
 
