@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0052E172D
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D662E172B
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731070AbgLWDHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:07:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S1730135AbgLWDHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:07:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728357AbgLWCSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728358AbgLWCSz (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:18:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 890C1225AC;
-        Wed, 23 Dec 2020 02:17:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2942722285;
+        Wed, 23 Dec 2020 02:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689878;
-        bh=jll1vxtF5wKsAh85mJDmndmn1U6lQTvJYrFxXfTWAEk=;
+        s=k20201202; t=1608689879;
+        bh=H1AdHkaBE5KZkU3gYtSTtWOkJBNX+B4Axt/lxQXiXEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fl/KOfVdkT52ZaW3PqHjdlib8nj5x6VpwxgJMtQ0f3LlZr0WkHTS2aYE6w7SLwfFt
-         dSS35/QKAjowKNoIOL/8zX+9l2wk/6P3Y7fL2AqRTzHv1htXqiMijeLLDC76nIz26n
-         eC1VZqopDGcUyYZf+eNcclev4FHvYWnNTLjA44Z0NIa3xWHNsJajpZdvEUdSgB7cXY
-         QxfFkohuEyLahI4iqPWhUItwvyytBQTn+8ufyWe4WLfKnFPy8eCoQ0+DFwnA86d5bZ
-         zHS3ZAzC3v3wYkYRDPjcwTLmJENf6rxkp3q+Uo4Wcmtio3qeqy77Z5odEXP7jcuToc
-         XSNeMvrk4DVrA==
+        b=YmW1+lVnRPieZmWp1OTdxheXA2UZTV81WNkrzPQMIdsr0P3K97rHD+MyHUGKN45lm
+         T4OFHBtN3BswCtwt+qOrisyf8mw0Pu6FlGnva7PvzrlEYvcSf51peAYPXP/kVujJU7
+         gNWVMm9CGmIcWptVsoiTcu8/l17o+V/cCZpDb10olKzBs9Q1EDJ4p8DC0LJKa8qKxI
+         e7ikl95kuM/vadLUpssIM55NtdEbsy6oWsup8cW8Ml+K+CapUeI0mE7iLwXerXReRV
+         mAjbOI7Asej/GlzcukOMF1ZdaU3qjifHFeCtkYocCXsD7TloRxuhGEP04Q6sJnPuWT
+         EI0RdiY03y/3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bokun Zhang <Bokun.Zhang@amd.com>, Monk Liu <monk.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 069/217] drm/amd/amdgpu: Add rev_id workaround logic for SRIOV setup
-Date:   Tue, 22 Dec 2020 21:13:58 -0500
-Message-Id: <20201223021626.2790791-69-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 070/217] ASoC: Intel: sof_sdw: add quirk for new TigerLake-SDCA device
+Date:   Tue, 22 Dec 2020 21:13:59 -0500
+Message-Id: <20201223021626.2790791-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -43,44 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bokun Zhang <Bokun.Zhang@amd.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit de21e4aeb2b26128dcc5be1bcb2fafa73d041e51 ]
+[ Upstream commit 488cdbd8931fe4bc7f374a8b429e81d0e4b7ac76 ]
 
-- When we are under SRIOV setup, the rev_id cannot be read
-  properly. Therefore, we will return default value for it
+Add quirks for jack detection, rt715 DAI and number of speakers.
 
-Signed-off-by: Bokun Zhang <Bokun.Zhang@amd.com>
-Reviewed-by: Monk Liu <monk.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
+Link: https://lore.kernel.org/r/20201111214318.150529-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-index 7429f30398b9d..cd822ea78ffbc 100644
---- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
-@@ -51,8 +51,17 @@ static void nbio_v2_3_remap_hdp_registers(struct amdgpu_device *adev)
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index b29946eb43551..ca968901ac96f 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -48,6 +48,16 @@ static int sof_sdw_quirk_cb(const struct dmi_system_id *id)
+ }
  
- static u32 nbio_v2_3_get_rev_id(struct amdgpu_device *adev)
- {
--	u32 tmp = RREG32_SOC15(NBIO, 0, mmRCC_DEV0_EPF0_STRAP0);
-+	u32 tmp;
- 
-+	/*
-+	 * guest vm gets 0xffffffff when reading RCC_DEV0_EPF0_STRAP0,
-+	 * therefore we force rev_id to 0 (which is the default value)
-+	 */
-+	if (amdgpu_sriov_vf(adev)) {
-+		return 0;
-+	}
-+
-+	tmp = RREG32_SOC15(NBIO, 0, mmRCC_DEV0_EPF0_STRAP0);
- 	tmp &= RCC_DEV0_EPF0_STRAP0__STRAP_ATI_REV_ID_DEV0_F0_MASK;
- 	tmp >>= RCC_DEV0_EPF0_STRAP0__STRAP_ATI_REV_ID_DEV0_F0__SHIFT;
- 
+ static const struct dmi_system_id sof_sdw_quirk_table[] = {
++	{
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A32")
++		},
++		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
++					SOF_RT715_DAI_ID_FIX |
++					SOF_SDW_FOUR_SPK),
++	},
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
+ 		.matches = {
 -- 
 2.27.0
 
