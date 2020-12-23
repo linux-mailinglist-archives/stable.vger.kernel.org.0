@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2318F2E15AD
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BA22E15AB
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729426AbgLWCvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:51:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49842 "EHLO mail.kernel.org"
+        id S1728249AbgLWCvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:51:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729412AbgLWCVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF0022AAF;
-        Wed, 23 Dec 2020 02:21:23 +0000 (UTC)
+        id S1729426AbgLWCVk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B06DF221E5;
+        Wed, 23 Dec 2020 02:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690084;
-        bh=JpzsYhIPc2i3ZBFtNNF+yl5CNLwXZPL8pbU13R4GHhE=;
+        s=k20201202; t=1608690085;
+        bh=VvXvEW1RDgg5wGctb1IXHpEUGrkdqawmRiT3EwkA874=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eg5+ZrMF04a4y/riE0TM68cIGIYNfgaE7BkUbiFN7BLEeb7P2D2ZbuxpDsruBhpFN
-         2DINZFv68rx2iZwmcc/VoInE8k1htiHaJ2JZ3khT/C1B0wV9elFByBIb0OzMTkQUJT
-         AqjzMNb787htcAymEm17xYpRZ8BTVMWdtiioLuvXkffhLB/V8ToIJk4ZzGPIyLk6Qb
-         1yf57+MP5eu+PcSUSJ8fjIXiUVYVWq8C1cvxb8ZJ6G1x2DNEq4mwh39+jaJIMKVI2Z
-         lvi5pEEGSGXqdCYCN037FqGzYjstreCO/sND5qPWSlNxmwItO7ZG44/W3OUmfBCDwE
-         8k+xV3dI1oFuQ==
+        b=E1QTp/rFKy8ZTfUEi6XgjPdx7XxSwxoC0h56hd3jageacL1BqMZ803OedzdmlpMJ3
+         OjOSxaV3Xq9KA8AJ0NrTnH95viOGdtgfuMHJFNVzuJ/2qj77Z8PqTRerG7+I+HasnT
+         z4Ld3yXXhq6z4+6tS9Fc1IWLljgPd8WO9hPEVWKsrkrHlX+9PNv1d+btPLMuciAaNw
+         EIeMAoPEBY0tYnju7ktfMOkS8E9yUZ0ejJPVl3QtjoqwjBHvnNuTVS4L/Md7e4Ui8k
+         km4b5T1PoKM5xjRoaiNKJ8djfrDwl1bYH5k1kazHLUuR3oI+ez4Hi0xjE071Rm5R7m
+         Q4jeZw2t6Bo4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+Cc:     KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 16/87] drm: panel: simple: add missing platform_driver_unregister() in panel_simple_init
-Date:   Tue, 22 Dec 2020 21:19:52 -0500
-Message-Id: <20201223022103.2792705-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 17/87] drm/ast: Fixed 1920x1080 sync. polarity issue
+Date:   Tue, 22 Dec 2020 21:19:53 -0500
+Message-Id: <20201223022103.2792705-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -43,39 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
 
-[ Upstream commit f2e66f212a9de04afc2caa5ec79057c0ac75c728 ]
+[ Upstream commit 2d26123dd9075df82f217364f585a3a6aab5412d ]
 
-Add the missing platform_driver_unregister() before return
-from panel_simple_init in the error handling case when failed
-to register panel_simple_dsi_driver with CONFIG_DRM_MIPI_DSI
-enabled.
+[Bug] Change the vertical synchroous polary of 1920x1080 @60Hz
+      from  Negtive to Positive
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201031011856.137307-1-miaoqinglang@huawei.com
+Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201105094729.106059-1-kuohsiang_chou@aspeedtech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/ast/ast_tables.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 8814aa38c5e7b..eead8f075c94b 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2878,8 +2878,10 @@ static int __init panel_simple_init(void)
+diff --git a/drivers/gpu/drm/ast/ast_tables.h b/drivers/gpu/drm/ast/ast_tables.h
+index d665dd5af5dd8..dbe1cc620f6e6 100644
+--- a/drivers/gpu/drm/ast/ast_tables.h
++++ b/drivers/gpu/drm/ast/ast_tables.h
+@@ -293,10 +293,10 @@ static const struct ast_vbios_enhtable res_1600x900[] = {
  
- 	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI)) {
- 		err = mipi_dsi_driver_register(&panel_simple_dsi_driver);
--		if (err < 0)
-+		if (err < 0) {
-+			platform_driver_unregister(&panel_simple_platform_driver);
- 			return err;
-+		}
- 	}
+ static const struct ast_vbios_enhtable res_1920x1080[] = {
+ 	{2200, 1920, 88, 44, 1125, 1080, 4, 5, VCLK148_5,	/* 60Hz */
+-	 (SyncNP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
++	 (SyncPP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
+ 	  AST2500PreCatchCRT), 60, 1, 0x38 },
+ 	{2200, 1920, 88, 44, 1125, 1080, 4, 5, VCLK148_5,	/* 60Hz */
+-	 (SyncNP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
++	 (SyncPP | Charx8Dot | LineCompareOff | WideScreenMode | NewModeInfo |
+ 	  AST2500PreCatchCRT), 0xFF, 1, 0x38 },
+ };
  
- 	return 0;
 -- 
 2.27.0
 
