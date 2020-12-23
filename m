@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D32C2E1562
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1574A2E155E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729281AbgLWCVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:21:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbgLWCVP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729276AbgLWCVP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 22 Dec 2020 21:21:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2471225AC;
-        Wed, 23 Dec 2020 02:20:55 +0000 (UTC)
+Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729264AbgLWCVP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:21:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2530123159;
+        Wed, 23 Dec 2020 02:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690056;
-        bh=ByjQs1YoUc/0ujkBrb1y2ptoYeB7i9eLo3wbOY18TCs=;
+        s=k20201202; t=1608690057;
+        bh=0d00F80+U8kMZ21VJjFI0YdSZN9PalaSgFSCylhm5tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEaoj0qiFAqMhS7GT6K1hDHd+EfVEbnJd9HVV1cYysRPHcA4EEwDnT+vjHtHUeodz
-         LZPgdlJPhu2roZRtNrGXYpGumFM1RSNwGdK8xcNbhWzAYmVDOZfQi8kTZHFuPM65Jl
-         +Pfn0MqoFVIlC/XtfDZx3pUo0H0EE97F3UJxLzEXuCIcmbr3/sIxeZv+wMjaZcaGVn
-         EVJ7ScTC4PCJ97Lrkh25msFRIckLFe8PlQCjHD6XQal2vvFq7Om79H4h5Yq1ioLHO7
-         uuI1QR3yHnFMuwDtMeWHjSUGVFjB0+aJByAfiWFYdggtkJwLf2oUAkjXi4dMt7sxlk
-         sdd7Wh5I6ZEIA==
+        b=RV70dsEvxmXoD/wpl5GECkVlxpZH75KBMrpTx5h1F9kXI9NUkYmRd2dvNQGU92pgS
+         JlpWg6DZag6I0UW1EZbbcITTDw0ANEoQQvAqtwTqikXDXxZilAkqCugofHyucgfp5v
+         WpvNuMJIG2Y98BfIouUxmG3gDWFJlb6TO5R1L11fvHBDNhegbHOOoa/IvTWrtbLDt5
+         zSSpMaZXqVFzxwqx4849esS/dIof8lIT/HQwJOXIg8d6aa5p1UbhGMg5ic6JZDaCOY
+         HfIrzu45h7fAQ1PCCOkHhQB9vCnXNkmefEx/TW3pqwAYwNIh1H1Sqq+QrG5Mnuhdx1
+         X7PCOWMRdbxpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 126/130] ALSA: hda/hdmi: packet buffer index must be set before reading value
-Date:   Tue, 22 Dec 2020 21:18:09 -0500
-Message-Id: <20201223021813.2791612-126-sashal@kernel.org>
+Cc:     Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 127/130] cpufreq: Fix cpufreq_online() return value on errors
+Date:   Tue, 22 Dec 2020 21:18:10 -0500
+Message-Id: <20201223021813.2791612-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,46 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit 46c3bbd9827952f92e250fa6ee30a797a4c4e17e ]
+[ Upstream commit b96f038432362a20b96d4c52cefeb2936e2cfd2f ]
 
-The check for infoframe transmit status in hdmi_infoframe_uptodate()
-makes the assumption that packet buffer index is set to zero.
+Make cpufreq_online() return negative error codes on all errors that
+cause the policy to be destroyed, as appropriate.
 
-Align code with specification and explicitly set the index before
-AC_VERB_GET_HDMI_DIP_XMIT. The packet index setting affects both
-DIP-Data and DIP-XmitCtrl verbs.
-
-There are no known cases where the old implementation has caused driver
-to work incorrectly. This change is purely based on code review against
-the specification (HDA spec rev1.0a).
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20201211131613.3271407-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index df4771b9eff24..0faee80e28b66 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -645,11 +645,11 @@ static bool hdmi_infoframe_uptodate(struct hda_codec *codec, hda_nid_t pin_nid,
- 	u8 val;
- 	int i;
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index 194a6587a1de1..1178ac323a9e0 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1384,8 +1384,10 @@ static int cpufreq_online(unsigned int cpu)
  
-+	hdmi_set_dip_index(codec, pin_nid, 0x0, 0x0);
- 	if (snd_hda_codec_read(codec, pin_nid, 0, AC_VERB_GET_HDMI_DIP_XMIT, 0)
- 							    != AC_DIPXMIT_BEST)
- 		return false;
+ 		policy->min_freq_req = kzalloc(2 * sizeof(*policy->min_freq_req),
+ 					       GFP_KERNEL);
+-		if (!policy->min_freq_req)
++		if (!policy->min_freq_req) {
++			ret = -ENOMEM;
+ 			goto out_destroy_policy;
++		}
  
--	hdmi_set_dip_index(codec, pin_nid, 0x0, 0x0);
- 	for (i = 0; i < size; i++) {
- 		val = snd_hda_codec_read(codec, pin_nid, 0,
- 					 AC_VERB_GET_HDMI_DIP_DATA, 0);
+ 		ret = freq_qos_add_request(&policy->constraints,
+ 					   policy->min_freq_req, FREQ_QOS_MIN,
+@@ -1422,6 +1424,7 @@ static int cpufreq_online(unsigned int cpu)
+ 	if (cpufreq_driver->get && has_target()) {
+ 		policy->cur = cpufreq_driver->get(policy->cpu);
+ 		if (!policy->cur) {
++			ret = -EIO;
+ 			pr_err("%s: ->get() failed\n", __func__);
+ 			goto out_destroy_policy;
+ 		}
 -- 
 2.27.0
 
