@@ -2,208 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D77E72E217D
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 21:37:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2D72E21D3
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 22:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728620AbgLWUgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 15:36:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728017AbgLWUgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 15:36:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1753224B1;
-        Wed, 23 Dec 2020 20:35:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1608755751;
-        bh=ZTEqw8A9+kDvoe7tM5JlZgVl8A3JB25JYlfCgSrOB8U=;
-        h=Date:From:To:Subject:From;
-        b=BehgLbSFaoZmJIXkXGewlSwvw0cK+ng4lpNuzKTWSlRcM7HSgRcUiWPgbLxwu0xlR
-         RA6Eak0ajnyoUxo+Vph0dynoztQbYtf7DsOHQdVsNfEcTF99zvFKEgGgALu8tEdNLz
-         658fFlipkf6REa4nUobpg4fJDvS5qldTAwORu680=
-Date:   Wed, 23 Dec 2020 12:35:51 -0800
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        rppt@linux.ibm.com, gopakumarr@vmware.com, david@redhat.com,
-        bhe@redhat.com
-Subject:  + mm-memmap-defer-init-dosnt-work-as-expected.patch added
- to -mm tree
-Message-ID: <20201223203551.8gSau%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1728771AbgLWVAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 16:00:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38238 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726650AbgLWVAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 16:00:16 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1685FC06179C
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 12:59:36 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id g3so290230plp.2
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 12:59:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=w55TC8566sKYPtWmGi+A6OyIeeDMdG/7HtOaxVRMIAE=;
+        b=vvJD5vxxoHQ9VrZECan4DEb0mjwUDoQiWOLMh6YQbE2SND/oS+QJnLdD1pB2GZIlX+
+         Mttf44tGpPjP94chZmqJbbwWe1XNctzY9KQg70rndImjdqF9Pj+xBtPLRQPJ60BCc8Q3
+         qiprZM9PioBpNlhLf7GAM7rby3LRaI3Ik7cbWM89W72iBXsjoHrDbB8wwIVKMCFh1X9I
+         HtnVpKsS4K4mDw+/Vin4CLI36e4HOWEsWjZvB3debG8fwH3iJBJuWpFN6DhM6wdFk+/P
+         Jxe2yb0f+y/JQEy3JJWDDzW6DhOO436H/y0nj2Hdv8JDn8/ULIEK6JMbWn0yYqg2Iebh
+         Be5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=w55TC8566sKYPtWmGi+A6OyIeeDMdG/7HtOaxVRMIAE=;
+        b=E7wWIqsWK8aIFDVyq6IOwMPjavPD4ahoPWd1xGUmhAODNTY1aguzqWghJoAZNHsBLK
+         rqGEReJRfxxUi2MHHUF9RaQx6npkK9VvemaxJhMj7xJQDACqHXMiU6/qq5xzN+W1xkUB
+         XRD7S6jIDaa9rvF87WjXqfKX0IbOg1m9hEM8VRDvDw4SdhQ6P0fS5FF2JrMr8Ay6GsLL
+         6jdAADX46Foyj8Rca35CzRBdX2VT82Wah1+hKqxNXsUD/Kx/whhe85dbrO9P1GTdCF3k
+         uIz+mea7iq7JngDT8+dANT0GysZO1vAhIyrFbr876OfHV1/Oy5v7DR/5hMbDGmrNL00o
+         PQPg==
+X-Gm-Message-State: AOAM531T3esMuzzoZ3WFYBZFjBbmwWTnFuDHQVTDS49oO0Wrsw5p7IAb
+        LmH44uVmiFhc7cSI+rFGsB48+aT4ini25w==
+X-Google-Smtp-Source: ABdhPJwSd8TZm0S6VkqMVbs17h96tjlNOtJRkHiiWwiTRPJ9EDxPIXvYnG+5mishNNp/EWdvVNrmKQ==
+X-Received: by 2002:a17:902:5581:b029:da:a547:b6a6 with SMTP id g1-20020a1709025581b02900daa547b6a6mr26884938pli.78.1608757174542;
+        Wed, 23 Dec 2020 12:59:34 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n28sm24490592pfq.61.2020.12.23.12.59.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 12:59:33 -0800 (PST)
+Message-ID: <5fe3afb5.1c69fb81.f8a3c.2c31@mx.google.com>
+Date:   Wed, 23 Dec 2020 12:59:33 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.212-63-g127b6f13142d
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 145 runs,
+ 5 regressions (v4.14.212-63-g127b6f13142d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.14 baseline: 145 runs, 5 regressions (v4.14.212-63-g127b6=
+f13142d)
 
-The patch titled
-     Subject: mm: memmap defer init dosn't work as expected
-has been added to the -mm tree.  Its filename is
-     mm-memmap-defer-init-dosnt-work-as-expected.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-memmap-defer-init-dosnt-work-as-expected.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memmap-defer-init-dosnt-work-as-expected.patch
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
 
-------------------------------------------------------
-From: Baoquan He <bhe@redhat.com>
-Subject: mm: memmap defer init dosn't work as expected
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
 
-VMware observed a performance regression during memmap init on their
-platform, and bisected to commit 73a6e474cb376 ("mm: memmap_init: iterate
-over memblock regions rather that check each PFN") causing it.
 
-Before the commit:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.212-63-g127b6f13142d/plan/baseline/
 
-  [0.033176] Normal zone: 1445888 pages used for memmap
-  [0.033176] Normal zone: 89391104 pages, LIFO batch:63
-  [0.035851] ACPI: PM-Timer IO Port: 0x448
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.212-63-g127b6f13142d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      127b6f13142dbd49ac0a10684c30e5f4fbfe78c5 =
 
-With commit
 
-  [0.026874] Normal zone: 1445888 pages used for memmap
-  [0.026875] Normal zone: 89391104 pages, LIFO batch:63
-  [2.028450] ACPI: PM-Timer IO Port: 0x448
 
-The root cause is the current memmap defer init doesn't work as expected. 
-Before, memmap_init_zone() was used to do memmap init of one whole zone,
-to initialize all low zones of one numa node, but defer memmap init of the
-last zone in that numa node.  However, since commit 73a6e474cb376,
-function memmap_init() is adapted to iterater over memblock regions inside
-one zone, then call memmap_init_zone() to do memmap init for each region.
+Test Regressions
+---------------- =
 
-E.g, on VMware's system, the memory layout is as below, there are two
-memory regions in node 2.  The current code will mistakenly initialize the
-whole 1st region [mem 0xab00000000-0xfcffffffff], then do memmap defer to
-iniatialize only one memmory section on the 2nd region [mem
-0x10000000000-0x1033fffffff].  In fact, we only expect to see that there's
-only one memory section's memmap initialized.  That's why more time is
-costed at the time.
 
-[    0.008842] ACPI: SRAT: Node 0 PXM 0 [mem 0x00000000-0x0009ffff]
-[    0.008842] ACPI: SRAT: Node 0 PXM 0 [mem 0x00100000-0xbfffffff]
-[    0.008843] ACPI: SRAT: Node 0 PXM 0 [mem 0x100000000-0x55ffffffff]
-[    0.008844] ACPI: SRAT: Node 1 PXM 1 [mem 0x5600000000-0xaaffffffff]
-[    0.008844] ACPI: SRAT: Node 2 PXM 2 [mem 0xab00000000-0xfcffffffff]
-[    0.008845] ACPI: SRAT: Node 2 PXM 2 [mem 0x10000000000-0x1033fffffff]
 
-Now, let's add a parameter 'zone_end_pfn' to memmap_init_zone() to pass
-down the real zone end pfn so that defer_init() can use it to judge
-whether defer need be taken in zone wide.
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
+   | 1          =
 
-Link: https://lkml.kernel.org/r/20201223080811.16211-1-bhe@redhat.com
-Link: https://lkml.kernel.org/r/20201223080811.16211-2-bhe@redhat.com
-Fixes: commit 73a6e474cb376 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reported-by: Rahul Gopakumar <gopakumarr@vmware.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- arch/ia64/mm/init.c |    4 ++--
- include/linux/mm.h  |    5 +++--
- mm/memory_hotplug.c |    2 +-
- mm/page_alloc.c     |    8 +++++---
- 4 files changed, 11 insertions(+), 8 deletions(-)
+  Details:     https://kernelci.org/test/plan/id/5fe392a257deac1240c94ce1
 
---- a/arch/ia64/mm/init.c~mm-memmap-defer-init-dosnt-work-as-expected
-+++ a/arch/ia64/mm/init.c
-@@ -536,7 +536,7 @@ virtual_memmap_init(u64 start, u64 end,
- 
- 	if (map_start < map_end)
- 		memmap_init_zone((unsigned long)(map_end - map_start),
--				 args->nid, args->zone, page_to_pfn(map_start),
-+				 args->nid, args->zone, page_to_pfn(map_start), page_to_pfn(map_end),
- 				 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
- 	return 0;
- }
-@@ -546,7 +546,7 @@ memmap_init (unsigned long size, int nid
- 	     unsigned long start_pfn)
- {
- 	if (!vmem_map) {
--		memmap_init_zone(size, nid, zone, start_pfn,
-+		memmap_init_zone(size, nid, zone, start_pfn, start_pfn + size,
- 				 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
- 	} else {
- 		struct page *start;
---- a/include/linux/mm.h~mm-memmap-defer-init-dosnt-work-as-expected
-+++ a/include/linux/mm.h
-@@ -2432,8 +2432,9 @@ extern int __meminit early_pfn_to_nid(un
- #endif
- 
- extern void set_dma_reserve(unsigned long new_dma_reserve);
--extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
--		enum meminit_context, struct vmem_altmap *, int migratetype);
-+extern void memmap_init_zone(unsigned long, int, unsigned long,
-+		unsigned long, unsigned long, enum meminit_context,
-+		struct vmem_altmap *, int migratetype);
- extern void setup_per_zone_wmarks(void);
- extern int __meminit init_per_zone_wmark_min(void);
- extern void mem_init(void);
---- a/mm/memory_hotplug.c~mm-memmap-defer-init-dosnt-work-as-expected
-+++ a/mm/memory_hotplug.c
-@@ -713,7 +713,7 @@ void __ref move_pfn_range_to_zone(struct
- 	 * expects the zone spans the pfn range. All the pages in the range
- 	 * are reserved so nobody should be touching them so we should be safe
- 	 */
--	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
-+	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn, 0,
- 			 MEMINIT_HOTPLUG, altmap, migratetype);
- 
- 	set_zone_contiguous(zone);
---- a/mm/page_alloc.c~mm-memmap-defer-init-dosnt-work-as-expected
-+++ a/mm/page_alloc.c
-@@ -423,6 +423,8 @@ defer_init(int nid, unsigned long pfn, u
- 	if (end_pfn < pgdat_end_pfn(NODE_DATA(nid)))
- 		return false;
- 
-+	if (NODE_DATA(nid)->first_deferred_pfn != ULONG_MAX)
-+		return true;
- 	/*
- 	 * We start only with one section of pages, more pages are added as
- 	 * needed until the rest of deferred pages are initialized.
-@@ -6116,7 +6118,7 @@ overlap_memmap_init(unsigned long zone,
-  * zone stats (e.g., nr_isolate_pageblock) are touched.
-  */
- void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
--		unsigned long start_pfn,
-+		unsigned long start_pfn, unsigned long zone_end_pfn,
- 		enum meminit_context context,
- 		struct vmem_altmap *altmap, int migratetype)
- {
-@@ -6152,7 +6154,7 @@ void __meminit memmap_init_zone(unsigned
- 		if (context == MEMINIT_EARLY) {
- 			if (overlap_memmap_init(zone, &pfn))
- 				continue;
--			if (defer_init(nid, pfn, end_pfn))
-+			if (defer_init(nid, pfn, zone_end_pfn))
- 				break;
- 		}
- 
-@@ -6266,7 +6268,7 @@ void __meminit __weak memmap_init(unsign
- 
- 		if (end_pfn > start_pfn) {
- 			size = end_pfn - start_pfn;
--			memmap_init_zone(size, nid, zone, start_pfn,
-+			memmap_init_zone(size, nid, zone, start_pfn, range_end_pfn,
- 					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
- 		}
- 	}
-_
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
 
-Patches currently in -mm which might be from bhe@redhat.com are
 
-mm-memmap-defer-init-dosnt-work-as-expected.patch
 
+  * baseline.login: https://kernelci.org/test/case/id/5fe392a257deac1240c94=
+ce2
+        failing since 15 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
+ fail: v4.14.210-20-g5ea7913395d3) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe37b78f0044a719dc94cc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe37b78f0044a719dc94=
+cc9
+        failing since 39 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe37b82b7075d3bb0c94ce2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe37b82b7075d3bb0c94=
+ce3
+        failing since 39 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe37b812c99d1c665c94cc9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe37b812c99d1c665c94=
+cca
+        failing since 39 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+   | regressions
+---------------------+-------+---------------+----------+------------------=
+---+------------
+qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fe37c8cb65b2ef48ac94cd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.212=
+-63-g127b6f13142d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fe37c8cb65b2ef48ac94=
+cd2
+        failing since 39 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
