@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B13D22E149C
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C0E2E1496
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730034AbgLWClY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:41:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51404 "EHLO mail.kernel.org"
+        id S1730112AbgLWClK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:41:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729986AbgLWCXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:23:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2973F2313F;
-        Wed, 23 Dec 2020 02:23:05 +0000 (UTC)
+        id S1728912AbgLWCX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:23:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E49422AAF;
+        Wed, 23 Dec 2020 02:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690185;
-        bh=1Z2xeE+FnzBDMyXOFEAoZYKo8qjmxghSfR+XpgDDBdM=;
+        s=k20201202; t=1608690188;
+        bh=MAJyDIDzl0y0Ea6FEt5VUHOzIfZ9GOV1Yrm1iTEG/mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSAn0E7ztPmpy4rXvbMNfgMscL59mPanSvG7s2YRZXMXeiT1bZClq/i1mWZjUTZAd
-         7fmfP4/ln8GEwK3nK2TsrXadLcNu9fkLn8V9+X1fxmyhvmrOcgpwSaAKIofmi0W33C
-         EtnJHl5j0kfrmQBNnNK6DkvWU8dlcnTivOLMcTU2DCJJ4D40t7CVONxJWN3UuIV1O0
-         J4ZLbfqjw+lx58BypGMrVXoEMUQKw4gAOM/zzasuz0PUu6f2HyyhtLfQ+Z/HU2c973
-         SLYwfukkUUFCy1FoWe4fGtOOT9RwMQ6R4QEVJ+Cpxu+Lt/FzRgNixPNHymqfUYWLn0
-         9bzZLt9wlzg6w==
+        b=etV1GHRk7nmGM/A6yHmSLZUydQXK33Sf0qDEfDHNNE2I/ziTHqWgv/8DZW58M5CJG
+         RhcFwdTtT7M6BMw2wg16li7vIeivRW//qfSognRFhJSjoBF4J7mQfH1UeOsqaQl12i
+         f+53B48KldMlc+zf6oQZaMbUm/sfGMRVj8oq9ENZXaNf+fRuYfyHBteQdz5VL2chnx
+         CY6xwDQhMlGXCUUx6s1KTRM6vIwmzeIz7P77JiKXOSevMp0eUmZL+dMkMLI8dtCh+a
+         LjP++hAu571frMWbgHXW4HKR/A5DGcwx6UEKTCNFb1jFjA9H6W8LjKbK0PZRwW8fDF
+         saunSKBVJ6WFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/66] mips: cm: add missing iounmap() on error in mips_cm_probe()
-Date:   Tue, 22 Dec 2020 21:21:56 -0500
-Message-Id: <20201223022253.2793452-10-sashal@kernel.org>
+Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/66] rcutorture: Prevent hangs for invalid arguments
+Date:   Tue, 22 Dec 2020 21:21:58 -0500
+Message-Id: <20201223022253.2793452-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 References: <20201223022253.2793452-1-sashal@kernel.org>
@@ -42,32 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: "Paul E. McKenney" <paulmck@kernel.org>
 
-[ Upstream commit 2673ecf9586551c5bcee499c1cc1949f6f7cc9a1 ]
+[ Upstream commit 4994684ce10924a0302567c315c91b0a64eeef46 ]
 
-Add the missing iounmap() of iounmap(mips_gcr_base) before
-return from mips_cm_probe() in the error handling case.
+If an rcutorture torture-test run is given a bad kvm.sh argument, the
+test will complain to the console, which is good.  What is bad is that
+from the user's perspective, it will just hang for the time specified
+by the --duration argument.  This commit therefore forces an immediate
+kernel shutdown if a rcu_torture_init()-time error occurs, thus avoiding
+the appearance of a hang.  It also forces a console splat in this case
+to clearly indicate the presence of an error.
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/mips-cm.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/rcu/rcutorture.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
-index 50d3d74001cbe..aedd353b9b925 100644
---- a/arch/mips/kernel/mips-cm.c
-+++ b/arch/mips/kernel/mips-cm.c
-@@ -228,6 +228,7 @@ int mips_cm_probe(void)
- 	if ((base_reg & CM_GCR_BASE_GCRBASE) != addr) {
- 		pr_err("GCRs appear to have been moved (expected them at 0x%08lx)!\n",
- 		       (unsigned long)addr);
-+		iounmap(mips_gcr_base);
- 		mips_gcr_base = NULL;
- 		return -ENODEV;
- 	}
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index f0c599bf4058c..0904caa1b7344 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -1906,6 +1906,10 @@ rcu_torture_init(void)
+ unwind:
+ 	torture_init_end();
+ 	rcu_torture_cleanup();
++	if (shutdown_secs) {
++		WARN_ON(!IS_MODULE(CONFIG_RCU_TORTURE_TEST));
++		kernel_power_off();
++	}
+ 	return firsterr;
+ }
+ 
 -- 
 2.27.0
 
