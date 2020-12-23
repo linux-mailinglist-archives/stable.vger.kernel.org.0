@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 246CB2E1DA4
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A976B2E1DA3
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbgLWO4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 09:56:49 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39877 "EHLO
+        id S1727198AbgLWO4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 09:56:37 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57729 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727215AbgLWO4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 09:56:49 -0500
+        by vger.kernel.org with ESMTP id S1727196AbgLWO4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 09:56:37 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 709BA1E87;
-        Wed, 23 Dec 2020 09:55:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 23 Dec 2020 09:55:43 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id C29431E7B;
+        Wed, 23 Dec 2020 09:55:51 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 23 Dec 2020 09:55:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TxOjwF
-        xtPHDUrX4y+Kdgru0X/aYaBL8rhmi/YbKxFAA=; b=Q+b6keKrDMHrYkysob1Kbo
-        aAUUg9jAyrBODFvHLC91e17N/ZHTyxiBOKK6irEBHNHavvoG50HeMNoq2EUUgmj0
-        L4LwwS20KSsDFG07dkjo7iPCZ6cWfNF0XSlfMq1RE5Md/PnOOq/9Rs9tEqy7tIkx
-        loxW9Hqvsrg/IMB/fGFJ5SEYLtCT1H1Icb8Wg7w/gafLxnXVJ0iF9rtcGWSP8DUi
-        cAgViC/I5BxJt8q0HH6+vp2v7/Oa+JXeyLHCRXbIL0QS4tYMxPDY5zbbZNP25zYM
-        VZPxyKOUGjC5P8qwSNSUshm6RoVVTAWG5Cm9VmRU4ba+ImZk8SEjGLAxkv+Sal4A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MhqnJy
+        OkBgCcU6dbkq3u/ZBYC2zpOeotm2TQeGR1hA0=; b=dmh0Om2zFuxzKJZR70BKzf
+        SxfSpzvbozZwGcNnDU9QpV3UkRtGLRcbtEXKUNMoZR84SXZk0kwbgyK3YtDpgbj6
+        nIQcNbt67BdHwOZWLiCt7+acBqsv+7EXbAn7otXE9Kn7HHO8Kzocj8ajz+HPGw81
+        OcO68jjAFS+xaBc/F1Dt7zXDRNag77SkjyogOxXy2xMfr//KSV21go69lVbOkm6n
+        weljODzKYU5vCuWnQ/cZfaV3ZPiVqmJse+iPU2YVBoiV7Iq15iDbDyzP6kZL5VHg
+        BTcJ0HLig8StjH738owmOyIwx/ErL++9F9jOWUEd8fKNPFOH9J6fhlUtnRWZVe5Q
         ==
-X-ME-Sender: <xms:blrjX_AN2RWlRiKkfIULwMAMqshlHcqlzPk7rFqUTghnw8UO5VkkoA>
-    <xme:blrjX1irJpEiLBuilxQk-ZV0Gr-7Jm1JTFeljCd05jglMNIctK9cHkWf06N2iDiDY
-    EBGYtFknz5s7A>
+X-ME-Sender: <xms:d1rjX2xuHpBdZzqqabhdJrrJQ67c1WW91vEN607KF5IaXVQGqcxcyQ>
+    <xme:d1rjXyQosG-lXpRdl8G_diHmjsdW-7hL7QP6upuEhiUbmlZh62qTPx36Ri7KKUqsD
+    dJ7c4h5qBHREw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddtjedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -37,20 +37,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddtjedgjedtucetufdoteggod
     gheqnecuggftrfgrthhtvghrnhepjedttdeifeejiefgleelfeffudeujeevgffgjeetue
     fgffeuveeftedvtedujeetnecuffhomhgrihhnpehshiiikhgrlhhlvghrrdgrphhpshhp
     ohhtrdgtohhmnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:blrjX6lc6MdRu6rzPr0zsCTF4mPy1gxyhXLUgqU-LLv60NOjhX88fw>
-    <xmx:blrjXxy23h_PoO_xOMpyOghBx1BORdWCHVW367bMNWL1qei3kegvRQ>
-    <xmx:blrjX0R2hA8wKo2-2eTwV4gOP1ughUzKVWD4ufYOczRXYg9AfEoE5Q>
-    <xmx:b1rjX94FO5r-dV4OmPzZH0ZnRJ6rW9ZCu-QKVInSgdkbaGhGPV3BIp9wXKU>
+    epudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:d1rjX4XHoQJK03F6Hy6JQ9IhlqyabLMri6MGIAThcFcX_BbjPRKvsg>
+    <xmx:d1rjX8jdogFYWA1wVnQxQBkRldBhcloG_dvBol4XzI5pEpwxyrgyCA>
+    <xmx:d1rjX4DiPSY_cxbXfLeLfhAiccou_DN791KZ63ttPj_RqWSzDVqGew>
+    <xmx:d1rjXzpwTGvyH6dtza8viupFvvV8snGga0ZsCy9PjQjiGocjfUDdmwabpZ8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2F828108005F;
-        Wed, 23 Dec 2020 09:55:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Bluetooth: Fix slab-out-of-bounds read in" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0E41624005C;
+        Wed, 23 Dec 2020 09:55:50 -0500 (EST)
+Subject: FAILED: patch "[PATCH] Bluetooth: Fix slab-out-of-bounds read in" failed to apply to 4.9-stable tree
 To:     yepeilin.cs@gmail.com, marcel@holtmann.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 23 Dec 2020 15:56:54 +0100
-Message-ID: <160873541418391@kroah.com>
+Message-ID: <160873541466118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
