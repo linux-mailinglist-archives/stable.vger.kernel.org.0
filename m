@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2F82E122B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:21:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A202E122D
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:21:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728725AbgLWCTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
+        id S1728741AbgLWCTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:19:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728722AbgLWCTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:19:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E539622A99;
-        Wed, 23 Dec 2020 02:19:09 +0000 (UTC)
+        id S1728732AbgLWCTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:19:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E5782222D;
+        Wed, 23 Dec 2020 02:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689950;
-        bh=oTkdwe/HtLkDFjopoFjvh7xHmrD822H3xtWYFnLOq6Y=;
+        s=k20201202; t=1608689955;
+        bh=V7rwdwLlU058iCwzKlQQbYplj2Ad9qdqUpMp0PLzKh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpIxK0qjpP2L9iaznp9QrGkKunjToXxvapTw7RDN4Nfl4co4+/q+jKHB83jRIBt7Y
-         uUU60GRLT7eXLzMD5TBSJIME1KyvhKBzcqASLB9MVj3j4blTTXb2ZDmKFuttlJv4+S
-         HEeSgghoQ/tPQu3Cw4+jMpawWYPm5rb3wg2/cILN96Ba4ZFaTJAcHWf2RIfgVtcqwW
-         fjZbxs1BMbbgtW0Ck7rUT/jiThlyWaXEEvIl6psgCfNxWVfNq0fBEEehriDWVjngxO
-         aTfFQiieWYN7QQscBjPPuThFeVwmbJKrtwFmSy9WOrZTz8tXTEuDV4Pul973ZIUQ41
-         6oUO00VBnjH2A==
+        b=UyTH5SGTmUQ6w94sJcJXy5Z50Yk9F5umwpX3E7UCt1s2wjlKYX9UTy5hp9iCYDD69
+         C2XEP+9h91vSAu1S0XtlJ21PsquR2PUpXpQk4Woliva8dhURh8OICuYfcLUjiBkdQ7
+         6/wOz7XNvj9hNhjNemeVx8oYKwoLzh2C78kXoX5XXeNb/DR5L1jrD9hiOOygogDmZ2
+         36GuM+pEHPVZNkKXV06fPO9hdlhIjm7uTaFF9Z0tU54SaTKUON+X3asSg2S9mmWoxZ
+         6BHI+2Xrhbh7qFhY4MT6K+t14KZW77fgdZ2p6/1GkA6CU1RrKcfT4IAbAPYQO/PwUs
+         nF3E8dUM3sirg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 044/130] media: dvbdev: Fix memleak in dvb_register_device
-Date:   Tue, 22 Dec 2020 21:16:47 -0500
-Message-Id: <20201223021813.2791612-44-sashal@kernel.org>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 048/130] MIPS: vdso: Use vma page protection for remapping
+Date:   Tue, 22 Dec 2020 21:16:51 -0500
+Message-Id: <20201223021813.2791612-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,35 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-[ Upstream commit 167faadfcf9339088910e9e85a1b711fcbbef8e9 ]
+[ Upstream commit 724d554a117a0552c2c982f0b5cd1d685274d678 ]
 
-When device_create() fails, dvbdev and dvbdevfops should
-be freed just like when dvb_register_media_device() fails.
+MIPS protection bits are setup during runtime so using defines like
+PAGE_READONLY ignores these runtime changes. To fix this we simply
+use the page protection of the setup vma.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/kernel/vdso.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index 032b6d7dd5821..cfe983e78102f 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -539,6 +539,9 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 	if (IS_ERR(clsdev)) {
- 		pr_err("%s: failed to create device dvb%d.%s%d (%ld)\n",
- 		       __func__, adap->num, dnames[type], id, PTR_ERR(clsdev));
-+		dvb_media_device_free(dvbdev);
-+		kfree(dvbdevfops);
-+		kfree(dvbdev);
- 		return PTR_ERR(clsdev);
+diff --git a/arch/mips/kernel/vdso.c b/arch/mips/kernel/vdso.c
+index bc35f8499111b..cea83d2866e34 100644
+--- a/arch/mips/kernel/vdso.c
++++ b/arch/mips/kernel/vdso.c
+@@ -157,7 +157,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+ 		gic_pfn = virt_to_phys(mips_gic_base + MIPS_GIC_USER_OFS) >> PAGE_SHIFT;
+ 
+ 		ret = io_remap_pfn_range(vma, base, gic_pfn, gic_size,
+-					 pgprot_noncached(PAGE_READONLY));
++					 pgprot_noncached(vma->vm_page_prot));
+ 		if (ret)
+ 			goto out;
  	}
- 	dprintk("DVB: register adapter%d/%s%d @ minor: %i (0x%02x)\n",
+@@ -165,7 +165,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
+ 	/* Map data page. */
+ 	ret = remap_pfn_range(vma, data_addr,
+ 			      virt_to_phys(vdso_data) >> PAGE_SHIFT,
+-			      PAGE_SIZE, PAGE_READONLY);
++			      PAGE_SIZE, vma->vm_page_prot);
+ 	if (ret)
+ 		goto out;
+ 
 -- 
 2.27.0
 
