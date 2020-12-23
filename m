@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299C52E12D7
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E81562E12EC
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728924AbgLWCZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:25:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54312 "EHLO mail.kernel.org"
+        id S1730783AbgLWC0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:26:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729535AbgLWCZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7078D23333;
-        Wed, 23 Dec 2020 02:25:01 +0000 (UTC)
+        id S1730740AbgLWC0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:26:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63ADF225AA;
+        Wed, 23 Dec 2020 02:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690302;
-        bh=tRYjj1tnATnvy2ObahLEndF8reBD0F02HwaULfa6ITU=;
+        s=k20201202; t=1608690324;
+        bh=G0pW6Tne4uGsBAfSZb1u5v6PfwpQsXrFxJQ4jzEB380=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkPra7B5v2utUino4gPdmx14PHSGy3FHse56daOBzP+thPC1Ivx2hwvBG9CUDtFJ+
-         AeOCnnoc0nPA471GfRpOTF+sm7Lt/2F2hN7jiR1nmUrQuzOT7G70OcqqKzC9GkgZdo
-         H+6/y1iVtd9wX3kZIR4648SI11Le9MlqVZVNsbQhOUdrmWIAE3uQkmWT+6qAaoFkis
-         pq0lwBEeQBIKz4YaswhQHwsNJfT8NDWLNlpp23N64UNCwVICqlMl47Ph26iRiriD04
-         DOVxFvav4jf36J+2ip7zKCOV6KS3Zuq2Pdmb837RagVtoV5RJrzs31ylys2T7ona0o
-         tPbTRnTAkGRWw==
+        b=cmk9UbrchzqnUN/JDmPc1JKrDtcmtO2JlmNpJ69znNqvM5qT8gMpaDG9URftCuLd+
+         Jgv3tG+vs9Y44B5BgXqFQz5HmuDKLhUuZU6/y0hrxekwqmCi2ionANAsjjQ1LJik0d
+         QaSqaDI37PmgdobsnIyYdYprqg1lviyc/6/4F7ty+Na671sKTEFs4P7GQKjxF0mA0C
+         gjm6guen8CZnH9bv0RyGreK2CFy/bjSzXwDrFrF7MPAi2D+m0u52dO9VZP7BqDkxqO
+         2Tyn3mdF3SAClEzH5al8ZxucCJi9tIb85hjmqkBh3igMmJrYIOw3soB8qGZrAnZztb
+         2eulm82oIVWwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaohui <ruc_zhangxiaohui@163.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 37/48] mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
-Date:   Tue, 22 Dec 2020 21:24:05 -0500
-Message-Id: <20201223022417.2794032-37-sashal@kernel.org>
+Cc:     yuuzheng <yuuzheng@google.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        Ruksar Devadi <Ruksar.devadi@microchip.com>,
+        Radha Ramachandran <radha@google.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 05/38] scsi: pm80xx: Fix pm8001_mpi_get_nvmd_resp() race condition
+Date:   Tue, 22 Dec 2020 21:24:43 -0500
+Message-Id: <20201223022516.2794471-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223022417.2794032-1-sashal@kernel.org>
-References: <20201223022417.2794032-1-sashal@kernel.org>
+In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
+References: <20201223022516.2794471-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,37 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
+From: yuuzheng <yuuzheng@google.com>
 
-[ Upstream commit 5c455c5ab332773464d02ba17015acdca198f03d ]
+[ Upstream commit 1f889b58716a5f5e3e4fe0e6742c1a4472f29ac1 ]
 
-mwifiex_cmd_802_11_ad_hoc_start() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+A use-after-free or null-pointer error occurs when the 251-byte response
+data is copied from IOMB buffer to response message buffer in function
+pm8001_mpi_get_nvmd_resp().
 
-Signed-off-by: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201206084801.26479-1-ruc_zhangxiaohui@163.com
+After sending the command get_nvmd_data(), the caller begins to sleep by
+calling wait_for_complete() and waits for the wake-up from calling
+complete() in pm8001_mpi_get_nvmd_resp(). Due to unexpected events (e.g.,
+interrupt), if response buffer gets freed before memcpy(), a use-after-free
+error will occur. To fix this, the complete() should be called after
+memcpy().
+
+Link: https://lore.kernel.org/r/20201102165528.26510-5-Viswas.G@microchip.com.com
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: yuuzheng <yuuzheng@google.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Signed-off-by: Ruksar Devadi <Ruksar.devadi@microchip.com>
+Signed-off-by: Radha Ramachandran <radha@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/join.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/pm8001/pm8001_hwi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/join.c b/drivers/net/wireless/marvell/mwifiex/join.c
-index b89596c18b41a..313b5d9fd08ed 100644
---- a/drivers/net/wireless/marvell/mwifiex/join.c
-+++ b/drivers/net/wireless/marvell/mwifiex/join.c
-@@ -877,6 +877,8 @@ mwifiex_cmd_802_11_ad_hoc_start(struct mwifiex_private *priv,
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index b3490b4a046a2..d431efb300b6f 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3196,10 +3196,15 @@ pm8001_mpi_get_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 		pm8001_ha->memoryMap.region[NVMD].virt_ptr,
+ 		fw_control_context->len);
+ 	kfree(ccb->fw_control_context);
++	/* To avoid race condition, complete should be
++	 * called after the message is copied to
++	 * fw_control_context->usrAddr
++	 */
++	complete(pm8001_ha->nvmd_completion);
++	PM8001_MSG_DBG(pm8001_ha, pm8001_printk("Set nvm data complete!\n"));
+ 	ccb->task = NULL;
+ 	ccb->ccb_tag = 0xFFFFFFFF;
+ 	pm8001_tag_free(pm8001_ha, tag);
+-	complete(pm8001_ha->nvmd_completion);
+ }
  
- 	memset(adhoc_start->ssid, 0, IEEE80211_MAX_SSID_LEN);
- 
-+	if (req_ssid->ssid_len > IEEE80211_MAX_SSID_LEN)
-+		req_ssid->ssid_len = IEEE80211_MAX_SSID_LEN;
- 	memcpy(adhoc_start->ssid, req_ssid->ssid, req_ssid->ssid_len);
- 
- 	mwifiex_dbg(adapter, INFO, "info: ADHOC_S_CMD: SSID = %s\n",
+ int pm8001_mpi_local_phy_ctl(struct pm8001_hba_info *pm8001_ha, void *piomb)
 -- 
 2.27.0
 
