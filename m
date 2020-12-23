@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1030F2E1221
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDBF2E1222
 	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbgLWCTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:19:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
+        id S1728577AbgLWCTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:19:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728520AbgLWCTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728560AbgLWCTT (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:19:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C06E52313F;
-        Wed, 23 Dec 2020 02:18:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D595423331;
+        Wed, 23 Dec 2020 02:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689915;
-        bh=b6cgy4nxUBBV3LxGk89o8QHFcm84B1/gituP4rGZFoM=;
+        s=k20201202; t=1608689916;
+        bh=saxJV46MuKRNndViJBgAO/+pmg7QGSYPkXKtESLKSLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKl5uUqQ98qVKqPcmmWzN6v2jGwCdHeRGBNb3ckNtOR9nQA9hvNumw9ezUF0jLJTz
-         cILaB/QPPbLY7B3eRyM88iyidpkdjllTTc8TFQ3aRxw/U1rMOg2bjJTXegR1dT/i2i
-         Rj7ZaXWMfGs9I62NtcMtFXEvkXCu88Lv6iFNUNxE7sDxfG4eHdIXcvyy/YlUmd3vvL
-         jnRYuL0yW86SUo6LeYOdk7DrKLb5/mfIWkMbyBnI00/Lu9pNsldjew9RQkpzLtvc+y
-         lF8um6gEHxbcGed2hjX0R4GTl7dxwm68BAI1gUhT0X2WjL+VQMd1sOVzvDL+y7/HjR
-         XtGIXWnX4Ca4A==
+        b=bWlSi0aCxjGglcwvMuYEk2vbbPT4EdUY18iHKrlp/gtqmDRCorqKN6deqqyoobsO7
+         AbRnJ0B3XHseoKxLxbBK/ucQQAK4t/KoYQy4fbY6btvcBWrrjnNpSwznQrFrPW1qzT
+         cZyqwdSk1sCUqUc2fpBcgIBhVbcVJ5p9u/VcEPVSoKvB66tNDeh6Chw27hkMg7tqYN
+         SdG7SLzl9I37ZHq7Ya2zvghCEbSMJ1bsMn9UFx3JVO7WKMP50oSzswYAqIcX26VCcp
+         nbDuXOt69IwkTpb8AhDEs1MXiTPKCYY4Y40wtXU5UlN3v2kIgDAmNTml1VXZdUnQBX
+         KRbAt/8igxTzQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 016/130] staging: ks7010: fix missing destroy_workqueue() on error in ks7010_sdio_probe
-Date:   Tue, 22 Dec 2020 21:16:19 -0500
-Message-Id: <20201223021813.2791612-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 017/130] staging: rtl8192u: fix wrong judgement in rtl8192_rx_isr
+Date:   Tue, 22 Dec 2020 21:16:20 -0500
+Message-Id: <20201223021813.2791612-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -42,39 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit d1e7550ad081fa5e9260f636dd51e1c496e0fd5f ]
+[ Upstream commit 071dc1787a2f8bb636f864c1f306280deea3b1d5 ]
 
-Add the missing destroy_workqueue() before return from
-ks7010_sdio_probe in the error handling case.
+The 'EPERM' cannot appear in the previous path, we
+should use '-EPERM' to check it. For example:
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201028091552.136445-1-miaoqinglang@huawei.com
+Call trace:
+->rtl8192_rx_isr
+    ->usb_submit_urb
+       ->usb_hcd_submit_urb
+           ->rh_urb_enqueue
+	       ->rh_queue_status
+	           ->usb_hcd_link_urb_to_ep
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201028122648.47959-1-zhangqilong3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/ks7010/ks7010_sdio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8192u/r8192U_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/ks7010/ks7010_sdio.c b/drivers/staging/ks7010/ks7010_sdio.c
-index 4b379542ecd50..bd864f9ce37ac 100644
---- a/drivers/staging/ks7010/ks7010_sdio.c
-+++ b/drivers/staging/ks7010/ks7010_sdio.c
-@@ -1028,10 +1028,12 @@ static int ks7010_sdio_probe(struct sdio_func *func,
- 
- 	ret = register_netdev(priv->net_dev);
- 	if (ret)
--		goto err_free_netdev;
-+		goto err_destroy_wq;
- 
- 	return 0;
- 
-+ err_destroy_wq:
-+	destroy_workqueue(priv->wq);
-  err_free_netdev:
- 	free_netdev(netdev);
-  err_release_irq:
+diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
+index ddc09616248a5..56655a0b16906 100644
+--- a/drivers/staging/rtl8192u/r8192U_core.c
++++ b/drivers/staging/rtl8192u/r8192U_core.c
+@@ -883,7 +883,7 @@ static void rtl8192_rx_isr(struct urb *urb)
+ 	urb->context = skb;
+ 	skb_queue_tail(&priv->rx_queue, skb);
+ 	err = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (err && err != EPERM)
++	if (err && err != -EPERM)
+ 		netdev_err(dev,
+ 			   "can not submit rxurb, err is %x, URB status is %x\n",
+ 			   err, urb->status);
 -- 
 2.27.0
 
