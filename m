@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCD02E1754
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 691B42E1755
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731555AbgLWDJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728151AbgLWDJE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 22 Dec 2020 22:09:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgLWCSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728206AbgLWCSj (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:18:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAB61235FC;
-        Wed, 23 Dec 2020 02:17:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4E12337F;
+        Wed, 23 Dec 2020 02:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689848;
-        bh=+oTNF5/Utx8g2fNfRfaYf4tn4M5sAI5Q0Ny93PZo7k4=;
+        s=k20201202; t=1608689850;
+        bh=vtedTUleFBXNCwzg4s3bdonFwhcKHWAbDQIhK5MwOZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRLtPrF9CHOrvz/ziUXJgRj0LLmTGxLcFl1ENW6D8M31EtmUOVOMI7Mdy0w5Z3yEe
-         gXksBXNsBQNkLUfkGRA7yBxTpw0CDDmOwf9DjhFc4ylUQ+DfiC4zPKU3dFUlgbEous
-         YkmmeNPPbt5S54sN5f66SHctNCGoUanOARNpt4brGGogHLabdY80taWDtHWZ/fpedk
-         s1u08uLCmgNQjm0yJ2MJFEAe6ysRbgM80xyBEnO2VnXrLF1bCKRbJgBQHX62EmPU6w
-         zd3uUN60NfWB66EnZcuXijy0tgvfoXsz2HNEe5gjmJ3ra1T5OYf4WiuNMlCZB9pH7c
-         KaNL8yutwv1pw==
+        b=DZhEERGS4tySGq/PJVDs8oO8H+YJRhCQ1j3wi0cvE0xLvUplQFNOQ2ZVNI/P63JPn
+         ll0Jziby4jdayXARGoBi4FI+t0atDpgB0M2VKOufP+vhD5XHfzg883wSC84AaMoj0e
+         tB/eCz3++Jpf71H2WleEzmqQ8MI81V/A4mJKVCpyL4SxLdX7X+MasWNXoUjL3q0c+3
+         EgXo5nNQoSVbTong/Q6htMenQd/sHaCvo6Z7UHEPYERmWzYjOs0c44MnbiUqhmpPBk
+         uWk6WNkWfyZbgBI1EIibfzwPk6cj56BBILw+DnqrlvY24AwI094nyeHrHEYAdLccO5
+         PF3Y9AjqdxmjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Elver <elver@google.com>, Boqun Feng <boqun.feng@gmail.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 048/217] kcsan: Fix encoding masks and regain address bit
-Date:   Tue, 22 Dec 2020 21:13:37 -0500
-Message-Id: <20201223021626.2790791-48-sashal@kernel.org>
+Cc:     Tamizh Chelvam <tamizhr@codeaurora.org>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 049/217] ath10k: fix compilation warning
+Date:   Tue, 22 Dec 2020 21:13:38 -0500
+Message-Id: <20201223021626.2790791-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -42,65 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Tamizh Chelvam <tamizhr@codeaurora.org>
 
-[ Upstream commit 1d094cefc37e5ed4dec44a41841c8628f6b548a2 ]
+[ Upstream commit b9162645117841978a3fb31546409271e007dd28 ]
 
-The watchpoint encoding masks for size and address were off-by-one bit
-each, with the size mask using 1 unnecessary bit and the address mask
-missing 1 bit. However, due to the way the size is shifted into the
-encoded watchpoint, we were effectively wasting and never using the
-extra bit.
+This change fixes below compilation warning.
 
-For example, on x86 with PAGE_SIZE==4K, we have 1 bit for the is-write
-bit, 14 bits for the size bits, and then 49 bits left for the address.
-Prior to this fix we would end up with this usage:
+smatch warnings:
+ drivers/net/wireless/ath/ath10k/mac.c:9125 ath10k_mac_op_set_tid_config() error: uninitialized symbol 'ret'.
 
-	[ write<1> | size<14> | wasted<1> | address<48> ]
+No functional changes. Compile tested only.
 
-Fix it by subtracting 1 bit from the GENMASK() end and start ranges of
-size and address respectively. The added static_assert()s verify that
-the masks are as expected. With the fixed version, we get the expected
-usage:
-
-	[ write<1> | size<14> |             address<49> ]
-
-Functionally no change is expected, since that extra address bit is
-insignificant for enabled architectures.
-
-Acked-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Tamizh Chelvam <tamizhr@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1604507837-29361-1-git-send-email-tamizhr@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/encoding.h | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/kcsan/encoding.h b/kernel/kcsan/encoding.h
-index 1a6db2f797ac4..1a9393f789568 100644
---- a/kernel/kcsan/encoding.h
-+++ b/kernel/kcsan/encoding.h
-@@ -37,14 +37,12 @@
-  */
- #define WATCHPOINT_ADDR_BITS (BITS_PER_LONG-1 - WATCHPOINT_SIZE_BITS)
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 2e3eb5bbe49c8..d62b9edd60666 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -9169,10 +9169,11 @@ static int ath10k_mac_op_set_tid_config(struct ieee80211_hw *hw,
+ 			goto exit;
+ 	}
  
--/*
-- * Masks to set/retrieve the encoded data.
-- */
--#define WATCHPOINT_WRITE_MASK BIT(BITS_PER_LONG-1)
--#define WATCHPOINT_SIZE_MASK                                                   \
--	GENMASK(BITS_PER_LONG-2, BITS_PER_LONG-2 - WATCHPOINT_SIZE_BITS)
--#define WATCHPOINT_ADDR_MASK                                                   \
--	GENMASK(BITS_PER_LONG-3 - WATCHPOINT_SIZE_BITS, 0)
-+/* Bitmasks for the encoded watchpoint access information. */
-+#define WATCHPOINT_WRITE_MASK	BIT(BITS_PER_LONG-1)
-+#define WATCHPOINT_SIZE_MASK	GENMASK(BITS_PER_LONG-2, WATCHPOINT_ADDR_BITS)
-+#define WATCHPOINT_ADDR_MASK	GENMASK(WATCHPOINT_ADDR_BITS-1, 0)
-+static_assert(WATCHPOINT_ADDR_MASK == (1UL << WATCHPOINT_ADDR_BITS) - 1);
-+static_assert((WATCHPOINT_WRITE_MASK ^ WATCHPOINT_SIZE_MASK ^ WATCHPOINT_ADDR_MASK) == ~0UL);
++	ret = 0;
++
+ 	if (sta)
+ 		goto exit;
  
- static inline bool check_encodable(unsigned long addr, size_t size)
- {
+-	ret = 0;
+ 	arvif->tids_rst = 0;
+ 	data.curr_vif = vif;
+ 	data.ar = ar;
 -- 
 2.27.0
 
