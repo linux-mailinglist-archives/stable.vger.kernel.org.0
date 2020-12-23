@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EC62E14DA
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CC12E14B7
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728835AbgLWCo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:44:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50890 "EHLO mail.kernel.org"
+        id S1729299AbgLWCmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:42:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728267AbgLWCWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E1E22AAF;
-        Wed, 23 Dec 2020 02:22:28 +0000 (UTC)
+        id S1729925AbgLWCXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:23:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DD6B225AC;
+        Wed, 23 Dec 2020 02:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690148;
-        bh=rcEd9V3PmUOto2lFO7lVARuSSzqF2uoUe7iAxMdSA/U=;
+        s=k20201202; t=1608690150;
+        bh=R6ZeVybNUX6QVZA/bcPPYYJ+ypcizOxxPnfogTVUV7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfqOsb7hvvMtjSzHfGDQVWXchtlXJRsYJk31lUKdltazhQmh7Ss+lx66/uoN/6QO5
-         bTnq4pAv0t8GM28jNng/fyMvgU0j4wBSArxufKnxvhlLLYNSkwrONESVTS/FaOU2SY
-         yKwZ7uO14WWBmdwO3F+vWTk0flszCVQ3y3LjwjG2CXpJs3DIVuewCrq1Jqnj677Np7
-         6HItfhwJemazSD7O3s8wq9+OPYx519RZm9vfeKuWgBA0rYCkD/6qxkzpIi5JM5M99b
-         zhbhPNEayHe95JiyC3k9aOMfxJRAEoL1RLLH0o1hkYUnbA24zjMSbEcuPw1x8z9E5v
-         I+rkTY6/ibGpg==
+        b=XMpBg2ZSTYboKqMYj1p26DJok0+rPaV9KSSeq/RC0PIWKUrbdw30Tu4Tl6BocZMnm
+         uED5B+4bItaGqfgtbupGKSYu+u+OwS5jf8ABMb5NZoGEnCd5QbsuNzXGDM0Nn4vYjg
+         NAj1h1eQmWb8G/hB8IDrgWLGI+vB78m6ACzdaDnVnTk1uFjt/5vOXJ8ja/1n/h++Vf
+         P3NRGEMN8mshBsaaSbeC3CAKi49IfRgxtwuD54OEjivk/oCKKLbhsAWEbaMkwRBoSP
+         tfgKQ296RGgYR/29+tkVPLikUptLiT0WYKFBVt1JxiPv0IfnpXHJQBSjayOUdn5baV
+         B0EhGO4XWrHmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 69/87] btrfs: fix race leading to unnecessary transaction commit when logging inode
-Date:   Tue, 22 Dec 2020 21:20:45 -0500
-Message-Id: <20201223022103.2792705-69-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        "Rafael . J . Wysocki" <rafael@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 70/87] driver core: Reorder devices on successful probe
+Date:   Tue, 22 Dec 2020 21:20:46 -0500
+Message-Id: <20201223022103.2792705-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -41,126 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 639bd575b7c7fa326abadd2ef3e374a5a24eb40b ]
+[ Upstream commit 5b6164d3465fcc13b5679c860c452963443172a7 ]
 
-When logging an inode we may often have to fallback to a full transaction
-commit, either because a new block group was allocated, there is some case
-we can not deal with without a transaction commit or some error like an
-ENOMEM happened. However after we fallback to a transaction commit, we
-have a time window where we can make the next attempt to log any inode
-commit the next transaction unnecessarily, adding additional overhead and
-increasing latency.
+Device drivers usually depend on the fact that the devices that they
+control are suspended in the same order that they were probed in. In
+most cases this is already guaranteed via deferred probe.
 
-A sequence of steps that leads to this issue is the following:
+However, there's one case where this can still break: if a device is
+instantiated before a dependency (for example if it appears before the
+dependency in device tree) but gets probed only after the dependency is
+probed. Instantiation order would cause the dependency to get probed
+later, in which case probe of the original device would be deferred and
+the suspend/resume queue would get reordered properly. However, if the
+dependency is provided by a built-in driver and the device depending on
+that driver is controlled by a loadable module, which may only get
+loaded after the root filesystem has become available, we can be faced
+with a situation where the probe order ends up being different from the
+suspend/resume order.
 
-1) The current open transaction has a generation of 1000;
+One example where this happens is on Tegra186, where the ACONNECT is
+listed very early in device tree (sorted by unit-address) and depends on
+BPMP (listed very late because it has no unit-address) for power domains
+and clocks/resets. If the ACONNECT driver is built-in, there is no
+problem because it will be probed before BPMP, causing a probe deferral
+and that in turn reorders the suspend/resume queue. However, if built as
+a module, it will end up being probed after BPMP, and therefore not
+result in a probe deferral, and therefore the suspend/resume queue will
+stay in the instantiation order. This in turn causes problems because
+ACONNECT will be resumed before BPMP, which will result in a hang
+because the ACONNECT's power domain cannot be powered on as long as the
+BPMP is still suspended.
 
-2) A new block group is allocated, and as a consequence we must make sure
-   any attempts to commit a log fallback to a transaction commit, so
-   btrfs_set_log_full_commit() is called from btrfs_make_block_group().
-   This sets fs_info->last_trans_log_full_commit to 1000;
+Fix this by always reordering devices on successful probe. This ensures
+that the suspend/resume queue is always in probe order and hence meets
+the natural expectations of drivers vs. their dependencies.
 
-3) Task A is holding a handle on transaction 1000 and tries to log inode X.
-   Once it gets to start_log_trans(), it calls btrfs_need_log_full_commit()
-   which returns true, since fs_info->last_trans_log_full_commit has a
-   value of 1000. So we end up returning EAGAIN and propagating it up to
-   btrfs_sync_file(), where we commit transaction 1000;
-
-4) The transaction commit task (task A) sets the transaction state to
-   unblocked (TRANS_STATE_UNBLOCKED);
-
-5) Some other task, task B, starts a new transaction with a generation of
-   1001;
-
-6) Some stuff is done with transaction 1001, some btree blocks COWed, etc;
-
-7) Transaction 1000 has not fully committed yet, we are still writing all
-   the extent buffers it created;
-
-8) Some new task, task C, starts an fsync of inode Y, gets a handle for
-   transaction 1001, and it gets to btrfs_log_inode_parent() which does
-   the following check:
-
-     if (fs_info->last_trans_log_full_commit > last_committed) {
-         ret = 1;
-         goto end_no_trans;
-     }
-
-   At that point last_trans_log_full_commit has a value of 1000 and
-   last_committed (value of fs_info->last_trans_committed) has a value of
-   999, since transaction 1000 has not yet committed - it is either still
-   writing out dirty extent buffers, its super blocks or unpinning
-   extents.
-
-   As a consequence we return 1, which gets propagated up to
-   btrfs_sync_file(), which will then call btrfs_commit_transaction()
-   for transaction 1001.
-
-   As a consequence we have an unnecessary second transaction commit, we
-   previously committed transaction 1000 and now commit transaction 1001
-   as well, resulting in more overhead and increased latency.
-
-So fix this double transaction commit issue simply by removing that check,
-because all we need to do is wait for the previous transaction to finish
-its commit, which we already do later when starting the log transaction at
-start_log_trans(), because there we acquire the tree_log_mutex lock, which
-is held by a transaction commit and only released after the transaction
-commits its super blocks.
-
-Another issue that check has is that it reads last_trans_log_full_commit
-without using READ_ONCE(), which is incorrect since that member of
-struct btrfs_fs_info is always updated with WRITE_ONCE() through the
-helper btrfs_set_log_full_commit().
-
-This double transaction commit issue can actually be triggered quite often
-in long runs of dbench, since besides the creation of new block groups
-that force inode logging to fallback to a transaction commit, there are
-cases where dbench asks to fsync a directory which had files in it that
-were previously renamed or subdirectories that were removed, resulting in
-the inode logging to fallback to a full transaction commit.
-
-This patch belongs to a patch set that is comprised of the following
-patches:
-
-  btrfs: fix race causing unnecessary inode logging during link and rename
-  btrfs: fix race that results in logging old extents during a fast fsync
-  btrfs: fix race that causes unnecessary logging of ancestor inodes
-  btrfs: fix race that makes inode logging fallback to transaction commit
-  btrfs: fix race leading to unnecessary transaction commit when logging inode
-  btrfs: do not block inode logging for so long during transaction commit
-
-Performance results are mentioned in the change log of the last patch.
-
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+Acked-by: Rafael. J. Wysocki <rafael@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20201203175756.1405564-1-thierry.reding@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/base/dd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 7b940264c7b9d..865e1e6bf3d9a 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5616,16 +5616,6 @@ static int btrfs_log_inode_parent(struct btrfs_trans_handle *trans,
- 		goto end_no_trans;
- 	}
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 4ba9231a6be80..bbb2f72819184 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -334,6 +334,13 @@ static void driver_bound(struct device *dev)
  
--	/*
--	 * The prev transaction commit doesn't complete, we need do
--	 * full commit by ourselves.
--	 */
--	if (fs_info->last_trans_log_full_commit >
--	    fs_info->last_trans_committed) {
--		ret = 1;
--		goto end_no_trans;
--	}
--
- 	if (btrfs_root_refs(&root->root_item) == 0) {
- 		ret = 1;
- 		goto end_no_trans;
+ 	device_pm_check_callbacks(dev);
+ 
++	/*
++	 * Reorder successfully probed devices to the end of the device list.
++	 * This ensures that suspend/resume order matches probe order, which
++	 * is usually what drivers rely on.
++	 */
++	device_pm_move_to_tail(dev);
++
+ 	/*
+ 	 * Make sure the device is no longer in one of the deferred lists and
+ 	 * kick off retrying all pending devices
 -- 
 2.27.0
 
