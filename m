@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 963642E15C4
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B35862E1550
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730056AbgLWCxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:53:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50010 "EHLO mail.kernel.org"
+        id S1729116AbgLWCUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:20:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729256AbgLWCVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:21:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27AE22333F;
-        Wed, 23 Dec 2020 02:20:33 +0000 (UTC)
+        id S1729108AbgLWCUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 755A823159;
+        Wed, 23 Dec 2020 02:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690034;
-        bh=YeXqw5xi1gALHucOZiATwzeu2KtvzLknT2hatzq7bZI=;
+        s=k20201202; t=1608690035;
+        bh=Mkb77UdVz/5p1f8UEjjbVmNsg1UaKH/m8P8zqp2BlQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkHJZ8gxzlazvdp4BI+7vmN7wjbEsZrDT+bZfoUkPrtQJecMU7Zz9Keirgxul7D6H
-         tROLPPeWCNPZAybz2Xh7JCgiqQdyWRYnHNQnMFN4JqfJONVe/So4BUsZd2vhYlBbAn
-         p8dNybUauqy66yjomOyCIryf3OomNCPGs6WZYIe7bw3B9yKaXXCMBiZRVFfOTaGT+G
-         aIJFWgGIKzSuPwFxtXpL4oiObmJ5mMttERJEWVS1/4bA8fgD8NzU3cb+Qe6L105tCf
-         WL3fFXuqV7uAWAwvLSftq1CrODfoRtLbk7s80tCtcpdB2ZXknmMSwnmueH+QQ8Sb8m
-         0vBzH2hCyldsA==
+        b=M0o4CtxZk8oHhMjVoUhdeKLdkBC+jh0rIXIh03INyqGMi6bIQJs2/U00z/42sJRD5
+         8t5F94ovA+M+l5NuweH7VSbh6uZBBr1PFrMqOmiVgG4c6nHrYrD/+Mj78/PC+wr6Cl
+         nt41SNNNdF339Bje60PNWqK7aLbq+YVUNXryPNPGfb7Gxlil49e/SVaJF27P5M/pqL
+         jFAcG/Nc74GEU0Ul+8foRcjP1CohUP+IagGsp7e68LP7Y36hsIw/B3t7XGUtaKvSVL
+         mFZ0t8eiVoEjwDQ8/hNMGWBAdLQXkKtMHwCHChk3ptPPb8QCktlVYWW73pKOadk6zP
+         O9R/Klodu44WA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johannes Berg <johannes.berg@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 109/130] iwlwifi: mvm: fix 22000 series driver NMI
-Date:   Tue, 22 Dec 2020 21:17:52 -0500
-Message-Id: <20201223021813.2791612-109-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 110/130] iwlwifi: trans: consider firmware dead after errors
+Date:   Tue, 22 Dec 2020 21:17:53 -0500
+Message-Id: <20201223021813.2791612-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -45,52 +45,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 9e8338ad17eb8976edd5d2def516e4b3346a4470 ]
+[ Upstream commit 152fdc0f698896708f9d7889a4ba4da6944b74f7 ]
 
-For triggering an NMI in the firmware, we should only set BIT(24)
-in the corresponding register, not the entire mask that's usable
-by the driver.
-
-This currently doesn't matter because the firmware only enables
-BIT(24), but we'll start using BIT(25) for other purposes with an
-upcoming API change.
+If we get an error, no longer consider the firmware to be
+in IWL_TRANS_FW_ALIVE state.
 
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201209231352.2f982365d085.Id09daabfd331ba9e120abcbbedd2ad6448902ed0@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20201209231352.a9d01e79c1c7.Ib2deb076b392fb516a7230bac91d7ab8a9586d86@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-io.c   | 2 +-
- drivers/net/wireless/intel/iwlwifi/iwl-prph.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-trans.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-io.c b/drivers/net/wireless/intel/iwlwifi/iwl-io.c
-index 1b7414bf7bef2..2144c1f745337 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-io.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-io.c
-@@ -309,7 +309,7 @@ void iwl_force_nmi(struct iwl_trans *trans)
- 			       DEVICE_SET_NMI_VAL_DRV);
- 	else if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210)
- 		iwl_write_umac_prph(trans, UREG_NIC_SET_NMI_DRIVER,
--				UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER_MSK);
-+				UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER);
- 	else
- 		iwl_write_umac_prph(trans, UREG_DOORBELL_TO_ISR6,
- 				    UREG_DOORBELL_TO_ISR6_NMI_BIT);
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-index 23c25a7665f27..80b3fca8f2328 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-@@ -111,7 +111,7 @@
- #define DEVICE_SET_NMI_VAL_DRV BIT(7)
- /* Device NMI register and value for 9000 family and above hw's */
- #define UREG_NIC_SET_NMI_DRIVER 0x00a05c10
--#define UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER_MSK 0xff000000
-+#define UREG_NIC_SET_NMI_DRIVER_NMI_FROM_DRIVER BIT(24)
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
+index 1e85d59b91613..b31bb56ca6591 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
+@@ -1230,8 +1230,10 @@ static inline void iwl_trans_fw_error(struct iwl_trans *trans)
+ 		return;
  
- /* Shared registers (0x0..0x3ff, via target indirect or periphery */
- #define SHR_BASE	0x00a10000
+ 	/* prevent double restarts due to the same erroneous FW */
+-	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status))
++	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status)) {
+ 		iwl_op_mode_nic_error(trans->op_mode);
++		trans->state = IWL_TRANS_NO_FW;
++	}
+ }
+ 
+ static inline void iwl_trans_sync_nmi(struct iwl_trans *trans)
 -- 
 2.27.0
 
