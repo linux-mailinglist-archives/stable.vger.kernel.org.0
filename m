@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED112E13BA
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8903F2E1339
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730274AbgLWCd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:33:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
+        id S1730358AbgLWCZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729261AbgLWCY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:24:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C25792222D;
-        Wed, 23 Dec 2020 02:24:42 +0000 (UTC)
+        id S1730351AbgLWCZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:25:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0134C22248;
+        Wed, 23 Dec 2020 02:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690283;
-        bh=ZVKz6YYdYlSmUSkdGxVvR4U/1tFvgjIlZOECnL+jpz8=;
+        s=k20201202; t=1608690284;
+        bh=dFcys3ZL5MvO2jIt6slZwoRGePr4D8Y6S3Ao4OJr5K0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYsrdNEziAqp79Vaxv/Ix9pogI5rFzcY0JyBbG71T8GZtdqcoF/o+6vmUM2B833dw
-         cqiVR3dFtBHD21HVTJc4wP83w2tBGv7yhqTP+p+FB/+Apz4eVKlQLiRPI53TN0P178
-         01fpb6xJohFMABXFY8oAALWiR2Wgwh4XOIsxGrtUJ/XXhNPjzsX7kKWp3uIyQGoQEe
-         ViTxSBYpvBhiiF/2LT4I7kn6h6XTrGDAQ63aFQvHI6zAePt/R1rfN63D6sdAQ8ichy
-         wM3844fxzSGw92xHT5qQ7WN1qlPokiG5DcvJYGn810DHPLrU03Y3XwycKEj5+Ts/Ra
-         rqZvykV2cVgAw==
+        b=T+4cbDXZA+c2Ic3pJwKGfDachglIZ4iK4/pAoTXkXGxdUtc5QsbymCEFhW7PAEsnB
+         XCTzX5gSeE6bGx5khPDQGXwK3dqQyfICF9+ilt+0MGpzbsEd1vGSfSJYxOzZEYsnZs
+         6DKkJPPxO4H7ITdV4Y/2gJplT+iBzSfPVb9UGb2JjCRZ6Q+sKMtouKjHBj9DBqwPQe
+         mmQSPeZplkeXnB3wnGX46dvRFW9TdoZZFLj32X8Pn2aY+6ZJdJerr8qBRXKOasJD50
+         F9WLKNabxTXT7+T8122kWgSWvbdzZ+3zqGbbzggYKXrakyW4ms6lhIosB/RiWB2B/n
+         COIiSdlTq0Fbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Keith Milner <kamilner@superlative.org>,
-        Dylan Robinson <dylan_robinson@motu.com>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 22/48] ALSA: usb-audio: Don't call usb_set_interface() at trigger callback
-Date:   Tue, 22 Dec 2020 21:23:50 -0500
-Message-Id: <20201223022417.2794032-22-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
+        keyrings@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 23/48] rxrpc: Don't leak the service-side session key to userspace
+Date:   Tue, 22 Dec 2020 21:23:51 -0500
+Message-Id: <20201223022417.2794032-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022417.2794032-1-sashal@kernel.org>
 References: <20201223022417.2794032-1-sashal@kernel.org>
@@ -43,73 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 4974b7950929e4a28d4eaee48e4ad07f168ac132 ]
+[ Upstream commit d2ae4e918218f543214fbd906db68a6c580efbbb ]
 
-The PCM trigger callback is atomic, hence we must not call a function
-like usb_set_interface() there.  Calling it from there would lead to a
-kernel Oops.
+Don't let someone reading a service-side rxrpc-type key get access to the
+session key that was exchanged with the client.  The server application
+will, at some point, need to be able to read the information in the ticket,
+but this probably shouldn't include the key material.
 
-Fix it by moving the usb_set_interface() call to set_sync_endpoint().
-
-Also, apply the snd_usb_set_interface_quirk() for consistency, too.
-
-Tested-by: Keith Milner <kamilner@superlative.org>
-Tested-by: Dylan Robinson <dylan_robinson@motu.com>
-Link: https://lore.kernel.org/r/20201123085347.19667-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ include/keys/rxrpc-type.h | 1 +
+ net/rxrpc/key.c           | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 95d02e25a3133..77c704847e4ac 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -242,21 +242,6 @@ static int start_endpoints(struct snd_usb_substream *subs)
- 	    !test_and_set_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags)) {
- 		struct snd_usb_endpoint *ep = subs->sync_endpoint;
+diff --git a/include/keys/rxrpc-type.h b/include/keys/rxrpc-type.h
+index 5de0673f333b7..865629c5484f5 100644
+--- a/include/keys/rxrpc-type.h
++++ b/include/keys/rxrpc-type.h
+@@ -88,6 +88,7 @@ struct rxk5_key {
+  */
+ struct rxrpc_key_token {
+ 	u16	security_index;		/* RxRPC header security index */
++	bool	no_leak_key;		/* Don't copy the key to userspace */
+ 	struct rxrpc_key_token *next;	/* the next token in the list */
+ 	union {
+ 		struct rxkad_key *kad;
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index fa475b02bdceb..beb30cca5a4b9 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1071,7 +1071,8 @@ static long rxrpc_read(const struct key *key,
+ 		case RXRPC_SECURITY_RXKAD:
+ 			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
+ 						 * end, primary, tktlen */
+-			toksize += RND(token->kad->ticket_len);
++			if (!token->no_leak_key)
++				toksize += RND(token->kad->ticket_len);
+ 			break;
  
--		if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
--		    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
--			err = usb_set_interface(subs->dev,
--						subs->sync_endpoint->iface,
--						subs->sync_endpoint->altsetting);
--			if (err < 0) {
--				clear_bit(SUBSTREAM_FLAG_SYNC_EP_STARTED, &subs->flags);
--				dev_err(&subs->dev->dev,
--					   "%d:%d: cannot set interface (%d)\n",
--					   subs->sync_endpoint->iface,
--					   subs->sync_endpoint->altsetting, err);
--				return -EIO;
--			}
--		}
--
- 		dev_dbg(&subs->dev->dev, "Starting sync EP @%p\n", ep);
+ 		case RXRPC_SECURITY_RXK5:
+@@ -1180,7 +1181,10 @@ static long rxrpc_read(const struct key *key,
+ 			ENCODE(token->kad->start);
+ 			ENCODE(token->kad->expiry);
+ 			ENCODE(token->kad->primary_flag);
+-			ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
++			if (token->no_leak_key)
++				ENCODE(0);
++			else
++				ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
+ 			break;
  
- 		ep->sync_slave = subs->data_endpoint;
-@@ -499,6 +484,19 @@ static int set_sync_endpoint(struct snd_usb_substream *subs,
- 
- 	subs->data_endpoint->sync_master = subs->sync_endpoint;
- 
-+	if (subs->data_endpoint->iface != subs->sync_endpoint->iface ||
-+	    subs->data_endpoint->altsetting != subs->sync_endpoint->altsetting) {
-+		err = usb_set_interface(subs->dev,
-+					subs->sync_endpoint->iface,
-+					subs->sync_endpoint->altsetting);
-+		if (err < 0)
-+			return err;
-+		dev_dbg(&dev->dev, "setting usb interface %d:%d\n",
-+			subs->sync_endpoint->iface,
-+			subs->sync_endpoint->altsetting);
-+		snd_usb_set_interface_quirk(dev);
-+	}
-+
- 	return 0;
- }
- 
+ 		case RXRPC_SECURITY_RXK5:
 -- 
 2.27.0
 
