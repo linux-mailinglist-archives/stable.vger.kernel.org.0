@@ -2,83 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89CAE2E1148
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 02:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5C92E1152
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 02:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727671AbgLWBSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 20:18:25 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17034 "EHLO
+        id S1727160AbgLWBVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 20:21:07 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3644 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726846AbgLWBRA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 20:17:00 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BN11w6A121358;
-        Tue, 22 Dec 2020 20:16:18 -0500
+        by vger.kernel.org with ESMTP id S1726514AbgLWBVH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 20:21:07 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BN13OVN186260;
+        Tue, 22 Dec 2020 20:20:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
  bh=D+EFG/gc3p78ZE8Oc9NsUtkZSWv2wrbRfIoTzSXMAds=;
- b=a7Ao4i4onqPbViwfp5UORPnP5j7hJqJhWigYonOr+WyvHJE+LMSoUs5crV9t86l263Vb
- sq/yj6v2/J+hgnRz4BWssKGOaIBzVvZF6Jm3iYkweOKxUWs+FOKAvehjIGMg59zuEIuD
- /LSdKO1tHOCPZ/qW8Z2XszuHZDh2WDgFIRyFZ1ESEMZLFElI4IGOZH3dL3sdx8bcXf7M
- JRs8c/z1ysMZcpVUFRx4iyilDerTcAenZ07+Vps+bQe+ux9JrxUNSKE197FGGd/DKBds
- YYHbRegGtxodLkDEwQur9S/4IjbTHkrrRqpPBN8PC8mJW9cRn/2J9F7GvnzXZphwNVMA yA== 
+ b=oXmZhCspfvG0uyTwNozePbIlXP/eYeeyQrX5veLysnTffU4pL4EXA510xaRgpdEWTaR0
+ yL8Lcu0TQH+a/X1xoirgn73PO4Vii40Ll15usmWjb0KXL/DUdmdkrnA0+ODqzNPVASid
+ I24kdVovMP3/p6T8bhNYKRR8bDpFXVChuFCuYIc3QLNSkP60bmzUNYP6pp3N6uIIWGPd
+ kprGitm1GTvW06UxNv6pJAlDGhBnF0GoDSrvzaLXhHAi0znS65+r8vu1i/fqIxI4288d
+ aBkfYYhjAhhrDDDdXCce7y4JyiUizbwGtTBTPQ/aP9e2Dq0zVK16LL676pCwAXBzp1mt EQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35kuk5rk71-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ku7ts4qf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Dec 2020 20:16:17 -0500
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BN12A32121749;
-        Tue, 22 Dec 2020 20:16:17 -0500
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35kuk5rk6q-1
+        Tue, 22 Dec 2020 20:20:24 -0500
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BN1KEM4088148;
+        Tue, 22 Dec 2020 20:20:24 -0500
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35ku7ts4q8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 22 Dec 2020 20:16:17 -0500
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BN1BP8U028172;
-        Wed, 23 Dec 2020 01:16:16 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma05wdc.us.ibm.com with ESMTP id 35kfercjd9-1
+        Tue, 22 Dec 2020 20:20:24 -0500
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BN1DETt000491;
+        Wed, 23 Dec 2020 01:20:23 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma03dal.us.ibm.com with ESMTP id 35k02ev7r0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 23 Dec 2020 01:16:16 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BN1GElP11731450
+        Wed, 23 Dec 2020 01:20:23 +0000
+Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BN1KLkC22020606
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 23 Dec 2020 01:16:14 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C0E7112067;
-        Wed, 23 Dec 2020 01:16:14 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 571DB112064;
-        Wed, 23 Dec 2020 01:16:13 +0000 (GMT)
+        Wed, 23 Dec 2020 01:20:21 GMT
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 96F7E13604F;
+        Wed, 23 Dec 2020 01:20:21 +0000 (GMT)
+Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 15424136051;
+        Wed, 23 Dec 2020 01:20:19 +0000 (GMT)
 Received: from cpe-66-24-58-13.stny.res.rr.com.com (unknown [9.85.193.150])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Wed, 23 Dec 2020 01:16:13 +0000 (GMT)
+        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Dec 2020 01:20:19 +0000 (GMT)
 From:   Tony Krowiak <akrowiak@linux.ibm.com>
 To:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
-Cc:     freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com,
-        mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com,
-        hca@linux.ibm.com, gor@linux.ibm.com,
-        Tony Krowiak <akrowiak@linux.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH v13 01/15] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
-Date:   Tue, 22 Dec 2020 20:15:52 -0500
-Message-Id: <20201223011606.5265-2-akrowiak@linux.ibm.com>
+Cc:     stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com,
+        kwankhede@nvidia.com, pbonzini@redhat.com,
+        alex.williamson@redhat.com, pasic@linux.vnet.ibm.com,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH v5] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
+Date:   Tue, 22 Dec 2020 20:20:13 -0500
+Message-Id: <20201223012013.5418-1-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.21.1
-In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
  definitions=2020-12-22_13:2020-12-21,2020-12-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- phishscore=0 suspectscore=0 adultscore=0 impostorscore=0 clxscore=1015
- bulkscore=0 malwarescore=0 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2012230003
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 phishscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 clxscore=1015 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012230007
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
