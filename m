@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A51B2E176F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3A12E1791
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728437AbgLWDKE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:10:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46290 "EHLO mail.kernel.org"
+        id S1727775AbgLWDLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:11:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728127AbgLWCSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C235423137;
-        Wed, 23 Dec 2020 02:16:50 +0000 (UTC)
+        id S1727605AbgLWCSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2222A22A99;
+        Wed, 23 Dec 2020 02:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689811;
-        bh=it+HTgVVO1MflBnmaXHlqr5E0XdrcaWNL0+XY5KXdgs=;
+        s=k20201202; t=1608689813;
+        bh=o1W8LOPS4OuZ3xtMvSdO+5taIu+dtTEHp7Kb5wKltVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuqLfvRoOZQ/Mk6R6X5NiAbM/AANFVfMDIrD5iQbsQTUvHna5BV95r3Ukt1vYi8T4
-         9/YcG5f9K7swpagcnPMI+/qCcwoB0OnODhleXg74VSK6t5mhRQHqWepockZULO1pVu
-         4ZeGXgIWi33Ygm2pTlWbZHS0T7W0mRStB/t8mxftcd4+7pWpMSb1iOWLAz8LZSQiv+
-         57MxPMDeYcVM+icR25JyhBIgJUdN3zPOYMn/bEEuJRW4mDbZkOqx9R8VvchrmfwCD6
-         WQGxWItvNddYJzSauuVqveLv2htBBXrkw9ubrbuOW6fRgWl2fEu/dAjcCT4ZPaPWfI
-         4uVe2Wo7GHcLw==
+        b=lfvP4XM/bkUvftHWk++rn+FXexds8C/mITGJKh8raULlO4Njm5upqdiVED7EW65Ri
+         WTq+NxXGPqEStDPdW3PWknFj9D8OJGlMubxDOJELIl+kAxCRkNwcbZLPK+VOkmOIlV
+         7cSYesyyukuEyKMkjp2hxyEbV5dEQ2wJ4waiWbTqniR680l7gE47QkQqaqqNAqLAH5
+         ZqGDBCrKz2SRcnW2SV7wB2LyuC299rDJupjFUfTJhtt6jS8hGdvbKJUp3rmSLC14Va
+         lStq/7GB27T8H8ODDg5wULkb3kcB25M1TDkj66Cbr/aftxbGW4B7YEVEDRFHsWVzDh
+         wE+ZDH7qeTqng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Isabel Zhang <isabel.zhang@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
+Cc:     Alvin Lee <alvin.lee2@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
         Qingqing Zhuo <qingqing.zhuo@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 019/217] drm/amd/display: Force prefetch mode to 0
-Date:   Tue, 22 Dec 2020 21:13:08 -0500
-Message-Id: <20201223021626.2790791-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 020/217] drm/amd/display: Keep GSL for full updates with planes that flip VSYNC
+Date:   Tue, 22 Dec 2020 21:13:09 -0500
+Message-Id: <20201223021626.2790791-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -45,45 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isabel Zhang <isabel.zhang@amd.com>
+From: Alvin Lee <alvin.lee2@amd.com>
 
-[ Upstream commit 685b4d8142dcbf11b817f74c2bc5b94eca7ee7f2 ]
+[ Upstream commit 6f2239ccdfc04938dc35e67dd60191b2c05dfb63 ]
 
 [Why]
-On APU should be always using prefetch mode 0.
-Currently, sometimes prefetch mode 1 is being
-used causing system to hard hang due to
-minTTUVBlank being too low.
+When enabling PIP in Heaven, the PIP planes are VSYNC
+flip and is also the top-most pipe. In this case GSL
+will be disabled because we only check immediate flip
+for the top pipe. However, the desktop planes are still
+flip immediate so we should at least keep GSL on until
+the full update.
 
 [How]
-Any ASIC running DCN21 will by default allow
-self refresh and mclk switch. This sets both
-min and max prefetch mode to 0 by default.
+Check each pipe in the tree to see if any planes
+are flip immediate. Maintain the GSL lock if yes,
+and take it down after when unlocking if any planes
+are flipping VSYNC. Keeping GSL on with VSYNC +
+flip immediate planes causes corruption.
 
-Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
 Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn20/dcn20_hwseq.c    | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index e73785e74cba8..202a677a1bd78 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -301,7 +301,9 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.xfc_bus_transport_time_us = 4,
- 	.xfc_xbuf_latency_tolerance_us = 4,
- 	.use_urgent_burst_bw = 1,
--	.num_states = 8
-+	.num_states = 8,
-+	.allow_dram_self_refresh_or_dram_clock_change_in_vblank
-+			= dm_allow_self_refresh_and_mclk_switch
- };
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 01530e686f437..0f67e94653e40 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1158,6 +1158,7 @@ void dcn20_pipe_control_lock(
+ 	struct pipe_ctx *pipe,
+ 	bool lock)
+ {
++	struct pipe_ctx *temp_pipe;
+ 	bool flip_immediate = false;
  
- #ifndef MAX
+ 	/* use TG master update lock to lock everything on the TG
+@@ -1169,6 +1170,13 @@ void dcn20_pipe_control_lock(
+ 	if (pipe->plane_state != NULL)
+ 		flip_immediate = pipe->plane_state->flip_immediate;
+ 
++	temp_pipe = pipe->bottom_pipe;
++	while (!flip_immediate && temp_pipe) {
++	    if (temp_pipe->plane_state != NULL)
++		flip_immediate = temp_pipe->plane_state->flip_immediate;
++	    temp_pipe = temp_pipe->bottom_pipe;
++	}
++
+ 	if (flip_immediate && lock) {
+ 		const int TIMEOUT_FOR_FLIP_PENDING = 100000;
+ 		int i;
+@@ -1196,6 +1204,17 @@ void dcn20_pipe_control_lock(
+ 		    (!flip_immediate && pipe->stream_res.gsl_group > 0))
+ 			dcn20_setup_gsl_group_as_lock(dc, pipe, flip_immediate);
+ 
++	temp_pipe = pipe->bottom_pipe;
++	while (flip_immediate && temp_pipe) {
++	    if (temp_pipe->plane_state != NULL)
++		flip_immediate = temp_pipe->plane_state->flip_immediate;
++	    temp_pipe = temp_pipe->bottom_pipe;
++	}
++
++	if (!lock && pipe->stream_res.gsl_group > 0 && pipe->plane_state &&
++		!flip_immediate)
++	    dcn20_setup_gsl_group_as_lock(dc, pipe, false);
++
+ 	if (pipe->stream && should_use_dmub_lock(pipe->stream->link)) {
+ 		union dmub_hw_lock_flags hw_locks = { 0 };
+ 		struct dmub_hw_lock_inst_flags inst_flags = { 0 };
 -- 
 2.27.0
 
