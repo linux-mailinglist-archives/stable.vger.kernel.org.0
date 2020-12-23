@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F552E1224
+	by mail.lfdr.de (Postfix) with ESMTP id D5AA92E1225
 	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:20:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728614AbgLWCTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728617AbgLWCTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 22 Dec 2020 21:19:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46404 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728608AbgLWCTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728610AbgLWCTY (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:19:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BCA32336D;
-        Wed, 23 Dec 2020 02:18:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A2282333E;
+        Wed, 23 Dec 2020 02:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689921;
-        bh=tXdszFZAlA7cdXbScifO0QxpNqfwt3jG/ZcEB0Eoo8E=;
+        s=k20201202; t=1608689924;
+        bh=AxKwh6U1KEIEIk1iz4C9RvptRlgSdwpMTwD3FlZ+B7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZTQsBxMFn3PeFHo9Q7IFhmCKBnlTVQgTOFULaa2INdtRf0NEpKZOG2dNT2IaABlz
-         s6j+9FbZow8zzLwK9+aVNlqRj7riTzqlliiTxG4yhFu7sZuCLmEQMGpED3GFCiC/ix
-         CR6W3jZUJ+Y+uIwS4Kh0Sv6v49uhU2QhqS9ZmB15/bk5eJj2UZAblUKOMwZ1AU9vr1
-         da4Ihy84HtUqwXVKnkzd7dUe79wMRkLLYELDuR2FK7EoAVXw0MRU0wpdNbFju7HnhP
-         0WkSXok+aI+3Ib9XyijzZlIiu8nfFTUmBqul2SZtG9mDUS59B+sAzbPKQjSGfz7tm+
-         zzn2wXzZa3Dng==
+        b=gfuu4z4WiufRLA7FaOMv7zbFY0xaQV86zAbDBm9nEb+pwXA9fR3JQlx84/r/lFTzw
+         9Fumj82UmXb8owkYYQgkBBrflL98iXMJ9tsq7+pK34TNifL6Ad+bgsLSQqc56/ZjZF
+         nKb0kmFS3r8UVacuY0GLQr0HHeBG8jSmPX1xuJ/XSdgRNLaig6fLhfvnfN7ZSSGpN/
+         lRYOZBH0QiJLhAcMALVKlLhcosL65riD5XqfuiFraoCa5lGCCWNBBITxaJ/IpPviUR
+         gEE8gIKglfeexhfSIQtD1Y9yvgZQ5S+QnDl7OBIF6S4qSjHG8d6x5XNNReAg98qBil
+         CrtEIvhDAEi2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 022/130] rcutorture: Prevent hangs for invalid arguments
-Date:   Tue, 22 Dec 2020 21:16:25 -0500
-Message-Id: <20201223021813.2791612-22-sashal@kernel.org>
+Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 024/130] drm: panel: simple: add missing platform_driver_unregister() in panel_simple_init
+Date:   Tue, 22 Dec 2020 21:16:27 -0500
+Message-Id: <20201223021813.2791612-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -41,47 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 4994684ce10924a0302567c315c91b0a64eeef46 ]
+[ Upstream commit f2e66f212a9de04afc2caa5ec79057c0ac75c728 ]
 
-If an rcutorture torture-test run is given a bad kvm.sh argument, the
-test will complain to the console, which is good.  What is bad is that
-from the user's perspective, it will just hang for the time specified
-by the --duration argument.  This commit therefore forces an immediate
-kernel shutdown if a rcu_torture_init()-time error occurs, thus avoiding
-the appearance of a hang.  It also forces a console splat in this case
-to clearly indicate the presence of an error.
+Add the missing platform_driver_unregister() before return
+from panel_simple_init in the error handling case when failed
+to register panel_simple_dsi_driver with CONFIG_DRM_MIPI_DSI
+enabled.
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201031011856.137307-1-miaoqinglang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-simple.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index 3c9feca1eab17..27f0c48f46f4e 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -2347,7 +2347,6 @@ rcu_torture_init(void)
- 		for (i = 0; i < ARRAY_SIZE(torture_ops); i++)
- 			pr_cont(" %s", torture_ops[i]->name);
- 		pr_cont("\n");
--		WARN_ON(!IS_MODULE(CONFIG_RCU_TORTURE_TEST));
- 		firsterr = -EINVAL;
- 		cur_ops = NULL;
- 		goto unwind;
-@@ -2507,6 +2506,10 @@ rcu_torture_init(void)
- unwind:
- 	torture_init_end();
- 	rcu_torture_cleanup();
-+	if (shutdown_secs) {
-+		WARN_ON(!IS_MODULE(CONFIG_RCU_TORTURE_TEST));
-+		kernel_power_off();
-+	}
- 	return firsterr;
- }
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index f0ea782df836d..579d53e9a769c 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -3777,8 +3777,10 @@ static int __init panel_simple_init(void)
  
+ 	if (IS_ENABLED(CONFIG_DRM_MIPI_DSI)) {
+ 		err = mipi_dsi_driver_register(&panel_simple_dsi_driver);
+-		if (err < 0)
++		if (err < 0) {
++			platform_driver_unregister(&panel_simple_platform_driver);
+ 			return err;
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.27.0
 
