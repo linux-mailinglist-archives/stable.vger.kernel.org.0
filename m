@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A770C2E1722
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE772E171F
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728483AbgLWDGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:06:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46328 "EHLO mail.kernel.org"
+        id S1728503AbgLWDGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:06:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728477AbgLWCTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:19:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86616235F8;
-        Wed, 23 Dec 2020 02:18:08 +0000 (UTC)
+        id S1728483AbgLWCTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:19:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDA64225AB;
+        Wed, 23 Dec 2020 02:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689889;
-        bh=dSKaEjABsu3I40sGE2bbbn00CsFmFpI5AvkjtJluISE=;
+        s=k20201202; t=1608689896;
+        bh=9x/T/Z55N6/yaqi6zvXtK3CggfKRO3A/Ys2xb4KgvwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmD8wjzDUip8zTR1eM4JcSMZYuT116WbhYyvw3u4H8dq85ezBbZWpAeZ75F02xQ7i
-         FbJgu33pFv2hsHzPEELCw1xPGlAllykV/7CW7F1CSC387lvD+UyCBIbo+YY+B8mlI0
-         sMzWhVn0ujiTBoVRvZ7xWYCRjI3FqKh2I/Xxu8ka2T5G3i1E06XTZR8e3lhVPC/pV2
-         ftPpmkoliH83Y8P187P9D075keaqjCdn60GQJGzizBkTLr6tihnsmHihWD3ChMRu9x
-         S+UhEzuinOFUPatdCilsooDBJqSN/tqK5WhnFAThqqamHwDnZr6nZrwcE7UuFdkOnQ
-         AxY5ReyFl5aOw==
+        b=uIQ587/0/8ljrhayJMZzCfJlPJ5I6gyUYSVlvJqvtuae/CI2HTjRBjpe0Mw5lb9cE
+         rxAFZrrJX9iRfatsiruh6jQegYc0kB3AyM34vC7Bw2rysd4q7YoA4rcBwdHAmvtAc6
+         R2NuemuvublynxvInXSF4anGaMIhzkh+AQ4GC9YND9uQAfdgSuCTb+7pgsXLnC9bmk
+         IRMRxx2QfuDGrcZeTJbdUlt9O3kbUk+8dW2chiMmVpfmZLBt+Ne3UPiQfAMzuOSEVB
+         i5+eq/+A42yeFHy38vth77T/zTa7I7V8tIDBFm6WTET2pjs5DNBUZuusXQIN7TgZsA
+         RJDkzfVpfCfjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 077/217] r8169: use READ_ONCE in rtl_tx_slots_avail
-Date:   Tue, 22 Dec 2020 21:14:06 -0500
-Message-Id: <20201223021626.2790791-77-sashal@kernel.org>
+Cc:     Luo Meng <luomeng12@huawei.com>, Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 002/130] locks: Fix UBSAN undefined behaviour in flock64_to_posix_lock
+Date:   Tue, 22 Dec 2020 21:16:05 -0500
+Message-Id: <20201223021813.2791612-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
-References: <20201223021626.2790791-1-sashal@kernel.org>
+In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
+References: <20201223021813.2791612-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,36 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Luo Meng <luomeng12@huawei.com>
 
-[ Upstream commit 95f3c5458dfa5856bb110e31d156e00d894d0134 ]
+[ Upstream commit 16238415eb9886328a89fe7a3cb0b88c7335fe16 ]
 
-tp->dirty_tx and tp->cur_tx may be changed by a racing rtl_tx() or
-rtl8169_start_xmit(). Use READ_ONCE() to annotate the races and ensure
-that the compiler doesn't use cached values.
+When the sum of fl->fl_start and l->l_len overflows,
+UBSAN shows the following warning:
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/5676fee3-f6b4-84f2-eba5-c64949a371ad@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+UBSAN: Undefined behaviour in fs/locks.c:482:29
+signed integer overflow: 2 + 9223372036854775806
+cannot be represented in type 'long long int'
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xe4/0x14e lib/dump_stack.c:118
+ ubsan_epilogue+0xe/0x81 lib/ubsan.c:161
+ handle_overflow+0x193/0x1e2 lib/ubsan.c:192
+ flock64_to_posix_lock fs/locks.c:482 [inline]
+ flock_to_posix_lock+0x595/0x690 fs/locks.c:515
+ fcntl_setlk+0xf3/0xa90 fs/locks.c:2262
+ do_fcntl+0x456/0xf60 fs/fcntl.c:387
+ __do_sys_fcntl fs/fcntl.c:483 [inline]
+ __se_sys_fcntl fs/fcntl.c:468 [inline]
+ __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:468
+ do_syscall_64+0xc8/0x5a0 arch/x86/entry/common.c:293
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fix it by parenthesizing 'l->l_len - 1'.
+
+Signed-off-by: Luo Meng <luomeng12@huawei.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/locks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 85d9c3e30c699..67918feed307e 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4173,7 +4173,8 @@ static bool rtl8169_tso_csum_v2(struct rtl8169_private *tp,
- static bool rtl_tx_slots_avail(struct rtl8169_private *tp,
- 			       unsigned int nr_frags)
- {
--	unsigned int slots_avail = tp->dirty_tx + NUM_TX_DESC - tp->cur_tx;
-+	unsigned int slots_avail = READ_ONCE(tp->dirty_tx) + NUM_TX_DESC
-+					- READ_ONCE(tp->cur_tx);
+diff --git a/fs/locks.c b/fs/locks.c
+index b8a31c1c4fff3..323e6ee6a6533 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -542,7 +542,7 @@ static int flock64_to_posix_lock(struct file *filp, struct file_lock *fl,
+ 	if (l->l_len > 0) {
+ 		if (l->l_len - 1 > OFFSET_MAX - fl->fl_start)
+ 			return -EOVERFLOW;
+-		fl->fl_end = fl->fl_start + l->l_len - 1;
++		fl->fl_end = fl->fl_start + (l->l_len - 1);
  
- 	/* A skbuff with nr_frags needs nr_frags+1 entries in the tx queue */
- 	return slots_avail > nr_frags;
+ 	} else if (l->l_len < 0) {
+ 		if (fl->fl_start + l->l_len < 0)
 -- 
 2.27.0
 
