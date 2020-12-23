@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C772E11C6
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E93242E1204
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbgLWCRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:17:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44620 "EHLO mail.kernel.org"
+        id S1727780AbgLWCSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:18:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727234AbgLWCRO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:17:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D85122248;
-        Wed, 23 Dec 2020 02:16:32 +0000 (UTC)
+        id S1726931AbgLWCSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF67622D73;
+        Wed, 23 Dec 2020 02:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689793;
-        bh=lJ5yxKRFM+bJLKd/Ns3NYPBSkBeHsGXFVHnerk6Oihg=;
+        s=k20201202; t=1608689807;
+        bh=f78yVkOu3m3B+MmO4CWx/crRGEC09+OLcpZdW7IS3AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dcuoejv8CnujBKhiMVRWD5JFfzEIPKeUf19INm35+dEaC5jeWI+iR/sT56GAuZf0C
-         EMjsns7dHOcFbsmuGoxDDosqJpSjDcY8ISYpdlzctl8bG2bE4QYTFR+ooHY8ZYTSsP
-         322mHjL3rRkgQ7+yU64WXt9Klc1zae51q4DjLXNrg+sp6pT8lpiOarhvhaQ4eU+l6o
-         XXn81hazqPcRIfhQF8b5LzjcMEh3pS9NEqU7UnEVPtTPCt6KvjwzB8gwKKssziqN8F
-         VEjSwHBPqkJtDlJfVRlqf7XDDMZUfMvvKRG5sDmTMLvF6ZrWhbu8fsBnzqS+iegPdu
-         ovtyNyIZI7lVQ==
+        b=JDiSmlDQvn4n1PS/lyvX61BrPtsLvpgmPw4PLSt2WwvDGz/lVKFy2N1iPbyh+eyFW
+         NqRg9T0Gz4pm3vANfwlZRDololCpzujH3HriauV49myJxD6PS1wEhff5v0F16z/A1T
+         tW1E6pbhwXLo5fRNFOvtnOwpno/qTTcS4IGLm53gmB4PvQrneZEoDL0Eir9+1cCNJn
+         pXQd/LDNKeMVX+HJd4hLv8GTYA9F6FTes3Jcve/jivAu8E+hsQHjHP2J0mkWJUQYoY
+         BWmraHjvZpoEEeRXFN+JeMZ5jJFxjSw64W492R39txY5hv2VaE9lGKoV1pUc4BPwbq
+         IhbT6m4xEdQag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifan Zhang <yifan1.zhang@amd.com>,
-        Matt Coffin <mcoffin13@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Roman Li <Roman.Li@amd.com>, Sasha Levin <sashal@kernel.org>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 005/217] drm/amd/display: Fix the display corruption issue on Navi10
-Date:   Tue, 22 Dec 2020 21:12:54 -0500
-Message-Id: <20201223021626.2790791-5-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 016/217] staging: wimax: depends on NET
+Date:   Tue, 22 Dec 2020 21:13:05 -0500
+Message-Id: <20201223021626.2790791-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -44,48 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 0b08c54bb7a37047a3a006e36c2270ebc62fef7d ]
+[ Upstream commit 9364a2cf567187c0a075942c22d1f434c758de5d ]
 
-[Why]
-Screen corruption on Navi10 card
+Fix build errors when CONFIG_NET is not enabled. E.g. (trimmed):
 
-[How]
-Set system context in DCN only on Renoir
+ld: drivers/staging/wimax/op-msg.o: in function `wimax_msg_alloc':
+op-msg.c:(.text+0xa9): undefined reference to `__alloc_skb'
+ld: op-msg.c:(.text+0xcc): undefined reference to `genlmsg_put'
+ld: op-msg.c:(.text+0xfc): undefined reference to `nla_put'
+ld: op-msg.c:(.text+0x168): undefined reference to `kfree_skb'
+ld: drivers/staging/wimax/op-msg.o: in function `wimax_msg_data_len':
+op-msg.c:(.text+0x1ba): undefined reference to `nla_find'
+ld: drivers/staging/wimax/op-msg.o: in function `wimax_msg_send':
+op-msg.c:(.text+0x311): undefined reference to `init_net'
+ld: op-msg.c:(.text+0x326): undefined reference to `netlink_broadcast'
+ld: drivers/staging/wimax/stack.o: in function `__wimax_state_change':
+stack.c:(.text+0x433): undefined reference to `netif_carrier_off'
+ld: stack.c:(.text+0x46b): undefined reference to `netif_carrier_on'
+ld: stack.c:(.text+0x478): undefined reference to `netif_tx_wake_queue'
+ld: drivers/staging/wimax/stack.o: in function `wimax_subsys_exit':
+stack.c:(.exit.text+0xe): undefined reference to `genl_unregister_family'
+ld: drivers/staging/wimax/stack.o: in function `wimax_subsys_init':
+stack.c:(.init.text+0x1a): undefined reference to `genl_register_family'
 
-Tested-by: Matt Coffin <mcoffin13@gmail.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: netdev@vger.kernel.org
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20201102072456.20303-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/wimax/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 547928cf284b5..96907707fdd94 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1085,10 +1085,14 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+diff --git a/net/wimax/Kconfig b/net/wimax/Kconfig
+index d13762bc4abca..4dcb5eba720a3 100644
+--- a/net/wimax/Kconfig
++++ b/net/wimax/Kconfig
+@@ -5,6 +5,7 @@
  
- 	dc_hardware_init(adev->dm.dc);
+ menuconfig WIMAX
+ 	tristate "WiMAX Wireless Broadband support"
++	depends on NET
+ 	depends on RFKILL || !RFKILL
+ 	help
  
--	mmhub_read_system_context(adev, &pa_config);
-+#if defined(CONFIG_DRM_AMD_DC_DCN)
-+	if (adev->asic_type == CHIP_RENOIR) {
-+		mmhub_read_system_context(adev, &pa_config);
- 
--	// Call the DC init_memory func
--	dc_setup_system_context(adev->dm.dc, &pa_config);
-+		// Call the DC init_memory func
-+		dc_setup_system_context(adev->dm.dc, &pa_config);
-+	}
-+#endif
- 
- 	adev->dm.freesync_module = mod_freesync_create(adev->dm.dc);
- 	if (!adev->dm.freesync_module) {
 -- 
 2.27.0
 
