@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 701FF2E1454
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C712E1480
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730055AbgLWCXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:23:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52508 "EHLO mail.kernel.org"
+        id S1730050AbgLWCkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:40:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730049AbgLWCXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:23:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAC77229C5;
-        Wed, 23 Dec 2020 02:23:23 +0000 (UTC)
+        id S1728174AbgLWCXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:23:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3CFB2222D;
+        Wed, 23 Dec 2020 02:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690204;
-        bh=HBFKJRUNnuRB3+JHTHYEaqddBshl2Ypix3QmFmjnWHQ=;
+        s=k20201202; t=1608690205;
+        bh=jnVDOmEeGyU9l9N9TYOqlwQedoGghCb0HUwCnNEMQak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCWxfudhbO/YuiUl71Kc02Aq14JhKiEW5qSAe4gNsU1InhcQs/Usu4o9kk2x8WDUr
-         jJN4MvzhepqKKZ7hkLmZ3LKv+L0BArWy9YN6OzXNZ0hRilqizBbFrHBt51F79NIO9h
-         qFwLXbwBmV0WtwJpNA54LKWb+icFu4hS5/Re662gO5hHg3Szzgj8G51mv5O4i1i0Kb
-         Jsb/7J0/yA4Xzz5Q5dx2beuG+83D2ICFnADX/RSwtJ7jRlkKcNP0f0HSPe40HIhY6G
-         hm2CLtEJJb6xCpxFjCqqeBzT2NVYPgPfaL+ehdo4VlMJ+ULu+bwGShrRZuwuIjMwlq
-         u2jIKE+bZZTlA==
+        b=BoCd8qHzZyzCTyHMCNEPtVZdATGYlWAJ0TLVMDnnXYOqwmewBOLaaqawGTpujtI16
+         fI+RIPLJV74Q2PvZ6zgr1mnEwojiVW/W50M27afwGcv10IPGj81/2dZ5OKbvgivxH3
+         2zqCBeo3Ux3Ne3gxzeEvd/BhRVpGvJPwwPT7pu7bcO9YR71s3lMn1YAaTsy2fMHC+V
+         MvMa7do7NI2WzXP3+EGocdXHvMgiY2EMuSQM1YavuDVhiGtXuDo+RvA4dAgXwSVf91
+         v+975YS1Pk5+fztA4B+Hv/zuGDQHGsK8nSFs36duNSfd9S11Ur4ZV58R5NNFmQcvAw
+         5QiQ+AYa65f3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Sean Young <sean@mess.org>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 25/66] media: usb: dvb-usb-v2: zd1301: fix missing platform_device_unregister()
-Date:   Tue, 22 Dec 2020 21:22:11 -0500
-Message-Id: <20201223022253.2793452-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 26/66] media: dvbdev: Fix memleak in dvb_register_device
+Date:   Tue, 22 Dec 2020 21:22:12 -0500
+Message-Id: <20201223022253.2793452-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022253.2793452-1-sashal@kernel.org>
 References: <20201223022253.2793452-1-sashal@kernel.org>
@@ -43,38 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit ee50d6e60d9a8e110e984cdd9e788d93eff540ba ]
+[ Upstream commit 167faadfcf9339088910e9e85a1b711fcbbef8e9 ]
 
-Add the missing platform_device_unregister() before return
-from zd1301_frontend_attach in the error handling case when
-pdev->dev.driver is empty.
+When device_create() fails, dvbdev and dvbdevfops should
+be freed just like when dvb_register_media_device() fails.
 
-There's an error handling route named err_platform_device_unregister,
-so just reuse it.
-
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb-v2/zd1301.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/dvb-core/dvbdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/zd1301.c b/drivers/media/usb/dvb-usb-v2/zd1301.c
-index d1eb4b7bc0519..563d11fb6c18c 100644
---- a/drivers/media/usb/dvb-usb-v2/zd1301.c
-+++ b/drivers/media/usb/dvb-usb-v2/zd1301.c
-@@ -159,7 +159,7 @@ static int zd1301_frontend_attach(struct dvb_usb_adapter *adap)
+diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
+index ba3c68fb9676b..b19db83e1aeb9 100644
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -516,6 +516,9 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
+ 	if (IS_ERR(clsdev)) {
+ 		pr_err("%s: failed to create device dvb%d.%s%d (%ld)\n",
+ 		       __func__, adap->num, dnames[type], id, PTR_ERR(clsdev));
++		dvb_media_device_free(dvbdev);
++		kfree(dvbdevfops);
++		kfree(dvbdev);
+ 		return PTR_ERR(clsdev);
  	}
- 	if (!pdev->dev.driver) {
- 		ret = -ENODEV;
--		goto err;
-+		goto err_platform_device_unregister;
- 	}
- 	if (!try_module_get(pdev->dev.driver->owner)) {
- 		ret = -ENODEV;
+ 	dprintk("DVB: register adapter%d/%s%d @ minor: %i (0x%02x)\n",
 -- 
 2.27.0
 
