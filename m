@@ -2,121 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C782E16D6
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10BF02E17C9
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728774AbgLWDC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:02:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:29673 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728650AbgLWCTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 21:19:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1608689884;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=RSrw7UyAcSToLq3PDPtiYAZ23LuaYf/Nbwi9L4K4JI8=;
-        b=FyIPT93YRn6o+v0ucGvdMmcWW7KqrQuawHXS4/mc/Dkw++z4Mud83hUfviG7wCzi3kPYjW
-        cH9NdhBR4b3Awiqzo60Y47eZhor0T5WxABBKE0lTBOo/MDncrqL7EKTz1PIZULAHkuUCca
-        FrrxZ9aNHwU48mjoIX9zQLnwceGdtak=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-248-K-wofS1uNcuihB7U42RsaQ-1; Tue, 22 Dec 2020 21:18:03 -0500
-X-MC-Unique: K-wofS1uNcuihB7U42RsaQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B71C800D62;
-        Wed, 23 Dec 2020 02:18:01 +0000 (UTC)
-Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7696C5D9CC;
-        Wed, 23 Dec 2020 02:17:57 +0000 (UTC)
-Date:   Tue, 22 Dec 2020 21:17:56 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Yu Zhao <yuzhao@google.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Xu <peterx@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X+Ko1E808VVFx0+C@redhat.com>
-References: <20201221223041.GL6640@xz-x1>
- <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
- <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
- <X+JJqK91plkBVisG@redhat.com>
- <X+JhwVX3s5mU9ZNx@google.com>
- <X+Js/dFbC5P7C3oO@redhat.com>
- <X+KDwu1PRQ93E2LK@google.com>
- <CAHk-=wiBWkgxLtwD7n01irD7hTQzuumtrqCkxxZx=6dbiGKUqQ@mail.gmail.com>
- <CAHk-=wjG7xx7Gsb=K0DteB1SPcKjus02zY2gFUoxMY5mm7tfsA@mail.gmail.com>
- <X+KOC4sRtUs4Ljqq@google.com>
+        id S1727369AbgLWDfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:35:17 -0500
+Received: from mx0b-00190b01.pphosted.com ([67.231.157.127]:4788 "EHLO
+        mx0b-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726387AbgLWDfR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Dec 2020 22:35:17 -0500
+X-Greylist: delayed 2325 seconds by postgrey-1.27 at vger.kernel.org; Tue, 22 Dec 2020 22:35:16 EST
+Received: from pps.filterd (m0050102.ppops.net [127.0.0.1])
+        by m0050102.ppops.net-00190b01. (8.16.0.43/8.16.0.43) with SMTP id 0BN2sm2P023335;
+        Wed, 23 Dec 2020 02:54:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=jan2016.eng;
+ bh=DgrY6qCoqWi+YhMnrptnnl8bfOZQ2OvTKc2L4lgpPos=;
+ b=oNMojHZ8kFkQIQzWDGFn16T9EHDj6qp/XP1HKq5rxbi7QzWABYrNBROsLjBtmASx9jmu
+ Oxee5DaKo5m+E9urrCXPsz/zs7lkvzBfpStP1LjuTCNCtweIE+2okDX/wjQjyPWNMwLD
+ KFu1S/TRnn5M/44NjIr9dl9RzaLiRfA1vD+4YBpokOSfnyNGoZdnr2/77qAb6cylOmwV
+ H0q2Mm5inaDaaKZQkJjAEfTn8vTDMnsA4Bpo7VgHdvcEkhr6EH9iq53AGyNSrOE1ByxQ
+ dpMwgauxypaomZVUcJsAa0L00UXhEjOQyCXmC0MafuGIEcvqONGovrFE/OE1XzGW9fWS 1Q== 
+Received: from prod-mail-ppoint5 (prod-mail-ppoint5.akamai.com [184.51.33.60] (may be forged))
+        by m0050102.ppops.net-00190b01. with ESMTP id 35k0e3emkk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Dec 2020 02:54:48 +0000
+Received: from pps.filterd (prod-mail-ppoint5.akamai.com [127.0.0.1])
+        by prod-mail-ppoint5.akamai.com (8.16.0.43/8.16.0.43) with SMTP id 0BN2pRfn009175;
+        Tue, 22 Dec 2020 18:54:47 -0800
+Received: from email.msg.corp.akamai.com ([172.27.123.30])
+        by prod-mail-ppoint5.akamai.com with ESMTP id 35k0ftkj6q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Tue, 22 Dec 2020 18:54:47 -0800
+Received: from usma1ex-cas4.msg.corp.akamai.com (172.27.123.57) by
+ usma1ex-dag3mb4.msg.corp.akamai.com (172.27.123.56) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.2; Tue, 22 Dec 2020 21:54:47 -0500
+Received: from bos-lp1yy.kendall.corp.akamai.com (172.28.3.205) by
+ usma1ex-cas4.msg.corp.akamai.com (172.27.123.57) with Microsoft SMTP Server
+ id 15.0.1497.2 via Frontend Transport; Tue, 22 Dec 2020 21:54:47 -0500
+Received: by bos-lp1yy.kendall.corp.akamai.com (Postfix, from userid 45189)
+        id 051D715F777; Tue, 22 Dec 2020 21:54:46 -0500 (EST)
+From:   Jeff Dike <jdike@akamai.com>
+To:     <netdev@vger.kernel.org>
+CC:     <jdike@akamai.com>, <virtualization@lists.linux-foundation.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, <stable@vger.kernel.org>
+Subject: [PATCH Repost to netdev] virtio_net: Fix recursive call to cpus_read_lock()
+Date:   Tue, 22 Dec 2020 21:54:21 -0500
+Message-ID: <20201223025421.671-1-jdike@akamai.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X+KOC4sRtUs4Ljqq@google.com>
-User-Agent: Mutt/2.0.3 (2020-12-04)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-22_13:2020-12-21,2020-12-22 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 adultscore=0 mlxscore=0
+ mlxlogscore=999 bulkscore=0 suspectscore=0 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2012230020
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-23_01:2020-12-21,2020-12-23 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 mlxscore=0
+ clxscore=1011 lowpriorityscore=0 phishscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012230021
+X-Agari-Authentication-Results: mx.akamai.com; spf=${SPFResult} (sender IP is 184.51.33.60)
+ smtp.mailfrom=jdike@akamai.com smtp.helo=prod-mail-ppoint5
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 22, 2020 at 05:23:39PM -0700, Yu Zhao wrote:
-> and 2) people are spearheading multiple efforts to reduce the mmap_lock
-> contention, which hopefully would make ufd users suffer less soon.
+virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
+and CONFIG_HOTPLUG are enabled.
 
-In my view UFFD is an already deployed working solution that
-eliminates the mmap_lock_write contention to allocate and free memory.
+The path is:
+    virtnet_set_channels - calls get_online_cpus(), which is a trivial
+wrapper around cpus_read_lock()
+    netif_set_real_num_tx_queues
+    netif_reset_xps_queues_gt
+    netif_reset_xps_queues - calls cpus_read_lock()
 
-We need to add a UFFDIO_POPULATE to use in combination with
-UFFD_FEATURE_SIGBUS (UFFDIO_POPULATE just needs to zero out a page or
-THP and map it, it'll be indistinguishable to UFFDIO_ZEROPAGE, but it
-will solve the last performance bottleneck by avoiding a suprious
-wrprotect fault after the allocation).
+This call chain and potential deadlock happens when the number of TX
+queues is reduced.
 
-After that malloc based on uffd should become competitive single
-threaded and it won't ever require the mmap_lock_write so allocations
-and freeing of memory can continue indefinitely from all threaded in
-parallel. There will never be another mmap or munmap stalling all
-threads.
+This commit the removes netif_set_real_num_[tr]x_queues calls from
+inside the get/put_online_cpus section, as they don't require that it
+be held.
 
-This is not why uffd was created, it's just a secondary performance
-benefit of uffd, but it's still a relevant benefit in my view.
+Signed-off-by: Jeff Dike <jdike@akamai.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/net/virtio_net.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-Every time I hear people with major mmap_lock_write issues I recommend
-uffd, but you know, until we add the UFFDIO_POPULATE, it will still
-have higher fixed allocation overhead because of the wprotect fault
-after UFFDIO_ZEROCOPY. UFFDIO_COPY also would be not as optimal as a
-clear_page and currently it's not even THP capable.
-
-In addition you'll get a SIGBUS after an user after free. It's not
-like when you have a malloc lib doing MADV_DONTNEED at PAGE_SIZE
-granularity to rate limit the costly munmap, and then the app does an
-use after free and it reads zero or writes to a newly faulted in page.
-
-The above will not require any special privilege and all allocated
-virtual memory remains fully swappable, because SIGBUS mode will never
-have to block any kernel initiated faults.
-
-uffd-wp also is totally usable unprivileged by default to replace
-various software dirty bits with the info provided in O(1) instead of
-O(N), as long as the writes are done in userland also unprivileged by
-default without tweaking any sysctl and with zero risk of increasing
-reproduciblity of any exploit against unrelated random kernel bugs.
-
-So if we're forced to take the mmap_lock_write it'd be cool if at
-least we can avoid it for 1 single pte or hugepmd wrprotection, as it
-happens in write_protect_page() KSM.
-
-Thanks,
-Andrea
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 052975ea0af4..e02c7e0f1cf9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2093,14 +2093,16 @@ static int virtnet_set_channels(struct net_device *dev,
+ 
+ 	get_online_cpus();
+ 	err = _virtnet_set_queues(vi, queue_pairs);
+-	if (!err) {
+-		netif_set_real_num_tx_queues(dev, queue_pairs);
+-		netif_set_real_num_rx_queues(dev, queue_pairs);
+-
+-		virtnet_set_affinity(vi);
++	if (err){
++		put_online_cpus();
++		goto err;
+ 	}
++	virtnet_set_affinity(vi);
+ 	put_online_cpus();
+ 
++	netif_set_real_num_tx_queues(dev, queue_pairs);
++	netif_set_real_num_rx_queues(dev, queue_pairs);
++ err:
+ 	return err;
+ }
+ 
+-- 
+2.17.1
 
