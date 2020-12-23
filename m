@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 371712E167B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF8C2E16CF
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728693AbgLWCTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:19:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46328 "EHLO mail.kernel.org"
+        id S1731306AbgLWDCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:02:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728684AbgLWCTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:19:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E331225AA;
-        Wed, 23 Dec 2020 02:19:02 +0000 (UTC)
+        id S1728705AbgLWCTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:19:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E8F233A1;
+        Wed, 23 Dec 2020 02:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689943;
-        bh=y4SClHplxMoNfmDVqbnedSr667czje45z1pHwNh970w=;
+        s=k20201202; t=1608689945;
+        bh=zmuFXLoaFJwjmAnnu1Jnjzdpd5Ak7hQLxl2x0dUzMXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFBDN77Vv6pH65Q0gniOU/IoqnbzhROgkXq/P+4RlAjwocxq1SmStfvRd0bKKniRm
-         QbS9VbvGaJ+aeBh5KHxNNn98q+ogz56ZxIncDJ7L+maRYVytYVIa99aqRwiGelPlGa
-         Rx9S7e4hbt93+7SA3crA0yhfB2DwS+mg7hZDp/Ugo0TYnu4dYnRW54aGr+sf11QMvc
-         hgSoa/1Ezb/ckiAfDkoa8hD+7cNy2ogMj4vLLXcQJO1tcRVup76vkHy7GP9Mec17LY
-         KvosdLHxXq9qLBi6Tp4xH5tJk/gdpMKEz042SeSeyFyPFUCPx4HWiV5kCVLjFTJOjl
-         O+WcVSF43qFyw==
+        b=kjPB0nkUpblZgFRG1Z35ROh7C2rdAbc6mxIJTkO42QvCiuIQZF7UyEeRbYw0I4SB7
+         Ce32aDz7+lrmPCmoizE+sfYVjY4rbH0OkLtwBL8rLvgTGldfY4GSLSONWu7cYp4cV3
+         9UoYCmEFC3EL66jn0XbPqTo/i/1pOCT2ZTYTTixWFdeoSkXg5M1pMNpvsjEbjgViT2
+         kY4AhG7KHt5VvQXnzVqat+EtNjXmVBm8ShyPsCLcbka3Mu0EkBO64/BRzx2f+f63Mi
+         adTTbNHxh68WxSAU702OfgOVba0qQbktiyJzzERqxeAkFf4mwj3C7qD3vOM2T9n+Y8
+         J8ydpLAm8Djsg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 038/130] media: cec-core: first mark device unregistered, then wake up fhs
-Date:   Tue, 22 Dec 2020 21:16:41 -0500
-Message-Id: <20201223021813.2791612-38-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 040/130] s390/dasd: Fix operational path inconsistency
+Date:   Tue, 22 Dec 2020 21:16:43 -0500
+Message-Id: <20201223021813.2791612-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,43 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit e91c255733d9bbb4978a372f44fb5ed689ccdbd1 ]
+[ Upstream commit 9e34c8ba91697cb7441805c36d92ab3e695df6e0 ]
 
-If a CEC device node is unregistered, then it should be marked as
-unregistered before waking up any filehandles that are waiting for
-an event.
+During online processing and setting up a DASD device, the configuration
+data for operational paths is read and validated two times
+(dasd_eckd_read_conf()). The first time to provide information that are
+necessary for the LCU setup. A second time after the LCU setup as a
+device might report different configuration data then.
 
-This ensures that there is no race condition where an application can
-call CEC_DQEVENT and have the ioctl return 0 instead of ENODEV.
+When the configuration setup for each operational path is being
+validated, an initial call to dasd_eckd_clear_conf_data() is issued.
+This call wipes all previously available configuration data and path
+information for each path.
+However, the operational path mask is not updated during this process.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+As a result, the stored operational path mask might no longer correspond
+to the operational paths mask reported by the CIO layer, as several
+paths might be gone between the two dasd_eckd_read_conf() calls.
+
+This inconsistency leads to more severe issues in later path handling
+changes. Fix this by removing the channel paths from the operational
+path mask during the dasd_eckd_clear_conf_data() call.
+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/cec/cec-core.c b/drivers/media/cec/cec-core.c
-index 9c610e1e99b84..76b78fb627e83 100644
---- a/drivers/media/cec/cec-core.c
-+++ b/drivers/media/cec/cec-core.c
-@@ -166,12 +166,12 @@ static void cec_devnode_unregister(struct cec_adapter *adap)
- 		mutex_unlock(&devnode->lock);
- 		return;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index ad44d22e88591..b2964c204fefb 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1013,6 +1013,7 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
+ 		device->path[i].cssid = 0;
+ 		device->path[i].ssid = 0;
+ 		device->path[i].chpid = 0;
++		dasd_path_notoper(device, i);
  	}
-+	devnode->registered = false;
-+	devnode->unregistered = true;
+ }
  
- 	list_for_each_entry(fh, &devnode->fhs, list)
- 		wake_up_interruptible(&fh->wait);
- 
--	devnode->registered = false;
--	devnode->unregistered = true;
- 	mutex_unlock(&devnode->lock);
- 
- 	mutex_lock(&adap->lock);
 -- 
 2.27.0
 
