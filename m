@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908172E150B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4BD62E150E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730953AbgLWCqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49658 "EHLO mail.kernel.org"
+        id S1728798AbgLWCqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:46:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729648AbgLWCWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727724AbgLWCWX (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:22:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5CDA23333;
-        Wed, 23 Dec 2020 02:22:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA92221E5;
+        Wed, 23 Dec 2020 02:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690123;
-        bh=JP2cc1mevuJN2u/L90j9fjZKBXCwLkJWQ6uizVILycE=;
+        s=k20201202; t=1608690124;
+        bh=T7PdA5l7Rhy2gkLnrI5FMusQdDWLAYNVwKkmQuxAb1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0C0jq/LNsLEiVwjy3fOnM+AcwY4k/uERzdt+1XYwyjTLRf9Iox0jC67l5+HoTAuo
-         TDMNJwvIzH5YqQwwwJjd2ATE1Symkuw1+S8jwyZiAucTIxG+Dy2nz520FREEJJz4BF
-         zVmXDg/mGrfft2pI3gRDYxrpUE3hVOEGr2AgGwcuWopznD/rIFiwvYHmMC0MvG6l4N
-         By6yyGD7QaZr8g4p4UHm9cOXPyGQRBa19qAaixogTYuBDlGlpb9KybtwXbsy6iHMoW
-         waQ/IwwFNW+l4y4yoWy3kXsQBp/Mfotj3X1r1IlFP0yong4hsT1AGlF/aNdWU9ZsPa
-         QiCSPWmgpJdpg==
+        b=pwk72SWK8hZkKTCiv87a9YGgHjSwnkXlXj4rAouywr5qNmGoMJcjOgdJD4z9rOV34
+         ZAhXy+MHh7BoWyvfzoWivbJUmWYmEupF4JailE8GuhqnEcg8gUtGDZsBblf9LvGTtW
+         v/V+kDLPQVKWzh6GgwAsjDnQk0zSWN7SnsmSdwpVU/Luk3GJaYYZOAk7TO7nSquAxv
+         isni/r9cpN02dXNVUmyWUk7AxdHaDWiNlLeNgUBT569tU06EnsAKyZuQXrkOHhwsR4
+         3hl3tV0v6yWjf53AZBcmnJv3kBebl9EyZEd6YW6szr4Bkt3sH7jB8aZEWWJVdwQGQ9
+         nDbNoMXXhOwKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Saruhan Karademir <skarade@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 48/87] hv_netvsc: Validate number of allocated sub-channels
-Date:   Tue, 22 Dec 2020 21:20:24 -0500
-Message-Id: <20201223022103.2792705-48-sashal@kernel.org>
+Cc:     Nicolin Chen <nicoleotsuka@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-tegra@vger.kernel.org, iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 49/87] iommu/tegra-smmu: Expand mutex protection range
+Date:   Tue, 22 Dec 2020 21:20:25 -0500
+Message-Id: <20201223022103.2792705-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -46,44 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-[ Upstream commit 206ad34d52a2f1205c84d08c12fc116aad0eb407 ]
+[ Upstream commit d5f583bf8654c231b781096bc1a186065cda72b3 ]
 
-Lack of validation could lead to out-of-bound reads and information
-leaks (cf. usage of nvdev->chan_table[]).  Check that the number of
-allocated sub-channels fits into the expected range.
+This is used to protect potential race condition at use_count.
+since probes of client drivers, calling attach_dev(), may run
+concurrently.
 
-Suggested-by: Saruhan Karademir <skarade@microsoft.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Link: https://lore.kernel.org/r/20201118153310.112404-1-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20201125101013.14953-3-nicoleotsuka@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/rndis_filter.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iommu/tegra-smmu.c | 34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/hyperv/rndis_filter.c b/drivers/net/hyperv/rndis_filter.c
-index dd91834f841d5..1554d4fa0bb08 100644
---- a/drivers/net/hyperv/rndis_filter.c
-+++ b/drivers/net/hyperv/rndis_filter.c
-@@ -1111,6 +1111,11 @@ int rndis_set_subchannel(struct net_device *ndev,
- 		return -EIO;
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index fa0ecb5e63809..63679cce95054 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -252,26 +252,19 @@ static int tegra_smmu_alloc_asid(struct tegra_smmu *smmu, unsigned int *idp)
+ {
+ 	unsigned long id;
+ 
+-	mutex_lock(&smmu->lock);
+-
+ 	id = find_first_zero_bit(smmu->asids, smmu->soc->num_asids);
+-	if (id >= smmu->soc->num_asids) {
+-		mutex_unlock(&smmu->lock);
++	if (id >= smmu->soc->num_asids)
+ 		return -ENOSPC;
+-	}
+ 
+ 	set_bit(id, smmu->asids);
+ 	*idp = id;
+ 
+-	mutex_unlock(&smmu->lock);
+ 	return 0;
+ }
+ 
+ static void tegra_smmu_free_asid(struct tegra_smmu *smmu, unsigned int id)
+ {
+-	mutex_lock(&smmu->lock);
+ 	clear_bit(id, smmu->asids);
+-	mutex_unlock(&smmu->lock);
+ }
+ 
+ static bool tegra_smmu_capable(enum iommu_cap cap)
+@@ -406,17 +399,21 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
+ 				 struct tegra_smmu_as *as)
+ {
+ 	u32 value;
+-	int err;
++	int err = 0;
++
++	mutex_lock(&smmu->lock);
+ 
+ 	if (as->use_count > 0) {
+ 		as->use_count++;
+-		return 0;
++		goto unlock;
  	}
  
-+	/* Check that number of allocated sub channel is within the expected range */
-+	if (init_packet->msg.v5_msg.subchn_comp.num_subchannels > nvdev->num_chn - 1) {
-+		netdev_err(ndev, "invalid number of allocated sub channel\n");
-+		return -EINVAL;
+ 	as->pd_dma = dma_map_page(smmu->dev, as->pd, 0, SMMU_SIZE_PD,
+ 				  DMA_TO_DEVICE);
+-	if (dma_mapping_error(smmu->dev, as->pd_dma))
+-		return -ENOMEM;
++	if (dma_mapping_error(smmu->dev, as->pd_dma)) {
++		err = -ENOMEM;
++		goto unlock;
 +	}
- 	nvdev->num_chn = 1 +
- 		init_packet->msg.v5_msg.subchn_comp.num_subchannels;
  
+ 	/* We can't handle 64-bit DMA addresses */
+ 	if (!smmu_dma_addr_valid(smmu, as->pd_dma)) {
+@@ -439,24 +436,35 @@ static int tegra_smmu_as_prepare(struct tegra_smmu *smmu,
+ 	as->smmu = smmu;
+ 	as->use_count++;
+ 
++	mutex_unlock(&smmu->lock);
++
+ 	return 0;
+ 
+ err_unmap:
+ 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
++unlock:
++	mutex_unlock(&smmu->lock);
++
+ 	return err;
+ }
+ 
+ static void tegra_smmu_as_unprepare(struct tegra_smmu *smmu,
+ 				    struct tegra_smmu_as *as)
+ {
+-	if (--as->use_count > 0)
++	mutex_lock(&smmu->lock);
++
++	if (--as->use_count > 0) {
++		mutex_unlock(&smmu->lock);
+ 		return;
++	}
+ 
+ 	tegra_smmu_free_asid(smmu, as->id);
+ 
+ 	dma_unmap_page(smmu->dev, as->pd_dma, SMMU_SIZE_PD, DMA_TO_DEVICE);
+ 
+ 	as->smmu = NULL;
++
++	mutex_unlock(&smmu->lock);
+ }
+ 
+ static int tegra_smmu_attach_dev(struct iommu_domain *domain,
 -- 
 2.27.0
 
