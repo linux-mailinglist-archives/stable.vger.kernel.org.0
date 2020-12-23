@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E192E135B
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C7D2E135A
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728990AbgLWC24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:28:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
+        id S1729137AbgLWC0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:26:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730656AbgLWCZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DF1722248;
-        Wed, 23 Dec 2020 02:25:40 +0000 (UTC)
+        id S1730660AbgLWCZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:25:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7112922202;
+        Wed, 23 Dec 2020 02:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690340;
-        bh=b4Vwej8oKzGNdW7eXreFtwfinfiYVZeKitr7I5VqZi4=;
+        s=k20201202; t=1608690343;
+        bh=B+8l2agkKDcZLAW+qbtt2QYxTPDQoPOWLdsRuzdY8ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRPYLpf/qQysPmrUM+5LcM9CAUkeLW8IyXvaX57U4pN7V/gjqz8T6+A5dmIJPgbhr
-         x0mEPaVrcj2pWh/grHGY3krEivVPkLEHocny/LAmQ8Pbu3FuvPG4vgIPrN5qqu8Ny1
-         a08hNU0XlwamX8ciFUt/eNATyrVfkaNw9jmf4jnu/YZU84qJXEiYyJ+Os6toG3MF0/
-         fS6z1riVYlmb5vlUU2vdxmBrwmpGBEJRVdTl1Rdd3F3Hkrn2BxbQEJf1bNaYuGHw9o
-         tvzLF+Gb6pmA3podxAALCzZl4OOQoekR/0Dymsk3GoxXS7IeOh8/yc7rfntG534gKl
-         5Bxe85LwPYmPQ==
+        b=MQO0d9k6S74vHpHrv5RZcCG53plCEwkDpHRZcbsyN3rV65HxKHGu4Mm6CLedcEvlZ
+         qTsF9D1EJIE+GSSivj4p8TuRkt1DNRCIHEVEy4pOJeqjrqAwb6/CMndvlIuHs38dSA
+         dcLUeIIq3mPKWV4Q2f8j+FZTlHx/PUZr2Y9bH2Xx/fnCGUlPhPxupu/4PahiNbrJ2V
+         t8kMXfOnj/DCVsSk09EB4Q5eshr6UnwQ/GftZetqjLo5DxMMXZf8gUrzyZNtUy+Mfi
+         bFI0inP4sd4bznD4nRufX+di1IZHl1NEe2hsCL/SR5unXPruklrfHprWfhjz1N/i1Q
+         6RvEo3aHnIs7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 19/38] tick/broadcast: Serialize access to tick_next_period
-Date:   Tue, 22 Dec 2020 21:24:57 -0500
-Message-Id: <20201223022516.2794471-19-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
+        keyrings@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 21/38] rxrpc: Don't leak the service-side session key to userspace
+Date:   Tue, 22 Dec 2020 21:24:59 -0500
+Message-Id: <20201223022516.2794471-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022516.2794471-1-sashal@kernel.org>
 References: <20201223022516.2794471-1-sashal@kernel.org>
@@ -41,83 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit f73f64d5687192bc8eb7f3d9521ca6256b79f224 ]
+[ Upstream commit d2ae4e918218f543214fbd906db68a6c580efbbb ]
 
-tick_broadcast_setup_oneshot() accesses tick_next_period twice without any
-serialization. This is wrong in two aspects:
+Don't let someone reading a service-side rxrpc-type key get access to the
+session key that was exchanged with the client.  The server application
+will, at some point, need to be able to read the information in the ticket,
+but this probably shouldn't include the key material.
 
-  - Reading it twice might make the broadcast data inconsistent if the
-    variable is updated concurrently.
-
-  - On 32bit systems the access might see an partial update
-
-Protect it with jiffies_lock. That's safe as none of the callchains leading
-up to this function can create a lock ordering violation:
-
-timer interrupt
-  run_local_timers()
-    hrtimer_run_queues()
-      hrtimer_switch_to_hres()
-        tick_init_highres()
-	  tick_switch_to_oneshot()
-	    tick_broadcast_switch_to_oneshot()
-or
-     tick_check_oneshot_change()
-       tick_nohz_switch_to_nohz()
-         tick_switch_to_oneshot()
-           tick_broadcast_switch_to_oneshot()
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20201117132006.061341507@linutronix.de
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/tick-broadcast.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ include/keys/rxrpc-type.h | 1 +
+ net/rxrpc/ar-key.c        | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/tick-broadcast.c b/kernel/time/tick-broadcast.c
-index 22d7454b387bc..edb937bfc63c6 100644
---- a/kernel/time/tick-broadcast.c
-+++ b/kernel/time/tick-broadcast.c
-@@ -872,6 +872,22 @@ static void tick_broadcast_init_next_event(struct cpumask *mask,
- 	}
- }
- 
-+static inline ktime_t tick_get_next_period(void)
-+{
-+	ktime_t next;
-+
-+	/*
-+	 * Protect against concurrent updates (store /load tearing on
-+	 * 32bit). It does not matter if the time is already in the
-+	 * past. The broadcast device which is about to be programmed will
-+	 * fire in any case.
-+	 */
-+	raw_spin_lock(&jiffies_lock);
-+	next = tick_next_period;
-+	raw_spin_unlock(&jiffies_lock);
-+	return next;
-+}
-+
- /**
-  * tick_broadcast_setup_oneshot - setup the broadcast device
+diff --git a/include/keys/rxrpc-type.h b/include/keys/rxrpc-type.h
+index fc48754338179..5bd32114a51ad 100644
+--- a/include/keys/rxrpc-type.h
++++ b/include/keys/rxrpc-type.h
+@@ -88,6 +88,7 @@ struct rxk5_key {
   */
-@@ -900,10 +916,11 @@ void tick_broadcast_setup_oneshot(struct clock_event_device *bc)
- 			   tick_broadcast_oneshot_mask, tmpmask);
+ struct rxrpc_key_token {
+ 	u16	security_index;		/* RxRPC header security index */
++	bool	no_leak_key;		/* Don't copy the key to userspace */
+ 	struct rxrpc_key_token *next;	/* the next token in the list */
+ 	union {
+ 		struct rxkad_key *kad;
+diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
+index ea615e53eab28..ab4e21ffb4de9 100644
+--- a/net/rxrpc/ar-key.c
++++ b/net/rxrpc/ar-key.c
+@@ -1081,7 +1081,8 @@ static long rxrpc_read(const struct key *key,
+ 		case RXRPC_SECURITY_RXKAD:
+ 			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
+ 						 * end, primary, tktlen */
+-			toksize += RND(token->kad->ticket_len);
++			if (!token->no_leak_key)
++				toksize += RND(token->kad->ticket_len);
+ 			break;
  
- 		if (was_periodic && !cpumask_empty(tmpmask)) {
-+			ktime_t nextevt = tick_get_next_period();
-+
- 			clockevents_switch_state(bc, CLOCK_EVT_STATE_ONESHOT);
--			tick_broadcast_init_next_event(tmpmask,
--						       tick_next_period);
--			tick_broadcast_set_event(bc, cpu, tick_next_period);
-+			tick_broadcast_init_next_event(tmpmask, nextevt);
-+			tick_broadcast_set_event(bc, cpu, nextevt);
- 		} else
- 			bc->next_event.tv64 = KTIME_MAX;
- 	} else {
+ 		case RXRPC_SECURITY_RXK5:
+@@ -1190,7 +1191,10 @@ static long rxrpc_read(const struct key *key,
+ 			ENCODE(token->kad->start);
+ 			ENCODE(token->kad->expiry);
+ 			ENCODE(token->kad->primary_flag);
+-			ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
++			if (token->no_leak_key)
++				ENCODE(0);
++			else
++				ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
+ 			break;
+ 
+ 		case RXRPC_SECURITY_RXK5:
 -- 
 2.27.0
 
