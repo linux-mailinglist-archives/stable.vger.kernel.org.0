@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1EF82E1685
+	by mail.lfdr.de (Postfix) with ESMTP id 449E62E1684
 	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:10:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbgLWCTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728770AbgLWCTt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 22 Dec 2020 21:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728756AbgLWCTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728759AbgLWCTs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 22 Dec 2020 21:19:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD2AE22D73;
-        Wed, 23 Dec 2020 02:19:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81061233F8;
+        Wed, 23 Dec 2020 02:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689960;
-        bh=h2zF7WsF0kn+m51N13kQ8pFg/eImiX8gIVmjxPTyqio=;
+        s=k20201202; t=1608689963;
+        bh=dIfa+AoqY/hATkxwXQSMO3x2NsDLSL31oNsuX1MjOd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIe6lrOCT6v/28k8cj/gr3WStdLMSiu0lxF3mg4KOaiUcIY70lRE6N8KM0fts43ow
-         P/fuEbAxA3LqDhyrEOfpI/YyYOFax/paEO+FaWgT0SLBw9jwSmTgqFEsMQnl/cE/Y8
-         IDZoifVGEEpULLDbYNUOnAxlD3lIhoACXVi71GLmhQdwwl0xLpe1kZWfQM8OaFHZiq
-         lGQt65GiTQ6R9ss97lWPBKnnT9FS2gGSGURXE2nc4/0fqJE9fGiyqFZ2c/x8i75UL9
-         dRcpOj5xHff0UAvrxVEo5ZWijOKxw9NXR2n/Sgq/fivQAFsGbYFU98G9YUimY33t3o
-         bdKyBf8qQ65RA==
+        b=bVe/hEU6cs/LjFv3tGKdsaBLFHF/SWPs6HW8EyF8kUmS6KjAaEyHs4OsZcqO6KWEw
+         7s4nILfd7aTgQxFO5H8+SJacGbnRB8G/wnFAWhS8oGgrYud9z0/rRvviUtHyWhqtdJ
+         u3V1BxtGjZQU6Q689LA0UNzZggxUu9A6O4C0IWjcYHSCkc9yqGDBhCvKAwmp9B7Unt
+         sx2Py1xvRBR9PaRNIlzX/c0wDEjky98jYO7vqwcWWLEIFwQhnB3HUKzCe/Olj6u0dP
+         vZlG2Sg9GJ4H/FjAQqOihqdFOTcSqNPM9DWSUdtYP517wkjl9iSYqX8F217nJh+d9z
+         U7vrpa2VCVNxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Eggers <ceggers@arri.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 052/130] net: dsa: avoid potential use-after-free error
-Date:   Tue, 22 Dec 2020 21:16:55 -0500
-Message-Id: <20201223021813.2791612-52-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 054/130] Bluetooth: hci_h5: Add OBDA0623 ACPI HID
+Date:   Tue, 22 Dec 2020 21:16:57 -0500
+Message-Id: <20201223021813.2791612-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -44,42 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Eggers <ceggers@arri.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 30abc9cd9c6bdd44d23fc49a9c2526a86fba4305 ]
+[ Upstream commit e524f252c42fc4f2bc4a2c3f99fe8659af5576a8 ]
 
-If dsa_switch_ops::port_txtstamp() returns false, clone will be freed
-immediately. Shouldn't store a pointer to freed memory.
+Add OBDA0623 ACPI HID to the acpi_device_id table. This HID is used
+for the RTL8723BS Bluetooth part on the Acer Switch 10E SW3-016.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Tested-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20201119110906.25558-1-ceggers@arri.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1665610
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/slave.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/bluetooth/hci_h5.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index f734ce0bcb56e..2b657e88d8017 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -476,10 +476,10 @@ static void dsa_skb_tx_timestamp(struct dsa_slave_priv *p,
- 	if (!clone)
- 		return;
- 
--	DSA_SKB_CB(skb)->clone = clone;
--
--	if (ds->ops->port_txtstamp(ds, p->dp->index, clone, type))
-+	if (ds->ops->port_txtstamp(ds, p->dp->index, clone, type)) {
-+		DSA_SKB_CB(skb)->clone = clone;
- 		return;
-+	}
- 
- 	kfree_skb(clone);
- }
+diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
+index 5df0651b6cd55..ddee3d498a210 100644
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -989,6 +989,7 @@ static struct h5_vnd rtl_vnd = {
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id h5_acpi_match[] = {
+ #ifdef CONFIG_BT_HCIUART_RTL
++	{ "OBDA0623", (kernel_ulong_t)&rtl_vnd },
+ 	{ "OBDA8723", (kernel_ulong_t)&rtl_vnd },
+ #endif
+ 	{ },
 -- 
 2.27.0
 
