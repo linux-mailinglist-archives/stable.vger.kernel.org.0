@@ -2,180 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6D52E1D2F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7102E1D50
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728759AbgLWOO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 09:14:56 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:36529 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728705AbgLWOO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 09:14:56 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 7403D1B87;
-        Wed, 23 Dec 2020 09:13:50 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 23 Dec 2020 09:13:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qqunXB
-        QBWL5z0UBNHLbiO553tL/MvacddcQYgZj9iRo=; b=SNPy02UT8wbz7YRRi6EBgG
-        FN2KnnGmB5Yknsww8euUyMwdlwhR0MxyPoyidWCiYWZhQ5Y2Us0e/57ALMF/8yG9
-        ovCo77IXgZGdfyhP1vEwwMDI4LGA41SvYrV9NemI4Lu0t6RJfyWBFQnFFpacEe0s
-        9wojvTJzVhu/AWF2+ciYArcfff41nAd4LUf8NZxF3lhftgkUvTaZBc02TJKqdz4/
-        Evgs40oESUwjoCsZGtmngxmmRbGzrr0VHPk9fYlNG/FmCCJomyI4Qpf+R16PSgsB
-        tSqe0q3ox4qiRJ5XWAn94qyGl7d6Wu5GtNLsL+yv8pz/0Z7nWudkyX+SN1/RhEAw
-        ==
-X-ME-Sender: <xms:nlDjXyuWIHfaCSuOcPv-iCIcmmxyzvYZGdJ3rzbntWUvt_8F6jSTVg>
-    <xme:nlDjX3euZAGiOV3ZauKhuX_oqrru244dV_2Zd7Kyn1qiqaKcRzEWTmGBLeRUCNDqn
-    sfhgCgs3lfF7A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddtjedgieduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:nlDjX9yKsQuy5XMPceaYmaFeERWJU0kv9WZ94xgytCRmQ8FfFwMMmA>
-    <xmx:nlDjX9MzDY2pza8VEQXWHY11_-A7ItfMykdtrTkt-rZxidX5gyDzGQ>
-    <xmx:nlDjXy9n9ue651_Mx9oazEA8a3OEtGk2S-dLiUEGx9XTVgt9WmBdvA>
-    <xmx:nlDjXzKZTUbwKLP8cFvw9KQRdQ6RqbdPJnXnuMj2HoNxM9MtQymbJN0ftso>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BE3571080059;
-        Wed, 23 Dec 2020 09:13:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] fscrypt: add fscrypt_is_nokey_name()" failed to apply to 4.4-stable tree
-To:     ebiggers@google.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Dec 2020 15:14:56 +0100
-Message-ID: <1608732896230142@kroah.com>
+        id S1728872AbgLWOPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 09:15:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728850AbgLWOPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 09:15:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A78552313C;
+        Wed, 23 Dec 2020 14:15:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608732902;
+        bh=EaQ7NKNOQ1DqYf56a04HtUOpjoqnLtP5t+pq9/dWO1k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qLhu2AfYQGq3FN+00ITeXrwmDQ3EBqD/yyBe//V4wy7TvoKr+MvCGLlKdIrXuXAF7
+         dgJWEn8nBbDY/aFCUu//qH0O99HDCmlbrLkRqGxAH6AhUnAlhwNpPs7wriwRK1Y3hS
+         gUKJYI19WvQVl8qhjxBeQtybwkyesn15YCl9JsZz4KfOiQiN52Ir2ZIBKznJF2JKdR
+         gl8RULyaEM2aHUoqNQBR5IHJYdM9asfZCtuOffha0CZGON20QdXRTY4oqcY5nxyHYl
+         TPp/yXmKSjUlBNkXmQDvlgLgT3uG2ueJhpVgIAWeS2VYAfO9/x1y0/iv26lGaSLfVf
+         DCOK9UAh30UGQ==
+Date:   Wed, 23 Dec 2020 09:15:01 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dylan Robinson <dylan_robinson@motu.com>,
+        Keith Milner <kamilner@superlative.org>,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.4 057/130] ALSA: usb-audio: Check valid
+ altsetting at parsing rates for UAC2/3
+Message-ID: <20201223141501.GC2790422@sasha-vm>
+References: <20201223021813.2791612-1-sashal@kernel.org>
+ <20201223021813.2791612-57-sashal@kernel.org>
+ <s5h4kkddmmi.wl-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <s5h4kkddmmi.wl-tiwai@suse.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Dec 23, 2020 at 08:09:41AM +0100, Takashi Iwai wrote:
+>On Wed, 23 Dec 2020 03:17:00 +0100,
+>Sasha Levin wrote:
+>>
+>> From: Takashi Iwai <tiwai@suse.de>
+>>
+>> [ Upstream commit 93db51d06b32227319dae2ac289029ccf1b33181 ]
+>>
+>> The current driver code assumes blindly that all found sample rates for
+>> the same endpoint from the UAC2 and UAC3 descriptors can be used no
+>> matter which altsetting, but actually this was wrong: some devices
+>> accept only limited sample rates in each altsetting.  For determining
+>> which altsetting supports which rate, we need to verify each sample rate
+>> and check the validity via UAC2_AS_VAL_ALT_SETTINGS.  This control
+>> reports back the available altsettings as a bitmap.
+>>
+>> This patch implements the missing piece above, the verification and
+>> reconstructs the sample rate tables based on the result.
+>>
+>> An open question is how to deal with the altsettings that ended up
+>> with no valid sample rates after verification.  At least, there is a
+>> device that showed this problem although the sample rates did work in
+>> the later usage (see bug link).  For now, we accept such an altset as
+>> is, assuming that it's a firmware bug.
+>>
+>> Reported-by: Dylan Robinson <dylan_robinson@motu.com>
+>> Tested-by: Keith Milner <kamilner@superlative.org>
+>> Tested-by: Dylan Robinson <dylan_robinson@motu.com>
+>> BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1178203
+>> Link: https://lore.kernel.org/r/20201123085347.19667-4-tiwai@suse.de
+>> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+>Please drop this for 5.4 or older.  At least this caused some problem
+>on 5.3 kernel that confused USB core by some reason while it works
+>fine with the recent upstream.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Will do, thanks.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 159e1de201b6fca10bfec50405a3b53a561096a8 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Tue, 17 Nov 2020 23:56:05 -0800
-Subject: [PATCH] fscrypt: add fscrypt_is_nokey_name()
-
-It's possible to create a duplicate filename in an encrypted directory
-by creating a file concurrently with adding the encryption key.
-
-Specifically, sys_open(O_CREAT) (or sys_mkdir(), sys_mknod(), or
-sys_symlink()) can lookup the target filename while the directory's
-encryption key hasn't been added yet, resulting in a negative no-key
-dentry.  The VFS then calls ->create() (or ->mkdir(), ->mknod(), or
-->symlink()) because the dentry is negative.  Normally, ->create() would
-return -ENOKEY due to the directory's key being unavailable.  However,
-if the key was added between the dentry lookup and ->create(), then the
-filesystem will go ahead and try to create the file.
-
-If the target filename happens to already exist as a normal name (not a
-no-key name), a duplicate filename may be added to the directory.
-
-In order to fix this, we need to fix the filesystems to prevent
-->create(), ->mkdir(), ->mknod(), and ->symlink() on no-key names.
-(->rename() and ->link() need it too, but those are already handled
-correctly by fscrypt_prepare_rename() and fscrypt_prepare_link().)
-
-In preparation for this, add a helper function fscrypt_is_nokey_name()
-that filesystems can use to do this check.  Use this helper function for
-the existing checks that fs/crypto/ does for rename and link.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201118075609.120337-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-
-diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
-index 20b0df47fe6a..061418be4b08 100644
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -61,7 +61,7 @@ int __fscrypt_prepare_link(struct inode *inode, struct inode *dir,
- 		return err;
- 
- 	/* ... in case we looked up no-key name before key was added */
--	if (dentry->d_flags & DCACHE_NOKEY_NAME)
-+	if (fscrypt_is_nokey_name(dentry))
- 		return -ENOKEY;
- 
- 	if (!fscrypt_has_permitted_context(dir, inode))
-@@ -86,7 +86,8 @@ int __fscrypt_prepare_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		return err;
- 
- 	/* ... in case we looked up no-key name(s) before key was added */
--	if ((old_dentry->d_flags | new_dentry->d_flags) & DCACHE_NOKEY_NAME)
-+	if (fscrypt_is_nokey_name(old_dentry) ||
-+	    fscrypt_is_nokey_name(new_dentry))
- 		return -ENOKEY;
- 
- 	if (old_dir != new_dir) {
-diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
-index a8f7a43f031b..8e1d31c959bf 100644
---- a/include/linux/fscrypt.h
-+++ b/include/linux/fscrypt.h
-@@ -111,6 +111,35 @@ static inline void fscrypt_handle_d_move(struct dentry *dentry)
- 	dentry->d_flags &= ~DCACHE_NOKEY_NAME;
- }
- 
-+/**
-+ * fscrypt_is_nokey_name() - test whether a dentry is a no-key name
-+ * @dentry: the dentry to check
-+ *
-+ * This returns true if the dentry is a no-key dentry.  A no-key dentry is a
-+ * dentry that was created in an encrypted directory that hasn't had its
-+ * encryption key added yet.  Such dentries may be either positive or negative.
-+ *
-+ * When a filesystem is asked to create a new filename in an encrypted directory
-+ * and the new filename's dentry is a no-key dentry, it must fail the operation
-+ * with ENOKEY.  This includes ->create(), ->mkdir(), ->mknod(), ->symlink(),
-+ * ->rename(), and ->link().  (However, ->rename() and ->link() are already
-+ * handled by fscrypt_prepare_rename() and fscrypt_prepare_link().)
-+ *
-+ * This is necessary because creating a filename requires the directory's
-+ * encryption key, but just checking for the key on the directory inode during
-+ * the final filesystem operation doesn't guarantee that the key was available
-+ * during the preceding dentry lookup.  And the key must have already been
-+ * available during the dentry lookup in order for it to have been checked
-+ * whether the filename already exists in the directory and for the new file's
-+ * dentry not to be invalidated due to it incorrectly having the no-key flag.
-+ *
-+ * Return: %true if the dentry is a no-key name
-+ */
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return dentry->d_flags & DCACHE_NOKEY_NAME;
-+}
-+
- /* crypto.c */
- void fscrypt_enqueue_decrypt_work(struct work_struct *);
- 
-@@ -244,6 +273,11 @@ static inline void fscrypt_handle_d_move(struct dentry *dentry)
- {
- }
- 
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return false;
-+}
-+
- /* crypto.c */
- static inline void fscrypt_enqueue_decrypt_work(struct work_struct *work)
- {
-
+-- 
+Thanks,
+Sasha
