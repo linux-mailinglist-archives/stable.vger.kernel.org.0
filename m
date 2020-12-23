@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9C22E1648
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E02F2E163F
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728958AbgLWC7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:59:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
+        id S1727639AbgLWC7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728869AbgLWCUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:20:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1298A2312E;
-        Wed, 23 Dec 2020 02:19:50 +0000 (UTC)
+        id S1728876AbgLWCUI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:20:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41B4122D73;
+        Wed, 23 Dec 2020 02:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689991;
-        bh=yKGVcUCNNGvX/3zRVNBC7SmxJeCVCipl3/dSmB4n+Co=;
+        s=k20201202; t=1608689993;
+        bh=dbXis86xDPTQu+i1OtGK9IHLf/s7gH+4ybqoclpUXCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJSMbAwPU4rnmNgVjdhp/HxzibD1di4UJy3RP/acLIEvH9RH3Ta5ecbJXB+rtp2Hl
-         j4sCBxyK4X+RsI5uL1O/z8iPFZVoI+/uBoUY1mg9dJ083szV9iTs5R4p3qsN9KCrLt
-         Juo80uD1+DQ9VPGJIB6q0pl9zinXILDDZV1d2zUc6kZdPZJ2dGrqxCbzqP4/yp/KkN
-         7s12spI43ftDXmRVG7NGspI++oDcm2EdrZ1K9VU35LslEl4ak7fyZXge2IRxSXbC/y
-         dzxflVOFcwy+a5We7DiiCwl1gWSOgHjoERuan2Hl02TVvfNcSBeJYZ1gT3wZwZ1N7I
-         SAnhlKTIJVkLQ==
+        b=sAiltPmwOvjn2PScHFcpzxf45AxxFGAEeaNEhTfnRwhMC1rVfFZTN404ZA2scd5Ta
+         CTOWmcmr+K2R8qKIqxYslYn02ajge2txPiuJo5ry+AoSJNmshK70ZU70bF5wFcsdZx
+         Am5lvdEhB/LsJzGF3U9tccSLOtfvOWQk4yJwFOZLg/6uqwgQCGjN1/S1XDR24xMrrd
+         h3x+hjdal+OnaVnJqflbazCZSDkGpU0WlpU8GEhDwbsSRvzhAdQhsOx/LdI8tUf4VH
+         Gm5sRC2sEOEJd3lLc9DXbRiZrBZ1POvFRg0XSeLXOGj6npxnMKfHbHrAVdO074FW5d
+         9nXH+fClwqApw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinh Nguyen <dinguyen@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 076/130] reset: socfpga: add error handling and release mem-region
-Date:   Tue, 22 Dec 2020 21:17:19 -0500
-Message-Id: <20201223021813.2791612-76-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Borislav Petkov <bp@alien8.de>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 077/130] x86/pci: Fix the function type for check_reserved_t
+Date:   Tue, 22 Dec 2020 21:17:20 -0500
+Message-Id: <20201223021813.2791612-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -44,52 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 0d625a167b169f0bfdfd2e4dc05b9c89b81efe98 ]
+[ Upstream commit 83321c335dccba262a57378361d63da96b8166d6 ]
 
-In case of an error, call release_mem_region when an error happens
-during allocation of resources. Also add error handling for the case
-that reset_controller_register fails.
+e820__mapped_all() is passed as a callback to is_mmconf_reserved(),
+which expects a function of type:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+  typedef bool (*check_reserved_t)(u64 start, u64 end, unsigned type);
+
+However, e820__mapped_all() accepts enum e820_type as the last argument
+and this type mismatch trips indirect call checking with Clang's
+Control-Flow Integrity (CFI).
+
+As is_mmconf_reserved() only passes enum e820_type values for the
+type argument, change the typedef and the unused type argument in
+is_acpi_reserved() to enum e820_type to fix the type mismatch.
+
+Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
+Suggested-by: Borislav Petkov <bp@alien8.de>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20201130193900.456726-1-samitolvanen@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-socfpga.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/pci/mmconfig-shared.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/reset/reset-socfpga.c b/drivers/reset/reset-socfpga.c
-index 96953992c2bb5..c78c7425195e2 100644
---- a/drivers/reset/reset-socfpga.c
-+++ b/drivers/reset/reset-socfpga.c
-@@ -45,7 +45,7 @@ static int a10_reset_init(struct device_node *np)
- 	data->membase = ioremap(res.start, size);
- 	if (!data->membase) {
- 		ret = -ENOMEM;
--		goto err_alloc;
-+		goto release_region;
- 	}
+diff --git a/arch/x86/pci/mmconfig-shared.c b/arch/x86/pci/mmconfig-shared.c
+index 6fa42e9c4e6fa..234998f196d4d 100644
+--- a/arch/x86/pci/mmconfig-shared.c
++++ b/arch/x86/pci/mmconfig-shared.c
+@@ -425,7 +425,7 @@ static acpi_status find_mboard_resource(acpi_handle handle, u32 lvl,
+ 	return AE_OK;
+ }
  
- 	if (of_property_read_u32(np, "altr,modrst-offset", &reg_offset))
-@@ -60,7 +60,14 @@ static int a10_reset_init(struct device_node *np)
- 	data->rcdev.of_node = np;
- 	data->status_active_low = true;
+-static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
++static bool is_acpi_reserved(u64 start, u64 end, enum e820_type not_used)
+ {
+ 	struct resource mcfg_res;
  
--	return reset_controller_register(&data->rcdev);
-+	ret = reset_controller_register(&data->rcdev);
-+	if (ret)
-+		pr_err("unable to register device\n");
-+
-+	return ret;
-+
-+release_region:
-+	release_mem_region(res.start, size);
+@@ -442,7 +442,7 @@ static bool is_acpi_reserved(u64 start, u64 end, unsigned not_used)
+ 	return mcfg_res.flags;
+ }
  
- err_alloc:
- 	kfree(data);
+-typedef bool (*check_reserved_t)(u64 start, u64 end, unsigned type);
++typedef bool (*check_reserved_t)(u64 start, u64 end, enum e820_type type);
+ 
+ static bool __ref is_mmconf_reserved(check_reserved_t is_reserved,
+ 				     struct pci_mmcfg_region *cfg,
 -- 
 2.27.0
 
