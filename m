@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 253072E1DA5
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4B672E1DAB
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 15:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727329AbgLWO47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 09:56:59 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55145 "EHLO
+        id S1725846AbgLWO7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 09:59:14 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53389 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727315AbgLWO47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 09:56:59 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.west.internal (Postfix) with ESMTP id 29AFD1E74;
-        Wed, 23 Dec 2020 09:55:53 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 23 Dec 2020 09:55:53 -0500
+        by vger.kernel.org with ESMTP id S1725536AbgLWO7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 09:59:14 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id EBA2F1D45;
+        Wed, 23 Dec 2020 09:58:07 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Wed, 23 Dec 2020 09:58:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XsWlpm
-        apsgec/3q8UBr8FJfxbeqtilxqBNBJs7VRy3U=; b=dcuQ5ykHgqyyHJsBeC30fU
-        Vp6lI0yZM8iJV4wwsAfeENTdMFoP95DrInVTbjTk1XO5Ou/jZwDLABKf567TpXmr
-        w12A2DQlTlKiENWfz+mLNL6R3UmH13oeuClCnEfa8Shgkk4qNuSSSBsDT7EJCCRf
-        OIcIezjEIlzn78ozKisYl7NMKpwtwXnc+VF0WRKNcrwGE4kV51blU52L/BCzZ8t5
-        mXFsi8jil1UQk5Y0oF+PWLEspFSem/q0Ah5Uel0PUq8niQIckNTtgKpOb/yTRChU
-        xT/I5tIklKQsQ7Gb9rrQcWX5D6Gz0aWMsJJh+FOnDrIB2GycwVDXj/67bkyOuVkg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uwqcjU
+        aqYLcRmyIQAKlKvpeQoCKgv8k/ki0TEQaKQ+w=; b=NfVND2wnQzqoNxw5Ye0Oqx
+        cgpMmwoG198IHNadgj92Z+Pyrdz3hghzaalspOj4CjPU7YSTgRK99fBQ+zUPgQ83
+        q0EHUBpLg6t13AUMoAfupMpiU8YczJ9eX7hfWuhhrO9ATTYolQI1vnaWEMHmREJO
+        74uVdTuz4xM6HJ3MfoTGylco8f7fy7vZQP3AIetM8QUBM+/UG/iiHvzkW/tPBLOP
+        jksK84iLlq1QV3vTyzQQqqoN4d3XXcLEpFsMeLmy9AXGjZ3phEKyA6tHELQpy4vI
+        Ygo0Zzsd+KgZkhCKS4Z/0RYo2FIGCoFVrMBcMw/nJvzZL3uOLg5k6vOaxnVRZrkQ
         ==
-X-ME-Sender: <xms:eFrjX1Dv5MTgmCXJXx7baj1dn8Eh87_Saho1Hk94gtH3T6msLULHNQ>
-    <xme:eFrjXwqCUbezNrOASJ2idkVk2bcdALwDAGR4q-sS2E6gnxySdFTmTcEg0XNt6Flxp
-    lsF7U_3UL38NA>
+X-ME-Sender: <xms:_1rjX--QrdeNc6Dop7fv6xlVw9kp23z-VrWiesKRXFGuAkOHE18ULA>
+    <xme:_1rjX-uLZ-tzFqhxexGubNXhsECqpnIpraRvt8KJJceJkd8dqi72C5TKquHcge_Uy
+    dBxNDS2UH-cLQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddtjedgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepjedttdeifeejiefgleelfeffudeujeevgffgjeetue
-    fgffeuveeftedvtedujeetnecuffhomhgrihhnpehshiiikhgrlhhlvghrrdgrphhpshhp
-    ohhtrdgtohhmnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:eFrjX_mzvdlS-yTnGgZzike-E-OpPHnl4-8x_m_bbeJ3KkstOP6wKA>
-    <xmx:eFrjXwyfPFMYfOqRu1l4oIEE9DsX9ZXWa5yUwwzvAG67vSgoXZw4AQ>
-    <xmx:eFrjX3_BNeaHLDWr8AuMKtW6lNMSvMDT1-parwBl_YupSGkmDbh1Tg>
-    <xmx:eFrjX0xNY3xdVktQw2uYqoZCaM0WDX3LDp1G5omK3Unei8yOWlLQ8xI27Rc>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:_1rjX0AN0ADkV8MrGgUkyMdYcKdRoehA_bHbV0O-Id6TmDzXS9N-VA>
+    <xmx:_1rjX2eQYEDsYD8YzkV8c5uapmrbntTy4k2ym6va4smcYhfhp02fLg>
+    <xmx:_1rjXzPKEdjlQVpkYTtDmb1WhaMOxo8zQfZzkPuo_d2iaiXEztwp5A>
+    <xmx:_1rjX52hXDmFSL6OLbT7EXrubO_qZJ5hb7HHcZFEhU98dp7a08g856iuAT4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 65CC71080059;
-        Wed, 23 Dec 2020 09:55:52 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Bluetooth: Fix slab-out-of-bounds read in" failed to apply to 4.14-stable tree
-To:     yepeilin.cs@gmail.com, marcel@holtmann.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 01E22240057;
+        Wed, 23 Dec 2020 09:58:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] nl80211: validate key indexes for cfg80211_registered_device" failed to apply to 5.4-stable tree
+To:     anant.thazhemadam@gmail.com, johannes.berg@intel.com,
+        johannes@sipsolutions.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Dec 2020 15:56:55 +0100
-Message-ID: <160873541518385@kroah.com>
+Date:   Wed, 23 Dec 2020 15:59:18 +0100
+Message-ID: <1608735558188119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,52 +71,135 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f7e0e8b2f1b0a09b527885babda3e912ba820798 Mon Sep 17 00:00:00 2001
-From: Peilin Ye <yepeilin.cs@gmail.com>
-Date: Wed, 9 Sep 2020 03:17:00 -0400
-Subject: [PATCH] Bluetooth: Fix slab-out-of-bounds read in
- hci_le_direct_adv_report_evt()
+From 2d9463083ce92636a1bdd3e30d1236e3e95d859e Mon Sep 17 00:00:00 2001
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Date: Sat, 5 Dec 2020 03:28:25 +0530
+Subject: [PATCH] nl80211: validate key indexes for cfg80211_registered_device
 
-`num_reports` is not being properly checked. A malformed event packet with
-a large `num_reports` number makes hci_le_direct_adv_report_evt() read out
-of bounds. Fix it.
+syzbot discovered a bug in which an OOB access was being made because
+an unsuitable key_idx value was wrongly considered to be acceptable
+while deleting a key in nl80211_del_key().
 
+Since we don't know the cipher at the time of deletion, if
+cfg80211_validate_key_settings() were to be called directly in
+nl80211_del_key(), even valid keys would be wrongly determined invalid,
+and deletion wouldn't occur correctly.
+For this reason, a new function - cfg80211_valid_key_idx(), has been
+created, to determine if the key_idx value provided is valid or not.
+cfg80211_valid_key_idx() is directly called in 2 places -
+nl80211_del_key(), and cfg80211_validate_key_settings().
+
+Reported-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
+Tested-by: syzbot+49d4cab497c2142ee170@syzkaller.appspotmail.com
+Suggested-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201204215825.129879-1-anant.thazhemadam@gmail.com
 Cc: stable@vger.kernel.org
-Fixes: 2f010b55884e ("Bluetooth: Add support for handling LE Direct Advertising Report events")
-Reported-and-tested-by: syzbot+24ebd650e20bd263ca01@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=24ebd650e20bd263ca01
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[also disallow IGTK key IDs if no IGTK cipher is supported]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index e72982b69f6b..17a72695865b 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5873,21 +5873,19 @@ static void hci_le_direct_adv_report_evt(struct hci_dev *hdev,
- 					 struct sk_buff *skb)
- {
- 	u8 num_reports = skb->data[0];
--	void *ptr = &skb->data[1];
-+	struct hci_ev_le_direct_adv_info *ev = (void *)&skb->data[1];
+diff --git a/net/wireless/core.h b/net/wireless/core.h
+index e3e9686859d4..7df91f940212 100644
+--- a/net/wireless/core.h
++++ b/net/wireless/core.h
+@@ -433,6 +433,8 @@ void cfg80211_sme_abandon_assoc(struct wireless_dev *wdev);
  
--	hci_dev_lock(hdev);
-+	if (!num_reports || skb->len < num_reports * sizeof(*ev) + 1)
-+		return;
+ /* internal helpers */
+ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher);
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise);
+ int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+ 				   struct key_params *params, int key_idx,
+ 				   bool pairwise, const u8 *mac_addr);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index c8d31181a660..910872974f2d 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4239,9 +4239,6 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	if (err)
+ 		return err;
  
--	while (num_reports--) {
--		struct hci_ev_le_direct_adv_info *ev = ptr;
-+	hci_dev_lock(hdev);
- 
-+	for (; num_reports; num_reports--, ev++)
- 		process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
- 				   ev->bdaddr_type, &ev->direct_addr,
- 				   ev->direct_addr_type, ev->rssi, NULL, 0,
- 				   false);
- 
--		ptr += sizeof(*ev);
--	}
+-	if (key.idx < 0)
+-		return -EINVAL;
 -
- 	hci_dev_unlock(hdev);
+ 	if (info->attrs[NL80211_ATTR_MAC])
+ 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
+ 
+@@ -4257,6 +4254,10 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	    key.type != NL80211_KEYTYPE_GROUP)
+ 		return -EINVAL;
+ 
++	if (!cfg80211_valid_key_idx(rdev, key.idx,
++				    key.type == NL80211_KEYTYPE_PAIRWISE))
++		return -EINVAL;
++
+ 	if (!rdev->ops->del_key)
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 79c5780e3033..b4acc805114b 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -272,18 +272,53 @@ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher)
+ 	return false;
  }
  
+-int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+-				   struct key_params *params, int key_idx,
+-				   bool pairwise, const u8 *mac_addr)
++static bool
++cfg80211_igtk_cipher_supported(struct cfg80211_registered_device *rdev)
+ {
+-	int max_key_idx = 5;
++	struct wiphy *wiphy = &rdev->wiphy;
++	int i;
++
++	for (i = 0; i < wiphy->n_cipher_suites; i++) {
++		switch (wiphy->cipher_suites[i]) {
++		case WLAN_CIPHER_SUITE_AES_CMAC:
++		case WLAN_CIPHER_SUITE_BIP_CMAC_256:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_128:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_256:
++			return true;
++		}
++	}
++
++	return false;
++}
+ 
+-	if (wiphy_ext_feature_isset(&rdev->wiphy,
+-				    NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
+-	    wiphy_ext_feature_isset(&rdev->wiphy,
+-				    NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise)
++{
++	int max_key_idx;
++
++	if (pairwise)
++		max_key_idx = 3;
++	else if (wiphy_ext_feature_isset(&rdev->wiphy,
++					 NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
++		 wiphy_ext_feature_isset(&rdev->wiphy,
++					 NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
+ 		max_key_idx = 7;
++	else if (cfg80211_igtk_cipher_supported(rdev))
++		max_key_idx = 5;
++	else
++		max_key_idx = 3;
++
+ 	if (key_idx < 0 || key_idx > max_key_idx)
++		return false;
++
++	return true;
++}
++
++int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
++				   struct key_params *params, int key_idx,
++				   bool pairwise, const u8 *mac_addr)
++{
++	if (!cfg80211_valid_key_idx(rdev, key_idx, pairwise))
+ 		return -EINVAL;
+ 
+ 	if (!pairwise && mac_addr && !(rdev->wiphy.flags & WIPHY_FLAG_IBSS_RSN))
 
