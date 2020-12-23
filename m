@@ -2,82 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C90CE2E1FB0
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 18:03:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6742E1FC6
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 18:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbgLWRCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 12:02:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726384AbgLWRCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 12:02:15 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30AD8C061794;
-        Wed, 23 Dec 2020 09:01:35 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id c12so10679912pfo.10;
-        Wed, 23 Dec 2020 09:01:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=7z156e/uKkv/pjjwPftIVvO966IjR1f5aiNFEZCH6Gw=;
-        b=HY/yRb15PFKPXR0Iat2RACxzNCOVAMTaTi9CrstMyv/ItxD4KWO1sMmz+C8l0KWTIk
-         rgEMxpRYvPXSBgWKMoZ4GdWafzxIN8J7Kgn7cqqCqDo7r/1lq9uNesBZRNRTp8Aqezne
-         CpW7q2YMmRLoeUPLzZBryTx1h0OlLdI/wPz084BUykVMIy78KFmzbGZePNmY8jws1C2n
-         mu+n7cVsYJgLqMtHATXCz94dhNoE+26pFabzfykwUDuNDYG/Qe6avhOirxQXMko02V1F
-         6bgxBokSKG8uf7XsDQPsZ9LI8xDiBv3uzm6liiZy7fLZHbMND/ubMp6MTp4SMfCX+WTy
-         CzbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=7z156e/uKkv/pjjwPftIVvO966IjR1f5aiNFEZCH6Gw=;
-        b=nPZ2kTvj3/JaLpai8QQSdT3qYkqWqz1lUzZxa+lJtG5UDUXB25yfeclZIkB007lJzp
-         RBf4cM+cEOMpVf5z/vPqmszFpJDqW4Nt3fXNVUpJgZ1Nc4n8P2mDtKEvMVNNWHz9KnEV
-         +pZGqKdYwi5pemD93XspbkPd48Lb1zahzJNWulHu9fY03LRVFnhgWZct3G+NcwtWwbEf
-         Yiia5VoOQAWHi/DItR5/wOj+MF1YT0fHPtU0/Dr4QMdAq4knCQvbogNu2yc0yIQ0GWL0
-         77rHkpKBZ2zmaLZzAi2e+UPlBPIANi7YHKJEuakQ9JW1qMHlsljTh3/a8FntDCJkNYPy
-         w/Ew==
-X-Gm-Message-State: AOAM532JPV+O/36WBZWCkdF0fvrxfGVirU8MlTomseqUzrxTq5TAP3kG
-        NATn8vbEuH5a3uAiS2Jp1DEkGn/qTKA=
-X-Google-Smtp-Source: ABdhPJyHwj0dwxGvjw/XH0Fj5rL0D6+CoIBHGo7R58lSyueswryIpY3BQGgAMjri5Wj4kEb2SaleaA==
-X-Received: by 2002:a63:e5e:: with SMTP id 30mr956059pgo.181.1608742894791;
-        Wed, 23 Dec 2020 09:01:34 -0800 (PST)
-Received: from shane-XPS-13-9380.hsd1.ca.comcast.net ([2601:646:8800:1c00:46ec:f978:4298:de79])
-        by smtp.gmail.com with ESMTPSA id er23sm238645pjb.12.2020.12.23.09.01.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Dec 2020 09:01:33 -0800 (PST)
-From:   Xie He <xie.he.0141@gmail.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>, linux-x25@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for LAPB_STATE_0
-Date:   Wed, 23 Dec 2020 09:01:24 -0800
-Message-Id: <20201223170124.5963-1-xie.he.0141@gmail.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201223021813.2791612-75-sashal@kernel.org>
-References: <20201223021813.2791612-75-sashal@kernel.org>
+        id S1726617AbgLWRO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 12:14:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725807AbgLWRO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 12:14:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB84422202;
+        Wed, 23 Dec 2020 17:13:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1608743626;
+        bh=qmTMa9lSuuSm2XZ5ja0n+u8oUv/CyBev2vPCt8NrB0M=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=KUE2akLmaK6jET7gtbtiTTeG7yupaxsB8GrZww3vT5gr8mMWtwZXHla+uA7t+/Iu2
+         9Kkq35vd6szc1vgcMmtaeApSHdyNytnRn0CN2l3TR/6EAV7G4PMnzvObtKYKa1f7d0
+         RDBKba0N6fj9S9jaJPrGkPU5Iq58DUYV5JNrY56dsoK3ukm/+xcIPepNKIJwsLAwk8
+         wvKXEADbNiYATYFzfjBcVu0I5rTHHN+cT2LPU45h5kM3nGbp0p6bYkCcbU5eDMmMNl
+         j6h2/dW7aGAmESMc813B2hYY9ASMI/ZJpXr7T+3LvGPn/xAIA3I5K7TGdStSMmVJM/
+         3Tyw/hYfDC8LA==
+Date:   Wed, 23 Dec 2020 09:13:44 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Jeff Dike <jdike@akamai.com>
+Cc:     <netdev@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>, <stable@vger.kernel.org>
+Subject: Re: [PATCH Repost to netdev] virtio_net: Fix recursive call to
+ cpus_read_lock()
+Message-ID: <20201223091344.1363c061@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201223025421.671-1-jdike@akamai.com>
+References: <20201223025421.671-1-jdike@akamai.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Martin Schiller <ms@dev.tdt.de>
->
-> [ Upstream commit 62480b992ba3fb1d7260b11293aed9d6557831c7 ]
->
-> 1. DTE interface changes immediately to LAPB_STATE_1 and start sending
->    SABM(E).
->
-> 2. DCE interface sends N2-times DM and changes to LAPB_STATE_1
->    afterwards if there is no response in the meantime.
+On Tue, 22 Dec 2020 21:54:21 -0500 Jeff Dike wrote:
+> virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
+> and CONFIG_HOTPLUG are enabled.
+> 
+> The path is:
+>     virtnet_set_channels - calls get_online_cpus(), which is a trivial
+> wrapper around cpus_read_lock()
+>     netif_set_real_num_tx_queues
+>     netif_reset_xps_queues_gt
+>     netif_reset_xps_queues - calls cpus_read_lock()
+> 
+> This call chain and potential deadlock happens when the number of TX
+> queues is reduced.
+> 
+> This commit the removes netif_set_real_num_[tr]x_queues calls from
+> inside the get/put_online_cpus section, as they don't require that it
+> be held.
 
-I don't think this patch is suitable for stable branches. This patch is
-part of a patch series that changes the lapb module from "establishing the
-L2 connection only when needed by L3", to "establishing the L2 connection
-automatically whenever we are able to". This is a behavioral change. It
-should be seen as a new feature. It is not a bug fix.
+Fixes: 47be24796c13 ("virtio-net: fix the set affinity bug when CPU IDs are not consecutive")
 
+> Signed-off-by: Jeff Dike <jdike@akamai.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Cc: stable@vger.kernel.org
+
+Queued for stable.
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 052975ea0af4..e02c7e0f1cf9 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2093,14 +2093,16 @@ static int virtnet_set_channels(struct net_device *dev,
+>  
+>  	get_online_cpus();
+>  	err = _virtnet_set_queues(vi, queue_pairs);
+> -	if (!err) {
+> -		netif_set_real_num_tx_queues(dev, queue_pairs);
+> -		netif_set_real_num_rx_queues(dev, queue_pairs);
+> -
+> -		virtnet_set_affinity(vi);
+> +	if (err){
+
+Added missing space here.
+
+> +		put_online_cpus();
+> +		goto err;
+>  	}
+
+And applied, thanks!
