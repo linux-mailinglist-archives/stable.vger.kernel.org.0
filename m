@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA4A2E1E2E
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1612E1E47
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbgLWPeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S1727533AbgLWPgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728911AbgLWPef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 341962333E;
-        Wed, 23 Dec 2020 15:33:22 +0000 (UTC)
+        id S1728588AbgLWPeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Dec 2020 10:34:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DF9323341;
+        Wed, 23 Dec 2020 15:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737602;
-        bh=kt0xTeUibXljMK23wxOSDTcl7QyfThsiz0vNCMOrBoE=;
+        s=korg; t=1608737604;
+        bh=Cb1poMD1q3CgMuXZGqUp5gghjPRMlv/8zQDMUTdURV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4W5UffS9aQYApOdtCQcteOpmeqoBARl6TF6VlbPYg0UIwWctQm5jp+3hzK2SYLFA
-         hWDbJN7SC2jY5dEEQIOx1AIPJOiYH5ZpUyfeI/jZKoLqB0QCe//EuUlSWI/qG9uy0M
-         9VINtnfgcyIeXqGuDpV+uWLvb3FyfRp3EzBYsh1c=
+        b=kFW920zoDrsWOpu/4Tmg8VjkOYHFnSuOTxt0lF0Fh89hakX9dTU33FdGiQtD2KcI7
+         XVDFXdVeiHSlHvILv+wWMtLb+Y4xFPtV3FJfD/sj7AQ9eUhdFZDkJfsO1wgfgsk3rT
+         rRplSPLZkNdXjwyBVgv5TV78HZ6g9cvy+ger948c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Yang <jiayang5@huawei.com>,
-        Jack Qiu <jack.qiu@huawei.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 25/40] f2fs: init dirty_secmap incorrectly
-Date:   Wed, 23 Dec 2020 16:33:26 +0100
-Message-Id: <20201223150516.767859570@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 26/40] scsi: megaraid_sas: Check user-provided offsets
+Date:   Wed, 23 Dec 2020 16:33:27 +0100
+Message-Id: <20201223150516.813786166@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 References: <20201223150515.553836647@linuxfoundation.org>
@@ -40,34 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Qiu <jack.qiu@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 5335bfc6eb688344bfcd4b4133c002c0ae0d0719 upstream.
+commit 381d34e376e3d9d27730fda8a0e870600e6c8196 upstream.
 
-section is dirty, but dirty_secmap may not set
+It sounds unwise to let user space pass an unchecked 32-bit offset into a
+kernel structure in an ioctl. This is an unsigned variable, so checking the
+upper bound for the size of the structure it points into is sufficient to
+avoid data corruption, but as the pointer might also be unaligned, it has
+to be written carefully as well.
 
-Reported-by: Jia Yang <jiayang5@huawei.com>
-Fixes: da52f8ade40b ("f2fs: get the right gc victim section when section has several segments")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jack Qiu <jack.qiu@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+While I stumbled over this problem by reading the code, I did not continue
+checking the function for further problems like it.
+
+Link: https://lore.kernel.org/r/20201030164450.1253641-2-arnd@kernel.org
+Fixes: c4a3e0a529ab ("[SCSI] MegaRAID SAS RAID: new driver")
+Cc: <stable@vger.kernel.org> # v2.6.15+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/segment.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -4544,7 +4544,7 @@ static void init_dirty_segmap(struct f2f
- 		return;
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -8095,7 +8095,7 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	int error = 0, i;
+ 	void *sense = NULL;
+ 	dma_addr_t sense_handle;
+-	unsigned long *sense_ptr;
++	void *sense_ptr;
+ 	u32 opcode = 0;
+ 	int ret = DCMD_SUCCESS;
  
- 	mutex_lock(&dirty_i->seglist_lock);
--	for (segno = 0; segno < MAIN_SECS(sbi); segno += blks_per_sec) {
-+	for (segno = 0; segno < MAIN_SEGS(sbi); segno += sbi->segs_per_sec) {
- 		valid_blocks = get_valid_blocks(sbi, segno, true);
- 		secno = GET_SEC_FROM_SEG(sbi, segno);
+@@ -8218,6 +8218,13 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	}
  
+ 	if (ioc->sense_len) {
++		/* make sure the pointer is part of the frame */
++		if (ioc->sense_off >
++		    (sizeof(union megasas_frame) - sizeof(__le64))) {
++			error = -EINVAL;
++			goto out;
++		}
++
+ 		sense = dma_alloc_coherent(&instance->pdev->dev, ioc->sense_len,
+ 					     &sense_handle, GFP_KERNEL);
+ 		if (!sense) {
+@@ -8225,12 +8232,11 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 			goto out;
+ 		}
+ 
+-		sense_ptr =
+-		(unsigned long *) ((unsigned long)cmd->frame + ioc->sense_off);
++		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+ 		if (instance->consistent_mask_64bit)
+-			*sense_ptr = cpu_to_le64(sense_handle);
++			put_unaligned_le64(sense_handle, sense_ptr);
+ 		else
+-			*sense_ptr = cpu_to_le32(sense_handle);
++			put_unaligned_le32(sense_handle, sense_ptr);
+ 	}
+ 
+ 	/*
 
 
