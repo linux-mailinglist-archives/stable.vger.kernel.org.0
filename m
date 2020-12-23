@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF0B2E1343
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D41BC2E1396
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729546AbgLWCZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:25:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
+        id S1730462AbgLWCby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:31:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730461AbgLWCZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:25:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9C2C22248;
-        Wed, 23 Dec 2020 02:25:03 +0000 (UTC)
+        id S1728889AbgLWCZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:25:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA93A2256F;
+        Wed, 23 Dec 2020 02:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690304;
-        bh=dSJT/hf9sQ4STW0fKdZkEoCl8LAygSmBoFKw60XSpeg=;
+        s=k20201202; t=1608690305;
+        bh=uOn4KuImGI6YWXKxFLzAQRXB6bKZf/q2T+OvJ/Btyac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8DFRsmFrJ1gUzoiTBLpGHGTfOPN3/9GQmNT2PxCNpPReONaZyPxOBwmPNZ/DFvs7
-         KWeKVnKQM1IqN4Rr/yOp5XJz31M4puSkfQbxVZ1xspfzaFXLdWgtWfYAGiCV/7VM3H
-         cqGpqYc6HR7W4wLA5wcxZHnNEodefVS7ttOONVqNaCDb9zCFXaKTbiy2FbHZklqE0D
-         Zbs3FIKNwiWadx0EdX0crEVwsxrQcHGPBM2jNOAFQzO/hZKGoH3PyHUk1jx+jnCBxk
-         JP26esxUS+GU0T/oTag0oiR5Up618QA2EyGz+HLWoYB0U1JbrmWFDLTsq8Py0q9Uv5
-         /Ibcgm0JaeVGA==
+        b=I06+xGprfhd+DgIR5iQAlsMXCNPYaQhhuo+oeHAMiZLuagiH8AJ/lHmXa1F6oulQG
+         yUMhY/YzFyvpA3dinqJqBHWwarQu8Sjnu1n0F/f/swXlU/YczQd+vFJQKBPqGx2bKo
+         F48Z1YUmR8pt5IWggcQn6MIvJiFSNlryE3p9tszLIe0YFYIGQgGh+dJ/1JEpTM62Kx
+         PzorIJ+BRoT09cbkZVDNtqSxzHoy/gTj2j8K+Epi4TMJYdvwVTOq5fZyQW6wycPCxo
+         WoFS9KaB4UeLJG4qu3LdgseMrJaiPaxQQLGCqbjmuXcKN84VTUvuI6H9R3VYYNwZI7
+         krqJrFrcF6uPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johannes Berg <johannes.berg@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 39/48] iwlwifi: trans: consider firmware dead after errors
-Date:   Tue, 22 Dec 2020 21:24:07 -0500
-Message-Id: <20201223022417.2794032-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 40/48] iwlwifi: add an extra firmware state in the transport
+Date:   Tue, 22 Dec 2020 21:24:08 -0500
+Message-Id: <20201223022417.2794032-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022417.2794032-1-sashal@kernel.org>
 References: <20201223022417.2794032-1-sashal@kernel.org>
@@ -45,36 +45,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 152fdc0f698896708f9d7889a4ba4da6944b74f7 ]
+[ Upstream commit b2ed841ed070ccbe908016537f429a3a8f0221bf ]
 
-If we get an error, no longer consider the firmware to be
-in IWL_TRANS_FW_ALIVE state.
+Start tracking not just if the firmware is dead or alive,
+but also if it's starting.
 
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201209231352.a9d01e79c1c7.Ib2deb076b392fb516a7230bac91d7ab8a9586d86@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20201209231352.33e50d40b688.I8bbd41af7aa5e769273a6fc1c06fbf548dd2eb26@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-trans.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-trans.h | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
-index 0296124a7f9cf..360554727a817 100644
+index 360554727a817..b1cc2b9f82ab6 100644
 --- a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
 +++ b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
-@@ -1238,8 +1238,10 @@ static inline void iwl_trans_fw_error(struct iwl_trans *trans)
- 		return;
+@@ -681,12 +681,14 @@ struct iwl_trans_ops {
+ /**
+  * enum iwl_trans_state - state of the transport layer
+  *
+- * @IWL_TRANS_NO_FW: no fw has sent an alive response
+- * @IWL_TRANS_FW_ALIVE: a fw has sent an alive response
++ * @IWL_TRANS_NO_FW: firmware wasn't started yet, or crashed
++ * @IWL_TRANS_FW_STARTED: FW was started, but not alive yet
++ * @IWL_TRANS_FW_ALIVE: FW has sent an alive response
+  */
+ enum iwl_trans_state {
+-	IWL_TRANS_NO_FW = 0,
+-	IWL_TRANS_FW_ALIVE	= 1,
++	IWL_TRANS_NO_FW,
++	IWL_TRANS_FW_STARTED,
++	IWL_TRANS_FW_ALIVE,
+ };
  
- 	/* prevent double restarts due to the same erroneous FW */
--	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status))
-+	if (!test_and_set_bit(STATUS_FW_ERROR, &trans->status)) {
- 		iwl_op_mode_nic_error(trans->op_mode);
-+		trans->state = IWL_TRANS_NO_FW;
-+	}
+ /**
+@@ -909,12 +911,18 @@ static inline int iwl_trans_start_fw(struct iwl_trans *trans,
+ 				     const struct fw_img *fw,
+ 				     bool run_in_rfkill)
+ {
++	int ret;
++
+ 	might_sleep();
+ 
+ 	WARN_ON_ONCE(!trans->rx_mpdu_cmd);
+ 
+ 	clear_bit(STATUS_FW_ERROR, &trans->status);
+-	return trans->ops->start_fw(trans, fw, run_in_rfkill);
++	ret = trans->ops->start_fw(trans, fw, run_in_rfkill);
++	if (ret == 0)
++		trans->state = IWL_TRANS_FW_STARTED;
++
++	return ret;
  }
  
- /*****************************************************
+ static inline int iwl_trans_update_sf(struct iwl_trans *trans,
 -- 
 2.27.0
 
