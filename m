@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44E342E11C7
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5697A2E11C5
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:17:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725300AbgLWCRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:17:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
+        id S1727261AbgLWCRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:17:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726069AbgLWCRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:17:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 970222222A;
-        Wed, 23 Dec 2020 02:16:30 +0000 (UTC)
+        id S1726069AbgLWCRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:17:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C347C2222D;
+        Wed, 23 Dec 2020 02:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689791;
-        bh=ZSA41/q39HXg0SItUW1TBhjquHbuv7/iDv3p9HfPKpA=;
+        s=k20201202; t=1608689792;
+        bh=KGUIjWyHk5k5wLQRat+bVLgNWSjZT8KzbcmGdtuIDLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCYfxuhc70scrJX79WjWacYJQIr8egDKknyQ5sx1zbaj2BpuQ4PmCcDGgu7YA7rHB
-         PHBZhwr00Prpuw1tfV6KxIYR2Ifgx++WSWwN8sVVhUIiVPaDWOEWEd7CrRXBr+2Xyw
-         U2E11VEkQpbPO0iLtpMH6gPkPcG4qlQjHjjsQkt4zszovkhZ0BtE4lvn4O2G59ZdK2
-         7Dt6EvwGjSUErcEkkMeyGZei+w6W5VM+XaH2AcLRIqaIPO/xMHMPz4rKmy4GS7kZN2
-         675d74DnlXeiFcRFGYaImIfRBaHQOsampW9g4OO/9UzbslbQhLqNRsjoVLAchoInJU
-         w3AJMm5vdw4uw==
+        b=kUYtPTgUDvALT4q+v0FZmvJF+M+63bRNI51g0vbssdKtXLkNZYbCVMGenrDF30FHe
+         M9PUGXenA8kJ75AqsySJUkVJeUfX5oroJrvgUgrJILwaBAD4BAVuMpsQEhk/6RgBay
+         fNBi3zgIx4zAmDE5JvJAwZemJHuyzV+5CBftKJrwh/872+hCTLkYO6LpbJ/8bgjxJ8
+         so1tc0JYcdxbhkdGZgSuKiFEYJrpLOzw+PIKz0TBGigmzucALhnFurw668uUbcDfiS
+         EZozNvcjdh7CH2fTsAa5L3dHpE9X2kDQ2pWugy6MpBq+RDhpqf6Q07AuGQq6XnxMCY
+         bIP9IQ4anI0wA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Steev Klimaszewski <steev@kali.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Yifan Zhang <yifan1.zhang@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 003/217] drm/bridge: ti-sn65dsi86: Add retries for link training
-Date:   Tue, 22 Dec 2020 21:12:52 -0500
-Message-Id: <20201223021626.2790791-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 004/217] drm/amd/display: setup system context in dm_init
+Date:   Tue, 22 Dec 2020 21:12:53 -0500
+Message-Id: <20201223021626.2790791-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -44,105 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit 137655d1ed353806b8591855b569efd090d84135 ]
+[ Upstream commit c0fb85ae02b62bded71110f44e8b0fe34f11260f ]
 
-On some panels hooked up to the ti-sn65dsi86 bridge chip we found that
-link training was failing.  Specifically, we'd see:
+[why]
+display S/G mode fails in Renoir
 
-  ti_sn65dsi86 2-002d: [drm:ti_sn_bridge_enable] *ERROR* Link training failed, link is off (-5)
+[how]
+Setup system context in dm init.
 
-The panel was hooked up to a logic analyzer and it was found that, as
-part of link training, the bridge chip was writing a 0x1 to DPCD
-address 00600h and the panel responded NACK.  As can be seen in header
-files, the write of 0x1 to DPCD address 0x600h means we were trying to
-write the value DP_SET_POWER_D0 to the register DP_SET_POWER.  The
-panel vendor says that a NACK in this case is not unexpected and means
-"not ready, try again".
-
-In testing, we found that this panel would respond with a NACK in
-about 1/25 times.  Adding the retry logic worked fine and the most
-number of tries needed was 3.  Just to be safe, we'll add 10 tries
-here and we'll add a little blurb to the logs if we ever need more
-than 5.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Tested-By: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201002135920.1.I2adbc90b2db127763e2444bd5a4e5bf30e1db8e5@changeid
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 40 +++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 11 deletions(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 61 +++++++++++++++++++
+ 1 file changed, 61 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index ecdf9b01340f5..c9ab9d8296940 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -106,6 +106,8 @@
- #define SN_NUM_GPIOS			4
- #define SN_GPIO_PHYSICAL_OFFSET		1
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 0f7749e9424d4..547928cf284b5 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -921,12 +921,67 @@ static void amdgpu_check_debugfs_connector_property_change(struct amdgpu_device
+ 	}
+ }
  
-+#define SN_LINK_TRAINING_TRIES		10
++static void mmhub_read_system_context(struct amdgpu_device *adev, struct dc_phy_addr_space_config *pa_config)
++{
++	uint64_t pt_base;
++	uint32_t logical_addr_low;
++	uint32_t logical_addr_high;
++	uint32_t agp_base, agp_bot, agp_top;
++	PHYSICAL_ADDRESS_LOC page_table_start, page_table_end, page_table_base;
 +
- /**
-  * struct ti_sn_bridge - Platform data for ti-sn65dsi86 driver.
-  * @dev:          Pointer to our device.
-@@ -673,6 +675,7 @@ static int ti_sn_link_training(struct ti_sn_bridge *pdata, int dp_rate_idx,
++	logical_addr_low  = min(adev->gmc.fb_start, adev->gmc.agp_start) >> 18;
++	pt_base = amdgpu_gmc_pd_addr(adev->gart.bo);
++
++	if (adev->apu_flags & AMD_APU_IS_RAVEN2)
++		/*
++		 * Raven2 has a HW issue that it is unable to use the vram which
++		 * is out of MC_VM_SYSTEM_APERTURE_HIGH_ADDR. So here is the
++		 * workaround that increase system aperture high address (add 1)
++		 * to get rid of the VM fault and hardware hang.
++		 */
++		logical_addr_high = max((adev->gmc.fb_end >> 18) + 0x1, adev->gmc.agp_end >> 18);
++	else
++		logical_addr_high = max(adev->gmc.fb_end, adev->gmc.agp_end) >> 18;
++
++	agp_base = 0;
++	agp_bot = adev->gmc.agp_start >> 24;
++	agp_top = adev->gmc.agp_end >> 24;
++
++
++	page_table_start.high_part = (u32)(adev->gmc.gart_start >> 44) & 0xF;
++	page_table_start.low_part = (u32)(adev->gmc.gart_start >> 12);
++	page_table_end.high_part = (u32)(adev->gmc.gart_end >> 44) & 0xF;
++	page_table_end.low_part = (u32)(adev->gmc.gart_end >> 12);
++	page_table_base.high_part = upper_32_bits(pt_base) & 0xF;
++	page_table_base.low_part = lower_32_bits(pt_base);
++
++	pa_config->system_aperture.start_addr = (uint64_t)logical_addr_low << 18;
++	pa_config->system_aperture.end_addr = (uint64_t)logical_addr_high << 18;
++
++	pa_config->system_aperture.agp_base = (uint64_t)agp_base << 24 ;
++	pa_config->system_aperture.agp_bot = (uint64_t)agp_bot << 24;
++	pa_config->system_aperture.agp_top = (uint64_t)agp_top << 24;
++
++	pa_config->system_aperture.fb_base = adev->gmc.fb_start;
++	pa_config->system_aperture.fb_offset = adev->gmc.aper_base;
++	pa_config->system_aperture.fb_top = adev->gmc.fb_end;
++
++	pa_config->gart_config.page_table_start_addr = page_table_start.quad_part << 12;
++	pa_config->gart_config.page_table_end_addr = page_table_end.quad_part << 12;
++	pa_config->gart_config.page_table_base_addr = page_table_base.quad_part;
++
++	pa_config->is_hvm_enabled = 0;
++
++}
++
++
+ static int amdgpu_dm_init(struct amdgpu_device *adev)
  {
- 	unsigned int val;
- 	int ret;
-+	int i;
+ 	struct dc_init_data init_data;
+ #ifdef CONFIG_DRM_AMD_DC_HDCP
+ 	struct dc_callback_init init_params;
+ #endif
++	struct dc_phy_addr_space_config pa_config;
+ 	int r;
  
- 	/* set dp clk frequency value */
- 	regmap_update_bits(pdata->regmap, SN_DATARATE_CONFIG_REG,
-@@ -689,19 +692,34 @@ static int ti_sn_link_training(struct ti_sn_bridge *pdata, int dp_rate_idx,
- 		goto exit;
+ 	adev->dm.ddev = adev_to_drm(adev);
+@@ -1030,6 +1085,11 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 
+ 	dc_hardware_init(adev->dm.dc);
+ 
++	mmhub_read_system_context(adev, &pa_config);
++
++	// Call the DC init_memory func
++	dc_setup_system_context(adev->dm.dc, &pa_config);
++
+ 	adev->dm.freesync_module = mod_freesync_create(adev->dm.dc);
+ 	if (!adev->dm.freesync_module) {
+ 		DRM_ERROR(
+@@ -1073,6 +1133,7 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 		goto error;
  	}
  
--	/* Semi auto link training mode */
--	regmap_write(pdata->regmap, SN_ML_TX_MODE_REG, 0x0A);
--	ret = regmap_read_poll_timeout(pdata->regmap, SN_ML_TX_MODE_REG, val,
--				       val == ML_TX_MAIN_LINK_OFF ||
--				       val == ML_TX_NORMAL_MODE, 1000,
--				       500 * 1000);
--	if (ret) {
--		*last_err_str = "Training complete polling failed";
--	} else if (val == ML_TX_MAIN_LINK_OFF) {
--		*last_err_str = "Link training failed, link is off";
--		ret = -EIO;
-+	/*
-+	 * We'll try to link train several times.  As part of link training
-+	 * the bridge chip will write DP_SET_POWER_D0 to DP_SET_POWER.  If
-+	 * the panel isn't ready quite it might respond NAK here which means
-+	 * we need to try again.
-+	 */
-+	for (i = 0; i < SN_LINK_TRAINING_TRIES; i++) {
-+		/* Semi auto link training mode */
-+		regmap_write(pdata->regmap, SN_ML_TX_MODE_REG, 0x0A);
-+		ret = regmap_read_poll_timeout(pdata->regmap, SN_ML_TX_MODE_REG, val,
-+					       val == ML_TX_MAIN_LINK_OFF ||
-+					       val == ML_TX_NORMAL_MODE, 1000,
-+					       500 * 1000);
-+		if (ret) {
-+			*last_err_str = "Training complete polling failed";
-+		} else if (val == ML_TX_MAIN_LINK_OFF) {
-+			*last_err_str = "Link training failed, link is off";
-+			ret = -EIO;
-+			continue;
-+		}
 +
-+		break;
- 	}
+ 	DRM_DEBUG_DRIVER("KMS initialized.\n");
  
-+	/* If we saw quite a few retries, add a note about it */
-+	if (!ret && i > SN_LINK_TRAINING_TRIES / 2)
-+		DRM_DEV_INFO(pdata->dev, "Link training needed %d retries\n", i);
-+
- exit:
- 	/* Disable the PLL if we failed */
- 	if (ret)
+ 	return 0;
 -- 
 2.27.0
 
