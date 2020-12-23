@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C8B2E1525
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4ECB2E151B
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729953AbgLWCsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:48:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
+        id S1729609AbgLWCWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:22:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729586AbgLWCWP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D386122AAF;
-        Wed, 23 Dec 2020 02:21:56 +0000 (UTC)
+        id S1729596AbgLWCWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:22:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10CD222D57;
+        Wed, 23 Dec 2020 02:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690117;
-        bh=Xu40XiNNwVJAQAFqV2wYnjU/S41hM84C8gjgwXe5cZM=;
+        s=k20201202; t=1608690118;
+        bh=ZyApZxQZVk6sKMiHL/zzmD4bkGQiWvE7rBwr+GXas2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3igqoCzgmNAMrB3aFtImjLKAADY/0J/KZE9ToIALOjLyyepgtgBJAC8R2IxdjUvR
-         XOC1YimiXFx7vbKtKBW+qA3r6jh2Bq44zrwXp2Mi8fhR624u1EpHHwPlT2Np3XU8P2
-         GGw0EAyhegLq+74TBx7TLHq3k3dPg5n5Hpj/uZ+Nq18yZYml0gNvSab3aCTqtySM1R
-         0SH2jO0IGc2hPZVubljFsjE1MiRczzb2P5DhbJ17D6KF48NCWyqaqOBP9/oCnKF7V/
-         +/BNOGsmtzL5fJS7I7EmWm+DzVtWCHiFcvDokAne96vn0a/M0g7PWnkgD/y58ZA+OY
-         WqV37tvZBp20Q==
+        b=EDtOZEMNgCspd+JB+D3ICleCjH3Rtcf+V3iSBrE7qFMKh00i0J344KewI0b0/XMzK
+         NjcjsvwYMeMzrs31EJHTiToEYONCjnUzW4EA44FOChw4Dks0BZXvzMOTbzT3nPb4aF
+         Ap7yHJiltlPK2Nn3M4l325TZ9Giw0eIJt8d5XXeMzMaK/kEsWAnr6C2qqLGJ33Wjpc
+         zYOVjwHLOlNXm43J1J5wyPY09brag2g/4hSOUdONYc5bxJDmLeLkoBY2GcY5m17JwZ
+         jbD+S4l5PFZ3cWzkUc4O7dfR+deJIrQ6xpnyqk9dzCuKUrvzvv9HOvycZp25jIByYh
+         cRNqmu1JkZkrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhen Lei <thunder.leizhen@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 44/87] ARM: dts: hisilicon: fix errors detected by spi-pl022.yaml
-Date:   Tue, 22 Dec 2020 21:20:20 -0500
-Message-Id: <20201223022103.2792705-44-sashal@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 45/87] selftests/x86/fsgsbase: Fix GS == 1, 2, and 3 tests
+Date:   Tue, 22 Dec 2020 21:20:21 -0500
+Message-Id: <20201223022103.2792705-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -42,57 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 4c246408f0bdbc4100c95a5dad9e0688b4a3cfd0 ]
+[ Upstream commit 716572b0003ef67a4889bd7d85baf5099c5a0248 ]
 
-1. Change clock-names to "sspclk", "apb_pclk". Both of them use the same
-   clock.
+Setting GS to 1, 2, or 3 causes a nonsensical part of the IRET microcode
+to change GS back to zero on a return from kernel mode to user mode. The
+result is that these tests fail randomly depending on when interrupts
+happen. Detect when this happens and let the test pass.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/7567fd44a1d60a9424f25b19a998f12149993b0d.1604346596.git.luto@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/hi3519.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/x86/fsgsbase.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/hi3519.dtsi b/arch/arm/boot/dts/hi3519.dtsi
-index 7df6358081d29..9955b6f0a6340 100644
---- a/arch/arm/boot/dts/hi3519.dtsi
-+++ b/arch/arm/boot/dts/hi3519.dtsi
-@@ -140,8 +140,8 @@ spi_bus0: spi@12120000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x12120000 0x1000>;
- 			interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&crg HI3519_SPI0_CLK>;
--			clock-names = "apb_pclk";
-+			clocks = <&crg HI3519_SPI0_CLK>, <&crg HI3519_SPI0_CLK>;
-+			clock-names = "sspclk", "apb_pclk";
- 			num-cs = <1>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -152,8 +152,8 @@ spi_bus1: spi@12121000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x12121000 0x1000>;
- 			interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&crg HI3519_SPI1_CLK>;
--			clock-names = "apb_pclk";
-+			clocks = <&crg HI3519_SPI1_CLK>, <&crg HI3519_SPI1_CLK>;
-+			clock-names = "sspclk", "apb_pclk";
- 			num-cs = <1>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -164,8 +164,8 @@ spi_bus2: spi@12122000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x12122000 0x1000>;
- 			interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&crg HI3519_SPI2_CLK>;
--			clock-names = "apb_pclk";
-+			clocks = <&crg HI3519_SPI2_CLK>, <&crg HI3519_SPI2_CLK>;
-+			clock-names = "sspclk", "apb_pclk";
- 			num-cs = <1>;
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+diff --git a/tools/testing/selftests/x86/fsgsbase.c b/tools/testing/selftests/x86/fsgsbase.c
+index f249e042b3b51..026cd644360f6 100644
+--- a/tools/testing/selftests/x86/fsgsbase.c
++++ b/tools/testing/selftests/x86/fsgsbase.c
+@@ -318,8 +318,8 @@ static void set_gs_and_switch_to(unsigned long local,
+ 		local = read_base(GS);
+ 
+ 		/*
+-		 * Signal delivery seems to mess up weird selectors.  Put it
+-		 * back.
++		 * Signal delivery is quite likely to change a selector
++		 * of 1, 2, or 3 back to 0 due to IRET being defective.
+ 		 */
+ 		asm volatile ("mov %0, %%gs" : : "rm" (force_sel));
+ 	} else {
+@@ -337,6 +337,14 @@ static void set_gs_and_switch_to(unsigned long local,
+ 	if (base == local && sel_pre_sched == sel_post_sched) {
+ 		printf("[OK]\tGS/BASE remained 0x%hx/0x%lx\n",
+ 		       sel_pre_sched, local);
++	} else if (base == local && sel_pre_sched >= 1 && sel_pre_sched <= 3 &&
++		   sel_post_sched == 0) {
++		/*
++		 * IRET is misdesigned and will squash selectors 1, 2, or 3
++		 * to zero.  Don't fail the test just because this happened.
++		 */
++		printf("[OK]\tGS/BASE changed from 0x%hx/0x%lx to 0x%hx/0x%lx because IRET is defective\n",
++		       sel_pre_sched, local, sel_post_sched, base);
+ 	} else {
+ 		nerrs++;
+ 		printf("[FAIL]\tGS/BASE changed from 0x%hx/0x%lx to 0x%hx/0x%lx\n",
 -- 
 2.27.0
 
