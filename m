@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 685BB2E1435
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0CC82E14BD
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 03:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727880AbgLWCWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 21:22:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+        id S1729970AbgLWCnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 21:43:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbgLWCWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:22:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A987F225AB;
-        Wed, 23 Dec 2020 02:22:24 +0000 (UTC)
+        id S1729907AbgLWCXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:23:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 214022256F;
+        Wed, 23 Dec 2020 02:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608690145;
-        bh=ZqsyhDJr975uH78eq9vlqfIjc4P44FyApTZEkqL50qQ=;
+        s=k20201202; t=1608690147;
+        bh=UkGeKJkcCoTLxKNZoeNdLRsTAEj6DMtSyChkrv5bYHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsJERloCOO1sEcnC3KH3uUL1DqJTLCoTslLq6iZ0XN/CTCPQrRUlII5NV6bybneJp
-         zSveHGUUqwr0Ufk02PxN1hmKKc/9nwsbzyGKdK5Cuh7pT/c4jiasNCpJgN67Pry57C
-         LrCSXn4WdRYRagKPr0S2Ka59WY8BfGqNIm/fek0/1N+hoi0eb4n8CoqJ9bM4+5ZouT
-         exjh33OMIJLIu4ttHkJwaGRChRLkHTjpq1UPuLD+rn05zu80ChEXTi5oBly1MhWrF8
-         Efjy5x4YBW70+9TmH0cVV37rcK7XtjFYPcE471kYXuDR9zMQVQ7NX7d7hUcQbg+qe2
-         +ZBCYX8CtdZgQ==
+        b=gyAyVxIM4L6T+uvTjRbOtdUtPbDu4y35Z1fdU6J48UOgH5xoSG7ro3DwV1FQj+ZAU
+         wzHVTADVXncSaLZKAjxY7+gumkStjZqM7pm7sqzPPIt/FTPkd2d3ZqAD1uMcp+QR9S
+         VRrq5GTzqCeEGB/YtMi+8d8yURWVpCdqd0sTiU1YoHWy9KyO2CT/haBPK4ofx/citN
+         wbyOdw97tT5nWAFzr6Eq02BdkWehtMxAX9u06d+8EGM+fkGkWPLE3nQ6r8yT34M3oW
+         z/EzASYTCP4kMp2fT5yHi8c8ZuSwMAKpJi2xGIEsO3JWPyaCPHn4thEcmtQLkJ6vH0
+         XC+6I5DOb6mlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaohui <ruc_zhangxiaohui@163.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 66/87] mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
-Date:   Tue, 22 Dec 2020 21:20:42 -0500
-Message-Id: <20201223022103.2792705-66-sashal@kernel.org>
+Cc:     Michal Simek <michal.simek@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 68/87] ARM: zynq: Fix leds subnode name for zc702/zybo-z7
+Date:   Tue, 22 Dec 2020 21:20:44 -0500
+Message-Id: <20201223022103.2792705-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223022103.2792705-1-sashal@kernel.org>
 References: <20201223022103.2792705-1-sashal@kernel.org>
@@ -43,37 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit 5c455c5ab332773464d02ba17015acdca198f03d ]
+[ Upstream commit 38d1985fdfcf20dc246b552580479ae602f735d1 ]
 
-mwifiex_cmd_802_11_ad_hoc_start() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+Fix the leds subnode names to match (^led-[0-9a-f]$|led).
 
-Signed-off-by: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201206084801.26479-1-ruc_zhangxiaohui@163.com
+Similar change has been also done by commit 9a19a39ee48b ("arm64: dts:
+zynqmp: Fix leds subnode name for zcu100/ultra96 v1").
+
+The patch is fixing these warnings:
+.../zynq-zc702.dt.yaml: leds: 'ds23' does not match any of the regexes:
+'(^led-[0-9a-f]$|led)', 'pinctrl-[0-9]+'
+>From schema: .../Documentation/devicetree/bindings/leds/leds-gpio.yaml
+.../zynq-zybo-z7.dt.yaml: gpio-leds: 'ld4' does not match any of the
+regexes: '(^led-[0-9a-f]$|led)', 'pinctrl-[0-9]+'
+>From schema: .../Documentation/devicetree/bindings/leds/leds-gpio.yaml
+
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/607a66783b129294364abf09a6fc8abd241ff4ee.1606397101.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/join.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/zynq-zc702.dts   | 2 +-
+ arch/arm/boot/dts/zynq-zybo-z7.dts | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/join.c b/drivers/net/wireless/marvell/mwifiex/join.c
-index d87aeff70cefb..c2cb1e711c06e 100644
---- a/drivers/net/wireless/marvell/mwifiex/join.c
-+++ b/drivers/net/wireless/marvell/mwifiex/join.c
-@@ -877,6 +877,8 @@ mwifiex_cmd_802_11_ad_hoc_start(struct mwifiex_private *priv,
+diff --git a/arch/arm/boot/dts/zynq-zc702.dts b/arch/arm/boot/dts/zynq-zc702.dts
+index 27cd6cb52f1ba..10a7d0b8cf8b9 100644
+--- a/arch/arm/boot/dts/zynq-zc702.dts
++++ b/arch/arm/boot/dts/zynq-zc702.dts
+@@ -49,7 +49,7 @@ sw13 {
+ 	leds {
+ 		compatible = "gpio-leds";
  
- 	memset(adhoc_start->ssid, 0, IEEE80211_MAX_SSID_LEN);
+-		ds23 {
++		led-ds23 {
+ 			label = "ds23";
+ 			gpios = <&gpio0 10 0>;
+ 			linux,default-trigger = "heartbeat";
+diff --git a/arch/arm/boot/dts/zynq-zybo-z7.dts b/arch/arm/boot/dts/zynq-zybo-z7.dts
+index 357b78a5c11b1..7b87e10d3953b 100644
+--- a/arch/arm/boot/dts/zynq-zybo-z7.dts
++++ b/arch/arm/boot/dts/zynq-zybo-z7.dts
+@@ -25,7 +25,7 @@ chosen {
+ 	gpio-leds {
+ 		compatible = "gpio-leds";
  
-+	if (req_ssid->ssid_len > IEEE80211_MAX_SSID_LEN)
-+		req_ssid->ssid_len = IEEE80211_MAX_SSID_LEN;
- 	memcpy(adhoc_start->ssid, req_ssid->ssid, req_ssid->ssid_len);
- 
- 	mwifiex_dbg(adapter, INFO, "info: ADHOC_S_CMD: SSID = %s\n",
+-		ld4 {
++		led-ld4 {
+ 			label = "zynq-zybo-z7:green:ld4";
+ 			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+ 		};
 -- 
 2.27.0
 
