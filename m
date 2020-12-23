@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB0C2E1705
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C68542E1700
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730356AbgLWDFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:05:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S1728548AbgLWDEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:04:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728541AbgLWCTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:19:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 456F622A83;
-        Wed, 23 Dec 2020 02:18:32 +0000 (UTC)
+        id S1728543AbgLWCTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:19:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9217A2312E;
+        Wed, 23 Dec 2020 02:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689913;
-        bh=s8xvwIHiB3yfvpHTfpYs8sG2KAGOIsQE/riBO1EdJxY=;
+        s=k20201202; t=1608689914;
+        bh=RdtcM6zViuzlK2Nkml3KLpxbfyMc0DyP2XN/pSqi9Cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VItxIoCIEUbWc2ae6JyQ5MBAn6siFygLd7XkZVMRvAl194dsjl2mq+0/X+oeRBE8S
-         d8Viqm+QOCyh3uwmnGK+Bc7L3lNOmiWhV5fnwa9gqelqFOFYdKhzNuphfUVQ3EgI+I
-         0eLeVs+DzGeX/JbhfG2WYvauWBmuEyYg5f0KmI77kX/qeX7Tu+U7zoLk8dA7URLlR4
-         L3753edhzampsE7Cjf0Qlb8B8FGmRQjJpNdUxSV0bfpbieBVTGlTaDMBcYTnbNYVkb
-         s/tyAKoaZcdEQjk101wXKD8hK9fUoH+UdNbOnNa9VqGsDUqrPdeCz3a/S4azTgOTGt
-         dRPNev6xfSgzw==
+        b=KRX5gJNg4nHXjBAYzkc7vqiiWRCGI5ztss5klPlveW8mE2UHP7R4iqDnes49BpFqh
+         wvj2Z/ZoOik0laJVP2qsrR7/UnImFnM9MB5lFwCK3w8l5BHDJZTP3qs6TeGLlxHGxd
+         7dRIbqArTZQQ3W3KOJ4bTQPCx3rifAVsjkFhlb/ptF1A8FZOdV+t1uY5HcQSUr9qO9
+         zSMhkeK26aixkRlTDdUYWDhJ1679xcm6/Hn/hgPO2Hl299OrhWvbkrfQWemJcY/hHs
+         WG60upA51w/ofTYauBzOvx5+BkLnfv/M8w5n3vZAhl4ttQph2h6upyL9j/wqrrv9rg
+         Qf7YS3py7h6KA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boqun Feng <boqun.feng@gmail.com>,
-        syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com,
-        syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com,
-        Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 014/130] fcntl: Fix potential deadlock in send_sig{io, urg}()
-Date:   Tue, 22 Dec 2020 21:16:17 -0500
-Message-Id: <20201223021813.2791612-14-sashal@kernel.org>
+Cc:     Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 015/130] mac80211: don't overwrite QoS TID of injected frames
+Date:   Tue, 22 Dec 2020 21:16:18 -0500
+Message-Id: <20201223021813.2791612-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
 References: <20201223021813.2791612-1-sashal@kernel.org>
@@ -44,129 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-[ Upstream commit 8d1ddb5e79374fb277985a6b3faa2ed8631c5b4c ]
+[ Upstream commit 527d675969a1dff17baa270d4447ac1c87058299 ]
 
-Syzbot reports a potential deadlock found by the newly added recursive
-read deadlock detection in lockdep:
+Currently ieee80211_set_qos_hdr sets the QoS TID of all frames based
+on the value assigned to skb->priority. This means it will also
+overwrite the QoS TID of injected frames. The commit 753ffad3d624
+("mac80211: fix TID field in monitor mode transmit") prevented
+injected frames from being modified because of this by setting
+skb->priority to the TID of the injected frame, which assured the
+QoS TID will not be changed to a different value. Unfortunately,
+this workaround complicates the handling of injected frames because
+we can't set skb->priority without affecting the TID value in the
+QoS field of injected frames.
 
-[...] ========================================================
-[...] WARNING: possible irq lock inversion dependency detected
-[...] 5.9.0-rc2-syzkaller #0 Not tainted
-[...] --------------------------------------------------------
-[...] syz-executor.1/10214 just changed the state of lock:
-[...] ffff88811f506338 (&f->f_owner.lock){.+..}-{2:2}, at: send_sigurg+0x1d/0x200
-[...] but this lock was taken by another, HARDIRQ-safe lock in the past:
-[...]  (&dev->event_lock){-...}-{2:2}
-[...]
-[...]
-[...] and interrupts could create inverse lock ordering between them.
-[...]
-[...]
-[...] other info that might help us debug this:
-[...] Chain exists of:
-[...]   &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
-[...]
-[...]  Possible interrupt unsafe locking scenario:
-[...]
-[...]        CPU0                    CPU1
-[...]        ----                    ----
-[...]   lock(&f->f_owner.lock);
-[...]                                local_irq_disable();
-[...]                                lock(&dev->event_lock);
-[...]                                lock(&new->fa_lock);
-[...]   <Interrupt>
-[...]     lock(&dev->event_lock);
-[...]
-[...]  *** DEADLOCK ***
+To avoid this, and to simplify the next patch, detect if a frame is
+injected in ieee80211_set_qos_hdr and if so do not change its QoS
+field.
 
-The corresponding deadlock case is as followed:
-
-	CPU 0		CPU 1		CPU 2
-	read_lock(&fown->lock);
-			spin_lock_irqsave(&dev->event_lock, ...)
-					write_lock_irq(&filp->f_owner.lock); // wait for the lock
-			read_lock(&fown-lock); // have to wait until the writer release
-					       // due to the fairness
-	<interrupted>
-	spin_lock_irqsave(&dev->event_lock); // wait for the lock
-
-The lock dependency on CPU 1 happens if there exists a call sequence:
-
-	input_inject_event():
-	  spin_lock_irqsave(&dev->event_lock,...);
-	  input_handle_event():
-	    input_pass_values():
-	      input_to_handler():
-	        handler->event(): // evdev_event()
-	          evdev_pass_values():
-	            spin_lock(&client->buffer_lock);
-	            __pass_event():
-	              kill_fasync():
-	                kill_fasync_rcu():
-	                  read_lock(&fa->fa_lock);
-	                  send_sigio():
-	                    read_lock(&fown->lock);
-
-To fix this, make the reader in send_sigurg() and send_sigio() use
-read_lock_irqsave() and read_lock_irqrestore().
-
-Reported-by: syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com
-Reported-by: syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20201104061823.197407-4-Mathy.Vanhoef@kuleuven.be
+[fix typos in commit message]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fcntl.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/mac80211/tx.c  | 5 +----
+ net/mac80211/wme.c | 8 ++++++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 3d40771e8e7cf..3dc90e5293e65 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -779,9 +779,10 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
- {
- 	struct task_struct *p;
- 	enum pid_type type;
-+	unsigned long flags;
- 	struct pid *pid;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
- 
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -802,7 +803,7 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
- 		read_unlock(&tasklist_lock);
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 30a0c7c6224b3..11085a4b5ee3a 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -2280,10 +2280,7 @@ netdev_tx_t ieee80211_monitor_start_xmit(struct sk_buff *skb,
+ 						    payload[7]);
  	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- }
  
- static void send_sigurg_to_task(struct task_struct *p,
-@@ -817,9 +818,10 @@ int send_sigurg(struct fown_struct *fown)
- 	struct task_struct *p;
- 	enum pid_type type;
- 	struct pid *pid;
-+	unsigned long flags;
- 	int ret = 0;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
+-	/*
+-	 * Initialize skb->priority for QoS frames. This is put in the TID field
+-	 * of the frame before passing it to the driver.
+-	 */
++	/* Initialize skb->priority for QoS frames */
+ 	if (ieee80211_is_data_qos(hdr->frame_control)) {
+ 		u8 *p = ieee80211_get_qos_ctl(hdr);
+ 		skb->priority = *p & IEEE80211_QOS_CTL_TAG1D_MASK;
+diff --git a/net/mac80211/wme.c b/net/mac80211/wme.c
+index 72920d82928c4..8cd157e67fc77 100644
+--- a/net/mac80211/wme.c
++++ b/net/mac80211/wme.c
+@@ -249,6 +249,14 @@ void ieee80211_set_qos_hdr(struct ieee80211_sub_if_data *sdata,
  
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -842,7 +844,7 @@ int send_sigurg(struct fown_struct *fown)
- 		read_unlock(&tasklist_lock);
- 	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- 	return ret;
- }
+ 	p = ieee80211_get_qos_ctl(hdr);
  
++	/* don't overwrite the QoS field of injected frames */
++	if (info->flags & IEEE80211_TX_CTL_INJECTED) {
++		/* do take into account Ack policy of injected frames */
++		if (*p & IEEE80211_QOS_CTL_ACK_POLICY_NOACK)
++			info->flags |= IEEE80211_TX_CTL_NO_ACK;
++		return;
++	}
++
+ 	/* set up the first byte */
+ 
+ 	/*
 -- 
 2.27.0
 
