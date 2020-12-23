@@ -2,167 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02D32E2290
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 23:47:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B53632E229E
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 00:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727134AbgLWWrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 17:47:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727012AbgLWWrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 17:47:12 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7501C06179C
-        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 14:46:31 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id n25so481822pgb.0
-        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 14:46:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Aoa2jL4MSpuNZXmExdoIuQRNH7KICo9n78C76PnoXcg=;
-        b=Z2FEr7uZp52wm6RxwEQtt1BstLzaJgjNvSO4EBbaDUYwDDC0K0cNZSewqv+FDSJQoe
-         GEqEYMIhCCD9xwioaPqKb5P2qF4MrAW0slEly38q2aIf6DDkf8kCrV/iAFzqdiHFDOzX
-         qtbir4Cj2J5hlvUjjUUdQPkJk6aYRkoToVR7djSq1IuMjITCVn+av7CY3ZhDbXsDTy2G
-         9fcFLUFJ4ptAP+DzXRgnSY8a9s9o1uCzPHaDNhN2+8mCiBknuvGDPv1+vHzBcQxrGKxf
-         qFm2hBOdRLkaU5Aop/bTZEZ1KtWKpZ3RZLz1zTmbVVCNQbLEFkPg3u8tP/DdaTVoLhIo
-         1Blw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Aoa2jL4MSpuNZXmExdoIuQRNH7KICo9n78C76PnoXcg=;
-        b=gijLf+BSEkwdbnEnFbBta6G7F2TPLI5UKDqd44NSiMIIP9md9E26pk4qiCsrutMp1F
-         NW7UGDoLqTFXyVLSRimE4M2EQdCytsZ2pPpPoVRQuF84lsqXf2cwxnuMD9O6zJwUpS2Q
-         U2VUEuBSZA5DyjQCYcMnxa2jSBLrUtkinfvWvZ80/JOaQrCd7/bSnU8sOquft/ffpp9H
-         mCbMMONfR2xz+Jn4vWzIATGmrkoRpW4xQuQ0ActEvliymbJr01jez7Rpdk3SRIIPkQaG
-         1+IZMRC9s0PI15ae6FPHfvHBY/GFxyTNS3kzI3dfkOyBjY8qdStyUKzU5w4d1fKGWezp
-         fmAQ==
-X-Gm-Message-State: AOAM5312KNBPxqk0sG6IelNydigRVaEzsnV9ElG8DpqUHBI8jy+uSGer
-        TBDyz21BsnEYOIojq/w0qqfe02VlECoCJQ==
-X-Google-Smtp-Source: ABdhPJzhawjmxUWC4dCo/uOKWwYf6GOZcIj5m8+uRz/+lEXrXz93X/XZUFRHdL1FG0DBFKiYSKpt/A==
-X-Received: by 2002:a63:560b:: with SMTP id k11mr26472233pgb.89.1608763590816;
-        Wed, 23 Dec 2020 14:46:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o123sm23697801pfd.197.2020.12.23.14.46.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Dec 2020 14:46:30 -0800 (PST)
-Message-ID: <5fe3c8c6.1c69fb81.29807.ff54@mx.google.com>
-Date:   Wed, 23 Dec 2020 14:46:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1727268AbgLWXGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 18:06:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40398 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726319AbgLWXGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 18:06:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608764708;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=4IW+6Ci7VWnkZSEHQFQsV4N3ToaQGHBeykrTby9wxas=;
+        b=NC4AKFw531KPD4dcvwrFk6dKvYYAX6E6XfLtVVGD7NH29XQtGz3VKMifUPje+W2qrF/uUi
+        JgEKLa6DPj9n5jgwIs2nu+ZRO8h2Ao9L4N2DyNIDGkZ5WGYe7IgFrv7wG7A9SFFaMbv+5j
+        pZT0BPsiDn44KjawBiCMwYIuRsM+UHg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-333-wDBks589Py2W9rDH4oAFuQ-1; Wed, 23 Dec 2020 18:05:04 -0500
+X-MC-Unique: wDBks589Py2W9rDH4oAFuQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E5A721005504;
+        Wed, 23 Dec 2020 23:05:01 +0000 (UTC)
+Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 47D0D63747;
+        Wed, 23 Dec 2020 23:04:58 +0000 (UTC)
+Date:   Wed, 23 Dec 2020 18:04:57 -0500
+From:   Andrea Arcangeli <aarcange@redhat.com>
+To:     Yu Zhao <yuzhao@google.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X+PNGYH6LkzZo0SU@redhat.com>
+References: <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <X+JhwVX3s5mU9ZNx@google.com>
+ <X+Js/dFbC5P7C3oO@redhat.com>
+ <X+KDwu1PRQ93E2LK@google.com>
+ <X+Kxy3oBMSLz8Eaq@redhat.com>
+ <X+K7JMrTEC9SpVIB@google.com>
+ <X+O49HrcK1fBDk0Q@redhat.com>
+ <X+PE38s2Egq4nzKv@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.248-31-g5518a5e31cef2
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 69 runs,
- 2 regressions (v4.4.248-31-g5518a5e31cef2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X+PE38s2Egq4nzKv@google.com>
+User-Agent: Mutt/2.0.3 (2020-12-04)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 69 runs, 2 regressions (v4.4.248-31-g5518a5e3=
-1cef2)
+On Wed, Dec 23, 2020 at 03:29:51PM -0700, Yu Zhao wrote:
+> I was hesitant to suggest the following because it isn't that straight
+> forward. But since you seem to be less concerned with the complexity,
+> I'll just bring it on the table -- it would take care of both ufd and
+> clear_refs_write, wouldn't it?
 
-Regressions Summary
--------------------
+It certainly would since this is basically declaring "leaving stale
+TLB entries past mmap_read_lock" is now permitted as long as the
+pending flush counter is elevated under mmap_sem for reading.
 
-platform   | arch | lab             | compiler | defconfig           | regr=
-essions
------------+------+-----------------+----------+---------------------+-----=
--------
-dove-cubox | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfig  | 1   =
-       =
+Anything that prevents uffd-wp to take mmap_write_lock looks great to
+me, anything, the below included, as long as it looks like easy to
+enforce and understand. And the below certainly is.
 
-panda      | arm  | lab-collabora   | gcc-8    | omap2plus_defconfig | 1   =
-       =
+My view is that the below is at the very least an improvement in terms
+of total complexity, compared to v5.10. At least it'll be documented.
 
+So what would be not ok to me is to depend on undocumented not
+guaranteed behavior in do_wp_page like the page_mapcount, which is
+what we had until now in clear_refs_write and in uffd-wp (but only if
+wrprotect raced against un-wrprotect, a tiny window if compared to
+clear_refs_write).
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.248-31-g5518a5e31cef2/plan/baseline/
+Documenting that clearing pte_write and deferring the flush is allowed
+if mm_tlb_flush_pending was elevated before taking the PT lock is less
+complex and very well defined rule, if compared to what we had before
+in the page_mapcount dependency of clear_refs_write which was prone to
+break, and in fact it just did.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.248-31-g5518a5e31cef2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5518a5e31cef2eaf6032c10bc79415b7b141dbc0 =
+We'll need a commentary in both userfaultfd_writeprotect and
+clear_refs_write that links to the below snippet.
 
+If we abstract it in a header we can hide there also a #ifdef
+CONFIG_HAVE_ARCH_SOFT_DIRTY=y && CONFIG_HAVE_ARCH_USERFAULTFD_WP=y &&
+CONFIG_USERFAULTFD=y to make it even more explicit.
 
+However it may be simpler to keep it unconditional, I don't mind
+either ways. If it was up to me I'd write it to those 3 config options
+to be sure I remember where it comes from and to force any other user
+to register to be explicit they depend on that.
 
-Test Regressions
----------------- =
+> 
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 5e9ca612d7d7..af38c5ee327e 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -4403,8 +4403,11 @@ static vm_fault_t handle_pte_fault(struct vm_fault *vmf)
+>  		goto unlock;
+>  	}
+>  	if (vmf->flags & FAULT_FLAG_WRITE) {
+> -		if (!pte_write(entry))
+> +		if (!pte_write(entry)) {
+> +			if (mm_tlb_flush_pending(vmf->vma->vm_mm))
+> +				flush_tlb_page(vmf->vma, vmf->address);
+>  			return do_wp_page(vmf);
+> +		}
+>  		entry = pte_mkdirty(entry);
+>  	}
+>  	entry = pte_mkyoung(entry);
+> 
 
-
-
-platform   | arch | lab             | compiler | defconfig           | regr=
-essions
------------+------+-----------------+----------+---------------------+-----=
--------
-dove-cubox | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfig  | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fe396f9aee254249ec94cc2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: mvebu_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.248-3=
-1-g5518a5e31cef2/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove=
--cubox.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.248-3=
-1-g5518a5e31cef2/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dove=
--cubox.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5fe396f9aee254249ec94=
-cc3
-        new failure (last pass: v4.4.248-29-g847e9e7f8e717) =
-
- =
-
-
-
-platform   | arch | lab             | compiler | defconfig           | regr=
-essions
------------+------+-----------------+----------+---------------------+-----=
--------
-panda      | arm  | lab-collabora   | gcc-8    | omap2plus_defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/5fe396d72ec7902f14c94cd8
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.248-3=
-1-g5518a5e31cef2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.248-3=
-1-g5518a5e31cef2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5fe396d72ec7902=
-f14c94cdd
-        failing since 1 day (last pass: v4.4.248-21-g91c1ef779a3c, first fa=
-il: v4.4.248-25-g32a037da5956)
-        2 lines
-
-    2020-12-23 19:13:23.391000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
