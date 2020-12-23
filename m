@@ -2,114 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 174D12E1E2F
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF062E1EFD
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 16:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728914AbgLWPeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 10:34:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44870 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728908AbgLWPef (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Dec 2020 10:34:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DAE23371;
-        Wed, 23 Dec 2020 15:34:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608737649;
-        bh=PYQsgOD9N/AodpfwR8UQ6zdkT19rv7GcP8maEXE6IDA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaIvyzGd7fe/SEt9g7NZ960yjJkVzF0qHaZqTlgaaKIcnJBY3nm0R5lsBf7eo+UaP
-         HXkqiFbwymtL3r8PfbVd7LPmsCkjz8/FQhr0DcYzmu8Nkd3N5m6TNzfRk4NyXG6IGg
-         ieTL94466ggw/w5Jodqi6F9nOnY/KrZQC+EDsT+I=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com,
-        "Dae R. Jeong" <dae.r.jeong@kaist.ac.kr>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.10 40/40] md: fix a warning caused by a race between concurrent md_ioctl()s
-Date:   Wed, 23 Dec 2020 16:33:41 +0100
-Message-Id: <20201223150517.462984079@linuxfoundation.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
-References: <20201223150515.553836647@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727624AbgLWPyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 10:54:07 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:38046 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727093AbgLWPyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 10:54:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608738760;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CctFZb6bundK1QcZGvHF97KgBugzbNEBYOfUqLkXE1s=;
+        b=guqhXXpHiaqvVxI9qKUGKWGjALkSt+NVJfwBh91yOxZXS8r/3zai3kFgYX8DhX/yACQG1W
+        0pRL4AWttA4rk8kTSiqbzoDlgRz4j2mLj9ChfNdiz8vW5O79ysyY7vEZ3PNcuBc86VbE/i
+        cKI8d+p2RcR4jPrp4dnxBq96MOvDYQc=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-108-Dpfna2xoP565a8b4yimUdA-1; Wed, 23 Dec 2020 10:52:38 -0500
+X-MC-Unique: Dpfna2xoP565a8b4yimUdA-1
+Received: by mail-qk1-f198.google.com with SMTP id u184so13906206qka.2
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 07:52:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=CctFZb6bundK1QcZGvHF97KgBugzbNEBYOfUqLkXE1s=;
+        b=lRAvCKoEo13SVf9mkvZlEfkd5IZEQ8jkvSMkSAfrxhnlx+4HeaD+4QlFdpJQmEa6ks
+         HshDTLU+T1ow8seOrVSo4KcgqSy+l/PE3xL7lN7qC5M2kv7JBlW/3zJ/TQMkcjzXfzOQ
+         USUhS59JMQTHeae+vhzN0M+StPgFl1mn8ukvJOZTFQnTSr2o2tRaJNvJHy+atwXR8Wly
+         EKoxzo4XRt/TdD0QijeTF/Quj/i44Z/iYdp8C8aE1aR/vxrx7Ath0EYSAZHgf/tXn7cq
+         ep5KhN7f76BoHhu4KtYALLnX+C29LsDi2oByFGT6VxdZ9OLH5btE3ewtJpsf/gpv/g1c
+         SXZw==
+X-Gm-Message-State: AOAM533Pcuxi1V3/5gLPzaQPQOSEriqZcVqYh6wMQRTNPkjM+gRTGcAB
+        AH+vEpy61w699YSLF5SVWeF2lQUC2ArG/a7SaXuXEAFFYMG5SmkR+Dk++zAlDZbZL5dNCYPLBrT
+        J2SY+QTCtIa4kDr0H
+X-Received: by 2002:ac8:46c8:: with SMTP id h8mr26253728qto.17.1608738758049;
+        Wed, 23 Dec 2020 07:52:38 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzJU7/Y9icFKNa6TDN6+mbeV2MBtZBm3V2OIaPguxARYP0RegIgd55bLE2LXRcKkm70WUUQEw==
+X-Received: by 2002:ac8:46c8:: with SMTP id h8mr26253703qto.17.1608738757806;
+        Wed, 23 Dec 2020 07:52:37 -0800 (PST)
+Received: from xz-x1 ([142.126.83.202])
+        by smtp.gmail.com with ESMTPSA id c14sm14501321qtg.85.2020.12.23.07.52.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 07:52:36 -0800 (PST)
+Date:   Wed, 23 Dec 2020 10:52:35 -0500
+From:   Peter Xu <peterx@redhat.com>
+To:     Yu Zhao <yuzhao@google.com>
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <20201223155235.GC6404@xz-x1>
+References: <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <X+JhwVX3s5mU9ZNx@google.com>
+ <X+Js/dFbC5P7C3oO@redhat.com>
+ <X+KDwu1PRQ93E2LK@google.com>
+ <X+Kxy3oBMSLz8Eaq@redhat.com>
+ <X+K7JMrTEC9SpVIB@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <X+K7JMrTEC9SpVIB@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
+On Tue, Dec 22, 2020 at 08:36:04PM -0700, Yu Zhao wrote:
+> In your patch, do we need to take wrprotect_rwsem in
+> handle_userfault() as well? Otherwise, it seems userspace would have
+> to synchronize between its wrprotect ioctl and fault handler? i.e.,
+> the fault hander needs to be aware that the content of write-
+> protected pages can actually change before the iotcl returns.
 
-commit c731b84b51bf7fe83448bea8f56a6d55006b0615 upstream.
+The handle_userfault() thread should be sleeping until another uffd_wp_resolve
+fixes the page fault for it.  However when the uffd_wp_resolve ioctl comes,
+then rwsem (either the group rwsem lock as Andrea proposed, or the mmap_sem, or
+any new rwsem lock we'd like to introduce, maybe per-uffd rather than per-mm)
+should have guaranteed the previous wr-protect ioctls are finished and tlb must
+have been flushed until this thread continues.
 
-Syzkaller reports a warning as belows.
-WARNING: CPU: 0 PID: 9647 at drivers/md/md.c:7169
-...
-Call Trace:
-...
-RIP: 0010:md_ioctl+0x4017/0x5980 drivers/md/md.c:7169
-RSP: 0018:ffff888096027950 EFLAGS: 00010293
-RAX: ffff88809322c380 RBX: 0000000000000932 RCX: ffffffff84e266f2
-RDX: 0000000000000000 RSI: ffffffff84e299f7 RDI: 0000000000000007
-RBP: ffff888096027bc0 R08: ffff88809322c380 R09: ffffed101341a482
-R10: ffff888096027940 R11: ffff88809a0d240f R12: 0000000000000932
-R13: ffff8880a2c14100 R14: ffff88809a0d2268 R15: ffff88809a0d2408
- __blkdev_driver_ioctl block/ioctl.c:304 [inline]
- blkdev_ioctl+0xece/0x1c10 block/ioctl.c:606
- block_ioctl+0xee/0x130 fs/block_dev.c:1930
- vfs_ioctl fs/ioctl.c:46 [inline]
- file_ioctl fs/ioctl.c:509 [inline]
- do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
- ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
- __do_sys_ioctl fs/ioctl.c:720 [inline]
- __se_sys_ioctl fs/ioctl.c:718 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
- do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+And I don't know why it matters even if the data changed - IMHO what uffd-wp
+wants to do is simply to make sure after wr-protect ioctl returns to userspace,
+no change on the page should ever happen anymore.  So "whether data changed"
+seems matter more on the ioctl thread rather than the handle_userfault()
+thread.  IOW, I think data changes before tlb flush but after pte wr-protect is
+always fine - but that's not fine anymore if the syscall returns.
 
-This is caused by a race between two concurrenct md_ioctl()s closing
-the array.
-CPU1 (md_ioctl())                   CPU2 (md_ioctl())
-------                              ------
-set_bit(MD_CLOSING, &mddev->flags);
-did_set_md_closing = true;
-                                    WARN_ON_ONCE(test_bit(MD_CLOSING,
-                                            &mddev->flags));
-if(did_set_md_closing)
-    clear_bit(MD_CLOSING, &mddev->flags);
+Thanks,
 
-Fix the warning by returning immediately if the MD_CLOSING bit is set
-in &mddev->flags which indicates that the array is being closed.
-
-Fixes: 065e519e71b2 ("md: MD_CLOSING needs to be cleared after called md_set_readonly or do_md_stop")
-Reported-by: syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/md/md.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7590,8 +7590,11 @@ static int md_ioctl(struct block_device
- 			err = -EBUSY;
- 			goto out;
- 		}
--		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
--		set_bit(MD_CLOSING, &mddev->flags);
-+		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
-+			mutex_unlock(&mddev->open_mutex);
-+			err = -EBUSY;
-+			goto out;
-+		}
- 		did_set_md_closing = true;
- 		mutex_unlock(&mddev->open_mutex);
- 		sync_blockdev(bdev);
-
+-- 
+Peter Xu
 
