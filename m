@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBAD2E1775
-	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8169F2E175E
+	for <lists+stable@lfdr.de>; Wed, 23 Dec 2020 04:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728127AbgLWDK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Dec 2020 22:10:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        id S1728195AbgLWDJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Dec 2020 22:09:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728043AbgLWCS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Dec 2020 21:18:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC33F23359;
-        Wed, 23 Dec 2020 02:17:24 +0000 (UTC)
+        id S1728134AbgLWCSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Dec 2020 21:18:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C979A23370;
+        Wed, 23 Dec 2020 02:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1608689845;
-        bh=ZXy97GQGeZ+Cib/Zh12FUBMabK4SNhjvzFTAHaB2Njo=;
+        s=k20201202; t=1608689846;
+        bh=NY+pm1T3bmTqsuWanFH+J/5JcBxQGzGFCy4Cz8k3620=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVKc3NA0cvGXAacyUrCWUyP3g3RqU7Lm7XfYLWK0X2aS2zeM60qw7LaH397PSxjrT
-         GBIcMgQbsA4uu6wxciDwmJnsLXI05ir6czi6qaIlAMRcG5pZI/2ClnhR1NW+DbixPw
-         WDWFBvZUepisFaWL9xggZU+/SiQgTCYm0XTwOSgAvtJU8wCr1fuaxNk8qTkGEwEhFx
-         3sRa5z2R0JVCzQPB7MIUZlNs7KuTCXy4OWjc6VDKCuBqDoyHeGZ2lL1bNfB/OL/kdQ
-         io33Wfv0UFKHmOxcgp1sA9Uxy1IOlnr0DPAfolnryM9Pug6zFvksTVDf9yQhSDwlht
-         m6mjHmBKakxVg==
+        b=crLmU7PIG+4azxHQdOaWKjNontzbGQyxSWUKTAjVPVD+KVakQcSlPZC1F/ZCPUIsl
+         furjMYih6Lhq+rlnNkjyjYbgbpINW2leFoisSwpNZ3RgwTdwfJG7odCivKFkyOyiMa
+         Dy42/vTglGIxFsEzHdFVxQDIqf/nmFHIPxgkHQXm6hame9omy77nNpRBT8+qrwCH2z
+         vP2vNEbPEgD3by14YdwWKnGrU4woIYyuI+sr5wu/jBaT7lz4UymqffqkD37uYiQaZD
+         IU4mPISF4qyhNGL4bokjBmB67r+3S3i1Y3xyc4tG7HqFwlk6dNVqcvih9sk0x6JH5i
+         JHh38al8Wvk1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 045/217] locktorture: Prevent hangs for invalid arguments
-Date:   Tue, 22 Dec 2020 21:13:34 -0500
-Message-Id: <20201223021626.2790791-45-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 046/217] torture: Prevent jitter processes from delaying failed run
+Date:   Tue, 22 Dec 2020 21:13:35 -0500
+Message-Id: <20201223021626.2790791-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201223021626.2790791-1-sashal@kernel.org>
 References: <20201223021626.2790791-1-sashal@kernel.org>
@@ -43,45 +44,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Paul E. McKenney" <paulmck@kernel.org>
 
-[ Upstream commit 6b74fa0a776e3715d385b23d29db469179c825b0 ]
+[ Upstream commit c64659ef29e3901be0900ec6fb0485fa3dbdcfd8 ]
 
-If an locktorture torture-test run is given a bad kvm.sh argument, the
-test will complain to the console, which is good.  What is bad is that
-from the user's perspective, it will just hang for the time specified
-by the --duration argument.  This commit therefore forces an immediate
-kernel shutdown if a lock_torture_init()-time error occurs, thus avoiding
-the appearance of a hang.  It also forces a console splat in this case
-to clearly indicate the presence of an error.
+Even when the kernel panics and qemu dies, runs with jitter enabled will
+continue uselessly until the jitter.sh processes terminate.  This can
+be annoying if a planned one-hour run instead dies during boot.
+
+This commit therefore kills the jitter.sh processes when the run ends
+more than one minute prior to the termination time specified by the
+kvm.sh --duration argument or its default.
 
 Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/locktorture.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../selftests/rcutorture/bin/kvm-test-1-run.sh     | 14 ++++++++++++++
+ tools/testing/selftests/rcutorture/bin/kvm.sh      |  5 ++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/locking/locktorture.c b/kernel/locking/locktorture.c
-index 62d215b2e39f6..8bcb6a75cb9c0 100644
---- a/kernel/locking/locktorture.c
-+++ b/kernel/locking/locktorture.c
-@@ -29,6 +29,7 @@
- #include <linux/slab.h>
- #include <linux/percpu-rwsem.h>
- #include <linux/torture.h>
-+#include <linux/reboot.h>
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Paul E. McKenney <paulmck@linux.ibm.com>");
-@@ -1038,6 +1039,10 @@ static int __init lock_torture_init(void)
- unwind:
- 	torture_init_end();
- 	lock_torture_cleanup();
-+	if (shutdown_secs) {
-+		WARN_ON(!IS_MODULE(CONFIG_LOCK_TORTURE_TEST));
-+		kernel_power_off();
+diff --git a/tools/testing/selftests/rcutorture/bin/kvm-test-1-run.sh b/tools/testing/selftests/rcutorture/bin/kvm-test-1-run.sh
+index 6dc2b49b85ea0..6544a289a5832 100755
+--- a/tools/testing/selftests/rcutorture/bin/kvm-test-1-run.sh
++++ b/tools/testing/selftests/rcutorture/bin/kvm-test-1-run.sh
+@@ -223,6 +223,20 @@ do
+ 				echo "ps -fp $killpid" >> $resdir/Warnings 2>&1
+ 				ps -fp $killpid >> $resdir/Warnings 2>&1
+ 			fi
++			# Reduce probability of PID reuse by allowing a one-minute buffer
++			if test $((kruntime + 60)) -lt $seconds && test -s "$resdir/../jitter_pids"
++			then
++				awk < "$resdir/../jitter_pids" '
++				NF > 0 {
++					pidlist = pidlist " " $1;
++					n++;
++				}
++				END {
++					if (n > 0) {
++						print "kill " pidlist;
++					}
++				}' | sh
++			fi
+ 		else
+ 			echo ' ---' `date`: "Kernel done"
+ 		fi
+diff --git a/tools/testing/selftests/rcutorture/bin/kvm.sh b/tools/testing/selftests/rcutorture/bin/kvm.sh
+index 6eb1d3f6524d5..5ad3882563ce6 100755
+--- a/tools/testing/selftests/rcutorture/bin/kvm.sh
++++ b/tools/testing/selftests/rcutorture/bin/kvm.sh
+@@ -459,8 +459,11 @@ function dump(first, pastlast, batchnum)
+ 	print "if test -n \"$needqemurun\""
+ 	print "then"
+ 	print "\techo ---- Starting kernels. `date` | tee -a " rd "log";
+-	for (j = 0; j < njitter; j++)
++	print "\techo > " rd "jitter_pids"
++	for (j = 0; j < njitter; j++) {
+ 		print "\tjitter.sh " j " " dur " " ja[2] " " ja[3] "&"
++		print "\techo $! >> " rd "jitter_pids"
 +	}
- 	return firsterr;
- }
- 
+ 	print "\twait"
+ 	print "\techo ---- All kernel runs complete. `date` | tee -a " rd "log";
+ 	print "else"
 -- 
 2.27.0
 
