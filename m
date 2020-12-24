@@ -2,62 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070832E27EB
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 16:27:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7814F2E27F6
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 16:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727861AbgLXP1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Dec 2020 10:27:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
+        id S1727861AbgLXPk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Dec 2020 10:40:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727039AbgLXP1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 10:27:30 -0500
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E3BC061573;
-        Thu, 24 Dec 2020 07:26:49 -0800 (PST)
-Received: by mail-ot1-x32e.google.com with SMTP id w3so2015064otp.13;
-        Thu, 24 Dec 2020 07:26:49 -0800 (PST)
+        with ESMTP id S1727039AbgLXPk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 10:40:57 -0500
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4549C061573
+        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 07:40:17 -0800 (PST)
+Received: by mail-ot1-x330.google.com with SMTP id o11so2091811ote.4
+        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 07:40:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=1j+5NTcWIs5TQlpoNRN6frFX8wKYc9OKto1vZjv/ZhI=;
-        b=lu3MHF41QFepbOZvXnEK+iFZkeMT4rbp5SN8xTHintJRzxWdHd6nmRs1sr/swMCvMN
-         iHpjOYumlIKhfAina+ekXWWbmy2Czp+ito/A4dOH+dLpCy2w8ZtWROyt3YydZZ4fSqnT
-         o7Ohs5WZjoxJBD6MMlUa21yjc/8k2cxBPO/LL/bFlWGQIZDFw5LXFHae7PpriQX206oc
-         pVTckHtW41C3ed6u8VEMk5Cy2ZtjmOpIYhl2TosBT7aX1CpGcVbNIpxCpK6Y7ujdtOF2
-         pH1BF71MYJ/XP/YsqM6QFIoL3gcI4pyaBqJv82Rq6EQ8XbzG3CyUkjtddC0P+T/Vy/0R
-         ZEjA==
+        h=sender:to:cc:from:subject:autocrypt:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=JWdQlOm6XJY4QnQw79rGfEQ/ldzwdfCZI4hXNAJ5r+c=;
+        b=W/sn5/iVrP+NlxrBeQOAM0kG7HlNga+qTjanLD72M7YYQYVKFoQQmBWN+ALjpDzYW/
+         FVb9S4KFJq0hyvDAEzfNu5EQrjJ+9kFHsxfUUEKsXlrhy03dsgnZvmkxBix3yYAAauS7
+         qHiFVNYr6oAJr+Sy0VNowr+9BeufaD/9xuHHBGIvUjvCe71FdSrr74MFH9Rywwbs7uQg
+         WzCl6S0cdgVHLpD8f4xKXy4L6smsnbUDv4Z9Har3C/bq8oasGPX5PNQ5f1Hfglp0lIZE
+         Vq/rwyfLM954DR71mQdar20mO/cecqw4tHYL+vMl86eoCJ+GQSeHccShOOw1aLSsGSMv
+         wBuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=1j+5NTcWIs5TQlpoNRN6frFX8wKYc9OKto1vZjv/ZhI=;
-        b=iPRkNCYiw7UF/0rB1bOOf7FYFLOm8Sa0B5w24XEIoNQHb67Hv+MnO9UVx+fleOiT9h
-         MV5SKzaK5r/fVOzSLpZ4wd5C2/kC7Y7pHwNSz39A3mpqsSv9hY4drobpHBjvLTH1eDiJ
-         VN6ObvRUjs3utpOSuzNY5s3uqLKSZk2zCZxLa2wVS22QT8JcT+LbasZi2Jyvv8SEFVK3
-         Y/3Ct5V4hTsEVmESBcLHssKX4rQpXfevvwnp5D+JVidcKTCZNSjpHL9HfhI4HhErZRuO
-         WWBYjadQFyhedzDdpUhOWRzhzsqyEr4aoJruID8ucnvKTDJu8l+80PCzCLxbmL4HOHyM
-         Uyow==
-X-Gm-Message-State: AOAM533c/PgP3kh17VoVKopq14I/OhrBMwzHZ51+go5fa/p0YU7aPUsK
-        8b3Y/AqD9blJXvhyHjctPtFP4n7VeXI=
-X-Google-Smtp-Source: ABdhPJz4VIQKrNU3Y5UkhQ/r94vR+WRabBUR8AYbFjyxf5C001gjrW+ugrd1rvIaMcIXv5ekIahiIw==
-X-Received: by 2002:a9d:620d:: with SMTP id g13mr22759888otj.56.1608823608936;
-        Thu, 24 Dec 2020 07:26:48 -0800 (PST)
+        h=x-gm-message-state:sender:to:cc:from:subject:autocrypt:message-id
+         :date:user-agent:mime-version:content-language
+         :content-transfer-encoding;
+        bh=JWdQlOm6XJY4QnQw79rGfEQ/ldzwdfCZI4hXNAJ5r+c=;
+        b=hPHgIFJ12K6YFrIUnBwUTqXYGEQeIXuObdW2pxlsvJ+oI31U3c7DNPDYBeZ1Th7Urn
+         FRGgWvlvGHAyVmMZHZ+eAU83qwqAmk+b7x4lsy3lDi7dYlN0B9WHLpaGkuhPd9oezgMU
+         Wajl0vBrubP7J24C7lPY3NPlQ1zGmcRZPghSs1GUnJIjjxOlfa88DVoR12azP0Fkg6tw
+         kL+7A6yQbJflYc36WVrFUfg8D4wWevX6iszDA/mdkPCF0Bt2Ko+aDbIUmS06RDh4SvEc
+         H+3ul8vpehYEQ3Nz5wiwLR8RhLHPISsccGhxfmefuP2WkGOxE4pR8fTMIDhRNjrEtFTJ
+         iR/Q==
+X-Gm-Message-State: AOAM5331X1mXK4RuhnWMyo75CeMlyPMHSGRC+gTKC01kWKbLePXhvuFD
+        oHusBPiJIdEiP7Q2mVrumbE=
+X-Google-Smtp-Source: ABdhPJyBsU9HfJ4/qIUmEyjPwDhLLX2AHwygoC6MXbSZm45kY8n0pwSiOfVFb75GGtXDTDZ7msofhQ==
+X-Received: by 2002:a05:6830:159a:: with SMTP id i26mr22233098otr.315.1608824417168;
+        Thu, 24 Dec 2020 07:40:17 -0800 (PST)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w4sm6812110otj.3.2020.12.24.07.26.46
+        by smtp.gmail.com with ESMTPSA id i24sm6949812oot.42.2020.12.24.07.40.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Dec 2020 07:26:47 -0800 (PST)
+        Thu, 24 Dec 2020 07:40:16 -0800 (PST)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-References: <20201223150515.553836647@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
 From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Build failures in v5.4.85-72-ge4ff6f3
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -101,12 +97,11 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <823a5a22-59d6-4564-4f77-81ccf648a579@roeck-us.net>
-Date:   Thu, 24 Dec 2020 07:26:45 -0800
+Message-ID: <0c8ffc37-7513-6216-4d8b-8d030b314554@roeck-us.net>
+Date:   Thu, 24 Dec 2020 07:40:15 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -114,21 +109,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/23/20 7:33 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.3 release.
-> There are 40 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
-> Anything received after that time might be too late.
-> 
+Build reference: v5.4.85-72-ge4ff6f3
+gcc version: aarch64-linux-gcc (GCC) 9.3.0
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 427 pass: 427 fail: 0
+Building arm64:allmodconfig ... failed
+--------------
+Error log:
+drivers/gpio/gpio-zynq.c: In function 'zynq_gpio_irq_reqres':
+drivers/gpio/gpio-zynq.c:559:8: error: implicit declaration of function 'pm_runtime_resume_and_get'
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+pm_runtime_resume_and_get() is not available in v5.4.y.
 
 Guenter
