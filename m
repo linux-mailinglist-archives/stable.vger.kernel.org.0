@@ -2,199 +2,207 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9032D2E231A
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 01:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEB92E2320
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 02:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727802AbgLXA5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 19:57:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726288AbgLXA5j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 19:57:39 -0500
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9592BC061794
-        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 16:56:59 -0800 (PST)
-Received: by mail-oi1-x234.google.com with SMTP id 9so982385oiq.3
-        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 16:56:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=jTWiCCpsDpikEglHQLMP42MD6s10JjUIBnzJLj2mBe0=;
-        b=b2Vjgs2PfI6zGh4AK2YyE0lWy5Ui7yQjI8tvdFNN0HMUmCp0OPIkHERN2e2B0UgbSe
-         n+n1RqQfnhZicFpd1K+mN7szWT0V/PdFvWHHMlL1EOpy+flvKZFYjMEN8qmkUCUWqh8R
-         Yycjfo5P3E2z1CpGqyUo3QIzmzFDGGrmFWlnBkjfzu0GpwgV9jPXiEAatAJTnVcwxNbv
-         we7b93+H5DqxPciZK+TcelbfcOde6LtrtzCFsuYz6qCHRg4OK6y+Ag/qaTwSqEkWYc+A
-         DyudtSv/OKKIbtxPTwmakV79QwAozdAZepkBVM29E6xsdEyGz44w1mjee4PNWzivF2q9
-         V64A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=jTWiCCpsDpikEglHQLMP42MD6s10JjUIBnzJLj2mBe0=;
-        b=KVuLhp7DOszQ/+gc7JgO8BTA9MYDibKx4tGUvMe8LS8d66MXDwn4tATDYD8XJnhpU/
-         GxJYwdEerFic2Kg29U3gIdUPi9F8tKV0L4SWTF9IqmuvZk+Re8YDv/e7gvC/25hL5+KS
-         KjBqBusO/wUGS1eZxcqn/YvkGTvvPU2D8ujtjpam8Cw2NnnQZEobzShsx8AI22+TJYff
-         g/9ylyoiL9FhGl81RsNl3hnmk1jWX0Rg1uVvrjNtV/NYepiuulto8JXgXrE98Q080x/l
-         cRjSC8czdjDKwFrV6EMRAdzB8ntH11mikm4gcflHCO5ClSj632V2TSghfiDhrzOeJ+1h
-         82EA==
-X-Gm-Message-State: AOAM5328KSsnm5wWajObpJd2jjhb6jivSF+maEuFcVOKo2SWZR+FTvtG
-        RC5uBv4NvBc9v2bjLqw+Xjclvw==
-X-Google-Smtp-Source: ABdhPJx8J5u590gqk6tGv8VpDVxYCPlBuEAcEwpczKqxcglx6KQiYvMBRLStEiQpmmWOzCxYGoDbNg==
-X-Received: by 2002:aca:b943:: with SMTP id j64mr1551236oif.71.1608771417930;
-        Wed, 23 Dec 2020 16:56:57 -0800 (PST)
-Received: from [192.168.17.50] (CableLink-189-219-75-211.Hosts.InterCable.net. [189.219.75.211])
-        by smtp.gmail.com with ESMTPSA id t2sm3337122otj.47.2020.12.23.16.56.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Dec 2020 16:56:57 -0800 (PST)
-Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-References: <20201223150515.553836647@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <60e63371-98cb-8cf0-4d23-0e1185902fa4@linaro.org>
-Date:   Wed, 23 Dec 2020 18:56:56 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726288AbgLXBCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 20:02:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:57821 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728341AbgLXBCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 20:02:53 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1608771686;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=eI3Bxq/JiaSESgMV6GfKzjBYUhMi1HltJIE2bnAQBfI=;
+        b=bvM56Y10SkKdj0HjhHO9iqeWweGtjXSyLfwbxszyVlhcDZdAGQVKNiHrSG/ynLtPjOZXAG
+        gT/CgrHtbLrMcUO44hYnIx0V76OO/pqYI8pm39R29ud48jr26rP1A8PE6UZPaWjrASPbns
+        0+z7yHuc8ro4plNUkNn9h1IOsb25unA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-480-kxWMbL_XPLWjdYE1MsuroA-1; Wed, 23 Dec 2020 20:01:22 -0500
+X-MC-Unique: kxWMbL_XPLWjdYE1MsuroA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C9C0A1005504;
+        Thu, 24 Dec 2020 01:01:20 +0000 (UTC)
+Received: from mail (ovpn-112-5.rdu2.redhat.com [10.10.112.5])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A961860C04;
+        Thu, 24 Dec 2020 01:01:16 +0000 (UTC)
+Date:   Wed, 23 Dec 2020 20:01:16 -0500
+From:   Andrea Arcangeli <aarcange@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Yu Zhao <yuzhao@google.com>, Andy Lutomirski <luto@kernel.org>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X+PoXCizo392PBX7@redhat.com>
+References: <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <X+JJqK91plkBVisG@redhat.com>
+ <X+JhwVX3s5mU9ZNx@google.com>
+ <X+Js/dFbC5P7C3oO@redhat.com>
+ <X+KDwu1PRQ93E2LK@google.com>
+ <X+Kxy3oBMSLz8Eaq@redhat.com>
+ <X+K7JMrTEC9SpVIB@google.com>
+ <X+O49HrcK1fBDk0Q@redhat.com>
+ <CAHk-=whPCKbhw7+XGBgJ0bM-5QShV90T_yqy2DWp-uPPReTOrw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=whPCKbhw7+XGBgJ0bM-5QShV90T_yqy2DWp-uPPReTOrw@mail.gmail.com>
+User-Agent: Mutt/2.0.3 (2020-12-04)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+Hello Linus,
 
-On 12/23/20 9:33 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.3 release.
-> There are 40 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Dec 23, 2020 at 03:39:53PM -0800, Linus Torvalds wrote:
+> On Wed, Dec 23, 2020 at 1:39 PM Andrea Arcangeli <aarcange@redhat.com> wrote:
+> >
+> > On Tue, Dec 22, 2020 at 08:36:04PM -0700, Yu Zhao wrote:
+> > > Thanks for the details.
+> >
+> > I hope we can find a way put the page_mapcount back where there's a
+> > page_count right now.
 > 
-> Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
-> Anything received after that time might be too late.
+> I really don't think that's ever going to happen - at least if you're
+> talking about do_wp_page().
+
+Yes, I was referring to do_wp_page().
+
+> I refuse to make the *simple* core operations VM have to jump through
+> hoops, and the old COW mapcount logic was that. I *much* prefer the
+> newer COW code, because the rules are more straightforward.
+
+Agreed. I don't have any practical alternative proposal in fact, it
+was only an hypothetical wish/hope, echoing Hugh's view on this
+matter.
+
+> > page_count is far from optimal, but it is a feature it finally allowed
+> > us to notice that various code (clear_refs_write included apparently
+> > even after the fix) leaves stale too permissive TLB entries when it
+> > shouldn't.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> I absolutely agree that page_count isn't exactly optimal, but
+> "mapcount" is just so much worse.
+
+Agreed. The "isn't exactly optimal" part is the only explanation for
+wish/hope.
+
+> page_count() is at least _logical_, and has a very clear meaning:
+> "this page has other users". mapcount() means something else, and is
+> simply not sufficient or relevant wrt COW.
+>
+> That doesn't mean that page_mapcount() is wrong - it's just that it's
+> wrong for COW. page_mapcount() is great for rmap, so that we can see
+> when we need to shoot down a memory mapping of a page that gets
+> released (truncate being the classic example).
 > 
-> thanks,
+> I think that the mapcount games we used to have were horrible. I
+> absolutely much prefer where we are now wrt COW.
 > 
-> greg k-h
+> The modern rules for COW handling are:
+> 
+>  - if we got a COW fault there might be another user, we copy (and
+> this is where the page count makes so much logical sense).
+> 
+>  - if somebody needs to pin the page in the VM, we either make sure
+> that it is pre-COWed and we
+> 
+>    (a) either never turn it back into a COW page (ie the fork()-time
+> stuff we have for pinned pages)
+> 
+>    (b) or there is some explicit marker on the page or in the page
+> table (ie the userfaultfd_pte_wp thing).
+> 
+> those are _so_ much more straightforward than the very complex rules
+> we used to have that were actively buggy, in addition to requiring the
+> page lock. So they were buggy and slow.
 
-Results from Linaro’s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Agreed, this is a very solid solution that solves the problem the
+mapcount had with GUP pins.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The only alternative but very vapourware thought I had on this matter,
+is that all troubles start when we let a GUP-pinned page be unmapped
+from the pgtables.
 
-Summary
-------------------------------------------------------------------------
+I already told Jens, is io_uring could use mmu notifier already (that
+would make any io_uring GUP pin not count anymore with regard to
+page_mapcount vs page_count difference) and vmsplice also needs some
+handling or maybe become privileged.
 
-kernel: 5.10.3-rc1
-git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-git branch: linux-5.10.y
-git commit: a5ba578b52286e2a855f6b172c851d7afbf68e60
-git describe: v5.10.2-41-ga5ba578b5228
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.2-41-ga5ba578b5228
+The above two improvements are orthogonal with the COW issue since
+long term GUP pins do more than just mlock and they break most
+advanced VM features. It's not ok just to account GUP pins in rlimit
+mlock.
 
-No regressions (compared to build v5.10.2)
+The above two improvements however would go into the direction to make
+mapcount more suitable for COW, but it'd still not be enough.
 
-No fixes (compared to build v5.10.2)
+The transient GUP pins also would need to be taken care of, but we
+could wait for those to be released, since those are guaranteed to be
+released or something else, not just munmap()/MADV_DONTNEED, will
+remain in D state.
 
-Ran 50032 total tests in the following environments and test suites.
+Anyway.. until io_uring and vmsplice are solved first, it's pointless
+to even wonder about transient GUP pins.
 
-Environments
---------------
-- arc
-- arm
-- arm64
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- parisc
-- powerpc
-- qemu-arm-clang
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-i386-clang
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu-x86_64-kcsan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- riscv
-- s390
-- sh
-- sparc
-- x15
-- x86
-- x86-kasan
+> And yes, I had forgotten about that userfaultfd_pte_wp() because I was
+> being myopic and only looking at wp_page_copy(). So using that as a
+> way to make sure that a page doesn't go through COW is a good way to
+> avoid the COW race, but I think that thing requires a bit in the page
+> table which might be a problem on some architectures?
 
-Test Suites
------------
-* build
-* fwts
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fs-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* rcutorture
-* v4l2-compliance
+Correct, it requires a bit in the pgtable.
 
-Happy holidays, greetings!
+The bit is required in order to disambiguate which regions have been
+marked for wrprotect faults and which didn't.
 
-Daniel Díaz
-daniel.diaz@linaro.org
+A practical example would be: fork() called by an app with a very
+large vma with VM_UFFD_WP set.
 
--- 
-Linaro LKFT
-https://lkft.linaro.org
+There would be a storm of WP userfaults if we didn't have the software
+bit to detect exactly which pte were wrprotected by uffd-wp and which
+ones were wrprotected by fork.
+
+That bit then sends the COW fault to a safe place if wrprotect is
+running (the problem is we didn't see the un-wrprotect would clear the
+bit while the TLB flush of the wrprotect could be still pending).
+
+The page_mapcount I guess hidden that race to begin with, just like it
+did in clear_refs_write.
+
+uffd-wp is similar to soft dirty: it won't work well without a pgtable
+software bit. The software bit, to avoid storms of false positives
+during memory pressure, also survives swapin/swapout, again like soft
+dirty.
+
+The bit requirement is handled through a per-arch option
+arch/x86/Kconfig similarly to soft dirty.
+
+        select HAVE_ARCH_USERFAULTFD_WP         if X86_64 && USERFAULTFD
+
+From an high level, the extra bit in the pte/hugepmd could be seen as
+holding the information that would be generated by split_vma()
+followed by clearing VM_WRITE in the middle vma. Setting that bit
+results in a cheaper runtime than allocating 2 more vmas with the
+associated locking and rbtree size increase, but same accuracy.
+
+Thanks,
+Andrea
+
