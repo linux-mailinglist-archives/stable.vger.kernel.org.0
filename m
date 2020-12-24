@@ -2,105 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 332762E25B1
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 10:44:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C102E25C4
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 10:50:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726746AbgLXJoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Dec 2020 04:44:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42070 "EHLO
+        id S1726591AbgLXJuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Dec 2020 04:50:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726347AbgLXJoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 04:44:24 -0500
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47D7C061794
-        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 01:43:43 -0800 (PST)
-Received: by mail-pg1-x532.google.com with SMTP id z21so1281397pgj.4
-        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 01:43:43 -0800 (PST)
+        with ESMTP id S1726186AbgLXJui (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 04:50:38 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87129C061794;
+        Thu, 24 Dec 2020 01:49:58 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id lj6so878265pjb.0;
+        Thu, 24 Dec 2020 01:49:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=PqsIw5G8hr5Ym14mfhHS3mfmrGehuuwns2Nlz6+ZZao=;
-        b=Xl6C31EyHbh4nUjtcdYf2EpK+z+MvtJWGa1j5Z9x6qEIdZTyzdINfNVrbEwcSwJAbP
-         eRIX1PCOI00rvKf7HVU3+Huf347upAkSvZbpxBkm4l0FzXImZBS9BpQhtGE53cPKimeM
-         b8fDXqS8LFkBJZDijkgNzw4mqP2zZ66lmR5PWsUDmrKpazbcTP8zRnDoLxe91qI6YZXn
-         z9YMF75q4jgABI8La/R10KGM9fT7KxN7oGen2RY13zqUr59/SwnCkr3N1sChaLk3KlCj
-         XQrKDG65g82QtK6mHG3Zp4MBK8RTxvCmjAcF6YztLecScLwPXouatg1ZMANtva3S+nn5
-         YkuA==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=pR2ACc6d8aTjF9n2K3igB+WCeCgG4pxrdUZ6N6y3XI8=;
+        b=F0hRaYSIk4MzxylL/ODRdzxdbcBJG2XTEKKFPPjS/e6+wv80GeoxPfKfzYneDuCNCC
+         CHiQngXEUCEHaSxZQbe0EvGvKuJBzn4uUQZsOhoNlBfM+EQD+7hcS2TdqDQDPXg7aq24
+         IWm8zHFInPmY9dfoaethXfjxzbiY0N/7CjnmYXj+r/riZAy5ljkCgDOPqsUYVMlzWFt9
+         qIrGIel3ehiGDT3y8ufUGJCvnvZ5BfpnpjxelSVkfc5Xl1Q968ZWdYclR7PNXWzTMlUP
+         ApzZ1jaXDMRwxhwewd2oMVNALF06JfTuUJBrmCYUieUpyd1Pyu36pOE7PYZqJcYpQkcH
+         hSjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=PqsIw5G8hr5Ym14mfhHS3mfmrGehuuwns2Nlz6+ZZao=;
-        b=JCWrEj1GptLmvqETKHTyX08jpY2AI+b5jIAtuGVDJAqDxe9oG+QE1XtsUaJVDM0p03
-         lTOYRZkUtFYPZk+7M55KwhWi4i7FEdPUWxV6Uowdk7k5c7KoPNTbGWFemk5x9DkSNLtf
-         ZFoDNwW+//cwUAcULpg8xfyOP0C6e4Y+EOWsTNU4UFKkus+/G0+N4rNL9bqV8YiBBCZ/
-         3jiQjMNxFpZx6dIPlmmzbT+NJ1dE1i0WM75UKYLXwL9nnmMzMeWnoxlsfVdKOxErGrG6
-         G04JRDNQDN5VU1Qc9XYhdFQ/Azo51xuOve++bxEe6QRc1txnw9vTC3NDKoN2bHn+yIF8
-         gT+g==
-X-Gm-Message-State: AOAM532Y4t1SX4UjrArRRHBkzXAYdYVDPDmnTxQoJmqD39u43l3EvT/j
-        Jvus1sC9cGnwxFtw1J8dqI7/2w==
-X-Google-Smtp-Source: ABdhPJwwQo9p0np5J0hX42QfncgOzn5RZJoa3aO9N40PIt5EfsTCqomPX6OlUUAP3JOPLg3oaxGcZg==
-X-Received: by 2002:a63:220b:: with SMTP id i11mr28288817pgi.2.1608803023436;
-        Thu, 24 Dec 2020 01:43:43 -0800 (PST)
-Received: from [192.168.0.4] ([171.49.219.196])
-        by smtp.gmail.com with ESMTPSA id 17sm25264017pfj.91.2020.12.24.01.43.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Dec 2020 01:43:42 -0800 (PST)
-Message-ID: <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Date:   Thu, 24 Dec 2020 15:13:38 +0530
-In-Reply-To: <20201223150515.553836647@linuxfoundation.org>
-References: <20201223150515.553836647@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.1-2 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=pR2ACc6d8aTjF9n2K3igB+WCeCgG4pxrdUZ6N6y3XI8=;
+        b=i2ZHrqwuAs/SNiS49OO37d6SjCCBboxzCW3EwMNP2sOi4UrQlszvMs9CA1AyscqfPv
+         47HFDjuWHH8aSrAtaW7HhQzPobLpz8yx1MVBXzM2sJ+/Moqx6xOJoh6yWEa0OlXA54CC
+         T7L3h10gOH7c0mcg9B1BsW89C5hxzC/8i+dL4VSZlBljYh0cYcAYWQGZx3RgKilPCM40
+         FsxTrNN7SVKeml9ZEOf3DGKPiunthD11ciBFyXlwN3iS9a/pm0lXW42f4sD+HAm3Eq4t
+         +6N4iJrHis9DbkQGfb+LjlIy71hJxQkPBw6xe1LixSJ0lh53oiA5jNtkjnEJfOAMlg9H
+         VgeA==
+X-Gm-Message-State: AOAM532QQhFuwl0miYMqwi2b8eeLPJFGD0FQb2wP6O+sfo3AOtijsJsC
+        WkXarmHpmYfhu1RG9vdYEKXO41MxPHVbvgx9jLs=
+X-Google-Smtp-Source: ABdhPJx6rI4RiBLIO4l3nCt1PYNHCcwysmC0IXsyW95+37z9CtvbEcPAuccSa7faEIs2R4EY4ijJ9MtYuA7iy5RTf/8=
+X-Received: by 2002:a17:902:9a4a:b029:dc:435c:70ad with SMTP id
+ x10-20020a1709029a4ab02900dc435c70admr13573744plv.77.1608803398081; Thu, 24
+ Dec 2020 01:49:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201223021813.2791612-75-sashal@kernel.org> <20201223170124.5963-1-xie.he.0141@gmail.com>
+In-Reply-To: <20201223170124.5963-1-xie.he.0141@gmail.com>
+From:   Xie He <xie.he.0141@gmail.com>
+Date:   Thu, 24 Dec 2020 01:49:47 -0800
+Message-ID: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for LAPB_STATE_0
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Linux X25 <linux-x25@vger.kernel.org>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-12-23 at 16:33 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.3 release.
-> There are 40 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied,
-> please
-> let me know.
-> 
-> Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
+>
+> I don't think this patch is suitable for stable branches. This patch is
+> part of a patch series that changes the lapb module from "establishing the
+> L2 connection only when needed by L3", to "establishing the L2 connection
+> automatically whenever we are able to". This is a behavioral change. It
+> should be seen as a new feature. It is not a bug fix.
 
-hello ,
-Compiled and booted 5.10.3-rc1+.
+Applying this patch without other patches in the same series will also
+introduce problems, because this patch relies on part of the changes
+in the subsequent patch in the same series to be correct.
 
-dmesg -l err gives...
---------------x-------------x------------------->
-   43.190922] Bluetooth: hci0: don't support firmware rome 0x31010100
---------------x---------------x----------------->
+Hi Martin,
 
-My Bluetooth is Off.
-
-
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
--- 
-software engineer
-rajagiri school of engineering and technology - autonomous
-
-
+It's better that we avoid using words like "fix" in non-bug-fix
+patches, and make every patch work on its own without subsequent
+patches. Otherwise we'll make people confused.
