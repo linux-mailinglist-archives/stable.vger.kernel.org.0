@@ -2,115 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 995622E243C
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 06:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9E92E2445
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 06:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725379AbgLXFEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Dec 2020 00:04:15 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32596 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725355AbgLXFEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 00:04:15 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BO52Knm001136;
-        Thu, 24 Dec 2020 00:03:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=Ii6jRyv/9Sj1L+uzNzcLldGbFtG/uk3599WXpV0a+YA=;
- b=NYnoOkRwcYeG4AdfIWE2vN3i3Iv8X1jYaDmGFn5DV/y/wiouxOH9eCn6IbFVywtt912r
- h/6+cLYI8BSKwPy98IKMah2PknfQQjCd6y3Vz+U8PceU5Yj1NVH2O8G4+rECMq/BaOYR
- MJ6JB0p2suZJtAKVnd5Ylx9Esx3hM/h50HH5XOZla90CxW2e5UPp2k7lbIC9qGnu6uy9
- sLWXRbhRi+IGsDXMIlc1HtHD8J+7fm46xIKVlsf4EYVcfZr2CKyq3O+Dwd/MIR3esikg
- nnrW8JDUlBb92oEGROtlLive1UfRJObSv0J5OUc84Fot1K3e1iupBVVN8q4TtuZUqOcm bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35mm0urhu5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Dec 2020 00:03:33 -0500
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BO53OtM006696;
-        Thu, 24 Dec 2020 00:03:33 -0500
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35mm0urhtj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Dec 2020 00:03:33 -0500
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0BO4xp9Y031178;
-        Thu, 24 Dec 2020 05:03:30 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma02fra.de.ibm.com with ESMTP id 35hdguta4v-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 24 Dec 2020 05:03:30 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0BO53RQd41746696
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 24 Dec 2020 05:03:27 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id AC2444204F;
-        Thu, 24 Dec 2020 05:03:27 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1CE0142041;
-        Thu, 24 Dec 2020 05:03:27 +0000 (GMT)
-Received: from oc2783563651 (unknown [9.171.52.24])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
-        Thu, 24 Dec 2020 05:03:27 +0000 (GMT)
-Date:   Thu, 24 Dec 2020 06:03:25 +0100
-From:   Halil Pasic <pasic@linux.ibm.com>
-To:     Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org,
-        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
-        pbonzini@redhat.com, alex.williamson@redhat.com,
-        pasic@linux.vnet.ibm.com
-Subject: Re: [PATCH v5] s390/vfio-ap: clean up vfio_ap resources when KVM
- pointer invalidated
-Message-ID: <20201224060325.2170d7e9.pasic@linux.ibm.com>
-In-Reply-To: <20201223012013.5418-1-akrowiak@linux.ibm.com>
-References: <20201223012013.5418-1-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.11.1 (GTK+ 2.24.31; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2020-12-24_02:2020-12-23,2020-12-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- lowpriorityscore=0 malwarescore=0 suspectscore=0 mlxscore=0
- mlxlogscore=999 clxscore=1015 priorityscore=1501 bulkscore=0 phishscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2012240027
+        id S1725536AbgLXFSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Dec 2020 00:18:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58084 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725446AbgLXFSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 00:18:55 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34883C061794;
+        Wed, 23 Dec 2020 21:18:15 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id j13so593888pjz.3;
+        Wed, 23 Dec 2020 21:18:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=LA2q2PwXp/daJxufMhCIRE8CL74yxjBvwbFCk0LzEik=;
+        b=S27vCWUkNpeATmyIFjHiO2b6j/+sG4TMwFeBMjcE80wcYzHObbBZgKSD1wz5PCyGDw
+         Wq2chyAEB2LUQnPJ//ywxSkp2Zs2+K+iMV+bITtcIN7VWGvoZqI/H9vhwz8mftkAwV+p
+         MgqCmclPKFTpiwAmulbFLyuQoQKBWXjfGcIEg8jribkP701dcl22GvorZVI8CCg8ZR6d
+         EZAxrbyzqHDNiOr2qUKcm3vixuXYwSdMyeD0J3xADLfyHz6e+SzTi+47TpsW6gffkhe8
+         pltYbe/+d1KMfvxRbwExfXTL+lwFXSVAeT3+ed9G+NBsR2GZXGJDl5m8COV/9bsHBM37
+         SzrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=LA2q2PwXp/daJxufMhCIRE8CL74yxjBvwbFCk0LzEik=;
+        b=hK9Z6kJQ4S1WxqkLFfv8dglHxrE7mwxcIApZyrjaSxFRBllgO+87xi01hC/Czigz3M
+         6yf3n2wHWZGLZAn4arZ5+M6+zDXfNhETLuV4KDOo+9iraAo2mavHFp5P9+o3LXk8lvx9
+         4zzpN7cbMbw+BUdD1waR3/SJ3j8GLaXw8dh4zt4taK5H/rhyRnliCKqjNkP91RK8gzuo
+         lqXR+OTML10ArjiOTIiRugqJLZSKOkQK6rvugmpccDmuiuqDo/AXlyuRcO0o3TU4/5zP
+         iGlirhZdqEhxuNJYnnBekkFsIUXSfnAOqbFh+vzN5WSNxO5grkEqL5gVLDjJOiJtzZbM
+         /ZBw==
+X-Gm-Message-State: AOAM530WQH0REjrT4rvLuBT4JXicDq74p/0IOVJrfiNljzcI/vrEXQuS
+        fUbQJiiNql+ro/LGyvvd+TY=
+X-Google-Smtp-Source: ABdhPJx0VPOZ8gOLOrRuzvAcM5UsMBs0uA932mNpmABuZLTTP4XEpc68Z0U/b5FQeqTIFskS0rMKFQ==
+X-Received: by 2002:a17:90a:708b:: with SMTP id g11mr2750334pjk.23.1608787094272;
+        Wed, 23 Dec 2020 21:18:14 -0800 (PST)
+Received: from ?IPv6:2601:647:4700:9b2:50a2:5929:401b:705e? ([2601:647:4700:9b2:50a2:5929:401b:705e])
+        by smtp.gmail.com with ESMTPSA id 14sm1215361pjm.21.2020.12.23.21.18.11
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 23 Dec 2020 21:18:12 -0800 (PST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.120.23.2.4\))
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+From:   Nadav Amit <nadav.amit@gmail.com>
+In-Reply-To: <X+QShVIUbYKAsc35@redhat.com>
+Date:   Wed, 23 Dec 2020 21:18:09 -0800
+Cc:     Yu Zhao <yuzhao@google.com>, Andy Lutomirski <luto@amacapital.net>,
+        Andy Lutomirski <luto@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Xu <peterx@redhat.com>, linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <06DF7858-1447-4531-9B5C-E20C44F0AF54@gmail.com>
+References: <X+PE38s2Egq4nzKv@google.com>
+ <C332B03D-30B1-4C9C-99C2-E76988BFC4A1@amacapital.net>
+ <X+P2OnR+ipY8d2qL@redhat.com>
+ <3A6A1049-24C6-4B2D-8C59-21B549F742B4@gmail.com>
+ <X+QMKC7jPEeThjB1@google.com> <X+QShVIUbYKAsc35@redhat.com>
+To:     Andrea Arcangeli <aarcange@redhat.com>
+X-Mailer: Apple Mail (2.3608.120.23.2.4)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 22 Dec 2020 20:20:13 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> The vfio_ap device driver registers a group notifier with VFIO when the
-> file descriptor for a VFIO mediated device for a KVM guest is opened to
-> receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
-> event). When the KVM pointer is set, the vfio_ap driver takes the
-> following actions:
-> 1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
->    of the mediated device.
-> 2. Calls the kvm_get_kvm() function to increment its reference counter.
-> 3. Sets the function pointer to the function that handles interception of
->    the instruction that enables/disables interrupt processing.
-> 4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
->    the guest.
+> On Dec 23, 2020, at 8:01 PM, Andrea Arcangeli <aarcange@redhat.com> wrote:
 > 
-> In order to avoid memory leaks, when the notifier is called to receive
-> notification that the KVM pointer has been set to NULL, the vfio_ap device
-> driver should reverse the actions taken when the KVM pointer was set.
+>> On Wed, Dec 23, 2020 at 07:09:10PM -0800, Nadav Amit wrote:
+>>> Perhaps holding some small bitmap based on part of the deferred flushed
+>>> pages (e.g., bits 12-17 of the address or some other kind of a single
+>>> hash-function bloom-filter) would be more performant to avoid (most)
 > 
-> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> The concern here aren't only the page faults having to run the bloom
+> filter, but how to manage the RAM storage pointed by the bloomfilter
+> or whatever index into the storage, which would slowdown mprotect.
+> 
+> Granted that mprotect is slow to begin with, but the idea we can't make
+> it any slower to make MADV_PAGEOUT or uffd-wp or clear_refs run
+> faster since it's too important and too frequent in comparison.
+> 
+> Just to restrict the potential false positive IPI caused by page_count
+> inevitable inaccuracies to uffd-wp and softdirty runtimes, a simple
+> check on vm_flags should be enough.
 
-LGTM.
+Andrea,
 
-Christian, you wanted to pick this yourself directly, or? I think we are
-good to go!
+I am not trying to be argumentative, and I did not think through about an
+alternative solution. It sounds to me that your proposed solution is correct
+and would probably be eventually (slightly) more efficient than anything
+that I can propose.
+
+Yet, I do want to explain my position. Reasoning on TLB flushes is hard, as
+this long thread shows. The question is whether it has to be so hard. In
+theory, we can only think about architectural considerations - whether a PTE
+permissions are promoted/demoted and whether the PTE was changed/cleared.
+
+Obviously, it is more complex than that. Yet, once you add into the equation
+various parameters such as the VMA flags or whether a page is locked (which
+Mel told me was once a consideration), things become much more complicated.
+If all the logic of TLB flushes had been concentrated in a single point and
+maintenance of this code did not require thought about users and use-cases,
+I think things would have been much simpler, at least for me.
+
+Regards,
+Nadav
+
