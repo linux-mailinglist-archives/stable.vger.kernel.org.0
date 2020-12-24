@@ -2,113 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 769B22E2621
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 12:20:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 675122E2681
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 12:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727184AbgLXLRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Dec 2020 06:17:37 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:37718 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726746AbgLXLRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 06:17:36 -0500
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0BOBGo6r041742;
-        Thu, 24 Dec 2020 05:16:50 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1608808611;
-        bh=NTvLEMflAztKktqpjh6r18tuK30GE4lQZASY4qEqAXs=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=ycvsksDH5RNTv27SdmCA4IEDfYOBdxr6oS2caC5181VaSa54RQguQNHUthnbnJFt2
-         CgYnU7cjadhW8ZujujSdC5DQrQUPoFX3h83LeNP2kxPi8EJ439k94NbTU8KLqx58lC
-         MNtW7k6LHMY/2nW8JwIR27jZ2O+i3x/5vv7ErP68=
-Received: from DLEE105.ent.ti.com (dlee105.ent.ti.com [157.170.170.35])
-        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0BOBGoYl097615
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 24 Dec 2020 05:16:50 -0600
-Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE105.ent.ti.com
- (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Thu, 24
- Dec 2020 05:16:50 -0600
-Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE103.ent.ti.com
- (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Thu, 24 Dec 2020 05:16:50 -0600
-Received: from a0393678-ssd.dal.design.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0BOBGWG8116630;
-        Thu, 24 Dec 2020 05:16:44 -0600
-From:   Kishon Vijay Abraham I <kishon@ti.com>
-To:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, Nishanth Menon <nm@ti.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <stable@vger.kernel.org>
-Subject: [PATCH v3 02/15] phy: ti: j721e-wiz: Invoke wiz_init() before of_platform_device_create()
-Date:   Thu, 24 Dec 2020 16:46:14 +0530
-Message-ID: <20201224111627.32590-3-kishon@ti.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201224111627.32590-1-kishon@ti.com>
-References: <20201224111627.32590-1-kishon@ti.com>
+        id S1727081AbgLXLw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Dec 2020 06:52:59 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:51683 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726186AbgLXLw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 06:52:59 -0500
+X-UUID: 7df082fdcf394686b3ae0e0585d18cd1-20201224
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=GVd/uEmz3BT2bNSrN2oF0YBq2VYSrsG41VAyyl5jBoY=;
+        b=BhD+v+xV/9Tzasv1YPdXRudo3W0jvdly8Ic2C49NN2ZP+Zlr45uIGhKj0RmQNKLQRxmCFmpR8Dk/+JmNT9j2WfDYrHL6mekH60y7HoSnKn2TMtJffz5zd6MYah+9PhAzFFfEmF/xa+Nl65XunxKMkv3n4LzhpZOIyNYik4BsXdo=;
+X-UUID: 7df082fdcf394686b3ae0e0585d18cd1-20201224
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw01.mediatek.com
+        (envelope-from <kuan-ying.lee@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1303805721; Thu, 24 Dec 2020 19:52:12 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs08n2.mediatek.inc (172.21.101.56) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 24 Dec 2020 19:52:03 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 24 Dec 2020 19:52:03 +0800
+Message-ID: <1608810724.9171.65.camel@mtksdccf07>
+Subject: Re: [to-be-updated] kasan-fix-memory-leak-of-kasan-quarantine.patch
+ removed from -mm tree
+From:   Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+To:     <akpm@linux-foundation.org>
+CC:     <mm-commits@vger.kernel.org>, <stable@vger.kernel.org>,
+        <matthias.bgg@gmail.com>, <glider@google.com>,
+        <dvyukov@google.com>, <aryabinin@virtuozzo.com>,
+        <miles.chen@mediatek.com>
+Date:   Thu, 24 Dec 2020 19:52:04 +0800
+In-Reply-To: <20201222190426.zM-LA%akpm@linux-foundation.org>
+References: <20201222190426.zM-LA%akpm@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+X-TM-SNTS-SMTP: B296D1DBEB0960FDFD2B5CE45D6DF1CE3B3B7FCF88E98D3C2C544FB30480C0152000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Invoke wiz_init() before configuring anything else in Sierra/Torrent
-(invoked as part of of_platform_device_create()). wiz_init() resets the
-SERDES device and any configuration done in the probe() of
-Sierra/Torrent will be lost. In order to prevent SERDES configuration
-from getting reset, invoke wiz_init() immediately before invoking
-of_platform_device_create().
-
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: <stable@vger.kernel.org> # v5.10
----
- drivers/phy/ti/phy-j721e-wiz.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
-index c9cfafe89cbf..a75433b459dd 100644
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -947,27 +947,24 @@ static int wiz_probe(struct platform_device *pdev)
- 		goto err_get_sync;
- 	}
- 
-+	ret = wiz_init(wiz);
-+	if (ret) {
-+		dev_err(dev, "WIZ initialization failed\n");
-+		goto err_wiz_init;
-+	}
-+
- 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
- 	if (!serdes_pdev) {
- 		dev_WARN(dev, "Unable to create SERDES platform device\n");
- 		ret = -ENOMEM;
--		goto err_pdev_create;
--	}
--	wiz->serdes_pdev = serdes_pdev;
--
--	ret = wiz_init(wiz);
--	if (ret) {
--		dev_err(dev, "WIZ initialization failed\n");
- 		goto err_wiz_init;
- 	}
-+	wiz->serdes_pdev = serdes_pdev;
- 
- 	of_node_put(child_node);
- 	return 0;
- 
- err_wiz_init:
--	of_platform_device_destroy(&serdes_pdev->dev, NULL);
--
--err_pdev_create:
- 	wiz_clock_cleanup(wiz, node);
- 
- err_get_sync:
--- 
-2.17.1
+T24gVHVlLCAyMDIwLTEyLTIyIGF0IDExOjA0IC0wODAwLCBha3BtQGxpbnV4LWZvdW5kYXRpb24u
+b3JnIHdyb3RlOg0KPiBUaGUgcGF0Y2ggdGl0bGVkDQo+ICAgICAgU3ViamVjdDoga2FzYW46IGZp
+eCBtZW1vcnkgbGVhayBvZiBrYXNhbiBxdWFyYW50aW5lDQo+IGhhcyBiZWVuIHJlbW92ZWQgZnJv
+bSB0aGUgLW1tIHRyZWUuICBJdHMgZmlsZW5hbWUgd2FzDQo+ICAgICAga2FzYW4tZml4LW1lbW9y
+eS1sZWFrLW9mLWthc2FuLXF1YXJhbnRpbmUucGF0Y2gNCj4gDQo+IFRoaXMgcGF0Y2ggd2FzIGRy
+b3BwZWQgYmVjYXVzZSBhbiB1cGRhdGVkIHZlcnNpb24gd2lsbCBiZSBtZXJnZWQNCj4gDQo+IC0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiBG
+cm9tOiBLdWFuLVlpbmcgTGVlIDxLdWFuLVlpbmcuTGVlQG1lZGlhdGVrLmNvbT4NCj4gU3ViamVj
+dDoga2FzYW46IGZpeCBtZW1vcnkgbGVhayBvZiBrYXNhbiBxdWFyYW50aW5lDQo+IA0KPiBXaGVu
+IGNwdSBpcyBnb2luZyBvZmZsaW5lLCBzZXQgcS0+b2ZmbGluZSBhcyB0cnVlIGFuZCBpbnRlcnJ1
+cHQgaGFwcGVuZWQuIA0KPiBUaGUgaW50ZXJydXB0IG1heSBjYWxsIHRoZSBxdWFyYW50aW5lX3B1
+dC4gIEJ1dCBxdWFyYW50aW5lX3B1dCBkbyBub3QgZnJlZQ0KPiB0aGUgdGhlIG9iamVjdC4gIFRo
+ZSBvYmplY3Qgd2lsbCBjYXVzZSBtZW1vcnkgbGVhay4NCj4gDQo+IEFkZCBxbGlua19mcmVlKCkg
+dG8gZnJlZSB0aGUgb2JqZWN0Lg0KPiANCj4gTGluazogaHR0cHM6Ly9sa21sLmtlcm5lbC5vcmcv
+ci8xNjA4MjA3NDg3LTMwNTM3LTItZ2l0LXNlbmQtZW1haWwtS3Vhbi1ZaW5nLkxlZUBtZWRpYXRl
+ay5jb20NCj4gRml4ZXM6IDZjODJkNDVjN2YwMyAoa2FzYW46IGZpeCBvYmplY3QgcmVtYWluaW5n
+IGluIG9mZmxpbmUgcGVyLWNwdSBxdWFyYW50aW5lKQ0KPiBTaWduZWQtb2ZmLWJ5OiBLdWFuLVlp
+bmcgTGVlIDxLdWFuLVlpbmcuTGVlQG1lZGlhdGVrLmNvbT4NCj4gQ2M6IEFuZHJleSBSeWFiaW5p
+biA8YXJ5YWJpbmluQHZpcnR1b3p6by5jb20+DQo+IENjOiBBbGV4YW5kZXIgUG90YXBlbmtvIDxn
+bGlkZXJAZ29vZ2xlLmNvbT4NCj4gQ2M6IERtaXRyeSBWeXVrb3YgPGR2eXVrb3ZAZ29vZ2xlLmNv
+bT4NCj4gQ2M6IE1hdHRoaWFzIEJydWdnZXIgPG1hdHRoaWFzLmJnZ0BnbWFpbC5jb20+DQo+IENj
+OiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gICAgWzUuMTAtXQ0KPiBTaWduZWQtb2ZmLWJ5OiBB
+bmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiAtLS0NCj4gDQo+ICBt
+bS9rYXNhbi9xdWFyYW50aW5lLmMgfCAgICAxICsNCj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2Vy
+dGlvbigrKQ0KPiANCj4gLS0tIGEvbW0va2FzYW4vcXVhcmFudGluZS5jfmthc2FuLWZpeC1tZW1v
+cnktbGVhay1vZi1rYXNhbi1xdWFyYW50aW5lDQo+ICsrKyBhL21tL2thc2FuL3F1YXJhbnRpbmUu
+Yw0KPiBAQCAtMTk0LDYgKzE5NCw3IEBAIGJvb2wgcXVhcmFudGluZV9wdXQoc3RydWN0IGttZW1f
+Y2FjaGUgKmMNCj4gIA0KPiAgCXEgPSB0aGlzX2NwdV9wdHIoJmNwdV9xdWFyYW50aW5lKTsNCj4g
+IAlpZiAocS0+b2ZmbGluZSkgew0KPiArCQlxbGlua19mcmVlKCZpbmZvLT5xdWFyYW50aW5lX2xp
+bmssIGNhY2hlKTsNCj4gIAkJbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOw0KPiAgCQlyZXR1cm4g
+ZmFsc2U7DQo+ICAJfQ0KPiBfDQo+IA0KPiBQYXRjaGVzIGN1cnJlbnRseSBpbiAtbW0gd2hpY2gg
+bWlnaHQgYmUgZnJvbSBLdWFuLVlpbmcuTGVlQG1lZGlhdGVrLmNvbSBhcmUNCj4gDQo+IA0KDQpI
+aSBBbmRyZXcsDQoNClNvcnJ5IHRvIGJvdGhlci4NCkFmdGVyIHJlY2VudGx5IGthc2FuIHNlcmll
+cyBtZXJnZWQgaW50byBtYWlubGluZSwgdGhlIG1lbW9yeSBsZWFrDQppc3N1ZSBoYXMgYmVlbiBm
+aXhlZC4gV2UgZG9uJ3QgbmVlZCB0aGlzIHBhdGNoIGFueW1vcmUuDQoNClRoaXMgcGF0Y2ggc3Rh
+dGUgY2FuIGJlIGNoYW5nZWQgdG8gb2Jzb2xldGUuDQoNClBsZWFzZSBhYmFuZG9uIHRoaXMgcGF0
+Y2guDQoNClRoYW5rcy4NCg0K
 
