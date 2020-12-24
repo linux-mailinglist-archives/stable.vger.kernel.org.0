@@ -2,80 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66C102E25C4
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 10:50:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACC742E2635
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 12:20:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbgLXJuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Dec 2020 04:50:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726186AbgLXJui (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 04:50:38 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87129C061794;
-        Thu, 24 Dec 2020 01:49:58 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id lj6so878265pjb.0;
-        Thu, 24 Dec 2020 01:49:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pR2ACc6d8aTjF9n2K3igB+WCeCgG4pxrdUZ6N6y3XI8=;
-        b=F0hRaYSIk4MzxylL/ODRdzxdbcBJG2XTEKKFPPjS/e6+wv80GeoxPfKfzYneDuCNCC
-         CHiQngXEUCEHaSxZQbe0EvGvKuJBzn4uUQZsOhoNlBfM+EQD+7hcS2TdqDQDPXg7aq24
-         IWm8zHFInPmY9dfoaethXfjxzbiY0N/7CjnmYXj+r/riZAy5ljkCgDOPqsUYVMlzWFt9
-         qIrGIel3ehiGDT3y8ufUGJCvnvZ5BfpnpjxelSVkfc5Xl1Q968ZWdYclR7PNXWzTMlUP
-         ApzZ1jaXDMRwxhwewd2oMVNALF06JfTuUJBrmCYUieUpyd1Pyu36pOE7PYZqJcYpQkcH
-         hSjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pR2ACc6d8aTjF9n2K3igB+WCeCgG4pxrdUZ6N6y3XI8=;
-        b=i2ZHrqwuAs/SNiS49OO37d6SjCCBboxzCW3EwMNP2sOi4UrQlszvMs9CA1AyscqfPv
-         47HFDjuWHH8aSrAtaW7HhQzPobLpz8yx1MVBXzM2sJ+/Moqx6xOJoh6yWEa0OlXA54CC
-         T7L3h10gOH7c0mcg9B1BsW89C5hxzC/8i+dL4VSZlBljYh0cYcAYWQGZx3RgKilPCM40
-         FsxTrNN7SVKeml9ZEOf3DGKPiunthD11ciBFyXlwN3iS9a/pm0lXW42f4sD+HAm3Eq4t
-         +6N4iJrHis9DbkQGfb+LjlIy71hJxQkPBw6xe1LixSJ0lh53oiA5jNtkjnEJfOAMlg9H
-         VgeA==
-X-Gm-Message-State: AOAM532QQhFuwl0miYMqwi2b8eeLPJFGD0FQb2wP6O+sfo3AOtijsJsC
-        WkXarmHpmYfhu1RG9vdYEKXO41MxPHVbvgx9jLs=
-X-Google-Smtp-Source: ABdhPJx6rI4RiBLIO4l3nCt1PYNHCcwysmC0IXsyW95+37z9CtvbEcPAuccSa7faEIs2R4EY4ijJ9MtYuA7iy5RTf/8=
-X-Received: by 2002:a17:902:9a4a:b029:dc:435c:70ad with SMTP id
- x10-20020a1709029a4ab02900dc435c70admr13573744plv.77.1608803398081; Thu, 24
- Dec 2020 01:49:58 -0800 (PST)
+        id S1728685AbgLXLSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Dec 2020 06:18:33 -0500
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:37706 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728702AbgLXLS1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Dec 2020 06:18:27 -0500
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0BOBGinB041728;
+        Thu, 24 Dec 2020 05:16:44 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1608808604;
+        bh=HHTvmMjtTJRPNFpN3zkcx0PIiGXY1RMP1eK0a1ouBO4=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References;
+        b=IuObjeaylDSr3Zi0pZgHVlrtWCWQn7wHfQo257nV/82cWfSU3oE7sZfCu83NlwwXq
+         sd4gr+MdZV2Wi50fmuNNwkcTY/n2GCFHbwOLG27XIjswlaLfXHoUdyj4sbpejwmW8c
+         UFyQvSuWcakZrcky6mVixOuDRHFEwtEUUwTYhXxs=
+Received: from DLEE103.ent.ti.com (dlee103.ent.ti.com [157.170.170.33])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0BOBGiP4059650
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 24 Dec 2020 05:16:44 -0600
+Received: from DLEE115.ent.ti.com (157.170.170.26) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Thu, 24
+ Dec 2020 05:16:43 -0600
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DLEE115.ent.ti.com
+ (157.170.170.26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Thu, 24 Dec 2020 05:16:43 -0600
+Received: from a0393678-ssd.dal.design.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0BOBGWG7116630;
+        Thu, 24 Dec 2020 05:16:38 -0600
+From:   Kishon Vijay Abraham I <kishon@ti.com>
+To:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, Nishanth Menon <nm@ti.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>, <stable@vger.kernel.org>
+Subject: [PATCH v3 01/15] phy: cadence: Sierra: Fix PHY power_on sequence
+Date:   Thu, 24 Dec 2020 16:46:13 +0530
+Message-ID: <20201224111627.32590-2-kishon@ti.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20201224111627.32590-1-kishon@ti.com>
+References: <20201224111627.32590-1-kishon@ti.com>
 MIME-Version: 1.0
-References: <20201223021813.2791612-75-sashal@kernel.org> <20201223170124.5963-1-xie.he.0141@gmail.com>
-In-Reply-To: <20201223170124.5963-1-xie.he.0141@gmail.com>
-From:   Xie He <xie.he.0141@gmail.com>
-Date:   Thu, 24 Dec 2020 01:49:47 -0800
-Message-ID: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for LAPB_STATE_0
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Linux X25 <linux-x25@vger.kernel.org>,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
->
-> I don't think this patch is suitable for stable branches. This patch is
-> part of a patch series that changes the lapb module from "establishing the
-> L2 connection only when needed by L3", to "establishing the L2 connection
-> automatically whenever we are able to". This is a behavioral change. It
-> should be seen as a new feature. It is not a bug fix.
+Commit 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+de-asserts PHY_RESET even before the configurations are loaded in
+phy_init(). However PHY_RESET should be de-asserted only after
+all the configurations has been initialized, instead of de-asserting
+in probe. Fix it here.
 
-Applying this patch without other patches in the same series will also
-introduce problems, because this patch relies on part of the changes
-in the subsequent patch in the same series to be correct.
+Fixes: 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+---
+ drivers/phy/cadence/phy-cadence-sierra.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Hi Martin,
+diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
+index 26a0badabe38..19f32ae877b9 100644
+--- a/drivers/phy/cadence/phy-cadence-sierra.c
++++ b/drivers/phy/cadence/phy-cadence-sierra.c
+@@ -319,6 +319,12 @@ static int cdns_sierra_phy_on(struct phy *gphy)
+ 	u32 val;
+ 	int ret;
+ 
++	ret = reset_control_deassert(sp->phy_rst);
++	if (ret) {
++		dev_err(dev, "Failed to take the PHY out of reset\n");
++		return ret;
++	}
++
+ 	/* Take the PHY lane group out of reset */
+ 	ret = reset_control_deassert(ins->lnk_rst);
+ 	if (ret) {
+@@ -616,7 +622,6 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
+ 
+ 	pm_runtime_enable(dev);
+ 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
+-	reset_control_deassert(sp->phy_rst);
+ 	return PTR_ERR_OR_ZERO(phy_provider);
+ 
+ put_child:
+-- 
+2.17.1
 
-It's better that we avoid using words like "fix" in non-bug-fix
-patches, and make every patch work on its own without subsequent
-patches. Otherwise we'll make people confused.
