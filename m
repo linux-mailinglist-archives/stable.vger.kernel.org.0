@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1118A2E2355
-	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 02:13:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8B82E2361
+	for <lists+stable@lfdr.de>; Thu, 24 Dec 2020 02:18:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728241AbgLXBMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Dec 2020 20:12:38 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:9478 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728141AbgLXBMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 20:12:38 -0500
-Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4D1X8R4f5CzhwlC;
-        Thu, 24 Dec 2020 09:11:19 +0800 (CST)
-Received: from [10.136.114.67] (10.136.114.67) by smtp.huawei.com
- (10.3.19.214) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 24 Dec
- 2020 09:11:53 +0800
-Subject: Re: [PATCH 5.10 24/40] f2fs: fix to seek incorrect data offset in
- inline data file
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        kitestramuort <kitestramuort@autistici.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-References: <20201223150515.553836647@linuxfoundation.org>
- <20201223150516.715040953@linuxfoundation.org>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <962b2db7-383f-b4da-5221-2004235d19c1@huawei.com>
-Date:   Thu, 24 Dec 2020 09:11:53 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1728421AbgLXBRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Dec 2020 20:17:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728245AbgLXBRv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Dec 2020 20:17:51 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2AD9C06179C
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 17:17:10 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id h22so1589290lfu.2
+        for <stable@vger.kernel.org>; Wed, 23 Dec 2020 17:17:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DoSTIz4OclpRqy9M1PRlqRFubsvDvdVI7jF3w2c+ZJ0=;
+        b=DnoA/VmpMSORz9wPt0sZljZAfcFC4sY2f7B3Cobx4lxW219Y93SQ8lko3rSoDhY/NH
+         9iYjd3GucYAGdGub8suQf5LC1oj23rXcAVmwFOVhhD39vY9YpUlYk19oo172WVXhhc7b
+         dxLTOSS9FI5FFbm/2pN8bpjsq2lfgL2Xc0qEmfcuNa/T8QKdZVPAiRuuU7XPXfa2RB3g
+         igT855yqtbOIbIS4oL0UPA2E051MrJQUqLhW8Hro5x5cIqC3YLgs4b1RwnyfkPiQBsom
+         PrV7izB1GaTYTy7F94i5TD8+8pppyK0Tw/ESyf7ai38kvRG4jrWoZ1tww/ccP32DqJN4
+         /53A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DoSTIz4OclpRqy9M1PRlqRFubsvDvdVI7jF3w2c+ZJ0=;
+        b=Jxc+3E5/SscS0si9lgOm9IUBaEuHCxXN+cYPSCC8mVvMsBGq3+8bhB3DPZL8TsZYn3
+         0hE2NVXQi6CuzRhWtLzkIrch2yCCcy7I7bZjRFaXNAUgu5ce/N9M/ExGMxaBmukoyFHS
+         MMtXJRqijmh89nI8exeIsImyDajo9ukI21X7cFLMI6lwNfd7xALkH45twhTfGPjxcRbI
+         MA1TXOb/4s6CT6ivnZtyn0VZHOrwyn6FDDU6lzzgO+Wuit2ZkysCOoFCeKLWQiqJY8lJ
+         s4k47h3DdPxbLWwdNngyOF90XlyOhoORAsSP1KTvdr4D+R2L/TUdmQCzFol2VXWepZzg
+         Z4KQ==
+X-Gm-Message-State: AOAM533imfK0yGpL4/Ef8IoqWWo0AbtATVA7HBPp1FGrHRUCwJa3fbxb
+        uYhHoiSZr/Cb8/7hhphM09Hadg==
+X-Google-Smtp-Source: ABdhPJwnquAubxr6XTG0nIBFCkaG03nKktNWn5cV49rLlHje5rrVUK/9UCklSnoZUWgxFQCyBcePPg==
+X-Received: by 2002:a2e:b5b5:: with SMTP id f21mr6559612ljn.239.1608772629268;
+        Wed, 23 Dec 2020 17:17:09 -0800 (PST)
+Received: from localhost.localdomain (c-92d7225c.014-348-6c756e10.bbcust.telenor.se. [92.34.215.146])
+        by smtp.gmail.com with ESMTPSA id q26sm3426159lfd.87.2020.12.23.17.17.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Dec 2020 17:17:08 -0800 (PST)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] iio: adc: ab8500-gpadc: Fix off by 10 to 3
+Date:   Thu, 24 Dec 2020 02:17:00 +0100
+Message-Id: <20201224011700.1059659-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-In-Reply-To: <20201223150516.715040953@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.114.67]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Fix an off by three orders of magnitude error in the AB8500
+GPADC driver. Luckily it showed up quite quickly when trying
+to make use of it. The processed reads were returning
+microvolts, microamperes and microcelsius instead of millivolts,
+milliamperes and millicelsius as advertised.
 
-Thanks a lot for helping to resend and merge the patch. :)
+Cc: stable@vger.kernel.org
+Fixes: 07063bbfa98e ("iio: adc: New driver for the AB8500 GPADC")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/iio/adc/ab8500-gpadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
+diff --git a/drivers/iio/adc/ab8500-gpadc.c b/drivers/iio/adc/ab8500-gpadc.c
+index 6f9a3e2d5533..7b5212ba5501 100644
+--- a/drivers/iio/adc/ab8500-gpadc.c
++++ b/drivers/iio/adc/ab8500-gpadc.c
+@@ -918,7 +918,7 @@ static int ab8500_gpadc_read_raw(struct iio_dev *indio_dev,
+ 			return processed;
+ 
+ 		/* Return millivolt or milliamps or millicentigrades */
+-		*val = processed * 1000;
++		*val = processed;
+ 		return IIO_VAL_INT;
+ 	}
+ 
+-- 
+2.29.2
 
-On 2020/12/23 23:33, Greg Kroah-Hartman wrote:
-> From: Chao Yu <yuchao0@huawei.com>
-> 
-> commit 7a6e59d719ef0ec9b3d765cba3ba98ee585cbde3 upstream.
-> 
-> As kitestramuort reported:
-> 
-> F2FS-fs (nvme0n1p4): access invalid blkaddr:1598541474
-> [   25.725898] ------------[ cut here ]------------
-> [   25.725903] WARNING: CPU: 6 PID: 2018 at f2fs_is_valid_blkaddr+0x23a/0x250
-> [   25.725923] Call Trace:
-> [   25.725927]  ? f2fs_llseek+0x204/0x620
-> [   25.725929]  ? ovl_copy_up_data+0x14f/0x200
-> [   25.725931]  ? ovl_copy_up_inode+0x174/0x1e0
-> [   25.725933]  ? ovl_copy_up_one+0xa22/0xdf0
-> [   25.725936]  ? ovl_copy_up_flags+0xa6/0xf0
-> [   25.725938]  ? ovl_aio_cleanup_handler+0xd0/0xd0
-> [   25.725939]  ? ovl_maybe_copy_up+0x86/0xa0
-> [   25.725941]  ? ovl_open+0x22/0x80
-> [   25.725943]  ? do_dentry_open+0x136/0x350
-> [   25.725945]  ? path_openat+0xb7e/0xf40
-> [   25.725947]  ? __check_sticky+0x40/0x40
-> [   25.725948]  ? do_filp_open+0x70/0x100
-> [   25.725950]  ? __check_sticky+0x40/0x40
-> [   25.725951]  ? __check_sticky+0x40/0x40
-> [   25.725953]  ? __x64_sys_openat+0x1db/0x2c0
-> [   25.725955]  ? do_syscall_64+0x2d/0x40
-> [   25.725957]  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> llseek() reports invalid block address access, the root cause is if
-> file has inline data, f2fs_seek_block() will access inline data regard
-> as block address index in inode block, which should be wrong, fix it.
-> 
-> Reported-by: kitestramuort <kitestramuort@autistici.org>
-> Signed-off-by: Chao Yu <yuchao0@huawei.com>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> ---
->   fs/f2fs/file.c |   11 ++++++++---
->   1 file changed, 8 insertions(+), 3 deletions(-)
-> 
-> --- a/fs/f2fs/file.c
-> +++ b/fs/f2fs/file.c
-> @@ -412,9 +412,14 @@ static loff_t f2fs_seek_block(struct fil
->   		goto fail;
->   
->   	/* handle inline data case */
-> -	if (f2fs_has_inline_data(inode) && whence == SEEK_HOLE) {
-> -		data_ofs = isize;
-> -		goto found;
-> +	if (f2fs_has_inline_data(inode)) {
-> +		if (whence == SEEK_HOLE) {
-> +			data_ofs = isize;
-> +			goto found;
-> +		} else if (whence == SEEK_DATA) {
-> +			data_ofs = offset;
-> +			goto found;
-> +		}
->   	}
->   
->   	pgofs = (pgoff_t)(offset >> PAGE_SHIFT);
-> 
-> 
-> .
-> 
