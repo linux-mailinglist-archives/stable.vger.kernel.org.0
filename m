@@ -2,130 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14FEB2E29E0
-	for <lists+stable@lfdr.de>; Fri, 25 Dec 2020 06:30:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9E02E2C39
+	for <lists+stable@lfdr.de>; Fri, 25 Dec 2020 21:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725863AbgLYF2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Dec 2020 00:28:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53870 "EHLO
+        id S1727391AbgLYUUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Dec 2020 15:20:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725842AbgLYF2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Dec 2020 00:28:47 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8F2C061575
-        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 21:28:07 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id 11so2150527pfu.4
-        for <stable@vger.kernel.org>; Thu, 24 Dec 2020 21:28:07 -0800 (PST)
+        with ESMTP id S1726345AbgLYUUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Dec 2020 15:20:52 -0500
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2FB6C0613C1;
+        Fri, 25 Dec 2020 12:20:11 -0800 (PST)
+Received: by mail-il1-x12a.google.com with SMTP id k8so4611337ilr.4;
+        Fri, 25 Dec 2020 12:20:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=fggFNHkIm4LYrEAhkgghWWYvuA1sVNNnoLCFYuyGlq0=;
-        b=kEN7zSRi+7riSkXhcZrU8TJWQ4DnunTjyGXKsR69nYEFYNq64ohC72qdjFnHuXBBhC
-         y9REVFiXQvPsL4WT62tXjdG5TZbFfQ5JFtRrN078rt8NzJ/v/z73Z70RYBj60V5fM6IR
-         2Ipq89qwjypEeyT92GO2qgvF0tobYN3uu4bGeyQHOWXpT4kN3mg0AA2/Edmt//bL8JaM
-         jJ4P7b5tmFsz2GCc/ImFJyv+ts+nQm7jPrAyk/TQ11nLu4TyaFMycOL1Nrnu3Yw/YErp
-         0B7b6IRQRtKIWwN9Ql17vWPXVnEjn2HFGEnStKxReFEmDIHCXFMnfFJ0AQiLRNm11VbM
-         fODg==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=InI8kMxZ0SE9l75DuOndEZGfmarmC3cXjv+qNAPdxJc=;
+        b=r6NQf9sanR+K4FmtKtZxi0+2djREFNuDx7xAFlKcuIGdrzDT01FfkTiv8KttlxgpP8
+         Jf0wONnTXXrXHgdkSJ8Cs3BqfcpriC/TLqWtDzxhOeZ2EvW2ZliGq3UPWw824DNy4B3a
+         tyPy5/Kecfx7sC1EtM+J8d0Bze7PsSUUYV4REqjCpJmZQPNmKoHsNhHHqvzUr715ejEe
+         Lq0c7BikZ20WX7pZcWCW7fYYtRjAQ00RTq9J+xc/UiLRAkH+VOBAuWhGf8hdsjnmhO+H
+         hLo5sINXfqQST/qfavuOmDeYnux9FDGKjr9QX4z/V8b2fbHrkgJZTbNELwtiOO+N5xFF
+         fzYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=fggFNHkIm4LYrEAhkgghWWYvuA1sVNNnoLCFYuyGlq0=;
-        b=bq3f0enbVd44SmhMN5YFYGtVigbiWi/l4ePDOVXFYY6ZjXzp+i0CPYRuOOeG8Gjfbg
-         15W0V+gnSECy8fkT6z2aJb1QsUctziupJ1+Z2D3VZh2BivERmaY4CsD0pj+9UNKwpPPt
-         CtwRnFBJbnUHHGtKgAx8Ckw7uIPWXYT0y1zxhjIxXazIhSbIwHJBHlxqk+zarZYIZB+g
-         o6hiWGg56rfoc7gGaa7YY5lcvUhENGFQom63DL35QKZ9bVTKG2AKiOvnhh49gdmzNTQi
-         6LyNnKRPNN5gUBcV0W5UqGL6fpZUJrovyPl614ZEFveR9HzVpi87qAPqaGf72envVikz
-         MC8A==
-X-Gm-Message-State: AOAM533DsmEOXiczGkr3kb0b4jRR4extdKCfVKGDwgtCrJrlHDjj3Snb
-        pgRXsYJA+JXamh8hcbtZ6igNiw==
-X-Google-Smtp-Source: ABdhPJxH3HZ5HXhbr/CHl5MUe98jSpKJsDIbtdnv3P2YMkrXMNZCm+tx78RxEj+4EoNtjQ8SOVcwyA==
-X-Received: by 2002:aa7:9ab7:0:b029:19d:ac89:39aa with SMTP id x23-20020aa79ab70000b029019dac8939aamr30486597pfi.10.1608874086935;
-        Thu, 24 Dec 2020 21:28:06 -0800 (PST)
-Received: from localhost ([45.137.216.7])
-        by smtp.gmail.com with ESMTPSA id g85sm28526152pfb.4.2020.12.24.21.28.06
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 24 Dec 2020 21:28:06 -0800 (PST)
-From:   Leo Yan <leo.yan@linaro.org>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Will Deacon <will@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexandre Truong <alexandre.truong@arm.com>,
-        Ian Rogers <irogers@google.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        He Zhe <zhe.he@windriver.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Alexis Berlemont <alexis.berlemont@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH v2 1/3] perf probe: Fix memory leak in synthesize_sdt_probe_command()
-Date:   Fri, 25 Dec 2020 13:27:49 +0800
-Message-Id: <20201225052751.24513-2-leo.yan@linaro.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20201225052751.24513-1-leo.yan@linaro.org>
-References: <20201225052751.24513-1-leo.yan@linaro.org>
+         :references:mime-version:content-transfer-encoding;
+        bh=InI8kMxZ0SE9l75DuOndEZGfmarmC3cXjv+qNAPdxJc=;
+        b=oOrjXmFXhUJvZdi5mb2VrAGAdeYIZ67/tdI2AgGykQ68DcLRfObA0ylgv3v2bQdiUo
+         8915fqEOmqpAuv+RWOUHeO510+q+ioE8co+QOls6ESS1mUU/6Os3kvwf1glAQFS0GRQ4
+         cU62YeaJlIpwHiFzwt7Gs0COK11b/ty4YTLnvYFHbxN5Asw33Z6pPRlzGFkI/djYxv7F
+         cAwVFzAFa5ClM+ztak0yDO21yMVje4MSyMAjXRFQBtvS4BrV1deX30rQZ9da1RSf5+wl
+         v28y/Yj8jFUzg07trr48kKRmK6lhhF5MdEow4EYBATKqepaeyxmNNt5IVXVezykRfg02
+         Nf4Q==
+X-Gm-Message-State: AOAM530Gz6gGbpRzNa6dvDFXQwFvb6f2qFQmCEYYzzkA7+mOPjOPCLtb
+        aiNzGdAeQ4XAC+wHn8KbZA0=
+X-Google-Smtp-Source: ABdhPJzcroUJQmkQGcY7BxNYigl/rjO7YLJpONAnadfT8KS5+HQr9+NSD1zpJH+0E7zdC0dE6lc0Eg==
+X-Received: by 2002:a92:c847:: with SMTP id b7mr35308541ilq.210.1608927611296;
+        Fri, 25 Dec 2020 12:20:11 -0800 (PST)
+Received: from frodo.mearth (c-24-9-77-57.hsd1.co.comcast.net. [24.9.77.57])
+        by smtp.googlemail.com with ESMTPSA id e1sm28380401iod.17.2020.12.25.12.20.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Dec 2020 12:20:10 -0800 (PST)
+From:   Jim Cromie <jim.cromie@gmail.com>
+To:     jbaron@akamai.com, gregkh@linuxfoundation.org,
+        linux-kernel@vger.kernel.org
+Cc:     Jim Cromie <jim.cromie@gmail.com>, stable@vger.kernel.org
+Subject: [RFC PATCH v2 01/19] dyndbg: fix use before null check
+Date:   Fri, 25 Dec 2020 13:19:26 -0700
+Message-Id: <20201225201944.3701590-2-jim.cromie@gmail.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201225201944.3701590-1-jim.cromie@gmail.com>
+References: <20201225201944.3701590-1-jim.cromie@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+In commit a2d375eda771 ("dyndbg: refine export, rename to
+dynamic_debug_exec_queries()"), a string is copied before checking it
+isn't NULL.  Fix this, report a usage/interface error, and return the
+proper error code.
 
-In synthesize_sdt_probe_command(), it gets argument array from
-argv_split() but forgets to free it.  This patch calls argv_free() to
-free the argument array to avoid memory leak.
-
-Fixes: 3b1f8311f696 ("perf probe: Add sdt probes arguments into the uprobe cmd string")
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Fixes: a2d375eda771 ("dyndbg: refine export, rename to dynamic_debug_exec_queries()")
 Cc: stable@vger.kernel.org
----
- tools/perf/util/probe-file.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+--
+-v2 drop comment tweak, improve commit message
 
-diff --git a/tools/perf/util/probe-file.c b/tools/perf/util/probe-file.c
-index 064b63a6a3f3..bbecb449ea94 100644
---- a/tools/perf/util/probe-file.c
-+++ b/tools/perf/util/probe-file.c
-@@ -791,7 +791,7 @@ static char *synthesize_sdt_probe_command(struct sdt_note *note,
- 					const char *sdtgrp)
+Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+---
+ lib/dynamic_debug.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+index bd7b3aaa93c3..c70d6347afa2 100644
+--- a/lib/dynamic_debug.c
++++ b/lib/dynamic_debug.c
+@@ -561,9 +561,14 @@ static int ddebug_exec_queries(char *query, const char *modname)
+ int dynamic_debug_exec_queries(const char *query, const char *modname)
  {
- 	struct strbuf buf;
--	char *ret = NULL, **args;
-+	char *ret = NULL;
- 	int i, args_count, err;
- 	unsigned long long ref_ctr_offset;
+ 	int rc;
+-	char *qry = kstrndup(query, PAGE_SIZE, GFP_KERNEL);
++	char *qry; /* writable copy of query */
  
-@@ -813,12 +813,19 @@ static char *synthesize_sdt_probe_command(struct sdt_note *note,
- 		goto out;
+-	if (!query)
++	if (!query) {
++		pr_err("non-null query/command string expected\n");
++		return -EINVAL;
++	}
++	qry = kstrndup(query, PAGE_SIZE, GFP_KERNEL);
++	if (!qry)
+ 		return -ENOMEM;
  
- 	if (note->args) {
--		args = argv_split(note->args, &args_count);
-+		char **args = argv_split(note->args, &args_count);
-+
-+		if (args == NULL)
-+			goto error;
- 
- 		for (i = 0; i < args_count; ++i) {
--			if (synthesize_sdt_probe_arg(&buf, i, args[i]) < 0)
-+			if (synthesize_sdt_probe_arg(&buf, i, args[i]) < 0) {
-+				argv_free(args);
- 				goto error;
-+			}
- 		}
-+
-+		argv_free(args);
- 	}
- 
- out:
+ 	rc = ddebug_exec_queries(qry, modname);
 -- 
-2.17.1
+2.29.2
 
