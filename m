@@ -2,144 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 837532E7B0D
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 17:29:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 610372E840F
+	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 16:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726261AbgL3Q3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 11:29:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726247AbgL3Q3i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 11:29:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BD4D20799;
-        Wed, 30 Dec 2020 16:28:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609345738;
-        bh=pYlCSA3yhrciY7Xu133EUj2SFuXUrQnBsT0Pi4NETiU=;
-        h=Subject:To:From:Date:From;
-        b=P935bMRbhHbP6HCykm/7I4xT85eYCQcww/NPLPRMJNmpZlYNKlf+8TcE/vDcs4vlZ
-         hmXAWeNxrXkyglFthfWVKc8kImTWb6SjDbiAnEse/GBsu+D+eh9k7DfrwV10+T05Ej
-         Zg9Uo/bT7D4UDHD7A3Qc5Js02yNIsbMQdmdJTFnc=
-Subject: patch "USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug" added to usb-linus
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Dec 2020 17:30:23 +0100
-Message-ID: <16093458235838@kroah.com>
+        id S1726798AbhAAPSc convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 1 Jan 2021 10:18:32 -0500
+Received: from bloque154-ip183.reytelhn.net ([200.52.154.183]:48591 "EHLO
+        mail.reytelhn.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+        with ESMTP id S1726747AbhAAPSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 10:18:32 -0500
+Received: from [192.168.43.150] (unknown [129.205.124.174])
+        by mail.reytelhn.com (Postfix) with ESMTP id 695CF8C2F3B;
+        Thu, 29 Nov 2007 19:30:01 -0600 (CST)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: INVESTMENT BTC FARM
+To:     Recipients <comercial.blumenau@seguralta.com.br>
+From:   "Ulster Customer<" <comercial.blumenau@seguralta.com.br>
+Date:   Fri, 25 Dec 2020 04:23:44 +0100
+Reply-To: ulstercu52@gmail.com
+Message-Id: <20071130013001.695CF8C2F3B@mail.reytelhn.com>
+X-WatchGuard-Spam-Score: 1, unclassified
+X-WatchGuard-Mail-Client-IP: 0.0.0.0
+X-WatchGuard-Mail-From: comercial.blumenau@seguralta.com.br
+X-WatchGuard-Mail-Recipients: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+GOOD NEWS TO YOU ALL !!!
 
-This is a note to let you know that I've just added the patch titled
-
-    USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+WE ARE HERE TO INTRODUCE BINARY TRADING TO YOU, A PLATFORM WHERE YOU INVEST A LITTLE AMOUNT OF MONEY AND EARN A FORTUNE (7 TIMES RETURN) IN LESS THAN 48 HOURS TO ALL YOU TRADERS THAT PRIORITIZE LOSING, WE CAN MAKE A FORTUNE AND HELP YOU GROW YOUR INVESTMENT. WITH OUR PREMIUM SIGNALS UP TO 95% WINNING ACCURACY PROFIT RETURN IS GUARANTEED. SETUP INVESTMENT TODAY LET OUR TEAM OF PROFESSIONALS TRADE FOR YOU TO EARN 700% PROFIT RETURN WITHIN 2 DAYS.
 
 
-From c318840fb2a42ce25febc95c4c19357acf1ae5ca Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 30 Dec 2020 11:20:44 -0500
-Subject: USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
-
-The dummy-hcd driver was written under the assumption that all the
-parameters in URBs sent to its root hub would be valid.  With URBs
-sent from userspace via usbfs, that assumption can be violated.
-
-In particular, the driver doesn't fully check the port-feature values
-stored in the wValue entry of Clear-Port-Feature and Set-Port-Feature
-requests.  Values that are too large can cause the driver to perform
-an invalid left shift of more than 32 bits.  Ironically, two of those
-left shifts are unnecessary, because they implement Set-Port-Feature
-requests that hubs are not required to support, according to section
-11.24.2.13 of the USB-2.0 spec.
-
-This patch adds the appropriate checks for the port feature selector
-values and removes the unnecessary feature settings.  It also rejects
-requests to set the TEST feature or to set or clear the INDICATOR and
-C_OVERCURRENT features, as none of these are relevant to dummy-hcd's
-root-hub emulation.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+5925509f78293baa7331@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201230162044.GA727759@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/udc/dummy_hcd.c | 35 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
-index ab5e978b5052..1a953f44183a 100644
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -2118,9 +2118,21 @@ static int dummy_hub_control(
- 				dum_hcd->port_status &= ~USB_PORT_STAT_POWER;
- 			set_link_state(dum_hcd);
- 			break;
--		default:
-+		case USB_PORT_FEAT_ENABLE:
-+		case USB_PORT_FEAT_C_ENABLE:
-+		case USB_PORT_FEAT_C_SUSPEND:
-+			/* Not allowed for USB-3 */
-+			if (hcd->speed == HCD_USB3)
-+				goto error;
-+			fallthrough;
-+		case USB_PORT_FEAT_C_CONNECTION:
-+		case USB_PORT_FEAT_C_RESET:
- 			dum_hcd->port_status &= ~(1 << wValue);
- 			set_link_state(dum_hcd);
-+			break;
-+		default:
-+		/* Disallow INDICATOR and C_OVER_CURRENT */
-+			goto error;
- 		}
- 		break;
- 	case GetHubDescriptor:
-@@ -2281,18 +2293,17 @@ static int dummy_hub_control(
- 			 */
- 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
- 			fallthrough;
-+		case USB_PORT_FEAT_C_CONNECTION:
-+		case USB_PORT_FEAT_C_RESET:
-+		case USB_PORT_FEAT_C_ENABLE:
-+		case USB_PORT_FEAT_C_SUSPEND:
-+			/* Not allowed for USB-3, and ignored for USB-2 */
-+			if (hcd->speed == HCD_USB3)
-+				goto error;
-+			break;
- 		default:
--			if (hcd->speed == HCD_USB3) {
--				if ((dum_hcd->port_status &
--				     USB_SS_PORT_STAT_POWER) != 0) {
--					dum_hcd->port_status |= (1 << wValue);
--				}
--			} else
--				if ((dum_hcd->port_status &
--				     USB_PORT_STAT_POWER) != 0) {
--					dum_hcd->port_status |= (1 << wValue);
--				}
--			set_link_state(dum_hcd);
-+		/* Disallow TEST, INDICATOR, and C_OVER_CURRENT */
-+			goto error;
- 		}
- 		break;
- 	case GetPortErrorCount:
--- 
-2.30.0
+Invest $ 500 earn $ 3,000 IN 48 HOURS
+Invest $ 1000 earn $ 6,000 IN 48 HOURS
+Invest $ 2000 earn $ 12,000 IN 48 HOURS
+Invest $ 3000 earn $ 18,000 IN 48 HOURS
+Invest $ 4000 earn $ 24,000 IN 48 HOURS
+Invest $ 5000 earn $ 30,000 IN 48 HOURS
 
 
+for more information email us now and with our team of professionals trade for you
+
+EMAIL: ulstercu52@gmail.com
+WHATSAPP  :  +1 647 477 6855
+
+
+Invest with a professional trader like me and let me help you to grow up your capital just in 2 days and get your 7 times return of your invested funds your money is safe with me okay and you are 100% guaranteed invest today and start making profits for yourself.
+
+Thank you.
+Jonas Kim
