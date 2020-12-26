@@ -2,191 +2,1288 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E822E2E7A
-	for <lists+stable@lfdr.de>; Sat, 26 Dec 2020 16:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9180E2E2E7B
+	for <lists+stable@lfdr.de>; Sat, 26 Dec 2020 16:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726111AbgLZPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Dec 2020 10:21:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
+        id S1726221AbgLZPV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Dec 2020 10:21:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726101AbgLZPVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Dec 2020 10:21:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3088207FF;
-        Sat, 26 Dec 2020 15:20:24 +0000 (UTC)
+        id S1726101AbgLZPVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Dec 2020 10:21:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B57232080C;
+        Sat, 26 Dec 2020 15:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608996025;
-        bh=iQ8CrUusqY4BaFkwe3gir/1OGASCiElMG71Gw2O0Ylw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=07oTNh7+HgMD1rw5VH81sbuK3PYaL6c3ZaIO4QjgvyqJbEm/Xf8jwrbLsyTLGxlp1
-         ZRRFLQ8e9rrhj6ld2twmKkp10On3Bv2js4K8rmc8l8D6P6DLyrWLHvsfAiZQcQcrsR
-         vCc9JATGj2r08Tvef/NY/IT+mdqdlyjtf8m6rJsY=
+        s=korg; t=1608996034;
+        bh=Gq0I06gxr8rth0Woia21dS2YwYcgkxyjNYH/qjDgb5A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QT+jBnuLKOUng0DJu6Mo1iuJemPYSiXtB/LA8Iyl7/QtQVdAnbcG7ZtPaTzoYTWDC
+         3F8oL7PamU0fhZmxarR69z2StLwrlR7s54EnMogZFsQ8v04jmcGT+78Z3DHN4rBZf6
+         gI7irPhMXIJQ0yhdqit9S83RtboHKtf0Uo7BE8NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.10.3
-Date:   Sat, 26 Dec 2020 16:20:21 +0100
-Message-Id: <16089960203931@kroah.com>
+Subject: Re: Linux 5.10.3
+Date:   Sat, 26 Dec 2020 16:20:22 +0100
+Message-Id: <1608996020193194@kroah.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <16089960203931@kroah.com>
+References: <16089960203931@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.10.3 kernel.
-
-All users of the 5.10 kernel series must upgrade.
-
-The updated 5.10.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                           |    2 
- arch/arm/boot/dts/exynos5410-odroidxu.dts          |    6 +-
- arch/arm/boot/dts/exynos5410-pinctrl.dtsi          |   28 +++++++++++
- arch/arm/boot/dts/exynos5410.dtsi                  |    4 +
- arch/x86/kernel/traps.c                            |    3 -
- crypto/af_alg.c                                    |   10 ++--
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |    8 +++
- drivers/hwtracing/coresight/coresight-etb10.c      |    4 +
- drivers/hwtracing/coresight/coresight-etm4x-core.c |   41 ++++++++++------
- drivers/hwtracing/coresight/coresight-priv.h       |    2 
- drivers/hwtracing/coresight/coresight-tmc-etf.c    |    4 +
- drivers/hwtracing/coresight/coresight-tmc-etr.c    |    4 +
- drivers/md/md.c                                    |    7 ++
- drivers/media/usb/msi2500/msi2500.c                |    2 
- drivers/scsi/megaraid/megaraid_sas_base.c          |   16 ++++--
- drivers/soc/tegra/fuse/speedo-tegra210.c           |    2 
- drivers/tty/serial/serial_core.c                   |    4 +
- drivers/usb/chipidea/ci_hdrc_imx.c                 |    3 -
- drivers/usb/gadget/function/f_acm.c                |    2 
- drivers/usb/gadget/function/f_fs.c                 |    5 +-
- drivers/usb/gadget/function/f_midi.c               |    6 ++
- drivers/usb/gadget/function/f_rndis.c              |    4 +
- drivers/usb/mtu3/mtu3_debugfs.c                    |    2 
- drivers/usb/serial/option.c                        |   23 ++++++++-
- fs/crypto/fscrypt_private.h                        |    9 ++-
- fs/crypto/hooks.c                                  |    5 +-
- fs/crypto/keyring.c                                |    2 
- fs/crypto/keysetup.c                               |    4 +
- fs/crypto/policy.c                                 |    5 +-
- fs/exfat/nls.c                                     |    6 +-
- fs/ext4/namei.c                                    |    3 +
- fs/f2fs/f2fs.h                                     |    2 
- fs/f2fs/file.c                                     |   11 +++-
- fs/f2fs/segment.c                                  |    2 
- fs/quota/dquot.c                                   |    2 
- fs/quota/quota_v2.c                                |   19 +++++++
- fs/ubifs/dir.c                                     |   17 +++++--
- include/linux/fscrypt.h                            |   34 ++++++++++++++
- include/uapi/linux/fscrypt.h                       |    5 --
- include/uapi/linux/if_alg.h                        |   16 ++++++
- net/bluetooth/hci_event.c                          |   12 ++--
- net/ipv4/ipconfig.c                                |   14 +++--
- net/wireless/core.h                                |    2 
- net/wireless/nl80211.c                             |    7 +-
- net/wireless/util.c                                |   51 +++++++++++++++++----
- 45 files changed, 333 insertions(+), 87 deletions(-)
-
-Alexey Kardashevskiy (1):
-      serial_core: Check for port state when tty is in error state
-
-Anant Thazhemadam (2):
-      fs: quota: fix array-index-out-of-bounds bug by passing correct argument to vfs_cleanup_quota_inode()
-      nl80211: validate key indexes for cfg80211_registered_device
-
-Andi Kleen (1):
-      x86/split-lock: Avoid returning with interrupts enabled
-
-Antti Palosaari (1):
-      media: msi2500: assign SPI bus number dynamically
-
-Arnd Bergmann (1):
-      scsi: megaraid_sas: Check user-provided offsets
-
-Artem Labazov (1):
-      exfat: Avoid allocating upcase table using kcalloc()
-
-Chao Yu (1):
-      f2fs: fix to seek incorrect data offset in inline data file
-
-Dae R. Jeong (1):
-      md: fix a warning caused by a race between concurrent md_ioctl()s
-
-Dan Carpenter (1):
-      usb: mtu3: fix memory corruption in mtu3_debugfs_regset()
-
-Eric Biggers (6):
-      fscrypt: remove kernel-internal constants from UAPI header
-      fscrypt: add fscrypt_is_nokey_name()
-      ubifs: prevent creating duplicate encrypted filenames
-      ext4: prevent creating duplicate encrypted filenames
-      f2fs: prevent creating duplicate encrypted filenames
-      crypto: af_alg - avoid undefined behavior accessing salg_name
-
-Fabio Estevam (1):
-      usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to imx6ul
-
-Greg Kroah-Hartman (1):
-      Linux 5.10.3
-
-Jack Pham (1):
-      usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
-
-Jack Qiu (1):
-      f2fs: init dirty_secmap incorrectly
-
-Jan Kara (1):
-      quota: Sanity-check quota file headers on load
-
-Johan Hovold (1):
-      USB: serial: option: add interface-number sanity check to flag handling
-
-Julian Sax (1):
-      HID: i2c-hid: add Vero K147 to descriptor override
-
-Krzysztof Kozlowski (3):
-      ARM: dts: exynos: fix roles of USB 3.0 ports on Odroid XU
-      ARM: dts: exynos: fix USB 3.0 VBUS control and over-current pins on Exynos5410
-      ARM: dts: exynos: fix USB 3.0 pins supply being turned off on Odroid XU
-
-Mao Jinlong (1):
-      coresight: tmc-etr: Check if page is valid before dma_map_page()
-
-Nicolin Chen (1):
-      soc/tegra: fuse: Fix index bug in get_process_id
-
-Peilin Ye (1):
-      Bluetooth: Fix slab-out-of-bounds read in hci_le_direct_adv_report_evt()
-
-Sai Prakash Ranjan (3):
-      coresight: tmc-etf: Fix NULL ptr dereference in tmc_enable_etf_sink_perf()
-      coresight: etb10: Fix possible NULL ptr dereference in etb_enable_perf()
-      coresight: etm4x: Skip setting LPOVERRIDE bit for qcom, skip-power-up
-
-Suzuki K Poulose (5):
-      coresight: tmc-etr: Fix barrier packet insertion for perf buffer
-      coresight: etm4x: Fix accesses to TRCVMIDCTLR1
-      coresight: etm4x: Fix accesses to TRCCIDCTLR1
-      coresight: etm4x: Fix accesses to TRCPROCSELR
-      coresight: etm4x: Handle TRCVIPCSSCTLR accesses
-
-Thierry Reding (1):
-      net: ipconfig: Avoid spurious blank lines in boot log
-
-Will McVicker (2):
-      USB: gadget: f_midi: setup SuperSpeed Plus descriptors
-      USB: gadget: f_rndis: fix bitrate for SuperSpeed and above
-
-taehyun.cho (1):
-      USB: gadget: f_acm: add support for SuperSpeed Plus
-
+diff --git a/Makefile b/Makefile
+index 44f4cd2e58a8..a72bc404123d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 10
+-SUBLEVEL = 2
++SUBLEVEL = 3
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/arch/arm/boot/dts/exynos5410-odroidxu.dts b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+index 75b4150c26d7..bd1d8499a108 100644
+--- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
++++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+@@ -327,6 +327,8 @@ ldo7_reg: LDO7 {
+ 				regulator-name = "vddq_lcd";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				/* Supplies also GPK and GPJ */
++				regulator-always-on;
+ 			};
+ 
+ 			ldo8_reg: LDO8 {
+@@ -637,11 +639,11 @@ &tmu_cpu3 {
+ };
+ 
+ &usbdrd_dwc3_0 {
+-	dr_mode = "host";
++	dr_mode = "peripheral";
+ };
+ 
+ &usbdrd_dwc3_1 {
+-	dr_mode = "peripheral";
++	dr_mode = "host";
+ };
+ 
+ &usbdrd3_0 {
+diff --git a/arch/arm/boot/dts/exynos5410-pinctrl.dtsi b/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
+index e5d0a2a4f648..d0aa18443a69 100644
+--- a/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
+@@ -560,6 +560,34 @@ gpk3: gpk3 {
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
+ 	};
++
++	usb3_1_oc: usb3-1-oc {
++		samsung,pins = "gpk2-4", "gpk2-5";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_1_vbusctrl: usb3-1-vbusctrl {
++		samsung,pins = "gpk2-6", "gpk2-7";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_oc: usb3-0-oc {
++		samsung,pins = "gpk3-0", "gpk3-1";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_vbusctrl: usb3-0-vbusctrl {
++		samsung,pins = "gpk3-2", "gpk3-3";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
+ };
+ 
+ &pinctrl_2 {
+diff --git a/arch/arm/boot/dts/exynos5410.dtsi b/arch/arm/boot/dts/exynos5410.dtsi
+index 60a87684b1af..584ce62361b1 100644
+--- a/arch/arm/boot/dts/exynos5410.dtsi
++++ b/arch/arm/boot/dts/exynos5410.dtsi
+@@ -390,6 +390,8 @@ &trng {
+ &usbdrd3_0 {
+ 	clocks = <&clock CLK_USBD300>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_0_oc>, <&usb3_0_vbusctrl>;
+ };
+ 
+ &usbdrd_phy0 {
+@@ -401,6 +403,8 @@ &usbdrd_phy0 {
+ &usbdrd3_1 {
+ 	clocks = <&clock CLK_USBD301>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_1_oc>, <&usb3_1_vbusctrl>;
+ };
+ 
+ &usbdrd_dwc3_1 {
+diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
+index e19df6cde35d..170c94ec0068 100644
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -299,11 +299,12 @@ DEFINE_IDTENTRY_ERRORCODE(exc_alignment_check)
+ 	local_irq_enable();
+ 
+ 	if (handle_user_split_lock(regs, error_code))
+-		return;
++		goto out;
+ 
+ 	do_trap(X86_TRAP_AC, SIGBUS, "alignment check", regs,
+ 		error_code, BUS_ADRALN, NULL);
+ 
++out:
+ 	local_irq_disable();
+ }
+ 
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index d11db80d24cd..9acb9d2c4bcf 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -147,7 +147,7 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
+ 	struct sock *sk = sock->sk;
+ 	struct alg_sock *ask = alg_sk(sk);
+-	struct sockaddr_alg *sa = (void *)uaddr;
++	struct sockaddr_alg_new *sa = (void *)uaddr;
+ 	const struct af_alg_type *type;
+ 	void *private;
+ 	int err;
+@@ -155,7 +155,11 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	if (sock->state == SS_CONNECTED)
+ 		return -EINVAL;
+ 
+-	if (addr_len < sizeof(*sa))
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
++		     offsetof(struct sockaddr_alg, salg_name));
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
++
++	if (addr_len < sizeof(*sa) + 1)
+ 		return -EINVAL;
+ 
+ 	/* If caller uses non-allowed flag, return error. */
+@@ -163,7 +167,7 @@ static int alg_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 		return -EINVAL;
+ 
+ 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
+-	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
++	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
+ 
+ 	type = alg_get_type(sa->salg_type);
+ 	if (PTR_ERR(type) == -ENOENT) {
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 35f3bfc3e6f5..8e0f67455c09 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -405,6 +405,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Vero K147",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VERO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "K147"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
+ 
+diff --git a/drivers/hwtracing/coresight/coresight-etb10.c b/drivers/hwtracing/coresight/coresight-etb10.c
+index 248cc82c838e..1b320ab581ca 100644
+--- a/drivers/hwtracing/coresight/coresight-etb10.c
++++ b/drivers/hwtracing/coresight/coresight-etb10.c
+@@ -176,6 +176,7 @@ static int etb_enable_perf(struct coresight_device *csdev, void *data)
+ 	unsigned long flags;
+ 	struct etb_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+ 	struct perf_output_handle *handle = data;
++	struct cs_buffers *buf = etm_perf_sink_config(handle);
+ 
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
+ 
+@@ -186,7 +187,7 @@ static int etb_enable_perf(struct coresight_device *csdev, void *data)
+ 	}
+ 
+ 	/* Get a handle on the pid of the process to monitor */
+-	pid = task_pid_nr(handle->event->owner);
++	pid = buf->pid;
+ 
+ 	if (drvdata->pid != -1 && drvdata->pid != pid) {
+ 		ret = -EBUSY;
+@@ -383,6 +384,7 @@ static void *etb_alloc_buffer(struct coresight_device *csdev,
+ 	if (!buf)
+ 		return NULL;
+ 
++	buf->pid = task_pid_nr(event->owner);
+ 	buf->snapshot = overwrite;
+ 	buf->nr_pages = nr_pages;
+ 	buf->data_pages = pages;
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x-core.c b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+index abd706b216ac..e516e5b879e3 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x-core.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-core.c
+@@ -124,8 +124,8 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+ 	if (coresight_timeout(drvdata->base, TRCSTATR, TRCSTATR_IDLE_BIT, 1))
+ 		dev_err(etm_dev,
+ 			"timeout while waiting for Idle Trace Status\n");
+-
+-	writel_relaxed(config->pe_sel, drvdata->base + TRCPROCSELR);
++	if (drvdata->nr_pe)
++		writel_relaxed(config->pe_sel, drvdata->base + TRCPROCSELR);
+ 	writel_relaxed(config->cfg, drvdata->base + TRCCONFIGR);
+ 	/* nothing specific implemented */
+ 	writel_relaxed(0x0, drvdata->base + TRCAUXCTLR);
+@@ -141,8 +141,9 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+ 	writel_relaxed(config->viiectlr, drvdata->base + TRCVIIECTLR);
+ 	writel_relaxed(config->vissctlr,
+ 		       drvdata->base + TRCVISSCTLR);
+-	writel_relaxed(config->vipcssctlr,
+-		       drvdata->base + TRCVIPCSSCTLR);
++	if (drvdata->nr_pe_cmp)
++		writel_relaxed(config->vipcssctlr,
++			       drvdata->base + TRCVIPCSSCTLR);
+ 	for (i = 0; i < drvdata->nrseqstate - 1; i++)
+ 		writel_relaxed(config->seq_ctrl[i],
+ 			       drvdata->base + TRCSEQEVRn(i));
+@@ -187,13 +188,15 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+ 		writeq_relaxed(config->ctxid_pid[i],
+ 			       drvdata->base + TRCCIDCVRn(i));
+ 	writel_relaxed(config->ctxid_mask0, drvdata->base + TRCCIDCCTLR0);
+-	writel_relaxed(config->ctxid_mask1, drvdata->base + TRCCIDCCTLR1);
++	if (drvdata->numcidc > 4)
++		writel_relaxed(config->ctxid_mask1, drvdata->base + TRCCIDCCTLR1);
+ 
+ 	for (i = 0; i < drvdata->numvmidc; i++)
+ 		writeq_relaxed(config->vmid_val[i],
+ 			       drvdata->base + TRCVMIDCVRn(i));
+ 	writel_relaxed(config->vmid_mask0, drvdata->base + TRCVMIDCCTLR0);
+-	writel_relaxed(config->vmid_mask1, drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		writel_relaxed(config->vmid_mask1, drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	if (!drvdata->skip_power_up) {
+ 		/*
+@@ -779,7 +782,7 @@ static void etm4_init_arch_data(void *info)
+ 	 * LPOVERRIDE, bit[23] implementation supports
+ 	 * low-power state override
+ 	 */
+-	if (BMVAL(etmidr5, 23, 23))
++	if (BMVAL(etmidr5, 23, 23) && (!drvdata->skip_power_up))
+ 		drvdata->lpoverride = true;
+ 	else
+ 		drvdata->lpoverride = false;
+@@ -1178,7 +1181,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 	state = drvdata->save_state;
+ 
+ 	state->trcprgctlr = readl(drvdata->base + TRCPRGCTLR);
+-	state->trcprocselr = readl(drvdata->base + TRCPROCSELR);
++	if (drvdata->nr_pe)
++		state->trcprocselr = readl(drvdata->base + TRCPROCSELR);
+ 	state->trcconfigr = readl(drvdata->base + TRCCONFIGR);
+ 	state->trcauxctlr = readl(drvdata->base + TRCAUXCTLR);
+ 	state->trceventctl0r = readl(drvdata->base + TRCEVENTCTL0R);
+@@ -1194,7 +1198,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 	state->trcvictlr = readl(drvdata->base + TRCVICTLR);
+ 	state->trcviiectlr = readl(drvdata->base + TRCVIIECTLR);
+ 	state->trcvissctlr = readl(drvdata->base + TRCVISSCTLR);
+-	state->trcvipcssctlr = readl(drvdata->base + TRCVIPCSSCTLR);
++	if (drvdata->nr_pe_cmp)
++		state->trcvipcssctlr = readl(drvdata->base + TRCVIPCSSCTLR);
+ 	state->trcvdctlr = readl(drvdata->base + TRCVDCTLR);
+ 	state->trcvdsacctlr = readl(drvdata->base + TRCVDSACCTLR);
+ 	state->trcvdarcctlr = readl(drvdata->base + TRCVDARCCTLR);
+@@ -1240,10 +1245,12 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 		state->trcvmidcvr[i] = readq(drvdata->base + TRCVMIDCVRn(i));
+ 
+ 	state->trccidcctlr0 = readl(drvdata->base + TRCCIDCCTLR0);
+-	state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
++	if (drvdata->numcidc > 4)
++		state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
+ 
+ 	state->trcvmidcctlr0 = readl(drvdata->base + TRCVMIDCCTLR0);
+-	state->trcvmidcctlr1 = readl(drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		state->trcvmidcctlr1 = readl(drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	state->trcclaimset = readl(drvdata->base + TRCCLAIMCLR);
+ 
+@@ -1283,7 +1290,8 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+ 	writel_relaxed(state->trcclaimset, drvdata->base + TRCCLAIMSET);
+ 
+ 	writel_relaxed(state->trcprgctlr, drvdata->base + TRCPRGCTLR);
+-	writel_relaxed(state->trcprocselr, drvdata->base + TRCPROCSELR);
++	if (drvdata->nr_pe)
++		writel_relaxed(state->trcprocselr, drvdata->base + TRCPROCSELR);
+ 	writel_relaxed(state->trcconfigr, drvdata->base + TRCCONFIGR);
+ 	writel_relaxed(state->trcauxctlr, drvdata->base + TRCAUXCTLR);
+ 	writel_relaxed(state->trceventctl0r, drvdata->base + TRCEVENTCTL0R);
+@@ -1299,7 +1307,8 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+ 	writel_relaxed(state->trcvictlr, drvdata->base + TRCVICTLR);
+ 	writel_relaxed(state->trcviiectlr, drvdata->base + TRCVIIECTLR);
+ 	writel_relaxed(state->trcvissctlr, drvdata->base + TRCVISSCTLR);
+-	writel_relaxed(state->trcvipcssctlr, drvdata->base + TRCVIPCSSCTLR);
++	if (drvdata->nr_pe_cmp)
++		writel_relaxed(state->trcvipcssctlr, drvdata->base + TRCVIPCSSCTLR);
+ 	writel_relaxed(state->trcvdctlr, drvdata->base + TRCVDCTLR);
+ 	writel_relaxed(state->trcvdsacctlr, drvdata->base + TRCVDSACCTLR);
+ 	writel_relaxed(state->trcvdarcctlr, drvdata->base + TRCVDARCCTLR);
+@@ -1350,10 +1359,12 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+ 			       drvdata->base + TRCVMIDCVRn(i));
+ 
+ 	writel_relaxed(state->trccidcctlr0, drvdata->base + TRCCIDCCTLR0);
+-	writel_relaxed(state->trccidcctlr1, drvdata->base + TRCCIDCCTLR1);
++	if (drvdata->numcidc > 4)
++		writel_relaxed(state->trccidcctlr1, drvdata->base + TRCCIDCCTLR1);
+ 
+ 	writel_relaxed(state->trcvmidcctlr0, drvdata->base + TRCVMIDCCTLR0);
+-	writel_relaxed(state->trcvmidcctlr1, drvdata->base + TRCVMIDCCTLR1);
++	if (drvdata->numvmidc > 4)
++		writel_relaxed(state->trcvmidcctlr1, drvdata->base + TRCVMIDCCTLR1);
+ 
+ 	writel_relaxed(state->trcclaimset, drvdata->base + TRCCLAIMSET);
+ 
+diff --git a/drivers/hwtracing/coresight/coresight-priv.h b/drivers/hwtracing/coresight/coresight-priv.h
+index 65a29293b6cb..f5f654ea2994 100644
+--- a/drivers/hwtracing/coresight/coresight-priv.h
++++ b/drivers/hwtracing/coresight/coresight-priv.h
+@@ -87,6 +87,7 @@ enum cs_mode {
+  * struct cs_buffer - keep track of a recording session' specifics
+  * @cur:	index of the current buffer
+  * @nr_pages:	max number of pages granted to us
++ * @pid:	PID this cs_buffer belongs to
+  * @offset:	offset within the current buffer
+  * @data_size:	how much we collected in this run
+  * @snapshot:	is this run in snapshot mode
+@@ -95,6 +96,7 @@ enum cs_mode {
+ struct cs_buffers {
+ 	unsigned int		cur;
+ 	unsigned int		nr_pages;
++	pid_t			pid;
+ 	unsigned long		offset;
+ 	local_t			data_size;
+ 	bool			snapshot;
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index 44402d413ebb..989d965f3d90 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -227,6 +227,7 @@ static int tmc_enable_etf_sink_perf(struct coresight_device *csdev, void *data)
+ 	unsigned long flags;
+ 	struct tmc_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+ 	struct perf_output_handle *handle = data;
++	struct cs_buffers *buf = etm_perf_sink_config(handle);
+ 
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
+ 	do {
+@@ -243,7 +244,7 @@ static int tmc_enable_etf_sink_perf(struct coresight_device *csdev, void *data)
+ 		}
+ 
+ 		/* Get a handle on the pid of the process to monitor */
+-		pid = task_pid_nr(handle->event->owner);
++		pid = buf->pid;
+ 
+ 		if (drvdata->pid != -1 && drvdata->pid != pid) {
+ 			ret = -EBUSY;
+@@ -399,6 +400,7 @@ static void *tmc_alloc_etf_buffer(struct coresight_device *csdev,
+ 	if (!buf)
+ 		return NULL;
+ 
++	buf->pid = task_pid_nr(event->owner);
+ 	buf->snapshot = overwrite;
+ 	buf->nr_pages = nr_pages;
+ 	buf->data_pages = pages;
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etr.c b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+index 714f9e867e5f..3309b1344ffc 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+@@ -217,6 +217,8 @@ static int tmc_pages_alloc(struct tmc_pages *tmc_pages,
+ 		} else {
+ 			page = alloc_pages_node(node,
+ 						GFP_KERNEL | __GFP_ZERO, 0);
++			if (!page)
++				goto err;
+ 		}
+ 		paddr = dma_map_page(real_dev, page, 0, PAGE_SIZE, dir);
+ 		if (dma_mapping_error(real_dev, paddr))
+@@ -1550,7 +1552,7 @@ tmc_update_etr_buffer(struct coresight_device *csdev,
+ 
+ 	/* Insert barrier packets at the beginning, if there was an overflow */
+ 	if (lost)
+-		tmc_etr_buf_insert_barrier_packet(etr_buf, etr_buf->offset);
++		tmc_etr_buf_insert_barrier_packet(etr_buf, offset);
+ 	tmc_etr_sync_perf_buffer(etr_perf, offset, size);
+ 
+ 	/*
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 0037c6ecab65..4136bd814289 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7590,8 +7590,11 @@ static int md_ioctl(struct block_device *bdev, fmode_t mode,
+ 			err = -EBUSY;
+ 			goto out;
+ 		}
+-		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
+-		set_bit(MD_CLOSING, &mddev->flags);
++		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
++			mutex_unlock(&mddev->open_mutex);
++			err = -EBUSY;
++			goto out;
++		}
+ 		did_set_md_closing = true;
+ 		mutex_unlock(&mddev->open_mutex);
+ 		sync_blockdev(bdev);
+diff --git a/drivers/media/usb/msi2500/msi2500.c b/drivers/media/usb/msi2500/msi2500.c
+index 65be6f140fe8..1c60dfb647e5 100644
+--- a/drivers/media/usb/msi2500/msi2500.c
++++ b/drivers/media/usb/msi2500/msi2500.c
+@@ -1230,7 +1230,7 @@ static int msi2500_probe(struct usb_interface *intf,
+ 	}
+ 
+ 	dev->master = master;
+-	master->bus_num = 0;
++	master->bus_num = -1;
+ 	master->num_chipselect = 1;
+ 	master->transfer_one_message = msi2500_transfer_one_message;
+ 	spi_master_set_devdata(master, dev);
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index e158d3d62056..9ebeb031329d 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -8095,7 +8095,7 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
+ 	int error = 0, i;
+ 	void *sense = NULL;
+ 	dma_addr_t sense_handle;
+-	unsigned long *sense_ptr;
++	void *sense_ptr;
+ 	u32 opcode = 0;
+ 	int ret = DCMD_SUCCESS;
+ 
+@@ -8218,6 +8218,13 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
+ 	}
+ 
+ 	if (ioc->sense_len) {
++		/* make sure the pointer is part of the frame */
++		if (ioc->sense_off >
++		    (sizeof(union megasas_frame) - sizeof(__le64))) {
++			error = -EINVAL;
++			goto out;
++		}
++
+ 		sense = dma_alloc_coherent(&instance->pdev->dev, ioc->sense_len,
+ 					     &sense_handle, GFP_KERNEL);
+ 		if (!sense) {
+@@ -8225,12 +8232,11 @@ megasas_mgmt_fw_ioctl(struct megasas_instance *instance,
+ 			goto out;
+ 		}
+ 
+-		sense_ptr =
+-		(unsigned long *) ((unsigned long)cmd->frame + ioc->sense_off);
++		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+ 		if (instance->consistent_mask_64bit)
+-			*sense_ptr = cpu_to_le64(sense_handle);
++			put_unaligned_le64(sense_handle, sense_ptr);
+ 		else
+-			*sense_ptr = cpu_to_le32(sense_handle);
++			put_unaligned_le32(sense_handle, sense_ptr);
+ 	}
+ 
+ 	/*
+diff --git a/drivers/soc/tegra/fuse/speedo-tegra210.c b/drivers/soc/tegra/fuse/speedo-tegra210.c
+index 70d3f6e1aa33..8050742237b7 100644
+--- a/drivers/soc/tegra/fuse/speedo-tegra210.c
++++ b/drivers/soc/tegra/fuse/speedo-tegra210.c
+@@ -94,7 +94,7 @@ static int get_process_id(int value, const u32 *speedos, unsigned int num)
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < num; i++)
+-		if (value < speedos[num])
++		if (value < speedos[i])
+ 			return i;
+ 
+ 	return -EINVAL;
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index f41cba10b86b..828f9ad1be49 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1467,6 +1467,10 @@ static void uart_set_ldisc(struct tty_struct *tty)
+ {
+ 	struct uart_state *state = tty->driver_data;
+ 	struct uart_port *uport;
++	struct tty_port *port = &state->port;
++
++	if (!tty_port_initialized(port))
++		return;
+ 
+ 	mutex_lock(&state->port.mutex);
+ 	uport = uart_port_check(state);
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 25c65accf089..5e07a0a86d11 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -57,7 +57,8 @@ static const struct ci_hdrc_imx_platform_flag imx6sx_usb_data = {
+ 
+ static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
+ 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
+-		CI_HDRC_TURN_VBUS_EARLY_ON,
++		CI_HDRC_TURN_VBUS_EARLY_ON |
++		CI_HDRC_DISABLE_DEVICE_STREAMING,
+ };
+ 
+ static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+diff --git a/drivers/usb/gadget/function/f_acm.c b/drivers/usb/gadget/function/f_acm.c
+index 46647bfac2ef..349945e064bb 100644
+--- a/drivers/usb/gadget/function/f_acm.c
++++ b/drivers/usb/gadget/function/f_acm.c
+@@ -686,7 +686,7 @@ acm_bind(struct usb_configuration *c, struct usb_function *f)
+ 	acm_ss_out_desc.bEndpointAddress = acm_fs_out_desc.bEndpointAddress;
+ 
+ 	status = usb_assign_descriptors(f, acm_fs_function, acm_hs_function,
+-			acm_ss_function, NULL);
++			acm_ss_function, acm_ss_function);
+ 	if (status)
+ 		goto fail;
+ 
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index c727cb5de871..f3443347874d 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1328,6 +1328,7 @@ static long ffs_epfile_ioctl(struct file *file, unsigned code,
+ 
+ 		switch (epfile->ffs->gadget->speed) {
+ 		case USB_SPEED_SUPER:
++		case USB_SPEED_SUPER_PLUS:
+ 			desc_idx = 2;
+ 			break;
+ 		case USB_SPEED_HIGH:
+@@ -3174,7 +3175,8 @@ static int _ffs_func_bind(struct usb_configuration *c,
+ 	}
+ 
+ 	if (likely(super)) {
+-		func->function.ss_descriptors = vla_ptr(vlabuf, d, ss_descs);
++		func->function.ss_descriptors = func->function.ssp_descriptors =
++			vla_ptr(vlabuf, d, ss_descs);
+ 		ss_len = ffs_do_descs(ffs->ss_descs_count,
+ 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
+ 				d_raw_descs__sz - fs_len - hs_len,
+@@ -3584,6 +3586,7 @@ static void ffs_func_unbind(struct usb_configuration *c,
+ 	func->function.fs_descriptors = NULL;
+ 	func->function.hs_descriptors = NULL;
+ 	func->function.ss_descriptors = NULL;
++	func->function.ssp_descriptors = NULL;
+ 	func->interfaces_nums = NULL;
+ 
+ 	ffs_event_add(ffs, FUNCTIONFS_UNBIND);
+diff --git a/drivers/usb/gadget/function/f_midi.c b/drivers/usb/gadget/function/f_midi.c
+index 19d97940eeb9..8fff995b8dd5 100644
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1048,6 +1048,12 @@ static int f_midi_bind(struct usb_configuration *c, struct usb_function *f)
+ 		f->ss_descriptors = usb_copy_descriptors(midi_function);
+ 		if (!f->ss_descriptors)
+ 			goto fail_f_midi;
++
++		if (gadget_is_superspeed_plus(c->cdev->gadget)) {
++			f->ssp_descriptors = usb_copy_descriptors(midi_function);
++			if (!f->ssp_descriptors)
++				goto fail_f_midi;
++		}
+ 	}
+ 
+ 	kfree(midi_function);
+diff --git a/drivers/usb/gadget/function/f_rndis.c b/drivers/usb/gadget/function/f_rndis.c
+index 9534c8ab62a8..0739b05a0ef7 100644
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -87,8 +87,10 @@ static inline struct f_rndis *func_to_rndis(struct usb_function *f)
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static unsigned int bitrate(struct usb_gadget *g)
+ {
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
+ 	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
+diff --git a/drivers/usb/mtu3/mtu3_debugfs.c b/drivers/usb/mtu3/mtu3_debugfs.c
+index fdeade6254ae..7537bfd651af 100644
+--- a/drivers/usb/mtu3/mtu3_debugfs.c
++++ b/drivers/usb/mtu3/mtu3_debugfs.c
+@@ -127,7 +127,7 @@ static void mtu3_debugfs_regset(struct mtu3 *mtu, void __iomem *base,
+ 	struct debugfs_regset32 *regset;
+ 	struct mtu3_regset *mregs;
+ 
+-	mregs = devm_kzalloc(mtu->dev, sizeof(*regset), GFP_KERNEL);
++	mregs = devm_kzalloc(mtu->dev, sizeof(*mregs), GFP_KERNEL);
+ 	if (!mregs)
+ 		return;
+ 
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 56d6f6d83bd7..2c21e34235bb 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -563,6 +563,9 @@ static void option_instat_callback(struct urb *urb);
+ 
+ /* Device flags */
+ 
++/* Highest interface number which can be used with NCTRL() and RSVD() */
++#define FLAG_IFNUM_MAX	7
++
+ /* Interface does not support modem-control requests */
+ #define NCTRL(ifnum)	((BIT(ifnum) & 0xff) << 8)
+ 
+@@ -2101,6 +2104,14 @@ static struct usb_serial_driver * const serial_drivers[] = {
+ 
+ module_usb_serial_driver(serial_drivers, option_ids);
+ 
++static bool iface_is_reserved(unsigned long device_flags, u8 ifnum)
++{
++	if (ifnum > FLAG_IFNUM_MAX)
++		return false;
++
++	return device_flags & RSVD(ifnum);
++}
++
+ static int option_probe(struct usb_serial *serial,
+ 			const struct usb_device_id *id)
+ {
+@@ -2117,7 +2128,7 @@ static int option_probe(struct usb_serial *serial,
+ 	 * the same class/subclass/protocol as the serial interfaces.  Look at
+ 	 * the Windows driver .INF files for reserved interface numbers.
+ 	 */
+-	if (device_flags & RSVD(iface_desc->bInterfaceNumber))
++	if (iface_is_reserved(device_flags, iface_desc->bInterfaceNumber))
+ 		return -ENODEV;
+ 
+ 	/*
+@@ -2133,6 +2144,14 @@ static int option_probe(struct usb_serial *serial,
+ 	return 0;
+ }
+ 
++static bool iface_no_modem_control(unsigned long device_flags, u8 ifnum)
++{
++	if (ifnum > FLAG_IFNUM_MAX)
++		return false;
++
++	return device_flags & NCTRL(ifnum);
++}
++
+ static int option_attach(struct usb_serial *serial)
+ {
+ 	struct usb_interface_descriptor *iface_desc;
+@@ -2148,7 +2167,7 @@ static int option_attach(struct usb_serial *serial)
+ 
+ 	iface_desc = &serial->interface->cur_altsetting->desc;
+ 
+-	if (!(device_flags & NCTRL(iface_desc->bInterfaceNumber)))
++	if (!iface_no_modem_control(device_flags, iface_desc->bInterfaceNumber))
+ 		data->use_send_setup = 1;
+ 
+ 	if (device_flags & ZLP)
+diff --git a/fs/crypto/fscrypt_private.h b/fs/crypto/fscrypt_private.h
+index 4f5806a3b73d..322ecae9a758 100644
+--- a/fs/crypto/fscrypt_private.h
++++ b/fs/crypto/fscrypt_private.h
+@@ -25,6 +25,9 @@
+ #define FSCRYPT_CONTEXT_V1	1
+ #define FSCRYPT_CONTEXT_V2	2
+ 
++/* Keep this in sync with include/uapi/linux/fscrypt.h */
++#define FSCRYPT_MODE_MAX	FSCRYPT_MODE_ADIANTUM
++
+ struct fscrypt_context_v1 {
+ 	u8 version; /* FSCRYPT_CONTEXT_V1 */
+ 	u8 contents_encryption_mode;
+@@ -491,9 +494,9 @@ struct fscrypt_master_key {
+ 	 * Per-mode encryption keys for the various types of encryption policies
+ 	 * that use them.  Allocated and derived on-demand.
+ 	 */
+-	struct fscrypt_prepared_key mk_direct_keys[__FSCRYPT_MODE_MAX + 1];
+-	struct fscrypt_prepared_key mk_iv_ino_lblk_64_keys[__FSCRYPT_MODE_MAX + 1];
+-	struct fscrypt_prepared_key mk_iv_ino_lblk_32_keys[__FSCRYPT_MODE_MAX + 1];
++	struct fscrypt_prepared_key mk_direct_keys[FSCRYPT_MODE_MAX + 1];
++	struct fscrypt_prepared_key mk_iv_ino_lblk_64_keys[FSCRYPT_MODE_MAX + 1];
++	struct fscrypt_prepared_key mk_iv_ino_lblk_32_keys[FSCRYPT_MODE_MAX + 1];
+ 
+ 	/* Hash key for inode numbers.  Initialized only when needed. */
+ 	siphash_key_t		mk_ino_hash_key;
+diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
+index 20b0df47fe6a..061418be4b08 100644
+--- a/fs/crypto/hooks.c
++++ b/fs/crypto/hooks.c
+@@ -61,7 +61,7 @@ int __fscrypt_prepare_link(struct inode *inode, struct inode *dir,
+ 		return err;
+ 
+ 	/* ... in case we looked up no-key name before key was added */
+-	if (dentry->d_flags & DCACHE_NOKEY_NAME)
++	if (fscrypt_is_nokey_name(dentry))
+ 		return -ENOKEY;
+ 
+ 	if (!fscrypt_has_permitted_context(dir, inode))
+@@ -86,7 +86,8 @@ int __fscrypt_prepare_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return err;
+ 
+ 	/* ... in case we looked up no-key name(s) before key was added */
+-	if ((old_dentry->d_flags | new_dentry->d_flags) & DCACHE_NOKEY_NAME)
++	if (fscrypt_is_nokey_name(old_dentry) ||
++	    fscrypt_is_nokey_name(new_dentry))
+ 		return -ENOKEY;
+ 
+ 	if (old_dir != new_dir) {
+diff --git a/fs/crypto/keyring.c b/fs/crypto/keyring.c
+index 53cc552a7b8f..d7ec52cb3d9a 100644
+--- a/fs/crypto/keyring.c
++++ b/fs/crypto/keyring.c
+@@ -44,7 +44,7 @@ static void free_master_key(struct fscrypt_master_key *mk)
+ 
+ 	wipe_master_key_secret(&mk->mk_secret);
+ 
+-	for (i = 0; i <= __FSCRYPT_MODE_MAX; i++) {
++	for (i = 0; i <= FSCRYPT_MODE_MAX; i++) {
+ 		fscrypt_destroy_prepared_key(&mk->mk_direct_keys[i]);
+ 		fscrypt_destroy_prepared_key(&mk->mk_iv_ino_lblk_64_keys[i]);
+ 		fscrypt_destroy_prepared_key(&mk->mk_iv_ino_lblk_32_keys[i]);
+diff --git a/fs/crypto/keysetup.c b/fs/crypto/keysetup.c
+index d595abb8ef90..31fb08d94f87 100644
+--- a/fs/crypto/keysetup.c
++++ b/fs/crypto/keysetup.c
+@@ -56,6 +56,8 @@ static struct fscrypt_mode *
+ select_encryption_mode(const union fscrypt_policy *policy,
+ 		       const struct inode *inode)
+ {
++	BUILD_BUG_ON(ARRAY_SIZE(fscrypt_modes) != FSCRYPT_MODE_MAX + 1);
++
+ 	if (S_ISREG(inode->i_mode))
+ 		return &fscrypt_modes[fscrypt_policy_contents_mode(policy)];
+ 
+@@ -168,7 +170,7 @@ static int setup_per_mode_enc_key(struct fscrypt_info *ci,
+ 	unsigned int hkdf_infolen = 0;
+ 	int err;
+ 
+-	if (WARN_ON(mode_num > __FSCRYPT_MODE_MAX))
++	if (WARN_ON(mode_num > FSCRYPT_MODE_MAX))
+ 		return -EINVAL;
+ 
+ 	prep_key = &keys[mode_num];
+diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
+index 4441d9944b9e..faa0f21daa68 100644
+--- a/fs/crypto/policy.c
++++ b/fs/crypto/policy.c
+@@ -175,7 +175,10 @@ static bool fscrypt_supported_v2_policy(const struct fscrypt_policy_v2 *policy,
+ 		return false;
+ 	}
+ 
+-	if (policy->flags & ~FSCRYPT_POLICY_FLAGS_VALID) {
++	if (policy->flags & ~(FSCRYPT_POLICY_FLAGS_PAD_MASK |
++			      FSCRYPT_POLICY_FLAG_DIRECT_KEY |
++			      FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64 |
++			      FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32)) {
+ 		fscrypt_warn(inode, "Unsupported encryption flags (0x%02x)",
+ 			     policy->flags);
+ 		return false;
+diff --git a/fs/exfat/nls.c b/fs/exfat/nls.c
+index 675d0e7058c5..314d5407a1be 100644
+--- a/fs/exfat/nls.c
++++ b/fs/exfat/nls.c
+@@ -659,7 +659,7 @@ static int exfat_load_upcase_table(struct super_block *sb,
+ 	unsigned char skip = false;
+ 	unsigned short *upcase_table;
+ 
+-	upcase_table = kcalloc(UTBL_COUNT, sizeof(unsigned short), GFP_KERNEL);
++	upcase_table = kvcalloc(UTBL_COUNT, sizeof(unsigned short), GFP_KERNEL);
+ 	if (!upcase_table)
+ 		return -ENOMEM;
+ 
+@@ -715,7 +715,7 @@ static int exfat_load_default_upcase_table(struct super_block *sb)
+ 	unsigned short uni = 0, *upcase_table;
+ 	unsigned int index = 0;
+ 
+-	upcase_table = kcalloc(UTBL_COUNT, sizeof(unsigned short), GFP_KERNEL);
++	upcase_table = kvcalloc(UTBL_COUNT, sizeof(unsigned short), GFP_KERNEL);
+ 	if (!upcase_table)
+ 		return -ENOMEM;
+ 
+@@ -803,5 +803,5 @@ int exfat_create_upcase_table(struct super_block *sb)
+ 
+ void exfat_free_upcase_table(struct exfat_sb_info *sbi)
+ {
+-	kfree(sbi->vol_utbl);
++	kvfree(sbi->vol_utbl);
+ }
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 33509266f5a0..793fc7db9d28 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2195,6 +2195,9 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
+ 	if (!dentry->d_name.len)
+ 		return -EINVAL;
+ 
++	if (fscrypt_is_nokey_name(dentry))
++		return -ENOKEY;
++
+ #ifdef CONFIG_UNICODE
+ 	if (sb_has_strict_encoding(sb) && IS_CASEFOLDED(dir) &&
+ 	    sb->s_encoding && utf8_validate(sb->s_encoding, &dentry->d_name))
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index cb700d797296..9a321c52face 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3251,6 +3251,8 @@ bool f2fs_empty_dir(struct inode *dir);
+ 
+ static inline int f2fs_add_link(struct dentry *dentry, struct inode *inode)
+ {
++	if (fscrypt_is_nokey_name(dentry))
++		return -ENOKEY;
+ 	return f2fs_do_add_link(d_inode(dentry->d_parent), &dentry->d_name,
+ 				inode, inode->i_ino, inode->i_mode);
+ }
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index ee861c6d9ff0..fe39e591e5b4 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -412,9 +412,14 @@ static loff_t f2fs_seek_block(struct file *file, loff_t offset, int whence)
+ 		goto fail;
+ 
+ 	/* handle inline data case */
+-	if (f2fs_has_inline_data(inode) && whence == SEEK_HOLE) {
+-		data_ofs = isize;
+-		goto found;
++	if (f2fs_has_inline_data(inode)) {
++		if (whence == SEEK_HOLE) {
++			data_ofs = isize;
++			goto found;
++		} else if (whence == SEEK_DATA) {
++			data_ofs = offset;
++			goto found;
++		}
+ 	}
+ 
+ 	pgofs = (pgoff_t)(offset >> PAGE_SHIFT);
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 1596502f7375..f2a4265318f5 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -4544,7 +4544,7 @@ static void init_dirty_segmap(struct f2fs_sb_info *sbi)
+ 		return;
+ 
+ 	mutex_lock(&dirty_i->seglist_lock);
+-	for (segno = 0; segno < MAIN_SECS(sbi); segno += blks_per_sec) {
++	for (segno = 0; segno < MAIN_SEGS(sbi); segno += sbi->segs_per_sec) {
+ 		valid_blocks = get_valid_blocks(sbi, segno, true);
+ 		secno = GET_SEC_FROM_SEG(sbi, segno);
+ 
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index bb02989d92b6..4f1373463766 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -2455,7 +2455,7 @@ int dquot_resume(struct super_block *sb, int type)
+ 		ret = dquot_load_quota_sb(sb, cnt, dqopt->info[cnt].dqi_fmt_id,
+ 					  flags);
+ 		if (ret < 0)
+-			vfs_cleanup_quota_inode(sb, type);
++			vfs_cleanup_quota_inode(sb, cnt);
+ 	}
+ 
+ 	return ret;
+diff --git a/fs/quota/quota_v2.c b/fs/quota/quota_v2.c
+index e69a2bfdd81c..c21106557a37 100644
+--- a/fs/quota/quota_v2.c
++++ b/fs/quota/quota_v2.c
+@@ -157,6 +157,25 @@ static int v2_read_file_info(struct super_block *sb, int type)
+ 		qinfo->dqi_entry_size = sizeof(struct v2r1_disk_dqblk);
+ 		qinfo->dqi_ops = &v2r1_qtree_ops;
+ 	}
++	ret = -EUCLEAN;
++	/* Some sanity checks of the read headers... */
++	if ((loff_t)qinfo->dqi_blocks << qinfo->dqi_blocksize_bits >
++	    i_size_read(sb_dqopt(sb)->files[type])) {
++		quota_error(sb, "Number of blocks too big for quota file size (%llu > %llu).",
++		    (loff_t)qinfo->dqi_blocks << qinfo->dqi_blocksize_bits,
++		    i_size_read(sb_dqopt(sb)->files[type]));
++		goto out;
++	}
++	if (qinfo->dqi_free_blk >= qinfo->dqi_blocks) {
++		quota_error(sb, "Free block number too big (%u >= %u).",
++			    qinfo->dqi_free_blk, qinfo->dqi_blocks);
++		goto out;
++	}
++	if (qinfo->dqi_free_entry >= qinfo->dqi_blocks) {
++		quota_error(sb, "Block with free entry too big (%u >= %u).",
++			    qinfo->dqi_free_entry, qinfo->dqi_blocks);
++		goto out;
++	}
+ 	ret = 0;
+ out:
+ 	up_read(&dqopt->dqio_sem);
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index 155521e51ac5..08fde777c324 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -270,6 +270,15 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
+ 	return d_splice_alias(inode, dentry);
+ }
+ 
++static int ubifs_prepare_create(struct inode *dir, struct dentry *dentry,
++				struct fscrypt_name *nm)
++{
++	if (fscrypt_is_nokey_name(dentry))
++		return -ENOKEY;
++
++	return fscrypt_setup_filename(dir, &dentry->d_name, 0, nm);
++}
++
+ static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+ 			bool excl)
+ {
+@@ -293,7 +302,7 @@ static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+ 	if (err)
+ 		return err;
+ 
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
+ 
+@@ -953,7 +962,7 @@ static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
+ 	if (err)
+ 		return err;
+ 
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
+ 
+@@ -1038,7 +1047,7 @@ static int ubifs_mknod(struct inode *dir, struct dentry *dentry,
+ 		return err;
+ 	}
+ 
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err) {
+ 		kfree(dev);
+ 		goto out_budg;
+@@ -1122,7 +1131,7 @@ static int ubifs_symlink(struct inode *dir, struct dentry *dentry,
+ 	if (err)
+ 		return err;
+ 
+-	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
++	err = ubifs_prepare_create(dir, dentry, &nm);
+ 	if (err)
+ 		goto out_budg;
+ 
+diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
+index a8f7a43f031b..8e1d31c959bf 100644
+--- a/include/linux/fscrypt.h
++++ b/include/linux/fscrypt.h
+@@ -111,6 +111,35 @@ static inline void fscrypt_handle_d_move(struct dentry *dentry)
+ 	dentry->d_flags &= ~DCACHE_NOKEY_NAME;
+ }
+ 
++/**
++ * fscrypt_is_nokey_name() - test whether a dentry is a no-key name
++ * @dentry: the dentry to check
++ *
++ * This returns true if the dentry is a no-key dentry.  A no-key dentry is a
++ * dentry that was created in an encrypted directory that hasn't had its
++ * encryption key added yet.  Such dentries may be either positive or negative.
++ *
++ * When a filesystem is asked to create a new filename in an encrypted directory
++ * and the new filename's dentry is a no-key dentry, it must fail the operation
++ * with ENOKEY.  This includes ->create(), ->mkdir(), ->mknod(), ->symlink(),
++ * ->rename(), and ->link().  (However, ->rename() and ->link() are already
++ * handled by fscrypt_prepare_rename() and fscrypt_prepare_link().)
++ *
++ * This is necessary because creating a filename requires the directory's
++ * encryption key, but just checking for the key on the directory inode during
++ * the final filesystem operation doesn't guarantee that the key was available
++ * during the preceding dentry lookup.  And the key must have already been
++ * available during the dentry lookup in order for it to have been checked
++ * whether the filename already exists in the directory and for the new file's
++ * dentry not to be invalidated due to it incorrectly having the no-key flag.
++ *
++ * Return: %true if the dentry is a no-key name
++ */
++static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
++{
++	return dentry->d_flags & DCACHE_NOKEY_NAME;
++}
++
+ /* crypto.c */
+ void fscrypt_enqueue_decrypt_work(struct work_struct *);
+ 
+@@ -244,6 +273,11 @@ static inline void fscrypt_handle_d_move(struct dentry *dentry)
+ {
+ }
+ 
++static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
++{
++	return false;
++}
++
+ /* crypto.c */
+ static inline void fscrypt_enqueue_decrypt_work(struct work_struct *work)
+ {
+diff --git a/include/uapi/linux/fscrypt.h b/include/uapi/linux/fscrypt.h
+index e5de60336938..9f4428be3e36 100644
+--- a/include/uapi/linux/fscrypt.h
++++ b/include/uapi/linux/fscrypt.h
+@@ -20,7 +20,6 @@
+ #define FSCRYPT_POLICY_FLAG_DIRECT_KEY		0x04
+ #define FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64	0x08
+ #define FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32	0x10
+-#define FSCRYPT_POLICY_FLAGS_VALID		0x1F
+ 
+ /* Encryption algorithms */
+ #define FSCRYPT_MODE_AES_256_XTS		1
+@@ -28,7 +27,7 @@
+ #define FSCRYPT_MODE_AES_128_CBC		5
+ #define FSCRYPT_MODE_AES_128_CTS		6
+ #define FSCRYPT_MODE_ADIANTUM			9
+-#define __FSCRYPT_MODE_MAX			9
++/* If adding a mode number > 9, update FSCRYPT_MODE_MAX in fscrypt_private.h */
+ 
+ /*
+  * Legacy policy version; ad-hoc KDF and no key verification.
+@@ -177,7 +176,7 @@ struct fscrypt_get_key_status_arg {
+ #define FS_POLICY_FLAGS_PAD_32		FSCRYPT_POLICY_FLAGS_PAD_32
+ #define FS_POLICY_FLAGS_PAD_MASK	FSCRYPT_POLICY_FLAGS_PAD_MASK
+ #define FS_POLICY_FLAG_DIRECT_KEY	FSCRYPT_POLICY_FLAG_DIRECT_KEY
+-#define FS_POLICY_FLAGS_VALID		FSCRYPT_POLICY_FLAGS_VALID
++#define FS_POLICY_FLAGS_VALID		0x07	/* contains old flags only */
+ #define FS_ENCRYPTION_MODE_INVALID	0	/* never used */
+ #define FS_ENCRYPTION_MODE_AES_256_XTS	FSCRYPT_MODE_AES_256_XTS
+ #define FS_ENCRYPTION_MODE_AES_256_GCM	2	/* never used */
+diff --git a/include/uapi/linux/if_alg.h b/include/uapi/linux/if_alg.h
+index 60b7c2efd921..dc52a11ba6d1 100644
+--- a/include/uapi/linux/if_alg.h
++++ b/include/uapi/linux/if_alg.h
+@@ -24,6 +24,22 @@ struct sockaddr_alg {
+ 	__u8	salg_name[64];
+ };
+ 
++/*
++ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
++ * arbitrary-length field.  We had to keep the original struct above for source
++ * compatibility with existing userspace programs, though.  Use the new struct
++ * below if support for very long algorithm names is needed.  To do this,
++ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
++ * copy algname (including the null terminator) into salg_name.
++ */
++struct sockaddr_alg_new {
++	__u16	salg_family;
++	__u8	salg_type[14];
++	__u32	salg_feat;
++	__u32	salg_mask;
++	__u8	salg_name[];
++};
++
+ struct af_alg_iv {
+ 	__u32	ivlen;
+ 	__u8	iv[0];
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index f04963914366..cbdf2a555975 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5868,21 +5868,19 @@ static void hci_le_direct_adv_report_evt(struct hci_dev *hdev,
+ 					 struct sk_buff *skb)
+ {
+ 	u8 num_reports = skb->data[0];
+-	void *ptr = &skb->data[1];
++	struct hci_ev_le_direct_adv_info *ev = (void *)&skb->data[1];
+ 
+-	hci_dev_lock(hdev);
++	if (!num_reports || skb->len < num_reports * sizeof(*ev) + 1)
++		return;
+ 
+-	while (num_reports--) {
+-		struct hci_ev_le_direct_adv_info *ev = ptr;
++	hci_dev_lock(hdev);
+ 
++	for (; num_reports; num_reports--, ev++)
+ 		process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
+ 				   ev->bdaddr_type, &ev->direct_addr,
+ 				   ev->direct_addr_type, ev->rssi, NULL, 0,
+ 				   false);
+ 
+-		ptr += sizeof(*ev);
+-	}
+-
+ 	hci_dev_unlock(hdev);
+ }
+ 
+diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
+index 561f15b5a944..3cd13e1bc6a7 100644
+--- a/net/ipv4/ipconfig.c
++++ b/net/ipv4/ipconfig.c
+@@ -1441,7 +1441,7 @@ static int __init ip_auto_config(void)
+ 	int retries = CONF_OPEN_RETRIES;
+ #endif
+ 	int err;
+-	unsigned int i;
++	unsigned int i, count;
+ 
+ 	/* Initialise all name servers and NTP servers to NONE (but only if the
+ 	 * "ip=" or "nfsaddrs=" kernel command line parameters weren't decoded,
+@@ -1575,7 +1575,7 @@ static int __init ip_auto_config(void)
+ 	if (ic_dev_mtu)
+ 		pr_cont(", mtu=%d", ic_dev_mtu);
+ 	/* Name servers (if any): */
+-	for (i = 0; i < CONF_NAMESERVERS_MAX; i++) {
++	for (i = 0, count = 0; i < CONF_NAMESERVERS_MAX; i++) {
+ 		if (ic_nameservers[i] != NONE) {
+ 			if (i == 0)
+ 				pr_info("     nameserver%u=%pI4",
+@@ -1583,12 +1583,14 @@ static int __init ip_auto_config(void)
+ 			else
+ 				pr_cont(", nameserver%u=%pI4",
+ 					i, &ic_nameservers[i]);
++
++			count++;
+ 		}
+-		if (i + 1 == CONF_NAMESERVERS_MAX)
++		if ((i + 1 == CONF_NAMESERVERS_MAX) && count > 0)
+ 			pr_cont("\n");
+ 	}
+ 	/* NTP servers (if any): */
+-	for (i = 0; i < CONF_NTP_SERVERS_MAX; i++) {
++	for (i = 0, count = 0; i < CONF_NTP_SERVERS_MAX; i++) {
+ 		if (ic_ntp_servers[i] != NONE) {
+ 			if (i == 0)
+ 				pr_info("     ntpserver%u=%pI4",
+@@ -1596,8 +1598,10 @@ static int __init ip_auto_config(void)
+ 			else
+ 				pr_cont(", ntpserver%u=%pI4",
+ 					i, &ic_ntp_servers[i]);
++
++			count++;
+ 		}
+-		if (i + 1 == CONF_NTP_SERVERS_MAX)
++		if ((i + 1 == CONF_NTP_SERVERS_MAX) && count > 0)
+ 			pr_cont("\n");
+ 	}
+ #endif /* !SILENT */
+diff --git a/net/wireless/core.h b/net/wireless/core.h
+index e3e9686859d4..7df91f940212 100644
+--- a/net/wireless/core.h
++++ b/net/wireless/core.h
+@@ -433,6 +433,8 @@ void cfg80211_sme_abandon_assoc(struct wireless_dev *wdev);
+ 
+ /* internal helpers */
+ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher);
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise);
+ int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+ 				   struct key_params *params, int key_idx,
+ 				   bool pairwise, const u8 *mac_addr);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index f67ddf2cebcb..535e34a84d65 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4260,9 +4260,6 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	if (err)
+ 		return err;
+ 
+-	if (key.idx < 0)
+-		return -EINVAL;
+-
+ 	if (info->attrs[NL80211_ATTR_MAC])
+ 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
+ 
+@@ -4278,6 +4275,10 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
+ 	    key.type != NL80211_KEYTYPE_GROUP)
+ 		return -EINVAL;
+ 
++	if (!cfg80211_valid_key_idx(rdev, key.idx,
++				    key.type == NL80211_KEYTYPE_PAIRWISE))
++		return -EINVAL;
++
+ 	if (!rdev->ops->del_key)
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index f01746894a4e..e4247c354356 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -272,18 +272,53 @@ bool cfg80211_supported_cipher_suite(struct wiphy *wiphy, u32 cipher)
+ 	return false;
+ }
+ 
+-int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
+-				   struct key_params *params, int key_idx,
+-				   bool pairwise, const u8 *mac_addr)
++static bool
++cfg80211_igtk_cipher_supported(struct cfg80211_registered_device *rdev)
+ {
+-	int max_key_idx = 5;
++	struct wiphy *wiphy = &rdev->wiphy;
++	int i;
++
++	for (i = 0; i < wiphy->n_cipher_suites; i++) {
++		switch (wiphy->cipher_suites[i]) {
++		case WLAN_CIPHER_SUITE_AES_CMAC:
++		case WLAN_CIPHER_SUITE_BIP_CMAC_256:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_128:
++		case WLAN_CIPHER_SUITE_BIP_GMAC_256:
++			return true;
++		}
++	}
++
++	return false;
++}
+ 
+-	if (wiphy_ext_feature_isset(&rdev->wiphy,
+-				    NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
+-	    wiphy_ext_feature_isset(&rdev->wiphy,
+-				    NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
++bool cfg80211_valid_key_idx(struct cfg80211_registered_device *rdev,
++			    int key_idx, bool pairwise)
++{
++	int max_key_idx;
++
++	if (pairwise)
++		max_key_idx = 3;
++	else if (wiphy_ext_feature_isset(&rdev->wiphy,
++					 NL80211_EXT_FEATURE_BEACON_PROTECTION) ||
++		 wiphy_ext_feature_isset(&rdev->wiphy,
++					 NL80211_EXT_FEATURE_BEACON_PROTECTION_CLIENT))
+ 		max_key_idx = 7;
++	else if (cfg80211_igtk_cipher_supported(rdev))
++		max_key_idx = 5;
++	else
++		max_key_idx = 3;
++
+ 	if (key_idx < 0 || key_idx > max_key_idx)
++		return false;
++
++	return true;
++}
++
++int cfg80211_validate_key_settings(struct cfg80211_registered_device *rdev,
++				   struct key_params *params, int key_idx,
++				   bool pairwise, const u8 *mac_addr)
++{
++	if (!cfg80211_valid_key_idx(rdev, key_idx, pairwise))
+ 		return -EINVAL;
+ 
+ 	if (!pairwise && mac_addr && !(rdev->wiphy.flags & WIPHY_FLAG_IBSS_RSN))
