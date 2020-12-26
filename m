@@ -2,80 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C962E2E71
-	for <lists+stable@lfdr.de>; Sat, 26 Dec 2020 16:07:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD4D2E2E72
+	for <lists+stable@lfdr.de>; Sat, 26 Dec 2020 16:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgLZPHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Dec 2020 10:07:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60984 "EHLO mail.kernel.org"
+        id S1726268AbgLZPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Dec 2020 10:07:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726139AbgLZPHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Dec 2020 10:07:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED773207CD;
-        Sat, 26 Dec 2020 15:06:59 +0000 (UTC)
+        id S1726139AbgLZPHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Dec 2020 10:07:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFA93207D0;
+        Sat, 26 Dec 2020 15:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1608995220;
-        bh=hOENAK1Mr1BO5tFgcoU/M1T7xwdMU+acAjuBcstSy7M=;
+        s=korg; t=1608995231;
+        bh=drfiZm2c7GITupaqDgBQaUcB72Tn3WTac7f6pULrBz8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wYaX0yKsUizs5nB14y26AfP91NoAGGtUswXERRiWSFO2BCoS5K+9IMmU4C5jgu0yM
-         sC0e0CEuop+xazs50Z5Pcl+nylT705J5kiMF44PMbpqEQqOzS4HKlLzZcO/mYlgNhP
-         ejOxWDCl6PQIlGw0uUeJwEV5uL+mJrelhB627+5Q=
-Date:   Sat, 26 Dec 2020 16:06:57 +0100
+        b=mPI/j7i/KE5Eau19BfQu5U9Xsd66D3Fp1AvTg8jmUrRQk7HAmMsL3dC7HtAjEMnz5
+         wD7dGTA43/UX8Gf42pkVLG9D8bJLt+JRTnVUGofV3uaC/RkR7NBZC5WFB4mYID9r2E
+         +QnRF0hJf8p/zff9gUyDUEKY7k75Tu9ZK0+nwGdo=
+Date:   Sat, 26 Dec 2020 16:07:07 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
 Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-Message-ID: <X+dRkTq+T+A6nWPz@kroah.com>
+Message-ID: <X+dRm6A+Dr8gIiMX@kroah.com>
 References: <20201223150515.553836647@linuxfoundation.org>
- <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
+ <60e63371-98cb-8cf0-4d23-0e1185902fa4@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
+In-Reply-To: <60e63371-98cb-8cf0-4d23-0e1185902fa4@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 24, 2020 at 03:13:38PM +0530, Jeffrin Jose T wrote:
-> On Wed, 2020-12-23 at 16:33 +0100, Greg Kroah-Hartman wrote:
+On Wed, Dec 23, 2020 at 06:56:56PM -0600, Daniel DÃ­az wrote:
+> Hello!
+> 
+> On 12/23/20 9:33 AM, Greg Kroah-Hartman wrote:
 > > This is the start of the stable review cycle for the 5.10.3 release.
 > > There are 40 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied,
-> > please
+> > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
 > > 
 > > Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
 > > Anything received after that time might be too late.
 > > 
 > > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
 > > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> > stable-rc.git linux-5.10.y
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
 > > and the diffstat can be found below.
 > > 
 > > thanks,
 > > 
 > > greg k-h
 > 
-> hello ,
-> Compiled and booted 5.10.3-rc1+.
+> Results from Linaroâ€™s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 > 
-> dmesg -l err gives...
-> --------------x-------------x------------------->
->    43.190922] Bluetooth: hci0: don't support firmware rome 0x31010100
-> --------------x---------------x----------------->
-> 
-> My Bluetooth is Off.
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Is this a new warning?  Does it show up on 5.10.2?
-
-> Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-
-thanks for testing?
+Thanks for testing!
 
 greg k-h
