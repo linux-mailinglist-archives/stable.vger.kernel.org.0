@@ -2,68 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3BE92E32EF
-	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 22:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6432F2E32F6
+	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 22:29:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbgL0V0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Dec 2020 16:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726199AbgL0V0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Dec 2020 16:26:30 -0500
-Received: from ZenIV.linux.org.uk (zeniv.linux.org.uk [IPv6:2002:c35c:fd02::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F50C061794;
-        Sun, 27 Dec 2020 13:25:50 -0800 (PST)
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1ktdXf-004aJq-IU; Sun, 27 Dec 2020 21:25:31 +0000
-Date:   Sun, 27 Dec 2020 21:25:31 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Jussi Kivilinna <jussi.kivilinna@iki.fi>,
-        Christoph Hellwig <hch@lst.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>, lwn@lwn.net,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: LXC broken with 5.10-stable?, ok with 5.9-stable (Re: Linux
- 5.10.3)
-Message-ID: <20201227212531.GD3579531@ZenIV.linux.org.uk>
-References: <16089960203931@kroah.com>
- <5ab86253-7703-e892-52b7-e6a8af579822@iki.fi>
- <CAHk-=wgtU5+7jPuPtDEpwhTuUUkA3CBN=V92Jg0Ag0=3LhfKqA@mail.gmail.com>
- <b45f1065-2da9-08c0-26f2-e5b69e780bc6@iki.fi>
- <CAHk-=wgy6NQrTMwiEWpHUPvW-nfgX7XrBrsxQ6TkRy6NasSFQg@mail.gmail.com>
- <CAHk-=whF=+EzrxP=3zNMH-1L2Nfs7fNoSufqDwOdRQo5qyMwfw@mail.gmail.com>
+        id S1726328AbgL0V22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Dec 2020 16:28:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726105AbgL0V22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Dec 2020 16:28:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEBF8207AE;
+        Sun, 27 Dec 2020 21:27:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609104468;
+        bh=dlUOHzdT6jqxNMlS7tKqm2HOUmsvt41fj/QA+qUzYuY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LmC2caxmKrmbf7bEAgezvmwRBWBxQ0zThEPdwxvwtMI9dZ6Ri2AeWQrxIypSzHa4U
+         MuvrouwwqnAi+Bz4M08GCuZp1ESgAYv5x5k38Dr25b2vwhVA2uSmbQi+jxW7uFfLjM
+         cAR64DMSdHM7T91XYSvTrgc7hiPjKBPYOFdy55iiN2iugdPwONLW9+tLOGm9hYpVM+
+         1kFXEEnPiaZK+1zMwiw460a/7go+/uHu2FZ52+cdFdRxbfSj4oGZre/BVnNtVogWkN
+         zk12bzwTSn2UHGfqr5sF38U+er57hCVHQaJYSX1DQZV1loLFycMID4Mo5OG/is3fsG
+         yS3yQCE0VHAvA==
+Date:   Sun, 27 Dec 2020 16:27:46 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Xie He <xie.he.0141@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Martin Schiller <ms@dev.tdt.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Linux X25 <linux-x25@vger.kernel.org>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for
+ LAPB_STATE_0
+Message-ID: <20201227212746.GF2790422@sasha-vm>
+References: <20201223021813.2791612-75-sashal@kernel.org>
+ <20201223170124.5963-1-xie.he.0141@gmail.com>
+ <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAHk-=whF=+EzrxP=3zNMH-1L2Nfs7fNoSufqDwOdRQo5qyMwfw@mail.gmail.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 27, 2020 at 12:12:00PM -0800, Linus Torvalds wrote:
-> On Sun, Dec 27, 2020 at 11:05 AM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Sun, Dec 27, 2020 at 10:39 AM Jussi Kivilinna <jussi.kivilinna@iki.fi> wrote:
-> > >
-> > > 5.10.3 with patch compiles fine, but does not solve the issue.
-> >
-> > Duh. adding the read_iter only fixes kernel_read(). For splice, it also needs a
-> >
-> >         .splice_read = generic_file_splice_read,
-> >
-> > in the file operations, something like this...
-> 
-> Ok, I verified that patch with the test-case in the bugzilla, and it
-> seems trivially fine.
-> 
-> So it's committed as 14e3e989f6a5 ("proc mountinfo: make splice
-> available again") now.
+On Thu, Dec 24, 2020 at 01:49:47AM -0800, Xie He wrote:
+>On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
+>>
+>> I don't think this patch is suitable for stable branches. This patch is
+>> part of a patch series that changes the lapb module from "establishing the
+>> L2 connection only when needed by L3", to "establishing the L2 connection
+>> automatically whenever we are able to". This is a behavioral change. It
+>> should be seen as a new feature. It is not a bug fix.
+>
+>Applying this patch without other patches in the same series will also
+>introduce problems, because this patch relies on part of the changes
+>in the subsequent patch in the same series to be correct.
 
-Is there any point in not doing the same (scripted, obviously) for
-all instances with .read == seq_read?  IIRC, Christoph even posted
-something along those lines, but it went nowhere for some reason...
+I'll drop it, thanks!
+
+-- 
+Thanks,
+Sasha
