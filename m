@@ -2,64 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6432F2E32F6
-	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 22:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7342E3300
+	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 22:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbgL0V22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Dec 2020 16:28:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726105AbgL0V22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Dec 2020 16:28:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEBF8207AE;
-        Sun, 27 Dec 2020 21:27:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609104468;
-        bh=dlUOHzdT6jqxNMlS7tKqm2HOUmsvt41fj/QA+qUzYuY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LmC2caxmKrmbf7bEAgezvmwRBWBxQ0zThEPdwxvwtMI9dZ6Ri2AeWQrxIypSzHa4U
-         MuvrouwwqnAi+Bz4M08GCuZp1ESgAYv5x5k38Dr25b2vwhVA2uSmbQi+jxW7uFfLjM
-         cAR64DMSdHM7T91XYSvTrgc7hiPjKBPYOFdy55iiN2iugdPwONLW9+tLOGm9hYpVM+
-         1kFXEEnPiaZK+1zMwiw460a/7go+/uHu2FZ52+cdFdRxbfSj4oGZre/BVnNtVogWkN
-         zk12bzwTSn2UHGfqr5sF38U+er57hCVHQaJYSX1DQZV1loLFycMID4Mo5OG/is3fsG
-         yS3yQCE0VHAvA==
-Date:   Sun, 27 Dec 2020 16:27:46 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Xie He <xie.he.0141@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Martin Schiller <ms@dev.tdt.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Linux X25 <linux-x25@vger.kernel.org>,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for
- LAPB_STATE_0
-Message-ID: <20201227212746.GF2790422@sasha-vm>
-References: <20201223021813.2791612-75-sashal@kernel.org>
- <20201223170124.5963-1-xie.he.0141@gmail.com>
- <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
+        id S1726172AbgL0Veo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Dec 2020 16:34:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726105AbgL0Veo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Dec 2020 16:34:44 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3181C061795
+        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 13:34:03 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id iq13so4977146pjb.3
+        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 13:34:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=mEKYM0mGIK8OdyHyJi4o0kAhykSxqXkdO2jJZI3YmeI=;
+        b=RzWTVrR1F/Uq4mnvBkkfAK/vOGw1s0RBdLddWn6ZcJoCAMl900VlKRtgX+qdoTyqFo
+         FAcRyW9Qkz6KEhoPLK5ZKU2115Gbc84IZdIUm4iQBwE5jcH6E8vB/SGzgJcH5AP4/Xw0
+         1HROrjZirer2x/69DGLb8++lEIsish9s9nhttFtN3Md8tE9f72S9zhqACV+uw8ycCIN2
+         MVUuDOI1bu5vFcRVInZX1ZAEmiCaqfLz4oQgAAN+Ah3E8uFzi+oVJ7zmNQ69jkFnmI42
+         Y8cA5CC2c3oAVwATHhyOjwE2/Y9H6j+CT9yomaunqmzOVI+aM74cmviml+1nx0FUpGcC
+         gVyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=mEKYM0mGIK8OdyHyJi4o0kAhykSxqXkdO2jJZI3YmeI=;
+        b=N2qUDULqW22l5ui6hP+EUyjDeQ5Tsx3cp6WSAD+sEJhJ4AEaNgFKdjl2PvrlhJLjz2
+         N+Vw5PYS4Y2vZupbaAJUlIl+Fae8dvmpZT07TzfiTJQtiWVKSzCYl4ybYE72I2na6M6G
+         E3BCk3tal3p8N5VwyPbu2WdhJRpuwpRkzL/l6YGotqB/DaZKwSf+hYHW02yWQ6zYplTs
+         BmPe4a6j1PnK224+iqKrt5z1ld0zmWDQIyBC1Os9ZWDBhTNsQD5khOrPUgs5zu2hj755
+         nSFWZ+U/W3wZg5GEA/TCiYlGM+sC5cmuEd+oRJX7p0BQaBzFzobPnXmavFoPWGybm6uc
+         TSGA==
+X-Gm-Message-State: AOAM530bur4BhYOTaApDa50dUzbyngSovRcyRllYV261EaekbT5F27zM
+        iXWFmNJOLk3SOFw+Mf6JrcxBc5dpyk3O2g==
+X-Google-Smtp-Source: ABdhPJwghUHfMvHVqhJ1/2qjF0aRyvwUIPnbxmITBgJotoicfYfNJRZrgi0JFx+rmKMcrJ5qdUHKHA==
+X-Received: by 2002:a17:902:d916:b029:da:3e9e:cd7c with SMTP id c22-20020a170902d916b02900da3e9ecd7cmr42292473plz.27.1609104843268;
+        Sun, 27 Dec 2020 13:34:03 -0800 (PST)
+Received: from [192.168.0.4] ([171.49.218.48])
+        by smtp.gmail.com with ESMTPSA id a18sm33925985pfg.107.2020.12.27.13.33.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Dec 2020 13:34:02 -0800 (PST)
+Message-ID: <c7688d9a00a510975f115305a9e8d245a4403773.camel@rajagiritech.edu.in>
+Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
+From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Date:   Mon, 28 Dec 2020 03:03:58 +0530
+In-Reply-To: <X+iwvG2d0QfPl+mc@kroah.com>
+References: <20201223150515.553836647@linuxfoundation.org>
+         <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
+         <X+dRkTq+T+A6nWPz@kroah.com>
+         <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
+         <X+iwvG2d0QfPl+mc@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.1-2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 24, 2020 at 01:49:47AM -0800, Xie He wrote:
->On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
->>
->> I don't think this patch is suitable for stable branches. This patch is
->> part of a patch series that changes the lapb module from "establishing the
->> L2 connection only when needed by L3", to "establishing the L2 connection
->> automatically whenever we are able to". This is a behavioral change. It
->> should be seen as a new feature. It is not a bug fix.
->
->Applying this patch without other patches in the same series will also
->introduce problems, because this patch relies on part of the changes
->in the subsequent patch in the same series to be correct.
+On Sun, 2020-12-27 at 17:05 +0100, Greg Kroah-Hartman wrote:
+> On Sun, Dec 27, 2020 at 09:20:07PM +0530, Jeffrin Jose T wrote:
+> > On Sat, 2020-12-26 at 16:06 +0100, Greg Kroah-Hartman wrote:
+> > > On Thu, Dec 24, 2020 at 03:13:38PM +0530, Jeffrin Jose T wrote:
+> > > > On Wed, 2020-12-23 at 16:33 +0100, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 5.10.3
+> > > > > release.
+> > > > > There are 40 patches in this series, all will be posted as a
+> > > > > response
+> > > > > to this one.  If anyone has any issues with these being
+> > > > > applied,
+> > > > > please
+> > > > > let me know.
+> > > > > 
+> > > > > Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > > 
+> > > > > The whole patch series can be found in one patch at:
+> > > > >         
+> > > > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
+> > > > > or in the git tree and branch at:
+> > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/
+> > > > > linu
+> > > > > x-
+> > > > > stable-rc.git linux-5.10.y
+> > > > > and the diffstat can be found below.
+> > > > > 
+> > > > > thanks,
+> > > > > 
+> > > > > greg k-h
+> > > > 
+> > > > hello ,
+> > > > Compiled and booted 5.10.3-rc1+.
+> > > > 
+> > > > dmesg -l err gives...
+> > > > --------------x-------------x------------------->
+> > > >    43.190922] Bluetooth: hci0: don't support firmware rome
+> > > > 0x31010100
+> > > > --------------x---------------x----------------->
+> > > > 
+> > > > My Bluetooth is Off.
+> > > 
+> > > Is this a new warning?  Does it show up on 5.10.2?
+> > > 
+> > > > Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+> > > 
+> > > thanks for testing?
+> > > 
+> > > greg k-h
+> > 
+> > this does not show up in 5.10.2-rc1+
+> 
+> Odd.  Can you run 'git bisect' to find the offending commit?
+> 
+> Does this same error message show up in Linus's git tree?
+> 
+> thanks,
+> 
+> greg k-h
 
-I'll drop it, thanks!
+i will try to do "git bisect" .  i saw this error in linus's  tree.
 
 -- 
-Thanks,
-Sasha
+software engineer
+rajagiri school of engineering and technology - autonomous
+
