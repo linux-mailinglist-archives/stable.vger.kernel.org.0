@@ -2,99 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3C12E31C1
-	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 17:05:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B40D12E31DB
+	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 17:42:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbgL0QEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Dec 2020 11:04:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
+        id S1726121AbgL0Ql6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Dec 2020 11:41:58 -0500
+Received: from meesny.iki.fi ([195.140.195.201]:40850 "EHLO meesny.iki.fi"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726161AbgL0QEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Dec 2020 11:04:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ADC5207D1;
-        Sun, 27 Dec 2020 16:03:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609085032;
-        bh=LNu5ZmZFj5+0D7JqzpxyvG7LdugWh/PonPUP1ky6Me8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vKf2OLYVFukETO6O4yru97z3a2iGpa1UpB+uIZSZnYgPmqM0r+hAAxqdafhkCLS/B
-         DafiM0sACQn3OpbNxB5KNEj3haa7GFVgM5hkeqW3YmtwF4+MNUXb4u7IhcQRI+/SqX
-         N8+8xj1W2XpoTUR3wOwrzDNKDeSFQNmR4HyRc88I=
-Date:   Sun, 27 Dec 2020 17:05:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-Message-ID: <X+iwvG2d0QfPl+mc@kroah.com>
-References: <20201223150515.553836647@linuxfoundation.org>
- <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
- <X+dRkTq+T+A6nWPz@kroah.com>
- <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
+        id S1726032AbgL0Ql6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Dec 2020 11:41:58 -0500
+X-Greylist: delayed 504 seconds by postgrey-1.27 at vger.kernel.org; Sun, 27 Dec 2020 11:41:57 EST
+Received: from [IPv6:2001:14ba:a809:f00:365c:2bfe:5f3f:873c] (d1yft0yb2nt1-835-t80y-3.rev.dnainternet.fi [IPv6:2001:14ba:a809:f00:365c:2bfe:5f3f:873c])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: jussi.kivilinna)
+        by meesny.iki.fi (Postfix) with ESMTPSA id EE62820179;
+        Sun, 27 Dec 2020 18:32:45 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=meesny;
+        t=1609086766;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VlXVv+khteELPm7l3VGH4hOZK6vW8fOUvcXm9SkA1hw=;
+        b=Yz6g4Dq8EbaYJGpO3cY32HjusL9b+6bgm0BKrkj+8EkzsNLrPa7OLxhFf2yTjjJZua+xxP
+        61DUD180H0jHPL25zfUrFUYGmSp06EqzjzH51vlC1t7ct2Gki93gDWA96C69Gouksuz5F8
+        UkRSrNnNU3GWiUGmF7GaXHupI2KD1ug=
+Subject: LXC broken with 5.10-stable?, ok with 5.9-stable (Re: Linux 5.10.3)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz
+References: <16089960203931@kroah.com>
+From:   Jussi Kivilinna <jussi.kivilinna@iki.fi>
+Message-ID: <5ab86253-7703-e892-52b7-e6a8af579822@iki.fi>
+Date:   Sun, 27 Dec 2020 18:32:41 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
+In-Reply-To: <16089960203931@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+ARC-Seal: i=1; s=meesny; d=iki.fi; t=1609086766; a=rsa-sha256; cv=none;
+        b=jvepUbUlFHJjledfmThJxzLNBiIH7/UoGrWfN6A0TedxIYUdioFWnjPqoZI/2EvkBLy971
+        TUUh+KtHgjfnNr+FfbJLJBwMnhq6bqpp+bcMtpaqtI6SlvnMTqovIITCJ5EYOTFvSuk0Tv
+        r4ihzEZn4ctG4W8l6V0Igx0+oXxQnhQ=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+        s=meesny; t=1609086766;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VlXVv+khteELPm7l3VGH4hOZK6vW8fOUvcXm9SkA1hw=;
+        b=gcsBRtzjt06ofXQj890AAUXKEVMTlhc1xJaPXnQl8HpAqhnGcKTMNqBBxwJi8t49Brv39N
+        oPc3SMM2/DtN+V2NM3A5XQ4Ia45KNrLnRdVVZXpjaehSaItuYwU+vMWFM3G8GU0hkW9Hid
+        9/y3qafzeaS3zK7lbR/nH9rpwzoLZKw=
+ARC-Authentication-Results: i=1;
+        ORIGINATING;
+        auth=pass smtp.auth=jussi.kivilinna smtp.mailfrom=jussi.kivilinna@iki.fi
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 27, 2020 at 09:20:07PM +0530, Jeffrin Jose T wrote:
-> On Sat, 2020-12-26 at 16:06 +0100, Greg Kroah-Hartman wrote:
-> > On Thu, Dec 24, 2020 at 03:13:38PM +0530, Jeffrin Jose T wrote:
-> > > On Wed, 2020-12-23 at 16:33 +0100, Greg Kroah-Hartman wrote:
-> > > > This is the start of the stable review cycle for the 5.10.3
-> > > > release.
-> > > > There are 40 patches in this series, all will be posted as a
-> > > > response
-> > > > to this one.  If anyone has any issues with these being applied,
-> > > > please
-> > > > let me know.
-> > > > 
-> > > > Responses should be made by Fri, 25 Dec 2020 15:05:02 +0000.
-> > > > Anything received after that time might be too late.
-> > > > 
-> > > > The whole patch series can be found in one patch at:
-> > > >         
-> > > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.3-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu
-> > > > x-
-> > > > stable-rc.git linux-5.10.y
-> > > > and the diffstat can be found below.
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > greg k-h
-> > > 
-> > > hello ,
-> > > Compiled and booted 5.10.3-rc1+.
-> > > 
-> > > dmesg -l err gives...
-> > > --------------x-------------x------------------->
-> > >    43.190922] Bluetooth: hci0: don't support firmware rome
-> > > 0x31010100
-> > > --------------x---------------x----------------->
-> > > 
-> > > My Bluetooth is Off.
-> > 
-> > Is this a new warning?  Does it show up on 5.10.2?
-> > 
-> > > Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-> > 
-> > thanks for testing?
-> > 
-> > greg k-h
+Hello,
+
+Now that 5.9 series is EOL, I tried to move to 5.10.3. I ran in to regression where LXC containers do not start with newer kernel. I found that issue had been reported (bisected + with reduced test case) in bugzilla at: https://bugzilla.kernel.org/show_bug.cgi?id=209971
+
+Has this been fixed in 5.11-rc? Is there any patch that I could backport and test with 5.10?
+
+-Jussi
+
+On 26.12.2020 17.20, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 5.10.3 kernel.
 > 
-> this does not show up in 5.10.2-rc1+
-
-Odd.  Can you run 'git bisect' to find the offending commit?
-
-Does this same error message show up in Linus's git tree?
-
-thanks,
-
-greg k-h
+> All users of the 5.10 kernel series must upgrade.
+> 
+> The updated 5.10.y git tree can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+> and can be browsed at the normal kernel.org git web browser:
+> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------
