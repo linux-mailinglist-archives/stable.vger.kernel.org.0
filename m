@@ -2,122 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C42A2E3302
-	for <lists+stable@lfdr.de>; Sun, 27 Dec 2020 22:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 213832E3330
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 00:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726277AbgL0VhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Dec 2020 16:37:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38926 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726227AbgL0VhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Dec 2020 16:37:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DF7522B2C
-        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 21:36:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609104987;
-        bh=xf1xhuCSbIvU6yFstK8GVJEOxP3WIu96vlXc4UxPWjg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=AqlCdXKHE+ITIKKRlqblXCSPB1fZi8/UDAb1RDKCM1LvBmfFUzWwvmRaxDmO2t3hX
-         Nk6pMZGldD5DaO605Rtt8TjjpOD/gSk58ws/PQ9FMfNSuHWbyzwf58epdI6g3zk8xZ
-         Igbu0xStOGQWdGd9Kogu2VJnNRAWN3zsxS3vBuHZhFn096dU225m4SpqgJdSX6aMov
-         EBd0pc/BjZrshn7beSWmBBUXcEIKmk+336nrsvKpQCdQceJupZ7MtSF8mohlT+MVwl
-         hKrhBGpC7tm8GB4+e/xrihyvUg8Ly26YAqTnggMTfP4n7AumuBvcriGH+eaPw+YB2h
-         jGdZuFrFFMGPQ==
-Received: by mail-wr1-f53.google.com with SMTP id d13so8923020wrc.13
-        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 13:36:27 -0800 (PST)
-X-Gm-Message-State: AOAM530YdMspiBIuYVgxsoAFXGznpVXwyUkO4syekgouLUSua2dhg8lB
-        FU8WzvvjHGKgBGENBUurTyrmkh/MWKJ6RWjiV1Zs1w==
-X-Google-Smtp-Source: ABdhPJwL0d4jxly4xZo1ozG4f8+9aazYql5ttlOL3TT+E+3PWhEM6R+ijPQOdmXIla5FWQwjhuFdendweCd9l/QAEJQ=
-X-Received: by 2002:a5d:4905:: with SMTP id x5mr47749724wrq.75.1609104985693;
- Sun, 27 Dec 2020 13:36:25 -0800 (PST)
+        id S1726338AbgL0XQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Dec 2020 18:16:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34550 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726337AbgL0XQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Dec 2020 18:16:22 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB34CC061795
+        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 15:15:08 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id m25so20317495lfc.11
+        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 15:15:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lrNOaQo0oSTN20/mx1QqDm0D9Hn4DJtx5m8uXXKpN2M=;
+        b=XshKrP2k0PDVU2K6lhXixd1gTp8qTDNhDlzphLGpgfbe84tNYj8XD7eF8JA2/BhefG
+         oZ8CeBrJBey0Pe9KTSPuFpO/Kxn8QJTrkjk0Lk3N3/Aminrcw8fb7ZPcYBhYOh8xpxyM
+         bKSOKbZhJErLVNxbS7swBwPc48F3MTRdNyekI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lrNOaQo0oSTN20/mx1QqDm0D9Hn4DJtx5m8uXXKpN2M=;
+        b=cmda2t5mJhzpd7TE89tMpI+LnKz1mrVYB3DpDJh4Ct8kLgpIb1B9KROl5VopB6zilL
+         P80dC/yMjTAwbklBIHrai2FkZrmqWQVVARhvK75U10NRIJ/w5yfblXqPzlPIi+DBpdDM
+         on68eDuHwQmfwEiJ/QLlNARniwSiijExWhegGXlEjJCbaZoWeUvZ/SuMMxSbuOJR26iE
+         9n9Kb2pr3yRlHX3k6FWTPrzvisxMACXkPcn0A08/xUdoHogOJRJH5QC8DXYtauBqtj5l
+         +7QwVnAICA9Y2YZKHJaO4e4f/xDmPNX/s02yqWXe7xjAWIZzSxG5nflMx2Od4v0hnST+
+         PQhw==
+X-Gm-Message-State: AOAM530TjGLkiDDkT5VSU1akDNqs6cln8GRpIPJBewRTYgmOt5zUACu5
+        8jZAIo38Mx+AqVHCLwXGgOk9oP2B3fvSKA==
+X-Google-Smtp-Source: ABdhPJw6V0oD5cjLyfqBA9E06X1zzkwx2poGqFVuBtP3u45F9nOVzwBL1B0VXCncYi4N90kTLlWv/A==
+X-Received: by 2002:a2e:a553:: with SMTP id e19mr21897308ljn.454.1609110906931;
+        Sun, 27 Dec 2020 15:15:06 -0800 (PST)
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com. [209.85.167.44])
+        by smtp.gmail.com with ESMTPSA id r9sm6182373ljj.127.2020.12.27.15.15.05
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 27 Dec 2020 15:15:05 -0800 (PST)
+Received: by mail-lf1-f44.google.com with SMTP id m12so20373176lfo.7
+        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 15:15:05 -0800 (PST)
+X-Received: by 2002:a2e:9b13:: with SMTP id u19mr19658039lji.48.1609110905217;
+ Sun, 27 Dec 2020 15:15:05 -0800 (PST)
 MIME-Version: 1.0
-References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
- <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
-In-Reply-To: <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Sun, 27 Dec 2020 13:36:13 -0800
-X-Gmail-Original-Message-ID: <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
-Message-ID: <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
-Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     Andy Lutomirski <luto@kernel.org>, x86 <x86@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
+References: <16089960203931@kroah.com> <5ab86253-7703-e892-52b7-e6a8af579822@iki.fi>
+ <CAHk-=wgtU5+7jPuPtDEpwhTuUUkA3CBN=V92Jg0Ag0=3LhfKqA@mail.gmail.com>
+ <b45f1065-2da9-08c0-26f2-e5b69e780bc6@iki.fi> <CAHk-=wgy6NQrTMwiEWpHUPvW-nfgX7XrBrsxQ6TkRy6NasSFQg@mail.gmail.com>
+ <CAHk-=whF=+EzrxP=3zNMH-1L2Nfs7fNoSufqDwOdRQo5qyMwfw@mail.gmail.com> <20201227212531.GD3579531@ZenIV.linux.org.uk>
+In-Reply-To: <20201227212531.GD3579531@ZenIV.linux.org.uk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 27 Dec 2020 15:14:49 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiXQVE_jGN0ajk+Km925WSbCL16mAZ-UXNkp+nkc1nuQw@mail.gmail.com>
+Message-ID: <CAHk-=wiXQVE_jGN0ajk+Km925WSbCL16mAZ-UXNkp+nkc1nuQw@mail.gmail.com>
+Subject: Re: LXC broken with 5.10-stable?, ok with 5.9-stable (Re: Linux 5.10.3)
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Jussi Kivilinna <jussi.kivilinna@iki.fi>,
+        Christoph Hellwig <hch@lst.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable <stable@vger.kernel.org>, lwn@lwn.net,
+        Jiri Slaby <jslaby@suse.cz>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 27, 2020 at 12:18 PM Mathieu Desnoyers
-<mathieu.desnoyers@efficios.com> wrote:
+On Sun, Dec 27, 2020 at 1:25 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
 >
-> ----- On Dec 27, 2020, at 1:28 PM, Andy Lutomirski luto@kernel.org wrote:
 >
+> Is there any point in not doing the same (scripted, obviously) for
+> all instances with .read == seq_read?  IIRC, Christoph even posted
+> something along those lines, but it went nowhere for some reason...
 
-> >
-> > I admit that I'm rather surprised that the code worked at all on arm64,
-> > and I'm suspicious that it has never been very well tested.  My apologies
-> > for not reviewing this more carefully in the first place.
->
-> Please refer to Documentation/features/sched/membarrier-sync-core/arch-support.txt
->
-> It clearly states that only arm, arm64, powerpc and x86 support the membarrier
-> sync core feature as of now:
+I'd rather limit splice (and kernel_read too, for that matter) as much
+as possible. It was a mistake originally to allow it everywhere, and
+it's come back to bite us.
 
-Sigh, I missed arm (32).  Russell or ARM folks, what's the right
-incantation to make the CPU notice instruction changes initiated by
-other cores on 32-bit ARM?
+So I'd rather have people notice these odd corner cases and get them
+fixed one by one than just say "anything goes".
 
->
->
-> # Architecture requirements
-> #
-> # * arm/arm64/powerpc
-> #
-> # Rely on implicit context synchronization as a result of exception return
-> # when returning from IPI handler, and when returning to user-space.
-> #
-> # * x86
-> #
-> # x86-32 uses IRET as return from interrupt, which takes care of the IPI.
-> # However, it uses both IRET and SYSEXIT to go back to user-space. The IRET
-> # instruction is core serializing, but not SYSEXIT.
-> #
-> # x86-64 uses IRET as return from interrupt, which takes care of the IPI.
-> # However, it can return to user-space through either SYSRETL (compat code),
-> # SYSRETQ, or IRET.
-> #
-> # Given that neither SYSRET{L,Q}, nor SYSEXIT, are core serializing, we rely
-> # instead on write_cr3() performed by switch_mm() to provide core serialization
-> # after changing the current mm, and deal with the special case of kthread ->
-> # uthread (temporarily keeping current mm into active_mm) by issuing a
-> # sync_core_before_usermode() in that specific case.
->
+There's hopefully not any actually left anyway...
 
-I need to update that document as part of my series.
-
-> This is based on direct feedback from the architecture maintainers.
->
-> You seem to have noticed odd cases on arm64 where this guarantee does not
-> match reality. Where exactly can we find this in the code, and which part
-> of the architecture manual can you point us to which supports your concern ?
->
-> Based on the notes I have, use of `eret` on aarch64 guarantees a context synchronizing
-> instruction when returning to user-space.
-
-Based on my reading of the manual, ERET on ARM doesn't synchronize
-anything at all.  I can't find any evidence that it synchronizes data
-or instructions, and I've seen reports that the CPU will happily
-speculate right past it.
-
---Andy
+                  Linus
