@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 531572E65BF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FEC2E68AC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389582AbgL1N1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
+        id S1729328AbgL1Qjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:39:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389200AbgL1N0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5ABC22472;
-        Mon, 28 Dec 2020 13:25:52 +0000 (UTC)
+        id S1729189AbgL1M7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B677D22583;
+        Mon, 28 Dec 2020 12:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161953;
-        bh=NyJxix9UlwTf3UE+Z333I0rQe4WgJburj1ZJcyQebMY=;
+        s=korg; t=1609160353;
+        bh=4RVsrHt+swWkgwGUunNrBplzgzeOI/Zp42aT6hjTzQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WKxkwSTuMpWb9O17cEHJ+MGDnz/uFJcTZ61CmZtXtL+RmetF17sUhkHi0jnRYoqXW
-         45C+nf9EHt6WZpCEGJCzdzMY4GLdDgIYepfgM+bjdHmEWoxCIYiJ2h8EYyx/wMTN6W
-         4hrGe3GaykFs71/yLidBJim+5xAA9p7Aj4BaKGF4=
+        b=x7kN5M8vm/ZWk20t3ZUehIJNL7HgnyLgYEAtFg/5GdjNM7Fb9Trj1UQBaDGdMqKyC
+         hKwD8VahcbrR7viq19ofAzkVy3UGNSOePCrHmst0yEsPx73sZascJ1X/SJDGV0BL1i
+         6/LLMmJKRzSZo6//MftwQYZLi3jnFp6vardjBwiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 138/346] staging: greybus: codecs: Fix reference counter leak in error handling
-Date:   Mon, 28 Dec 2020 13:47:37 +0100
-Message-Id: <20201228124926.462859447@linuxfoundation.org>
+Subject: [PATCH 4.9 005/175] ARC: stack unwinding: dont assume non-current task is sleeping
+Date:   Mon, 28 Dec 2020 13:47:38 +0100
+Message-Id: <20201228124853.506539508@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 3952659a6108f77a0d062d8e8487bdbdaf52a66c ]
+[ Upstream commit e42404fa10fd11fe72d0a0e149a321d10e577715 ]
 
-gb_pm_runtime_get_sync has increased the usage counter of the device here.
-Forgetting to call gb_pm_runtime_put_noidle will result in usage counter
-leak in the error branch of (gbcodec_hw_params and gbcodec_prepare). We
-fixed it by adding it.
+To start stack unwinding (SP, PC and BLINK) are needed. When the
+explicit execution context (pt_regs etc) is not available, unwinder
+assumes the task is sleeping (in __switch_to()) and fetches SP and BLINK
+from kernel mode stack.
 
-Fixes: c388ae7696992 ("greybus: audio: Update pm runtime support in dai_ops callback")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201109131347.1725288-2-zhangqilong3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But this assumption is not true, specially in a SMP system, when top
+runs on 1 core, there may be active running processes on all cores.
+
+So when unwinding non courrent tasks, ensure they are NOT running.
+
+And while at it, handle the self unwinding case explicitly.
+
+This came out of investigation of a customer reported hang with
+rcutorture+top
+
+Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/31
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/audio_codec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arc/kernel/stacktrace.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
-index 35acd55ca5ab7..6cbf69a57dfd9 100644
---- a/drivers/staging/greybus/audio_codec.c
-+++ b/drivers/staging/greybus/audio_codec.c
-@@ -489,6 +489,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
- 	if (ret) {
- 		dev_err_ratelimited(dai->dev, "%d: Error during set_config\n",
- 				    ret);
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
- 		return ret;
+diff --git a/arch/arc/kernel/stacktrace.c b/arch/arc/kernel/stacktrace.c
+index 165158735aa6b..3ee19b1e79be5 100644
+--- a/arch/arc/kernel/stacktrace.c
++++ b/arch/arc/kernel/stacktrace.c
+@@ -39,15 +39,15 @@
+ 
+ #ifdef CONFIG_ARC_DW2_UNWIND
+ 
+-static void seed_unwind_frame_info(struct task_struct *tsk,
+-				   struct pt_regs *regs,
+-				   struct unwind_frame_info *frame_info)
++static int
++seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
++		       struct unwind_frame_info *frame_info)
+ {
+ 	/*
+ 	 * synchronous unwinding (e.g. dump_stack)
+ 	 *  - uses current values of SP and friends
+ 	 */
+-	if (tsk == NULL && regs == NULL) {
++	if (regs == NULL && (tsk == NULL || tsk == current)) {
+ 		unsigned long fp, sp, blink, ret;
+ 		frame_info->task = current;
+ 
+@@ -66,11 +66,15 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->call_frame = 0;
+ 	} else if (regs == NULL) {
+ 		/*
+-		 * Asynchronous unwinding of sleeping task
+-		 *  - Gets SP etc from task's pt_regs (saved bottom of kernel
+-		 *    mode stack of task)
++		 * Asynchronous unwinding of a likely sleeping task
++		 *  - first ensure it is actually sleeping
++		 *  - if so, it will be in __switch_to, kernel mode SP of task
++		 *    is safe-kept and BLINK at a well known location in there
+ 		 */
+ 
++		if (tsk->state == TASK_RUNNING)
++			return -1;
++
+ 		frame_info->task = tsk;
+ 
+ 		frame_info->regs.r27 = TSK_K_FP(tsk);
+@@ -104,6 +108,8 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
+ 		frame_info->regs.r63 = regs->ret;
+ 		frame_info->call_frame = 0;
  	}
-@@ -565,6 +566,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
- 		break;
- 	}
- 	if (ret) {
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
- 		dev_err_ratelimited(dai->dev, "set_data_size failed:%d\n",
- 				    ret);
++
++	return 0;
+ }
+ 
+ #endif
+@@ -117,7 +123,8 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
+ 	unsigned int address;
+ 	struct unwind_frame_info frame_info;
+ 
+-	seed_unwind_frame_info(tsk, regs, &frame_info);
++	if (seed_unwind_frame_info(tsk, regs, &frame_info))
++		return 0;
+ 
+ 	while (1) {
+ 		address = UNW_PC(&frame_info);
 -- 
 2.27.0
 
