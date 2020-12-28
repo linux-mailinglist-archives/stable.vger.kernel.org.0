@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625102E368D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 853212E3694
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727349AbgL1LfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:35:10 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39501 "EHLO
+        id S1727378AbgL1Lfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:35:30 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:43595 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727329AbgL1LfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:35:09 -0500
+        by vger.kernel.org with ESMTP id S1727329AbgL1Lfa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:35:30 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 5D2D7872;
+        by mailforward.west.internal (Postfix) with ESMTP id B7024871;
         Mon, 28 Dec 2020 06:33:23 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:33:23 -0500
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:33:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
         :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=KVOi4R
-        LkQ2ZqAWDRoHrzPs56ZyF8Z2Xa0SpEDnICI3o=; b=isWEn8/tKo8SF32LZ7spFu
-        Ne+CmT3r2pZZT2mpDJNgrgIfKWXRjgoqMRQ3k9eUosnap+e7ZsjGvC4bSuAUf7kf
-        gWQ7D8kk2SmmTsgjY+9DuPT3uZPV89/fCnBTocBlRlf7/k61njzcQpcB3HIBrO1T
-        ZcXkYsm30kjZO18hasY7UCyTZjXAtMudntfL7jaaejRxnbwlq7sltbfXSHJc4oyD
-        ZK+/NhxB8IPbir+yobuw/ikkm+zPuR2CSQ1AnE9fvR+Gt/2D1M7R4mk8wJ0lAVeL
-        Vor3hVShk2S/YaA3/LDLcCxVsmiXWewqq+D9HaazL+cC1LvYpcQEWqcP4LHye73Q
+        LkQ2ZqAWDRoHrzPs56ZyF8Z2Xa0SpEDnICI3o=; b=ZPdv/LcLmb9O2flapOpzXE
+        TlkgpwBxcWGGJRBNRvZJ8xTxDYcg7AtIPP8ocRh3dOl49mcEI7sxSLrBp1ELdint
+        q9IrNvTfwNHy9YuZB4vqP2k29O+HHAooVuMP9kcrcQV/cscr886V37ZRXGNYGQZB
+        uVF//s6+aijxSLWHX8VG+LvmrgQ6D0Qi7kEnEsxR5iUvR7ZEXunrcV47T4cvbNGb
+        vwG2PovnM4DxvfXKg99QAe5+niZXwZyXhtbHKotLLoxD1CRh3hRs0yx970BbS8C3
+        neag3tbaojGoRX80087BH6pJXAhsI0rzrTVRD1Dt0zmpgcTQN+aNAdqZN67t+RlA
         ==
-X-ME-Sender: <xms:gsLpX7N7HzNREtkhC_D1vFL3g7qr7G-Ve3a5HfVG1y_fYA9cidATtA>
-    <xme:gsLpX1-ZhJjXsLT9PNkDS0U-RwxMpbuBtC1VtVGxh2NmAnP0QSDW4_jJ6qih0qSFv
-    b1GHdTxXV2mLQ>
+X-ME-Sender: <xms:g8LpX3xs-PzH-uD22AOXOTUDxiuoCTgZJMmxeoegnJVTnNDK_LmSRA>
+    <xme:g8LpX_S0g7mXA0r4WZoxwd3Uh0VJXjrSWlpjnkUWQRvXJo4XZ3GjH1xdQva23xnbS
+    2M8Jo23deMdgg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,12 +38,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:gsLpX6T_NM_XhOwklGFXPBOl2fDzuYCn0cGOrcI4qYOsBIL9Nra5Wg>
-    <xmx:gsLpX_ucUf9o298_4kNr1TFSf_WcS8FbANGetbLzcuFdUshgpTt8VA>
-    <xmx:gsLpXzcdcaZwm7Vj9zLcOqmlAm6DNl9wskkGQXjyRvMNeRWREWTOvA>
-    <xmx:g8LpX0r6d9THwZ6gd2o2SiB4-Hg4CvLu7owJkuK5OJ1b49Gs7L00Kgf5usM>
+X-ME-Proxy: <xmx:g8LpXxWc97FOY_s5_-sSTQ_JQVpWJepcjebQ23fJySm8w_AhAuOF9Q>
+    <xmx:g8LpXxi_55pZFP5WIjMV8EkTnA7XCOBxezZFUM2evhIsfc286tEf5A>
+    <xmx:g8LpX5Cxv2BgZgrbXfkvXj-GcjpVB3INAg3IOoiGEaBWAHRELgg9nA>
+    <xmx:g8LpX8NgmV4GyGfbYeSFMRpLP1PpEEeazODWtwTyLD_EwpDHACpbnevM6kU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A849A240057;
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0A6361080059;
         Mon, 28 Dec 2020 06:33:22 -0500 (EST)
 Subject: FAILED: patch "[PATCH] xen/xenbus/xen_bus_type: Support will_handle watch callback" failed to apply to 4.9-stable tree
 To:     sjpark@amazon.de, jgross@suse.com, mku@amazon.de, wipawel@amazon.de
