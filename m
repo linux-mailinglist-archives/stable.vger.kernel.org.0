@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C87E2E3DDB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AADA2E63C1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437827AbgL1OUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56064 "EHLO mail.kernel.org"
+        id S2405582AbgL1Pmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:42:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437823AbgL1OUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:20:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A2DB2245C;
-        Mon, 28 Dec 2020 14:19:57 +0000 (UTC)
+        id S2405680AbgL1Nrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:47:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B186206D4;
+        Mon, 28 Dec 2020 13:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165197;
-        bh=cPasQO7LZpTRQC1SlF1z+2fUswQxkMPTqJybbRKynOc=;
+        s=korg; t=1609163210;
+        bh=oZHEHga3a4A0j+x16WE6ttuTxmINWbB2O/a7ejfUP8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZoTOUKBvGpaaAfpWr87rhJPp1qya0NSWuMR7KHDVYRnDqXwd2PvkC8i9VOCTlhFy
-         m4rF9u4ZVJWA2/uGASfU7fI8JcLX7c/adxmhWLrV80QVxG9a9Yurx7peU1jn4n+J0H
-         9wqZV86eUD4jboa/l6D5jcen9a5wtLb6VRQ7uu0g=
+        b=vLHVYhkwyvZJ3zObKNg0BII7YrFp/MiVpBq/goqw8bpvv2lfs25EVw0dXK2cVj3Vd
+         SCqkKfRn9o5otkq+WXUuGLy3t43zwo3KiczYMXK1X5UIU1Vxn1r+EVeTd3lqOK/zbC
+         C4FA92+lxPOCLN4Kgccnk6JPFEZ7vTAmR8rr+Uss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 416/717] mac80211: fix a mistake check for rx_stats update
+Subject: [PATCH 5.4 178/453] slimbus: qcom-ngd-ctrl: Avoid sending power requests without QMI
 Date:   Mon, 28 Dec 2020 13:46:54 +0100
-Message-Id: <20201228125040.900007631@linuxfoundation.org>
+Message-Id: <20201228124945.765286201@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit f879ac8ed6c83ce05fcb53815a8ea83c5b6099a1 ]
+[ Upstream commit 39014ce6d6028614a46395923a2c92d058b6fa87 ]
 
-It should be !is_multicast_ether_addr() in ieee80211_rx_h_sta_process()
-for the rx_stats update, below commit remove the !, this patch is to
-change it back.
+Attempting to send a power request during PM operations, when the QMI
+handle isn't initialized results in a NULL pointer dereference. So check
+if the QMI handle has been initialized before attempting to post the
+power requests.
 
-It lead the rx rate "iw wlan0 station dump" become invalid for some
-scenario when IEEE80211_HW_USES_RSS is set.
-
-Fixes: 09a740ce352e ("mac80211: receive and process S1G beacons")
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Link: https://lore.kernel.org/r/1607483189-3891-1-git-send-email-wgong@codeaurora.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20201127102451.17114-7-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 1e2e5a406d587..2a5a11f92b03e 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1758,7 +1758,7 @@ ieee80211_rx_h_sta_process(struct ieee80211_rx_data *rx)
- 	} else if (rx->sdata->vif.type == NL80211_IFTYPE_OCB) {
- 		sta->rx_stats.last_rx = jiffies;
- 	} else if (!ieee80211_is_s1g_beacon(hdr->frame_control) &&
--		   is_multicast_ether_addr(hdr->addr1)) {
-+		   !is_multicast_ether_addr(hdr->addr1)) {
- 		/*
- 		 * Mesh beacons will update last_rx when if they are found to
- 		 * match the current local configuration when processed.
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index ce265bf7de868..b60541c3f72da 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1201,6 +1201,9 @@ static int qcom_slim_ngd_runtime_resume(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
++	if (!ctrl->qmi.handle)
++		return 0;
++
+ 	if (ctrl->state >= QCOM_SLIM_NGD_CTRL_ASLEEP)
+ 		ret = qcom_slim_ngd_power_up(ctrl);
+ 	if (ret) {
+@@ -1497,6 +1500,9 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
++	if (!ctrl->qmi.handle)
++		return 0;
++
+ 	ret = qcom_slim_qmi_power_request(ctrl, false);
+ 	if (ret && ret != -EBUSY)
+ 		dev_info(ctrl->dev, "slim resource not idle:%d\n", ret);
 -- 
 2.27.0
 
