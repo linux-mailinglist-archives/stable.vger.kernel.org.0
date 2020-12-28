@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C573B2E6685
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188252E6675
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732954AbgL1NTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
+        id S2394186AbgL1QMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:12:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732945AbgL1NTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:19:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 371F720719;
-        Mon, 28 Dec 2020 13:19:32 +0000 (UTC)
+        id S2388326AbgL1NWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DBC52076D;
+        Mon, 28 Dec 2020 13:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161572;
-        bh=01CuJutkxOy3ZqWuAqW3OSdWhKEKPW/78boO5v1tpcQ=;
+        s=korg; t=1609161723;
+        bh=8sRN3kC2fZfCYConWxPUT2pKZSzuU0N6jwYgsArqwD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICV9fS3ljnc6iHwpqk6sIwv/WmvQru7pIuG7e9407wIO4JdacMNktNtSx+al9qmuO
-         RIsiRYqKqsMG71cP5kEHC9Wjk9DuqqzHO44EUiW8qFREN6YWxY51MTC2B3BUiQo0Kv
-         hgfHcuypcX1024dgHYg4cUV3lquS99EUg8K6bFkM=
+        b=tm/2th9SFq/h16Je0nlNRCJV2tjuvxzcyaK+KvnQZf6ZrgFKGwP5bKTY2WIG/QQYy
+         NITtoMJiAJVZ7J0jvLZTJkPwSTET90EjvTpbQKlKfVas6FMhtxPCuW6QolIZ7bpMyV
+         ZkJWPs216t0IOqp80b7oOJEn+QCYZpKWj/BcsARo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Verevkin <me@maxverevkin.tk>,
+        stable@vger.kernel.org, Coiby Xu <coiby.xu@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 016/346] platform/x86: intel-vbtn: Support for tablet mode on HP Pavilion 13 x360 PC
-Date:   Mon, 28 Dec 2020 13:45:35 +0100
-Message-Id: <20201228124920.554741187@linuxfoundation.org>
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 019/346] pinctrl: amd: remove debounce filter setting in IRQ type setting
+Date:   Mon, 28 Dec 2020 13:45:38 +0100
+Message-Id: <20201228124920.699185325@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -40,41 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Verevkin <me@maxverevkin.tk>
+From: Coiby Xu <coiby.xu@gmail.com>
 
-[ Upstream commit 8b205d3e1bf52ab31cdd5c55f87c87a227793d84 ]
+commit 47a0001436352c9853d72bf2071e85b316d688a2 upstream.
 
-The Pavilion 13 x360 PC has a chassis-type which does not indicate it is
-a convertible, while it is actually a convertible. Add it to the
-dmi_switches_allow_list.
+Debounce filter setting should be independent from IRQ type setting
+because according to the ACPI specs, there are separate arguments for
+specifying debounce timeout and IRQ type in GpioIo() and GpioInt().
 
-Signed-off-by: Max Verevkin <me@maxverevkin.tk>
-Link: https://lore.kernel.org/r/20201124131652.11165-1-me@maxverevkin.tk
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Together with commit 06abe8291bc31839950f7d0362d9979edc88a666
+("pinctrl: amd: fix incorrect way to disable debounce filter") and
+Andy's patch "gpiolib: acpi: Take into account debounce settings" [1],
+this will fix broken touchpads for laptops whose BIOS set the
+debounce timeout to a relatively large value. For example, the BIOS
+of Lenovo AMD gaming laptops including Legion-5 15ARH05 (R7000),
+Legion-5P (R7000P) and IdeaPad Gaming 3 15ARH05, set the debounce
+timeout to 124.8ms. This led to the kernel receiving only ~7 HID
+reports per second from the Synaptics touchpad
+(MSFT0001:00 06CB:7F28).
+
+Existing touchpads like [2][3] are not troubled by this bug because
+the debounce timeout has been set to 0 by the BIOS before enabling
+the debounce filter in setting IRQ type.
+
+[1] https://lore.kernel.org/linux-gpio/20201111222008.39993-11-andriy.shevchenko@linux.intel.com/
+    8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
+[2] https://github.com/Syniurge/i2c-amd-mp2/issues/11#issuecomment-721331582
+[3] https://forum.manjaro.org/t/random-short-touchpad-freezes/30832/28
+
+Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-gpio/CAHp75VcwiGREBUJ0A06EEw-SyabqYsp%2Bdqs2DpSrhaY-2GVdAA%40mail.gmail.com/
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
+Link: https://lore.kernel.org/r/20201125130320.311059-1-coiby.xu@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/intel-vbtn.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 1e6b4661c7645..3aba207ee1745 100644
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -197,6 +197,12 @@ static const struct dmi_system_id dmi_switches_allow_list[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Stream x360 Convertible PC 11"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
-+		},
-+	},
- 	{} /* Array terminator */
- };
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -439,7 +439,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
  
--- 
-2.27.0
-
+@@ -447,7 +446,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 
+@@ -455,7 +453,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= BOTH_EADGE << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 
+@@ -463,8 +460,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 
+@@ -472,8 +467,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_HIGH_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 
 
 
