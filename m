@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00FB2E38FF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F30AB2E3A20
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731574AbgL1NRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:17:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45890 "EHLO mail.kernel.org"
+        id S2387769AbgL1Ncj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:32:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731571AbgL1NRb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:17:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7469322AAD;
-        Mon, 28 Dec 2020 13:16:50 +0000 (UTC)
+        id S2391053AbgL1Ncg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:32:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CF2720728;
+        Mon, 28 Dec 2020 13:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161411;
-        bh=6H5pjMjHihSttCdD9uwYDZanw03bglRNU90wlsoq1jY=;
+        s=korg; t=1609162316;
+        bh=g96etGiV2d5ehJX+/Xag/V1VghQcs7dqNcLvQJaaCA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sj1nO9C9I6pjLtbKm7F6dISnhHeTOHkQkjq/w1hkFn5anYMvt4N8BKFhj+FZfWZ+n
-         txnNBHKzSkghHOqIJDkN/Xk0SMQlxtrMLtURRzCuLKmTd5Ny3KmlDX4C1lw/MwqUzv
-         3nPIiQoF1SZzaY4hWpvjOvNyANiI2nfDPWPg1AN4=
+        b=pV2MRNy8/ojOzNctL5aJ+oNQ0fc7XdbU8fnec82kkRdX3Pd2Zwd2RKGwXy5u/ct6D
+         27023r4OgUomoq/b5LIP+fUpEh/G6Mu9B6FqA9TpYYk/7lF/O7AyiY+8Pq8sY359Fo
+         bnyOxpVZDq/tTTw72xHgEHKOPFEE0+fyXKNjdFdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 175/242] clk: s2mps11: Fix a resource leak in error handling paths in the probe function
-Date:   Mon, 28 Dec 2020 13:49:40 +0100
-Message-Id: <20201228124913.317558443@linuxfoundation.org>
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 262/346] media: ipu3-cio2: Return actual subdev format
+Date:   Mon, 28 Dec 2020 13:49:41 +0100
+Message-Id: <20201228124932.437369100@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit d2d94fc567624f96187e8b52083795620f93e69f ]
+commit 8160e86702e0807bd36d40f82648f9f9820b9d5a upstream.
 
-Some resource should be released in the error handling path of the probe
-function, as already done in the remove function.
+Return actual subdev format on ipu3-cio2 subdev pads. The earlier
+implementation was based on an infinite recursion that exhausted the
+stack.
 
-The remove function was fixed in commit bf416bd45738 ("clk: s2mps11: Add
-missing of_node_put and of_clk_del_provider")
+Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
+Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable@vger.kernel.org # v4.16 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 7cc560dea415 ("clk: s2mps11: Add support for s2mps11")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212122818.86195-1-christophe.jaillet@wanadoo.fr
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-s2mps11.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/pci/intel/ipu3/ipu3-cio2.c |   24 +++---------------------
+ 1 file changed, 3 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index f5d74e8db4327..1803af6230b27 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -211,6 +211,7 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
- 	return ret;
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
+@@ -1246,29 +1246,11 @@ static int cio2_subdev_get_fmt(struct v4
+ 			       struct v4l2_subdev_format *fmt)
+ {
+ 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
+-	struct v4l2_subdev_format format;
+-	int ret;
  
- err_reg:
-+	of_node_put(s2mps11_clks[0].clk_np);
- 	while (--i >= 0)
- 		clkdev_drop(s2mps11_clks[i].lookup);
+-	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
++	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
+ 		fmt->format = *v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
+-		return 0;
+-	}
+-
+-	if (fmt->pad == CIO2_PAD_SINK) {
+-		format.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-		ret = v4l2_subdev_call(sd, pad, get_fmt, NULL,
+-				       &format);
+-
+-		if (ret)
+-			return ret;
+-		/* update colorspace etc */
+-		q->subdev_fmt.colorspace = format.format.colorspace;
+-		q->subdev_fmt.ycbcr_enc = format.format.ycbcr_enc;
+-		q->subdev_fmt.quantization = format.format.quantization;
+-		q->subdev_fmt.xfer_func = format.format.xfer_func;
+-	}
+-
+-	fmt->format = q->subdev_fmt;
++	else
++		fmt->format = q->subdev_fmt;
  
--- 
-2.27.0
-
+ 	return 0;
+ }
 
 
