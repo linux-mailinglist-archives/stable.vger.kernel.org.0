@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 860E62E42D3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 247C82E3E85
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406788AbgL1N47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:56:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57810 "EHLO mail.kernel.org"
+        id S2503369AbgL1O3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:29:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407634AbgL1N4J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2842B206D4;
-        Mon, 28 Dec 2020 13:55:27 +0000 (UTC)
+        id S2392094AbgL1O3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D9520791;
+        Mon, 28 Dec 2020 14:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163728;
-        bh=tKqsXdFU/NeplTA1uxAAQHyltAEXFIkAEkoqLe0Zp2M=;
+        s=korg; t=1609165705;
+        bh=0mA020p+l0nBuEoHzeLGKy4wgdjQDlB+neXTbKoMuh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7xotaSCV0t56YpzONBb7MTOdnMuwH4gESIF7cgKbm60oU63dde8EDjq7illbJtSi
-         8xCmPae1wPcCioRR6GeSOvhCa8RftEaKRXBpkOBzSXeGtyElD/24hJ8yrtn+zUS4rO
-         Ld9m9csjFOAUjCowE1bC2E6ieDSIH0vVG558kLJM=
+        b=nnTP3zUe7rNeSA5DFr8ZRXGW9vdtxsKkVFyjOdpN5MUtTjQpi6q6Od6Pm9UUnQ/76
+         I6x2aziOsvNC3tBtdBOyEWgClWtWnXRz9M16TbXBwMvV5Il/P/XyuaMTA4xeYE2O4b
+         AvsePAciyC7GlpSFYHxeqiYOSsGWDWJpRsIm5YW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 388/453] powerpc/powernv/memtrace: Fix crashing the kernel when enabling concurrently
+        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        Zhihao Cheng <chengzhihao1@huawei.com>
+Subject: [PATCH 5.10 626/717] ubifs: wbuf: Dont leak kernel memory to flash
 Date:   Mon, 28 Dec 2020 13:50:24 +0100
-Message-Id: <20201228124955.874536718@linuxfoundation.org>
+Message-Id: <20201228125050.910992367@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,96 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Richard Weinberger <richard@nod.at>
 
-commit d6718941a2767fb383e105d257d2105fe4f15f0e upstream.
+commit 20f1431160c6b590cdc269a846fc5a448abf5b98 upstream.
 
-It's very easy to crash the kernel right now by simply trying to
-enable memtrace concurrently, hammering on the "enable" interface
+Write buffers use a kmalloc()'ed buffer, they can leak
+up to seven bytes of kernel memory to flash if writes are not
+aligned.
+So use ubifs_pad() to fill these gaps with padding bytes.
+This was never a problem while scanning because the scanner logic
+manually aligns node lengths and skips over these gaps.
 
-loop.sh:
-  #!/bin/bash
-
-  dmesg --console-off
-
-  while true; do
-          echo 0x40000000 > /sys/kernel/debug/powerpc/memtrace/enable
-  done
-
-[root@localhost ~]# loop.sh &
-[root@localhost ~]# loop.sh &
-
-Resulting quickly in a kernel crash. Let's properly protect using a
-mutex.
-
-Fixes: 9d5171a8f248 ("powerpc/powernv: Enable removal of memory for in memory tracing")
-Cc: stable@vger.kernel.org# v4.14+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201111145322.15793-3-david@redhat.com
+Cc: <stable@vger.kernel.org>
+Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/memtrace.c |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ fs/ubifs/io.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/memtrace.c
-+++ b/arch/powerpc/platforms/powernv/memtrace.c
-@@ -30,6 +30,7 @@ struct memtrace_entry {
- 	char name[16];
- };
- 
-+static DEFINE_MUTEX(memtrace_mutex);
- static u64 memtrace_size;
- 
- static struct memtrace_entry *memtrace_array;
-@@ -290,6 +291,7 @@ static int memtrace_online(void)
- 
- static int memtrace_enable_set(void *data, u64 val)
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -319,7 +319,7 @@ void ubifs_pad(const struct ubifs_info *
  {
-+	int rc = -EAGAIN;
- 	u64 bytes;
+ 	uint32_t crc;
  
- 	/*
-@@ -302,25 +304,31 @@ static int memtrace_enable_set(void *dat
- 		return -EINVAL;
+-	ubifs_assert(c, pad >= 0 && !(pad & 7));
++	ubifs_assert(c, pad >= 0);
+ 
+ 	if (pad >= UBIFS_PAD_NODE_SZ) {
+ 		struct ubifs_ch *ch = buf;
+@@ -764,6 +764,10 @@ int ubifs_wbuf_write_nolock(struct ubifs
+ 		 * write-buffer.
+ 		 */
+ 		memcpy(wbuf->buf + wbuf->used, buf, len);
++		if (aligned_len > len) {
++			ubifs_assert(c, aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
++		}
+ 
+ 		if (aligned_len == wbuf->avail) {
+ 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
+@@ -856,13 +860,18 @@ int ubifs_wbuf_write_nolock(struct ubifs
  	}
  
-+	mutex_lock(&memtrace_mutex);
-+
- 	/* Re-add/online previously removed/offlined memory */
- 	if (memtrace_size) {
- 		if (memtrace_online())
--			return -EAGAIN;
-+			goto out_unlock;
- 	}
- 
--	if (!val)
--		return 0;
-+	if (!val) {
-+		rc = 0;
-+		goto out_unlock;
+ 	spin_lock(&wbuf->lock);
+-	if (aligned_len)
++	if (aligned_len) {
+ 		/*
+ 		 * And now we have what's left and what does not take whole
+ 		 * max. write unit, so write it to the write-buffer and we are
+ 		 * done.
+ 		 */
+ 		memcpy(wbuf->buf, buf + written, len);
++		if (aligned_len > len) {
++			ubifs_assert(c, aligned_len - len < 8);
++			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
++		}
 +	}
  
- 	/* Offline and remove memory */
- 	if (memtrace_init_regions_runtime(val))
--		return -EINVAL;
-+		goto out_unlock;
- 
- 	if (memtrace_init_debugfs())
--		return -EINVAL;
-+		goto out_unlock;
- 
- 	memtrace_size = val;
--
--	return 0;
-+	rc = 0;
-+out_unlock:
-+	mutex_unlock(&memtrace_mutex);
-+	return rc;
- }
- 
- static int memtrace_enable_get(void *data, u64 *val)
+ 	if (c->leb_size - wbuf->offs >= c->max_write_size)
+ 		wbuf->size = c->max_write_size;
 
 
