@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8724A2E39DB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:29:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AEC22E4339
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390041AbgL1N3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:29:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57918 "EHLO mail.kernel.org"
+        id S2408460AbgL1PeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:34:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390038AbgL1N3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:29:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7370220719;
-        Mon, 28 Dec 2020 13:28:23 +0000 (UTC)
+        id S2406391AbgL1Nuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8405622AAA;
+        Mon, 28 Dec 2020 13:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162104;
-        bh=qKwE2ffxQnfLCva+KcH4WrTx/mX+J3ciHHM/D35DFV4=;
+        s=korg; t=1609163402;
+        bh=9/u1tfMPEVt67nmI4SkUXtwtNr5voLRc4WjZV+Ess7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppDp6DnsKOl0fXZwu1m4Sf9UVmQnuNdgVHlESIdrTHXgEbH2EY7oKMP1cv6ZG82Yo
-         Ck4As52K3Ty93bIJuHc48wIZ97w9Dl+ObNW2PEjCDhFKevjU/o4trvMKkRcPPFvF+b
-         1cFgdBx1xiOn/5WXAnwLC3EswTqa4yFQh25eFCF8=
+        b=k2Rl5SYwtoMcdZ5soztajBtNIi5PQPNmjdxgU/8tzYztOwPonDFRXtfNDtLbx25Gw
+         QNb74AH5xQZXw4GH7sgZUoXrXQL0QXkyCMFb0ag+tEGC+SlMBI6lhdYZC4IHTy5UNk
+         xt7DUuvsJYVgh5+a76j8kjHC3EjBsNF2Gp+T4X70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/346] Input: omap4-keypad - fix runtime PM error handling
+Subject: [PATCH 5.4 242/453] seq_buf: Avoid type mismatch for seq_buf_init
 Date:   Mon, 28 Dec 2020 13:47:58 +0100
-Message-Id: <20201228124927.474177671@linuxfoundation.org>
+Message-Id: <20201228124948.870144409@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,200 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 59bbf83835f591b95c3bdd09d900f3584fa227af ]
+[ Upstream commit d9a9280a0d0ae51dc1d4142138b99242b7ec8ac6 ]
 
-In omap4_keypad_probe, the patch fix several bugs.
+Building with W=2 prints a number of warnings for one function that
+has a pointer type mismatch:
 
-  1) pm_runtime_get_sync will increment pm usage counter even it
-     failed. Forgetting to pm_runtime_put_noidle will result in
-     reference leak.
+linux/seq_buf.h: In function 'seq_buf_init':
+linux/seq_buf.h:35:12: warning: pointer targets in assignment from 'unsigned char *' to 'char *' differ in signedness [-Wpointer-sign]
 
-  2) In err_unmap, forget to disable runtime of device,
-     pm_runtime_enable will increase power disable depth. Thus a
-     pairing decrement is needed on the error handling path to keep
-     it balanced.
+Change the type in the function prototype according to the type in
+the structure.
 
-  3) In err_pm_disable, it will call pm_runtime_put_sync twice not
-     one time.
+Link: https://lkml.kernel.org/r/20201026161108.3707783-1-arnd@kernel.org
 
-To fix this we factor out code reading revision and disabling touchpad, and
-drop PM reference once we are done talking to the device.
-
-Fixes: f77621cc640a7 ("Input: omap-keypad - dynamically handle register offsets")
-Fixes: 5ad567ffbaf20 ("Input: omap4-keypad - wire up runtime PM handling")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201120133918.2559681-1-zhangqilong3@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 9a7777935c34 ("tracing: Convert seq_buf fields to be like seq_file fields")
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/omap4-keypad.c | 89 ++++++++++++++++-----------
- 1 file changed, 53 insertions(+), 36 deletions(-)
+ include/linux/seq_buf.h   | 2 +-
+ include/linux/trace_seq.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index aeeef50cef9bb..adb1ecc969eeb 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -199,12 +199,8 @@ static int omap4_keypad_open(struct input_dev *input)
- 	return 0;
+diff --git a/include/linux/seq_buf.h b/include/linux/seq_buf.h
+index aa5deb041c25d..7cc952282e8be 100644
+--- a/include/linux/seq_buf.h
++++ b/include/linux/seq_buf.h
+@@ -30,7 +30,7 @@ static inline void seq_buf_clear(struct seq_buf *s)
  }
  
--static void omap4_keypad_close(struct input_dev *input)
-+static void omap4_keypad_stop(struct omap4_keypad *keypad_data)
+ static inline void
+-seq_buf_init(struct seq_buf *s, unsigned char *buf, unsigned int size)
++seq_buf_init(struct seq_buf *s, char *buf, unsigned int size)
  {
--	struct omap4_keypad *keypad_data = input_get_drvdata(input);
--
--	disable_irq(keypad_data->irq);
--
- 	/* Disable interrupts and wake-up events */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
- 			 OMAP4_VAL_IRQDISABLE);
-@@ -213,7 +209,15 @@ static void omap4_keypad_close(struct input_dev *input)
- 	/* clear pending interrupts */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
- 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
-+}
-+
-+static void omap4_keypad_close(struct input_dev *input)
-+{
-+	struct omap4_keypad *keypad_data;
+ 	s->buffer = buf;
+ 	s->size = size;
+diff --git a/include/linux/trace_seq.h b/include/linux/trace_seq.h
+index 6609b39a72326..6db257466af68 100644
+--- a/include/linux/trace_seq.h
++++ b/include/linux/trace_seq.h
+@@ -12,7 +12,7 @@
+  */
  
-+	keypad_data = input_get_drvdata(input);
-+	disable_irq(keypad_data->irq);
-+	omap4_keypad_stop(keypad_data);
- 	enable_irq(keypad_data->irq);
- 
- 	pm_runtime_put_sync(input->dev.parent);
-@@ -236,13 +240,37 @@ static int omap4_keypad_parse_dt(struct device *dev,
- 	return 0;
- }
- 
-+static int omap4_keypad_check_revision(struct device *dev,
-+				       struct omap4_keypad *keypad_data)
-+{
-+	unsigned int rev;
-+
-+	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
-+	rev &= 0x03 << 30;
-+	rev >>= 30;
-+	switch (rev) {
-+	case KBD_REVISION_OMAP4:
-+		keypad_data->reg_offset = 0x00;
-+		keypad_data->irqreg_offset = 0x00;
-+		break;
-+	case KBD_REVISION_OMAP5:
-+		keypad_data->reg_offset = 0x10;
-+		keypad_data->irqreg_offset = 0x0c;
-+		break;
-+	default:
-+		dev_err(dev, "Keypad reports unsupported revision %d", rev);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int omap4_keypad_probe(struct platform_device *pdev)
+ struct trace_seq {
+-	unsigned char		buffer[PAGE_SIZE];
++	char			buffer[PAGE_SIZE];
+ 	struct seq_buf		seq;
+ 	int			full;
+ };
+@@ -51,7 +51,7 @@ static inline int trace_seq_used(struct trace_seq *s)
+  * that is about to be written to and then return the result
+  * of that write.
+  */
+-static inline unsigned char *
++static inline char *
+ trace_seq_buffer_ptr(struct trace_seq *s)
  {
- 	struct omap4_keypad *keypad_data;
- 	struct input_dev *input_dev;
- 	struct resource *res;
- 	unsigned int max_keys;
--	int rev;
- 	int irq;
- 	int error;
- 
-@@ -282,41 +310,33 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 		goto err_release_mem;
- 	}
- 
-+	pm_runtime_enable(&pdev->dev);
- 
- 	/*
- 	 * Enable clocks for the keypad module so that we can read
- 	 * revision register.
- 	 */
--	pm_runtime_enable(&pdev->dev);
- 	error = pm_runtime_get_sync(&pdev->dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "pm_runtime_get_sync() failed\n");
--		goto err_unmap;
--	}
--	rev = __raw_readl(keypad_data->base + OMAP4_KBD_REVISION);
--	rev &= 0x03 << 30;
--	rev >>= 30;
--	switch (rev) {
--	case KBD_REVISION_OMAP4:
--		keypad_data->reg_offset = 0x00;
--		keypad_data->irqreg_offset = 0x00;
--		break;
--	case KBD_REVISION_OMAP5:
--		keypad_data->reg_offset = 0x10;
--		keypad_data->irqreg_offset = 0x0c;
--		break;
--	default:
--		dev_err(&pdev->dev,
--			"Keypad reports unsupported revision %d", rev);
--		error = -EINVAL;
--		goto err_pm_put_sync;
-+		pm_runtime_put_noidle(&pdev->dev);
-+	} else {
-+		error = omap4_keypad_check_revision(&pdev->dev,
-+						    keypad_data);
-+		if (!error) {
-+			/* Ensure device does not raise interrupts */
-+			omap4_keypad_stop(keypad_data);
-+		}
-+		pm_runtime_put_sync(&pdev->dev);
- 	}
-+	if (error)
-+		goto err_pm_disable;
- 
- 	/* input device allocation */
- 	keypad_data->input = input_dev = input_allocate_device();
- 	if (!input_dev) {
- 		error = -ENOMEM;
--		goto err_pm_put_sync;
-+		goto err_pm_disable;
- 	}
- 
- 	input_dev->name = pdev->name;
-@@ -362,28 +382,25 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 		goto err_free_keymap;
- 	}
- 
--	device_init_wakeup(&pdev->dev, true);
--	pm_runtime_put_sync(&pdev->dev);
--
- 	error = input_register_device(keypad_data->input);
- 	if (error < 0) {
- 		dev_err(&pdev->dev, "failed to register input device\n");
--		goto err_pm_disable;
-+		goto err_free_irq;
- 	}
- 
-+	device_init_wakeup(&pdev->dev, true);
- 	platform_set_drvdata(pdev, keypad_data);
-+
- 	return 0;
- 
--err_pm_disable:
--	pm_runtime_disable(&pdev->dev);
-+err_free_irq:
- 	free_irq(keypad_data->irq, keypad_data);
- err_free_keymap:
- 	kfree(keypad_data->keymap);
- err_free_input:
- 	input_free_device(input_dev);
--err_pm_put_sync:
--	pm_runtime_put_sync(&pdev->dev);
--err_unmap:
-+err_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
- 	iounmap(keypad_data->base);
- err_release_mem:
- 	release_mem_region(res->start, resource_size(res));
+ 	return s->buffer + seq_buf_used(&s->seq);
 -- 
 2.27.0
 
