@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEB52E37D3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E34412E4016
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729751AbgL1NBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:01:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S2502744AbgL1OWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:22:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729610AbgL1NBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:01:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B19FF22B40;
-        Mon, 28 Dec 2020 13:00:20 +0000 (UTC)
+        id S2502740AbgL1OWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:22:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A46D20731;
+        Mon, 28 Dec 2020 14:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160421;
-        bh=5bGTUm81ag/3S89yN7MpSFV2B8qeibKXJ+LYrlFFpEI=;
+        s=korg; t=1609165353;
+        bh=NQWHQvaQphVXKPh//J8vr+afTSGvyzyE21jpRPHA51s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyc3zPOzVh7QvCEZaqV1L5s+FKxNLPeyxlZ9xu05qxxK9SyIUBzE9OcVUKrlE3I/W
-         tehYHoWg9K5dWbpD4CZweAACe7XKB70giWYY6oGTvZseZPYQA7aMw55fJsLbtd2XMy
-         /NjlcpcsTChdhQexbhTqM2U7qA+Pcf86iwIQfURI=
+        b=JvgvpDxKCL9IUX0CIIFktmc8Cg0GFt51yzWTGhEhkNjI3mo4nfwIMk4ks7ZfsIpvE
+         g/MRGGB44+B08r1EH8o2D+wfpT92WD9P4aCIiHvFLblSZCO0c3GC2no/X1/WVMr0k/
+         RrAi4SKhw1Q4nkxHGdB7BQhyPAsqPYnBEWwPRbUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.9 045/175] HID: i2c-hid: add Vero K147 to descriptor override
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 500/717] kconfig: fix return value of do_error_if()
 Date:   Mon, 28 Dec 2020 13:48:18 +0100
-Message-Id: <20201228124855.436560568@linuxfoundation.org>
+Message-Id: <20201228125044.918338618@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit c870d50ce387d84b6438211a7044c60afbd5d60a upstream.
+[ Upstream commit 135b4957eac43af2aedf8e2a277b9540f33c2558 ]
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+$(error-if,...) is expanded to an empty string. Currently, it relies on
+eval_clause() returning xstrdup("") when all attempts for expansion fail,
+but the correct implementation is to make do_error_if() return xstrdup("").
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1d6272e6fe43 ("kconfig: add 'info', 'warning-if', and 'error-if' built-in functions")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ scripts/kconfig/preprocess.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -397,6 +397,14 @@ static const struct dmi_system_id i2c_hi
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Vero K147",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VERO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "K147"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+diff --git a/scripts/kconfig/preprocess.c b/scripts/kconfig/preprocess.c
+index 0243086fb1685..0590f86df6e40 100644
+--- a/scripts/kconfig/preprocess.c
++++ b/scripts/kconfig/preprocess.c
+@@ -114,7 +114,7 @@ static char *do_error_if(int argc, char *argv[])
+ 	if (!strcmp(argv[0], "y"))
+ 		pperror("%s", argv[1]);
  
+-	return NULL;
++	return xstrdup("");
+ }
+ 
+ static char *do_filename(int argc, char *argv[])
+-- 
+2.27.0
+
 
 
