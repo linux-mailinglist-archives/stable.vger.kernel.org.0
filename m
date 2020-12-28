@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDB32E3B34
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F17E2E402D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:49:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405584AbgL1NrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:47:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48108 "EHLO mail.kernel.org"
+        id S2437879AbgL1Osi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:48:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405577AbgL1NrR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:47:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A6520715;
-        Mon, 28 Dec 2020 13:46:59 +0000 (UTC)
+        id S2441675AbgL1OWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:22:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E80F229C4;
+        Mon, 28 Dec 2020 14:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163220;
-        bh=7iq1jFOVbu7dF/nXyYGnkDMfJPURiuAwBZkAmU03LIY=;
+        s=korg; t=1609165291;
+        bh=gDMSkKdkI6DuwgGljiqXB6oVSHWFOZH1OMuzsX0sd3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHx+Izs8tcj1C9pd9nsffR9A5R3rchpANhrdd3y3DilWHRzDcxRhUGqzAJxRFUcLi
-         PyVaRs0gUgmG9fkZ/ZlOceJXHOXwiwjsWNzUKRsdlzp//CojwKpeeHJJRldKuUh1Ww
-         Zczf3GalahB8KZ3zBHmw7Y1rmCIdyRePp+lp5oH8=
+        b=TxcLn54tm+T52zNvjH3fXEpVmF24GHvwZZu6s0f7CPjngvyU1AkLf8097kMuG0bFr
+         PgTWwyK/xP2MkaF0ekyWSa0vcSbB/aifXweFlE3Y+bolRfRmL1ICDY086tvzPMX5pL
+         AwyCT0a9zqAcIpnSMOaQ+lnFLdS6EK6LBOGSnAS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Chris Down <chris@chrisdown.name>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/453] clocksource/drivers/orion: Add missing clk_disable_unprepare() on error path
+Subject: [PATCH 5.10 450/717] mm: memcg/slab: fix use after free in obj_cgroup_charge
 Date:   Mon, 28 Dec 2020 13:47:28 +0100
-Message-Id: <20201228124947.420945137@linuxfoundation.org>
+Message-Id: <20201228125042.539219061@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +50,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit c1e6cad00aa2f17845e7270e38ff3cc82c7b022a ]
+[ Upstream commit eefbfa7fd678805b38a46293e78543f98f353d3e ]
 
-After calling clk_prepare_enable(), clk_disable_unprepare() need
-be called on error path.
+The rcu_read_lock/unlock only can guarantee that the memcg will not be
+freed, but it cannot guarantee the success of css_get to memcg.
 
-Fixes: fbe4b3566ddc ("clocksource/drivers/orion: Convert init function...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201111064706.3397156-1-yangyingliang@huawei.com
+If the whole process of a cgroup offlining is completed between reading a
+objcg->memcg pointer and bumping the css reference on another CPU, and
+there are exactly 0 external references to this memory cgroup (how we get
+to the obj_cgroup_charge() then?), css_get() can change the ref counter
+from 0 back to 1.
+
+Link: https://lkml.kernel.org/r/20201028035013.99711-2-songmuchun@bytedance.com
+Fixes: bf4f059954dc ("mm: memcg/slab: obj_cgroup API")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Yafang Shao <laoar.shao@gmail.com>
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-orion.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ mm/memcontrol.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-orion.c b/drivers/clocksource/timer-orion.c
-index 7d487107e3cd8..32b2563e2ad1b 100644
---- a/drivers/clocksource/timer-orion.c
-+++ b/drivers/clocksource/timer-orion.c
-@@ -149,7 +149,8 @@ static int __init orion_timer_init(struct device_node *np)
- 	irq = irq_of_parse_and_map(np, 1);
- 	if (irq <= 0) {
- 		pr_err("%pOFn: unable to parse timer1 irq\n", np);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out_unprep_clk;
- 	}
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 74b85077f89ad..a717728cc7b4a 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -3247,8 +3247,10 @@ int obj_cgroup_charge(struct obj_cgroup *objcg, gfp_t gfp, size_t size)
+ 	 * independently later.
+ 	 */
+ 	rcu_read_lock();
++retry:
+ 	memcg = obj_cgroup_memcg(objcg);
+-	css_get(&memcg->css);
++	if (unlikely(!css_tryget(&memcg->css)))
++		goto retry;
+ 	rcu_read_unlock();
  
- 	rate = clk_get_rate(clk);
-@@ -166,7 +167,7 @@ static int __init orion_timer_init(struct device_node *np)
- 				    clocksource_mmio_readl_down);
- 	if (ret) {
- 		pr_err("Failed to initialize mmio timer\n");
--		return ret;
-+		goto out_unprep_clk;
- 	}
- 
- 	sched_clock_register(orion_read_sched_clock, 32, rate);
-@@ -175,7 +176,7 @@ static int __init orion_timer_init(struct device_node *np)
- 	ret = setup_irq(irq, &orion_clkevt_irq);
- 	if (ret) {
- 		pr_err("%pOFn: unable to setup irq\n", np);
--		return ret;
-+		goto out_unprep_clk;
- 	}
- 
- 	ticks_per_jiffy = (clk_get_rate(clk) + HZ/2) / HZ;
-@@ -188,5 +189,9 @@ static int __init orion_timer_init(struct device_node *np)
- 	orion_delay_timer_init(rate);
- 
- 	return 0;
-+
-+out_unprep_clk:
-+	clk_disable_unprepare(clk);
-+	return ret;
- }
- TIMER_OF_DECLARE(orion_timer, "marvell,orion-timer", orion_timer_init);
+ 	nr_pages = size >> PAGE_SHIFT;
 -- 
 2.27.0
 
