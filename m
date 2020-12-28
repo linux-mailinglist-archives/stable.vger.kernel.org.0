@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C5F2E42D4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A09D2E390D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387569AbgL1N5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57968 "EHLO mail.kernel.org"
+        id S1731724AbgL1NSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407797AbgL1N4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 848A120795;
-        Mon, 28 Dec 2020 13:55:33 +0000 (UTC)
+        id S1731718AbgL1NSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 082FA206ED;
+        Mon, 28 Dec 2020 13:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163734;
-        bh=6V6iKFoAGv1qM3dVP0Nqu5Bfj6BGNAOmEN7TAaGxpKI=;
+        s=korg; t=1609161457;
+        bh=U8Fj+ddiucHY5sTsAIB4Yu2qi5hTr4vuPIsYSreRKfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iwCvfoHU3ajm0gMyMVEkSVfyQN9tWgWXOdDR3HpvrM+Ywh28jGRNpGQCTDNWLqhsh
-         7ST4xSnYdXFWPreidIHtllXCzs5tuI5DDxzn83WYazTcTR0naJDcA1bTMfl/b3CJEU
-         USzRvmfaVBIuJQq7zmL9dia1ujFFVdxXvDcNfsIs=
+        b=g3OkQenCtAWopf41wvMq8CGTAc7V12QXP7/kxcSRybFuoys2h6zPyuj5tHvPZ2J68
+         2ajfqoMEawfLzHM8CIx11e1ieEqxPbjBcJN+SR2ljZ3qGMuEVLMJAt5Qn7CQd0u0g3
+         44WfyfM6gYyq/YZPZXVIMGNjyrPwjUZjOQ2pokhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.4 389/453] ima: Dont modify file descriptor mode on the fly
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 220/242] spi: spi-sh: Fix use-after-free on unbind
 Date:   Mon, 28 Dec 2020 13:50:25 +0100
-Message-Id: <20201228124955.924931778@linuxfoundation.org>
+Message-Id: <20201228124915.504236405@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 207cdd565dfc95a0a5185263a567817b7ebf5467 upstream.
+commit e77df3eca12be4b17f13cf9f215cff248c57d98f upstream.
 
-Commit a408e4a86b36b ("ima: open a new file instance if no read
-permissions") already introduced a second open to measure a file when the
-original file descriptor does not allow it. However, it didn't remove the
-existing method of changing the mode of the original file descriptor, which
-is still necessary if the current process does not have enough privileges
-to open a new one.
+spi_sh_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Changing the mode isn't really an option, as the filesystem might need to
-do preliminary steps to make the read possible. Thus, this patch removes
-the code and keeps the second open as the only option to measure a file
-when it is unreadable with the original file descriptor.
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-Cc: <stable@vger.kernel.org> # 4.20.x: 0014cc04e8ec0 ima: Set file->f_mode
-Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 680c1305e259 ("spi/spi_sh: use spi_unregister_master instead of spi_master_put in remove path")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v3.0+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v3.0+
+Cc: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/6d97628b536baf01d5e3e39db61108f84d44c8b2.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima_crypto.c |   20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ drivers/spi/spi-sh.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -411,7 +411,7 @@ int ima_calc_file_hash(struct file *file
- 	loff_t i_size;
- 	int rc;
- 	struct file *f = file;
--	bool new_file_instance = false, modified_mode = false;
-+	bool new_file_instance = false;
- 
- 	/*
- 	 * For consistency, fail file's opened with the O_DIRECT flag on
-@@ -429,18 +429,10 @@ int ima_calc_file_hash(struct file *file
- 				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
- 		flags |= O_RDONLY;
- 		f = dentry_open(&file->f_path, flags, file->f_cred);
--		if (IS_ERR(f)) {
--			/*
--			 * Cannot open the file again, lets modify f_mode
--			 * of original and continue
--			 */
--			pr_info_ratelimited("Unable to reopen file for reading.\n");
--			f = file;
--			f->f_mode |= FMODE_READ;
--			modified_mode = true;
--		} else {
--			new_file_instance = true;
--		}
-+		if (IS_ERR(f))
-+			return PTR_ERR(f);
-+
-+		new_file_instance = true;
+--- a/drivers/spi/spi-sh.c
++++ b/drivers/spi/spi-sh.c
+@@ -450,7 +450,7 @@ static int spi_sh_probe(struct platform_
+ 		return irq;
  	}
  
- 	i_size = i_size_read(file_inode(f));
-@@ -455,8 +447,6 @@ int ima_calc_file_hash(struct file *file
- out:
- 	if (new_file_instance)
- 		fput(f);
--	else if (modified_mode)
--		f->f_mode &= ~FMODE_READ;
- 	return rc;
+-	master = spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
+ 	if (master == NULL) {
+ 		dev_err(&pdev->dev, "spi_alloc_master error.\n");
+ 		return -ENOMEM;
+@@ -468,16 +468,14 @@ static int spi_sh_probe(struct platform_
+ 		break;
+ 	default:
+ 		dev_err(&pdev->dev, "No support width\n");
+-		ret = -ENODEV;
+-		goto error1;
++		return -ENODEV;
+ 	}
+ 	ss->irq = irq;
+ 	ss->master = master;
+ 	ss->addr = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+ 	if (ss->addr == NULL) {
+ 		dev_err(&pdev->dev, "ioremap error.\n");
+-		ret = -ENOMEM;
+-		goto error1;
++		return -ENOMEM;
+ 	}
+ 	INIT_LIST_HEAD(&ss->queue);
+ 	spin_lock_init(&ss->lock);
+@@ -487,7 +485,7 @@ static int spi_sh_probe(struct platform_
+ 	ret = request_irq(irq, spi_sh_irq, 0, "spi_sh", ss);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "request_irq error\n");
+-		goto error1;
++		return ret;
+ 	}
+ 
+ 	master->num_chipselect = 2;
+@@ -506,9 +504,6 @@ static int spi_sh_probe(struct platform_
+ 
+  error3:
+ 	free_irq(irq, ss);
+- error1:
+-	spi_master_put(master);
+-
+ 	return ret;
  }
  
 
