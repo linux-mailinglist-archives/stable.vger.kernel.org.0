@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF712E6690
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB46C2E68BE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732884AbgL1NS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47174 "EHLO mail.kernel.org"
+        id S1729149AbgL1M60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732869AbgL1NS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D65206ED;
-        Mon, 28 Dec 2020 13:18:39 +0000 (UTC)
+        id S1728140AbgL1M6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FDDB22583;
+        Mon, 28 Dec 2020 12:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161520;
-        bh=r9xCeAMs5iAVd1Tko00oM32AUvZdGbhJW/nO/a7uMbc=;
+        s=korg; t=1609160290;
+        bh=DmmkrcitPC7QTS2tPwHnuEaW7XBeQ9vxE83FylVSuew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMBJh1dhbMm5ld/YIXjdBYQYUTRN8Zp3UYQ5Ek3M0cSBb/b+Z+vdiKZ/bGw6f8uGV
-         OrfFX/UpfZ1ZBZkRHWckprJWrLiA1f+nV6p7cORDrDU5RH7r+gSMDMrF5Un9q7tVR+
-         j1QnL2pbUwFnCx6C7+zF7gDvwaIRP+YRPJSwiVaA=
+        b=CmdCWThufnTr+k+ZQmeKrlnbNJLpZLpVtS2R+qI+gAdS6UYz73DOQNu+m/zHnOmQ4
+         9Hz0NybqlGpQu3Y9afbvUFiAV3zGaJ7HxpdbBF9eukZ9XB0+TFKmjgBdgEjqgGnCeb
+         Lc7c252JRRdeMaJcVicli24GXNnPw/OhNnSNCxhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 201/242] USB: serial: keyspan_pda: fix write deadlock
+        stable@vger.kernel.org, Dave Kleikamp <dave.kleikamp@oracle.com>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Subject: [PATCH 4.4 122/132] jfs: Fix array index bounds check in dbAdjTree
 Date:   Mon, 28 Dec 2020 13:50:06 +0100
-Message-Id: <20201228124914.573434701@linuxfoundation.org>
+Message-Id: <20201228124852.314292969@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dave Kleikamp <dave.kleikamp@oracle.com>
 
-commit 7353cad7ee4deaefc16e94727e69285563e219f6 upstream.
+commit c61b3e4839007668360ed8b87d7da96d2e59fc6c upstream.
 
-The write() callback can be called in interrupt context (e.g. when used
-as a console) so interrupts must be disabled while holding the port lock
-to prevent a possible deadlock.
+Bounds checking tools can flag a bug in dbAdjTree() for an array index
+out of bounds in dmt_stree. Since dmt_stree can refer to the stree in
+both structures dmaptree and dmapctl, use the larger array to eliminate
+the false positive.
 
-Fixes: e81ee637e4ae ("usb-serial: possible irq lock inversion (PPP vs. usb/serial)")
-Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
-Cc: stable <stable@vger.kernel.org>     # 2.6.19
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/jfs/jfs_dmap.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -447,6 +447,7 @@ static int keyspan_pda_write(struct tty_
- 	int request_unthrottle = 0;
- 	int rc = 0;
- 	struct keyspan_pda_private *priv;
-+	unsigned long flags;
+--- a/fs/jfs/jfs_dmap.h
++++ b/fs/jfs/jfs_dmap.h
+@@ -196,7 +196,7 @@ typedef union dmtree {
+ #define	dmt_leafidx	t1.leafidx
+ #define	dmt_height	t1.height
+ #define	dmt_budmin	t1.budmin
+-#define	dmt_stree	t1.stree
++#define	dmt_stree	t2.stree
  
- 	priv = usb_get_serial_port_data(port);
- 	/* guess how much room is left in the device's ring buffer, and if we
-@@ -466,13 +467,13 @@ static int keyspan_pda_write(struct tty_
- 	   the TX urb is in-flight (wait until it completes)
- 	   the device is full (wait until it says there is room)
- 	*/
--	spin_lock_bh(&port->lock);
-+	spin_lock_irqsave(&port->lock, flags);
- 	if (!test_bit(0, &port->write_urbs_free) || priv->tx_throttled) {
--		spin_unlock_bh(&port->lock);
-+		spin_unlock_irqrestore(&port->lock, flags);
- 		return 0;
- 	}
- 	clear_bit(0, &port->write_urbs_free);
--	spin_unlock_bh(&port->lock);
-+	spin_unlock_irqrestore(&port->lock, flags);
- 
- 	/* At this point the URB is in our control, nobody else can submit it
- 	   again (the only sudden transition was the one from EINPROGRESS to
+ /*
+  *	on-disk aggregate disk allocation map descriptor.
 
 
