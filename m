@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 875C92E6947
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F55B2E6703
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:19:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729315AbgL1Qq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:46:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52204 "EHLO mail.kernel.org"
+        id S1732515AbgL1QTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:19:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728614AbgL1Mzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C5D5208D5;
-        Mon, 28 Dec 2020 12:55:05 +0000 (UTC)
+        id S1732477AbgL1NOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:14:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD9D206ED;
+        Mon, 28 Dec 2020 13:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160106;
-        bh=nse2/lH7GiPM5GDrfQ+M1mb+40BJ4+k+utImoH1uKeM=;
+        s=korg; t=1609161244;
+        bh=y6ZQLzeaVOvYgTngfNR5QHOnwq4Foe2LejqIuPXYogY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVsyDXf1QqEKryYPTEWK9FqgZbH9d3bCMkPa2yQZaz3xUBoMSOr9k9V4F+x3GM6Ki
-         b9LSnfqyWNMF5Ps+rdb6nx8g6HWSvWtoX1JGLdBionLKERk/NhQdcO6F+c5U71aSZS
-         3l68kzGBxGIbZ1iNaryUDECxnVm4i5B5slb0MJpY=
+        b=Lc60eVXIAnH5M4niD8p/a+G/Mg7oKpRWlF9E6bt5HZs9ahyrLwBPXHNRD7Ot9NqSu
+         BQV0n5XXEya8ISv1Kf1eU/0Mgjo1X1Dq/wkl4eulAzlmGVv0A8XceNRR6CCGLWv+7H
+         6K8zNd6ysKp5RKvuxDEjz/gWNjD9oYifkU8OPWlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 071/132] cpufreq: scpi: Add missing MODULE_ALIAS
-Date:   Mon, 28 Dec 2020 13:49:15 +0100
-Message-Id: <20201228124849.879506496@linuxfoundation.org>
+Subject: [PATCH 4.14 151/242] usb: oxu210hp-hcd: Fix memory leak in oxu_create
+Date:   Mon, 28 Dec 2020 13:49:16 +0100
+Message-Id: <20201228124912.140077998@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit c0382d049d2def37b81e907a8b22661a4a4a6eb5 ]
+[ Upstream commit e5548b05631ec3e6bfdaef1cad28c799545b791b ]
 
-This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
-driver when it is compiled as an external module.
+usb_create_hcd will alloc memory for hcd, and we should
+call usb_put_hcd to free it when adding fails to prevent
+memory leak.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 8def31034d033 ("cpufreq: arm_big_little: add SCPI interface driver")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: b92a78e582b1a ("usb host: Oxford OXU210HP HCD driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201123145809.1456541-1-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/scpi-cpufreq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/oxu210hp-hcd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/scpi-cpufreq.c b/drivers/cpufreq/scpi-cpufreq.c
-index de5e89b2eaaa3..98f762cca9010 100644
---- a/drivers/cpufreq/scpi-cpufreq.c
-+++ b/drivers/cpufreq/scpi-cpufreq.c
-@@ -119,6 +119,7 @@ static struct platform_driver scpi_cpufreq_platdrv = {
- };
- module_platform_driver(scpi_cpufreq_platdrv);
+diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
+index ed20fb34c897f..1d3a79c2eba2f 100644
+--- a/drivers/usb/host/oxu210hp-hcd.c
++++ b/drivers/usb/host/oxu210hp-hcd.c
+@@ -3732,8 +3732,10 @@ static struct usb_hcd *oxu_create(struct platform_device *pdev,
+ 	oxu->is_otg = otg;
  
-+MODULE_ALIAS("platform:scpi-cpufreq");
- MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
- MODULE_DESCRIPTION("ARM SCPI CPUFreq interface driver");
- MODULE_LICENSE("GPL v2");
+ 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+-	if (ret < 0)
++	if (ret < 0) {
++		usb_put_hcd(hcd);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	device_wakeup_enable(hcd->self.controller);
+ 	return hcd;
 -- 
 2.27.0
 
