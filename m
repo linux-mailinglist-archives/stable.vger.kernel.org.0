@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E5122E6657
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9170C2E6652
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388248AbgL1NW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:22:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50680 "EHLO mail.kernel.org"
+        id S2393630AbgL1QLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:11:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388235AbgL1NWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A59207C9;
-        Mon, 28 Dec 2020 13:21:41 +0000 (UTC)
+        id S2388342AbgL1NWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D21722583;
+        Mon, 28 Dec 2020 13:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161702;
-        bh=SEF2i0iPA5d6UNnZnlZX4c/P+nQpD0ufL6j88hVYMu8=;
+        s=korg; t=1609161726;
+        bh=kGYWbheCbox4Uoqz29HHoyXVbVYFaolTrpAcZlcE2Sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHH7UBbO6UxsBMgFS25CkxjVytHhg1oHhoBBQd9DNLsNX+R9oGpW2aETIZkQMcU7S
-         +9hdUigT9cqdf09GPTWue7uHLVT+r17k6tdtAdvfGw6fLQZceC0Uh1meQIYrYi1yKY
-         JpLshJHwobUC2GFZIlnzZB5DISYVGaA69tFLcAZM=
+        b=xJb66H4hnrBemUGg3aXyLuA52d8X0dprFn8kvae1aMTY0ZL0I10TKroebcnUm2mRJ
+         9MWi+S3hvYuGhv8dHplRHKiXmh57919gzC3lXYl89ezoNKaNaQ+cUIeEjufBZ+KtxL
+         TXez9EnqzEsNS5mA0VJ0P6HMaC9mnHBUOJg5MJjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Amit Kachhap <Amit.Kachhap@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.19 051/346] arm64: lse: Fix LSE atomics with LLVM
-Date:   Mon, 28 Dec 2020 13:46:10 +0100
-Message-Id: <20201228124922.260235014@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Borislav Petkov <bp@suse.de>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 053/346] x86/resctrl: Remove unused struct mbm_state::chunks_bw
+Date:   Mon, 28 Dec 2020 13:46:12 +0100
+Message-Id: <20201228124922.359620325@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -43,60 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+From: James Morse <james.morse@arm.com>
 
-commit dd1f6308b28edf0452dd5dc7877992903ec61e69 upstream.
+commit abe8f12b44250d02937665033a8b750c1bfeb26e upstream
 
-Commit e0d5896bd356 ("arm64: lse: fix LSE atomics with LLVM's integrated
-assembler") broke the build when clang is used in connjunction with the
-binutils assembler ("-no-integrated-as"). This happens because
-__LSE_PREAMBLE is defined as ".arch armv8-a+lse", which overrides the
-version of the CPU architecture passed via the "-march" paramter to gas:
+Nothing reads struct mbm_states's chunks_bw value, its a copy of
+chunks. Remove it.
 
-$ aarch64-none-linux-gnu-as -EL -I ./arch/arm64/include
-                                -I ./arch/arm64/include/generated
-                                -I ./include -I ./include
-                                -I ./arch/arm64/include/uapi
-                                -I ./arch/arm64/include/generated/uapi
-                                -I ./include/uapi -I ./include/generated/uapi
-                                -I ./init -I ./init
-                                -march=armv8.3-a -o init/do_mounts.o
-                                /tmp/do_mounts-d7992a.s
-/tmp/do_mounts-d7992a.s: Assembler messages:
-/tmp/do_mounts-d7992a.s:1959: Error: selected processor does not support `autiasp'
-/tmp/do_mounts-d7992a.s:2021: Error: selected processor does not support `paciasp'
-/tmp/do_mounts-d7992a.s:2157: Error: selected processor does not support `autiasp'
-/tmp/do_mounts-d7992a.s:2175: Error: selected processor does not support `paciasp'
-/tmp/do_mounts-d7992a.s:2494: Error: selected processor does not support `autiasp'
-
-Fix the issue by replacing ".arch armv8-a+lse" with ".arch_extension lse".
-Sami confirms that the clang integrated assembler does now support the
-'.arch_extension' directive, so this change will be fine even for LTO
-builds in future.
-
-Fixes: e0d5896bd356cd ("arm64: lse: fix LSE atomics with LLVM's integrated assembler")
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Reported-by: Amit Kachhap <Amit.Kachhap@arm.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Link: https://lkml.kernel.org/r/20200708163929.2783-2-james.morse@arm.com
+[sudip: manual backport to file at old path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/lse.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/intel_rdt.h         |    2 --
+ arch/x86/kernel/cpu/intel_rdt_monitor.c |    3 +--
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/arm64/include/asm/lse.h
-+++ b/arch/arm64/include/asm/lse.h
-@@ -4,7 +4,7 @@
+--- a/arch/x86/kernel/cpu/intel_rdt.h
++++ b/arch/x86/kernel/cpu/intel_rdt.h
+@@ -251,7 +251,6 @@ struct rftype {
+  * struct mbm_state - status for each MBM counter in each domain
+  * @chunks:	Total data moved (multiply by rdt_group.mon_scale to get bytes)
+  * @prev_msr	Value of IA32_QM_CTR for this RMID last time we read it
+- * @chunks_bw	Total local data moved. Used for bandwidth calculation
+  * @prev_bw_msr:Value of previous IA32_QM_CTR for bandwidth counting
+  * @prev_bw	The most recent bandwidth in MBps
+  * @delta_bw	Difference between the current and previous bandwidth
+@@ -260,7 +259,6 @@ struct rftype {
+ struct mbm_state {
+ 	u64	chunks;
+ 	u64	prev_msr;
+-	u64	chunks_bw;
+ 	u64	prev_bw_msr;
+ 	u32	prev_bw;
+ 	u32	delta_bw;
+--- a/arch/x86/kernel/cpu/intel_rdt_monitor.c
++++ b/arch/x86/kernel/cpu/intel_rdt_monitor.c
+@@ -290,8 +290,7 @@ static void mbm_bw_count(u32 rmid, struc
+ 		return;
  
- #if defined(CONFIG_AS_LSE) && defined(CONFIG_ARM64_LSE_ATOMICS)
+ 	chunks = mbm_overflow_count(m->prev_bw_msr, tval);
+-	m->chunks_bw += chunks;
+-	m->chunks = m->chunks_bw;
++	m->chunks += chunks;
+ 	cur_bw = (chunks * r->mon_scale) >> 20;
  
--#define __LSE_PREAMBLE	".arch armv8-a+lse\n"
-+#define __LSE_PREAMBLE	".arch_extension lse\n"
- 
- #include <linux/compiler_types.h>
- #include <linux/export.h>
+ 	if (m->delta_comp)
 
 
