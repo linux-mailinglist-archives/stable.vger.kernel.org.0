@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A801E2E3637
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 202A22E3638
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727176AbgL1LMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:12:05 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52573 "EHLO
+        id S1727181AbgL1LMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:12:18 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39383 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727165AbgL1LMF (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 28 Dec 2020 06:12:05 -0500
+        by vger.kernel.org with ESMTP id S1727180AbgL1LMS (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 28 Dec 2020 06:12:18 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 499A1250;
-        Mon, 28 Dec 2020 06:10:59 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:10:59 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 25BED7EC;
+        Mon, 28 Dec 2020 06:11:32 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:11:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6pyIym
-        ziD8V8Fvx0ULfRah4an8JsGxBGPX5QnC3fayk=; b=Xfeyl4h/pH+0IXdUoDxmuR
-        XmxqyQHQM/a/tNzyOI1kjs3UDuQ/5ph1zq8oVUcvroVZPRxJc7QesTv5V55KjDTz
-        qTNDNqqsVHXcBlCyoh9kqIxRkm4mL3gKkEGldooqP30GhjE0vwX0yNagbAauYRW7
-        SffVUjtkc26T5J7Qc7Gd/AYFKz0htsNcqRXNR/nnKFkVka726Hqk+IXWm6/1NGn3
-        whXvwgj9GgQv2dn5XL+9Xk9XHdkht3QHn+KXw9ttSyeHiwE5UVif9T/IMbTbxpdM
-        hWP5Cs+rIufe4Lusvjipwv6ZhWLvAK7ygAhI35rWom8SxURGcLezgQJ9+IFHVjng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=YGV9Pm
+        WBb+SvEexFKleGwustlpJ6/D+BBk6LDkkzayg=; b=SnkhPSRaClFkwreP6EH7SE
+        MAm1zSNsI3wpqYL2R9flZH8xMgWOERC1aeU0dbhdAuYO4OGvGQTwhnMCz/p1kOn2
+        XmFHSgPg79IyZdt+O+uiI8jC0knqETKnSAobfxgClWyRzPrBVUlTjAW3RVD4lCjC
+        N63VNWeFuOjypNYNNTsglv/7Q9GImkujI3NnsVmCAKm0kFHc6q7oRdICIfWBWr9+
+        +ME12Ap0r8z1aO3MGf31NiTyd8Vi9gOG2K2TrpffyGG7UgxqIEUT9Rx3p26UDtMy
+        ZrFSpJmYh0YqVCdVF3IWaBL5CpOb7uvibi73amfLd1wq5b0G0a+6AXcjkVxf4qVg
         ==
-X-ME-Sender: <xms:Qr3pX7VuvMEY8T6GFI-qZzGffHlyrYMoLJOoox9lS8vIS6ACeSnW2w>
-    <xme:Qr3pXzndgxXMOQRkcd_14mxOmBOeEjDOkMFWq5TjLMW5qR0h3NOKLiDMrtqSYJz2v
-    6tT2x-0i-SUkw>
+X-ME-Sender: <xms:Y73pX3Nvd3I82i6WJQgQLf5VKKb1QInByvJmhH4cX2EYW8dnIZ--qA>
+    <xme:Y73pXx_i9cppWQTmsfxP4H3FCsrKTgyqg0dbkgnwDWGe2ic-7Vm6Clf2Njp4W6Scw
+    XfChyIAabXvhw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkeejgffftefgveeggeehudfgleehkedthedtiefhie
-    elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Qr3pX3a_0veFGBM9t4YFAjHeu3fP0oO3aY-YKp8UUwgNJFYxkmVNBQ>
-    <xmx:Qr3pX2X1avZvJr5niQtNEMGk52kJeyMHDIvTb3CloTU3yDDt_oiPKw>
-    <xmx:Qr3pX1n-Yg9DHRTLbdsQmv6WQo32WxYCSA6LWVA63EQqWy6HSPY7QQ>
-    <xmx:Qr3pX0sVcPWDWNuwHRTfBxkqnnji1SUrhmK93IESbJXJEPLYbTT77OEkutU>
+X-ME-Proxy: <xmx:Y73pX2R5zaFxYzU4XDu7FXaC5r5-kIZs1vd5ob58x5XmnbrmjiWKNg>
+    <xmx:Y73pX7vzn2RKOU21BL-4N3H2WgOzEq5TMJDYQ2-Ov5xvLQAovxSSDA>
+    <xmx:Y73pX_eMvKOz4zbRxzAgBQkcHHQovopaz_jYGSZbMkpKjspQ2WlOnw>
+    <xmx:Y73pX_neoknvynVXG-2zXDJqpXNuhgOIuzh_w8bciomwuz5l_lkrn6MNfN4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E83D11080063;
-        Mon, 28 Dec 2020 06:10:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: buffer: Fix demux update" failed to apply to 4.4-stable tree
-To:     nuno.sa@analog.com, Jonathan.Cameron@huawei.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 53E5224005C;
+        Mon, 28 Dec 2020 06:11:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: fix edge-trigger interrupts" failed to apply to 4.14-stable tree
+To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:12:20 +0100
-Message-ID: <1609153940167171@kroah.com>
+Date:   Mon, 28 Dec 2020 12:12:54 +0100
+Message-ID: <160915397497172@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,50 +71,70 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 19ef7b70ca9487773c29b449adf0c70f540a0aab Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-Date: Thu, 12 Nov 2020 15:43:22 +0100
-Subject: [PATCH] iio: buffer: Fix demux update
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 3f9bce7a22a3f8ac9d885c9d75bc45569f24ac8b Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Sat, 14 Nov 2020 19:39:05 +0100
+Subject: [PATCH] iio: imu: st_lsm6dsx: fix edge-trigger interrupts
 
-When updating the buffer demux, we will skip a scan element from the
-device in the case `in_ind != out_ind` and we enter the while loop.
-in_ind should only be refreshed with `find_next_bit()` in the end of the
-loop.
+If we are using edge IRQs, new samples can arrive while processing
+current interrupt since there are no hw guarantees the irq line
+stays "low" long enough to properly detect the new interrupt.
+In this case the new sample will be missed.
+Polling FIFO status register in st_lsm6dsx_handler_thread routine
+allow us to read new samples even if the interrupt arrives while
+processing previous data and the timeslot where the line is "low"
+is too short to be properly detected.
 
-Note, to cause problems we need a situation where we are skippig over
-an element (channel not enabled) that happens to not have the same size
-as the next element.   Whilst this is a possible situation we haven't
-actually identified any cases in mainline where it happens as most drivers
-have consistent channel storage sizes with the exception of the timestamp
-which is the last element and hence never skipped over.
-
-Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
+Fixes: 89ca88a7cdf2 ("iio: imu: st_lsm6dsx: support active-low interrupts")
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/5e93cda7dc1e665f5685c53ad8e9ea71dbae782d.1605378871.git.lorenzo@kernel.org
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
-index 9663dec3dcf3..2f7426a2f47c 100644
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -853,12 +853,12 @@ static int iio_buffer_update_demux(struct iio_dev *indio_dev,
- 				       indio_dev->masklength,
- 				       in_ind + 1);
- 		while (in_ind != out_ind) {
--			in_ind = find_next_bit(indio_dev->active_scan_mask,
--					       indio_dev->masklength,
--					       in_ind + 1);
- 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 			/* Make sure we are aligned */
- 			in_loc = roundup(in_loc, length) + length;
-+			in_ind = find_next_bit(indio_dev->active_scan_mask,
-+					       indio_dev->masklength,
-+					       in_ind + 1);
- 		}
- 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 		out_loc = roundup(out_loc, length);
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 467214e2e77c..7cedaab096a7 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -2069,19 +2069,35 @@ st_lsm6dsx_report_motion_event(struct st_lsm6dsx_hw *hw)
+ static irqreturn_t st_lsm6dsx_handler_thread(int irq, void *private)
+ {
+ 	struct st_lsm6dsx_hw *hw = private;
++	int fifo_len = 0, len;
+ 	bool event;
+-	int count;
+ 
+ 	event = st_lsm6dsx_report_motion_event(hw);
+ 
+ 	if (!hw->settings->fifo_ops.read_fifo)
+ 		return event ? IRQ_HANDLED : IRQ_NONE;
+ 
+-	mutex_lock(&hw->fifo_lock);
+-	count = hw->settings->fifo_ops.read_fifo(hw);
+-	mutex_unlock(&hw->fifo_lock);
++	/*
++	 * If we are using edge IRQs, new samples can arrive while
++	 * processing current interrupt since there are no hw
++	 * guarantees the irq line stays "low" long enough to properly
++	 * detect the new interrupt. In this case the new sample will
++	 * be missed.
++	 * Polling FIFO status register allow us to read new
++	 * samples even if the interrupt arrives while processing
++	 * previous data and the timeslot where the line is "low" is
++	 * too short to be properly detected.
++	 */
++	do {
++		mutex_lock(&hw->fifo_lock);
++		len = hw->settings->fifo_ops.read_fifo(hw);
++		mutex_unlock(&hw->fifo_lock);
++
++		if (len > 0)
++			fifo_len += len;
++	} while (len > 0);
+ 
+-	return count || event ? IRQ_HANDLED : IRQ_NONE;
++	return fifo_len || event ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+ static int st_lsm6dsx_irq_setup(struct st_lsm6dsx_hw *hw)
 
