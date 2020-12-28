@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E442E3B23
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F472E40B6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405151AbgL1Nqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
+        id S2501963AbgL1O4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:56:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404991AbgL1NqC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:46:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8B1122583;
-        Mon, 28 Dec 2020 13:45:20 +0000 (UTC)
+        id S2441283AbgL1OQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:16:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA56E206D4;
+        Mon, 28 Dec 2020 14:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163121;
-        bh=Vq9XUJqWy4XatoLeG3O5BRx/Xka+t1uuhwviqJbgojU=;
+        s=korg; t=1609165000;
+        bh=jDSPTEhSlxTkOcOnMAMQu7TXmiAvvs+/mjmX0Io/OYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bldWGtcVkDdvUAPLU3Fqyok6i/prnuzGzVAHoLqmP/Jrw100imuCzL67ZBMzSIZ/1
-         BK14EsKGkh5+p0HDwDfZKrMn0pRGVAAtqdtgFgtzfSmBhu2Z1P6hm2tNb4FXs1lmuv
-         9yfn+9X2p5UmnOq+qMoNfct7Db2e68nuOpW+qkwc=
+        b=Wq3E9ymFmI94s0H5zyPOZ2lXlEUXAXTqU7HInK+be9MfToL9urR/VaRWFA2Pw/yuJ
+         o7/g2GSloqi2fkYI0uiqOTBWpKDa1HNQYLxraLqq/7VMKpKdGw6JOo+nBFKnyeE+dV
+         W3FDWeklqrY+AU9IxNGgFm5O87R81M9ytVU3yfs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 135/453] media: mtk-vcodec: add missing put_device() call in mtk_vcodec_init_enc_pm()
+Subject: [PATCH 5.10 373/717] usb: oxu210hp-hcd: Fix memory leak in oxu_create
 Date:   Mon, 28 Dec 2020 13:46:11 +0100
-Message-Id: <20201228124943.697267668@linuxfoundation.org>
+Message-Id: <20201228125038.879134582@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 4affafd7bec7c65da31777f18bd20420f1aeb5f8 ]
+[ Upstream commit e5548b05631ec3e6bfdaef1cad28c799545b791b ]
 
-if of_find_device_by_node() succeed, mtk_vcodec_init_enc_pm() doesn't have
-a corresponding put_device(). Thus add jump target to fix the exception
-handling for this function implementation.
+usb_create_hcd will alloc memory for hcd, and we should
+call usb_put_hcd to free it when adding fails to prevent
+memory leak.
 
-Fixes: 4e855a6efa54 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Encoder Driver")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: b92a78e582b1a ("usb host: Oxford OXU210HP HCD driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201123145809.1456541-1-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../platform/mtk-vcodec/mtk_vcodec_enc_pm.c   | 26 ++++++++++++++-----
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/usb/host/oxu210hp-hcd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_pm.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_pm.c
-index 3e2bfded79a66..e682bdb1ed453 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_pm.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_pm.c
-@@ -49,14 +49,16 @@ int mtk_vcodec_init_enc_pm(struct mtk_vcodec_dev *mtkdev)
- 	node = of_parse_phandle(dev->of_node, "mediatek,larb", 1);
- 	if (!node) {
- 		mtk_v4l2_err("no mediatek,larb found");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto put_larbvenc;
- 	}
+diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
+index 27dbbe1b28b12..e832909a924fa 100644
+--- a/drivers/usb/host/oxu210hp-hcd.c
++++ b/drivers/usb/host/oxu210hp-hcd.c
+@@ -4151,8 +4151,10 @@ static struct usb_hcd *oxu_create(struct platform_device *pdev,
+ 	oxu->is_otg = otg;
  
- 	pdev = of_find_device_by_node(node);
- 	of_node_put(node);
- 	if (!pdev) {
- 		mtk_v4l2_err("no mediatek,larb device found");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto put_larbvenc;
- 	}
+ 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
+-	if (ret < 0)
++	if (ret < 0) {
++		usb_put_hcd(hcd);
+ 		return ERR_PTR(ret);
++	}
  
- 	pm->larbvenclt = &pdev->dev;
-@@ -69,11 +71,14 @@ int mtk_vcodec_init_enc_pm(struct mtk_vcodec_dev *mtkdev)
- 		enc_clk->clk_info = devm_kcalloc(&pdev->dev,
- 			enc_clk->clk_num, sizeof(*clk_info),
- 			GFP_KERNEL);
--		if (!enc_clk->clk_info)
--			return -ENOMEM;
-+		if (!enc_clk->clk_info) {
-+			ret = -ENOMEM;
-+			goto put_larbvenclt;
-+		}
- 	} else {
- 		mtk_v4l2_err("Failed to get venc clock count");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_larbvenclt;
- 	}
- 
- 	for (i = 0; i < enc_clk->clk_num; i++) {
-@@ -82,17 +87,24 @@ int mtk_vcodec_init_enc_pm(struct mtk_vcodec_dev *mtkdev)
- 			"clock-names", i, &clk_info->clk_name);
- 		if (ret) {
- 			mtk_v4l2_err("venc failed to get clk name %d", i);
--			return ret;
-+			goto put_larbvenclt;
- 		}
- 		clk_info->vcodec_clk = devm_clk_get(&pdev->dev,
- 			clk_info->clk_name);
- 		if (IS_ERR(clk_info->vcodec_clk)) {
- 			mtk_v4l2_err("venc devm_clk_get (%d)%s fail", i,
- 				clk_info->clk_name);
--			return PTR_ERR(clk_info->vcodec_clk);
-+			ret = PTR_ERR(clk_info->vcodec_clk);
-+			goto put_larbvenclt;
- 		}
- 	}
- 
-+	return 0;
-+
-+put_larbvenclt:
-+	put_device(pm->larbvenclt);
-+put_larbvenc:
-+	put_device(pm->larbvenc);
- 	return ret;
- }
- 
+ 	device_wakeup_enable(hcd->self.controller);
+ 	return hcd;
 -- 
 2.27.0
 
