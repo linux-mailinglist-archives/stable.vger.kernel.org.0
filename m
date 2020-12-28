@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2842E4261
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA672E3C6B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:03:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436781AbgL1OCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
+        id S2436901AbgL1OCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436776AbgL1OCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAFBE207B2;
-        Mon, 28 Dec 2020 14:01:51 +0000 (UTC)
+        id S2436897AbgL1OCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FF2B2064B;
+        Mon, 28 Dec 2020 14:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164112;
-        bh=La1nj419sCoKHvl2W+GdP2b1LQK+p7HdGYME50Q9hbg=;
+        s=korg; t=1609164115;
+        bh=IWRDa28+widSSeJiMsMFp8MUt95eHCJui1hA1mkbdE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eTmnw3OSF3dZRGvZXSlyYK1V7QnCYP0u2lYFTElxa5BSvxbPPu2tbcmoL0Y5UrQG
-         1MQWzRCkNLNgJ/DOs79Lkhvp5uwKhgA9BP3t0Ln2w5isn/kmMUB523ZZ9QYkwVpICd
-         FhuwjIOYW0NQIAtLZtXY9qQRV3U4HFgVDOtOziU0=
+        b=uNqvikbE71DsiDU+FyKTE1L1smFfAy+n+OMjkMsU98qQwF+vVSTpqAGgNX8c5t6tH
+         ZldyOwckYDtaliHRuMIekuzDMEyIhTsMWIHnO5ipx+MvYkWcPX09HItWBRjTq/sKLQ
+         FliBLAebSX9ljN4gFVRqzqhJ7lnviTWUiNyKnTh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/717] drm/edid: Fix uninitialized variable in drm_cvt_modes()
-Date:   Mon, 28 Dec 2020 13:41:02 +0100
-Message-Id: <20201228125024.061845231@linuxfoundation.org>
+Subject: [PATCH 5.10 065/717] ath11k: Initialize complete alpha2 for regulatory change
+Date:   Mon, 28 Dec 2020 13:41:03 +0100
+Message-Id: <20201228125024.109673721@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,42 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 991fcb77f490390bcad89fa67d95763c58cdc04c ]
+[ Upstream commit 383a32cde4172db19d4743d4c782c00af39ff275 ]
 
-Noticed this when trying to compile with -Wall on a kernel fork. We
-potentially don't set width here, which causes the compiler to complain
-about width potentially being uninitialized in drm_cvt_modes(). So, let's
-fix that.
+The function ath11k_wmi_send_init_country_cmd is taking 3 byte from alpha2
+of the structure wmi_init_country_params. But the function
+ath11k_reg_notifier is only initializing 2 bytes. The third byte is
+therefore always an uninitialized value.
 
-Changes since v1:
-* Don't emit an error as this code isn't reachable, just mark it as such
-Changes since v2:
-* Remove now unused variable
+The command can happen to look like
 
-Fixes: 3f649ab728cd ("treewide: Remove uninitialized_var() usage")
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Ilia Mirkin <imirkin@alum.mit.edu>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201105235703.1328115-1-lyude@redhat.com
+  0c 00 87 02 01 00 00 00 00 00 00 00 43 41 f8 00
+
+instead of
+
+  0c 00 87 02 01 00 00 00 00 00 00 00 43 41 00 00
+
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.1.0.1-01161-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.1.0.1-01228-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.1.0.1-01238-QCAHKSWPL_SILICONZ-2
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.4.0.1.r1-00019-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.4.0.1.r1-00026-QCAHKSWPL_SILICONZ-2
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201021140555.4114715-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath11k/reg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 631125b46e04c..b84efd538a702 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -3114,6 +3114,8 @@ static int drm_cvt_modes(struct drm_connector *connector,
- 		case 0x0c:
- 			width = height * 15 / 9;
- 			break;
-+		default:
-+			unreachable();
- 		}
+diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
+index f6a1f0352989d..83f75f8855ebe 100644
+--- a/drivers/net/wireless/ath/ath11k/reg.c
++++ b/drivers/net/wireless/ath/ath11k/reg.c
+@@ -80,6 +80,7 @@ ath11k_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
+ 	 */
+ 	init_country_param.flags = ALPHA_IS_SET;
+ 	memcpy(&init_country_param.cc_info.alpha2, request->alpha2, 2);
++	init_country_param.cc_info.alpha2[2] = 0;
  
- 		for (j = 1; j < 5; j++) {
+ 	ret = ath11k_wmi_send_init_country_cmd(ar, init_country_param);
+ 	if (ret)
 -- 
 2.27.0
 
