@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6E82E413F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A692E3A78
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439428AbgL1PE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:04:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46286 "EHLO mail.kernel.org"
+        id S2390743AbgL1NhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:37:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438548AbgL1OLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:11:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DDCF205CB;
-        Mon, 28 Dec 2020 14:11:06 +0000 (UTC)
+        id S2390736AbgL1NhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:37:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E3FD207C9;
+        Mon, 28 Dec 2020 13:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164667;
-        bh=tXW7QV4c1Q+aqAklPVE0TP/deYlYUF6726RyfvlR2Q4=;
+        s=korg; t=1609162627;
+        bh=8g9+d2hB4xrT9Xv3W0xTCppMzn2CqcULZuB9RKXCTvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6a73Ggq60Us0Fg7m3wCNSeR3uGM3U9IkrNzZ99U0urbfNSCw6ajdSHwBz+X1Dxkd
-         xw+x9/OLZRQyG8P0Dq04sGB3xeR+HcWTn/Ltrlta+hbYinTaOdc46VSBrO4+nMmjBS
-         A9uuYuYZ0bRDbej4xYGmUpHe/Dwp1CUIP+wbSRyM=
+        b=GwaiuB9Cni2BMrdGLeelb1nuGESFpTi6T874KGBdt4JzN0Kk/K/6qCS0Ok+37xZTg
+         xVb9bjWBtQmPRg/S0FOL0W0HFOFlhfz/imqD2qfcJyxrTUOzxU3J8rcUXazLhH9/rl
+         fvs2JdcAsR3gu9IcFnRulrAgXXIJKbEBux2f1nBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 256/717] ASoC: Intel: Boards: tgl_max98373: update TDM slot_width
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/453] block: Simplify REQ_OP_ZONE_RESET_ALL handling
 Date:   Mon, 28 Dec 2020 13:44:14 +0100
-Message-Id: <20201228125033.253055748@linuxfoundation.org>
+Message-Id: <20201228124938.129556147@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 0d7f2459ae926a964ab211aac413d72074131727 ]
+[ Upstream commit c7a1d926dc4076aadad187614500afcd8de78818 ]
 
-Speaker amp's SSP bclk configuration was changed in the topology file to be
-based on 12.288MHz and dai_ops->hw_params is based on s32le format.
-But, the TDM slot size remained set to 24 bits.
-This inconsistency created audible noises and needs to be corrected.
-This patch updates TDM slot width to 32.
+There is no need for the function __blkdev_reset_all_zones() as
+REQ_OP_ZONE_RESET_ALL can be handled directly in blkdev_reset_zones()
+bio loop with an early break from the loop. This patch removes this
+function and modifies blkdev_reset_zones(), simplifying the code.
 
-Fixes: bc7477fc2ab4 ("ASoC: Intel: Boards: tgl_max98373: Update TDM configuration in hw_params")
-
-Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20201201211150.433472-1-ranjani.sridharan@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_maxim_common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-zoned.c | 40 +++++++++++++---------------------------
+ 1 file changed, 13 insertions(+), 27 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_maxim_common.c b/sound/soc/intel/boards/sof_maxim_common.c
-index b6e63ea13d64e..c2a9757181fe1 100644
---- a/sound/soc/intel/boards/sof_maxim_common.c
-+++ b/sound/soc/intel/boards/sof_maxim_common.c
-@@ -49,11 +49,11 @@ static int max98373_hw_params(struct snd_pcm_substream *substream,
- 	for_each_rtd_codec_dais(rtd, j, codec_dai) {
- 		if (!strcmp(codec_dai->component->name, MAX_98373_DEV0_NAME)) {
- 			/* DEV0 tdm slot configuration */
--			snd_soc_dai_set_tdm_slot(codec_dai, 0x03, 3, 8, 24);
-+			snd_soc_dai_set_tdm_slot(codec_dai, 0x03, 3, 8, 32);
- 		}
- 		if (!strcmp(codec_dai->component->name, MAX_98373_DEV1_NAME)) {
- 			/* DEV1 tdm slot configuration */
--			snd_soc_dai_set_tdm_slot(codec_dai, 0x0C, 3, 8, 24);
-+			snd_soc_dai_set_tdm_slot(codec_dai, 0x0C, 3, 8, 32);
- 		}
+diff --git a/block/blk-zoned.c b/block/blk-zoned.c
+index 4bc5f260248a6..b17c094cb977c 100644
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -202,32 +202,14 @@ int blkdev_report_zones(struct block_device *bdev, sector_t sector,
+ }
+ EXPORT_SYMBOL_GPL(blkdev_report_zones);
+ 
+-/*
+- * Special case of zone reset operation to reset all zones in one command,
+- * useful for applications like mkfs.
+- */
+-static int __blkdev_reset_all_zones(struct block_device *bdev, gfp_t gfp_mask)
+-{
+-	struct bio *bio = bio_alloc(gfp_mask, 0);
+-	int ret;
+-
+-	/* across the zones operations, don't need any sectors */
+-	bio_set_dev(bio, bdev);
+-	bio_set_op_attrs(bio, REQ_OP_ZONE_RESET_ALL, 0);
+-
+-	ret = submit_bio_wait(bio);
+-	bio_put(bio);
+-
+-	return ret;
+-}
+-
+ static inline bool blkdev_allow_reset_all_zones(struct block_device *bdev,
++						sector_t sector,
+ 						sector_t nr_sectors)
+ {
+ 	if (!blk_queue_zone_resetall(bdev_get_queue(bdev)))
+ 		return false;
+ 
+-	if (nr_sectors != part_nr_sects_read(bdev->bd_part))
++	if (sector || nr_sectors != part_nr_sects_read(bdev->bd_part))
+ 		return false;
+ 	/*
+ 	 * REQ_OP_ZONE_RESET_ALL can be executed only if the block device is
+@@ -271,9 +253,6 @@ int blkdev_reset_zones(struct block_device *bdev,
+ 		/* Out of range */
+ 		return -EINVAL;
+ 
+-	if (blkdev_allow_reset_all_zones(bdev, nr_sectors))
+-		return  __blkdev_reset_all_zones(bdev, gfp_mask);
+-
+ 	/* Check alignment (handle eventual smaller last zone) */
+ 	zone_sectors = blk_queue_zone_sectors(q);
+ 	if (sector & (zone_sectors - 1))
+@@ -285,17 +264,24 @@ int blkdev_reset_zones(struct block_device *bdev,
+ 
+ 	blk_start_plug(&plug);
+ 	while (sector < end_sector) {
+-
+ 		bio = blk_next_bio(bio, 0, gfp_mask);
+-		bio->bi_iter.bi_sector = sector;
+ 		bio_set_dev(bio, bdev);
+-		bio_set_op_attrs(bio, REQ_OP_ZONE_RESET, 0);
+ 
++		/*
++		 * Special case for the zone reset operation that reset all
++		 * zones, this is useful for applications like mkfs.
++		 */
++		if (blkdev_allow_reset_all_zones(bdev, sector, nr_sectors)) {
++			bio->bi_opf = REQ_OP_ZONE_RESET_ALL;
++			break;
++		}
++
++		bio->bi_opf = REQ_OP_ZONE_RESET;
++		bio->bi_iter.bi_sector = sector;
+ 		sector += zone_sectors;
+ 
+ 		/* This may take a while, so be nice to others */
+ 		cond_resched();
+-
  	}
- 	return 0;
+ 
+ 	ret = submit_bio_wait(bio);
 -- 
 2.27.0
 
