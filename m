@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B992E35FA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:43:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0A62E35FC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727203AbgL1Knf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 05:43:35 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56835 "EHLO
+        id S1727233AbgL1KoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 05:44:10 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:35769 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726958AbgL1Kne (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:43:34 -0500
+        by vger.kernel.org with ESMTP id S1726958AbgL1KoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:44:10 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id D16562D0;
-        Mon, 28 Dec 2020 05:42:48 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:42:49 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 2428E2C0;
+        Mon, 28 Dec 2020 05:43:04 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:43:04 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=uUlQVj
-        jCVG70J4WMU3qOMRky0TjN+fYrCcE2RnGQ5Hc=; b=oK/xqFzue1KHSxoS4zqUkK
-        I0CH7okEpORtXjiOqGfRBdoG3bxx0xRry4ET/y7JqonO1UURNqJ/q+7nYMXPIb4p
-        2/69XH74gaDhmYj2x3cNNQPkOHGRWI4+/mTsFzvBg8vlFD/Xr5biOsrjlMPKPhZk
-        dKKGrygQ+qFIuD7qGWdY/EFl8gkd/F2/QyyjB4esfbpHrsgdveBZBuquVzmb2E0p
-        9oT+SttdOUvYZKDXCaNpcKRZdiVnDoO+eU3xFUFY4NOCb2wYK2jvzHu/XOLg9Qn5
-        nbQKYu1ufaG9KCcQXXyA3YRcil7Csx5yW1RM/3YDj0P8PhicIV4CZE2q3e0bJ/5g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=821R3O
+        EFla4doFPb0+Oano4+dAg2RFolT4lm9M418rk=; b=FUPwRJtjLKWx5J1XBkHH5S
+        dQ5aTqVLgfp6XX74IjMu1RjImJxACAPR8oG2J3yvjSUFMWANxv44/DEyEVXgDp1U
+        o0p9/j/qOROJZz3OYpGU5E20FindbsMPyeoTqLgZ/a44cZOZ+NfHCQyl+9HXxY3s
+        9sn2NDBlQ+7qI4x1vb95d8EuAtOLvisuehILi5SlStlqlsyZC0GIVxyr3YLy4sWe
+        Q1/UtnfOSxLqZolXcGSbv0+8rbKUN5tAnYe15b1KoOWbCLQXSfEe4ZstIAC8WiUB
+        jMfxZosuHiHTmNwdWDBUXNiAKk8BM0jISg3/nInab+ELUm9dpZVbt2NUb70MUZzw
         ==
-X-ME-Sender: <xms:p7bpXxEBpGYyGHqjyr-FAHrqAgDie0khLnPtNyABiFUY5PVc7v-C7A>
-    <xme:p7bpX2XWaw4yw0PBcbwAVOWoC5OHHlbRC7oPPqrYWPAp0944aC_oDBnVUqNIolJeF
-    0jQHx0GUTK8sQ>
+X-ME-Sender: <xms:t7bpXz_35U4RU6JLc0jLd9VAbXDuS03d0571LECa8w-IDkCl7LfTLg>
+    <xme:t7bpX_v7Fgzl7AutOXs6col9Z_vh--aHUWywovfKUOgO95uZAnIhSNgA4XmCnRJJU
+    BlLooWQFCCtMA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
     ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrg
     hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:p7bpXzJfBTkNypSQQ_yperqoPvTDEyy7iTS844JpFxJPcoCknWxnSg>
-    <xmx:p7bpX3Hgy31cUgmctKNGA2vpUG6e_Je1ijAbiB2TuVwSn4Z0IAVdDQ>
-    <xmx:p7bpX3Xa4903XmJ5_rYfa8Mot2CdUO8ToJwszvbLnCt0jjtWAXpNAw>
-    <xmx:qLbpX4dwWKiSKqIGCkJGFeFpHi6cyRe5-YcizqorFCmNadUFGfxm8meB4mY>
+X-ME-Proxy: <xmx:t7bpXxAk8bjGfO2S35BQ3Jho8LkgXFjXDcdrNYVFaxfqx2IA_ZR9wA>
+    <xmx:t7bpX_cmtsjCst63lcbHyX4OhzWKL2CDLNokfJ9nOpPW1bZPJsi9ww>
+    <xmx:t7bpX4NFiHY6qqu5EZuterJDIGt6n72jPQZJgKSmrE8z9GrYEqDPng>
+    <xmx:t7bpXyWzGOslOUB1KY5wHqtuqSFICXnGzsfFODw1UYUuXadeLMh4Bay47VE>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B2A581080064;
-        Mon, 28 Dec 2020 05:42:47 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/panfrost: Fix job timeout handling" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6362024005C;
+        Mon, 28 Dec 2020 05:43:03 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/panfrost: Move the GPU reset bits outside the timeout" failed to apply to 5.4-stable tree
 To:     boris.brezillon@collabora.com, stable@vger.kernel.org,
         steven.price@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 11:44:10 +0100
-Message-ID: <160915225015161@kroah.com>
+Date:   Mon, 28 Dec 2020 11:44:26 +0100
+Message-ID: <1609152266167186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,159 +71,333 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1a11a88cfd9a97e13be8bc880c4795f9844fbbec Mon Sep 17 00:00:00 2001
+From 5bc5cc2819c2c0adb644919e3e790b504ea47e0a Mon Sep 17 00:00:00 2001
 From: Boris Brezillon <boris.brezillon@collabora.com>
-Date: Fri, 2 Oct 2020 14:25:06 +0200
-Subject: [PATCH] drm/panfrost: Fix job timeout handling
+Date: Thu, 5 Nov 2020 16:17:04 +0100
+Subject: [PATCH] drm/panfrost: Move the GPU reset bits outside the timeout
+ handler
 
-If more than two jobs end up timeout-ing concurrently, only one of them
-(the one attached to the scheduler acquiring the lock) is fully handled.
-The other one remains in a dangling state where it's no longer part of
-the scheduling queue, but still blocks something in scheduler, leading
-to repetitive timeouts when new jobs are queued.
+We've fixed many races in panfrost_job_timedout() but some remain.
+Instead of trying to fix it again, let's simplify the logic and move
+the reset bits to a separate work scheduled when one of the queue
+reports a timeout.
 
-Let's make sure all bad jobs are properly handled by the thread
-acquiring the lock.
+v5:
+- Simplify panfrost_scheduler_stop() (Steven Price)
+- Always restart the queue in panfrost_scheduler_start() even if
+  the status is corrupted (Steven Price)
+
+v4:
+- Rework the logic to prevent a race between drm_sched_start()
+  (reset work) and drm_sched_job_timedout() (timeout work)
+- Drop Steven's R-b
+- Add dma_fence annotation to the panfrost_reset() function (Daniel Vetter)
 
 v3:
+- Replace the atomic_cmpxchg() by an atomic_xchg() (Robin Murphy)
 - Add Steven's R-b
-- Don't take the sched_lock when stopping the schedulers
 
 v2:
-- Fix the subject prefix
-- Stop the scheduler before returning from panfrost_job_timedout()
-- Call cancel_delayed_work_sync() after drm_sched_stop() to make sure
-  no timeout handlers are in flight when we reset the GPU (Steven Price)
-- Make sure we release the reset lock before restarting the
-  schedulers (Steven Price)
+- Use atomic_cmpxchg() to conditionally schedule the reset work
+  (Steven Price)
 
-Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+Fixes: 1a11a88cfd9a ("drm/panfrost: Fix job timeout handling")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
 Reviewed-by: Steven Price <steven.price@arm.com>
 Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201002122506.1374183-1-boris.brezillon@collabora.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20201105151704.2010667-1-boris.brezillon@collabora.com
 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
+index 1daf9322954a..fbcf5edbe367 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.c
++++ b/drivers/gpu/drm/panfrost/panfrost_device.c
+@@ -200,7 +200,6 @@ int panfrost_device_init(struct panfrost_device *pfdev)
+ 	struct resource *res;
+ 
+ 	mutex_init(&pfdev->sched_lock);
+-	mutex_init(&pfdev->reset_lock);
+ 	INIT_LIST_HEAD(&pfdev->scheduled_jobs);
+ 	INIT_LIST_HEAD(&pfdev->as_lru_list);
+ 
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.h b/drivers/gpu/drm/panfrost/panfrost_device.h
+index 140e004a3790..597cf1459b0a 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.h
++++ b/drivers/gpu/drm/panfrost/panfrost_device.h
+@@ -106,7 +106,11 @@ struct panfrost_device {
+ 	struct panfrost_perfcnt *perfcnt;
+ 
+ 	struct mutex sched_lock;
+-	struct mutex reset_lock;
++
++	struct {
++		struct work_struct work;
++		atomic_t pending;
++	} reset;
+ 
+ 	struct mutex shrinker_lock;
+ 	struct list_head shrinker_list;
 diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-index 30e7b7196dab..d0469e944143 100644
+index e75b7d2192f7..04e6f6f9b742 100644
 --- a/drivers/gpu/drm/panfrost/panfrost_job.c
 +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -25,7 +25,8 @@
+@@ -20,12 +20,21 @@
+ #include "panfrost_gpu.h"
+ #include "panfrost_mmu.h"
  
++#define JOB_TIMEOUT_MS 500
++
+ #define job_write(dev, reg, data) writel(data, dev->iomem + (reg))
+ #define job_read(dev, reg) readl(dev->iomem + (reg))
+ 
++enum panfrost_queue_status {
++	PANFROST_QUEUE_STATUS_ACTIVE,
++	PANFROST_QUEUE_STATUS_STOPPED,
++	PANFROST_QUEUE_STATUS_STARTING,
++	PANFROST_QUEUE_STATUS_FAULT_PENDING,
++};
++
  struct panfrost_queue_state {
  	struct drm_gpu_scheduler sched;
--
-+	bool stopped;
-+	struct mutex lock;
+-	bool stopped;
++	atomic_t status;
+ 	struct mutex lock;
  	u64 fence_context;
  	u64 emit_seqno;
- };
-@@ -369,6 +370,24 @@ void panfrost_job_enable_interrupts(struct panfrost_device *pfdev)
- 	job_write(pfdev, JOB_INT_MASK, irq_mask);
+@@ -373,28 +382,61 @@ void panfrost_job_enable_interrupts(struct panfrost_device *pfdev)
+ static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
+ 				    struct drm_sched_job *bad)
+ {
++	enum panfrost_queue_status old_status;
+ 	bool stopped = false;
+ 
+ 	mutex_lock(&queue->lock);
+-	if (!queue->stopped) {
+-		drm_sched_stop(&queue->sched, bad);
+-		if (bad)
+-			drm_sched_increase_karma(bad);
+-		queue->stopped = true;
+-		stopped = true;
+-	}
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_STOPPED);
++	if (old_status == PANFROST_QUEUE_STATUS_STOPPED)
++		goto out;
++
++	WARN_ON(old_status != PANFROST_QUEUE_STATUS_ACTIVE);
++	drm_sched_stop(&queue->sched, bad);
++	if (bad)
++		drm_sched_increase_karma(bad);
++
++	stopped = true;
++
++	/*
++	 * Set the timeout to max so the timer doesn't get started
++	 * when we return from the timeout handler (restored in
++	 * panfrost_scheduler_start()).
++	 */
++	queue->sched.timeout = MAX_SCHEDULE_TIMEOUT;
++
++out:
+ 	mutex_unlock(&queue->lock);
+ 
+ 	return stopped;
  }
  
-+static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
-+				    struct drm_sched_job *bad)
++static void panfrost_scheduler_start(struct panfrost_queue_state *queue)
 +{
-+	bool stopped = false;
++	enum panfrost_queue_status old_status;
 +
 +	mutex_lock(&queue->lock);
-+	if (!queue->stopped) {
-+		drm_sched_stop(&queue->sched, bad);
-+		if (bad)
-+			drm_sched_increase_karma(bad);
-+		queue->stopped = true;
-+		stopped = true;
-+	}
-+	mutex_unlock(&queue->lock);
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_STARTING);
++	WARN_ON(old_status != PANFROST_QUEUE_STATUS_STOPPED);
 +
-+	return stopped;
++	/* Restore the original timeout before starting the scheduler. */
++	queue->sched.timeout = msecs_to_jiffies(JOB_TIMEOUT_MS);
++	drm_sched_resubmit_jobs(&queue->sched);
++	drm_sched_start(&queue->sched, true);
++	old_status = atomic_xchg(&queue->status,
++				 PANFROST_QUEUE_STATUS_ACTIVE);
++	if (old_status == PANFROST_QUEUE_STATUS_FAULT_PENDING)
++		drm_sched_fault(&queue->sched);
++
++	mutex_unlock(&queue->lock);
 +}
 +
  static void panfrost_job_timedout(struct drm_sched_job *sched_job)
  {
  	struct panfrost_job *job = to_panfrost_job(sched_job);
-@@ -392,19 +411,39 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
- 		job_read(pfdev, JS_TAIL_LO(js)),
- 		sched_job);
+ 	struct panfrost_device *pfdev = job->pfdev;
+ 	int js = panfrost_job_get_slot(job);
+-	unsigned long flags;
+-	int i;
  
-+	/* Scheduler is already stopped, nothing to do. */
-+	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
-+		return;
-+
- 	if (!mutex_trylock(&pfdev->reset_lock))
+ 	/*
+ 	 * If the GPU managed to complete this jobs fence, the timeout is
+@@ -415,56 +457,9 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+ 	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
  		return;
  
- 	for (i = 0; i < NUM_JOB_SLOTS; i++) {
- 		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
- 
--		drm_sched_stop(sched, sched_job);
--		if (js != i)
--			/* Ensure any timeouts on other slots have finished */
-+		/*
-+		 * If the queue is still active, make sure we wait for any
-+		 * pending timeouts.
-+		 */
-+		if (!pfdev->js->queue[i].stopped)
- 			cancel_delayed_work_sync(&sched->work_tdr);
+-	if (!mutex_trylock(&pfdev->reset_lock))
+-		return;
+-
+-	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+-		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
+-
+-		/*
+-		 * If the queue is still active, make sure we wait for any
+-		 * pending timeouts.
+-		 */
+-		if (!pfdev->js->queue[i].stopped)
+-			cancel_delayed_work_sync(&sched->work_tdr);
+-
+-		/*
+-		 * If the scheduler was not already stopped, there's a tiny
+-		 * chance a timeout has expired just before we stopped it, and
+-		 * drm_sched_stop() does not flush pending works. Let's flush
+-		 * them now so the timeout handler doesn't get called in the
+-		 * middle of a reset.
+-		 */
+-		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
+-			cancel_delayed_work_sync(&sched->work_tdr);
+-
+-		/*
+-		 * Now that we cancelled the pending timeouts, we can safely
+-		 * reset the stopped state.
+-		 */
+-		pfdev->js->queue[i].stopped = false;
 -	}
- 
--	drm_sched_increase_karma(sched_job);
-+		/*
-+		 * If the scheduler was not already stopped, there's a tiny
-+		 * chance a timeout has expired just before we stopped it, and
-+		 * drm_sched_stop() does not flush pending works. Let's flush
-+		 * them now so the timeout handler doesn't get called in the
-+		 * middle of a reset.
-+		 */
-+		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
-+			cancel_delayed_work_sync(&sched->work_tdr);
-+
-+		/*
-+		 * Now that we cancelled the pending timeouts, we can safely
-+		 * reset the stopped state.
-+		 */
-+		pfdev->js->queue[i].stopped = false;
-+	}
- 
- 	spin_lock_irqsave(&pfdev->js->job_lock, flags);
- 	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-@@ -421,11 +460,11 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
- 	for (i = 0; i < NUM_JOB_SLOTS; i++)
- 		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
- 
-+	mutex_unlock(&pfdev->reset_lock);
-+
- 	/* restart scheduler after GPU is usable again */
- 	for (i = 0; i < NUM_JOB_SLOTS; i++)
- 		drm_sched_start(&pfdev->js->queue[i].sched, true);
+-
+-	spin_lock_irqsave(&pfdev->js->job_lock, flags);
+-	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+-		if (pfdev->jobs[i]) {
+-			pm_runtime_put_noidle(pfdev->dev);
+-			panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
+-			pfdev->jobs[i] = NULL;
+-		}
+-	}
+-	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
+-
+-	panfrost_device_reset(pfdev);
+-
+-	for (i = 0; i < NUM_JOB_SLOTS; i++)
+-		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
 -
 -	mutex_unlock(&pfdev->reset_lock);
+-
+-	/* restart scheduler after GPU is usable again */
+-	for (i = 0; i < NUM_JOB_SLOTS; i++)
+-		drm_sched_start(&pfdev->js->queue[i].sched, true);
++	/* Schedule a reset if there's no reset in progress. */
++	if (!atomic_xchg(&pfdev->reset.pending, 1))
++		schedule_work(&pfdev->reset.work);
  }
  
  static const struct drm_sched_backend_ops panfrost_sched_ops = {
-@@ -558,6 +597,7 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
- 	int ret, i;
+@@ -496,6 +491,8 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 		job_write(pfdev, JOB_INT_CLEAR, mask);
  
- 	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-+		mutex_init(&js->queue[i].lock);
- 		sched = &js->queue[i].sched;
- 		ret = drm_sched_entity_init(&panfrost_priv->sched_entity[i],
- 					    DRM_SCHED_PRIORITY_NORMAL, &sched,
-@@ -570,10 +610,14 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
+ 		if (status & JOB_INT_MASK_ERR(j)) {
++			enum panfrost_queue_status old_status;
++
+ 			job_write(pfdev, JS_COMMAND_NEXT(j), JS_COMMAND_NOP);
  
- void panfrost_job_close(struct panfrost_file_priv *panfrost_priv)
- {
-+	struct panfrost_device *pfdev = panfrost_priv->pfdev;
-+	struct panfrost_job_slot *js = pfdev->js;
- 	int i;
+ 			dev_err(pfdev->dev, "js fault, js=%d, status=%s, head=0x%x, tail=0x%x",
+@@ -504,7 +501,18 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 				job_read(pfdev, JS_HEAD_LO(j)),
+ 				job_read(pfdev, JS_TAIL_LO(j)));
  
--	for (i = 0; i < NUM_JOB_SLOTS; i++)
-+	for (i = 0; i < NUM_JOB_SLOTS; i++) {
- 		drm_sched_entity_destroy(&panfrost_priv->sched_entity[i]);
-+		mutex_destroy(&js->queue[i].lock);
-+	}
+-			drm_sched_fault(&pfdev->js->queue[j].sched);
++			/*
++			 * When the queue is being restarted we don't report
++			 * faults directly to avoid races between the timeout
++			 * and reset handlers. panfrost_scheduler_start() will
++			 * call drm_sched_fault() after the queue has been
++			 * started if status == FAULT_PENDING.
++			 */
++			old_status = atomic_cmpxchg(&pfdev->js->queue[j].status,
++						    PANFROST_QUEUE_STATUS_STARTING,
++						    PANFROST_QUEUE_STATUS_FAULT_PENDING);
++			if (old_status == PANFROST_QUEUE_STATUS_ACTIVE)
++				drm_sched_fault(&pfdev->js->queue[j].sched);
+ 		}
+ 
+ 		if (status & JOB_INT_MASK_DONE(j)) {
+@@ -531,11 +539,66 @@ static irqreturn_t panfrost_job_irq_handler(int irq, void *data)
+ 	return IRQ_HANDLED;
  }
  
- int panfrost_job_is_idle(struct panfrost_device *pfdev)
++static void panfrost_reset(struct work_struct *work)
++{
++	struct panfrost_device *pfdev = container_of(work,
++						     struct panfrost_device,
++						     reset.work);
++	unsigned long flags;
++	unsigned int i;
++	bool cookie;
++
++	cookie = dma_fence_begin_signalling();
++	for (i = 0; i < NUM_JOB_SLOTS; i++) {
++		/*
++		 * We want pending timeouts to be handled before we attempt
++		 * to stop the scheduler. If we don't do that and the timeout
++		 * handler is in flight, it might have removed the bad job
++		 * from the list, and we'll lose this job if the reset handler
++		 * enters the critical section in panfrost_scheduler_stop()
++		 * before the timeout handler.
++		 *
++		 * Timeout is set to MAX_SCHEDULE_TIMEOUT - 1 because we need
++		 * something big enough to make sure the timer will not expire
++		 * before we manage to stop the scheduler, but we can't use
++		 * MAX_SCHEDULE_TIMEOUT because drm_sched_get_cleanup_job()
++		 * considers that as 'timer is not running' and will dequeue
++		 * the job without making sure the timeout handler is not
++		 * running.
++		 */
++		pfdev->js->queue[i].sched.timeout = MAX_SCHEDULE_TIMEOUT - 1;
++		cancel_delayed_work_sync(&pfdev->js->queue[i].sched.work_tdr);
++		panfrost_scheduler_stop(&pfdev->js->queue[i], NULL);
++	}
++
++	/* All timers have been stopped, we can safely reset the pending state. */
++	atomic_set(&pfdev->reset.pending, 0);
++
++	spin_lock_irqsave(&pfdev->js->job_lock, flags);
++	for (i = 0; i < NUM_JOB_SLOTS; i++) {
++		if (pfdev->jobs[i]) {
++			pm_runtime_put_noidle(pfdev->dev);
++			panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
++			pfdev->jobs[i] = NULL;
++		}
++	}
++	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
++
++	panfrost_device_reset(pfdev);
++
++	for (i = 0; i < NUM_JOB_SLOTS; i++)
++		panfrost_scheduler_start(&pfdev->js->queue[i]);
++
++	dma_fence_end_signalling(cookie);
++}
++
+ int panfrost_job_init(struct panfrost_device *pfdev)
+ {
+ 	struct panfrost_job_slot *js;
+ 	int ret, j, irq;
+ 
++	INIT_WORK(&pfdev->reset.work, panfrost_reset);
++
+ 	pfdev->js = js = devm_kzalloc(pfdev->dev, sizeof(*js), GFP_KERNEL);
+ 	if (!js)
+ 		return -ENOMEM;
+@@ -560,7 +623,7 @@ int panfrost_job_init(struct panfrost_device *pfdev)
+ 
+ 		ret = drm_sched_init(&js->queue[j].sched,
+ 				     &panfrost_sched_ops,
+-				     1, 0, msecs_to_jiffies(500),
++				     1, 0, msecs_to_jiffies(JOB_TIMEOUT_MS),
+ 				     "pan_js");
+ 		if (ret) {
+ 			dev_err(pfdev->dev, "Failed to create scheduler: %d.", ret);
 
