@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A022E3FC9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353B42E39D8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503169AbgL1OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
+        id S2390026AbgL1N3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:29:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503164AbgL1OY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC2D221F0;
-        Mon, 28 Dec 2020 14:24:42 +0000 (UTC)
+        id S2390019AbgL1N27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:28:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2FC022AAA;
+        Mon, 28 Dec 2020 13:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165483;
-        bh=0O7lhUQg3Vk3mTZyYdpKNC64PDrNQGDsmxZneg17+/4=;
+        s=korg; t=1609162124;
+        bh=N7oWq1TSHJJXcpLjjSC+29H7BiQDeXX0UwpvMvsDtnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKlf+EuUOUdDdvHTt/iEzpmOPCMc/cQLtBtKV6FDJI6ywpN2qzXI+kfl47k6K6fnI
-         Ad+Uhgzv2ZGJm8H9rT4KJyRxxMqzNssKibe9NEchQ+RUl1jxL3+rlzKlMips5pAGKU
-         gxGDoCRFNPCkxS5XzyG+oh2z3PuWfdhcdONJeqiM=
+        b=LGwdwxbWjjFkxq+XdzIgS6TAmbR8CGNLqWQzi9kefcV4WQoAuJXYPzXqQqMXI8eXG
+         nRf7l3t+1CqUU/j8vnNFNy4g0GGDcShebzxPNsJn8r+p/eDh6oLR3U0v45wx/J7KQK
+         W2Xoli2M7IPv0IBHYqKxmAcRRlavWFgMdnYUdg4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 517/717] io_uring: fix 0-iov read buffer select
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 196/346] ARM: dts: at91: sama5d2: map securam as device
 Date:   Mon, 28 Dec 2020 13:48:35 +0100
-Message-Id: <20201228125045.724452992@linuxfoundation.org>
+Message-Id: <20201228124929.269707945@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit dd20166236953c8cd14f4c668bf972af32f0c6be upstream.
+[ Upstream commit 9b5dcc8d427e2bcb84c49eb03ffefe11e7537a55 ]
 
-Doing vectored buf-select read with 0 iovec passed is meaningless and
-utterly broken, forbid it.
+Due to strobe signal not being propagated from CPU to securam
+the securam needs to be mapped as device or strongly ordered memory
+to work properly. Otherwise, updating to one offset may affect
+the adjacent locations in securam.
 
-Cc: <stable@vger.kernel.org> # 5.7+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d4ce5f44d4409 ("ARM: dts: at91: sama5d2: Add securam node")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/1606903025-14197-3-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/arm/boot/dts/sama5d2.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3048,9 +3048,7 @@ static ssize_t io_iov_buffer_select(stru
- 		iov[0].iov_len = kbuf->len;
- 		return 0;
- 	}
--	if (!req->rw.len)
--		return 0;
--	else if (req->rw.len > 1)
-+	if (req->rw.len != 1)
- 		return -EINVAL;
+diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+index b405992eb6016..d57be54f5df9c 100644
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -1247,6 +1247,7 @@
+ 				clocks = <&securam_clk>;
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
++				no-memory-wc;
+ 				ranges = <0 0xf8044000 0x1420>;
+ 			};
  
- #ifdef CONFIG_COMPAT
+-- 
+2.27.0
+
 
 
