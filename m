@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B81E2E355D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:18:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6398A2E355C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:17:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbgL1JSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:18:05 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57929 "EHLO
+        id S1726691AbgL1JRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:17:04 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42707 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1JSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:18:05 -0500
+        by vger.kernel.org with ESMTP id S1726631AbgL1JRE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:17:04 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 5983F715;
-        Mon, 28 Dec 2020 04:16:59 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:16:59 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 45D3E18A;
+        Mon, 28 Dec 2020 04:16:18 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:16:18 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5HkJcj
-        mnVBzudvXXO9HZkQ+p/+ati+FH7vMAptcT6yo=; b=gXQKLQ/nEaB9SW9xCUwuRp
-        egAcT3nUylKbxSV//+GlyK6Lp/3bf87SWvmjLJze4LP5JbdXB3Vt+CPhSN2tnpoi
-        jUIYyyjfZDqjNwrMSnUxuTEsTHF+cTXTeaTKgcEk2dGLhe/NZ1KDhy0URvNl70ML
-        5Rz2ro7yPgNazfVeMA0YcN/l6pyJL6Lc5OEJHZJyZL4lT+OjcS7Qg2m5yavGjzDt
-        eKbBpRpGEk9sWkdUhzjLttErmpjiBBf3rmnbc5MK9I3jhlGG3rs505TofTl+q6eK
-        pX6nXjrdm/0vA1sfge7/mX5l2VNxFUfdiRgvlT4CIYPysvtMiXqFNsoGET9ZKO9w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OQhzQb
+        l7GwfnsZrN3qW8iiXRUeb4zCsQODWxaLfGI6c=; b=FreKHzlrBdzf7iCiRIyqKu
+        N5AtsFrwJaX3GoDtZ1j66A9KJM9Tny9L00whhFpknVS8Nf5f89W7KTP0u+P4VOb+
+        7Te8uoFnzlUqdkaurwX113YFtuPBxq9DawSRnLC63RHbBQzAD1k8LtalcqNPV+fZ
+        Vd8MDUbL3XNylWJFl8OdUs3LYNpQuvWpgHaLVa6UvCRlwtS+bOevlfcPvwlupU2W
+        sVaEUGRkSpFDnujeQCLYc1dDxaKpnFIzMaShAHQIsUuN/NMOGN8fSwkJcqtv2f1x
+        Smy6622p27COUXI2nOEJUaoWdCGSsjT5Ng37rc0g5h2z20bSWdCg1AM5wQWMhkQg
         ==
-X-ME-Sender: <xms:iqLpXz5CAUGgsNvkvwK5ZQXNHtKZshafuTREE9tDo1VvkxfpyTy1aw>
-    <xme:iqLpX44EK-xgdKPxDMzxeeFx0m5j6DQ2RpRHPnMt64Y1p5LyiTJmk7glCJslxZ43n
-    MGdkkeX-lIoZA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:YaLpX6VICUXPHpcnso3s7J0R55w0vkvCKB4BJGT3Rd9-mioWBGjtpA>
+    <xme:YaLpX2lIShKVicUArOi0P_64bzvLov9zbcb32m54TTDvo2_XaL_7V3PaLNCZedV1-
+    fTgWOxRtxDAlQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdefucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:iqLpX6fcsILBsgUuT3BRCorNogNfybibhaVMxnu1OPJv4cvnP9q22w>
-    <xmx:iqLpX0JpYwyjMJYnHNh5PV12vYkx08Dltrio3xrMb7TJDxrKFp5JSg>
-    <xmx:iqLpX3LhABgG7naKGDWYinkch6RvqPkP9TLOM0lENuKyDcMxr62bjQ>
-    <xmx:i6LpX9iaEadafy1wBHYO_6724wXy6-6ocmJGGIbMOanRnMBK_t7pCKp8ybg>
+X-ME-Proxy: <xmx:YaLpX-aC20yB5lICkWqyf04i777A5AlcijGft7hSPyE7oMGy5kyU_A>
+    <xmx:YaLpXxXM_FWnnfV7l63ycyjJzRcGL16d2lzW_WObiLQ2ltnJUMbh7Q>
+    <xmx:YaLpX0mHnVGf8ryHzXqwb1nzDMOHuAtybEHYDoCBWrjCe5Am1mCRQw>
+    <xmx:YaLpXwtlt72mMT82ZT3uB_su-KxFUOAuf7LP9iQaJ1t3-GDU29aYJfXjOfQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6306424005C;
-        Mon, 28 Dec 2020 04:16:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ext4: don't remount read-only with errors=continue on reboot" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0BADC108005B;
+        Mon, 28 Dec 2020 04:16:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ext4: don't remount read-only with errors=continue on reboot" failed to apply to 5.4-stable tree
 To:     jack@suse.cz, adilger@dilger.ca, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 28 Dec 2020 10:17:25 +0100
-Message-ID: <16091470451704@kroah.com>
+Message-ID: <1609147045182133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
