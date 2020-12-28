@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F20772E64DE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CCE2E3D22
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390873AbgL1Pxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:53:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
+        id S2439730AbgL1OLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:11:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390757AbgL1Nh0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9942072C;
-        Mon, 28 Dec 2020 13:37:09 +0000 (UTC)
+        id S2439728AbgL1OLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:11:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E601207B6;
+        Mon, 28 Dec 2020 14:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162630;
-        bh=zRaxgOSMWQ1QxiCdSjYePYYnmU0RFJSGGcRQu2LSqjQ=;
+        s=korg; t=1609164670;
+        bh=wVy12jNep2eyFnbYJXmGX8vZ5VsGyWMcMzYPQVd6T7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2K3c5B5RnfJJMrxk8MkKn2ag4j5qkNy0OoCa5PQcA8Erhi4xP7D8jMvwbp4t9E5rc
-         ri9lyvanX/+GoDtE6mhDag2BkOECp6JczbmC6XGx8QdAc7b5e7yqNhRm+/cMf03rUU
-         sLYB2nWmjgwRASZP+MO53qmO8HfGP+iiQ0sqCQmI=
+        b=wrgrGaoCqzb96/l1XlO14pOwThdJqNVDuIjZqnX11TNBIpCc9ri4iHSQo//OSkoR1
+         sMSM58w7Af3PJvBAenrrvgTaMN5JyL2+PCXEOZte0ALOwCbvnAtX3sFNeNEUBxiQwH
+         X/WOBMU3WQquYY7f1F43KNSOdNDwZxrVXGUjObMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/453] block: factor out requeue handling from dispatch code
+Subject: [PATCH 5.10 257/717] media: max9271: Fix GPIO enable/disable
 Date:   Mon, 28 Dec 2020 13:44:15 +0100
-Message-Id: <20201228124938.177936298@linuxfoundation.org>
+Message-Id: <20201228125033.306315339@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit c92a41031a6d57395889b5c87cea359220a24d2a ]
+[ Upstream commit 909a0a189c677307edd461e21fd962784370d27f ]
 
-Factor out the requeue handling from the dispatch code, this will make
-subsequent addition of different requeueing schemes easier.
+Fix GPIO enable/disable operations which wrongly read the 0x0f register
+to obtain the current mask of the enabled lines instead of using
+the correct 0x0e register.
 
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Also fix access to bit 0 of the register which is marked as reserved.
+
+Fixes: 34009bffc1c6 ("media: i2c: Add RDACM20 driver")
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ drivers/media/i2c/max9271.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index b748d1e63f9c8..c0efd3e278da6 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1205,6 +1205,23 @@ static void blk_mq_update_dispatch_busy(struct blk_mq_hw_ctx *hctx, bool busy)
+diff --git a/drivers/media/i2c/max9271.c b/drivers/media/i2c/max9271.c
+index 0f6f7a092a463..c247db569bab0 100644
+--- a/drivers/media/i2c/max9271.c
++++ b/drivers/media/i2c/max9271.c
+@@ -223,12 +223,12 @@ int max9271_enable_gpios(struct max9271_device *dev, u8 gpio_mask)
+ {
+ 	int ret;
  
- #define BLK_MQ_RESOURCE_DELAY	3		/* ms units */
+-	ret = max9271_read(dev, 0x0f);
++	ret = max9271_read(dev, 0x0e);
+ 	if (ret < 0)
+ 		return 0;
  
-+static void blk_mq_handle_dev_resource(struct request *rq,
-+				       struct list_head *list)
-+{
-+	struct request *next =
-+		list_first_entry_or_null(list, struct request, queuelist);
-+
-+	/*
-+	 * If an I/O scheduler has been configured and we got a driver tag for
-+	 * the next request already, free it.
-+	 */
-+	if (next)
-+		blk_mq_put_driver_tag(next);
-+
-+	list_add(&rq->queuelist, list);
-+	__blk_mq_requeue_request(rq);
-+}
-+
- /*
-  * Returns true if we did some work AND can potentially do more.
-  */
-@@ -1274,17 +1291,7 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 	/* BIT(0) reserved: GPO is always enabled. */
+-	ret |= gpio_mask | BIT(0);
++	ret |= (gpio_mask & ~BIT(0));
+ 	ret = max9271_write(dev, 0x0e, ret);
+ 	if (ret < 0) {
+ 		dev_err(&dev->client->dev, "Failed to enable gpio (%d)\n", ret);
+@@ -245,12 +245,12 @@ int max9271_disable_gpios(struct max9271_device *dev, u8 gpio_mask)
+ {
+ 	int ret;
  
- 		ret = q->mq_ops->queue_rq(hctx, &bd);
- 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
--			/*
--			 * If an I/O scheduler has been configured and we got a
--			 * driver tag for the next request already, free it
--			 * again.
--			 */
--			if (!list_empty(list)) {
--				nxt = list_first_entry(list, struct request, queuelist);
--				blk_mq_put_driver_tag(nxt);
--			}
--			list_add(&rq->queuelist, list);
--			__blk_mq_requeue_request(rq);
-+			blk_mq_handle_dev_resource(rq, list);
- 			break;
- 		}
+-	ret = max9271_read(dev, 0x0f);
++	ret = max9271_read(dev, 0x0e);
+ 	if (ret < 0)
+ 		return 0;
  
+ 	/* BIT(0) reserved: GPO cannot be disabled */
+-	ret &= (~gpio_mask | BIT(0));
++	ret &= ~(gpio_mask | BIT(0));
+ 	ret = max9271_write(dev, 0x0e, ret);
+ 	if (ret < 0) {
+ 		dev_err(&dev->client->dev, "Failed to disable gpio (%d)\n", ret);
 -- 
 2.27.0
 
