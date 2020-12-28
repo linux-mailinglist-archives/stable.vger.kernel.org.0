@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1530D2E3EBC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:32:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D4AE2E3EC9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392111AbgL1OcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
+        id S2504689AbgL1Oc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504167AbgL1Ob5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02CF420731;
-        Mon, 28 Dec 2020 14:31:41 +0000 (UTC)
+        id S2504685AbgL1OcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDCC9207B2;
+        Mon, 28 Dec 2020 14:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165902;
-        bh=FByFilfvTSCB8jVvVtOFWdve0P2M38QBoOeXyFRguSs=;
+        s=korg; t=1609165905;
+        bh=0JRq4zc0eqyhnPIJIMCXfyAavxG7Tz7K1aTkyE6b8Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FobRrUwwP+lZjAMkHxdaan/hrt06gzm5T2FoHN36MQE8cEQHWEPJVBDAYTGpGKFJO
-         aFDqq9n9VVlf3ndwGNfkm2ql+EsXmqDssn81AwcwgyU8PeM6mXssj0TYTezf0BG5fW
-         PX5dJH9pw+iL73RjYXcXHA7ilQN8blvCkwEVVdiA=
+        b=y+f5kfiscZpJPnljYXXcshCj892GNe62+d1YWVKM59jMZVEvxXpZSw1O4jHIjqzC3
+         sY0gPf8RN2/Off/lPhcMuLPWbNlmPi1Sqp6Gbnbk2msMWMwkQSYy4L1IT+lJ6GJHNZ
+         GQgJr1UzaaGUjvwuWnsI90HtLSJAN1BzzWSZx6KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Benjamin <oliben@amazon.com>,
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        Michael Kurth <mku@amazon.de>,
         Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Julien Grall <jgrall@amazon.com>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 695/717] xen-blkback: set ring->xenblkd to NULL after kthread_stop()
-Date:   Mon, 28 Dec 2020 13:51:33 +0100
-Message-Id: <20201228125054.281133955@linuxfoundation.org>
+Subject: [PATCH 5.10 696/717] xen/xenbus: Allow watches discard events before queueing
+Date:   Mon, 28 Dec 2020 13:51:34 +0100
+Message-Id: <20201228125054.333149820@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,52 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Wieczorkiewicz <wipawel@amazon.de>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit 1c728719a4da6e654afb9cc047164755072ed7c9 upstream.
+commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
 
-When xen_blkif_disconnect() is called, the kernel thread behind the
-block interface is stopped by calling kthread_stop(ring->xenblkd).
-The ring->xenblkd thread pointer being non-NULL determines if the
-thread has been already stopped.
-Normally, the thread's function xen_blkif_schedule() sets the
-ring->xenblkd to NULL, when the thread's main loop ends.
+If handling logics of watch events are slower than the events enqueue
+logic and the events can be created from the guests, the guests could
+trigger memory pressure by intensively inducing the events, because it
+will create a huge number of pending events that exhausting the memory.
 
-However, when the thread has not been started yet (i.e.
-wake_up_process() has not been called on it), the xen_blkif_schedule()
-function would not be called yet.
+Fortunately, some watch events could be ignored, depending on its
+handler callback.  For example, if the callback has interest in only one
+single path, the watch wouldn't want multiple pending events.  Or, some
+watches could ignore events to same path.
 
-In such case the kthread_stop() call returns -EINTR and the
-ring->xenblkd remains dangling.
-When this happens, any consecutive call to xen_blkif_disconnect (for
-example in frontend_changed() callback) leads to a kernel crash in
-kthread_stop() (e.g. NULL pointer dereference in exit_creds()).
+To let such watches to volutarily help avoiding the memory pressure
+situation, this commit introduces new watch callback, 'will_handle'.  If
+it is not NULL, it will be called for each new event just before
+enqueuing it.  Then, if the callback returns false, the event will be
+discarded.  No watch is using the callback for now, though.
 
-This is XSA-350.
+This is part of XSA-349
 
-Cc: <stable@vger.kernel.org> # 4.12
-Fixes: a24fa22ce22a ("xen/blkback: don't use xen_blkif_get() in xen-blkback kthread")
-Reported-by: Olivier Benjamin <oliben@amazon.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reported-by: Michael Kurth <mku@amazon.de>
 Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Signed-off-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
 Reviewed-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkback/xenbus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/xen-netback/xenbus.c   |    4 ++++
+ drivers/xen/xenbus/xenbus_client.c |    1 +
+ drivers/xen/xenbus/xenbus_xs.c     |    5 ++++-
+ include/xen/xenbus.h               |    7 +++++++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -274,6 +274,7 @@ static int xen_blkif_disconnect(struct x
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -557,12 +557,14 @@ static int xen_register_credit_watch(str
+ 		return -ENOMEM;
+ 	snprintf(node, maxlen, "%s/rate", dev->nodename);
+ 	vif->credit_watch.node = node;
++	vif->credit_watch.will_handle = NULL;
+ 	vif->credit_watch.callback = xen_net_rate_changed;
+ 	err = register_xenbus_watch(&vif->credit_watch);
+ 	if (err) {
+ 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
+ 		kfree(node);
+ 		vif->credit_watch.node = NULL;
++		vif->credit_watch.will_handle = NULL;
+ 		vif->credit_watch.callback = NULL;
+ 	}
+ 	return err;
+@@ -609,6 +611,7 @@ static int xen_register_mcast_ctrl_watch
+ 	snprintf(node, maxlen, "%s/request-multicast-control",
+ 		 dev->otherend);
+ 	vif->mcast_ctrl_watch.node = node;
++	vif->mcast_ctrl_watch.will_handle = NULL;
+ 	vif->mcast_ctrl_watch.callback = xen_mcast_ctrl_changed;
+ 	err = register_xenbus_watch(&vif->mcast_ctrl_watch);
+ 	if (err) {
+@@ -616,6 +619,7 @@ static int xen_register_mcast_ctrl_watch
+ 		       vif->mcast_ctrl_watch.node);
+ 		kfree(node);
+ 		vif->mcast_ctrl_watch.node = NULL;
++		vif->mcast_ctrl_watch.will_handle = NULL;
+ 		vif->mcast_ctrl_watch.callback = NULL;
+ 	}
+ 	return err;
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -133,6 +133,7 @@ int xenbus_watch_path(struct xenbus_devi
+ 	int err;
  
- 		if (ring->xenblkd) {
- 			kthread_stop(ring->xenblkd);
-+			ring->xenblkd = NULL;
- 			wake_up(&ring->shutdown_wq);
- 		}
+ 	watch->node = path;
++	watch->will_handle = NULL;
+ 	watch->callback = callback;
  
+ 	err = register_xenbus_watch(watch);
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -705,7 +705,10 @@ int xs_watch_msg(struct xs_watch_event *
+ 
+ 	spin_lock(&watches_lock);
+ 	event->handle = find_watch(event->token);
+-	if (event->handle != NULL) {
++	if (event->handle != NULL &&
++			(!event->handle->will_handle ||
++			 event->handle->will_handle(event->handle,
++				 event->path, event->token))) {
+ 		spin_lock(&watch_events_lock);
+ 		list_add_tail(&event->list, &watch_events);
+ 		wake_up(&watch_events_waitq);
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -61,6 +61,13 @@ struct xenbus_watch
+ 	/* Path being watched. */
+ 	const char *node;
+ 
++	/*
++	 * Called just before enqueing new event while a spinlock is held.
++	 * The event will be discarded if this callback returns false.
++	 */
++	bool (*will_handle)(struct xenbus_watch *,
++			      const char *path, const char *token);
++
+ 	/* Callback (executed in a process context with no locks held). */
+ 	void (*callback)(struct xenbus_watch *,
+ 			 const char *path, const char *token);
 
 
