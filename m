@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8804B2E39BF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2335D2E37BA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389644AbgL1N1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56334 "EHLO mail.kernel.org"
+        id S1729024AbgL1M7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:59:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389632AbgL1N1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:27:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 917E620719;
-        Mon, 28 Dec 2020 13:26:54 +0000 (UTC)
+        id S1728568AbgL1M7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A60D207C9;
+        Mon, 28 Dec 2020 12:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162015;
-        bh=JQ5m3nXHAVCZhNRjxUcbAYY3I1pJ2P5JMU2x3pYdBNk=;
+        s=korg; t=1609160339;
+        bh=HLbvT0t5lTNvAq8/yQSXy/x+6NeyQHXLhVSTO0F0GQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWOIp2Py4wOtYcWtl5ZGO+1sEdXiAqreyEfTeng6jjP9J7eff0Tx64RDezG7UEt0V
-         FuGDgvDwF2exrXa/IxVnTyliREg/amWJoHleHrm9rHpnl9Un8RnmVHQO1JMiihxpoY
-         CQ4QG27Ingrqg5GdAIklVhQU8VUa5+5aaoaHYV4o=
+        b=sHk/Y+R+5W89Pg1SiMTVdmLwfDY5zBW5a7FT4Hvlgt5Eb8YbfGu+Av0MZ8v4k7NDt
+         9Ks+n1COqlGY+AG3x08MSdBxuJo+IAUl7P1m6Us++rt156zTrxfCgqPU2Ke5+gPLFn
+         8m+tbTr4pcr+6JJa/4pCSZfOsVIjuDUMJZ8QHskE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/346] powerpc/feature: Fix CPU_FTRS_ALWAYS by removing CPU_FTRS_GENERIC_32
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Bui Quang Minh <minhquangbui99@gmail.com>
+Subject: [PATCH 4.9 018/175] USB: dummy-hcd: Fix uninitialized array use in init()
 Date:   Mon, 28 Dec 2020 13:47:51 +0100
-Message-Id: <20201228124927.136232136@linuxfoundation.org>
+Message-Id: <20201228124854.146729305@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
 
-[ Upstream commit 78665179e569c7e1fe102fb6c21d0f5b6951f084 ]
+commit e90cfa813da7a527785033a0b247594c2de93dd8 upstream.
 
-On 8xx, we get the following features:
+This error path
 
-[    0.000000] cpu_features      = 0x0000000000000100
-[    0.000000]   possible        = 0x0000000000000120
-[    0.000000]   always          = 0x0000000000000000
+	err_add_pdata:
+		for (i = 0; i < mod_data.num; i++)
+			kfree(dum[i]);
 
-This is not correct. As CONFIG_PPC_8xx is mutually exclusive with all
-other configurations, the three lines should be equal.
+can be triggered when not all dum's elements are initialized.
 
-The problem is due to CPU_FTRS_GENERIC_32 which is taken when
-CONFIG_BOOK3S_32 is NOT selected. This CPU_FTRS_GENERIC_32 is
-pointless because there is no generic configuration supporting
-all 32 bits but book3s/32.
+Fix this by initializing all dum's elements to NULL.
 
-Remove this pointless generic features definition to unbreak the
-calculation of 'possible' features and 'always' features.
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Link: https://lore.kernel.org/r/1607063090-3426-1-git-send-email-minhquangbui99@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 76bc080ef5a3 ("[POWERPC] Make default cputable entries reflect selected CPU family")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/76a85f30bf981d1aeaae00df99321235494da254.1604426550.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cputable.h | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/gadget/udc/dummy_hcd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
-index 59b35b93eadec..d90093a88e096 100644
---- a/arch/powerpc/include/asm/cputable.h
-+++ b/arch/powerpc/include/asm/cputable.h
-@@ -411,7 +411,6 @@ static inline void cpu_feature_keys_init(void) { }
- 	    CPU_FTR_DBELL | CPU_FTR_POPCNTB | CPU_FTR_POPCNTD | \
- 	    CPU_FTR_DEBUG_LVL_EXC | CPU_FTR_EMB_HV | CPU_FTR_ALTIVEC_COMP | \
- 	    CPU_FTR_CELL_TB_BUG | CPU_FTR_SMT)
--#define CPU_FTRS_GENERIC_32	(CPU_FTR_COMMON | CPU_FTR_NODSISRALIGN)
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2736,7 +2736,7 @@ static int __init init(void)
+ {
+ 	int	retval = -ENOMEM;
+ 	int	i;
+-	struct	dummy *dum[MAX_NUM_UDC];
++	struct	dummy *dum[MAX_NUM_UDC] = {};
  
- /* 64-bit CPUs */
- #define CPU_FTRS_PPC970	(CPU_FTR_LWSYNC | \
-@@ -509,8 +508,6 @@ enum {
- 	    CPU_FTRS_7447 | CPU_FTRS_7447A | CPU_FTRS_82XX |
- 	    CPU_FTRS_G2_LE | CPU_FTRS_E300 | CPU_FTRS_E300C2 |
- 	    CPU_FTRS_CLASSIC32 |
--#else
--	    CPU_FTRS_GENERIC_32 |
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX |
-@@ -585,8 +582,6 @@ enum {
- 	    CPU_FTRS_7447 & CPU_FTRS_7447A & CPU_FTRS_82XX &
- 	    CPU_FTRS_G2_LE & CPU_FTRS_E300 & CPU_FTRS_E300C2 &
- 	    CPU_FTRS_CLASSIC32 &
--#else
--	    CPU_FTRS_GENERIC_32 &
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX &
--- 
-2.27.0
-
+ 	if (usb_disabled())
+ 		return -ENODEV;
 
 
