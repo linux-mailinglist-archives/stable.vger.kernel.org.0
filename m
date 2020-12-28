@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9812E37C4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2E22E62FA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729426AbgL1NAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:00:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56428 "EHLO mail.kernel.org"
+        id S2406330AbgL1Nu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:50:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbgL1NAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:00:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B850121D94;
-        Mon, 28 Dec 2020 12:59:30 +0000 (UTC)
+        id S2406325AbgL1NuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 742A622583;
+        Mon, 28 Dec 2020 13:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160371;
-        bh=i4mlgf1ETnynvb/IiFRi9wV8TT8jHuPnzxerrq2DIbI=;
+        s=korg; t=1609163379;
+        bh=18AS3DecSQIXpjv2KC6bhvdWK076uLGJkHeyUsmK5cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12qWBZh2Wy1Al3MhgLfAZyifZsduR6XnibgxTdDaV0PLtuxq9uGGx/8e4ceoWqP0O
-         COC1E/SW/of2+Pn45vvtVdkPfmv98DYAL7hZvG8efENeBn36ZBlnOWmKgZ8Gr2i8rT
-         YWiGO5QaMhp+3fqiwfxkGTcIIRtWJGDULT6v6Ob0=
+        b=zcOFTneVIsXbIaY7REwMTc6jV1jEKu0poyi4rl8w2HqZrdSRgG9w3ZdgdDZ1VaKTP
+         3O3khdhsUcvPDCI6OwgRzV1uHRB1pEWQx1Tx0VdO7wt1gHlxhK2G/uvxSk+/QBLW/K
+         wBTftBbJZTtzpMjZOl0vEX91l8i9Gwh38gAdm/KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 021/175] ALSA: usb-audio: Fix control access overflow errors from chmap
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 238/453] ARM: dts: meson: fix PHY deassert timing requirements
 Date:   Mon, 28 Dec 2020 13:47:54 +0100
-Message-Id: <20201228124854.282228656@linuxfoundation.org>
+Message-Id: <20201228124948.671091226@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,50 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Stefan Agner <stefan@agner.ch>
 
-commit c6dde8ffd071aea9d1ce64279178e470977b235c upstream.
+[ Upstream commit 656ab1bdcd2b755dc161a9774201100d5bf74b8d ]
 
-The current channel-map control implementation in USB-audio driver may
-lead to an error message like
-  "control 3:0:0:Playback Channel Map:0: access overflow"
-when CONFIG_SND_CTL_VALIDATION is set.  It's because the chmap get
-callback clears the whole array no matter which count is set, and
-rather the false-positive detection.
+According to the datasheet (Rev. 1.9) the RTL8211F requires at least
+72ms "for internal circuits settling time" before accessing the PHY
+registers. On similar boards with the same PHY this fixes an issue where
+Ethernet link would not come up when using ip link set down/up.
 
-This patch fixes the problem by clearing only the needed array range
-at usb_chmap_ctl_get().
-
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201211130048.6358-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a2c6e82e5341 ("ARM: dts: meson: switch to the generic Ethernet PHY reset bindings")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com> # on Odroid-C1+
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/ff78772b306411e145769c46d4090554344db41e.1607363522.git.stefan@agner.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/stream.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/meson8b-odroidc1.dts    | 2 +-
+ arch/arm/boot/dts/meson8m2-mxiii-plus.dts | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -185,16 +185,16 @@ static int usb_chmap_ctl_get(struct snd_
- 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
- 	struct snd_usb_substream *subs = info->private_data;
- 	struct snd_pcm_chmap_elem *chmap = NULL;
--	int i;
-+	int i = 0;
+diff --git a/arch/arm/boot/dts/meson8b-odroidc1.dts b/arch/arm/boot/dts/meson8b-odroidc1.dts
+index a24eccc354b95..0f9c71137bed5 100644
+--- a/arch/arm/boot/dts/meson8b-odroidc1.dts
++++ b/arch/arm/boot/dts/meson8b-odroidc1.dts
+@@ -219,7 +219,7 @@
+ 			reg = <0>;
  
--	memset(ucontrol->value.integer.value, 0,
--	       sizeof(ucontrol->value.integer.value));
- 	if (subs->cur_audiofmt)
- 		chmap = subs->cur_audiofmt->chmap;
- 	if (chmap) {
- 		for (i = 0; i < chmap->channels; i++)
- 			ucontrol->value.integer.value[i] = chmap->map[i];
- 	}
-+	for (; i < subs->channels_max; i++)
-+		ucontrol->value.integer.value[i] = 0;
- 	return 0;
- }
+ 			reset-assert-us = <10000>;
+-			reset-deassert-us = <30000>;
++			reset-deassert-us = <80000>;
+ 			reset-gpios = <&gpio GPIOH_4 GPIO_ACTIVE_LOW>;
  
+ 			interrupt-parent = <&gpio_intc>;
+diff --git a/arch/arm/boot/dts/meson8m2-mxiii-plus.dts b/arch/arm/boot/dts/meson8m2-mxiii-plus.dts
+index d54477b1001ca..84b6ed51099db 100644
+--- a/arch/arm/boot/dts/meson8m2-mxiii-plus.dts
++++ b/arch/arm/boot/dts/meson8m2-mxiii-plus.dts
+@@ -83,7 +83,7 @@
+ 			reg = <0>;
+ 
+ 			reset-assert-us = <10000>;
+-			reset-deassert-us = <30000>;
++			reset-deassert-us = <80000>;
+ 			reset-gpios = <&gpio GPIOH_4 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+-- 
+2.27.0
+
 
 
