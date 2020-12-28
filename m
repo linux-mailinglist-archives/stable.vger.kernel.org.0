@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A4E2E3791
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6B62E4326
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728950AbgL1M5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:57:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
+        id S2405063AbgL1Pdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728332AbgL1M5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:57:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A235207C9;
-        Mon, 28 Dec 2020 12:56:39 +0000 (UTC)
+        id S2407380AbgL1Nx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41C8120715;
+        Mon, 28 Dec 2020 13:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160200;
-        bh=Y9aZMQcK4Chcm2VzbTFBgyiYcd6l0/nSSRjaagxz/Fk=;
+        s=korg; t=1609163622;
+        bh=nZMrMAamCH8fxLv4x7n/eb5SNkknL3x8hgvUN8jEIWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3zuD4uCaWoJ5CpnUOYJhc/fuDiz7dJyD2sMZeE2vDZYbuO6pQXZVwTidyCejd0Cs
-         t/SgSTpveFrOw8PYsS1xmqrxbKdeGmnyCS6tXuM3ZT6mgT/HgWaK+z+x0eTbHg8A0h
-         iYF/Rn8X7adruWUqUlBs34MlDP0NqDSsOV1Ts9zg=
+        b=060TOK1OwB55x/aH0RdgVH1tBGRqJidsuGXLR3/x0Ee6UQpfpbvO4eEyQTAbfDhKb
+         BVPRh89RzLWjKtWpIgYi/6oGDAJt5F32byQKySixqtbgTlioRnSn16GBEZi8YlIiHc
+         tXtE/30sbrZlaY4FiCDjz3lW5MzCKN7S2eq+QURQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 103/132] ALSA: pcm: oss: Fix a few more UBSAN fixes
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 351/453] s390/dasd: fix list corruption of pavgroup group list
 Date:   Mon, 28 Dec 2020 13:49:47 +0100
-Message-Id: <20201228124851.394677184@linuxfoundation.org>
+Message-Id: <20201228124954.100442845@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 11cb881bf075cea41092a20236ba708b18e1dbb2 upstream.
+commit 0ede91f83aa335da1c3ec68eb0f9e228f269f6d8 upstream.
 
-There are a few places that call round{up|down}_pow_of_two() with the
-value zero, and this causes undefined behavior warnings.  Avoid
-calling those macros if such a nonsense value is passed; it's a minor
-optimization as well, as we handle it as either an error or a value to
-be skipped, instead.
+dasd_alias_add_device() moves devices to the active_devices list in case
+of a scheduled LCU update regardless if they have previously been in a
+pavgroup or not.
 
-Reported-by: syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201218161730.26596-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Example: device A and B are in the same pavgroup.
+
+Device A has already been in a pavgroup and the private->pavgroup pointer
+is set and points to a valid pavgroup. While going through dasd_add_device
+it is moved from the pavgroup to the active_devices list.
+
+In parallel device B might be removed from the same pavgroup in
+remove_device_from_lcu() which in turn checks if the group is empty
+and deletes it accordingly because device A has already been removed from
+there.
+
+When now device A enters remove_device_from_lcu() it is tried to remove it
+from the pavgroup again because the pavgroup pointer is still set and again
+the empty group will be cleaned up which leads to a list corruption.
+
+Fix by setting private->pavgroup to NULL in dasd_add_device.
+
+If the device has been the last device on the pavgroup an empty pavgroup
+remains but this will be cleaned up by the scheduled lcu_update which
+iterates over all existing pavgroups.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/pcm_oss.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/s390/block/dasd_alias.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -718,6 +718,8 @@ static int snd_pcm_oss_period_size(struc
- 
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
-+	if (!oss_buffer_size)
-+		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
- 		if (oss_buffer_size > runtime->oss.mmap_bytes)
-@@ -753,17 +755,21 @@ static int snd_pcm_oss_period_size(struc
- 
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	min_period_size *= oss_frame_size;
--	min_period_size = roundup_pow_of_two(min_period_size);
--	if (oss_period_size < min_period_size)
--		oss_period_size = min_period_size;
-+	if (min_period_size) {
-+		min_period_size *= oss_frame_size;
-+		min_period_size = roundup_pow_of_two(min_period_size);
-+		if (oss_period_size < min_period_size)
-+			oss_period_size = min_period_size;
-+	}
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	max_period_size *= oss_frame_size;
--	max_period_size = rounddown_pow_of_two(max_period_size);
--	if (oss_period_size > max_period_size)
--		oss_period_size = max_period_size;
-+	if (max_period_size) {
-+		max_period_size *= oss_frame_size;
-+		max_period_size = rounddown_pow_of_two(max_period_size);
-+		if (oss_period_size > max_period_size)
-+			oss_period_size = max_period_size;
-+	}
- 
- 	oss_periods = oss_buffer_size / oss_period_size;
- 
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -642,6 +642,7 @@ int dasd_alias_add_device(struct dasd_de
+ 	}
+ 	if (lcu->flags & UPDATE_PENDING) {
+ 		list_move(&device->alias_list, &lcu->active_devices);
++		private->pavgroup = NULL;
+ 		_schedule_lcu_update(lcu, device);
+ 	}
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
 
 
