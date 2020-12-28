@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4C82E40CB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:58:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA34C2E643B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440683AbgL1OPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:15:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
+        id S2404172AbgL1NmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:42:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440654AbgL1OPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:15:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8621D22B2B;
-        Mon, 28 Dec 2020 14:14:52 +0000 (UTC)
+        id S2404165AbgL1NmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E7A82064B;
+        Mon, 28 Dec 2020 13:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164893;
-        bh=EwWYf0l3c77LObBRIzTxn4rOwQxgD5rxQ9U3iVNuaQA=;
+        s=korg; t=1609162902;
+        bh=9TQ4wAfsTVm3x0u1dNI8FaIpIokiiOq6tpPP4Ai0wx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqI2q/THEqsycNomFW//S+VUHLCuZNYlOmzngxbS5g0XtGrGQDB2Tam2We56j15+h
-         OJXDjfg9T7/oQOUWaDApquvLHfzJWgFpxnqRQtMGRinzdoPys7UrJxN5hmazsRB7j7
-         anxvyzZAn3z7ZJm7ZnTdC78Ifa1YlZ4Jax4GzM9U=
+        b=ygLJUaxRwD2e8gCDe0LAIoQSRZKFmPAoVJcG0+QSd1eD5n2s9K2o8bg1/Kw/3Br/K
+         5+tgceRzFwQ9wEziRwovVMpOUrW2alLBsnAWfefR/RWoThcTy+7+B4HTNN+xTe1wMa
+         X44AeWj/drKWTVlu1FyTCs0wvmPpa4VLgrlsDM8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Vaibhav Agarwal <vaibhav.sr@gmail.com>,
-        Wang Hai <wanghai38@huawei.com>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 336/717] staging: greybus: audio: Fix possible leak free widgets in gbaudio_dapm_free_controls
-Date:   Mon, 28 Dec 2020 13:45:34 +0100
-Message-Id: <20201228125037.119719747@linuxfoundation.org>
+Subject: [PATCH 5.4 099/453] drm/amdgpu: fix build_coefficients() argument
+Date:   Mon, 28 Dec 2020 13:45:35 +0100
+Message-Id: <20201228124941.984955049@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e77b259f67ab99f1e22ce895b9b1c637fd5f2d4c ]
+[ Upstream commit dbb60031dd0c2b85f10ce4c12ae604c28d3aaca4 ]
 
-In gbaudio_dapm_free_controls(), if one of the widgets is not found, an error
-will be returned directly, which will cause the rest to be unable to be freed,
-resulting in leak.
+gcc -Wextra warns about a function taking an enum argument
+being called with a bool:
 
-This patch fixes the bug. If if one of them is not found, just skip and free the others.
+drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c: In function 'apply_degamma_for_user_regamma':
+drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c:1617:29: warning: implicit conversion from 'enum <anonymous>' to 'enum dc_transfer_func_predefined' [-Wenum-conversion]
+ 1617 |  build_coefficients(&coeff, true);
 
-Fixes: 510e340efe0c ("staging: greybus: audio: Add helper APIs for dynamic audio module")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20201205103827.31244-1-wanghai38@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It appears that a patch was added using the old calling conventions
+after the type was changed, and the value should actually be 0
+(TRANSFER_FUNCTION_SRGB) here instead of 1 (true).
+
+Fixes: 55a01d4023ce ("drm/amd/display: Add user_regamma to color module")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/audio_helper.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/greybus/audio_helper.c b/drivers/staging/greybus/audio_helper.c
-index 237531ba60f30..3011b8abce389 100644
---- a/drivers/staging/greybus/audio_helper.c
-+++ b/drivers/staging/greybus/audio_helper.c
-@@ -135,7 +135,8 @@ int gbaudio_dapm_free_controls(struct snd_soc_dapm_context *dapm,
- 		if (!w) {
- 			dev_err(dapm->dev, "%s: widget not found\n",
- 				widget->name);
--			return -EINVAL;
-+			widget++;
-+			continue;
- 		}
- 		widget++;
- #ifdef CONFIG_DEBUG_FS
+diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+index 51d07a4561ce9..e042d8ce05b4a 100644
+--- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
++++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
+@@ -1576,7 +1576,7 @@ static void apply_degamma_for_user_regamma(struct pwl_float_data_ex *rgb_regamma
+ 	struct pwl_float_data_ex *rgb = rgb_regamma;
+ 	const struct hw_x_point *coord_x = coordinates_x;
+ 
+-	build_coefficients(&coeff, true);
++	build_coefficients(&coeff, TRANSFER_FUNCTION_SRGB);
+ 
+ 	i = 0;
+ 	while (i != hw_points_num + 1) {
 -- 
 2.27.0
 
