@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D44F2E4101
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24542E3D51
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403829AbgL1PBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:01:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48566 "EHLO mail.kernel.org"
+        id S2440337AbgL1OOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:14:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440221AbgL1ONh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BF2920791;
-        Mon, 28 Dec 2020 14:12:56 +0000 (UTC)
+        id S2440331AbgL1OOI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CDA7207B2;
+        Mon, 28 Dec 2020 14:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164777;
-        bh=2j4BhcXHV6IIMii6oXSicMpmDyOckZyxCkkJqERhhq4=;
+        s=korg; t=1609164807;
+        bh=QjlvMhXC+TsKv1MKaxqRPcLPT0V6RXQTsrDNzbeJopA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tyvt21mgNSOdEk4AKew1REjXXjWbcfzProv8tVG7oXw177kEMhtBowglX3POuXtCt
-         E3Zwpv7VIx+rwZbNYKhLWRlj6tMkX0zq6j+aQgppP/jauTn2m8D4Ne7wd+xYkyBh8r
-         YLNzZEhmnS80MUWAIwgPs5viy1N4pSor4O1XjVrE=
+        b=VG5O70oB+/DtVSowzRhEk2LhjSCw4r1mHr4gBChCQ7l6yvUNQ5bVUiGhFCbRr7n05
+         2mhEBjQ4utVQ+2eWcrc1e3CsxXy9igNSVVYKqMFsgDUNiPDFFFMMMxqHC8GhBRRtgx
+         M3PXNageNRQKcC3E92aRZIs3rRuwSJ38ATLJMV/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 277/717] media: tvp5150: Fix wrong return value of tvp5150_parse_dt()
-Date:   Mon, 28 Dec 2020 13:44:35 +0100
-Message-Id: <20201228125034.289135128@linuxfoundation.org>
+Subject: [PATCH 5.10 278/717] media: saa7146: fix array overflow in vidioc_s_audio()
+Date:   Mon, 28 Dec 2020 13:44:36 +0100
+Message-Id: <20201228125034.339868057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,36 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit eb08c48132a1f594478ab9fa2b6ee646c3513a49 ]
+[ Upstream commit 8e4d86e241cf035d6d3467cd346e7ce490681937 ]
 
-If of_graph_get_endpoint_by_regs() return NULL, it will return 0 rather
-than an errno, because we doesn't initialize the return value.
+The "a->index" value comes from the user via the ioctl.  The problem is
+that the shift can wrap resulting in setting "mxb->cur_audinput" to an
+invalid value, which later results in an array overflow.
 
-Fixes: 0556f1d580d4 ("media: tvp5150: add input source selection of_graph support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Fixes: 6680427791c9 ("[media] mxb: fix audio handling")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/tvp5150.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/pci/saa7146/mxb.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/i2c/tvp5150.c b/drivers/media/i2c/tvp5150.c
-index 7d9401219a3ac..3b3221fd3fe8f 100644
---- a/drivers/media/i2c/tvp5150.c
-+++ b/drivers/media/i2c/tvp5150.c
-@@ -2082,6 +2082,7 @@ static int tvp5150_parse_dt(struct tvp5150 *decoder, struct device_node *np)
+diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
+index 129a1f8ebe1ad..73fc901ecf3db 100644
+--- a/drivers/media/pci/saa7146/mxb.c
++++ b/drivers/media/pci/saa7146/mxb.c
+@@ -641,16 +641,17 @@ static int vidioc_s_audio(struct file *file, void *fh, const struct v4l2_audio *
+ 	struct mxb *mxb = (struct mxb *)dev->ext_priv;
  
- 	ep_np = of_graph_get_endpoint_by_regs(np, TVP5150_PAD_VID_OUT, 0);
- 	if (!ep_np) {
-+		ret = -EINVAL;
- 		dev_err(dev, "Error no output endpoint available\n");
- 		goto err_free;
+ 	DEB_D("VIDIOC_S_AUDIO %d\n", a->index);
+-	if (mxb_inputs[mxb->cur_input].audioset & (1 << a->index)) {
+-		if (mxb->cur_audinput != a->index) {
+-			mxb->cur_audinput = a->index;
+-			tea6420_route(mxb, a->index);
+-			if (mxb->cur_audinput == 0)
+-				mxb_update_audmode(mxb);
+-		}
+-		return 0;
++	if (a->index >= 32 ||
++	    !(mxb_inputs[mxb->cur_input].audioset & (1 << a->index)))
++		return -EINVAL;
++
++	if (mxb->cur_audinput != a->index) {
++		mxb->cur_audinput = a->index;
++		tea6420_route(mxb, a->index);
++		if (mxb->cur_audinput == 0)
++			mxb_update_audmode(mxb);
  	}
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
 -- 
 2.27.0
 
