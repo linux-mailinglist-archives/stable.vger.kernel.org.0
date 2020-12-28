@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384AF2E64D8
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADD4D2E4113
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387987AbgL1Nhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:37:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37858 "EHLO mail.kernel.org"
+        id S2440035AbgL1ONG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:13:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390831AbgL1Nhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8CBD22B47;
-        Mon, 28 Dec 2020 13:36:55 +0000 (UTC)
+        id S2439522AbgL1OLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:11:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 334E8206C3;
+        Mon, 28 Dec 2020 14:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162616;
-        bh=dGqRi4XtD/Y2fMnAMpSrPXX4UufQErbXqG4I6+YtwDw=;
+        s=korg; t=1609164656;
+        bh=dc5OAZpa9xNIsOyxCytIC9WiWqe3rcRfKFLxic3kvz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnWaNTs0weLoUMKRyDKMODaPpos0objSF+zaRZqdv0Sn8eaBDFEWRo7J5jBtMUdYY
-         R0Lym6LBxqh45kAyzJR5hfiu1xUkFYzu/rPN77757KS7wScrzYMWLhqySceWRY9P2j
-         k2EUwa+LgjYnM9ZIo5VvKtCubnJTQ+l0H3BKw3M8=
+        b=ShLSdvCEHqugpwQc3UHfo5nn8ugKxLVKWeAS/JJxOGocfUHMBlWuQpe32s+xsuuj+
+         RDsxmSO16vbZsjeVhsWYnfRSyGAdhG8Ois9/OUBGoKbApu3gHEJNHw4UCpGcGxktGa
+         xVnSfo0RpcytQKgUFpxjwDudTnnbokH7lSNXN12s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/453] xsk: Fix xsk_poll()s return type
+Subject: [PATCH 5.10 252/717] RDMA/hns: Bugfix for calculation of extended sge
 Date:   Mon, 28 Dec 2020 13:44:10 +0100
-Message-Id: <20201228124937.935454641@linuxfoundation.org>
+Message-Id: <20201228125033.060064393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Yangyang Li <liyangyang20@huawei.com>
 
-[ Upstream commit 5d946c5abbaf68083fa6a41824dd79e1f06286d8 ]
+[ Upstream commit d34895c319faa1e0fc1a48c3b06bba6a8a39ba44 ]
 
-xsk_poll() is defined as returning 'unsigned int' but the
-.poll method is declared as returning '__poll_t', a bitwise type.
+Page alignment is required when setting the number of extended sge
+according to the hardware's achivement. If the space of needed extended
+sge is greater than one page, the roundup_pow_of_two() can ensure
+that. But if the needed extended sge isn't 0 and can not be filled in a
+whole page, the driver should align it specifically.
 
-Fix this by using the proper return type and using the EPOLL
-constants instead of the POLL ones, as required for __poll_t.
-
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20191120001042.30830-1-luc.vanoostenryck@gmail.com
+Fixes: 54d6638765b0 ("RDMA/hns: Optimize WQE buffer size calculating process")
+Link: https://lore.kernel.org/r/1606558959-48510-3-git-send-email-liweihang@huawei.com
+Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index f9eb5efb237c7..04652797cd374 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -426,10 +426,10 @@ static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
- 	return __xsk_sendmsg(sk);
- }
- 
--static unsigned int xsk_poll(struct file *file, struct socket *sock,
-+static __poll_t xsk_poll(struct file *file, struct socket *sock,
- 			     struct poll_table_struct *wait)
- {
--	unsigned int mask = datagram_poll(file, sock, wait);
-+	__poll_t mask = datagram_poll(file, sock, wait);
- 	struct sock *sk = sock->sk;
- 	struct xdp_sock *xs = xdp_sk(sk);
- 	struct xdp_umem *umem;
-@@ -448,9 +448,9 @@ static unsigned int xsk_poll(struct file *file, struct socket *sock,
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 6c081dd985fc9..71ea8fd9041b9 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -432,7 +432,12 @@ static int set_extend_sge_param(struct hns_roce_dev *hr_dev, u32 sq_wqe_cnt,
  	}
  
- 	if (xs->rx && !xskq_empty_desc(xs->rx))
--		mask |= POLLIN | POLLRDNORM;
-+		mask |= EPOLLIN | EPOLLRDNORM;
- 	if (xs->tx && !xskq_full_desc(xs->tx))
--		mask |= POLLOUT | POLLWRNORM;
-+		mask |= EPOLLOUT | EPOLLWRNORM;
+ 	hr_qp->sge.sge_shift = HNS_ROCE_SGE_SHIFT;
+-	hr_qp->sge.sge_cnt = cnt;
++
++	/* If the number of extended sge is not zero, they MUST use the
++	 * space of HNS_HW_PAGE_SIZE at least.
++	 */
++	hr_qp->sge.sge_cnt = cnt ?
++			max(cnt, (u32)HNS_HW_PAGE_SIZE / HNS_ROCE_SGE_SIZE) : 0;
  
- 	return mask;
+ 	return 0;
  }
 -- 
 2.27.0
