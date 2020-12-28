@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C9F2E679F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 389222E660A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730910AbgL1Q1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
+        id S2388895AbgL1NZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:25:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730914AbgL1NIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A2B520776;
-        Mon, 28 Dec 2020 13:08:06 +0000 (UTC)
+        id S2388894AbgL1NZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F111922475;
+        Mon, 28 Dec 2020 13:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160886;
-        bh=i4mlgf1ETnynvb/IiFRi9wV8TT8jHuPnzxerrq2DIbI=;
+        s=korg; t=1609161882;
+        bh=PPBFuC1VQe1T4haaJikbF0CWa12XuFY44ZL2t4cHulI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZmJZoU4iAFk/PcVL4MkOJvSrLwsmARiRdULdp9rha1ucoY0x0Pgd4w5fBdIl7Zik
-         vaFkB2x+QCsPt2z8i1CfX7fE0NqcOp3528SdLh1N4bQeKh8Mm/pTsX5z5PQAL7PfAU
-         +3/MwQXy/eYBY2qO/sCEanpxu77aqfpzlMB76HSo=
+        b=wuLzi11ODT/PCx8mK8OQOXn+XqJjOE8GAtWXhMeD4OXBJqMNeAXB6tZCZbsWWk41f
+         /NxYiymQjBPraKPeAMAYJsJxtFwg7MHx57QtYWnGdzuge0E4n0ZhS8oV5YY4lHxvDO
+         fAebop2AA5NRgni/S/XTfu8AaTdZZgYor4W9rxmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 028/242] ALSA: usb-audio: Fix control access overflow errors from chmap
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Antoine Tenart <atenart@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 114/346] crypto: inside-secure - Fix sizeof() mismatch
 Date:   Mon, 28 Dec 2020 13:47:13 +0100
-Message-Id: <20201228124906.051463137@linuxfoundation.org>
+Message-Id: <20201228124925.300451197@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,50 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit c6dde8ffd071aea9d1ce64279178e470977b235c upstream.
+[ Upstream commit c98e233062cd9d0e2f10e445a671f0799daaef67 ]
 
-The current channel-map control implementation in USB-audio driver may
-lead to an error message like
-  "control 3:0:0:Playback Channel Map:0: access overflow"
-when CONFIG_SND_CTL_VALIDATION is set.  It's because the chmap get
-callback clears the whole array no matter which count is set, and
-rather the false-positive detection.
+An incorrect sizeof() is being used, sizeof(priv->ring[i].rdr_req) is
+not correct, it should be sizeof(*priv->ring[i].rdr_req). Note that
+since the size of ** is the same size as * this is not causing any
+issues.
 
-This patch fixes the problem by clearing only the needed array range
-at usb_chmap_ctl_get().
-
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201211130048.6358-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
+Fixes: 9744fec95f06 ("crypto: inside-secure - remove request list to improve performance")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Antoine Tenart <atenart@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/stream.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/inside-secure/safexcel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/stream.c
-+++ b/sound/usb/stream.c
-@@ -185,16 +185,16 @@ static int usb_chmap_ctl_get(struct snd_
- 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
- 	struct snd_usb_substream *subs = info->private_data;
- 	struct snd_pcm_chmap_elem *chmap = NULL;
--	int i;
-+	int i = 0;
+diff --git a/drivers/crypto/inside-secure/safexcel.c b/drivers/crypto/inside-secure/safexcel.c
+index 86c699c14f849..bc6c5cb7de239 100644
+--- a/drivers/crypto/inside-secure/safexcel.c
++++ b/drivers/crypto/inside-secure/safexcel.c
+@@ -1066,7 +1066,7 @@ static int safexcel_probe(struct platform_device *pdev)
  
--	memset(ucontrol->value.integer.value, 0,
--	       sizeof(ucontrol->value.integer.value));
- 	if (subs->cur_audiofmt)
- 		chmap = subs->cur_audiofmt->chmap;
- 	if (chmap) {
- 		for (i = 0; i < chmap->channels; i++)
- 			ucontrol->value.integer.value[i] = chmap->map[i];
- 	}
-+	for (; i < subs->channels_max; i++)
-+		ucontrol->value.integer.value[i] = 0;
- 	return 0;
- }
- 
+ 		priv->ring[i].rdr_req = devm_kcalloc(dev,
+ 			EIP197_DEFAULT_RING_SIZE,
+-			sizeof(priv->ring[i].rdr_req),
++			sizeof(*priv->ring[i].rdr_req),
+ 			GFP_KERNEL);
+ 		if (!priv->ring[i].rdr_req) {
+ 			ret = -ENOMEM;
+-- 
+2.27.0
+
 
 
