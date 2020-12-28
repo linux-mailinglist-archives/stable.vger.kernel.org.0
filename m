@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364512E6838
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EBB32E657C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2634113AbgL1Qdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:33:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
+        id S2390355AbgL1Nbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:31:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730283AbgL1NDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2BE522AAA;
-        Mon, 28 Dec 2020 13:03:06 +0000 (UTC)
+        id S2390497AbgL1NbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:31:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 126A722583;
+        Mon, 28 Dec 2020 13:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160587;
-        bh=+4Mc8bVvy2qiVLVtZbtfDXNE04XdIv0Q8Yc2ezuleSE=;
+        s=korg; t=1609162244;
+        bh=UAFTBRjOWayQArKHk2ibWenA7R1IHmPQWIiHUJtUm0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQvuy2wIPL/mmvTEtkRNMnLTgSIL91yPV3Qkxkku5e2oq6j+dmKUe1W2shWTKZTpv
-         lBukKzbnW2jKpoeqnsGFkrbzyxKMCir5XY/kvWEGQtrkRzCA9lYvgESNsCNin5IGdf
-         s5tTFyz6vaj9RjG5DPmmzlcAW8oQUS8oLfthSvE0=
+        b=yKmZSqScUepb30q2OMpY4RvV/84Nps+rO4KS64GigTI3/rRu+7M4JF4V31AU0/P8K
+         af62pAr58JA8/Pg8FFf/DgamSQ+oiHKofUL25mSuBzU7z9rYjvCbPiVsOVJ4Csotm8
+         8pbNi6h65zGTaQEYGfm7lanZIGT8LlugpDkF7HR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 102/175] scsi: pm80xx: Fix error return in pm8001_pci_probe()
+Subject: [PATCH 4.19 236/346] powerpc/ps3: use dma_mapping_error()
 Date:   Mon, 28 Dec 2020 13:49:15 +0100
-Message-Id: <20201228124858.191138621@linuxfoundation.org>
+Message-Id: <20201228124931.182050363@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Vincent Stehlé <vincent.stehle@laposte.net>
 
-[ Upstream commit 97031ccffa4f62728602bfea8439dd045cd3aeb2 ]
+[ Upstream commit d0edaa28a1f7830997131cbce87b6c52472825d1 ]
 
-The driver did not return an error in the case where
-pm8001_configure_phy_settings() failed.
+The DMA address returned by dma_map_single() should be checked with
+dma_mapping_error(). Fix the ps3stor_setup() function accordingly.
 
-Use rc to store the return value of pm8001_configure_phy_settings().
-
-Link: https://lore.kernel.org/r/20201205115551.2079471-1-zhangqilong3@huawei.com
-Fixes: 279094079a44 ("[SCSI] pm80xx: Phy settings support for motherboard controller.")
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 80071802cb9c ("[POWERPC] PS3: Storage Driver Core")
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201213182622.23047-1-vincent.stehle@laposte.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ps3/ps3stor_lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 9fc675f57e336..f54115d74f519 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -1061,7 +1061,8 @@ static int pm8001_pci_probe(struct pci_dev *pdev,
- 
- 	pm8001_init_sas_add(pm8001_ha);
- 	/* phy setting support for motherboard controller */
--	if (pm8001_configure_phy_settings(pm8001_ha))
-+	rc = pm8001_configure_phy_settings(pm8001_ha);
-+	if (rc)
- 		goto err_out_shost;
- 
- 	pm8001_post_sas_ha_init(shost, chip);
+diff --git a/drivers/ps3/ps3stor_lib.c b/drivers/ps3/ps3stor_lib.c
+index 8c3f5adf1bc65..2d76183756626 100644
+--- a/drivers/ps3/ps3stor_lib.c
++++ b/drivers/ps3/ps3stor_lib.c
+@@ -201,7 +201,7 @@ int ps3stor_setup(struct ps3_storage_device *dev, irq_handler_t handler)
+ 	dev->bounce_lpar = ps3_mm_phys_to_lpar(__pa(dev->bounce_buf));
+ 	dev->bounce_dma = dma_map_single(&dev->sbd.core, dev->bounce_buf,
+ 					 dev->bounce_size, DMA_BIDIRECTIONAL);
+-	if (!dev->bounce_dma) {
++	if (dma_mapping_error(&dev->sbd.core, dev->bounce_dma)) {
+ 		dev_err(&dev->sbd.core, "%s:%u: map DMA region failed\n",
+ 			__func__, __LINE__);
+ 		error = -ENODEV;
 -- 
 2.27.0
 
