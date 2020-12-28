@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B3B2E68DD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323B42E66A9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbgL1M7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:59:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S2394276AbgL1QOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:14:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728513AbgL1M7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FB9B208D5;
-        Mon, 28 Dec 2020 12:58:23 +0000 (UTC)
+        id S1728260AbgL1NSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C6E7207CF;
+        Mon, 28 Dec 2020 13:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160304;
-        bh=CVmvmXwBLVzLHTnV7nqcXfaHlf3iWf7sO7N46UH8uRk=;
+        s=korg; t=1609161505;
+        bh=HVbqvAAOwKCjeUuSvkGAPBsS4i41WktIU71zxCGbU5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiv6C6ZHlCn3B98WgsZRLUGnIChIZ6pYazpXK8ChQio48MUXqRnxgw+lqAf9w5ZCG
-         qKsqioLU+R6V1MCF8ewYV7WbJOEvwjfWQkRt4cxkAkLyqF3QqSomHUO5bBfrQ48RrP
-         As1GyByZEHRPK6/GZLlRUOkcYsT+xZ8e89U8/seI=
+        b=V/+lFzsnfdJxw8HVqw2Is4OMdOGX+ivvzfnImLz0XkyciWUe7bzUH39K8fEFKg1Ep
+         OTLD0W1QJvKUv2eunG+qPXy9/PiuD2RJIA123V+1leb3GaM0vMtly+O5KbRTpTJ/pS
+         6uPEXouMTgBm7HJRnsT9Ce6CBk26fXnQBKIgPnm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.4 127/132] xen/xenbus: Allow watches discard events before queueing
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 206/242] Btrfs: fix selftests failure due to uninitialized i_mode in test inodes
 Date:   Mon, 28 Dec 2020 13:50:11 +0100
-Message-Id: <20201228124852.551614596@linuxfoundation.org>
+Message-Id: <20201228124914.815803832@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
+commit 9f7fec0ba89108b9385f1b9fb167861224912a4a upstream
 
-If handling logics of watch events are slower than the events enqueue
-logic and the events can be created from the guests, the guests could
-trigger memory pressure by intensively inducing the events, because it
-will create a huge number of pending events that exhausting the memory.
+Some of the self tests create a test inode, setup some extents and then do
+calls to btrfs_get_extent() to test that the corresponding extent maps
+exist and are correct. However btrfs_get_extent(), since the 5.2 merge
+window, now errors out when it finds a regular or prealloc extent for an
+inode that does not correspond to a regular file (its ->i_mode is not
+S_IFREG). This causes the self tests to fail sometimes, specially when
+KASAN, slub_debug and page poisoning are enabled:
 
-Fortunately, some watch events could be ignored, depending on its
-handler callback.  For example, if the callback has interest in only one
-single path, the watch wouldn't want multiple pending events.  Or, some
-watches could ignore events to same path.
+  $ modprobe btrfs
+  modprobe: ERROR: could not insert 'btrfs': Invalid argument
 
-To let such watches to volutarily help avoiding the memory pressure
-situation, this commit introduces new watch callback, 'will_handle'.  If
-it is not NULL, it will be called for each new event just before
-enqueuing it.  Then, if the callback returns false, the event will be
-discarded.  No watch is using the callback for now, though.
+  $ dmesg
+  [ 9414.691648] Btrfs loaded, crc32c=crc32c-intel, debug=on, assert=on, integrity-checker=on, ref-verify=on
+  [ 9414.692655] BTRFS: selftest: sectorsize: 4096  nodesize: 4096
+  [ 9414.692658] BTRFS: selftest: running btrfs free space cache tests
+  [ 9414.692918] BTRFS: selftest: running extent only tests
+  [ 9414.693061] BTRFS: selftest: running bitmap only tests
+  [ 9414.693366] BTRFS: selftest: running bitmap and extent tests
+  [ 9414.696455] BTRFS: selftest: running space stealing from bitmap to extent tests
+  [ 9414.697131] BTRFS: selftest: running extent buffer operation tests
+  [ 9414.697133] BTRFS: selftest: running btrfs_split_item tests
+  [ 9414.697564] BTRFS: selftest: running extent I/O tests
+  [ 9414.697583] BTRFS: selftest: running find delalloc tests
+  [ 9415.081125] BTRFS: selftest: running find_first_clear_extent_bit test
+  [ 9415.081278] BTRFS: selftest: running extent buffer bitmap tests
+  [ 9415.124192] BTRFS: selftest: running inode tests
+  [ 9415.124195] BTRFS: selftest: running btrfs_get_extent tests
+  [ 9415.127909] BTRFS: selftest: running hole first btrfs_get_extent test
+  [ 9415.128343] BTRFS critical (device (efault)): regular/prealloc extent found for non-regular inode 256
+  [ 9415.131428] BTRFS: selftest: fs/btrfs/tests/inode-tests.c:904 expected a real extent, got 0
 
-This is part of XSA-349
+This happens because the test inodes are created without ever initializing
+the i_mode field of the inode, and neither VFS's new_inode() nor the btrfs
+callback btrfs_alloc_inode() initialize the i_mode. Initialization of the
+i_mode is done through the various callbacks used by the VFS to create
+new inodes (regular files, directories, symlinks, tmpfiles, etc), which
+all call btrfs_new_inode() which in turn calls inode_init_owner(), which
+sets the inode's i_mode. Since the tests only uses new_inode() to create
+the test inodes, the i_mode was never initialized.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This always happens on a VM I used with kasan, slub_debug and many other
+debug facilities enabled. It also happened to someone who reported this
+on bugzilla (on a 5.3-rc).
+
+Fix this by setting i_mode to S_IFREG at btrfs_new_test_inode().
+
+Fixes: 6bf9e4bd6a2778 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204397
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- drivers/net/xen-netback/xenbus.c   |    2 ++
- drivers/xen/xenbus/xenbus_client.c |    1 +
- drivers/xen/xenbus/xenbus_xs.c     |    7 ++++++-
- include/xen/xenbus.h               |    7 +++++++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ fs/btrfs/tests/btrfs-tests.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -697,12 +697,14 @@ static int xen_register_watchers(struct
- 		return -ENOMEM;
- 	snprintf(node, maxlen, "%s/rate", dev->nodename);
- 	vif->credit_watch.node = node;
-+	vif->credit_watch.will_handle = NULL;
- 	vif->credit_watch.callback = xen_net_rate_changed;
- 	err = register_xenbus_watch(&vif->credit_watch);
- 	if (err) {
- 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
- 		kfree(node);
- 		vif->credit_watch.node = NULL;
-+		vif->credit_watch.will_handle = NULL;
- 		vif->credit_watch.callback = NULL;
- 	}
- 	return err;
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
- 	int err;
+--- a/fs/btrfs/tests/btrfs-tests.c
++++ b/fs/btrfs/tests/btrfs-tests.c
+@@ -51,7 +51,13 @@ static struct file_system_type test_type
  
- 	watch->node = path;
-+	watch->will_handle = NULL;
- 	watch->callback = callback;
- 
- 	err = register_xenbus_watch(watch);
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -903,7 +903,12 @@ static int process_msg(void)
- 		spin_lock(&watches_lock);
- 		msg->u.watch.handle = find_watch(
- 			msg->u.watch.vec[XS_WATCH_TOKEN]);
--		if (msg->u.watch.handle != NULL) {
-+		if (msg->u.watch.handle != NULL &&
-+				(!msg->u.watch.handle->will_handle ||
-+				 msg->u.watch.handle->will_handle(
-+					 msg->u.watch.handle,
-+					 (const char **)msg->u.watch.vec,
-+					 msg->u.watch.vec_size))) {
- 			spin_lock(&watch_events_lock);
- 			list_add_tail(&msg->list, &watch_events);
- 			wake_up(&watch_events_waitq);
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -58,6 +58,13 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
- 
-+	/*
-+	 * Called just before enqueing new event while a spinlock is held.
-+	 * The event will be discarded if this callback returns false.
-+	 */
-+	bool (*will_handle)(struct xenbus_watch *,
-+			    const char **vec, unsigned int len);
+ struct inode *btrfs_new_test_inode(void)
+ {
+-	return new_inode(test_mnt->mnt_sb);
++	struct inode *inode;
 +
- 	/* Callback (executed in a process context with no locks held). */
- 	void (*callback)(struct xenbus_watch *,
- 			 const char **vec, unsigned int len);
++	inode = new_inode(test_mnt->mnt_sb);
++	if (inode)
++		inode_init_owner(inode, NULL, S_IFREG);
++
++	return inode;
+ }
+ 
+ static int btrfs_init_test_fs(void)
 
 
