@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4722E6428
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98DC42E3AB8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404337AbgL1Nm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:42:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
+        id S2403971AbgL1Nkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403973AbgL1Nko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:40:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7638722583;
-        Mon, 28 Dec 2020 13:40:03 +0000 (UTC)
+        id S2403993AbgL1Nkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 491C42064B;
+        Mon, 28 Dec 2020 13:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162804;
-        bh=mLDTgU0xU8qsivjyIMSRzDAadyE34XB/VvXeVQ+7CkU=;
+        s=korg; t=1609162806;
+        bh=PgZc5JUc6jmwgOPavstr/bY5HmIRdWH1dO6XscYa5Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+9fOZHxHhyk94Pf/qofOkr1vDTLVTCz434U4wAGrgCkRzcRxM67jnGh+a39T8MkF
-         Qc8utuxprvMpxiz/J2qcwZQAtwyzLl1xKZn7SLSpsrLXNag9zPDEH4KB7oyUsnrxGv
-         1XUZV7qwJGSGXeYEWFb6p1yGyRTK1xm8q0UheMCo=
+        b=N52O/39WidZ4Cyr0gGytaCoG0tPHHGR2yGSmELJkP4EuOPdm2kWJki+q7ntH26i5z
+         ye43/MCjlQC3SRke5YAyowwFmi0aWT58uXjhWQBswAeDapD89wbiWq8MO+Y6W/0yXG
+         Jw3TFDI1vNZ+ilxsNlt4CEPDpagiVtfBMnfiubOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 066/453] HID: i2c-hid: add Vero K147 to descriptor override
-Date:   Mon, 28 Dec 2020 13:45:02 +0100
-Message-Id: <20201228124940.423786325@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: [PATCH 5.4 067/453] serial_core: Check for port state when tty is in error state
+Date:   Mon, 28 Dec 2020 13:45:03 +0100
+Message-Id: <20201228124940.472108599@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -40,39 +38,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit c870d50ce387d84b6438211a7044c60afbd5d60a upstream.
+commit 2f70e49ed860020f5abae4f7015018ebc10e1f0e upstream.
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+At the moment opening a serial device node (such as /dev/ttyS3)
+succeeds even if there is no actual serial device behind it.
+Reading/writing/ioctls fail as expected because the uart port is not
+initialized (the type is PORT_UNKNOWN) and the TTY_IO_ERROR error state
+bit is set fot the tty.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+However setting line discipline does not have these checks
+8250_port.c (8250 is the default choice made by univ8250_console_init()).
+As the result of PORT_UNKNOWN, uart_port::iobase is NULL which
+a platform translates onto some address accessing which produces a crash
+like below.
+
+This adds tty_port_initialized() to uart_set_ldisc() to prevent the crash.
+
+Found by syzkaller.
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Link: https://lore.kernel.org/r/20201203055834.45838-1-aik@ozlabs.ru
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/serial_core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -405,6 +405,14 @@ static const struct dmi_system_id i2c_hi
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Vero K147",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VERO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "K147"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1465,6 +1465,10 @@ static void uart_set_ldisc(struct tty_st
+ {
+ 	struct uart_state *state = tty->driver_data;
+ 	struct uart_port *uport;
++	struct tty_port *port = &state->port;
++
++	if (!tty_port_initialized(port))
++		return;
  
+ 	mutex_lock(&state->port.mutex);
+ 	uport = uart_port_check(state);
 
 
