@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3ED82E62C7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEB52E37D3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406285AbgL1NuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51996 "EHLO mail.kernel.org"
+        id S1729751AbgL1NBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:01:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406280AbgL1NuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:50:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA8420791;
-        Mon, 28 Dec 2020 13:49:29 +0000 (UTC)
+        id S1729610AbgL1NBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B19FF22B40;
+        Mon, 28 Dec 2020 13:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163370;
-        bh=CjYf9f2XmS3RsLeROuWhottwVogT1E4DeNMNT43GUP8=;
+        s=korg; t=1609160421;
+        bh=5bGTUm81ag/3S89yN7MpSFV2B8qeibKXJ+LYrlFFpEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DA7tnTqMjqwucaGq35dYOm8O20IrzWweKIC5jazD8jFCZHC6c7HeDrAasq6fxtnv1
-         1w80iE8E2MeMombrEC27uIHGo0zd4rT4M9BduAeCBfkdZgZrSJWvvjNbSJapka/bnv
-         wC8/N4hUTC7+5zaUs4eIcGXwh1cusCYUdKqQlStA=
+        b=vyc3zPOzVh7QvCEZaqV1L5s+FKxNLPeyxlZ9xu05qxxK9SyIUBzE9OcVUKrlE3I/W
+         tehYHoWg9K5dWbpD4CZweAACe7XKB70giWYY6oGTvZseZPYQA7aMw55fJsLbtd2XMy
+         /NjlcpcsTChdhQexbhTqM2U7qA+Pcf86iwIQfURI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 262/453] RDMA/core: Do not indicate device ready when device enablement fails
+        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 045/175] HID: i2c-hid: add Vero K147 to descriptor override
 Date:   Mon, 28 Dec 2020 13:48:18 +0100
-Message-Id: <20201228124949.832942716@linuxfoundation.org>
+Message-Id: <20201228124855.436560568@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Morgenstein <jackm@dev.mellanox.co.il>
+From: Julian Sax <jsbc@gmx.de>
 
-[ Upstream commit 779e0bf47632c609c59f527f9711ecd3214dccb0 ]
+commit c870d50ce387d84b6438211a7044c60afbd5d60a upstream.
 
-In procedure ib_register_device, procedure kobject_uevent is called
-(advertising that the device is ready for userspace usage) even when
-device_enable_and_get() returned an error.
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-As a result, various RDMA modules attempted to register for the device
-even while the device driver was preparing to unregister the device.
+Cc: stable@vger.kernel.org
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this by advertising the device availability only after enabling the
-device succeeds.
-
-Fixes: e7a5b4aafd82 ("RDMA/device: Don't fire uevent before device is fully initialized")
-Link: https://lore.kernel.org/r/20201208073545.9723-3-leon@kernel.org
-Suggested-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/device.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index 59dc9f3cfb376..256d379bba676 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -1387,9 +1387,6 @@ int ib_register_device(struct ib_device *device, const char *name)
- 	}
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -397,6 +397,14 @@ static const struct dmi_system_id i2c_hi
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Vero K147",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "VERO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "K147"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
  
- 	ret = enable_device_and_get(device);
--	dev_set_uevent_suppress(&device->dev, false);
--	/* Mark for userspace that device is ready */
--	kobject_uevent(&device->dev.kobj, KOBJ_ADD);
- 	if (ret) {
- 		void (*dealloc_fn)(struct ib_device *);
- 
-@@ -1409,8 +1406,12 @@ int ib_register_device(struct ib_device *device, const char *name)
- 		ib_device_put(device);
- 		__ib_unregister_device(device);
- 		device->ops.dealloc_driver = dealloc_fn;
-+		dev_set_uevent_suppress(&device->dev, false);
- 		return ret;
- 	}
-+	dev_set_uevent_suppress(&device->dev, false);
-+	/* Mark for userspace that device is ready */
-+	kobject_uevent(&device->dev.kobj, KOBJ_ADD);
- 	ib_device_put(device);
- 
- 	return 0;
--- 
-2.27.0
-
 
 
