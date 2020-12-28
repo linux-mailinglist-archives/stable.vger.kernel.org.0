@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 950DC2E425B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA432E3C63
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:03:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436687AbgL1OBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:01:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
+        id S1726606AbgL1OCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436683AbgL1OBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C2BC2064B;
-        Mon, 28 Dec 2020 14:01:33 +0000 (UTC)
+        id S2436819AbgL1OCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 151F320791;
+        Mon, 28 Dec 2020 14:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164093;
-        bh=sWprI9hDxxxWkJ+bto1AeTgVjAkssyCT7jwQaldy4nc=;
+        s=korg; t=1609164096;
+        bh=2iUSLg8J+BQBfdwTT7RiWWTz0ygXNDtQhc5x1WMPOQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hj8UaNZveD8qsGvoFfdHX6GrUHwwYotF26fgXJTodKQAlDkT5v91Vx0M2SfBQ9Qag
-         UuGk6ib+nIs4CS98NBbdXJIt7dp8PZ81lHcYyOlFGyP0P+Nr2ve8oMmfYlnNRRBn4k
-         FY8A5E5j+1AHoT+Pt2p0to8bIKPZfPAWeJMCHn3g=
+        b=JWsUacG4p/Fm6rr8uubFVwSXXuHLPrU/ViBZ060/HJUbaPbTPWG/mivk7dgW3iAWg
+         ymioClcX6oC8i9sKBHhQ6iDjxG95xHyKJpspbt52PyiPjsfKkluPFmNH3X8CGJ4meB
+         w9iHvSyfOvDO5FCVmYdUn9dXC75MAPvuC6wehvgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Iuliana Prodan <iuliana.prodan@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/717] crypto: caam - fix printing on xts fallback allocation error path
-Date:   Mon, 28 Dec 2020 13:40:56 +0100
-Message-Id: <20201228125023.775784485@linuxfoundation.org>
+Subject: [PATCH 5.10 059/717] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
+Date:   Mon, 28 Dec 2020 13:40:57 +0100
+Message-Id: <20201228125023.823333506@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,73 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit ab95bd2aa904e4f53b7358efeea1d57693fb7889 ]
+[ Upstream commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 ]
 
-At the time xts fallback tfm allocation fails the device struct
-hasn't been enabled yet in the caam xts tfm's private context.
+A previous fix, commit 83370b31a915 ("selinux: fix error initialization
+in inode_doinit_with_dentry()"), changed how failures were handled
+before a SELinux policy was loaded.  Unfortunately that patch was
+potentially problematic for two reasons: it set the isec->initialized
+state without holding a lock, and it didn't set the inode's SELinux
+label to the "default" for the particular filesystem.  The later can
+be a problem if/when a later attempt to revalidate the inode fails
+and SELinux reverts to the existing inode label.
 
-Fix this by using the device struct from xts algorithm's private context
-or, when not available, by replacing dev_err with pr_err.
+This patch should restore the default inode labeling that existed
+before the original fix, without affecting the LABEL_INVALID marking
+such that revalidation will still be attempted in the future.
 
-Fixes: 9d9b14dbe077 ("crypto: caam/jr - add fallback for XTS with more than 8B IV")
-Fixes: 83e8aa912138 ("crypto: caam/qi - add fallback for XTS with more than 8B IV")
-Fixes: 36e2d7cfdcf1 ("crypto: caam/qi2 - add fallback for XTS with more than 8B IV")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Iuliana Prodan <iuliana.prodan@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/caam/caamalg.c     | 4 ++--
- drivers/crypto/caam/caamalg_qi.c  | 4 ++--
- drivers/crypto/caam/caamalg_qi2.c | 3 ++-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ security/selinux/hooks.c | 31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
-index cf5bd7666dfcd..8697ae53b0633 100644
---- a/drivers/crypto/caam/caamalg.c
-+++ b/drivers/crypto/caam/caamalg.c
-@@ -3404,8 +3404,8 @@ static int caam_cra_init(struct crypto_skcipher *tfm)
- 		fallback = crypto_alloc_skcipher(tfm_name, 0,
- 						 CRYPTO_ALG_NEED_FALLBACK);
- 		if (IS_ERR(fallback)) {
--			dev_err(ctx->jrdev, "Failed to allocate %s fallback: %ld\n",
--				tfm_name, PTR_ERR(fallback));
-+			pr_err("Failed to allocate %s fallback: %ld\n",
-+			       tfm_name, PTR_ERR(fallback));
- 			return PTR_ERR(fallback);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 158fc47d8620d..c46312710e73e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1451,13 +1451,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * inode_doinit with a dentry, before these inodes could
+ 			 * be used again by userspace.
+ 			 */
+-			isec->initialized = LABEL_INVALID;
+-			/*
+-			 * There is nothing useful to jump to the "out"
+-			 * label, except a needless spin lock/unlock
+-			 * cycle.
+-			 */
+-			return 0;
++			goto out_invalid;
  		}
  
-diff --git a/drivers/crypto/caam/caamalg_qi.c b/drivers/crypto/caam/caamalg_qi.c
-index 66f60d78bdc84..a24ae966df4a3 100644
---- a/drivers/crypto/caam/caamalg_qi.c
-+++ b/drivers/crypto/caam/caamalg_qi.c
-@@ -2502,8 +2502,8 @@ static int caam_cra_init(struct crypto_skcipher *tfm)
- 		fallback = crypto_alloc_skcipher(tfm_name, 0,
- 						 CRYPTO_ALG_NEED_FALLBACK);
- 		if (IS_ERR(fallback)) {
--			dev_err(ctx->jrdev, "Failed to allocate %s fallback: %ld\n",
--				tfm_name, PTR_ERR(fallback));
-+			pr_err("Failed to allocate %s fallback: %ld\n",
-+			       tfm_name, PTR_ERR(fallback));
- 			return PTR_ERR(fallback);
+ 		rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
+@@ -1513,15 +1507,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * inode_doinit() with a dentry, before these inodes
+ 			 * could be used again by userspace.
+ 			 */
+-			if (!dentry) {
+-				isec->initialized = LABEL_INVALID;
+-				/*
+-				 * There is nothing useful to jump to the "out"
+-				 * label, except a needless spin lock/unlock
+-				 * cycle.
+-				 */
+-				return 0;
+-			}
++			if (!dentry)
++				goto out_invalid;
+ 			rc = selinux_genfs_get_sid(dentry, sclass,
+ 						   sbsec->flags, &sid);
+ 			if (rc) {
+@@ -1546,11 +1533,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ out:
+ 	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_PENDING) {
+-		if (!sid || rc) {
++		if (rc) {
+ 			isec->initialized = LABEL_INVALID;
+ 			goto out_unlock;
  		}
+-
+ 		isec->initialized = LABEL_INITIALIZED;
+ 		isec->sid = sid;
+ 	}
+@@ -1558,6 +1544,15 @@ out:
+ out_unlock:
+ 	spin_unlock(&isec->lock);
+ 	return rc;
++
++out_invalid:
++	spin_lock(&isec->lock);
++	if (isec->initialized == LABEL_PENDING) {
++		isec->initialized = LABEL_INVALID;
++		isec->sid = sid;
++	}
++	spin_unlock(&isec->lock);
++	return 0;
+ }
  
-diff --git a/drivers/crypto/caam/caamalg_qi2.c b/drivers/crypto/caam/caamalg_qi2.c
-index 98c1ff1744bb1..a780e627838ae 100644
---- a/drivers/crypto/caam/caamalg_qi2.c
-+++ b/drivers/crypto/caam/caamalg_qi2.c
-@@ -1611,7 +1611,8 @@ static int caam_cra_init_skcipher(struct crypto_skcipher *tfm)
- 		fallback = crypto_alloc_skcipher(tfm_name, 0,
- 						 CRYPTO_ALG_NEED_FALLBACK);
- 		if (IS_ERR(fallback)) {
--			dev_err(ctx->dev, "Failed to allocate %s fallback: %ld\n",
-+			dev_err(caam_alg->caam.dev,
-+				"Failed to allocate %s fallback: %ld\n",
- 				tfm_name, PTR_ERR(fallback));
- 			return PTR_ERR(fallback);
- 		}
+ /* Convert a Linux signal to an access vector. */
 -- 
 2.27.0
 
