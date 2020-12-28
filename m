@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 377C92E66C6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F1972E68D8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388336AbgL1QQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:16:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S2633473AbgL1QmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:42:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731568AbgL1NR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 581BB22582;
-        Mon, 28 Dec 2020 13:16:47 +0000 (UTC)
+        id S1729068AbgL1M6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E990224D2;
+        Mon, 28 Dec 2020 12:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161408;
-        bh=Tt9ah73l8oHBJKPy+KBT56ay72n6oWKYEGai7OLO93g=;
+        s=korg; t=1609160264;
+        bh=atqh+Y209bhdTcWJkiam23XFKnX88D7Xj8/+QbdLrL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgpedvJ+XhNcXyj60ZtfW/uPOfmM94e0jqc2EVlzyCBNtQ4FrZkVnI9MbVprZFDBj
-         Ob33p8poXbJ4Q1oONHu6yLUNCyTKg2VQJOMjHTYbAwujb4U2q5S4e6jKT7au7U4U7f
-         fv1qT+fA/WBesJ/TSkhWONKEVX5bODR9j6yqM+kM=
+        b=SxM5w6PvGD6PeUHuOGIJNQMhz/RHZ+9pGoCYPCals2c+5j9DYLz7BQV60y80b0Gy9
+         GxsLsTGazL77sEwvdFl4SHRtPqEYReG8dh4LeUl6pxHChzzrbJuQGCpqwhX4jp1BSS
+         pdLsP89PQv9A64kJta+vYWwqGGCm0Gv/oUtRaETI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 174/242] qlcnic: Fix error code in probe
+Subject: [PATCH 4.4 095/132] Input: cros_ec_keyb - send scancodes in addition to key events
 Date:   Mon, 28 Dec 2020 13:49:39 +0100
-Message-Id: <20201228124913.267495759@linuxfoundation.org>
+Message-Id: <20201228124851.012230812@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 0d52848632a357948028eab67ff9b7cc0c12a0fb ]
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-Return -EINVAL if we can't find the correct device.  Currently it
-returns success.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-Fixes: 13159183ec7a ("qlcnic: 83xx base driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X9nHbMqEyI/xPfGd@mwanda
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 1 +
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index 1b5f7d57b6f8f..6684a4cb8b88b 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -2511,6 +2511,7 @@ qlcnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		qlcnic_sriov_vf_register_map(ahw);
- 		break;
- 	default:
-+		err = -EINVAL;
- 		goto err_out_free_hw_res;
- 	}
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index b01966dc7eb3d..44a5a5496cfd0 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -137,6 +137,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
 -- 
 2.27.0
 
