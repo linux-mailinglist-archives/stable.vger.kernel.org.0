@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68922E3DC2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C133C2E63B9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502117AbgL1OTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:19:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
+        id S2405320AbgL1Nqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:46:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502110AbgL1OTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBBA5207B2;
-        Mon, 28 Dec 2020 14:19:14 +0000 (UTC)
+        id S2405262AbgL1NqW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:46:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1448D2072C;
+        Mon, 28 Dec 2020 13:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165155;
-        bh=TQSSlT2EQRSgXCmBGXqu5Wg5Cl/1A1x7DS0kj6eoQgw=;
+        s=korg; t=1609163166;
+        bh=mi/DeJzRXz47S3VNF9DlNrEgzgIcmxls+PobV+WzrQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAk4aR1LPtoVgIFhqVltKLzJKqCFILHzwojQqVt7rMYvqH03vhmRWVRT3XBGmN6Fh
-         VdwtRLBbtimdR9y41JAIl+Gn/EOL0ttWlpKhNQUCUGq3snZmiLEJ5BQhvBotwlkYqe
-         3fSXZBeSPhSMPH3osbL60ErpcGb44k5ZuTVuoPVI=
+        b=lReYQ1YIZs1avwYaMD+zETV+uV2puybLkS/kOT0J0VE6a+1ufUzjYjl9g9P31f5gg
+         YluD2UeBTJz/9l2BwIU5BfgYM4ZQ8A4lbVcN2fDZcg6ATGvqWOmciuPLP/SqvsAd0l
+         iOl+ZSKiY3Bd47EQawDlrpUAJ0pas9TbPZdpz6xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 431/717] watchdog: sprd: check busy bit before new loading rather than after that
+Subject: [PATCH 5.4 193/453] soc: amlogic: canvas: add missing put_device() call in meson_canvas_get()
 Date:   Mon, 28 Dec 2020 13:47:09 +0100
-Message-Id: <20201228125041.617496340@linuxfoundation.org>
+Message-Id: <20201228124946.500131514@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingling Xu <ling_ling.xu@unisoc.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 3e07d240939803bed9feb2a353d94686a411a7ca ]
+[ Upstream commit 28f851e6afa858f182802e23ac60c3ed7d1c04a1 ]
 
-As the specification described, users must check busy bit before start
-a new loading operation to make sure that the previous loading is done
-and the device is ready to accept a new one.
+if of_find_device_by_node() succeed, meson_canvas_get() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-[ chunyan: Massaged changelog ]
-
-Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
-Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201029023933.24548-3-zhang.lyra@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: 382f8be04551 ("soc: amlogic: canvas: Fix meson_canvas_get when probe failed")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/20201117011322.522477-1-yukuai3@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sprd_wdt.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/soc/amlogic/meson-canvas.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-index f3c90b4afead1..b9b1daa9e2a4c 100644
---- a/drivers/watchdog/sprd_wdt.c
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -108,18 +108,6 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
- 	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
- 	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
+diff --git a/drivers/soc/amlogic/meson-canvas.c b/drivers/soc/amlogic/meson-canvas.c
+index c655f5f92b124..d0329ad170d13 100644
+--- a/drivers/soc/amlogic/meson-canvas.c
++++ b/drivers/soc/amlogic/meson-canvas.c
+@@ -72,8 +72,10 @@ struct meson_canvas *meson_canvas_get(struct device *dev)
+ 	 * current state, this driver probe cannot return -EPROBE_DEFER
+ 	 */
+ 	canvas = dev_get_drvdata(&canvas_pdev->dev);
+-	if (!canvas)
++	if (!canvas) {
++		put_device(&canvas_pdev->dev);
+ 		return ERR_PTR(-EINVAL);
++	}
  
--	sprd_wdt_unlock(wdt->base);
--	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
--		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
--	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
--		       wdt->base + SPRD_WDT_LOAD_LOW);
--	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
--			SPRD_WDT_LOW_VALUE_MASK,
--		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
--	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
--		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
--	sprd_wdt_lock(wdt->base);
--
- 	/*
- 	 * Waiting the load value operation done,
- 	 * it needs two or three RTC clock cycles.
-@@ -134,6 +122,19 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
- 
- 	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
- 		return -EBUSY;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
-+	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
-+		       wdt->base + SPRD_WDT_LOAD_LOW);
-+	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+			SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
-+	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
-+	sprd_wdt_lock(wdt->base);
-+
- 	return 0;
+ 	return canvas;
  }
- 
 -- 
 2.27.0
 
