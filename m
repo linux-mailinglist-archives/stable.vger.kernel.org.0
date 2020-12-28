@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02C52E3EC1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD002E429D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503278AbgL1Oap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:30:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38902 "EHLO mail.kernel.org"
+        id S2407557AbgL1N6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503719AbgL1Oao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C59782063A;
-        Mon, 28 Dec 2020 14:30:03 +0000 (UTC)
+        id S2391620AbgL1N6R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 724DC206D4;
+        Mon, 28 Dec 2020 13:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165804;
-        bh=u1Rb0Gtsl9RKgD2iH9QXEnvnwF01Ibb2MopdOSdHccA=;
+        s=korg; t=1609163857;
+        bh=QUQBwe+w8UY2x4I69f9tbE4aqveZ8D5HF1lCcBfUCWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Adwo0DCIPH4aasx/za8uWRfyxsmOfmpP0TT5q+5jpgzEZw724D0DZyRyirSDLIPaU
-         tTohKDHAhOZprDoaxv/VYn7J5Dh2loz/nNQOQR/GOdO1bthJzjMRimiXJjd/dzJO1L
-         BZtiVSuIYwz9MGuqbGqe7Yk0lYaeyuG20xcZphII=
+        b=uY99wrkpbzOZiK5Wyu3uRd0/QF3P6dSW8QIZTBRjcXX6u1hwttX61eVsv1HL8cAKF
+         PP1Q9BXmJR376JiUoy0Q1dePYHf4SvpFATXAnYLdMx0TJtQV/+zSv2/P42UVaioQle
+         FSmzFWYd/JerLzcisCBRVRKh95KjijIDMJxiW2q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Piotr Bugalski <bugalski.piotr@gmail.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 643/717] spi: atmel-quadspi: Fix use-after-free on unbind
+Subject: [PATCH 5.4 405/453] spi: fsl: fix use of spisel_boot signal on MPC8309
 Date:   Mon, 28 Dec 2020 13:50:41 +0100
-Message-Id: <20201228125051.742956441@linuxfoundation.org>
+Message-Id: <20201228124956.701538844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-commit c7b884561cb5b641f3dbba950094110794119a6d upstream.
+commit 122541f2b10897b08f7f7e6db5f1eb693e51f0a1 upstream.
 
-atmel_qspi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+Commit 0f0581b24bd0 ("spi: fsl: Convert to use CS GPIO descriptors")
+broke the use of the SPISEL_BOOT signal as a chip select on the
+MPC8309.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
+pdata->max_chipselect, which becomes master->num_chipselect, must be
+initialized to take into account the possibility that there's one more
+chip select in use than the number of GPIO chip selects.
 
-Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v5.0+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v5.0+
-Cc: Piotr Bugalski <bugalski.piotr@gmail.com>
-Link: https://lore.kernel.org/r/4b05c65cf6f1ea3251484fe9a00b4c65478a1ae3.1607286887.git.lukas@wunner.de
+Cc: stable@vger.kernel.org # v5.4+
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 0f0581b24bd0 ("spi: fsl: Convert to use CS GPIO descriptors")
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Link: https://lore.kernel.org/r/20201127152947.376-1-rasmus.villemoes@prevas.dk
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/atmel-quadspi.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/spi/spi-fsl-spi.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -535,7 +535,7 @@ static int atmel_qspi_probe(struct platf
- 	struct resource *res;
- 	int irq, err = 0;
+--- a/drivers/spi/spi-fsl-spi.c
++++ b/drivers/spi/spi-fsl-spi.c
+@@ -717,10 +717,11 @@ static int of_fsl_spi_probe(struct platf
+ 	type = fsl_spi_get_type(&ofdev->dev);
+ 	if (type == TYPE_FSL) {
+ 		struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
++		bool spisel_boot = false;
+ #if IS_ENABLED(CONFIG_FSL_SOC)
+ 		struct mpc8xxx_spi_probe_info *pinfo = to_of_pinfo(pdata);
+-		bool spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
  
--	ctrl = spi_alloc_master(&pdev->dev, sizeof(*aq));
-+	ctrl = devm_spi_alloc_master(&pdev->dev, sizeof(*aq));
- 	if (!ctrl)
- 		return -ENOMEM;
- 
-@@ -557,8 +557,7 @@ static int atmel_qspi_probe(struct platf
- 	aq->regs = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(aq->regs)) {
- 		dev_err(&pdev->dev, "missing registers\n");
--		err = PTR_ERR(aq->regs);
--		goto exit;
-+		return PTR_ERR(aq->regs);
++		spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
+ 		if (spisel_boot) {
+ 			pinfo->immr_spi_cs = ioremap(get_immrbase() + IMMR_SPI_CS_OFFSET, 4);
+ 			if (!pinfo->immr_spi_cs) {
+@@ -737,10 +738,14 @@ static int of_fsl_spi_probe(struct platf
+ 		 * supported on the GRLIB variant.
+ 		 */
+ 		ret = gpiod_count(dev, "cs");
+-		if (ret <= 0)
++		if (ret < 0)
++			ret = 0;
++		if (ret == 0 && !spisel_boot) {
+ 			pdata->max_chipselect = 1;
+-		else
++		} else {
++			pdata->max_chipselect = ret + spisel_boot;
+ 			pdata->cs_control = fsl_spi_cs_control;
++		}
  	}
  
- 	/* Map the AHB memory */
-@@ -566,8 +565,7 @@ static int atmel_qspi_probe(struct platf
- 	aq->mem = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(aq->mem)) {
- 		dev_err(&pdev->dev, "missing AHB memory\n");
--		err = PTR_ERR(aq->mem);
--		goto exit;
-+		return PTR_ERR(aq->mem);
- 	}
- 
- 	aq->mmap_size = resource_size(res);
-@@ -579,15 +577,14 @@ static int atmel_qspi_probe(struct platf
- 
- 	if (IS_ERR(aq->pclk)) {
- 		dev_err(&pdev->dev, "missing peripheral clock\n");
--		err = PTR_ERR(aq->pclk);
--		goto exit;
-+		return PTR_ERR(aq->pclk);
- 	}
- 
- 	/* Enable the peripheral clock */
- 	err = clk_prepare_enable(aq->pclk);
- 	if (err) {
- 		dev_err(&pdev->dev, "failed to enable the peripheral clock\n");
--		goto exit;
-+		return err;
- 	}
- 
- 	aq->caps = of_device_get_match_data(&pdev->dev);
-@@ -638,8 +635,6 @@ disable_qspick:
- 	clk_disable_unprepare(aq->qspick);
- disable_pclk:
- 	clk_disable_unprepare(aq->pclk);
--exit:
--	spi_controller_put(ctrl);
- 
- 	return err;
- }
+ 	ret = of_address_to_resource(np, 0, &mem);
 
 
