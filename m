@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 094672E3FDF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4E02E3FEB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506447AbgL1Op2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:45:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48110 "EHLO mail.kernel.org"
+        id S2389457AbgL1OqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:46:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506455AbgL1Op2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:45:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00EC3208B6;
-        Mon, 28 Dec 2020 14:44:46 +0000 (UTC)
+        id S2408081AbgL1OqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:46:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4C3208D5;
+        Mon, 28 Dec 2020 14:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609166687;
-        bh=w0DIojGbE1hp/pG0hQ3sSlg3hzdeO92LpFb1eQ93VmU=;
+        s=korg; t=1609166696;
+        bh=EaflN3Zddkr/XZyi54ceDo58s+Hxi75ADkf3nc+llr8=;
         h=Subject:To:From:Date:From;
-        b=xJBKB94k8QrGmBFgCD7tTNoIYH7s1tFueZX2/xTl/SWDl9tI+YYSzbb/MfgxfyWdP
-         VeWHIMPNgZseu6Jd1BnmuCChUNTL+HyredxHEvjVqWbJ+c8Rt3XKi27Bc3xquo/H/R
-         3ERWiSPBFbofHK4zStj4WdMVY62kejNloW2H1Uy8=
-Subject: patch "USB: gadget: legacy: fix return error code in acm_ms_bind()" added to usb-linus
-To:     yangyingliang@huawei.com, gregkh@linuxfoundation.org,
-        hulkci@huawei.com, stable@vger.kernel.org
+        b=xXWMGNydFxpG1v8n/k4pp8SGTU9FSaoxhoaraOgghKo+ZMNF6tVz+qas72CMMTrsX
+         lTqH6qqJp7gyj6+XIjsvdpaZvQ3PFCQ54SzfS+61JtakgzXW9D0i5K0kHt1AIXO/E1
+         SYPme2YTPbHPAxNRsffTySqPPzxFwsKyiW+sGwyA=
+Subject: patch "usb: chipidea: ci_hdrc_imx: add missing put_device() call in" added to usb-linus
+To:     yukuai3@huawei.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 15:46:04 +0100
-Message-ID: <1609166764185151@kroah.com>
+Date:   Mon, 28 Dec 2020 15:46:05 +0100
+Message-ID: <16091667658336@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: gadget: legacy: fix return error code in acm_ms_bind()
+    usb: chipidea: ci_hdrc_imx: add missing put_device() call in
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,39 +51,44 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From c91d3a6bcaa031f551ba29a496a8027b31289464 Mon Sep 17 00:00:00 2001
-From: Yang Yingliang <yangyingliang@huawei.com>
-Date: Tue, 17 Nov 2020 17:29:55 +0800
-Subject: USB: gadget: legacy: fix return error code in acm_ms_bind()
+From 83a43ff80a566de8718dfc6565545a0080ec1fb5 Mon Sep 17 00:00:00 2001
+From: Yu Kuai <yukuai3@huawei.com>
+Date: Tue, 17 Nov 2020 09:14:30 +0800
+Subject: usb: chipidea: ci_hdrc_imx: add missing put_device() call in
+ usbmisc_get_init_data()
 
-If usb_otg_descriptor_alloc() failed, it need return ENOMEM.
+if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-Fixes: 578aa8a2b12c ("usb: gadget: acm_ms: allocate and init otg descriptor by otg capabilities")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201117092955.4102785-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/acm_ms.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/chipidea/ci_hdrc_imx.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/legacy/acm_ms.c b/drivers/usb/gadget/legacy/acm_ms.c
-index 59be2d8417c9..e8033e5f0c18 100644
---- a/drivers/usb/gadget/legacy/acm_ms.c
-+++ b/drivers/usb/gadget/legacy/acm_ms.c
-@@ -200,8 +200,10 @@ static int acm_ms_bind(struct usb_composite_dev *cdev)
- 		struct usb_descriptor_header *usb_desc;
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 9e12152ea46b..8b7bc10b6e8b 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -139,9 +139,13 @@ static struct imx_usbmisc_data *usbmisc_get_init_data(struct device *dev)
+ 	misc_pdev = of_find_device_by_node(args.np);
+ 	of_node_put(args.np);
  
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail_string_ids;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+-	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
++	if (!misc_pdev)
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 
++	if (!platform_get_drvdata(misc_pdev)) {
++		put_device(&misc_pdev->dev);
++		return ERR_PTR(-EPROBE_DEFER);
++	}
+ 	data->dev = &misc_pdev->dev;
+ 
+ 	/*
 -- 
 2.29.2
 
