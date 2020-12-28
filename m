@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE4272E3A24
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 008F32E3818
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387805AbgL1Ncv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:32:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33430 "EHLO mail.kernel.org"
+        id S1730582AbgL1NFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:05:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391068AbgL1Ncs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA078207CF;
-        Mon, 28 Dec 2020 13:32:06 +0000 (UTC)
+        id S1729829AbgL1NFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:05:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B9B22AAD;
+        Mon, 28 Dec 2020 13:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162327;
-        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
+        s=korg; t=1609160673;
+        bh=LzODAm2jd7+cJ0Nb28iwyizDMXqK1TTzgakTksqgk5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGOHC/Gwf7me/mVvhBB/ZvABBeVt8XIb5A6hqimbBbjHNmCEpx3AYvC0jFkURw2CI
-         z6PrHVhLK0pSGWtfxdc1M4ULTAGMW2sQadQIu3u7pfdLWmJa1Hz4JaCT9HZmkj/5Ua
-         v6YWgeD8sH8sjRxIZncyf75QCFVeCoWECeB7LcY4=
+        b=ui7ojaJmivBuJ0kJL/f376sCP8mt90DVEupCihyrauF/Nd++PDABNQcPZ3xliYiyx
+         Pz2tkpGYUFJ3QyoauDEMpWypL36dCgqoGBzWyb9+zyjcn1CXiZMftCx2lzuUkJbswc
+         Kxh+teewMkcVjxxyPVHteUug4lAbKucGFCMT5RYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 266/346] Input: cyapa_gen6 - fix out-of-bounds stack access
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Maxime Ripard <mripard@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 132/175] media: sunxi-cir: ensure IR is handled when it is continuous
 Date:   Mon, 28 Dec 2020 13:49:45 +0100
-Message-Id: <20201228124932.630251638@linuxfoundation.org>
+Message-Id: <20201228124859.644741059@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Young <sean@mess.org>
 
-commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
+commit 3f56df4c8ffeb120ed41906d3aae71799b7e726a upstream.
 
-gcc -Warray-bounds warns about a serious bug in
-cyapa_pip_retrieve_data_structure:
+If a user holds a button down on a remote, then no ir idle interrupt will
+be generated until the user releases the button, depending on how quickly
+the remote repeats. No IR is processed until that point, which means that
+holding down a button may not do anything.
 
-drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
-include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
-   40 |  *((__le16 *)p) = cpu_to_le16(val);
-drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
-  569 |  } __packed cmd;
-      |             ^~~
+This also resolves an issue on a Cubieboard 1 where the IR receiver is
+picking up ambient infrared as IR and spews out endless
+"rc rc0: IR event FIFO is full!" messages unless you choose to live in
+the dark.
 
-Apparently the '-2' was added to the pointer instead of the value,
-writing garbage into the stack next to this variable.
-
-Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/cyapa_gen6.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/sunxi-cir.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
+--- a/drivers/media/rc/sunxi-cir.c
++++ b/drivers/media/rc/sunxi-cir.c
+@@ -132,6 +132,8 @@ static irqreturn_t sunxi_ir_irq(int irqn
+ 	} else if (status & REG_RXINT_RPEI_EN) {
+ 		ir_raw_event_set_idle(ir->rc, true);
+ 		ir_raw_event_handle(ir->rc);
++	} else {
++		ir_raw_event_handle(ir->rc);
+ 	}
  
- 	memset(&cmd, 0, sizeof(cmd));
- 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
--	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
-+	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
- 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
- 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
- 	put_unaligned_le16(read_offset, &cmd.read_offset);
+ 	spin_unlock(&ir->ir_lock);
 
 
