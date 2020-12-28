@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB1C2E3DDA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E94DA2E3B47
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437813AbgL1OUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
+        id S2405814AbgL1NsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:48:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437806AbgL1OUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:20:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39389206D4;
-        Mon, 28 Dec 2020 14:20:24 +0000 (UTC)
+        id S2405805AbgL1NsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:48:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C9E520738;
+        Mon, 28 Dec 2020 13:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165224;
-        bh=IGLb0/2pr782ak04i7qJ/uH5N0VbgJomcLFrVOgKae4=;
+        s=korg; t=1609163245;
+        bh=i8TmNjc1zhg9lK9uMMkZ+mwseLB8CutiwTGvjagY6ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEqtVO1hgjoq7UK0HeBZsxcW2iIqxY7DophqW9EatdLGfjUETSQVJQmk6EA5uu/aW
-         5985fqghdMR3kvQY2Q6eDOruLHmz39VvIQPPaP2v4ydQXAXN0QQV5pDolajTArZa2G
-         0bMpSo1ZJf94z0eoJ4qHwS4XjBcPUhW+zdadWKUU=
+        b=Qwphl4aCI+Y1in2A3K+txPAXJFzGAjab+VihH85IHNj6SzDGuft6dPbxanSQA2+As
+         A0C09lPXNM53K0aLLQU+uVO8S9uNjCyEHJt44vkJJcYP1sUthNQdSRAG7I7ZsGWHFX
+         0BjK+JuQ6dGvbX00PhA0sO3nGTlPSBpAJelDgy5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 457/717] mm: dont wake kswapd prematurely when watermark boosting is disabled
-Date:   Mon, 28 Dec 2020 13:47:35 +0100
-Message-Id: <20201228125042.863571881@linuxfoundation.org>
+Subject: [PATCH 5.4 220/453] MIPS: Dont round up kernel sections size for memblock_add()
+Date:   Mon, 28 Dec 2020 13:47:36 +0100
+Message-Id: <20201228124947.803587883@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 597c892038e08098b17ccfe65afd9677e6979800 ]
+[ Upstream commit d121f125af22a16f0f679293756d28a9691fa46d ]
 
-On 2-node NUMA hosts we see bursts of kswapd reclaim and subsequent
-pressure spikes and stalls from cache refaults while there is plenty of
-free memory in the system.
+Linux doesn't own the memory immediately after the kernel image. On Octeon
+bootloader places a shared structure right close after the kernel _end,
+refer to "struct cvmx_bootinfo *octeon_bootinfo" in cavium-octeon/setup.c.
 
-Usually, kswapd is woken up when all eligible nodes in an allocation are
-full.  But the code related to watermark boosting can wake kswapd on one
-full node while the other one is mostly empty.  This may be justified to
-fight fragmentation, but is currently unconditionally done whether
-watermark boosting is occurring or not.
+If check_kernel_sections_mem() rounds the PFNs up, first memblock_alloc()
+inside early_init_dt_alloc_memory_arch() <= device_tree_init() returns
+memory block overlapping with the above octeon_bootinfo structure, which
+is being overwritten afterwards.
 
-In our case, many of our workloads' throughput scales with available
-memory, and pure utilization is a more tangible concern than trends
-around longer-term fragmentation.  As a result we generally disable
-watermark boosting.
-
-Wake kswapd only woken when watermark boosting is requested.
-
-Link: https://lkml.kernel.org/r/20201020175833.397286-1-hannes@cmpxchg.org
-Fixes: 1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a94e4f24ec83 ("MIPS: init: Drop boot_mem_map")
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/mips/kernel/setup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index eaa227a479e4a..32f783ddb5c3a 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -2470,12 +2470,12 @@ static bool can_steal_fallback(unsigned int order, int start_mt)
- 	return false;
- }
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index b8884de89c81e..82e44b31aad59 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -529,8 +529,8 @@ static void __init request_crashkernel(struct resource *res)
  
--static inline void boost_watermark(struct zone *zone)
-+static inline bool boost_watermark(struct zone *zone)
+ static void __init check_kernel_sections_mem(void)
  {
- 	unsigned long max_boost;
+-	phys_addr_t start = PFN_PHYS(PFN_DOWN(__pa_symbol(&_text)));
+-	phys_addr_t size = PFN_PHYS(PFN_UP(__pa_symbol(&_end))) - start;
++	phys_addr_t start = __pa_symbol(&_text);
++	phys_addr_t size = __pa_symbol(&_end) - start;
  
- 	if (!watermark_boost_factor)
--		return;
-+		return false;
- 	/*
- 	 * Don't bother in zones that are unlikely to produce results.
- 	 * On small machines, including kdump capture kernels running
-@@ -2483,7 +2483,7 @@ static inline void boost_watermark(struct zone *zone)
- 	 * memory situation immediately.
- 	 */
- 	if ((pageblock_nr_pages * 4) > zone_managed_pages(zone))
--		return;
-+		return false;
- 
- 	max_boost = mult_frac(zone->_watermark[WMARK_HIGH],
- 			watermark_boost_factor, 10000);
-@@ -2497,12 +2497,14 @@ static inline void boost_watermark(struct zone *zone)
- 	 * boosted watermark resulting in a hang.
- 	 */
- 	if (!max_boost)
--		return;
-+		return false;
- 
- 	max_boost = max(pageblock_nr_pages, max_boost);
- 
- 	zone->watermark_boost = min(zone->watermark_boost + pageblock_nr_pages,
- 		max_boost);
-+
-+	return true;
- }
- 
- /*
-@@ -2540,8 +2542,7 @@ static void steal_suitable_fallback(struct zone *zone, struct page *page,
- 	 * likelihood of future fallbacks. Wake kswapd now as the node
- 	 * may be balanced overall and kswapd will not wake naturally.
- 	 */
--	boost_watermark(zone);
--	if (alloc_flags & ALLOC_KSWAPD)
-+	if (boost_watermark(zone) && (alloc_flags & ALLOC_KSWAPD))
- 		set_bit(ZONE_BOOSTED_WATERMARK, &zone->flags);
- 
- 	/* We are not allowed to try stealing from the whole block */
+ 	if (!memblock_is_region_memory(start, size)) {
+ 		pr_info("Kernel sections are not in the memory maps\n");
 -- 
 2.27.0
 
