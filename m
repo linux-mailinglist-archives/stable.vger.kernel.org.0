@@ -2,52 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 422122E4031
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0994B2E39B9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438017AbgL1OVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:21:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56246 "EHLO mail.kernel.org"
+        id S2389585AbgL1N1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438007AbgL1OVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:21:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED7220731;
-        Mon, 28 Dec 2020 14:21:25 +0000 (UTC)
+        id S2389032AbgL1N1E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:27:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D294E22475;
+        Mon, 28 Dec 2020 13:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165286;
-        bh=KGRqtiI5xb2QCWAhkMOzJAqSPuxxarizS8R6E19JfFI=;
+        s=korg; t=1609162009;
+        bh=U0/U1i8HR0x+2CSCRKI1xVVEDqW7pG7qBP2HTZjGIaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDcp+HwAS7IJHQTOwuuC7Jm2Ln+if2OQdcYmrnwboVmLUsStHApKycLcj30E3aqFd
-         jN/usJqcJ2B0crEEbQIdVURPIuG4qpEACtOjrJjEdPOlGdV6v3U75pE/uCQLj29bru
-         1PLjco/h8U/aozRNBHEa7LPkQpu99jta2kBbpSWs=
+        b=TOTxFL+XW4v7p71olNIFLLMji02szbO7gDhmjZU5+oRSf4NkLANpw7Mb/IN6JhCKG
+         F1BNj3aAJtB3C7h54gsVBptBwcnhOjiAZBRxFj3MRvCr5QD9QY7qi+8hPJujDP2k4j
+         PtVqy/2XwRDfaoHara257ABzHg7fc8A0ecZJWAoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jane Chu <jane.chu@oracle.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 448/717] mm/gup: combine put_compound_head() and unpin_user_page()
+Subject: [PATCH 4.19 127/346] spi: tegra20-sflash: fix reference leak in tegra_sflash_resume
 Date:   Mon, 28 Dec 2020 13:47:26 +0100
-Message-Id: <20201228125042.438862914@linuxfoundation.org>
+Message-Id: <20201228124925.931148104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,188 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 4509b42c38963f495b49aa50209c34337286ecbe ]
+[ Upstream commit 3482e797ab688da6703fe18d8bad52f94199f4f2 ]
 
-These functions accomplish the same thing but have different
-implementations.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in tegra_sflash_resume, so we should fix it.
 
-unpin_user_page() has a bug where it calls mod_node_page_state() after
-calling put_page() which creates a risk that the page could have been
-hot-uplugged from the system.
-
-Fix this by using put_compound_head() as the only implementation.
-
-__unpin_devmap_managed_user_page() and related can be deleted as well in
-favour of the simpler, but slower, version in put_compound_head() that has
-an extra atomic page_ref_sub, but always calls put_page() which internally
-contains the special devmap code.
-
-Move put_compound_head() to be directly after try_grab_compound_head() so
-people can find it in future.
-
-Link: https://lkml.kernel.org/r/0-v1-6730d4ee0d32+40e6-gup_combine_put_jgg@nvidia.com
-Fixes: 1970dc6f5226 ("mm/gup: /proc/vmstat: pin_user_pages (FOLL_PIN) reporting")
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-CC: Joao Martins <joao.m.martins@oracle.com>
-CC: Jonathan Corbet <corbet@lwn.net>
-CC: Dan Williams <dan.j.williams@intel.com>
-CC: Dave Chinner <david@fromorbit.com>
-CC: Christoph Hellwig <hch@infradead.org>
-CC: Jane Chu <jane.chu@oracle.com>
-CC: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-CC: Michal Hocko <mhocko@suse.com>
-CC: Mike Kravetz <mike.kravetz@oracle.com>
-CC: Shuah Khan <shuah@kernel.org>
-CC: Muchun Song <songmuchun@bytedance.com>
-CC: Vlastimil Babka <vbabka@suse.cz>
-CC: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 8528547bcc336 ("spi: tegra: add spi driver for sflash controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141323.5841-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c | 103 +++++++++++++------------------------------------------
- 1 file changed, 23 insertions(+), 80 deletions(-)
+ drivers/spi/spi-tegra20-sflash.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/gup.c b/mm/gup.c
-index 9c6a2f5001c5c..054ff923d3d92 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -123,6 +123,28 @@ static __maybe_unused struct page *try_grab_compound_head(struct page *page,
- 	return NULL;
- }
+diff --git a/drivers/spi/spi-tegra20-sflash.c b/drivers/spi/spi-tegra20-sflash.c
+index 22893a7e0aa0e..749288310c36c 100644
+--- a/drivers/spi/spi-tegra20-sflash.c
++++ b/drivers/spi/spi-tegra20-sflash.c
+@@ -564,6 +564,7 @@ static int tegra_sflash_resume(struct device *dev)
  
-+static void put_compound_head(struct page *page, int refs, unsigned int flags)
-+{
-+	if (flags & FOLL_PIN) {
-+		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
-+				    refs);
-+
-+		if (hpage_pincount_available(page))
-+			hpage_pincount_sub(page, refs);
-+		else
-+			refs *= GUP_PIN_COUNTING_BIAS;
-+	}
-+
-+	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
-+	/*
-+	 * Calling put_page() for each ref is unnecessarily slow. Only the last
-+	 * ref needs a put_page().
-+	 */
-+	if (refs > 1)
-+		page_ref_sub(page, refs - 1);
-+	put_page(page);
-+}
-+
- /**
-  * try_grab_page() - elevate a page's refcount by a flag-dependent amount
-  *
-@@ -177,41 +199,6 @@ bool __must_check try_grab_page(struct page *page, unsigned int flags)
- 	return true;
- }
- 
--#ifdef CONFIG_DEV_PAGEMAP_OPS
--static bool __unpin_devmap_managed_user_page(struct page *page)
--{
--	int count, refs = 1;
--
--	if (!page_is_devmap_managed(page))
--		return false;
--
--	if (hpage_pincount_available(page))
--		hpage_pincount_sub(page, 1);
--	else
--		refs = GUP_PIN_COUNTING_BIAS;
--
--	count = page_ref_sub_return(page, refs);
--
--	mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED, 1);
--	/*
--	 * devmap page refcounts are 1-based, rather than 0-based: if
--	 * refcount is 1, then the page is free and the refcount is
--	 * stable because nobody holds a reference on the page.
--	 */
--	if (count == 1)
--		free_devmap_managed_page(page);
--	else if (!count)
--		__put_page(page);
--
--	return true;
--}
--#else
--static bool __unpin_devmap_managed_user_page(struct page *page)
--{
--	return false;
--}
--#endif /* CONFIG_DEV_PAGEMAP_OPS */
--
- /**
-  * unpin_user_page() - release a dma-pinned page
-  * @page:            pointer to page to be released
-@@ -223,28 +210,7 @@ static bool __unpin_devmap_managed_user_page(struct page *page)
-  */
- void unpin_user_page(struct page *page)
- {
--	int refs = 1;
--
--	page = compound_head(page);
--
--	/*
--	 * For devmap managed pages we need to catch refcount transition from
--	 * GUP_PIN_COUNTING_BIAS to 1, when refcount reach one it means the
--	 * page is free and we need to inform the device driver through
--	 * callback. See include/linux/memremap.h and HMM for details.
--	 */
--	if (__unpin_devmap_managed_user_page(page))
--		return;
--
--	if (hpage_pincount_available(page))
--		hpage_pincount_sub(page, 1);
--	else
--		refs = GUP_PIN_COUNTING_BIAS;
--
--	if (page_ref_sub_and_test(page, refs))
--		__put_page(page);
--
--	mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED, 1);
-+	put_compound_head(compound_head(page), 1, FOLL_PIN);
- }
- EXPORT_SYMBOL(unpin_user_page);
- 
-@@ -2062,29 +2028,6 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
-  * This code is based heavily on the PowerPC implementation by Nick Piggin.
-  */
- #ifdef CONFIG_HAVE_FAST_GUP
--
--static void put_compound_head(struct page *page, int refs, unsigned int flags)
--{
--	if (flags & FOLL_PIN) {
--		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
--				    refs);
--
--		if (hpage_pincount_available(page))
--			hpage_pincount_sub(page, refs);
--		else
--			refs *= GUP_PIN_COUNTING_BIAS;
--	}
--
--	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
--	/*
--	 * Calling put_page() for each ref is unnecessarily slow. Only the last
--	 * ref needs a put_page().
--	 */
--	if (refs > 1)
--		page_ref_sub(page, refs - 1);
--	put_page(page);
--}
--
- #ifdef CONFIG_GUP_GET_PTE_LOW_HIGH
- 
- /*
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
