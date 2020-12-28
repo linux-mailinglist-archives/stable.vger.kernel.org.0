@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D94902E3F34
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 950DB2E3F3C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392251AbgL1Ohb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:37:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
+        id S2504641AbgL1OcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504743AbgL1Och (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D15D20715;
-        Mon, 28 Dec 2020 14:31:56 +0000 (UTC)
+        id S2504637AbgL1OcO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACD0620731;
+        Mon, 28 Dec 2020 14:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165916;
-        bh=+pSnwWsCMByYdsFsfpHiPyCaC6g7YzUC9AlAXhW96sA=;
+        s=korg; t=1609165919;
+        bh=aVRzW08YkAx8xT5rReD7QzmB1/2mc4eTf5Elk/gwka4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHV2xsrMZH7nfCOcUl7oP+lmJZqyDTicaW/OK1Ap9rpAJ+w6tT3vh3sHKjOUCH/0V
-         dcFw05PYRTEh9Rs/w3yehiHijE+UDtAl93VJZRmwpo7p13C0C9v33lGkPZao2fCz5x
-         CKJ0pxFVUQxtRSTXGGd2p9lU/C8MKwCfsiPvj29Q=
+        b=OhDi2TtNJF1xoLmxrMkugrZOS2Kv+vwACDqeXxi84dA/lfuyCBJmiNez1vDAEktMJ
+         m1unc5fqDoEBHEDtDbzFVTD64J+7XoyIRW8EJS/KTYwoZQSGnTaCGoEQkINnQechc/
+         YPM6zyd44AsIdmBlAwmhIzWRivjNVtdtP2OnTogg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 700/717] xenbus/xenbus_backend: Disallow pending watch messages
-Date:   Mon, 28 Dec 2020 13:51:38 +0100
-Message-Id: <20201228125054.519478188@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.10 701/717] memory: jz4780_nemc: Fix an error pointer vs NULL check in probe()
+Date:   Mon, 28 Dec 2020 13:51:39 +0100
+Message-Id: <20201228125054.567961515@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,56 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 9996bd494794a2fe393e97e7a982388c6249aa76 upstream.
+commit 96999c797ec1ef41259f00b4ddf9cf33b342cb78 upstream.
 
-'xenbus_backend' watches 'state' of devices, which is writable by
-guests.  Hence, if guests intensively updates it, dom0 will have lots of
-pending events that exhausting memory of dom0.  In other words, guests
-can trigger dom0 memory pressure.  This is known as XSA-349.  However,
-the watch callback of it, 'frontend_changed()', reads only 'state', so
-doesn't need to have the pending events.
+The devm_ioremap() function returns NULL on error, it doesn't return
+error pointers.  This bug could lead to an Oops during probe.
 
-To avoid the problem, this commit disallows pending watch messages for
-'xenbus_backend' using the 'will_handle()' watch callback.
-
-This is part of XSA-349
-
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: f046e4a3f0b9 ("memory: jz4780_nemc: Only request IO memory the driver will use")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20200803143607.GC346925@mwanda
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xenbus/xenbus_probe_backend.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/memory/jz4780-nemc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/xenbus/xenbus_probe_backend.c
-+++ b/drivers/xen/xenbus/xenbus_probe_backend.c
-@@ -180,6 +180,12 @@ static int xenbus_probe_backend(struct x
- 	return err;
- }
+--- a/drivers/memory/jz4780-nemc.c
++++ b/drivers/memory/jz4780-nemc.c
+@@ -306,9 +306,9 @@ static int jz4780_nemc_probe(struct plat
+ 	}
  
-+static bool frontend_will_handle(struct xenbus_watch *watch,
-+				 const char *path, const char *token)
-+{
-+	return watch->nr_pending == 0;
-+}
-+
- static void frontend_changed(struct xenbus_watch *watch,
- 			     const char *path, const char *token)
- {
-@@ -191,6 +197,7 @@ static struct xen_bus_type xenbus_backen
- 	.levels = 3,		/* backend/type/<frontend>/<id> */
- 	.get_bus_id = backend_bus_id,
- 	.probe = xenbus_probe_backend,
-+	.otherend_will_handle = frontend_will_handle,
- 	.otherend_changed = frontend_changed,
- 	.bus = {
- 		.name		= "xen-backend",
+ 	nemc->base = devm_ioremap(dev, res->start, NEMC_REG_LEN);
+-	if (IS_ERR(nemc->base)) {
++	if (!nemc->base) {
+ 		dev_err(dev, "failed to get I/O memory\n");
+-		return PTR_ERR(nemc->base);
++		return -ENOMEM;
+ 	}
+ 
+ 	writel(0, nemc->base + NEMC_NFCSR);
 
 
