@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5852E412A
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9C02E4129
 	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439898AbgL1OMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:12:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
+        id S2439906AbgL1OMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439892AbgL1OMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3098720791;
-        Mon, 28 Dec 2020 14:12:18 +0000 (UTC)
+        id S2439901AbgL1OMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5410207B2;
+        Mon, 28 Dec 2020 14:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164738;
-        bh=gSS2vlDOAi6OYsuXe17tLsbwFm5CEC6ChWEJjmiHSAc=;
+        s=korg; t=1609164741;
+        bh=xkVwTlQKoeBRjRMfMVMMsBVDaghygZpptWfyJFmZItM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XIC5NpvN9xPmNdklhIFdsREE97rksNsHs/OZC85nMvZM9mDf7xTv2Y7NONvXwpGn
-         pAFSfUnqOL51BdN6knBu0SCuvb0K6BBnQBwmv2rX+z2WnMS+DGSvii7k8oS80pyPPs
-         A4qDfmnjw+Z1FUwPZExBmOJKO7WEo/jCn+FLO5Ug=
+        b=UXsr3rrD3pJfr99yI9O3QNwBYM27nsGOqt6W4YihfjvOQ7vb+/kvLsmTQndCBbE0h
+         HbBbBiOPSazzQqSGr+XbLBCKXYRo2sP2SjBUvp17eNqvzbzziAKi3btC6fcfzAxjC2
+         nTDtyrdluiBle8lMGLA45RKeuJ6QQV4+vP4eTBv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 249/717] spi: spi-fsl-dspi: Use max_native_cs instead of num_chipselect to set SPI_MCR
-Date:   Mon, 28 Dec 2020 13:44:07 +0100
-Message-Id: <20201228125032.916685247@linuxfoundation.org>
+Subject: [PATCH 5.10 250/717] ARM: dts: at91: at91sam9rl: fix ADC triggers
+Date:   Mon, 28 Dec 2020 13:44:08 +0100
+Message-Id: <20201228125032.965028511@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,54 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kochetkov <fido_max@inbox.ru>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 2c2b3ad2c4c801bab1eec7264ea6991b1e4e8f2c ]
+[ Upstream commit 851a95da583c26e2ddeb7281e9b61f0d76ea5aba ]
 
-If cs-gpios property is used in devicetree then ctlr->num_chipselect value
-may be changed by spi_get_gpio_descs().
-So use ctlr->max_native_cs instead of ctlr->num_chipselect to set SPI_MCR
+The triggers for the ADC were taken from at91sam9260 dtsi but are not
+correct.
 
-Fixes: 4fcc7c2292de (spi: spi-fsl-dspi: Don't access reserved fields in SPI_MCR)
-Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
-Link: https://lore.kernel.org/r/20201201085916.63543-1-fido_max@inbox.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a4c1d6c75822 ("ARM: at91/dt: sam9rl: add lcd, adc, usb gadget and pwm support")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201128222818.1910764-10-alexandre.belloni@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/at91sam9rl.dtsi | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 1a08c1d584abe..0287366874882 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1165,7 +1165,7 @@ static int dspi_init(struct fsl_dspi *dspi)
- 	unsigned int mcr;
+diff --git a/arch/arm/boot/dts/at91sam9rl.dtsi b/arch/arm/boot/dts/at91sam9rl.dtsi
+index 5653e70c84b4b..36a42a9fe1957 100644
+--- a/arch/arm/boot/dts/at91sam9rl.dtsi
++++ b/arch/arm/boot/dts/at91sam9rl.dtsi
+@@ -282,23 +282,26 @@
+ 				atmel,adc-use-res = "highres";
  
- 	/* Set idle states for all chip select signals to high */
--	mcr = SPI_MCR_PCSIS(GENMASK(dspi->ctlr->num_chipselect - 1, 0));
-+	mcr = SPI_MCR_PCSIS(GENMASK(dspi->ctlr->max_native_cs - 1, 0));
+ 				trigger0 {
+-					trigger-name = "timer-counter-0";
++					trigger-name = "external-rising";
+ 					trigger-value = <0x1>;
++					trigger-external;
+ 				};
++
+ 				trigger1 {
+-					trigger-name = "timer-counter-1";
+-					trigger-value = <0x3>;
++					trigger-name = "external-falling";
++					trigger-value = <0x2>;
++					trigger-external;
+ 				};
  
- 	if (dspi->devtype_data->trans_mode == DSPI_XSPI_MODE)
- 		mcr |= SPI_MCR_XSPI;
-@@ -1250,7 +1250,7 @@ static int dspi_probe(struct platform_device *pdev)
+ 				trigger2 {
+-					trigger-name = "timer-counter-2";
+-					trigger-value = <0x5>;
++					trigger-name = "external-any";
++					trigger-value = <0x3>;
++					trigger-external;
+ 				};
  
- 	pdata = dev_get_platdata(&pdev->dev);
- 	if (pdata) {
--		ctlr->num_chipselect = pdata->cs_num;
-+		ctlr->num_chipselect = ctlr->max_native_cs = pdata->cs_num;
- 		ctlr->bus_num = pdata->bus_num;
+ 				trigger3 {
+-					trigger-name = "external";
+-					trigger-value = <0x13>;
+-					trigger-external;
++					trigger-name = "continuous";
++					trigger-value = <0x6>;
+ 				};
+ 			};
  
- 		/* Only Coldfire uses platform data */
-@@ -1263,7 +1263,7 @@ static int dspi_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev, "can't get spi-num-chipselects\n");
- 			goto out_ctlr_put;
- 		}
--		ctlr->num_chipselect = cs_num;
-+		ctlr->num_chipselect = ctlr->max_native_cs = cs_num;
- 
- 		of_property_read_u32(np, "bus-num", &bus_num);
- 		ctlr->bus_num = bus_num;
 -- 
 2.27.0
 
