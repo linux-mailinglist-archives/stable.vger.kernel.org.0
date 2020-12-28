@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDAB2E377B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C8B2E3F9B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728657AbgL1M4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:56:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52418 "EHLO mail.kernel.org"
+        id S2502178AbgL1O1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728672AbgL1M4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:56:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 593A9224D2;
-        Mon, 28 Dec 2020 12:55:19 +0000 (UTC)
+        id S2503578AbgL1O0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:26:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B1C422B40;
+        Mon, 28 Dec 2020 14:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160119;
-        bh=Wdwhs5Y5kdLWDSBFMmEc8WP8wop4/0dX/8rxrLoADWA=;
+        s=korg; t=1609165525;
+        bh=MJb6rgT/CLr74sfiJb2dNz0DdNWAxqXSu6EFZIFb3qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1Kk56Y2flyEhJbrbwRxyBXSHhUb7OZOgFMd3vNoCrXc96y+dSlD6jRymc3MOVcyo
-         kq0SFSDLMD95HxsRf0SIZkrxClSHz2wxkXbvzGRpG2fY4tv78BLCEgBPa8JMQjwSOt
-         GENq1+MSBNtUoCI2CVAK/doW74yvJKnDNfQjeZ9A=
+        b=MO5MwaZN6hlZHM4NeergFBimZc2XnhTkAwJRCqFurH68pGXN1kx/ncW0iG06T32mA
+         64df6XkQf8okW83fcYocsc9N/+6E2ordXgqpKzFbjdqCRKt1p3+WiIrvs3Bv6Ta9FV
+         2WjljDZ1WWcumS93z+j5owGZUYyR0STnTaXiK2ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 075/132] powerpc/pseries/hibernation: drop pseries_suspend_begin() from suspend ops
-Date:   Mon, 28 Dec 2020 13:49:19 +0100
-Message-Id: <20201228124850.068851547@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>
+Subject: [PATCH 5.10 562/717] ASoC: AMD Raven/Renoir - fix the PCI probe (PCI revision)
+Date:   Mon, 28 Dec 2020 13:49:20 +0100
+Message-Id: <20201228125047.848721184@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Jaroslav Kysela <perex@perex.cz>
 
-[ Upstream commit 52719fce3f4c7a8ac9eaa191e8d75a697f9fbcbc ]
+commit 55d8e6a85bce21f748c42eedea63681219f70523 upstream.
 
-There are three ways pseries_suspend_begin() can be reached:
+The Raven and Renoir ACP can be distinguished by the PCI revision.
+Let's do the check very early, otherwise the wrong probe code
+can be run.
 
-1. When "mem" is written to /sys/power/state:
+Link: https://lore.kernel.org/alsa-devel/2e4587f8-f602-cf23-4845-fd27a32b1cfc@amd.com/
+Cc: <stable@kernel.org>
+Cc: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+Cc: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20201208181233.2745726-1-perex@perex.cz
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-kobj_attr_store()
--> state_store()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This never works because there is no way to supply a valid stream id
-using this interface, and H_VASI_STATE is called with a stream id of
-zero. So this call path is useless at best.
-
-2. When a stream id is written to /sys/devices/system/power/hibernate.
-pseries_suspend_begin() is polled directly from store_hibernate()
-until the stream is in the "Suspending" state (i.e. the platform is
-ready for the OS to suspend execution):
-
-dev_attr_store()
--> store_hibernate()
-  -> pseries_suspend_begin()
-
-3. When a stream id is written to /sys/devices/system/power/hibernate
-(continued). After #2, pseries_suspend_begin() is called once again
-from the pm core:
-
-dev_attr_store()
--> store_hibernate()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This is redundant because the VASI suspend state is already known to
-be Suspending.
-
-The begin() callback of platform_suspend_ops is optional, so we can
-simply remove that assignment with no loss of function.
-
-Fixes: 32d8ad4e621d ("powerpc/pseries: Partition hibernation support")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-18-nathanl@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/suspend.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/amd/raven/pci-acp3x.c     |    4 ++++
+ sound/soc/amd/renoir/rn-pci-acp3x.c |    4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
-index e76aefae2aa2b..0a0e0c8256f67 100644
---- a/arch/powerpc/platforms/pseries/suspend.c
-+++ b/arch/powerpc/platforms/pseries/suspend.c
-@@ -224,7 +224,6 @@ static struct bus_type suspend_subsys = {
+--- a/sound/soc/amd/raven/pci-acp3x.c
++++ b/sound/soc/amd/raven/pci-acp3x.c
+@@ -118,6 +118,10 @@ static int snd_acp3x_probe(struct pci_de
+ 	int ret, i;
+ 	u32 addr, val;
  
- static const struct platform_suspend_ops pseries_suspend_ops = {
- 	.valid		= suspend_valid_only_mem,
--	.begin		= pseries_suspend_begin,
- 	.prepare_late	= pseries_prepare_late,
- 	.enter		= pseries_suspend_enter,
- };
--- 
-2.27.0
-
++	/* Raven device detection */
++	if (pci->revision != 0x00)
++		return -ENODEV;
++
+ 	if (pci_enable_device(pci)) {
+ 		dev_err(&pci->dev, "pci_enable_device failed\n");
+ 		return -ENODEV;
+--- a/sound/soc/amd/renoir/rn-pci-acp3x.c
++++ b/sound/soc/amd/renoir/rn-pci-acp3x.c
+@@ -188,6 +188,10 @@ static int snd_rn_acp_probe(struct pci_d
+ 	int ret, index;
+ 	u32 addr;
+ 
++	/* Renoir device check */
++	if (pci->revision != 0x01)
++		return -ENODEV;
++
+ 	if (pci_enable_device(pci)) {
+ 		dev_err(&pci->dev, "pci_enable_device failed\n");
+ 		return -ENODEV;
 
 
