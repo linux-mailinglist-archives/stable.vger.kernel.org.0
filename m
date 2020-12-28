@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C103F2E3890
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B542E3FF5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731657AbgL1NL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:11:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
+        id S2437893AbgL1OXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:23:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731889AbgL1NL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:11:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10183208BA;
-        Mon, 28 Dec 2020 13:11:39 +0000 (UTC)
+        id S2502813AbgL1OXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:23:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9781B20731;
+        Mon, 28 Dec 2020 14:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161100;
-        bh=ZJlX41T0hgo1Z6toExChw39aouskNYuChXl0ibefaas=;
+        s=korg; t=1609165374;
+        bh=WJeUAuTdeT5MrHYibK7LHhElDRROfb2vnw0VRIECb3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IR5uXtQSv2Xdn2RAylSW6gDJFZ4zNZ2pkWXoGz+A8KJlM1qc0eyYuo8WXhmy6hTxx
-         ncHsgxNBHl3BxdO5NsF8bLEk4a/aHSCl0A4HoN0Jd1XG8VC/f2vRt/xmepmB+KdDOM
-         LBcXTtwdpPLWKC4qfaimPox3m8nM+LA36i5vaj/8=
+        b=2JXJLno0kLCntu6oHlM9AMoEmVMHRF95cNr2ubwTnwQgQLC0g0snxMlp/+8sEym2H
+         4D/sqzMwoPemb4hxTClv0e7+3Nzsmj83jaaYWLWGjNIFOwjheA4JK/LIemzDYnllb1
+         UlncPZsq4iekhxWBLRy6No3ybIL/7IFQJILo4OVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/242] powerpc/feature: Fix CPU_FTRS_ALWAYS by removing CPU_FTRS_GENERIC_32
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 507/717] io_uring: cancel reqs shouldnt kill overflow list
 Date:   Mon, 28 Dec 2020 13:48:25 +0100
-Message-Id: <20201228124909.615019815@linuxfoundation.org>
+Message-Id: <20201228125045.251872226@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 78665179e569c7e1fe102fb6c21d0f5b6951f084 ]
+[ Upstream commit cda286f0715c82f8117e166afd42cca068876dde ]
 
-On 8xx, we get the following features:
+io_uring_cancel_task_requests() doesn't imply that the ring is going
+away, it may continue to work well after that. The problem is that it
+sets ->cq_overflow_flushed effectively disabling the CQ overflow feature
 
-[    0.000000] cpu_features      = 0x0000000000000100
-[    0.000000]   possible        = 0x0000000000000120
-[    0.000000]   always          = 0x0000000000000000
+Split setting cq_overflow_flushed from flush, and do the first one only
+on exit. It's ok in terms of cancellations because there is a
+io_uring->in_idle check in __io_cqring_fill_event().
 
-This is not correct. As CONFIG_PPC_8xx is mutually exclusive with all
-other configurations, the three lines should be equal.
+It also fixes a race with setting ->cq_overflow_flushed in
+io_uring_cancel_task_requests, whuch's is not atomic and a part of a
+bitmask with other flags. Though, the only other flag that's not set
+during init is drain_next, so it's not as bad for sane architectures.
 
-The problem is due to CPU_FTRS_GENERIC_32 which is taken when
-CONFIG_BOOK3S_32 is NOT selected. This CPU_FTRS_GENERIC_32 is
-pointless because there is no generic configuration supporting
-all 32 bits but book3s/32.
-
-Remove this pointless generic features definition to unbreak the
-calculation of 'possible' features and 'always' features.
-
-Fixes: 76bc080ef5a3 ("[POWERPC] Make default cputable entries reflect selected CPU family")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/76a85f30bf981d1aeaae00df99321235494da254.1604426550.git.christophe.leroy@csgroup.eu
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cputable.h | 5 -----
- 1 file changed, 5 deletions(-)
+ fs/io_uring.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
-index e4451b30d7e32..89a5cdf46ad7f 100644
---- a/arch/powerpc/include/asm/cputable.h
-+++ b/arch/powerpc/include/asm/cputable.h
-@@ -423,7 +423,6 @@ enum {
- 	    CPU_FTR_DBELL | CPU_FTR_POPCNTB | CPU_FTR_POPCNTD | \
- 	    CPU_FTR_DEBUG_LVL_EXC | CPU_FTR_EMB_HV | CPU_FTR_ALTIVEC_COMP | \
- 	    CPU_FTR_CELL_TB_BUG | CPU_FTR_SMT)
--#define CPU_FTRS_GENERIC_32	(CPU_FTR_COMMON | CPU_FTR_NODSISRALIGN)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b9d3209a5f9de..e9219841923cc 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1641,10 +1641,6 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
  
- /* 64-bit CPUs */
- #define CPU_FTRS_POWER4	(CPU_FTR_USE_TB | CPU_FTR_LWSYNC | \
-@@ -515,8 +514,6 @@ enum {
- 	    CPU_FTRS_7447 | CPU_FTRS_7447A | CPU_FTRS_82XX |
- 	    CPU_FTRS_G2_LE | CPU_FTRS_E300 | CPU_FTRS_E300C2 |
- 	    CPU_FTRS_CLASSIC32 |
--#else
--	    CPU_FTRS_GENERIC_32 |
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX |
-@@ -567,8 +564,6 @@ enum {
- 	    CPU_FTRS_7447 & CPU_FTRS_7447A & CPU_FTRS_82XX &
- 	    CPU_FTRS_G2_LE & CPU_FTRS_E300 & CPU_FTRS_E300C2 &
- 	    CPU_FTRS_CLASSIC32 &
--#else
--	    CPU_FTRS_GENERIC_32 &
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX &
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
+ 
+-	/* if force is set, the ring is going away. always drop after that */
+-	if (force)
+-		ctx->cq_overflow_flushed = 1;
+-
+ 	cqe = NULL;
+ 	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
+ 		if (tsk && req->task != tsk)
+@@ -8378,6 +8374,8 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ {
+ 	mutex_lock(&ctx->uring_lock);
+ 	percpu_ref_kill(&ctx->refs);
++	/* if force is set, the ring is going away. always drop after that */
++	ctx->cq_overflow_flushed = 1;
+ 	if (ctx->rings)
+ 		io_cqring_overflow_flush(ctx, true, NULL, NULL);
+ 	mutex_unlock(&ctx->uring_lock);
 -- 
 2.27.0
 
