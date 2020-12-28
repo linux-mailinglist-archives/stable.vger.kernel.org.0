@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFCF82E40F7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E242E3AC1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392484AbgL1PAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:00:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48592 "EHLO mail.kernel.org"
+        id S1732790AbgL1Nl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:41:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440286AbgL1ON5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77E5722AAA;
-        Mon, 28 Dec 2020 14:13:41 +0000 (UTC)
+        id S2391511AbgL1NlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:41:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F4CC22A84;
+        Mon, 28 Dec 2020 13:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164822;
-        bh=z+/1Q0ebQr1TYmB6NIl35kKPnYKCKGArYFXs5zlAUiA=;
+        s=korg; t=1609162819;
+        bh=jlsM12PnKPXZL1Ky68Ox9ha9r6zBCa6jDqNLVuiki0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5nG27qGwrXXGGhZthq48Ht7ACh25ke21Sq2yxLmZweEcp2qsoVsYzCIxJmQRmj2l
-         RwebNbb3pwirZ0mvCbYCnoR3ARWKViaUKtOSfqqrZhzvwc9kLapnpW2FzUHCay4mkv
-         csIRk/BzdMzdFIzdA0jNxrgPRpMvuu7p9j5H6wQg=
+        b=WLPRAfj/Homk2beFZHmW+/Tx5Zk6cWn0CqCkYSgo1ushswpbuXw+xvE/YT8NWa/s7
+         /E0TrbnQxwPgAzRZAnFt2pwCSw0ouRxgKqGufvsV7xSQ/FRYulcddq99EzI9+EvDBn
+         Vm/C+eVmAU6/nEaYX6afp9sgeU7ZI56RAS6Y+XAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Niethe <jniethe5@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Annika Wickert <annika.wickert@exaring.de>,
+        Sven Eckelmann <sven@narfation.org>,
+        Annika Wickert <aw@awlnx.space>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 280/717] powerpc/64: Fix an EMIT_BUG_ENTRY in head_64.S
+Subject: [PATCH 5.4 042/453] vxlan: Add needed_headroom for lower device
 Date:   Mon, 28 Dec 2020 13:44:38 +0100
-Message-Id: <20201228125034.437621766@linuxfoundation.org>
+Message-Id: <20201228124939.284399062@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Niethe <jniethe5@gmail.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit fe18a35e685c9bdabc8b11b3e19deb85a068b75d ]
+[ Upstream commit 0a35dc41fea67ac4495ce7584406bf9557a6e7d0 ]
 
-Commit 63ce271b5e37 ("powerpc/prom: convert PROM_BUG() to standard
-trap") added an EMIT_BUG_ENTRY for the trap after the branch to
-start_kernel(). The EMIT_BUG_ENTRY was for the address "0b", however the
-trap was not labeled with "0". Hence the address used for bug is in
-relative_toc() where the previous "0" label is. Label the trap as "0" so
-the correct address is used.
+It was observed that sending data via batadv over vxlan (on top of
+wireguard) reduced the performance massively compared to raw ethernet or
+batadv on raw ethernet. A check of perf data showed that the
+vxlan_build_skb was calling all the time pskb_expand_head to allocate
+enough headroom for:
 
-Fixes: 63ce271b5e37 ("powerpc/prom: convert PROM_BUG() to standard trap")
-Signed-off-by: Jordan Niethe <jniethe5@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201130004404.30953-1-jniethe5@gmail.com
+  min_headroom = LL_RESERVED_SPACE(dst->dev) + dst->header_len
+  		+ VXLAN_HLEN + iphdr_len;
+
+But the vxlan_config_apply only requested needed headroom for:
+
+  lowerdev->hard_header_len + VXLAN6_HEADROOM or VXLAN_HEADROOM
+
+So it completely ignored the needed_headroom of the lower device. The first
+caller of net_dev_xmit could therefore never make sure that enough headroom
+was allocated for the rest of the transmit path.
+
+Cc: Annika Wickert <annika.wickert@exaring.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Tested-by: Annika Wickert <aw@awlnx.space>
+Link: https://lore.kernel.org/r/20201126125247.1047977-1-sven@narfation.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_64.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vxlan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
-index 7b7c8c5ee6602..2d6581db0c7b6 100644
---- a/arch/powerpc/kernel/head_64.S
-+++ b/arch/powerpc/kernel/head_64.S
-@@ -990,7 +990,7 @@ start_here_common:
- 	bl	start_kernel
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 630ac00a34ede..3753cf0942865 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -3538,6 +3538,7 @@ static void vxlan_config_apply(struct net_device *dev,
+ 		dev->gso_max_segs = lowerdev->gso_max_segs;
  
- 	/* Not reached */
--	trap
-+0:	trap
- 	EMIT_BUG_ENTRY 0b, __FILE__, __LINE__, 0
- 	.previous
+ 		needed_headroom = lowerdev->hard_header_len;
++		needed_headroom += lowerdev->needed_headroom;
  
+ 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
+ 					   VXLAN_HEADROOM);
 -- 
 2.27.0
 
