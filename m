@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 335CF2E4010
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EBF2E37BC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392416AbgL1Orn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:47:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
+        id S1729247AbgL1M7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:59:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502790AbgL1OX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:23:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B19D229C4;
-        Mon, 28 Dec 2020 14:23:12 +0000 (UTC)
+        id S1729189AbgL1M7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DC5208B6;
+        Mon, 28 Dec 2020 12:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165392;
-        bh=ZnULBoh5qmZPHWWE9q2VxdVQt5TjHmDwwe8aLxDIELM=;
+        s=korg; t=1609160341;
+        bh=WaveH1Q9AVRFJF+yNl25odc0yleqi42jKABjuKowRTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9lXR4tSbg4TMa3eIb7q8mcEsvrMdtwz6YfI+RQzYPu2Geo4difDveOWAqFLMF3YR
-         ZfyySzHW9O6ZmNVeYp4xg9EKl+i/aPP+n+CfxZV8de7c8Z3AL1it8RP27fPlKEYi0Y
-         o2iRLQejTUL6/ABF4cmNUHqiMzCfeAkuktSUwltk=
+        b=z8ZRzG6v66bCMTzPdJRkliQs3NlYmdA0QyO06vFNHg3+/a1yr7KkPAMZTXZVjCjZn
+         2HybkfRxN/jjHqE2NvVprE2rvjj7ogxQ57Tj3ybzz2gGXYTsq5Pz5xAvC6RScSQByL
+         0OU1uOfR+a2wppdfUPrYKy8+UEcbYRNSNfmTOEE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 474/717] libnvdimm/label: Return -ENXIO for no slot in __blk_label_update
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.9 019/175] USB: add RESET_RESUME quirk for Snapscan 1212
 Date:   Mon, 28 Dec 2020 13:47:52 +0100
-Message-Id: <20201228125043.675191244@linuxfoundation.org>
+Message-Id: <20201228124854.187260199@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +38,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 4c46764733c85b82c07e9559b39da4d00a7dd659 ]
+commit 08a02f954b0def3ada8ed6d4b2c7bcb67e885e9c upstream.
 
-Forget to set error code when nd_label_alloc_slot failed, and we
-add it to avoid overwritten error code.
+I got reports that some models of this old scanner need
+this when using runtime PM.
 
-Fixes: 0ba1c634892b ("libnvdimm: write blk label set")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201205115056.2076523-1-zhangqilong3@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201207130323.23857-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvdimm/label.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
-index 47a4828b8b310..05c1f186a6be8 100644
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -999,8 +999,10 @@ static int __blk_label_update(struct nd_region *nd_region,
- 		if (is_old_resource(res, old_res_list, old_num_resources))
- 			continue; /* carry-over */
- 		slot = nd_label_alloc_slot(ndd);
--		if (slot == UINT_MAX)
-+		if (slot == UINT_MAX) {
-+			rc = -ENXIO;
- 			goto abort;
-+		}
- 		dev_dbg(ndd->dev, "allocated: %d\n", slot);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -189,6 +189,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x06a3, 0x0006), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
  
- 		nd_label = to_label(ndd, slot);
--- 
-2.27.0
-
++	/* Agfa SNAPSCAN 1212U */
++	{ USB_DEVICE(0x06bd, 0x0001), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* Guillemot Webcam Hercules Dualpix Exchange (2nd ID) */
+ 	{ USB_DEVICE(0x06f8, 0x0804), .driver_info = USB_QUIRK_RESET_RESUME },
+ 
 
 
