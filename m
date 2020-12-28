@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF00F2E3E39
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 918272E38BF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503265AbgL1OZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:25:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
+        id S1732512AbgL1NOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:14:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503235AbgL1OZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:25:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16103221F0;
-        Mon, 28 Dec 2020 14:24:59 +0000 (UTC)
+        id S1732440AbgL1NOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:14:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 563DF20776;
+        Mon, 28 Dec 2020 13:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165500;
-        bh=GCqwiNM8CKthXJ1MkSyPy+fQbPxcDeXb+PrvpbBfHwk=;
+        s=korg; t=1609161232;
+        bh=1HKm8A/RJzXlQcgNFDpF2YbZ7UZI3cbSrbp3YAdUJyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHR5GtBezNceWOrO9CQy081OgFi2PaFLeYmelsH+7C63hV9h4kFmPmSoeOcykPPaf
-         CgUSVkAMZDpiaY48HxIgIN6F+oRTZddCxOOUrr66CzlYDPeer0xDm74AwrTcm8vZvX
-         D2SlDYlec36Gs+YhmII3xGNpv0g8iAe6TIcljekg=
+        b=F5yTuuaG1fX/h++/dESBq1ZSUCD3oom2k3xuqdZX2P7T/dHsMeYKoFB/hr6k5D75E
+         85w3ir0I6xtA/udQPr+K7q5zLSLA01Q7eP5F7I32xaoWtkd/WYODP7FQGg23Y6Pd28
+         2wL/On0vy0Ms676rR+BeRuvUENf/NadKA2dtZIUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH 5.10 554/717] s390/idle: fix accounting with machine checks
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Karan Tilak Kumar <kartilak@cisco.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 147/242] scsi: fnic: Fix error return code in fnic_probe()
 Date:   Mon, 28 Dec 2020 13:49:12 +0100
-Message-Id: <20201228125047.482308932@linuxfoundation.org>
+Message-Id: <20201228124911.941490459@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 454efcf82ea17d7efeb86ebaa20775a21ec87d27 upstream.
+[ Upstream commit d4fc94fe65578738ded138e9fce043db6bfc3241 ]
 
-When a machine check interrupt is triggered during idle, the code
-is using the async timer/clock for idle time calculation. It should use
-the machine check enter timer/clock which is passed to the macro.
+Return a negative error code from the error handling case instead of 0 as
+done elsewhere in this function.
 
-Fixes: 0b0ed657fe00 ("s390: remove critical section cleanup from entry.S")
-Cc: <stable@vger.kernel.org> # 5.8
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/1607068060-31203-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Karan Tilak Kumar <kartilak@cisco.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/entry.S |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/scsi/fnic/fnic_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -110,7 +110,7 @@ _LPP_OFFSET	= __LC_LPP
- #endif
- 	.endm
+diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
+index aacadbf20b695..878e486762729 100644
+--- a/drivers/scsi/fnic/fnic_main.c
++++ b/drivers/scsi/fnic/fnic_main.c
+@@ -746,6 +746,7 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	for (i = 0; i < FNIC_IO_LOCKS; i++)
+ 		spin_lock_init(&fnic->io_req_lock[i]);
  
--	.macro	SWITCH_ASYNC savearea,timer
-+	.macro	SWITCH_ASYNC savearea,timer,clock
- 	tmhh	%r8,0x0001		# interrupting from user ?
- 	jnz	4f
- #if IS_ENABLED(CONFIG_KVM)
-@@ -143,8 +143,8 @@ _LPP_OFFSET	= __LC_LPP
- 	la	%r4,8(%r4)
- 	brct	%r1,1b
- 
--2:	mvc	__CLOCK_IDLE_EXIT(8,%r2), __LC_INT_CLOCK
--	mvc	__TIMER_IDLE_EXIT(8,%r2), __LC_ASYNC_ENTER_TIMER
-+2:	mvc	__CLOCK_IDLE_EXIT(8,%r2), \clock
-+	mvc	__TIMER_IDLE_EXIT(8,%r2), \timer
- 	# account system time going idle
- 	ni	__LC_CPU_FLAGS+7,255-_CIF_ENABLED_WAIT
- 
-@@ -761,7 +761,7 @@ ENTRY(io_int_handler)
- 	stmg	%r8,%r15,__LC_SAVE_AREA_ASYNC
- 	lg	%r12,__LC_CURRENT
- 	lmg	%r8,%r9,__LC_IO_OLD_PSW
--	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
-+	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER,__LC_INT_CLOCK
- 	stmg	%r0,%r7,__PT_R0(%r11)
- 	# clear user controlled registers to prevent speculative use
- 	xgr	%r0,%r0
-@@ -961,7 +961,7 @@ ENTRY(ext_int_handler)
- 	stmg	%r8,%r15,__LC_SAVE_AREA_ASYNC
- 	lg	%r12,__LC_CURRENT
- 	lmg	%r8,%r9,__LC_EXT_OLD_PSW
--	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
-+	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER,__LC_INT_CLOCK
- 	stmg	%r0,%r7,__PT_R0(%r11)
- 	# clear user controlled registers to prevent speculative use
- 	xgr	%r0,%r0
-@@ -1183,7 +1183,7 @@ ENTRY(mcck_int_handler)
- 	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_PSW_IA_VALID
- 	jno	.Lmcck_panic
- 4:	ssm	__LC_PGM_NEW_PSW	# turn dat on, keep irqs off
--	SWITCH_ASYNC __LC_GPREGS_SAVE_AREA+64,__LC_MCCK_ENTER_TIMER
-+	SWITCH_ASYNC __LC_GPREGS_SAVE_AREA+64,__LC_MCCK_ENTER_TIMER,__LC_MCCK_CLOCK
- .Lmcck_skip:
- 	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
- 	stmg	%r0,%r7,__PT_R0(%r11)
++	err = -ENOMEM;
+ 	fnic->io_req_pool = mempool_create_slab_pool(2, fnic_io_req_cache);
+ 	if (!fnic->io_req_pool)
+ 		goto err_out_free_resources;
+-- 
+2.27.0
+
 
 
