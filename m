@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FC22E3BA3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BDAB2E377B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407165AbgL1Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:52:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
+        id S1728657AbgL1M4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:56:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407018AbgL1Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:52:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A660520738;
-        Mon, 28 Dec 2020 13:52:25 +0000 (UTC)
+        id S1728672AbgL1M4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:56:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 593A9224D2;
+        Mon, 28 Dec 2020 12:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163546;
-        bh=yyNTEGvidqyY7u2UNfNu6Uh8DCiiaOGctmRuLJ5eDAQ=;
+        s=korg; t=1609160119;
+        bh=Wdwhs5Y5kdLWDSBFMmEc8WP8wop4/0dX/8rxrLoADWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7X9eP18oKo7dTay0rEC9Ffm5ccLXqyLC284hOiX0sCJ7ZayXHgfras4Q21TwAoFC
-         7XLOvstcbjCJkvB4Gk+qNQk/g0FZfA7lnImJwlop8afgwV2RHsa2do4ByJ03+LATp2
-         H/hGLcNLR+j97iOlh+4DYkTuuHq/L+60pvL9PQVY=
+        b=F1Kk56Y2flyEhJbrbwRxyBXSHhUb7OZOgFMd3vNoCrXc96y+dSlD6jRymc3MOVcyo
+         kq0SFSDLMD95HxsRf0SIZkrxClSHz2wxkXbvzGRpG2fY4tv78BLCEgBPa8JMQjwSOt
+         GENq1+MSBNtUoCI2CVAK/doW74yvJKnDNfQjeZ9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Kozlov Sergey <serjk@netup.ru>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 323/453] media: netup_unidvb: Dont leak SPI master in probe error path
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 075/132] powerpc/pseries/hibernation: drop pseries_suspend_begin() from suspend ops
 Date:   Mon, 28 Dec 2020 13:49:19 +0100
-Message-Id: <20201228124952.751312582@linuxfoundation.org>
+Message-Id: <20201228124850.068851547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-commit e297ddf296de35037fa97f4302782def196d350a upstream.
+[ Upstream commit 52719fce3f4c7a8ac9eaa191e8d75a697f9fbcbc ]
 
-If the call to spi_register_master() fails on probe of the NetUP
-Universal DVB driver, the spi_master struct is erroneously not freed.
+There are three ways pseries_suspend_begin() can be reached:
 
-Likewise, if spi_new_device() fails, the spi_controller struct is
-not unregistered.  Plug the leaks.
+1. When "mem" is written to /sys/power/state:
 
-While at it, fix an ordering issue in netup_spi_release() wherein
-spi_unregister_master() is called after fiddling with the IRQ control
-register.  The correct order is to call spi_unregister_master() *before*
-this teardown step because bus accesses may still be ongoing until that
-function returns.
+kobj_attr_store()
+-> state_store()
+  -> pm_suspend()
+    -> suspend_devices_and_enter()
+      -> pseries_suspend_begin()
 
-Fixes: 52b1eaf4c59a ("[media] netup_unidvb: NetUP Universal DVB-S/S2/T/T2/C PCI-E card driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: <stable@vger.kernel.org> # v4.3+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.3+
-Cc: Kozlov Sergey <serjk@netup.ru>
-Link: https://lore.kernel.org/r/c4c24f333fc7840f4a3db24789e6e10dd660bede.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This never works because there is no way to supply a valid stream id
+using this interface, and H_VASI_STATE is called with a stream id of
+zero. So this call path is useless at best.
 
+2. When a stream id is written to /sys/devices/system/power/hibernate.
+pseries_suspend_begin() is polled directly from store_hibernate()
+until the stream is in the "Suspending" state (i.e. the platform is
+ready for the OS to suspend execution):
+
+dev_attr_store()
+-> store_hibernate()
+  -> pseries_suspend_begin()
+
+3. When a stream id is written to /sys/devices/system/power/hibernate
+(continued). After #2, pseries_suspend_begin() is called once again
+from the pm core:
+
+dev_attr_store()
+-> store_hibernate()
+  -> pm_suspend()
+    -> suspend_devices_and_enter()
+      -> pseries_suspend_begin()
+
+This is redundant because the VASI suspend state is already known to
+be Suspending.
+
+The begin() callback of platform_suspend_ops is optional, so we can
+simply remove that assignment with no loss of function.
+
+Fixes: 32d8ad4e621d ("powerpc/pseries: Partition hibernation support")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201207215200.1785968-18-nathanl@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/netup_unidvb/netup_unidvb_spi.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/suspend.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
-+++ b/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
-@@ -175,7 +175,7 @@ int netup_spi_init(struct netup_unidvb_d
- 	struct spi_master *master;
- 	struct netup_spi *nspi;
+diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
+index e76aefae2aa2b..0a0e0c8256f67 100644
+--- a/arch/powerpc/platforms/pseries/suspend.c
++++ b/arch/powerpc/platforms/pseries/suspend.c
+@@ -224,7 +224,6 @@ static struct bus_type suspend_subsys = {
  
--	master = spi_alloc_master(&ndev->pci_dev->dev,
-+	master = devm_spi_alloc_master(&ndev->pci_dev->dev,
- 		sizeof(struct netup_spi));
- 	if (!master) {
- 		dev_err(&ndev->pci_dev->dev,
-@@ -208,6 +208,7 @@ int netup_spi_init(struct netup_unidvb_d
- 		ndev->pci_slot,
- 		ndev->pci_func);
- 	if (!spi_new_device(master, &netup_spi_board)) {
-+		spi_unregister_master(master);
- 		ndev->spi = NULL;
- 		dev_err(&ndev->pci_dev->dev,
- 			"%s(): unable to create SPI device\n", __func__);
-@@ -226,13 +227,13 @@ void netup_spi_release(struct netup_unid
- 	if (!spi)
- 		return;
- 
-+	spi_unregister_master(spi->master);
- 	spin_lock_irqsave(&spi->lock, flags);
- 	reg = readw(&spi->regs->control_stat);
- 	writew(reg | NETUP_SPI_CTRL_IRQ, &spi->regs->control_stat);
- 	reg = readw(&spi->regs->control_stat);
- 	writew(reg & ~NETUP_SPI_CTRL_IMASK, &spi->regs->control_stat);
- 	spin_unlock_irqrestore(&spi->lock, flags);
--	spi_unregister_master(spi->master);
- 	ndev->spi = NULL;
- }
- 
+ static const struct platform_suspend_ops pseries_suspend_ops = {
+ 	.valid		= suspend_valid_only_mem,
+-	.begin		= pseries_suspend_begin,
+ 	.prepare_late	= pseries_prepare_late,
+ 	.enter		= pseries_suspend_enter,
+ };
+-- 
+2.27.0
+
 
 
