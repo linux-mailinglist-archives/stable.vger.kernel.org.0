@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3472E2E3854
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485662E633C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:41:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731029AbgL1NJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
+        id S2404640AbgL1Pjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:39:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731024AbgL1NI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3CFD22AAD;
-        Mon, 28 Dec 2020 13:08:18 +0000 (UTC)
+        id S2405963AbgL1Nsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:48:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78488206D4;
+        Mon, 28 Dec 2020 13:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160899;
-        bh=jnYB1dKbmuQoaPHGqWz+C6l6SG1fHTsBA7QcIb0aQt8=;
+        s=korg; t=1609163312;
+        bh=9zCcxbBZCihROBVI0RDvidq1dZsuhI1UZG8VfSxOiH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyELq/93uA6ZfnLKNMmhEm2vZICjBtSfhQ4Y8q5SDLZLe/tAz88LlTYRqg5BQjnXG
-         i2oc3p50hWUUuQSvAT7/Pe+xPhb1waQbD/6SzG1ZP0rl0cMKjQUjdThX9P/FuS76IB
-         S8JaARPU5jeyK7XhxMqFJ8CJRRm8ZM1BPHMbQb+o=
+        b=lRNZCZwxI3sF/+A/K/3hfy/u9rxMW5jhTF6hFFSJjy3jgHJBa9owsMFnksLoXCwUd
+         tGnqsta9VYXZAtcNwIMneIeQ8EsyVJqnRe/UPuDBzKlFXD5qENX6iSS6fD0XiSKpSg
+         8U6qw2qOsz8G6FEM35eBXQke0276/zyQOw6lS3GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 032/242] ALSA: pcm: oss: Fix potential out-of-bounds shift
-Date:   Mon, 28 Dec 2020 13:47:17 +0100
-Message-Id: <20201228124906.242993022@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 202/453] NFSv4: Fix the alignment of page data in the getdeviceinfo reply
+Date:   Mon, 28 Dec 2020 13:47:18 +0100
+Message-Id: <20201228124946.933598986@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 175b8d89fe292796811fdee87fa39799a5b6b87a upstream.
+[ Upstream commit 046e5ccb4198b990190e11fb52fd9cfd264402eb ]
 
-syzbot spotted a potential out-of-bounds shift in the PCM OSS layer
-where it calculates the buffer size with the arbitrary shift value
-given via an ioctl.
+We can fit the device_addr4 opaque data padding in the pages.
 
-Add a range check for avoiding the undefined behavior.
-As the value can be treated by a signed integer, the max shift should
-be 30.
-
-Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209084552.17109-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: cf500bac8fd4 ("SUNRPC: Introduce rpc_prepare_reply_pages()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_oss.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4xdr.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -1949,11 +1949,15 @@ static int snd_pcm_oss_set_subdivide(str
- static int snd_pcm_oss_set_fragment1(struct snd_pcm_substream *substream, unsigned int val)
- {
- 	struct snd_pcm_runtime *runtime;
-+	int fragshift;
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 677751bc3a334..9a022a4fb9643 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -3012,15 +3012,19 @@ static void nfs4_xdr_enc_getdeviceinfo(struct rpc_rqst *req,
+ 	struct compound_hdr hdr = {
+ 		.minorversion = nfs4_xdr_minorversion(&args->seq_args),
+ 	};
++	uint32_t replen;
  
- 	runtime = substream->runtime;
- 	if (runtime->oss.subdivision || runtime->oss.fragshift)
- 		return -EINVAL;
--	runtime->oss.fragshift = val & 0xffff;
-+	fragshift = val & 0xffff;
-+	if (fragshift >= 31)
-+		return -EINVAL;
-+	runtime->oss.fragshift = fragshift;
- 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
- 	if (runtime->oss.fragshift < 4)		/* < 16 */
- 		runtime->oss.fragshift = 4;
+ 	encode_compound_hdr(xdr, req, &hdr);
+ 	encode_sequence(xdr, &args->seq_args, &hdr);
++
++	replen = hdr.replen + op_decode_hdr_maxsz;
++
+ 	encode_getdeviceinfo(xdr, args, &hdr);
+ 
+-	/* set up reply kvec. Subtract notification bitmap max size (2)
+-	 * so that notification bitmap is put in xdr_buf tail */
++	/* set up reply kvec. device_addr4 opaque data is read into the
++	 * pages */
+ 	rpc_prepare_reply_pages(req, args->pdev->pages, args->pdev->pgbase,
+-				args->pdev->pglen, hdr.replen - 2);
++				args->pdev->pglen, replen + 2 + 1);
+ 	encode_nops(&hdr);
+ }
+ 
+-- 
+2.27.0
+
 
 
