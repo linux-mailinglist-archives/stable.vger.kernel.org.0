@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B8D2E379C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781D62E3A62
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729095AbgL1M6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:58:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54498 "EHLO mail.kernel.org"
+        id S2389462AbgL1Nfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:35:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729045AbgL1M6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:58:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F5BA207C9;
-        Mon, 28 Dec 2020 12:57:29 +0000 (UTC)
+        id S2389458AbgL1Nfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:35:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B3A21D94;
+        Mon, 28 Dec 2020 13:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160250;
-        bh=4QAC7qeL+YoC1ltwe3fWxolyc+FRKOcUV33qt+FjxCI=;
+        s=korg; t=1609162509;
+        bh=nZMrMAamCH8fxLv4x7n/eb5SNkknL3x8hgvUN8jEIWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cysb+AbdLqIH5SYO6bmcYtl4lcOrG/fe6sDrKMjHDKreFqKwWnBtuUfvB5TkV/1G6
-         2hDH+iUodiXh3bWpJrCHKSEsAyAl8A69t1Kq8GPD/rg3AfgFSUQHwVLPbuMBDuLO+0
-         r+y6TKM0JuKwHBf0iIIwSrQJo49ogJvrPqzCo/0Y=
+        b=vVmxu1f3ekA6dFu86AtSsfSXs1sMRD4rnFsgKKZkuLreIUZaXQQyhWiJqM6fz9tKz
+         k+GOpctX8x92+Kz04pxlyp2r89ZLos66MS/cju8hu2hxOwEpDloa7yzgL35aou0gTK
+         jC19mL6ff8GMybPnta9rGKyTJSyvD0x2vxnMik7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        "Pavel Machek (CIP)" <pavel@denx.de>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 118/132] btrfs: fix return value mixup in btrfs_get_extent
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 283/346] s390/dasd: fix list corruption of pavgroup group list
 Date:   Mon, 28 Dec 2020 13:50:02 +0100
-Message-Id: <20201228124852.113626392@linuxfoundation.org>
+Message-Id: <20201228124933.460267821@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 881a3a11c2b858fe9b69ef79ac5ee9978a266dc9 upstream
+commit 0ede91f83aa335da1c3ec68eb0f9e228f269f6d8 upstream.
 
-btrfs_get_extent() sets variable ret, but out: error path expect error
-to be in variable err so the error code is lost.
+dasd_alias_add_device() moves devices to the active_devices list in case
+of a scheduled LCU update regardless if they have previously been in a
+pavgroup or not.
 
-Fixes: 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Example: device A and B are in the same pavgroup.
+
+Device A has already been in a pavgroup and the private->pavgroup pointer
+is set and points to a valid pavgroup. While going through dasd_add_device
+it is moved from the pavgroup to the active_devices list.
+
+In parallel device B might be removed from the same pavgroup in
+remove_device_from_lcu() which in turn checks if the group is empty
+and deletes it accordingly because device A has already been removed from
+there.
+
+When now device A enters remove_device_from_lcu() it is tried to remove it
+from the pavgroup again because the pavgroup pointer is still set and again
+the empty group will be cleaned up which leads to a list corruption.
+
+Fix by setting private->pavgroup to NULL in dasd_add_device.
+
+If the device has been the last device on the pavgroup an empty pavgroup
+remains but this will be cleaned up by the scheduled lcu_update which
+iterates over all existing pavgroups.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -6923,7 +6923,7 @@ again:
- 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
- 		/* Only regular file could have regular/prealloc extent */
- 		if (!S_ISREG(inode->i_mode)) {
--			ret = -EUCLEAN;
-+			err = -EUCLEAN;
- 			btrfs_crit(root->fs_info,
- 		"regular/prealloc extent found for non-regular inode %llu",
- 				   btrfs_ino(inode));
+---
+ drivers/s390/block/dasd_alias.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -642,6 +642,7 @@ int dasd_alias_add_device(struct dasd_de
+ 	}
+ 	if (lcu->flags & UPDATE_PENDING) {
+ 		list_move(&device->alias_list, &lcu->active_devices);
++		private->pavgroup = NULL;
+ 		_schedule_lcu_update(lcu, device);
+ 	}
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
 
 
