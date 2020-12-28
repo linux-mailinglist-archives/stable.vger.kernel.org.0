@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F68B2E38AF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFBEE2E3B88
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732245AbgL1NNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:13:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S2406826AbgL1NvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:51:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732227AbgL1NN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:13:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9062120728;
-        Mon, 28 Dec 2020 13:12:48 +0000 (UTC)
+        id S2406787AbgL1NvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C1F8205CB;
+        Mon, 28 Dec 2020 13:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161169;
-        bh=to4sIerXwMYJ2477U9/vkaK71bkbQN/73hAhCf5gOUE=;
+        s=korg; t=1609163459;
+        bh=LPSr3OeM8MJl3yOVD3DmK3SgQLLLiSkciydMM+9pd8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Leb8ohIaaaZy2bjq/ojdX6f5e3cgzYxlMZQIxUl1lTeix+MB5CLsC/gMsKyM1UuxV
-         OPAyyJ8hE28HRpUwy1tEbj7YkeY1xW5uifGxgAToPiXy8g6Gr+BW+VLZPewGULI/HG
-         6fO2XST4E2VuB+DfJ69eVJtGcd7+fRMn1FDEDnjU=
+        b=xsJ4DCF3/0Y5RSBWGOLP1cGQDDG3GrOpcesH9JVGnOaRxj2P2tDH4/NA4mExz4Gb0
+         H2k4VnAZ5jQo5YxYNtvd4DM/5TZmqOm5md607lDSO4ML+hIU7unSW/ykl/Ok1+J+5D
+         5OlqEqbVYVr94/BHiNr9BBBqMKJt93Azl5/i2UXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/242] NFSv4.2: condition READDIRs mask for security label based on LSM state
+Subject: [PATCH 5.4 293/453] net: allwinner: Fix some resources leak in the error handling path of the probe and in the remove function
 Date:   Mon, 28 Dec 2020 13:48:49 +0100
-Message-Id: <20201228124910.801548563@linuxfoundation.org>
+Message-Id: <20201228124951.303092806@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 05ad917561fca39a03338cb21fe9622f998b0f9c ]
+[ Upstream commit 322e53d1e2529ae9d501f5e0f20604a79b873aef ]
 
-Currently, the client will always ask for security_labels if the server
-returns that it supports that feature regardless of any LSM modules
-(such as Selinux) enforcing security policy. This adds performance
-penalty to the READDIR operation.
+'irq_of_parse_and_map()' should be balanced by a corresponding
+'irq_dispose_mapping()' call. Otherwise, there is some resources leaks.
 
-Client adjusts superblock's support of the security_label based on
-the server's support but also current client's configuration of the
-LSM modules. Thus, prior to using the default bitmask in READDIR,
-this patch checks the server's capabilities and then instructs
-READDIR to remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
+Add such a call in the error handling path of the probe function and in the
+remove function.
 
-v5: fixing silly mistakes of the rushed v4
-v4: simplifying logic
-v3: changing label's initialization per Ondrej's comment
-v2: dropping selinux hook and using the sb cap.
-
-Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
-Suggested-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 492205050d77 ("net: Add EMAC ethernet driver found on Allwinner A10 SoC's")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201214202117.146293-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/allwinner/sun4i-emac.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index bb899a6fe8ac0..9f2ba4874f10f 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -4445,12 +4445,12 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
- 		u64 cookie, struct page **pages, unsigned int count, bool plus)
- {
- 	struct inode		*dir = d_inode(dentry);
-+	struct nfs_server	*server = NFS_SERVER(dir);
- 	struct nfs4_readdir_arg args = {
- 		.fh = NFS_FH(dir),
- 		.pages = pages,
- 		.pgbase = 0,
- 		.count = count,
--		.bitmask = NFS_SERVER(d_inode(dentry))->attr_bitmask,
- 		.plus = plus,
- 	};
- 	struct nfs4_readdir_res res;
-@@ -4465,9 +4465,15 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
- 	dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
- 			dentry,
- 			(unsigned long long)cookie);
-+	if (!(server->caps & NFS_CAP_SECURITY_LABEL))
-+		args.bitmask = server->attr_bitmask_nl;
-+	else
-+		args.bitmask = server->attr_bitmask;
-+
- 	nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
- 	res.pgbase = args.pgbase;
--	status = nfs4_call_sync(NFS_SERVER(dir)->client, NFS_SERVER(dir), &msg, &args.seq_args, &res.seq_res, 0);
-+	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args,
-+			&res.seq_res, 0);
- 	if (status >= 0) {
- 		memcpy(NFS_I(dir)->cookieverf, res.verifier.data, NFS4_VERIFIER_SIZE);
- 		status += args.pgbase;
+diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
+index ff318472a3eef..95155a1f9f9dc 100644
+--- a/drivers/net/ethernet/allwinner/sun4i-emac.c
++++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
+@@ -845,13 +845,13 @@ static int emac_probe(struct platform_device *pdev)
+ 	db->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(db->clk)) {
+ 		ret = PTR_ERR(db->clk);
+-		goto out_iounmap;
++		goto out_dispose_mapping;
+ 	}
+ 
+ 	ret = clk_prepare_enable(db->clk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Error couldn't enable clock (%d)\n", ret);
+-		goto out_iounmap;
++		goto out_dispose_mapping;
+ 	}
+ 
+ 	ret = sunxi_sram_claim(&pdev->dev);
+@@ -910,6 +910,8 @@ out_release_sram:
+ 	sunxi_sram_release(&pdev->dev);
+ out_clk_disable_unprepare:
+ 	clk_disable_unprepare(db->clk);
++out_dispose_mapping:
++	irq_dispose_mapping(ndev->irq);
+ out_iounmap:
+ 	iounmap(db->membase);
+ out:
+@@ -928,6 +930,7 @@ static int emac_remove(struct platform_device *pdev)
+ 	unregister_netdev(ndev);
+ 	sunxi_sram_release(&pdev->dev);
+ 	clk_disable_unprepare(db->clk);
++	irq_dispose_mapping(ndev->irq);
+ 	iounmap(db->membase);
+ 	free_netdev(ndev);
+ 
 -- 
 2.27.0
 
