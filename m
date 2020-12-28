@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7EB2E64E2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 495712E3EB8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390677AbgL1PyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:54:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
+        id S2504171AbgL1Ob6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:31:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390663AbgL1NhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8509120719;
-        Mon, 28 Dec 2020 13:36:32 +0000 (UTC)
+        id S2504489AbgL1Oba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B27920791;
+        Mon, 28 Dec 2020 14:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162593;
-        bh=3zC6EWdok2I3DAvM5fV1Ahd3MB2We0PH0OBlRlqky0I=;
+        s=korg; t=1609165849;
+        bh=xvED9HZ6Hzg2Z33M0isYotNPsw5UsYBK1xpu7VlUT9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LjLjwj4Cv4Y+2F6o4iMT0hWJecs93BM5t6Z1BPAncLvRPIhm5c5LaWAnR3JgsRtyP
-         4fXLjmTBJFVgPiazClFFNc4vkBJ2w1e9VoGDQcr/UBID0g9oZ2BkCkLy6t1zwta7i8
-         D791zu6RX4oBfaQiEAjHzRORPsXQ5NsKYW1BErkM=
+        b=fJ2nrFJeDoxkHaL0ioenog07WCYh9h7xEIgFI9E44sJgDkKnlfQ3Rs2TjFbQvlx4w
+         akAwSB1zMtIxF35XcYDjgyNiqueAFkUgdOGz120pnM0zuaVRieq1HvGrNAxPxLO8g4
+         zi3fCQWLDeaUJevnXNefwMNxLyfBfHahzUvoDlHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ron Minnich <rminnich@google.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 324/346] mtd: parser: cmdline: Fix parsing of part-names with colons
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Chuanhong Guo <gch981213@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 645/717] spi: ar934x: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:50:43 +0100
-Message-Id: <20201228124935.445949358@linuxfoundation.org>
+Message-Id: <20201228125051.838378190@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 639a82434f16a6df0ce0e7c8595976f1293940fd upstream.
+commit 236924ee531d6251c8d10e9177b7742a60534ed5 upstream.
 
-Some devices (especially QCA ones) are already using hardcoded partition
-names with colons in it. The OpenMesh A62 for example provides following
-mtd relevant information via cmdline:
+If the call to devm_spi_register_controller() fails on probe of the
+Qualcomm Atheros AR934x/QCA95xx SPI driver, the spi_controller struct is
+erroneously not freed.  Fix by switching over to the new
+devm_spi_alloc_master() helper.
 
-  root=31:11 mtdparts=spi0.0:256k(0:SBL1),128k(0:MIBIB),384k(0:QSEE),64k(0:CDT),64k(0:DDRPARAMS),64k(0:APPSBLENV),512k(0:APPSBL),64k(0:ART),64k(custom),64k(0:KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive) rootfsname=rootfs rootwait
+Moreover, the controller's clock is enabled on probe but not disabled if
+any of the subsequent probe steps fail.
 
-The change to split only on the last colon between mtd-id and partitions
-will cause newpart to see following string for the first partition:
+Finally, there's an ordering issue in ar934x_spi_remove() wherein the
+clock is disabled even though the controller is not yet unregistered.
+It is unregistered after ar934x_spi_remove() by the devres framework.
+As long as it is not unregistered, SPI transfers may still be ongoing
+and disabling the clock may break them.  It is not possible to use
+devm_spi_register_controller() in this case, so move to the non-devm
+variant.
 
-  KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive)
+All of these bugs have existed since the driver was first introduced,
+so it seems fair to fix them together in a single commit.
 
-Such a partition list cannot be parsed and thus the device fails to boot.
-
-Avoid this behavior by making sure that the start of the first part-name
-("(") will also be the last byte the mtd-id split algorithm is using for
-its colon search.
-
-Fixes: eb13fa022741 ("mtd: parser: cmdline: Support MTD names containing one or more colons")
-Cc: stable@vger.kernel.org
-Cc: Ron Minnich <rminnich@google.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20201124062506.185392-1-sven@narfation.org
+Fixes: 047980c582af ("spi: add driver for ar934x spi controller")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.7+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v5.7+
+Cc: Chuanhong Guo <gch981213@gmail.com>
+Link: https://lore.kernel.org/r/1d58367d74d55741e0c2730a51a2b65012c8ab33.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/cmdlinepart.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/spi/spi-ar934x.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/cmdlinepart.c
-+++ b/drivers/mtd/cmdlinepart.c
-@@ -231,7 +231,7 @@ static int mtdpart_setup_real(char *s)
- 		struct cmdline_mtd_partition *this_mtd;
- 		struct mtd_partition *parts;
- 		int mtd_id_len, num_parts;
--		char *p, *mtd_id, *semicol;
-+		char *p, *mtd_id, *semicol, *open_parenth;
+--- a/drivers/spi/spi-ar934x.c
++++ b/drivers/spi/spi-ar934x.c
+@@ -176,10 +176,11 @@ static int ar934x_spi_probe(struct platf
+ 	if (ret)
+ 		return ret;
  
- 		/*
- 		 * Replace the first ';' by a NULL char so strrchr can work
-@@ -241,6 +241,14 @@ static int mtdpart_setup_real(char *s)
- 		if (semicol)
- 			*semicol = '\0';
+-	ctlr = spi_alloc_master(&pdev->dev, sizeof(*sp));
++	ctlr = devm_spi_alloc_master(&pdev->dev, sizeof(*sp));
+ 	if (!ctlr) {
+ 		dev_info(&pdev->dev, "failed to allocate spi controller\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_clk_disable;
+ 	}
  
-+		/*
-+		 * make sure that part-names with ":" will not be handled as
-+		 * part of the mtd-id with an ":"
-+		 */
-+		open_parenth = strchr(s, '(');
-+		if (open_parenth)
-+			*open_parenth = '\0';
+ 	/* disable flash mapping and expose spi controller registers */
+@@ -202,7 +203,13 @@ static int ar934x_spi_probe(struct platf
+ 	sp->clk_freq = clk_get_rate(clk);
+ 	sp->ctlr = ctlr;
+ 
+-	return devm_spi_register_controller(&pdev->dev, ctlr);
++	ret = spi_register_controller(ctlr);
++	if (!ret)
++		return 0;
 +
- 		mtd_id = s;
++err_clk_disable:
++	clk_disable_unprepare(clk);
++	return ret;
+ }
  
- 		/*
-@@ -250,6 +258,10 @@ static int mtdpart_setup_real(char *s)
- 		 */
- 		p = strrchr(s, ':');
+ static int ar934x_spi_remove(struct platform_device *pdev)
+@@ -213,6 +220,7 @@ static int ar934x_spi_remove(struct plat
+ 	ctlr = dev_get_drvdata(&pdev->dev);
+ 	sp = spi_controller_get_devdata(ctlr);
  
-+		/* Restore the '(' now. */
-+		if (open_parenth)
-+			*open_parenth = '(';
-+
- 		/* Restore the ';' now. */
- 		if (semicol)
- 			*semicol = ';';
++	spi_unregister_controller(ctlr);
+ 	clk_disable_unprepare(sp->clk);
+ 
+ 	return 0;
 
 
