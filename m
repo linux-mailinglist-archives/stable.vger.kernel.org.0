@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DA92E4367
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF00F2E3E39
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407181AbgL1PeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
+        id S2503265AbgL1OZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:25:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407104AbgL1NwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:52:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D33862078D;
-        Mon, 28 Dec 2020 13:52:02 +0000 (UTC)
+        id S2503235AbgL1OZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16103221F0;
+        Mon, 28 Dec 2020 14:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163523;
-        bh=3HkZ9PXJwfxEQDm5KuWxlZSG6ooTyzHe2hj+hacBDpc=;
+        s=korg; t=1609165500;
+        bh=GCqwiNM8CKthXJ1MkSyPy+fQbPxcDeXb+PrvpbBfHwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OR3PKgXSemJTmhpF4BvhB5IaUwDlFmkvhrHKlB4RVC8UsMsOtuHF1livh3P70Y6B2
-         Qy6YKz0bhsegsLtma8iSeU4sgVjX3kwK/JT/Qtbn4A2DSlVPd8sEeZwQIuAabvDuSF
-         6iRb/o1r+kybWxsJ+2EP7JPspjYf7L5/XW8I9RlE=
+        b=BHR5GtBezNceWOrO9CQy081OgFi2PaFLeYmelsH+7C63hV9h4kFmPmSoeOcykPPaf
+         CgUSVkAMZDpiaY48HxIgIN6F+oRTZddCxOOUrr66CzlYDPeer0xDm74AwrTcm8vZvX
+         D2SlDYlec36Gs+YhmII3xGNpv0g8iAe6TIcljekg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Kent Russell <kent.russell@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 316/453] drm/amdkfd: Fix leak in dmabuf import
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH 5.10 554/717] s390/idle: fix accounting with machine checks
 Date:   Mon, 28 Dec 2020 13:49:12 +0100
-Message-Id: <20201228124952.416088441@linuxfoundation.org>
+Message-Id: <20201228125047.482308932@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit c897934da15f182ce99536007f8ef61c4748c07e ]
+commit 454efcf82ea17d7efeb86ebaa20775a21ec87d27 upstream.
 
-Release dmabuf reference before returning from kfd_ioctl_import_dmabuf.
-amdgpu_amdkfd_gpuvm_import_dmabuf takes a reference to the underlying
-GEM BO and doesn't keep the reference to the dmabuf wrapper.
+When a machine check interrupt is triggered during idle, the code
+is using the async timer/clock for idle time calculation. It should use
+the machine check enter timer/clock which is passed to the macro.
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Kent Russell <kent.russell@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0b0ed657fe00 ("s390: remove critical section cleanup from entry.S")
+Cc: <stable@vger.kernel.org> # 5.8
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kernel/entry.S |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 1d3cd5c50d5f2..4a0ef9268918c 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -1664,6 +1664,7 @@ static int kfd_ioctl_import_dmabuf(struct file *filep,
- 	}
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -110,7 +110,7 @@ _LPP_OFFSET	= __LC_LPP
+ #endif
+ 	.endm
  
- 	mutex_unlock(&p->mutex);
-+	dma_buf_put(dmabuf);
+-	.macro	SWITCH_ASYNC savearea,timer
++	.macro	SWITCH_ASYNC savearea,timer,clock
+ 	tmhh	%r8,0x0001		# interrupting from user ?
+ 	jnz	4f
+ #if IS_ENABLED(CONFIG_KVM)
+@@ -143,8 +143,8 @@ _LPP_OFFSET	= __LC_LPP
+ 	la	%r4,8(%r4)
+ 	brct	%r1,1b
  
- 	args->handle = MAKE_HANDLE(args->gpu_id, idr_handle);
+-2:	mvc	__CLOCK_IDLE_EXIT(8,%r2), __LC_INT_CLOCK
+-	mvc	__TIMER_IDLE_EXIT(8,%r2), __LC_ASYNC_ENTER_TIMER
++2:	mvc	__CLOCK_IDLE_EXIT(8,%r2), \clock
++	mvc	__TIMER_IDLE_EXIT(8,%r2), \timer
+ 	# account system time going idle
+ 	ni	__LC_CPU_FLAGS+7,255-_CIF_ENABLED_WAIT
  
-@@ -1673,6 +1674,7 @@ err_free:
- 	amdgpu_amdkfd_gpuvm_free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem);
- err_unlock:
- 	mutex_unlock(&p->mutex);
-+	dma_buf_put(dmabuf);
- 	return r;
- }
- 
--- 
-2.27.0
-
+@@ -761,7 +761,7 @@ ENTRY(io_int_handler)
+ 	stmg	%r8,%r15,__LC_SAVE_AREA_ASYNC
+ 	lg	%r12,__LC_CURRENT
+ 	lmg	%r8,%r9,__LC_IO_OLD_PSW
+-	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
++	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER,__LC_INT_CLOCK
+ 	stmg	%r0,%r7,__PT_R0(%r11)
+ 	# clear user controlled registers to prevent speculative use
+ 	xgr	%r0,%r0
+@@ -961,7 +961,7 @@ ENTRY(ext_int_handler)
+ 	stmg	%r8,%r15,__LC_SAVE_AREA_ASYNC
+ 	lg	%r12,__LC_CURRENT
+ 	lmg	%r8,%r9,__LC_EXT_OLD_PSW
+-	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER
++	SWITCH_ASYNC __LC_SAVE_AREA_ASYNC,__LC_ASYNC_ENTER_TIMER,__LC_INT_CLOCK
+ 	stmg	%r0,%r7,__PT_R0(%r11)
+ 	# clear user controlled registers to prevent speculative use
+ 	xgr	%r0,%r0
+@@ -1183,7 +1183,7 @@ ENTRY(mcck_int_handler)
+ 	TSTMSK	__LC_MCCK_CODE,MCCK_CODE_PSW_IA_VALID
+ 	jno	.Lmcck_panic
+ 4:	ssm	__LC_PGM_NEW_PSW	# turn dat on, keep irqs off
+-	SWITCH_ASYNC __LC_GPREGS_SAVE_AREA+64,__LC_MCCK_ENTER_TIMER
++	SWITCH_ASYNC __LC_GPREGS_SAVE_AREA+64,__LC_MCCK_ENTER_TIMER,__LC_MCCK_CLOCK
+ .Lmcck_skip:
+ 	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
+ 	stmg	%r0,%r7,__PT_R0(%r11)
 
 
