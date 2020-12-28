@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25612E4266
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF162E423A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436841AbgL1OCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S2437016AbgL1OCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbgL1OCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 242A320715;
-        Mon, 28 Dec 2020 14:02:07 +0000 (UTC)
+        id S2437011AbgL1OCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0040820731;
+        Mon, 28 Dec 2020 14:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164127;
-        bh=7IDpwvkh2/CeIX75Mr6xcB2w18dVth07cTES6nGsdmM=;
+        s=korg; t=1609164130;
+        bh=cZmdTMHTneq2zpO4/K6LRNiaOTR8J4LM8QZLwwJdUDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ryCv65aCjtObEGNvAWogyoNtKPGLNuwRhrXtusO8dtXAMMMt+gVAxThSjV8jxUj2F
-         5HPatGqsHVFv7pO5z7+hQ7VaM7LIoSYlntYo475L7QcfyR7rbeBBkAZOekSj/1Llrb
-         KbgQ2kxTUSWujt2vADvl+UOcZpNeXZST5ZfG5C/0=
+        b=tUNlaK7oZd3bMoSNw+corfu0b/CcBiRkFBDNIbA5I+kVAEps9lw6rP9YqyaDpBT1v
+         NrdR5aSdGyCkYlA5bN5g6iyTJAnB/egfY4ec/aBh7GJNqsU4vtTCfkckKaCQCuJUc6
+         VT5OE5gtawbSs9yphX+nuUq0hUvq4xGk/lfNb4a8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/717] arm64: dts: exynos: Correct psci compatible used on Exynos7
-Date:   Mon, 28 Dec 2020 13:41:08 +0100
-Message-Id: <20201228125024.344449748@linuxfoundation.org>
+Subject: [PATCH 5.10 071/717] drm/panel: simple: Add flags to boe_nv133fhm_n61
+Date:   Mon, 28 Dec 2020 13:41:09 +0100
+Message-Id: <20201228125024.392880378@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,45 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit e1e47fbca668507a81bb388fcae044b89d112ecc ]
+[ Upstream commit ab6fd5d44aa21ede9e566f89132f7bdda7f33093 ]
 
-It's not possible to reboot or poweroff Exynos7420 using PSCI. Instead
-we need to use syscon reboot/poweroff drivers, like it's done for other
-Exynos SoCs. This was confirmed by checking vendor source and testing it
-on Samsung Galaxy S6 device based on this SoC.
+Reading the EDID of this panel shows that these flags should be set. Set
+them so that we match what is in the EDID.
 
-To be able to use custom restart/poweroff handlers instead of PSCI
-functions, we need to correct psci compatible. This also requires us to
-provide function ids for CPU_ON and CPU_OFF.
-
-Fixes: fb026cb65247 ("arm64: dts: Add reboot node for exynos7")
-Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Link: https://lore.kernel.org/r/20201107133926.37187-2-pawel.mikolaj.chmiel@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: b0c664cc80e8 ("panel: simple: Add BOE NV133FHM-N61")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201106182333.3080124-1-swboyd@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7.dtsi | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-simple.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-index 545e67901938a..7599e1a00ff51 100644
---- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-@@ -79,8 +79,10 @@
- 	};
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 2be358fb46f7d..204674fccd646 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -1327,6 +1327,7 @@ static const struct drm_display_mode boe_nv133fhm_n61_modes = {
+ 	.vsync_start = 1080 + 3,
+ 	.vsync_end = 1080 + 3 + 6,
+ 	.vtotal = 1080 + 3 + 6 + 31,
++	.flags = DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_NVSYNC,
+ };
  
- 	psci {
--		compatible = "arm,psci-0.2";
-+		compatible = "arm,psci";
- 		method = "smc";
-+		cpu_off = <0x84000002>;
-+		cpu_on = <0xC4000003>;
- 	};
- 
- 	soc: soc@0 {
+ /* Also used for boe_nv133fhm_n62 */
 -- 
 2.27.0
 
