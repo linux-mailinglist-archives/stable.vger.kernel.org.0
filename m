@@ -2,56 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610372E840F
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 16:18:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D4C2E8649
+	for <lists+stable@lfdr.de>; Sat,  2 Jan 2021 06:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbhAAPSc convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 1 Jan 2021 10:18:32 -0500
-Received: from bloque154-ip183.reytelhn.net ([200.52.154.183]:48591 "EHLO
-        mail.reytelhn.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1726747AbhAAPSc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 10:18:32 -0500
-Received: from [192.168.43.150] (unknown [129.205.124.174])
-        by mail.reytelhn.com (Postfix) with ESMTP id 695CF8C2F3B;
-        Thu, 29 Nov 2007 19:30:01 -0600 (CST)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1725320AbhABFLd convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 2 Jan 2021 00:11:33 -0500
+Received: from mail.askinacable.net.np ([103.115.84.7]:43188 "EHLO
+        mail.askinacable.net.np" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725208AbhABFLc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jan 2021 00:11:32 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.askinacable.net.np (Postfix) with ESMTP id E502A40649292;
+        Mon, 28 Dec 2020 18:02:45 +0545 (+0545)
+Received: from mail.askinacable.net.np ([127.0.0.1])
+        by localhost (mail.askinacable.net.np [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 8bfTZOXBa_61; Mon, 28 Dec 2020 18:02:45 +0545 (+0545)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.askinacable.net.np (Postfix) with ESMTP id 966264061320F;
+        Mon, 28 Dec 2020 18:02:28 +0545 (+0545)
+X-Virus-Scanned: amavisd-new at mail.askinacable.net.np
+Received: from mail.askinacable.net.np ([127.0.0.1])
+        by localhost (mail.askinacable.net.np [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id HPgM5oL0MY1s; Mon, 28 Dec 2020 18:02:28 +0545 (+0545)
+Received: from MACBOOK341C.localdomain (unknown [104.37.31.249])
+        by mail.askinacable.net.np (Postfix) with ESMTPSA id D2F7A406477DE;
+        Mon, 28 Dec 2020 18:02:12 +0545 (+0545)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
 Content-Description: Mail message body
-Subject: INVESTMENT BTC FARM
-To:     Recipients <comercial.blumenau@seguralta.com.br>
-From:   "Ulster Customer<" <comercial.blumenau@seguralta.com.br>
-Date:   Fri, 25 Dec 2020 04:23:44 +0100
-Reply-To: ulstercu52@gmail.com
-Message-Id: <20071130013001.695CF8C2F3B@mail.reytelhn.com>
-X-WatchGuard-Spam-Score: 1, unclassified
-X-WatchGuard-Mail-Client-IP: 0.0.0.0
-X-WatchGuard-Mail-From: comercial.blumenau@seguralta.com.br
-X-WatchGuard-Mail-Recipients: stable@vger.kernel.org
+Subject: =?utf-8?q?Sie_haben_eine_Spende_von_=E2=82=AC_5=2E800=2E000=2C00=2E?=
+To:     Recipients <info@gmail.com>
+From:   "Mrs. Mavis" <info@gmail.com>
+Date:   Mon, 28 Dec 2020 04:26:47 -0800
+Reply-To: wanczykm61@gmail.com
+Message-Id: <20201228121712.D2F7A406477DE@mail.askinacable.net.np>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-GOOD NEWS TO YOU ALL !!!
-
-WE ARE HERE TO INTRODUCE BINARY TRADING TO YOU, A PLATFORM WHERE YOU INVEST A LITTLE AMOUNT OF MONEY AND EARN A FORTUNE (7 TIMES RETURN) IN LESS THAN 48 HOURS TO ALL YOU TRADERS THAT PRIORITIZE LOSING, WE CAN MAKE A FORTUNE AND HELP YOU GROW YOUR INVESTMENT. WITH OUR PREMIUM SIGNALS UP TO 95% WINNING ACCURACY PROFIT RETURN IS GUARANTEED. SETUP INVESTMENT TODAY LET OUR TEAM OF PROFESSIONALS TRADE FOR YOU TO EARN 700% PROFIT RETURN WITHIN 2 DAYS.
-
-
-Invest $ 500 earn $ 3,000 IN 48 HOURS
-Invest $ 1000 earn $ 6,000 IN 48 HOURS
-Invest $ 2000 earn $ 12,000 IN 48 HOURS
-Invest $ 3000 earn $ 18,000 IN 48 HOURS
-Invest $ 4000 earn $ 24,000 IN 48 HOURS
-Invest $ 5000 earn $ 30,000 IN 48 HOURS
-
-
-for more information email us now and with our team of professionals trade for you
-
-EMAIL: ulstercu52@gmail.com
-WHATSAPP  :  +1 647 477 6855
-
-
-Invest with a professional trader like me and let me help you to grow up your capital just in 2 days and get your 7 times return of your invested funds your money is safe with me okay and you are 100% guaranteed invest today and start making profits for yourself.
-
-Thank you.
-Jonas Kim
+Sie haben eine Spende von € 5.800.000,00. von Mavis Wanczyk antworten Sie mit diesem Code [MW530342019], um die Spende zu erhalten
