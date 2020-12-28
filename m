@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B02512E3980
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFAC2E63CF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388683AbgL1NYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:24:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52742 "EHLO mail.kernel.org"
+        id S2405696AbgL1Pmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:42:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388637AbgL1NYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9DD1206ED;
-        Mon, 28 Dec 2020 13:23:32 +0000 (UTC)
+        id S2404865AbgL1Npb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:45:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB6D3206D4;
+        Mon, 28 Dec 2020 13:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161813;
-        bh=2XqWZFPId9bk6wT1G3ZQCRlY4/L2OQwvozFut9jjwqI=;
+        s=korg; t=1609163116;
+        bh=GnH9NXXYou2eeAB2fvdVW3NJX0qAsqPkZDBPKyZu7TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OD0LIUeiOlXm8N/0Gu6Ji+WUmfNNK6tEXkhsLmEeFVycoPJx/BbpbO3vCbenfFLWO
-         AVFCmOH7NwbSZK+DUMRGtjFIbTDEAUNQrHCPKkHBmj+C1AiBuy9WPeZU9CGcxL27nK
-         kRh5EKrW8MrQP6++XBf7hVdhVQmoGPZE3mP7ibKw=
+        b=e52NOyh730okN6MvW6g5ZS0EC6OlM3Ntvw7pyT+9C99JT56D4sXH9GN/dQR1QId+i
+         nRv8pMvOjZ9pyxxojnlVDjdJt8/jEszyLni8xCybjQ7RSmxKyPI39zpBcGwjaRufaI
+         SMv2th5m5k7q4cC0pA1xloW1pVVALgxXzKi9sqn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        stable@vger.kernel.org, David Jander <david@protonic.nl>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/346] xsk: Fix xsk_poll()s return type
+Subject: [PATCH 5.4 143/453] Input: ads7846 - fix integer overflow on Rt calculation
 Date:   Mon, 28 Dec 2020 13:46:19 +0100
-Message-Id: <20201228124922.697398216@linuxfoundation.org>
+Message-Id: <20201228124944.083780038@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 5d946c5abbaf68083fa6a41824dd79e1f06286d8 ]
+[ Upstream commit 820830ec918f6c3dcd77a54a1c6198ab57407916 ]
 
-xsk_poll() is defined as returning 'unsigned int' but the
-.poll method is declared as returning '__poll_t', a bitwise type.
+In some rare cases the 32 bit Rt value will overflow if z2 and x is max,
+z1 is minimal value and x_plate_ohms is relatively high (for example 800
+ohm). This would happen on some screen age with low pressure.
 
-Fix this by using the proper return type and using the EPOLL
-constants instead of the POLL ones, as required for __poll_t.
+There are two possible fixes:
+- make Rt 64bit
+- reorder calculation to avoid overflow
 
-Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20191120001042.30830-1-luc.vanoostenryck@gmail.com
+The second variant seems to be preferable, since 64 bit calculation on
+32 bit system is a bit more expensive.
+
+Fixes: ffa458c1bd9b6f653008d450f337602f3d52a646 ("spi: ads7846 driver")
+Co-developed-by: David Jander <david@protonic.nl>
+Signed-off-by: David Jander <david@protonic.nl>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Link: https://lore.kernel.org/r/20201113112240.1360-1-o.rempel@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 9ff2ab63e6392..6bb0649c028c4 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -289,17 +289,17 @@ static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
- 	return (xs->zc) ? xsk_zc_xmit(sk) : xsk_generic_xmit(sk, m, total_len);
- }
- 
--static unsigned int xsk_poll(struct file *file, struct socket *sock,
-+static __poll_t xsk_poll(struct file *file, struct socket *sock,
- 			     struct poll_table_struct *wait)
- {
--	unsigned int mask = datagram_poll(file, sock, wait);
-+	__poll_t mask = datagram_poll(file, sock, wait);
- 	struct sock *sk = sock->sk;
- 	struct xdp_sock *xs = xdp_sk(sk);
- 
- 	if (xs->rx && !xskq_empty_desc(xs->rx))
--		mask |= POLLIN | POLLRDNORM;
-+		mask |= EPOLLIN | EPOLLRDNORM;
- 	if (xs->tx && !xskq_full_desc(xs->tx))
--		mask |= POLLOUT | POLLWRNORM;
-+		mask |= EPOLLOUT | EPOLLWRNORM;
- 
- 	return mask;
- }
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 1e19af0da13a3..a5b1b41464f99 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -801,10 +801,11 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 		/* compute touch pressure resistance using equation #2 */
+ 		Rt = z2;
+ 		Rt -= z1;
+-		Rt *= x;
+ 		Rt *= ts->x_plate_ohms;
++		Rt = DIV_ROUND_CLOSEST(Rt, 16);
++		Rt *= x;
+ 		Rt /= z1;
+-		Rt = (Rt + 2047) >> 12;
++		Rt = DIV_ROUND_CLOSEST(Rt, 256);
+ 	} else {
+ 		Rt = 0;
+ 	}
 -- 
 2.27.0
 
