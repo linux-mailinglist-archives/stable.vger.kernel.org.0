@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ADAF2E3ED0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A7A2E3F3A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504821AbgL1Oct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
+        id S2392113AbgL1Ohs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:37:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504812AbgL1Ocs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3404D208B6;
-        Mon, 28 Dec 2020 14:32:06 +0000 (UTC)
+        id S2504696AbgL1Oc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFDD82063A;
+        Mon, 28 Dec 2020 14:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165927;
-        bh=JTOq2aEU0ZWooTYDgXao8lvG8zqtcoMDAX26rbdrnlA=;
+        s=korg; t=1609165933;
+        bh=bFujeQTmkX8voB3Hyv3mHFA2PPAjBxbnp9aIl6G7r7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ksZ4gyUwax7bcD2QlzdQv53ZXAH/emcdtHQf5xKONxASxdCALiOo5ON/aJmbVZysk
-         bp9Ayy8YF2m8cczwMS4R7tr4xjvk1nNaMIwJhmOw2DQUK2/jIOGbT38P1/DiFGyxh9
-         qi7eauZMEsygFVVinpHpEuL7+tLv0/Mfk0GgF2AM=
+        b=YbqTJWfaK1FCN5Z5RcGwp3ahLmpqT2dqvPZFnHIWrkACO/5yUZVfozrAt+pWNAtP9
+         /5zkcgFNjwcQR/Tjjoica4hn8kN+pDtKjoLZKyfdzk0d4ZcEB5C4AyhSJ/HsSAAPY2
+         dn+18+KLgS9CNueubHdh0zSgr0Z+L1yU551b9ZgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.10 704/717] memory: renesas-rpc-if: Fix unbalanced pm_runtime_enable in rpcif_{enable,disable}_rpm
-Date:   Mon, 28 Dec 2020 13:51:42 +0100
-Message-Id: <20201228125054.715581873@linuxfoundation.org>
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.10 705/717] libnvdimm/namespace: Fix reaping of invalidated block-window-namespace labels
+Date:   Mon, 28 Dec 2020 13:51:43 +0100
+Message-Id: <20201228125054.765775171@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,36 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 61a6d854b9555b420fbfae62ef26baa8b9493b32 upstream.
+commit 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 upstream.
 
-rpcif_enable_rpm calls pm_runtime_enable, so rpcif_disable_rpm needs to
-call pm_runtime_disable and not pm_runtime_put_sync.
+A recent change to ndctl to attempt to reconfigure namespaces in place
+uncovered a label accounting problem in block-window-type namespaces.
+The ndctl "create.sh" test is able to trigger this signature:
 
-Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126191146.8753-3-prabhakar.mahadev-lad.rj@bp.renesas.com
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+ WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ Call Trace:
+  uuid_store+0x21b/0x2f0 [libnvdimm]
+  kernfs_fop_write+0xcf/0x1c0
+  vfs_write+0xcc/0x380
+  ksys_write+0x68/0xe0
+
+When allocated capacity for a namespace is renamed (new UUID) the labels
+with the old UUID need to be deleted. The ndctl behavior to always
+destroy namespaces on reconfiguration hid this problem.
+
+The immediate impact of this bug is limited since block-window-type
+namespaces only seem to exist in the specification and not in any
+shipping products. However, the label handling code is being reused for
+other technologies like CXL region labels, so there is a benefit to
+making sure both vertical labels sets (block-window) and horizontal
+label sets (pmem) have a functional reference implementation in
+libnvdimm.
+
+Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
+Cc: <stable@vger.kernel.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/memory/renesas-rpc-if.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvdimm/label.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -212,7 +212,7 @@ EXPORT_SYMBOL(rpcif_enable_rpm);
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -980,6 +980,15 @@ static int __blk_label_update(struct nd_
+ 		}
+ 	}
  
- void rpcif_disable_rpm(struct rpcif *rpc)
- {
--	pm_runtime_put_sync(rpc->dev);
-+	pm_runtime_disable(rpc->dev);
- }
- EXPORT_SYMBOL(rpcif_disable_rpm);
- 
++	/* release slots associated with any invalidated UUIDs */
++	mutex_lock(&nd_mapping->lock);
++	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
++		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
++			reap_victim(nd_mapping, label_ent);
++			list_move(&label_ent->list, &list);
++		}
++	mutex_unlock(&nd_mapping->lock);
++
+ 	/*
+ 	 * Find the resource associated with the first label in the set
+ 	 * per the v1.2 namespace specification.
 
 
