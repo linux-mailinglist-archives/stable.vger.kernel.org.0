@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657C72E38D2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B37002E6548
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732712AbgL1NPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:15:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43892 "EHLO mail.kernel.org"
+        id S2390340AbgL1NdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:33:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732707AbgL1NPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:15:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EE67207C9;
-        Mon, 28 Dec 2020 13:14:55 +0000 (UTC)
+        id S2387850AbgL1NdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:33:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EC91207B2;
+        Mon, 28 Dec 2020 13:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161296;
-        bh=etFg+hdY9cYDgYnDmZBzPds9btDoJxw4EV86C3JFYyc=;
+        s=korg; t=1609162375;
+        bh=dhtSM7DMnpDcyF9XmBOl3F0BOmWb8GmC6lDqNAgyppQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1xVUCnOJAfez7ayxa/xon4EW8Y72F2M5X7k5gzieZrKZDi4lMX9tvp10d/UtEZB0
-         PGDRSElVGaCPtRey3r+YCwoAO5UDmjznEFmXrUnU0+DzCrkA+x0Jzr8WjDiz3ErPT5
-         yelRYoaGXkMbMXk+etvnI1TBXALQdnUWnNiLxKUI=
+        b=chIhUOdyVVmPRCoLDW/80nDx5hK6GlELCbQbaAMDKUWVIdHQdYI7wsSzc0zi4hHrh
+         bzM5n19Tsr4s1bZNxs/blp0BOw81FRoNV5ymfOjz+EdUp4xGaKL7ubawmL+CU+kK0g
+         Irbmbd/9P8EQA1qjawniSJb1jhMjT8aGNjm7iKUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 166/242] net: allwinner: Fix some resources leak in the error handling path of the probe and in the remove function
-Date:   Mon, 28 Dec 2020 13:49:31 +0100
-Message-Id: <20201228124912.873105684@linuxfoundation.org>
+Subject: [PATCH 4.19 253/346] cfg80211: initialize rekey_data
+Date:   Mon, 28 Dec 2020 13:49:32 +0100
+Message-Id: <20201228124932.017707776@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 322e53d1e2529ae9d501f5e0f20604a79b873aef ]
+[ Upstream commit f495acd8851d7b345e5f0e521b2645b1e1f928a0 ]
 
-'irq_of_parse_and_map()' should be balanced by a corresponding
-'irq_dispose_mapping()' call. Otherwise, there is some resources leaks.
+In case we have old supplicant, the akm field is uninitialized.
 
-Add such a call in the error handling path of the probe function and in the
-remove function.
-
-Fixes: 492205050d77 ("net: Add EMAC ethernet driver found on Allwinner A10 SoC's")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201214202117.146293-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201129172929.930f0ab7ebee.Ic546e384efab3f4a89f318eafddc3eb7d556aecb@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index c458b81ba63af..d249a4309da2f 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -847,13 +847,13 @@ static int emac_probe(struct platform_device *pdev)
- 	db->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(db->clk)) {
- 		ret = PTR_ERR(db->clk);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index fbc8875502c3e..5f0605275fa39 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -11502,7 +11502,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
+ 	struct net_device *dev = info->user_ptr[1];
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	struct nlattr *tb[NUM_NL80211_REKEY_DATA];
+-	struct cfg80211_gtk_rekey_data rekey_data;
++	struct cfg80211_gtk_rekey_data rekey_data = {};
+ 	int err;
  
- 	ret = clk_prepare_enable(db->clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Error couldn't enable clock (%d)\n", ret);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
- 
- 	ret = sunxi_sram_claim(&pdev->dev);
-@@ -910,6 +910,8 @@ out_release_sram:
- 	sunxi_sram_release(&pdev->dev);
- out_clk_disable_unprepare:
- 	clk_disable_unprepare(db->clk);
-+out_dispose_mapping:
-+	irq_dispose_mapping(ndev->irq);
- out_iounmap:
- 	iounmap(db->membase);
- out:
-@@ -928,6 +930,7 @@ static int emac_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	sunxi_sram_release(&pdev->dev);
- 	clk_disable_unprepare(db->clk);
-+	irq_dispose_mapping(ndev->irq);
- 	iounmap(db->membase);
- 	free_netdev(ndev);
- 
+ 	if (!info->attrs[NL80211_ATTR_REKEY_DATA])
 -- 
 2.27.0
 
