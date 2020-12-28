@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B12DF2E3DD7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A29BD2E3DE2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392059AbgL1OUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55632 "EHLO mail.kernel.org"
+        id S2437851AbgL1OVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:21:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437756AbgL1OU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:20:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1901422573;
-        Mon, 28 Dec 2020 14:20:12 +0000 (UTC)
+        id S2502207AbgL1OVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:21:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C59E20791;
+        Mon, 28 Dec 2020 14:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165213;
-        bh=rKV0l2xULBjUrg/Gg+dr5a6PsKtl/a8O48oMgT0Uwhk=;
+        s=korg; t=1609165216;
+        bh=mPmKAdohop4jaoZA/YxlgERgOmGMVxNu2YzXJicrU9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqoK8EUm9MxnTE0ibFG9ZyDqRZiVzoNHVR8v0SBFPx3HBHbxCYt+K2MIyujHkQ5rv
-         EzdiOEUzY2DL/VaK9grQhpuv8CHoyHaVHpKCZ21oAUvWV1WiuisSdFY+O0uCMSZfWP
-         VeO/FauYORnoPmc9CNld4jb0+qdQMC1y4BMCxbis=
+        b=MKJaFvAiZCpjO/22ru63iHm3attIV4/wb6zZ8C0HLVzIJnYUqMBOH21zoIglKQJKV
+         X3MCa85klVNkj+1ef+cyYmvu5PkmGtwpkYbQqt+byO7R3yiwq1+ipPlZNMx0vdnYtZ
+         fS61OmjnT3LhrM5WTtMbYLPHsiuN3wd5tFq6nSfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
+        stable@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 453/717] mm/vmalloc: Fix unlock order in s_stop()
-Date:   Mon, 28 Dec 2020 13:47:31 +0100
-Message-Id: <20201228125042.672572617@linuxfoundation.org>
+Subject: [PATCH 5.10 454/717] mm/vmalloc.c: fix kasan shadow poisoning size
+Date:   Mon, 28 Dec 2020 13:47:32 +0100
+Message-Id: <20201228125042.721318825@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -44,53 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 0a7dd4e901b8a4ee040ba953900d1d7120b34ee5 ]
+[ Upstream commit c041098c690fe53cea5d20c62f128a4f7a5c19fe ]
 
-When multiple locks are acquired, they should be released in reverse
-order. For s_start() and s_stop() in mm/vmalloc.c, that is not the
-case.
+The size of vm area can be affected by the presence or not of the guard
+page.  In particular when VM_NO_GUARD is present, the actual accessible
+size has to be considered like the real size minus the guard page.
 
-  s_start: mutex_lock(&vmap_purge_lock); spin_lock(&vmap_area_lock);
-  s_stop : mutex_unlock(&vmap_purge_lock); spin_unlock(&vmap_area_lock);
+Currently kasan does not keep into account this information during the
+poison operation and in particular tries to poison the guard page as well.
 
-This unlock sequence, though allowed, is not optimal. If a waiter is
-present, mutex_unlock() will need to go through the slowpath of waking
-up the waiter with preemption disabled. Fix that by releasing the
-spinlock first before the mutex.
+This approach, even if incorrect, does not cause an issue because the tags
+for the guard page are written in the shadow memory.  With the future
+introduction of the Tag-Based KASAN, being the guard page inaccessible by
+nature, the write tag operation on this page triggers a fault.
 
-Link: https://lkml.kernel.org/r/20201213180843.16938-1-longman@redhat.com
-Fixes: e36176be1c39 ("mm/vmalloc: rework vmap_area_lock")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
+Fix kasan shadow poisoning size invoking get_vm_area_size() instead of
+accessing directly the field in the data structure to detect the correct
+value.
+
+Link: https://lkml.kernel.org/r/20201027160213.32904-1-vincenzo.frascino@arm.com
+Fixes: d98c9e83b5e7c ("kasan: fix crashes on access to memory mapped by vm_map_ram()")
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Andrey Konovalov <andreyknvl@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Marco Elver <elver@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmalloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/vmalloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 6ae491a8b210f..75913f685c71e 100644
+index 75913f685c71e..279dc0c96568c 100644
 --- a/mm/vmalloc.c
 +++ b/mm/vmalloc.c
-@@ -3448,11 +3448,11 @@ static void *s_next(struct seq_file *m, void *p, loff_t *pos)
- }
+@@ -2256,7 +2256,7 @@ static void __vunmap(const void *addr, int deallocate_pages)
+ 	debug_check_no_locks_freed(area->addr, get_vm_area_size(area));
+ 	debug_check_no_obj_freed(area->addr, get_vm_area_size(area));
  
- static void s_stop(struct seq_file *m, void *p)
--	__releases(&vmap_purge_lock)
- 	__releases(&vmap_area_lock)
-+	__releases(&vmap_purge_lock)
- {
--	mutex_unlock(&vmap_purge_lock);
- 	spin_unlock(&vmap_area_lock);
-+	mutex_unlock(&vmap_purge_lock);
- }
+-	kasan_poison_vmalloc(area->addr, area->size);
++	kasan_poison_vmalloc(area->addr, get_vm_area_size(area));
  
- static void show_numa_info(struct seq_file *m, struct vm_struct *v)
+ 	vm_remove_mappings(area, deallocate_pages);
+ 
 -- 
 2.27.0
 
