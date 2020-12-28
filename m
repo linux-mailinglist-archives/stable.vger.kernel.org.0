@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AEDA2E3760
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14582E3B97
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728386AbgL1Mys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:54:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51306 "EHLO mail.kernel.org"
+        id S2407022AbgL1NwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728375AbgL1Myh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:54:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B5D12242A;
-        Mon, 28 Dec 2020 12:53:55 +0000 (UTC)
+        id S2407018AbgL1NwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 995E7208B3;
+        Mon, 28 Dec 2020 13:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160036;
-        bh=XAuZMLSZNQM37Gph0XBD4GiduJ20pZCWKiUeZx7WuyU=;
+        s=korg; t=1609163480;
+        bh=9NahrlYyNAdZZ/yKDuE0CcW/q+WhkGrcf3ZkyE8qS/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ao9W+jIviy62t0DRtGv5Nqlp4Zx+BxtM23iPPoZSz7cI6ugECJxcVwypa+3Am7Ij
-         eWRvCUdU3mqUX3VdyUuoOcjjBzb6/hCG+MPyajrPpJkmWiLnPXNq5WVDYOyxwmAaxZ
-         jq9cWBsZOZZIbYV/HeCauGF/Ivc+fWtHJH+3QUOw=
+        b=alerZu8G5q++v1yW/gbcq8PrBZU9ueq+a7FAhIAR20CKj4sxzy8E/28E+F3nspBuS
+         7hZVFOf2xDY8YaVf7G3an3BLTewBRzJBtJAR/yqeYvGuHIq/utMIPPvPCS3NfYWKAk
+         o6FevhPZc7Rj+OVwJvD6ASFmNcCrsMW7C/lqS5+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 051/132] soc: ti: knav_qmss: fix reference leak in knav_queue_probe
+Subject: [PATCH 5.4 299/453] pwm: zx: Add missing cleanup in error path
 Date:   Mon, 28 Dec 2020 13:48:55 +0100
-Message-Id: <20201228124848.904602260@linuxfoundation.org>
+Message-Id: <20201228124951.593616726@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit ec8684847d8062496c4619bc3fcff31c19d56847 ]
+[ Upstream commit 269effd03f6142df4c74814cfdd5f0b041b30bf9 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in knav_queue_probe, so we should fix it.
+zx_pwm_probe() called clk_prepare_enable() before; this must be undone
+in the error path.
 
-Fixes: 41f93af900a20 ("soc: ti: add Keystone Navigator QMSS driver")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Fixes: 4836193c435c ("pwm: Add ZTE ZX PWM device driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/knav_qmss_queue.c | 1 +
+ drivers/pwm/pwm-zx.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
-index 8c03a80b482dd..3a3bc8ef532a7 100644
---- a/drivers/soc/ti/knav_qmss_queue.c
-+++ b/drivers/soc/ti/knav_qmss_queue.c
-@@ -1717,6 +1717,7 @@ static int knav_queue_probe(struct platform_device *pdev)
- 	pm_runtime_enable(&pdev->dev);
- 	ret = pm_runtime_get_sync(&pdev->dev);
+diff --git a/drivers/pwm/pwm-zx.c b/drivers/pwm/pwm-zx.c
+index e2c21cc34a96a..3763ce5311ac2 100644
+--- a/drivers/pwm/pwm-zx.c
++++ b/drivers/pwm/pwm-zx.c
+@@ -238,6 +238,7 @@ static int zx_pwm_probe(struct platform_device *pdev)
+ 	ret = pwmchip_add(&zpc->chip);
  	if (ret < 0) {
-+		pm_runtime_put_noidle(&pdev->dev);
- 		dev_err(dev, "Failed to enable QMSS\n");
+ 		dev_err(&pdev->dev, "failed to add PWM chip: %d\n", ret);
++		clk_disable_unprepare(zpc->pclk);
  		return ret;
  	}
+ 
 -- 
 2.27.0
 
