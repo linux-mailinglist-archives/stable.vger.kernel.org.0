@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5B02E6725
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70A4B2E6582
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633229AbgL1QUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:20:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
+        id S2389536AbgL1QCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:02:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732237AbgL1NNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:13:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F95122582;
-        Mon, 28 Dec 2020 13:12:51 +0000 (UTC)
+        id S2390283AbgL1NaL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54CB922582;
+        Mon, 28 Dec 2020 13:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161171;
-        bh=/yoQPsmUbUpRS0Cqc/iYTyFUX82i8An682kI99S8HcM=;
+        s=korg; t=1609162170;
+        bh=9/u1tfMPEVt67nmI4SkUXtwtNr5voLRc4WjZV+Ess7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMw+jtdg9iyxWtQZQ2RQPSh61T7rqzFLjLka8JK8Jm+MduFvGXqgFYEK1EAoQpi+u
-         +7EICNM8ATIm+uZ+ykhXE29rFoPZ9v655s1Dtqe16d0uaKW20QQMxBWgwdASXW45YW
-         fIs6r3tQam33V/RF1ukylNMBobBmZUAQpB0octgI=
+        b=0vVEUPbIAhujYC7s3+yUi3pIUX5s/aB/roA6LhWWSsm6bYwLzR66YntEJeO9OClK7
+         aAcuIVLabqyB6E/bEHOmZRfivCz5yML/L+x60rwx3StuGZyPgNTRYpYHN8JDtNMgJg
+         oizhmIHO2B7zDmRDGjhFaARDOgDChqkAZJgqkvBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 125/242] SUNRPC: xprt_load_transport() needs to support the netid "rdma6"
+Subject: [PATCH 4.19 211/346] seq_buf: Avoid type mismatch for seq_buf_init
 Date:   Mon, 28 Dec 2020 13:48:50 +0100
-Message-Id: <20201228124910.851074875@linuxfoundation.org>
+Message-Id: <20201228124929.987371498@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,183 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d5aa6b22e2258f05317313ecc02efbb988ed6d38 ]
+[ Upstream commit d9a9280a0d0ae51dc1d4142138b99242b7ec8ac6 ]
 
-According to RFC5666, the correct netid for an IPv6 addressed RDMA
-transport is "rdma6", which we've supported as a mount option since
-Linux-4.7. The problem is when we try to load the module "xprtrdma6",
-that will fail, since there is no modulealias of that name.
+Building with W=2 prints a number of warnings for one function that
+has a pointer type mismatch:
 
-Fixes: 181342c5ebe8 ("xprtrdma: Add rdma6 option to support NFS/RDMA IPv6")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+linux/seq_buf.h: In function 'seq_buf_init':
+linux/seq_buf.h:35:12: warning: pointer targets in assignment from 'unsigned char *' to 'char *' differ in signedness [-Wpointer-sign]
+
+Change the type in the function prototype according to the type in
+the structure.
+
+Link: https://lkml.kernel.org/r/20201026161108.3707783-1-arnd@kernel.org
+
+Fixes: 9a7777935c34 ("tracing: Convert seq_buf fields to be like seq_file fields")
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprt.h     |  1 +
- net/sunrpc/xprt.c               | 65 +++++++++++++++++++++++++--------
- net/sunrpc/xprtrdma/module.c    |  1 +
- net/sunrpc/xprtrdma/transport.c |  1 +
- net/sunrpc/xprtsock.c           |  4 ++
- 5 files changed, 56 insertions(+), 16 deletions(-)
+ include/linux/seq_buf.h   | 2 +-
+ include/linux/trace_seq.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
-index 7fad83881ce19..9785715eea145 100644
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -316,6 +316,7 @@ struct xprt_class {
- 	struct rpc_xprt *	(*setup)(struct xprt_create *);
- 	struct module		*owner;
- 	char			name[32];
-+	const char *		netid[];
- };
- 
- /*
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index b852c34bb6373..7b1213be3e81a 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -143,31 +143,64 @@ out:
+diff --git a/include/linux/seq_buf.h b/include/linux/seq_buf.h
+index aa5deb041c25d..7cc952282e8be 100644
+--- a/include/linux/seq_buf.h
++++ b/include/linux/seq_buf.h
+@@ -30,7 +30,7 @@ static inline void seq_buf_clear(struct seq_buf *s)
  }
- EXPORT_SYMBOL_GPL(xprt_unregister_transport);
  
-+static void
-+xprt_class_release(const struct xprt_class *t)
-+{
-+	module_put(t->owner);
-+}
-+
-+static const struct xprt_class *
-+xprt_class_find_by_netid_locked(const char *netid)
-+{
-+	const struct xprt_class *t;
-+	unsigned int i;
-+
-+	list_for_each_entry(t, &xprt_list, list) {
-+		for (i = 0; t->netid[i][0] != '\0'; i++) {
-+			if (strcmp(t->netid[i], netid) != 0)
-+				continue;
-+			if (!try_module_get(t->owner))
-+				continue;
-+			return t;
-+		}
-+	}
-+	return NULL;
-+}
-+
-+static const struct xprt_class *
-+xprt_class_find_by_netid(const char *netid)
-+{
-+	const struct xprt_class *t;
-+
-+	spin_lock(&xprt_list_lock);
-+	t = xprt_class_find_by_netid_locked(netid);
-+	if (!t) {
-+		spin_unlock(&xprt_list_lock);
-+		request_module("rpc%s", netid);
-+		spin_lock(&xprt_list_lock);
-+		t = xprt_class_find_by_netid_locked(netid);
-+	}
-+	spin_unlock(&xprt_list_lock);
-+	return t;
-+}
-+
- /**
-  * xprt_load_transport - load a transport implementation
-- * @transport_name: transport to load
-+ * @netid: transport to load
-  *
-  * Returns:
-  * 0:		transport successfully loaded
-  * -ENOENT:	transport module not available
+ static inline void
+-seq_buf_init(struct seq_buf *s, unsigned char *buf, unsigned int size)
++seq_buf_init(struct seq_buf *s, char *buf, unsigned int size)
+ {
+ 	s->buffer = buf;
+ 	s->size = size;
+diff --git a/include/linux/trace_seq.h b/include/linux/trace_seq.h
+index 6609b39a72326..6db257466af68 100644
+--- a/include/linux/trace_seq.h
++++ b/include/linux/trace_seq.h
+@@ -12,7 +12,7 @@
   */
--int xprt_load_transport(const char *transport_name)
-+int xprt_load_transport(const char *netid)
+ 
+ struct trace_seq {
+-	unsigned char		buffer[PAGE_SIZE];
++	char			buffer[PAGE_SIZE];
+ 	struct seq_buf		seq;
+ 	int			full;
+ };
+@@ -51,7 +51,7 @@ static inline int trace_seq_used(struct trace_seq *s)
+  * that is about to be written to and then return the result
+  * of that write.
+  */
+-static inline unsigned char *
++static inline char *
+ trace_seq_buffer_ptr(struct trace_seq *s)
  {
--	struct xprt_class *t;
--	int result;
-+	const struct xprt_class *t;
- 
--	result = 0;
--	spin_lock(&xprt_list_lock);
--	list_for_each_entry(t, &xprt_list, list) {
--		if (strcmp(t->name, transport_name) == 0) {
--			spin_unlock(&xprt_list_lock);
--			goto out;
--		}
--	}
--	spin_unlock(&xprt_list_lock);
--	result = request_module("xprt%s", transport_name);
--out:
--	return result;
-+	t = xprt_class_find_by_netid(netid);
-+	if (!t)
-+		return -ENOENT;
-+	xprt_class_release(t);
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(xprt_load_transport);
- 
-diff --git a/net/sunrpc/xprtrdma/module.c b/net/sunrpc/xprtrdma/module.c
-index 560712bd9fa2c..dd227de31a589 100644
---- a/net/sunrpc/xprtrdma/module.c
-+++ b/net/sunrpc/xprtrdma/module.c
-@@ -19,6 +19,7 @@ MODULE_DESCRIPTION("RPC/RDMA Transport");
- MODULE_LICENSE("Dual BSD/GPL");
- MODULE_ALIAS("svcrdma");
- MODULE_ALIAS("xprtrdma");
-+MODULE_ALIAS("rpcrdma6");
- 
- static void __exit rpc_rdma_cleanup(void)
- {
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index b1b40a1be8c57..ead20e6754ab7 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -849,6 +849,7 @@ static struct xprt_class xprt_rdma = {
- 	.owner			= THIS_MODULE,
- 	.ident			= XPRT_TRANSPORT_RDMA,
- 	.setup			= xprt_setup_rdma,
-+	.netid			= { "rdma", "rdma6", "" },
- };
- 
- void xprt_rdma_cleanup(void)
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index f75b5b7c1fc2a..5124a21ecfa39 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -3208,6 +3208,7 @@ static struct xprt_class	xs_local_transport = {
- 	.owner		= THIS_MODULE,
- 	.ident		= XPRT_TRANSPORT_LOCAL,
- 	.setup		= xs_setup_local,
-+	.netid		= { "" },
- };
- 
- static struct xprt_class	xs_udp_transport = {
-@@ -3216,6 +3217,7 @@ static struct xprt_class	xs_udp_transport = {
- 	.owner		= THIS_MODULE,
- 	.ident		= XPRT_TRANSPORT_UDP,
- 	.setup		= xs_setup_udp,
-+	.netid		= { "udp", "udp6", "" },
- };
- 
- static struct xprt_class	xs_tcp_transport = {
-@@ -3224,6 +3226,7 @@ static struct xprt_class	xs_tcp_transport = {
- 	.owner		= THIS_MODULE,
- 	.ident		= XPRT_TRANSPORT_TCP,
- 	.setup		= xs_setup_tcp,
-+	.netid		= { "tcp", "tcp6", "" },
- };
- 
- static struct xprt_class	xs_bc_tcp_transport = {
-@@ -3232,6 +3235,7 @@ static struct xprt_class	xs_bc_tcp_transport = {
- 	.owner		= THIS_MODULE,
- 	.ident		= XPRT_TRANSPORT_BC_TCP,
- 	.setup		= xs_setup_bc_tcp,
-+	.netid		= { "" },
- };
- 
- /**
+ 	return s->buffer + seq_buf_used(&s->seq);
 -- 
 2.27.0
 
