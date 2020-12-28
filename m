@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A102E4215
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A302E4212
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:17:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437316AbgL1OEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:04:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38578 "EHLO mail.kernel.org"
+        id S2389886AbgL1PRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:17:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437302AbgL1OEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:04:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8266207BC;
-        Mon, 28 Dec 2020 14:03:39 +0000 (UTC)
+        id S2437336AbgL1OEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:04:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A00B420715;
+        Mon, 28 Dec 2020 14:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164220;
-        bh=+nKGy0AjWjO4m/KormxSgCb+6U5YuNRuT+lzoMlTsNQ=;
+        s=korg; t=1609164223;
+        bh=27VwrQoWTxZMfb3nbLFIqHHM+ZMeoScZtvDEugBpn0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3tRqkTUf1RUqECU/PVlQcQB9ynohcR2VW/p8XQuQA1jAileVZV3HwNW/nors1xlo
-         XaH7GCMKjddd0IbB4WvDsT41l8sdsW1QueV/L9RTHCtDEz6eVJHK06udNXYpe0VPw6
-         4Rj5c9aKBYF30zzFzR3hB2Vc8uEiNR7IfPiiOHX0=
+        b=2Sp63NAFALOtCxyHw2HpF6ZPlh7u2guh3mmWcSghfQlzqk9bU9pcOnZOGFICEtfFY
+         X2WDYM2im8cvuOtdNwWUScCK2oP3eiN2KEkMVzop141QrwmMeBgt3pzj+k4+b5ynS8
+         qTkRXw6F8XgXcsZdsxliIfdeaal08RxQdeKCzvts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nishanth Menon <nm@ti.com>,
-        Jyri Sarha <jsarha@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 103/717] arm64: dts: ti: k3-am65*/j721e*: Fix unit address format error for dss node
-Date:   Mon, 28 Dec 2020 13:41:41 +0100
-Message-Id: <20201228125025.895857912@linuxfoundation.org>
+Subject: [PATCH 5.10 104/717] MIPS: BCM47XX: fix kconfig dependency bug for BCM47XX_BCMA
+Date:   Mon, 28 Dec 2020 13:41:42 +0100
+Message-Id: <20201228125025.944293091@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,56 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit cfbf17e69ae82f647c287366b7573e532fc281ee ]
+[ Upstream commit 3a5fe2fb9635c43359c9729352f45044f3c8df6b ]
 
-Fix the node address to follow the device tree convention.
+When BCM47XX_BCMA is enabled and BCMA_DRIVER_PCI is disabled, it results
+in the following Kbuild warning:
 
-This fixes the dtc warning:
-<stdout>: Warning (simple_bus_reg): /bus@100000/dss@04a00000: simple-bus
-unit address format error, expected "4a00000"
+WARNING: unmet direct dependencies detected for BCMA_DRIVER_PCI_HOSTMODE
+  Depends on [n]: MIPS [=y] && BCMA_DRIVER_PCI [=n] && PCI_DRIVERS_LEGACY [=y] && BCMA [=y]=y
+  Selected by [y]:
+  - BCM47XX_BCMA [=y] && BCM47XX [=y] && PCI [=y]
 
-Fixes: 76921f15acc0 ("arm64: dts: ti: k3-j721e-main: Add DSS node")
-Fixes: fc539b90eda2 ("arm64: dts: ti: am654: Add DSS node")
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Jyri Sarha <jsarha@ti.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Jyri Sarha <jsarha@ti.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://lore.kernel.org/r/20201104222519.12308-1-nm@ti.com
+The reason is that BCM47XX_BCMA selects BCMA_DRIVER_PCI_HOSTMODE without
+depending on or selecting BCMA_DRIVER_PCI while BCMA_DRIVER_PCI_HOSTMODE
+depends on BCMA_DRIVER_PCI. This can also fail building the kernel.
+
+Honor the kconfig dependency to remove unmet direct dependency warnings
+and avoid any potential build failures.
+
+Fixes: c1d1c5d4213e ("bcm47xx: add support for bcma bus")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209879
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am65-main.dtsi  | 2 +-
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/bcm47xx/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 533525229a8db..27f6fd9eaa0ab 100644
---- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -834,7 +834,7 @@
- 		};
- 	};
- 
--	dss: dss@04a00000 {
-+	dss: dss@4a00000 {
- 		compatible = "ti,am65x-dss";
- 		reg =	<0x0 0x04a00000 0x0 0x1000>, /* common */
- 			<0x0 0x04a02000 0x0 0x1000>, /* vidl1 */
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index e2a96b2c423c4..c66ded9079be4 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -1278,7 +1278,7 @@
- 		};
- 	};
- 
--	dss: dss@04a00000 {
-+	dss: dss@4a00000 {
- 		compatible = "ti,j721e-dss";
- 		reg =
- 			<0x00 0x04a00000 0x00 0x10000>, /* common_m */
+diff --git a/arch/mips/bcm47xx/Kconfig b/arch/mips/bcm47xx/Kconfig
+index 6889f74e06f54..490bb6da74b7e 100644
+--- a/arch/mips/bcm47xx/Kconfig
++++ b/arch/mips/bcm47xx/Kconfig
+@@ -27,6 +27,7 @@ config BCM47XX_BCMA
+ 	select BCMA
+ 	select BCMA_HOST_SOC
+ 	select BCMA_DRIVER_MIPS
++	select BCMA_DRIVER_PCI if PCI
+ 	select BCMA_DRIVER_PCI_HOSTMODE if PCI
+ 	select BCMA_DRIVER_GPIO
+ 	default y
 -- 
 2.27.0
 
