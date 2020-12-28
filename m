@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 289082E3688
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9772E368A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727294AbgL1LeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:34:25 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:37517 "EHLO
+        id S1727302AbgL1Let (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:34:49 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51647 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727287AbgL1LeZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:34:25 -0500
+        by vger.kernel.org with ESMTP id S1727298AbgL1Let (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:34:49 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 5586978C;
+        by mailforward.west.internal (Postfix) with ESMTP id 9C8C17DB;
         Mon, 28 Dec 2020 06:33:19 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
+Received: from mailfrontend2 ([10.202.2.163])
   by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:33:19 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
         :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Y0yWow
-        v647zadS7ppd9JipqLsXtW8k6e0ImCn821+lI=; b=YaOgDP3zGHuMXzXQT9NqoO
-        6ounJmUc7W4uXo9kxN53422kWM3wguMLOQfSUAiRDo3x/FF1fcou6wDMwdD7Ow5u
-        SQex/vf67C2G5nMobzjoeJdEuvT4PdM/6ACoM27UxWvanLDtlKWPNokfULYGy0OD
-        kkAOGIicTNv6LRFJ7pQcOm4NBRUtGrMswuu9XglBWGpRgGGFwcJrb+xJkpbOCvDN
-        K7DEdUb4igRhaJ/e3WXnqee7KZfHMAhWMEt/PFHeZHZbzA0yu8fipwBYBdyzRyzO
-        UlWSlrqcvna0u3GP3ea46ezXcLgZP6Nb8Hqi1j4iK7bTVIk/GDPnjJ+85wmdNWcA
+        v647zadS7ppd9JipqLsXtW8k6e0ImCn821+lI=; b=bjff0YEdpkTmyXZ0FFl6jy
+        n1Y0DkRVDw2mtqV3JVsm6FY6csildoCEx82YacjwGXiLEbOIDc+8wyTf09gUzLzj
+        dToGkMCSolpLmBYaG9j9SHuLqWbSEQKZJx3SrPeK0dzaAS7QkUKpgu2iiPpC3sKc
+        iQVNgXQ9MLDuhw9l3XH1upaDT/UWRxUOHjq+Xkda27LQdg0ZZ95U72a7/VsXK/w5
+        F3qxjHi6hg8DnTXFUHYl7dg+8BVa99EhNIatCiKH+szKiyhgIFC30Iq/il5CUvrE
+        93jnGxBFXfNrWCREFsR9U438Ul4jRex1iTtZgOIahLjQZD9vSrC68EsHrfQZ4+0g
         ==
-X-ME-Sender: <xms:fsLpXyX0XXdMTDQuPSFhJaBq5koW1oSAzujq6iOcDglY9GnyEEiwNw>
-    <xme:fsLpX-lNbKxiLG6w2X6KVxzUeLzwyewIEf62TgV5HF4hAnFXw_7YF5gRwjc70q0I3
-    A22mEvcp3lA9g>
+X-ME-Sender: <xms:f8LpX8kvXYPfQ8h1ZZYnu6k8YQ5FpS1ZX9Eh_lv3uGhizOD1vc4gOg>
+    <xme:f8LpX70K3kqbS5oWw3B_-Pes7EjdsmB0ylAXP3sY5MpZmOxZY_nqzpEYZorrLUbmy
+    acCKS07YWHCXw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,12 +38,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggod
     egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
     necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
     hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:fsLpX2baSJD5iMWBegK4nykKMMiodP2781Wf8qbXGqWB67Nama00Tw>
-    <xmx:fsLpX5UNKPIlQio4DSmaoB054U14bSPPj4MUf-lJ6ZyxWyYNy5NE_w>
-    <xmx:fsLpX8lq4Q7o2O10290I5OMLGKu5ibJhIivArG7Q1YdpPQfMjppt2g>
-    <xmx:fsLpX4tWebQP5C0Y52shXAkOV0S6nD7i63sRDlwYPL2G0oymApSYMEOzEaI>
+X-ME-Proxy: <xmx:f8LpX6q4zCEXRTpAxMPOsfQipp-PxHMXbQHE-GgWDEFI6vJ7AOaGRw>
+    <xmx:f8LpX4nIrj_fwSNzKTz-cxdsMugf9YrXirnBcYAd63ixzLSKReYZ_w>
+    <xmx:f8LpX608Jg4LuRPmLcP9u0Rocq4updoonrcw8d8VoA9FR6mFBDwLLA>
+    <xmx:f8LpX__7OPLTxkmqWm4I31jK4iLrudyhkHf9mGG1D6dNwpUBsMWbA5XcjhQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A145D240057;
+        by mail.messagingengine.com (Postfix) with ESMTPA id E7EF01080059;
         Mon, 28 Dec 2020 06:33:18 -0500 (EST)
 Subject: FAILED: patch "[PATCH] dma-buf/dma-resv: Respect num_fences when initializing the" failed to apply to 4.19-stable tree
 To:     maarten.lankhorst@linux.intel.com,
