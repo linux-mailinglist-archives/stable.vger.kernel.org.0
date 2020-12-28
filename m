@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B9B2E63E6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 610562E3DAC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730674AbgL1Pom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:44:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45286 "EHLO mail.kernel.org"
+        id S2391833AbgL1OSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:18:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404718AbgL1No4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:44:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B5E820715;
-        Mon, 28 Dec 2020 13:44:39 +0000 (UTC)
+        id S2391829AbgL1OSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:18:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09BE1224D2;
+        Mon, 28 Dec 2020 14:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163080;
-        bh=z/kmuhUIlnPUg4UqrHzDly2/T/p1yyW8poqRO0yIIPo=;
+        s=korg; t=1609165072;
+        bh=1mpwmu2rQjWyRA2OQ+RoeB/jIrG4Sa2HWw1nGCzIb90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPtK1/CoQ9Z53ytiEfhicYenAH7QhnXN3gt8JwM6oL+oQPWhZiRtuLWifzbJzvWpm
-         tKOFsadiJnlP0NcQOFR8Maw6t5DNxDZqqdAWV4EXrf6nQF2yRLDbcW87VtAlOUyqSR
-         NEHEyLU/u8rFtpnRiCuO0w0RQPe2VDb2uqFVjJsk=
+        b=B/SzPe2lmGUizKnSx5eNu5H8JPXUpZZlgtNFjf48wXN7gI96x22LmMmr7c2h+/cdE
+         Boy+yJITArOn2pdbMlJtUjHzPgpQy03ivRHaI7SQx648BqymVYkr4ACdQuwIEfldBx
+         lRs4HXw6PeHqVdqOOFSUZfjoakNC3Eirgm9NVHGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/453] ARM: dts: at91: sama5d3_xplained: add pincontrol for USB Host
+Subject: [PATCH 5.10 400/717] remoteproc: q6v5-mss: fix error handling in q6v5_pds_enable
 Date:   Mon, 28 Dec 2020 13:46:38 +0100
-Message-Id: <20201228124945.005583016@linuxfoundation.org>
+Message-Id: <20201228125040.156084975@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Birsan <cristian.birsan@microchip.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit e1062fa7292f1e3744db0a487c4ac0109e09b03d ]
+[ Upstream commit a24723050037303e4008b37f1f8dcc99c58901aa ]
 
-The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
-it the driver probes but VBus is not powered because of wrong pincontrol
-configuration.
+If the pm_runtime_get_sync failed in q6v5_pds_enable when
+loop (i), The unroll_pd_votes will start from (i - 1), and
+it will resulted in following problems:
 
-Fixes: b7c2b61570798 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
-Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Link: https://lore.kernel.org/r/20201118120019.1257580-4-cristian.birsan@microchip.com
+  1) pm_runtime_get_sync will increment pm usage counter even it
+     failed. Forgetting to pm_runtime_put_noidle will result in
+     reference leak.
+
+  2) Have not reset pds[i] performance state.
+
+Then we fix it.
+
+Fixes: 4760a896be88e ("remoteproc: q6v5-mss: Vote for rpmh power domains")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201102143433.143996-1-zhangqilong3@huawei.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d3_xplained.dts | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/remoteproc/qcom_q6v5_mss.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-index 61f068a7b362a..400eaf640fe42 100644
---- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-@@ -242,6 +242,11 @@
- 						atmel,pins =
- 							<AT91_PIOE 9 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PE9, conflicts with A9 */
- 					};
-+					pinctrl_usb_default: usb_default {
-+						atmel,pins =
-+							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 			};
- 		};
-@@ -259,6 +264,8 @@
- 					   &pioE 3 GPIO_ACTIVE_LOW
- 					   &pioE 4 GPIO_ACTIVE_LOW
- 					  >;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usb_default>;
- 			status = "okay";
- 		};
+diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
+index eb3457a6c3b73..ba6f7551242de 100644
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -349,8 +349,11 @@ static int q6v5_pds_enable(struct q6v5 *qproc, struct device **pds,
+ 	for (i = 0; i < pd_count; i++) {
+ 		dev_pm_genpd_set_performance_state(pds[i], INT_MAX);
+ 		ret = pm_runtime_get_sync(pds[i]);
+-		if (ret < 0)
++		if (ret < 0) {
++			pm_runtime_put_noidle(pds[i]);
++			dev_pm_genpd_set_performance_state(pds[i], 0);
+ 			goto unroll_pd_votes;
++		}
+ 	}
  
+ 	return 0;
 -- 
 2.27.0
 
