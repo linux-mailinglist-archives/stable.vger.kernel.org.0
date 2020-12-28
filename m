@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E382C2E6533
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1ED22E3F5E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393238AbgL1P6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:58:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33748 "EHLO mail.kernel.org"
+        id S2503424AbgL1Ojg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:39:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387988AbgL1Ndp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:33:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 311562063A;
-        Mon, 28 Dec 2020 13:33:28 +0000 (UTC)
+        id S2503674AbgL1O3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E59B2063A;
+        Mon, 28 Dec 2020 14:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162410;
-        bh=ATe23Rm/TKgb1NJsGRPJI5SJrqxqys9GsDW0OyV0fIw=;
+        s=korg; t=1609165767;
+        bh=nyx47SjlkERTqGlLQ6jggC8WWVcJ966K7g9l1ftwhnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmpsiJ4ifGNB77OOM6NgPor/Hn/uNSmpWCXZG/jGxkk5tD2w/ESRctxMvS0Zar8t2
-         vkJcqs/HqfS5DeuH6C4mbaRVz4ASo2R4TmJgFG6Pa8UfaGeZddxj3HXUxPlE92IMQo
-         RfVfTqYyDtDum7KtWTnR3h0JBHxdLYYqvLCAdmU0=
+        b=uY2q7+bdVFfDVJP7NgEGXpgIMDoBVFZYSM/3tp7VA7mh6Jngqefeq8wmoRqWELoow
+         zOTrkRGPo384MBKoevoWx1rNyGG2zslRAd5xAH9xJTJmcHHHeCcZ7MetwGIp0kdjls
+         RjZYgryD6+Ealogwi4BtoUDfCnxbSIoAWnQmhVZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 296/346] USB: serial: keyspan_pda: fix write unthrottling
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 617/717] powerpc/powernv/memtrace: Fix crashing the kernel when enabling concurrently
 Date:   Mon, 28 Dec 2020 13:50:15 +0100
-Message-Id: <20201228124934.088933229@linuxfoundation.org>
+Message-Id: <20201228125050.482097286@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 320f9028c7873c3c7710e8e93e5c979f4c857490 upstream.
+commit d6718941a2767fb383e105d257d2105fe4f15f0e upstream.
 
-The driver did not update its view of the available device buffer space
-until write() was called in task context. This meant that write_room()
-would return 0 even after the device had sent a write-unthrottle
-notification, something which could lead to blocked writers not being
-woken up (e.g. when using OPOST).
+It's very easy to crash the kernel right now by simply trying to
+enable memtrace concurrently, hammering on the "enable" interface
 
-Note that we must also request an unthrottle notification is case a
-write() request fills the device buffer exactly.
+loop.sh:
+  #!/bin/bash
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+  dmesg --console-off
+
+  while true; do
+          echo 0x40000000 > /sys/kernel/debug/powerpc/memtrace/enable
+  done
+
+[root@localhost ~]# loop.sh &
+[root@localhost ~]# loop.sh &
+
+Resulting quickly in a kernel crash. Let's properly protect using a
+mutex.
+
+Fixes: 9d5171a8f248 ("powerpc/powernv: Enable removal of memory for in memory tracing")
+Cc: stable@vger.kernel.org# v4.14+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201111145322.15793-3-david@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ arch/powerpc/platforms/powernv/memtrace.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -40,6 +40,8 @@
- #define DRIVER_AUTHOR "Brian Warner <warner@lothar.com>"
- #define DRIVER_DESC "USB Keyspan PDA Converter driver"
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -30,6 +30,7 @@ struct memtrace_entry {
+ 	char name[16];
+ };
  
-+#define KEYSPAN_TX_THRESHOLD	16
-+
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
-@@ -110,7 +112,7 @@ static void keyspan_pda_request_unthrott
- 				 7, /* request_unthrottle */
- 				 USB_TYPE_VENDOR | USB_RECIP_INTERFACE
- 				 | USB_DIR_OUT,
--				 16, /* value: threshold */
-+				 KEYSPAN_TX_THRESHOLD,
- 				 0, /* index */
- 				 NULL,
- 				 0,
-@@ -129,6 +131,8 @@ static void keyspan_pda_rx_interrupt(str
- 	int retval;
- 	int status = urb->status;
- 	struct keyspan_pda_private *priv;
-+	unsigned long flags;
-+
- 	priv = usb_get_serial_port_data(port);
++static DEFINE_MUTEX(memtrace_mutex);
+ static u64 memtrace_size;
  
- 	switch (status) {
-@@ -171,7 +175,10 @@ static void keyspan_pda_rx_interrupt(str
- 		case 1: /* modemline change */
- 			break;
- 		case 2: /* tx unthrottle interrupt */
-+			spin_lock_irqsave(&port->lock, flags);
- 			priv->tx_throttled = 0;
-+			priv->tx_room = max(priv->tx_room, KEYSPAN_TX_THRESHOLD);
-+			spin_unlock_irqrestore(&port->lock, flags);
- 			/* queue up a wakeup at scheduler time */
- 			usb_serial_port_softint(port);
- 			break;
-@@ -505,7 +512,8 @@ static int keyspan_pda_write(struct tty_
- 			goto exit;
- 		}
+ static struct memtrace_entry *memtrace_array;
+@@ -279,6 +280,7 @@ static int memtrace_online(void)
+ 
+ static int memtrace_enable_set(void *data, u64 val)
+ {
++	int rc = -EAGAIN;
+ 	u64 bytes;
+ 
+ 	/*
+@@ -291,25 +293,31 @@ static int memtrace_enable_set(void *dat
+ 		return -EINVAL;
  	}
--	if (count > priv->tx_room) {
-+
-+	if (count >= priv->tx_room) {
- 		/* we're about to completely fill the Tx buffer, so
- 		   we'll be throttled afterwards. */
- 		count = priv->tx_room;
-@@ -560,14 +568,17 @@ static void keyspan_pda_write_bulk_callb
- static int keyspan_pda_write_room(struct tty_struct *tty)
- {
- 	struct usb_serial_port *port = tty->driver_data;
--	struct keyspan_pda_private *priv;
--	priv = usb_get_serial_port_data(port);
--	/* used by n_tty.c for processing of tabs and such. Giving it our
--	   conservative guess is probably good enough, but needs testing by
--	   running a console through the device. */
--	return priv->tx_room;
--}
-+	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
-+	unsigned long flags;
-+	int room = 0;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (test_bit(0, &port->write_urbs_free) && !priv->tx_throttled)
-+		room = priv->tx_room;
-+	spin_unlock_irqrestore(&port->lock, flags);
  
-+	return room;
-+}
++	mutex_lock(&memtrace_mutex);
++
+ 	/* Re-add/online previously removed/offlined memory */
+ 	if (memtrace_size) {
+ 		if (memtrace_online())
+-			return -EAGAIN;
++			goto out_unlock;
+ 	}
  
- static int keyspan_pda_chars_in_buffer(struct tty_struct *tty)
- {
+-	if (!val)
+-		return 0;
++	if (!val) {
++		rc = 0;
++		goto out_unlock;
++	}
+ 
+ 	/* Offline and remove memory */
+ 	if (memtrace_init_regions_runtime(val))
+-		return -EINVAL;
++		goto out_unlock;
+ 
+ 	if (memtrace_init_debugfs())
+-		return -EINVAL;
++		goto out_unlock;
+ 
+ 	memtrace_size = val;
+-
+-	return 0;
++	rc = 0;
++out_unlock:
++	mutex_unlock(&memtrace_mutex);
++	return rc;
+ }
+ 
+ static int memtrace_enable_get(void *data, u64 *val)
 
 
