@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CB72E3D4A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F19142E3AB0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440254AbgL1ONr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:13:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48644 "EHLO mail.kernel.org"
+        id S2403889AbgL1NkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440248AbgL1ONq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E206D2063A;
-        Mon, 28 Dec 2020 14:13:04 +0000 (UTC)
+        id S2403846AbgL1NkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 329D9207B2;
+        Mon, 28 Dec 2020 13:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164785;
-        bh=7QYv8oJtyx/FMSfi9dcyS8Tpx2rmOdUqHgJGIugiPC0=;
+        s=korg; t=1609162783;
+        bh=BDMdtDImohmx+gtDsTvBpXzt4RsvTcqtfy7+Tkh0CXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aT7NlaLIvVwpDiDSOeRuU1lYD858s+21if1RBipeC+ev7wPyfyer8g3BK69r9pjEA
-         j6pKZ/SLHMRZMB+2kUhn8EQf7rHhqjjJ0StbuD6oERs+9+TbGobrwn26fGBOYEotgi
-         juRCE9LDD1E/xLt7AwdbWr5DGraeyscDWg1bkX28=
+        b=NxUSYKawf81GDvz7sP3TfriVmD7yYkiPvgZCKLJLTAvEI6XQAh5dM1NIsdGU1yETf
+         KwYhaplHokRUN6vyWUK+gSnlLdlw0lqmk1lo7U0ipVyrCMmc4cYtKSzLrbAsBfweir
+         dgNPs4eqiLjFl+jwlgCA8X1vDVNyaKsHMvYj0Jvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 297/717] pinctrl: falcon: add missing put_device() call in pinctrl_falcon_probe()
-Date:   Mon, 28 Dec 2020 13:44:55 +0100
-Message-Id: <20201228125035.255640856@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 5.4 060/453] ARM: dts: exynos: fix USB 3.0 pins supply being turned off on Odroid XU
+Date:   Mon, 28 Dec 2020 13:44:56 +0100
+Message-Id: <20201228124940.130634717@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 89cce2b3f247a434ee174ab6803698041df98014 ]
+commit bd7e7ff56feea7810df900fb09c9741d259861d9 upstream.
 
-if of_find_device_by_node() succeed, pinctrl_falcon_probe() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+On Odroid XU LDO12 and LDO15 supplies the power to USB 3.0 blocks but
+the GPK GPIO pins are supplied by LDO7 (VDDQ_LCD).  LDO7 also supplies
+GPJ GPIO pins.
 
-Fixes: e316cb2b16bb ("OF: pinctrl: MIPS: lantiq: adds support for FALCON SoC")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20201119011219.2248232-1-yukuai3@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The Exynos pinctrl driver does not take any supplies, so to have entire
+GPIO block always available, make the regulator always on.
+
+Fixes: 88644b4c750b ("ARM: dts: exynos: Configure PWM, usb3503, PMIC and thermal on Odroid XU board")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201015182044.480562-3-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/pinctrl-falcon.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/exynos5410-odroidxu.dts |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-falcon.c b/drivers/pinctrl/pinctrl-falcon.c
-index 62c02b969327f..7521a924dffb0 100644
---- a/drivers/pinctrl/pinctrl-falcon.c
-+++ b/drivers/pinctrl/pinctrl-falcon.c
-@@ -431,24 +431,28 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
+--- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
++++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+@@ -327,6 +327,8 @@
+ 				regulator-name = "vddq_lcd";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				/* Supplies also GPK and GPJ */
++				regulator-always-on;
+ 			};
  
- 	/* load and remap the pad resources of the different banks */
- 	for_each_compatible_node(np, NULL, "lantiq,pad-falcon") {
--		struct platform_device *ppdev = of_find_device_by_node(np);
- 		const __be32 *bank = of_get_property(np, "lantiq,bank", NULL);
- 		struct resource res;
-+		struct platform_device *ppdev;
- 		u32 avail;
- 		int pins;
- 
- 		if (!of_device_is_available(np))
- 			continue;
- 
--		if (!ppdev) {
--			dev_err(&pdev->dev, "failed to find pad pdev\n");
--			continue;
--		}
- 		if (!bank || *bank >= PORTS)
- 			continue;
- 		if (of_address_to_resource(np, 0, &res))
- 			continue;
-+
-+		ppdev = of_find_device_by_node(np);
-+		if (!ppdev) {
-+			dev_err(&pdev->dev, "failed to find pad pdev\n");
-+			continue;
-+		}
-+
- 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
-+		put_device(&ppdev->dev);
- 		if (IS_ERR(falcon_info.clk[*bank])) {
- 			dev_err(&ppdev->dev, "failed to get clock\n");
- 			of_node_put(np);
--- 
-2.27.0
-
+ 			ldo8_reg: LDO8 {
 
 
