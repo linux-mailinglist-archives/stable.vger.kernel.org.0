@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C97212E3C29
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 820E92E3F28
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407911AbgL1N7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:59:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
+        id S2391081AbgL1Ogn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:36:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407603AbgL1N7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:59:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2252820799;
-        Mon, 28 Dec 2020 13:58:34 +0000 (UTC)
+        id S2504832AbgL1Ocx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F2720715;
+        Mon, 28 Dec 2020 14:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163915;
-        bh=BOI0U63bvqT8VCVhsJupU6ZaLjnY6hRo6eWrnkRVx4I=;
+        s=korg; t=1609165958;
+        bh=makajlTgKrkDXtZGtQ05T7vo8w9t6OlI/7TlJLuMcgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lP+VxnklRfqg2YEZ+Oa/YYJ2g8GDP41uoXZCfA65OrF2W3Kr0CR+q02OKmu2B2uF4
-         szlNX4akCOJNxQPrbIgNQe8yo8oz6VDoEJUtZ9VzHgAwyKY2t/k4f0CWFW0zbJ0+KU
-         H8tBVpxjUSebM28rc4BDCwJD2vSqZkKnEvUhjRKg=
+        b=HzSjWSBG2n80G7V/Oe8TQZ8AsSlE1jLt+ir7IEIYoysMy/Xqbx5KBRgmP0PAqAdXb
+         myp3iVPEnF8z7lt3o0X45h+KKihcXDrIZ4p+XinVMIlIFK1rB77TybpKZnSK/iCUJT
+         O/QN5jRIG4uCRTD7+yNSwon+Vvl88DcPvZYfKW0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 437/453] clk: ingenic: Fix divider calculation with div tables
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 675/717] iio: adc: rockchip_saradc: fix missing clk_disable_unprepare() on error in rockchip_saradc_resume
 Date:   Mon, 28 Dec 2020 13:51:13 +0100
-Message-Id: <20201228124958.250269363@linuxfoundation.org>
+Message-Id: <20201228125053.320979856@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 11a163f2c7d6a9f27ce144cd7e367a81c851621a upstream.
+commit 560c6b914c6ec7d9d9a69fddbb5bf3bf71433e8b upstream.
 
-The previous code assumed that a higher hardware value always resulted
-in a bigger divider, which is correct for the regular clocks, but is
-an invalid assumption when a divider table is provided for the clock.
+Fix the missing clk_disable_unprepare() of info->pclk
+before return from rockchip_saradc_resume in the error
+handling case when fails to prepare and enable info->clk.
 
-Perfect example of this is the PLL0_HALF clock, which applies a /2
-divider with the hardware value 0, and a /1 divider otherwise.
-
-Fixes: a9fa2893fcc6 ("clk: ingenic: Add support for divider tables")
-Cc: <stable@vger.kernel.org> # 5.2
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20201212135733.38050-1-paul@crapouillou.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Fixes: 44d6f2ef94f9 ("iio: adc: add driver for Rockchip saradc")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201103120743.110662-1-miaoqinglang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/ingenic/cgu.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/iio/adc/rockchip_saradc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/clk/ingenic/cgu.c
-+++ b/drivers/clk/ingenic/cgu.c
-@@ -393,15 +393,21 @@ static unsigned int
- ingenic_clk_calc_hw_div(const struct ingenic_cgu_clk_info *clk_info,
- 			unsigned int div)
- {
--	unsigned int i;
-+	unsigned int i, best_i = 0, best = (unsigned int)-1;
+--- a/drivers/iio/adc/rockchip_saradc.c
++++ b/drivers/iio/adc/rockchip_saradc.c
+@@ -462,7 +462,7 @@ static int rockchip_saradc_resume(struct
  
- 	for (i = 0; i < (1 << clk_info->div.bits)
- 				&& clk_info->div.div_table[i]; i++) {
--		if (clk_info->div.div_table[i] >= div)
--			return i;
-+		if (clk_info->div.div_table[i] >= div &&
-+		    clk_info->div.div_table[i] < best) {
-+			best = clk_info->div.div_table[i];
-+			best_i = i;
-+
-+			if (div == best)
-+				break;
-+		}
- 	}
+ 	ret = clk_prepare_enable(info->clk);
+ 	if (ret)
+-		return ret;
++		clk_disable_unprepare(info->pclk);
  
--	return i - 1;
-+	return best_i;
+ 	return ret;
  }
- 
- static unsigned
 
 
