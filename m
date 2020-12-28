@@ -2,117 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0D52E6BEB
+	by mail.lfdr.de (Postfix) with ESMTP id 792CC2E6BEA
 	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:15:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729341AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729365AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 17:55:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36004 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729446AbgL1Up2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 15:45:28 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF12BC061793
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 12:44:47 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id t6so6170681plq.1
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 12:44:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sargun.me; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=46zWNq1MQMAllPErESq+P0d3wb/+jK7l73bBEn1MKsw=;
-        b=ULQrG5MLVRY0Vzr34XFrkm3y61mmJ5AIS4J3bNrtIG1AIchd+p7ay3R7CbXRclN8uZ
-         M6UeZQrH5oUiOCriZCg/UIiQDgd2JN5KLqd9nEs81cSqo5rI+PVH6kv0v+k6Yl5MCUjV
-         09OOnYx+vrVOj+ICiXMmKDiBDca8BE0gsq5OE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=46zWNq1MQMAllPErESq+P0d3wb/+jK7l73bBEn1MKsw=;
-        b=a1H0oGGSmBz/oZ3EqDQJJmR+qH1MiHRhO/wGCEjeaDKjGBrPvvKcwd5QqxsN9aiVgY
-         bndicW2Fmm6kCHXwxSZ8Q9QnNWKKluKsYlJy2zkeNo+p1O1DTYv3tL1WME4PsFMtlrjG
-         YqZ3eygQiGOCA9jktul0KpJv4NCeHO1XqaU+PkPCqp4sawI/NwYa/kIDLHKobVXApQ+T
-         /rqFqNsGjW33Dx6VYM4l7BLm3zbfQ6X7qqax+fro0/XfVp75lQxuiOB1bCl/gxWKlJxd
-         bpqUSmx3l4KkgHdr03i7FZ0OTm69k6QGNqSZ3IDLLmcb9B/EeN2u1rOWL3W2aSlP7Elo
-         t7hw==
-X-Gm-Message-State: AOAM5310STopZdT+kd+TgCpGT1/o5Ppbmywh/mXG3bG3L0As+dvYqEpM
-        Z2KU3uqiQQEOCkwPHUli0sq/+A==
-X-Google-Smtp-Source: ABdhPJxzW5BNpGbiIkly/rGtsowvBDABW0hzn/xoLQGi8JxAkFaLtLng/NVzkkuRgLFRoydQzclBJQ==
-X-Received: by 2002:a17:90b:24c:: with SMTP id fz12mr668157pjb.138.1609188287184;
-        Mon, 28 Dec 2020 12:44:47 -0800 (PST)
-Received: from ubuntu.netflix.com (203.20.25.136.in-addr.arpa. [136.25.20.203])
-        by smtp.gmail.com with ESMTPSA id b129sm37843077pgc.52.2020.12.28.12.44.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Dec 2020 12:44:46 -0800 (PST)
-From:   Sargun Dhillon <sargun@sargun.me>
-To:     Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Sargun Dhillon <sargun@sargun.me>,
-        Kyle Anderson <kylea@netflix.com>,
-        Manas Alekar <malekar@netflix.com>,
-        linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org,
-        Rob Gulewich <rgulewich@netflix.com>,
-        Zoran Simic <zsimic@netflix.com>, stable@vger.kernel.org
-Subject: [RESEND PATCH] fs: Validate flags and capabilities before looking up path in ksys_umount
-Date:   Mon, 28 Dec 2020 12:44:38 -0800
-Message-Id: <20201228204438.1726-1-sargun@sargun.me>
-X-Mailer: git-send-email 2.25.1
+Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729485AbgL1VHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 16:07:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F31922582
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 21:07:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609189629;
+        bh=27KIURwqt1RL2uI90GMMltkVqkqP6J5+DLiEDUmWBQU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=DtQTxCxMN4G6UUHNKgX6MwbZUqPdjE6JjBxXZPdj0zWdX7gsZSDdo/C8xwp+lQL54
+         NBzKb3iMOLLl+ooPPX+uDCXfGSGiAJGCyGuQPPxE89gl/uIHrwh/HV+RGF5/LVTpQ4
+         7xR85q4ojktFqvTOuAoTFu5ysSy5NRBPttYeK643j5DLOtPQanqRbL339jIUFnX7Uj
+         1TsfvHMwMFcF8emTrLa4I9yh+VeQmGSVkWzMHIJyvLWndSC3wqlRmenlposPQkFlCJ
+         HR+88klPTEYBgGF6Bk68JJRI3iceniZzpHlfVMC5fiuZLPwxWw3g3WHtjhCwtsI+b5
+         TdxMw2v6zY+xg==
+Received: by mail-wr1-f53.google.com with SMTP id 91so12510041wrj.7
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 13:07:09 -0800 (PST)
+X-Gm-Message-State: AOAM532SFOoBuxLTHITN8wGWauMLipVcgehAxvQOlyLqRNLr9Wq4ZOBq
+        wilOK/4V8/Dy098AEZcDEqI5Wu9QZOn4IFZes6HDiQ==
+X-Google-Smtp-Source: ABdhPJzLxjROX7Kr2gE7TOhHSUuU+1LZHqFzLu9v1+05RcKic1KF5QVniGH4/+FdCVG2zacKFF1YcGM3iKhXVViXwfc=
+X-Received: by 2002:a5d:62c7:: with SMTP id o7mr846007wrv.257.1609189627549;
+ Mon, 28 Dec 2020 13:07:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
+ <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
+ <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
+ <20201228102537.GG1551@shell.armlinux.org.uk> <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
+ <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com>
+ <20201228190852.GI1551@shell.armlinux.org.uk> <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
+ <1086654515.3607.1609187556216.JavaMail.zimbra@efficios.com>
+In-Reply-To: <1086654515.3607.1609187556216.JavaMail.zimbra@efficios.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Mon, 28 Dec 2020 13:06:55 -0800
+X-Gmail-Original-Message-ID: <CALCETrXx3Xe+4Y6WM-mp0cTUU=r3bW6PV2b25yA8bm1Gvak6wQ@mail.gmail.com>
+Message-ID: <CALCETrXx3Xe+4Y6WM-mp0cTUU=r3bW6PV2b25yA8bm1Gvak6wQ@mail.gmail.com>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     Andy Lutomirski <luto@kernel.org>, paulmck <paulmck@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        Jann Horn <jannh@google.com>, Will Deacon <will@kernel.org>,
+        x86 <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ksys_umount was refactored to into split into another function
-(path_umount) to enable sharing code. This changed the order that flags and
-permissions are validated in, and made it so that user_path_at was called
-before validating flags and capabilities.
+On Mon, Dec 28, 2020 at 12:32 PM Mathieu Desnoyers
+<mathieu.desnoyers@efficios.com> wrote:
+>
+> ----- On Dec 28, 2020, at 2:44 PM, Andy Lutomirski luto@kernel.org wrote:
+>
+> > On Mon, Dec 28, 2020 at 11:09 AM Russell King - ARM Linux admin
+> > <linux@armlinux.org.uk> wrote:
+> >>
+> >> On Mon, Dec 28, 2020 at 07:29:34PM +0100, Jann Horn wrote:
+> >> > After chatting with rmk about this (but without claiming that any of
+> >> > this is his opinion), based on the manpage, I think membarrier()
+> >> > currently doesn't really claim to be synchronizing caches? It just
+> >> > serializes cores. So arguably if userspace wants to use membarrier()
+> >> > to synchronize code changes, userspace should first do the code
+> >> > change, then flush icache as appropriate for the architecture, and
+> >> > then do the membarrier() to ensure that the old code is unused?
+>
+> ^ exactly, yes.
+>
+> >> >
+> >> > For 32-bit arm, rmk pointed out that that would be the cacheflush()
+> >> > syscall. That might cause you to end up with two IPIs instead of one
+> >> > in total, but we probably don't care _that_ much about extra IPIs on
+> >> > 32-bit arm?
+>
+> This was the original thinking, yes. The cacheflush IPI will flush specific
+> regions of code, and the membarrier IPI issues context synchronizing
+> instructions.
+>
+> Architectures with coherent i/d caches don't need the cacheflush step.
 
-Unfortunately, libfuse2[1] and libmount[2] rely on the old flag validation
-behaviour to determine whether or not the kernel supports UMOUNT_NOFOLLOW.
-The other path that this validation is being checked on is
-init_umount->path_umount->can_umount. That's all internal to the kernel.
+There are different levels of coherency -- VIVT architectures may have
+differing requirements compared to PIPT, etc.
 
-[1]: https://github.com/libfuse/libfuse/blob/9bfbeb576c5901b62a171d35510f0d1a922020b7/util/fusermount.c#L403
-[2]: https://github.com/karelzak/util-linux/blob/7ed579523b556b1270f28dbdb7ee07dee310f157/libmount/src/context_umount.c#L813
+In any case, I feel like the approach taken by the documentation is
+fundamentally confusing.  Architectures don't all speak the same
+language  How about something like:
 
-Signed-off-by: Sargun Dhillon <sargun@sargun.me>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Fixes: 41525f56e256 ("fs: refactor ksys_umount")
----
- fs/namespace.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+The SYNC_CORE operation causes all threads in the caller's address
+space (including the caller) to execute an architecture-defined
+barrier operation.  membarrier() will ensure that this barrier is
+executed at a time such that all data writes done by the calling
+thread before membarrier() are made visible by the barrier.
+Additional architecture-dependent cache management operations may be
+required to use this for JIT code.
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index cebaa3e81794..dc76f1cb89f4 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1710,10 +1710,6 @@ static int can_umount(const struct path *path, int flags)
- {
- 	struct mount *mnt = real_mount(path->mnt);
- 
--	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
--		return -EINVAL;
--	if (!may_mount())
--		return -EPERM;
- 	if (path->dentry != path->mnt->mnt_root)
- 		return -EINVAL;
- 	if (!check_mnt(mnt))
-@@ -1746,6 +1742,12 @@ static int ksys_umount(char __user *name, int flags)
- 	struct path path;
- 	int ret;
- 
-+	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
-+		return -EINVAL;
-+
-+	if (!may_mount())
-+		return -EPERM;
-+
- 	if (!(flags & UMOUNT_NOFOLLOW))
- 		lookup_flags |= LOOKUP_FOLLOW;
- 	ret = user_path_at(AT_FDCWD, name, lookup_flags, &path);
--- 
-2.25.1
+x86: SYNC_CORE executes a barrier that will cause subsequent
+instruction fetches to observe prior writes.  Currently this will be a
+"serializing" instruction, but, if future improved CPU documentation
+becomes available and relaxes this requirement, the barrier may
+change.  The kernel guarantees that writing new or modified
+instructions to normal memory (and issuing SFENCE if the writes were
+non-temporal) then doing a membarrier SYNC_CORE operation is
+sufficient to cause all threads in the caller's address space to
+execute the new or modified instructions.  This is true regardless of
+whether or not those instructions are written at the same virtual
+address from which they are subsequently executed.  No additional
+cache management is required on x86.
 
+arm: Something about the cache management syscalls.
+
+arm64: Ditto
+
+powerpc: I have no idea.
