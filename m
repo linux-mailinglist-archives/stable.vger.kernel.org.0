@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 570802E696C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CA42E689C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727941AbgL1Mwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:52:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S1729738AbgL1Qip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:38:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727802AbgL1Mwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:52:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD2C22583;
-        Mon, 28 Dec 2020 12:51:49 +0000 (UTC)
+        id S1729743AbgL1NBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6267122A84;
+        Mon, 28 Dec 2020 13:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159910;
-        bh=ZQx4jiJYSqq0ifLV2fS+ihkyAB+CjY19pTM7Afr80S8=;
+        s=korg; t=1609160433;
+        bh=jWWecCvtWSloin1KklTI0i6RRAy8XgIXFUC1cw82+x0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXM5KtDEGlWkUHKjUuqoNvB2GkzcLJY/FFO9N5C500A/6ATVvuIi1ZCt2u+AkRQZ1
-         lKFWf7R35Fy4TfboK2LEvjNjUqRBHBKl5hXPg4efrJh6wDKFipy/rQ60KA0WSIbtyn
-         REsVWE9be0y8JE6FagQsPA90dtF5vVt1LGBicmN4=
+        b=YCCzoVPKgcyb8ftO2AT8zeNUqnOkr7gP8nJbx8RPrGynuBkEOxmJbZ+YUT1z2CIPM
+         VTJ5qYh8VLNROxpTY+UTiAocASBDPcsKFnpWV16C22Cur/Y7a4WBUgDwr0lSM7XWBe
+         DOkKJsJVsPkXzNLgQiMYiwHEesGFVTyY4aFRwxcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        linux-usb@vger.kernel.org
-Subject: [PATCH 4.4 018/132] USB: sisusbvga: Make console support depend on BROKEN
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        syzbot+24ebd650e20bd263ca01@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 049/175] Bluetooth: Fix slab-out-of-bounds read in hci_le_direct_adv_report_evt()
 Date:   Mon, 28 Dec 2020 13:48:22 +0100
-Message-Id: <20201228124847.289840307@linuxfoundation.org>
+Message-Id: <20201228124855.632869877@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 862ee699fefe1e6d6f2c1518395f0b999b8beb15 upstream.
+commit f7e0e8b2f1b0a09b527885babda3e912ba820798 upstream.
 
-The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
-to detect contexts in which it cannot sleep despite the big fat comment in
-preempt.h which says: Do not use in_atomic() in driver code.
+`num_reports` is not being properly checked. A malformed event packet with
+a large `num_reports` number makes hci_le_direct_adv_report_evt() read out
+of bounds. Fix it.
 
-in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
-means that spin/rw_lock held regions are not detected by it.
-
-There is no way to make this work by handing context information through to
-the driver and this only can be solved once the core printk infrastructure
-supports sleepable console drivers.
-
-Make it depend on BROKEN for now.
-
-Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201019101109.603244207@linutronix.de
+Fixes: 2f010b55884e ("Bluetooth: Add support for handling LE Direct Advertising Report events")
+Reported-and-tested-by: syzbot+24ebd650e20bd263ca01@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=24ebd650e20bd263ca01
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/sisusbvga/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/misc/sisusbvga/Kconfig
-+++ b/drivers/usb/misc/sisusbvga/Kconfig
-@@ -15,7 +15,7 @@ config USB_SISUSBVGA
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5141,20 +5141,18 @@ static void hci_le_direct_adv_report_evt
+ 					 struct sk_buff *skb)
+ {
+ 	u8 num_reports = skb->data[0];
+-	void *ptr = &skb->data[1];
++	struct hci_ev_le_direct_adv_info *ev = (void *)&skb->data[1];
  
- config USB_SISUSBVGA_CON
- 	bool "Text console and mode switching support" if USB_SISUSBVGA
--	depends on VT
-+	depends on VT && BROKEN
- 	select FONT_8x16
- 	---help---
- 	  Say Y here if you want a VGA text console via the USB dongle or
+-	hci_dev_lock(hdev);
++	if (!num_reports || skb->len < num_reports * sizeof(*ev) + 1)
++		return;
+ 
+-	while (num_reports--) {
+-		struct hci_ev_le_direct_adv_info *ev = ptr;
++	hci_dev_lock(hdev);
+ 
++	for (; num_reports; num_reports--, ev++)
+ 		process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
+ 				   ev->bdaddr_type, &ev->direct_addr,
+ 				   ev->direct_addr_type, ev->rssi, NULL, 0);
+ 
+-		ptr += sizeof(*ev);
+-	}
+-
+ 	hci_dev_unlock(hdev);
+ }
+ 
 
 
