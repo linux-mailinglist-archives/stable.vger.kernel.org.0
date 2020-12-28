@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 533A12E3FBE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 223D52E432A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503657AbgL1O0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
+        id S2407053AbgL1Pdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503733AbgL1O0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:26:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E19922B45;
-        Mon, 28 Dec 2020 14:25:30 +0000 (UTC)
+        id S2407285AbgL1NxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63C9721D94;
+        Mon, 28 Dec 2020 13:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165531;
-        bh=u6HTCJZ5KCwRQ1790OJ5qNNvQFU9SonzL94TWj4G4hE=;
+        s=korg; t=1609163555;
+        bh=8W7/UbKT4IKzBx2mjAVno5Z6ewQ4qx+xBS0ILnnNQFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/lDKD/UYBt5IKmjUa+Ia94JckD16/Bz5uopqv2iM4WZdKrjY8r7aLmihK3GfZjvY
-         EHt1qnRK3+aImO82aQQ2yxLxJxZAqwL9mZ9Qmc3cMmJ/fDRZfbZCT3zGy+ZaWF1sf/
-         WQgcd1uYx7rptYi8fCoM1eex/BDB8dYt4we9lBAg=
+        b=TLErrBNiGI9yeBVeBAJeq8pd7POFeCjyuDBxFHQQQTMfZ8amGqCXXdj4phDa1YuTk
+         dpmo3QYxG948WlzsB5yJGg/vC8Gk34Espc4r47KGTPA9QRPUQ5sDAlJaIi6K66WmuB
+         shXpGtTI1S6ozBSozeBO5L5Z6WoOTeyIBW6HHP8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Wool <vitaly.wool@konsulko.com>,
-        Mike Galbraith <efault@gmx.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 564/717] z3fold: simplify freeing slots
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 326/453] media: ipu3-cio2: Serialise access to pad format
 Date:   Mon, 28 Dec 2020 13:49:22 +0100
-Message-Id: <20201228125047.942969654@linuxfoundation.org>
+Message-Id: <20201228124952.897283258@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,183 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Wool <vitaly.wool@konsulko.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit fc5488651c7d840c9cad9b0f273f2f31bd03413a upstream.
+commit 55a6c6b2be3d6670bf5772364d8208bd8dc17da4 upstream.
 
-Patch series "z3fold: stability / rt fixes".
+Pad format can be accessed from user space. Serialise access to it.
 
-Address z3fold stability issues under stress load, primarily in the
-reclaim and free aspects.  Besides, it fixes the locking problems that
-were only seen in real-time kernel configuration.
-
-This patch (of 3):
-
-There used to be two places in the code where slots could be freed, namely
-when freeing the last allocated handle from the slots and when releasing
-the z3fold header these slots aree linked to.  The logic to decide on
-whether to free certain slots was complicated and error prone in both
-functions and it led to failures in RT case.
-
-To fix that, make free_handle() the single point of freeing slots.
-
-Link: https://lkml.kernel.org/r/20201209145151.18994-1-vitaly.wool@konsulko.com
-Link: https://lkml.kernel.org/r/20201209145151.18994-2-vitaly.wool@konsulko.com
-Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
-Tested-by: Mike Galbraith <efault@gmx.de>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable@vger.kernel.org # v4.16 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/z3fold.c |   55 +++++++++++++------------------------------------------
- 1 file changed, 13 insertions(+), 42 deletions(-)
+ drivers/media/pci/intel/ipu3/ipu3-cio2.c |   11 +++++++++++
+ drivers/media/pci/intel/ipu3/ipu3-cio2.h |    1 +
+ 2 files changed, 12 insertions(+)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -90,7 +90,7 @@ struct z3fold_buddy_slots {
- 	 * be enough slots to hold all possible variants
- 	 */
- 	unsigned long slot[BUDDY_MASK + 1];
--	unsigned long pool; /* back link + flags */
-+	unsigned long pool; /* back link */
- 	rwlock_t lock;
- };
- #define HANDLE_FLAG_MASK	(0x03)
-@@ -182,13 +182,6 @@ enum z3fold_page_flags {
- };
- 
- /*
-- * handle flags, go under HANDLE_FLAG_MASK
-- */
--enum z3fold_handle_flags {
--	HANDLES_ORPHANED = 0,
--};
--
--/*
-  * Forward declarations
-  */
- static struct z3fold_header *__z3fold_alloc(struct z3fold_pool *, size_t, bool);
-@@ -303,10 +296,9 @@ static inline void put_z3fold_header(str
- 		z3fold_page_unlock(zhdr);
- }
- 
--static inline void free_handle(unsigned long handle)
-+static inline void free_handle(unsigned long handle, struct z3fold_header *zhdr)
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
+@@ -1245,11 +1245,15 @@ static int cio2_subdev_get_fmt(struct v4
  {
- 	struct z3fold_buddy_slots *slots;
--	struct z3fold_header *zhdr;
- 	int i;
- 	bool is_free;
+ 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
  
-@@ -316,22 +308,13 @@ static inline void free_handle(unsigned
- 	if (WARN_ON(*(unsigned long *)handle == 0))
- 		return;
++	mutex_lock(&q->subdev_lock);
++
+ 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
+ 		fmt->format = *v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
+ 	else
+ 		fmt->format = q->subdev_fmt;
  
--	zhdr = handle_to_z3fold_header(handle);
- 	slots = handle_to_slots(handle);
- 	write_lock(&slots->lock);
- 	*(unsigned long *)handle = 0;
--	if (zhdr->slots == slots) {
--		write_unlock(&slots->lock);
--		return; /* simple case, nothing else to do */
--	}
-+	if (zhdr->slots != slots)
-+		zhdr->foreign_handles--;
- 
--	/* we are freeing a foreign handle if we are here */
--	zhdr->foreign_handles--;
- 	is_free = true;
--	if (!test_bit(HANDLES_ORPHANED, &slots->pool)) {
--		write_unlock(&slots->lock);
--		return;
--	}
- 	for (i = 0; i <= BUDDY_MASK; i++) {
- 		if (slots->slot[i]) {
- 			is_free = false;
-@@ -343,6 +326,8 @@ static inline void free_handle(unsigned
- 	if (is_free) {
- 		struct z3fold_pool *pool = slots_to_pool(slots);
- 
-+		if (zhdr->slots == slots)
-+			zhdr->slots = NULL;
- 		kmem_cache_free(pool->c_handle, slots);
- 	}
- }
-@@ -525,8 +510,6 @@ static void __release_z3fold_page(struct
- {
- 	struct page *page = virt_to_page(zhdr);
- 	struct z3fold_pool *pool = zhdr_to_pool(zhdr);
--	bool is_free = true;
--	int i;
- 
- 	WARN_ON(!list_empty(&zhdr->buddy));
- 	set_bit(PAGE_STALE, &page->private);
-@@ -536,21 +519,6 @@ static void __release_z3fold_page(struct
- 		list_del_init(&page->lru);
- 	spin_unlock(&pool->lock);
- 
--	/* If there are no foreign handles, free the handles array */
--	read_lock(&zhdr->slots->lock);
--	for (i = 0; i <= BUDDY_MASK; i++) {
--		if (zhdr->slots->slot[i]) {
--			is_free = false;
--			break;
--		}
--	}
--	if (!is_free)
--		set_bit(HANDLES_ORPHANED, &zhdr->slots->pool);
--	read_unlock(&zhdr->slots->lock);
--
--	if (is_free)
--		kmem_cache_free(pool->c_handle, zhdr->slots);
--
- 	if (locked)
- 		z3fold_page_unlock(zhdr);
- 
-@@ -973,6 +941,9 @@ lookup:
- 		}
- 	}
- 
-+	if (zhdr && !zhdr->slots)
-+		zhdr->slots = alloc_slots(pool,
-+					can_sleep ? GFP_NOIO : GFP_ATOMIC);
- 	return zhdr;
++	mutex_unlock(&q->subdev_lock);
++
+ 	return 0;
  }
  
-@@ -1270,7 +1241,7 @@ static void z3fold_free(struct z3fold_po
+@@ -1273,6 +1277,8 @@ static int cio2_subdev_set_fmt(struct v4
+ 	if (fmt->pad == CIO2_PAD_SOURCE)
+ 		return cio2_subdev_get_fmt(sd, cfg, fmt);
+ 
++	mutex_lock(&q->subdev_lock);
++
+ 	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+ 		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
+ 	} else {
+@@ -1283,6 +1289,8 @@ static int cio2_subdev_set_fmt(struct v4
+ 		fmt->format = q->subdev_fmt;
  	}
  
- 	if (!page_claimed)
--		free_handle(handle);
-+		free_handle(handle, zhdr);
- 	if (kref_put(&zhdr->refcount, release_z3fold_page_locked_list)) {
- 		atomic64_dec(&pool->pages_nr);
- 		return;
-@@ -1429,19 +1400,19 @@ static int z3fold_reclaim_page(struct z3
- 			ret = pool->ops->evict(pool, middle_handle);
- 			if (ret)
- 				goto next;
--			free_handle(middle_handle);
-+			free_handle(middle_handle, zhdr);
- 		}
- 		if (first_handle) {
- 			ret = pool->ops->evict(pool, first_handle);
- 			if (ret)
- 				goto next;
--			free_handle(first_handle);
-+			free_handle(first_handle, zhdr);
- 		}
- 		if (last_handle) {
- 			ret = pool->ops->evict(pool, last_handle);
- 			if (ret)
- 				goto next;
--			free_handle(last_handle);
-+			free_handle(last_handle, zhdr);
- 		}
- next:
- 		if (test_bit(PAGE_HEADLESS, &page->private)) {
++	mutex_unlock(&q->subdev_lock);
++
+ 	return 0;
+ }
+ 
+@@ -1541,6 +1549,7 @@ static int cio2_queue_init(struct cio2_d
+ 
+ 	/* Initialize miscellaneous variables */
+ 	mutex_init(&q->lock);
++	mutex_init(&q->subdev_lock);
+ 
+ 	/* Initialize formats to default values */
+ 	fmt = &q->subdev_fmt;
+@@ -1659,6 +1668,7 @@ fail_vdev_media_entity:
+ fail_subdev_media_entity:
+ 	cio2_fbpt_exit(q, &cio2->pci_dev->dev);
+ fail_fbpt:
++	mutex_destroy(&q->subdev_lock);
+ 	mutex_destroy(&q->lock);
+ 
+ 	return r;
+@@ -1672,6 +1682,7 @@ static void cio2_queue_exit(struct cio2_
+ 	v4l2_device_unregister_subdev(&q->subdev);
+ 	media_entity_cleanup(&q->subdev.entity);
+ 	cio2_fbpt_exit(q, &cio2->pci_dev->dev);
++	mutex_destroy(&q->subdev_lock);
+ 	mutex_destroy(&q->lock);
+ }
+ 
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2.h
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.h
+@@ -332,6 +332,7 @@ struct cio2_queue {
+ 
+ 	/* Subdev, /dev/v4l-subdevX */
+ 	struct v4l2_subdev subdev;
++	struct mutex subdev_lock; /* Serialise acces to subdev_fmt field */
+ 	struct media_pad subdev_pads[CIO2_PADS];
+ 	struct v4l2_mbus_framefmt subdev_fmt;
+ 	atomic_t frame_sequence;
 
 
