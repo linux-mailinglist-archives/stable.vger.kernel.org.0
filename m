@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D2E72E65E6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D662E68C6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393226AbgL1QG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
+        id S1728262AbgL1M7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:59:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389468AbgL1N00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56AAD22472;
-        Mon, 28 Dec 2020 13:26:10 +0000 (UTC)
+        id S1726606AbgL1M7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68D2422573;
+        Mon, 28 Dec 2020 12:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161970;
-        bh=R4HCVuJckncNo86rai/qnKyc5qFsGtAwEsI37fni8L8=;
+        s=korg; t=1609160319;
+        bh=Qd6aj9x/qUTjM3GHQ853OvkN2U3bcXzD0Z2BxUwS9uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0xcdKx3Uc38BZH7sDHLsjMtjgXH3qoikyZsIdLYJU4OBWJUhuxAp/APm1StNsI6A
-         AYu9y74bZkr8KpNbccSmMnnD5jR6ayemVsWcP76YmbS3ZDZDM33EZ7dwSt9V/hf6hs
-         Tf2F/U/8VGO0i+nM61wOTwoTFuX0LBImGCRI71aM=
+        b=0RBWjr/fMjz60uE1JHvvow3Za7fPKWnM6kpsxt8NQ0dS9NlOy5zF0h0K+XVaYFui4
+         N8rUNOHVHd+yTKXkadSzZnCTSCo8VYSJqfkB74hpq/kZQU1bzYdLDtkE6RtISCPqjr
+         GKjUJL2Vvr4cV+ZN/8iiDqvdkFdEcOnhrwQFv/lY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/346] media: solo6x10: fix missing snd_card_free in error handling case
-Date:   Mon, 28 Dec 2020 13:47:43 +0100
-Message-Id: <20201228124926.748333114@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 011/175] spi: Prevent adding devices below an unregistering controller
+Date:   Mon, 28 Dec 2020 13:47:44 +0100
+Message-Id: <20201228124853.801123776@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit dcdff74fa6bc00c32079d0bebd620764c26f2d89 ]
+commit ddf75be47ca748f8b12d28ac64d624354fddf189 upstream
 
-Fix to goto snd_error in error handling case when fails
-to do snd_ctl_add, as done elsewhere in this function.
+CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
+using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
+same via sysfs.
 
-Fixes: 28cae868cd24 ("[media] solo6x10: move out of staging into drivers/media/pci.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But there are no precautions to prevent adding a device below a
+controller that's being removed.  Such a device is unusable and may not
+even be able to unbind cleanly as it becomes inaccessible once the
+controller has been torn down.  E.g. it is then impossible to quiesce
+the device's interrupt.
+
+of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
+but otherwise run lockless against spi_unregister_controller().
+
+Fix by holding the spi_add_lock in spi_unregister_controller() and
+bailing out of spi_add_device() if the controller has been unregistered
+concurrently.
+
+Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.19+
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/solo6x10/solo6x10-g723.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/Kconfig |    3 +++
+ drivers/spi/spi.c   |   21 ++++++++++++++++++++-
+ 2 files changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/solo6x10/solo6x10-g723.c b/drivers/media/pci/solo6x10/solo6x10-g723.c
-index 2ac33b5cc4546..f06e6d35d846c 100644
---- a/drivers/media/pci/solo6x10/solo6x10-g723.c
-+++ b/drivers/media/pci/solo6x10/solo6x10-g723.c
-@@ -410,7 +410,7 @@ int solo_g723_init(struct solo_dev *solo_dev)
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -763,4 +763,7 @@ endif # SPI_MASTER
  
- 	ret = snd_ctl_add(card, snd_ctl_new1(&kctl, solo_dev));
- 	if (ret < 0)
--		return ret;
-+		goto snd_error;
+ # (slave support would go here)
  
- 	ret = solo_snd_pcm_init(solo_dev);
- 	if (ret < 0)
--- 
-2.27.0
-
++config SPI_DYNAMIC
++	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
++
+ endif # SPI
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -422,6 +422,12 @@ static LIST_HEAD(spi_master_list);
+  */
+ static DEFINE_MUTEX(board_lock);
+ 
++/*
++ * Prevents addition of devices with same chip select and
++ * addition of devices below an unregistering controller.
++ */
++static DEFINE_MUTEX(spi_add_lock);
++
+ /**
+  * spi_alloc_device - Allocate a new SPI device
+  * @master: Controller to which device is connected
+@@ -500,7 +506,6 @@ static int spi_dev_check(struct device *
+  */
+ int spi_add_device(struct spi_device *spi)
+ {
+-	static DEFINE_MUTEX(spi_add_lock);
+ 	struct spi_master *master = spi->master;
+ 	struct device *dev = master->dev.parent;
+ 	int status;
+@@ -529,6 +534,13 @@ int spi_add_device(struct spi_device *sp
+ 		goto done;
+ 	}
+ 
++	/* Controller may unregister concurrently */
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
++	    !device_is_registered(&master->dev)) {
++		status = -ENODEV;
++		goto done;
++	}
++
+ 	if (master->cs_gpios)
+ 		spi->cs_gpio = master->cs_gpios[spi->chip_select];
+ 
+@@ -2070,6 +2082,10 @@ static int __unregister(struct device *d
+  */
+ void spi_unregister_master(struct spi_master *master)
+ {
++	/* Prevent addition of new devices, unregister existing ones */
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
++		mutex_lock(&spi_add_lock);
++
+ 	device_for_each_child(&master->dev, NULL, __unregister);
+ 
+ 	if (master->queued) {
+@@ -2089,6 +2105,9 @@ void spi_unregister_master(struct spi_ma
+ 	if (!devres_find(master->dev.parent, devm_spi_release_master,
+ 			 devm_spi_match_master, master))
+ 		put_device(&master->dev);
++
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
++		mutex_unlock(&spi_add_lock);
+ }
+ EXPORT_SYMBOL_GPL(spi_unregister_master);
+ 
 
 
