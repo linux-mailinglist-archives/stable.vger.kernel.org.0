@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6275D2E3882
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817962E37C9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729422AbgL1NLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:11:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38274 "EHLO mail.kernel.org"
+        id S1729478AbgL1NA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:00:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731486AbgL1NLD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:11:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02A3822B3A;
-        Mon, 28 Dec 2020 13:10:46 +0000 (UTC)
+        id S1729449AbgL1NA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:00:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3C4208B6;
+        Mon, 28 Dec 2020 12:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161047;
-        bh=U0/U1i8HR0x+2CSCRKI1xVVEDqW7pG7qBP2HTZjGIaM=;
+        s=korg; t=1609160388;
+        bh=E/Z9LZvYqn6ru0ZTP8p5p0hAmmDNU8np5PX/xj12fY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIcsfvoW6gtpDFOkUJxja6fI6vP3jyWAAGQ2SZ3CQpS2qHcKq4zN6L/dkPVrony0d
-         0Gxm8bupuw4Mn4/CSDGWAOARf0MyYyStHwCQtSqt6zgcTrTLxopmF5MmfhGZ7jwLyo
-         69MrE90T6bQPIODOlC/3MZQtQ94eBmwNAMJeuKBM=
+        b=S1XcWnDcnVqq+exDbV9dJoOXrzx2g1tQf9G8uEMLwpdKg25nXmXYafckl5QPWItb4
+         i3vueRtyplNvoYR1hIBFhte1fmV+QbXzZOl0B2/98L9WyKZ1S2VvEn3n8FPAdxTP0x
+         2Ys+numTQDJQuutfZaewKm6T0uKQkzd+2STpdhu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/242] spi: tegra20-sflash: fix reference leak in tegra_sflash_resume
+        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.9 035/175] soc/tegra: fuse: Fix index bug in get_process_id
 Date:   Mon, 28 Dec 2020 13:48:08 +0100
-Message-Id: <20201228124908.777775276@linuxfoundation.org>
+Message-Id: <20201228124854.954985096@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-[ Upstream commit 3482e797ab688da6703fe18d8bad52f94199f4f2 ]
+commit b9ce9b0f83b536a4ac7de7567a265d28d13e5bea upstream.
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in tegra_sflash_resume, so we should fix it.
+This patch simply fixes a bug of referencing speedos[num] in every
+for-loop iteration in get_process_id function.
 
-Fixes: 8528547bcc336 ("spi: tegra: add spi driver for sflash controller")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103141323.5841-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0dc5a0d83675 ("soc/tegra: fuse: Add Tegra210 support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-tegra20-sflash.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/tegra/fuse/speedo-tegra210.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-tegra20-sflash.c b/drivers/spi/spi-tegra20-sflash.c
-index 22893a7e0aa0e..749288310c36c 100644
---- a/drivers/spi/spi-tegra20-sflash.c
-+++ b/drivers/spi/spi-tegra20-sflash.c
-@@ -564,6 +564,7 @@ static int tegra_sflash_resume(struct device *dev)
+--- a/drivers/soc/tegra/fuse/speedo-tegra210.c
++++ b/drivers/soc/tegra/fuse/speedo-tegra210.c
+@@ -105,7 +105,7 @@ static int get_process_id(int value, con
+ 	unsigned int i;
  
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(dev);
- 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
- 		return ret;
- 	}
--- 
-2.27.0
-
+ 	for (i = 0; i < num; i++)
+-		if (value < speedos[num])
++		if (value < speedos[i])
+ 			return i;
+ 
+ 	return -EINVAL;
 
 
