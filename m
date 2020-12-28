@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 985B02E6556
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 857652E6721
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387837AbgL1NdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:33:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S1732321AbgL1QUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:20:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390312AbgL1NaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24F2E2063A;
-        Mon, 28 Dec 2020 13:29:41 +0000 (UTC)
+        id S1732287AbgL1NNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9429206ED;
+        Mon, 28 Dec 2020 13:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162182;
-        bh=eEBUkreNbxeJtlMy7/o495At/IUofxpXENnKGBKLzZE=;
+        s=korg; t=1609161183;
+        bh=eIVMUBNkTv4M0R1fszy82xARhHHZegL4HKM13ZAbDIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEmaZeHsXLimRIV/A5oBmCwKb35reqYcgTFuvVZ2w0hlSblHJd0w+tdz86tEjrH9b
-         X2yaCEEYq3DDNOAvu0+fWTqHKg8S97jQZdytN9PeJGsL0uFgq6BO1e4kAfK0hyWJiP
-         HVjvjHm68hYxeWXvKaFREQ0LeJVBVfRA3DVt3X7g=
+        b=tLn12beDGqanOe4fOp221dMGFM6Au8id+G+eHazQYfGds5BWpD1kvoWTZ/GHzMdPP
+         l/MPSswAeRVv7Nz4NV9GoDNaPOCurYTESQFQ5dSu5T4ibbBagkjopevFXFHNr5Giy4
+         wZnyx4ic8tJTR3Eu3A/Kh2mDjCS2LMfdQKwY1Fmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/346] powerpc/pseries/hibernation: drop pseries_suspend_begin() from suspend ops
-Date:   Mon, 28 Dec 2020 13:48:53 +0100
-Message-Id: <20201228124930.124643958@linuxfoundation.org>
+Subject: [PATCH 4.14 129/242] media: saa7146: fix array overflow in vidioc_s_audio()
+Date:   Mon, 28 Dec 2020 13:48:54 +0100
+Message-Id: <20201228124911.049823128@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 52719fce3f4c7a8ac9eaa191e8d75a697f9fbcbc ]
+[ Upstream commit 8e4d86e241cf035d6d3467cd346e7ce490681937 ]
 
-There are three ways pseries_suspend_begin() can be reached:
+The "a->index" value comes from the user via the ioctl.  The problem is
+that the shift can wrap resulting in setting "mxb->cur_audinput" to an
+invalid value, which later results in an array overflow.
 
-1. When "mem" is written to /sys/power/state:
-
-kobj_attr_store()
--> state_store()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This never works because there is no way to supply a valid stream id
-using this interface, and H_VASI_STATE is called with a stream id of
-zero. So this call path is useless at best.
-
-2. When a stream id is written to /sys/devices/system/power/hibernate.
-pseries_suspend_begin() is polled directly from store_hibernate()
-until the stream is in the "Suspending" state (i.e. the platform is
-ready for the OS to suspend execution):
-
-dev_attr_store()
--> store_hibernate()
-  -> pseries_suspend_begin()
-
-3. When a stream id is written to /sys/devices/system/power/hibernate
-(continued). After #2, pseries_suspend_begin() is called once again
-from the pm core:
-
-dev_attr_store()
--> store_hibernate()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This is redundant because the VASI suspend state is already known to
-be Suspending.
-
-The begin() callback of platform_suspend_ops is optional, so we can
-simply remove that assignment with no loss of function.
-
-Fixes: 32d8ad4e621d ("powerpc/pseries: Partition hibernation support")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-18-nathanl@linux.ibm.com
+Fixes: 6680427791c9 ("[media] mxb: fix audio handling")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/suspend.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/pci/saa7146/mxb.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
-index 52a021e1f86bf..fd2c090681aa6 100644
---- a/arch/powerpc/platforms/pseries/suspend.c
-+++ b/arch/powerpc/platforms/pseries/suspend.c
-@@ -223,7 +223,6 @@ static struct bus_type suspend_subsys = {
+diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
+index 930218cc2de19..2e7bd82282caa 100644
+--- a/drivers/media/pci/saa7146/mxb.c
++++ b/drivers/media/pci/saa7146/mxb.c
+@@ -652,16 +652,17 @@ static int vidioc_s_audio(struct file *file, void *fh, const struct v4l2_audio *
+ 	struct mxb *mxb = (struct mxb *)dev->ext_priv;
  
- static const struct platform_suspend_ops pseries_suspend_ops = {
- 	.valid		= suspend_valid_only_mem,
--	.begin		= pseries_suspend_begin,
- 	.prepare_late	= pseries_prepare_late,
- 	.enter		= pseries_suspend_enter,
- };
+ 	DEB_D("VIDIOC_S_AUDIO %d\n", a->index);
+-	if (mxb_inputs[mxb->cur_input].audioset & (1 << a->index)) {
+-		if (mxb->cur_audinput != a->index) {
+-			mxb->cur_audinput = a->index;
+-			tea6420_route(mxb, a->index);
+-			if (mxb->cur_audinput == 0)
+-				mxb_update_audmode(mxb);
+-		}
+-		return 0;
++	if (a->index >= 32 ||
++	    !(mxb_inputs[mxb->cur_input].audioset & (1 << a->index)))
++		return -EINVAL;
++
++	if (mxb->cur_audinput != a->index) {
++		mxb->cur_audinput = a->index;
++		tea6420_route(mxb, a->index);
++		if (mxb->cur_audinput == 0)
++			mxb_update_audmode(mxb);
+ 	}
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
 -- 
 2.27.0
 
