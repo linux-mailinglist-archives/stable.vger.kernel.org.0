@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C952E67DE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF712E6690
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729191AbgL1Q3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:29:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34840 "EHLO mail.kernel.org"
+        id S1732884AbgL1NS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730683AbgL1NHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:07:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA342245C;
-        Mon, 28 Dec 2020 13:06:25 +0000 (UTC)
+        id S1732869AbgL1NS4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D65206ED;
+        Mon, 28 Dec 2020 13:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160786;
-        bh=HVbqvAAOwKCjeUuSvkGAPBsS4i41WktIU71zxCGbU5s=;
+        s=korg; t=1609161520;
+        bh=r9xCeAMs5iAVd1Tko00oM32AUvZdGbhJW/nO/a7uMbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koftqpHcv46NHwonWhqnm+S72Xtuaok51AYjdVrjn3S7cCG5AWm05KsIqaiaoYxjx
-         d8E6TbO/wksNJYoDmKGRoXppXS6fZWNlJRt+bjdc0fUSY1OuHRdc2vRPJezkOn2O3h
-         7OsXue/WwW/fuSCJj2RNtHuZfTdANICodxuCgmwU=
+        b=nMBJh1dhbMm5ld/YIXjdBYQYUTRN8Zp3UYQ5Ek3M0cSBb/b+Z+vdiKZ/bGw6f8uGV
+         OrfFX/UpfZ1ZBZkRHWckprJWrLiA1f+nV6p7cORDrDU5RH7r+gSMDMrF5Un9q7tVR+
+         j1QnL2pbUwFnCx6C7+zF7gDvwaIRP+YRPJSwiVaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 153/175] Btrfs: fix selftests failure due to uninitialized i_mode in test inodes
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 201/242] USB: serial: keyspan_pda: fix write deadlock
 Date:   Mon, 28 Dec 2020 13:50:06 +0100
-Message-Id: <20201228124900.670519237@linuxfoundation.org>
+Message-Id: <20201228124914.573434701@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9f7fec0ba89108b9385f1b9fb167861224912a4a upstream
+commit 7353cad7ee4deaefc16e94727e69285563e219f6 upstream.
 
-Some of the self tests create a test inode, setup some extents and then do
-calls to btrfs_get_extent() to test that the corresponding extent maps
-exist and are correct. However btrfs_get_extent(), since the 5.2 merge
-window, now errors out when it finds a regular or prealloc extent for an
-inode that does not correspond to a regular file (its ->i_mode is not
-S_IFREG). This causes the self tests to fail sometimes, specially when
-KASAN, slub_debug and page poisoning are enabled:
+The write() callback can be called in interrupt context (e.g. when used
+as a console) so interrupts must be disabled while holding the port lock
+to prevent a possible deadlock.
 
-  $ modprobe btrfs
-  modprobe: ERROR: could not insert 'btrfs': Invalid argument
-
-  $ dmesg
-  [ 9414.691648] Btrfs loaded, crc32c=crc32c-intel, debug=on, assert=on, integrity-checker=on, ref-verify=on
-  [ 9414.692655] BTRFS: selftest: sectorsize: 4096  nodesize: 4096
-  [ 9414.692658] BTRFS: selftest: running btrfs free space cache tests
-  [ 9414.692918] BTRFS: selftest: running extent only tests
-  [ 9414.693061] BTRFS: selftest: running bitmap only tests
-  [ 9414.693366] BTRFS: selftest: running bitmap and extent tests
-  [ 9414.696455] BTRFS: selftest: running space stealing from bitmap to extent tests
-  [ 9414.697131] BTRFS: selftest: running extent buffer operation tests
-  [ 9414.697133] BTRFS: selftest: running btrfs_split_item tests
-  [ 9414.697564] BTRFS: selftest: running extent I/O tests
-  [ 9414.697583] BTRFS: selftest: running find delalloc tests
-  [ 9415.081125] BTRFS: selftest: running find_first_clear_extent_bit test
-  [ 9415.081278] BTRFS: selftest: running extent buffer bitmap tests
-  [ 9415.124192] BTRFS: selftest: running inode tests
-  [ 9415.124195] BTRFS: selftest: running btrfs_get_extent tests
-  [ 9415.127909] BTRFS: selftest: running hole first btrfs_get_extent test
-  [ 9415.128343] BTRFS critical (device (efault)): regular/prealloc extent found for non-regular inode 256
-  [ 9415.131428] BTRFS: selftest: fs/btrfs/tests/inode-tests.c:904 expected a real extent, got 0
-
-This happens because the test inodes are created without ever initializing
-the i_mode field of the inode, and neither VFS's new_inode() nor the btrfs
-callback btrfs_alloc_inode() initialize the i_mode. Initialization of the
-i_mode is done through the various callbacks used by the VFS to create
-new inodes (regular files, directories, symlinks, tmpfiles, etc), which
-all call btrfs_new_inode() which in turn calls inode_init_owner(), which
-sets the inode's i_mode. Since the tests only uses new_inode() to create
-the test inodes, the i_mode was never initialized.
-
-This always happens on a VM I used with kasan, slub_debug and many other
-debug facilities enabled. It also happened to someone who reported this
-on bugzilla (on a 5.3-rc).
-
-Fix this by setting i_mode to S_IFREG at btrfs_new_test_inode().
-
-Fixes: 6bf9e4bd6a2778 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204397
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: e81ee637e4ae ("usb-serial: possible irq lock inversion (PPP vs. usb/serial)")
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/tests/btrfs-tests.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tests/btrfs-tests.c
-+++ b/fs/btrfs/tests/btrfs-tests.c
-@@ -51,7 +51,13 @@ static struct file_system_type test_type
+---
+ drivers/usb/serial/keyspan_pda.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -447,6 +447,7 @@ static int keyspan_pda_write(struct tty_
+ 	int request_unthrottle = 0;
+ 	int rc = 0;
+ 	struct keyspan_pda_private *priv;
++	unsigned long flags;
  
- struct inode *btrfs_new_test_inode(void)
- {
--	return new_inode(test_mnt->mnt_sb);
-+	struct inode *inode;
-+
-+	inode = new_inode(test_mnt->mnt_sb);
-+	if (inode)
-+		inode_init_owner(inode, NULL, S_IFREG);
-+
-+	return inode;
- }
+ 	priv = usb_get_serial_port_data(port);
+ 	/* guess how much room is left in the device's ring buffer, and if we
+@@ -466,13 +467,13 @@ static int keyspan_pda_write(struct tty_
+ 	   the TX urb is in-flight (wait until it completes)
+ 	   the device is full (wait until it says there is room)
+ 	*/
+-	spin_lock_bh(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 	if (!test_bit(0, &port->write_urbs_free) || priv->tx_throttled) {
+-		spin_unlock_bh(&port->lock);
++		spin_unlock_irqrestore(&port->lock, flags);
+ 		return 0;
+ 	}
+ 	clear_bit(0, &port->write_urbs_free);
+-	spin_unlock_bh(&port->lock);
++	spin_unlock_irqrestore(&port->lock, flags);
  
- static int btrfs_init_test_fs(void)
+ 	/* At this point the URB is in our control, nobody else can submit it
+ 	   again (the only sudden transition was the one from EINPROGRESS to
 
 
