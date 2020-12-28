@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659D12E373F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D0B2E39F2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728021AbgL1Mw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:52:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S2390333AbgL1NaS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:30:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728013AbgL1Mw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:52:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 989CB22A84;
-        Mon, 28 Dec 2020 12:52:00 +0000 (UTC)
+        id S2390330AbgL1NaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15DEF22A84;
+        Mon, 28 Dec 2020 13:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159921;
-        bh=MaF1T6jqWdINqnGa6B+VEZSYtLvkMn9uFHu3KkglKbs=;
+        s=korg; t=1609162176;
+        bh=q15gYqUQ09YtJdeutY4SZIpC/jbWSuVG1jtZMBF1yHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRopOMKxfLmGdz4WCivWERC07fRdLlFQXTlqFF8tULID0SNsnPdjqwA5QsbPOeC8V
-         HMfyho2MTQuV4HBPBpCoufvKeD51IXnAouJoVuSJt2GIPAtWUP2nOYoGIbm0RI/M5W
-         iE5N2uDgXMB39p7mYZgTTGgLwgVIAvqKNgzYzogo=
+        b=y+GFbO3BD+6c4x7m62TuysiRLPefNnslmgLPcgcwaQD8MoiQU9sFPjgvOtCjl/crH
+         OAvjKfzaMaIDc5JmOBm+boEkJTKBnW+2tPdlSIlk08ngTWxeBFQ2eql7BDyubPXNQu
+         KPvz3OyLt8MZIAhvxegqOJkRieJnOENiq7HrMMNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
-        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 021/132] USB: serial: cp210x: enable usb generic throttle/unthrottle
+        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 186/346] ath10k: Fix the parsing error in service available event
 Date:   Mon, 28 Dec 2020 13:48:25 +0100
-Message-Id: <20201228124847.436946473@linuxfoundation.org>
+Message-Id: <20201228124928.779050469@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brant Merryman <brant.merryman@silabs.com>
+From: Rakesh Pillai <pillair@codeaurora.org>
 
-commit 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 upstream
+[ Upstream commit c7cee9c0f499f27ec6de06bea664b61320534768 ]
 
-Assign the .throttle and .unthrottle functions to be generic function
-in the driver structure to prevent data loss that can otherwise occur
-if the host does not enable USB throttling.
+The wmi service available event has been
+extended to contain extra 128 bit for new services
+to be indicated by firmware.
 
-Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
-Co-developed-by: Phu Luu <phu.luu@silabs.com>
-Signed-off-by: Phu Luu <phu.luu@silabs.com>
-Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
-[ johan: fix up tags ]
-Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
-Cc: stable <stable@vger.kernel.org>     # 2.6.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently the presence of any optional TLVs in
+the wmi service available event leads to a parsing
+error with the below error message:
+ath10k_snoc 18800000.wifi: failed to parse svc_avail tlv: -71
+
+The wmi service available event parsing should
+not return error for the newly added optional TLV.
+Fix this parsing for service available event message.
+
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.2.2-00720-QCAHLSWMTPL-1
+
+Fixes: cea19a6ce8bf ("ath10k: add WMI_SERVICE_AVAILABLE_EVENT support")
+Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1605501291-23040-1-git-send-email-pillair@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 4 +++-
+ drivers/net/wireless/ath/ath10k/wmi.c     | 9 +++++++--
+ drivers/net/wireless/ath/ath10k/wmi.h     | 1 +
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -252,6 +252,8 @@ static struct usb_serial_driver cp210x_d
- 	.close			= cp210x_close,
- 	.break_ctl		= cp210x_break_ctl,
- 	.set_termios		= cp210x_set_termios,
-+	.throttle		= usb_serial_generic_throttle,
-+	.unthrottle		= usb_serial_generic_unthrottle,
- 	.tiocmget		= cp210x_tiocmget,
- 	.tiocmset		= cp210x_tiocmset,
- 	.attach			= cp210x_startup,
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index 7f435fa29f75e..a6f7bf28a8b2d 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -1157,13 +1157,15 @@ static int ath10k_wmi_tlv_svc_avail_parse(struct ath10k *ar, u16 tag, u16 len,
+ 
+ 	switch (tag) {
+ 	case WMI_TLV_TAG_STRUCT_SERVICE_AVAILABLE_EVENT:
++		arg->service_map_ext_valid = true;
+ 		arg->service_map_ext_len = *(__le32 *)ptr;
+ 		arg->service_map_ext = ptr + sizeof(__le32);
+ 		return 0;
+ 	default:
+ 		break;
+ 	}
+-	return -EPROTO;
++
++	return 0;
+ }
+ 
+ static int ath10k_wmi_tlv_op_pull_svc_avail(struct ath10k *ar,
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 3f3fbee631c34..41eb57be92220 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -5510,8 +5510,13 @@ void ath10k_wmi_event_service_available(struct ath10k *ar, struct sk_buff *skb)
+ 			    ret);
+ 	}
+ 
+-	ath10k_wmi_map_svc_ext(ar, arg.service_map_ext, ar->wmi.svc_map,
+-			       __le32_to_cpu(arg.service_map_ext_len));
++	/*
++	 * Initialization of "arg.service_map_ext_valid" to ZERO is necessary
++	 * for the below logic to work.
++	 */
++	if (arg.service_map_ext_valid)
++		ath10k_wmi_map_svc_ext(ar, arg.service_map_ext, ar->wmi.svc_map,
++				       __le32_to_cpu(arg.service_map_ext_len));
+ }
+ 
+ static int ath10k_wmi_event_temperature(struct ath10k *ar, struct sk_buff *skb)
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index e341cfb3fcc26..6bd63d1cd0395 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6710,6 +6710,7 @@ struct wmi_svc_rdy_ev_arg {
+ };
+ 
+ struct wmi_svc_avail_ev_arg {
++	bool service_map_ext_valid;
+ 	__le32 service_map_ext_len;
+ 	const __le32 *service_map_ext;
+ };
+-- 
+2.27.0
+
 
 
