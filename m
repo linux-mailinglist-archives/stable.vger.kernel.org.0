@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B012E6640
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 919712E663E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389740AbgL1QKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:10:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50680 "EHLO mail.kernel.org"
+        id S2388513AbgL1QK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:10:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388377AbgL1NW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B3520719;
-        Mon, 28 Dec 2020 13:22:43 +0000 (UTC)
+        id S2388502AbgL1NXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:23:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2169F2076D;
+        Mon, 28 Dec 2020 13:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161764;
-        bh=YfF/d+HGctlPVV+WGQC+NlYt1gEwYjQAwDNW5Y63Sl8=;
+        s=korg; t=1609161769;
+        bh=kXatvd0LB7r0bOcjSPbIsLV3aBOO4tv3Dav2cq4MBU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2mknbmreuhFdYou4vdaVeqmEsAZlvTUIY1RRCfVQ5j9qOtF8XEOHYuENM0aEj0SO
-         Vgwu3GzpRv1LLrwJwqRQHmEjsoS1mioRy7S1/0UEYO0ihihDVTv1jpyJJmn8oPpPNG
-         8WeYi+9zAZv52b5I2WrVLnGKTvsMWPGGJdMZGED4=
+        b=f9toC3O3egftnu4NllRgH8Al68UHQM7lrfUt/tMdAxv9dkAoHKcAJYUKQL/Ss4swj
+         mlQ3UcaHw3qI58gWg0Cyg++R2dQkZX9hqPeS56AGKeyGuKBZi+MmHxYQT1IVF/oN2Y
+         W+9NMiiWDyL/3+ciAXqIqWQ2Lq6TS2nM2nrPQApc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Annika Wickert <annika.wickert@exaring.de>,
-        Sven Eckelmann <sven@narfation.org>,
-        Annika Wickert <aw@awlnx.space>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/346] vxlan: Add needed_headroom for lower device
-Date:   Mon, 28 Dec 2020 13:46:32 +0100
-Message-Id: <20201228124923.326278307@linuxfoundation.org>
+Subject: [PATCH 4.19 075/346] scsi: mpt3sas: Increase IOCInit request timeout to 30s
+Date:   Mon, 28 Dec 2020 13:46:34 +0100
+Message-Id: <20201228124923.424450811@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -42,49 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 0a35dc41fea67ac4495ce7584406bf9557a6e7d0 ]
+[ Upstream commit 85dad327d9b58b4c9ce08189a2707167de392d23 ]
 
-It was observed that sending data via batadv over vxlan (on top of
-wireguard) reduced the performance massively compared to raw ethernet or
-batadv on raw ethernet. A check of perf data showed that the
-vxlan_build_skb was calling all the time pskb_expand_head to allocate
-enough headroom for:
+Currently the IOCInit request message timeout is set to 10s. This is not
+sufficient in some scenarios such as during HBA FW downgrade operations.
 
-  min_headroom = LL_RESERVED_SPACE(dst->dev) + dst->header_len
-  		+ VXLAN_HLEN + iphdr_len;
+Increase the IOCInit request timeout to 30s.
 
-But the vxlan_config_apply only requested needed headroom for:
-
-  lowerdev->hard_header_len + VXLAN6_HEADROOM or VXLAN_HEADROOM
-
-So it completely ignored the needed_headroom of the lower device. The first
-caller of net_dev_xmit could therefore never make sure that enough headroom
-was allocated for the rest of the transmit path.
-
-Cc: Annika Wickert <annika.wickert@exaring.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Tested-by: Annika Wickert <aw@awlnx.space>
-Link: https://lore.kernel.org/r/20201126125247.1047977-1-sven@narfation.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20201130082733.26120-1-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index abf85f0ab72fc..8481a21fe7afb 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -3180,6 +3180,7 @@ static void vxlan_config_apply(struct net_device *dev,
- 		dev->gso_max_segs = lowerdev->gso_max_segs;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 9fbe20e38ad07..07959047d4dc4 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -5771,7 +5771,7 @@ _base_send_ioc_init(struct MPT3SAS_ADAPTER *ioc)
  
- 		needed_headroom = lowerdev->hard_header_len;
-+		needed_headroom += lowerdev->needed_headroom;
+ 	r = _base_handshake_req_reply_wait(ioc,
+ 	    sizeof(Mpi2IOCInitRequest_t), (u32 *)&mpi_request,
+-	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 10);
++	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 30);
  
- 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
- 					   VXLAN_HEADROOM);
+ 	if (r != 0) {
+ 		pr_err(MPT3SAS_FMT "%s: handshake failed (r=%d)\n",
 -- 
 2.27.0
 
