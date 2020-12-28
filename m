@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74AD32E3F97
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9759B2E4301
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503814AbgL1O0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:26:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
+        id S2407321AbgL1Nxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:53:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503810AbgL1O03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:26:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8895322B2C;
-        Mon, 28 Dec 2020 14:26:13 +0000 (UTC)
+        id S2391574AbgL1Nxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46E2420791;
+        Mon, 28 Dec 2020 13:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165574;
-        bh=AKnz6m8x89h9wAhRc4txYXMGEUPM4bXyTYHoqBlQJ/E=;
+        s=korg; t=1609163597;
+        bh=XubKWarNOxBCmx7TJlKv76iQoBzLSVjpQkDeH+wZ8VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q48QpJ2fzORn5zNp52xQXUgtNohPOnMSn0KOkk36G/uSJTAsmPr5D82FSc5DYl+He
-         KJX25Eo9FdjRsotPELxfOZAjf1NLS3vPr9egsFFblnV7v36NxGzbL9wOnuje07gKGX
-         iAhIM51GMtu8BLXW9/5F1TvGI3UsFljj9Zc5eM5Y=
+        b=P1oviaNApfnp6Bu7VY2c87FezPYes6kqg58cZA/VHAtcOsRBvCKDhOy8BOCwlIuGI
+         ECXsoO0JfS7eGKJS8z6a6fXI6tbLMPGqBPxwtnT3unISoVvPppZgtiBTAJEvCXBtii
+         c0faBHPl/GYVuA/f70/J6iXtQ6xNXrserR87Nb24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 549/717] ALSA: usb-audio: Add alias entry for ASUS PRIME TRX40 PRO-S
+        stable@vger.kernel.org, Paul Kocialkowski <contact@paulk.fr>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 311/453] ARM: sunxi: Add machine match for the Allwinner V3 SoC
 Date:   Mon, 28 Dec 2020 13:49:07 +0100
-Message-Id: <20201228125047.244418615@linuxfoundation.org>
+Message-Id: <20201228124952.179813848@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Paul Kocialkowski <contact@paulk.fr>
 
-commit 525d9c57d0eeeb660d9b25e5b2d1c95975e3ba95 upstream.
+[ Upstream commit ad2091f893bd5dfe2824f0d6819600d120698e9f ]
 
-ASUS PRIME TRX40 PRO-S mobo with 0b05:1918 needs the same quirk alias
-for another ASUS mobo (0b05:1917) for the proper mixer mapping, etc.
-Add the corresponding entry.
+The Allwinner V3 SoC shares the same base as the V3s but comes with
+extra pins and features available. As a result, it has its dedicated
+compatible string (already used in device trees), which is added here.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=210783
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201221080159.24468-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Paul Kocialkowski <contact@paulk.fr>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201031182137.1879521-2-contact@paulk.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/mach-sunxi/sunxi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -382,6 +382,9 @@ static const struct usb_audio_device_nam
- 	/* ASUS ROG Strix */
- 	PROFILE_NAME(0x0b05, 0x1917,
- 		     "Realtek", "ALC1220-VB-DT", "Realtek-ALC1220-VB-Desktop"),
-+	/* ASUS PRIME TRX40 PRO-S */
-+	PROFILE_NAME(0x0b05, 0x1918,
-+		     "Realtek", "ALC1220-VB-DT", "Realtek-ALC1220-VB-Desktop"),
- 
- 	/* Dell WD15 Dock */
- 	PROFILE_NAME(0x0bda, 0x4014, "Dell", "WD15 Dock", "Dell-WD15-Dock"),
+diff --git a/arch/arm/mach-sunxi/sunxi.c b/arch/arm/mach-sunxi/sunxi.c
+index 933b6930f024f..a0ca5e7a68de2 100644
+--- a/arch/arm/mach-sunxi/sunxi.c
++++ b/arch/arm/mach-sunxi/sunxi.c
+@@ -66,6 +66,7 @@ static const char * const sun8i_board_dt_compat[] = {
+ 	"allwinner,sun8i-h2-plus",
+ 	"allwinner,sun8i-h3",
+ 	"allwinner,sun8i-r40",
++	"allwinner,sun8i-v3",
+ 	"allwinner,sun8i-v3s",
+ 	NULL,
+ };
+-- 
+2.27.0
+
 
 
