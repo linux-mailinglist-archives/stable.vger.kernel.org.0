@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD792E6518
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF962E3F62
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389436AbgL1P5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:57:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
+        id S2503356AbgL1O3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:29:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389319AbgL1NfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 601312072C;
-        Mon, 28 Dec 2020 13:34:39 +0000 (UTC)
+        id S2503355AbgL1O3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CA22221F0;
+        Mon, 28 Dec 2020 14:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162480;
-        bh=U8Fj+ddiucHY5sTsAIB4Yu2qi5hTr4vuPIsYSreRKfk=;
+        s=korg; t=1609165736;
+        bh=R92SEvHeLAvXYKXb3dh4dW6TqVPMF1IA50HX4skct8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QiQYuizd5H0QfIUYYPUrbr12Iko/ISTwokP7mWsYf3ICdqfVy3852XCwGqJPk5POo
-         Y4d4kGKrFRgxwNLFEBHrEI8GjKwUSbe+VciVCDRC3fH9A27hpwHoBKb8ae6Aw11Pl3
-         s5YiYGiQr/D7sv8L5dzTxBrsVF3K8fT94Pz2oE08=
+        b=QXmFvsurzHkuHxV9joR9eYQAt94H7/aZvMrcHNZAn4Uti+xDIv0KgUYGilHoKZmgE
+         w7arEeIzjec0CfciZ1wZysC8UVUYItHWAzYqoaJBkR92fjWP5OEpYqUYGO4XJ+iMjm
+         JmWZCZAf6PsC6bjHph0Db1KfqWVf4K7FfvvH1nNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Axel Lin <axel.lin@ingics.com>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 315/346] spi: spi-sh: Fix use-after-free on unbind
+        stable@vger.kernel.org, Kris Karas <bugs-a17@moonlit-rail.com>,
+        Oleg Vasilev <oleg.vasilev@intel.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 636/717] drm/amdgpu: only set DP subconnector type on DP and eDP connectors
 Date:   Mon, 28 Dec 2020 13:50:34 +0100
-Message-Id: <20201228124935.016947730@linuxfoundation.org>
+Message-Id: <20201228125051.394410135@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,76 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit e77df3eca12be4b17f13cf9f215cff248c57d98f upstream.
+commit 05211e7fbbf042dd7f51155ebe64eb2ecacb25cb upstream.
 
-spi_sh_remove() accesses the driver's private data after calling
-spi_unregister_master() even though that function releases the last
-reference on the spi_master and thereby frees the private data.
+Fixes a crash in drm_object_property_set_value() because the property
+is not set for internal DP ports that connect to a bridge chips
+(e.g., DP to VGA or DP to LVDS).
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound.
-
-Fixes: 680c1305e259 ("spi/spi_sh: use spi_unregister_master instead of spi_master_put in remove path")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v3.0+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v3.0+
-Cc: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/6d97628b536baf01d5e3e39db61108f84d44c8b2.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=210739
+Fixes: 65bf2cf95d3ade ("drm/amdgpu: utilize subconnector property for DP through atombios")
+Tested-By: Kris Karas <bugs-a17@moonlit-rail.com>
+Cc: Oleg Vasilev <oleg.vasilev@intel.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.10.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-sh.c |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/spi/spi-sh.c
-+++ b/drivers/spi/spi-sh.c
-@@ -450,7 +450,7 @@ static int spi_sh_probe(struct platform_
- 		return irq;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -1414,10 +1414,12 @@ out:
+ 		pm_runtime_put_autosuspend(connector->dev->dev);
  	}
  
--	master = spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
-+	master = devm_spi_alloc_master(&pdev->dev, sizeof(struct spi_sh_data));
- 	if (master == NULL) {
- 		dev_err(&pdev->dev, "spi_alloc_master error.\n");
- 		return -ENOMEM;
-@@ -468,16 +468,14 @@ static int spi_sh_probe(struct platform_
- 		break;
- 	default:
- 		dev_err(&pdev->dev, "No support width\n");
--		ret = -ENODEV;
--		goto error1;
-+		return -ENODEV;
- 	}
- 	ss->irq = irq;
- 	ss->master = master;
- 	ss->addr = devm_ioremap(&pdev->dev, res->start, resource_size(res));
- 	if (ss->addr == NULL) {
- 		dev_err(&pdev->dev, "ioremap error.\n");
--		ret = -ENOMEM;
--		goto error1;
-+		return -ENOMEM;
- 	}
- 	INIT_LIST_HEAD(&ss->queue);
- 	spin_lock_init(&ss->lock);
-@@ -487,7 +485,7 @@ static int spi_sh_probe(struct platform_
- 	ret = request_irq(irq, spi_sh_irq, 0, "spi_sh", ss);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "request_irq error\n");
--		goto error1;
-+		return ret;
- 	}
- 
- 	master->num_chipselect = 2;
-@@ -506,9 +504,6 @@ static int spi_sh_probe(struct platform_
- 
-  error3:
- 	free_irq(irq, ss);
-- error1:
--	spi_master_put(master);
--
+-	drm_dp_set_subconnector_property(&amdgpu_connector->base,
+-					 ret,
+-					 amdgpu_dig_connector->dpcd,
+-					 amdgpu_dig_connector->downstream_ports);
++	if (connector->connector_type == DRM_MODE_CONNECTOR_DisplayPort ||
++	    connector->connector_type == DRM_MODE_CONNECTOR_eDP)
++		drm_dp_set_subconnector_property(&amdgpu_connector->base,
++						 ret,
++						 amdgpu_dig_connector->dpcd,
++						 amdgpu_dig_connector->downstream_ports);
  	return ret;
  }
  
