@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F852E669E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EAE2E66B5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731714AbgL1NSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S2394295AbgL1QP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:15:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731715AbgL1NSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 270CF20776;
-        Mon, 28 Dec 2020 13:18:03 +0000 (UTC)
+        id S1731742AbgL1NSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 212BC207CF;
+        Mon, 28 Dec 2020 13:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161484;
-        bh=nyTssKT5IpUGBYDlCrcVpP9V8Cl8LAaY6iLAzA6phSc=;
+        s=korg; t=1609161487;
+        bh=lQ+XnkTz1NGcvhlhOZ7UngoAKjw3s+BCoubpAbXoywA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYCtre89AQAnV7rxhfDDostnRvLJ1wTc4+NwLIbrN64CkmSyRLsF07/mAagq1l/N1
-         iDAZGJbJQ25Iy/VGY9bBdT1jPn+QQe9fwrKoSO5Mdt1d70iuRi8N6zUYtVfD60EgYt
-         cswuaQjHNqPfmhK2Z09O9xgfUOOTSlCKLjsEMDNM=
+        b=Z5phAPZ2nNqBFOF2+A0FXEGuHJ0rcZ8AgfwJPQQ5ylq3XPvQ1L77jmAauv/poMsvp
+         SnmiMLWuCruNRwJJL3xLEuBOSuDBXAraHm7VygH75ZT6GDVhjqmNSX/Wb08HTzML3U
+         yePlIhAIfmNdmoESUf/UI6ywDozsPrB5yAmI3Vso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 228/242] iio: buffer: Fix demux update
-Date:   Mon, 28 Dec 2020 13:50:33 +0100
-Message-Id: <20201228124915.897529148@linuxfoundation.org>
+Subject: [PATCH 4.14 229/242] iio: adc: rockchip_saradc: fix missing clk_disable_unprepare() on error in rockchip_saradc_resume
+Date:   Mon, 28 Dec 2020 13:50:34 +0100
+Message-Id: <20201228124915.952387894@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,50 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 19ef7b70ca9487773c29b449adf0c70f540a0aab upstream.
+commit 560c6b914c6ec7d9d9a69fddbb5bf3bf71433e8b upstream.
 
-When updating the buffer demux, we will skip a scan element from the
-device in the case `in_ind != out_ind` and we enter the while loop.
-in_ind should only be refreshed with `find_next_bit()` in the end of the
-loop.
+Fix the missing clk_disable_unprepare() of info->pclk
+before return from rockchip_saradc_resume in the error
+handling case when fails to prepare and enable info->clk.
 
-Note, to cause problems we need a situation where we are skippig over
-an element (channel not enabled) that happens to not have the same size
-as the next element.   Whilst this is a possible situation we haven't
-actually identified any cases in mainline where it happens as most drivers
-have consistent channel storage sizes with the exception of the timestamp
-which is the last element and hence never skipped over.
-
-Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Fixes: 44d6f2ef94f9 ("iio: adc: add driver for Rockchip saradc")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
 Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201103120743.110662-1-miaoqinglang@huawei.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/industrialio-buffer.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/adc/rockchip_saradc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -850,12 +850,12 @@ static int iio_buffer_update_demux(struc
- 				       indio_dev->masklength,
- 				       in_ind + 1);
- 		while (in_ind != out_ind) {
--			in_ind = find_next_bit(indio_dev->active_scan_mask,
--					       indio_dev->masklength,
--					       in_ind + 1);
- 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 			/* Make sure we are aligned */
- 			in_loc = roundup(in_loc, length) + length;
-+			in_ind = find_next_bit(indio_dev->active_scan_mask,
-+					       indio_dev->masklength,
-+					       in_ind + 1);
- 		}
- 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 		out_loc = roundup(out_loc, length);
+--- a/drivers/iio/adc/rockchip_saradc.c
++++ b/drivers/iio/adc/rockchip_saradc.c
+@@ -384,7 +384,7 @@ static int rockchip_saradc_resume(struct
+ 
+ 	ret = clk_prepare_enable(info->clk);
+ 	if (ret)
+-		return ret;
++		clk_disable_unprepare(info->pclk);
+ 
+ 	return ret;
+ }
 
 
