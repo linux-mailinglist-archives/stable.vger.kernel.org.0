@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8722E66DC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0A02E67FB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732876AbgL1QRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:17:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1730574AbgL1QbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:31:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733276AbgL1NQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:16:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A417D22583;
-        Mon, 28 Dec 2020 13:16:13 +0000 (UTC)
+        id S1730621AbgL1NF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:05:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 132712242A;
+        Mon, 28 Dec 2020 13:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161374;
-        bh=m3/3x9AANiyrBZ/NkeUEI3WE9L/neCAgUnormjva8/0=;
+        s=korg; t=1609160713;
+        bh=WxAUeKSKOvzBCHMhXnRw11xywl3lvvwy8E/MCivO0EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+g6GrHgFSRYlO+aQmfIzcTMgn96N8UYpF09YLe91uzQAqlhrwPYPc6gHrBLeXtfI
-         H09LJAS/FOObXwYEeL8vjhGrwz0FFXrEBw4jlOR8GTkUj4X/nZQs3HNQWHIRdvD4+H
-         YV9nCiGlEHBbiWEKu31sfCWVXSDRGygAEpHgJ37c=
+        b=AdvMOJOII3IwxwcP2djiIA41j1jfMUnn4BPr31CzwLz4OTqjLu3vri7zM2fnpvtLc
+         8juLtLvN5vv4Bk9IVRqFHqHE7bb38YCE1n+l7FZu9gJF8nEullIfO5p6sQMTcL+7A0
+         8GRRYB8v8i5mL6FpNzPXnN1wvWrATNEfj57may1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 192/242] s390/dasd: prevent inconsistent LCU device data
-Date:   Mon, 28 Dec 2020 13:49:57 +0100
-Message-Id: <20201228124914.139293843@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 145/175] USB: serial: keyspan_pda: fix dropped unthrottle interrupts
+Date:   Mon, 28 Dec 2020 13:49:58 +0100
+Message-Id: <20201228124900.276232789@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit a29ea01653493b94ea12bb2b89d1564a265081b6 upstream.
+commit 696c541c8c6cfa05d65aa24ae2b9e720fc01766e upstream.
 
-Prevent _lcu_update from adding a device to a pavgroup if the LCU still
-requires an update. The data is not reliable any longer and in parallel
-devices might have been moved on the lists already.
-This might lead to list corruptions or invalid PAV grouping.
-Only add devices to a pavgroup if the LCU is up to date. Additional steps
-are taken by the scheduled lcu update.
+Commit c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity
+checks") broke write-unthrottle handling by dropping well-formed
+unthrottle-interrupt packets which are precisely two bytes long. This
+could lead to blocked writers not being woken up when buffer space again
+becomes available.
 
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Instead, stop unconditionally printing the third byte which is
+(presumably) only valid on modem-line changes.
+
+Fixes: c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity checks")
+Cc: stable <stable@vger.kernel.org>     # 4.11
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/block/dasd_alias.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/usb/serial/keyspan_pda.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -503,6 +503,14 @@ static int _lcu_update(struct dasd_devic
- 		return rc;
- 
- 	spin_lock_irqsave(&lcu->lock, flags);
-+	/*
-+	 * there is another update needed skip the remaining handling
-+	 * the data might already be outdated
-+	 * but especially do not add the device to an LCU with pending
-+	 * update
-+	 */
-+	if (lcu->flags & NEED_UAC_UPDATE)
-+		goto out;
- 	lcu->pav = NO_PAV;
- 	for (i = 0; i < MAX_DEVICES_PER_LCU; ++i) {
- 		switch (lcu->uac->unit[i].ua_type) {
-@@ -521,6 +529,7 @@ static int _lcu_update(struct dasd_devic
- 				 alias_list) {
- 		_add_device_to_lcu(lcu, device, refdev);
- 	}
-+out:
- 	spin_unlock_irqrestore(&lcu->lock, flags);
- 	return 0;
- }
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -176,11 +176,11 @@ static void keyspan_pda_rx_interrupt(str
+ 		break;
+ 	case 1:
+ 		/* status interrupt */
+-		if (len < 3) {
++		if (len < 2) {
+ 			dev_warn(&port->dev, "short interrupt message received\n");
+ 			break;
+ 		}
+-		dev_dbg(&port->dev, "rx int, d1=%d, d2=%d\n", data[1], data[2]);
++		dev_dbg(&port->dev, "rx int, d1=%d\n", data[1]);
+ 		switch (data[1]) {
+ 		case 1: /* modemline change */
+ 			break;
 
 
