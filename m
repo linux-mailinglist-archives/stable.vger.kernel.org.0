@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4442E436B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5A52E3E41
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407049AbgL1Pdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S2392086AbgL1OZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:25:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407308AbgL1NxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46D1422AAA;
-        Mon, 28 Dec 2020 13:52:37 +0000 (UTC)
+        id S2503305AbgL1OZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74508206D4;
+        Mon, 28 Dec 2020 14:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163557;
-        bh=6oPqxRX3iyoDLdjqjGPCEyIyaWuKW6O8UfrLMjPjGPA=;
+        s=korg; t=1609165534;
+        bh=a8A12SqmZB4XaRfiVlkokNDRBwcNiE4iNHZcldNkApo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CibTSpu31dbgohkw/9F6riMkS3XEsMd7CpL6mUN9m868+Id/cPXbJC9nT6z8xt1VM
-         LXxEg0vNIN1HiH8piGRGKX9Gw0svAY3vkKSBMBgY6S8+lbv2/TQB49N8Cs81j00b5Q
-         83MjP/F9+MhIrVHBjQGeGfCVIgerekqdF7foc99c=
+        b=OFlyBP2kMtCq3jswVJlMd6L39qD9OdzWZtuciQ22I2B1+bCtL+Wp8qs+Qao0vaIiZ
+         UChFMdVSd9SHJjadcUnAEXADYAPi4zUGdYvf1vGlOsBdtSs1wREWaWqrcqqdSjAl4u
+         /bUIyIohB1HNbWB89CNk2gSDsw0k1/vPMG5NRMXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 327/453] media: ipu3-cio2: Validate mbus format in setting subdev format
+        stable@vger.kernel.org, Vitaly Wool <vitaly.wool@konsulko.com>,
+        Mike Galbraith <efault@gmx.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 565/717] z3fold: stricter locking and more careful reclaim
 Date:   Mon, 28 Dec 2020 13:49:23 +0100
-Message-Id: <20201228124952.947697197@linuxfoundation.org>
+Message-Id: <20201228125047.989317787@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +42,347 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Vitaly Wool <vitaly.wool@konsulko.com>
 
-commit a86cf9b29e8b12811cf53c4970eefe0c1d290476 upstream.
+commit dcf5aedb24f899d537e21c18ea552c780598d352 upstream.
 
-Validate media bus code, width and height when setting the subdev format.
+Use temporary slots in reclaim function to avoid possible race when
+freeing those.
 
-This effectively reworks how setting subdev format is implemented in the
-driver.
+While at it, make sure we check CLAIMED flag under page lock in the
+reclaim function to make sure we are not racing with z3fold_alloc().
 
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lkml.kernel.org/r/20201209145151.18994-4-vitaly.wool@konsulko.com
+Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
+Cc: <stable@vger.kernel.org>
+Cc: Mike Galbraith <efault@gmx.de>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ mm/z3fold.c |  143 +++++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 85 insertions(+), 58 deletions(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1269,6 +1269,9 @@ static int cio2_subdev_set_fmt(struct v4
- 			       struct v4l2_subdev_format *fmt)
- {
- 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
-+	struct v4l2_mbus_framefmt *mbus;
-+	u32 mbus_code = fmt->format.code;
-+	unsigned int i;
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -182,6 +182,13 @@ enum z3fold_page_flags {
+ };
  
- 	/*
- 	 * Only allow setting sink pad format;
-@@ -1277,18 +1280,26 @@ static int cio2_subdev_set_fmt(struct v4
- 	if (fmt->pad == CIO2_PAD_SOURCE)
- 		return cio2_subdev_get_fmt(sd, cfg, fmt);
- 
--	mutex_lock(&q->subdev_lock);
-+	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
-+		mbus = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
-+	else
-+		mbus = &q->subdev_fmt;
+ /*
++ * handle flags, go under HANDLE_FLAG_MASK
++ */
++enum z3fold_handle_flags {
++	HANDLES_NOFREE = 0,
++};
 +
-+	fmt->format.code = formats[0].mbus_code;
++/*
+  * Forward declarations
+  */
+ static struct z3fold_header *__z3fold_alloc(struct z3fold_pool *, size_t, bool);
+@@ -311,6 +318,12 @@ static inline void free_handle(unsigned
+ 	slots = handle_to_slots(handle);
+ 	write_lock(&slots->lock);
+ 	*(unsigned long *)handle = 0;
++
++	if (test_bit(HANDLES_NOFREE, &slots->pool)) {
++		write_unlock(&slots->lock);
++		return; /* simple case, nothing else to do */
++	}
++
+ 	if (zhdr->slots != slots)
+ 		zhdr->foreign_handles--;
  
--	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
--		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
--	} else {
--		/* It's the sink, allow changing frame size */
--		q->subdev_fmt.width = fmt->format.width;
--		q->subdev_fmt.height = fmt->format.height;
--		q->subdev_fmt.code = fmt->format.code;
--		fmt->format = q->subdev_fmt;
-+	for (i = 0; i < ARRAY_SIZE(formats); i++) {
-+		if (formats[i].mbus_code == fmt->format.code) {
-+			fmt->format.code = mbus_code;
-+			break;
-+		}
+@@ -621,6 +634,28 @@ static inline void add_to_unbuddied(stru
+ 	}
+ }
+ 
++static inline enum buddy get_free_buddy(struct z3fold_header *zhdr, int chunks)
++{
++	enum buddy bud = HEADLESS;
++
++	if (zhdr->middle_chunks) {
++		if (!zhdr->first_chunks &&
++		    chunks <= zhdr->start_middle - ZHDR_CHUNKS)
++			bud = FIRST;
++		else if (!zhdr->last_chunks)
++			bud = LAST;
++	} else {
++		if (!zhdr->first_chunks)
++			bud = FIRST;
++		else if (!zhdr->last_chunks)
++			bud = LAST;
++		else
++			bud = MIDDLE;
++	}
++
++	return bud;
++}
++
+ static inline void *mchunk_memmove(struct z3fold_header *zhdr,
+ 				unsigned short dst_chunk)
+ {
+@@ -682,18 +717,7 @@ static struct z3fold_header *compact_sin
+ 		if (WARN_ON(new_zhdr == zhdr))
+ 			goto out_fail;
+ 
+-		if (new_zhdr->first_chunks == 0) {
+-			if (new_zhdr->middle_chunks != 0 &&
+-					chunks >= new_zhdr->start_middle) {
+-				new_bud = LAST;
+-			} else {
+-				new_bud = FIRST;
+-			}
+-		} else if (new_zhdr->last_chunks == 0) {
+-			new_bud = LAST;
+-		} else if (new_zhdr->middle_chunks == 0) {
+-			new_bud = MIDDLE;
+-		}
++		new_bud = get_free_buddy(new_zhdr, chunks);
+ 		q = new_zhdr;
+ 		switch (new_bud) {
+ 		case FIRST:
+@@ -815,9 +839,8 @@ static void do_compact_page(struct z3fol
+ 		return;
  	}
  
-+	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
-+	fmt->format.height = min_t(u32, fmt->format.height,
-+				   CIO2_IMAGE_MAX_LENGTH);
-+
-+	mutex_lock(&q->subdev_lock);
-+	*mbus = fmt->format;
- 	mutex_unlock(&q->subdev_lock);
+-	if (unlikely(PageIsolated(page) ||
+-		     test_bit(PAGE_CLAIMED, &page->private) ||
+-		     test_bit(PAGE_STALE, &page->private))) {
++	if (test_bit(PAGE_STALE, &page->private) ||
++	    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
+ 		z3fold_page_unlock(zhdr);
+ 		return;
+ 	}
+@@ -826,13 +849,16 @@ static void do_compact_page(struct z3fol
+ 	    zhdr->mapped_count == 0 && compact_single_buddy(zhdr)) {
+ 		if (kref_put(&zhdr->refcount, release_z3fold_page_locked))
+ 			atomic64_dec(&pool->pages_nr);
+-		else
++		else {
++			clear_bit(PAGE_CLAIMED, &page->private);
+ 			z3fold_page_unlock(zhdr);
++		}
+ 		return;
+ 	}
  
+ 	z3fold_compact_page(zhdr);
+ 	add_to_unbuddied(pool, zhdr);
++	clear_bit(PAGE_CLAIMED, &page->private);
+ 	z3fold_page_unlock(zhdr);
+ }
+ 
+@@ -1080,17 +1106,8 @@ static int z3fold_alloc(struct z3fold_po
+ retry:
+ 		zhdr = __z3fold_alloc(pool, size, can_sleep);
+ 		if (zhdr) {
+-			if (zhdr->first_chunks == 0) {
+-				if (zhdr->middle_chunks != 0 &&
+-				    chunks >= zhdr->start_middle)
+-					bud = LAST;
+-				else
+-					bud = FIRST;
+-			} else if (zhdr->last_chunks == 0)
+-				bud = LAST;
+-			else if (zhdr->middle_chunks == 0)
+-				bud = MIDDLE;
+-			else {
++			bud = get_free_buddy(zhdr, chunks);
++			if (bud == HEADLESS) {
+ 				if (kref_put(&zhdr->refcount,
+ 					     release_z3fold_page_locked))
+ 					atomic64_dec(&pool->pages_nr);
+@@ -1236,7 +1253,6 @@ static void z3fold_free(struct z3fold_po
+ 		pr_err("%s: unknown bud %d\n", __func__, bud);
+ 		WARN_ON(1);
+ 		put_z3fold_header(zhdr);
+-		clear_bit(PAGE_CLAIMED, &page->private);
+ 		return;
+ 	}
+ 
+@@ -1251,8 +1267,7 @@ static void z3fold_free(struct z3fold_po
+ 		z3fold_page_unlock(zhdr);
+ 		return;
+ 	}
+-	if (unlikely(PageIsolated(page)) ||
+-	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
++	if (test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
+ 		put_z3fold_header(zhdr);
+ 		clear_bit(PAGE_CLAIMED, &page->private);
+ 		return;
+@@ -1316,6 +1331,10 @@ static int z3fold_reclaim_page(struct z3
+ 	struct page *page = NULL;
+ 	struct list_head *pos;
+ 	unsigned long first_handle = 0, middle_handle = 0, last_handle = 0;
++	struct z3fold_buddy_slots slots __attribute__((aligned(SLOTS_ALIGN)));
++
++	rwlock_init(&slots.lock);
++	slots.pool = (unsigned long)pool | (1 << HANDLES_NOFREE);
+ 
+ 	spin_lock(&pool->lock);
+ 	if (!pool->ops || !pool->ops->evict || retries == 0) {
+@@ -1330,35 +1349,36 @@ static int z3fold_reclaim_page(struct z3
+ 		list_for_each_prev(pos, &pool->lru) {
+ 			page = list_entry(pos, struct page, lru);
+ 
+-			/* this bit could have been set by free, in which case
+-			 * we pass over to the next page in the pool.
+-			 */
+-			if (test_and_set_bit(PAGE_CLAIMED, &page->private)) {
+-				page = NULL;
+-				continue;
+-			}
+-
+-			if (unlikely(PageIsolated(page))) {
+-				clear_bit(PAGE_CLAIMED, &page->private);
+-				page = NULL;
+-				continue;
+-			}
+ 			zhdr = page_address(page);
+ 			if (test_bit(PAGE_HEADLESS, &page->private))
+ 				break;
+ 
++			if (kref_get_unless_zero(&zhdr->refcount) == 0) {
++				zhdr = NULL;
++				break;
++			}
+ 			if (!z3fold_page_trylock(zhdr)) {
+-				clear_bit(PAGE_CLAIMED, &page->private);
++				if (kref_put(&zhdr->refcount,
++						release_z3fold_page))
++					atomic64_dec(&pool->pages_nr);
+ 				zhdr = NULL;
+ 				continue; /* can't evict at this point */
+ 			}
+-			if (zhdr->foreign_handles) {
+-				clear_bit(PAGE_CLAIMED, &page->private);
+-				z3fold_page_unlock(zhdr);
++
++			/* test_and_set_bit is of course atomic, but we still
++			 * need to do it under page lock, otherwise checking
++			 * that bit in __z3fold_alloc wouldn't make sense
++			 */
++			if (zhdr->foreign_handles ||
++			    test_and_set_bit(PAGE_CLAIMED, &page->private)) {
++				if (kref_put(&zhdr->refcount,
++						release_z3fold_page))
++					atomic64_dec(&pool->pages_nr);
++				else
++					z3fold_page_unlock(zhdr);
+ 				zhdr = NULL;
+ 				continue; /* can't evict such page */
+ 			}
+-			kref_get(&zhdr->refcount);
+ 			list_del_init(&zhdr->buddy);
+ 			zhdr->cpu = -1;
+ 			break;
+@@ -1380,12 +1400,16 @@ static int z3fold_reclaim_page(struct z3
+ 			first_handle = 0;
+ 			last_handle = 0;
+ 			middle_handle = 0;
++			memset(slots.slot, 0, sizeof(slots.slot));
+ 			if (zhdr->first_chunks)
+-				first_handle = encode_handle(zhdr, FIRST);
++				first_handle = __encode_handle(zhdr, &slots,
++								FIRST);
+ 			if (zhdr->middle_chunks)
+-				middle_handle = encode_handle(zhdr, MIDDLE);
++				middle_handle = __encode_handle(zhdr, &slots,
++								MIDDLE);
+ 			if (zhdr->last_chunks)
+-				last_handle = encode_handle(zhdr, LAST);
++				last_handle = __encode_handle(zhdr, &slots,
++								LAST);
+ 			/*
+ 			 * it's safe to unlock here because we hold a
+ 			 * reference to this page
+@@ -1400,19 +1424,16 @@ static int z3fold_reclaim_page(struct z3
+ 			ret = pool->ops->evict(pool, middle_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(middle_handle, zhdr);
+ 		}
+ 		if (first_handle) {
+ 			ret = pool->ops->evict(pool, first_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(first_handle, zhdr);
+ 		}
+ 		if (last_handle) {
+ 			ret = pool->ops->evict(pool, last_handle);
+ 			if (ret)
+ 				goto next;
+-			free_handle(last_handle, zhdr);
+ 		}
+ next:
+ 		if (test_bit(PAGE_HEADLESS, &page->private)) {
+@@ -1426,9 +1447,11 @@ next:
+ 			spin_unlock(&pool->lock);
+ 			clear_bit(PAGE_CLAIMED, &page->private);
+ 		} else {
++			struct z3fold_buddy_slots *slots = zhdr->slots;
+ 			z3fold_page_lock(zhdr);
+ 			if (kref_put(&zhdr->refcount,
+ 					release_z3fold_page_locked)) {
++				kmem_cache_free(pool->c_handle, slots);
+ 				atomic64_dec(&pool->pages_nr);
+ 				return 0;
+ 			}
+@@ -1544,8 +1567,7 @@ static bool z3fold_page_isolate(struct p
+ 	VM_BUG_ON_PAGE(!PageMovable(page), page);
+ 	VM_BUG_ON_PAGE(PageIsolated(page), page);
+ 
+-	if (test_bit(PAGE_HEADLESS, &page->private) ||
+-	    test_bit(PAGE_CLAIMED, &page->private))
++	if (test_bit(PAGE_HEADLESS, &page->private))
+ 		return false;
+ 
+ 	zhdr = page_address(page);
+@@ -1557,6 +1579,8 @@ static bool z3fold_page_isolate(struct p
+ 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0)
+ 		goto out;
+ 
++	if (test_and_set_bit(PAGE_CLAIMED, &page->private))
++		goto out;
+ 	pool = zhdr_to_pool(zhdr);
+ 	spin_lock(&pool->lock);
+ 	if (!list_empty(&zhdr->buddy))
+@@ -1583,16 +1607,17 @@ static int z3fold_page_migrate(struct ad
+ 
+ 	VM_BUG_ON_PAGE(!PageMovable(page), page);
+ 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
++	VM_BUG_ON_PAGE(!test_bit(PAGE_CLAIMED, &page->private), page);
+ 	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
+ 
+ 	zhdr = page_address(page);
+ 	pool = zhdr_to_pool(zhdr);
+ 
+-	if (!z3fold_page_trylock(zhdr)) {
++	if (!z3fold_page_trylock(zhdr))
+ 		return -EAGAIN;
+-	}
+ 	if (zhdr->mapped_count != 0 || zhdr->foreign_handles != 0) {
+ 		z3fold_page_unlock(zhdr);
++		clear_bit(PAGE_CLAIMED, &page->private);
+ 		return -EBUSY;
+ 	}
+ 	if (work_pending(&zhdr->work)) {
+@@ -1634,6 +1659,7 @@ static int z3fold_page_migrate(struct ad
+ 	queue_work_on(new_zhdr->cpu, pool->compact_wq, &new_zhdr->work);
+ 
+ 	page_mapcount_reset(page);
++	clear_bit(PAGE_CLAIMED, &page->private);
+ 	put_page(page);
  	return 0;
+ }
+@@ -1657,6 +1683,7 @@ static void z3fold_page_putback(struct p
+ 	spin_lock(&pool->lock);
+ 	list_add(&page->lru, &pool->lru);
+ 	spin_unlock(&pool->lock);
++	clear_bit(PAGE_CLAIMED, &page->private);
+ 	z3fold_page_unlock(zhdr);
+ }
+ 
 
 
