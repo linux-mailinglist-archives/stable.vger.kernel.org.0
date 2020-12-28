@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFAC2E63CF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B77A2E3DB6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:20:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405696AbgL1Pmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:42:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
+        id S2440615AbgL1OTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:19:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404865AbgL1Npb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB6D3206D4;
-        Mon, 28 Dec 2020 13:45:15 +0000 (UTC)
+        id S2440595AbgL1OTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:19:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43822229C4;
+        Mon, 28 Dec 2020 14:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163116;
-        bh=GnH9NXXYou2eeAB2fvdVW3NJX0qAsqPkZDBPKyZu7TA=;
+        s=korg; t=1609165102;
+        bh=pbv/90rDytlLbLe153ID88PZs21iMaEh9hAlauAntUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e52NOyh730okN6MvW6g5ZS0EC6OlM3Ntvw7pyT+9C99JT56D4sXH9GN/dQR1QId+i
-         nRv8pMvOjZ9pyxxojnlVDjdJt8/jEszyLni8xCybjQ7RSmxKyPI39zpBcGwjaRufaI
-         SMv2th5m5k7q4cC0pA1xloW1pVVALgxXzKi9sqn4=
+        b=FpaiWdsg1nB6pNUjBHmBxAHDw05EfsoMDyzu3sPJ7d/xrA3drT0dPnfhOJx6bxX0a
+         CjbLJ1BcIrvvR1SEX/gZdGJFMfdKQudKauLWKpATnUyeKmRIxMKtv5ub/W3puLPW/2
+         52D/Arb5Ggi2/kC6vUrigmxeXpfshuOTZjGk1bXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jander <david@protonic.nl>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 143/453] Input: ads7846 - fix integer overflow on Rt calculation
-Date:   Mon, 28 Dec 2020 13:46:19 +0100
-Message-Id: <20201228124944.083780038@linuxfoundation.org>
+Subject: [PATCH 5.10 382/717] misc: pci_endpoint_test: fix return value of error branch
+Date:   Mon, 28 Dec 2020 13:46:20 +0100
+Message-Id: <20201228125039.304254225@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-[ Upstream commit 820830ec918f6c3dcd77a54a1c6198ab57407916 ]
+[ Upstream commit 1749c90489f2afa6b59dbf3ab59d58a9014c84a1 ]
 
-In some rare cases the 32 bit Rt value will overflow if z2 and x is max,
-z1 is minimal value and x_plate_ohms is relatively high (for example 800
-ohm). This would happen on some screen age with low pressure.
+We return 'err' in the error branch, but this variable may be set as
+zero before. Fix it by setting 'err' as a negative value before we
+goto the error label.
 
-There are two possible fixes:
-- make Rt 64bit
-- reorder calculation to avoid overflow
-
-The second variant seems to be preferable, since 64 bit calculation on
-32 bit system is a bit more expensive.
-
-Fixes: ffa458c1bd9b6f653008d450f337602f3d52a646 ("spi: ads7846 driver")
-Co-developed-by: David Jander <david@protonic.nl>
-Signed-off-by: David Jander <david@protonic.nl>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20201113112240.1360-1-o.rempel@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/1605790158-6780-1-git-send-email-wangxiongfeng2@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/misc/pci_endpoint_test.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 1e19af0da13a3..a5b1b41464f99 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -801,10 +801,11 @@ static void ads7846_report_state(struct ads7846 *ts)
- 		/* compute touch pressure resistance using equation #2 */
- 		Rt = z2;
- 		Rt -= z1;
--		Rt *= x;
- 		Rt *= ts->x_plate_ohms;
-+		Rt = DIV_ROUND_CLOSEST(Rt, 16);
-+		Rt *= x;
- 		Rt /= z1;
--		Rt = (Rt + 2047) >> 12;
-+		Rt = DIV_ROUND_CLOSEST(Rt, 256);
- 	} else {
- 		Rt = 0;
+diff --git a/drivers/misc/pci_endpoint_test.c b/drivers/misc/pci_endpoint_test.c
+index 146ca6fb3260f..d3844730eacaf 100644
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -811,8 +811,10 @@ static int pci_endpoint_test_probe(struct pci_dev *pdev,
+ 
+ 	pci_set_master(pdev);
+ 
+-	if (!pci_endpoint_test_alloc_irq_vectors(test, irq_type))
++	if (!pci_endpoint_test_alloc_irq_vectors(test, irq_type)) {
++		err = -EINVAL;
+ 		goto err_disable_irq;
++	}
+ 
+ 	for (bar = 0; bar < PCI_STD_NUM_BARS; bar++) {
+ 		if (pci_resource_flags(pdev, bar) & IORESOURCE_MEM) {
+@@ -849,8 +851,10 @@ static int pci_endpoint_test_probe(struct pci_dev *pdev,
+ 		goto err_ida_remove;
  	}
+ 
+-	if (!pci_endpoint_test_request_irq(test))
++	if (!pci_endpoint_test_request_irq(test)) {
++		err = -EINVAL;
+ 		goto err_kfree_test_name;
++	}
+ 
+ 	misc_device = &test->miscdev;
+ 	misc_device->minor = MISC_DYNAMIC_MINOR;
 -- 
 2.27.0
 
