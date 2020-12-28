@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9648E2E68DC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044892E66D1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbgL1M56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:57:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54198 "EHLO mail.kernel.org"
+        id S1731117AbgL1NRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:17:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729047AbgL1M54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:57:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 128A122AAA;
-        Mon, 28 Dec 2020 12:57:14 +0000 (UTC)
+        id S2387410AbgL1NQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82495207CF;
+        Mon, 28 Dec 2020 13:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160235;
-        bh=5s+ayH5xSO+3HI4I6eAAxZcKK4J4aqp9MoUjWQlXeIE=;
+        s=korg; t=1609161377;
+        bh=SnmQ7xExflvTQ9e7DPhplcTUzYhGNeJnVXpuzLjSSVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8rhgo5P/o3nFJTbpqGHtxabrzvhj3OC/RsJv68FfwokjD+eOj2bHg6dd6AOydjqc
-         /rzEg9yAd4MgMCQyAauUtohafjRc2WEDuIYkP5DHLoR/owqL6qeshpmxS1bf0EVrCR
-         o6SqEPu+I7T3Sg71uy6f4t1JhHWC/oXwVhBuBuwE=
+        b=A3sz0qUJDR6GMPNCz7+b/bRn7KcPuG0v7X0/8TAERDiaqv03WoSPicF6H4X/Ed0oL
+         yGz9f0riTCHMCNmQGbFN1vSgzEd3Nhl7UwZ0YrQYP1dEcDMjDAcP7Ugf3ILOMwa+xn
+         704sCel7MJponvTgRBXlw1u4F8Vmy6tCZ5kt7w0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 114/132] USB: serial: keyspan_pda: fix write unthrottling
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 193/242] s390/dasd: fix list corruption of pavgroup group list
 Date:   Mon, 28 Dec 2020 13:49:58 +0100
-Message-Id: <20201228124851.918783212@linuxfoundation.org>
+Message-Id: <20201228124914.180944959@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 320f9028c7873c3c7710e8e93e5c979f4c857490 upstream.
+commit 0ede91f83aa335da1c3ec68eb0f9e228f269f6d8 upstream.
 
-The driver did not update its view of the available device buffer space
-until write() was called in task context. This meant that write_room()
-would return 0 even after the device had sent a write-unthrottle
-notification, something which could lead to blocked writers not being
-woken up (e.g. when using OPOST).
+dasd_alias_add_device() moves devices to the active_devices list in case
+of a scheduled LCU update regardless if they have previously been in a
+pavgroup or not.
 
-Note that we must also request an unthrottle notification is case a
-write() request fills the device buffer exactly.
+Example: device A and B are in the same pavgroup.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Device A has already been in a pavgroup and the private->pavgroup pointer
+is set and points to a valid pavgroup. While going through dasd_add_device
+it is moved from the pavgroup to the active_devices list.
+
+In parallel device B might be removed from the same pavgroup in
+remove_device_from_lcu() which in turn checks if the group is empty
+and deletes it accordingly because device A has already been removed from
+there.
+
+When now device A enters remove_device_from_lcu() it is tried to remove it
+from the pavgroup again because the pavgroup pointer is still set and again
+the empty group will be cleaned up which leads to a list corruption.
+
+Fix by setting private->pavgroup to NULL in dasd_add_device.
+
+If the device has been the last device on the pavgroup an empty pavgroup
+remains but this will be cleaned up by the scheduled lcu_update which
+iterates over all existing pavgroups.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/s390/block/dasd_alias.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -44,6 +44,8 @@
- #define DRIVER_AUTHOR "Brian Warner <warner@lothar.com>"
- #define DRIVER_DESC "USB Keyspan PDA Converter driver"
- 
-+#define KEYSPAN_TX_THRESHOLD	16
-+
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
-@@ -114,7 +116,7 @@ static void keyspan_pda_request_unthrott
- 				 7, /* request_unthrottle */
- 				 USB_TYPE_VENDOR | USB_RECIP_INTERFACE
- 				 | USB_DIR_OUT,
--				 16, /* value: threshold */
-+				 KEYSPAN_TX_THRESHOLD,
- 				 0, /* index */
- 				 NULL,
- 				 0,
-@@ -133,6 +135,8 @@ static void keyspan_pda_rx_interrupt(str
- 	int retval;
- 	int status = urb->status;
- 	struct keyspan_pda_private *priv;
-+	unsigned long flags;
-+
- 	priv = usb_get_serial_port_data(port);
- 
- 	switch (status) {
-@@ -175,7 +179,10 @@ static void keyspan_pda_rx_interrupt(str
- 		case 1: /* modemline change */
- 			break;
- 		case 2: /* tx unthrottle interrupt */
-+			spin_lock_irqsave(&port->lock, flags);
- 			priv->tx_throttled = 0;
-+			priv->tx_room = max(priv->tx_room, KEYSPAN_TX_THRESHOLD);
-+			spin_unlock_irqrestore(&port->lock, flags);
- 			/* queue up a wakeup at scheduler time */
- 			usb_serial_port_softint(port);
- 			break;
-@@ -509,7 +516,8 @@ static int keyspan_pda_write(struct tty_
- 			goto exit;
- 		}
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -634,6 +634,7 @@ int dasd_alias_add_device(struct dasd_de
  	}
--	if (count > priv->tx_room) {
-+
-+	if (count >= priv->tx_room) {
- 		/* we're about to completely fill the Tx buffer, so
- 		   we'll be throttled afterwards. */
- 		count = priv->tx_room;
-@@ -564,14 +572,17 @@ static void keyspan_pda_write_bulk_callb
- static int keyspan_pda_write_room(struct tty_struct *tty)
- {
- 	struct usb_serial_port *port = tty->driver_data;
--	struct keyspan_pda_private *priv;
--	priv = usb_get_serial_port_data(port);
--	/* used by n_tty.c for processing of tabs and such. Giving it our
--	   conservative guess is probably good enough, but needs testing by
--	   running a console through the device. */
--	return priv->tx_room;
--}
-+	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
-+	unsigned long flags;
-+	int room = 0;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (test_bit(0, &port->write_urbs_free) && !priv->tx_throttled)
-+		room = priv->tx_room;
-+	spin_unlock_irqrestore(&port->lock, flags);
- 
-+	return room;
-+}
- 
- static int keyspan_pda_chars_in_buffer(struct tty_struct *tty)
- {
+ 	if (lcu->flags & UPDATE_PENDING) {
+ 		list_move(&device->alias_list, &lcu->active_devices);
++		private->pavgroup = NULL;
+ 		_schedule_lcu_update(lcu, device);
+ 	}
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
 
 
