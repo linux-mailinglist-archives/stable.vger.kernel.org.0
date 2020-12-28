@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C791E2E64AE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21BF32E40DC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407488AbgL1PxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:53:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
+        id S2389882AbgL1O6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:58:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391872AbgL1Nl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B7B22472;
-        Mon, 28 Dec 2020 13:40:46 +0000 (UTC)
+        id S2440484AbgL1OOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 484872063A;
+        Mon, 28 Dec 2020 14:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162846;
-        bh=zfiEHNH3EgVijgoxyD7rjWszXcQfbM/YjwI0AH/gbeg=;
+        s=korg; t=1609164845;
+        bh=pQKWXOZ5V9CeMrt1ZTHykB/khVq3Jm9H8wkFfRqg76o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG9FUenMcca95vAsXLbiJB/PQA1U7Bj/CRiGQJicyaPWV4WOIYD7f1bJx839DT8Xw
-         LbmURi5fCaoUtY3BWn7tey/9MmACpec/6pfZYiJj61ODSfQld1Dfz5zttcOOc2Wz8h
-         Z2IW3No6nUXrSmCIdvinxZ7ZaMCI7Sf29P9B1AUU=
+        b=mAWr6iGAPb4cA20Qa38fwgh/2G3rpXaB3ou62qY919PB5ETuWs5TxEg1vS8ZcKC0a
+         WLxiwJj2h0H++a0alKkdE5iacDhlzZZarD7gA+b0vtjoPh9vHtbq5j995HX9+y9M2s
+         FdYaML8YvNPtN+RncooSn0GFAGZA0tqsYycmRskU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Akash Asthana <akashast@codeaurora.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/453] Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
+Subject: [PATCH 5.10 320/717] drm/msm: add IOMMU_SUPPORT dependency
 Date:   Mon, 28 Dec 2020 13:45:18 +0100
-Message-Id: <20201228124941.183020708@linuxfoundation.org>
+Message-Id: <20201228125036.367073525@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9cb4c67d7717135d6f4600a49ab07b470ea4ee2f ]
+[ Upstream commit e319a1b956f785f618611857cd946dca2bb68542 ]
 
-This reverts commit 02b9aec59243c6240fc42884acc958602146ddf6.
+The iommu pgtable support is only available when IOMMU support
+is built into the kernel:
 
-As talked about in the patch ("soc: qcom: geni: More properly switch
-to DMA mode"), swapping the order of geni_se_setup_m_cmd() and
-geni_se_xx_dma_prep() can sometimes cause corrupted transfers.  Thus
-we traded one problem for another.  Now that we've debugged the
-problem further and fixed the geni helper functions to more disable
-FIFO interrupts when we move to DMA mode we can revert it and end up
-with (hopefully) zero problems!
+WARNING: unmet direct dependencies detected for IOMMU_IO_PGTABLE
+  Depends on [n]: IOMMU_SUPPORT [=n]
+  Selected by [y]:
+  - DRM_MSM [=y] && HAS_IOMEM [=y] && DRM [=y] && (ARCH_QCOM [=y] || SOC_IMX5 || ARM && COMPILE_TEST [=y]) && OF [=y] && COMMON_CLK [=y] && MMU [=y] && (QCOM_OCMEM [=y] || QCOM_OCMEM [=y]=n)
 
-To be explicit, the patch ("soc: qcom: geni: More properly switch
-to DMA mode") is a prerequisite for this one.
+Fix the dependency accordingly. There is no need for depending on
+CONFIG_MMU any more, as that is implied by the iommu support.
 
-Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20201013142448.v2.2.I7b22281453b8a18ab16ef2bfd4c641fb1cc6a92c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: b145c6e65eb0 ("drm/msm: Add support to create a local pagetable")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index aafc76ee93e02..17abf60c94aeb 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -368,6 +368,7 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
- 
- 	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_READ, m_param);
- 
- 	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -375,8 +376,6 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
- 	}
- 
--	geni_se_setup_m_cmd(se, I2C_READ, m_param);
--
- 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
- 	if (!time_left)
- 		geni_i2c_abort_xfer(gi2c);
-@@ -410,6 +409,7 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
- 
- 	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
- 
- 	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -417,8 +417,6 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
- 	}
- 
--	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
--
- 	if (!dma_buf) /* Get FIFO IRQ */
- 		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
- 
+diff --git a/drivers/gpu/drm/msm/Kconfig b/drivers/gpu/drm/msm/Kconfig
+index e5816b4984942..dabb4a1ccdcf7 100644
+--- a/drivers/gpu/drm/msm/Kconfig
++++ b/drivers/gpu/drm/msm/Kconfig
+@@ -4,8 +4,8 @@ config DRM_MSM
+ 	tristate "MSM DRM"
+ 	depends on DRM
+ 	depends on ARCH_QCOM || SOC_IMX5 || (ARM && COMPILE_TEST)
++	depends on IOMMU_SUPPORT
+ 	depends on OF && COMMON_CLK
+-	depends on MMU
+ 	depends on QCOM_OCMEM || QCOM_OCMEM=n
+ 	select IOMMU_IO_PGTABLE
+ 	select QCOM_MDT_LOADER if ARCH_QCOM
 -- 
 2.27.0
 
