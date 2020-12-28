@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF652E6794
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8333C2E6627
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730998AbgL1Q0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:26:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
+        id S2389509AbgL1QJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:09:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730978AbgL1NIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33175207C9;
-        Mon, 28 Dec 2020 13:08:29 +0000 (UTC)
+        id S2388622AbgL1NYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38D8E20719;
+        Mon, 28 Dec 2020 13:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160910;
-        bh=KyTdHlhqvA3ADKEJ/GXypxElvwVqUxk7Lv+osuPptec=;
+        s=korg; t=1609161824;
+        bh=H6BzZeKckpudv6x4USlSM9Lax6zS4rZ563RWifU4GwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cm7KnQyOFcQSiw1vUG5ILQbJ3ohlwo9VNNzDKSO+bZ0PSdu12WKKb1ZQt/JEUu5Zy
-         eYl+tPUoLASaj2DGA41buocqLGO9q8Iabbz2kpYF7YfNT8xbQ2OEWHE09Ify8Gg0op
-         DsyUjYM9YXMPRCz+LJtfsq/Bch/NolKpEgPRRx20=
+        b=04OF0eU4u6cxzRw8zBXGDU05SwAYBcqZwyvnKqHCWj1FKfmh0NjaLrBgjC+bS67mx
+         6LEZQr6HlVgPGRU+y2FXwW1E6LxmBC8xWRPPwdsVWxUsVmSg/jJ36sA/YO6okOoi6n
+         GUP/zfW/3fYN/h4Mc14buY+1T/v4DznWULiUUvxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timo Witte <timo.witte@gmail.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 009/242] platform/x86: acer-wmi: add automatic keyboard background light toggle key as KEY_LIGHTS_TOGGLE
+        stable@vger.kernel.org,
+        syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com,
+        "Dae R. Jeong" <dae.r.jeong@kaist.ac.kr>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.19 095/346] md: fix a warning caused by a race between concurrent md_ioctl()s
 Date:   Mon, 28 Dec 2020 13:46:54 +0100
-Message-Id: <20201228124905.116676832@linuxfoundation.org>
+Message-Id: <20201228124924.389380874@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Witte <timo.witte@gmail.com>
+From: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
 
-[ Upstream commit 9e7a005ad56aa7d6ea5830c5ffcc60bf35de380b ]
+commit c731b84b51bf7fe83448bea8f56a6d55006b0615 upstream.
 
-Got a dmesg message on my AMD Renoir based Acer laptop:
-"acer_wmi: Unknown key number - 0x84" when toggling keyboard
-background light
+Syzkaller reports a warning as belows.
+WARNING: CPU: 0 PID: 9647 at drivers/md/md.c:7169
+...
+Call Trace:
+...
+RIP: 0010:md_ioctl+0x4017/0x5980 drivers/md/md.c:7169
+RSP: 0018:ffff888096027950 EFLAGS: 00010293
+RAX: ffff88809322c380 RBX: 0000000000000932 RCX: ffffffff84e266f2
+RDX: 0000000000000000 RSI: ffffffff84e299f7 RDI: 0000000000000007
+RBP: ffff888096027bc0 R08: ffff88809322c380 R09: ffffed101341a482
+R10: ffff888096027940 R11: ffff88809a0d240f R12: 0000000000000932
+R13: ffff8880a2c14100 R14: ffff88809a0d2268 R15: ffff88809a0d2408
+ __blkdev_driver_ioctl block/ioctl.c:304 [inline]
+ blkdev_ioctl+0xece/0x1c10 block/ioctl.c:606
+ block_ioctl+0xee/0x130 fs/block_dev.c:1930
+ vfs_ioctl fs/ioctl.c:46 [inline]
+ file_ioctl fs/ioctl.c:509 [inline]
+ do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
+ ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+ __do_sys_ioctl fs/ioctl.c:720 [inline]
+ __se_sys_ioctl fs/ioctl.c:718 [inline]
+ __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+ do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Timo Witte <timo.witte@gmail.com>
-Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-Link: https://lore.kernel.org/r/20200804001423.36778-1-timo.witte@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is caused by a race between two concurrenct md_ioctl()s closing
+the array.
+CPU1 (md_ioctl())                   CPU2 (md_ioctl())
+------                              ------
+set_bit(MD_CLOSING, &mddev->flags);
+did_set_md_closing = true;
+                                    WARN_ON_ONCE(test_bit(MD_CLOSING,
+                                            &mddev->flags));
+if(did_set_md_closing)
+    clear_bit(MD_CLOSING, &mddev->flags);
+
+Fix the warning by returning immediately if the MD_CLOSING bit is set
+in &mddev->flags which indicates that the array is being closed.
+
+Fixes: 065e519e71b2 ("md: MD_CLOSING needs to be cleared after called md_set_readonly or do_md_stop")
+Reported-by: syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/acer-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 1be71f956d5c2..29f6f2bbb5fff 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -124,6 +124,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
- 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
- 	{KE_IGNORE, 0x81, {KEY_SLEEP} },
- 	{KE_KEY, 0x82, {KEY_TOUCHPAD_TOGGLE} },	/* Touch Pad Toggle */
-+	{KE_IGNORE, 0x84, {KEY_KBDILLUMTOGGLE} }, /* Automatic Keyboard background light toggle */
- 	{KE_KEY, KEY_TOUCHPAD_ON, {KEY_TOUCHPAD_ON} },
- 	{KE_KEY, KEY_TOUCHPAD_OFF, {KEY_TOUCHPAD_OFF} },
- 	{KE_IGNORE, 0x83, {KEY_TOUCHPAD_TOGGLE} },
--- 
-2.27.0
-
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7214,8 +7214,11 @@ static int md_ioctl(struct block_device
+ 			err = -EBUSY;
+ 			goto out;
+ 		}
+-		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
+-		set_bit(MD_CLOSING, &mddev->flags);
++		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
++			mutex_unlock(&mddev->open_mutex);
++			err = -EBUSY;
++			goto out;
++		}
+ 		did_set_md_closing = true;
+ 		mutex_unlock(&mddev->open_mutex);
+ 		sync_blockdev(bdev);
 
 
