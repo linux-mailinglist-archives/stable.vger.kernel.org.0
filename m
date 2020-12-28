@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D082E4133
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A7F2E64DB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439815AbgL1OMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:12:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        id S2390858AbgL1Nhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:37:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439810AbgL1OMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93199206C3;
-        Mon, 28 Dec 2020 14:11:30 +0000 (UTC)
+        id S2389289AbgL1Nhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:37:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64DE7207B2;
+        Mon, 28 Dec 2020 13:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164691;
-        bh=RLBp3ZiEi++a936d4jF/z89yrickMUON60iiBSJj/Lc=;
+        s=korg; t=1609162652;
+        bh=uYJPl85wZNYWbbo2rWvP6IE0yRcKMeEN/aITiqENJpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMXzK0tHgteD3DWrbGSQYHO2MYIJlOrZ7X0LfTqnvs0hNJmGVxbDn2/brkeBER2V3
-         lKjutaUi1uKe89SfSRhoVTSuwA2SXIBhallEbz4R7qhFiOg1m7iCBGUEV9q97u5lCX
-         YwvaBiYL9QLVh2wDg+L0iwS4b8ZbzOKUm+LsW8ck=
+        b=NStpEkydBCim+KzQY4OYGtqIiKS7gNwmMeB8G0N6H3vjS1aYswv8twkxFpRFTghnU
+         Grmqwg9SO3qL8kQbMBJmC179yHZDu4Bm0W6FAWWITQ+bVXZXAsE/12CETSafpUm4TK
+         xS8x57yB2jXIR3YYiwn8En9sHzQmiSAzToppECCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Baolin Wang <baolin.wang7@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 263/717] ath10k: Fix the parsing error in service available event
-Date:   Mon, 28 Dec 2020 13:44:21 +0100
-Message-Id: <20201228125033.606331358@linuxfoundation.org>
+Subject: [PATCH 5.4 026/453] Revert "gpio: eic-sprd: Use devm_platform_ioremap_resource()"
+Date:   Mon, 28 Dec 2020 13:44:22 +0100
+Message-Id: <20201228124938.517230346@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Baolin Wang <baolin.wang7@gmail.com>
 
-[ Upstream commit c7cee9c0f499f27ec6de06bea664b61320534768 ]
+[ Upstream commit 4ed7d7dd4890bb8120a3e77c16191a695fdfcc5a ]
 
-The wmi service available event has been
-extended to contain extra 128 bit for new services
-to be indicated by firmware.
+This reverts commit 0f5cb8cc27a266c81e6523b436479802e9aafc9e.
 
-Currently the presence of any optional TLVs in
-the wmi service available event leads to a parsing
-error with the below error message:
-ath10k_snoc 18800000.wifi: failed to parse svc_avail tlv: -71
+This commit will cause below warnings, since our EIC controller can support
+differnt banks on different Spreadtrum SoCs, and each bank has its own base
+address, we will get invalid resource warning if the bank number is less than
+SPRD_EIC_MAX_BANK on some Spreadtrum SoCs.
 
-The wmi service available event parsing should
-not return error for the newly added optional TLV.
-Fix this parsing for service available event message.
+So we should not use devm_platform_ioremap_resource() here to remove the
+warnings.
 
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.2.2-00720-QCAHLSWMTPL-1
+[    1.118508] sprd-eic 40210000.gpio: invalid resource
+[    1.118535] sprd-eic 40210000.gpio: invalid resource
+[    1.119034] sprd-eic 40210080.gpio: invalid resource
+[    1.119055] sprd-eic 40210080.gpio: invalid resource
+[    1.119462] sprd-eic 402100a0.gpio: invalid resource
+[    1.119482] sprd-eic 402100a0.gpio: invalid resource
+[    1.119893] sprd-eic 402100c0.gpio: invalid resource
+[    1.119913] sprd-eic 402100c0.gpio: invalid resource
 
-Fixes: cea19a6ce8bf ("ath10k: add WMI_SERVICE_AVAILABLE_EVENT support")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1605501291-23040-1-git-send-email-pillair@codeaurora.org
+Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
+Link: https://lore.kernel.org/r/8d3579f4b49bb675dc805035960f24852898be28.1585734060.git.baolin.wang7@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/wmi-tlv.c | 4 +++-
- drivers/net/wireless/ath/ath10k/wmi.c     | 9 +++++++--
- drivers/net/wireless/ath/ath10k/wmi.h     | 1 +
- 3 files changed, 11 insertions(+), 3 deletions(-)
+ drivers/gpio/gpio-eic-sprd.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-index 932266d1111bd..7b5834157fe51 100644
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-@@ -1401,13 +1401,15 @@ static int ath10k_wmi_tlv_svc_avail_parse(struct ath10k *ar, u16 tag, u16 len,
+diff --git a/drivers/gpio/gpio-eic-sprd.c b/drivers/gpio/gpio-eic-sprd.c
+index bb287f35cf408..8c97577740100 100644
+--- a/drivers/gpio/gpio-eic-sprd.c
++++ b/drivers/gpio/gpio-eic-sprd.c
+@@ -569,6 +569,7 @@ static int sprd_eic_probe(struct platform_device *pdev)
+ 	const struct sprd_eic_variant_data *pdata;
+ 	struct gpio_irq_chip *irq;
+ 	struct sprd_eic *sprd_eic;
++	struct resource *res;
+ 	int ret, i;
  
- 	switch (tag) {
- 	case WMI_TLV_TAG_STRUCT_SERVICE_AVAILABLE_EVENT:
-+		arg->service_map_ext_valid = true;
- 		arg->service_map_ext_len = *(__le32 *)ptr;
- 		arg->service_map_ext = ptr + sizeof(__le32);
- 		return 0;
- 	default:
- 		break;
- 	}
--	return -EPROTO;
+ 	pdata = of_device_get_match_data(&pdev->dev);
+@@ -595,9 +596,13 @@ static int sprd_eic_probe(struct platform_device *pdev)
+ 		 * have one bank EIC, thus base[1] and base[2] can be
+ 		 * optional.
+ 		 */
+-		sprd_eic->base[i] = devm_platform_ioremap_resource(pdev, i);
+-		if (IS_ERR(sprd_eic->base[i]))
++		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
++		if (!res)
+ 			continue;
 +
-+	return 0;
- }
- 
- static int ath10k_wmi_tlv_op_pull_svc_avail(struct ath10k *ar,
-diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 1fa7107a50515..37b53af760d76 100644
---- a/drivers/net/wireless/ath/ath10k/wmi.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi.c
-@@ -5751,8 +5751,13 @@ void ath10k_wmi_event_service_available(struct ath10k *ar, struct sk_buff *skb)
- 			    ret);
++		sprd_eic->base[i] = devm_ioremap_resource(&pdev->dev, res);
++		if (IS_ERR(sprd_eic->base[i]))
++			return PTR_ERR(sprd_eic->base[i]);
  	}
  
--	ath10k_wmi_map_svc_ext(ar, arg.service_map_ext, ar->wmi.svc_map,
--			       __le32_to_cpu(arg.service_map_ext_len));
-+	/*
-+	 * Initialization of "arg.service_map_ext_valid" to ZERO is necessary
-+	 * for the below logic to work.
-+	 */
-+	if (arg.service_map_ext_valid)
-+		ath10k_wmi_map_svc_ext(ar, arg.service_map_ext, ar->wmi.svc_map,
-+				       __le32_to_cpu(arg.service_map_ext_len));
- }
- 
- static int ath10k_wmi_event_temperature(struct ath10k *ar, struct sk_buff *skb)
-diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
-index 4898e19b0af65..66ecf09068c19 100644
---- a/drivers/net/wireless/ath/ath10k/wmi.h
-+++ b/drivers/net/wireless/ath/ath10k/wmi.h
-@@ -6917,6 +6917,7 @@ struct wmi_svc_rdy_ev_arg {
- };
- 
- struct wmi_svc_avail_ev_arg {
-+	bool service_map_ext_valid;
- 	__le32 service_map_ext_len;
- 	const __le32 *service_map_ext;
- };
+ 	sprd_eic->chip.label = sprd_eic_label_name[sprd_eic->type];
 -- 
 2.27.0
 
