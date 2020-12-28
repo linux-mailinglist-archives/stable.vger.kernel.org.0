@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9362E417C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4DF2E4179
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391742AbgL1PHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:07:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43244 "EHLO mail.kernel.org"
+        id S2438795AbgL1OJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:09:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391750AbgL1OIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:08:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2837D206C3;
-        Mon, 28 Dec 2020 14:07:57 +0000 (UTC)
+        id S2438680AbgL1OJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:09:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CF312063A;
+        Mon, 28 Dec 2020 14:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164478;
-        bh=82mzM1lZEnwgvckRxASow2+oILhN7WGcmCtxSn4PGJE=;
+        s=korg; t=1609164524;
+        bh=f+OKUiKmo0iefOodjHBay4uqh+6Y7GvIpqFAfxL6XTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJN3ATnOCHEz0icSGO9S35bCmrA2r3pBt6hA8GZHxJ+n4cEbYDLxeJffVRWjFrikL
-         ymrg/QcyGcGKYFMmhofa84tCFQ83g9/yySc6vHZBclTL+UW/2LHsShqeBM183AETFm
-         k1gugCWBxmfm8Vn3KbSNtrCH0fuQ3/KDJDFuYnyw=
+        b=HIb0hd5odBhau9zNjDh8B9krJ8j52nMUraAMBgL0eNDjTbBsTTnX1HJD5IWmw/JfK
+         ASnqs/4YcisiwpsnidtKc1dD2VDOjY7wwKSuMJdQtWvTvF66mgAB0IGMYQ1dZXdndl
+         gsrg+JK7aC7YcfnnNUi8r6vqO4Oy1Lm0AMxIVKLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        Jim Quinlan <james.quinlan@broadcom.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/717] PCI: brcmstb: Initialize "tmp" before use
-Date:   Mon, 28 Dec 2020 13:42:55 +0100
-Message-Id: <20201228125029.445272963@linuxfoundation.org>
+Subject: [PATCH 5.10 178/717] soc: ti: knav_qmss: fix reference leak in knav_queue_probe
+Date:   Mon, 28 Dec 2020 13:42:56 +0100
+Message-Id: <20201228125029.493527050@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -44,39 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Quinlan <james.quinlan@broadcom.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit ddaff0af653136ee1e0b49116ecf2988c2fc64ca ]
+[ Upstream commit ec8684847d8062496c4619bc3fcff31c19d56847 ]
 
-The variable 'tmp' is used multiple times in the brcm_pcie_setup()
-function.  One such usage did not initialize 'tmp' to the current value
-of the target register.  By luck the mistake does not currently affect
-behavior;  regardless 'tmp' is now initialized properly.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in knav_queue_probe, so we should fix it.
 
-Suggested-by: Rafał Miłecki <zajec5@gmail.com>
-Link: https://lore.kernel.org/r/20201102205712.23332-1-james.quinlan@broadcom.com
-Fixes: c0452137034b ("PCI: brcmstb: Add Broadcom STB PCIe host controller driver")
-Signed-off-by: Jim Quinlan <james.quinlan@broadcom.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 41f93af900a20 ("soc: ti: add Keystone Navigator QMSS driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 1 +
+ drivers/soc/ti/knav_qmss_queue.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index bea86899bd5df..9c3d2982248d3 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -893,6 +893,7 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
- 		burst = 0x2; /* 512 bytes */
- 
- 	/* Set SCB_MAX_BURST_SIZE, CFG_READ_UR_MODE, SCB_ACCESS_EN */
-+	tmp = readl(base + PCIE_MISC_MISC_CTRL);
- 	u32p_replace_bits(&tmp, 1, PCIE_MISC_MISC_CTRL_SCB_ACCESS_EN_MASK);
- 	u32p_replace_bits(&tmp, 1, PCIE_MISC_MISC_CTRL_CFG_READ_UR_MODE_MASK);
- 	u32p_replace_bits(&tmp, burst, PCIE_MISC_MISC_CTRL_MAX_BURST_SIZE_MASK);
+diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
+index a460f201bf8e7..54afa8f7f4087 100644
+--- a/drivers/soc/ti/knav_qmss_queue.c
++++ b/drivers/soc/ti/knav_qmss_queue.c
+@@ -1784,6 +1784,7 @@ static int knav_queue_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(&pdev->dev);
+ 		dev_err(dev, "Failed to enable QMSS\n");
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
