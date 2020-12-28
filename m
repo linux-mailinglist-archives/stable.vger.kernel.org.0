@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF38B2E3509
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D6E2E3513
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbgL1I3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 03:29:18 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:47993 "EHLO
+        id S1726497AbgL1Iad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 03:30:33 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:44985 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726354AbgL1I3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:29:17 -0500
+        by vger.kernel.org with ESMTP id S1726492AbgL1Iad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:30:33 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 1494A746;
-        Mon, 28 Dec 2020 03:28:31 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:28:32 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 5F9966C3;
+        Mon, 28 Dec 2020 03:29:27 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:29:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=krh29I
-        bxnz1lszqQD4X+aMoxQA3R9oN0W4Y5f+DFPGA=; b=juyYNhpwQfxGLxscl9CFUm
-        q45et1XLTk51yntY9VoP9GpKYnokfk+N+Fwozbre/rRgrrHPVoJVB5s9KRH32yuV
-        N1ah3bgFb80TpkrG8ueW6wYy4UoJGmXoloR8mZDU9netFlbAy/EdaoWjPHY603OJ
-        qbOEkEwYPb/8kmzRcCp1ync1eBXM72mPCR/MH61wF9UjNHy4p7HDn/3yyiNOLt5Z
-        dZTT4n5J+tdxAP/yDRzCCXOEAIpl5EZROkAAxeCOR63SOR8uwwAxrnriDvIy+6SP
-        gh4q2M6KhDlweaCe7FVF9MT62NHjKoIQgfYvtz0hndPmcFwO1N64Q40kRIq50zcA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Kb1Qdb
+        r2z7tGbF3kHoY56ZclbQhTi6yviOlMco+Vvj4=; b=l9KZXP6bnYkkpsJ1jhx06Y
+        Knkxx/k7NNoxY6AHcF18HOad4hO1K4PTG1ooRc3yyaA7QlAXaUk9JYig09mqcdAa
+        n89jbdmvU+YIE2szeDD82piMFizYvwSfENZF/+cthcO4wEfhT75voSBbb3sG8IrL
+        lEUOaF8KeJcnp9zABt7KJNgYsEbaBl3+x27RPEQC5r8ypW28ntyOZS4I/VyKWBrb
+        5Y5+71zsDfo0iKq3SdZDjsH8bCXQvDP9XKsUqKQ0Prb2UL5YEPXt8+57rK8FkiDv
+        sCmNDp2vcV0hlIsuTqDbPpbOFT6dh6J/xa4p+JOsObbM9xZWGBo/lSrxHmZv5EdQ
         ==
-X-ME-Sender: <xms:L5fpXxeXRxOClRdCI0YoqJEXMsFcg_VqeOGZaaoejoX_bDs1TZw-mg>
-    <xme:L5fpX_MaZAoxZzM-FGcpwoYUOz7iRWCP2fn3HqoCjhBcmfVgnjl0QwO_u47h6Wu4P
-    HA4mw5cxOg1wQ>
+X-ME-Sender: <xms:ZpfpX3Af_DWV3BOdmKMvVfcYSEv_d0z3H_qNDD0csE4mXsAbDwr9nA>
+    <xme:ZpfpX9gezuNal5if9c53FMqmewi21ZqyfjZBac4G9D3hHLEVGP5apxIS9tAqs4l-4
+    d_1fYzZdd7chg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:L5fpX6gjOuZuiv_yMTdIEmSKcn0WABSc7iJZKo2P_xL0xmUqVwugyQ>
-    <xmx:L5fpX6-KjRbMMvnOzd1Dv5QlbT8VH0Uo2o3KjduHG72IoAIhS5CjNQ>
-    <xmx:L5fpX9sKdZwMGAetQi-qRgYmqgHb7oA3FEHjh3vlmPDtxGSEKfp1UQ>
-    <xmx:L5fpX-WcA6lKQW7suEHojzpxZm0t-dF-ALfs8M-lOHyTKowiBVKMWuKgTxU>
+X-ME-Proxy: <xmx:ZpfpXymK-eRrSql5xzYwdKeNsPw4wXn_1iTPXtWeLv859h5pDVvaBA>
+    <xmx:ZpfpX5wVEOGx4f44IGDXe_Q99Vj3SJoS83G4ZaVJEiwxId_q2rbNJg>
+    <xmx:ZpfpX8QfV7cT7z665yDShvOaS_myv1G5R9BWwORvPTF2iCGEYhqjzA>
+    <xmx:ZpfpX3K4YR_WW8IeBG0couB_e7gMH3Xeytu3v3DJXtcKWInq0v9bSR-G-Bg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A46B51080063;
-        Mon, 28 Dec 2020 03:28:30 -0500 (EST)
-Subject: FAILED: patch "[PATCH] s390/smp: perform initial CPU reset also for SMT siblings" failed to apply to 4.4-stable tree
-To:     svens@linux.ibm.com, hca@linux.ibm.com, stable@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 896AE24005C;
+        Mon, 28 Dec 2020 03:29:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] s390/dasd: fix hanging device offline processing" failed to apply to 4.4-stable tree
+To:     sth@linux.ibm.com, axboe@kernel.dk, hoeppner@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 09:29:54 +0100
-Message-ID: <16091441941247@kroah.com>
+Date:   Mon, 28 Dec 2020 09:30:50 +0100
+Message-ID: <160914425080196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,52 +70,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b5e438ebd7e808d1d2435159ac4742e01a94b8da Mon Sep 17 00:00:00 2001
-From: Sven Schnelle <svens@linux.ibm.com>
-Date: Tue, 8 Dec 2020 07:35:21 +0100
-Subject: [PATCH] s390/smp: perform initial CPU reset also for SMT siblings
+From 658a337a606f48b7ebe451591f7681d383fa115e Mon Sep 17 00:00:00 2001
+From: Stefan Haberland <sth@linux.ibm.com>
+Date: Thu, 17 Dec 2020 16:59:04 +0100
+Subject: [PATCH] s390/dasd: fix hanging device offline processing
 
-Not resetting the SMT siblings might leave them in unpredictable
-state. One of the observed problems was that the CPU timer wasn't
-reset and therefore large system time values where accounted during
-CPU bringup.
+For an LCU update a read unit address configuration IO is required.
+This is started using sleep_on(), which has early exit paths in case the
+device is not usable for IO. For example when it is in offline processing.
 
-Cc: <stable@kernel.org> # 4.0
-Fixes: 10ad34bc76dfb ("s390: add SMT support")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+In those cases the LCU update should fail and not be retried.
+Therefore lcu_update_work checks if EOPNOTSUPP is returned or not.
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 647226e50c80..27c763014114 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -890,24 +890,12 @@ static void __no_sanitize_address smp_start_secondary(void *cpuvoid)
- /* Upping and downing of CPUs */
- int __cpu_up(unsigned int cpu, struct task_struct *tidle)
- {
--	struct pcpu *pcpu;
--	int base, i, rc;
-+	struct pcpu *pcpu = pcpu_devices + cpu;
-+	int rc;
+Commit 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
+accidentally removed the EOPNOTSUPP return code from
+read_unit_address_configuration(), which in turn might lead to an endless
+loop of the LCU update in offline processing.
+
+Fix by returning EOPNOTSUPP again if the device is not able to perform the
+request.
+
+Fixes: 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
+Cc: stable@vger.kernel.org #5.3
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index 99f86612f775..31e8b5d48e86 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -462,11 +462,19 @@ static int read_unit_address_configuration(struct dasd_device *device,
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
  
--	pcpu = pcpu_devices + cpu;
- 	if (pcpu->state != CPU_STATE_CONFIGURED)
- 		return -EIO;
--	base = smp_get_base_cpu(cpu);
--	for (i = 0; i <= smp_cpu_mtid; i++) {
--		if (base + i < nr_cpu_ids)
--			if (cpu_online(base + i))
--				break;
--	}
--	/*
--	 * If this is the first CPU of the core to get online
--	 * do an initial CPU reset.
--	 */
--	if (i > smp_cpu_mtid &&
--	    pcpu_sigp_retry(pcpu_devices + base, SIGP_INITIAL_CPU_RESET, 0) !=
-+	if (pcpu_sigp_retry(pcpu, SIGP_INITIAL_CPU_RESET, 0) !=
- 	    SIGP_CC_ORDER_CODE_ACCEPTED)
- 		return -EIO;
- 
+ 	rc = dasd_sleep_on(cqr);
+-	if (rc && !suborder_not_supported(cqr)) {
++	if (!rc)
++		goto out;
++
++	if (suborder_not_supported(cqr)) {
++		/* suborder not supported or device unusable for IO */
++		rc = -EOPNOTSUPP;
++	} else {
++		/* IO failed but should be retried */
+ 		spin_lock_irqsave(&lcu->lock, flags);
+ 		lcu->flags |= NEED_UAC_UPDATE;
+ 		spin_unlock_irqrestore(&lcu->lock, flags);
+ 	}
++out:
+ 	dasd_sfree_request(cqr, cqr->memdev);
+ 	return rc;
+ }
 
