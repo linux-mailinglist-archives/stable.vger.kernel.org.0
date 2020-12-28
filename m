@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA792E6881
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D772E695B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729820AbgL1QhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:37:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
+        id S2441790AbgL1Qsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:48:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729822AbgL1NBf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:01:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30CC9207C9;
-        Mon, 28 Dec 2020 13:01:18 +0000 (UTC)
+        id S1728186AbgL1Mxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5AB422B49;
+        Mon, 28 Dec 2020 12:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160479;
-        bh=HJIhZb/jp000vfo5nikW6TJi20kwbfRo40g+g5sqEZg=;
+        s=korg; t=1609159958;
+        bh=43jZFcOj5vK0zLOQ8Sa/NCBO2jRoU0V/bzj3PaumTcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PM/aYrUFYhPGEGvQ3z4s3kBAt7rzXaSbBOD3yYMBRNbbCUHFw5g+KohL1kIyKrwkz
-         U2yyNnY3NgE3Cb5uvvv38oHFAS1KvJHwILgrn5W3pH0UCk1jjGCATXsbf4e0F+trYL
-         5J1qxpN9xmvZH+B9URoF8EdD0XoY+BItGxEeFOtU=
+        b=cvooW1ibYj9nM09te2/XXFyTsioIEPrOX89GWd449faC4NSQEYhusJ0xgqpeOEP19
+         3UyvzEP2OxUSVwTaC3Jp1gRsJsEzZhQwJGP+FmMwZidRcAS5HXhFjaVDSaRXofVk1F
+         q79FtvyZhFUDcHV04kCfypKPFgkhCGglK5r5nTbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 066/175] staging: greybus: codecs: Fix reference counter leak in error handling
+Subject: [PATCH 4.4 035/132] spi: img-spfi: fix reference leak in img_spfi_resume
 Date:   Mon, 28 Dec 2020 13:48:39 +0100
-Message-Id: <20201228124856.448340696@linuxfoundation.org>
+Message-Id: <20201228124848.105178032@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +42,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 3952659a6108f77a0d062d8e8487bdbdaf52a66c ]
+[ Upstream commit ee5558a9084584015c8754ffd029ce14a5827fa8 ]
 
-gb_pm_runtime_get_sync has increased the usage counter of the device here.
-Forgetting to call gb_pm_runtime_put_noidle will result in usage counter
-leak in the error branch of (gbcodec_hw_params and gbcodec_prepare). We
-fixed it by adding it.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in img_spfi_resume, so we should fix it.
 
-Fixes: c388ae7696992 ("greybus: audio: Update pm runtime support in dai_ops callback")
+Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
 Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201109131347.1725288-2-zhangqilong3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20201102145651.3875-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/audio_codec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-img-spfi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
-index 8a0744b58a329..4c2d6c2d4fb41 100644
---- a/drivers/staging/greybus/audio_codec.c
-+++ b/drivers/staging/greybus/audio_codec.c
-@@ -491,6 +491,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
- 	if (ret) {
- 		dev_err_ratelimited(dai->dev, "%d: Error during set_config\n",
- 				    ret);
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index c46c0738c7340..e58319e58ba4b 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -773,8 +773,10 @@ static int img_spfi_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_noidle(dev);
  		return ret;
- 	}
-@@ -562,6 +563,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
- 		break;
- 	}
- 	if (ret) {
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
- 		dev_err_ratelimited(dai->dev, "set_data_size failed:%d\n",
- 				     ret);
++	}
+ 	spfi_reset(spfi);
+ 	pm_runtime_put(dev);
+ 
 -- 
 2.27.0
 
