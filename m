@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7EA2E3996
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8576D2E405E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388861AbgL1NZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:25:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53918 "EHLO mail.kernel.org"
+        id S2504240AbgL1Ovi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388872AbgL1NZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 113012072C;
-        Mon, 28 Dec 2020 13:24:32 +0000 (UTC)
+        id S2502095AbgL1OTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:19:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A898121D94;
+        Mon, 28 Dec 2020 14:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161873;
-        bh=+AoAnIZZ/9A6WTdD5RGCO12One7qNrVF0qIULMCRCF8=;
+        s=korg; t=1609165158;
+        bh=ixOEE7phzSi3SLivtlBc9MuGcz4AkwIHzh0zfDAMKDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7yKdiQ+fw4KGtbAdV9rJsBINUtzeuAc6tz6IiybYUusdS7HRfwAm6uyqelTzBd3M
-         i+gu6u0S/dZNyWdMsZiEIxi3Vx3EekXWFwaLNC6Kg80GrtXgUiF+5XkPhexag6zZui
-         yREGktMd95ibEeUfMKZJJooLNYEYns+ok6p7115w=
+        b=BrbL3+avqfy5YT2+2JEY6tuIxmF3A44NtiXg+IzgrnskNOj9NeZaQXBKx9FPq3Lwt
+         4gadxJOBupHlb59uidANhEHc/KsNRA2iNqoy3pfjP7dDI3xj3Ol/F+zNEFcW/AZXz1
+         gXr9xAIqiSsbbOJ0vYmK09V/YxK2K9b6T/3x4kXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/346] sched: Reenable interrupts in do_sched_yield()
+Subject: [PATCH 5.10 432/717] watchdog: Fix potential dereferencing of null pointer
 Date:   Mon, 28 Dec 2020 13:47:10 +0100
-Message-Id: <20201228124925.154328017@linuxfoundation.org>
+Message-Id: <20201228125041.668154203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit 345a957fcc95630bf5535d7668a59ed983eb49a7 ]
+[ Upstream commit 6f733cb2e7db38f8141b14740bcde577844a03b7 ]
 
-do_sched_yield() invokes schedule() with interrupts disabled which is
-not allowed. This goes back to the pre git era to commit a6efb709806c
-("[PATCH] irqlock patch 2.5.27-H6") in the history tree.
+A reboot notifier, which stops the WDT by calling the stop hook without
+any check, would be registered when we set WDOG_STOP_ON_REBOOT flag.
 
-Reenable interrupts and remove the misleading comment which "explains" it.
+Howerer we allow the WDT driver to omit the stop hook since commit
+"d0684c8a93549" ("watchdog: Make stop function optional") and provide
+a module parameter for user that controls the WDOG_STOP_ON_REBOOT flag
+in commit 9232c80659e94 ("watchdog: Add stop_on_reboot parameter to
+control reboot policy"). Together that commits make user potential to
+insert a watchdog driver that don't provide a stop hook but with the
+stop_on_reboot parameter set, then dereferencing of null pointer occurs
+on system reboot.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/87r1pt7y5c.fsf@nanos.tec.linutronix.de
+Check the stop hook before registering the reboot notifier to fix the
+issue.
+
+Fixes: d0684c8a9354 ("watchdog: Make stop function optional")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201109130512.28121-1-wangwensheng4@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/watchdog/watchdog_core.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index b166320f7633e..013b1c6cb4ed9 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4984,12 +4984,8 @@ static void do_sched_yield(void)
- 	schedstat_inc(rq->yld_count);
- 	current->sched_class->yield_task(rq);
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 4238447578128..0e9a99559609c 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -267,15 +267,19 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 	}
  
--	/*
--	 * Since we are going to call schedule() anyway, there's
--	 * no need to preempt or enable interrupts:
--	 */
- 	preempt_disable();
--	rq_unlock(rq, &rf);
-+	rq_unlock_irq(rq, &rf);
- 	sched_preempt_enable_no_resched();
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+-		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+-
+-		ret = register_reboot_notifier(&wdd->reboot_nb);
+-		if (ret) {
+-			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
+-			       wdd->id, ret);
+-			watchdog_dev_unregister(wdd);
+-			ida_simple_remove(&watchdog_ida, id);
+-			return ret;
++		if (!wdd->ops->stop)
++			pr_warn("watchdog%d: stop_on_reboot not supported\n", wdd->id);
++		else {
++			wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
++
++			ret = register_reboot_notifier(&wdd->reboot_nb);
++			if (ret) {
++				pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
++					wdd->id, ret);
++				watchdog_dev_unregister(wdd);
++				ida_simple_remove(&watchdog_ida, id);
++				return ret;
++			}
+ 		}
+ 	}
  
- 	schedule();
 -- 
 2.27.0
 
