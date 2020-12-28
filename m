@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 180382E3938
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D452E6422
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387584AbgL1NUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:20:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
+        id S2404360AbgL1NnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387582AbgL1NUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:20:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE951207F7;
-        Mon, 28 Dec 2020 13:20:18 +0000 (UTC)
+        id S2404300AbgL1NnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28F2F205CB;
+        Mon, 28 Dec 2020 13:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161619;
-        bh=jzr9CzzGDnYbvfNCc2grdd/Yq2DYbzJk6tz6jtEzKes=;
+        s=korg; t=1609162939;
+        bh=Fpdr+QCfNFR0xtIO25R8NfCWiNGBQtEvuZiKYFuqPBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iypeOr9lIsy1YuYVv6J9A+GpTltFYqwnglxE0M/0x+Ic16e5yq1YMjp5p1jJcB2D6
-         Wci3VizlfW+N74hWX1FX1F326oQAiPxf3+phJdQPK8jyoNDhXp6zfa6Jo9Y7Zw0QEN
-         xkgdsZBzdGj8rpUk0KJPLLmhgNsL3PeHSv7eID4E=
+        b=1JqnpE6q8I7uNGrRBZJxyVrteflby2YkyxV2GICYTExba/un29KcjmXwg58NBlt7i
+         +uQmdBjgJqh+Q/e5xiq3QgKLIArZVlEoV/BPnDITJ1tzYAYy+hyCtcd9c4MRBgC/Zh
+         9cep1UZ6TPoAAOj+zDJYNqPjrgCAbP9Uo/Orults=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ingemar Johansson <ingemar.s.johansson@ericsson.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 031/346] tcp: fix cwnd-limited bug for TSO deferral where we send nothing
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 114/453] spi: spi-ti-qspi: fix reference leak in ti_qspi_setup
 Date:   Mon, 28 Dec 2020 13:45:50 +0100
-Message-Id: <20201228124921.285247091@linuxfoundation.org>
+Message-Id: <20201228124942.698276804@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 299bcb55ecd1412f6df606e9dc0912d55610029e ]
+[ Upstream commit 45c0cba753641e5d7c3207f04241bd0e7a021698 ]
 
-When cwnd is not a multiple of the TSO skb size of N*MSS, we can get
-into persistent scenarios where we have the following sequence:
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in ti_qspi_setup, so we should fix it.
 
-(1) ACK for full-sized skb of N*MSS arrives
-  -> tcp_write_xmit() transmit full-sized skb with N*MSS
-  -> move pacing release time forward
-  -> exit tcp_write_xmit() because pacing time is in the future
-
-(2) TSQ callback or TCP internal pacing timer fires
-  -> try to transmit next skb, but TSO deferral finds remainder of
-     available cwnd is not big enough to trigger an immediate send
-     now, so we defer sending until the next ACK.
-
-(3) repeat...
-
-So we can get into a case where we never mark ourselves as
-cwnd-limited for many seconds at a time, even with
-bulk/infinite-backlog senders, because:
-
-o In case (1) above, every time in tcp_write_xmit() we have enough
-cwnd to send a full-sized skb, we are not fully using the cwnd
-(because cwnd is not a multiple of the TSO skb size). So every time we
-send data, we are not cwnd limited, and so in the cwnd-limited
-tracking code in tcp_cwnd_validate() we mark ourselves as not
-cwnd-limited.
-
-o In case (2) above, every time in tcp_write_xmit() that we try to
-transmit the "remainder" of the cwnd but defer, we set the local
-variable is_cwnd_limited to true, but we do not send any packets, so
-sent_pkts is zero, so we don't call the cwnd-limited logic to update
-tp->is_cwnd_limited.
-
-Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
-Reported-by: Ingemar Johansson <ingemar.s.johansson@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201209035759.1225145-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 505a14954e2d7 ("spi/qspi: Add qspi flash controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103140947.3815-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/spi/spi-ti-qspi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1622,7 +1622,8 @@ static void tcp_cwnd_validate(struct soc
- 	 * window, and remember whether we were cwnd-limited then.
- 	 */
- 	if (!before(tp->snd_una, tp->max_packets_seq) ||
--	    tp->packets_out > tp->max_packets_out) {
-+	    tp->packets_out > tp->max_packets_out ||
-+	    is_cwnd_limited) {
- 		tp->max_packets_out = tp->packets_out;
- 		tp->max_packets_seq = tp->snd_nxt;
- 		tp->is_cwnd_limited = is_cwnd_limited;
-@@ -2407,6 +2408,10 @@ repair:
- 	else
- 		tcp_chrono_stop(sk, TCP_CHRONO_RWND_LIMITED);
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index 66dcb61285392..cad2abcbd9c78 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -176,6 +176,7 @@ static int ti_qspi_setup(struct spi_device *spi)
  
-+	is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
-+	if (likely(sent_pkts || is_cwnd_limited))
-+		tcp_cwnd_validate(sk, is_cwnd_limited);
-+
- 	if (likely(sent_pkts)) {
- 		if (tcp_in_cwnd_reduction(sk))
- 			tp->prr_out += sent_pkts;
-@@ -2414,8 +2419,6 @@ repair:
- 		/* Send one loss probe per tail loss episode. */
- 		if (push_one != 2)
- 			tcp_schedule_loss_probe(sk, false);
--		is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
--		tcp_cwnd_validate(sk, is_cwnd_limited);
- 		return false;
+ 	ret = pm_runtime_get_sync(qspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(qspi->dev);
+ 		dev_err(qspi->dev, "pm_runtime_get_sync() failed\n");
+ 		return ret;
  	}
- 	return !tp->packets_out && !tcp_write_queue_empty(sk);
+-- 
+2.27.0
+
 
 
