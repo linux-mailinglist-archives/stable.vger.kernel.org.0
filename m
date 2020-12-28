@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7984D2E3880
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EDB32E3B34
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731386AbgL1NKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:10:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37570 "EHLO mail.kernel.org"
+        id S2405584AbgL1NrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:47:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731359AbgL1NKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3513E206ED;
-        Mon, 28 Dec 2020 13:10:08 +0000 (UTC)
+        id S2405577AbgL1NrR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:47:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A6520715;
+        Mon, 28 Dec 2020 13:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161008;
-        bh=nj+NmGE7U71wUz78H1Oy3HfJp5mchXSgi7jywc5oPlg=;
+        s=korg; t=1609163220;
+        bh=7iq1jFOVbu7dF/nXyYGnkDMfJPURiuAwBZkAmU03LIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2XHUY5x2IPKk1/l0I/l+S23EQlnLmlvWlsDX51fS/YiU4edo1e6Rd6GqWYqo0/ygY
-         rPhp1ynLoczfJj/JubsnVSOAnSgLPPlOhqAz3IgGIGYMYhOsteggzdJvSc7PWAdTFX
-         IhVGqUNBGNlxVuRV8TXM1n5MYdYJja1q0wq8dbvc=
+        b=AHx+Izs8tcj1C9pd9nsffR9A5R3rchpANhrdd3y3DilWHRzDcxRhUGqzAJxRFUcLi
+         PyVaRs0gUgmG9fkZ/ZlOceJXHOXwiwjsWNzUKRsdlzp//CojwKpeeHJJRldKuUh1Ww
+         Zczf3GalahB8KZ3zBHmw7Y1rmCIdyRePp+lp5oH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 042/242] kernel/cpu: add arch override for clear_tasks_mm_cpumask() mm handling
-Date:   Mon, 28 Dec 2020 13:47:27 +0100
-Message-Id: <20201228124906.744876546@linuxfoundation.org>
+Subject: [PATCH 5.4 212/453] clocksource/drivers/orion: Add missing clk_disable_unprepare() on error path
+Date:   Mon, 28 Dec 2020 13:47:28 +0100
+Message-Id: <20201228124947.420945137@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8ff00399b153440c1c83e20c43020385b416415b ]
+[ Upstream commit c1e6cad00aa2f17845e7270e38ff3cc82c7b022a ]
 
-powerpc/64s keeps a counter in the mm which counts bits set in
-mm_cpumask as well as other things. This means it can't use generic code
-to clear bits out of the mask and doesn't adjust the arch specific
-counter.
+After calling clk_prepare_enable(), clk_disable_unprepare() need
+be called on error path.
 
-Add an arch override that allows powerpc/64s to use
-clear_tasks_mm_cpumask().
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201126102530.691335-4-npiggin@gmail.com
+Fixes: fbe4b3566ddc ("clocksource/drivers/orion: Convert init function...")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201111064706.3397156-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/clocksource/timer-orion.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index d8c77bfb6e7e4..e1d10629022a5 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -772,6 +772,10 @@ void __init cpuhp_threads_init(void)
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-+#ifndef arch_clear_mm_cpumask_cpu
-+#define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
-+#endif
-+
- /**
-  * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
-  * @cpu: a CPU id
-@@ -807,7 +811,7 @@ void clear_tasks_mm_cpumask(int cpu)
- 		t = find_lock_task_mm(p);
- 		if (!t)
- 			continue;
--		cpumask_clear_cpu(cpu, mm_cpumask(t->mm));
-+		arch_clear_mm_cpumask_cpu(cpu, t->mm);
- 		task_unlock(t);
+diff --git a/drivers/clocksource/timer-orion.c b/drivers/clocksource/timer-orion.c
+index 7d487107e3cd8..32b2563e2ad1b 100644
+--- a/drivers/clocksource/timer-orion.c
++++ b/drivers/clocksource/timer-orion.c
+@@ -149,7 +149,8 @@ static int __init orion_timer_init(struct device_node *np)
+ 	irq = irq_of_parse_and_map(np, 1);
+ 	if (irq <= 0) {
+ 		pr_err("%pOFn: unable to parse timer1 irq\n", np);
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out_unprep_clk;
  	}
- 	rcu_read_unlock();
+ 
+ 	rate = clk_get_rate(clk);
+@@ -166,7 +167,7 @@ static int __init orion_timer_init(struct device_node *np)
+ 				    clocksource_mmio_readl_down);
+ 	if (ret) {
+ 		pr_err("Failed to initialize mmio timer\n");
+-		return ret;
++		goto out_unprep_clk;
+ 	}
+ 
+ 	sched_clock_register(orion_read_sched_clock, 32, rate);
+@@ -175,7 +176,7 @@ static int __init orion_timer_init(struct device_node *np)
+ 	ret = setup_irq(irq, &orion_clkevt_irq);
+ 	if (ret) {
+ 		pr_err("%pOFn: unable to setup irq\n", np);
+-		return ret;
++		goto out_unprep_clk;
+ 	}
+ 
+ 	ticks_per_jiffy = (clk_get_rate(clk) + HZ/2) / HZ;
+@@ -188,5 +189,9 @@ static int __init orion_timer_init(struct device_node *np)
+ 	orion_delay_timer_init(rate);
+ 
+ 	return 0;
++
++out_unprep_clk:
++	clk_disable_unprepare(clk);
++	return ret;
+ }
+ TIMER_OF_DECLARE(orion_timer, "marvell,orion-timer", orion_timer_init);
 -- 
 2.27.0
 
