@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 322CC2E3E5D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4272E3A24
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502219AbgL1O1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:27:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35058 "EHLO mail.kernel.org"
+        id S2387805AbgL1Ncv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:32:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502201AbgL1O1M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E145020791;
-        Mon, 28 Dec 2020 14:26:30 +0000 (UTC)
+        id S2391068AbgL1Ncs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:32:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA078207CF;
+        Mon, 28 Dec 2020 13:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165591;
-        bh=ATe23Rm/TKgb1NJsGRPJI5SJrqxqys9GsDW0OyV0fIw=;
+        s=korg; t=1609162327;
+        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9SQrE6vNHgp1/rQmOl53sC6LIb9OFOhKPgPjJzEyHBte1d+53id/F2EmFqo9vjmR
-         2k1nnsS13dCGkfZ3iCsp5ICW/Usjk0fc3riuhOPBWFIs7ZBnJOEUVAF9G7brLQBcl+
-         aSQRkGp1r/Y3THhsMGLNOnN+CDfnn2TZopdgOWrY=
+        b=bGOHC/Gwf7me/mVvhBB/ZvABBeVt8XIb5A6hqimbBbjHNmCEpx3AYvC0jFkURw2CI
+         z6PrHVhLK0pSGWtfxdc1M4ULTAGMW2sQadQIu3u7pfdLWmJa1Hz4JaCT9HZmkj/5Ua
+         v6YWgeD8sH8sjRxIZncyf75QCFVeCoWECeB7LcY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 586/717] USB: serial: keyspan_pda: fix write unthrottling
-Date:   Mon, 28 Dec 2020 13:49:44 +0100
-Message-Id: <20201228125048.990828703@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 266/346] Input: cyapa_gen6 - fix out-of-bounds stack access
+Date:   Mon, 28 Dec 2020 13:49:45 +0100
+Message-Id: <20201228124932.630251638@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 320f9028c7873c3c7710e8e93e5c979f4c857490 upstream.
+commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
 
-The driver did not update its view of the available device buffer space
-until write() was called in task context. This meant that write_room()
-would return 0 even after the device had sent a write-unthrottle
-notification, something which could lead to blocked writers not being
-woken up (e.g. when using OPOST).
+gcc -Warray-bounds warns about a serious bug in
+cyapa_pip_retrieve_data_structure:
 
-Note that we must also request an unthrottle notification is case a
-write() request fills the device buffer exactly.
+drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
+include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
+   40 |  *((__le16 *)p) = cpu_to_le16(val);
+drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
+  569 |  } __packed cmd;
+      |             ^~~
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Apparently the '-2' was added to the pointer instead of the value,
+writing garbage into the stack next to this variable.
+
+Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/input/mouse/cyapa_gen6.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -40,6 +40,8 @@
- #define DRIVER_AUTHOR "Brian Warner <warner@lothar.com>"
- #define DRIVER_DESC "USB Keyspan PDA Converter driver"
+--- a/drivers/input/mouse/cyapa_gen6.c
++++ b/drivers/input/mouse/cyapa_gen6.c
+@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
  
-+#define KEYSPAN_TX_THRESHOLD	16
-+
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
-@@ -110,7 +112,7 @@ static void keyspan_pda_request_unthrott
- 				 7, /* request_unthrottle */
- 				 USB_TYPE_VENDOR | USB_RECIP_INTERFACE
- 				 | USB_DIR_OUT,
--				 16, /* value: threshold */
-+				 KEYSPAN_TX_THRESHOLD,
- 				 0, /* index */
- 				 NULL,
- 				 0,
-@@ -129,6 +131,8 @@ static void keyspan_pda_rx_interrupt(str
- 	int retval;
- 	int status = urb->status;
- 	struct keyspan_pda_private *priv;
-+	unsigned long flags;
-+
- 	priv = usb_get_serial_port_data(port);
- 
- 	switch (status) {
-@@ -171,7 +175,10 @@ static void keyspan_pda_rx_interrupt(str
- 		case 1: /* modemline change */
- 			break;
- 		case 2: /* tx unthrottle interrupt */
-+			spin_lock_irqsave(&port->lock, flags);
- 			priv->tx_throttled = 0;
-+			priv->tx_room = max(priv->tx_room, KEYSPAN_TX_THRESHOLD);
-+			spin_unlock_irqrestore(&port->lock, flags);
- 			/* queue up a wakeup at scheduler time */
- 			usb_serial_port_softint(port);
- 			break;
-@@ -505,7 +512,8 @@ static int keyspan_pda_write(struct tty_
- 			goto exit;
- 		}
- 	}
--	if (count > priv->tx_room) {
-+
-+	if (count >= priv->tx_room) {
- 		/* we're about to completely fill the Tx buffer, so
- 		   we'll be throttled afterwards. */
- 		count = priv->tx_room;
-@@ -560,14 +568,17 @@ static void keyspan_pda_write_bulk_callb
- static int keyspan_pda_write_room(struct tty_struct *tty)
- {
- 	struct usb_serial_port *port = tty->driver_data;
--	struct keyspan_pda_private *priv;
--	priv = usb_get_serial_port_data(port);
--	/* used by n_tty.c for processing of tabs and such. Giving it our
--	   conservative guess is probably good enough, but needs testing by
--	   running a console through the device. */
--	return priv->tx_room;
--}
-+	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
-+	unsigned long flags;
-+	int room = 0;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (test_bit(0, &port->write_urbs_free) && !priv->tx_throttled)
-+		room = priv->tx_room;
-+	spin_unlock_irqrestore(&port->lock, flags);
- 
-+	return room;
-+}
- 
- static int keyspan_pda_chars_in_buffer(struct tty_struct *tty)
- {
+ 	memset(&cmd, 0, sizeof(cmd));
+ 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
+-	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
++	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
+ 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
+ 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
+ 	put_unaligned_le16(read_offset, &cmd.read_offset);
 
 
