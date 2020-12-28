@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9FF2E3646
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:15:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A47392E364E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:17:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727179AbgL1LPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:15:14 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48851 "EHLO
+        id S1727296AbgL1LQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:16:35 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:33005 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727032AbgL1LPN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:15:13 -0500
+        by vger.kernel.org with ESMTP id S1727019AbgL1LQf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:16:35 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0152A811;
-        Mon, 28 Dec 2020 06:14:07 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:14:08 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 28169837;
+        Mon, 28 Dec 2020 06:15:29 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:15:29 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=AX/Fgl
-        WydL58dAxS04o2HPweEOuYMkTH7RcL9VkNGTc=; b=Tr63nExfGAeTNvSdLLCR8/
-        j1J4GR3IT9JkVF2zFcUpbznuuVOBCP/xPWKxJKI2hkeMsHdxDD2WUKdNGng1PHu3
-        mp2liCyJ+wEp/AVWTOvHuRGmDmBBgre9iir1PvcS2VjqnMNYVPF+BxsVtmI0qm8Q
-        wA/MDV1R5V+LbAVPPKQiHp0uVM0qM7npraZAE/uP1TLLLLYHCxebKc9Oy1MF9D1M
-        GJjTsppTQ2yvGEPp5iGquDzEtnWXTNtKsJ39awxlom3zXlFMA7RzlY/CjBknUAA0
-        tskcjOnIRIXOMSU8y33Qk/91ct9jVw0cvSia+PmUqtuXJQbt9qtqDo5zA8OK1Piw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Pd2tAl
+        cj7ZJunyNzT64bBkVtXcFv9VZYNCbBCnMHu3M=; b=BjpUyntqy1UFncuT20X1hT
+        O51kMuBXsm9LDKSftiwJsid0lRXcjaetyDUg8+Y0fZMi6JQ+GGHZOA5rJt40VImH
+        mTiUp1TnhViQAEZcEbrghpfmSv1czhYOlJv7aKsXsTYSKWraDuiWs3Rs9MklB8l2
+        sWnCwgsbmQfxNiuM7CRAEwuo7WowRBXXC6MaUJdks/D9kb1vcf6vSIE4lhqZX+QR
+        zk1JeiB+CNNDvxkmEJ/wYCvdvHA8M+z5bOxU49SgH2FHi59E+munnkd7M5tisRKM
+        23Oqzddz0b5YYj/cU+se9kV740xqd3SGvD4FgznzSDunWtyMi6+6vM1GluikAYCQ
         ==
-X-ME-Sender: <xms:_73pX-rbevYtpxx2xl7kfqSyhg4IVWvzRg-5YNpvgbaIpffjTJlMyw>
-    <xme:_73pX8r6kUNh-Fayio7v2_rdm2FxgNDypK9BDLbaoDfVrbSmDsprMHXGTDSlIq3gr
-    Kog-jLtZ1jf5Q>
+X-ME-Sender: <xms:T77pX-YfT-2CqfWMmtZTLgd_5ZRTwPkSOTWN3yOtv2LV2zmi08kRLw>
+    <xme:T77pXxZVV0U1wnKFwgrR9dxrJLPrgLCbUdYevmL4g4KX8V1xPS3gRZbu0IBV4uXwh
+    iTR2pXD6CAshA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:_73pXzOcEUJL5E7ndruXaXncBPxuC6PCsJ9AOkAePHPjmESsFd6tZg>
-    <xmx:_73pX96_vHFeg8yL7MKgqI3BGP3xPetIavNuO29jA23g5je9X5gCJA>
-    <xmx:_73pX97pqqKC2M6cNDVZJISwXqExYcaVqAVpek9WRgGLkrAuEpV7Rg>
-    <xmx:_73pX6js9Nw1h5lAuR0A_T9m7fYZyNJY77qSAU88eK2Xzm0j694Lm6pxkIY>
+X-ME-Proxy: <xmx:T77pX49WSXjsn-RzgA4fc7b2PRGCdJzDO6pLrsDa2BC5zq7wQ6q5hw>
+    <xmx:T77pXwrBtS1dtIV4cytilh7ea6RLcLHzbB6DlIJWywkgc9FZe0ZGVg>
+    <xmx:T77pX5rxTZ8hmqfK77ugbr15x5BWTIyToMXhEct8NP3-B_EnD9b8Eg>
+    <xmx:UL7pX6AjHP_1low-KnhpC1E46dzie3o-e1KjtR_oRcpr01_uqkYkyFa3pUA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2E7F2108005B;
-        Mon, 28 Dec 2020 06:14:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] md/raid10: initialize r10_bio->read_slot before use." failed to apply to 4.19-stable tree
-To:     kvigor@gmail.com, songliubraving@fb.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8AE6C240057;
+        Mon, 28 Dec 2020 06:15:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: jasperlake: Fix HOSTSW_OWN offset" failed to apply to 5.10-stable tree
+To:     evgreen@chromium.org, andriy.shevchenko@linux.intel.com,
+        mika.westerberg@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:15:21 +0100
-Message-ID: <16091541217049@kroah.com>
+Date:   Mon, 28 Dec 2020 12:16:50 +0100
+Message-ID: <160915421010570@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,42 +71,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 93decc563637c4288380912eac0eb42fb246cc04 Mon Sep 17 00:00:00 2001
-From: Kevin Vigor <kvigor@gmail.com>
-Date: Fri, 6 Nov 2020 14:20:34 -0800
-Subject: [PATCH] md/raid10: initialize r10_bio->read_slot before use.
+From 5aa5541eca04a1c69a05bbb747164926bbf20de4 Mon Sep 17 00:00:00 2001
+From: Evan Green <evgreen@chromium.org>
+Date: Wed, 11 Nov 2020 15:17:28 -0800
+Subject: [PATCH] pinctrl: jasperlake: Fix HOSTSW_OWN offset
 
-In __make_request() a new r10bio is allocated and passed to
-raid10_read_request(). The read_slot member of the bio is not
-initialized, and the raid10_read_request() uses it to index an
-array. This leads to occasional panics.
+GPIOs that attempt to use interrupts get thwarted with a message like:
+"pin 161 cannot be used as IRQ" (for instance with SD_CD). This is because
+the HOSTSW_OWN offset is incorrect, so every GPIO looks like it's
+owned by ACPI.
 
-Fix by initializing the field to invalid value and checking for
-valid value in raid10_read_request().
-
+Fixes: e278dcb7048b1 ("pinctrl: intel: Add Intel Jasper Lake pin controller support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kevin Vigor <kvigor@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
-index b7bca6703df8..3153183b7772 100644
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1127,7 +1127,7 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
- 	struct md_rdev *err_rdev = NULL;
- 	gfp_t gfp = GFP_NOIO;
+diff --git a/drivers/pinctrl/intel/pinctrl-jasperlake.c b/drivers/pinctrl/intel/pinctrl-jasperlake.c
+index c5e204c8da9c..ec435b7ab392 100644
+--- a/drivers/pinctrl/intel/pinctrl-jasperlake.c
++++ b/drivers/pinctrl/intel/pinctrl-jasperlake.c
+@@ -16,7 +16,7 @@
  
--	if (r10_bio->devs[slot].rdev) {
-+	if (slot >= 0 && r10_bio->devs[slot].rdev) {
- 		/*
- 		 * This is an error retry, but we cannot
- 		 * safely dereference the rdev in the r10_bio,
-@@ -1508,6 +1508,7 @@ static void __make_request(struct mddev *mddev, struct bio *bio, int sectors)
- 	r10_bio->mddev = mddev;
- 	r10_bio->sector = bio->bi_iter.bi_sector;
- 	r10_bio->state = 0;
-+	r10_bio->read_slot = -1;
- 	memset(r10_bio->devs, 0, sizeof(r10_bio->devs[0]) * conf->geo.raid_disks);
+ #define JSL_PAD_OWN	0x020
+ #define JSL_PADCFGLOCK	0x080
+-#define JSL_HOSTSW_OWN	0x0b0
++#define JSL_HOSTSW_OWN	0x0c0
+ #define JSL_GPI_IS	0x100
+ #define JSL_GPI_IE	0x120
  
- 	if (bio_data_dir(bio) == READ)
 
