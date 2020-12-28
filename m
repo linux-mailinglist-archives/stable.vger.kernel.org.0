@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D532E6646
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B012E6640
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393594AbgL1QLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:11:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50950 "EHLO mail.kernel.org"
+        id S2389740AbgL1QKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:10:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388346AbgL1NWs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC680207F7;
-        Mon, 28 Dec 2020 13:22:31 +0000 (UTC)
+        id S2388377AbgL1NW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B3520719;
+        Mon, 28 Dec 2020 13:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161752;
-        bh=k4LNBYdqcC/d4phPKsQg+G+/GSM6jXgB1CblEQV7WeI=;
+        s=korg; t=1609161764;
+        bh=YfF/d+HGctlPVV+WGQC+NlYt1gEwYjQAwDNW5Y63Sl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OM7aJA01wrrbShJ/UWLGKrys9zVkOcgbUKU15YS5stip3mjOBTO3VYrRXHQtdOlr8
-         TPdnLRAn9yCkaSJDHqyCQR6jldjJYPDJlDz+UnOBiKvIotJhid76iqSLWOFaa4lL9Z
-         v/vdjLaolLpGVE3xE0uSflJ4WLahKzWl1VDd+cE8=
+        b=R2mknbmreuhFdYou4vdaVeqmEsAZlvTUIY1RRCfVQ5j9qOtF8XEOHYuENM0aEj0SO
+         Vgwu3GzpRv1LLrwJwqRQHmEjsoS1mioRy7S1/0UEYO0ihihDVTv1jpyJJmn8oPpPNG
+         8WeYi+9zAZv52b5I2WrVLnGKTvsMWPGGJdMZGED4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Annika Wickert <annika.wickert@exaring.de>,
+        Sven Eckelmann <sven@narfation.org>,
+        Annika Wickert <aw@awlnx.space>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/346] kernel/cpu: add arch override for clear_tasks_mm_cpumask() mm handling
-Date:   Mon, 28 Dec 2020 13:46:29 +0100
-Message-Id: <20201228124923.178774895@linuxfoundation.org>
+Subject: [PATCH 4.19 073/346] vxlan: Add needed_headroom for lower device
+Date:   Mon, 28 Dec 2020 13:46:32 +0100
+Message-Id: <20201228124923.326278307@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -42,52 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 8ff00399b153440c1c83e20c43020385b416415b ]
+[ Upstream commit 0a35dc41fea67ac4495ce7584406bf9557a6e7d0 ]
 
-powerpc/64s keeps a counter in the mm which counts bits set in
-mm_cpumask as well as other things. This means it can't use generic code
-to clear bits out of the mask and doesn't adjust the arch specific
-counter.
+It was observed that sending data via batadv over vxlan (on top of
+wireguard) reduced the performance massively compared to raw ethernet or
+batadv on raw ethernet. A check of perf data showed that the
+vxlan_build_skb was calling all the time pskb_expand_head to allocate
+enough headroom for:
 
-Add an arch override that allows powerpc/64s to use
-clear_tasks_mm_cpumask().
+  min_headroom = LL_RESERVED_SPACE(dst->dev) + dst->header_len
+  		+ VXLAN_HLEN + iphdr_len;
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201126102530.691335-4-npiggin@gmail.com
+But the vxlan_config_apply only requested needed headroom for:
+
+  lowerdev->hard_header_len + VXLAN6_HEADROOM or VXLAN_HEADROOM
+
+So it completely ignored the needed_headroom of the lower device. The first
+caller of net_dev_xmit could therefore never make sure that enough headroom
+was allocated for the rest of the transmit path.
+
+Cc: Annika Wickert <annika.wickert@exaring.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Tested-by: Annika Wickert <aw@awlnx.space>
+Link: https://lore.kernel.org/r/20201126125247.1047977-1-sven@narfation.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/vxlan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 08b9d6ba0807f..9a39a24f60253 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -776,6 +776,10 @@ void __init cpuhp_threads_init(void)
- }
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index abf85f0ab72fc..8481a21fe7afb 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -3180,6 +3180,7 @@ static void vxlan_config_apply(struct net_device *dev,
+ 		dev->gso_max_segs = lowerdev->gso_max_segs;
  
- #ifdef CONFIG_HOTPLUG_CPU
-+#ifndef arch_clear_mm_cpumask_cpu
-+#define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
-+#endif
-+
- /**
-  * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
-  * @cpu: a CPU id
-@@ -811,7 +815,7 @@ void clear_tasks_mm_cpumask(int cpu)
- 		t = find_lock_task_mm(p);
- 		if (!t)
- 			continue;
--		cpumask_clear_cpu(cpu, mm_cpumask(t->mm));
-+		arch_clear_mm_cpumask_cpu(cpu, t->mm);
- 		task_unlock(t);
- 	}
- 	rcu_read_unlock();
+ 		needed_headroom = lowerdev->hard_header_len;
++		needed_headroom += lowerdev->needed_headroom;
+ 
+ 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
+ 					   VXLAN_HEADROOM);
 -- 
 2.27.0
 
