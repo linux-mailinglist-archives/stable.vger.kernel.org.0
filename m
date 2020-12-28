@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E439C2E3F49
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C11F92E6512
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503484AbgL1O34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:29:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
+        id S2390565AbgL1Pzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:55:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503408AbgL1O3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:29:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5142922C7E;
-        Mon, 28 Dec 2020 14:29:13 +0000 (UTC)
+        id S2389436AbgL1Nfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:35:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63F4A20867;
+        Mon, 28 Dec 2020 13:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165753;
-        bh=Xpd+pIEKctHJU2+pXj8imbHkhlwWecnZgI8/5R8H2ho=;
+        s=korg; t=1609162507;
+        bh=gUQzAdPCX55oMJ9NUDZLCAt00yC3cJNBAcYgtNs8HK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCYyH6U3QOw4Yr6zR+qyC4Mbv4ouAILLjzcSblWs7MrXLkKu5155Ies50XagFWZww
-         Lf0uIniHOq03MApospDA/5zftcds5pS9wnSpvsXshx0Qs3rJzFuPhepQPrVIhILVhF
-         slvBT+XN2BHpXDrznSdZ/OTFOVD2JyHpkvqefnvQ=
+        b=sWXWuvgJr967Za+69Xh2uMC2RAkv4HQanJmnxNJiRvaRRfyLlfAZrgh6lBG9R6BB4
+         ZvXP4nSBfSOxH2dlpx43X3ZjYaLITauUIJtYaAlv0la8jh5kKYYUWcTiMt4J7tPx5x
+         /e0zVY0B3IIsANtuinysdAh+dNOwvUc7CJYvtVHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 612/717] powerpc/xmon: Change printk() to pr_cont()
-Date:   Mon, 28 Dec 2020 13:50:10 +0100
-Message-Id: <20201228125050.234256296@linuxfoundation.org>
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 292/346] USB: serial: keyspan_pda: fix write deadlock
+Date:   Mon, 28 Dec 2020 13:50:11 +0100
+Message-Id: <20201228124933.893621116@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Johan Hovold <johan@kernel.org>
 
-commit 7c6c86b36a36dd4a13d30bba07718e767aa2e7a1 upstream.
+commit 7353cad7ee4deaefc16e94727e69285563e219f6 upstream.
 
-Since some time now, printk() adds carriage return, leading to
-unusable xmon output if there is no udbg backend available:
+The write() callback can be called in interrupt context (e.g. when used
+as a console) so interrupts must be disabled while holding the port lock
+to prevent a possible deadlock.
 
-  [   54.288722] sysrq: Entering xmon
-  [   54.292209] Vector: 0  at [cace3d2c]
-  [   54.292274]     pc:
-  [   54.292331] c0023650
-  [   54.292468] : xmon+0x28/0x58
-  [   54.292519]
-  [   54.292574]     lr:
-  [   54.292630] c0023724
-  [   54.292749] : sysrq_handle_xmon+0xa4/0xfc
-  [   54.292801]
-  [   54.292867]     sp: cace3de8
-  [   54.292931]    msr: 9032
-  [   54.292999]   current = 0xc28d0000
-  [   54.293072]     pid   = 377, comm = sh
-  [   54.293157] Linux version 5.10.0-rc6-s3k-dev-01364-gedf13f0ccd76-dirty (root@po17688vm.idsi0.si.c-s.fr) (powerpc64-linux-gcc (GCC) 10.1.0, GNU ld (GNU Binutils) 2.34) #4211 PREEMPT Fri Dec 4 09:32:11 UTC 2020
-  [   54.293287] enter ? for help
-  [   54.293470] [cace3de8]
-  [   54.293532] c0023724
-  [   54.293654]  sysrq_handle_xmon+0xa4/0xfc
-  [   54.293711]  (unreliable)
-  ...
-  [   54.296002]
-  [   54.296159] --- Exception: c01 (System Call) at
-  [   54.296217] 0fd4e784
-  [   54.296303]
-  [   54.296375] SP (7fca6ff0) is in userspace
-  [   54.296431] mon>
-  [   54.296484]  <no input ...>
-
-Use pr_cont() instead.
-
-Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
-Cc: stable@vger.kernel.org # v4.9+
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Mention that it only happens when udbg is not available]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c8a6ec704416ecd5ff2bd26213c9bc026bdd19de.1607077340.git.christophe.leroy@csgroup.eu
+Fixes: e81ee637e4ae ("usb-serial: possible irq lock inversion (PPP vs. usb/serial)")
+Fixes: 507ca9bc0476 ("[PATCH] USB: add ability for usb-serial drivers to determine if their write urb is currently being used.")
+Cc: stable <stable@vger.kernel.org>     # 2.6.19
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/xmon/nonstdio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/keyspan_pda.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/xmon/nonstdio.c
-+++ b/arch/powerpc/xmon/nonstdio.c
-@@ -178,7 +178,7 @@ void xmon_printf(const char *format, ...
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -443,6 +443,7 @@ static int keyspan_pda_write(struct tty_
+ 	int request_unthrottle = 0;
+ 	int rc = 0;
+ 	struct keyspan_pda_private *priv;
++	unsigned long flags;
  
- 	if (n && rc == 0) {
- 		/* No udbg hooks, fallback to printk() - dangerous */
--		printk("%s", xmon_outbuf);
-+		pr_cont("%s", xmon_outbuf);
+ 	priv = usb_get_serial_port_data(port);
+ 	/* guess how much room is left in the device's ring buffer, and if we
+@@ -462,13 +463,13 @@ static int keyspan_pda_write(struct tty_
+ 	   the TX urb is in-flight (wait until it completes)
+ 	   the device is full (wait until it says there is room)
+ 	*/
+-	spin_lock_bh(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 	if (!test_bit(0, &port->write_urbs_free) || priv->tx_throttled) {
+-		spin_unlock_bh(&port->lock);
++		spin_unlock_irqrestore(&port->lock, flags);
+ 		return 0;
  	}
- }
+ 	clear_bit(0, &port->write_urbs_free);
+-	spin_unlock_bh(&port->lock);
++	spin_unlock_irqrestore(&port->lock, flags);
  
+ 	/* At this point the URB is in our control, nobody else can submit it
+ 	   again (the only sudden transition was the one from EINPROGRESS to
 
 
