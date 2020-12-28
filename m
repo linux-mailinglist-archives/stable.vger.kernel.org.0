@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 052002E3CD7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8642E41A5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:10:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438486AbgL1OHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:07:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42176 "EHLO mail.kernel.org"
+        id S2438133AbgL1OHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:07:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438133AbgL1OHj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:07:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E979207B2;
-        Mon, 28 Dec 2020 14:06:58 +0000 (UTC)
+        id S2438494AbgL1OHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:07:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F37520791;
+        Mon, 28 Dec 2020 14:07:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164418;
-        bh=Bs/ZR5rMdwoamsfCJATM59R0BP69ypLw8UgV7JKnTFM=;
+        s=korg; t=1609164421;
+        bh=+oPL0Vde0wY/NnKJWOcdVe4OJumN86wh5CX/G/uXh3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMqOq/9OoIIm2zWC58RjeImn70DUTJOjTtH+W0KhPomKjF8Tj4a4yakE/JdUJmptK
-         rB/cTYFzIyhF1xyeaCOGaREioFeUjXfAkVUx8hYSpOQIFWHnwpo7o57XNFn2kfvzSw
-         wFnXsbEtieUA3WHJnjGlHXIXKdMgzKiBE2dzcPEU=
+        b=G3pE71dmXgxsKNcvOhT4e1l7hMDBjQxvnEEptB3IH5QQMMEwlwKHRHYsYAGKCXDXL
+         BC9Xz59gaIsuL8B5SkYLOAIGcQU1Yeg+UvV5f6Yenm33mTeFkkqV+GsKnpZV226kCD
+         Wjx2sV86rHX0vDuK4QwCciYlK567fvIpVmzDzL0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 172/717] crypto: sun8i-ce - fix two error paths memory leak
-Date:   Mon, 28 Dec 2020 13:42:50 +0100
-Message-Id: <20201228125029.200071592@linuxfoundation.org>
+Subject: [PATCH 5.10 173/717] spi: fix resource leak for drivers without .remove callback
+Date:   Mon, 28 Dec 2020 13:42:51 +0100
+Message-Id: <20201228125029.249159768@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,84 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 732b764099f651a088fd931d7b8121b6aa84e62e ]
+[ Upstream commit 440408dbadfe47a615afd0a0a4a402e629be658a ]
 
-This patch fixes the following smatch warnings:
-drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c:412
-sun8i_ce_hash_run() warn: possible memory leak of 'result'
-Note: "buf" is leaked as well.
+Consider an spi driver with a .probe but without a .remove callback (e.g.
+rtc-ds1347). The function spi_drv_probe() is called to bind a device and
+so dev_pm_domain_attach() is called. As there is no remove callback
+spi_drv_remove() isn't called at unbind time however and so calling
+dev_pm_domain_detach() is missed and the pm domain keeps active.
 
-Furthermore, in case of ENOMEM, crypto_finalize_hash_request() was not
-called which was an error.
+To fix this always use both spi_drv_probe() and spi_drv_remove() and
+make them handle the respective callback not being set. This has the
+side effect that for a (hypothetical) driver that has neither .probe nor
+remove the clk and pm domain setup is done.
 
-Fixes: 56f6d5aee88d ("crypto: sun8i-ce - support hash algorithms")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 33cf00e57082 ("spi: attach/detach SPI device to the ACPI power domain")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20201119161604.2633521-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/allwinner/sun8i-ce/sun8i-ce-hash.c | 20 +++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/spi/spi.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-index a94bf28f858a7..4c5a2c11d7141 100644
---- a/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-+++ b/drivers/crypto/allwinner/sun8i-ce/sun8i-ce-hash.c
-@@ -262,13 +262,13 @@ int sun8i_ce_hash_run(struct crypto_engine *engine, void *breq)
- 	u32 common;
- 	u64 byte_count;
- 	__le32 *bf;
--	void *buf;
-+	void *buf = NULL;
- 	int j, i, todo;
- 	int nbw = 0;
- 	u64 fill, min_fill;
- 	__be64 *bebits;
- 	__le64 *lebits;
--	void *result;
-+	void *result = NULL;
- 	u64 bs;
- 	int digestsize;
- 	dma_addr_t addr_res, addr_pad;
-@@ -285,13 +285,17 @@ int sun8i_ce_hash_run(struct crypto_engine *engine, void *breq)
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index fc9a59788d2ea..2eaa7dbb70108 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -405,9 +405,11 @@ static int spi_drv_probe(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
- 	/* the padding could be up to two block. */
- 	buf = kzalloc(bs * 2, GFP_KERNEL | GFP_DMA);
--	if (!buf)
--		return -ENOMEM;
-+	if (!buf) {
-+		err = -ENOMEM;
-+		goto theend;
-+	}
- 	bf = (__le32 *)buf;
- 
- 	result = kzalloc(digestsize, GFP_KERNEL | GFP_DMA);
--	if (!result)
--		return -ENOMEM;
-+	if (!result) {
-+		err = -ENOMEM;
-+		goto theend;
+-	ret = sdrv->probe(spi);
+-	if (ret)
+-		dev_pm_domain_detach(dev, true);
++	if (sdrv->probe) {
++		ret = sdrv->probe(spi);
++		if (ret)
++			dev_pm_domain_detach(dev, true);
 +	}
  
- 	flow = rctx->flow;
- 	chan = &ce->chanlist[flow];
-@@ -403,11 +407,11 @@ int sun8i_ce_hash_run(struct crypto_engine *engine, void *breq)
- 	dma_unmap_sg(ce->dev, areq->src, nr_sgs, DMA_TO_DEVICE);
- 	dma_unmap_single(ce->dev, addr_res, digestsize, DMA_FROM_DEVICE);
- 
--	kfree(buf);
- 
- 	memcpy(areq->result, result, algt->alg.hash.halg.digestsize);
--	kfree(result);
- theend:
-+	kfree(buf);
-+	kfree(result);
- 	crypto_finalize_hash_request(engine, breq, err);
- 	return 0;
+ 	return ret;
  }
+@@ -415,9 +417,10 @@ static int spi_drv_probe(struct device *dev)
+ static int spi_drv_remove(struct device *dev)
+ {
+ 	const struct spi_driver		*sdrv = to_spi_driver(dev->driver);
+-	int ret;
++	int ret = 0;
+ 
+-	ret = sdrv->remove(to_spi_device(dev));
++	if (sdrv->remove)
++		ret = sdrv->remove(to_spi_device(dev));
+ 	dev_pm_domain_detach(dev, true);
+ 
+ 	return ret;
+@@ -442,10 +445,8 @@ int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
+ {
+ 	sdrv->driver.owner = owner;
+ 	sdrv->driver.bus = &spi_bus_type;
+-	if (sdrv->probe)
+-		sdrv->driver.probe = spi_drv_probe;
+-	if (sdrv->remove)
+-		sdrv->driver.remove = spi_drv_remove;
++	sdrv->driver.probe = spi_drv_probe;
++	sdrv->driver.remove = spi_drv_remove;
+ 	if (sdrv->shutdown)
+ 		sdrv->driver.shutdown = spi_drv_shutdown;
+ 	return driver_register(&sdrv->driver);
 -- 
 2.27.0
 
