@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B53CA2E395F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB402E63FB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733298AbgL1NWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:22:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51142 "EHLO mail.kernel.org"
+        id S2391984AbgL1Nob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:44:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbgL1NWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7973B229EF;
-        Mon, 28 Dec 2020 13:22:08 +0000 (UTC)
+        id S2391981AbgL1Noa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECA582063A;
+        Mon, 28 Dec 2020 13:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161729;
-        bh=eOP+vXFR5tfMTr0Q8g3JlI51nP/diSCqfmjt3wSh9g8=;
+        s=korg; t=1609163029;
+        bh=Dru+aFMcStWGHw7wqFnjO8DnU3qHmsoy4iq6boOYGYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIfJW7lgRaa+UQtxGD1RjTBtaWCivvqKGDN9qaABstqcx5P9xCRJBFU6Zt3b2Xbzs
-         a+HV1yIrXMpRbA39UmiEIKzYAFVZ3KYRbxA7I0TueF1Bd31UxUSYoFWWKGJNpriY/B
-         2igYMZbEUwJAL4GvInFoiMmcv5Ozk3cU6UQeuf+I=
+        b=R+Y1p9ZEiHgqUyH9sr9imExkP9pZVUzwEoYETyS10EFdpEVBu789bT/KYPue1zTzg
+         i6os576Gh5s6u2B5/H1r8KHJUBBQRoMENU7s1RSQXE8P23Pw5dc16g6aKV7Eebd3m0
+         vgwiPqM8RQvNej6Ta61ZZqbsdgC/29en3L49RZF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/346] clk: renesas: r9a06g032: Drop __packed for portability
+Subject: [PATCH 5.4 145/453] usb/max3421: fix return error code in max3421_probe()
 Date:   Mon, 28 Dec 2020 13:46:21 +0100
-Message-Id: <20201228124922.794235996@linuxfoundation.org>
+Message-Id: <20201228124944.179352542@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ceabbf94c317c6175dee6e91805fca4a6353745a ]
+[ Upstream commit 5a569343e8a618dc73edebe0957eb42f2ab476bd ]
 
-The R9A06G032 clock driver uses an array of packed structures to reduce
-kernel size.  However, this array contains pointers, which are no longer
-aligned naturally, and cannot be relocated on PPC64.  Hence when
-compile-testing this driver on PPC64 with CONFIG_RELOCATABLE=y (e.g.
-PowerPC allyesconfig), the following warnings are produced:
+retval may be reassigned to 0 after max3421_of_vbus_en_pin(),
+if allocate memory failed after this, max3421_probe() cann't
+return ENOMEM, fix this by moving assign retval afther max3421_probe().
 
-    WARNING: 136 bad relocations
-    c000000000616be3 R_PPC64_UADDR64   .rodata+0x00000000000cf338
-    c000000000616bfe R_PPC64_UADDR64   .rodata+0x00000000000cf370
-    ...
-
-Fix this by dropping the __packed attribute from the r9a06g032_clkdesc
-definition, trading a small size increase for portability.
-
-This increases the 156-entry clock table by 1 byte per entry, but due to
-the compiler generating more efficient code for unpacked accesses, the
-net size increase is only 76 bytes (gcc 9.3.0 on arm32).
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Fixes: 4c3d88526eba2143 ("clk: renesas: Renesas R9A06G032 clock driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20201130085743.1656317-1-geert+renesas@glider.be
-Tested-by: Stephen Rothwell <sfr@canb.auug.org.au> # PowerPC allyesconfig build
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 721fdc83b31b ("usb: max3421: Add devicetree support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20201117061500.3454223-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/r9a06g032-clocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/max3421-hcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
-index 6d2b568915597..6e03b467395b2 100644
---- a/drivers/clk/renesas/r9a06g032-clocks.c
-+++ b/drivers/clk/renesas/r9a06g032-clocks.c
-@@ -51,7 +51,7 @@ struct r9a06g032_clkdesc {
- 			u16 sel, g1, r1, g2, r2;
- 		} dual;
- 	};
--} __packed;
-+};
+diff --git a/drivers/usb/host/max3421-hcd.c b/drivers/usb/host/max3421-hcd.c
+index 8819f502b6a68..903abdf30b5a0 100644
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -1847,7 +1847,7 @@ max3421_probe(struct spi_device *spi)
+ 	struct max3421_hcd *max3421_hcd;
+ 	struct usb_hcd *hcd = NULL;
+ 	struct max3421_hcd_platform_data *pdata = NULL;
+-	int retval = -ENOMEM;
++	int retval;
  
- #define I_GATE(_clk, _rst, _rdy, _midle, _scon, _mirack, _mistat) \
- 	{ .gate = _clk, .reset = _rst, \
+ 	if (spi_setup(spi) < 0) {
+ 		dev_err(&spi->dev, "Unable to setup SPI bus");
+@@ -1889,6 +1889,7 @@ max3421_probe(struct spi_device *spi)
+ 		goto error;
+ 	}
+ 
++	retval = -ENOMEM;
+ 	hcd = usb_create_hcd(&max3421_hcd_desc, &spi->dev,
+ 			     dev_name(&spi->dev));
+ 	if (!hcd) {
 -- 
 2.27.0
 
