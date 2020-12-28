@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5D62E3B6A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3ED82E62C7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbgL1Ntn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:49:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
+        id S2406285AbgL1NuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:50:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406182AbgL1Ntm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:49:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA26F2078D;
-        Mon, 28 Dec 2020 13:49:26 +0000 (UTC)
+        id S2406280AbgL1NuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA8420791;
+        Mon, 28 Dec 2020 13:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163367;
-        bh=ksJdsnzpFH6ZnsbcVUKUPft0YhC8DH+GHnR27VWGIZs=;
+        s=korg; t=1609163370;
+        bh=CjYf9f2XmS3RsLeROuWhottwVogT1E4DeNMNT43GUP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYYBBZhZ/FhZSETLaACWvuWdGUWC7BXYFvXHuaPRhKmoxFBBEHD2H3tguE8F1dKrA
-         C0EK0EtztyrGYr3c9JsRJC+AMS3Tr0SYWNPtNrEU4JC00cNwDfkAqVRyEPTJWI8T9R
-         M4uDXGtI6DsPh86QlulUkTIYMwlO0G5uzo6i6kcw=
+        b=DA7tnTqMjqwucaGq35dYOm8O20IrzWweKIC5jazD8jFCZHC6c7HeDrAasq6fxtnv1
+         1w80iE8E2MeMombrEC27uIHGo0zd4rT4M9BduAeCBfkdZgZrSJWvvjNbSJapka/bnv
+         wC8/N4hUTC7+5zaUs4eIcGXwh1cusCYUdKqQlStA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Sriram Dash <sriram.dash@samsung.com>,
-        Dan Murphy <dmurphy@ti.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 261/453] can: m_can: m_can_config_endisable(): remove double clearing of clock stop request bit
-Date:   Mon, 28 Dec 2020 13:48:17 +0100
-Message-Id: <20201228124949.783718994@linuxfoundation.org>
+Subject: [PATCH 5.4 262/453] RDMA/core: Do not indicate device ready when device enablement fails
+Date:   Mon, 28 Dec 2020 13:48:18 +0100
+Message-Id: <20201228124949.832942716@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -42,42 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-[ Upstream commit c9f4cad6cdfe350ce2637e57f7f2aa7ff326bcc6 ]
+[ Upstream commit 779e0bf47632c609c59f527f9711ecd3214dccb0 ]
 
-The CSR bit is already cleared when arriving here so remove this section of
-duplicate code.
+In procedure ib_register_device, procedure kobject_uevent is called
+(advertising that the device is ready for userspace usage) even when
+device_enable_and_get() returned an error.
 
-The registers set in m_can_config_endisable() is set to same exact values as
-before this patch.
+As a result, various RDMA modules attempted to register for the device
+even while the device driver was preparing to unregister the device.
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Acked-by: Sriram Dash <sriram.dash@samsung.com>
-Acked-by: Dan Murphy <dmurphy@ti.com>
-Link: https://lore.kernel.org/r/20191211063227.84259-1-sean@geanix.com
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fix this by advertising the device availability only after enabling the
+device succeeds.
+
+Fixes: e7a5b4aafd82 ("RDMA/device: Don't fire uevent before device is fully initialized")
+Link: https://lore.kernel.org/r/20201208073545.9723-3-leon@kernel.org
+Suggested-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/infiniband/core/device.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index c84114b44ee07..d2bb9a87eff9a 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -379,10 +379,6 @@ void m_can_config_endisable(struct m_can_classdev *cdev, bool enable)
- 		cccr &= ~CCCR_CSR;
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 59dc9f3cfb376..256d379bba676 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -1387,9 +1387,6 @@ int ib_register_device(struct ib_device *device, const char *name)
+ 	}
  
- 	if (enable) {
--		/* Clear the Clock stop request if it was set */
--		if (cccr & CCCR_CSR)
--			cccr &= ~CCCR_CSR;
--
- 		/* enable m_can configuration */
- 		m_can_write(cdev, M_CAN_CCCR, cccr | CCCR_INIT);
- 		udelay(5);
+ 	ret = enable_device_and_get(device);
+-	dev_set_uevent_suppress(&device->dev, false);
+-	/* Mark for userspace that device is ready */
+-	kobject_uevent(&device->dev.kobj, KOBJ_ADD);
+ 	if (ret) {
+ 		void (*dealloc_fn)(struct ib_device *);
+ 
+@@ -1409,8 +1406,12 @@ int ib_register_device(struct ib_device *device, const char *name)
+ 		ib_device_put(device);
+ 		__ib_unregister_device(device);
+ 		device->ops.dealloc_driver = dealloc_fn;
++		dev_set_uevent_suppress(&device->dev, false);
+ 		return ret;
+ 	}
++	dev_set_uevent_suppress(&device->dev, false);
++	/* Mark for userspace that device is ready */
++	kobject_uevent(&device->dev.kobj, KOBJ_ADD);
+ 	ib_device_put(device);
+ 
+ 	return 0;
 -- 
 2.27.0
 
