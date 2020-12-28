@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E662E64FD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A362E3900
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391132AbgL1NeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:34:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34760 "EHLO mail.kernel.org"
+        id S1731583AbgL1NRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:17:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389123AbgL1NeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C112B20719;
-        Mon, 28 Dec 2020 13:33:39 +0000 (UTC)
+        id S1731575AbgL1NRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:17:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B009022B37;
+        Mon, 28 Dec 2020 13:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162420;
-        bh=isSAkKMBstPr7qdUrp9/6zGpLjU+b3IX4mEHBV7tq7Y=;
+        s=korg; t=1609161436;
+        bh=prpfV/7K5WxJDZkiaCAbTfjnEQzp7qDjT+B6Bxk0+rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUymVS0ZsEXYwI2LWvobIsCxNpqPfoKLz81cMxVc7jSBo0uHSoHPe6pyaAfunhDbR
-         ZiKG/LyJ4bC6zLaG8w05BPF53PhVx7htAHijTji/dHuknEmNE8dalp8cVZKZdwpKV5
-         Yv3tgU5ecItWh30qLN28+wPYhNbDfeDzzLithaIM=
+        b=BiP5KjvKwhT9/5eyrLpR0ArneBQZ2SAR2cD5aBoiTghlS507IEKYy2bg784mT6DzN
+         usduH/7mq7UfIPRZMPyQVSKFF2MZqpslzjVBePq/Hqyb9Fsn3SrKMdRJkk633xbYzN
+         VeL4IdbrVtZYv502q4mi4Q0loE+G43deYD+ZOkNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 299/346] KVM: arm64: Introduce handling of AArch32 TTBCR2 traps
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.14 213/242] powerpc/xmon: Change printk() to pr_cont()
 Date:   Mon, 28 Dec 2020 13:50:18 +0100
-Message-Id: <20201228124934.239041920@linuxfoundation.org>
+Message-Id: <20201228124915.155964290@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit ca4e514774930f30b66375a974b5edcbebaf0e7e upstream.
+commit 7c6c86b36a36dd4a13d30bba07718e767aa2e7a1 upstream.
 
-ARMv8.2 introduced TTBCR2, which shares TCR_EL1 with TTBCR.
-Gracefully handle traps to this register when HCR_EL2.TVM is set.
+Since some time now, printk() adds carriage return, leading to
+unusable xmon output if there is no udbg backend available:
 
-Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+  [   54.288722] sysrq: Entering xmon
+  [   54.292209] Vector: 0  at [cace3d2c]
+  [   54.292274]     pc:
+  [   54.292331] c0023650
+  [   54.292468] : xmon+0x28/0x58
+  [   54.292519]
+  [   54.292574]     lr:
+  [   54.292630] c0023724
+  [   54.292749] : sysrq_handle_xmon+0xa4/0xfc
+  [   54.292801]
+  [   54.292867]     sp: cace3de8
+  [   54.292931]    msr: 9032
+  [   54.292999]   current = 0xc28d0000
+  [   54.293072]     pid   = 377, comm = sh
+  [   54.293157] Linux version 5.10.0-rc6-s3k-dev-01364-gedf13f0ccd76-dirty (root@po17688vm.idsi0.si.c-s.fr) (powerpc64-linux-gcc (GCC) 10.1.0, GNU ld (GNU Binutils) 2.34) #4211 PREEMPT Fri Dec 4 09:32:11 UTC 2020
+  [   54.293287] enter ? for help
+  [   54.293470] [cace3de8]
+  [   54.293532] c0023724
+  [   54.293654]  sysrq_handle_xmon+0xa4/0xfc
+  [   54.293711]  (unreliable)
+  ...
+  [   54.296002]
+  [   54.296159] --- Exception: c01 (System Call) at
+  [   54.296217] 0fd4e784
+  [   54.296303]
+  [   54.296375] SP (7fca6ff0) is in userspace
+  [   54.296431] mon>
+  [   54.296484]  <no input ...>
+
+Use pr_cont() instead.
+
+Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
+Cc: stable@vger.kernel.org # v4.9+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Mention that it only happens when udbg is not available]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c8a6ec704416ecd5ff2bd26213c9bc026bdd19de.1607077340.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    1 +
- 2 files changed, 2 insertions(+)
+ arch/powerpc/xmon/nonstdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -165,6 +165,7 @@ enum vcpu_sysreg {
- #define c2_TTBR1	(TTBR1_EL1 * 2)	/* Translation Table Base Register 1 */
- #define c2_TTBR1_high	(c2_TTBR1 + 1)	/* TTBR1 top 32 bits */
- #define c2_TTBCR	(TCR_EL1 * 2)	/* Translation Table Base Control R. */
-+#define c2_TTBCR2	(c2_TTBCR + 1)	/* Translation Table Base Control R. 2 */
- #define c3_DACR		(DACR32_EL2 * 2)/* Domain Access Control Register */
- #define c5_DFSR		(ESR_EL1 * 2)	/* Data Fault Status Register */
- #define c5_IFSR		(IFSR32_EL2 * 2)/* Instruction Fault Status Register */
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1661,6 +1661,7 @@ static const struct sys_reg_desc cp15_re
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 0), access_vm_reg, NULL, c2_TTBR0 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 1), access_vm_reg, NULL, c2_TTBR1 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 2), access_vm_reg, NULL, c2_TTBCR },
-+	{ Op1( 0), CRn( 2), CRm( 0), Op2( 3), access_vm_reg, NULL, c2_TTBCR2 },
- 	{ Op1( 0), CRn( 3), CRm( 0), Op2( 0), access_vm_reg, NULL, c3_DACR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 0), access_vm_reg, NULL, c5_DFSR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 1), access_vm_reg, NULL, c5_IFSR },
+--- a/arch/powerpc/xmon/nonstdio.c
++++ b/arch/powerpc/xmon/nonstdio.c
+@@ -182,7 +182,7 @@ void xmon_printf(const char *format, ...
+ 
+ 	if (n && rc == 0) {
+ 		/* No udbg hooks, fallback to printk() - dangerous */
+-		printk("%s", xmon_outbuf);
++		pr_cont("%s", xmon_outbuf);
+ 	}
+ }
+ 
 
 
