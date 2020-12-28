@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B65812E40D3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B9C2E6444
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbgL1O6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:58:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48914 "EHLO mail.kernel.org"
+        id S2408256AbgL1Ptj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:49:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440535AbgL1OPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:15:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7B452063A;
-        Mon, 28 Dec 2020 14:14:46 +0000 (UTC)
+        id S2404134AbgL1NmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC4321D94;
+        Mon, 28 Dec 2020 13:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164887;
-        bh=3lwTBp/eJdjVyxptzJkV4TPmxFPT3vj9fTV7sJL9vVU=;
+        s=korg; t=1609162893;
+        bh=/tBF4wLTT/bWMpAG6Ixir2YRrjI8wrg63knwE7ip8/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veKwmwofYr4O2rywVltwqyCmrORa+jIv0sxK2NQavzEfrnLMBxwDMYk2dPjCb0l5a
-         fgVYbrfNYm5OiKdGa2FUrWBTVs1mqutG/mICkwXtExhLkecdRp5i2st65VC3qv0C0w
-         f2z8TFHL9uQ6OYTnvOKpvVqWnD48QXJr1INyV5YM=
+        b=IYUQvQULwfc6Y6jxwlxMe7pPy8H2TNi8Z4I98ise20s7vYy8w0vncp7lbnzvWjQTH
+         54QmxOvKXioF1k86MW5AdD3iAn26SWkeIDmAh2DEkTl4WYMcqjrnzdzkbY5jD7PPyL
+         EJH91O9ThSJVh6r2PBMZJziZO3+79T0DhkmR5uko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joshua Thompson <funaho@jurai.org>,
-        Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 334/717] macintosh/adb-iop: Send correct poll command
-Date:   Mon, 28 Dec 2020 13:45:32 +0100
-Message-Id: <20201228125037.022143633@linuxfoundation.org>
+Subject: [PATCH 5.4 097/453] ASoC: sun4i-i2s: Fix lrck_period computation for I2S justified mode
+Date:   Mon, 28 Dec 2020 13:45:33 +0100
+Message-Id: <20201228124941.896113299@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,114 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Clément Péron <peron.clem@gmail.com>
 
-[ Upstream commit 10199e90ee20e68859f8128331ec8d85b036d349 ]
+[ Upstream commit 93c0210671d8f3ec2262da703fab93a1497158a8 ]
 
-The behaviour of the IOP firmware is not well documented but we do know
-that IOP message reply data can be used to issue new ADB commands.
-Use the message reply to better control autopoll behaviour by sending
-a Talk Register 0 command after every ADB response, not unlike the
-algorithm in the via-macii driver. This poll command is addressed to
-that device which last received a Talk command (explicit or otherwise).
+Left and Right justified mode are computed using the same formula
+as DSP_A and DSP_B mode.
+Which is wrong and the user manual explicitly says:
 
-Cc: Joshua Thompson <funaho@jurai.org>
-Fixes: 32226e817043 ("macintosh/adb-iop: Implement idle -> sending state transition")
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Link: https://lore.kernel.org/r/58bba4310da4c29b068345a4b36af8a531397ff7.1605847196.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+LRCK_PERDIOD:
+PCM Mode: Number of BCLKs within (Left + Right) channel width.
+I2S/Left-Justified/Right-Justified Mode: Number of BCLKs within each
+individual channel width(Left or Right)
+
+Fix this by using the same formula as the I2S mode.
+
+Fixes: 7ae7834ec446 ("ASoC: sun4i-i2s: Add support for DSP formats")
+Signed-off-by: Clément Péron <peron.clem@gmail.com>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Link: https://lore.kernel.org/r/20201030144648.397824-2-peron.clem@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/adb-iop.c | 40 +++++++++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 10 deletions(-)
+ sound/soc/sunxi/sun4i-i2s.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/macintosh/adb-iop.c b/drivers/macintosh/adb-iop.c
-index 422abd1d48e18..0ee3272491501 100644
---- a/drivers/macintosh/adb-iop.c
-+++ b/drivers/macintosh/adb-iop.c
-@@ -25,6 +25,7 @@
- static struct adb_request *current_req;
- static struct adb_request *last_req;
- static unsigned int autopoll_devs;
-+static u8 autopoll_addr;
+diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
+index d0a8d5810c0a5..9655dec4166b6 100644
+--- a/sound/soc/sunxi/sun4i-i2s.c
++++ b/sound/soc/sunxi/sun4i-i2s.c
+@@ -442,11 +442,11 @@ static int sun8i_i2s_set_chan_cfg(const struct sun4i_i2s *i2s,
+ 	switch (i2s->format & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_DSP_A:
+ 	case SND_SOC_DAIFMT_DSP_B:
+-	case SND_SOC_DAIFMT_LEFT_J:
+-	case SND_SOC_DAIFMT_RIGHT_J:
+ 		lrck_period = params_physical_width(params) * slots;
+ 		break;
  
- static enum adb_iop_state {
- 	idle,
-@@ -41,6 +42,11 @@ static int adb_iop_autopoll(int);
- static void adb_iop_poll(void);
- static int adb_iop_reset_bus(void);
- 
-+/* ADB command byte structure */
-+#define ADDR_MASK       0xF0
-+#define OP_MASK         0x0C
-+#define TALK            0x0C
-+
- struct adb_driver adb_iop_driver = {
- 	.name         = "ISM IOP",
- 	.probe        = adb_iop_probe,
-@@ -94,17 +100,24 @@ static void adb_iop_complete(struct iop_msg *msg)
- static void adb_iop_listen(struct iop_msg *msg)
- {
- 	struct adb_iopmsg *amsg = (struct adb_iopmsg *)msg->message;
-+	u8 addr = (amsg->cmd & ADDR_MASK) >> 4;
-+	u8 op = amsg->cmd & OP_MASK;
- 	unsigned long flags;
- 	bool req_done = false;
- 
- 	local_irq_save(flags);
- 
--	/* Handle a timeout. Timeout packets seem to occur even after
--	 * we've gotten a valid reply to a TALK, presumably because of
--	 * autopolling.
-+	/* Responses to Talk commands may be unsolicited as they are
-+	 * produced when the IOP polls devices. They are mostly timeouts.
- 	 */
--
--	if (amsg->flags & ADB_IOP_EXPLICIT) {
-+	if (op == TALK && ((1 << addr) & autopoll_devs))
-+		autopoll_addr = addr;
-+
-+	switch (amsg->flags & (ADB_IOP_EXPLICIT |
-+			       ADB_IOP_AUTOPOLL |
-+			       ADB_IOP_TIMEOUT)) {
-+	case ADB_IOP_EXPLICIT:
-+	case ADB_IOP_EXPLICIT | ADB_IOP_TIMEOUT:
- 		if (adb_iop_state == awaiting_reply) {
- 			struct adb_request *req = current_req;
- 
-@@ -115,12 +128,16 @@ static void adb_iop_listen(struct iop_msg *msg)
- 
- 			req_done = true;
- 		}
--	} else if (!(amsg->flags & ADB_IOP_TIMEOUT)) {
--		adb_input(&amsg->cmd, amsg->count + 1,
--			  amsg->flags & ADB_IOP_AUTOPOLL);
-+		break;
-+	case ADB_IOP_AUTOPOLL:
-+		if (((1 << addr) & autopoll_devs) &&
-+		    amsg->cmd == ADB_READREG(addr, 0))
-+			adb_input(&amsg->cmd, amsg->count + 1, 1);
-+		break;
- 	}
--
--	msg->reply[0] = autopoll_devs ? ADB_IOP_AUTOPOLL : 0;
-+	msg->reply[0] = autopoll_addr ? ADB_IOP_AUTOPOLL : 0;
-+	msg->reply[1] = 0;
-+	msg->reply[2] = autopoll_addr ? ADB_READREG(autopoll_addr, 0) : 0;
- 	iop_complete_message(msg);
- 
- 	if (req_done)
-@@ -233,6 +250,9 @@ static void adb_iop_set_ap_complete(struct iop_msg *msg)
- 	struct adb_iopmsg *amsg = (struct adb_iopmsg *)msg->message;
- 
- 	autopoll_devs = (amsg->data[1] << 8) | amsg->data[0];
-+	if (autopoll_devs & (1 << autopoll_addr))
-+		return;
-+	autopoll_addr = autopoll_devs ? (ffs(autopoll_devs) - 1) : 0;
- }
- 
- static int adb_iop_autopoll(int devs)
++	case SND_SOC_DAIFMT_LEFT_J:
++	case SND_SOC_DAIFMT_RIGHT_J:
+ 	case SND_SOC_DAIFMT_I2S:
+ 		lrck_period = params_physical_width(params);
+ 		break;
 -- 
 2.27.0
 
