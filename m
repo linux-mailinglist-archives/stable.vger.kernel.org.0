@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC5D2E3B13
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:46:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7510F2E406E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404856AbgL1Npa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:45:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
+        id S2501998AbgL1OSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:18:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404818AbgL1Np3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F016D2063A;
-        Mon, 28 Dec 2020 13:45:12 +0000 (UTC)
+        id S2501990AbgL1OSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:18:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49CCC2242A;
+        Mon, 28 Dec 2020 14:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163113;
-        bh=g5gEpoWN0kzKl52o2CAiyoOmjE8HaQ4c5cLo9I/lgAA=;
+        s=korg; t=1609165099;
+        bh=tNgvctoeVXR7xM+pBVnx4ek8DlN/hObfI0BKU4+kJ/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAjgRSdT1opxQrRJTKh0lq/Eqe3zWJql1PNPbsbhv6DOEv5G4KWJ0oaxUwHoSsy3c
-         qcXs95Z1rRodwI21tdFgIGeQTSuVBVm9NA0GMK8UZvYm6enO0o0pX96PERu6weNGui
-         Wa7hlti9bKDOhxmpyLIqP43sfnMlVHoFHvhGAdEM=
+        b=qpCuGqHN3qnwfDQSSfrCK0UJqVRh5MKbiv20GN0XThreT+o7cggORFdVqWxqfp8Pv
+         YQAhLzAmDEqdNcZ55zTURsqUOAJ03sZr38jl0Rc8NUGP4Rfrgwxrrw4IdHRadjg4ML
+         uFrqYzUrikfyWirX55g6dXVJJoeflE4pf8BovIIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jander <david@protonic.nl>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Simon Glass <sjg@chromium.org>,
+        Gwendal Grignou <gwendal@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Alexandru M Stan <amstan@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/453] Input: ads7846 - fix race that causes missing releases
-Date:   Mon, 28 Dec 2020 13:46:18 +0100
-Message-Id: <20201228124944.037454335@linuxfoundation.org>
+Subject: [PATCH 5.10 381/717] platform/chrome: cros_ec_spi: Dont overwrite spi::mode
+Date:   Mon, 28 Dec 2020 13:46:19 +0100
+Message-Id: <20201228125039.255302733@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,101 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Jander <david@protonic.nl>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit e52cd628a03f72a547dbf90ccb703ee64800504a ]
+[ Upstream commit 74639cbf51d7c0304342544a83dfda354a6bd208 ]
 
-If touchscreen is released while busy reading HWMON device, the release
-can be missed. The IRQ thread is not started because no touch is active
-and BTN_TOUCH release event is never sent.
+There isn't any need to overwrite the mode here in the driver with what
+has been detected by the firmware, such as DT or ACPI. In fact, if we
+use the SPI CS gpio descriptor feature we will overwrite the mode with
+SPI_MODE_0 where it already contains SPI_MODE_0 and more importantly
+SPI_CS_HIGH. Clearing the SPI_CS_HIGH bit causes the CS line to toggle
+when the device is probed when it shouldn't change, confusing the driver
+and making it fail to probe. Drop the assignment and let the spi core
+take care of it.
 
-Fixes: f5a28a7d4858f94a ("Input: ads7846 - avoid pen up/down when reading hwmon")
-Co-developed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: David Jander <david@protonic.nl>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20201027105416.18773-1-o.rempel@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: a17d94f0b6e1 ("mfd: Add ChromeOS EC SPI driver")
+Cc: Simon Glass <sjg@chromium.org>
+Cc: Gwendal Grignou <gwendal@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Alexandru M Stan <amstan@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+Link: https://lore.kernel.org/r/20201204193540.3047030-2-swboyd@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 44 +++++++++++++++++------------
- 1 file changed, 26 insertions(+), 18 deletions(-)
+ drivers/platform/chrome/cros_ec_spi.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 51ddb204ca1ba..1e19af0da13a3 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -199,6 +199,26 @@ struct ads7846 {
- #define	REF_ON	(READ_12BIT_DFR(x, 1, 1))
- #define	REF_OFF	(READ_12BIT_DFR(y, 0, 0))
+diff --git a/drivers/platform/chrome/cros_ec_spi.c b/drivers/platform/chrome/cros_ec_spi.c
+index dfa1f816a45f4..f9df218fc2bbe 100644
+--- a/drivers/platform/chrome/cros_ec_spi.c
++++ b/drivers/platform/chrome/cros_ec_spi.c
+@@ -742,7 +742,6 @@ static int cros_ec_spi_probe(struct spi_device *spi)
+ 	int err;
  
-+static int get_pendown_state(struct ads7846 *ts)
-+{
-+	if (ts->get_pendown_state)
-+		return ts->get_pendown_state();
-+
-+	return !gpio_get_value(ts->gpio_pendown);
-+}
-+
-+static void ads7846_report_pen_up(struct ads7846 *ts)
-+{
-+	struct input_dev *input = ts->input;
-+
-+	input_report_key(input, BTN_TOUCH, 0);
-+	input_report_abs(input, ABS_PRESSURE, 0);
-+	input_sync(input);
-+
-+	ts->pendown = false;
-+	dev_vdbg(&ts->spi->dev, "UP\n");
-+}
-+
- /* Must be called with ts->lock held */
- static void ads7846_stop(struct ads7846 *ts)
- {
-@@ -215,6 +235,10 @@ static void ads7846_stop(struct ads7846 *ts)
- static void ads7846_restart(struct ads7846 *ts)
- {
- 	if (!ts->disabled && !ts->suspended) {
-+		/* Check if pen was released since last stop */
-+		if (ts->pendown && !get_pendown_state(ts))
-+			ads7846_report_pen_up(ts);
-+
- 		/* Tell IRQ thread that it may poll the device. */
- 		ts->stopped = false;
- 		mb();
-@@ -605,14 +629,6 @@ static const struct attribute_group ads784x_attr_group = {
- 
- /*--------------------------------------------------------------------------*/
- 
--static int get_pendown_state(struct ads7846 *ts)
--{
--	if (ts->get_pendown_state)
--		return ts->get_pendown_state();
--
--	return !gpio_get_value(ts->gpio_pendown);
--}
--
- static void null_wait_for_sync(void)
- {
- }
-@@ -867,16 +883,8 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
- 				   msecs_to_jiffies(TS_POLL_PERIOD));
- 	}
- 
--	if (ts->pendown && !ts->stopped) {
--		struct input_dev *input = ts->input;
--
--		input_report_key(input, BTN_TOUCH, 0);
--		input_report_abs(input, ABS_PRESSURE, 0);
--		input_sync(input);
--
--		ts->pendown = false;
--		dev_vdbg(&ts->spi->dev, "UP\n");
--	}
-+	if (ts->pendown && !ts->stopped)
-+		ads7846_report_pen_up(ts);
- 
- 	return IRQ_HANDLED;
- }
+ 	spi->bits_per_word = 8;
+-	spi->mode = SPI_MODE_0;
+ 	spi->rt = true;
+ 	err = spi_setup(spi);
+ 	if (err < 0)
 -- 
 2.27.0
 
