@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 508342E4324
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0757C2E38F7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404974AbgL1Pds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
+        id S2387434AbgL1NRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:17:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407405AbgL1NyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:54:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D622C20738;
-        Mon, 28 Dec 2020 13:53:28 +0000 (UTC)
+        id S1731523AbgL1NRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:17:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2F520776;
+        Mon, 28 Dec 2020 13:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163609;
-        bh=r24g29K/F1pGRKDRsBgJJuEEfKWtMmPrNKuHGtX5zjk=;
+        s=korg; t=1609161417;
+        bh=p666qLicgP8Y8aG+ATTzgbNunfD3U0QKrETk7ChM4zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EB3LC1qLhnH/yzktjsrpWAyvSR1aB8JBVEPOuaKHEUAJJ6yvKngzrEa2vUlJ3QkA4
-         KVMVDsSvB0wXg/D9tt6kHYX93WW/7wfSSGB46XsWnte1SnPk2U5PZnTVDXkL3Iziyb
-         RRQDC+0xmxuNlEE0P2vdziXbZxdHaH8L1hcgzeB4=
+        b=ztpshACCYigSffn2j4t/vXW7y82qf8KW4dsVwCy9ZxEWgdpQ3IYk30E8Ouka4pBze
+         q4ly77S/e5Rjng8mEUDTbtHWNtp739LkFQqoHwz+wEJe+HagXANt5x7Fzf0THdE+Im
+         8MapUiQxwIGlZ7+Ty2Ywo/RubO8m9PPBei2wvdQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 346/453] ALSA: core: memalloc: add page alignment for iram
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 177/242] cfg80211: initialize rekey_data
 Date:   Mon, 28 Dec 2020 13:49:42 +0100
-Message-Id: <20201228124953.871962440@linuxfoundation.org>
+Message-Id: <20201228124913.403638637@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-commit 74c64efa1557fef731b59eb813f115436d18078e upstream.
+[ Upstream commit f495acd8851d7b345e5f0e521b2645b1e1f928a0 ]
 
-Since mmap for userspace is based on page alignment, add page alignment
-for iram alloc from pool, otherwise, some good data located in the same
-page of dmab->area maybe touched wrongly by userspace like pulseaudio.
+In case we have old supplicant, the akm field is uninitialized.
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1608221747-3474-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201129172929.930f0ab7ebee.Ic546e384efab3f4a89f318eafddc3eb7d556aecb@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/memalloc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -76,7 +76,8 @@ static void snd_malloc_dev_iram(struct s
- 	/* Assign the pool into private_data field */
- 	dmab->private_data = pool;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 6bd4f6c8fc2ef..f630fa2e31647 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10969,7 +10969,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
+ 	struct net_device *dev = info->user_ptr[1];
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	struct nlattr *tb[NUM_NL80211_REKEY_DATA];
+-	struct cfg80211_gtk_rekey_data rekey_data;
++	struct cfg80211_gtk_rekey_data rekey_data = {};
+ 	int err;
  
--	dmab->area = gen_pool_dma_alloc(pool, size, &dmab->addr);
-+	dmab->area = gen_pool_dma_alloc_align(pool, size, &dmab->addr,
-+					PAGE_SIZE);
- }
- 
- /**
+ 	if (!info->attrs[NL80211_ATTR_REKEY_DATA])
+-- 
+2.27.0
+
 
 
