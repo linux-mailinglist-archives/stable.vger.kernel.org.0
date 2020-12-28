@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FB92E67D6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010F52E67BC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633596AbgL1Q30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:29:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34940 "EHLO mail.kernel.org"
+        id S1729811AbgL1NGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:06:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbgL1NHM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:07:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6601B206ED;
-        Mon, 28 Dec 2020 13:06:31 +0000 (UTC)
+        id S1729749AbgL1NGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:06:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E704207C9;
+        Mon, 28 Dec 2020 13:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160792;
-        bh=U/rmShT16J06mM0R42BKT9PDN+UC8RCxGEEbHBvPTYo=;
+        s=korg; t=1609160794;
+        bh=2zswwcbAHBiiyXxKUukt8I2higsivO73El+lvUDkKBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yCi+N6lTd85IRVYYfm1VnMS/kiPEH/tB8D+f1RoE5Qw0o2vu2nbk3Gu4Xw+kIx7e4
-         hDSP5iVQLa4IYeY+AQIBYMB82KFXalUGKbJmCz2iNNGBWGfyTUUm3Is3+5PGQryi5J
-         v8ETHDwdk9Wrn2Kunk+d2iRQfbuOFnQa3kzjZmtM=
+        b=KG8QW2Rk/St+5fbNoen4YPsC1v5/07R+kmgoKen8ZNqi3uxTUqXW5fS/CDG7GDLS3
+         Tu8XEEXX7CeeQNcRg8foVMMSBxBsKLNYi/nplRVDmUG++0IEDm1P6e6M0pe74p/YSo
+         MF4ANO1czK2vE6sr5Onmv/hxlE7diJDbT1F3SXK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>, Stable@vger.kernel.org
-Subject: [PATCH 4.9 172/175] iio:pressure:mpl3115: Force alignment of buffer
-Date:   Mon, 28 Dec 2020 13:50:25 +0100
-Message-Id: <20201228124901.562817115@linuxfoundation.org>
+        stable@vger.kernel.org, Terry Zhou <bjzhou@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.9 173/175] clk: mvebu: a3700: fix the XTAL MODE pin to MPP1_9
+Date:   Mon, 28 Dec 2020 13:50:26 +0100
+Message-Id: <20201228124901.612196612@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
 References: <20201228124853.216621466@linuxfoundation.org>
@@ -42,55 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Terry Zhou <bjzhou@marvell.com>
 
-commit 198cf32f0503d2ad60d320b95ef6fb8243db857f upstream.
+commit 6f37689cf6b38fff96de52e7f0d3e78f22803ba0 upstream.
 
-Whilst this is another case of the issue Lars reported with
-an array of elements of smaller than 8 bytes being passed
-to iio_push_to_buffers_with_timestamp(), the solution here is
-a bit different from the other cases and relies on __aligned
-working on the stack (true since 4.6?)
+There is an error in the current code that the XTAL MODE
+pin was set to NB MPP1_31 which should be NB MPP1_9.
+The latch register of NB MPP1_9 has different offset of 0x8.
 
-This one is unusual.  We have to do an explicit memset() each time
-as we are reading 3 bytes into a potential 4 byte channel which
-may sometimes be a 2 byte channel depending on what is enabled.
-As such, moving the buffer to the heap in the iio_priv structure
-doesn't save us much.  We can't use a nice explicit structure
-on the stack either as the data channels have different storage
-sizes and are all separately controlled.
-
-Fixes: cc26ad455f57 ("iio: Add Freescale MPL3115A2 pressure / temperature sensor driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-7-jic23@kernel.org
+Signed-off-by: Terry Zhou <bjzhou@marvell.com>
+[pali: Fix pin name in commit message]
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 7ea8250406a6 ("clk: mvebu: Add the xtal clock for Armada 3700 SoC")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201106100039.11385-1-pali@kernel.org
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/pressure/mpl3115.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/clk/mvebu/armada-37xx-xtal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/pressure/mpl3115.c
-+++ b/drivers/iio/pressure/mpl3115.c
-@@ -139,7 +139,14 @@ static irqreturn_t mpl3115_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mpl3115_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 32-bit channel + 16-bit channel + padding + ts */
-+	/*
-+	 * 32-bit channel + 16-bit channel + padding + ts
-+	 * Note that it is possible for only one of the first 2
-+	 * channels to be enabled. If that happens, the first element
-+	 * of the buffer may be either 16 or 32-bits.  As such we cannot
-+	 * use a simple structure definition to express this data layout.
-+	 */
-+	u8 buffer[16] __aligned(8);
- 	int ret, pos = 0;
+--- a/drivers/clk/mvebu/armada-37xx-xtal.c
++++ b/drivers/clk/mvebu/armada-37xx-xtal.c
+@@ -15,8 +15,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
  
- 	mutex_lock(&data->lock);
+-#define NB_GPIO1_LATCH	0xC
+-#define XTAL_MODE	    BIT(31)
++#define NB_GPIO1_LATCH	0x8
++#define XTAL_MODE	    BIT(9)
+ 
+ static int armada_3700_xtal_clock_probe(struct platform_device *pdev)
+ {
 
 
