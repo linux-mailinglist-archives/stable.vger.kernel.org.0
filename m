@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 694132E3FB1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E352E38EE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506365AbgL1OnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:43:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34806 "EHLO mail.kernel.org"
+        id S1732793AbgL1NP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503923AbgL1O05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:26:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74A5720715;
-        Mon, 28 Dec 2020 14:26:16 +0000 (UTC)
+        id S1732810AbgL1NP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE2222582;
+        Mon, 28 Dec 2020 13:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165577;
-        bh=nBYK6x9kWnsIhtwZ0HyQfAepw952HoVPfPhFSHKERfg=;
+        s=korg; t=1609161315;
+        bh=gP1foLUUdg/7syDwKdPrxtcLYaHWc5A2HoKR/Wems5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+6eFEshz6DyWIiEKJc5G5nfNEzcoyPy0vMmBO5eoBGetQEZho4CHzsEsoL7sZF+J
-         hYs50TEgyHPSsbYoXKnrGV67agQjxijy+XBs6KH+kAVkhYVh0LTGMdORCz9gcrARm+
-         Vs4ro1vcA7U02bqaypwirLeuvaj857iFSgbNAKfw=
+        b=SYd/4Gm0mXtzAgVHiQGkNXRnS9vTipGa9AsF6+WTFahMvjIyMhdPp8qa2Xcc1kGyB
+         xhmqhy7EGwTbSB5aebS4hnNZK9GGFoHSbd1SY4oOffXn2A047ngPbL2TygbArWzUlB
+         YzgdyNE6BNkdTu/GiLThozaLHMm43gaG9wcrBUC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 550/717] ALSA: core: memalloc: add page alignment for iram
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 143/242] cpufreq: scpi: Add missing MODULE_ALIAS
 Date:   Mon, 28 Dec 2020 13:49:08 +0100
-Message-Id: <20201228125047.284493116@linuxfoundation.org>
+Message-Id: <20201228124911.743860357@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 74c64efa1557fef731b59eb813f115436d18078e upstream.
+[ Upstream commit c0382d049d2def37b81e907a8b22661a4a4a6eb5 ]
 
-Since mmap for userspace is based on page alignment, add page alignment
-for iram alloc from pool, otherwise, some good data located in the same
-page of dmab->area maybe touched wrongly by userspace like pulseaudio.
+This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
+driver when it is compiled as an external module.
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1608221747-3474-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 8def31034d033 ("cpufreq: arm_big_little: add SCPI interface driver")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/memalloc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/cpufreq/scpi-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -77,7 +77,8 @@ static void snd_malloc_dev_iram(struct s
- 	/* Assign the pool into private_data field */
- 	dmab->private_data = pool;
+diff --git a/drivers/cpufreq/scpi-cpufreq.c b/drivers/cpufreq/scpi-cpufreq.c
+index 8de2364b5995a..df6617b19de28 100644
+--- a/drivers/cpufreq/scpi-cpufreq.c
++++ b/drivers/cpufreq/scpi-cpufreq.c
+@@ -85,6 +85,7 @@ static struct platform_driver scpi_cpufreq_platdrv = {
+ };
+ module_platform_driver(scpi_cpufreq_platdrv);
  
--	dmab->area = gen_pool_dma_alloc(pool, size, &dmab->addr);
-+	dmab->area = gen_pool_dma_alloc_align(pool, size, &dmab->addr,
-+					PAGE_SIZE);
- }
- 
- /**
++MODULE_ALIAS("platform:scpi-cpufreq");
+ MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
+ MODULE_DESCRIPTION("ARM SCPI CPUFreq interface driver");
+ MODULE_LICENSE("GPL v2");
+-- 
+2.27.0
+
 
 
