@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 424FA2E38D6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB042E433E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732732AbgL1NPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:15:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
+        id S2408467AbgL1PeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:34:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732757AbgL1NPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:15:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF91206ED;
-        Mon, 28 Dec 2020 13:15:30 +0000 (UTC)
+        id S2407415AbgL1NyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C6F20791;
+        Mon, 28 Dec 2020 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161331;
-        bh=V2ODb96vyRtKwmpH35cYHAptDz6ZCJwVHgbA6g6OKJ4=;
+        s=korg; t=1609163615;
+        bh=zhsGXA6SJ+1ImAgzlI7jwTdc5LjYtY66jcdT1t/BwLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3Hxsbe8cBT79yEB/woD43vjjQIiK5bE3AposmjvFH8OZCz3Tc0Ys0yFJsCdNoH3w
-         NcOy7+FwdrGvKknmf0Fal+I7FwNnl2TwGWdx9+0RKKPyrnOHBuD1bR5v6/VEZ2LDVS
-         ScTQJWMyF4VY/7Y9Qe1fyNPKjRqP3UUZihaVFlkI=
+        b=cGJN2JEgNqHkNNqRjADnh/Hoh9FAWkpEVc+3HT/zSqwC/xtIVzqJb5IomyCJrXate
+         PKkgAA4YqFcg4rNFe9QJjIZV0OrvYf3dVmFoClBaIPFLm5owrjK6DVqscBfyhc+KR2
+         Fite403n3pn6u4pFAUSoosi3v1IuaUMOOIq8elvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/242] Input: cros_ec_keyb - send scancodes in addition to key events
+        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
+        Xiaoying Yan <yiyan@redhat.com>,
+        Lianbo Jiang <lijiang@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 348/453] s390/kexec_file: fix diag308 subcode when loading crash kernel
 Date:   Mon, 28 Dec 2020 13:49:44 +0100
-Message-Id: <20201228124913.496426290@linuxfoundation.org>
+Message-Id: <20201228124953.952610394@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Philipp Rudo <prudo@linux.ibm.com>
 
-[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
+commit 613775d62ec60202f98d2c5f520e6e9ba6dd4ac4 upstream.
 
-To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
-and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
-addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
-capability, so it is only matter of actually sending the events.
+diag308 subcode 0 performes a clear reset which inlcudes the reset of
+all registers in the system. While this is the preferred behavior when
+loading a normal kernel via kexec it prevents the crash kernel to store
+the register values in the dump. To prevent this use subcode 1 when
+loading a crash kernel instead.
 
-Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
-Acked-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ee337f5469fd ("s390/kexec_file: Add crash support to image loader")
+Cc: <stable@vger.kernel.org> # 4.17
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Reported-by: Xiaoying Yan <yiyan@redhat.com>
+Tested-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/keyboard/cros_ec_keyb.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/purgatory/head.S |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 0993b3f12df6a..149f4045f0f15 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -196,6 +196,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
- 					"changed: [r%d c%d]: byte %02x\n",
- 					row, col, new_state);
+--- a/arch/s390/purgatory/head.S
++++ b/arch/s390/purgatory/head.S
+@@ -62,14 +62,15 @@
+ 	jh	10b
+ .endm
  
-+				input_event(idev, EV_MSC, MSC_SCAN, pos);
- 				input_report_key(idev, keycodes[pos],
- 						 new_state);
- 			}
--- 
-2.27.0
-
+-.macro START_NEXT_KERNEL base
++.macro START_NEXT_KERNEL base subcode
+ 	lg	%r4,kernel_entry-\base(%r13)
+ 	lg	%r5,load_psw_mask-\base(%r13)
+ 	ogr	%r4,%r5
+ 	stg	%r4,0(%r0)
+ 
+ 	xgr	%r0,%r0
+-	diag	%r0,%r0,0x308
++	lghi	%r1,\subcode
++	diag	%r0,%r1,0x308
+ .endm
+ 
+ .text
+@@ -123,7 +124,7 @@ ENTRY(purgatory_start)
+ 	je	.start_crash_kernel
+ 
+ 	/* start normal kernel */
+-	START_NEXT_KERNEL .base_crash
++	START_NEXT_KERNEL .base_crash 0
+ 
+ .return_old_kernel:
+ 	lmg	%r6,%r15,gprregs-.base_crash(%r13)
+@@ -227,7 +228,7 @@ ENTRY(purgatory_start)
+ 	MEMCPY	%r9,%r10,%r11
+ 
+ 	/* start crash kernel */
+-	START_NEXT_KERNEL .base_dst
++	START_NEXT_KERNEL .base_dst 1
+ 
+ 
+ load_psw_mask:
 
 
