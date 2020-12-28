@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2992E3A25
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4611C2E38EA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387807AbgL1Ncw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:32:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
+        id S1733301AbgL1NQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:16:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387791AbgL1Nct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B192206ED;
-        Mon, 28 Dec 2020 13:32:33 +0000 (UTC)
+        id S1733276AbgL1NQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8796822582;
+        Mon, 28 Dec 2020 13:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162353;
-        bh=clJZFqz47lC2BUHaEJunfWg2ftVZBeAXl1QyWTgrI7w=;
+        s=korg; t=1609161365;
+        bh=4pKSHHTAMsA8a3Dqhp1akLyFJ8DIxV3rVTcOKmonuZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QceeVKvbdIVYdhp+cCECujB/6wT2JQ2GnMtTOIg66jeOoqaeyv9ZGNOrV9U4vyqwO
-         OY0azWPwPSITrN21H3QB2HmPPzlQ8Z7jn8VKbhgxg/PNalMZOuBA8FDnfYWqpoENZM
-         2lqVA678pQOa3xMj0oGfId16zdIMvHnQ8refLBIM=
+        b=roo9X2L6+N4mAtxQWUOjm/advjQZ+WXhYiSJXsRLXk5RRBOmXc+qzlmI6e0OYeMBI
+         Gown46/KfV8eQphNbPBiF+d4i6DUGg8xXSMmaNNGEkgY0l6n/y2thV/Ky/1vvGzwBB
+         QUmHtLNVb80qYxtDaMWBW3Y0PDdrHpr1lw0Cwn58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 275/346] ALSA: hda/realtek: Add quirk for MSI-GP73
+        stable@vger.kernel.org,
+        syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 189/242] ALSA: pcm: oss: Fix a few more UBSAN fixes
 Date:   Mon, 28 Dec 2020 13:49:54 +0100
-Message-Id: <20201228124933.070950438@linuxfoundation.org>
+Message-Id: <20201228124913.998531846@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,30 +42,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 09926202e939fd699650ac0fc0baa5757e069390 upstream.
+commit 11cb881bf075cea41092a20236ba708b18e1dbb2 upstream.
 
-MSI-GP73 (with SSID 1462:1229) requires yet again
-ALC1220_FIXUP_CLEVO_P950 quirk like other MSI models.
+There are a few places that call round{up|down}_pow_of_two() with the
+value zero, and this causes undefined behavior warnings.  Avoid
+calling those macros if such a nonsense value is passed; it's a minor
+optimization as well, as we handle it as either an error or a value to
+be skipped, instead.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=210793
+Reported-by: syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201220080943.24839-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20201218161730.26596-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/core/oss/pcm_oss.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2491,6 +2491,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1462, 0x1229, "MSI-GP73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -708,6 +708,8 @@ static int snd_pcm_oss_period_size(struc
+ 
+ 	oss_buffer_size = snd_pcm_plug_client_size(substream,
+ 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
++	if (!oss_buffer_size)
++		return -EINVAL;
+ 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
+ 	if (atomic_read(&substream->mmap_count)) {
+ 		if (oss_buffer_size > runtime->oss.mmap_bytes)
+@@ -743,17 +745,21 @@ static int snd_pcm_oss_period_size(struc
+ 
+ 	min_period_size = snd_pcm_plug_client_size(substream,
+ 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
+-	min_period_size *= oss_frame_size;
+-	min_period_size = roundup_pow_of_two(min_period_size);
+-	if (oss_period_size < min_period_size)
+-		oss_period_size = min_period_size;
++	if (min_period_size) {
++		min_period_size *= oss_frame_size;
++		min_period_size = roundup_pow_of_two(min_period_size);
++		if (oss_period_size < min_period_size)
++			oss_period_size = min_period_size;
++	}
+ 
+ 	max_period_size = snd_pcm_plug_client_size(substream,
+ 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
+-	max_period_size *= oss_frame_size;
+-	max_period_size = rounddown_pow_of_two(max_period_size);
+-	if (oss_period_size > max_period_size)
+-		oss_period_size = max_period_size;
++	if (max_period_size) {
++		max_period_size *= oss_frame_size;
++		max_period_size = rounddown_pow_of_two(max_period_size);
++		if (oss_period_size > max_period_size)
++			oss_period_size = max_period_size;
++	}
+ 
+ 	oss_periods = oss_buffer_size / oss_period_size;
+ 
 
 
