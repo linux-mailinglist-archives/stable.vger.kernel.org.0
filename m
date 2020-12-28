@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 940252E37D2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 010B92E37F6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729741AbgL1NBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:01:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
+        id S1730218AbgL1NDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:03:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729589AbgL1NBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:01:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A9B322582;
-        Mon, 28 Dec 2020 13:00:43 +0000 (UTC)
+        id S1730212AbgL1NDW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFF14208D5;
+        Mon, 28 Dec 2020 13:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160444;
-        bh=YStn6+xfoChb/ZUebmuhPMCzr1wh5qHt8/j/I5c1E2Q=;
+        s=korg; t=1609160561;
+        bh=SPLp9f0aNYouVDYwphkyzjOzpzihlP3PNM3XX/4RLcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=porwXkBnm5bSJDxom3qbz8z0QDLkHbsEeKjjZOBbYU4F0Z0fM08iNmBc24+prxeA+
-         rMdlNjHeSRQWXDMs0TcyH7Hkr3wtTIz0sf90uokz2Fp0YVRE9dTdQfhMnUyklSb+B8
-         6LpwRaM6GIDnGR46rD7tspO0OywfsUGoW2RDVdu8=
+        b=Nk7DCqy/fq/ywQqnPGHb2HrUJ92fXjb2NF2Ja0vxwSutm7F72N0mTZt/NB/0yvPll
+         yzZnbuzGkELfs+vvQGsyuRV6OZmx+auJBFYobhvjsa7hMp9v9XRYgTjk/TnK1K+1T4
+         ioqsg+pg06zP/xjzYFPwUfRnCS/FJqb4Rx7UGHWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/175] ARM: p2v: fix handling of LPAE translation in BE mode
-Date:   Mon, 28 Dec 2020 13:48:25 +0100
-Message-Id: <20201228124855.773909374@linuxfoundation.org>
+Subject: [PATCH 4.9 053/175] crypto: talitos - Fix return type of current_desc_hdr()
+Date:   Mon, 28 Dec 2020 13:48:26 +0100
+Message-Id: <20201228124855.822829518@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
 References: <20201228124853.216621466@linuxfoundation.org>
@@ -41,53 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 4e79f0211b473f8e1eab8211a9fd50cc41a3a061 ]
+[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
 
-When running in BE mode on LPAE hardware with a PA-to-VA translation
-that exceeds 4 GB, we patch bits 39:32 of the offset into the wrong
-byte of the opcode. So fix that, by rotating the offset in r0 to the
-right by 8 bits, which will put the 8-bit immediate in bits 31:24.
+current_desc_hdr() returns a u32 but in fact this is a __be32,
+leading to a lot of sparse warnings.
 
-Note that this will also move bit #22 in its correct place when
-applying the rotation to the constant #0x400000.
+Change the return type to __be32 and ensure it is handled as
+sure by the caller.
 
-Fixes: d9a790df8e984 ("ARM: 7883/1: fix mov to mvn conversion in case of 64 bit phys_addr_t and BE")
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/head.S | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/crypto/talitos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
-index 04286fd9e09ce..2e336acd68b0a 100644
---- a/arch/arm/kernel/head.S
-+++ b/arch/arm/kernel/head.S
-@@ -673,12 +673,8 @@ ARM_BE8(rev16	ip, ip)
- 	ldrcc	r7, [r4], #4	@ use branch for delay slot
- 	bcc	1b
- 	bx	lr
--#else
--#ifdef CONFIG_CPU_ENDIAN_BE8
--	moveq	r0, #0x00004000	@ set bit 22, mov to mvn instruction
- #else
- 	moveq	r0, #0x400000	@ set bit 22, mov to mvn instruction
--#endif
- 	b	2f
- 1:	ldr	ip, [r7, r3]
- #ifdef CONFIG_CPU_ENDIAN_BE8
-@@ -687,7 +683,7 @@ ARM_BE8(rev16	ip, ip)
- 	tst	ip, #0x000f0000	@ check the rotation field
- 	orrne	ip, ip, r6, lsl #24 @ mask in offset bits 31-24
- 	biceq	ip, ip, #0x00004000 @ clear bit 22
--	orreq	ip, ip, r0      @ mask in offset bits 7-0
-+	orreq	ip, ip, r0, ror #8  @ mask in offset bits 7-0
- #else
- 	bic	ip, ip, #0x000000ff
- 	tst	ip, #0xf00	@ check the rotation field
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 059c2d4ad18fb..f4a6be76468d5 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -447,7 +447,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
+ /*
+  * locate current (offending) descriptor
+  */
+-static u32 current_desc_hdr(struct device *dev, int ch)
++static __be32 current_desc_hdr(struct device *dev, int ch)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int tail, iter;
+@@ -478,13 +478,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+ /*
+  * user diagnostics; report root cause of error based on execution unit status
+  */
+-static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
++static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int i;
+ 
+ 	if (!desc_hdr)
+-		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
++		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
+ 
+ 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
+ 	case DESC_HDR_SEL0_AFEU:
 -- 
 2.27.0
 
