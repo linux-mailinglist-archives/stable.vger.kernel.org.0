@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57EE2E3C16
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 909FA2E650B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407555AbgL1N6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:58:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59770 "EHLO mail.kernel.org"
+        id S2389434AbgL1NgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391579AbgL1N6R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6272064B;
-        Mon, 28 Dec 2020 13:58:01 +0000 (UTC)
+        id S2391289AbgL1NgE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34D892072C;
+        Mon, 28 Dec 2020 13:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163882;
-        bh=ypPykkwJtP8ZsDxyT0CKLagTG6mLj2WNPGAqoi8gbjM=;
+        s=korg; t=1609162523;
+        bh=jetCLQ5ZMASVFbesRiQ3AkFev++1o0f/gyoA+r9PKCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRCCTxIBloK0hdl/D1/B3MAazN0l3Ja0brR6OCTSyMaTI2eXSBnWezWqIWyTo4rTO
-         JdpdIbEtH7pCLztKHE/FatMUWw2sDKvIMEPE1MG9mtn25ddIWp2EKzi67ELxTkv7JD
-         /89JVfW86SulxMmmS3Cr8XZnWYKaCS8vCKbKaJ+o=
+        b=YjAwcDGBdSYvauUngilfE16SudjMeszDzf1NOTeQxxkeTqdl/RESCdtr9UY8FaLDO
+         MlKQOv0+Ol0RRll1ZH91m1VCn5ol0EsSUIDXl4Sl8XELdMr1vHuLbd/otPll+T+Bj2
+         7KlA9yYvnmnxawUJY7zu4bURh5h/bEksGVWZA844=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 411/453] spi: st-ssc4: Fix unbalanced pm_runtime_disable() in probe error path
-Date:   Mon, 28 Dec 2020 13:50:47 +0100
-Message-Id: <20201228124956.992067495@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 329/346] iio: adc: rockchip_saradc: fix missing clk_disable_unprepare() on error in rockchip_saradc_resume
+Date:   Mon, 28 Dec 2020 13:50:48 +0100
+Message-Id: <20201228124935.682655007@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 5ef76dac0f2c26aeae4ee79eb830280f16d5aceb upstream.
+commit 560c6b914c6ec7d9d9a69fddbb5bf3bf71433e8b upstream.
 
-If the calls to devm_platform_ioremap_resource(), irq_of_parse_and_map()
-or devm_request_irq() fail on probe of the ST SSC4 SPI driver, the
-runtime PM disable depth is incremented even though it was not
-decremented before.  Fix it.
+Fix the missing clk_disable_unprepare() of info->pclk
+before return from rockchip_saradc_resume in the error
+handling case when fails to prepare and enable info->clk.
 
-Fixes: cd050abeba2a ("spi: st-ssc4: add missed pm_runtime_disable")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v5.5+
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/fbe8768c30dc829e2d77eabe7be062ca22f84024.1604874488.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Fixes: 44d6f2ef94f9 ("iio: adc: add driver for Rockchip saradc")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201103120743.110662-1-miaoqinglang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-st-ssc4.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/iio/adc/rockchip_saradc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi-st-ssc4.c
-+++ b/drivers/spi/spi-st-ssc4.c
-@@ -375,13 +375,14 @@ static int spi_st_probe(struct platform_
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register master\n");
--		goto clk_disable;
-+		goto rpm_disable;
- 	}
+--- a/drivers/iio/adc/rockchip_saradc.c
++++ b/drivers/iio/adc/rockchip_saradc.c
+@@ -383,7 +383,7 @@ static int rockchip_saradc_resume(struct
  
- 	return 0;
+ 	ret = clk_prepare_enable(info->clk);
+ 	if (ret)
+-		return ret;
++		clk_disable_unprepare(info->pclk);
  
--clk_disable:
-+rpm_disable:
- 	pm_runtime_disable(&pdev->dev);
-+clk_disable:
- 	clk_disable_unprepare(spi_st->clk);
- put_master:
- 	spi_master_put(master);
+ 	return ret;
+ }
 
 
