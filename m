@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96CFE2E4079
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAD22E63B3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgL1Owh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:52:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
+        id S2404859AbgL1Npa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:45:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391848AbgL1OSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:18:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A77B1229C5;
-        Mon, 28 Dec 2020 14:17:54 +0000 (UTC)
+        id S2404815AbgL1NpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:45:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FF52072C;
+        Mon, 28 Dec 2020 13:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165075;
-        bh=QFcOCf6/dqVbQdjswjoTMGQEZimxv/lEJji/qplAcpo=;
+        s=korg; t=1609163083;
+        bh=CQjY1AciMA1uijxz4NGYW/S23Vf/sQz0kV0LWbr95b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgnano+A9zxigYuFoOpJWviiL8sR9zFhelxDUHPA+lBQRMeWH1+Su381Of21muk2x
-         4j/blyvSsQ3dYpL4RSP+mpr7daSD9wOjdhJR7vs23l3heFAC5ZjRfevYbsO0AhNloV
-         yY9B7gFtgq5rd/hH63qbcMqswKCRbCBUi5zMRXXg=
+        b=p8ww4XeZeZp/cQBS2v2XypyIXOk/KGF53QQar2w12HwogkkJTCeLYnsT0ieIU3K/c
+         px/KpF1rwQsXVgjvxLeCsay3GPnk14FdSkIO2LWqPJ4bX3190cfausyeQXdmZrmI3V
+         XP20DYfx49pit1H0wG++MbJ6rPWvhOBkyTFH1ISs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 401/717] remoteproc: qcom: fix reference leak in adsp_start
+Subject: [PATCH 5.4 163/453] mmc: pxamci: Fix error return code in pxamci_probe
 Date:   Mon, 28 Dec 2020 13:46:39 +0100
-Message-Id: <20201228125040.202981948@linuxfoundation.org>
+Message-Id: <20201228124945.054026795@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit aa37448f597c09844942da87d042fc6793f989c2 ]
+[ Upstream commit d7b819b5d33869d41bdaa427aeb98ae24c57a38b ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in adsp_start, so we should fix it.
+Fix to return the error code from devm_gpiod_get_optional() instaed
+of 0 in pxamci_probe().
 
-Fixes: dc160e4491222 ("remoteproc: qcom: Introduce Non-PAS ADSP PIL driver")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201102143534.144484-1-zhangqilong3@huawei.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: f54005b508b9a9d9c ("mmc: pxa: Use GPIO descriptor for power")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20201121021431.3168506-1-chengzhihao1@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_adsp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/pxamci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_adsp.c b/drivers/remoteproc/qcom_q6v5_adsp.c
-index efb2c1aa80a3c..f0b7363b5b268 100644
---- a/drivers/remoteproc/qcom_q6v5_adsp.c
-+++ b/drivers/remoteproc/qcom_q6v5_adsp.c
-@@ -193,8 +193,10 @@ static int adsp_start(struct rproc *rproc)
+diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
+index b2bbcb09a49e6..953e7457137a2 100644
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -729,6 +729,7 @@ static int pxamci_probe(struct platform_device *pdev)
  
- 	dev_pm_genpd_set_performance_state(adsp->dev, INT_MAX);
- 	ret = pm_runtime_get_sync(adsp->dev);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_put_noidle(adsp->dev);
- 		goto disable_xo_clk;
-+	}
- 
- 	ret = clk_bulk_prepare_enable(adsp->num_clks, adsp->clks);
- 	if (ret) {
+ 		host->power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+ 		if (IS_ERR(host->power)) {
++			ret = PTR_ERR(host->power);
+ 			dev_err(dev, "Failed requesting gpio_power\n");
+ 			goto out;
+ 		}
 -- 
 2.27.0
 
