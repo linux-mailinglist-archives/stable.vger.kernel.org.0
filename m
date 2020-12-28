@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9076E2E6757
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0D62E65D1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731819AbgL1NLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:11:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
+        id S2388005AbgL1QEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:04:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731812AbgL1NLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:11:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EB2322583;
-        Mon, 28 Dec 2020 13:10:58 +0000 (UTC)
+        id S2389760AbgL1N1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:27:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD77322B40;
+        Mon, 28 Dec 2020 13:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161059;
-        bh=FPl1n4rY6j8/9aRcctzB8Cg//MkGQH+LPD2+M9kwdxA=;
+        s=korg; t=1609162058;
+        bh=/Jik/UAVugPTOcm7K+/Agzh+F93IeBdxAX1SpkyMsfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSOP5IPnBySSn1mWTdEyXUWWQAXdnzluxqd1+UkiR0XUqqdUKMd+myIieO88qjxmC
-         h+XomksTsUmSAVCv7K8PZkFWYc9vSbn+9fPVPUgBVFGP01gh9XeYBic0C1Not2/f5h
-         h1i82ywL65m+NAQhcdPzTRO1i5H+E3jq+gM4v8LE=
+        b=DGWlM3vG99aLctKRJHPoby3ikMJK7dqdeBrGttfXBzKk7uQLvwUqHGk3p+qV9e223
+         vkxo/lg48R0X7FlDRsUdVz3tu27C86XFbNje29W5qBZETw+5e0lgo5N2cal95aLfd9
+         8t4dB2oK8xfR+v535AxNAXX1Gh7cKUT//nhMzvjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 087/242] net: evaluate net.ipvX.conf.all.ignore_routes_with_linkdown
+Subject: [PATCH 4.19 173/346] slimbus: qcom-ngd-ctrl: Avoid sending power requests without QMI
 Date:   Mon, 28 Dec 2020 13:48:12 +0100
-Message-Id: <20201228124908.978501280@linuxfoundation.org>
+Message-Id: <20201228124928.146879893@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,109 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Bernat <vincent@bernat.ch>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit c0c5a60f0f1311bcf08bbe735122096d6326fb5b ]
+[ Upstream commit 39014ce6d6028614a46395923a2c92d058b6fa87 ]
 
-Introduced in 0eeb075fad73, the "ignore_routes_with_linkdown" sysctl
-ignores a route whose interface is down. It is provided as a
-per-interface sysctl. However, while a "all" variant is exposed, it
-was a noop since it was never evaluated. We use the usual "or" logic
-for this kind of sysctls.
+Attempting to send a power request during PM operations, when the QMI
+handle isn't initialized results in a NULL pointer dereference. So check
+if the QMI handle has been initialized before attempting to post the
+power requests.
 
-Tested with:
-
-    ip link add type veth # veth0 + veth1
-    ip link add type veth # veth1 + veth2
-    ip link set up dev veth0
-    ip link set up dev veth1 # link-status paired with veth0
-    ip link set up dev veth2
-    ip link set up dev veth3 # link-status paired with veth2
-
-    # First available path
-    ip -4 addr add 203.0.113.${uts#H}/24 dev veth0
-    ip -6 addr add 2001:db8:1::${uts#H}/64 dev veth0
-
-    # Second available path
-    ip -4 addr add 192.0.2.${uts#H}/24 dev veth2
-    ip -6 addr add 2001:db8:2::${uts#H}/64 dev veth2
-
-    # More specific route through first path
-    ip -4 route add 198.51.100.0/25 via 203.0.113.254 # via veth0
-    ip -6 route add 2001:db8:3::/56 via 2001:db8:1::ff # via veth0
-
-    # Less specific route through second path
-    ip -4 route add 198.51.100.0/24 via 192.0.2.254 # via veth2
-    ip -6 route add 2001:db8:3::/48 via 2001:db8:2::ff # via veth2
-
-    # H1: enable on "all"
-    # H2: enable on "veth0"
-    for v in ipv4 ipv6; do
-      case $uts in
-        H1)
-          sysctl -qw net.${v}.conf.all.ignore_routes_with_linkdown=1
-          ;;
-        H2)
-          sysctl -qw net.${v}.conf.veth0.ignore_routes_with_linkdown=1
-          ;;
-      esac
-    done
-
-    set -xe
-    # When veth0 is up, best route is through veth0
-    ip -o route get 198.51.100.1 | grep -Fw veth0
-    ip -o route get 2001:db8:3::1 | grep -Fw veth0
-
-    # When veth0 is down, best route should be through veth2 on H1/H2,
-    # but on veth0 on H2
-    ip link set down dev veth1 # down veth0
-    ip route show
-    [ $uts != H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth0
-    [ $uts != H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth0
-    [ $uts = H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth2
-    [ $uts = H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth2
-
-Without this patch, the two last lines would fail on H1 (the one using
-the "all" sysctl). With the patch, everything succeeds as expected.
-
-Also document the sysctl in `ip-sysctl.rst`.
-
-Fixes: 0eeb075fad73 ("net: ipv4 sysctl option to ignore routes when nexthop link is down")
-Signed-off-by: Vincent Bernat <vincent@bernat.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20201127102451.17114-7-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 3 +++
- include/linux/inetdevice.h             | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 5f1e3dc567f1d..fe0e46418f6db 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -1271,6 +1271,9 @@ igmpv3_unsolicited_report_interval - INTEGER
- 	IGMPv3 report retransmit will take place.
- 	Default: 1000 (1 seconds)
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 522a87fc573a6..44021620d1013 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1200,6 +1200,9 @@ static int qcom_slim_ngd_runtime_resume(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
  
-+ignore_routes_with_linkdown - BOOLEAN
-+        Ignore routes whose link is down when performing a FIB lookup.
++	if (!ctrl->qmi.handle)
++		return 0;
 +
- promote_secondaries - BOOLEAN
- 	When a primary IP address is removed from this interface
- 	promote a corresponding secondary IP address instead of
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index 5058f061cb2bd..ff876bf66cf25 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -123,7 +123,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
- 	  IN_DEV_ORCONF((in_dev), ACCEPT_REDIRECTS)))
+ 	if (ctrl->state >= QCOM_SLIM_NGD_CTRL_ASLEEP)
+ 		ret = qcom_slim_ngd_power_up(ctrl);
+ 	if (ret) {
+@@ -1493,6 +1496,9 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
  
- #define IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) \
--	IN_DEV_CONF_GET((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
-+	IN_DEV_ORCONF((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
- 
- #define IN_DEV_ARPFILTER(in_dev)	IN_DEV_ORCONF((in_dev), ARPFILTER)
- #define IN_DEV_ARP_ACCEPT(in_dev)	IN_DEV_ORCONF((in_dev), ARP_ACCEPT)
++	if (!ctrl->qmi.handle)
++		return 0;
++
+ 	ret = qcom_slim_qmi_power_request(ctrl, false);
+ 	if (ret && ret != -EBUSY)
+ 		dev_info(ctrl->dev, "slim resource not idle:%d\n", ret);
 -- 
 2.27.0
 
