@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E1E2E642E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 366882E40E6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404311AbgL1Nmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43244 "EHLO mail.kernel.org"
+        id S2388049AbgL1PAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:00:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404293AbgL1Nms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C30EC207B2;
-        Mon, 28 Dec 2020 13:42:07 +0000 (UTC)
+        id S2440357AbgL1OON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D892A20715;
+        Mon, 28 Dec 2020 14:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162928;
-        bh=AA3haTdH1w4Ov9q+j6FSzx33aczdJCdZSJ/z+D8vm4g=;
+        s=korg; t=1609164813;
+        bh=wcmKxwR9PM5XOJr+mOpXsc4uN0LazjCQbhJ2DSn2Wag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKHen2YrkLvVy5HFYGDEzOq3FIl3EcqFv2+OvNj57q7LD+G2GEKjn4BteqrPwxzO3
-         mdD6G9l0YNQqAM8VSyl7SU2qLU+Pat1+6S/8Oa7JKQXzGnaXkdZB5LukzWjHAuzNHP
-         xUvNJbNTIzxHBVvdsXtxdal+t0TSHfgchHy/ov+o=
+        b=mJfe1fcuNmPyHl5B+m9Rp7HV1Zdd6KMf5o9zCK4RvVKrbIfH8sQeUm/2Q5Gb7YKoU
+         ERemMgpryIsOijC8z4k61/TSbk+V9eSr+sFjp/p8JDoK+sZ9dC6USfLnh1riQl6EpC
+         8+n+V+/DCYYSDGT6Bp/Kl9wHG1mmOT2wIJmiK/Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        syzbot+24ebd650e20bd263ca01@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 068/453] Bluetooth: Fix slab-out-of-bounds read in hci_le_direct_adv_report_evt()
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 306/717] net/mlx5: Properly convey driver version to firmware
 Date:   Mon, 28 Dec 2020 13:45:04 +0100
-Message-Id: <20201228124940.518851728@linuxfoundation.org>
+Message-Id: <20201228125035.688467910@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit f7e0e8b2f1b0a09b527885babda3e912ba820798 upstream.
+[ Upstream commit 907af0f0cab4ee5d5604f182ecec2c5b5119d294 ]
 
-`num_reports` is not being properly checked. A malformed event packet with
-a large `num_reports` number makes hci_le_direct_adv_report_evt() read out
-of bounds. Fix it.
+mlx5 firmware expects driver version in specific format X.X.X, so
+make it always correct and based on real kernel version aligned with
+the driver.
 
-Cc: stable@vger.kernel.org
-Fixes: 2f010b55884e ("Bluetooth: Add support for handling LE Direct Advertising Report events")
-Reported-and-tested-by: syzbot+24ebd650e20bd263ca01@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=24ebd650e20bd263ca01
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 012e50e109fd ("net/mlx5: Set driver version into firmware")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5711,21 +5711,19 @@ static void hci_le_direct_adv_report_evt
- 					 struct sk_buff *skb)
- {
- 	u8 num_reports = skb->data[0];
--	void *ptr = &skb->data[1];
-+	struct hci_ev_le_direct_adv_info *ev = (void *)&skb->data[1];
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 8ff207aa14792..e455a2f31f070 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -50,6 +50,7 @@
+ #ifdef CONFIG_RFS_ACCEL
+ #include <linux/cpu_rmap.h>
+ #endif
++#include <linux/version.h>
+ #include <net/devlink.h>
+ #include "mlx5_core.h"
+ #include "lib/eq.h"
+@@ -233,7 +234,10 @@ static void mlx5_set_driver_version(struct mlx5_core_dev *dev)
+ 	strncat(string, ",", remaining_size);
  
--	hci_dev_lock(hdev);
-+	if (!num_reports || skb->len < num_reports * sizeof(*ev) + 1)
-+		return;
+ 	remaining_size = max_t(int, 0, driver_ver_sz - strlen(string));
+-	strncat(string, DRIVER_VERSION, remaining_size);
++
++	snprintf(string + strlen(string), remaining_size, "%u.%u.%u",
++		 (u8)((LINUX_VERSION_CODE >> 16) & 0xff), (u8)((LINUX_VERSION_CODE >> 8) & 0xff),
++		 (u16)(LINUX_VERSION_CODE & 0xffff));
  
--	while (num_reports--) {
--		struct hci_ev_le_direct_adv_info *ev = ptr;
-+	hci_dev_lock(hdev);
- 
-+	for (; num_reports; num_reports--, ev++)
- 		process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
- 				   ev->bdaddr_type, &ev->direct_addr,
- 				   ev->direct_addr_type, ev->rssi, NULL, 0,
- 				   false);
- 
--		ptr += sizeof(*ev);
--	}
--
- 	hci_dev_unlock(hdev);
- }
- 
+ 	/*Send the command*/
+ 	MLX5_SET(set_driver_version_in, in, opcode,
+-- 
+2.27.0
+
 
 
