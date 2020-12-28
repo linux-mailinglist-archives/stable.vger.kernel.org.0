@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DB82E64A0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C532E40F3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404020AbgL1Nlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:41:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
+        id S2440290AbgL1ON5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:13:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403846AbgL1Nkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:40:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F25B4205CB;
-        Mon, 28 Dec 2020 13:40:15 +0000 (UTC)
+        id S2440283AbgL1ONz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:13:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 652BB20791;
+        Mon, 28 Dec 2020 14:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162816;
-        bh=vetFylCNhqBy9Hb0U/hW9ek/D9/LNGKncD0/iCRr3t0=;
+        s=korg; t=1609164819;
+        bh=LuCfF+Xzrjs1dNnQyLjcvWfeaoI+MMU+/dYfWKcA+Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FI9RA6dv9jiMKEJTraPS8v8JPmT2mPkvQJDPFBR5RU8BgWbmC72nSPEdMFjXTtcZz
-         U+p0YW5v49J1HrtIO422aB4FTBEydJcMEli1ZZCAzHR6rdJqGN5PQmh1c2eU+4iMXj
-         neUP6PikoP9B0lffjQ5AalVgs3hRdin68aNykRwA=
+        b=gfuiLxSh6W0oyF7QVC7TnPONrr66SucbcxQzfJdkXbu/e0mby0MS0Qaa4x5YhjG4n
+         nMbFipGSa/vrdNxdSPbAbTwUTFPoPh00wKWYN0H/+WD/naXel0tf9RSBcBizR38fqC
+         x0d62IxW7JDjj9qIne1nxYOieFtLdPa/btr5QLBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/453] arm64: syscall: exit userspace before unmasking exceptions
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 279/717] powerpc/perf: Fix crash with is_sier_available when pmu is not set
 Date:   Mon, 28 Dec 2020 13:44:37 +0100
-Message-Id: <20201228124939.237711750@linuxfoundation.org>
+Message-Id: <20201228125034.387934879@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit ca1314d73eed493c49bb1932c60a8605530db2e4 ]
+[ Upstream commit f75e7d73bdf73f07b0701a6d21c111ef5d9021dd ]
 
-In el0_svc_common() we unmask exceptions before we call user_exit(), and
-so there's a window where an IRQ or debug exception can be taken while
-RCU is not watching. In do_debug_exception() we account for this in via
-debug_exception_{enter,exit}(), but in the el1_irq asm we do not and we
-call trace functions which rely on RCU before we have a guarantee that
-RCU is watching.
+On systems without any specific PMU driver support registered, running
+'perf record' with —intr-regs  will crash ( perf record -I <workload> ).
 
-Let's avoid this by having el0_svc_common() exit userspace before
-unmasking exceptions, matching what we do for all other EL0 entry paths.
-We can use user_exit_irqoff() to avoid the pointless save/restore of IRQ
-flags while we're sure exceptions are masked in DAIF.
+The relevant portion from crash logs and Call Trace:
 
-The workaround for Cortex-A76 erratum 1463225 may trigger a debug
-exception before this point, but the debug code invoked in this case is
-safe even when RCU is not watching.
+Unable to handle kernel paging request for data at address 0x00000068
+Faulting instruction address: 0xc00000000013eb18
+Oops: Kernel access of bad area, sig: 11 [#1]
+CPU: 2 PID: 13435 Comm: kill Kdump: loaded Not tainted 4.18.0-193.el8.ppc64le #1
+NIP:  c00000000013eb18 LR: c000000000139f2c CTR: c000000000393d80
+REGS: c0000004a07ab4f0 TRAP: 0300   Not tainted  (4.18.0-193.el8.ppc64le)
+NIP [c00000000013eb18] is_sier_available+0x18/0x30
+LR [c000000000139f2c] perf_reg_value+0x6c/0xb0
+Call Trace:
+[c0000004a07ab770] [c0000004a07ab7c8] 0xc0000004a07ab7c8 (unreliable)
+[c0000004a07ab7a0] [c0000000003aa77c] perf_output_sample+0x60c/0xac0
+[c0000004a07ab840] [c0000000003ab3f0] perf_event_output_forward+0x70/0xb0
+[c0000004a07ab8c0] [c00000000039e208] __perf_event_overflow+0x88/0x1a0
+[c0000004a07ab910] [c00000000039e42c] perf_swevent_hrtimer+0x10c/0x1d0
+[c0000004a07abc50] [c000000000228b9c] __hrtimer_run_queues+0x17c/0x480
+[c0000004a07abcf0] [c00000000022aaf4] hrtimer_interrupt+0x144/0x520
+[c0000004a07abdd0] [c00000000002a864] timer_interrupt+0x104/0x2f0
+[c0000004a07abe30] [c0000000000091c4] decrementer_common+0x114/0x120
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20201130115950.22492-2-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+When perf record session is started with "-I" option, capturing registers
+on each sample calls is_sier_available() to check for the
+SIER (Sample Instruction Event Register) availability in the platform.
+This function in core-book3s accesses 'ppmu->flags'. If a platform specific
+PMU driver is not registered, ppmu is set to NULL and accessing its
+members results in a crash. Fix the crash by returning false in
+is_sier_available() if ppmu is not set.
+
+Fixes: 333804dc3b7a ("powerpc/perf: Update perf_regs structure to include SIER")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1606185640-1720-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/syscall.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/core-book3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
-index 1457a0ba83dbc..f2d2dbbbfca20 100644
---- a/arch/arm64/kernel/syscall.c
-+++ b/arch/arm64/kernel/syscall.c
-@@ -102,8 +102,8 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
- 	regs->syscallno = scno;
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index 08643cba14948..1de4770c2194b 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -137,6 +137,9 @@ static void pmao_restore_workaround(bool ebb) { }
  
- 	cortex_a76_erratum_1463225_svc_handler();
-+	user_exit_irqoff();
- 	local_daif_restore(DAIF_PROCCTX);
--	user_exit();
+ bool is_sier_available(void)
+ {
++	if (!ppmu)
++		return false;
++
+ 	if (ppmu->flags & PPMU_HAS_SIER)
+ 		return true;
  
- 	if (has_syscall_work(flags)) {
- 		/* set default errno for user-issued syscall(-1) */
 -- 
 2.27.0
 
