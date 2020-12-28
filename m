@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D38DD2E6683
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 579F02E6684
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732959AbgL1NTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732956AbgL1NTt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 08:19:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48352 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732932AbgL1NTo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:19:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54EA3207C9;
-        Mon, 28 Dec 2020 13:19:03 +0000 (UTC)
+        id S1728256AbgL1NTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:19:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0B34207F7;
+        Mon, 28 Dec 2020 13:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161543;
-        bh=CP2b5ra7DAz0Q62CS5Q9Smn/aFgXZzFz6sp9jmRjcjE=;
+        s=korg; t=1609161546;
+        bh=0aLngOLlZjpxpVbTroKiMfMr9Wb/XUWSAoNOcIe9ss8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZWs7iCI5Udu5mmKwpQzaQ38+4nf08POutZTCVFla9oXmAopknMvAog1dJOreLsoN
-         rotoxb5BmQN1+eCbyCwQepcY08H9J5HD/HSgh9vzZEe8ceo/p/zg/8N77B1MVH54fi
-         CnFkNsyLxeyl1kwp7R7WgBwioPXPmWl3MGbSNW58=
+        b=zaf/EMljKigwOEqpiykrasLTQtyUd/uTnTdRy2mtSG29pYpzvGgUFbxdJ7su+JwDE
+         XTFP3Q/0t0lmLvM8CVLV8WTjkg2PpctgP/4N5vUKHRJkb5mxB0sKMOzPy5oQDKL/Ov
+         qy0HxiEiIzoCbI4usJRttCVJkmVoXXe+fX8Vwyj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 4.14 241/242] libnvdimm/namespace: Fix reaping of invalidated block-window-namespace labels
-Date:   Mon, 28 Dec 2020 13:50:46 +0100
-Message-Id: <20201228124916.554029416@linuxfoundation.org>
+        stable@vger.kernel.org, Jubin Zhong <zhongjubin@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 242/242] PCI: Fix pci_slot_release() NULL pointer dereference
+Date:   Mon, 28 Dec 2020 13:50:47 +0100
+Message-Id: <20201228124916.602815383@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,65 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Jubin Zhong <zhongjubin@huawei.com>
 
-commit 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 upstream.
+commit 4684709bf81a2d98152ed6b610e3d5c403f9bced upstream.
 
-A recent change to ndctl to attempt to reconfigure namespaces in place
-uncovered a label accounting problem in block-window-type namespaces.
-The ndctl "create.sh" test is able to trigger this signature:
+If kobject_init_and_add() fails, pci_slot_release() is called to delete
+slot->list from parent->slots.  But slot->list hasn't been initialized
+yet, so we dereference a NULL pointer:
 
- WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- Call Trace:
-  uuid_store+0x21b/0x2f0 [libnvdimm]
-  kernfs_fop_write+0xcf/0x1c0
-  vfs_write+0xcc/0x380
-  ksys_write+0x68/0xe0
+  Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+  ...
+  CPU: 10 PID: 1 Comm: swapper/0 Not tainted 4.4.240 #197
+  task: ffffeb398a45ef10 task.stack: ffffeb398a470000
+  PC is at __list_del_entry_valid+0x5c/0xb0
+  LR is at pci_slot_release+0x84/0xe4
+  ...
+  __list_del_entry_valid+0x5c/0xb0
+  pci_slot_release+0x84/0xe4
+  kobject_put+0x184/0x1c4
+  pci_create_slot+0x17c/0x1b4
+  __pci_hp_initialize+0x68/0xa4
+  pciehp_probe+0x1a4/0x2fc
+  pcie_port_probe_service+0x58/0x84
+  driver_probe_device+0x320/0x470
 
-When allocated capacity for a namespace is renamed (new UUID) the labels
-with the old UUID need to be deleted. The ndctl behavior to always
-destroy namespaces on reconfiguration hid this problem.
+Initialize slot->list before calling kobject_init_and_add() to avoid this.
 
-The immediate impact of this bug is limited since block-window-type
-namespaces only seem to exist in the specification and not in any
-shipping products. However, the label handling code is being reused for
-other technologies like CXL region labels, so there is a benefit to
-making sure both vertical labels sets (block-window) and horizontal
-label sets (pmem) have a functional reference implementation in
-libnvdimm.
-
-Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 8a94644b440e ("PCI: Fix pci_create_slot() reference count leak")
+Link: https://lore.kernel.org/r/1606876422-117457-1-git-send-email-zhongjubin@huawei.com
+Signed-off-by: Jubin Zhong <zhongjubin@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v5.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/label.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pci/slot.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -852,6 +852,15 @@ static int __blk_label_update(struct nd_
- 		}
+--- a/drivers/pci/slot.c
++++ b/drivers/pci/slot.c
+@@ -307,6 +307,9 @@ placeholder:
+ 		goto err;
  	}
  
-+	/* release slots associated with any invalidated UUIDs */
-+	mutex_lock(&nd_mapping->lock);
-+	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
-+		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
-+			reap_victim(nd_mapping, label_ent);
-+			list_move(&label_ent->list, &list);
-+		}
-+	mutex_unlock(&nd_mapping->lock);
++	INIT_LIST_HEAD(&slot->list);
++	list_add(&slot->list, &parent->slots);
 +
- 	/*
- 	 * Find the resource associated with the first label in the set
- 	 * per the v1.2 namespace specification.
+ 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
+ 				   "%s", slot_name);
+ 	if (err) {
+@@ -314,9 +317,6 @@ placeholder:
+ 		goto err;
+ 	}
+ 
+-	INIT_LIST_HEAD(&slot->list);
+-	list_add(&slot->list, &parent->slots);
+-
+ 	down_read(&pci_bus_sem);
+ 	list_for_each_entry(dev, &parent->devices, bus_list)
+ 		if (PCI_SLOT(dev->devfn) == slot_nr)
 
 
