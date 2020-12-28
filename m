@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A7A2E3F3A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC372E3ECB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392113AbgL1Ohs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S2504703AbgL1Occ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504696AbgL1Oc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFDD82063A;
-        Mon, 28 Dec 2020 14:32:12 +0000 (UTC)
+        id S2504706AbgL1Ocb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACEA322BEA;
+        Mon, 28 Dec 2020 14:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165933;
-        bh=bFujeQTmkX8voB3Hyv3mHFA2PPAjBxbnp9aIl6G7r7s=;
+        s=korg; t=1609165936;
+        bh=v0iFqxSzFZ1hMPakMM1V68IL+iaKKBi0HfkVvQCwLcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbqTJWfaK1FCN5Z5RcGwp3ahLmpqT2dqvPZFnHIWrkACO/5yUZVfozrAt+pWNAtP9
-         /5zkcgFNjwcQR/Tjjoica4hn8kN+pDtKjoLZKyfdzk0d4ZcEB5C4AyhSJ/HsSAAPY2
-         dn+18+KLgS9CNueubHdh0zSgr0Z+L1yU551b9ZgE=
+        b=2Yq11nw0JUe0kqoW4f/67JMxG5ddFDX/bZKHHT3uEP6mgbVM3oVtVJp+LGGo7Fbdi
+         uxxxUNkkiIwaMjq0eqDh03a1dnD9DguvuXORdSjTSTHFB+7FPg21Z3+dDRYx/wVNyH
+         W5qH7GDvHj9H7yG5kVib1zGg/+LprlCjjrFauHpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 705/717] libnvdimm/namespace: Fix reaping of invalidated block-window-namespace labels
-Date:   Mon, 28 Dec 2020 13:51:43 +0100
-Message-Id: <20201228125054.765775171@linuxfoundation.org>
+        stable@vger.kernel.org, Carlos Garnacho <carlosg@gnome.org>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.10 706/717] platform/x86: intel-vbtn: Allow switch events on Acer Switch Alpha 12
+Date:   Mon, 28 Dec 2020 13:51:44 +0100
+Message-Id: <20201228125054.813845394@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,65 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Carlos Garnacho <carlosg@gnome.org>
 
-commit 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 upstream.
+commit fe6000990394639ed374cb76c313be3640714f47 upstream.
 
-A recent change to ndctl to attempt to reconfigure namespaces in place
-uncovered a label accounting problem in block-window-type namespaces.
-The ndctl "create.sh" test is able to trigger this signature:
+This 2-in-1 model (Product name: Switch SA5-271) features a SW_TABLET_MODE
+that works as it would be expected, both when detaching the keyboard and
+when folding it behind the tablet body.
 
- WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- Call Trace:
-  uuid_store+0x21b/0x2f0 [libnvdimm]
-  kernfs_fop_write+0xcf/0x1c0
-  vfs_write+0xcc/0x380
-  ksys_write+0x68/0xe0
+It used to work until the introduction of the allow list at
+commit 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list
+for SW_TABLET_MODE reporting"). Add this model to it, so that the Virtual
+Buttons device announces the EV_SW features again.
 
-When allocated capacity for a namespace is renamed (new UUID) the labels
-with the old UUID need to be deleted. The ndctl behavior to always
-destroy namespaces on reconfiguration hid this problem.
-
-The immediate impact of this bug is limited since block-window-type
-namespaces only seem to exist in the specification and not in any
-shipping products. However, the label handling code is being reused for
-other technologies like CXL region labels, so there is a benefit to
-making sure both vertical labels sets (block-window) and horizontal
-label sets (pmem) have a functional reference implementation in
-libnvdimm.
-
-Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list for SW_TABLET_MODE reporting")
+Cc: stable@vger.kernel.org
+Signed-off-by: Carlos Garnacho <carlosg@gnome.org>
+Link: https://lore.kernel.org/r/20201201135727.212917-1-carlosg@gnome.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/label.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/platform/x86/intel-vbtn.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -980,6 +980,15 @@ static int __blk_label_update(struct nd_
- 		}
- 	}
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -216,6 +216,12 @@ static const struct dmi_system_id dmi_sw
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
++		},
++	},
+ 	{} /* Array terminator */
+ };
  
-+	/* release slots associated with any invalidated UUIDs */
-+	mutex_lock(&nd_mapping->lock);
-+	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
-+		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
-+			reap_victim(nd_mapping, label_ent);
-+			list_move(&label_ent->list, &list);
-+		}
-+	mutex_unlock(&nd_mapping->lock);
-+
- 	/*
- 	 * Find the resource associated with the first label in the set
- 	 * per the v1.2 namespace specification.
 
 
