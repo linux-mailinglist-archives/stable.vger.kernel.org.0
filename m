@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 427B42E3A6A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 042E12E3EBF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390722AbgL1Ngi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:36:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36966 "EHLO mail.kernel.org"
+        id S2503626AbgL1OaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390716AbgL1Ngh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F07172063A;
-        Mon, 28 Dec 2020 13:35:55 +0000 (UTC)
+        id S2503617AbgL1OaQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B54FB20715;
+        Mon, 28 Dec 2020 14:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162556;
-        bh=6YHOCf7TsLyHBFqaLybcqHGXcXbfOBWS8yKwbrmuzfg=;
+        s=korg; t=1609165801;
+        bh=1BSslsqxMy717FWz4yCJakZK4RQeXyjOWZHJDGse5vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlWQEqGvrPYGnIOgu2Un671we+raDLih1WJgRyFYqjTh7+H6V9RXnEkJDlElazYqp
-         zF4uJ55x/36nHkv2Xi4nTnVc+EKY1qLQWpfcDaCG1T+mXOtOSDWL3u+cVKy3ADzagi
-         2sF/zS92wZOfk5rOrzWZG2m05GCd1FZyflHE3mLw=
+        b=cy65uM1CVcqNzXgFlRe8RkdWzM4RUi9dav6MfughIlMWucNp+KRq9iRRuLP8XMEtC
+         yY2e0i/sXYLqfFECPuUm+zVB5aTcG8EichjWAL0shf8mKDnBmrRWYAkYH8pHIO4Csg
+         M3nT7kEuUolxay1EvuYTlbtIEWVGsPHDu1S90zAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 339/346] xen/xenbus: Allow watches discard events before queueing
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Stefan Roese <sr@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 660/717] spi: mt7621: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:50:58 +0100
-Message-Id: <20201228124936.144040423@linuxfoundation.org>
+Message-Id: <20201228125052.585986478@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,115 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
+commit 46b5c4fb87ce8211e0f9b0383dbde72c3652d2ba upstream.
 
-If handling logics of watch events are slower than the events enqueue
-logic and the events can be created from the guests, the guests could
-trigger memory pressure by intensively inducing the events, because it
-will create a huge number of pending events that exhausting the memory.
+If the calls to device_reset() or devm_spi_register_controller() fail on
+probe of the MediaTek MT7621 SPI driver, the spi_controller struct is
+erroneously not freed.  Fix by switching over to the new
+devm_spi_alloc_master() helper.
 
-Fortunately, some watch events could be ignored, depending on its
-handler callback.  For example, if the callback has interest in only one
-single path, the watch wouldn't want multiple pending events.  Or, some
-watches could ignore events to same path.
+Additionally, there's an ordering issue in mt7621_spi_remove() wherein
+the spi_controller is unregistered after disabling the SYS clock.
+The correct order is to call spi_unregister_controller() *before* this
+teardown step because bus accesses may still be ongoing until that
+function returns.
 
-To let such watches to volutarily help avoiding the memory pressure
-situation, this commit introduces new watch callback, 'will_handle'.  If
-it is not NULL, it will be called for each new event just before
-enqueuing it.  Then, if the callback returns false, the event will be
-discarded.  No watch is using the callback for now, though.
+All of these bugs have existed since the driver was first introduced,
+so it seems fair to fix them together in a single commit.
 
-This is part of XSA-349
-
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Stefan Roese <sr@denx.de>
+Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.17+
+Link: https://lore.kernel.org/r/72b680796149f5fcda0b3f530ffb7ee73b04f224.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/xen-netback/xenbus.c   |    4 ++++
- drivers/xen/xenbus/xenbus_client.c |    1 +
- drivers/xen/xenbus/xenbus_xs.c     |    5 ++++-
- include/xen/xenbus.h               |    7 +++++++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mt7621.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -777,12 +777,14 @@ static int xen_register_credit_watch(str
- 		return -ENOMEM;
- 	snprintf(node, maxlen, "%s/rate", dev->nodename);
- 	vif->credit_watch.node = node;
-+	vif->credit_watch.will_handle = NULL;
- 	vif->credit_watch.callback = xen_net_rate_changed;
- 	err = register_xenbus_watch(&vif->credit_watch);
- 	if (err) {
- 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
- 		kfree(node);
- 		vif->credit_watch.node = NULL;
-+		vif->credit_watch.will_handle = NULL;
- 		vif->credit_watch.callback = NULL;
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -350,7 +350,7 @@ static int mt7621_spi_probe(struct platf
+ 	if (status)
+ 		return status;
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(*rs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*rs));
+ 	if (!master) {
+ 		dev_info(&pdev->dev, "master allocation failed\n");
+ 		clk_disable_unprepare(clk);
+@@ -382,7 +382,7 @@ static int mt7621_spi_probe(struct platf
+ 		return ret;
  	}
- 	return err;
-@@ -829,6 +831,7 @@ static int xen_register_mcast_ctrl_watch
- 	snprintf(node, maxlen, "%s/request-multicast-control",
- 		 dev->otherend);
- 	vif->mcast_ctrl_watch.node = node;
-+	vif->mcast_ctrl_watch.will_handle = NULL;
- 	vif->mcast_ctrl_watch.callback = xen_mcast_ctrl_changed;
- 	err = register_xenbus_watch(&vif->mcast_ctrl_watch);
- 	if (err) {
-@@ -836,6 +839,7 @@ static int xen_register_mcast_ctrl_watch
- 		       vif->mcast_ctrl_watch.node);
- 		kfree(node);
- 		vif->mcast_ctrl_watch.node = NULL;
-+		vif->mcast_ctrl_watch.will_handle = NULL;
- 		vif->mcast_ctrl_watch.callback = NULL;
- 	}
- 	return err;
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
- 	int err;
  
- 	watch->node = path;
-+	watch->will_handle = NULL;
- 	watch->callback = callback;
+-	ret = devm_spi_register_controller(&pdev->dev, master);
++	ret = spi_register_controller(master);
+ 	if (ret)
+ 		clk_disable_unprepare(clk);
  
- 	err = register_xenbus_watch(watch);
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -705,7 +705,10 @@ int xs_watch_msg(struct xs_watch_event *
+@@ -397,6 +397,7 @@ static int mt7621_spi_remove(struct plat
+ 	master = dev_get_drvdata(&pdev->dev);
+ 	rs = spi_controller_get_devdata(master);
  
- 	spin_lock(&watches_lock);
- 	event->handle = find_watch(event->token);
--	if (event->handle != NULL) {
-+	if (event->handle != NULL &&
-+			(!event->handle->will_handle ||
-+			 event->handle->will_handle(event->handle,
-+				 event->path, event->token))) {
- 		spin_lock(&watch_events_lock);
- 		list_add_tail(&event->list, &watch_events);
- 		wake_up(&watch_events_waitq);
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -59,6 +59,13 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
++	spi_unregister_controller(master);
+ 	clk_disable_unprepare(rs->clk);
  
-+	/*
-+	 * Called just before enqueing new event while a spinlock is held.
-+	 * The event will be discarded if this callback returns false.
-+	 */
-+	bool (*will_handle)(struct xenbus_watch *,
-+			      const char *path, const char *token);
-+
- 	/* Callback (executed in a process context with no locks held). */
- 	void (*callback)(struct xenbus_watch *,
- 			 const char *path, const char *token);
+ 	return 0;
 
 
