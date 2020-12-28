@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEBE62E3883
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 961422E3B44
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729559AbgL1NLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:11:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39060 "EHLO mail.kernel.org"
+        id S2405793AbgL1NsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:48:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731552AbgL1NLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:11:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F2DE206ED;
-        Mon, 28 Dec 2020 13:10:27 +0000 (UTC)
+        id S2405761AbgL1Nrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:47:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3098C208BA;
+        Mon, 28 Dec 2020 13:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161027;
-        bh=ldrXQ9oTcDqf9SYxNtJmPisupfTA8g1oDRT7fgObFBU=;
+        s=korg; t=1609163226;
+        bh=rDa+tRso19nOXqK3oypBBItt/qOeQF0e38L5BfD5xm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqXB0Vzh5t9AOgkHmr6wHEn5jt3Gf2Wd1pb2RIlYqa1ZlCEXt2RJlp8/qx3AvOMJO
-         NWCrly5+SNNjfzN9DNcJ43CDQs/wP0pULcT24fzzFLmX27UW1Mlrr447LwZR/18riC
-         a5IMF9mxB6WBbBvWymU2mgnFgDXbdE1iVnv/HX7U=
+        b=vEoWyptQlvhw9M0R8ww+tDFWe3w8WrSBDqqm3U6Sb+eTTEq+M04kHW/n9S/fC+YLF
+         5biWSMXV7EWt6d3p90ri3l/WOlba8vmUaSuMMFrBREnNO6h5RO+xt8XjNFQc9BdJaE
+         Ub5WmMWD8iH14qKsFhrnzB22l7mOAI0F3VuamjVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/242] vxlan: Copy needed_tailroom from lowerdev
+Subject: [PATCH 5.4 214/453] iio: hrtimer-trigger: Mark hrtimer to expire in hard interrupt context
 Date:   Mon, 28 Dec 2020 13:47:30 +0100
-Message-Id: <20201228124906.896981188@linuxfoundation.org>
+Message-Id: <20201228124947.517349703@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit a5e74021e84bb5eadf760aaf2c583304f02269be ]
+[ Upstream commit 0178297c1e6898e2197fe169ef3be723e019b971 ]
 
-While vxlan doesn't need any extra tailroom, the lowerdev might need it. In
-that case, copy it over to reduce the chance for additional (re)allocations
-in the transmit path.
+On PREEMPT_RT enabled kernels unmarked hrtimers are moved into soft
+interrupt expiry mode by default.
 
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20201126125247.1047977-2-sven@narfation.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The IIO hrtimer-trigger needs to run in hard interrupt context since it
+will end up calling generic_handle_irq() which has the requirement to run
+in hard interrupt context.
+
+Explicitly specify that the timer needs to run in hard interrupt context by
+using the HRTIMER_MODE_REL_HARD flag.
+
+Fixes: f5c2f0215e36 ("hrtimer: Move unmarked hrtimers to soft interrupt expiry on RT")
+Reported-by: Christian Eggers <ceggers@arri.de>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lore.kernel.org/r/20201117103751.16131-1-lars@metafoo.de
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/trigger/iio-trig-hrtimer.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index c21f28840f05b..94a9add2fc878 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -3186,6 +3186,8 @@ static void vxlan_config_apply(struct net_device *dev,
- 		needed_headroom = lowerdev->hard_header_len;
- 		needed_headroom += lowerdev->needed_headroom;
+diff --git a/drivers/iio/trigger/iio-trig-hrtimer.c b/drivers/iio/trigger/iio-trig-hrtimer.c
+index a5e670726717f..58c1c30d5612b 100644
+--- a/drivers/iio/trigger/iio-trig-hrtimer.c
++++ b/drivers/iio/trigger/iio-trig-hrtimer.c
+@@ -102,7 +102,7 @@ static int iio_trig_hrtimer_set_state(struct iio_trigger *trig, bool state)
  
-+		dev->needed_tailroom = lowerdev->needed_tailroom;
-+
- 		max_mtu = lowerdev->mtu - (use_ipv6 ? VXLAN6_HEADROOM :
- 					   VXLAN_HEADROOM);
- 		if (max_mtu < ETH_MIN_MTU)
+ 	if (state)
+ 		hrtimer_start(&trig_info->timer, trig_info->period,
+-			      HRTIMER_MODE_REL);
++			      HRTIMER_MODE_REL_HARD);
+ 	else
+ 		hrtimer_cancel(&trig_info->timer);
+ 
+@@ -132,7 +132,7 @@ static struct iio_sw_trigger *iio_trig_hrtimer_probe(const char *name)
+ 	trig_info->swt.trigger->ops = &iio_hrtimer_trigger_ops;
+ 	trig_info->swt.trigger->dev.groups = iio_hrtimer_attr_groups;
+ 
+-	hrtimer_init(&trig_info->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer_init(&trig_info->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+ 	trig_info->timer.function = iio_hrtimer_trig_handler;
+ 
+ 	trig_info->sampling_frequency = HRTIMER_DEFAULT_SAMPLING_FREQUENCY;
 -- 
 2.27.0
 
