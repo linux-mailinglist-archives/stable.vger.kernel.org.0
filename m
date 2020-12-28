@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F393D2E3F0B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5012E64E8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504028AbgL1Oc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38046 "EHLO mail.kernel.org"
+        id S2390533AbgL1PyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503691AbgL1Oab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59AB020739;
-        Mon, 28 Dec 2020 14:30:15 +0000 (UTC)
+        id S2390816AbgL1Ngw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C1D206ED;
+        Mon, 28 Dec 2020 13:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165815;
-        bh=ENg6qW3FNxh7A1g0yGc+Pr1A3OjjWu1/O7a7oUE5/Rg=;
+        s=korg; t=1609162571;
+        bh=cjrcKJRKTlQaJVVukEzFNSi7mHbwrPuKt96JV63yd+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8gYyfxwi49ntXh35iHqFtMKUmesolAtZiCBmECEm+1han18VQAATJjEyull3zhCs
-         NgM2ywhywh0TAsJSPMb6711C1BNThKOWTugqM8KSIhoWelOLKOoC9NJLCLPMr/RRWQ
-         C5ySGEUK0zf5YKXx2MRsiF8OCcW01fJlpBURuPFY=
+        b=kadHHvoO6OkRUg3IPz67vylZZYy7FY0VyYeUkaMapzCy7o1aKIl57KXVIMjKUgvbk
+         9U4FFNW9nBMtsPfr+SiUl48J2QJP3YCRD2CxzcsXgDBFLZkkUN1ysR+ai8ARKslEY7
+         38z30JrLS7hfGipw9b1erQ4HYLSqU7A+B6k73VtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 664/717] mtd: spinand: Fix OOB read
-Date:   Mon, 28 Dec 2020 13:51:02 +0100
-Message-Id: <20201228125052.791387869@linuxfoundation.org>
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 4.19 344/346] libnvdimm/namespace: Fix reaping of invalidated block-window-namespace labels
+Date:   Mon, 28 Dec 2020 13:51:03 +0100
+Message-Id: <20201228124936.387142749@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,35 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 868cbe2a6dcee451bd8f87cbbb2a73cf463b57e5 upstream.
+commit 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 upstream.
 
-So far OOB have never been used in SPI-NAND, add the missing memcpy to
-make it work properly.
+A recent change to ndctl to attempt to reconfigure namespaces in place
+uncovered a label accounting problem in block-window-type namespaces.
+The ndctl "create.sh" test is able to trigger this signature:
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20201001102014.20100-6-miquel.raynal@bootlin.com
+ WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ Call Trace:
+  uuid_store+0x21b/0x2f0 [libnvdimm]
+  kernfs_fop_write+0xcf/0x1c0
+  vfs_write+0xcc/0x380
+  ksys_write+0x68/0xe0
+
+When allocated capacity for a namespace is renamed (new UUID) the labels
+with the old UUID need to be deleted. The ndctl behavior to always
+destroy namespaces on reconfiguration hid this problem.
+
+The immediate impact of this bug is limited since block-window-type
+namespaces only seem to exist in the specification and not in any
+shipping products. However, the label handling code is being reused for
+other technologies like CXL region labels, so there is a benefit to
+making sure both vertical labels sets (block-window) and horizontal
+label sets (pmem) have a functional reference implementation in
+libnvdimm.
+
+Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
+Cc: <stable@vger.kernel.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/nvdimm/label.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -318,6 +318,10 @@ static int spinand_write_to_cache_op(str
- 		buf += ret;
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -861,6 +861,15 @@ static int __blk_label_update(struct nd_
+ 		}
  	}
  
-+	if (req->ooblen)
-+		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
-+		       req->ooblen);
++	/* release slots associated with any invalidated UUIDs */
++	mutex_lock(&nd_mapping->lock);
++	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
++		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
++			reap_victim(nd_mapping, label_ent);
++			list_move(&label_ent->list, &list);
++		}
++	mutex_unlock(&nd_mapping->lock);
 +
- 	return 0;
- }
- 
+ 	/*
+ 	 * Find the resource associated with the first label in the set
+ 	 * per the v1.2 namespace specification.
 
 
