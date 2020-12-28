@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E37E2E6508
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5160C2E4299
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389367AbgL1Nfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:35:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+        id S2407827AbgL1N6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389360AbgL1Nfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7DC0205CB;
-        Mon, 28 Dec 2020 13:35:14 +0000 (UTC)
+        id S2407791AbgL1N6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 951AF206E5;
+        Mon, 28 Dec 2020 13:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162515;
-        bh=oWdZEh3yVi7ZbfrCYKGw3o1vNbUgx3LgvH41n+SR7tM=;
+        s=korg; t=1609163876;
+        bh=4/UIqvR/aOD/azOYDLGSWkRRB7cyUOx2lvDnvdFIVjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6SFXRDl/uUkwd4FNizR1C0RiN7Mh4ADlr7gcqto4fHH83NTojjoeepD1EUs1rW8F
-         uFfjKhPy18PoJnDFabadTA08JjtjeWLocc7VWZBrl9OA07SwPuLHlWKojomSmJbm7J
-         +IA+5VJIooYKsHg/bAROfPBpT9vjzgysyHOQwOds=
+        b=tpiVy+yHxyX2zWH3HUr57/ItAKDlvF7iUBkCk6OD1+IsjW7p5nil92DD81kpuZYjO
+         ClKi9Fr49+hINm/9XSTuIGgNLCiODGm4AB/mQftqbkD1hFKxQzooMZUf5XraCtcoLi
+         JqsH3Oc2GTXF+6VaHuH1h5tkoFJFV8Luh3vLwNKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 326/346] scsi: lpfc: Fix invalid sleeping context in lpfc_sli4_nvmet_alloc()
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Bert Vermeulen <bert@biot.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 409/453] spi: rb4xx: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:50:45 +0100
-Message-Id: <20201228124935.546086922@linuxfoundation.org>
+Message-Id: <20201228124956.898047047@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 62e3a931db60daf94fdb3159d685a5bc6ad4d0cf upstream.
+commit a4729c3506c3eb1a6ca5c0289f4e7cafa4115065 upstream.
 
-The following calltrace was seen:
+If the calls to devm_clk_get(), devm_spi_register_master() or
+clk_prepare_enable() fail on probe of the Mikrotik RB4xx SPI driver,
+the spi_master struct is erroneously not freed.
 
-BUG: sleeping function called from invalid context at mm/slab.h:494
-...
-Call Trace:
- dump_stack+0x9a/0xf0
- ___might_sleep.cold.63+0x13d/0x178
- slab_pre_alloc_hook+0x6a/0x90
- kmem_cache_alloc_trace+0x3a/0x2d0
- lpfc_sli4_nvmet_alloc+0x4c/0x280 [lpfc]
- lpfc_post_rq_buffer+0x2e7/0xa60 [lpfc]
- lpfc_sli4_hba_setup+0x6b4c/0xa4b0 [lpfc]
- lpfc_pci_probe_one_s4.isra.15+0x14f8/0x2280 [lpfc]
- lpfc_pci_probe_one+0x260/0x2880 [lpfc]
- local_pci_probe+0xd4/0x180
- work_for_cpu_fn+0x51/0xa0
- process_one_work+0x8f0/0x17b0
- worker_thread+0x536/0xb50
- kthread+0x30c/0x3d0
- ret_from_fork+0x3a/0x50
+Fix by switching over to the new devm_spi_alloc_master() helper.
 
-A prior patch introduced a spin_lock_irqsave(hbalock) in the
-lpfc_post_rq_buffer() routine. Call trace is seen as the hbalock is held
-with interrupts disabled during a GFP_KERNEL allocation in
-lpfc_sli4_nvmet_alloc().
-
-Fix by reordering locking so that hbalock not held when calling
-sli4_nvmet_alloc() (aka rqb_buf_list()).
-
-Link: https://lore.kernel.org/r/20201020202719.54726-2-james.smart@broadcom.com
-Fixes: 411de511c694 ("scsi: lpfc: Fix RQ empty firmware trap")
-Cc: <stable@vger.kernel.org> # v4.17+
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 05aec357871f ("spi: Add SPI driver for Mikrotik RB4xx series boards")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.2+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.2+
+Cc: Bert Vermeulen <bert@biot.com>
+Link: https://lore.kernel.org/r/369bf26d71927f60943b1d9d8f51810f00b0237d.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/lpfc/lpfc_mem.c |    4 +---
- drivers/scsi/lpfc/lpfc_sli.c |   10 ++++++++--
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/spi/spi-rb4xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/lpfc/lpfc_mem.c
-+++ b/drivers/scsi/lpfc/lpfc_mem.c
-@@ -560,8 +560,6 @@ lpfc_els_hbq_free(struct lpfc_hba *phba,
-  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
-  * pool along a non-DMA-mapped container for it.
-  *
-- * Notes: Not interrupt-safe.  Must be called with no locks held.
-- *
-  * Returns:
-  *   pointer to HBQ on success
-  *   NULL on failure
-@@ -631,7 +629,7 @@ lpfc_sli4_nvmet_alloc(struct lpfc_hba *p
- {
- 	struct rqb_dmabuf *dma_buf;
+--- a/drivers/spi/spi-rb4xx.c
++++ b/drivers/spi/spi-rb4xx.c
+@@ -142,7 +142,7 @@ static int rb4xx_spi_probe(struct platfo
+ 	if (IS_ERR(spi_base))
+ 		return PTR_ERR(spi_base);
  
--	dma_buf = kzalloc(sizeof(struct rqb_dmabuf), GFP_KERNEL);
-+	dma_buf = kzalloc(sizeof(*dma_buf), GFP_KERNEL);
- 	if (!dma_buf)
- 		return NULL;
+-	master = spi_alloc_master(&pdev->dev, sizeof(*rbspi));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*rbspi));
+ 	if (!master)
+ 		return -ENOMEM;
  
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -6755,12 +6755,16 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
- 	struct rqb_dmabuf *rqb_buffer;
- 	LIST_HEAD(rqb_buf_list);
- 
--	spin_lock_irqsave(&phba->hbalock, flags);
- 	rqbp = hrq->rqbp;
- 	for (i = 0; i < count; i++) {
-+		spin_lock_irqsave(&phba->hbalock, flags);
- 		/* IF RQ is already full, don't bother */
--		if (rqbp->buffer_count + i >= rqbp->entry_count - 1)
-+		if (rqbp->buffer_count + i >= rqbp->entry_count - 1) {
-+			spin_unlock_irqrestore(&phba->hbalock, flags);
- 			break;
-+		}
-+		spin_unlock_irqrestore(&phba->hbalock, flags);
-+
- 		rqb_buffer = rqbp->rqb_alloc_buffer(phba);
- 		if (!rqb_buffer)
- 			break;
-@@ -6769,6 +6773,8 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
- 		rqb_buffer->idx = idx;
- 		list_add_tail(&rqb_buffer->hbuf.list, &rqb_buf_list);
- 	}
-+
-+	spin_lock_irqsave(&phba->hbalock, flags);
- 	while (!list_empty(&rqb_buf_list)) {
- 		list_remove_head(&rqb_buf_list, rqb_buffer, struct rqb_dmabuf,
- 				 hbuf.list);
 
 
