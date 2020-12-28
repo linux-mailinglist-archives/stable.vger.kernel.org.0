@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CEC62E3BF8
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80FD72E37A5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406605AbgL1N4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:56:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58298 "EHLO mail.kernel.org"
+        id S1729248AbgL1M6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406678AbgL1N4u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0938820782;
-        Mon, 28 Dec 2020 13:56:33 +0000 (UTC)
+        id S1729244AbgL1M6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F268B22AAD;
+        Mon, 28 Dec 2020 12:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163794;
-        bh=HgdXahm1Zzqe7TN4Ff96NVdu2PDMzEhyVy3av+zvSio=;
+        s=korg; t=1609160287;
+        bh=CEl+1ESaSoBIrIofVwhgvL92q+5GbtH7VRLy0yOgss0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LA4YHMeJ9sBNkpsUy37HZaS9SsDmc76g7k94SYPpKp+dGSKSHdsFiaNgQgEAtscZn
-         kO56yx4i7j/h81GlhzPENpAWnlOQRxMBRYH3ESsxhrf/BPSyH0K8boNWkXQ3JYv22D
-         OetY0zXZOORDux+ajWUdX8OXS4yVWG1fUpUbgF78=
+        b=KPAiUIO0mJq0QPDh3YfL1z8lGa3ZX/SQkklnv6qvitJj9HVg2y0QZH9L/DuNMEclF
+         5SBBPkoznbufVQ1H1ca2VGVDbA4fDgad6xG2OOoB+IcUBn1POAQmRxAu8rC80yCtVX
+         0j3t1IwgldMEiVwkVV/2zlzNmZcDN83QXNPt891M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 369/453] USB: serial: keyspan_pda: fix write-wakeup use-after-free
+        stable@vger.kernel.org, Zhe Li <lizhe67@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.4 121/132] jffs2: Fix GC exit abnormally
 Date:   Mon, 28 Dec 2020 13:50:05 +0100
-Message-Id: <20201228124954.967508343@linuxfoundation.org>
+Message-Id: <20201228124852.262096210@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Zhe Li <lizhe67@huawei.com>
 
-commit 37faf50615412947868c49aee62f68233307f4e4 upstream.
+commit 9afc9a8a4909fece0e911e72b1060614ba2f7969 upstream.
 
-The driver's deferred write wakeup was never flushed on disconnect,
-something which could lead to the driver port data being freed while the
-wakeup work is still scheduled.
+The log of this problem is:
+jffs2: Error garbage collecting node at 0x***!
+jffs2: No space for garbage collection. Aborting GC thread
 
-Fix this by using the usb-serial write wakeup which gets cancelled
-properly on disconnect.
+This is because GC believe that it do nothing, so it abort.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+After going over the image of jffs2, I find a scene that
+can trigger this problem stably.
+The scene is: there is a normal dirent node at summary-area,
+but abnormal at corresponding not-summary-area with error
+name_crc.
+
+The reason that GC exit abnormally is because it find that
+abnormal dirent node to GC, but when it goes to function
+jffs2_add_fd_to_list, it cannot meet the condition listed
+below:
+
+if ((*prev)->nhash == new->nhash && !strcmp((*prev)->name, new->name))
+
+So no node is marked obsolete, statistical information of
+erase_block do not change, which cause GC exit abnormally.
+
+The root cause of this problem is: we do not check the
+name_crc of the abnormal dirent node with summary is enabled.
+
+Noticed that in function jffs2_scan_dirent_node, we use
+function jffs2_scan_dirty_space to deal with the dirent
+node with error name_crc. So this patch add a checking
+code in function read_direntry to ensure the correctness
+of dirent node. If checked failed, the dirent node will
+be marked obsolete so GC will pass this node and this
+problem will be fixed.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Zhe Li <lizhe67@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ fs/jffs2/readinode.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -43,8 +43,7 @@
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
--	struct work_struct			wakeup_work;
--	struct work_struct			unthrottle_work;
-+	struct work_struct	unthrottle_work;
- 	struct usb_serial	*serial;
- 	struct usb_serial_port	*port;
- };
-@@ -97,15 +96,6 @@ static const struct usb_device_id id_tab
- };
- #endif
+--- a/fs/jffs2/readinode.c
++++ b/fs/jffs2/readinode.c
+@@ -672,6 +672,22 @@ static inline int read_direntry(struct j
+ 			jffs2_free_full_dirent(fd);
+ 			return -EIO;
+ 		}
++
++#ifdef CONFIG_JFFS2_SUMMARY
++		/*
++		 * we use CONFIG_JFFS2_SUMMARY because without it, we
++		 * have checked it while mounting
++		 */
++		crc = crc32(0, fd->name, rd->nsize);
++		if (unlikely(crc != je32_to_cpu(rd->name_crc))) {
++			JFFS2_NOTICE("name CRC failed on dirent node at"
++			   "%#08x: read %#08x,calculated %#08x\n",
++			   ref_offset(ref), je32_to_cpu(rd->node_crc), crc);
++			jffs2_mark_node_obsolete(c, ref);
++			jffs2_free_full_dirent(fd);
++			return 0;
++		}
++#endif
+ 	}
  
--static void keyspan_pda_wakeup_write(struct work_struct *work)
--{
--	struct keyspan_pda_private *priv =
--		container_of(work, struct keyspan_pda_private, wakeup_work);
--	struct usb_serial_port *port = priv->port;
--
--	tty_port_tty_wakeup(&port->port);
--}
--
- static void keyspan_pda_request_unthrottle(struct work_struct *work)
- {
- 	struct keyspan_pda_private *priv =
-@@ -183,7 +173,7 @@ static void keyspan_pda_rx_interrupt(str
- 		case 2: /* tx unthrottle interrupt */
- 			priv->tx_throttled = 0;
- 			/* queue up a wakeup at scheduler time */
--			schedule_work(&priv->wakeup_work);
-+			usb_serial_port_softint(port);
- 			break;
- 		default:
- 			break;
-@@ -563,7 +553,7 @@ static void keyspan_pda_write_bulk_callb
- 	priv = usb_get_serial_port_data(port);
- 
- 	/* queue up a wakeup at scheduler time */
--	schedule_work(&priv->wakeup_work);
-+	usb_serial_port_softint(port);
- }
- 
- 
-@@ -716,7 +706,6 @@ static int keyspan_pda_port_probe(struct
- 	if (!priv)
- 		return -ENOMEM;
- 
--	INIT_WORK(&priv->wakeup_work, keyspan_pda_wakeup_write);
- 	INIT_WORK(&priv->unthrottle_work, keyspan_pda_request_unthrottle);
- 	priv->serial = port->serial;
- 	priv->port = port;
+ 	fd->nhash = full_name_hash(fd->name, rd->nsize);
 
 
