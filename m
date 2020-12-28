@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDE332E4262
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B27AC2E4268
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436785AbgL1OCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35968 "EHLO mail.kernel.org"
+        id S2441861AbgL1PWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:22:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436779AbgL1OCI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BCDA20731;
-        Mon, 28 Dec 2020 14:01:27 +0000 (UTC)
+        id S2436802AbgL1OCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79A5C2063A;
+        Mon, 28 Dec 2020 14:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164088;
-        bh=0fnv0UIBbTODUrQK1CeIPBPfnLukRyy9Epf9av9hHnA=;
+        s=korg; t=1609164091;
+        bh=TEEd7bTuM56HNa5on8CU/w48O/UpN0M1Aj2uOPamqOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyIvn5jWGVWejFcSPvzAY9CJIzqKp/7CG1mPJlVctkfymbObbQtvyGBLJ0K6sy47E
-         GDKO208yPHv6Bq3homh7JxY0pApwJ7qHgZGHKkCZpb8X1f20jCBlVlZli7kwqLaL6Q
-         M+82gZFiDwjWZislf4eFGbUBijQRlSktqHWb8WzI=
+        b=lqfikORFXV8Nn4Vfev/w9bcN6bktYc3PUvbm2mfITKhVGtRYBr+tk9MWe6T4QV7GD
+         0UAWmRQnIRYLVMdiqGXmyeddeZ3Q+vE5itZSJ+Km2Uc2/y1OvIk2AncHILvRvTC8vP
+         EodDOZxLY/VFRN/V+gUroH+6sMLxqnSLPJIZ7WQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/717] crypto: arm64/poly1305-neon - reorder PAC authentication with SP update
-Date:   Mon, 28 Dec 2020 13:40:54 +0100
-Message-Id: <20201228125023.678780150@linuxfoundation.org>
+Subject: [PATCH 5.10 057/717] crypto: arm/aes-neonbs - fix usage of cbc(aes) fallback
+Date:   Mon, 28 Dec 2020 13:40:55 +0100
+Message-Id: <20201228125023.727162921@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,66 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit 519a0d7e495a6d3ce62594e485aea2a3a4a2ca0a ]
+[ Upstream commit a2715fbdc6fc387e85211df917a4778761ec693d ]
 
-PAC pointer authentication signs the return address against the value
-of the stack pointer, to prevent stack overrun exploits from corrupting
-the control flow. However, this requires that the AUTIASP is issued with
-SP holding the same value as it held when the PAC value was generated.
-The Poly1305 NEON code got this wrong, resulting in crashes on PAC
-capable hardware.
+Loading the module deadlocks since:
+-local cbc(aes) implementation needs a fallback and
+-crypto API tries to find one but the request_module() resolves back to
+the same module
 
-Fixes: f569ca164751 ("crypto: arm64/poly1305 - incorporate OpenSSL/CRYPTOGAMS ...")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fix this by changing the module alias for cbc(aes) and
+using the NEED_FALLBACK flag when requesting for a fallback algorithm.
+
+Fixes: 00b99ad2bac2 ("crypto: arm/aes-neonbs - Use generic cbc encryption path")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/crypto/poly1305-armv8.pl       | 2 +-
- arch/arm64/crypto/poly1305-core.S_shipped | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/crypto/aes-neonbs-glue.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/crypto/poly1305-armv8.pl b/arch/arm64/crypto/poly1305-armv8.pl
-index 6e5576d19af8f..cbc980fb02e33 100644
---- a/arch/arm64/crypto/poly1305-armv8.pl
-+++ b/arch/arm64/crypto/poly1305-armv8.pl
-@@ -840,7 +840,6 @@ poly1305_blocks_neon:
- 	 ldp	d14,d15,[sp,#64]
- 	addp	$ACC2,$ACC2,$ACC2
- 	 ldr	x30,[sp,#8]
--	 .inst	0xd50323bf		// autiasp
+diff --git a/arch/arm/crypto/aes-neonbs-glue.c b/arch/arm/crypto/aes-neonbs-glue.c
+index bda8bf17631e1..f70af1d0514b9 100644
+--- a/arch/arm/crypto/aes-neonbs-glue.c
++++ b/arch/arm/crypto/aes-neonbs-glue.c
+@@ -19,7 +19,7 @@ MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
+ MODULE_LICENSE("GPL v2");
  
- 	////////////////////////////////////////////////////////////////
- 	// lazy reduction, but without narrowing
-@@ -882,6 +881,7 @@ poly1305_blocks_neon:
- 	str	x4,[$ctx,#8]		// set is_base2_26
+ MODULE_ALIAS_CRYPTO("ecb(aes)");
+-MODULE_ALIAS_CRYPTO("cbc(aes)");
++MODULE_ALIAS_CRYPTO("cbc(aes)-all");
+ MODULE_ALIAS_CRYPTO("ctr(aes)");
+ MODULE_ALIAS_CRYPTO("xts(aes)");
  
- 	ldr	x29,[sp],#80
-+	 .inst	0xd50323bf		// autiasp
- 	ret
- .size	poly1305_blocks_neon,.-poly1305_blocks_neon
+@@ -191,7 +191,8 @@ static int cbc_init(struct crypto_skcipher *tfm)
+ 	struct aesbs_cbc_ctx *ctx = crypto_skcipher_ctx(tfm);
+ 	unsigned int reqsize;
  
-diff --git a/arch/arm64/crypto/poly1305-core.S_shipped b/arch/arm64/crypto/poly1305-core.S_shipped
-index 8d1c4e420ccdc..fb2822abf63aa 100644
---- a/arch/arm64/crypto/poly1305-core.S_shipped
-+++ b/arch/arm64/crypto/poly1305-core.S_shipped
-@@ -779,7 +779,6 @@ poly1305_blocks_neon:
- 	 ldp	d14,d15,[sp,#64]
- 	addp	v21.2d,v21.2d,v21.2d
- 	 ldr	x30,[sp,#8]
--	 .inst	0xd50323bf		// autiasp
+-	ctx->enc_tfm = crypto_alloc_skcipher("cbc(aes)", 0, CRYPTO_ALG_ASYNC);
++	ctx->enc_tfm = crypto_alloc_skcipher("cbc(aes)", 0, CRYPTO_ALG_ASYNC |
++					     CRYPTO_ALG_NEED_FALLBACK);
+ 	if (IS_ERR(ctx->enc_tfm))
+ 		return PTR_ERR(ctx->enc_tfm);
  
- 	////////////////////////////////////////////////////////////////
- 	// lazy reduction, but without narrowing
-@@ -821,6 +820,7 @@ poly1305_blocks_neon:
- 	str	x4,[x0,#8]		// set is_base2_26
+@@ -441,7 +442,8 @@ static struct skcipher_alg aes_algs[] = { {
+ 	.base.cra_blocksize	= AES_BLOCK_SIZE,
+ 	.base.cra_ctxsize	= sizeof(struct aesbs_cbc_ctx),
+ 	.base.cra_module	= THIS_MODULE,
+-	.base.cra_flags		= CRYPTO_ALG_INTERNAL,
++	.base.cra_flags		= CRYPTO_ALG_INTERNAL |
++				  CRYPTO_ALG_NEED_FALLBACK,
  
- 	ldr	x29,[sp],#80
-+	 .inst	0xd50323bf		// autiasp
- 	ret
- .size	poly1305_blocks_neon,.-poly1305_blocks_neon
- 
+ 	.min_keysize		= AES_MIN_KEY_SIZE,
+ 	.max_keysize		= AES_MAX_KEY_SIZE,
 -- 
 2.27.0
 
