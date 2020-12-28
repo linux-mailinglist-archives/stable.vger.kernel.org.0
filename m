@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1A952E34D6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 08:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC7C2E34D7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 08:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726253AbgL1Huc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 02:50:32 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:53023 "EHLO
+        id S1726282AbgL1Hum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 02:50:42 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:56395 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726242AbgL1Huc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 02:50:32 -0500
+        by vger.kernel.org with ESMTP id S1726242AbgL1Hum (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 02:50:42 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B4A6172F;
-        Mon, 28 Dec 2020 02:49:25 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 1EE8E745;
+        Mon, 28 Dec 2020 02:49:36 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 02:49:26 -0500
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 02:49:36 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Rvb9W2
-        uASWhV5MABCzyJ19FadU/WfpjtexavPpvsZ1U=; b=eg8xPLstknORA9dp8/7eEt
-        YMGcKcqqxp+6IbbwJtnEXyw/LiMRhVqOc00RTHZ3gE85TbcE4+m7IfpmyvGd+ILt
-        edIcc4CYEV1Jn2UfQjo1Mz5nBX40Z1NvvUmT0hv2Ye1XDn3TILV6M956gVfe6Cmh
-        WhHGzrOL3LbXg9abqfVIcsB6/hIua3eHSICdSf9/Dpw/UFDWAaD0BMCP8FpoS7He
-        4of9C4pPQNv0a8GDcV40Vk+q4lOCwIwP11GU4aNi7qtBj6nrm9RG6+WGK2nnPrkx
-        BRSdOCxJAlpKZZxvOWEZwL2kE6XjmFjsm99rH/7gKnOdEQAIs4VTTszoi1HcJChg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=s/25y0
+        rm8ZaNqHmjop9Rep5gXL4+MIAYumart4Pv84c=; b=jtrQFfebE9sfGmzkyouAFw
+        67a2LSZC+fQQTirspqoQmvNYNrbORQrVS+V5u/nGzXwN2yFbBbnrVBOUTuKTosrc
+        NDQERzcGtFrkeJRq4bXJJZyvZ5ckVD89kDqrp2xIWBTKkQysoSS1MAoj4kEk5Bzt
+        UtUcmefAtkWxTkDe8wnQ68DYvHFAuqANwLl3/ICTnexfFU57vrbr0vKHhTvg8ulP
+        mW51IFWbx4g78XvmeLzk38yBJnhinE8F9u5Rn6PaUfSNuNpM3JkgkU6sXTHxRAnP
+        d+gYHg9n/3mBCRFRJrfMyp5X/wKmjTr3dLRcqoeNcnAmbLyDyBu5uXGDqDzsl/Pg
         ==
-X-ME-Sender: <xms:BI7pX-Z5IY3bxmNiE45kGh5Z7ONakrvmAsp_dOQ3FBmkn0UlR8pwSQ>
-    <xme:BI7pXxanw0YzyXZ5i9X2wCiqxS39b8mxyr23CdjOmx-7p3Cfh7PKCeRXkPae54VaM
-    OPewMpaAjXobw>
+X-ME-Sender: <xms:D47pX-R2n_98z_MLTkHVn54OdQhHtbHKISCt-GJS5tKVpHusUWjvDA>
+    <xme:D47pXzyT3LXRJrVITg6soCbjUqSajkgulZVwoQh2yGA6oWwaUmwaScU5lMUtSyKnB
+    TCcnt0DhagPEQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedgudduudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:BI7pX49AFP0ZlF6_NTJospDPT2EDTT_tEAnr0BiWdm_QZrSlaGPUMw>
-    <xmx:BI7pXwpjV76BHVsLJ_1XqdazwWzMul-nl6CLZnwSspcOQ_HXpSHdGw>
-    <xmx:BI7pX5rrq8MKNyBJX_HjgJpxqqXpByUv-WOpY0NzphChzUazgwi8_w>
-    <xmx:BY7pX4RArYHQnDU8_AdXX7zSLaRNMf2fiMuFFGBwcBqtNvfCUaTzU9mL90A>
+X-ME-Proxy: <xmx:D47pX73w4lWEU2ltKjo8H-VZ4EAl-qazLvz5eHyDUSRA91XtnETiQQ>
+    <xmx:D47pX6C6CY83PJ8bzPUoyGPBmj-AcuTCt4KsYFfF47Lg7UMLdBnUcg>
+    <xmx:D47pX3j6k6zummfkeYfyU1_bLra7DhEV66E6IrD9QHjWPg9yXLq0tw>
+    <xmx:D47pX3KIZFxJ7T-21fUpd5oiRp_aYFVcQCkhTP0_oqqrtbK_QAV3kf-GlWM>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8D53D24005C;
-        Mon, 28 Dec 2020 02:49:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 507D124005A;
+        Mon, 28 Dec 2020 02:49:35 -0500 (EST)
+Subject: FAILED: patch "[PATCH] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()" failed to apply to 4.9-stable tree
 To:     eric.auger@redhat.com, alex.williamson@redhat.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 08:50:48 +0100
-Message-ID: <16091418481137@kroah.com>
+Date:   Mon, 28 Dec 2020 08:50:49 +0100
+Message-ID: <160914184912691@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
