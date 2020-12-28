@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D9D22E38A3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA772E3749
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732150AbgL1NMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:12:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S1728152AbgL1Mx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:53:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732149AbgL1NMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:12:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28D7220728;
-        Mon, 28 Dec 2020 13:12:31 +0000 (UTC)
+        id S1728116AbgL1MxN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E024224D2;
+        Mon, 28 Dec 2020 12:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161151;
-        bh=ubpvGQAi+4xzZy3SHNH2TkM7VPePppAwaNcDFHGmGeM=;
+        s=korg; t=1609159972;
+        bh=Umn2im3wKL1U3i3xsCfO0vl3cKxcFTZf51tW8yz409Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wBgil7U/+wVxHrEwWn+F5oO6rvC1h80zbBf/gHzYR1V0A9FeBSeQUaLNysaR+iLXA
-         Qp88i/NTPpDC16O+YBYYh04eYsBZ+YfhbMXY550zWnfwkftvKNr+2aS0F8QB/FPawG
-         deDEcNBHZbp1D2NL8AhQUaUeVGK+sM4tCTO4H5bM=
+        b=BqS2Zg4kZu0BHVc0EJQ/7KBevLALLL5I8LiUsbZaEJOYmzb8Fxcip/vcecA/GsLjp
+         8ygzIfJTBckvxm1soAdlBr5LUlpHMXrWoGyz0B/ANMjeGdC9sdA1ASOQjp2z4ZNgzA
+         pv8URb+WlODMXADIUJfN7XNirvi031WsN5TxF55c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/242] genirq/irqdomain: Dont try to free an interrupt that has no mapping
+Subject: [PATCH 4.4 040/132] spi: tegra20-sflash: fix reference leak in tegra_sflash_resume
 Date:   Mon, 28 Dec 2020 13:48:44 +0100
-Message-Id: <20201228124910.553037007@linuxfoundation.org>
+Message-Id: <20201228124848.352218469@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 4615fbc3788ddc8e7c6d697714ad35a53729aa2c ]
+[ Upstream commit 3482e797ab688da6703fe18d8bad52f94199f4f2 ]
 
-When an interrupt allocation fails for N interrupts, it is pretty
-common for the error handling code to free the same number of interrupts,
-no matter how many interrupts have actually been allocated.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in tegra_sflash_resume, so we should fix it.
 
-This may result in the domain freeing code to be unexpectedly called
-for interrupts that have no mapping in that domain. Things end pretty
-badly.
-
-Instead, add some checks to irq_domain_free_irqs_hierarchy() to make sure
-that thiss does not follow the hierarchy if no mapping exists for a given
-interrupt.
-
-Fixes: 6a6544e520abe ("genirq/irqdomain: Remove auto-recursive hierarchy support")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20201129135551.396777-1-maz@kernel.org
+Fixes: 8528547bcc336 ("spi: tegra: add spi driver for sflash controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141323.5841-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/spi/spi-tegra20-sflash.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 0d54f8256b9f4..cafea68749e0a 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -1364,8 +1364,15 @@ static void irq_domain_free_irqs_hierarchy(struct irq_domain *domain,
- 					   unsigned int irq_base,
- 					   unsigned int nr_irqs)
- {
--	if (domain->ops->free)
--		domain->ops->free(domain, irq_base, nr_irqs);
-+	unsigned int i;
-+
-+	if (!domain->ops->free)
-+		return;
-+
-+	for (i = 0; i < nr_irqs; i++) {
-+		if (irq_domain_get_irq_data(domain, irq_base + i))
-+			domain->ops->free(domain, irq_base + i, 1);
-+	}
- }
+diff --git a/drivers/spi/spi-tegra20-sflash.c b/drivers/spi/spi-tegra20-sflash.c
+index b6558bb6f9dfc..4b9541e1726a5 100644
+--- a/drivers/spi/spi-tegra20-sflash.c
++++ b/drivers/spi/spi-tegra20-sflash.c
+@@ -564,6 +564,7 @@ static int tegra_sflash_resume(struct device *dev)
  
- int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
