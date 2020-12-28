@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC74F2E4214
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:17:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A102E4215
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:17:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437325AbgL1OEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2437316AbgL1OEV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 09:04:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437310AbgL1OES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:04:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEF0C207B2;
-        Mon, 28 Dec 2020 14:03:36 +0000 (UTC)
+        id S2437302AbgL1OEV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:04:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8266207BC;
+        Mon, 28 Dec 2020 14:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164217;
-        bh=sDO7Y6wWsyYV6vaFNuCuq69JA+NLH7gFEXN8D3JcQJI=;
+        s=korg; t=1609164220;
+        bh=+nKGy0AjWjO4m/KormxSgCb+6U5YuNRuT+lzoMlTsNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9gbub7/ckJ9qfhF6KHzov/p/9CXkGVfKPJFyne8m9k1o7dkLligK77SHigY9sKuq
-         RqG3nJueHwkMrmwdc4vFE3Ca987hE6cNRaEB6+SSfRryClqJCGncklDdnPKb17Dg+W
-         kc50KmagKFF4JJsOJCvFwCz4cKo4LIoljxYs33gU=
+        b=X3tRqkTUf1RUqECU/PVlQcQB9ynohcR2VW/p8XQuQA1jAileVZV3HwNW/nors1xlo
+         XaH7GCMKjddd0IbB4WvDsT41l8sdsW1QueV/L9RTHCtDEz6eVJHK06udNXYpe0VPw6
+         4Rj5c9aKBYF30zzFzR3hB2Vc8uEiNR7IfPiiOHX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Nishanth Menon <nm@ti.com>,
+        Jyri Sarha <jsarha@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/717] ASoC: SOF: Intel: fix Kconfig dependency for SND_INTEL_DSP_CONFIG
-Date:   Mon, 28 Dec 2020 13:41:40 +0100
-Message-Id: <20201228125025.857701283@linuxfoundation.org>
+Subject: [PATCH 5.10 103/717] arm64: dts: ti: k3-am65*/j721e*: Fix unit address format error for dss node
+Date:   Mon, 28 Dec 2020 13:41:41 +0100
+Message-Id: <20201228125025.895857912@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,55 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 358f0ac1f2791c80c19cc26706cf34664c9fd756 ]
+[ Upstream commit cfbf17e69ae82f647c287366b7573e532fc281ee ]
 
-SND_INTEL_DSP_CONFIG is selected by the HDaudio, Skylake and SOF
-drivers. When the HDaudio link is not selected as a option, this
-Kconfig option is not touched and will default to whatever other
-drivers selected. In the case e.g. where HDaudio is compiled as
-built-in, the linker will complain:
+Fix the node address to follow the device tree convention.
 
-ld: sound/soc/sof/sof-pci-dev.o: in function `sof_pci_probe':
-sof-pci-dev.c:(.text+0x5c): undefined reference to
-`snd_intel_dsp_driver_probe'
+This fixes the dtc warning:
+<stdout>: Warning (simple_bus_reg): /bus@100000/dss@04a00000: simple-bus
+unit address format error, expected "4a00000"
 
-Adding the select for all HDaudio platforms, regardless of whether
-they rely on the HDaudio link or not, solves the problem.
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Fixes: 82d9d54a6c0ee ('ALSA: hda: add Intel DSP configuration / probe code')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20201112164425.25603-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 76921f15acc0 ("arm64: dts: ti: k3-j721e-main: Add DSS node")
+Fixes: fc539b90eda2 ("arm64: dts: ti: am654: Add DSS node")
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Jyri Sarha <jsarha@ti.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://lore.kernel.org/r/20201104222519.12308-1-nm@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-am65-main.dtsi  | 2 +-
+ arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sof/intel/Kconfig b/sound/soc/sof/intel/Kconfig
-index a066e08860cbf..5bfc2f8b13b90 100644
---- a/sound/soc/sof/intel/Kconfig
-+++ b/sound/soc/sof/intel/Kconfig
-@@ -271,6 +271,7 @@ config SND_SOC_SOF_JASPERLAKE
+diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+index 533525229a8db..27f6fd9eaa0ab 100644
+--- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
+@@ -834,7 +834,7 @@
+ 		};
+ 	};
  
- config SND_SOC_SOF_HDA_COMMON
- 	tristate
-+	select SND_INTEL_DSP_CONFIG
- 	select SND_SOC_SOF_INTEL_COMMON
- 	select SND_SOC_SOF_HDA_LINK_BASELINE
- 	help
-@@ -330,7 +331,6 @@ config SND_SOC_SOF_HDA
- 	tristate
- 	select SND_HDA_EXT_CORE if SND_SOC_SOF_HDA_LINK
- 	select SND_SOC_HDAC_HDA if SND_SOC_SOF_HDA_AUDIO_CODEC
--	select SND_INTEL_DSP_CONFIG
- 	help
- 	  This option is not user-selectable but automagically handled by
- 	  'select' statements at a higher level
+-	dss: dss@04a00000 {
++	dss: dss@4a00000 {
+ 		compatible = "ti,am65x-dss";
+ 		reg =	<0x0 0x04a00000 0x0 0x1000>, /* common */
+ 			<0x0 0x04a02000 0x0 0x1000>, /* vidl1 */
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+index e2a96b2c423c4..c66ded9079be4 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
+@@ -1278,7 +1278,7 @@
+ 		};
+ 	};
+ 
+-	dss: dss@04a00000 {
++	dss: dss@4a00000 {
+ 		compatible = "ti,j721e-dss";
+ 		reg =
+ 			<0x00 0x04a00000 0x00 0x10000>, /* common_m */
 -- 
 2.27.0
 
