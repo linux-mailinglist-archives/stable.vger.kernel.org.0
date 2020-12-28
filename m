@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD222E6528
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:58:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2CEE2E3BF0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391464AbgL1P4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:56:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S2406515AbgL1N4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:56:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389398AbgL1Nfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B55CA20728;
-        Mon, 28 Dec 2020 13:34:58 +0000 (UTC)
+        id S2406507AbgL1N4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:56:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AA9720795;
+        Mon, 28 Dec 2020 13:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162499;
-        bh=LO8k7uszt+2lnUZpmP53uFdzZB7CaRJtMeWahAVxUrQ=;
+        s=korg; t=1609163777;
+        bh=OBOWqs3Y3owxPRmyIVVPSmU9Vk4ArbLKTlqsKZB/f1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxdwwzp7nL5ydtdWb9Z1sACDcAI0hcXsPe11rpq6nZ6L+Bf8WYnhdS/s7JcknbrAe
-         iI2DsPoBFWSSL5d+1+3zDGb+DL6iGf5KQgqfb5Fk3HG9Y0t2MvawOd+E+plbdhg9rB
-         mtbUT12FDz6TeTiy88Sv5NO7R4P+lXoV2Mc/dlIQ=
+        b=QBIVvcTCEF824pPqBQK2N+1sshizm9tndcJcqoe54HGiiWHhll+zy6uhdkxkHchA6
+         51vA4Xaeh5BNElkW/UJqlWVbP2PhO8XbiF+DlB7Ljxo4uNeOKlqdOmNYFhZD6suDfs
+         OGh6lE3ykkdWiWLR5i17M9rVmmCmBJGXcVadPcKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 290/346] USB: serial: digi_acceleport: fix write-wakeup deadlocks
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 373/453] btrfs: trim: fix underflow in trim length to prevent access beyond device boundary
 Date:   Mon, 28 Dec 2020 13:50:09 +0100
-Message-Id: <20201228124933.796044761@linuxfoundation.org>
+Message-Id: <20201228124955.155159314@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,156 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 5098e77962e7c8947f87bd8c5869c83e000a522a upstream.
+commit c57dd1f2f6a7cd1bb61802344f59ccdc5278c983 upstream
 
-The driver must not call tty_wakeup() while holding its private lock as
-line disciplines are allowed to call back into write() from
-write_wakeup(), leading to a deadlock.
+[BUG]
+The following script can lead to tons of beyond device boundary access:
 
-Also remove the unneeded work struct that was used to defer wakeup in
-order to work around a possible race in ancient times (see comment about
-n_tty write_chan() in commit 14b54e39b412 ("USB: serial: remove
-changelogs and old todo entries")).
+  mkfs.btrfs -f $dev -b 10G
+  mount $dev $mnt
+  trimfs $mnt
+  btrfs filesystem resize 1:-1G $mnt
+  trimfs $mnt
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+[CAUSE]
+Since commit 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to
+find_first_clear_extent_bit"), we try to avoid trimming ranges that's
+already trimmed.
+
+So we check device->alloc_state by finding the first range which doesn't
+have CHUNK_TRIMMED and CHUNK_ALLOCATED not set.
+
+But if we shrunk the device, that bits are not cleared, thus we could
+easily got a range starts beyond the shrunk device size.
+
+This results the returned @start and @end are all beyond device size,
+then we call "end = min(end, device->total_bytes -1);" making @end
+smaller than device size.
+
+Then finally we goes "len = end - start + 1", totally underflow the
+result, and lead to the beyond-device-boundary access.
+
+[FIX]
+This patch will fix the problem in two ways:
+
+- Clear CHUNK_TRIMMED | CHUNK_ALLOCATED bits when shrinking device
+  This is the root fix
+
+- Add extra safety check when trimming free device extents
+  We check and warn if the returned range is already beyond current
+  device.
+
+Link: https://github.com/kdave/btrfs-progs/issues/282
+Fixes: 929be17a9b49 ("btrfs: Switch btrfs_trim_free_extents to find_first_clear_extent_bit")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context and use extent_io.h]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/digi_acceleport.c |   45 ++++++++++-------------------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
+ fs/btrfs/extent-tree.c |   14 ++++++++++++++
+ fs/btrfs/extent_io.h   |    2 ++
+ fs/btrfs/volumes.c     |    4 ++++
+ 3 files changed, 20 insertions(+)
 
---- a/drivers/usb/serial/digi_acceleport.c
-+++ b/drivers/usb/serial/digi_acceleport.c
-@@ -19,7 +19,6 @@
- #include <linux/tty_flip.h>
- #include <linux/module.h>
- #include <linux/spinlock.h>
--#include <linux/workqueue.h>
- #include <linux/uaccess.h>
- #include <linux/usb.h>
- #include <linux/wait.h>
-@@ -198,14 +197,12 @@ struct digi_port {
- 	int dp_throttle_restart;
- 	wait_queue_head_t dp_flush_wait;
- 	wait_queue_head_t dp_close_wait;	/* wait queue for close */
--	struct work_struct dp_wakeup_work;
- 	struct usb_serial_port *dp_port;
- };
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -32,6 +32,7 @@
+ #include "block-rsv.h"
+ #include "delalloc-space.h"
+ #include "block-group.h"
++#include "rcu-string.h"
  
+ #undef SCRAMBLE_DELAYED_REFS
  
- /* Local Function Declarations */
+@@ -5618,6 +5619,19 @@ static int btrfs_trim_free_extents(struc
+ 					    &start, &end,
+ 					    CHUNK_TRIMMED | CHUNK_ALLOCATED);
  
--static void digi_wakeup_write_lock(struct work_struct *work);
- static int digi_write_oob_command(struct usb_serial_port *port,
- 	unsigned char *buf, int count, int interruptible);
- static int digi_write_inb_command(struct usb_serial_port *port,
-@@ -356,26 +353,6 @@ __releases(lock)
- 	return timeout;
- }
++		/* Check if there are any CHUNK_* bits left */
++		if (start > device->total_bytes) {
++			WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++			btrfs_warn_in_rcu(fs_info,
++"ignoring attempt to trim beyond device size: offset %llu length %llu device %s device size %llu",
++					  start, end - start + 1,
++					  rcu_str_deref(device->name),
++					  device->total_bytes);
++			mutex_unlock(&fs_info->chunk_mutex);
++			ret = 0;
++			break;
++		}
++
+ 		/* Ensure we skip the reserved area in the first 1M */
+ 		start = max_t(u64, start, SZ_1M);
  
--
--/*
-- *  Digi Wakeup Write
-- *
-- *  Wake up port, line discipline, and tty processes sleeping
-- *  on writes.
-- */
--
--static void digi_wakeup_write_lock(struct work_struct *work)
--{
--	struct digi_port *priv =
--			container_of(work, struct digi_port, dp_wakeup_work);
--	struct usb_serial_port *port = priv->dp_port;
--	unsigned long flags;
--
--	spin_lock_irqsave(&priv->dp_port_lock, flags);
--	tty_port_tty_wakeup(&port->port);
--	spin_unlock_irqrestore(&priv->dp_port_lock, flags);
--}
--
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -35,6 +35,8 @@
+  */
+ #define CHUNK_ALLOCATED EXTENT_DIRTY
+ #define CHUNK_TRIMMED   EXTENT_DEFRAG
++#define CHUNK_STATE_MASK			(CHUNK_ALLOCATED |		\
++						 CHUNK_TRIMMED)
+ 
  /*
-  *  Digi Write OOB Command
-  *
-@@ -987,6 +964,7 @@ static void digi_write_bulk_callback(str
- 	unsigned long flags;
- 	int ret = 0;
- 	int status = urb->status;
-+	bool wakeup;
- 
- 	/* port and serial sanity check */
- 	if (port == NULL || (priv = usb_get_serial_port_data(port)) == NULL) {
-@@ -1013,6 +991,7 @@ static void digi_write_bulk_callback(str
+  * flags for bio submission. The high bits indicate the compression
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4908,6 +4908,10 @@ again:
  	}
  
- 	/* try to send any buffered data on this port */
-+	wakeup = true;
- 	spin_lock_irqsave(&priv->dp_port_lock, flags);
- 	priv->dp_write_urb_in_use = 0;
- 	if (priv->dp_out_buf_len > 0) {
-@@ -1028,19 +1007,18 @@ static void digi_write_bulk_callback(str
- 		if (ret == 0) {
- 			priv->dp_write_urb_in_use = 1;
- 			priv->dp_out_buf_len = 0;
-+			wakeup = false;
- 		}
- 	}
--	/* wake up processes sleeping on writes immediately */
--	tty_port_tty_wakeup(&port->port);
--	/* also queue up a wakeup at scheduler time, in case we */
--	/* lost the race in write_chan(). */
--	schedule_work(&priv->dp_wakeup_work);
--
- 	spin_unlock_irqrestore(&priv->dp_port_lock, flags);
+ 	mutex_lock(&fs_info->chunk_mutex);
++	/* Clear all state bits beyond the shrunk device size */
++	clear_extent_bits(&device->alloc_state, new_size, (u64)-1,
++			  CHUNK_STATE_MASK);
 +
- 	if (ret && ret != -EPERM)
- 		dev_err_console(port,
- 			"%s: usb_submit_urb failed, ret=%d, port=%d\n",
- 			__func__, ret, priv->dp_port_num);
-+
-+	if (wakeup)
-+		tty_port_tty_wakeup(&port->port);
- }
- 
- static int digi_write_room(struct tty_struct *tty)
-@@ -1240,7 +1218,6 @@ static int digi_port_init(struct usb_ser
- 	init_waitqueue_head(&priv->dp_transmit_idle_wait);
- 	init_waitqueue_head(&priv->dp_flush_wait);
- 	init_waitqueue_head(&priv->dp_close_wait);
--	INIT_WORK(&priv->dp_wakeup_work, digi_wakeup_write_lock);
- 	priv->dp_port = port;
- 
- 	init_waitqueue_head(&port->write_wait);
-@@ -1509,13 +1486,14 @@ static int digi_read_oob_callback(struct
- 			rts = C_CRTSCTS(tty);
- 
- 		if (tty && opcode == DIGI_CMD_READ_INPUT_SIGNALS) {
-+			bool wakeup = false;
-+
- 			spin_lock_irqsave(&priv->dp_port_lock, flags);
- 			/* convert from digi flags to termiox flags */
- 			if (val & DIGI_READ_INPUT_SIGNALS_CTS) {
- 				priv->dp_modem_signals |= TIOCM_CTS;
--				/* port must be open to use tty struct */
- 				if (rts)
--					tty_port_tty_wakeup(&port->port);
-+					wakeup = true;
- 			} else {
- 				priv->dp_modem_signals &= ~TIOCM_CTS;
- 				/* port must be open to use tty struct */
-@@ -1534,6 +1512,9 @@ static int digi_read_oob_callback(struct
- 				priv->dp_modem_signals &= ~TIOCM_CD;
- 
- 			spin_unlock_irqrestore(&priv->dp_port_lock, flags);
-+
-+			if (wakeup)
-+				tty_port_tty_wakeup(&port->port);
- 		} else if (opcode == DIGI_CMD_TRANSMIT_IDLE) {
- 			spin_lock_irqsave(&priv->dp_port_lock, flags);
- 			priv->dp_transmit_idle = 1;
+ 	btrfs_device_set_disk_total_bytes(device, new_size);
+ 	if (list_empty(&device->post_commit_list))
+ 		list_add_tail(&device->post_commit_list,
 
 
