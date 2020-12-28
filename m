@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E622E3975
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 207D42E40C3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388607AbgL1NXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:23:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52238 "EHLO mail.kernel.org"
+        id S2441316AbgL1OQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:16:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388603AbgL1NXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:23:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 785C72076D;
-        Mon, 28 Dec 2020 13:23:38 +0000 (UTC)
+        id S2441309AbgL1OQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:16:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C525224D2;
+        Mon, 28 Dec 2020 14:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161819;
-        bh=6tLPHjkb3e2x9jKHF3E0hQL+G1kwjxBd7B2Btae8GNw=;
+        s=korg; t=1609165003;
+        bh=u7U7ZDOaWHRgLeeX7erQMopLpmQycItBIAlMY5QEK9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kxBQdGxTvuoPcxVZ1QKngvv81dWka39hCB5ed932D6TnbU3f41fK8k+s0N3eIA14
-         cws1iZ4LgZoYkTuOU8Yl3xu7zbv41EN+aufTynjY/3akYGFBMzZoXOd8tFfe1J79P2
-         2lK4jPiLLGz2+/ca4nYJnExjeRj/yCTFO4a8Pu28=
+        b=g9WeqvAlaYVKzv51p6dQB0SiksxayVxaKOO91hl0vcbSzPV9nVl2huoCUPw2nts36
+         aUT2O4SR94S6xn/lPR4XtOEagVoQi9nacFps8bpExLBYnsPrQGACS+Fa2yM3fL3CSU
+         0jHv21ms98WL21h9kE4Pl2hF3PoO976iifFR/LEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 052/346] arm64: Change .weak to SYM_FUNC_START_WEAK_PI for arch/arm64/lib/mem*.S
-Date:   Mon, 28 Dec 2020 13:46:11 +0100
-Message-Id: <20201228124922.309150956@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 374/717] speakup: fix uninitialized flush_lock
+Date:   Mon, 28 Dec 2020 13:46:12 +0100
+Message-Id: <20201228125038.927642989@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit ec9d78070de986ecf581ea204fd322af4d2477ec upstream.
+[ Upstream commit d1b928ee1cfa965a3327bbaa59bfa005d97fa0fe ]
 
-Commit 39d114ddc682 ("arm64: add KASAN support") added .weak directives to
-arch/arm64/lib/mem*.S instead of changing the existing SYM_FUNC_START_PI
-macros. This can lead to the assembly snippet `.weak memcpy ... .globl
-memcpy` which will produce a STB_WEAK memcpy with GNU as but STB_GLOBAL
-memcpy with LLVM's integrated assembler before LLVM 12. LLVM 12 (since
-https://reviews.llvm.org/D90108) will error on such an overridden symbol
-binding.
+The flush_lock is uninitialized, use DEFINE_SPINLOCK
+to define and initialize flush_lock.
 
-Use the appropriate SYM_FUNC_START_WEAK_PI instead.
-
-Fixes: 39d114ddc682 ("arm64: add KASAN support")
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201029181951.1866093-1-maskray@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
-[nd: backport to adjust for missing:
-  commit 3ac0f4526dfb ("arm64: lib: Use modern annotations for assembly functions")
-  commit 35e61c77ef38 ("arm64: asm: Add new-style position independent function annotations")]
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: c6e3fd22cd53 ("Staging: add speakup to the staging directory")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20201117012229.3395186-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/lib/memcpy.S  |    3 +--
- arch/arm64/lib/memmove.S |    3 +--
- arch/arm64/lib/memset.S  |    3 +--
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/accessibility/speakup/speakup_dectlk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/lib/memcpy.S
-+++ b/arch/arm64/lib/memcpy.S
-@@ -68,9 +68,8 @@
- 	stp \ptr, \regB, [\regC], \val
- 	.endm
+diff --git a/drivers/accessibility/speakup/speakup_dectlk.c b/drivers/accessibility/speakup/speakup_dectlk.c
+index 780214b5ca16e..ab6d61e80b1cb 100644
+--- a/drivers/accessibility/speakup/speakup_dectlk.c
++++ b/drivers/accessibility/speakup/speakup_dectlk.c
+@@ -37,7 +37,7 @@ static unsigned char get_index(struct spk_synth *synth);
+ static int in_escape;
+ static int is_flushing;
  
--	.weak memcpy
- ENTRY(__memcpy)
--ENTRY(memcpy)
-+WEAK(memcpy)
- #include "copy_template.S"
- 	ret
- ENDPIPROC(memcpy)
---- a/arch/arm64/lib/memmove.S
-+++ b/arch/arm64/lib/memmove.S
-@@ -57,9 +57,8 @@ C_h	.req	x12
- D_l	.req	x13
- D_h	.req	x14
+-static spinlock_t flush_lock;
++static DEFINE_SPINLOCK(flush_lock);
+ static DECLARE_WAIT_QUEUE_HEAD(flush);
  
--	.weak memmove
- ENTRY(__memmove)
--ENTRY(memmove)
-+WEAK(memmove)
- 	cmp	dstin, src
- 	b.lo	__memcpy
- 	add	tmp1, src, count
---- a/arch/arm64/lib/memset.S
-+++ b/arch/arm64/lib/memset.S
-@@ -54,9 +54,8 @@ dst		.req	x8
- tmp3w		.req	w9
- tmp3		.req	x9
- 
--	.weak memset
- ENTRY(__memset)
--ENTRY(memset)
-+WEAK(memset)
- 	mov	dst, dstin	/* Preserve return value.  */
- 	and	A_lw, val, #255
- 	orr	A_lw, A_lw, A_lw, lsl #8
+ static struct var_t vars[] = {
+-- 
+2.27.0
+
 
 
