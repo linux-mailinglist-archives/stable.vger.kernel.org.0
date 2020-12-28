@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580442E3A9F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BF72E3D38
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391395AbgL1Njb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:39:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39564 "EHLO mail.kernel.org"
+        id S2440008AbgL1OMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391407AbgL1Nja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:39:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 211EB205CB;
-        Mon, 28 Dec 2020 13:39:13 +0000 (UTC)
+        id S2439910AbgL1OMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D160F206C3;
+        Mon, 28 Dec 2020 14:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162754;
-        bh=OqhHtuOdgaauMQMONCSX+P4cGrOeVwc6S4p25cYuAAE=;
+        s=korg; t=1609164759;
+        bh=jNON4RhqYWiakI3JTWgBAK3/GWcahKidDO8HlqVMaaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FudFa4GLSwtXQNN9yFQW73sSAuErJ9G4ARtnlAYXEz0uFqvkRooAcE7FxN5CzvzCR
-         x8+2X2TSoHBbEkw8M0h9dF77sGGnyQaavrim/YuHQQB6wJu5MilHfh1ADHJuM5LJJ3
-         OkLzIIal2I3fw5aeBr9eZFSfakaBxm//nNaOA22w=
+        b=iOpFPOrn4sEYxFRPelA4iVeylmYoV6UOs6PI/gkXcyJiAnfuB2lG2xVCo0JoMyvkz
+         1qt2I3DSJD8NYLjW7ZvK8kAOhd8O+f4ONqlAqkyv48wuYEXFezG1I2WhsJDcRDaVW8
+         JYr0mA0pAqtlZqsQMKDmSW5P2clXCx9DnUjfF8xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 051/453] usb: mtu3: fix memory corruption in mtu3_debugfs_regset()
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 289/717] arm64: mte: fix prctl(PR_GET_TAGGED_ADDR_CTRL) if TCF0=NONE
 Date:   Mon, 28 Dec 2020 13:44:47 +0100
-Message-Id: <20201228124939.712874728@linuxfoundation.org>
+Message-Id: <20201228125034.878626884@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,33 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Peter Collingbourne <pcc@google.com>
 
-commit 3f6f6343a29d9ea7429306b83b18e66dc1331d5c upstream.
+[ Upstream commit 929c1f3384d7e5cd319d03242cb925c3f91236f7 ]
 
-This code is using the wrong sizeof() so it does not allocate enough
-memory.  It allocates 32 bytes but 72 are required.  That will lead to
-memory corruption.
+Previously we were always returning a tag inclusion mask of zero via
+PR_GET_TAGGED_ADDR_CTRL if TCF0 was set to NONE. Fix it by making
+the code for the NONE case match the others.
 
-Fixes: ae07809255d3 ("usb: mtu3: add debugfs interface files")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X8ikqc4Mo2/0G72j@mwanda
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Link: https://linux-review.googlesource.com/id/Iefbea66cf7d2b4c80b82f9639b9ea7f33f7fac53
+Fixes: af5ce95282dc ("arm64: mte: Allow user control of the generated random tags via prctl()")
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20201203075110.2781021-1-pcc@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_debugfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/mte.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/mtu3/mtu3_debugfs.c
-+++ b/drivers/usb/mtu3/mtu3_debugfs.c
-@@ -127,7 +127,7 @@ static void mtu3_debugfs_regset(struct m
- 	struct debugfs_regset32 *regset;
- 	struct mtu3_regset *mregs;
+diff --git a/arch/arm64/kernel/mte.c b/arch/arm64/kernel/mte.c
+index 52a0638ed967b..ef15c8a2a49dc 100644
+--- a/arch/arm64/kernel/mte.c
++++ b/arch/arm64/kernel/mte.c
+@@ -189,7 +189,8 @@ long get_mte_ctrl(struct task_struct *task)
  
--	mregs = devm_kzalloc(mtu->dev, sizeof(*regset), GFP_KERNEL);
-+	mregs = devm_kzalloc(mtu->dev, sizeof(*mregs), GFP_KERNEL);
- 	if (!mregs)
- 		return;
- 
+ 	switch (task->thread.sctlr_tcf0) {
+ 	case SCTLR_EL1_TCF0_NONE:
+-		return PR_MTE_TCF_NONE;
++		ret |= PR_MTE_TCF_NONE;
++		break;
+ 	case SCTLR_EL1_TCF0_SYNC:
+ 		ret |= PR_MTE_TCF_SYNC;
+ 		break;
+-- 
+2.27.0
+
 
 
