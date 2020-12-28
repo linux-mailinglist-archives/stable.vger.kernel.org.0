@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB812E3A29
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483202E3E53
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387833AbgL1NdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:33:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
+        id S2503871AbgL1O04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:26:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390379AbgL1Na1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8720207FF;
-        Mon, 28 Dec 2020 13:30:11 +0000 (UTC)
+        id S2503869AbgL1O0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:26:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A922206D4;
+        Mon, 28 Dec 2020 14:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162212;
-        bh=ydZ9pHHSLYBLgsIP5jsl2lRECoK6qeUGsIe3s54yXk8=;
+        s=korg; t=1609165571;
+        bh=szQs4ZqUCDQKYF2cv1WOcuBpGMFzvkTRpW1YLoJOZkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z7rDR9atbEWrdlnTE07jRcPbVUAPut7n8kJMRy5yzptSGxCdC4KIZqnZuRMex+Fx8
-         acJ8jHq11Ln8al1LEVoSpnJIZsrf0Wi/w7PWc/9WaZSTjq6VcZNgnxoYKaD3ip1Ekm
-         ZrebtJKbycOBBcQWw/sOi6Wq3+lL+3VMr2vOiFSA=
+        b=jIFCE8YnS0pdrzpGC7XwW5UinC1PoPbhRNYhw1MDWv2Os2sxvuB8UkIya2ukZOa8w
+         AADYs0eTwQR8IjQ2klD7CbQsuYV50YmF3PstbtbJSRmNeif0bINrW7LWYIGRHysc9T
+         gVdmEbZwg8AF+Fwf+nF8VEUXwssdvMt4Lx9ep7bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 226/346] ASoC: wm_adsp: remove "ctl" from list on error in wm_adsp_create_control()
-Date:   Mon, 28 Dec 2020 13:49:05 +0100
-Message-Id: <20201228124930.698014626@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 548/717] ALSA: usb-audio: Disable sample read check if firmware doesnt give back
+Date:   Mon, 28 Dec 2020 13:49:06 +0100
+Message-Id: <20201228125047.195811381@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 85a7555575a0e48f9b73db310d0d762a08a46d63 ]
+commit 9df28edce7c6ab38050235f6f8b43dd7ccd01b6d upstream.
 
-The error handling frees "ctl" but it's still on the "dsp->ctl_list"
-list so that could result in a use after free.  Remove it from the list
-before returning.
+Some buggy firmware don't give the current sample rate but leaves
+zero.  Handle this case more gracefully without warning but just skip
+the current rate verification from the next time.
 
-Fixes: 2323736dca72 ("ASoC: wm_adsp: Add basic support for rev 1 firmware file format")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/X9B0keV/02wrx9Xs@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201218145858.2357-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/wm_adsp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/usb/clock.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index b114fc7b2a95e..02c557e1f779c 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1379,7 +1379,7 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
- 	ctl_work = kzalloc(sizeof(*ctl_work), GFP_KERNEL);
- 	if (!ctl_work) {
- 		ret = -ENOMEM;
--		goto err_ctl_cache;
-+		goto err_list_del;
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -531,6 +531,12 @@ static int set_sample_rate_v1(struct snd
  	}
  
- 	ctl_work->dsp = dsp;
-@@ -1389,7 +1389,8 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
- 
- 	return 0;
- 
--err_ctl_cache:
-+err_list_del:
-+	list_del(&ctl->list);
- 	kfree(ctl->cache);
- err_ctl_name:
- 	kfree(ctl->name);
--- 
-2.27.0
-
+ 	crate = data[0] | (data[1] << 8) | (data[2] << 16);
++	if (!crate) {
++		dev_info(&dev->dev, "failed to read current rate; disabling the check\n");
++		chip->sample_rate_read_error = 3; /* three strikes, see above */
++		return 0;
++	}
++
+ 	if (crate != rate) {
+ 		dev_warn(&dev->dev, "current rate %d is different from the runtime rate %d\n", crate, rate);
+ 		// runtime->rate = crate;
 
 
