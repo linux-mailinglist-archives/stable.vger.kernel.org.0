@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C966C2E4071
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E69E82E3992
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392034AbgL1OTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:19:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55172 "EHLO mail.kernel.org"
+        id S2388839AbgL1NZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:25:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392031AbgL1OTr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BB3229C4;
-        Mon, 28 Dec 2020 14:19:06 +0000 (UTC)
+        id S2388835AbgL1NZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F3F22A84;
+        Mon, 28 Dec 2020 13:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165147;
-        bh=NxB4p1Y2rEVXI0bWk37gLU9g3oSKskovcdtgtfkeicE=;
+        s=korg; t=1609161862;
+        bh=16ofqNDOtTdD+Nbw3rTnBhytlvP13deUuWsiMlij8zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6OvenJBaJ1BH1anvC7040Z1giPDpyjFvQmjdhKccYbXpdpM8uHTmdMTofFxdd0j+
-         j3M42KjZ5V5RIDePSPqZ1XILWUPm1RU6WMVwqPThB7vr6QPzLLBS3pnIuvOb62+HtR
-         2k9osCB534PK1HACp5QrKx4RzQbUx88S2fThY9lQ=
+        b=w2KrN+YC1QCi+M1+KmayJaiaKFL95Rb1aMpx5Q3zt+jc1cnJ/UX5C6/nFzPF6gM1b
+         sbGePG5YNJm9pOBjDCuOJ0iIatoUjL1ewNmMyqab8LIc8tsThOwUnsCRZ34z3LaTLk
+         wGzmuUNnzvAAOMBSecEG81GfFbjdhAlTgR/XfvCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>, Joerg Roedel <jroedel@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 428/717] watchdog: armada_37xx: Add missing dependency on HAS_IOMEM
+Subject: [PATCH 4.19 107/346] x86/mm/ident_map: Check for errors from ident_pud_init()
 Date:   Mon, 28 Dec 2020 13:47:06 +0100
-Message-Id: <20201228125041.471941480@linuxfoundation.org>
+Message-Id: <20201228124924.958176082@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 7f6f1dfb2dcbe5d2bfa213f2df5d74c147cd5954 ]
+[ Upstream commit 1fcd009102ee02e217f2e7635ab65517d785da8e ]
 
-The following kbuild warning is seen on a system without HAS_IOMEM.
+Commit
 
-WARNING: unmet direct dependencies detected for MFD_SYSCON
-  Depends on [n]: HAS_IOMEM [=n]
-  Selected by [y]:
-  - ARMADA_37XX_WATCHDOG [=y] && WATCHDOG [=y] && (ARCH_MVEBU || COMPILE_TEST
+  ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
 
-This results in a subsequent compile error.
+added ident_p4d_init() to support 5-level paging, but this function
+doesn't check and return errors from ident_pud_init().
 
-drivers/watchdog/armada_37xx_wdt.o: in function `armada_37xx_wdt_probe':
-armada_37xx_wdt.c:(.text+0xdc): undefined reference to `devm_ioremap'
+For example, the decompressor stub uses this code to create an identity
+mapping. If it runs out of pages while trying to allocate a PMD
+pagetable, the error will be currently ignored.
 
-Add the missing dependency.
+Fix this to propagate errors.
 
-Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Fixes: 54e3d9b518c8 ("watchdog: Add support for Armada 37xx CPU watchdog")
-Link: https://lore.kernel.org/r/20201108162550.27660-1-linux@roeck-us.net
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+ [ bp: Space out statements for better readability. ]
+
+Fixes: ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Link: https://lkml.kernel.org/r/20201027230648.1885111-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/mm/ident_map.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fd7968635e6df..b3e8bdaa2a112 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -386,6 +386,7 @@ config ARM_SBSA_WATCHDOG
- config ARMADA_37XX_WATCHDOG
- 	tristate "Armada 37xx watchdog"
- 	depends on ARCH_MVEBU || COMPILE_TEST
-+	depends on HAS_IOMEM
- 	select MFD_SYSCON
- 	select WATCHDOG_CORE
- 	help
+diff --git a/arch/x86/mm/ident_map.c b/arch/x86/mm/ident_map.c
+index fe7a12599d8eb..968d7005f4a72 100644
+--- a/arch/x86/mm/ident_map.c
++++ b/arch/x86/mm/ident_map.c
+@@ -62,6 +62,7 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
+ 			  unsigned long addr, unsigned long end)
+ {
+ 	unsigned long next;
++	int result;
+ 
+ 	for (; addr < end; addr = next) {
+ 		p4d_t *p4d = p4d_page + p4d_index(addr);
+@@ -73,13 +74,20 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
+ 
+ 		if (p4d_present(*p4d)) {
+ 			pud = pud_offset(p4d, 0);
+-			ident_pud_init(info, pud, addr, next);
++			result = ident_pud_init(info, pud, addr, next);
++			if (result)
++				return result;
++
+ 			continue;
+ 		}
+ 		pud = (pud_t *)info->alloc_pgt_page(info->context);
+ 		if (!pud)
+ 			return -ENOMEM;
+-		ident_pud_init(info, pud, addr, next);
++
++		result = ident_pud_init(info, pud, addr, next);
++		if (result)
++			return result;
++
+ 		set_p4d(p4d, __p4d(__pa(pud) | info->kernpg_flag));
+ 	}
+ 
 -- 
 2.27.0
 
