@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB832E659F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D4D2E6966
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393339AbgL1QDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:03:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57580 "EHLO mail.kernel.org"
+        id S1728073AbgL1Qs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:48:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390101AbgL1N3X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:29:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17CCC22B37;
-        Mon, 28 Dec 2020 13:29:06 +0000 (UTC)
+        id S1728094AbgL1MxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 742CF22BEA;
+        Mon, 28 Dec 2020 12:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162147;
-        bh=CeaGhshSLGKTwnL/FwrVDGESE8C450OfSrM/l9PS8NE=;
+        s=korg; t=1609159967;
+        bh=9yUyVpWtHmtbW8ffzytxnswISzXu3eLT8hYgQKmS3ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OhuZC8XK5BDM0/I9XugDL1eAaJG/2PDhpmtIFm9Ectm7kpPP7de1+GdCLyrtF2QTG
-         U4rwSEuTjngZxWIrQuFIW0O8SuUDyv1qBuWmgMUn7vJHtSk1xk+mwg6JaayP6/Xytl
-         mICmC4mq5xttEK2nwlO59qWT/SDq41kIaPbr8zbc=
+        b=vJ/5kxis6UKiBJobz5bOPRWfc8CMrbbagyZvUhfVl5H7x8L+WnTkf7xSQX9wgkMjL
+         ftwGb3GhqRjf0JZhggW2K6BwE6AaVG02bBS4BatIbA4YWwP3rOvkFLx0q7QW1cB1+F
+         yDndXFcV8vMySgh9iF5ItF2KHE7i97EosEviDq5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 203/346] clocksource/drivers/arm_arch_timer: Correct fault programming of CNTKCTL_EL1.EVNTI
+Subject: [PATCH 4.4 038/132] spi: spi-ti-qspi: fix reference leak in ti_qspi_setup
 Date:   Mon, 28 Dec 2020 13:48:42 +0100
-Message-Id: <20201228124929.608264279@linuxfoundation.org>
+Message-Id: <20201228124848.249320651@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keqian Zhu <zhukeqian1@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 8b7770b877d187bfdae1eaf587bd2b792479a31c ]
+[ Upstream commit 45c0cba753641e5d7c3207f04241bd0e7a021698 ]
 
-ARM virtual counter supports event stream, it can only trigger an event
-when the trigger bit (the value of CNTKCTL_EL1.EVNTI) of CNTVCT_EL0 changes,
-so the actual period of event stream is 2^(cntkctl_evnti + 1). For example,
-when the trigger bit is 0, then virtual counter trigger an event for every
-two cycles.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in ti_qspi_setup, so we should fix it.
 
-While we're at it, rework the way we compute the trigger bit position
-by making it more obvious that when bits [n:n-1] are both set (with n
-being the most significant bit), we pick bit (n + 1).
-
-Fixes: 037f637767a8 ("drivers: clocksource: add support for ARM architected timer event stream")
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201204073126.6920-3-zhukeqian1@huawei.com
+Fixes: 505a14954e2d7 ("spi/qspi: Add qspi flash controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103140947.3815-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/spi/spi-ti-qspi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 0445ad7e559e5..e67ab217eef41 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -827,15 +827,24 @@ static void arch_timer_evtstrm_enable(int divider)
+diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
+index 5044c61983324..6e97f71a8cea3 100644
+--- a/drivers/spi/spi-ti-qspi.c
++++ b/drivers/spi/spi-ti-qspi.c
+@@ -159,6 +159,7 @@ static int ti_qspi_setup(struct spi_device *spi)
  
- static void arch_timer_configure_evtstream(void)
- {
--	int evt_stream_div, pos;
-+	int evt_stream_div, lsb;
-+
-+	/*
-+	 * As the event stream can at most be generated at half the frequency
-+	 * of the counter, use half the frequency when computing the divider.
-+	 */
-+	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ / 2;
-+
-+	/*
-+	 * Find the closest power of two to the divisor. If the adjacent bit
-+	 * of lsb (last set bit, starts from 0) is set, then we use (lsb + 1).
-+	 */
-+	lsb = fls(evt_stream_div) - 1;
-+	if (lsb > 0 && (evt_stream_div & BIT(lsb - 1)))
-+		lsb++;
- 
--	/* Find the closest power of two to the divisor */
--	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ;
--	pos = fls(evt_stream_div);
--	if (pos > 1 && !(evt_stream_div & (1 << (pos - 2))))
--		pos--;
- 	/* enable event stream */
--	arch_timer_evtstrm_enable(min(pos, 15));
-+	arch_timer_evtstrm_enable(max(0, min(lsb, 15)));
- }
- 
- static void arch_counter_set_user_access(void)
+ 	ret = pm_runtime_get_sync(qspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(qspi->dev);
+ 		dev_err(qspi->dev, "pm_runtime_get_sync() failed\n");
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
