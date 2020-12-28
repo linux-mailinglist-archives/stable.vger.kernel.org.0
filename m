@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 421A92E3DEA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 422122E4031
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:49:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438039AbgL1OVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:21:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56840 "EHLO mail.kernel.org"
+        id S2438017AbgL1OVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:21:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438032AbgL1OVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:21:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D822C206D4;
-        Mon, 28 Dec 2020 14:21:22 +0000 (UTC)
+        id S2438007AbgL1OVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:21:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED7220731;
+        Mon, 28 Dec 2020 14:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165283;
-        bh=hanN+jJ08QqLvLszB1Itv4y4i4X+x6Mlz58qZirZ3TA=;
+        s=korg; t=1609165286;
+        bh=KGRqtiI5xb2QCWAhkMOzJAqSPuxxarizS8R6E19JfFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJWVZ2GTTz9iKyqlQii29V+xckatYrfcADv4DnjzBf/Oy3EpB9wqF4dBuitQvg4hV
-         +fhUQlAqb7kHpiUpplFMeaiAeGeaQtKBNJpCQPcydf/w7qpVuUqLUgmVjqZ28z1N3Y
-         ZkYxlfFMBsn63jOzzcRP35gHJqGd0w/HmrBmshZI=
+        b=CDcp+HwAS7IJHQTOwuuC7Jm2Ln+if2OQdcYmrnwboVmLUsStHApKycLcj30E3aqFd
+         jN/usJqcJ2B0crEEbQIdVURPIuG4qpEACtOjrJjEdPOlGdV6v3U75pE/uCQLj29bru
+         1PLjco/h8U/aozRNBHEa7LPkQpu99jta2kBbpSWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        John Hubbard <jhubbard@nvidia.com>, Jan Kara <jack@suse.cz>,
-        Peter Xu <peterx@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hugh Dickins <hughd@google.com>, Jann Horn <jannh@google.com>,
-        Kirill Shutemov <kirill@shutemov.name>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ira Weiny <ira.weiny@intel.com>, Jan Kara <jack@suse.cz>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jane Chu <jane.chu@oracle.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Michal Hocko <mhocko@suse.com>,
-        Oleg Nesterov <oleg@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matthew Wilcox <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 5.10 447/717] mm/gup: prevent gup_fast from racing with COW during fork
-Date:   Mon, 28 Dec 2020 13:47:25 +0100
-Message-Id: <20201228125042.389079342@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 448/717] mm/gup: combine put_compound_head() and unpin_user_page()
+Date:   Mon, 28 Dec 2020 13:47:26 +0100
+Message-Id: <20201228125042.438862914@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -55,230 +58,186 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 57efa1fe5957694fa541c9062de0a127f0b9acb0 ]
+[ Upstream commit 4509b42c38963f495b49aa50209c34337286ecbe ]
 
-Since commit 70e806e4e645 ("mm: Do early cow for pinned pages during
-fork() for ptes") pages under a FOLL_PIN will not be write protected
-during COW for fork.  This means that pages returned from
-pin_user_pages(FOLL_WRITE) should not become write protected while the pin
-is active.
+These functions accomplish the same thing but have different
+implementations.
 
-However, there is a small race where get_user_pages_fast(FOLL_PIN) can
-establish a FOLL_PIN at the same time copy_present_page() is write
-protecting it:
+unpin_user_page() has a bug where it calls mod_node_page_state() after
+calling put_page() which creates a risk that the page could have been
+hot-uplugged from the system.
 
-        CPU 0                             CPU 1
-   get_user_pages_fast()
-    internal_get_user_pages_fast()
-                                       copy_page_range()
-                                         pte_alloc_map_lock()
-                                           copy_present_page()
-                                             atomic_read(has_pinned) == 0
-					     page_maybe_dma_pinned() == false
-     atomic_set(has_pinned, 1);
-     gup_pgd_range()
-      gup_pte_range()
-       pte_t pte = gup_get_pte(ptep)
-       pte_access_permitted(pte)
-       try_grab_compound_head()
-                                             pte = pte_wrprotect(pte)
-	                                     set_pte_at();
-                                         pte_unmap_unlock()
-      // GUP now returns with a write protected page
+Fix this by using put_compound_head() as the only implementation.
 
-The first attempt to resolve this by using the write protect caused
-problems (and was missing a barrrier), see commit f3c64eda3e50 ("mm: avoid
-early COW write protect games during fork()")
+__unpin_devmap_managed_user_page() and related can be deleted as well in
+favour of the simpler, but slower, version in put_compound_head() that has
+an extra atomic page_ref_sub, but always calls put_page() which internally
+contains the special devmap code.
 
-Instead wrap copy_p4d_range() with the write side of a seqcount and check
-the read side around gup_pgd_range().  If there is a collision then
-get_user_pages_fast() fails and falls back to slow GUP.
+Move put_compound_head() to be directly after try_grab_compound_head() so
+people can find it in future.
 
-Slow GUP is safe against this race because copy_page_range() is only
-called while holding the exclusive side of the mmap_lock on the src
-mm_struct.
-
-[akpm@linux-foundation.org: coding style fixes]
-  Link: https://lore.kernel.org/r/CAHk-=wi=iCnYCARbPGjkVJu9eyYeZ13N64tZYLdOB8CP5Q_PLw@mail.gmail.com
-
-Link: https://lkml.kernel.org/r/2-v4-908497cf359a+4782-gup_fork_jgg@nvidia.com
-Fixes: f3c64eda3e50 ("mm: avoid early COW write protect games during fork()")
+Link: https://lkml.kernel.org/r/0-v1-6730d4ee0d32+40e6-gup_combine_put_jgg@nvidia.com
+Fixes: 1970dc6f5226 ("mm/gup: /proc/vmstat: pin_user_pages (FOLL_PIN) reporting")
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
 Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Acked-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>	[seqcount_t parts]
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Kirill Shutemov <kirill@shutemov.name>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
+CC: Joao Martins <joao.m.martins@oracle.com>
+CC: Jonathan Corbet <corbet@lwn.net>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Dave Chinner <david@fromorbit.com>
+CC: Christoph Hellwig <hch@infradead.org>
+CC: Jane Chu <jane.chu@oracle.com>
+CC: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+CC: Michal Hocko <mhocko@suse.com>
+CC: Mike Kravetz <mike.kravetz@oracle.com>
+CC: Shuah Khan <shuah@kernel.org>
+CC: Muchun Song <songmuchun@bytedance.com>
+CC: Vlastimil Babka <vbabka@suse.cz>
+CC: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/tboot.c    |  1 +
- drivers/firmware/efi/efi.c |  1 +
- include/linux/mm_types.h   |  8 ++++++++
- kernel/fork.c              |  1 +
- mm/gup.c                   | 18 ++++++++++++++++++
- mm/init-mm.c               |  1 +
- mm/memory.c                | 13 ++++++++++++-
- 7 files changed, 42 insertions(+), 1 deletion(-)
+ mm/gup.c | 103 +++++++++++++------------------------------------------
+ 1 file changed, 23 insertions(+), 80 deletions(-)
 
-diff --git a/arch/x86/kernel/tboot.c b/arch/x86/kernel/tboot.c
-index ae64f98ec2ab6..4c09ba1102047 100644
---- a/arch/x86/kernel/tboot.c
-+++ b/arch/x86/kernel/tboot.c
-@@ -93,6 +93,7 @@ static struct mm_struct tboot_mm = {
- 	.pgd            = swapper_pg_dir,
- 	.mm_users       = ATOMIC_INIT(2),
- 	.mm_count       = ATOMIC_INIT(1),
-+	.write_protect_seq = SEQCNT_ZERO(tboot_mm.write_protect_seq),
- 	MMAP_LOCK_INITIALIZER(init_mm)
- 	.page_table_lock =  __SPIN_LOCK_UNLOCKED(init_mm.page_table_lock),
- 	.mmlist         = LIST_HEAD_INIT(init_mm.mmlist),
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 6c6eec044a978..df3f9bcab581c 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -57,6 +57,7 @@ struct mm_struct efi_mm = {
- 	.mm_rb			= RB_ROOT,
- 	.mm_users		= ATOMIC_INIT(2),
- 	.mm_count		= ATOMIC_INIT(1),
-+	.write_protect_seq      = SEQCNT_ZERO(efi_mm.write_protect_seq),
- 	MMAP_LOCK_INITIALIZER(efi_mm)
- 	.page_table_lock	= __SPIN_LOCK_UNLOCKED(efi_mm.page_table_lock),
- 	.mmlist			= LIST_HEAD_INIT(efi_mm.mmlist),
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 5a9238f6caad9..915f4f100383b 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -14,6 +14,7 @@
- #include <linux/uprobes.h>
- #include <linux/page-flags-layout.h>
- #include <linux/workqueue.h>
-+#include <linux/seqlock.h>
- 
- #include <asm/mmu.h>
- 
-@@ -446,6 +447,13 @@ struct mm_struct {
- 		 */
- 		atomic_t has_pinned;
- 
-+		/**
-+		 * @write_protect_seq: Locked when any thread is write
-+		 * protecting pages mapped by this mm to enforce a later COW,
-+		 * for instance during page table copying for fork().
-+		 */
-+		seqcount_t write_protect_seq;
-+
- #ifdef CONFIG_MMU
- 		atomic_long_t pgtables_bytes;	/* PTE page table pages */
- #endif
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 6d266388d3804..dc55f68a6ee36 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1007,6 +1007,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
- 	mm->vmacache_seqnum = 0;
- 	atomic_set(&mm->mm_users, 1);
- 	atomic_set(&mm->mm_count, 1);
-+	seqcount_init(&mm->write_protect_seq);
- 	mmap_init_lock(mm);
- 	INIT_LIST_HEAD(&mm->mmlist);
- 	mm->core_state = NULL;
 diff --git a/mm/gup.c b/mm/gup.c
-index c7e24301860ab..9c6a2f5001c5c 100644
+index 9c6a2f5001c5c..054ff923d3d92 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -2684,11 +2684,18 @@ static unsigned long lockless_pages_from_mm(unsigned long start,
- {
- 	unsigned long flags;
- 	int nr_pinned = 0;
-+	unsigned seq;
+@@ -123,6 +123,28 @@ static __maybe_unused struct page *try_grab_compound_head(struct page *page,
+ 	return NULL;
+ }
  
- 	if (!IS_ENABLED(CONFIG_HAVE_FAST_GUP) ||
- 	    !gup_fast_permitted(start, end))
- 		return 0;
- 
-+	if (gup_flags & FOLL_PIN) {
-+		seq = raw_read_seqcount(&current->mm->write_protect_seq);
-+		if (seq & 1)
-+			return 0;
++static void put_compound_head(struct page *page, int refs, unsigned int flags)
++{
++	if (flags & FOLL_PIN) {
++		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
++				    refs);
++
++		if (hpage_pincount_available(page))
++			hpage_pincount_sub(page, refs);
++		else
++			refs *= GUP_PIN_COUNTING_BIAS;
 +	}
 +
- 	/*
- 	 * Disable interrupts. The nested form is used, in order to allow full,
- 	 * general purpose use of this routine.
-@@ -2703,6 +2710,17 @@ static unsigned long lockless_pages_from_mm(unsigned long start,
- 	local_irq_save(flags);
- 	gup_pgd_range(start, end, gup_flags, pages, &nr_pinned);
- 	local_irq_restore(flags);
-+
++	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
 +	/*
-+	 * When pinning pages for DMA there could be a concurrent write protect
-+	 * from fork() via copy_page_range(), in this case always fail fast GUP.
++	 * Calling put_page() for each ref is unnecessarily slow. Only the last
++	 * ref needs a put_page().
 +	 */
-+	if (gup_flags & FOLL_PIN) {
-+		if (read_seqcount_retry(&current->mm->write_protect_seq, seq)) {
-+			unpin_user_pages(pages, nr_pinned);
-+			return 0;
-+		}
-+	}
- 	return nr_pinned;
++	if (refs > 1)
++		page_ref_sub(page, refs - 1);
++	put_page(page);
++}
++
+ /**
+  * try_grab_page() - elevate a page's refcount by a flag-dependent amount
+  *
+@@ -177,41 +199,6 @@ bool __must_check try_grab_page(struct page *page, unsigned int flags)
+ 	return true;
  }
  
-diff --git a/mm/init-mm.c b/mm/init-mm.c
-index 3a613c85f9ede..153162669f806 100644
---- a/mm/init-mm.c
-+++ b/mm/init-mm.c
-@@ -31,6 +31,7 @@ struct mm_struct init_mm = {
- 	.pgd		= swapper_pg_dir,
- 	.mm_users	= ATOMIC_INIT(2),
- 	.mm_count	= ATOMIC_INIT(1),
-+	.write_protect_seq = SEQCNT_ZERO(init_mm.write_protect_seq),
- 	MMAP_LOCK_INITIALIZER(init_mm)
- 	.page_table_lock =  __SPIN_LOCK_UNLOCKED(init_mm.page_table_lock),
- 	.arg_lock	=  __SPIN_LOCK_UNLOCKED(init_mm.arg_lock),
-diff --git a/mm/memory.c b/mm/memory.c
-index c48f8df6e5026..50632c4366b8a 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1171,6 +1171,15 @@ copy_page_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma)
- 		mmu_notifier_range_init(&range, MMU_NOTIFY_PROTECTION_PAGE,
- 					0, src_vma, src_mm, addr, end);
- 		mmu_notifier_invalidate_range_start(&range);
-+		/*
-+		 * Disabling preemption is not needed for the write side, as
-+		 * the read side doesn't spin, but goes to the mmap_lock.
-+		 *
-+		 * Use the raw variant of the seqcount_t write API to avoid
-+		 * lockdep complaining about preemptibility.
-+		 */
-+		mmap_assert_write_locked(src_mm);
-+		raw_write_seqcount_begin(&src_mm->write_protect_seq);
- 	}
- 
- 	ret = 0;
-@@ -1187,8 +1196,10 @@ copy_page_range(struct vm_area_struct *dst_vma, struct vm_area_struct *src_vma)
- 		}
- 	} while (dst_pgd++, src_pgd++, addr = next, addr != end);
- 
--	if (is_cow)
-+	if (is_cow) {
-+		raw_write_seqcount_end(&src_mm->write_protect_seq);
- 		mmu_notifier_invalidate_range_end(&range);
-+	}
- 	return ret;
+-#ifdef CONFIG_DEV_PAGEMAP_OPS
+-static bool __unpin_devmap_managed_user_page(struct page *page)
+-{
+-	int count, refs = 1;
+-
+-	if (!page_is_devmap_managed(page))
+-		return false;
+-
+-	if (hpage_pincount_available(page))
+-		hpage_pincount_sub(page, 1);
+-	else
+-		refs = GUP_PIN_COUNTING_BIAS;
+-
+-	count = page_ref_sub_return(page, refs);
+-
+-	mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED, 1);
+-	/*
+-	 * devmap page refcounts are 1-based, rather than 0-based: if
+-	 * refcount is 1, then the page is free and the refcount is
+-	 * stable because nobody holds a reference on the page.
+-	 */
+-	if (count == 1)
+-		free_devmap_managed_page(page);
+-	else if (!count)
+-		__put_page(page);
+-
+-	return true;
+-}
+-#else
+-static bool __unpin_devmap_managed_user_page(struct page *page)
+-{
+-	return false;
+-}
+-#endif /* CONFIG_DEV_PAGEMAP_OPS */
+-
+ /**
+  * unpin_user_page() - release a dma-pinned page
+  * @page:            pointer to page to be released
+@@ -223,28 +210,7 @@ static bool __unpin_devmap_managed_user_page(struct page *page)
+  */
+ void unpin_user_page(struct page *page)
+ {
+-	int refs = 1;
+-
+-	page = compound_head(page);
+-
+-	/*
+-	 * For devmap managed pages we need to catch refcount transition from
+-	 * GUP_PIN_COUNTING_BIAS to 1, when refcount reach one it means the
+-	 * page is free and we need to inform the device driver through
+-	 * callback. See include/linux/memremap.h and HMM for details.
+-	 */
+-	if (__unpin_devmap_managed_user_page(page))
+-		return;
+-
+-	if (hpage_pincount_available(page))
+-		hpage_pincount_sub(page, 1);
+-	else
+-		refs = GUP_PIN_COUNTING_BIAS;
+-
+-	if (page_ref_sub_and_test(page, refs))
+-		__put_page(page);
+-
+-	mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED, 1);
++	put_compound_head(compound_head(page), 1, FOLL_PIN);
  }
+ EXPORT_SYMBOL(unpin_user_page);
  
+@@ -2062,29 +2028,6 @@ EXPORT_SYMBOL(get_user_pages_unlocked);
+  * This code is based heavily on the PowerPC implementation by Nick Piggin.
+  */
+ #ifdef CONFIG_HAVE_FAST_GUP
+-
+-static void put_compound_head(struct page *page, int refs, unsigned int flags)
+-{
+-	if (flags & FOLL_PIN) {
+-		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
+-				    refs);
+-
+-		if (hpage_pincount_available(page))
+-			hpage_pincount_sub(page, refs);
+-		else
+-			refs *= GUP_PIN_COUNTING_BIAS;
+-	}
+-
+-	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+-	/*
+-	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+-	 * ref needs a put_page().
+-	 */
+-	if (refs > 1)
+-		page_ref_sub(page, refs - 1);
+-	put_page(page);
+-}
+-
+ #ifdef CONFIG_GUP_GET_PTE_LOW_HIGH
+ 
+ /*
 -- 
 2.27.0
 
