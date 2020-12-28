@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A6F2E42D1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6002E6510
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406714AbgL1N4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:56:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58448 "EHLO mail.kernel.org"
+        id S2390549AbgL1PzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:55:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406684AbgL1N4w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02E56206D4;
-        Mon, 28 Dec 2020 13:56:10 +0000 (UTC)
+        id S2390565AbgL1NgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE94820728;
+        Mon, 28 Dec 2020 13:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163771;
-        bh=BAhzf8w1eCieG172JviMiUu2sSTegVojLKomA8d0QnI=;
+        s=korg; t=1609162543;
+        bh=HKVBM16avOEKdjz+NaHmxjroT+xlNi3GmgGkoe+Jq/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Btx+1bypF9FbODheKrXOUlKOaZ3mNBa7Sl0VpTHo60ncuuI0218DbmFx8JQFOZHmg
-         +FaZMWmkirsmFhCQZwD9qPDKlNU2B2uEJ36VXYYa65+N+xkXVhDMfTsWdIviqOAb3W
-         27IrW53+atVSRmZPBzKwib7Z/jGi7pLRzBdSNsZE=
+        b=gkvRF5WnHRoicggnbSn8Z5XfV/aO+TFRUz5AxCOxovV1wmMBV05+JaJL6BPAS5LO9
+         W0v6XCvuY8+tcgGw3Ga71YOHhExQhrJOqXktSgcRfYVhj1tabcwoLGI/2It3/xFBXC
+         HVcvmuYr+C90CD0zcXm86HDGPG0mJXrnrTDH/IGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, CQ Tang <cq.tang@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.4 400/453] drm/i915: Fix mismatch between misplaced vma check and vma insert
-Date:   Mon, 28 Dec 2020 13:50:36 +0100
-Message-Id: <20201228124956.456066412@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Bert Vermeulen <bert@biot.com>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 318/346] spi: rb4xx: Dont leak SPI master in probe error path
+Date:   Mon, 28 Dec 2020 13:50:37 +0100
+Message-Id: <20201228124935.164003017@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 0e53656ad8abc99e0a80c3de611e593ebbf55829 upstream.
+commit a4729c3506c3eb1a6ca5c0289f4e7cafa4115065 upstream.
 
-When inserting a VMA, we restrict the placement to the low 4G unless the
-caller opts into using the full range. This was done to allow usersapce
-the opportunity to transition slowly from a 32b address space, and to
-avoid breaking inherent 32b assumptions of some commands.
+If the calls to devm_clk_get(), devm_spi_register_master() or
+clk_prepare_enable() fail on probe of the Mikrotik RB4xx SPI driver,
+the spi_master struct is erroneously not freed.
 
-However, for insert we limited ourselves to 4G-4K, but on verification
-we allowed the full 4G. This causes some attempts to bind a new buffer
-to sporadically fail with -ENOSPC, but at other times be bound
-successfully.
+Fix by switching over to the new devm_spi_alloc_master() helper.
 
-commit 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1
-page") suggests that there is a genuine problem with stateless addressing
-that cannot utilize the last page in 4G and so we purposefully excluded
-it. This means that the quick pin pass may cause us to utilize a buggy
-placement.
-
-Reported-by: CQ Tang <cq.tang@intel.com>
-Testcase: igt/gem_exec_params/larger-than-life-batch
-Fixes: 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1 page")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: CQ Tang <cq.tang@intel.com>
-Reviewed-by: CQ Tang <cq.tang@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Cc: <stable@vger.kernel.org> # v4.5+
-Link: https://patchwork.freedesktop.org/patch/msgid/20201216092951.7124-1-chris@chris-wilson.co.uk
-(cherry picked from commit 5f22cc0b134ab702d7f64b714e26018f7288ffee)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 05aec357871f ("spi: Add SPI driver for Mikrotik RB4xx series boards")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.2+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.2+
+Cc: Bert Vermeulen <bert@biot.com>
+Link: https://lore.kernel.org/r/369bf26d71927f60943b1d9d8f51810f00b0237d.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    2 +-
+ drivers/spi/spi-rb4xx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -367,7 +367,7 @@ eb_vma_misplaced(const struct drm_i915_g
- 		return true;
+--- a/drivers/spi/spi-rb4xx.c
++++ b/drivers/spi/spi-rb4xx.c
+@@ -148,7 +148,7 @@ static int rb4xx_spi_probe(struct platfo
+ 	if (IS_ERR(spi_base))
+ 		return PTR_ERR(spi_base);
  
- 	if (!(flags & EXEC_OBJECT_SUPPORTS_48B_ADDRESS) &&
--	    (vma->node.start + vma->node.size - 1) >> 32)
-+	    (vma->node.start + vma->node.size + 4095) >> 32)
- 		return true;
+-	master = spi_alloc_master(&pdev->dev, sizeof(*rbspi));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*rbspi));
+ 	if (!master)
+ 		return -ENOMEM;
  
- 	if (flags & __EXEC_OBJECT_NEEDS_MAP &&
 
 
