@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A46402E4044
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEA82E3844
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502167AbgL1OUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
+        id S1730818AbgL1NIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436591AbgL1OUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:20:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B129521D94;
-        Mon, 28 Dec 2020 14:19:45 +0000 (UTC)
+        id S1730794AbgL1NIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B76BF206ED;
+        Mon, 28 Dec 2020 13:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165186;
-        bh=eGQQCOXn+RhnImPbPiE5mK0SYXfOqSninblDmJdNxJc=;
+        s=korg; t=1609160840;
+        bh=rsem+EfpmZxl3TmBXEpSGO7s5ioEaz6G7/hlssskqhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHipJ8NLczWhTNvW2ZEtZwgjWI96L3zWvFCqhRmoCzt0gF1u2gz11BHbCsx2T+Z1D
-         F5ZB5Zb7HuHYGivW7N82792TIdmZSm9iJREmzIwXkYMXhV/7iIMWObtM7RsbumxyaJ
-         Ppqfl2IRJMF8Srl0ysN0ATTLe3bLevl6yUhb/oUk=
+        b=vOeR7vdgXXZoT8fN9NJ893UJzr2b3YNagKGHJ5zqVXM/cLVEnUaTeh4YIxlk+jbc7
+         0BjTzAO9ax5i/kDfY2iQgRPJE183IOCMH07ISUNk7Kf7iBMBmCXXJpOskjbjk5GMRl
+         84u42vT7s8ab0srY8l0teLzo7JKTGn+f7uCtejdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Li <lihao2018.fnst@cn.fujitsu.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 412/717] fs: Handle I_DONTCACHE in iput_final() instead of generic_drop_inode()
+Subject: [PATCH 4.14 005/242] iwlwifi: mvm: fix kernel panic in case of assert during CSA
 Date:   Mon, 28 Dec 2020 13:46:50 +0100
-Message-Id: <20201228125040.709020346@linuxfoundation.org>
+Message-Id: <20201228124904.926901745@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Li <lihao2018.fnst@cn.fujitsu.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 88149082bb8ef31b289673669e080ec6a00c2e59 ]
+[ Upstream commit fe56d05ee6c87f6a1a8c7267affd92c9438249cc ]
 
-If generic_drop_inode() returns true, it means iput_final() can evict
-this inode regardless of whether it is dirty or not. If we check
-I_DONTCACHE in generic_drop_inode(), any inode with this bit set will be
-evicted unconditionally. This is not the desired behavior because
-I_DONTCACHE only means the inode shouldn't be cached on the LRU list.
-As for whether we need to evict this inode, this is what
-generic_drop_inode() should do. This patch corrects the usage of
-I_DONTCACHE.
+During CSA, we briefly nullify the phy context, in __iwl_mvm_unassign_vif_chanctx.
+In case we have a FW assert right after it, it remains NULL though.
+We end up running into endless loop due to mac80211 trying repeatedly to
+move us to ASSOC state, and we keep returning -EINVAL. Later down the road
+we hit a kernel panic.
 
-This patch was proposed in [1].
+Detect and avoid this endless loop.
 
-[1]: https://lore.kernel.org/linux-fsdevel/20200831003407.GE12096@dread.disaster.area/
-
-Fixes: dae2f8ed7992 ("fs: Lift XFS_IDONTCACHE to the VFS layer")
-Signed-off-by: Hao Li <lihao2018.fnst@cn.fujitsu.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20201107104557.d64de2c17bff.Iedd0d2afa20a2aacba5259a5cae31cb3a119a4eb@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/inode.c         | 4 +++-
- include/linux/fs.h | 3 +--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/inode.c b/fs/inode.c
-index 9d78c37b00b81..5eea9912a0b9d 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1627,7 +1627,9 @@ static void iput_final(struct inode *inode)
- 	else
- 		drop = generic_drop_inode(inode);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index ec2ecdd1cc4ec..9aab9a0269548 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -2654,7 +2654,7 @@ static int iwl_mvm_mac_sta_state(struct ieee80211_hw *hw,
  
--	if (!drop && (sb->s_flags & SB_ACTIVE)) {
-+	if (!drop &&
-+	    !(inode->i_state & I_DONTCACHE) &&
-+	    (sb->s_flags & SB_ACTIVE)) {
- 		inode_add_lru(inode);
- 		spin_unlock(&inode->i_lock);
- 		return;
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 8667d0cdc71e7..8bde32cf97115 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2878,8 +2878,7 @@ extern int inode_needs_sync(struct inode *inode);
- extern int generic_delete_inode(struct inode *inode);
- static inline int generic_drop_inode(struct inode *inode)
- {
--	return !inode->i_nlink || inode_unhashed(inode) ||
--		(inode->i_state & I_DONTCACHE);
-+	return !inode->i_nlink || inode_unhashed(inode);
- }
- extern void d_mark_dontcache(struct inode *inode);
+ 	/* this would be a mac80211 bug ... but don't crash */
+ 	if (WARN_ON_ONCE(!mvmvif->phy_ctxt))
+-		return -EINVAL;
++		return test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) ? 0 : -EINVAL;
  
+ 	/*
+ 	 * If we are in a STA removal flow and in DQA mode:
 -- 
 2.27.0
 
