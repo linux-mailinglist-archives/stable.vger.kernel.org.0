@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 941642E3E43
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 843722E42F8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503342AbgL1O0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:26:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33622 "EHLO mail.kernel.org"
+        id S2391530AbgL1Nws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503276AbgL1OZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:25:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3CCD2245C;
-        Mon, 28 Dec 2020 14:25:02 +0000 (UTC)
+        id S2391525AbgL1Nwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFBE820791;
+        Mon, 28 Dec 2020 13:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165503;
-        bh=g2Zt8DLmwegqzrGW2W4zZDFBNp5yfj7K/uAC3UoCwFo=;
+        s=korg; t=1609163526;
+        bh=8oGGp5xXe/o8MkOEYfYerB3yQG5FjAmtKGpzIWitqTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVfxP8vwUr/mnr2CGUntk0rYs8yuQ0ZtdPduj7Eo6aOqkpJgBEk5LRpYGXgxBZcOQ
-         RAAjhm1sSYUH/TWf2uovKawuNB1jQt8atqPFi9PChNHFyDGGML38rXsa4KbYurf/35
-         SRX6Dn/wHevBgYh7eR7FjyeXUMOX1c6ckwz85OxA=
+        b=eXltDuCTwDkiGG2eVj5tN54gfjBIkPKI9Fpib2/1Gwvi4ajKqc0O3M9upYqd8Cpiw
+         jN2Ydq1Qaf1sbkWLeVGqC8HjG72PSc9qR7PgRzDZlaNWYq6IbjYdYe68QRv6fAtprf
+         cwXz3gCuJtLYFaqlC2/jAKFnGm+p/8wjgzN/wxBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 555/717] s390/dasd: fix hanging device offline processing
+        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/453] Input: cros_ec_keyb - send scancodes in addition to key events
 Date:   Mon, 28 Dec 2020 13:49:13 +0100
-Message-Id: <20201228125047.523184966@linuxfoundation.org>
+Message-Id: <20201228124952.464705574@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 658a337a606f48b7ebe451591f7681d383fa115e upstream.
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-For an LCU update a read unit address configuration IO is required.
-This is started using sleep_on(), which has early exit paths in case the
-device is not usable for IO. For example when it is in offline processing.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-In those cases the LCU update should fail and not be retried.
-Therefore lcu_update_work checks if EOPNOTSUPP is returned or not.
-
-Commit 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-accidentally removed the EOPNOTSUPP return code from
-read_unit_address_configuration(), which in turn might lead to an endless
-loop of the LCU update in offline processing.
-
-Fix by returning EOPNOTSUPP again if the device is not able to perform the
-request.
-
-Fixes: 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-Cc: stable@vger.kernel.org #5.3
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -462,11 +462,19 @@ static int read_unit_address_configurati
- 	spin_unlock_irqrestore(&lcu->lock, flags);
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 8d4d9786cc745..cae262b6ff398 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -183,6 +183,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
- 	rc = dasd_sleep_on(cqr);
--	if (rc && !suborder_not_supported(cqr)) {
-+	if (!rc)
-+		goto out;
-+
-+	if (suborder_not_supported(cqr)) {
-+		/* suborder not supported or device unusable for IO */
-+		rc = -EOPNOTSUPP;
-+	} else {
-+		/* IO failed but should be retried */
- 		spin_lock_irqsave(&lcu->lock, flags);
- 		lcu->flags |= NEED_UAC_UPDATE;
- 		spin_unlock_irqrestore(&lcu->lock, flags);
- 	}
-+out:
- 	dasd_sfree_request(cqr, cqr->memdev);
- 	return rc;
- }
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
+-- 
+2.27.0
+
 
 
