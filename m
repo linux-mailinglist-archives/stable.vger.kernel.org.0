@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2AD2E42B0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7EB2E64E2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730437AbgL1P0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:26:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58762 "EHLO mail.kernel.org"
+        id S2390677AbgL1PyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:54:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407499AbgL1N6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51F592072C;
-        Mon, 28 Dec 2020 13:57:47 +0000 (UTC)
+        id S2390663AbgL1NhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:37:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8509120719;
+        Mon, 28 Dec 2020 13:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163867;
-        bh=FiS6FgLjIsQWPstbtfUA+QjlKOETfN+XdRGCiVURacE=;
+        s=korg; t=1609162593;
+        bh=3zC6EWdok2I3DAvM5fV1Ahd3MB2We0PH0OBlRlqky0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MswwAsfs/8Knu+fmf06+gg/Lz+f3inkNSBdJEoZfEdEX2vskTfXtQTbmjFZ/lRflJ
-         s+Jbi27DUIbkYxb4blUuxnuk7fGq6PYeGNgt1bB0ESURzu70wO4lp52T6q9cbe5smH
-         hLLD6yu9C4+zouaLsqvZzSQ+g5BZ6fP6iQEFcXsU=
+        b=LjLjwj4Cv4Y+2F6o4iMT0hWJecs93BM5t6Z1BPAncLvRPIhm5c5LaWAnR3JgsRtyP
+         4fXLjmTBJFVgPiazClFFNc4vkBJ2w1e9VoGDQcr/UBID0g9oZ2BkCkLy6t1zwta7i8
+         D791zu6RX4oBfaQiEAjHzRORPsXQ5NsKYW1BErkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 406/453] spi: gpio: Dont leak SPI master in probe error path
-Date:   Mon, 28 Dec 2020 13:50:42 +0100
-Message-Id: <20201228124956.751633756@linuxfoundation.org>
+        stable@vger.kernel.org, Ron Minnich <rminnich@google.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 324/346] mtd: parser: cmdline: Fix parsing of part-names with colons
+Date:   Mon, 28 Dec 2020 13:50:43 +0100
+Message-Id: <20201228124935.445949358@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 7174dc655ef0578877b0b4598e69619d2be28b4d upstream.
+commit 639a82434f16a6df0ce0e7c8595976f1293940fd upstream.
 
-If the call to devm_spi_register_master() fails on probe of the GPIO SPI
-driver, the spi_master struct is erroneously not freed:
+Some devices (especially QCA ones) are already using hardcoded partition
+names with colons in it. The OpenMesh A62 for example provides following
+mtd relevant information via cmdline:
 
-After allocating the spi_master, its reference count is 1.  The driver
-unconditionally decrements the reference count on unbind using a devm
-action.  Before calling devm_spi_register_master(), the driver
-unconditionally increments the reference count because on success,
-that function will decrement the reference count on unbind.  However on
-failure, devm_spi_register_master() does *not* decrement the reference
-count, so the spi_master is leaked.
+  root=31:11 mtdparts=spi0.0:256k(0:SBL1),128k(0:MIBIB),384k(0:QSEE),64k(0:CDT),64k(0:DDRPARAMS),64k(0:APPSBLENV),512k(0:APPSBL),64k(0:ART),64k(custom),64k(0:KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive) rootfsname=rootfs rootwait
 
-The issue was introduced by commits 8b797490b4db ("spi: gpio: Make sure
-spi_master_put() is called in every error path") and 79567c1a321e ("spi:
-gpio: Use devm_spi_register_master()"), which sought to plug leaks
-introduced by 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO
-descriptors") but missed this remaining leak.
+The change to split only on the last colon between mtd-id and partitions
+will cause newpart to see following string for the first partition:
 
-The situation was later aggravated by commit d3b0ffa1d75d ("spi: gpio:
-prevent memory leak in spi_gpio_probe"), which introduced a
-use-after-free because it releases a reference on the spi_master if
-devm_add_action_or_reset() fails even though the function already
-does that.
+  KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive)
 
-Fix by switching over to the new devm_spi_alloc_master() helper.
+Such a partition list cannot be parsed and thus the device fails to boot.
 
-Fixes: 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO descriptors")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v5.1-: 8b797490b4db: spi: gpio: Make sure spi_master_put() is called in every error path
-Cc: <stable@vger.kernel.org> # v5.1-: 45beec351998: spi: bitbang: Introduce spi_bitbang_init()
-Cc: <stable@vger.kernel.org> # v5.1-: 79567c1a321e: spi: gpio: Use devm_spi_register_master()
-Cc: <stable@vger.kernel.org> # v5.4-: d3b0ffa1d75d: spi: gpio: prevent memory leak in spi_gpio_probe
-Cc: <stable@vger.kernel.org> # v4.17+
-Cc: Navid Emamdoost <navid.emamdoost@gmail.com>
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>
-Link: https://lore.kernel.org/r/86eaed27431c3d709e3748eb76ceecbfc790dd37.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Avoid this behavior by making sure that the start of the first part-name
+("(") will also be the last byte the mtd-id split algorithm is using for
+its colon search.
+
+Fixes: eb13fa022741 ("mtd: parser: cmdline: Support MTD names containing one or more colons")
+Cc: stable@vger.kernel.org
+Cc: Ron Minnich <rminnich@google.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201124062506.185392-1-sven@narfation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-gpio.c |   15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+ drivers/mtd/cmdlinepart.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -350,11 +350,6 @@ static int spi_gpio_probe_pdata(struct p
- 	return 0;
- }
+--- a/drivers/mtd/cmdlinepart.c
++++ b/drivers/mtd/cmdlinepart.c
+@@ -231,7 +231,7 @@ static int mtdpart_setup_real(char *s)
+ 		struct cmdline_mtd_partition *this_mtd;
+ 		struct mtd_partition *parts;
+ 		int mtd_id_len, num_parts;
+-		char *p, *mtd_id, *semicol;
++		char *p, *mtd_id, *semicol, *open_parenth;
  
--static void spi_gpio_put(void *data)
--{
--	spi_master_put(data);
--}
--
- static int spi_gpio_probe(struct platform_device *pdev)
- {
- 	int				status;
-@@ -366,16 +361,10 @@ static int spi_gpio_probe(struct platfor
+ 		/*
+ 		 * Replace the first ';' by a NULL char so strrchr can work
+@@ -241,6 +241,14 @@ static int mtdpart_setup_real(char *s)
+ 		if (semicol)
+ 			*semicol = '\0';
  
- 	of_id = of_match_device(spi_gpio_dt_ids, &pdev->dev);
++		/*
++		 * make sure that part-names with ":" will not be handled as
++		 * part of the mtd-id with an ":"
++		 */
++		open_parenth = strchr(s, '(');
++		if (open_parenth)
++			*open_parenth = '\0';
++
+ 		mtd_id = s;
  
--	master = spi_alloc_master(dev, sizeof(*spi_gpio));
-+	master = devm_spi_alloc_master(dev, sizeof(*spi_gpio));
- 	if (!master)
- 		return -ENOMEM;
+ 		/*
+@@ -250,6 +258,10 @@ static int mtdpart_setup_real(char *s)
+ 		 */
+ 		p = strrchr(s, ':');
  
--	status = devm_add_action_or_reset(&pdev->dev, spi_gpio_put, master);
--	if (status) {
--		spi_master_put(master);
--		return status;
--	}
--
- 	if (of_id)
- 		status = spi_gpio_probe_dt(pdev, master);
- 	else
-@@ -435,7 +424,7 @@ static int spi_gpio_probe(struct platfor
- 	if (status)
- 		return status;
- 
--	return devm_spi_register_master(&pdev->dev, spi_master_get(master));
-+	return devm_spi_register_master(&pdev->dev, master);
- }
- 
- MODULE_ALIAS("platform:" DRIVER_NAME);
++		/* Restore the '(' now. */
++		if (open_parenth)
++			*open_parenth = '(';
++
+ 		/* Restore the ';' now. */
+ 		if (semicol)
+ 			*semicol = ';';
 
 
