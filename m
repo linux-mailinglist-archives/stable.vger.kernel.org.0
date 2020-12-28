@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D055B2E3625
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:01:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C832E3628
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727211AbgL1LB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:01:28 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:47963 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727019AbgL1LB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:01:28 -0500
+        id S1727165AbgL1LGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:06:52 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34723 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727163AbgL1LGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:06:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0FA7F666;
-        Mon, 28 Dec 2020 06:00:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:00:22 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 1F25A316;
+        Mon, 28 Dec 2020 06:05:46 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:05:46 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RTJ7FI
-        00kUK/WusTHp0AZ9SGYyMpSto6AFElIdGaDCo=; b=FMbCdzRR3MFn4SKb9eHCB6
-        gPrOE8v31dAkS0Wqv3S6toCgb+uHRiDdGUq2jwgyT8TDrj8mNZCTSwoRMtpaWf+z
-        43HX57sMTF7h1SOeQA1Potms4+bLGR6LXY8J33NrXope9J0gIsu02c6VLsRktrVz
-        4KWWPvk/6doUseGHUL1JHkhE3W0cdOiH62n/YR/cVzL+6aW73YAWaO0tZ+rvwvCx
-        qodpvJbrq9Y2S4fCdMLyo4l5by7IcZgj3x/yrXvFNgmdvRBU4Z3YeobUGoWQztI1
-        8rwU3AveAVVZc3JP6r87XpjpMHQ/x2kAtBy+qcbJg+QanVTeQisdxir2Dhd5T/tA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GLLJvc
+        HnMF4iiQf/TYqhtrGbZpdyQ7gOGLEkMUTXDGc=; b=S2VJAl62JAyAR2a42fjCaK
+        aTD1m4+e4ojHoxzPPa5m6ZZXO0xDlt/SQ/Wn07lCZtx/JwBm0pjmnpiRRlD3cdWx
+        V8Mk5w6JIK109NGTySXrhdCuiHnaHnEOX4m0f9dEMf3/fuH/B8nTaoBtD6XgvDLH
+        zHfCHD23RGgXwDE2+x+/antN2MZKBK0EMlhNxXt7mNNgHffxxs7kFWBLWOJVDXha
+        iStySt62z9yXolkIamIxzm+3CugyVFN/zthaQrsnPet4h+Qk4iX4eU23pSfqM1/8
+        +Ad1ZbrEf07lgy8WfYGC2ohfBpqXKaamFhxHkFl9YDkRT9WdmwR+G10c2D3Wk2lw
         ==
-X-ME-Sender: <xms:xbrpX4z_892VI4tDQIJtcXgXRI4mc7sgfhp3PIZMKD_ntebczoR5Cg>
-    <xme:xbrpX8Sygf2CKUEYSbfeeLkpDd8Itn39tn4NX8FXFNqB_iEhXCgYQrw-VP9yGFeJN
-    MY4ty-36O2BwA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:CbzpX8G_VSQPAxkgXe3EfPCXV4oGTAPCA5TTyAXh4WnYO1MrSC7-bA>
+    <xme:CbzpX1UnrO4SpSIJSJJ0ghy70-TAlIs1XDNk2AEM3hE2DRsCkagewTZx-EdT7MhjR
+    9wa1SWEfhyINQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:xbrpX6WN5TJN10LfbTW2K5DzPS42TwuWVFLBXc2sdibOS68oU447yQ>
-    <xmx:xbrpX2j5_tcBS3z3VBbER-CLumPHI2JObI9BgWo-jk74qJcqOkQj1g>
-    <xmx:xbrpX6Blx2PYoe0c-QhcycPUEdxg7VaKoQ6CGNZQeoj2Z_WH64Oe0g>
-    <xmx:xbrpX9OGvYEseN2R1uE38u2ZkssSomNuGZUQc_JgtsaBE6fErn6hXYhvvWQ>
+X-ME-Proxy: <xmx:CbzpX2J1XzomyA9JMztq-VWRXjhO0obKVv_6Q20_U0r7NA7xs1VlFw>
+    <xmx:CbzpX-FyVhWuiraOLD2Q0d6zuVNcIzqaD1lB4wstYl0obyGuRMAbSg>
+    <xmx:CbzpXyXUtAKyBDmlSFveOk8rjVW6vWHbaPUTIRwch8Cr-mYkUqFBcA>
+    <xmx:CbzpX1eZWuYTeMM4beEJIkfnB-RDhryeAJNaV7enp36lArT2bT2bi_tHR24>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E10711080064;
-        Mon, 28 Dec 2020 06:00:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] spi: spi-geni-qcom: Fix use-after-free on unbind" failed to apply to 5.4-stable tree
-To:     lukas@wunner.de, broonie@kernel.org, girishm@codeaurora.org,
-        rnayak@codeaurora.org, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id E0B8F240057;
+        Mon, 28 Dec 2020 06:05:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] spi: mt7621: Disable clock in probe error path" failed to apply to 4.19-stable tree
+To:     lukas@wunner.de, broonie@kernel.org, miaoqinglang@huawei.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:01:44 +0100
-Message-ID: <16091533040136@kroah.com>
+Date:   Mon, 28 Dec 2020 12:07:08 +0100
+Message-ID: <1609153628110242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,52 +71,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8f96c434dfbc85ffa755d6634c8c1cb2233fcf24 Mon Sep 17 00:00:00 2001
+From 24f7033405abe195224ec793dbc3d7a27dec0b98 Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 7 Dec 2020 09:17:02 +0100
-Subject: [PATCH] spi: spi-geni-qcom: Fix use-after-free on unbind
+Date: Mon, 7 Dec 2020 09:17:13 +0100
+Subject: [PATCH] spi: mt7621: Disable clock in probe error path
 
-spi_geni_remove() accesses the driver's private data after calling
-spi_unregister_master() even though that function releases the last
-reference on the spi_master and thereby frees the private data.
+Commit 702b15cb9712 ("spi: mt7621: fix missing clk_disable_unprepare()
+on error in mt7621_spi_probe") sought to disable the SYS clock on probe
+errors, but only did so for 2 of 3 potentially failing calls:  The clock
+needs to be disabled on failure of devm_spi_register_controller() as
+well.
 
-Moreover, since commit 1a9e489e6128 ("spi: spi-geni-qcom: Use OPP API to
-set clk/perf state"), spi_geni_probe() leaks the spi_master allocation
-if the calls to dev_pm_opp_set_clkname() or dev_pm_opp_of_add_table()
-fail.
+Moreover, the commit purports to fix a bug in commit cbd66c626e16 ("spi:
+mt7621: Move SPI driver out of staging") but in reality the bug has
+existed since the driver was first introduced.
 
-Fix by switching over to the new devm_spi_alloc_master() helper which
-keeps the private data accessible until the driver has unbound and also
-avoids the spi_master leak on probe.
-
-Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.20+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.20+
-Cc: Rajendra Nayak <rnayak@codeaurora.org>
-Cc: Girish Mahadevan <girishm@codeaurora.org>
-Link: https://lore.kernel.org/r/dfa1d8c41b8acdfad87ec8654cd124e6e3cb3f31.1607286887.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v4.17+: 702b15cb9712: spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/36ad42760087952fb7c10aae7d2628547c26a7ec.1607286887.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/drivers/spi/spi-geni-qcom.c b/drivers/spi/spi-geni-qcom.c
-index 25810a7eef10..0e3d8e6c08f4 100644
---- a/drivers/spi/spi-geni-qcom.c
-+++ b/drivers/spi/spi-geni-qcom.c
-@@ -603,7 +603,7 @@ static int spi_geni_probe(struct platform_device *pdev)
- 	if (IS_ERR(clk))
- 		return PTR_ERR(clk);
+diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
+index 2cdae7994e2a..e227700808cb 100644
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -382,7 +382,11 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
--	spi = spi_alloc_master(dev, sizeof(*mas));
-+	spi = devm_spi_alloc_master(dev, sizeof(*mas));
- 	if (!spi)
- 		return -ENOMEM;
+-	return devm_spi_register_controller(&pdev->dev, master);
++	ret = devm_spi_register_controller(&pdev->dev, master);
++	if (ret)
++		clk_disable_unprepare(clk);
++
++	return ret;
+ }
  
-@@ -673,7 +673,6 @@ static int spi_geni_probe(struct platform_device *pdev)
- 	free_irq(mas->irq, spi);
- spi_geni_probe_runtime_disable:
- 	pm_runtime_disable(dev);
--	spi_master_put(spi);
- 	dev_pm_opp_of_remove_table(&pdev->dev);
- put_clkname:
- 	dev_pm_opp_put_clkname(mas->se.opp_table);
+ static int mt7621_spi_remove(struct platform_device *pdev)
 
