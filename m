@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1072C2E676A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:25:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAEB2E6880
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633341AbgL1QYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:24:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37762 "EHLO mail.kernel.org"
+        id S1729897AbgL1QhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:37:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731312AbgL1NKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A56B2076D;
-        Mon, 28 Dec 2020 13:10:02 +0000 (UTC)
+        id S1729843AbgL1NBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56D6221D94;
+        Mon, 28 Dec 2020 13:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161002;
-        bh=EeYPUFr/QSUl3eSn9plS5GQKVSDJK/lV+R1DyJ++noc=;
+        s=korg; t=1609160464;
+        bh=dwqTAokXpysVZGBemVnEBeDmQu20+uI6XLgm1AZ8Yks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrGertujjL2ocv+sRXTeFGt99vb7oQbsYivDjZUTUCdcRaNAAP3HRFoWW3M7cDepW
-         7uOJ9ESPNxq2R25TYMaz0QA7Hsn1fQOoXPqb02fCA+fS/7TnOW9khT1OSlmUfsztAM
-         puCljuPF8eYnjsMNBnCVcuwFVBwX9qCQMJQRU7AQ=
+        b=MZZoQm17ZHIbIYcGSqcdr9BR27mwfgSfUhe+BRkmsTa39522lIv7VsFdxV686PBM8
+         mdYfREvhYT0IM4y4PiNDaoob+04srR3yqM3OZAo8g6Y1EcOI2Lyga0a6WMnNsLYWfC
+         FTvhg0Uc8IVkeL6/FwARX8/Dg9KVvFu6a+xeN/0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 067/242] soc: mediatek: Check if power domains can be powered on at boot time
-Date:   Mon, 28 Dec 2020 13:47:52 +0100
-Message-Id: <20201228124907.980113755@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 020/175] ALSA: usb-audio: Fix potential out-of-bounds shift
+Date:   Mon, 28 Dec 2020 13:47:53 +0100
+Message-Id: <20201228124854.231693629@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4007844b05815717f522c7ea9914e24ad0ff6c79 ]
+commit 43d5ca88dfcd35e43010fdd818e067aa9a55f5ba upstream.
 
-In the error case, where a power domain cannot be powered on
-successfully at boot time (in mtk_register_power_domains),
-pm_genpd_init would still be called with is_off=false, and the
-system would later try to disable the power domain again, triggering
-warnings as disabled clocks are disabled again (and other potential
-issues).
+syzbot spotted a potential out-of-bounds shift in the USB-audio format
+parser that receives the arbitrary shift value from the USB
+descriptor.
 
-Also print a warning splat in that case, as this should never
-happen.
+Add a range check for avoiding the undefined behavior.
 
-Fixes: c84e358718a66f7 ("soc: Mediatek: Add SCPSYS power domain driver")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Link: https://lore.kernel.org/r/20200928113107.v2.1.I5e6f8c262031d0451fe7241b744f4f3111c1ce71@changeid
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201209084552.17109-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/soc/mediatek/mtk-scpsys.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/usb/format.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
-index fb2a8b1e79791..d0b18cc7e61b5 100644
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -481,6 +481,7 @@ static void mtk_register_power_domains(struct platform_device *pdev,
- 	for (i = 0; i < num; i++) {
- 		struct scp_domain *scpd = &scp->domains[i];
- 		struct generic_pm_domain *genpd = &scpd->genpd;
-+		bool on;
- 
- 		/*
- 		 * Initially turn on all domains to make the domains usable
-@@ -488,9 +489,9 @@ static void mtk_register_power_domains(struct platform_device *pdev,
- 		 * software.  The unused domains will be switched off during
- 		 * late_init time.
- 		 */
--		genpd->power_on(genpd);
-+		on = !WARN_ON(genpd->power_on(genpd) < 0);
- 
--		pm_genpd_init(genpd, NULL, false);
-+		pm_genpd_init(genpd, NULL, !on);
- 	}
- 
- 	/*
--- 
-2.27.0
-
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -52,6 +52,8 @@ static u64 parse_audio_format_i_type(str
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
++		if (format >= 64)
++			return 0; /* invalid format */
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1 << format;
 
 
