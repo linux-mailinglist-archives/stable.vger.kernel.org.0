@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BA372E373B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 497802E39E1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgL1Mwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:52:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
+        id S2390067AbgL1N3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:29:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727913AbgL1Mwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:52:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 967EF229C5;
-        Mon, 28 Dec 2020 12:51:52 +0000 (UTC)
+        id S2390062AbgL1N3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3EC207CF;
+        Mon, 28 Dec 2020 13:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159913;
-        bh=IBN4FXt4kUT2e8XoT0yEQUrj7qMsz1qCie4Ktrr0Kto=;
+        s=korg; t=1609162113;
+        bh=xPhre7l8dT8O8tjD8Y4PnUjg+62h/YxwsgXebb5np7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gc3GvmnsWTfYGE9Tp94q3uaVAbF+lnAjdReYaibUs+OoL4ou6n5oUHmoMu6gH4hB6
-         GLYBnlo7SSEauNo+ezMiTx+tuID6WybPVBthiz3/IJtUEeyzNyZMm7c4QEJ744AcMt
-         QYKcFd/uMxW7N70Mz91gds0Ry98t4KpOxNFE/O3c=
+        b=Km/Ucu5QR963oeOZlrDXIUTBUR1EUINe03VAePPhoUwnZzl+jkekV5l5BgZwHaQ/3
+         mH5vYnGzJ5DKx3Yjp+0Exd2kdSwg5Ac+wWVGJUJHaMolheX+4/T3JolUlOrzjqcxwX
+         ojcP0XaECynbsUYSnqC+WXD1xNksl7fDvWMvfyOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 019/132] ALSA: pcm: oss: Fix potential out-of-bounds shift
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 184/346] ARM: dts: at91: at91sam9rl: fix ADC triggers
 Date:   Mon, 28 Dec 2020 13:48:23 +0100
-Message-Id: <20201228124847.339806144@linuxfoundation.org>
+Message-Id: <20201228124928.680981222@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-commit 175b8d89fe292796811fdee87fa39799a5b6b87a upstream.
+[ Upstream commit 851a95da583c26e2ddeb7281e9b61f0d76ea5aba ]
 
-syzbot spotted a potential out-of-bounds shift in the PCM OSS layer
-where it calculates the buffer size with the arbitrary shift value
-given via an ioctl.
+The triggers for the ADC were taken from at91sam9260 dtsi but are not
+correct.
 
-Add a range check for avoiding the undefined behavior.
-As the value can be treated by a signed integer, the max shift should
-be 30.
-
-Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209084552.17109-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a4c1d6c75822 ("ARM: at91/dt: sam9rl: add lcd, adc, usb gadget and pwm support")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201128222818.1910764-10-alexandre.belloni@bootlin.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_oss.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91sam9rl.dtsi | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -2000,11 +2000,15 @@ static int snd_pcm_oss_set_subdivide(str
- static int snd_pcm_oss_set_fragment1(struct snd_pcm_substream *substream, unsigned int val)
- {
- 	struct snd_pcm_runtime *runtime;
-+	int fragshift;
+diff --git a/arch/arm/boot/dts/at91sam9rl.dtsi b/arch/arm/boot/dts/at91sam9rl.dtsi
+index ad495f5a5790f..cdf016232fb7d 100644
+--- a/arch/arm/boot/dts/at91sam9rl.dtsi
++++ b/arch/arm/boot/dts/at91sam9rl.dtsi
+@@ -277,23 +277,26 @@
+ 				atmel,adc-use-res = "highres";
  
- 	runtime = substream->runtime;
- 	if (runtime->oss.subdivision || runtime->oss.fragshift)
- 		return -EINVAL;
--	runtime->oss.fragshift = val & 0xffff;
-+	fragshift = val & 0xffff;
-+	if (fragshift >= 31)
-+		return -EINVAL;
-+	runtime->oss.fragshift = fragshift;
- 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
- 	if (runtime->oss.fragshift < 4)		/* < 16 */
- 		runtime->oss.fragshift = 4;
+ 				trigger0 {
+-					trigger-name = "timer-counter-0";
++					trigger-name = "external-rising";
+ 					trigger-value = <0x1>;
++					trigger-external;
+ 				};
++
+ 				trigger1 {
+-					trigger-name = "timer-counter-1";
+-					trigger-value = <0x3>;
++					trigger-name = "external-falling";
++					trigger-value = <0x2>;
++					trigger-external;
+ 				};
+ 
+ 				trigger2 {
+-					trigger-name = "timer-counter-2";
+-					trigger-value = <0x5>;
++					trigger-name = "external-any";
++					trigger-value = <0x3>;
++					trigger-external;
+ 				};
+ 
+ 				trigger3 {
+-					trigger-name = "external";
+-					trigger-value = <0x13>;
+-					trigger-external;
++					trigger-name = "continuous";
++					trigger-value = <0x6>;
+ 				};
+ 			};
+ 
+-- 
+2.27.0
+
 
 
