@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB46C2E68BE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E592E67B3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbgL1M60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:58:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
+        id S1730787AbgL1NH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:07:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728140AbgL1M6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:58:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FDDB22583;
-        Mon, 28 Dec 2020 12:58:09 +0000 (UTC)
+        id S1730776AbgL1NHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:07:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3492B208D5;
+        Mon, 28 Dec 2020 13:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160290;
-        bh=DmmkrcitPC7QTS2tPwHnuEaW7XBeQ9vxE83FylVSuew=;
+        s=korg; t=1609160804;
+        bh=/i6sFlmN61X0wPI49xuMfIOqhc5hoE42yAtMu2XvkTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmdCWThufnTr+k+ZQmeKrlnbNJLpZLpVtS2R+qI+gAdS6UYz73DOQNu+m/zHnOmQ4
-         9Hz0NybqlGpQu3Y9afbvUFiAV3zGaJ7HxpdbBF9eukZ9XB0+TFKmjgBdgEjqgGnCeb
-         Lc7c252JRRdeMaJcVicli24GXNnPw/OhNnSNCxhE=
+        b=AE5+uLLcewRIwpNqoLDYW+ErTd8WMEdN64+tIHc0xICo1yZgSFdfJ+HOkjttJfcxT
+         3sVw/aVjwbApjS+v6xbfB9xWRs2jVJB3yf3o6ofryy4VQF/ErsyiPOxCTTLvxKVZDq
+         GYhPR9iiYnEiozNzhmJU5MkNoZAAgXC9ls4Y8/ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Kleikamp <dave.kleikamp@oracle.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 4.4 122/132] jfs: Fix array index bounds check in dbAdjTree
-Date:   Mon, 28 Dec 2020 13:50:06 +0100
-Message-Id: <20201228124852.314292969@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        "Pavel Machek (CIP)" <pavel@denx.de>,
+        David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 154/175] btrfs: fix return value mixup in btrfs_get_extent
+Date:   Mon, 28 Dec 2020 13:50:07 +0100
+Message-Id: <20201228124900.718807653@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Kleikamp <dave.kleikamp@oracle.com>
+From: Pavel Machek <pavel@denx.de>
 
-commit c61b3e4839007668360ed8b87d7da96d2e59fc6c upstream.
+commit 881a3a11c2b858fe9b69ef79ac5ee9978a266dc9 upstream
 
-Bounds checking tools can flag a bug in dbAdjTree() for an array index
-out of bounds in dmt_stree. Since dmt_stree can refer to the stree in
-both structures dmaptree and dmapctl, use the larger array to eliminate
-the false positive.
+btrfs_get_extent() sets variable ret, but out: error path expect error
+to be in variable err so the error code is lost.
 
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Fixes: 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/jfs/jfs_dmap.h |    2 +-
+ fs/btrfs/inode.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jfs/jfs_dmap.h
-+++ b/fs/jfs/jfs_dmap.h
-@@ -196,7 +196,7 @@ typedef union dmtree {
- #define	dmt_leafidx	t1.leafidx
- #define	dmt_height	t1.height
- #define	dmt_budmin	t1.budmin
--#define	dmt_stree	t1.stree
-+#define	dmt_stree	t2.stree
- 
- /*
-  *	on-disk aggregate disk allocation map descriptor.
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7000,7 +7000,7 @@ again:
+ 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
+ 		/* Only regular file could have regular/prealloc extent */
+ 		if (!S_ISREG(inode->i_mode)) {
+-			ret = -EUCLEAN;
++			err = -EUCLEAN;
+ 			btrfs_crit(root->fs_info,
+ 		"regular/prealloc extent found for non-regular inode %llu",
+ 				   btrfs_ino(inode));
 
 
