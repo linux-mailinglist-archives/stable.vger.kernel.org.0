@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E25E42E64AA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 005B22E4134
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390872AbgL1NiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:38:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
+        id S2439871AbgL1OM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390876AbgL1Nh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD3B205CB;
-        Mon, 28 Dec 2020 13:37:42 +0000 (UTC)
+        id S2439864AbgL1OM0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D216207A9;
+        Mon, 28 Dec 2020 14:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162663;
-        bh=hx5Awixe06EgWyAK+aVH1feDDRscXxzMU1lXlulGg3Q=;
+        s=korg; t=1609164705;
+        bh=7m2M/trcgLtzCEtgf0iEbytIDkf/I3M5V97+ZX5PsU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tXZaF4ywIyx9xc14uQNaVsFgfF8kZcDM/8o8brxTgN1s8MkEqXltf1bueA68R1WjT
-         IfHE8x95ZlCD6Nbj14FQfidRKxcxqAbbVJfCrGCweMdZMTmwDEmVQPj6jU56WnpKJF
-         Fl9t2cUeq72WjIcXbaBdUS8/1Yq/ah5ybYBT49Jo=
+        b=tk4IjCOoXKCA/SIrTsVv2dhXOgRJXMDq2v6+RJJ72weqG6zqmZrBkvvxCjwtJpcNh
+         ts7oHoeB1XYQq6OEstICX7AJFyFCi/JgE3J9Yu6ZJmCQ9aSj3FbrFLjYF6MqzHeOuT
+         PRQKW76iNHr1SWcdohO/KlhyHB1Csg7Y0acNi4Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Amit Matityahu <mitm@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/453] RDMA/cm: Fix an attempt to use non-valid pointer when cleaning timewait
+Subject: [PATCH 5.10 268/717] SUNRPC: xprt_load_transport() needs to support the netid "rdma6"
 Date:   Mon, 28 Dec 2020 13:44:26 +0100
-Message-Id: <20201228124938.711189418@linuxfoundation.org>
+Message-Id: <20201228125033.852786357@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +40,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 340b940ea0ed12d9adbb8f72dea17d516b2019e8 ]
+[ Upstream commit d5aa6b22e2258f05317313ecc02efbb988ed6d38 ]
 
-If cm_create_timewait_info() fails, the timewait_info pointer will contain
-an error value and will be used in cm_remove_remote() later.
+According to RFC5666, the correct netid for an IPv6 addressed RDMA
+transport is "rdma6", which we've supported as a mount option since
+Linux-4.7. The problem is when we try to load the module "xprtrdma6",
+that will fail, since there is no modulealias of that name.
 
-  general protection fault, probably for non-canonical address 0xdffffc0000000024: 0000 [#1] SMP KASAN PTI
-  KASAN: null-ptr-deref in range [0×0000000000000120-0×0000000000000127]
-  CPU: 2 PID: 12446 Comm: syz-executor.3 Not tainted 5.10.0-rc5-5d4c0742a60e #27
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:cm_remove_remote.isra.0+0x24/0×170 drivers/infiniband/core/cm.c:978
-  Code: 84 00 00 00 00 00 41 54 55 53 48 89 fb 48 8d ab 2d 01 00 00 e8 7d bf 4b fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <0f> b6 04 02 48 89 ea 83 e2 07 38 d0 7f 08 84 c0 0f 85 fc 00 00 00
-  RSP: 0018:ffff888013127918 EFLAGS: 00010006
-  RAX: dffffc0000000000 RBX: fffffffffffffff4 RCX: ffffc9000a18b000
-  RDX: 0000000000000024 RSI: ffffffff82edc573 RDI: fffffffffffffff4
-  RBP: 0000000000000121 R08: 0000000000000001 R09: ffffed1002624f1d
-  R10: 0000000000000003 R11: ffffed1002624f1c R12: ffff888107760c70
-  R13: ffff888107760c40 R14: fffffffffffffff4 R15: ffff888107760c9c
-  FS:  00007fe1ffcc1700(0000) GS:ffff88811a600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2ff21000 CR3: 000000010f504001 CR4: 0000000000370ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   cm_destroy_id+0x189/0×15b0 drivers/infiniband/core/cm.c:1155
-   cma_connect_ib drivers/infiniband/core/cma.c:4029 [inline]
-   rdma_connect_locked+0x1100/0×17c0 drivers/infiniband/core/cma.c:4107
-   rdma_connect+0x2a/0×40 drivers/infiniband/core/cma.c:4140
-   ucma_connect+0x277/0×340 drivers/infiniband/core/ucma.c:1069
-   ucma_write+0x236/0×2f0 drivers/infiniband/core/ucma.c:1724
-   vfs_write+0x220/0×830 fs/read_write.c:603
-   ksys_write+0x1df/0×240 fs/read_write.c:658
-   do_syscall_64+0x33/0×40 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20201204064205.145795-1-leon@kernel.org
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Reported-by: Amit Matityahu <mitm@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 181342c5ebe8 ("xprtrdma: Add rdma6 option to support NFS/RDMA IPv6")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/sunrpc/xprt.h     |  1 +
+ net/sunrpc/xprt.c               | 65 +++++++++++++++++++++++++--------
+ net/sunrpc/xprtrdma/module.c    |  1 +
+ net/sunrpc/xprtrdma/transport.c |  1 +
+ net/sunrpc/xprtsock.c           |  4 ++
+ 5 files changed, 56 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index c1d6a068f50fe..fd7c84721b0de 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1435,6 +1435,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 							    id.local_id);
- 	if (IS_ERR(cm_id_priv->timewait_info)) {
- 		ret = PTR_ERR(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
- 		goto out;
- 	}
+diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
+index a603d48d2b2cd..3ac5037d1c3da 100644
+--- a/include/linux/sunrpc/xprt.h
++++ b/include/linux/sunrpc/xprt.h
+@@ -330,6 +330,7 @@ struct xprt_class {
+ 	struct rpc_xprt *	(*setup)(struct xprt_create *);
+ 	struct module		*owner;
+ 	char			name[32];
++	const char *		netid[];
+ };
  
-@@ -1961,6 +1962,7 @@ static int cm_req_handler(struct cm_work *work)
- 							    id.local_id);
- 	if (IS_ERR(cm_id_priv->timewait_info)) {
- 		ret = PTR_ERR(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
- 		goto destroy;
- 	}
- 	cm_id_priv->timewait_info->work.remote_id = req_msg->local_comm_id;
+ /*
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index f6c17e75f20ed..57f09ea3ef2af 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -151,31 +151,64 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(xprt_unregister_transport);
+ 
++static void
++xprt_class_release(const struct xprt_class *t)
++{
++	module_put(t->owner);
++}
++
++static const struct xprt_class *
++xprt_class_find_by_netid_locked(const char *netid)
++{
++	const struct xprt_class *t;
++	unsigned int i;
++
++	list_for_each_entry(t, &xprt_list, list) {
++		for (i = 0; t->netid[i][0] != '\0'; i++) {
++			if (strcmp(t->netid[i], netid) != 0)
++				continue;
++			if (!try_module_get(t->owner))
++				continue;
++			return t;
++		}
++	}
++	return NULL;
++}
++
++static const struct xprt_class *
++xprt_class_find_by_netid(const char *netid)
++{
++	const struct xprt_class *t;
++
++	spin_lock(&xprt_list_lock);
++	t = xprt_class_find_by_netid_locked(netid);
++	if (!t) {
++		spin_unlock(&xprt_list_lock);
++		request_module("rpc%s", netid);
++		spin_lock(&xprt_list_lock);
++		t = xprt_class_find_by_netid_locked(netid);
++	}
++	spin_unlock(&xprt_list_lock);
++	return t;
++}
++
+ /**
+  * xprt_load_transport - load a transport implementation
+- * @transport_name: transport to load
++ * @netid: transport to load
+  *
+  * Returns:
+  * 0:		transport successfully loaded
+  * -ENOENT:	transport module not available
+  */
+-int xprt_load_transport(const char *transport_name)
++int xprt_load_transport(const char *netid)
+ {
+-	struct xprt_class *t;
+-	int result;
++	const struct xprt_class *t;
+ 
+-	result = 0;
+-	spin_lock(&xprt_list_lock);
+-	list_for_each_entry(t, &xprt_list, list) {
+-		if (strcmp(t->name, transport_name) == 0) {
+-			spin_unlock(&xprt_list_lock);
+-			goto out;
+-		}
+-	}
+-	spin_unlock(&xprt_list_lock);
+-	result = request_module("xprt%s", transport_name);
+-out:
+-	return result;
++	t = xprt_class_find_by_netid(netid);
++	if (!t)
++		return -ENOENT;
++	xprt_class_release(t);
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(xprt_load_transport);
+ 
+diff --git a/net/sunrpc/xprtrdma/module.c b/net/sunrpc/xprtrdma/module.c
+index 620327c01302c..45c5b41ac8dc9 100644
+--- a/net/sunrpc/xprtrdma/module.c
++++ b/net/sunrpc/xprtrdma/module.c
+@@ -24,6 +24,7 @@ MODULE_DESCRIPTION("RPC/RDMA Transport");
+ MODULE_LICENSE("Dual BSD/GPL");
+ MODULE_ALIAS("svcrdma");
+ MODULE_ALIAS("xprtrdma");
++MODULE_ALIAS("rpcrdma6");
+ 
+ static void __exit rpc_rdma_cleanup(void)
+ {
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 8915e42240d38..035060c05fd5a 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -768,6 +768,7 @@ static struct xprt_class xprt_rdma = {
+ 	.owner			= THIS_MODULE,
+ 	.ident			= XPRT_TRANSPORT_RDMA,
+ 	.setup			= xprt_setup_rdma,
++	.netid			= { "rdma", "rdma6", "" },
+ };
+ 
+ void xprt_rdma_cleanup(void)
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 7090bbee0ec59..c93ff70da3f98 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -3059,6 +3059,7 @@ static struct xprt_class	xs_local_transport = {
+ 	.owner		= THIS_MODULE,
+ 	.ident		= XPRT_TRANSPORT_LOCAL,
+ 	.setup		= xs_setup_local,
++	.netid		= { "" },
+ };
+ 
+ static struct xprt_class	xs_udp_transport = {
+@@ -3067,6 +3068,7 @@ static struct xprt_class	xs_udp_transport = {
+ 	.owner		= THIS_MODULE,
+ 	.ident		= XPRT_TRANSPORT_UDP,
+ 	.setup		= xs_setup_udp,
++	.netid		= { "udp", "udp6", "" },
+ };
+ 
+ static struct xprt_class	xs_tcp_transport = {
+@@ -3075,6 +3077,7 @@ static struct xprt_class	xs_tcp_transport = {
+ 	.owner		= THIS_MODULE,
+ 	.ident		= XPRT_TRANSPORT_TCP,
+ 	.setup		= xs_setup_tcp,
++	.netid		= { "tcp", "tcp6", "" },
+ };
+ 
+ static struct xprt_class	xs_bc_tcp_transport = {
+@@ -3083,6 +3086,7 @@ static struct xprt_class	xs_bc_tcp_transport = {
+ 	.owner		= THIS_MODULE,
+ 	.ident		= XPRT_TRANSPORT_BC_TCP,
+ 	.setup		= xs_setup_bc_tcp,
++	.netid		= { "" },
+ };
+ 
+ /**
 -- 
 2.27.0
 
