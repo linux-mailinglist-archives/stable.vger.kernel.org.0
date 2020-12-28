@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA702E4191
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6162B2E418B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440288AbgL1PIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:08:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42300 "EHLO mail.kernel.org"
+        id S2440177AbgL1PIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:08:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438606AbgL1OIL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:08:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78D6822BF3;
-        Mon, 28 Dec 2020 14:07:55 +0000 (UTC)
+        id S2438635AbgL1OIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:08:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23EA8206D8;
+        Mon, 28 Dec 2020 14:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164476;
-        bh=yUnsg7Y2RZWDBhbIFotTajM4xrb9o9ofOCs6HDfpEsU=;
+        s=korg; t=1609164481;
+        bh=ZqUsvu8KzQ1vUMlvBPlC52wtDRcvm2/ghO01IpU3amc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hL9T8MGoRDzhixfZEILd54B/Dy/+inIup+LRinzc+/f6W9ABIETsSF/Q/2Ort2gJF
-         zMUcPyjpd4YA8sZx57+CZ8g2FnfklNpXNq8KiPGx8xwZGBbhYXySwj3PjO3QwLJ0JM
-         aJbgHU2/G4ie5P41rmh7IyKdGhRqwTwNy/Ny/uGs=
+        b=jBlKzKZgcVsd126u7/Xe2/UfjqZxiByjQzK4xez4Ex3i8bUTOxSpjiWeBMURo2ajz
+         vYfSd4PhHJ9/B9yCWeSfMEFONNTDbp1SRz7WDv32PW/CRDrfgvkOl2D4uDiU2l8Q65
+         JV8hil4HRDvELtZcb/qU7k28skyeWgCW3eTfpxHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 194/717] ARM: dts: at91: sama5d3_xplained: add pincontrol for USB Host
-Date:   Mon, 28 Dec 2020 13:43:12 +0100
-Message-Id: <20201228125030.262341457@linuxfoundation.org>
+Subject: [PATCH 5.10 195/717] mmc: pxamci: Fix error return code in pxamci_probe
+Date:   Mon, 28 Dec 2020 13:43:13 +0100
+Message-Id: <20201228125030.309885938@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,49 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Birsan <cristian.birsan@microchip.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit e1062fa7292f1e3744db0a487c4ac0109e09b03d ]
+[ Upstream commit d7b819b5d33869d41bdaa427aeb98ae24c57a38b ]
 
-The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
-it the driver probes but VBus is not powered because of wrong pincontrol
-configuration.
+Fix to return the error code from devm_gpiod_get_optional() instaed
+of 0 in pxamci_probe().
 
-Fixes: b7c2b61570798 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
-Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Link: https://lore.kernel.org/r/20201118120019.1257580-4-cristian.birsan@microchip.com
+Fixes: f54005b508b9a9d9c ("mmc: pxa: Use GPIO descriptor for power")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20201121021431.3168506-1-chengzhihao1@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d3_xplained.dts | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/mmc/host/pxamci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-index cf13632edd444..5179258f92470 100644
---- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-@@ -242,6 +242,11 @@
- 						atmel,pins =
- 							<AT91_PIOE 9 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PE9, conflicts with A9 */
- 					};
-+					pinctrl_usb_default: usb_default {
-+						atmel,pins =
-+							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 			};
- 		};
-@@ -259,6 +264,8 @@
- 					   &pioE 3 GPIO_ACTIVE_LOW
- 					   &pioE 4 GPIO_ACTIVE_LOW
- 					  >;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usb_default>;
- 			status = "okay";
- 		};
+diff --git a/drivers/mmc/host/pxamci.c b/drivers/mmc/host/pxamci.c
+index 29f6180a00363..316393c694d7a 100644
+--- a/drivers/mmc/host/pxamci.c
++++ b/drivers/mmc/host/pxamci.c
+@@ -731,6 +731,7 @@ static int pxamci_probe(struct platform_device *pdev)
  
+ 		host->power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+ 		if (IS_ERR(host->power)) {
++			ret = PTR_ERR(host->power);
+ 			dev_err(dev, "Failed requesting gpio_power\n");
+ 			goto out;
+ 		}
 -- 
 2.27.0
 
