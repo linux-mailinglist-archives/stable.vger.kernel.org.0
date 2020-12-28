@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E3412E67EB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3F12E68CE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633682AbgL1Qah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:30:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34254 "EHLO mail.kernel.org"
+        id S1729234AbgL1Qln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:41:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729637AbgL1NGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:06:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3228207C9;
-        Mon, 28 Dec 2020 13:05:50 +0000 (UTC)
+        id S1729169AbgL1M6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2BC222582;
+        Mon, 28 Dec 2020 12:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160751;
-        bh=UAFTBRjOWayQArKHk2ibWenA7R1IHmPQWIiHUJtUm0M=;
+        s=korg; t=1609160270;
+        bh=h9w9nHCIMZgjbIHXobug3CduX4tI1LSmXUJys5xVxQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJwjK+Olzo8cvEng+RE3MSYMwq3LJROE0oU9MlkzSTpEiLiBqU8+BAdtrpBe/amnk
-         sk+RjojDW25m61kqHPapH7C1nQZSELZClxIal3nhWQOwmWZvNh341fcMQqfygXcrBY
-         wkoBOC/AKdFcvH9qUGY+zufkaAT0gS1xqogHK3vw=
+        b=ysCxeidMEarbGw1PeUbTP3v3ft6aLY0p58uQDVAnZY1AdMf8STzuynUD2wUgxhpDP
+         lVXswcK40tmhwM4wuvw9tx6LXzmBexXoxGJWAgiB1G1JA3XbfVlPD3yKf29cD3TqZt
+         jXUxfxRBZUSvLh2U5PhUOiXaDQLa1SWRauXRvmIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 118/175] powerpc/ps3: use dma_mapping_error()
+Subject: [PATCH 4.4 087/132] net: bcmgenet: Fix a resource leak in an error handling path in the probe functin
 Date:   Mon, 28 Dec 2020 13:49:31 +0100
-Message-Id: <20201228124858.973482136@linuxfoundation.org>
+Message-Id: <20201228124850.643554099@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d0edaa28a1f7830997131cbce87b6c52472825d1 ]
+[ Upstream commit 4375ada01963d1ebf733d60d1bb6e5db401e1ac6 ]
 
-The DMA address returned by dma_map_single() should be checked with
-dma_mapping_error(). Fix the ps3stor_setup() function accordingly.
+If the 'register_netdev()' call fails, we must undo a previous
+'bcmgenet_mii_init()' call.
 
-Fixes: 80071802cb9c ("[POWERPC] PS3: Storage Driver Core")
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201213182622.23047-1-vincent.stehle@laposte.net
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20201212182005.120437-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ps3/ps3stor_lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ps3/ps3stor_lib.c b/drivers/ps3/ps3stor_lib.c
-index 8c3f5adf1bc65..2d76183756626 100644
---- a/drivers/ps3/ps3stor_lib.c
-+++ b/drivers/ps3/ps3stor_lib.c
-@@ -201,7 +201,7 @@ int ps3stor_setup(struct ps3_storage_device *dev, irq_handler_t handler)
- 	dev->bounce_lpar = ps3_mm_phys_to_lpar(__pa(dev->bounce_buf));
- 	dev->bounce_dma = dma_map_single(&dev->sbd.core, dev->bounce_buf,
- 					 dev->bounce_size, DMA_BIDIRECTIONAL);
--	if (!dev->bounce_dma) {
-+	if (dma_mapping_error(&dev->sbd.core, dev->bounce_dma)) {
- 		dev_err(&dev->sbd.core, "%s:%u: map DMA region failed\n",
- 			__func__, __LINE__);
- 		error = -ENODEV;
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index bae8df9517808..3a6cebff9f426 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -3518,8 +3518,10 @@ static int bcmgenet_probe(struct platform_device *pdev)
+ 	clk_disable_unprepare(priv->clk);
+ 
+ 	err = register_netdev(dev);
+-	if (err)
++	if (err) {
++		bcmgenet_mii_exit(dev);
+ 		goto err;
++	}
+ 
+ 	return err;
+ 
 -- 
 2.27.0
 
