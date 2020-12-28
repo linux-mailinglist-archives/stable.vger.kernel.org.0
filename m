@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE422E40A9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93DCC2E640D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440770AbgL1ORD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:17:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
+        id S2391964AbgL1Pqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:46:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438885AbgL1OPs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:15:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 191142063A;
-        Mon, 28 Dec 2020 14:15:06 +0000 (UTC)
+        id S2404470AbgL1NoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2199D208B3;
+        Mon, 28 Dec 2020 13:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164907;
-        bh=8Ms/lSEYHBmgeXBQgEazfZHhVpyEwc9ERK9/wEkTuF0=;
+        s=korg; t=1609163023;
+        bh=1UMIi5cA6bV/1FYQ8Z0Hc6qGD11glO1XaIT1zqVgcLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuDD/exp5j9gb4Okf5JX7VeUH0cQwAY7wPo4aj2F5x9EiV7kGBEv2fRkN+OPYf5El
-         NlBe5GBGBJcAD4UKP1B1gzuSlazuy5qMbyc6UscKd+nXFHNLXKhBkUk5LdN49PxK06
-         9sJpudWOeGPIPaVTNkQC92M7b453KkUeS4qbV944=
+        b=tJnSbYn4fQ76+lY2PEjpn96m8xCOv3syedR6sDJk07f7sBMnnvjCApbs5NfNoURge
+         LwCkB3flhuMK+f6JdmEWDttSde8wBk0E0cZ5wE4avM8Dv0mT8/U2KFrQ408YZMNLrK
+         LY2khq6/72iKIuc32pLsIayi8bs0bqZye1Q876qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Luiz Augusto Von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 340/717] Bluetooth: sco: Fix crash when using BT_SNDMTU/BT_RCVMTU option
+Subject: [PATCH 5.4 102/453] f2fs: call f2fs_get_meta_page_retry for nat page
 Date:   Mon, 28 Dec 2020 13:45:38 +0100
-Message-Id: <20201228125037.311778744@linuxfoundation.org>
+Message-Id: <20201228124942.126906185@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit f6b8c6b5543983e9de29dc14716bfa4eb3f157c4 ]
+[ Upstream commit 3acc4522d89e0a326db69e9d0afaad8cf763a54c ]
 
-This commit add the invalid check for connected socket, without it will
-causes the following crash due to sco_pi(sk)->conn being NULL:
+When running fault injection test, if we don't stop checkpoint, some stale
+NAT entries were flushed which breaks consistency.
 
-KASAN: null-ptr-deref in range [0x0000000000000050-0x0000000000000057]
-CPU: 3 PID: 4284 Comm: test_sco Not tainted 5.10.0-rc3+ #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-RIP: 0010:sco_sock_getsockopt+0x45d/0x8e0
-Code: 48 c1 ea 03 80 3c 02 00 0f 85 ca 03 00 00 49 8b 9d f8 04 00 00 48 b8 00
-      00 00 00 00 fc ff df 48 8d 7b 50 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84
-      c0 74 08 3c 03 0f 8e b5 03 00 00 8b 43 50 48 8b 0c
-RSP: 0018:ffff88801bb17d88 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff83a4ecdf
-RDX: 000000000000000a RSI: ffffc90002fce000 RDI: 0000000000000050
-RBP: 1ffff11003762fb4 R08: 0000000000000001 R09: ffff88810e1008c0
-R10: ffffffffbd695dcf R11: fffffbfff7ad2bb9 R12: 0000000000000000
-R13: ffff888018ff1000 R14: dffffc0000000000 R15: 000000000000000d
-FS:  00007fb4f76c1700(0000) GS:ffff88811af80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00005555e3b7a938 CR3: 00000001117be001 CR4: 0000000000770ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- ? sco_skb_put_cmsg+0x80/0x80
- ? sco_skb_put_cmsg+0x80/0x80
- __sys_getsockopt+0x12a/0x220
- ? __ia32_sys_setsockopt+0x150/0x150
- ? syscall_enter_from_user_mode+0x18/0x50
- ? rcu_read_lock_bh_held+0xb0/0xb0
- __x64_sys_getsockopt+0xba/0x150
- ? syscall_enter_from_user_mode+0x1d/0x50
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 0fc1a726f897 ("Bluetooth: sco: new getsockopt options BT_SNDMTU/BT_RCVMTU")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Luiz Augusto Von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Fixes: 86f33603f8c5 ("f2fs: handle errors of f2fs_get_meta_page_nofail")
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/f2fs/node.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 79ffcdef0b7ad..22a110f37abc6 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -1003,6 +1003,11 @@ static int sco_sock_getsockopt(struct socket *sock, int level, int optname,
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 2a4a382f28fed..3ac2a4b32375d 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -109,7 +109,7 @@ static void clear_node_page_dirty(struct page *page)
  
- 	case BT_SNDMTU:
- 	case BT_RCVMTU:
-+		if (sk->sk_state != BT_CONNECTED) {
-+			err = -ENOTCONN;
-+			break;
-+		}
-+
- 		if (put_user(sco_pi(sk)->conn->mtu, (u32 __user *)optval))
- 			err = -EFAULT;
- 		break;
+ static struct page *get_current_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
+ {
+-	return f2fs_get_meta_page(sbi, current_nat_addr(sbi, nid));
++	return f2fs_get_meta_page_retry(sbi, current_nat_addr(sbi, nid));
+ }
+ 
+ static struct page *get_next_nat_page(struct f2fs_sb_info *sbi, nid_t nid)
 -- 
 2.27.0
 
