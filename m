@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ACD52E3BFC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14F12E652C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406528AbgL1N5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:57:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58676 "EHLO mail.kernel.org"
+        id S2387437AbgL1NeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:34:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406512AbgL1N5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36CAA20731;
-        Mon, 28 Dec 2020 13:56:25 +0000 (UTC)
+        id S2388074AbgL1NeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:34:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F350020728;
+        Mon, 28 Dec 2020 13:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163785;
-        bh=gRqv+bXUF7OfOcorPigBcxLaD+/i8zlRLh0gtR/jp0A=;
+        s=korg; t=1609162403;
+        bh=HgdXahm1Zzqe7TN4Ff96NVdu2PDMzEhyVy3av+zvSio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCexUYnKBG4SswQ55OnqnWheEUZa7z8NAQn2gDfFMEplO881zLAwTrYG/BNqHfb18
-         Pqh6xKNcs/yl52utj8W5DdCHHx1Ct6Miaycb0gG5xfNRxd0np/y/4sXgtwx7g+yEFj
-         wAx9smK8Vp0KBuppAQZWB4G8QSQFltHqbw3Ah8fQ=
+        b=EOmQHwcmj1B8ZESOPAdSGsUSV2Rf++z11CTjcV57eykGb456Ex0uXB06IXpOCX8bK
+         FV1NghQ5hY/Vo4RCHyWJcDMlrhDYvYS/5retcdAJXLUV21KULu8IN8Se8jlYArrrFY
+         a0hxV0mPN6T4DXSoxxuE8UIK6uMvv682huYQPips=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 376/453] KVM: arm64: Introduce handling of AArch32 TTBCR2 traps
-Date:   Mon, 28 Dec 2020 13:50:12 +0100
-Message-Id: <20201228124955.296753643@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 294/346] USB: serial: keyspan_pda: fix write-wakeup use-after-free
+Date:   Mon, 28 Dec 2020 13:50:13 +0100
+Message-Id: <20201228124933.992647020@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit ca4e514774930f30b66375a974b5edcbebaf0e7e upstream.
+commit 37faf50615412947868c49aee62f68233307f4e4 upstream.
 
-ARMv8.2 introduced TTBCR2, which shares TCR_EL1 with TTBCR.
-Gracefully handle traps to this register when HCR_EL2.TVM is set.
+The driver's deferred write wakeup was never flushed on disconnect,
+something which could lead to the driver port data being freed while the
+wakeup work is still scheduled.
 
+Fix this by using the usb-serial write wakeup which gets cancelled
+properly on disconnect.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/serial/keyspan_pda.c |   17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -182,6 +182,7 @@ enum vcpu_sysreg {
- #define c2_TTBR1	(TTBR1_EL1 * 2)	/* Translation Table Base Register 1 */
- #define c2_TTBR1_high	(c2_TTBR1 + 1)	/* TTBR1 top 32 bits */
- #define c2_TTBCR	(TCR_EL1 * 2)	/* Translation Table Base Control R. */
-+#define c2_TTBCR2	(c2_TTBCR + 1)	/* Translation Table Base Control R. 2 */
- #define c3_DACR		(DACR32_EL2 * 2)/* Domain Access Control Register */
- #define c5_DFSR		(ESR_EL1 * 2)	/* Data Fault Status Register */
- #define c5_IFSR		(IFSR32_EL2 * 2)/* Instruction Fault Status Register */
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1837,6 +1837,7 @@ static const struct sys_reg_desc cp15_re
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 0), access_vm_reg, NULL, c2_TTBR0 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 1), access_vm_reg, NULL, c2_TTBR1 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 2), access_vm_reg, NULL, c2_TTBCR },
-+	{ Op1( 0), CRn( 2), CRm( 0), Op2( 3), access_vm_reg, NULL, c2_TTBCR2 },
- 	{ Op1( 0), CRn( 3), CRm( 0), Op2( 0), access_vm_reg, NULL, c3_DACR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 0), access_vm_reg, NULL, c5_DFSR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 1), access_vm_reg, NULL, c5_IFSR },
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -43,8 +43,7 @@
+ struct keyspan_pda_private {
+ 	int			tx_room;
+ 	int			tx_throttled;
+-	struct work_struct			wakeup_work;
+-	struct work_struct			unthrottle_work;
++	struct work_struct	unthrottle_work;
+ 	struct usb_serial	*serial;
+ 	struct usb_serial_port	*port;
+ };
+@@ -97,15 +96,6 @@ static const struct usb_device_id id_tab
+ };
+ #endif
+ 
+-static void keyspan_pda_wakeup_write(struct work_struct *work)
+-{
+-	struct keyspan_pda_private *priv =
+-		container_of(work, struct keyspan_pda_private, wakeup_work);
+-	struct usb_serial_port *port = priv->port;
+-
+-	tty_port_tty_wakeup(&port->port);
+-}
+-
+ static void keyspan_pda_request_unthrottle(struct work_struct *work)
+ {
+ 	struct keyspan_pda_private *priv =
+@@ -183,7 +173,7 @@ static void keyspan_pda_rx_interrupt(str
+ 		case 2: /* tx unthrottle interrupt */
+ 			priv->tx_throttled = 0;
+ 			/* queue up a wakeup at scheduler time */
+-			schedule_work(&priv->wakeup_work);
++			usb_serial_port_softint(port);
+ 			break;
+ 		default:
+ 			break;
+@@ -563,7 +553,7 @@ static void keyspan_pda_write_bulk_callb
+ 	priv = usb_get_serial_port_data(port);
+ 
+ 	/* queue up a wakeup at scheduler time */
+-	schedule_work(&priv->wakeup_work);
++	usb_serial_port_softint(port);
+ }
+ 
+ 
+@@ -716,7 +706,6 @@ static int keyspan_pda_port_probe(struct
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	INIT_WORK(&priv->wakeup_work, keyspan_pda_wakeup_write);
+ 	INIT_WORK(&priv->unthrottle_work, keyspan_pda_request_unthrottle);
+ 	priv->serial = port->serial;
+ 	priv->port = port;
 
 
