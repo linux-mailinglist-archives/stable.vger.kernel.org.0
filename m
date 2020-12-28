@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE592E42FF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A65082E3E56
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391558AbgL1Nx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:53:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55282 "EHLO mail.kernel.org"
+        id S2503353AbgL1O1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391551AbgL1NxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE90205CB;
-        Mon, 28 Dec 2020 13:52:42 +0000 (UTC)
+        id S2503333AbgL1OZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E819E207B2;
+        Mon, 28 Dec 2020 14:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163563;
-        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
+        s=korg; t=1609165539;
+        bh=sHRTlPOkrSFBIDafdngq/slEC7jkGCdrz9KNv3Til88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTvefcYTq9+m7AVWw/wn5NEicWUChSycBcl/yysZPqqoJFf1WphsPhVykaMwO97XW
-         lGYN81iAzQYivLUqtOJvB7WLNDUCH5zcI6clOk0IF0GqxNya67Pegr0yT3xaV85Fbw
-         M5Wu6y+7FGjphXiu6jE+Qpphv0qPNeGKAs3hoFQQ=
+        b=a1mosDMt2Nv9d8TMfalZP9DtLRPzJ36NpZaD+AnBOnb82qJ7Ju0zwVvW7wjuTlLB4
+         4LODEVdweLFZqU15wKWk3W3+VxkYzdFV+LkVGYRewFV7RMXHlR1W/Xha7ox2Lt5HA2
+         HgS0+qcrx+s6eUpvU0WWxU8SAepRsYp9lr828lXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 329/453] Input: cyapa_gen6 - fix out-of-bounds stack access
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 567/717] perf/x86/intel: Fix rtm_abort_event encoding on Ice Lake
 Date:   Mon, 28 Dec 2020 13:49:25 +0100
-Message-Id: <20201228124953.049408937@linuxfoundation.org>
+Message-Id: <20201228125048.077008967@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
+commit 46b72e1bf4fc571da0c29c6fb3e5b2a2107a4c26 upstream.
 
-gcc -Warray-bounds warns about a serious bug in
-cyapa_pip_retrieve_data_structure:
+According to the event list from icelake_core_v1.09.json, the encoding
+of the RTM_RETIRED.ABORTED event on Ice Lake should be,
+    "EventCode": "0xc9",
+    "UMask": "0x04",
+    "EventName": "RTM_RETIRED.ABORTED",
 
-drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
-include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
-   40 |  *((__le16 *)p) = cpu_to_le16(val);
-drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
-  569 |  } __packed cmd;
-      |             ^~~
+Correct the wrong encoding.
 
-Apparently the '-2' was added to the pointer instead of the value,
-writing garbage into the stack next to this variable.
-
-Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lkml.kernel.org/r/20201125213720.15692-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/cyapa_gen6.c |    2 +-
+ arch/x86/events/intel/core.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
- 
- 	memset(&cmd, 0, sizeof(cmd));
- 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
--	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
-+	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
- 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
- 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
- 	put_unaligned_le16(read_offset, &cmd.read_offset);
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -5465,7 +5465,7 @@ __init int intel_pmu_init(void)
+ 		mem_attr = icl_events_attrs;
+ 		td_attr = icl_td_events_attrs;
+ 		tsx_attr = icl_tsx_events_attrs;
+-		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xca, .umask=0x02);
++		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xc9, .umask=0x04);
+ 		x86_pmu.lbr_pt_coexist = true;
+ 		intel_pmu_pebs_data_source_skl(pmem);
+ 		x86_pmu.update_topdown_event = icl_update_topdown_event;
 
 
