@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DCC12E61BF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 531EF2E3861
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405932AbgL1Nsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:48:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49620 "EHLO mail.kernel.org"
+        id S1731177AbgL1NJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:09:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405848AbgL1Nsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:48:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 165F92063A;
-        Mon, 28 Dec 2020 13:48:22 +0000 (UTC)
+        id S1731160AbgL1NJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:09:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E0422B47;
+        Mon, 28 Dec 2020 13:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163303;
-        bh=ar/xG6t1B+avNyc7YJs7GYtrA8Yv1sU0e4o8oeCFxgk=;
+        s=korg; t=1609160944;
+        bh=g/4f5Xc7ROlr45Ko0wP8u+ZhDu3oOij8mjHyT7godJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj1AXrrGJOqnDhB8ca7mEnJzH0APHwCalnxD7mNqozGA3KZuXH6EE8cy/oU3l5Y0H
-         nv358xXqAAKoiC1d+hr3nR92/M0ZiEAd5PVXw5sCwIZ/Vn8gm4NYIABSUKBVSZtu52
-         VTO8I99ha99OFhX/g6SLKhf/HguZDsveOZhChkJ0=
+        b=vsLtPLLbpxpupaE2XjN4P9aWAOOKho6MJVZbolVy9wvjqNaeXZeaomrW0Eu3VSFn8
+         h53sNhsRrVJr2aSKYUkyHM8tQSNEl2DSB892HZnmNixG0WWbSOQGjIY5k55ZmuCsUx
+         en7GXMPzNfiTRxzTquIgIsSfRb8bykRJq9NzeGi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 209/453] media: saa7146: fix array overflow in vidioc_s_audio()
+Subject: [PATCH 4.14 040/242] can: softing: softing_netdev_open(): fix error handling
 Date:   Mon, 28 Dec 2020 13:47:25 +0100
-Message-Id: <20201228124947.276041434@linuxfoundation.org>
+Message-Id: <20201228124906.644879306@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 8e4d86e241cf035d6d3467cd346e7ce490681937 ]
+[ Upstream commit 4d1be581ec6b92a338bb7ed23e1381f45ddf336f ]
 
-The "a->index" value comes from the user via the ioctl.  The problem is
-that the shift can wrap resulting in setting "mxb->cur_audinput" to an
-invalid value, which later results in an array overflow.
+If softing_netdev_open() fails, we should call close_candev() to avoid
+reference leak.
 
-Fixes: 6680427791c9 ("[media] mxb: fix audio handling")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 03fd3cf5a179d ("can: add driver for Softing card")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Link: https://lore.kernel.org/r/20201202151632.1343786-1-zhangqilong3@huawei.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/r/20201204133508.742120-2-mkl@pengutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7146/mxb.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/net/can/softing/softing_main.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
-index e6a71c17566d2..952ea250feda0 100644
---- a/drivers/media/pci/saa7146/mxb.c
-+++ b/drivers/media/pci/saa7146/mxb.c
-@@ -641,16 +641,17 @@ static int vidioc_s_audio(struct file *file, void *fh, const struct v4l2_audio *
- 	struct mxb *mxb = (struct mxb *)dev->ext_priv;
+diff --git a/drivers/net/can/softing/softing_main.c b/drivers/net/can/softing/softing_main.c
+index 5f64deec9f6c1..26b3072daabd6 100644
+--- a/drivers/net/can/softing/softing_main.c
++++ b/drivers/net/can/softing/softing_main.c
+@@ -393,8 +393,13 @@ static int softing_netdev_open(struct net_device *ndev)
  
- 	DEB_D("VIDIOC_S_AUDIO %d\n", a->index);
--	if (mxb_inputs[mxb->cur_input].audioset & (1 << a->index)) {
--		if (mxb->cur_audinput != a->index) {
--			mxb->cur_audinput = a->index;
--			tea6420_route(mxb, a->index);
--			if (mxb->cur_audinput == 0)
--				mxb_update_audmode(mxb);
--		}
--		return 0;
-+	if (a->index >= 32 ||
-+	    !(mxb_inputs[mxb->cur_input].audioset & (1 << a->index)))
-+		return -EINVAL;
+ 	/* check or determine and set bittime */
+ 	ret = open_candev(ndev);
+-	if (!ret)
+-		ret = softing_startstop(ndev, 1);
++	if (ret)
++		return ret;
 +
-+	if (mxb->cur_audinput != a->index) {
-+		mxb->cur_audinput = a->index;
-+		tea6420_route(mxb, a->index);
-+		if (mxb->cur_audinput == 0)
-+			mxb_update_audmode(mxb);
- 	}
--	return -EINVAL;
-+	return 0;
++	ret = softing_startstop(ndev, 1);
++	if (ret < 0)
++		close_candev(ndev);
++
+ 	return ret;
  }
  
- #ifdef CONFIG_VIDEO_ADV_DEBUG
 -- 
 2.27.0
 
