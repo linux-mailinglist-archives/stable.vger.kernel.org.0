@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787AC2E3F1F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3EA2E3CEE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505210AbgL1OfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:35:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
+        id S2438747AbgL1OI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:08:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505022AbgL1Od1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:33:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACB4D20715;
-        Mon, 28 Dec 2020 14:33:11 +0000 (UTC)
+        id S2438717AbgL1OI5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:08:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D9D2205CB;
+        Mon, 28 Dec 2020 14:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165992;
-        bh=IxFc7aTdCQTIMkYAxsagQUyI2b3lyctfvlzezdqIlAs=;
+        s=korg; t=1609164522;
+        bh=IWlUGcXcpSqxeRF9LeGhQQP2euCF37w8cNULYYO1ozA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgDNz5/hU2tznEgxnxfNH+k3IoaLUJ0guIK4YeIjZXOTc0Q/jBZ81JdKkf/bbVuRS
-         6NQ+sXd7Ro9VoK4JoyD1UA+0ajeo6nqQzLcNOkuz6Qh113NpTrkZqsF6zXyxswAYgP
-         q12rbqZIj7EMn+mfstgDChRz0hdzbwuxLKxneXAc=
+        b=l31Z/3IbJ7sONsrc/9lH0Uh1ZIfamUXW9cc6cf/tN77DEmDwcqnx0akc6kpkdll6J
+         Iyl3osUMmpJ4/hEkCW92KNuN5tS+mSnidEes3hMsP0NGcywMQafP7AgrFIRDlA3aCM
+         g5YxLtpj2hdH9RWErW917qm9YPdtx6WYs1xCLtMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 203/717] leds: netxbig: add missing put_device() call in netxbig_leds_get_of_pdata()
-Date:   Mon, 28 Dec 2020 13:43:21 +0100
-Message-Id: <20201228125030.706869763@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Murphy <dmurphy@ti.com>, Pavel Machek <pavel@ucw.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 204/717] leds: lp50xx: Fix an error handling path in lp50xx_probe_dt()
+Date:   Mon, 28 Dec 2020 13:43:22 +0100
+Message-Id: <20201228125030.755655060@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -39,102 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 311066aa9ebcd6f1789c829da5039ca02f2dfe46 ]
+[ Upstream commit 6d8d014c7dcf85a79da71ef586d06d03d2cae558 ]
 
-if of_find_device_by_node() succeed, netxbig_leds_get_of_pdata() doesn't
-have a corresponding put_device(). Thus add jump target to fix the
-exception handling for this function implementation.
+In case of memory allocation failure, we must release some resources as
+done in all other error handling paths of the function.
 
-Fixes: 2976b1798909 ("leds: netxbig: add device tree binding")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+'goto child_out' instead of a direct return so that 'fwnode_handle_put()'
+is called when we break out of a 'device_for_each_child_node' loop.
+
+Fixes: 242b81170fb8 ("leds: lp50xx: Add the LP50XX family of the RGB LED driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Dan Murphy <dmurphy@ti.com>
 Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-netxbig.c | 35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ drivers/leds/leds-lp50xx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/leds/leds-netxbig.c b/drivers/leds/leds-netxbig.c
-index e6fd47365b588..68fbf0b66fadd 100644
---- a/drivers/leds/leds-netxbig.c
-+++ b/drivers/leds/leds-netxbig.c
-@@ -448,31 +448,39 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
- 	gpio_ext = devm_kzalloc(dev, sizeof(*gpio_ext), GFP_KERNEL);
- 	if (!gpio_ext) {
- 		of_node_put(gpio_ext_np);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto put_device;
- 	}
- 	ret = netxbig_gpio_ext_get(dev, gpio_ext_dev, gpio_ext);
- 	of_node_put(gpio_ext_np);
- 	if (ret)
--		return ret;
-+		goto put_device;
- 	pdata->gpio_ext = gpio_ext;
- 
- 	/* Timers (optional) */
- 	ret = of_property_count_u32_elems(np, "timers");
- 	if (ret > 0) {
--		if (ret % 3)
--			return -EINVAL;
-+		if (ret % 3) {
-+			ret = -EINVAL;
-+			goto put_device;
-+		}
-+
- 		num_timers = ret / 3;
- 		timers = devm_kcalloc(dev, num_timers, sizeof(*timers),
- 				      GFP_KERNEL);
--		if (!timers)
+diff --git a/drivers/leds/leds-lp50xx.c b/drivers/leds/leds-lp50xx.c
+index 5fb4f24aeb2e8..f13117eed976d 100644
+--- a/drivers/leds/leds-lp50xx.c
++++ b/drivers/leds/leds-lp50xx.c
+@@ -487,8 +487,10 @@ static int lp50xx_probe_dt(struct lp50xx *priv)
+ 		 */
+ 		mc_led_info = devm_kcalloc(priv->dev, LP50XX_LEDS_PER_MODULE,
+ 					   sizeof(*mc_led_info), GFP_KERNEL);
+-		if (!mc_led_info)
 -			return -ENOMEM;
-+		if (!timers) {
++		if (!mc_led_info) {
 +			ret = -ENOMEM;
-+			goto put_device;
++			goto child_out;
 +		}
- 		for (i = 0; i < num_timers; i++) {
- 			u32 tmp;
  
- 			of_property_read_u32_index(np, "timers", 3 * i,
- 						   &timers[i].mode);
--			if (timers[i].mode >= NETXBIG_LED_MODE_NUM)
--				return -EINVAL;
-+			if (timers[i].mode >= NETXBIG_LED_MODE_NUM) {
-+				ret = -EINVAL;
-+				goto put_device;
-+			}
- 			of_property_read_u32_index(np, "timers",
- 						   3 * i + 1, &tmp);
- 			timers[i].delay_on = tmp;
-@@ -488,12 +496,15 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
- 	num_leds = of_get_available_child_count(np);
- 	if (!num_leds) {
- 		dev_err(dev, "No LED subnodes found in DT\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto put_device;
- 	}
- 
- 	leds = devm_kcalloc(dev, num_leds, sizeof(*leds), GFP_KERNEL);
--	if (!leds)
--		return -ENOMEM;
-+	if (!leds) {
-+		ret = -ENOMEM;
-+		goto put_device;
-+	}
- 
- 	led = leds;
- 	for_each_available_child_of_node(np, child) {
-@@ -574,6 +585,8 @@ static int netxbig_leds_get_of_pdata(struct device *dev,
- 
- err_node_put:
- 	of_node_put(child);
-+put_device:
-+	put_device(gpio_ext_dev);
- 	return ret;
- }
- 
+ 		fwnode_for_each_child_node(child, led_node) {
+ 			ret = fwnode_property_read_u32(led_node, "color",
 -- 
 2.27.0
 
