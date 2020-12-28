@@ -2,140 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54BE92E6C21
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F1D32E6C37
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:18:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729672AbgL1Wzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 17:55:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729327AbgL1Tp2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 14:45:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EC1222B3B
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 19:44:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609184687;
-        bh=AxhsmIbR6fuF0/wfAYB1xeObY1rv+Sgxjjkn0MgbRwg=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=r7Cro1T22YoDTkjsEcATSOT6NFNlfjfAEFGipjpR+w+XZLbNZS4+GSNM3rI2Od0Yj
-         oX4WBoMEQckMAxOuX3r66Y0vfPd/DMjTZNWd2NYpo4s80AsH24TT9/obx5WaSir0T7
-         1t2lSnVPNfdloVvirqOiSslsTb0eVhYHsdVhSLhMoogfqs5IOPpfH6QQWAwexB0eBx
-         9vp3ml9mowJ1HXHP4utgokfqestgQfsuOJ8F3kINezqdk+pkNJqcyCVfAOjc0QQS5w
-         TDJaBNvHE65YN7miG4rERGsA8y7JNQGbFn4ev46u9m8VxYEh15HWJdUrgJdILJICbL
-         3PfohfX07nGKA==
-Received: by mail-wr1-f48.google.com with SMTP id w5so12316453wrm.11
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 11:44:46 -0800 (PST)
-X-Gm-Message-State: AOAM5302djatZJYPG1hyU7aFSoYuqgPT6w2f7mFk26dkZ+e+sZlbak+a
-        sdXVeSpqd2Mn4KEJ5bvExi3nN5+o/9r76P3jgtFS3w==
-X-Google-Smtp-Source: ABdhPJzjhdge7EO34jRsNBFMSG/TIQyan751y+QjzNZ5oVO9OIJTvIGiqcZiVQnIIpAkwgBmDcT9uYsIbtM9knsNNds=
-X-Received: by 2002:a5d:43c3:: with SMTP id v3mr51547660wrr.184.1609184685561;
- Mon, 28 Dec 2020 11:44:45 -0800 (PST)
+        id S1730401AbgL1Wzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 17:55:47 -0500
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:61486 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729331AbgL1Tp5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 14:45:57 -0500
+Received: from pps.filterd (m0089730.ppops.net [127.0.0.1])
+        by m0089730.ppops.net (8.16.0.43/8.16.0.43) with SMTP id 0BSJcwXF004599;
+        Mon, 28 Dec 2020 11:45:07 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=date : from : to : cc :
+ subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=facebook; bh=LRR1D0hqBUOFMz5uANlIdHUf3XOP2UxydxuYUHXsOtA=;
+ b=P6ZQ2ljC0ALO1R9DBa7WJN3Q5IW2adTiwE+IftjeXOdCVxLUZr9vM5QU4M3fXMkshc0N
+ 7Bkrk7njpv8sW/6dgMPJoTIRgWqu8WvZbSltvQ9HDNz5kywUvNiGi9IPIffMyEKVrWtR
+ +5MQH9jdOX0o5WehroKA0SaF6E4Y0zZ4uq0= 
+Received: from mail.thefacebook.com ([163.114.132.120])
+        by m0089730.ppops.net with ESMTP id 35p1j5y5as-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Mon, 28 Dec 2020 11:45:06 -0800
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (100.104.98.9) by
+ o365-in.thefacebook.com (100.104.94.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Mon, 28 Dec 2020 11:45:05 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=NcSVbgQDLeDYURl8Pc04zpPFou9g4uJk5DvzvKSKrcOJLO/G3b/Z3N+I+YMhvBOu0XHlYORmyMeBgwtxPvmIj/ADrJ0obesCIxhs/DwFJVocprSTR0CmuWgyvv8KUrdz5xNN2kwo/dgTZU/UZVt1iQcmBd93upAgoFxBSQ3HRyoEnFIS+lQ5C/+ueDP1wFQxiwhLoj4iSm99nj0YLMiNuA8wywDHyUR9xZw8+LREQi5aDBBfb3f5EanLvCsRsIkT5uPzJwFg7D0Gg/RE0Olk53fw9XtVnza9KAbmC+rSfsIrrC+Fpk9MCpKtqG2SnyPduv0LgK6f3y8kWG/xCN1oug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LRR1D0hqBUOFMz5uANlIdHUf3XOP2UxydxuYUHXsOtA=;
+ b=e2VwDknizEi74IqPHeKw/DUSG0exnqEvX96vTOhbkEpGHvzX208vkU/A0Kp426Jo3h4dfgC+8T2C/MlDQ67hBmbUxLi3lAOjPK1jc1bLhrrVAfohPJTieE/0Gmh6lXCm4+ULLWfmLy6DqhGVRENIFNa/RXivfF+5qZMGWwT6Q9IKNT1TMCRUksXQ93oqXe3I3ptNLhb0vghGO0KLOY5gxhvbd+z9hzt0cJEg1KWfb6WygTlgUXq9E7YNbiT8pry5rx7VybyMXW2WsvP2huSKldsAxN1AIRNsGaYK0LaXA6yDxif6gfHNLsrS/wQlYfFqFgXD4SyRwccySq71AvkU2Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
+ header.d=fb.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
+ s=selector2-fb-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LRR1D0hqBUOFMz5uANlIdHUf3XOP2UxydxuYUHXsOtA=;
+ b=C2SINFfXY3u/iDxxa7gWQyOMyB3r670MGzsh80p46puNFbsx1y6HJGZfZ72Kh/w1aO1pfm3JNkZE7M7d+zzJq1NNbXFg6puIrRHJ/wFcgO5iM0Wh4rB1MuHAF6KvAY8m+50Nj16uR1UQfBiPRX7gkwEij8noe63PtdhXwk9G+pk=
+Authentication-Results: google.com; dkim=none (message not signed)
+ header.d=none;google.com; dmarc=none action=none header.from=fb.com;
+Received: from BYAPR15MB4136.namprd15.prod.outlook.com (2603:10b6:a03:96::24)
+ by BYAPR15MB2437.namprd15.prod.outlook.com (2603:10b6:a02:8d::25) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3700.31; Mon, 28 Dec
+ 2020 19:45:04 +0000
+Received: from BYAPR15MB4136.namprd15.prod.outlook.com
+ ([fe80::ed8c:29c3:6ebf:3e66]) by BYAPR15MB4136.namprd15.prod.outlook.com
+ ([fe80::ed8c:29c3:6ebf:3e66%5]) with mapi id 15.20.3700.031; Mon, 28 Dec 2020
+ 19:45:04 +0000
+Date:   Mon, 28 Dec 2020 11:44:59 -0800
+From:   Roman Gushchin <guro@fb.com>
+To:     Shakeel Butt <shakeelb@google.com>
+CC:     Muchun Song <songmuchun@bytedance.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        <cgroups@vger.kernel.org>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+Subject: Re: [PATCH 2/2] mm: fix numa stats for thp migration
+Message-ID: <20201228194459.GB318614@carbon.dhcp.thefacebook.com>
+References: <20201227181310.3235210-1-shakeelb@google.com>
+ <20201227181310.3235210-2-shakeelb@google.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201227181310.3235210-2-shakeelb@google.com>
+X-Originating-IP: [2620:10d:c090:400::5:116b]
+X-ClientProxiedBy: CO1PR15CA0069.namprd15.prod.outlook.com
+ (2603:10b6:101:20::13) To BYAPR15MB4136.namprd15.prod.outlook.com
+ (2603:10b6:a03:96::24)
 MIME-Version: 1.0
-References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
- <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
- <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
- <20201228102537.GG1551@shell.armlinux.org.uk> <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
- <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com> <20201228190852.GI1551@shell.armlinux.org.uk>
-In-Reply-To: <20201228190852.GI1551@shell.armlinux.org.uk>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Mon, 28 Dec 2020 11:44:33 -0800
-X-Gmail-Original-Message-ID: <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
-Message-ID: <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
-Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
-To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc:     Jann Horn <jannh@google.com>, Andy Lutomirski <luto@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        x86 <x86@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from carbon.dhcp.thefacebook.com (2620:10d:c090:400::5:116b) by CO1PR15CA0069.namprd15.prod.outlook.com (2603:10b6:101:20::13) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3700.27 via Frontend Transport; Mon, 28 Dec 2020 19:45:03 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a8218937-6792-41a1-927d-08d8ab691286
+X-MS-TrafficTypeDiagnostic: BYAPR15MB2437:
+X-Microsoft-Antispam-PRVS: <BYAPR15MB243779CA1DFD6CFDB01F1FD9BED90@BYAPR15MB2437.namprd15.prod.outlook.com>
+X-FB-Source: Internal
+X-MS-Oob-TLC-OOBClassifiers: OLM:3276;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: kteaW2lwgp1PwMh+Mi01HlbDc5jkd1cTLKG2Q4OpZ91Tqutv/D8PNP6Oz7b/WIOWeLoaS/VM3TnfMcVPw41hoCW840129/SZ5CbeEOR1n+A28kv80b8ZpYZExoGbG3zSDeZyAbzCLrCMwWA/XMeGDcNH3UmTUgBHacNMFXAtI0KylgjFeHv8DUn9Tgw6OW9vX1SffQYut6fP3QPcxPE7Jz1hdNIhCNZyG8fFoUgPsMQgL8OkUaxjGumQ38/9kyx1o2GgmsgRfV9RFsxv7k0vlAuNJPCakHxHaMG2yFlxQzW/lS/LCZz+yuj8gbjSnfoouon0a7aef+cmiiCweN52nOA+EQSmZ1m8px0H74X+s63w2J1hiE0XonBfmkej1tc1Rz3NQiJ0RjaMJb2iZBH1uw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR15MB4136.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(39860400002)(346002)(366004)(396003)(376002)(86362001)(6666004)(8936002)(55016002)(16526019)(4326008)(54906003)(186003)(66946007)(5660300002)(316002)(6916009)(478600001)(66556008)(2906002)(66476007)(33656002)(6506007)(7416002)(1076003)(7696005)(4744005)(52116002)(9686003)(8676002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?zJrct+8q80vVEEhCVjHYUKhcaB/q55tNj6pxdGJg3fpPszB2uNydjsVb+YY5?=
+ =?us-ascii?Q?s5AQL427CrbWDDoOkKU+ld4ugZeEVz8ly9Ddj+xaeFvV6pYefOvD2JfCxDJA?=
+ =?us-ascii?Q?KO0EsPoAOT55SGDBnuMkO7UoCytctmsOe5rBMNO92YCs3QeP8NqMg76lUtAd?=
+ =?us-ascii?Q?NWD1Wx06vqMgDRhDkCB8UM+wYqmbswwI2b+/5xyclce4BIZ7WKhNM4CL4xfR?=
+ =?us-ascii?Q?QiRfqdFIlXKEiiwC/wD7i7sbGW/k+2NsKKcrLN+I8BzV7nQQAOhqtjwL2cmW?=
+ =?us-ascii?Q?gM43VDg1o6BioHNpBQxLQuR3crhMZmPB52TvlnPtlgyL4tyBh6Ki5MOO6Bp+?=
+ =?us-ascii?Q?hYxW02++JaA4G6RcghlNB+9McuZKQnAI2MpkOqvdQfFJzNTtiKluvT6wO0Qx?=
+ =?us-ascii?Q?s+VPsgOGEFqHyI8hz8u63erYoNxYbjhW7qdK/qzI7gPHDRKqt1xAz7gFLzw3?=
+ =?us-ascii?Q?gig4Lynet0ExUQJf1ICNZWt4Nw9OETnAIm83UFn1/n+rUInpe72Bq+myeTjl?=
+ =?us-ascii?Q?Kuv+SeuXqwIoVz9kXcxuvbSDN4AXrH4ON7cLpTLGhze4z3JW59XWQgLZxUpP?=
+ =?us-ascii?Q?2J6onKSZuICWEURC+3P75sjC+CCjY93Bukj8eiGiqVvnahittGelhzEaQ2AJ?=
+ =?us-ascii?Q?IYFP7CCrFwh4JntR3hkb5L4x7yMj+3Gdk57pU18xhGQMhqrvw+aIiW2uNpJ2?=
+ =?us-ascii?Q?fFSM4tXyB5mG7BqG2csY8P1XSKcZVIznoq8u6/f8f8kiHcYaNK6bICbhLZZB?=
+ =?us-ascii?Q?MX5qvZZQaHyNS3AuuN2sIwVxCrY6rT8ZwhjliUVetCBtzu3dqDCmNAfI189M?=
+ =?us-ascii?Q?QI5qCyIoan2at7UNqfY9t0MsLAdMKtWOsSAhNP2Dg8hdVL8YxXdv4ouE+efV?=
+ =?us-ascii?Q?4vivjIa4a5XkaHhnhgF40e8O8MOyfA2Go9rg945FwJTmkNGpUxsQJMCsmPR6?=
+ =?us-ascii?Q?2iYp8tHUca1CpTjGE9CGFuznIpCCjpNsmIsiIbEaYl28Vj7zcksx7uADb9yE?=
+ =?us-ascii?Q?Fb96WCtJneI+J1Zel9ch+IWEig=3D=3D?=
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR15MB4136.namprd15.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Dec 2020 19:45:04.2880
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
+X-MS-Exchange-CrossTenant-Network-Message-Id: a8218937-6792-41a1-927d-08d8ab691286
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 3uMVzuVwr1Gj2EIQyQOfwv2OAeOt82bJ2t0ULaPCE7m3QMwrDIYVif9vpVLX9I38
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB2437
+X-OriginatorOrg: fb.com
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-28_18:2020-12-28,2020-12-28 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 mlxlogscore=817 bulkscore=0 phishscore=0 lowpriorityscore=0
+ mlxscore=0 spamscore=0 adultscore=0 clxscore=1015 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2012280120
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 28, 2020 at 11:09 AM Russell King - ARM Linux admin
-<linux@armlinux.org.uk> wrote:
->
-> On Mon, Dec 28, 2020 at 07:29:34PM +0100, Jann Horn wrote:
-> > After chatting with rmk about this (but without claiming that any of
-> > this is his opinion), based on the manpage, I think membarrier()
-> > currently doesn't really claim to be synchronizing caches? It just
-> > serializes cores. So arguably if userspace wants to use membarrier()
-> > to synchronize code changes, userspace should first do the code
-> > change, then flush icache as appropriate for the architecture, and
-> > then do the membarrier() to ensure that the old code is unused?
-> >
-> > For 32-bit arm, rmk pointed out that that would be the cacheflush()
-> > syscall. That might cause you to end up with two IPIs instead of one
-> > in total, but we probably don't care _that_ much about extra IPIs on
-> > 32-bit arm?
-> >
-> > For arm64, I believe userspace can flush icache across the entire
-> > system with some instructions from userspace - "DC CVAU" followed by
-> > "DSB ISH", or something like that, I think? (See e.g.
-> > compat_arm_syscall(), the arm64 compat code that implements the 32-bit
-> > arm cacheflush() syscall.)
->
-> Note that the ARM cacheflush syscall calls flush_icache_user_range()
-> over the range of addresses that userspace has passed - it's intention
-> since day one is to support cases where userspace wants to change
-> executable code.
->
-> It will issue the appropriate write-backs to the data cache (DCCMVAU),
-> the invalidates to the instruction cache (ICIMVAU), invalidate the
-> branch target buffer (BPIALLIS or BPIALL as appropriate), and issue
-> the appropriate barriers (DSB ISHST, ISB).
->
-> Note that neither flush_icache_user_range() nor flush_icache_range()
-> result in IPIs; cache operations are broadcast across all CPUs (which
-> is one of the minimums we require for SMP systems.)
->
-> Now, that all said, I think the question that has to be asked is...
->
->         What is the basic purpose of membarrier?
->
-> Is the purpose of it to provide memory barriers, or is it to provide
-> memory coherence?
->
-> If it's the former and not the latter, then cache flushes are out of
-> scope, and expecting memory written to be visible to the instruction
-> stream is totally out of scope of the membarrier interface, whether
-> or not the writes happen on the same or a different CPU to the one
-> executing the rewritten code.
->
-> The documentation in the kernel does not seem to describe what it's
-> supposed to be doing - the only thing I could find is this:
-> Documentation/features/sched/membarrier-sync-core/arch-support.txt
-> which describes it as "arch supports core serializing membarrier"
-> whatever that means.
->
-> Seems to be the standard and usual case of utterly poor to non-existent
-> documentation within the kernel tree, or even a pointer to where any
-> useful documentation can be found.
->
-> Reading the membarrier(2) man page, I find nothing in there that talks
-> about any kind of cache coherency for self-modifying code - it only
-> seems to be about _barriers_ and nothing more, and barriers alone do
-> precisely nothing to save you from non-coherent Harvard caches.
->
-> So, either Andy has a misunderstanding, or the man page is wrong, or
-> my rudimentary understanding of what membarrier is supposed to be
-> doing is wrong...
+On Sun, Dec 27, 2020 at 10:13:10AM -0800, Shakeel Butt wrote:
+> Currently the kernel is not correctly updating the numa stats for
+> NR_FILE_PAGES and NR_SHMEM on THP migration. Fix that. For NR_FILE_DIRTY
+> and NR_ZONE_WRITE_PENDING, although at the moment there is no need to
+> handle THP migration as kernel still does not have write support for
+> file THP but to be more future proof, this patch adds the THP support
+> for those stats as well.
+> 
+> Fixes: e71769ae52609 ("mm: enable thp migration for shmem thp")
+> Signed-off-by: Shakeel Butt <shakeelb@google.com>
+> Cc: <stable@vger.kernel.org>
 
-Look at the latest man page:
+With the typo fix ("__mod_zone_page_tate")
 
-https://man7.org/linux/man-pages/man2/membarrier.2.html
+Reviewed-by: Roman Gushchin <guro@fb.com>
 
-for MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE.  The result may not be
-all that enlightening.
-
---Andy
+Thanks!
