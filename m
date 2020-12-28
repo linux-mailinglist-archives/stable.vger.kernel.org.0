@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F4A2E653E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 506042E3E76
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393186AbgL1P67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:58:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33748 "EHLO mail.kernel.org"
+        id S2502361AbgL1O2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:28:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387907AbgL1Nd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:33:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4990B208BA;
-        Mon, 28 Dec 2020 13:33:10 +0000 (UTC)
+        id S2502267AbgL1O2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:28:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47EC120791;
+        Mon, 28 Dec 2020 14:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162390;
-        bh=3wSvMfr6rAe3rr5bfNq49T8RsR1hMLZUWvLvwV6wReY=;
+        s=korg; t=1609165661;
+        bh=BaovzRybQQNmu8QtHnrumSPcmboTSMQiOgnMfkF7NkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8cEZWpUdlpLXtjTWqCfV1FYiXmAiKeELGy9pW/PjpPfcgpePeRDbfLgB9PfWad1x
-         879DIzDSnP4wohUFVykzYKkKWPUyEWrj7cNXwF+sFr2pbfWZ378BbZIKPwSO9Xgd5E
-         Wv7y63YYtmV2fYjEWeq1Rv/MrW6LpCiUE2Nk6Je8=
+        b=jrEATqG9yBL3adxR2gC76FBcA4sLLrGWTlrd3tPt3DPUcYi67b4rpf2Tpa397r6SO
+         1Xj3BzCkzUKvz0+FZrQSdmVSDpIlpShC6wmYQyUXFkqUAz+nJVF7NLQFHD4fOlX0Hw
+         GANclvZRjz4y2eizaCVJGL+H8bJ/68RHEunrvpeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 258/346] media: gspca: Fix memory leak in probe
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 579/717] USB: serial: mos7720: fix parallel-port state restore
 Date:   Mon, 28 Dec 2020 13:49:37 +0100
-Message-Id: <20201228124932.252331748@linuxfoundation.org>
+Message-Id: <20201228125048.651943321@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +38,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Johan Hovold <johan@kernel.org>
 
-commit e469d0b09a19496e1972a20974bbf55b728151eb upstream.
+commit 975323ab8f116667676c30ca3502a6757bd89e8d upstream.
 
-The gspca driver leaks memory when a probe fails.  gspca_dev_probe2()
-calls v4l2_device_register(), which takes a reference to the
-underlying device node (in this case, a USB interface).  But the
-failure pathway neglects to call v4l2_device_unregister(), the routine
-responsible for dropping this reference.  Consequently the memory for
-the USB interface and its device never gets released.
+The parallel-port restore operations is called when a driver claims the
+port and is supposed to restore the provided state (e.g. saved when
+releasing the port).
 
-This patch adds the missing function call.
-
-Reported-and-tested-by: syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: b69578df7e98 ("USB: usbserial: mos7720: add support for parallel port on moschip 7715")
+Cc: stable <stable@vger.kernel.org>     # 2.6.35
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/gspca.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/mos7720.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1585,6 +1585,7 @@ out:
- 		input_unregister_device(gspca_dev->input_dev);
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
-+	v4l2_device_unregister(&gspca_dev->v4l2_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -639,6 +639,8 @@ static void parport_mos7715_restore_stat
+ 		spin_unlock(&release_lock);
+ 		return;
+ 	}
++	mos_parport->shadowDCR = s->u.pc.ctr;
++	mos_parport->shadowECR = s->u.pc.ecr;
+ 	write_parport_reg_nonblock(mos_parport, MOS7720_DCR,
+ 				   mos_parport->shadowDCR);
+ 	write_parport_reg_nonblock(mos_parport, MOS7720_ECR,
 
 
