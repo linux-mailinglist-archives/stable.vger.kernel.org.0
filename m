@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB9C2E3766
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:56:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C46052E3A0C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728446AbgL1MzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:55:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51582 "EHLO mail.kernel.org"
+        id S2390908AbgL1Nbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:31:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728444AbgL1MzD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 696A0208D5;
-        Mon, 28 Dec 2020 12:54:22 +0000 (UTC)
+        id S2390315AbgL1NaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F619206ED;
+        Mon, 28 Dec 2020 13:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160063;
-        bh=E/Z9LZvYqn6ru0ZTP8p5p0hAmmDNU8np5PX/xj12fY4=;
+        s=korg; t=1609162200;
+        bh=IHgpTsO5Mzxn998wyCuWUnwyZyNbqjXXHKNvqr775mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Vd4PWF9NQzaclLz3lj96EylGSi0Rv6bPbeMqtsEkZ6N6FvpCx9DbbFQ+lrCGmI4A
-         RBhNhGnrd/BbrgRkge8zuthsLa2karpp9gDGeu76Hk52kF3MjxvE8j36jpB1DL8dHy
-         jYqIdzS4CHClvgZna3zQuWPvq6MGjsRS7341Ty08=
+        b=Ln4zWn+3LwQF+bxb+PxRnPIrgfDdpW1Fwf95JQC+XPVFRJRfpUM1Xs5Jl/0SQ3p73
+         uvLBIrJV2AAMeuYXotHliwTzvH32vSSkbWU3IC+z3HdxhGbcvxf8m2NsvWqzmYjQ+/
+         Zlh8xHYjSDsiZcu+g/3149RrakPTm41VIHLjpbIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.4 026/132] soc/tegra: fuse: Fix index bug in get_process_id
+        stable@vger.kernel.org, Calum Mackay <calum.mackay@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 191/346] lockd: dont use interval-based rebinding over TCP
 Date:   Mon, 28 Dec 2020 13:48:30 +0100
-Message-Id: <20201228124847.671479907@linuxfoundation.org>
+Message-Id: <20201228124929.022302530@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicoleotsuka@gmail.com>
+From: Calum Mackay <calum.mackay@oracle.com>
 
-commit b9ce9b0f83b536a4ac7de7567a265d28d13e5bea upstream.
+[ Upstream commit 9b82d88d5976e5f2b8015d58913654856576ace5 ]
 
-This patch simply fixes a bug of referencing speedos[num] in every
-for-loop iteration in get_process_id function.
+NLM uses an interval-based rebinding, i.e. it clears the transport's
+binding under certain conditions if more than 60 seconds have elapsed
+since the connection was last bound.
 
-Fixes: 0dc5a0d83675 ("soc/tegra: fuse: Add Tegra210 support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This rebinding is not necessary for an autobind RPC client over a
+connection-oriented protocol like TCP.
 
+It can also cause problems: it is possible for nlm_bind_host() to clear
+XPRT_BOUND whilst a connection worker is in the middle of trying to
+reconnect, after it had already been checked in xprt_connect().
+
+When the connection worker notices that XPRT_BOUND has been cleared
+under it, in xs_tcp_finish_connecting(), that results in:
+
+	xs_tcp_setup_socket: connect returned unhandled error -107
+
+Worse, it's possible that the two can get into lockstep, resulting in
+the same behaviour repeated indefinitely, with the above error every
+300 seconds, without ever recovering, and the connection never being
+established. This has been seen in practice, with a large number of NLM
+client tasks, following a server restart.
+
+The existing callers of nlm_bind_host & nlm_rebind_host should not need
+to force the rebind, for TCP, so restrict the interval-based rebinding
+to UDP only.
+
+For TCP, we will still rebind when needed, e.g. on timeout, and connection
+error (including closure), since connection-related errors on an existing
+connection, ECONNREFUSED when trying to connect, and rpc_check_timeout(),
+already unconditionally clear XPRT_BOUND.
+
+To avoid having to add the fix, and explanation, to both nlm_bind_host()
+and nlm_rebind_host(), remove the duplicate code from the former, and
+have it call the latter.
+
+Drop the dprintk, which adds no value over a trace.
+
+Signed-off-by: Calum Mackay <calum.mackay@oracle.com>
+Fixes: 35f5a422ce1a ("SUNRPC: new interface to force an RPC rebind")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/fuse/speedo-tegra210.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/lockd/host.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/drivers/soc/tegra/fuse/speedo-tegra210.c
-+++ b/drivers/soc/tegra/fuse/speedo-tegra210.c
-@@ -105,7 +105,7 @@ static int get_process_id(int value, con
- 	unsigned int i;
+diff --git a/fs/lockd/host.c b/fs/lockd/host.c
+index f0b5c987d6ae1..3f6ba0cd2bd9c 100644
+--- a/fs/lockd/host.c
++++ b/fs/lockd/host.c
+@@ -432,12 +432,7 @@ nlm_bind_host(struct nlm_host *host)
+ 	 * RPC rebind is required
+ 	 */
+ 	if ((clnt = host->h_rpcclnt) != NULL) {
+-		if (time_after_eq(jiffies, host->h_nextrebind)) {
+-			rpc_force_rebind(clnt);
+-			host->h_nextrebind = jiffies + NLM_HOST_REBIND;
+-			dprintk("lockd: next rebind in %lu jiffies\n",
+-					host->h_nextrebind - jiffies);
+-		}
++		nlm_rebind_host(host);
+ 	} else {
+ 		unsigned long increment = nlmsvc_timeout;
+ 		struct rpc_timeout timeparms = {
+@@ -485,13 +480,20 @@ nlm_bind_host(struct nlm_host *host)
+ 	return clnt;
+ }
  
- 	for (i = 0; i < num; i++)
--		if (value < speedos[num])
-+		if (value < speedos[i])
- 			return i;
- 
- 	return -EINVAL;
+-/*
+- * Force a portmap lookup of the remote lockd port
++/**
++ * nlm_rebind_host - If needed, force a portmap lookup of the peer's lockd port
++ * @host: NLM host handle for peer
++ *
++ * This is not needed when using a connection-oriented protocol, such as TCP.
++ * The existing autobind mechanism is sufficient to force a rebind when
++ * required, e.g. on connection state transitions.
+  */
+ void
+ nlm_rebind_host(struct nlm_host *host)
+ {
+-	dprintk("lockd: rebind host %s\n", host->h_name);
++	if (host->h_proto != IPPROTO_UDP)
++		return;
++
+ 	if (host->h_rpcclnt && time_after_eq(jiffies, host->h_nextrebind)) {
+ 		rpc_force_rebind(host->h_rpcclnt);
+ 		host->h_nextrebind = jiffies + NLM_HOST_REBIND;
+-- 
+2.27.0
+
 
 
