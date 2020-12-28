@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B379C2E6611
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B24E2E662D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388594AbgL1NXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:23:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
+        id S2392955AbgL1QKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:10:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388546AbgL1NXu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:23:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96A022072C;
-        Mon, 28 Dec 2020 13:23:09 +0000 (UTC)
+        id S2388552AbgL1NXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:23:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C3FE22A84;
+        Mon, 28 Dec 2020 13:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161790;
-        bh=6yANuVazOYdzHVScUvKEp/9J+L6YCvHhqicJMLGwKSc=;
+        s=korg; t=1609161807;
+        bh=R8st6TRrxrApKvmyT5IcatNlQxFyNURE9fybIVnANS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gM4/NG1a262LDp/cxi7qwK9/bpJULprMHncGqxBpGc5i8473Tqf7dZEPdEuFaRnPL
-         VYWhAoJhzrUTOFTYAlZjR0L8GLKG/BMcY/nXVih57Av9l8C0UHj8z91dEkGy6uql03
-         swzxTjCwPNqJIifzAew8+OWnFx3awA4kaJUkYnV8=
+        b=zALvCc85VhX4fbCe64m/w/Ry3ufko0dMkY1Q0uDmbGNBhyyPJyHYn+bwt4D0ixxn3
+         8vvvk7vZkXzqkg+fEd5RqgtgGPWy/oBwUzqBiJNH+6qVPxpi0NQXFKpgEhKjCBlSrF
+         0efTlbk0b7tVKrXMVs4H+VLmAeYbc50tsuTwfedc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 055/346] pinctrl: merrifield: Set default bias in case no particular value given
-Date:   Mon, 28 Dec 2020 13:46:14 +0100
-Message-Id: <20201228124922.455232508@linuxfoundation.org>
+Subject: [PATCH 4.19 058/346] gpio: mvebu: fix potential user-after-free on probe
+Date:   Mon, 28 Dec 2020 13:46:17 +0100
+Message-Id: <20201228124922.599780963@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -41,55 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit 0fa86fc2e28227f1e64f13867e73cf864c6d25ad ]
+[ Upstream commit 7ee1a01e47403f72b9f38839a737692f6991263e ]
 
-When GPIO library asks pin control to set the bias, it doesn't pass
-any value of it and argument is considered boolean (and this is true
-for ACPI GpioIo() / GpioInt() resources, by the way). Thus, individual
-drivers must behave well, when they got the resistance value of 1 Ohm,
-i.e. transforming it to sane default.
+When mvebu_pwm_probe() fails IRQ domain is not released. Move pwm probe
+before IRQ domain allocation. Add pwm cleanup code to the failure path.
 
-In case of Intel Merrifield pin control hardware the 20 kOhm sounds plausible
-because it gives a good trade off between weakness and minimization of leakage
-current (will be only 50 uA with the above choice).
-
-Fixes: 4e80c8f50574 ("pinctrl: intel: Add Intel Merrifield pin controller support")
-Depends-on: 2956b5d94a76 ("pinctrl / gpio: Introduce .set_config() callback for GPIO chips")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 757642f9a584 ("gpio: mvebu: Add limited PWM support")
+Reported-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-merrifield.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpio/gpio-mvebu.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-merrifield.c b/drivers/pinctrl/intel/pinctrl-merrifield.c
-index 4fa69f988c7b7..6b2312e73f23f 100644
---- a/drivers/pinctrl/intel/pinctrl-merrifield.c
-+++ b/drivers/pinctrl/intel/pinctrl-merrifield.c
-@@ -729,6 +729,10 @@ static int mrfld_config_set_pin(struct mrfld_pinctrl *mp, unsigned int pin,
- 		mask |= BUFCFG_Px_EN_MASK | BUFCFG_PUPD_VAL_MASK;
- 		bits |= BUFCFG_PU_EN;
+diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
+index adc768f908f1a..3b78dcda47364 100644
+--- a/drivers/gpio/gpio-mvebu.c
++++ b/drivers/gpio/gpio-mvebu.c
+@@ -1191,6 +1191,13 @@ static int mvebu_gpio_probe(struct platform_device *pdev)
  
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 20000;
-+
- 		switch (arg) {
- 		case 50000:
- 			bits |= BUFCFG_PUPD_VAL_50K << BUFCFG_PUPD_VAL_SHIFT;
-@@ -749,6 +753,10 @@ static int mrfld_config_set_pin(struct mrfld_pinctrl *mp, unsigned int pin,
- 		mask |= BUFCFG_Px_EN_MASK | BUFCFG_PUPD_VAL_MASK;
- 		bits |= BUFCFG_PD_EN;
+ 	devm_gpiochip_add_data(&pdev->dev, &mvchip->chip, mvchip);
  
-+		/* Set default strength value in case none is given */
-+		if (arg == 1)
-+			arg = 20000;
++	/* Some MVEBU SoCs have simple PWM support for GPIO lines */
++	if (IS_ENABLED(CONFIG_PWM)) {
++		err = mvebu_pwm_probe(pdev, mvchip, id);
++		if (err)
++			return err;
++	}
 +
- 		switch (arg) {
- 		case 50000:
- 			bits |= BUFCFG_PUPD_VAL_50K << BUFCFG_PUPD_VAL_SHIFT;
+ 	/* Some gpio controllers do not provide irq support */
+ 	if (!have_irqs)
+ 		return 0;
+@@ -1200,7 +1207,8 @@ static int mvebu_gpio_probe(struct platform_device *pdev)
+ 	if (!mvchip->domain) {
+ 		dev_err(&pdev->dev, "couldn't allocate irq domain %s (DT).\n",
+ 			mvchip->chip.label);
+-		return -ENODEV;
++		err = -ENODEV;
++		goto err_pwm;
+ 	}
+ 
+ 	err = irq_alloc_domain_generic_chips(
+@@ -1248,14 +1256,12 @@ static int mvebu_gpio_probe(struct platform_device *pdev)
+ 						 mvchip);
+ 	}
+ 
+-	/* Some MVEBU SoCs have simple PWM support for GPIO lines */
+-	if (IS_ENABLED(CONFIG_PWM))
+-		return mvebu_pwm_probe(pdev, mvchip, id);
+-
+ 	return 0;
+ 
+ err_domain:
+ 	irq_domain_remove(mvchip->domain);
++err_pwm:
++	pwmchip_remove(&mvchip->mvpwm->chip);
+ 
+ 	return err;
+ }
 -- 
 2.27.0
 
