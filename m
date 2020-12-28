@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0682E3F70
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A7E2E3BED
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503456AbgL1O3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:29:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36958 "EHLO mail.kernel.org"
+        id S2404783AbgL1N4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:56:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503453AbgL1O3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:29:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFC2820715;
-        Mon, 28 Dec 2020 14:28:32 +0000 (UTC)
+        id S2407852AbgL1N4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:56:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 325F921D94;
+        Mon, 28 Dec 2020 13:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165713;
-        bh=bLXY2QJ8ravuJUg6Jp4AGdYctMCvagFpq6R7cFlUvaY=;
+        s=korg; t=1609163736;
+        bh=Ozb6FoNu4dexz7v04R9eUZUqUWtOG50d1+5FMMFhUqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZcDPTA5X//fnvpXKY+XBT0tpqJBrGetwA79jfiWUXfYeTIZNUOm2BGogUGkWqjSn
-         ysJMezO4Stzxk1fUSsZsoAA6mUd3DSfWljb7YbLYpzoZC0HxKBGa4qQDpoNj5ev69r
-         AgPXtT1Fr0kkJf94Zd4J4DeNKfw88zbxpoQWNiNI=
+        b=16Gzm9CrKdoxkFDOlfTedKJ1jfubl2lioakzCZT4h064RGUx+BUueDf8VMhzr9hvn
+         ecf8p6eKCk+kRbCey/TtZVGo2XcLLG/fScGTU1efWWiT3ndVsjyU7Cm9qM5ZhCciJ8
+         2+Cvcz/gA0tcQAZnHBmJfq8AxV9JEJfNbCo7igkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, lizhe <lizhe67@huawei.com>,
+        stable@vger.kernel.org,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
         Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 628/717] jffs2: Fix ignoring mounting options problem during remounting
+Subject: [PATCH 5.4 390/453] um: Remove use of asprinf in umid.c
 Date:   Mon, 28 Dec 2020 13:50:26 +0100
-Message-Id: <20201228125051.008707227@linuxfoundation.org>
+Message-Id: <20201228124955.974756850@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lizhe <lizhe67@huawei.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-commit 08cd274f9b8283a1da93e2ccab216a336da83525 upstream.
+commit 97be7ceaf7fea68104824b6aa874cff235333ac1 upstream.
 
-The jffs2 mount options will be ignored when remounting jffs2.
-It can be easily reproduced with the steps listed below.
-1. mount -t jffs2 -o compr=none /dev/mtdblockx /mnt
-2. mount -o remount compr=zlib /mnt
+asprintf is not compatible with the existing uml memory allocation
+mechanism. Its use on the "user" side of UML results in a corrupt slab
+state.
 
-Since ec10a24f10c8, the option parsing happens before fill_super and
-then pass fc, which contains the options parsing results, to function
-jffs2_reconfigure during remounting. But function jffs2_reconfigure do
-not update c->mount_opts.
-
-This patch add a function jffs2_update_mount_opts to fix this problem.
-
-By the way, I notice that tmpfs use the same way to update remounting
-options. If it is necessary to unify them?
-
-Cc: <stable@vger.kernel.org>
-Fixes: ec10a24f10c8 ("vfs: Convert jffs2 to use the new mount API")
-Signed-off-by: lizhe <lizhe67@huawei.com>
+Fixes: 0d4e5ac7e780 ("um: remove uses of variable length arrays")
+Cc: stable@vger.kernel.org
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jffs2/super.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/um/os-Linux/umid.c |   17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
---- a/fs/jffs2/super.c
-+++ b/fs/jffs2/super.c
-@@ -215,11 +215,28 @@ static int jffs2_parse_param(struct fs_c
- 	return 0;
- }
- 
-+static inline void jffs2_update_mount_opts(struct fs_context *fc)
-+{
-+	struct jffs2_sb_info *new_c = fc->s_fs_info;
-+	struct jffs2_sb_info *c = JFFS2_SB_INFO(fc->root->d_sb);
-+
-+	mutex_lock(&c->alloc_sem);
-+	if (new_c->mount_opts.override_compr) {
-+		c->mount_opts.override_compr = new_c->mount_opts.override_compr;
-+		c->mount_opts.compr = new_c->mount_opts.compr;
-+	}
-+	if (new_c->mount_opts.rp_size)
-+		c->mount_opts.rp_size = new_c->mount_opts.rp_size;
-+	mutex_unlock(&c->alloc_sem);
-+}
-+
- static int jffs2_reconfigure(struct fs_context *fc)
+--- a/arch/um/os-Linux/umid.c
++++ b/arch/um/os-Linux/umid.c
+@@ -137,20 +137,13 @@ static inline int is_umdir_used(char *di
  {
- 	struct super_block *sb = fc->root->d_sb;
+ 	char pid[sizeof("nnnnn\0")], *end, *file;
+ 	int dead, fd, p, n, err;
+-	size_t filelen;
++	size_t filelen = strlen(dir) + sizeof("/pid") + 1;
  
- 	sync_filesystem(sb);
-+	jffs2_update_mount_opts(fc);
-+
- 	return jffs2_do_remount_fs(sb, fc);
- }
+-	err = asprintf(&file, "%s/pid", dir);
+-	if (err < 0)
+-		return 0;
++	file = malloc(filelen);
++	if (!file)
++		return -ENOMEM;
  
+-	filelen = strlen(file);
+-
+-	n = snprintf(file, filelen, "%s/pid", dir);
+-	if (n >= filelen) {
+-		printk(UM_KERN_ERR "is_umdir_used - pid filename too long\n");
+-		err = -E2BIG;
+-		goto out;
+-	}
++	snprintf(file, filelen, "%s/pid", dir);
+ 
+ 	dead = 0;
+ 	fd = open(file, O_RDONLY);
 
 
