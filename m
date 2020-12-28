@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C55F2E40DA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B566C2E3AD6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439338AbgL1O6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:58:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49528 "EHLO mail.kernel.org"
+        id S2404116AbgL1NmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:42:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440534AbgL1OO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:14:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1599022AAD;
-        Mon, 28 Dec 2020 14:14:40 +0000 (UTC)
+        id S2404110AbgL1NmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E55CF2072C;
+        Mon, 28 Dec 2020 13:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164881;
-        bh=BThpZ5djaZCNKZZrYR7gqdhOtxJEpl/PIxIzu+CFFPc=;
+        s=korg; t=1609162887;
+        bh=UIRPxt+uzixCcEBZ93UmaeRXg5BnNUx5aMTxzd/ShFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdkAASDu5HAVK1J0jx3yJ5yzqJN4/4D7m1QgxzYQLthpDsU5pvfWSmivXIT9jc4dJ
-         hL/K/0IfXVqdfl0fNP0PJcEDABKaEYJmSRfIbeisrsLUNy1AoV8lnwHS3dELqkG0eZ
-         BusHYqknkmLDDHk98DBf75BSMcaOcy3M9cxJkFD4=
+        b=f5qBRxtvyCiyKjM3zlLkGsrJ0IgXF36v8EfXib1nR4ho4NH071vhihlSmbwjvSN4q
+         r0CRb3USnC5WVvAK2w7qcY7JXGGgN8cA0E6DUJH3JjnZTQkCVx3OFEK4/EIR+JcaBX
+         yDkmreHCLUvKTTgTrH6TnZ2IE2xdacfigicEchLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 332/717] cpufreq: imx: fix NVMEM_IMX_OCOTP dependency
-Date:   Mon, 28 Dec 2020 13:45:30 +0100
-Message-Id: <20201228125036.929757567@linuxfoundation.org>
+Subject: [PATCH 5.4 095/453] crypto: talitos - Fix return type of current_desc_hdr()
+Date:   Mon, 28 Dec 2020 13:45:31 +0100
+Message-Id: <20201228124941.803209892@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit fc928b901dc68481ba3e524860a641fe13e25dfe ]
+[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
 
-A driver should not 'select' drivers from another subsystem.
-If NVMEM is disabled, this one results in a warning:
+current_desc_hdr() returns a u32 but in fact this is a __be32,
+leading to a lot of sparse warnings.
 
-WARNING: unmet direct dependencies detected for NVMEM_IMX_OCOTP
-  Depends on [n]: NVMEM [=n] && (ARCH_MXC [=y] || COMPILE_TEST [=y]) && HAS_IOMEM [=y]
-  Selected by [y]:
-  - ARM_IMX6Q_CPUFREQ [=y] && CPU_FREQ [=y] && (ARM || ARM64 [=y]) && ARCH_MXC [=y] && REGULATOR_ANATOP [=y]
+Change the return type to __be32 and ensure it is handled as
+sure by the caller.
 
-Change the 'select' to 'depends on' to prevent it from going wrong,
-and allow compile-testing without that driver, since it is only
-a runtime dependency.
-
-Fixes: 2782ef34ed23 ("cpufreq: imx: Select NVMEM_IMX_OCOTP")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/Kconfig.arm | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/talitos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
-index 015ec0c028358..1f73fa75b1a05 100644
---- a/drivers/cpufreq/Kconfig.arm
-+++ b/drivers/cpufreq/Kconfig.arm
-@@ -94,7 +94,7 @@ config ARM_IMX6Q_CPUFREQ
- 	tristate "Freescale i.MX6 cpufreq support"
- 	depends on ARCH_MXC
- 	depends on REGULATOR_ANATOP
--	select NVMEM_IMX_OCOTP
-+	depends on NVMEM_IMX_OCOTP || COMPILE_TEST
- 	select PM_OPP
- 	help
- 	  This adds cpufreq driver support for Freescale i.MX6 series SoCs.
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 261c0bfa8f185..b7c66fc0ae0c2 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -460,7 +460,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
+ /*
+  * locate current (offending) descriptor
+  */
+-static u32 current_desc_hdr(struct device *dev, int ch)
++static __be32 current_desc_hdr(struct device *dev, int ch)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int tail, iter;
+@@ -501,13 +501,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+ /*
+  * user diagnostics; report root cause of error based on execution unit status
+  */
+-static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
++static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int i;
+ 
+ 	if (!desc_hdr)
+-		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
++		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
+ 
+ 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
+ 	case DESC_HDR_SEL0_AFEU:
 -- 
 2.27.0
 
