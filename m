@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E302E65FF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F6A2E6789
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393678AbgL1QGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:06:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55368 "EHLO mail.kernel.org"
+        id S1731008AbgL1NIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389558AbgL1N0u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3419020728;
-        Mon, 28 Dec 2020 13:26:34 +0000 (UTC)
+        id S1731004AbgL1NIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CF8A21D94;
+        Mon, 28 Dec 2020 13:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161994;
-        bh=6m35xXoLNCncpzzNxT84bYc3mp7qo6u3DYtY0djpyCY=;
+        s=korg; t=1609160916;
+        bh=X96PO8BdZCvgbfOFmq4uZWAEJtyxaZVVbHWkC5QIHc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPIitdJom7l8QqJ5p1YN72wTwwCf09+n5RhUawxaZ5JaPDL1MDgFo3Yn9/DlTHAbb
-         5Q0F8Ql2SBl8VDIWbkXYu77YJvmaM+4wehkwl1XCuigWerQAAcVrM1PXnBcViR+EFM
-         7EqB8zTOVrrd1D2MJwJc2Yh2n0vCwuBUvZlKBh8Y=
+        b=Qr+glZxAwThKgtQ7oJ0iGAuUnAFwvTGdBZaXMifneRHg7uQaAAO9ODPOdl5TelI0Q
+         zIMYi457HXnYOkOZytp1hmCTfkLH2xYmlSClW9h3QrDOl27HM8dUdjdgk32H3ljBkE
+         MyyfTURnC1XjYdI4w+qXP478JiZmb5HSoF+iKS/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 122/346] arm64: dts: exynos: Correct psci compatible used on Exynos7
-Date:   Mon, 28 Dec 2020 13:47:21 +0100
-Message-Id: <20201228124925.695189130@linuxfoundation.org>
+Subject: [PATCH 4.14 037/242] ARM: dts: sun8i: v3s: fix GIC node memory range
+Date:   Mon, 28 Dec 2020 13:47:22 +0100
+Message-Id: <20201228124906.492826572@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit e1e47fbca668507a81bb388fcae044b89d112ecc ]
+[ Upstream commit a98fd117a2553ab1a6d2fe3c7acae88c1eca4372 ]
 
-It's not possible to reboot or poweroff Exynos7420 using PSCI. Instead
-we need to use syscon reboot/poweroff drivers, like it's done for other
-Exynos SoCs. This was confirmed by checking vendor source and testing it
-on Samsung Galaxy S6 device based on this SoC.
+Currently the GIC node in V3s DTSI follows some old DT examples, and
+being broken. This leads a warning at boot.
 
-To be able to use custom restart/poweroff handlers instead of PSCI
-functions, we need to correct psci compatible. This also requires us to
-provide function ids for CPU_ON and CPU_OFF.
+Fix this.
 
-Fixes: fb026cb65247 ("arm64: dts: Add reboot node for exynos7")
-Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Link: https://lore.kernel.org/r/20201107133926.37187-2-pawel.mikolaj.chmiel@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: f989086ccbc6 ("ARM: dts: sunxi: add dtsi file for V3s SoC")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20201120050851.4123759-1-icenowy@aosc.io
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7.dtsi | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/sun8i-v3s.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-index 38a07d9763a3f..5c5e57026c275 100644
---- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-@@ -62,8 +62,10 @@
- 	};
- 
- 	psci {
--		compatible = "arm,psci-0.2";
-+		compatible = "arm,psci";
- 		method = "smc";
-+		cpu_off = <0x84000002>;
-+		cpu_on = <0xC4000003>;
- 	};
- 
- 	soc: soc {
+diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
+index da5823c6fa3e6..e31804e448da2 100644
+--- a/arch/arm/boot/dts/sun8i-v3s.dtsi
++++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
+@@ -419,7 +419,7 @@
+ 		gic: interrupt-controller@01c81000 {
+ 			compatible = "arm,cortex-a7-gic", "arm,cortex-a15-gic";
+ 			reg = <0x01c81000 0x1000>,
+-			      <0x01c82000 0x1000>,
++			      <0x01c82000 0x2000>,
+ 			      <0x01c84000 0x2000>,
+ 			      <0x01c86000 0x2000>;
+ 			interrupt-controller;
 -- 
 2.27.0
 
