@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 483202E3E53
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9122E38D0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503871AbgL1O04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:26:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34774 "EHLO mail.kernel.org"
+        id S1732688AbgL1NP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503869AbgL1O0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:26:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A922206D4;
-        Mon, 28 Dec 2020 14:26:10 +0000 (UTC)
+        id S1732681AbgL1NPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DBC622CBB;
+        Mon, 28 Dec 2020 13:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165571;
-        bh=szQs4ZqUCDQKYF2cv1WOcuBpGMFzvkTRpW1YLoJOZkU=;
+        s=korg; t=1609161309;
+        bh=GwNU0oCArP9wD4hGiS8dtxojw14e/YZIN+7zAXewmyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIFCE8YnS0pdrzpGC7XwW5UinC1PoPbhRNYhw1MDWv2Os2sxvuB8UkIya2ukZOa8w
-         AADYs0eTwQR8IjQ2klD7CbQsuYV50YmF3PstbtbJSRmNeif0bINrW7LWYIGRHysc9T
-         gVdmEbZwg8AF+Fwf+nF8VEUXwssdvMt4Lx9ep7bQ=
+        b=JIc7bztsCM7Ry4s+CmSl/mJB9Zd2Ah/vofG/hAAeP4WHY9YF2DIsyUe/UYsjYbAx1
+         zBWEFTBy8nKcQrY7y9LtUsvAU6euFY0Vf67r9dXzTrSCVdGAmoLuN9LgJdpk6iYGxc
+         n+mRGoRN7p0YHSe8Btm8S0sNNucrFKylTfpMmgGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 548/717] ALSA: usb-audio: Disable sample read check if firmware doesnt give back
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 141/242] cpufreq: st: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 28 Dec 2020 13:49:06 +0100
-Message-Id: <20201228125047.195811381@linuxfoundation.org>
+Message-Id: <20201228124911.643314936@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,37 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pali Rohár <pali@kernel.org>
 
-commit 9df28edce7c6ab38050235f6f8b43dd7ccd01b6d upstream.
+[ Upstream commit 183747ab52654eb406fc6b5bfb40806b75d31811 ]
 
-Some buggy firmware don't give the current sample rate but leaves
-zero.  Handle this case more gracefully without warning but just skip
-the current rate verification from the next time.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201218145858.2357-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: ab0ea257fc58d ("cpufreq: st: Provide runtime initialised driver for ST's platforms")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/clock.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/cpufreq/sti-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -531,6 +531,12 @@ static int set_sample_rate_v1(struct snd
- 	}
+diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
+index 6b5d241c30b70..2d09960afa591 100644
+--- a/drivers/cpufreq/sti-cpufreq.c
++++ b/drivers/cpufreq/sti-cpufreq.c
+@@ -295,6 +295,13 @@ register_cpufreq_dt:
+ }
+ module_init(sti_cpufreq_init);
  
- 	crate = data[0] | (data[1] << 8) | (data[2] << 16);
-+	if (!crate) {
-+		dev_info(&dev->dev, "failed to read current rate; disabling the check\n");
-+		chip->sample_rate_read_error = 3; /* three strikes, see above */
-+		return 0;
-+	}
++static const struct of_device_id __maybe_unused sti_cpufreq_of_match[] = {
++	{ .compatible = "st,stih407" },
++	{ .compatible = "st,stih410" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, sti_cpufreq_of_match);
 +
- 	if (crate != rate) {
- 		dev_warn(&dev->dev, "current rate %d is different from the runtime rate %d\n", crate, rate);
- 		// runtime->rate = crate;
+ MODULE_DESCRIPTION("STMicroelectronics CPUFreq/OPP driver");
+ MODULE_AUTHOR("Ajitpal Singh <ajitpal.singh@st.com>");
+ MODULE_AUTHOR("Lee Jones <lee.jones@linaro.org>");
+-- 
+2.27.0
+
 
 
