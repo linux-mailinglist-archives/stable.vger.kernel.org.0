@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFDD2E3BB4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B1C52E3A2C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407348AbgL1Nxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:53:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
+        id S2387847AbgL1NdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:33:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407344AbgL1Nxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47D6120731;
-        Mon, 28 Dec 2020 13:53:00 +0000 (UTC)
+        id S2387819AbgL1Nc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:32:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF25422582;
+        Mon, 28 Dec 2020 13:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163580;
-        bh=pbobAFUnOF/65W7j61JcGSUmojDKO3JIaZhZY4U1Wis=;
+        s=korg; t=1609162336;
+        bh=cEH1ohLZUhbTG5A4vYlmMy+XmPUBtcJyo7fVo6bKm4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vt6VqjQw/8YXWQpZUpCI84GYgIS1DD+RKx8AGI53QCQb2MnP6tMPxNJZgg4C6G7vi
-         5hwENDtub3GSqFXy+aie1nEXmpgVaJ1Z/sL2Mx3CAIyAgqDg0fMUs8nUjnLKMqiw+6
-         I6zBtAr6E9PgaHwJK7Zie+HAwz1mfy2JVh6ILJQE=
+        b=FA9hefT7L7RFjuRxcVWM18ySNd01qGttCA9MgIPcaZa6mgB1bdxE90tlq3ORSPi/B
+         ZBBu0ihqatXOQdpO1SE1+YtVjwyI8eT8qlJnl4uD65SrZ8iRNmXi1UhEtGlrne8fp1
+         mflmYUE9HFmDpp/A2K/CvIQamf8gjrYanln9CXJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 334/453] ALSA: hda: Fix regressions on clear and reconfig sysfs
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 251/346] kconfig: fix return value of do_error_if()
 Date:   Mon, 28 Dec 2020 13:49:30 +0100
-Message-Id: <20201228124953.292687207@linuxfoundation.org>
+Message-Id: <20201228124931.915987057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,54 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 2506318e382c4c7daa77bdc48f80a0ee82804588 upstream.
+[ Upstream commit 135b4957eac43af2aedf8e2a277b9540f33c2558 ]
 
-It seems that the HD-audio clear and reconfig sysfs don't work any
-longer after the recent driver core change.  There are multiple issues
-around that: the linked list corruption and the dead device handling.
-The former issue is fixed by another patch for the driver core itself,
-while the latter patch needs to be addressed in HD-audio side.
+$(error-if,...) is expanded to an empty string. Currently, it relies on
+eval_clause() returning xstrdup("") when all attempts for expansion fail,
+but the correct implementation is to make do_error_if() return xstrdup("").
 
-This patch corresponds to the latter, it recovers those broken
-functions by replacing the device detach and attach actions with the
-standard core API functions, which are almost equivalent with unbind
-and bind actions.
-
-Fixes: 654888327e9f ("driver core: Avoid binding drivers to dead devices")
-Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209207
-Link: https://lore.kernel.org/r/20201209150119.7705-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1d6272e6fe43 ("kconfig: add 'info', 'warning-if', and 'error-if' built-in functions")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c |    2 +-
- sound/pci/hda/hda_sysfs.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ scripts/kconfig/preprocess.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -1798,7 +1798,7 @@ int snd_hda_codec_reset(struct hda_codec
- 		return -EBUSY;
+diff --git a/scripts/kconfig/preprocess.c b/scripts/kconfig/preprocess.c
+index 5ca2df790d3cf..389814b02d06b 100644
+--- a/scripts/kconfig/preprocess.c
++++ b/scripts/kconfig/preprocess.c
+@@ -111,7 +111,7 @@ static char *do_error_if(int argc, char *argv[])
+ 	if (!strcmp(argv[0], "y"))
+ 		pperror("%s", argv[1]);
  
- 	/* OK, let it free */
--	snd_hdac_device_unregister(&codec->core);
-+	device_release_driver(hda_codec_dev(codec));
+-	return NULL;
++	return xstrdup("");
+ }
  
- 	/* allow device access again */
- 	snd_hda_unlock_devices(bus);
---- a/sound/pci/hda/hda_sysfs.c
-+++ b/sound/pci/hda/hda_sysfs.c
-@@ -139,7 +139,7 @@ static int reconfig_codec(struct hda_cod
- 			   "The codec is being used, can't reconfigure.\n");
- 		goto error;
- 	}
--	err = snd_hda_codec_configure(codec);
-+	err = device_reprobe(hda_codec_dev(codec));
- 	if (err < 0)
- 		goto error;
- 	err = snd_card_register(codec->card);
+ static char *do_filename(int argc, char *argv[])
+-- 
+2.27.0
+
 
 
