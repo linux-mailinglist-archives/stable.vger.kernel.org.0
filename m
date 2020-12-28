@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D5012E64E8
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 429972E42A8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390533AbgL1PyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:54:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
+        id S2407491AbgL1N6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390816AbgL1Ngw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C1D206ED;
-        Mon, 28 Dec 2020 13:36:10 +0000 (UTC)
+        id S2407502AbgL1N6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61DC1205CB;
+        Mon, 28 Dec 2020 13:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162571;
-        bh=cjrcKJRKTlQaJVVukEzFNSi7mHbwrPuKt96JV63yd+w=;
+        s=korg; t=1609163843;
+        bh=MqYK4bByvyed3WeX+W3EJNVYkbjV7CdwuADB16FkQpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kadHHvoO6OkRUg3IPz67vylZZYy7FY0VyYeUkaMapzCy7o1aKIl57KXVIMjKUgvbk
-         9U4FFNW9nBMtsPfr+SiUl48J2QJP3YCRD2CxzcsXgDBFLZkkUN1ysR+ai8ARKslEY7
-         38z30JrLS7hfGipw9b1erQ4HYLSqU7A+B6k73VtM=
+        b=rUzUaVkFPosAx8Fi6gE3DrHFDwfa1Pwn2QsAelAFO2+wPh+nV5LFz9YRprzDIAWS8
+         hpvxKaZOWZ5s6W4Muo77N/c+7AJOvktbjrmwArEI+/3sLo/tG/4pHdCkQjaMCSjc8t
+         Q/Egpvea00zqbmL78GsbY7c4BBcAlRknHhuM4iqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 4.19 344/346] libnvdimm/namespace: Fix reaping of invalidated block-window-namespace labels
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.4 427/453] iio:light:rpr0521: Fix timestamp alignment and prevent data leak.
 Date:   Mon, 28 Dec 2020 13:51:03 +0100
-Message-Id: <20201228124936.387142749@linuxfoundation.org>
+Message-Id: <20201228124957.772334772@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 upstream.
+commit a61817216bcc755eabbcb1cf281d84ccad267ed1 upstream.
 
-A recent change to ndctl to attempt to reconfigure namespaces in place
-uncovered a label accounting problem in block-window-type namespaces.
-The ndctl "create.sh" test is able to trigger this signature:
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv().
+This data is allocated with kzalloc() so no data can leak apart
+from previous readings and in this case the status byte from the device.
 
- WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
- [..]
- Call Trace:
-  uuid_store+0x21b/0x2f0 [libnvdimm]
-  kernfs_fop_write+0xcf/0x1c0
-  vfs_write+0xcc/0x380
-  ksys_write+0x68/0xe0
+The forced alignment of ts is not necessary in this case but it
+potentially makes the code less fragile.
 
-When allocated capacity for a namespace is renamed (new UUID) the labels
-with the old UUID need to be deleted. The ndctl behavior to always
-destroy namespaces on reconfiguration hid this problem.
+>From personal communications with Mikko:
 
-The immediate impact of this bug is limited since block-window-type
-namespaces only seem to exist in the specification and not in any
-shipping products. However, the label handling code is being reused for
-other technologies like CXL region labels, so there is a benefit to
-making sure both vertical labels sets (block-window) and horizontal
-label sets (pmem) have a functional reference implementation in
-libnvdimm.
+We could probably split the reading of the int register, but it
+would mean a significant performance cost of 20 i2c clock cycles.
 
-Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
-Cc: <stable@vger.kernel.org>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: e12ffd241c00 ("iio: light: rpr0521 triggered buffer")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-2-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/label.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iio/light/rpr0521.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -861,6 +861,15 @@ static int __blk_label_update(struct nd_
- 		}
- 	}
+--- a/drivers/iio/light/rpr0521.c
++++ b/drivers/iio/light/rpr0521.c
+@@ -194,6 +194,17 @@ struct rpr0521_data {
+ 	bool pxs_need_dis;
  
-+	/* release slots associated with any invalidated UUIDs */
-+	mutex_lock(&nd_mapping->lock);
-+	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
-+		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
-+			reap_victim(nd_mapping, label_ent);
-+			list_move(&label_ent->list, &list);
-+		}
-+	mutex_unlock(&nd_mapping->lock);
+ 	struct regmap *regmap;
 +
- 	/*
- 	 * Find the resource associated with the first label in the set
- 	 * per the v1.2 namespace specification.
++	/*
++	 * Ensure correct naturally aligned timestamp.
++	 * Note that the read will put garbage data into
++	 * the padding but this should not be a problem
++	 */
++	struct {
++		__le16 channels[3];
++		u8 garbage;
++		s64 ts __aligned(8);
++	} scan;
+ };
+ 
+ static IIO_CONST_ATTR(in_intensity_scale_available, RPR0521_ALS_SCALE_AVAIL);
+@@ -449,8 +460,6 @@ static irqreturn_t rpr0521_trigger_consu
+ 	struct rpr0521_data *data = iio_priv(indio_dev);
+ 	int err;
+ 
+-	u8 buffer[16]; /* 3 16-bit channels + padding + ts */
+-
+ 	/* Use irq timestamp when reasonable. */
+ 	if (iio_trigger_using_own(indio_dev) && data->irq_timestamp) {
+ 		pf->timestamp = data->irq_timestamp;
+@@ -461,11 +470,11 @@ static irqreturn_t rpr0521_trigger_consu
+ 		pf->timestamp = iio_get_time_ns(indio_dev);
+ 
+ 	err = regmap_bulk_read(data->regmap, RPR0521_REG_PXS_DATA,
+-		&buffer,
++		data->scan.channels,
+ 		(3 * 2) + 1);	/* 3 * 16-bit + (discarded) int clear reg. */
+ 	if (!err)
+ 		iio_push_to_buffers_with_timestamp(indio_dev,
+-						   buffer, pf->timestamp);
++						   &data->scan, pf->timestamp);
+ 	else
+ 		dev_err(&data->client->dev,
+ 			"Trigger consumer can't read from sensor.\n");
 
 
