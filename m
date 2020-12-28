@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CEB2E436A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 942022E3E58
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407057AbgL1Pdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
+        id S2502180AbgL1O1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407277AbgL1NxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83CBA2072C;
-        Mon, 28 Dec 2020 13:52:31 +0000 (UTC)
+        id S2503275AbgL1OZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AE720791;
+        Mon, 28 Dec 2020 14:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163552;
-        bh=+CvkO08wiDcRQXFR4yilABAA2C9YPLcojWICzMjdGdc=;
+        s=korg; t=1609165528;
+        bh=/8ee/wHfIlJuwhmBcBGroCS0Ii8mapdb0sG6eD+PMmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZZX8rtgp2lT7DNBt5A0APBLLRhzwYB0X90Q2ARtXsx+pEgyS2WYrRNLmVyoYXsbV
-         MI/Sxhzm2HH1cGPaPQYRakexz3fWejcNfnedHj5LEEyClcQVC1nm1gnQuBkDhb/Uwo
-         1Q6QRoSge/nHh1E43Zxc9L9cYaFMceH9u86r5CtQ=
+        b=ayj7+vQNJG4E0Nj9WfB1FIAitGDB4R64Yb3I1lVUxH2NZEobFt+pIVj6bL2apkFhY
+         KrhefXp8qvfPJC7NJyhXGiiY8HOocPoUzV5zmj+uqY7inGaz9YppYkykiArCgEGLKh
+         mo0P6ynHNzTQN2BrISViVlv9tgLhb9a3Hc2JjAJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 325/453] media: ipu3-cio2: Return actual subdev format
+        stable@vger.kernel.org, Rostislav Lisovy <lisovy@gmail.com>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.10 563/717] staging: comedi: mf6x4: Fix AI end-of-conversion detection
 Date:   Mon, 28 Dec 2020 13:49:21 +0100
-Message-Id: <20201228124952.849449166@linuxfoundation.org>
+Message-Id: <20201228125047.894600262@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 8160e86702e0807bd36d40f82648f9f9820b9d5a upstream.
+commit 56c90457ebfe9422496aac6ef3d3f0f0ea8b2ec2 upstream.
 
-Return actual subdev format on ipu3-cio2 subdev pads. The earlier
-implementation was based on an infinite recursion that exhausted the
-stack.
+I have had reports from two different people that attempts to read the
+analog input channels of the MF624 board fail with an `ETIMEDOUT` error.
 
-Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+After triggering the conversion, the code calls `comedi_timeout()` with
+`mf6x4_ai_eoc()` as the callback function to check if the conversion is
+complete.  The callback returns 0 if complete or `-EBUSY` if not yet
+complete.  `comedi_timeout()` returns `-ETIMEDOUT` if it has not
+completed within a timeout period which is propagated as an error to the
+user application.
+
+The existing code considers the conversion to be complete when the EOLC
+bit is high.  However, according to the user manuals for the MF624 and
+MF634 boards, this test is incorrect because EOLC is an active low
+signal that goes high when the conversion is triggered, and goes low
+when the conversion is complete.  Fix the problem by inverting the test
+of the EOLC bit state.
+
+Fixes: 04b565021a83 ("comedi: Humusoft MF634 and MF624 DAQ cards driver")
+Cc: <stable@vger.kernel.org> # v4.4+
+Cc: Rostislav Lisovy <lisovy@gmail.com>
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20201207145806.4046-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |   24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ drivers/staging/comedi/drivers/mf6x4.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1244,29 +1244,11 @@ static int cio2_subdev_get_fmt(struct v4
- 			       struct v4l2_subdev_format *fmt)
- {
- 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
--	struct v4l2_subdev_format format;
--	int ret;
+--- a/drivers/staging/comedi/drivers/mf6x4.c
++++ b/drivers/staging/comedi/drivers/mf6x4.c
+@@ -112,8 +112,9 @@ static int mf6x4_ai_eoc(struct comedi_de
+ 	struct mf6x4_private *devpriv = dev->private;
+ 	unsigned int status;
  
--	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-+	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
- 		fmt->format = *v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
--		return 0;
--	}
--
--	if (fmt->pad == CIO2_PAD_SINK) {
--		format.which = V4L2_SUBDEV_FORMAT_ACTIVE;
--		ret = v4l2_subdev_call(sd, pad, get_fmt, NULL,
--				       &format);
--
--		if (ret)
--			return ret;
--		/* update colorspace etc */
--		q->subdev_fmt.colorspace = format.format.colorspace;
--		q->subdev_fmt.ycbcr_enc = format.format.ycbcr_enc;
--		q->subdev_fmt.quantization = format.format.quantization;
--		q->subdev_fmt.xfer_func = format.format.xfer_func;
--	}
--
--	fmt->format = q->subdev_fmt;
-+	else
-+		fmt->format = q->subdev_fmt;
- 
- 	return 0;
++	/* EOLC goes low at end of conversion. */
+ 	status = ioread32(devpriv->gpioc_reg);
+-	if (status & MF6X4_GPIOC_EOLC)
++	if ((status & MF6X4_GPIOC_EOLC) == 0)
+ 		return 0;
+ 	return -EBUSY;
  }
 
 
