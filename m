@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF542E3645
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:15:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056622E3648
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727094AbgL1LPE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:15:04 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:38617 "EHLO
+        id S1727163AbgL1LPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:15:12 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47539 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727032AbgL1LPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:15:03 -0500
+        by vger.kernel.org with ESMTP id S1727032AbgL1LPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:15:12 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id BBBDD82B;
-        Mon, 28 Dec 2020 06:13:57 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:13:57 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 3E5D282C;
+        Mon, 28 Dec 2020 06:14:06 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:14:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=doQR5X
-        nftFLXRDW+hxNfgFN2b8kL0n9RACkjhQgYwPo=; b=N89X3OT5CDjQK+UA/zoCVB
-        rOKw9VWGdnioMZlR9PqraYbxWqqU0GXlBYQspPJQOIVoYa1LtLS4W1GSXuwnN04a
-        VAIttFE3dZbP72M3gyKQSDdwNzmIgzLUYrexBAOtmT2FvwcULrRxG8/HmBIyS8FN
-        Tobb0rZfSiSxIp6MR8X8fS6v5PWuJRSNgQ7ne+bs0+MHgJgu7MehXK/JDk+ZoVEx
-        uKsOpCfbADQJhdDGtxmRJFmbSIM9HHzX0r+HyE3SI1lHncihMOweHIhEZfU5U5FR
-        p7Tk5fA+zyH4TwN+e2ULeF/rvHrrIBxHM6zJlRecMXNvpKo2FQBd8IH11V6wqDgQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=n9bjYc
+        ox0Ni2uf3WjqJY97onBhLFpz6Cfp5Fumy85lE=; b=cJJjbUyLtyqUJ0UJQwCb64
+        m++5Ifk0I6lymqZJwwMAFfHZNJPCVqYHiClTt32SqK+xRQDZQKlFS/XH3Ar/g2Vw
+        3TJUZiHC8V8QNbqOx5/TwP9t8eJYSdyAQ6ZA8ZCiIAhaPMZdCFPS5vgQl873CQZ1
+        IF0SNgmcnNQnOLtJ8IAbVpvpZ1YXDoPMSWxGYIvdWwfejjV7/lOBi0pQFcUP7jkZ
+        D4j3ddg8tCvuZS2MPBRc6n6PtuXDNO3VyiWsTif7agQub9+o9xXn9jxiRYRGs8Bu
+        zy39BFVc6o0dWDOjfVnQyXrxoZlKXFLUKkLmcuTT/C7stE7F7B7lq9zrz18xol1g
         ==
-X-ME-Sender: <xms:9b3pXzf5w3VQxprXxUJISr2hohbNydfzp3ZmoyU9mneBURvqvJWtkg>
-    <xme:9b3pX5OiAu98rGG_JYX6dZPJdake6KGrdB2q6Tm4hVAe9-u6JGemEVF6gU3mgV-zA
-    jfMgauYiq1Rrg>
+X-ME-Sender: <xms:_b3pX2F8RRZ3C4R1he1Utwog2Cl6FNXgGu_ApGJpHZ2CrqV0kf5XoQ>
+    <xme:_b3pX3U3t_h2kSeUauW6lT1h9JsywS9ZJBfxKD1EOXW5K-nbhjVobYs9WuTaME6jF
+    XuEuZ-Bmnnx7Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:9b3pX8iiE3MLjLWDOv5BbKaZQn6_wLBmVQ543m5MtwE5bUDX8OTNMg>
-    <xmx:9b3pX09r32jQCTCUvjV5xSVk1ezFmwngNDq-TP4EbNh62GUl4RO29g>
-    <xmx:9b3pX_tuoQxNB837NPmokJl0eStbna5ZOm4b3DaeoIOlkIT72kgTBA>
-    <xmx:9b3pX91Q1-5dZBeMj17nAV-RO8dWXE8cqAb3ohFTlKEM1bMw6EgsvGCx5BI>
+X-ME-Proxy: <xmx:_b3pXwITEg9Ek1ueQTu9A1gK0KnvFI42X09GiCQ_sJyfXx9qtxgbNA>
+    <xmx:_b3pXwFQgS6FVwn3wLwHLwGCmKdLwHLskqok7PDWFC8G17jxmbH3aA>
+    <xmx:_b3pX8W6H9aUyu6jpf5xA6F__GPlnTTX6ZDC7A5fbfGau8X89wxC_g>
+    <xmx:_b3pX1fOuVAXRD49o5KAlOIhPz9BA9ObSEPOpKztkYlGoz4REIbEPOfznbw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EC973108005C;
-        Mon, 28 Dec 2020 06:13:56 -0500 (EST)
-Subject: FAILED: patch "[PATCH] md/raid10: initialize r10_bio->read_slot before use." failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 878E8240062;
+        Mon, 28 Dec 2020 06:14:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] md/raid10: initialize r10_bio->read_slot before use." failed to apply to 5.4-stable tree
 To:     kvigor@gmail.com, songliubraving@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 28 Dec 2020 12:15:20 +0100
-Message-ID: <160915412025445@kroah.com>
+Message-ID: <160915412088113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
