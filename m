@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 218FD2E4234
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:20:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE942E4264
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436914AbgL1OCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36368 "EHLO mail.kernel.org"
+        id S1728040AbgL1OCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436909AbgL1OCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB28E207B6;
-        Mon, 28 Dec 2020 14:01:56 +0000 (UTC)
+        id S2436819AbgL1OCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66EA4207A9;
+        Mon, 28 Dec 2020 14:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164117;
-        bh=ksdiw6UQcVF/xUC2KcPYMyRnWtQpsKdadddnRXN56ow=;
+        s=korg; t=1609164119;
+        bh=LyuqagvAZnhjEVnA+8H7ULKSX4ToYQRil6fFJvJUzKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1PzIw/i87Uf7CFwEiNPHFeZP1vk3RyD9Td3XXKiVY1YBdxIw6BsFvhCQlyj9FjiR
-         VrFqaq15z+0K/wu97XWtbUzDeLW66iTsmNbRAxYGGWWHC0flBcKOmkan9JV8Ul07CO
-         AFIeVbuUoLZkeod0NG9Kt6r99NCRRWlCDwH24vL4=
+        b=ck7FqFLQU1O9S4/wKBbCTelnjM3nNuyw3Vfu3gA4oJ2HDwnRbEVeM2xh2zF5kxFhg
+         bjgpizu+TSNx17qFp1D0uOBMtSrEYO4rZhv7o9lLyazD3p1WuRzFN1vXRJvoQf0Ge2
+         mGVBmeX0L+7LD3To7NujzntEWZ8sZF0HHsAf5ioY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org,
+        Karthikeyan Periyasamy <periyasa@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/717] ath11k: Fix number of rules in filtered ETSI regdomain
-Date:   Mon, 28 Dec 2020 13:41:04 +0100
-Message-Id: <20201228125024.158153730@linuxfoundation.org>
+Subject: [PATCH 5.10 067/717] ath11k: fix wmi init configuration
+Date:   Mon, 28 Dec 2020 13:41:05 +0100
+Message-Id: <20201228125024.206493233@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,71 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Karthikeyan Periyasamy <periyasa@codeaurora.org>
 
-[ Upstream commit 6189be7d145c3a2d48514eb8755483602ff5a4b4 ]
+[ Upstream commit 36c7c640ffeb87168e5ff79b7a36ae3a020bd378 ]
 
-The ath11k code will try to insert wheather rader related limits when the
-DFS region is set to ETSI. For this reason, it will add two more entries in
-the array of reg_rules. But the 2.4.0.1 firmware is prefiltering the list
-of reg rules it returns for 2.4GHz PHYs. They will then not contain the
-list of 5GHz rules and thus no wheather radar band rules were inserted by
-this code.
+Assign the correct hw_op ath11k_init_wmi_config_ipq8074 to
+the hw IPQ8074. Also update the correct TWT radio count.
+Incorrect TWT radio count cause TWT feature fails on radio2
+because physical device count is hardcoded to 2. so set
+the value dynamically.
 
-But the code didn't fix the n_reg_rules for this regulatory domain and PHY
-when this happened. This resulted in a rejection by is_valid_rd because it
-found rules which start and end at 0khz. This resulted in a splat like:
+Found this during code review.
 
-  Invalid regulatory domain detected
-  ------------[ cut here ]------------
-  WARNING: at backports-20200628-4.4.60-9a94b73e75/net/wireless/reg.c:3721
-  [...]
-  ath11k c000000.wifi1: failed to perform regd update : -22
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.1.0.1-01238-QCAHKSWPL_SILICONZ-2
 
-The number of rules must therefore be saved after they were converted from
-the ath11k format to the ieee80211_regdomain format and not before.
-
-Tested with IPQ8074 WLAN.HK.2.4.0.1.r1-00019-QCAHKSWPL_SILICONZ-1
-
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: 2d4bcbed5b7d53e1 ("ath11k: initialize wmi config based on hw_params")
+Signed-off-by: Karthikeyan Periyasamy <periyasa@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201030101940.2387952-1-sven@narfation.org
+Link: https://lore.kernel.org/r/1604512020-25197-1-git-send-email-periyasa@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/reg.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/hw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
-index 83f75f8855ebe..678d0885fcee7 100644
---- a/drivers/net/wireless/ath/ath11k/reg.c
-+++ b/drivers/net/wireless/ath/ath11k/reg.c
-@@ -585,7 +585,6 @@ ath11k_reg_build_regd(struct ath11k_base *ab,
- 	if (!tmp_regd)
- 		goto ret;
+diff --git a/drivers/net/wireless/ath/ath11k/hw.c b/drivers/net/wireless/ath/ath11k/hw.c
+index 11a411b76fe42..66331da350129 100644
+--- a/drivers/net/wireless/ath/ath11k/hw.c
++++ b/drivers/net/wireless/ath/ath11k/hw.c
+@@ -127,7 +127,7 @@ static void ath11k_init_wmi_config_ipq8074(struct ath11k_base *ab,
+ 	config->beacon_tx_offload_max_vdev = ab->num_radios * TARGET_MAX_BCN_OFFLD;
+ 	config->rx_batchmode = TARGET_RX_BATCHMODE;
+ 	config->peer_map_unmap_v2_support = 1;
+-	config->twt_ap_pdev_count = 2;
++	config->twt_ap_pdev_count = ab->num_radios;
+ 	config->twt_ap_sta_count = 1000;
+ }
  
--	tmp_regd->n_reg_rules = num_rules;
- 	memcpy(tmp_regd->alpha2, reg_info->alpha2, REG_ALPHA2_LEN + 1);
- 	memcpy(alpha2, reg_info->alpha2, REG_ALPHA2_LEN + 1);
- 	alpha2[2] = '\0';
-@@ -598,7 +597,7 @@ ath11k_reg_build_regd(struct ath11k_base *ab,
- 	/* Update reg_rules[] below. Firmware is expected to
- 	 * send these rules in order(2G rules first and then 5G)
- 	 */
--	for (; i < tmp_regd->n_reg_rules; i++) {
-+	for (; i < num_rules; i++) {
- 		if (reg_info->num_2g_reg_rules &&
- 		    (i < reg_info->num_2g_reg_rules)) {
- 			reg_rule = reg_info->reg_rules_2g_ptr + i;
-@@ -653,6 +652,8 @@ ath11k_reg_build_regd(struct ath11k_base *ab,
- 			   flags);
- 	}
+@@ -157,7 +157,7 @@ static int ath11k_hw_mac_id_to_srng_id_qca6390(struct ath11k_hw_params *hw,
  
-+	tmp_regd->n_reg_rules = i;
-+
- 	if (intersect) {
- 		default_regd = ab->default_regd[reg_info->phy_id];
- 
+ const struct ath11k_hw_ops ipq8074_ops = {
+ 	.get_hw_mac_from_pdev_id = ath11k_hw_ipq8074_mac_from_pdev_id,
+-	.wmi_init_config = ath11k_init_wmi_config_qca6390,
++	.wmi_init_config = ath11k_init_wmi_config_ipq8074,
+ 	.mac_id_to_pdev_id = ath11k_hw_mac_id_to_pdev_id_ipq8074,
+ 	.mac_id_to_srng_id = ath11k_hw_mac_id_to_srng_id_ipq8074,
+ };
 -- 
 2.27.0
 
