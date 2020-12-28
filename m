@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9772E3E5E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C0F02E4370
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502231AbgL1O1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:27:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35088 "EHLO mail.kernel.org"
+        id S2391535AbgL1Pdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502213AbgL1O1O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA53C221F0;
-        Mon, 28 Dec 2020 14:26:33 +0000 (UTC)
+        id S2407425AbgL1NyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87605207B2;
+        Mon, 28 Dec 2020 13:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165594;
-        bh=IYo9dDO2K3mUSRTp/Lolj/l9f38TYl0dyTsQTsF9z04=;
+        s=korg; t=1609163620;
+        bh=68WcUA4SCIq5euYBlkcE9hSO8wqkCfcl9VXdHARhno0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yF576i30Edtmw6+ucAOA9c2NfcjvD58zJpcCeQPlWGhtav7ym0YGhLVJTQAnrcUU6
-         fy66q7DBRbLY8x+apTO2Qm46oPSd1ZqjX/hHj1G0en1xFBcZUGRZ3AThgR2Krr2DCb
-         9ygW/trp5mhSchQlrN8KNwJZrzqzAVj044a8Dyi8=
+        b=rWPPKWM0mRgpAd/jca+R2iSEaEuBwirvX8wMP5Y+zsRrpEADqDb2SCJOGk+KqQ7b1
+         0VkZ+GoQjicF24/hB5Q7c0mZEqDzd801lM9NcUqbMcnHmTztKwid4BcYhVlNTgz3mR
+         v+vrmlBwsUrNHW6tBPDJQrW52BDlGaPdWF0YRAXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 587/717] btrfs: do not shorten unpin len for caching block groups
-Date:   Mon, 28 Dec 2020 13:49:45 +0100
-Message-Id: <20201228125049.038838478@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 350/453] s390/dasd: prevent inconsistent LCU device data
+Date:   Mon, 28 Dec 2020 13:49:46 +0100
+Message-Id: <20201228124954.052404902@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 9076dbd5ee837c3882fc42891c14cecd0354a849 upstream.
+commit a29ea01653493b94ea12bb2b89d1564a265081b6 upstream.
 
-While fixing up our ->last_byte_to_unpin locking I noticed that we will
-shorten len based on ->last_byte_to_unpin if we're caching when we're
-adding back the free space.  This is correct for the free space, as we
-cannot unpin more than ->last_byte_to_unpin, however we use len to
-adjust the ->bytes_pinned counters and such, which need to track the
-actual pinned usage.  This could result in
-WARN_ON(space_info->bytes_pinned) triggering at unmount time.
+Prevent _lcu_update from adding a device to a pavgroup if the LCU still
+requires an update. The data is not reliable any longer and in parallel
+devices might have been moved on the lists already.
+This might lead to list corruptions or invalid PAV grouping.
+Only add devices to a pavgroup if the LCU is up to date. Additional steps
+are taken by the scheduled lcu update.
 
-Fix this by using a local variable for the amount to add to free space
-cache, and leave len untouched in this case.
-
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/s390/block/dasd_alias.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -2816,10 +2816,10 @@ static int unpin_extent_range(struct btr
- 		len = cache->start + cache->length - start;
- 		len = min(len, end + 1 - start);
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -511,6 +511,14 @@ static int _lcu_update(struct dasd_devic
+ 		return rc;
  
--		if (start < cache->last_byte_to_unpin) {
--			len = min(len, cache->last_byte_to_unpin - start);
--			if (return_free_space)
--				btrfs_add_free_space(cache, start, len);
-+		if (start < cache->last_byte_to_unpin && return_free_space) {
-+			u64 add_len = min(len, cache->last_byte_to_unpin - start);
-+
-+			btrfs_add_free_space(cache, start, add_len);
- 		}
- 
- 		start += len;
+ 	spin_lock_irqsave(&lcu->lock, flags);
++	/*
++	 * there is another update needed skip the remaining handling
++	 * the data might already be outdated
++	 * but especially do not add the device to an LCU with pending
++	 * update
++	 */
++	if (lcu->flags & NEED_UAC_UPDATE)
++		goto out;
+ 	lcu->pav = NO_PAV;
+ 	for (i = 0; i < MAX_DEVICES_PER_LCU; ++i) {
+ 		switch (lcu->uac->unit[i].ua_type) {
+@@ -529,6 +537,7 @@ static int _lcu_update(struct dasd_devic
+ 				 alias_list) {
+ 		_add_device_to_lcu(lcu, device, refdev);
+ 	}
++out:
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
+ 	return 0;
+ }
 
 
