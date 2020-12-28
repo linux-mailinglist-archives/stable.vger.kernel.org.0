@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAAA2E3DA4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE192E63EC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441541AbgL1OSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:18:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
+        id S2404695AbgL1PpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:45:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2501901AbgL1OSF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:18:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 616C62063A;
-        Mon, 28 Dec 2020 14:17:49 +0000 (UTC)
+        id S2404700AbgL1Nox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49013206D4;
+        Mon, 28 Dec 2020 13:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165069;
-        bh=EKJnTgmYjfQDlmE4nxLKoVdPvPPIgNciSunl03w56J8=;
+        s=korg; t=1609163077;
+        bh=Odzqy1uJbLLqHLbq5wtNqKP57ACPsZmos0XYpZehMlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haxPCvbR9ei4hb6H/GewiXvYyk+vgx0JqbirVBmQuBRDcOQe1pBjC32555ny91kAc
-         fCboG6eoaX7D9IizU+Eg9wI5EU308BYMKtbi4EiVZP0k1ok/pOXI2VOr9sHZkXOnoS
-         +PlEPZ1MVGWqlkJpcoDK8ChdN1kQqW1DxysjxI0I=
+        b=ZwzhVdkYBDCXqu7yHtZ7Mzgbe9PdI+ri82hkPpCrxIW/cI4CczCfnCJA52wu9mf9r
+         T62vRwgmMyfS1zDKbNiZItd+hZuxnx2U0j1uNoWtN+B7N6QUvTJ5re49+XTKQNbSWi
+         jLbTWKEcGIszcVcZKL0Dt+l9a5DdRPx5k1bJ8ZuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alexandre Courbot <acourbot@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 399/717] remoteproc/mtk_scp: surround DT device IDs with CONFIG_OF
+Subject: [PATCH 5.4 161/453] ARM: dts: at91: sama5d4_xplained: add pincontrol for USB Host
 Date:   Mon, 28 Dec 2020 13:46:37 +0100
-Message-Id: <20201228125040.108331111@linuxfoundation.org>
+Message-Id: <20201228124944.957814734@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Courbot <acourbot@chromium.org>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit e59aef4edc45133ccb10b8e962cb74dcf1e3240b ]
+[ Upstream commit be4dd2d448816a27c1446f8f37fce375daf64148 ]
 
-Now that this driver can be compiled with COMPILE_TEST, we have no
-guarantee that CONFIG_OF will also be defined. When that happens, a
-warning about mtk_scp_of_match being defined but unused will be reported
-so make sure this variable is only defined if of_match_ptr() actually
-uses it.
+The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
+it the driver probes but VBus is not powered because of wrong pincontrol
+configuration.
 
-Fixes: cbd2dca74926c0e4610c40923cc786b732c9e8ef remoteproc: scp: add COMPILE_TEST dependency
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
-Link: https://lore.kernel.org/r/20201102074007.299222-1-acourbot@chromium.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 38153a017896f ("ARM: at91/dt: sama5d4: add dts for sama5d4 xplained board")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Link: https://lore.kernel.org/r/20201118120019.1257580-3-cristian.birsan@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/mtk_scp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
-index 577cbd5d421ec..f74f22d4d1ffc 100644
---- a/drivers/remoteproc/mtk_scp.c
-+++ b/drivers/remoteproc/mtk_scp.c
-@@ -772,12 +772,14 @@ static const struct mtk_scp_of_data mt8192_of_data = {
- 	.host_to_scp_int_bit = MT8192_HOST_IPC_INT_BIT,
- };
+diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+index fdfc37d716e01..1d101067371b4 100644
+--- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+@@ -133,6 +133,11 @@
+ 						atmel,pins =
+ 							<AT91_PIOE 31 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;
+ 					};
++					pinctrl_usb_default: usb_default {
++						atmel,pins =
++							<AT91_PIOE 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOE 14 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
+ 					pinctrl_key_gpio: key_gpio_0 {
+ 						atmel,pins =
+ 							<AT91_PIOE 8 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+@@ -158,6 +163,8 @@
+ 					   &pioE 11 GPIO_ACTIVE_HIGH
+ 					   &pioE 14 GPIO_ACTIVE_HIGH
+ 					  >;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usb_default>;
+ 			status = "okay";
+ 		};
  
-+#if defined(CONFIG_OF)
- static const struct of_device_id mtk_scp_of_match[] = {
- 	{ .compatible = "mediatek,mt8183-scp", .data = &mt8183_of_data },
- 	{ .compatible = "mediatek,mt8192-scp", .data = &mt8192_of_data },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, mtk_scp_of_match);
-+#endif
- 
- static struct platform_driver mtk_scp_driver = {
- 	.probe = scp_probe,
 -- 
 2.27.0
 
