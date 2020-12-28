@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0FF2E3E73
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A942E431B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502298AbgL1O2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:28:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
+        id S2392834AbgL1Pae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:30:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502267AbgL1O2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:28:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B69E20731;
-        Mon, 28 Dec 2020 14:27:26 +0000 (UTC)
+        id S2405169AbgL1NzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:55:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E86082072C;
+        Mon, 28 Dec 2020 13:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165647;
-        bh=tdGdLUZfsF7tFpOXL0/+HJPdzx8bUH55MqPcJijOdC4=;
+        s=korg; t=1609163671;
+        bh=7cQDaEUqqy2Z+ZsG1YF2Up5+GInOJP/+GzQEoaKyGPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3Ij4Xz9M3EloWeIkbfn1N325A+4dNTL7Fnqw+2nZujW1s/74rlvduscV/eqxgDfQ
-         iyrYrkR5mfQD4mbbuNfJ2mUeyEDLTCweiB5bg2/xhC0TPE1n1aBEr2o5PAEX5QVfOf
-         wh348XKQoJb75Zi8bXRiTpn3zJjAjsp57Rq4owBQ=
+        b=qgicSZ7fQpuyTtPYEnnlR3WBRj0kV3WMM0Ehsz2g8qRCCdXNPgaeHsW+CtdsOZoxW
+         UGSXyb9vwkiKjnOL8d0cc5GOaefIbNrH0tFd5v5TQP6Nlulp7pg9r/ozttP6q3MGfa
+         gBC3QNOHANijIPWIOfM4P9sCVAeRFKA1rkN8K+q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Sneddon <dan.sneddon@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Cristian Birsan <cristian.birsan@microchip.com>
-Subject: [PATCH 5.10 604/717] ARM: dts: at91: sama5d2: fix CAN message ram offset and size
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 366/453] USB: serial: keyspan_pda: fix dropped unthrottle interrupts
 Date:   Mon, 28 Dec 2020 13:50:02 +0100
-Message-Id: <20201228125049.845682248@linuxfoundation.org>
+Message-Id: <20201228124954.818486155@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 85b8350ae99d1300eb6dc072459246c2649a8e50 upstream.
+commit 696c541c8c6cfa05d65aa24ae2b9e720fc01766e upstream.
 
-CAN0 and CAN1 instances share the same message ram configured
-at 0x210000 on sama5d2 Linux systems.
-According to current configuration of CAN0, we need 0x1c00 bytes
-so that the CAN1 don't overlap its message ram:
-64 x RX FIFO0 elements => 64 x 72 bytes
-32 x TXE (TX Event FIFO) elements => 32 x 8 bytes
-32 x TXB (TX Buffer) elements => 32 x 72 bytes
-So a total of 7168 bytes (0x1C00).
+Commit c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity
+checks") broke write-unthrottle handling by dropping well-formed
+unthrottle-interrupt packets which are precisely two bytes long. This
+could lead to blocked writers not being woken up when buffer space again
+becomes available.
 
-Fix offset to match this needed size.
-Make the CAN0 message ram ioremap match exactly this size so that is
-easily understandable.  Adapt CAN1 size accordingly.
+Instead, stop unconditionally printing the third byte which is
+(presumably) only valid on modem-line changes.
 
-Fixes: bc6d5d7666b7 ("ARM: dts: at91: sama5d2: add m_can nodes")
-Reported-by: Dan Sneddon <dan.sneddon@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Cc: stable@vger.kernel.org # v4.13+
-Link: https://lore.kernel.org/r/20201203091949.9015-1-nicolas.ferre@microchip.com
+Fixes: c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity checks")
+Cc: stable <stable@vger.kernel.org>     # 4.11
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sama5d2.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/serial/keyspan_pda.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/sama5d2.dtsi
-+++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -725,7 +725,7 @@
- 
- 			can0: can@f8054000 {
- 				compatible = "bosch,m_can";
--				reg = <0xf8054000 0x4000>, <0x210000 0x4000>;
-+				reg = <0xf8054000 0x4000>, <0x210000 0x1c00>;
- 				reg-names = "m_can", "message_ram";
- 				interrupts = <56 IRQ_TYPE_LEVEL_HIGH 7>,
- 					     <64 IRQ_TYPE_LEVEL_HIGH 7>;
-@@ -1131,7 +1131,7 @@
- 
- 			can1: can@fc050000 {
- 				compatible = "bosch,m_can";
--				reg = <0xfc050000 0x4000>, <0x210000 0x4000>;
-+				reg = <0xfc050000 0x4000>, <0x210000 0x3800>;
- 				reg-names = "m_can", "message_ram";
- 				interrupts = <57 IRQ_TYPE_LEVEL_HIGH 7>,
- 					     <65 IRQ_TYPE_LEVEL_HIGH 7>;
-@@ -1141,7 +1141,7 @@
- 				assigned-clocks = <&pmc PMC_TYPE_GCK 57>;
- 				assigned-clock-parents = <&pmc PMC_TYPE_CORE PMC_UTMI>;
- 				assigned-clock-rates = <40000000>;
--				bosch,mram-cfg = <0x1100 0 0 64 0 0 32 32>;
-+				bosch,mram-cfg = <0x1c00 0 0 64 0 0 32 32>;
- 				status = "disabled";
- 			};
- 
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -172,11 +172,11 @@ static void keyspan_pda_rx_interrupt(str
+ 		break;
+ 	case 1:
+ 		/* status interrupt */
+-		if (len < 3) {
++		if (len < 2) {
+ 			dev_warn(&port->dev, "short interrupt message received\n");
+ 			break;
+ 		}
+-		dev_dbg(&port->dev, "rx int, d1=%d, d2=%d\n", data[1], data[2]);
++		dev_dbg(&port->dev, "rx int, d1=%d\n", data[1]);
+ 		switch (data[1]) {
+ 		case 1: /* modemline change */
+ 			break;
 
 
