@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BB42E3C77
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B372E422E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:19:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408156AbgL1ODC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:03:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35002 "EHLO mail.kernel.org"
+        id S2408197AbgL1ODD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:03:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408173AbgL1OBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7292822D00;
-        Mon, 28 Dec 2020 14:00:26 +0000 (UTC)
+        id S2408227AbgL1OBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:01:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6640B2063A;
+        Mon, 28 Dec 2020 14:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164027;
-        bh=1WMjNZBFhbo/9anFrqb4NAA6D1BrrnXWGMGbP+Jftoc=;
+        s=korg; t=1609164030;
+        bh=xXmUcyNx60P9UdWq+qAIX9MVbO02kG2WpvxFUgk9teo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVtaddPVJIUQPeC9ejRAtyglLEfV82eNvQKIhUINxE1Y2W3egWyjFKHcoOnn2RR/w
-         i9GXmpJ0U6Dv4ZE5TUDmkjA12lBEDPsycqnDFZS8RHoa/4xL8NzHwTYCNfTkvQnEbQ
-         Fg8T84/uFv2l8sTd22R32p+owu6FIZqzQe9TgJis=
+        b=tUjT+OpBW22llVe1B9hepJNXZsquWMCTlKjm4qMy8iYovX71CyDLzGtpEFafBrKzx
+         IOvXOF2pJj/urbPzNRPuttl6Cq36CgimddwuzVB4Rc1CRhSNTbbHatsoNZxUl3pwsL
+         whgy6TMY0Vew6pCBuIKaoKgujefn7ldAAjZKAvUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 034/717] crypto: talitos - Endianess in current_desc_hdr()
-Date:   Mon, 28 Dec 2020 13:40:32 +0100
-Message-Id: <20201228125022.625771962@linuxfoundation.org>
+Subject: [PATCH 5.10 035/717] crypto: talitos - Fix return type of current_desc_hdr()
+Date:   Mon, 28 Dec 2020 13:40:33 +0100
+Message-Id: <20201228125022.674149674@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,49 +43,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 195404db27f9533c71fdcb78d32a77075c2cb4a2 ]
+[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
 
-current_desc_hdr() compares the value of the current descriptor
-with the next_desc member of the talitos_desc struct.
+current_desc_hdr() returns a u32 but in fact this is a __be32,
+leading to a lot of sparse warnings.
 
-While the current descriptor is obtained from in_be32() which
-return CPU ordered bytes, next_desc member is in big endian order.
+Change the return type to __be32 and ensure it is handled as
+sure by the caller.
 
-Convert the current descriptor into big endian before comparing it
-with next_desc.
-
-This fixes a sparse warning.
-
-Fixes: 37b5e8897eb5 ("crypto: talitos - chain in buffered data for ahash on SEC1")
+Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/talitos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 66773892f665d..1de6b01381268 100644
+index 1de6b01381268..a713a35dc5022 100644
 --- a/drivers/crypto/talitos.c
 +++ b/drivers/crypto/talitos.c
-@@ -478,7 +478,7 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+@@ -460,7 +460,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
+ /*
+  * locate current (offending) descriptor
+  */
+-static u32 current_desc_hdr(struct device *dev, int ch)
++static __be32 current_desc_hdr(struct device *dev, int ch)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int tail, iter;
+@@ -501,13 +501,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+ /*
+  * user diagnostics; report root cause of error based on execution unit status
+  */
+-static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
++static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int i;
  
- 	iter = tail;
- 	while (priv->chan[ch].fifo[iter].dma_desc != cur_desc &&
--	       priv->chan[ch].fifo[iter].desc->next_desc != cur_desc) {
-+	       priv->chan[ch].fifo[iter].desc->next_desc != cpu_to_be32(cur_desc)) {
- 		iter = (iter + 1) & (priv->fifo_len - 1);
- 		if (iter == tail) {
- 			dev_err(dev, "couldn't locate current descriptor\n");
-@@ -486,7 +486,7 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- 		}
- 	}
+ 	if (!desc_hdr)
+-		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
++		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
  
--	if (priv->chan[ch].fifo[iter].desc->next_desc == cur_desc) {
-+	if (priv->chan[ch].fifo[iter].desc->next_desc == cpu_to_be32(cur_desc)) {
- 		struct talitos_edesc *edesc;
- 
- 		edesc = container_of(priv->chan[ch].fifo[iter].desc,
+ 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
+ 	case DESC_HDR_SEL0_AFEU:
 -- 
 2.27.0
 
