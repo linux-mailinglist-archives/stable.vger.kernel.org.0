@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9313C2E6420
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EBA2E3D79
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404381AbgL1PsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:48:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S2440774AbgL1OP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404371AbgL1NnD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:43:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E478922472;
-        Mon, 28 Dec 2020 13:42:21 +0000 (UTC)
+        id S2440768AbgL1OPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:15:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAED122CF6;
+        Mon, 28 Dec 2020 14:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162942;
-        bh=uK7ZcFfCS7K7aNfFEFcM0fZ+Z+I7c2//vK28nrvLgZ4=;
+        s=korg; t=1609164938;
+        bh=5/jvXtiDzaCr/A3O3ffVuXisz9gIdE831MVBfqnTdNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efbAyz7Vb7hVzkwmqGcdpS7Shhqt0IkUKI+Y4NptEl69qUUZvaYIXxyDrLhZCicBK
-         O/b8X0sW3DkZWs47WaCncVfsJZqkuaCFzkuVwN8NJnGHwQxYPwM498NaxhyxGnDMhQ
-         pdB7gYWdtrpAh9J3CbyUsgJZ4NgOMiF+m3TvW4nI=
+        b=pIuEbeL7+pVJBE3uz1mdi4ihcbwPiG5eAPUBRp9jDnnbRQnAHJNt2VC3LJGxCqrE2
+         rhWd+CPraZfnmWf+zA09HVqP2HISvfGKRaT00Q/6UZOsxM0/+tTjlqvqwtV38vENQC
+         /wGUFjH+V5fkLUK4egv+XdJSf+BkkZLKQyMznno8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/453] spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
+Subject: [PATCH 5.10 353/717] arm64: dts: meson: g12a: x96-max: fix PHY deassert timing requirements
 Date:   Mon, 28 Dec 2020 13:45:51 +0100
-Message-Id: <20201228124942.746942335@linuxfoundation.org>
+Message-Id: <20201228125037.931757656@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit 702b15cb97123cedcec56a39d9a21c5288eb9ae1 ]
+[ Upstream commit 3d07c3b3a886fefd583c1b485b5e4e3c4e2da493 ]
 
-Fix the missing clk_disable_unprepare() before return
-from mt7621_spi_probe in the error handling case.
+According to the datasheet (Rev. 1.9) the RTL8211F requires at least
+72ms "for internal circuits settling time" before accessing the PHY
+registers. On similar boards with the same PHY this fixes an issue where
+Ethernet link would not come up when using ip link set down/up.
 
-Fixes: cbd66c626e16 ("spi: mt7621: Move SPI driver out of staging")
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201103074912.195576-1-miaoqinglang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ed5e8f689154 ("arm64: dts: meson: g12a: x96-max: fix the Ethernet PHY reset line")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/12506964ca5d5f936579a280ad0a7e7f9a0a2d4c.1607363522.git.stefan@agner.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt7621.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
-index 2c3b7a2a1ec77..2cdae7994e2aa 100644
---- a/drivers/spi/spi-mt7621.c
-+++ b/drivers/spi/spi-mt7621.c
-@@ -353,6 +353,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
- 	master = spi_alloc_master(&pdev->dev, sizeof(*rs));
- 	if (!master) {
- 		dev_info(&pdev->dev, "master allocation failed\n");
-+		clk_disable_unprepare(clk);
- 		return -ENOMEM;
- 	}
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+index 1b07c8c06eac5..463a72d6bb7c7 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+@@ -340,7 +340,7 @@
+ 		eee-broken-1000t;
  
-@@ -377,6 +378,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
- 	ret = device_reset(&pdev->dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "SPI reset failed!\n");
-+		clk_disable_unprepare(clk);
- 		return ret;
- 	}
+ 		reset-assert-us = <10000>;
+-		reset-deassert-us = <30000>;
++		reset-deassert-us = <80000>;
+ 		reset-gpios = <&gpio GPIOZ_15 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
  
+ 		interrupt-parent = <&gpio_intc>;
 -- 
 2.27.0
 
