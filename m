@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 650452E3FBC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 131452E3FDD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503778AbgL1OoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:44:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47438 "EHLO mail.kernel.org"
+        id S2503094AbgL1OpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729723AbgL1OoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:44:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D159207B2;
-        Mon, 28 Dec 2020 14:43:32 +0000 (UTC)
+        id S2506447AbgL1OpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:45:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DE99207B2;
+        Mon, 28 Dec 2020 14:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609166613;
-        bh=MKrWUOVjKPrc8/WgWek5tKBeA1/YxkrPkRUxLwiG/58=;
+        s=korg; t=1609166682;
+        bh=soi/Z39qfKjvX2EvWkUsD9CGtTo7GaIJO72sPMu2zVc=;
         h=Subject:To:From:Date:From;
-        b=PGjhX4tzO0l826jSlCahmdHkb/QMiE1ul91K1Y+7PcImXvUiR5gW959pI+9dqWff6
-         jHCH4BDY2w0rLW/ATEcRRIgi5TbaMDZh/3YyEcB8u2uoKJaqypbbk1E7QFMp4S/A9N
-         i/qJlxvEkK7Km7Gtz8y99a/WkAHMVZ8xg78xIbzc=
-Subject: patch "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk" added to usb-linus
-To:     m.grzeschik@pengutronix.de, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=qnlUu7YD5Mh4t768hVtuX8FM4vfHHJT+QcYsdztKCtuztT0KSeR7PmEnmitTM18vv
+         6rEmjpaHhvCIJzbvYOarcc9KyqfYusWTUV7rZROljg3pQzyaBoUlUNkyKb/hM/lqxC
+         7jP6J0Uu4ORRbzRA9cLSh7sSgK8OJl4cKDDQHcdk=
+Subject: patch "usb: gadget: function: printer: Fix a memory leak for interface" added to usb-linus
+To:     qiang.zhang@windriver.com, gregkh@linuxfoundation.org,
+        peter.chen@nxp.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 15:44:45 +0100
-Message-ID: <1609166685182227@kroah.com>
+Date:   Mon, 28 Dec 2020 15:46:02 +0100
+Message-ID: <160916676239178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk
+    usb: gadget: function: printer: Fix a memory leak for interface
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,93 +51,37 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5d5323a6f3625f101dbfa94ba3ef7706cce38760 Mon Sep 17 00:00:00 2001
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Date: Tue, 15 Dec 2020 20:31:47 +0100
-Subject: USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk
- set
+From 2cc332e4ee4febcbb685e2962ad323fe4b3b750a Mon Sep 17 00:00:00 2001
+From: Zqiang <qiang.zhang@windriver.com>
+Date: Thu, 10 Dec 2020 10:01:48 +0800
+Subject: usb: gadget: function: printer: Fix a memory leak for interface
+ descriptor
 
-The commit 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit
-latency is too long") was constraining the xhci code not to allow U1/U2
-sleep states if the latency to wake up from the U-states reached the
-service interval of an periodic endpoint. This fix was not taking into
-account that in case the quirk XHCI_INTEL_HOST is set, the wakeup time
-will be calculated and configured differently.
+When printer driver is loaded, the printer_func_bind function is called, in
+this function, the interface descriptor be allocated memory, if after that,
+the error occurred, the interface descriptor memory need to be free.
 
-It checks for u1_params.mel/u2_params.mel as a limit. But the code could
-decide to write another MEL into the hardware. This leads to broken
-cases where not enough bandwidth is available for other devices:
-
-usb 1-2: can't set config #1, error -28
-
-This patch is fixing that case by checking for timeout_ns after the
-wakeup time was calculated depending on the quirks.
-
-Fixes: 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit latency is too long")
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201215193147.11738-1-m.grzeschik@pengutronix.de
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Link: https://lore.kernel.org/r/20201210020148.6691-1-qiang.zhang@windriver.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/usb/gadget/function/f_printer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 91ab81c3fc79..e86940571b4c 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4770,19 +4770,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u1_params.sel;
-+
- 	/* Prevent U1 if service interval is shorter than U1 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
-+		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
- 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index 64a4112068fc..2f1eb2e81d30 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1162,6 +1162,7 @@ static int printer_func_bind(struct usb_configuration *c,
+ 		printer_req_free(dev->in_ep, req);
  	}
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
--	else
--		timeout_ns = udev->u1_params.sel;
--
- 	/* The U1 timeout is encoded in 1us intervals.
- 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
- 	 */
-@@ -4834,19 +4834,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
++	usb_free_all_descriptors(f);
+ 	return ret;
  
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u2_params.sel;
-+
- 	/* Prevent U2 if service interval is shorter than U2 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
-+		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
- 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
--	else
--		timeout_ns = udev->u2_params.sel;
--
- 	/* The U2 timeout is encoded in 256us intervals */
- 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
- 	/* If the necessary timeout value is bigger than what we can set in the
+ }
 -- 
 2.29.2
 
