@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DED2E3D1C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C26682E645A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439512AbgL1OLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S2391469AbgL1Nib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:38:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439679AbgL1OLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:11:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48EA1207AB;
-        Mon, 28 Dec 2020 14:10:50 +0000 (UTC)
+        id S2391475AbgL1Nia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:38:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A81E207C9;
+        Mon, 28 Dec 2020 13:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164651;
-        bh=BPLJyYCj6LPWniZc0PkwrcuhXfUq2MC+pD3UGtF4CQw=;
+        s=korg; t=1609162669;
+        bh=qbEtMZJktTNYtVXibHZ0fe4tlOtLL1pmTgkGf+DQaAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2cZG2yUblyY5kQFMCnI1mGYHn1FWPBy9Va5SKof2fDItXj7Izsd0PQcphvgfkYtO
-         50NlzPG8diVLmX61CILcvKX51BlM2IHdj2H86jpBlOu8aNqTetnvwoW8fyILTC3d9m
-         gdmK1yMISdgKf4UTlxgkwzRcbNo9pb9LFQxj34Rk=
+        b=HtI+gEsAsZy86QPdUgKzjaXRV8i0dM+F/AVP9TiNH/JRSXPPu50gNsdMUCYAgnQCK
+         0GzuGqHJFjbrzRYC7NiTG8gbzOVxX/2C9HVBr2DqR1FMC9JPzi5BgKC0FjZjOHmmCu
+         xj7ZQjWkoVka0KCMX5k6m9UCI+pR9opZs8YUAU3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharat Gooty <bharat.gooty@broadcom.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 242/717] PCI: iproc: Fix out-of-bound array accesses
-Date:   Mon, 28 Dec 2020 13:44:00 +0100
-Message-Id: <20201228125032.584145274@linuxfoundation.org>
+Subject: [PATCH 5.4 005/453] pinctrl: baytrail: Avoid clearing debounce value when turning it off
+Date:   Mon, 28 Dec 2020 13:44:01 +0100
+Message-Id: <20201228124937.501438978@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharat Gooty <bharat.gooty@broadcom.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit a3ff529f5d368a17ff35ada8009e101162ebeaf9 ]
+[ Upstream commit 0b74e40a4e41f3cbad76dff4c50850d47b525b26 ]
 
-Declare the full size array for all revisions of PAX register sets
-to avoid potentially out of bound access of the register array
-when they are being initialized in iproc_pcie_rev_init().
+Baytrail pin control has a common register to set up debounce timeout.
+When a pin configuration requested debounce to be disabled, the rest
+of the pins may still want to have debounce enabled and thus rely on
+the common timeout value. Avoid clearing debounce value when turning
+it off for one pin while others may still use it.
 
-Link: https://lore.kernel.org/r/20201001060054.6616-2-srinath.mannam@broadcom.com
-Fixes: 06324ede76cdf ("PCI: iproc: Improve core register population")
-Signed-off-by: Bharat Gooty <bharat.gooty@broadcom.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: 658b476c742f ("pinctrl: baytrail: Add debounce configuration")
+Depends-on: 04ff5a095d66 ("pinctrl: baytrail: Rectify debounce support")
+Depends-on: 827e1579e1d5 ("pinctrl: baytrail: Rectify debounce support (part 2)")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-iproc.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pcie-iproc.c b/drivers/pci/controller/pcie-iproc.c
-index 905e938082432..d901b9d392b8c 100644
---- a/drivers/pci/controller/pcie-iproc.c
-+++ b/drivers/pci/controller/pcie-iproc.c
-@@ -307,7 +307,7 @@ enum iproc_pcie_reg {
- };
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 5a1174a8e2bac..d05f20ca90d7e 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -1060,7 +1060,6 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
+ 			break;
+ 		case PIN_CONFIG_INPUT_DEBOUNCE:
+ 			debounce = readl(db_reg);
+-			debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
  
- /* iProc PCIe PAXB BCMA registers */
--static const u16 iproc_pcie_reg_paxb_bcma[] = {
-+static const u16 iproc_pcie_reg_paxb_bcma[IPROC_PCIE_MAX_NUM_REG] = {
- 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
- 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
- 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
-@@ -318,7 +318,7 @@ static const u16 iproc_pcie_reg_paxb_bcma[] = {
- };
+ 			if (arg)
+ 				conf |= BYT_DEBOUNCE_EN;
+@@ -1069,24 +1068,31 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
  
- /* iProc PCIe PAXB registers */
--static const u16 iproc_pcie_reg_paxb[] = {
-+static const u16 iproc_pcie_reg_paxb[IPROC_PCIE_MAX_NUM_REG] = {
- 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
- 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
- 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
-@@ -334,7 +334,7 @@ static const u16 iproc_pcie_reg_paxb[] = {
- };
- 
- /* iProc PCIe PAXB v2 registers */
--static const u16 iproc_pcie_reg_paxb_v2[] = {
-+static const u16 iproc_pcie_reg_paxb_v2[IPROC_PCIE_MAX_NUM_REG] = {
- 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
- 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
- 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
-@@ -363,7 +363,7 @@ static const u16 iproc_pcie_reg_paxb_v2[] = {
- };
- 
- /* iProc PCIe PAXC v1 registers */
--static const u16 iproc_pcie_reg_paxc[] = {
-+static const u16 iproc_pcie_reg_paxc[IPROC_PCIE_MAX_NUM_REG] = {
- 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
- 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x1f0,
- 	[IPROC_PCIE_CFG_IND_DATA]	= 0x1f4,
-@@ -372,7 +372,7 @@ static const u16 iproc_pcie_reg_paxc[] = {
- };
- 
- /* iProc PCIe PAXC v2 registers */
--static const u16 iproc_pcie_reg_paxc_v2[] = {
-+static const u16 iproc_pcie_reg_paxc_v2[IPROC_PCIE_MAX_NUM_REG] = {
- 	[IPROC_PCIE_MSI_GIC_MODE]	= 0x050,
- 	[IPROC_PCIE_MSI_BASE_ADDR]	= 0x074,
- 	[IPROC_PCIE_MSI_WINDOW_SIZE]	= 0x078,
+ 			switch (arg) {
+ 			case 375:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_375US;
+ 				break;
+ 			case 750:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_750US;
+ 				break;
+ 			case 1500:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_1500US;
+ 				break;
+ 			case 3000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_3MS;
+ 				break;
+ 			case 6000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_6MS;
+ 				break;
+ 			case 12000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_12MS;
+ 				break;
+ 			case 24000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_24MS;
+ 				break;
+ 			default:
 -- 
 2.27.0
 
