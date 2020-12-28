@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC05B2E3B86
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D6A2E39D9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:29:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732668AbgL1NvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:51:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52814 "EHLO mail.kernel.org"
+        id S2390037AbgL1N3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:29:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406476AbgL1Nu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:50:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16C3220791;
-        Mon, 28 Dec 2020 13:50:17 +0000 (UTC)
+        id S2390030AbgL1N3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2BC62072C;
+        Mon, 28 Dec 2020 13:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163418;
-        bh=kD1KJvfZabHqHTEzjZ43wMKSV+u8GPIAS9zryJIfk4c=;
+        s=korg; t=1609162127;
+        bh=Go5O+Ekl76VF6e9p5cmqsmgodlmRJ+kZfPXhZGg325Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKkYIyx4iO88NJb8+wn+btdBplLdLfn3r6QAj95ZwGxd/voJLGpD8153pbyucNiPO
-         fDiec+fw74AkCP2eBmnz6W55lGp0Q8MFwZbd+ioCe7p3jw+Eqlg9RSfaCwm1H0Dbvo
-         osjx3qxs9AhMPiDsuaDpmMot1TDswfpanjTtQbmw=
+        b=Y+BslyVEvqYElpc9MLsTeoF8DsASJj+1NXiDC4+eUYweGAw8q6sakt21VkTdETGBu
+         RhENr0xmhcu3i9wf+A7CpuRpfSE4TNPvFyr5Pnj4o2Ia2IGn1PZECVUEKfqJwPxnZ+
+         dpAp4gsbnnpfDfPPIQSjDtxQX3EuLryU3ETJv5pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 280/453] ubifs: Fix error return code in ubifs_init_authentication()
+Subject: [PATCH 4.19 197/346] pinctrl: falcon: add missing put_device() call in pinctrl_falcon_probe()
 Date:   Mon, 28 Dec 2020 13:48:36 +0100
-Message-Id: <20201228124950.684089150@linuxfoundation.org>
+Message-Id: <20201228124929.317417180@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 3cded66330591cfd2554a3fd5edca8859ea365a2 ]
+[ Upstream commit 89cce2b3f247a434ee174ab6803698041df98014 ]
 
-Fix to return PTR_ERR() error code from the error handling case where
-ubifs_hash_get_desc() failed instead of 0 in ubifs_init_authentication(),
-as done elsewhere in this function.
+if of_find_device_by_node() succeed, pinctrl_falcon_probe() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-Fixes: 49525e5eecca5 ("ubifs: Add helper functions for authentication support")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: e316cb2b16bb ("OF: pinctrl: MIPS: lantiq: adds support for FALCON SoC")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20201119011219.2248232-1-yukuai3@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/auth.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-falcon.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ubifs/auth.c b/fs/ubifs/auth.c
-index f985a3fbbb36a..b10418b5fb719 100644
---- a/fs/ubifs/auth.c
-+++ b/fs/ubifs/auth.c
-@@ -352,8 +352,10 @@ int ubifs_init_authentication(struct ubifs_info *c)
- 	c->authenticated = true;
+diff --git a/drivers/pinctrl/pinctrl-falcon.c b/drivers/pinctrl/pinctrl-falcon.c
+index fb73dcbb5ef37..68dcf53aaac34 100644
+--- a/drivers/pinctrl/pinctrl-falcon.c
++++ b/drivers/pinctrl/pinctrl-falcon.c
+@@ -438,24 +438,28 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
  
- 	c->log_hash = ubifs_hash_get_desc(c);
--	if (IS_ERR(c->log_hash))
-+	if (IS_ERR(c->log_hash)) {
-+		err = PTR_ERR(c->log_hash);
- 		goto out_free_hmac;
-+	}
+ 	/* load and remap the pad resources of the different banks */
+ 	for_each_compatible_node(np, NULL, "lantiq,pad-falcon") {
+-		struct platform_device *ppdev = of_find_device_by_node(np);
+ 		const __be32 *bank = of_get_property(np, "lantiq,bank", NULL);
+ 		struct resource res;
++		struct platform_device *ppdev;
+ 		u32 avail;
+ 		int pins;
  
- 	err = 0;
+ 		if (!of_device_is_available(np))
+ 			continue;
  
+-		if (!ppdev) {
+-			dev_err(&pdev->dev, "failed to find pad pdev\n");
+-			continue;
+-		}
+ 		if (!bank || *bank >= PORTS)
+ 			continue;
+ 		if (of_address_to_resource(np, 0, &res))
+ 			continue;
++
++		ppdev = of_find_device_by_node(np);
++		if (!ppdev) {
++			dev_err(&pdev->dev, "failed to find pad pdev\n");
++			continue;
++		}
++
+ 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
++		put_device(&ppdev->dev);
+ 		if (IS_ERR(falcon_info.clk[*bank])) {
+ 			dev_err(&ppdev->dev, "failed to get clock\n");
+ 			return PTR_ERR(falcon_info.clk[*bank]);
 -- 
 2.27.0
 
