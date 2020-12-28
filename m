@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF592E6708
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:20:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 364512E6838
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbgL1NOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:14:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41832 "EHLO mail.kernel.org"
+        id S2634113AbgL1Qdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:33:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732440AbgL1NOO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:14:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C51AC22BEF;
-        Mon, 28 Dec 2020 13:13:57 +0000 (UTC)
+        id S1730283AbgL1NDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2BE522AAA;
+        Mon, 28 Dec 2020 13:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161238;
-        bh=aHGF5GRRwAoFtRgVjPWdmlpM/DCLHAZJp3duD7olTO4=;
+        s=korg; t=1609160587;
+        bh=+4Mc8bVvy2qiVLVtZbtfDXNE04XdIv0Q8Yc2ezuleSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haEzEkfOHaQfkMZkknNTpynlp00bPZoQw7npoDEMYd+nUMj6DaaJEeIXYc3I2X2ry
-         XfNQ9p8MZyPdLoto8nfjVq+I0LhzMPUYhtkJHhR9pS+HVzWt/ROWsl9pce4K/Jsehh
-         NZ2bBh4CuBS2amQW7K3XcA6r17Wj4yFo0COlVagA=
+        b=MQvuy2wIPL/mmvTEtkRNMnLTgSIL91yPV3Qkxkku5e2oq6j+dmKUe1W2shWTKZTpv
+         lBukKzbnW2jKpoeqnsGFkrbzyxKMCir5XY/kvWEGQtrkRzCA9lYvgESNsCNin5IGdf
+         s5tTFyz6vaj9RjG5DPmmzlcAW8oQUS8oLfthSvE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/242] powerpc/pseries/hibernation: remove redundant cacheinfo update
-Date:   Mon, 28 Dec 2020 13:49:14 +0100
-Message-Id: <20201228124912.042221843@linuxfoundation.org>
+Subject: [PATCH 4.9 102/175] scsi: pm80xx: Fix error return in pm8001_pci_probe()
+Date:   Mon, 28 Dec 2020 13:49:15 +0100
+Message-Id: <20201228124858.191138621@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit b866459489fe8ef0e92cde3cbd6bbb1af6c4e99b ]
+[ Upstream commit 97031ccffa4f62728602bfea8439dd045cd3aeb2 ]
 
-Partitions with cache nodes in the device tree can encounter the
-following warning on resume:
+The driver did not return an error in the case where
+pm8001_configure_phy_settings() failed.
 
-CPU 0 already accounted in PowerPC,POWER9@0(Data)
-WARNING: CPU: 0 PID: 3177 at arch/powerpc/kernel/cacheinfo.c:197 cacheinfo_cpu_online+0x640/0x820
+Use rc to store the return value of pm8001_configure_phy_settings().
 
-These calls to cacheinfo_cpu_offline/online have been redundant since
-commit e610a466d16a ("powerpc/pseries/mobility: rebuild cacheinfo
-hierarchy post-migration").
-
-Fixes: e610a466d16a ("powerpc/pseries/mobility: rebuild cacheinfo hierarchy post-migration")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-25-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/20201205115551.2079471-1-zhangqilong3@huawei.com
+Fixes: 279094079a44 ("[SCSI] pm80xx: Phy settings support for motherboard controller.")
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/suspend.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/scsi/pm8001/pm8001_init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
-index 33077ad106cf0..b7cdad95584da 100644
---- a/arch/powerpc/platforms/pseries/suspend.c
-+++ b/arch/powerpc/platforms/pseries/suspend.c
-@@ -26,7 +26,6 @@
- #include <asm/mmu.h>
- #include <asm/rtas.h>
- #include <asm/topology.h>
--#include "../../kernel/cacheinfo.h"
+diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
+index 9fc675f57e336..f54115d74f519 100644
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -1061,7 +1061,8 @@ static int pm8001_pci_probe(struct pci_dev *pdev,
  
- static u64 stream_id;
- static struct device suspend_dev;
-@@ -91,9 +90,7 @@ static void pseries_suspend_enable_irqs(void)
- 	 * Update configuration which can be modified based on device tree
- 	 * changes during resume.
- 	 */
--	cacheinfo_cpu_offline(smp_processor_id());
- 	post_mobility_fixup();
--	cacheinfo_cpu_online(smp_processor_id());
- }
+ 	pm8001_init_sas_add(pm8001_ha);
+ 	/* phy setting support for motherboard controller */
+-	if (pm8001_configure_phy_settings(pm8001_ha))
++	rc = pm8001_configure_phy_settings(pm8001_ha);
++	if (rc)
+ 		goto err_out_shost;
  
- /**
+ 	pm8001_post_sas_ha_init(shost, chip);
 -- 
 2.27.0
 
