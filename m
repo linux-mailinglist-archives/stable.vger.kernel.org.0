@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9363F2E40BE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A892E3AEB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504148AbgL1O4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:56:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
+        id S2404446AbgL1NnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441192AbgL1OQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:16:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8278B22583;
-        Mon, 28 Dec 2020 14:16:11 +0000 (UTC)
+        id S2404441AbgL1NnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E519820731;
+        Mon, 28 Dec 2020 13:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164972;
-        bh=WwQZgz85Hxcv0lpZP4RPu7pywIyi+Pa/yJYPGnHR5IQ=;
+        s=korg; t=1609162980;
+        bh=tcm3hy+Kvs/ttSTig7YLBWJy0rFbu6SrNmbnPn61H2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOIQPOyEY/Qdr3pNGBru08A7t4TMaunhClIhayevfDypWtuUhK7Y/T1mHL1jJyKml
-         TpN6L4fsE/vhudn7/aFExByuznqFbfe8U6C+2qZ91Dmt/4Ms7XBkyrNCfCk5bs86Yt
-         C8N2uNeX/kSWrnd0PdDN2MTiDKei4ghZvyLI40OI=
+        b=SGrzd6uj7a1fG8It15jhM8PJxvN9o9qM+umWShcZoQfpW99KAUKOKQHDyiv8eoL4F
+         tGf7hEuxtWKF6AX08K84fCUUrGHpEDTnd3L/qNfJ8QGxPqmNhm2SBuKnYbSqUe0cSV
+         Bec6mmD6ce0ddo8Xif1sI2h1Fkjy9afjz+P6Qn98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 364/717] powerpc/pseries/hibernation: drop pseries_suspend_begin() from suspend ops
-Date:   Mon, 28 Dec 2020 13:46:02 +0100
-Message-Id: <20201228125038.454025599@linuxfoundation.org>
+Subject: [PATCH 5.4 127/453] RDMa/mthca: Work around -Wenum-conversion warning
+Date:   Mon, 28 Dec 2020 13:46:03 +0100
+Message-Id: <20201228124943.329214273@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 52719fce3f4c7a8ac9eaa191e8d75a697f9fbcbc ]
+[ Upstream commit fbb7dc5db6dee553b5a07c27e86364a5223e244c ]
 
-There are three ways pseries_suspend_begin() can be reached:
+gcc points out a suspicious mixing of enum types in a function that
+converts from MTHCA_OPCODE_* values to IB_WC_* values:
 
-1. When "mem" is written to /sys/power/state:
+drivers/infiniband/hw/mthca/mthca_cq.c: In function 'mthca_poll_one':
+drivers/infiniband/hw/mthca/mthca_cq.c:607:21: warning: implicit conversion from 'enum <anonymous>' to 'enum ib_wc_opcode' [-Wenum-conversion]
+  607 |    entry->opcode    = MTHCA_OPCODE_INVALID;
 
-kobj_attr_store()
--> state_store()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
+Nothing seems to ever check for MTHCA_OPCODE_INVALID again, no idea if
+this is meaningful, but it seems harmless as it deals with an invalid
+input.
 
-This never works because there is no way to supply a valid stream id
-using this interface, and H_VASI_STATE is called with a stream id of
-zero. So this call path is useless at best.
+Remove MTHCA_OPCODE_INVALID and set the ib_wc_opcode to 0xFF, which is
+still bogus, but at least doesn't make compiler warnings.
 
-2. When a stream id is written to /sys/devices/system/power/hibernate.
-pseries_suspend_begin() is polled directly from store_hibernate()
-until the stream is in the "Suspending" state (i.e. the platform is
-ready for the OS to suspend execution):
-
-dev_attr_store()
--> store_hibernate()
-  -> pseries_suspend_begin()
-
-3. When a stream id is written to /sys/devices/system/power/hibernate
-(continued). After #2, pseries_suspend_begin() is called once again
-from the pm core:
-
-dev_attr_store()
--> store_hibernate()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This is redundant because the VASI suspend state is already known to
-be Suspending.
-
-The begin() callback of platform_suspend_ops is optional, so we can
-simply remove that assignment with no loss of function.
-
-Fixes: 32d8ad4e621d ("powerpc/pseries: Partition hibernation support")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-18-nathanl@linux.ibm.com
+Fixes: 2a4443a69934 ("[PATCH] IB/mthca: fill in opcode field for send completions")
+Link: https://lore.kernel.org/r/20201026211311.3887003-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/suspend.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/infiniband/hw/mthca/mthca_cq.c  | 2 +-
+ drivers/infiniband/hw/mthca/mthca_dev.h | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
-index 81e0ac58d6204..3eaa9d59dc7ab 100644
---- a/arch/powerpc/platforms/pseries/suspend.c
-+++ b/arch/powerpc/platforms/pseries/suspend.c
-@@ -187,7 +187,6 @@ static struct bus_type suspend_subsys = {
- 
- static const struct platform_suspend_ops pseries_suspend_ops = {
- 	.valid		= suspend_valid_only_mem,
--	.begin		= pseries_suspend_begin,
- 	.prepare_late	= pseries_prepare_late,
- 	.enter		= pseries_suspend_enter,
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index 119b2573c9a08..26c3408dcacae 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -604,7 +604,7 @@ static inline int mthca_poll_one(struct mthca_dev *dev,
+ 			entry->byte_len  = MTHCA_ATOMIC_BYTE_LEN;
+ 			break;
+ 		default:
+-			entry->opcode    = MTHCA_OPCODE_INVALID;
++			entry->opcode = 0xFF;
+ 			break;
+ 		}
+ 	} else {
+diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
+index bfd4eebc1182f..58d46449b0e86 100644
+--- a/drivers/infiniband/hw/mthca/mthca_dev.h
++++ b/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -105,7 +105,6 @@ enum {
+ 	MTHCA_OPCODE_ATOMIC_CS      = 0x11,
+ 	MTHCA_OPCODE_ATOMIC_FA      = 0x12,
+ 	MTHCA_OPCODE_BIND_MW        = 0x18,
+-	MTHCA_OPCODE_INVALID        = 0xff
  };
+ 
+ enum {
 -- 
 2.27.0
 
