@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAFA2E394B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D89292E3AF2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388184AbgL1NWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:22:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50398 "EHLO mail.kernel.org"
+        id S2404485AbgL1Nng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388140AbgL1NWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C98C2076D;
-        Mon, 28 Dec 2020 13:21:19 +0000 (UTC)
+        id S2404480AbgL1Nnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD5CB206D4;
+        Mon, 28 Dec 2020 13:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161680;
-        bh=eg4fi6qKnB7mzX9PnPZ8OEhZzr/7dxH8YPQE19RtqU4=;
+        s=korg; t=1609162997;
+        bh=U2e7qDYH2VOxYvNCZONg35F8us29lP2nJZIU6aE1Ft4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdQz37CwAumBTUb7eai6yjj1juUKvcW9+9In12wXL2RkpqHZzN6j5ZxXLCLEBF/8e
-         383jDYNP+4A/RN/boIYhab4PLTtB/mOCRk6bmQLluS4t+yO2apOFmKBKPDvIz29oWp
-         yB/c9gMFRYjXgJz/aLeHZ9L/ir+Dl6D1qF4rtmwM=
+        b=w4dLfLrkuqasNwE4PrW2YZq8o4GsYo8BIkc9EOpgS68kKB8KpXjkreN3pZYU3PBLE
+         QCm1cKXDs/zewLcknsoingBdBFNUnZyfcvJaKFWkXfBBGedzeTG5KVV6Llv/fEWF86
+         6JIjQ3SW7gQhKuALIIZBdpjqVsPYJBKJYI6MYDfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Lyude Paul <lyude@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 049/346] drm: fix drm_dp_mst_port refcount leaks in drm_dp_mst_allocate_vcpi
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 132/453] media: tm6000: Fix sizeof() mismatches
 Date:   Mon, 28 Dec 2020 13:46:08 +0100
-Message-Id: <20201228124922.160033040@linuxfoundation.org>
+Message-Id: <20201228124943.557763486@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit a34a0a632dd991a371fec56431d73279f9c54029 upstream
+[ Upstream commit a08ad6339e0441ca12533969ed94a87e3655426e ]
 
-drm_dp_mst_allocate_vcpi() invokes
-drm_dp_mst_topology_get_port_validated(), which increases the refcount
-of the "port".
+The are two instances of sizeof() being used incorrectly. The
+sizeof(void *) is incorrect because urb_buffer is a char ** pointer,
+fix this by using sizeof(*dev->urb_buffer).  The sizeof(dma_addr_t *)
+is incorrect, it should be sizeof(*dev->urb_dma), which is a dma_addr_t
+and not a dma_addr_t *.  This errors did not cause any issues because
+it just so happens the sizes are the same.
 
-These reference counting issues take place in two exception handling
-paths separately. Either when “slots” is less than 0 or when
-drm_dp_init_vcpi() returns a negative value, the function forgets to
-reduce the refcnt increased drm_dp_mst_topology_get_port_validated(),
-which results in a refcount leak.
+Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
 
-Fix these issues by pulling up the error handling when "slots" is less
-than 0, and calling drm_dp_mst_topology_put_port() before termination
-when drm_dp_init_vcpi() returns a negative value.
-
-Fixes: 1e797f556c61 ("drm/dp: Split drm_dp_mst_allocate_vcpi")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200719154545.GA41231@xin-virtual-machine
-[sudip: use old functions before rename]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 16427faf2867 ("[media] tm6000: Add parameter to keep urb bufs allocated")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/usb/tm6000/tm6000-video.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2706,11 +2706,11 @@ bool drm_dp_mst_allocate_vcpi(struct drm
- {
- 	int ret;
+diff --git a/drivers/media/usb/tm6000/tm6000-video.c b/drivers/media/usb/tm6000/tm6000-video.c
+index c07a81a6cbe29..c46cbcfafab3f 100644
+--- a/drivers/media/usb/tm6000/tm6000-video.c
++++ b/drivers/media/usb/tm6000/tm6000-video.c
+@@ -461,11 +461,12 @@ static int tm6000_alloc_urb_buffers(struct tm6000_core *dev)
+ 	if (dev->urb_buffer)
+ 		return 0;
  
--	port = drm_dp_get_validated_port_ref(mgr, port);
--	if (!port)
-+	if (slots < 0)
- 		return false;
+-	dev->urb_buffer = kmalloc_array(num_bufs, sizeof(void *), GFP_KERNEL);
++	dev->urb_buffer = kmalloc_array(num_bufs, sizeof(*dev->urb_buffer),
++					GFP_KERNEL);
+ 	if (!dev->urb_buffer)
+ 		return -ENOMEM;
  
--	if (slots < 0)
-+	port = drm_dp_get_validated_port_ref(mgr, port);
-+	if (!port)
- 		return false;
- 
- 	if (port->vcpi.vcpi > 0) {
-@@ -2725,6 +2725,7 @@ bool drm_dp_mst_allocate_vcpi(struct drm
- 	if (ret) {
- 		DRM_DEBUG_KMS("failed to init vcpi slots=%d max=63 ret=%d\n",
- 				DIV_ROUND_UP(pbn, mgr->pbn_div), ret);
-+		drm_dp_put_port(port);
- 		goto out;
- 	}
- 	DRM_DEBUG_KMS("initing vcpi for pbn=%d slots=%d\n",
+-	dev->urb_dma = kmalloc_array(num_bufs, sizeof(dma_addr_t *),
++	dev->urb_dma = kmalloc_array(num_bufs, sizeof(*dev->urb_dma),
+ 				     GFP_KERNEL);
+ 	if (!dev->urb_dma)
+ 		return -ENOMEM;
+-- 
+2.27.0
+
 
 
