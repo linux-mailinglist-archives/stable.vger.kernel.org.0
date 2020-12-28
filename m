@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6562E63B2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D012E403B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404951AbgL1Nqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S2441621AbgL1OTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:19:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404977AbgL1Np7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C1E32072C;
-        Mon, 28 Dec 2020 13:45:43 +0000 (UTC)
+        id S2441604AbgL1OTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:19:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A59292063A;
+        Mon, 28 Dec 2020 14:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163143;
-        bh=PrUUdDOGcD6+rQgX7UmuT3AmHsvFxxzry34XmjyQSmY=;
+        s=korg; t=1609165133;
+        bh=3a+ctO0yqJxck/oNVejavCFPkt1+69fp32cMpyrDFTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RosvhWAYwH8QioEqtPwb+kG1rvjzEgX4XGkyNftoK0ymBUj0KujMGEoq6WLiMArX6
-         pA8j5RT81duqRwAjcb2G0fAfXpxLPs7X82THI72ohddiArbc3LZPxusgipYwaVnor4
-         KXurh9a2H1Rl2Z/Yyox06ROhGl7uVMH6a4103/fQ=
+        b=cJ1w929EVz3gcuewbWvWdWaUV8mlhIGD4E+61w8lmLH8U6hyGgmlDwjDlEkiseUdl
+         Vq2dcPNDn25q2cltTV9AuX/Xck0s1X7SR2DZgo8IWdbrD080EmJ03IDVxuKSu5/KAV
+         jyV6M5/xit2Xm7xg/Z233rdfxcvWjkXNA6lp86bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 186/453] arm64: dts: ls1028a: fix ENETC PTP clock input
+Subject: [PATCH 5.10 424/717] RDMA/hns: Do shift on traffic class when using RoCEv2
 Date:   Mon, 28 Dec 2020 13:47:02 +0100
-Message-Id: <20201228124946.160395821@linuxfoundation.org>
+Message-Id: <20201228125041.278633547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Weihang Li <liweihang@huawei.com>
 
-[ Upstream commit d0570a575aa83116bd0f6a99c4de548af773d950 ]
+[ Upstream commit 603bee935f38080a3674c763c50787751e387779 ]
 
-On the LS1028A the ENETC reference clock is connected to 4th HWA output,
-see Figure 7 "Clock subsystem block diagram".
+The high 6 bits of traffic class in GRH is DSCP (Differentiated Services
+Codepoint), the driver should shift it before the hardware gets it when
+using RoCEv2.
 
-The PHC may run with a wrong frequency. ptp_qoriq_auto_config() will read
-the clock speed of the clock given in the device tree. It is likely that,
-on the reference board this wasn't noticed because both clocks have the
-same frequency. But this must not be always the case. Fix it.
-
-Fixes: 49401003e260 ("arm64: dts: fsl: ls1028a: add ENETC 1588 timer node")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 606bf89e98ef ("RDMA/hns: Refactor for hns_roce_v2_modify_qp function")
+Fixes: fba429fcf9a5 ("RDMA/hns: Fix missing fields in address vector")
+Link: https://lore.kernel.org/r/1607650657-35992-4-git-send-email-liweihang@huawei.com
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_ah.c     |  2 +-
+ drivers/infiniband/hw/hns/hns_roce_device.h |  8 ++++++++
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c  | 10 +++-------
+ 3 files changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-index 9589b15693d6e..795d6ca4bbd1f 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-@@ -673,7 +673,7 @@
- 			ethernet@0,4 {
- 				compatible = "fsl,enetc-ptp";
- 				reg = <0x000400 0 0 0 0>;
--				clocks = <&clockgen 4 0>;
-+				clocks = <&clockgen 2 3>;
- 				little-endian;
- 			};
- 		};
+diff --git a/drivers/infiniband/hw/hns/hns_roce_ah.c b/drivers/infiniband/hw/hns/hns_roce_ah.c
+index d65ff6aa322fa..7dd3b6097226f 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_ah.c
++++ b/drivers/infiniband/hw/hns/hns_roce_ah.c
+@@ -74,7 +74,7 @@ int hns_roce_create_ah(struct ib_ah *ibah, struct rdma_ah_init_attr *init_attr,
+ 	ah->av.flowlabel = grh->flow_label;
+ 	ah->av.udp_sport = get_ah_udp_sport(ah_attr);
+ 	ah->av.sl = rdma_ah_get_sl(ah_attr);
+-	ah->av.tclass = grh->traffic_class;
++	ah->av.tclass = get_tclass(grh);
+ 
+ 	memcpy(ah->av.dgid, grh->dgid.raw, HNS_ROCE_GID_SIZE);
+ 	memcpy(ah->av.mac, ah_attr->roce.dmac, ETH_ALEN);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
+index b025841e08154..1ea87f92aabbe 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_device.h
++++ b/drivers/infiniband/hw/hns/hns_roce_device.h
+@@ -1132,6 +1132,14 @@ static inline u32 to_hr_hem_entries_shift(u32 count, u32 buf_shift)
+ 	return ilog2(to_hr_hem_entries_count(count, buf_shift));
+ }
+ 
++#define DSCP_SHIFT 2
++
++static inline u8 get_tclass(const struct ib_global_route *grh)
++{
++	return grh->sgid_attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP ?
++	       grh->traffic_class >> DSCP_SHIFT : grh->traffic_class;
++}
++
+ int hns_roce_init_uar_table(struct hns_roce_dev *dev);
+ int hns_roce_uar_alloc(struct hns_roce_dev *dev, struct hns_roce_uar *uar);
+ void hns_roce_uar_free(struct hns_roce_dev *dev, struct hns_roce_uar *uar);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index c287dbd2f384d..5c29c7d8c50e6 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4460,15 +4460,11 @@ static int hns_roce_v2_set_path(struct ib_qp *ibqp,
+ 	roce_set_field(qpc_mask->byte_24_mtu_tc, V2_QPC_BYTE_24_HOP_LIMIT_M,
+ 		       V2_QPC_BYTE_24_HOP_LIMIT_S, 0);
+ 
+-	if (is_udp)
+-		roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
+-			       V2_QPC_BYTE_24_TC_S, grh->traffic_class >> 2);
+-	else
+-		roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
+-			       V2_QPC_BYTE_24_TC_S, grh->traffic_class);
+-
++	roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
++		       V2_QPC_BYTE_24_TC_S, get_tclass(&attr->ah_attr.grh));
+ 	roce_set_field(qpc_mask->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
+ 		       V2_QPC_BYTE_24_TC_S, 0);
++
+ 	roce_set_field(context->byte_28_at_fl, V2_QPC_BYTE_28_FL_M,
+ 		       V2_QPC_BYTE_28_FL_S, grh->flow_label);
+ 	roce_set_field(qpc_mask->byte_28_at_fl, V2_QPC_BYTE_28_FL_M,
 -- 
 2.27.0
 
