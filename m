@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8118F2E694D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE5602E6599
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbgL1Qrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:47:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51804 "EHLO mail.kernel.org"
+        id S2390012AbgL1N24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbgL1MzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5285822582;
-        Mon, 28 Dec 2020 12:54:31 +0000 (UTC)
+        id S2390004AbgL1N2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:28:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F50D2063A;
+        Mon, 28 Dec 2020 13:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160072;
-        bh=HSsrWUVJ4Kt0fQdjn8a6khJxIphGBlzXIPwXgT7t4rA=;
+        s=korg; t=1609162118;
+        bh=Hp8alQtj4CrxbLuUDe1MmVwKcsql+4byhR+E1rCjG/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7ur//hMeMHx3aroxOM9IS4lyyQwjcfhVfcmbkKsW2x+A2w5bQz2ufcG4wX4VFB5x
-         WUokQYDJLwu8l8pCzYl4Bw1qWQ/JbQTTL19Y2MzgF65/1u07KKkf05DHGuASAUH6ct
-         P+GYKAt3o83k+XS7Bh5phVVSMgTtZK4vMo99KLqY=
+        b=PURzhaCGzeRQ/QQm1fdS7H2kJuk2Jvc/SNbeudab15Nknj6ZHbf7nysTPIx6/kfoe
+         LgPOB6oTvagiOfbO+ruJR3/zUDxI6Fao+xIgZjVXf01lBYccmikAqzplTWqVXoRMyZ
+         V16ue5bx7mWhNZs+E9MRCxjbXOBjsN6zVvatPe9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.4 029/132] usb: chipidea: ci_hdrc_imx: Pass DISABLE_DEVICE_STREAMING flag to imx6ul
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 194/346] media: saa7146: fix array overflow in vidioc_s_audio()
 Date:   Mon, 28 Dec 2020 13:48:33 +0100
-Message-Id: <20201228124847.811682185@linuxfoundation.org>
+Message-Id: <20201228124929.172709261@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c7721e15f434920145c376e8fe77e1c079fc3726 upstream.
+[ Upstream commit 8e4d86e241cf035d6d3467cd346e7ce490681937 ]
 
-According to the i.MX6UL Errata document:
-https://www.nxp.com/docs/en/errata/IMX6ULCE.pdf
+The "a->index" value comes from the user via the ioctl.  The problem is
+that the shift can wrap resulting in setting "mxb->cur_audinput" to an
+invalid value, which later results in an array overflow.
 
-ERR007881 also affects i.MX6UL, so pass the
-CI_HDRC_DISABLE_DEVICE_STREAMING flag to workaround the issue.
-
-Fixes: 52fe568e5d71 ("usb: chipidea: imx: add imx6ul usb support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201207020909.22483-2-peter.chen@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 6680427791c9 ("[media] mxb: fix audio handling")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/pci/saa7146/mxb.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -58,7 +58,8 @@ static const struct ci_hdrc_imx_platform
+diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
+index 6b5582b7c5955..6e25654da2567 100644
+--- a/drivers/media/pci/saa7146/mxb.c
++++ b/drivers/media/pci/saa7146/mxb.c
+@@ -653,16 +653,17 @@ static int vidioc_s_audio(struct file *file, void *fh, const struct v4l2_audio *
+ 	struct mxb *mxb = (struct mxb *)dev->ext_priv;
  
- static const struct ci_hdrc_imx_platform_flag imx6ul_usb_data = {
- 	.flags = CI_HDRC_SUPPORTS_RUNTIME_PM |
--		CI_HDRC_TURN_VBUS_EARLY_ON,
-+		CI_HDRC_TURN_VBUS_EARLY_ON |
-+		CI_HDRC_DISABLE_DEVICE_STREAMING,
- };
+ 	DEB_D("VIDIOC_S_AUDIO %d\n", a->index);
+-	if (mxb_inputs[mxb->cur_input].audioset & (1 << a->index)) {
+-		if (mxb->cur_audinput != a->index) {
+-			mxb->cur_audinput = a->index;
+-			tea6420_route(mxb, a->index);
+-			if (mxb->cur_audinput == 0)
+-				mxb_update_audmode(mxb);
+-		}
+-		return 0;
++	if (a->index >= 32 ||
++	    !(mxb_inputs[mxb->cur_input].audioset & (1 << a->index)))
++		return -EINVAL;
++
++	if (mxb->cur_audinput != a->index) {
++		mxb->cur_audinput = a->index;
++		tea6420_route(mxb, a->index);
++		if (mxb->cur_audinput == 0)
++			mxb_update_audmode(mxb);
+ 	}
+-	return -EINVAL;
++	return 0;
+ }
  
- static const struct ci_hdrc_imx_platform_flag imx7d_usb_data = {
+ #ifdef CONFIG_VIDEO_ADV_DEBUG
+-- 
+2.27.0
+
 
 
