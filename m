@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A972E3B78
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 659D12E373F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406348AbgL1Nub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:50:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52434 "EHLO mail.kernel.org"
+        id S1728021AbgL1Mw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:52:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406314AbgL1Nub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:50:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B1B1208B3;
-        Mon, 28 Dec 2020 13:49:50 +0000 (UTC)
+        id S1728013AbgL1Mw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:52:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 989CB22A84;
+        Mon, 28 Dec 2020 12:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163390;
-        bh=2BKQVLwBXQA3mHZ4MLRKHByj5CIapqzWwFWOLkVNcdA=;
+        s=korg; t=1609159921;
+        bh=MaF1T6jqWdINqnGa6B+VEZSYtLvkMn9uFHu3KkglKbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SW0SbtOl0WAJNr48TdVfTNst8UPgTbPX0MzZXEQJEispVxbTHtLAAk6sXSWGXVv5P
-         2IW+CqnUBKnWRoOq1FU6rXFqg21Cu6pG5+0FVo+6p2wfRO3n9kRReghx3lL7/mIKS7
-         Dx8L30HfcHxvWakEL+m6OtnMSAc6R+hD94zKkiWw=
+        b=uRopOMKxfLmGdz4WCivWERC07fRdLlFQXTlqFF8tULID0SNsnPdjqwA5QsbPOeC8V
+         HMfyho2MTQuV4HBPBpCoufvKeD51IXnAouJoVuSJt2GIPAtWUP2nOYoGIbm0RI/M5W
+         iE5N2uDgXMB39p7mYZgTTGgLwgVIAvqKNgzYzogo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 268/453] mtd: rawnand: meson: Fix a resource leak in init
-Date:   Mon, 28 Dec 2020 13:48:24 +0100
-Message-Id: <20201228124950.124035517@linuxfoundation.org>
+        stable@vger.kernel.org, Brant Merryman <brant.merryman@silabs.com>,
+        Phu Luu <phu.luu@silabs.com>, Johan Hovold <johan@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 021/132] USB: serial: cp210x: enable usb generic throttle/unthrottle
+Date:   Mon, 28 Dec 2020 13:48:25 +0100
+Message-Id: <20201228124847.436946473@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Brant Merryman <brant.merryman@silabs.com>
 
-[ Upstream commit ad8566d3555c4731e6b48823b92d3929b0394c14 ]
+commit 4387b3dbb079d482d3c2b43a703ceed4dd27ed28 upstream
 
-Call clk_disable_unprepare(nfc->phase_rx) if the clk_set_rate() function
-fails to avoid a resource leak.
+Assign the .throttle and .unthrottle functions to be generic function
+in the driver structure to prevent data loss that can otherwise occur
+if the host does not enable USB throttling.
 
-Fixes: 8fae856c5350 ("mtd: rawnand: meson: add support for Amlogic NAND flash controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/X8ikVCnUsfTpffFB@mwanda
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Brant Merryman <brant.merryman@silabs.com>
+Co-developed-by: Phu Luu <phu.luu@silabs.com>
+Signed-off-by: Phu Luu <phu.luu@silabs.com>
+Link: https://lore.kernel.org/r/57401AF3-9961-461F-95E1-F8AFC2105F5E@silabs.com
+[ johan: fix up tags ]
+Fixes: 39a66b8d22a3 ("[PATCH] USB: CP2101 Add support for flow control")
+Cc: stable <stable@vger.kernel.org>     # 2.6.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/meson_nand.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/meson_nand.c b/drivers/mtd/nand/raw/meson_nand.c
-index 1b82b687e5a50..58eaa3845da4d 100644
---- a/drivers/mtd/nand/raw/meson_nand.c
-+++ b/drivers/mtd/nand/raw/meson_nand.c
-@@ -1041,9 +1041,12 @@ static int meson_nfc_clk_init(struct meson_nfc *nfc)
- 
- 	ret = clk_set_rate(nfc->device_clk, 24000000);
- 	if (ret)
--		goto err_phase_rx;
-+		goto err_disable_rx;
- 
- 	return 0;
-+
-+err_disable_rx:
-+	clk_disable_unprepare(nfc->phase_rx);
- err_phase_rx:
- 	clk_disable_unprepare(nfc->phase_tx);
- err_phase_tx:
--- 
-2.27.0
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -252,6 +252,8 @@ static struct usb_serial_driver cp210x_d
+ 	.close			= cp210x_close,
+ 	.break_ctl		= cp210x_break_ctl,
+ 	.set_termios		= cp210x_set_termios,
++	.throttle		= usb_serial_generic_throttle,
++	.unthrottle		= usb_serial_generic_unthrottle,
+ 	.tiocmget		= cp210x_tiocmget,
+ 	.tiocmset		= cp210x_tiocmset,
+ 	.attach			= cp210x_startup,
 
 
