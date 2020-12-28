@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2742E4006
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03DB22E389B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390545AbgL1Oqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:46:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59798 "EHLO mail.kernel.org"
+        id S1732064AbgL1NM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:12:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502900AbgL1OXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:23:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4582206D4;
-        Mon, 28 Dec 2020 14:23:06 +0000 (UTC)
+        id S1732058AbgL1NM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:12:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8FCD21D94;
+        Mon, 28 Dec 2020 13:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165387;
-        bh=MmG8KOuktm7mFn9OvCZwv5Ou7Rl4C6yIs4bp9OjUqw0=;
+        s=korg; t=1609161106;
+        bh=v8xGXZpQ0TfXnuv4B/zhEACipqrrttL22vMUL/cuUI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAUEREY6sa9X+5/4bdpnnRlUs3oc2CNnqg07rO8XYxEmOpbzPj4bE1GzrRs71X6no
-         QQ+yOWq7UgMcG5A8071KdbcwJDEzY4syicQ37CFu+g84KYeXt5FoU6GyAmp4gyI+0Y
-         fsGMJNn8miYgbMd/eP24bYdg3ZBhS+B1IXr89zyU=
+        b=A9ZG1PITiHVmZy04pBs3qGHh3a4XBJHwkZtFieGCkAItTM65fi7eBj9442zxZbW0J
+         kT/aUn3ec0E9vqhW8P67LkhzXZ3zZdennPe795kOwSWpeQU9CCCr9EV92zu2IEbkTY
+         zg4l65SMLgnZXDYK8x2FmyH1gVyvYhtfqetoI1KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taras Galchenko <tpgalchenko@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 482/717] pwm: sun4i: Remove erroneous else branch
+Subject: [PATCH 4.14 075/242] crypto: talitos - Fix return type of current_desc_hdr()
 Date:   Mon, 28 Dec 2020 13:48:00 +0100
-Message-Id: <20201228125044.061381976@linuxfoundation.org>
+Message-Id: <20201228124908.379018203@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <thierry.reding@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 6eefb79d6f5bc4086bd02c76f1072dd4a8d9d9f6 ]
+[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
 
-Commit d3817a647059 ("pwm: sun4i: Remove redundant needs_delay") changed
-the logic of an else branch so that the PWM_EN and PWM_CLK_GATING bits
-are now cleared if the PWM is to be disabled, whereas previously the
-condition was always false, and hence the branch never got executed.
+current_desc_hdr() returns a u32 but in fact this is a __be32,
+leading to a lot of sparse warnings.
 
-This code is reported causing backlight issues on boards based on the
-Allwinner A20 SoC. Fix this by removing the else branch, which restores
-the behaviour prior to the offending commit.
+Change the return type to __be32 and ensure it is handled as
+sure by the caller.
 
-Note that the PWM_EN and PWM_CLK_GATING bits still get cleared later in
-sun4i_pwm_apply() if the PWM is to be disabled.
-
-Fixes: d3817a647059 ("pwm: sun4i: Remove redundant needs_delay")
-Reported-by: Taras Galchenko <tpgalchenko@gmail.com>
-Suggested-by: Taras Galchenko <tpgalchenko@gmail.com>
-Tested-by: Taras Galchenko <tpgalchenko@gmail.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-sun4i.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/crypto/talitos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pwm/pwm-sun4i.c b/drivers/pwm/pwm-sun4i.c
-index 38a4c5c1317b2..482d5b9cec1fb 100644
---- a/drivers/pwm/pwm-sun4i.c
-+++ b/drivers/pwm/pwm-sun4i.c
-@@ -294,12 +294,8 @@ static int sun4i_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 6c8a03a1132f6..8028fbd5cda47 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -447,7 +447,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
+ /*
+  * locate current (offending) descriptor
+  */
+-static u32 current_desc_hdr(struct device *dev, int ch)
++static __be32 current_desc_hdr(struct device *dev, int ch)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int tail, iter;
+@@ -478,13 +478,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+ /*
+  * user diagnostics; report root cause of error based on execution unit status
+  */
+-static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
++static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int i;
  
- 	ctrl |= BIT_CH(PWM_CLK_GATING, pwm->hwpwm);
+ 	if (!desc_hdr)
+-		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
++		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
  
--	if (state->enabled) {
-+	if (state->enabled)
- 		ctrl |= BIT_CH(PWM_EN, pwm->hwpwm);
--	} else {
--		ctrl &= ~BIT_CH(PWM_EN, pwm->hwpwm);
--		ctrl &= ~BIT_CH(PWM_CLK_GATING, pwm->hwpwm);
--	}
- 
- 	sun4i_pwm_writel(sun4i_pwm, ctrl, PWM_CTRL_REG);
- 
+ 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
+ 	case DESC_HDR_SEL0_AFEU:
 -- 
 2.27.0
 
