@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 807A02E6793
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 224EC2E65C3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730971AbgL1Q0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:26:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S2389560AbgL1N1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730959AbgL1NIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF3F020728;
-        Mon, 28 Dec 2020 13:07:57 +0000 (UTC)
+        id S2389035AbgL1NZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C59207C9;
+        Mon, 28 Dec 2020 13:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160878;
-        bh=RVRSKHUm7Oe7jCTjTNiJDphWHyMo4X6b0b450u8zxzk=;
+        s=korg; t=1609161911;
+        bh=x7wPcdaHSJvPn+6YXf9F4WM7LGOJSdklufUles/136E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9gb32/eEYNbPX7naVmb6zz8BCkM8Feo5P3AAdfPC9cTNB5rXjsebGMNdXuVEEk65
-         KagXS/orjnryZmDLZnosMuBWHMWlom+LWQwOXBa1FpKn/YqfZJE4K7OK19RcoAYBhQ
-         No4kXoMfmFCkDKYET2VIfAGNGw5jynlwkUwMBx5Q=
+        b=IZKzMbgLT2bsqgl+Rtqoh2cgSVzAP6VFWj9DKM8MNbMgnHz43oZWehN32gogYSgb/
+         vkos5f29VUURrHSwQga01BRpLWbDB76NjTLBUQIk11aWCrd4YtFKArFiBFBrz1cpO/
+         yBPtGVRS1qFn18tKuQXCVCKtpWaLr+5dz3WFRGls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Si <si.hao@zte.com.cn>,
-        Lin Chen <chen.lin5@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>, Li Yang <leoyang.li@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/242] soc: fsl: dpio: Get the cpumask through cpumask_of(cpu)
+        stable@vger.kernel.org,
+        syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 094/346] crypto: af_alg - avoid undefined behavior accessing salg_name
 Date:   Mon, 28 Dec 2020 13:46:53 +0100
-Message-Id: <20201228124905.076775254@linuxfoundation.org>
+Message-Id: <20201228124924.343770006@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +41,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Si <si.hao@zte.com.cn>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 2663b3388551230cbc4606a40fabf3331ceb59e4 ]
+commit 92eb6c3060ebe3adf381fd9899451c5b047bb14d upstream.
 
-The local variable 'cpumask_t mask' is in the stack memory, and its address
-is assigned to 'desc->affinity' in 'irq_set_affinity_hint()'.
-But the memory area where this variable is located is at risk of being
-modified.
+Commit 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm
+names") made the kernel start accepting arbitrarily long algorithm names
+in sockaddr_alg.  However, the actual length of the salg_name field
+stayed at the original 64 bytes.
 
-During LTP testing, the following error was generated:
+This is broken because the kernel can access indices >= 64 in salg_name,
+which is undefined behavior -- even though the memory that is accessed
+is still located within the sockaddr structure.  It would only be
+defined behavior if the array were properly marked as arbitrary-length
+(either by making it a flexible array, which is the recommended way
+these days, or by making it an array of length 0 or 1).
 
-Unable to handle kernel paging request at virtual address ffff000012e9b790
-Mem abort info:
-  ESR = 0x96000007
-  Exception class = DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000007
-  CM = 0, WnR = 0
-swapper pgtable: 4k pages, 48-bit VAs, pgdp = 0000000075ac5e07
-[ffff000012e9b790] pgd=00000027dbffe003, pud=00000027dbffd003,
-pmd=00000027b6d61003, pte=0000000000000000
-Internal error: Oops: 96000007 [#1] PREEMPT SMP
-Modules linked in: xt_conntrack
-Process read_all (pid: 20171, stack limit = 0x0000000044ea4095)
-CPU: 14 PID: 20171 Comm: read_all Tainted: G    B   W
-Hardware name: NXP Layerscape LX2160ARDB (DT)
-pstate: 80000085 (Nzcv daIf -PAN -UAO)
-pc : irq_affinity_hint_proc_show+0x54/0xb0
-lr : irq_affinity_hint_proc_show+0x4c/0xb0
-sp : ffff00001138bc10
-x29: ffff00001138bc10 x28: 0000ffffd131d1e0
-x27: 00000000007000c0 x26: ffff8025b9480dc0
-x25: ffff8025b9480da8 x24: 00000000000003ff
-x23: ffff8027334f8300 x22: ffff80272e97d000
-x21: ffff80272e97d0b0 x20: ffff8025b9480d80
-x19: ffff000009a49000 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0000000000000000
-x13: 0000000000000000 x12: 0000000000000040
-x11: 0000000000000000 x10: ffff802735b79b88
-x9 : 0000000000000000 x8 : 0000000000000000
-x7 : ffff000009a49848 x6 : 0000000000000003
-x5 : 0000000000000000 x4 : ffff000008157d6c
-x3 : ffff00001138bc10 x2 : ffff000012e9b790
-x1 : 0000000000000000 x0 : 0000000000000000
-Call trace:
- irq_affinity_hint_proc_show+0x54/0xb0
- seq_read+0x1b0/0x440
- proc_reg_read+0x80/0xd8
- __vfs_read+0x60/0x178
- vfs_read+0x94/0x150
- ksys_read+0x74/0xf0
- __arm64_sys_read+0x24/0x30
- el0_svc_common.constprop.0+0xd8/0x1a0
- el0_svc_handler+0x34/0x88
- el0_svc+0x10/0x14
-Code: f9001bbf 943e0732 f94066c2 b4000062 (f9400041)
----[ end trace b495bdcb0b3b732b ]---
-Kernel panic - not syncing: Fatal exception
-SMP: stopping secondary CPUs
-SMP: failed to stop secondary CPUs 0,2-4,6,8,11,13-15
-Kernel Offset: disabled
-CPU features: 0x0,21006008
-Memory Limit: none
----[ end Kernel panic - not syncing: Fatal exception ]---
+We can't simply change salg_name into a flexible array, since that would
+break source compatibility with userspace programs that embed
+sockaddr_alg into another struct, or (more commonly) declare a
+sockaddr_alg like 'struct sockaddr_alg sa = { .salg_name = "foo" };'.
 
-Fix it by using 'cpumask_of(cpu)' to get the cpumask.
+One solution would be to change salg_name into a flexible array only
+when '#ifdef __KERNEL__'.  However, that would keep userspace without an
+easy way to actually use the longer algorithm names.
 
-Signed-off-by: Hao Si <si.hao@zte.com.cn>
-Signed-off-by: Lin Chen <chen.lin5@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Instead, add a new structure 'sockaddr_alg_new' that has the flexible
+array field, and expose it to both userspace and the kernel.
+Make the kernel use it correctly in alg_bind().
+
+This addresses the syzbot report
+"UBSAN: array-index-out-of-bounds in alg_bind"
+(https://syzkaller.appspot.com/bug?extid=92ead4eb8e26a26d465e).
+
+Reported-by: syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
+Fixes: 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm names")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/staging/fsl-mc/bus/dpio/dpio-driver.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ crypto/af_alg.c             |   10 +++++++---
+ include/uapi/linux/if_alg.h |   16 ++++++++++++++++
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c b/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
-index e36da20a2796b..e7856a9e685f4 100644
---- a/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
-+++ b/drivers/staging/fsl-mc/bus/dpio/dpio-driver.c
-@@ -77,7 +77,6 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
- 	struct dpio_priv *priv;
- 	int error;
- 	struct fsl_mc_device_irq *irq;
--	cpumask_t mask;
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -151,7 +151,7 @@ static int alg_bind(struct socket *sock,
+ 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
+ 	struct sock *sk = sock->sk;
+ 	struct alg_sock *ask = alg_sk(sk);
+-	struct sockaddr_alg *sa = (void *)uaddr;
++	struct sockaddr_alg_new *sa = (void *)uaddr;
+ 	const struct af_alg_type *type;
+ 	void *private;
+ 	int err;
+@@ -159,7 +159,11 @@ static int alg_bind(struct socket *sock,
+ 	if (sock->state == SS_CONNECTED)
+ 		return -EINVAL;
  
- 	priv = dev_get_drvdata(&dpio_dev->dev);
+-	if (addr_len < sizeof(*sa))
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
++		     offsetof(struct sockaddr_alg, salg_name));
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
++
++	if (addr_len < sizeof(*sa) + 1)
+ 		return -EINVAL;
  
-@@ -96,9 +95,7 @@ static int register_dpio_irq_handlers(struct fsl_mc_device *dpio_dev, int cpu)
- 	}
+ 	/* If caller uses non-allowed flag, return error. */
+@@ -167,7 +171,7 @@ static int alg_bind(struct socket *sock,
+ 		return -EINVAL;
  
- 	/* set the affinity hint */
--	cpumask_clear(&mask);
--	cpumask_set_cpu(cpu, &mask);
--	if (irq_set_affinity_hint(irq->msi_desc->irq, &mask))
-+	if (irq_set_affinity_hint(irq->msi_desc->irq, cpumask_of(cpu)))
- 		dev_err(&dpio_dev->dev,
- 			"irq_set_affinity failed irq %d cpu %d\n",
- 			irq->msi_desc->irq, cpu);
--- 
-2.27.0
-
+ 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
+-	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
++	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
+ 
+ 	type = alg_get_type(sa->salg_type);
+ 	if (IS_ERR(type) && PTR_ERR(type) == -ENOENT) {
+--- a/include/uapi/linux/if_alg.h
++++ b/include/uapi/linux/if_alg.h
+@@ -24,6 +24,22 @@ struct sockaddr_alg {
+ 	__u8	salg_name[64];
+ };
+ 
++/*
++ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
++ * arbitrary-length field.  We had to keep the original struct above for source
++ * compatibility with existing userspace programs, though.  Use the new struct
++ * below if support for very long algorithm names is needed.  To do this,
++ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
++ * copy algname (including the null terminator) into salg_name.
++ */
++struct sockaddr_alg_new {
++	__u16	salg_family;
++	__u8	salg_type[14];
++	__u32	salg_feat;
++	__u32	salg_mask;
++	__u8	salg_name[];
++};
++
+ struct af_alg_iv {
+ 	__u32	ivlen;
+ 	__u8	iv[0];
 
 
