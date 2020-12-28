@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E61872E677B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 454992E660F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbgL1QZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:25:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S2388769AbgL1NYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731138AbgL1NJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:09:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3AD320776;
-        Mon, 28 Dec 2020 13:08:48 +0000 (UTC)
+        id S2388765AbgL1NYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC7222475;
+        Mon, 28 Dec 2020 13:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160929;
-        bh=MK5htw5oQY5CJZH4kSaSeRhFTTdyJbcuuSJCELMzFDY=;
+        s=korg; t=1609161839;
+        bh=hibfEYcZMpAQOZQcxA1X8HzL8fC7B2ItYcXpA3QsG5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcWh9ZvB04udNJtRnegBl19X6lyX4tMKda0wzDGqRt4HAVEHC3PWFLK8usu26ovJs
-         rZ0wc0iedak0Q1EFeYTsNaYt4hhigvHMwS2tk9eVLOUcAMiMlr3nDqdV6JHxaF/bMC
-         GCnQzE0NDbwqdw3sgm2CnROQ/IrgoHSKyodmmDBE=
+        b=RwlJFUU4HAr5cJBwwnBkqOUDJ3Qmf+zKiw+80V57FM7t1CbUNO+4aQ48go2q395Ef
+         NxppuN9M9sEkmGuCkvpGzw5/5F1N4ULudXrxj2kumOt1bPEFaMHPqBgYVpWicIwCzQ
+         Ww2tR6+pFrDaDNyyinpDX8+LSK503OCZQuZK2OaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coiby Xu <coiby.xu@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 012/242] pinctrl: amd: remove debounce filter setting in IRQ type setting
-Date:   Mon, 28 Dec 2020 13:46:57 +0100
-Message-Id: <20201228124905.265447890@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 100/346] soc: renesas: rmobile-sysc: Fix some leaks in rmobile_init_pm_domains()
+Date:   Mon, 28 Dec 2020 13:46:59 +0100
+Message-Id: <20201228124924.617704645@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 47a0001436352c9853d72bf2071e85b316d688a2 upstream.
+[ Upstream commit cf25d802e029c31efac8bdc979236927f37183bd ]
 
-Debounce filter setting should be independent from IRQ type setting
-because according to the ACPI specs, there are separate arguments for
-specifying debounce timeout and IRQ type in GpioIo() and GpioInt().
+This code needs to call iounmap() on one error path.
 
-Together with commit 06abe8291bc31839950f7d0362d9979edc88a666
-("pinctrl: amd: fix incorrect way to disable debounce filter") and
-Andy's patch "gpiolib: acpi: Take into account debounce settings" [1],
-this will fix broken touchpads for laptops whose BIOS set the
-debounce timeout to a relatively large value. For example, the BIOS
-of Lenovo AMD gaming laptops including Legion-5 15ARH05 (R7000),
-Legion-5P (R7000P) and IdeaPad Gaming 3 15ARH05, set the debounce
-timeout to 124.8ms. This led to the kernel receiving only ~7 HID
-reports per second from the Synaptics touchpad
-(MSFT0001:00 06CB:7F28).
-
-Existing touchpads like [2][3] are not troubled by this bug because
-the debounce timeout has been set to 0 by the BIOS before enabling
-the debounce filter in setting IRQ type.
-
-[1] https://lore.kernel.org/linux-gpio/20201111222008.39993-11-andriy.shevchenko@linux.intel.com/
-    8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
-[2] https://github.com/Syniurge/i2c-amd-mp2/issues/11#issuecomment-721331582
-[3] https://forum.manjaro.org/t/random-short-touchpad-freezes/30832/28
-
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-gpio/CAHp75VcwiGREBUJ0A06EEw-SyabqYsp%2Bdqs2DpSrhaY-2GVdAA%40mail.gmail.com/
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
-Link: https://lore.kernel.org/r/20201125130320.311059-1-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2173fc7cb681 ("ARM: shmobile: R-Mobile: Add DT support for PM domains")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200923113142.GC1473821@mwanda
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c |    7 -------
- 1 file changed, 7 deletions(-)
+ arch/arm/mach-shmobile/pm-rmobile.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -426,7 +426,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
+diff --git a/arch/arm/mach-shmobile/pm-rmobile.c b/arch/arm/mach-shmobile/pm-rmobile.c
+index e348bcfe389da..cb8b02a1abe26 100644
+--- a/arch/arm/mach-shmobile/pm-rmobile.c
++++ b/arch/arm/mach-shmobile/pm-rmobile.c
+@@ -330,6 +330,7 @@ static int __init rmobile_init_pm_domains(void)
  
-@@ -434,7 +433,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
- 
-@@ -442,7 +440,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= BOTH_EADGE << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
- 
-@@ -450,8 +447,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
--		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
--		pin_reg |= DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_level_irq);
- 		break;
- 
-@@ -459,8 +454,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
--		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
--		pin_reg |= DB_TYPE_PRESERVE_HIGH_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_level_irq);
- 		break;
- 
+ 		pmd = of_get_child_by_name(np, "pm-domains");
+ 		if (!pmd) {
++			iounmap(base);
+ 			pr_warn("%pOF lacks pm-domains node\n", np);
+ 			continue;
+ 		}
+-- 
+2.27.0
+
 
 
