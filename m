@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46BDA2E42E7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9D22E38A3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406864AbgL1NvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:51:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53110 "EHLO mail.kernel.org"
+        id S1732150AbgL1NMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:12:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406861AbgL1NvZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9CC222583;
-        Mon, 28 Dec 2020 13:50:38 +0000 (UTC)
+        id S1732149AbgL1NMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:12:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28D7220728;
+        Mon, 28 Dec 2020 13:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163439;
-        bh=1nDgGknWBmv1BH/g6hqZLjhfPhhRHpLAfYTIg+dyEIc=;
+        s=korg; t=1609161151;
+        bh=ubpvGQAi+4xzZy3SHNH2TkM7VPePppAwaNcDFHGmGeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VteA+Uj0Z56A1kVI0Jss3FmdY6ZebyvUUsWZMUn+THCFCKxpY64H7Jv6iVZeJmHPV
-         vBQq8XieKTi1wfQOsbBg5sg6GSfjMQKP12hFFq5bRYtMmOWk6heEYrH92peaD9uGSM
-         pvNS5ltQ7v5vcS+ZPhmQlYN13/4dFRTrmbokqd2A=
+        b=wBgil7U/+wVxHrEwWn+F5oO6rvC1h80zbBf/gHzYR1V0A9FeBSeQUaLNysaR+iLXA
+         Qp88i/NTPpDC16O+YBYYh04eYsBZ+YfhbMXY550zWnfwkftvKNr+2aS0F8QB/FPawG
+         deDEcNBHZbp1D2NL8AhQUaUeVGK+sM4tCTO4H5bM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/453] powerpc/ps3: use dma_mapping_error()
-Date:   Mon, 28 Dec 2020 13:48:43 +0100
-Message-Id: <20201228124951.018034145@linuxfoundation.org>
+Subject: [PATCH 4.14 119/242] genirq/irqdomain: Dont try to free an interrupt that has no mapping
+Date:   Mon, 28 Dec 2020 13:48:44 +0100
+Message-Id: <20201228124910.553037007@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d0edaa28a1f7830997131cbce87b6c52472825d1 ]
+[ Upstream commit 4615fbc3788ddc8e7c6d697714ad35a53729aa2c ]
 
-The DMA address returned by dma_map_single() should be checked with
-dma_mapping_error(). Fix the ps3stor_setup() function accordingly.
+When an interrupt allocation fails for N interrupts, it is pretty
+common for the error handling code to free the same number of interrupts,
+no matter how many interrupts have actually been allocated.
 
-Fixes: 80071802cb9c ("[POWERPC] PS3: Storage Driver Core")
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201213182622.23047-1-vincent.stehle@laposte.net
+This may result in the domain freeing code to be unexpectedly called
+for interrupts that have no mapping in that domain. Things end pretty
+badly.
+
+Instead, add some checks to irq_domain_free_irqs_hierarchy() to make sure
+that thiss does not follow the hierarchy if no mapping exists for a given
+interrupt.
+
+Fixes: 6a6544e520abe ("genirq/irqdomain: Remove auto-recursive hierarchy support")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20201129135551.396777-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ps3/ps3stor_lib.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/irqdomain.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ps3/ps3stor_lib.c b/drivers/ps3/ps3stor_lib.c
-index 333ba83006e48..a12a1ad9b5fe3 100644
---- a/drivers/ps3/ps3stor_lib.c
-+++ b/drivers/ps3/ps3stor_lib.c
-@@ -189,7 +189,7 @@ int ps3stor_setup(struct ps3_storage_device *dev, irq_handler_t handler)
- 	dev->bounce_lpar = ps3_mm_phys_to_lpar(__pa(dev->bounce_buf));
- 	dev->bounce_dma = dma_map_single(&dev->sbd.core, dev->bounce_buf,
- 					 dev->bounce_size, DMA_BIDIRECTIONAL);
--	if (!dev->bounce_dma) {
-+	if (dma_mapping_error(&dev->sbd.core, dev->bounce_dma)) {
- 		dev_err(&dev->sbd.core, "%s:%u: map DMA region failed\n",
- 			__func__, __LINE__);
- 		error = -ENODEV;
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index 0d54f8256b9f4..cafea68749e0a 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -1364,8 +1364,15 @@ static void irq_domain_free_irqs_hierarchy(struct irq_domain *domain,
+ 					   unsigned int irq_base,
+ 					   unsigned int nr_irqs)
+ {
+-	if (domain->ops->free)
+-		domain->ops->free(domain, irq_base, nr_irqs);
++	unsigned int i;
++
++	if (!domain->ops->free)
++		return;
++
++	for (i = 0; i < nr_irqs; i++) {
++		if (irq_domain_get_irq_data(domain, irq_base + i))
++			domain->ops->free(domain, irq_base + i, 1);
++	}
+ }
+ 
+ int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
 -- 
 2.27.0
 
