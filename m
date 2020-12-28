@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6AD2E6887
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5562E696E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729377AbgL1M76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:59:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S1728003AbgL1Mw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbgL1M76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 050F0207C9;
-        Mon, 28 Dec 2020 12:59:41 +0000 (UTC)
+        id S1727994AbgL1Mwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:52:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04021229C6;
+        Mon, 28 Dec 2020 12:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160382;
-        bh=uk0DM0zMWvCwM7+u/s74nhU1zvTRlz3ushlb/+OpKVk=;
+        s=korg; t=1609159915;
+        bh=m17xW3VM15KVS2s8C5E4GEW6nQag9CrdQWXtRVV2uOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOJkxYDKm5LKlaFOFNE6vrseBO4qKp0aWipfRghPjcCuMGpCRePpdGs50IrBZJ3Xz
-         F8z102rodVYGITL1EPVQDCFANKFCYmWgcxOnR3FgDD2rNwaEr6WaoQu7bHqNUkLy83
-         ccCqi1fK0KFG6sXWGROEhB+Elw/aahVxhdp17YJY=
+        b=q9nOLWmW7wEZeszjPKSlzPnMt9wsAxXUCSyk7oexki2q3rFwPA7zhh7IYPSUdyjn9
+         k1T6JpP/SoDjBMk6WxIl8JQi431qVh4OL27yaOdw+zvCPSoXzh9OQfbq6hDTNc4CjG
+         aZbHJbIr44l0EhlY8QdtJgbVELRa727Saar1zu9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 033/175] scsi: mpt3sas: Increase IOCInit request timeout to 30s
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Mark Brown <broonie@kernel.org>, Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.4 002/132] spi: bcm2835aux: Restore err assignment in bcm2835aux_spi_probe
 Date:   Mon, 28 Dec 2020 13:48:06 +0100
-Message-Id: <20201228124854.861668832@linuxfoundation.org>
+Message-Id: <20201228124846.541065310@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 85dad327d9b58b4c9ce08189a2707167de392d23 ]
+[ Upstream commit d853b3406903a7dc5b14eb5bada3e8cd677f66a2 ]
 
-Currently the IOCInit request message timeout is set to 10s. This is not
-sufficient in some scenarios such as during HBA FW downgrade operations.
+Clang warns:
 
-Increase the IOCInit request timeout to 30s.
+drivers/spi/spi-bcm2835aux.c:532:50: warning: variable 'err' is
+uninitialized when used here [-Wuninitialized]
+                dev_err(&pdev->dev, "could not get clk: %d\n", err);
+                                                               ^~~
+./include/linux/dev_printk.h:112:32: note: expanded from macro 'dev_err'
+        _dev_err(dev, dev_fmt(fmt), ##__VA_ARGS__)
+                                      ^~~~~~~~~~~
+drivers/spi/spi-bcm2835aux.c:495:9: note: initialize the variable 'err'
+to silence this warning
+        int err;
+               ^
+                = 0
+1 warning generated.
 
-Link: https://lore.kernel.org/r/20201130082733.26120-1-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Restore the assignment so that the error value can be used in the
+dev_err statement and there is no uninitialized memory being leaked.
+
+Fixes: e13ee6cc4781 ("spi: bcm2835aux: Fix use-after-free on unbind")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1199
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20201113180701.455541-1-natechancellor@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to 4.19-stable, add stable designation]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.4+: e13ee6cc4781: spi: bcm2835aux: Fix use-after-free on unbind
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-bcm2835aux.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 601a93953307d..16716b2644020 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -4477,7 +4477,7 @@ _base_send_ioc_init(struct MPT3SAS_ADAPTER *ioc)
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -416,8 +416,9 @@ static int bcm2835aux_spi_probe(struct p
  
- 	r = _base_handshake_req_reply_wait(ioc,
- 	    sizeof(Mpi2IOCInitRequest_t), (u32 *)&mpi_request,
--	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 10);
-+	    sizeof(Mpi2IOCInitReply_t), (u16 *)&mpi_reply, 30);
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if ((!bs->clk) || (IS_ERR(bs->clk))) {
++		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		return PTR_ERR(bs->clk);
++		return err;
+ 	}
  
- 	if (r != 0) {
- 		pr_err(MPT3SAS_FMT "%s: handshake failed (r=%d)\n",
--- 
-2.27.0
-
+ 	bs->irq = platform_get_irq(pdev, 0);
 
 
