@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F30AB2E3A20
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BACA22E3BBF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbgL1Ncj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:32:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33138 "EHLO mail.kernel.org"
+        id S2407402AbgL1NyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:54:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391053AbgL1Ncg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CF2720728;
-        Mon, 28 Dec 2020 13:31:55 +0000 (UTC)
+        id S2407400AbgL1NyH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3ACB205CB;
+        Mon, 28 Dec 2020 13:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162316;
-        bh=g96etGiV2d5ehJX+/Xag/V1VghQcs7dqNcLvQJaaCA0=;
+        s=korg; t=1609163606;
+        bh=szQs4ZqUCDQKYF2cv1WOcuBpGMFzvkTRpW1YLoJOZkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pV2MRNy8/ojOzNctL5aJ+oNQ0fc7XdbU8fnec82kkRdX3Pd2Zwd2RKGwXy5u/ct6D
-         27023r4OgUomoq/b5LIP+fUpEh/G6Mu9B6FqA9TpYYk/7lF/O7AyiY+8Pq8sY359Fo
-         bnyOxpVZDq/tTTw72xHgEHKOPFEE0+fyXKNjdFdY=
+        b=XJdlHFeKGItOnlfDODBcYVKfhYN9xccxrSdnH1j+YwXySqmEZ50fnLDK+UDX5EbNW
+         Z09d6LB0cDt2yczVA+TXNN8YLN5Er4se2qRSb26Ue7hFWfNJ2vdw26tKHZjhBaPGUa
+         T0NpWi9h/EiIplAtrwPiJvNiVdNCT40f/OSLS8to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 262/346] media: ipu3-cio2: Return actual subdev format
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 345/453] ALSA: usb-audio: Disable sample read check if firmware doesnt give back
 Date:   Mon, 28 Dec 2020 13:49:41 +0100
-Message-Id: <20201228124932.437369100@linuxfoundation.org>
+Message-Id: <20201228124953.821547919@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8160e86702e0807bd36d40f82648f9f9820b9d5a upstream.
+commit 9df28edce7c6ab38050235f6f8b43dd7ccd01b6d upstream.
 
-Return actual subdev format on ipu3-cio2 subdev pads. The earlier
-implementation was based on an infinite recursion that exhausted the
-stack.
+Some buggy firmware don't give the current sample rate but leaves
+zero.  Handle this case more gracefully without warning but just skip
+the current rate verification from the next time.
 
-Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201218145858.2357-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |   24 +++---------------------
- 1 file changed, 3 insertions(+), 21 deletions(-)
+ sound/usb/clock.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1246,29 +1246,11 @@ static int cio2_subdev_get_fmt(struct v4
- 			       struct v4l2_subdev_format *fmt)
- {
- 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
--	struct v4l2_subdev_format format;
--	int ret;
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -531,6 +531,12 @@ static int set_sample_rate_v1(struct snd
+ 	}
  
--	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
-+	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
- 		fmt->format = *v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
--		return 0;
--	}
--
--	if (fmt->pad == CIO2_PAD_SINK) {
--		format.which = V4L2_SUBDEV_FORMAT_ACTIVE;
--		ret = v4l2_subdev_call(sd, pad, get_fmt, NULL,
--				       &format);
--
--		if (ret)
--			return ret;
--		/* update colorspace etc */
--		q->subdev_fmt.colorspace = format.format.colorspace;
--		q->subdev_fmt.ycbcr_enc = format.format.ycbcr_enc;
--		q->subdev_fmt.quantization = format.format.quantization;
--		q->subdev_fmt.xfer_func = format.format.xfer_func;
--	}
--
--	fmt->format = q->subdev_fmt;
-+	else
-+		fmt->format = q->subdev_fmt;
- 
- 	return 0;
- }
+ 	crate = data[0] | (data[1] << 8) | (data[2] << 16);
++	if (!crate) {
++		dev_info(&dev->dev, "failed to read current rate; disabling the check\n");
++		chip->sample_rate_read_error = 3; /* three strikes, see above */
++		return 0;
++	}
++
+ 	if (crate != rate) {
+ 		dev_warn(&dev->dev, "current rate %d is different from the runtime rate %d\n", crate, rate);
+ 		// runtime->rate = crate;
 
 
