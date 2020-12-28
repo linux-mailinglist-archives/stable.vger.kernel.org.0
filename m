@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B69312E68A6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9076E2E6757
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730006AbgL1QjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:39:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
+        id S1731819AbgL1NLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:11:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729424AbgL1NAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:00:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB42722573;
-        Mon, 28 Dec 2020 12:59:56 +0000 (UTC)
+        id S1731812AbgL1NLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:11:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EB2322583;
+        Mon, 28 Dec 2020 13:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160397;
-        bh=DE3cR/WXTTulpqmIcWjEFEhHP2EW4aJJyfdFm0vLJWE=;
+        s=korg; t=1609161059;
+        bh=FPl1n4rY6j8/9aRcctzB8Cg//MkGQH+LPD2+M9kwdxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqL7HrUgc84vjW84d5QolGQ7rsuxnvpX2TsBV4AmJYd3HdZxPMrgz4UdssYO5zzsl
-         W7qeTruG+dKrRywnBmbXIUbK+abVFsQeEHJAZfLLq15A6qWeoL6Gy4E+1R//odrqmp
-         CMzny94APNqzqM1LQbWQ+H3bXxjG0jDi7qUavSyU=
+        b=pSOP5IPnBySSn1mWTdEyXUWWQAXdnzluxqd1+UkiR0XUqqdUKMd+myIieO88qjxmC
+         h+XomksTsUmSAVCv7K8PZkFWYc9vSbn+9fPVPUgBVFGP01gh9XeYBic0C1Not2/f5h
+         h1i82ywL65m+NAQhcdPzTRO1i5H+E3jq+gM4v8LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Will McVicker <willmcvicker@google.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.9 038/175] USB: gadget: f_midi: setup SuperSpeed Plus descriptors
-Date:   Mon, 28 Dec 2020 13:48:11 +0100
-Message-Id: <20201228124855.092762987@linuxfoundation.org>
+        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 087/242] net: evaluate net.ipvX.conf.all.ignore_routes_with_linkdown
+Date:   Mon, 28 Dec 2020 13:48:12 +0100
+Message-Id: <20201228124908.978501280@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will McVicker <willmcvicker@google.com>
+From: Vincent Bernat <vincent@bernat.ch>
 
-commit 457a902ba1a73b7720666b21ca038cd19764db18 upstream.
+[ Upstream commit c0c5a60f0f1311bcf08bbe735122096d6326fb5b ]
 
-Needed for SuperSpeed Plus support for f_midi.  This allows the
-gadget to work properly without crashing at SuperSpeed rates.
+Introduced in 0eeb075fad73, the "ignore_routes_with_linkdown" sysctl
+ignores a route whose interface is down. It is provided as a
+per-interface sysctl. However, while a "all" variant is exposed, it
+was a noop since it was never evaluated. We use the usual "or" logic
+for this kind of sysctls.
 
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Will McVicker <willmcvicker@google.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201127140559.381351-4-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested with:
 
+    ip link add type veth # veth0 + veth1
+    ip link add type veth # veth1 + veth2
+    ip link set up dev veth0
+    ip link set up dev veth1 # link-status paired with veth0
+    ip link set up dev veth2
+    ip link set up dev veth3 # link-status paired with veth2
+
+    # First available path
+    ip -4 addr add 203.0.113.${uts#H}/24 dev veth0
+    ip -6 addr add 2001:db8:1::${uts#H}/64 dev veth0
+
+    # Second available path
+    ip -4 addr add 192.0.2.${uts#H}/24 dev veth2
+    ip -6 addr add 2001:db8:2::${uts#H}/64 dev veth2
+
+    # More specific route through first path
+    ip -4 route add 198.51.100.0/25 via 203.0.113.254 # via veth0
+    ip -6 route add 2001:db8:3::/56 via 2001:db8:1::ff # via veth0
+
+    # Less specific route through second path
+    ip -4 route add 198.51.100.0/24 via 192.0.2.254 # via veth2
+    ip -6 route add 2001:db8:3::/48 via 2001:db8:2::ff # via veth2
+
+    # H1: enable on "all"
+    # H2: enable on "veth0"
+    for v in ipv4 ipv6; do
+      case $uts in
+        H1)
+          sysctl -qw net.${v}.conf.all.ignore_routes_with_linkdown=1
+          ;;
+        H2)
+          sysctl -qw net.${v}.conf.veth0.ignore_routes_with_linkdown=1
+          ;;
+      esac
+    done
+
+    set -xe
+    # When veth0 is up, best route is through veth0
+    ip -o route get 198.51.100.1 | grep -Fw veth0
+    ip -o route get 2001:db8:3::1 | grep -Fw veth0
+
+    # When veth0 is down, best route should be through veth2 on H1/H2,
+    # but on veth0 on H2
+    ip link set down dev veth1 # down veth0
+    ip route show
+    [ $uts != H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth0
+    [ $uts != H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth0
+    [ $uts = H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth2
+    [ $uts = H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth2
+
+Without this patch, the two last lines would fail on H1 (the one using
+the "all" sysctl). With the patch, everything succeeds as expected.
+
+Also document the sysctl in `ip-sysctl.rst`.
+
+Fixes: 0eeb075fad73 ("net: ipv4 sysctl option to ignore routes when nexthop link is down")
+Signed-off-by: Vincent Bernat <vincent@bernat.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_midi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ Documentation/networking/ip-sysctl.txt | 3 +++
+ include/linux/inetdevice.h             | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_midi.c
-+++ b/drivers/usb/gadget/function/f_midi.c
-@@ -1008,6 +1008,12 @@ static int f_midi_bind(struct usb_config
- 		f->hs_descriptors = usb_copy_descriptors(midi_function);
- 		if (!f->hs_descriptors)
- 			goto fail_f_midi;
-+
-+		if (gadget_is_superspeed_plus(c->cdev->gadget)) {
-+			f->ssp_descriptors = usb_copy_descriptors(midi_function);
-+			if (!f->ssp_descriptors)
-+				goto fail_f_midi;
-+		}
- 	}
+diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
+index 5f1e3dc567f1d..fe0e46418f6db 100644
+--- a/Documentation/networking/ip-sysctl.txt
++++ b/Documentation/networking/ip-sysctl.txt
+@@ -1271,6 +1271,9 @@ igmpv3_unsolicited_report_interval - INTEGER
+ 	IGMPv3 report retransmit will take place.
+ 	Default: 1000 (1 seconds)
  
- 	kfree(midi_function);
++ignore_routes_with_linkdown - BOOLEAN
++        Ignore routes whose link is down when performing a FIB lookup.
++
+ promote_secondaries - BOOLEAN
+ 	When a primary IP address is removed from this interface
+ 	promote a corresponding secondary IP address instead of
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index 5058f061cb2bd..ff876bf66cf25 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -123,7 +123,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
+ 	  IN_DEV_ORCONF((in_dev), ACCEPT_REDIRECTS)))
+ 
+ #define IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) \
+-	IN_DEV_CONF_GET((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
++	IN_DEV_ORCONF((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
+ 
+ #define IN_DEV_ARPFILTER(in_dev)	IN_DEV_ORCONF((in_dev), ARPFILTER)
+ #define IN_DEV_ARP_ACCEPT(in_dev)	IN_DEV_ORCONF((in_dev), ARP_ACCEPT)
+-- 
+2.27.0
+
 
 
