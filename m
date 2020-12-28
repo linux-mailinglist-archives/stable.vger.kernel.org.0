@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4E02E3FEB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 767472E3FE0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389457AbgL1OqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:46:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
+        id S1732100AbgL1Opb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:45:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408081AbgL1OqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:46:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4C3208D5;
-        Mon, 28 Dec 2020 14:44:55 +0000 (UTC)
+        id S2506451AbgL1Opb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:45:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C41F223E8;
+        Mon, 28 Dec 2020 14:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609166696;
-        bh=EaflN3Zddkr/XZyi54ceDo58s+Hxi75ADkf3nc+llr8=;
+        s=korg; t=1609166690;
+        bh=xB6jz9fA5pPiM6k45InaZbQ02maTGIP9+AwXRDkTVyM=;
         h=Subject:To:From:Date:From;
-        b=xXWMGNydFxpG1v8n/k4pp8SGTU9FSaoxhoaraOgghKo+ZMNF6tVz+qas72CMMTrsX
-         lTqH6qqJp7gyj6+XIjsvdpaZvQ3PFCQ54SzfS+61JtakgzXW9D0i5K0kHt1AIXO/E1
-         SYPme2YTPbHPAxNRsffTySqPPzxFwsKyiW+sGwyA=
-Subject: patch "usb: chipidea: ci_hdrc_imx: add missing put_device() call in" added to usb-linus
-To:     yukuai3@huawei.com, gregkh@linuxfoundation.org,
+        b=psi6FjL+mqOepHMwePM6Rbf4ZnQoKaA+I/+IYeAKn9wq4RmblmIwEiA/HV72Cg7qV
+         bzJOhZaP9RhzwYgnoV1ebiN3G6nvFY2AiQGijRU6/RD7gKbavf3JOU9j9Lb3VFJSuR
+         A+6f5PpSmVEyD3j98YioFk5HaIAor7GijdiDiUDE=
+Subject: patch "usb: gadget: u_ether: Fix MTU size mismatch with RX packet size" added to usb-linus
+To:     manish.narani@xilinx.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 28 Dec 2020 15:46:05 +0100
-Message-ID: <16091667658336@kroah.com>
+Message-ID: <160916676527214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: chipidea: ci_hdrc_imx: add missing put_device() call in
+    usb: gadget: u_ether: Fix MTU size mismatch with RX packet size
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,44 +51,62 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 83a43ff80a566de8718dfc6565545a0080ec1fb5 Mon Sep 17 00:00:00 2001
-From: Yu Kuai <yukuai3@huawei.com>
-Date: Tue, 17 Nov 2020 09:14:30 +0800
-Subject: usb: chipidea: ci_hdrc_imx: add missing put_device() call in
- usbmisc_get_init_data()
+From 0a88fa221ce911c331bf700d2214c5b2f77414d3 Mon Sep 17 00:00:00 2001
+From: Manish Narani <manish.narani@xilinx.com>
+Date: Tue, 17 Nov 2020 12:43:35 +0530
+Subject: usb: gadget: u_ether: Fix MTU size mismatch with RX packet size
 
-if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+Fix the MTU size issue with RX packet size as the host sends the packet
+with extra bytes containing ethernet header. This causes failure when
+user sets the MTU size to the maximum i.e. 15412. In this case the
+ethernet packet received will be of length 15412 plus the ethernet header
+length. This patch fixes the issue where there is a check that RX packet
+length must not be more than max packet length.
 
-Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Fixes: bba787a860fa ("usb: gadget: ether: Allow jumbo frames")
+Signed-off-by: Manish Narani <manish.narani@xilinx.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
+Link: https://lore.kernel.org/r/1605597215-122027-1-git-send-email-manish.narani@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_ether.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
-index 9e12152ea46b..8b7bc10b6e8b 100644
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -139,9 +139,13 @@ static struct imx_usbmisc_data *usbmisc_get_init_data(struct device *dev)
- 	misc_pdev = of_find_device_by_node(args.np);
- 	of_node_put(args.np);
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 31ea76adcc0d..c019f2b0c0af 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -45,9 +45,10 @@
+ #define UETH__VERSION	"29-May-2008"
  
--	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
-+	if (!misc_pdev)
- 		return ERR_PTR(-EPROBE_DEFER);
+ /* Experiments show that both Linux and Windows hosts allow up to 16k
+- * frame sizes. Set the max size to 15k+52 to prevent allocating 32k
++ * frame sizes. Set the max MTU size to 15k+52 to prevent allocating 32k
+  * blocks and still have efficient handling. */
+-#define GETHER_MAX_ETH_FRAME_LEN 15412
++#define GETHER_MAX_MTU_SIZE 15412
++#define GETHER_MAX_ETH_FRAME_LEN (GETHER_MAX_MTU_SIZE + ETH_HLEN)
  
-+	if (!platform_get_drvdata(misc_pdev)) {
-+		put_device(&misc_pdev->dev);
-+		return ERR_PTR(-EPROBE_DEFER);
-+	}
- 	data->dev = &misc_pdev->dev;
+ struct eth_dev {
+ 	/* lock is held while accessing port_usb
+@@ -786,7 +787,7 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
  
- 	/*
+ 	/* MTU range: 14 - 15412 */
+ 	net->min_mtu = ETH_HLEN;
+-	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
++	net->max_mtu = GETHER_MAX_MTU_SIZE;
+ 
+ 	dev->gadget = g;
+ 	SET_NETDEV_DEV(net, &g->dev);
+@@ -848,7 +849,7 @@ struct net_device *gether_setup_name_default(const char *netname)
+ 
+ 	/* MTU range: 14 - 15412 */
+ 	net->min_mtu = ETH_HLEN;
+-	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
++	net->max_mtu = GETHER_MAX_MTU_SIZE;
+ 
+ 	return net;
+ }
 -- 
 2.29.2
 
