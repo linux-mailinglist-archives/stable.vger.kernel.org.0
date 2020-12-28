@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564912E40D8
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3972E3AC4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440480AbgL1OOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:14:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
+        id S2391458AbgL1Nli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:41:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440508AbgL1OOv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:14:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71541205CB;
-        Mon, 28 Dec 2020 14:14:10 +0000 (UTC)
+        id S2391619AbgL1NlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:41:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 318A720719;
+        Mon, 28 Dec 2020 13:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164851;
-        bh=nDzqTCQBvYJcWljCaBjgQPs9tM8ztehQbCRDvMe8o7M=;
+        s=korg; t=1609162852;
+        bh=dox/YfPqO6Cb/z3pLJuA56YvcT201ULzkSFTcSGRV1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIjUHgmkx5TI1ATk929ZTLTdXK8rO1pnFjvOJHRQgnKPfslW255fDK+AiIvK9UWey
-         GFRZtMrhwD1/9YmxOWBd5nw5yIVcheRaCvvIgvUbGNsiCNChjOjUuX3MbIly7g0pPk
-         lUrvgTrM+MReL0hwiofPPsVuLSzQw+la7F2Kwzm4=
+        b=qz6DMxlTMXj9sMASflUszUkN3GpQMUDuBG1xsePKux0Z+Vb3UTGQ+zgoRjcJsevOn
+         lAsEfZWwCP8xzC+309i+onF47dGZbDEmC8UWVWUiBLQEEPnw6gi4y7bPQDmO31szXI
+         BVOD6+OlBd0ldibr0HE6bvSyo4T3eOSngUDeYBlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 322/717] clocksource/drivers/arm_arch_timer: Correct fault programming of CNTKCTL_EL1.EVNTI
+Subject: [PATCH 5.4 084/453] rtc: pcf2127: fix pcf2127_nvmem_read/write() returns
 Date:   Mon, 28 Dec 2020 13:45:20 +0100
-Message-Id: <20201228125036.454436556@linuxfoundation.org>
+Message-Id: <20201228124941.272600891@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keqian Zhu <zhukeqian1@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8b7770b877d187bfdae1eaf587bd2b792479a31c ]
+[ Upstream commit ba1c30bf3f2536f248d262c6f257b5a787305991 ]
 
-ARM virtual counter supports event stream, it can only trigger an event
-when the trigger bit (the value of CNTKCTL_EL1.EVNTI) of CNTVCT_EL0 changes,
-so the actual period of event stream is 2^(cntkctl_evnti + 1). For example,
-when the trigger bit is 0, then virtual counter trigger an event for every
-two cycles.
+These functions should return zero on success.  Non-zero returns are
+treated as error.  On some paths, this doesn't matter but in
+nvmem_cell_read() a non-zero return would be passed to ERR_PTR() and
+lead to an Oops.
 
-While we're at it, rework the way we compute the trigger bit position
-by making it more obvious that when bits [n:n-1] are both set (with n
-being the most significant bit), we pick bit (n + 1).
-
-Fixes: 037f637767a8 ("drivers: clocksource: add support for ARM architected timer event stream")
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201204073126.6920-3-zhukeqian1@huawei.com
+Fixes: d6c3029f32f7 ("rtc: pcf2127: add support for accessing internal static RAM")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201022070451.GA2817669@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/arm_arch_timer.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-pcf2127.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 777d38cb39b09..d0177824c518b 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -822,15 +822,24 @@ static void arch_timer_evtstrm_enable(int divider)
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 02b069caffd57..d1d37a204264c 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -230,10 +230,8 @@ static int pcf2127_nvmem_read(void *priv, unsigned int offset,
+ 	if (ret)
+ 		return ret;
  
- static void arch_timer_configure_evtstream(void)
- {
--	int evt_stream_div, pos;
-+	int evt_stream_div, lsb;
-+
-+	/*
-+	 * As the event stream can at most be generated at half the frequency
-+	 * of the counter, use half the frequency when computing the divider.
-+	 */
-+	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ / 2;
-+
-+	/*
-+	 * Find the closest power of two to the divisor. If the adjacent bit
-+	 * of lsb (last set bit, starts from 0) is set, then we use (lsb + 1).
-+	 */
-+	lsb = fls(evt_stream_div) - 1;
-+	if (lsb > 0 && (evt_stream_div & BIT(lsb - 1)))
-+		lsb++;
- 
--	/* Find the closest power of two to the divisor */
--	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ;
--	pos = fls(evt_stream_div);
--	if (pos > 1 && !(evt_stream_div & (1 << (pos - 2))))
--		pos--;
- 	/* enable event stream */
--	arch_timer_evtstrm_enable(min(pos, 15));
-+	arch_timer_evtstrm_enable(max(0, min(lsb, 15)));
+-	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_RAM_RD_CMD,
+-			       val, bytes);
+-
+-	return ret ?: bytes;
++	return regmap_bulk_read(pcf2127->regmap, PCF2127_REG_RAM_RD_CMD,
++				val, bytes);
  }
  
- static void arch_counter_set_user_access(void)
+ static int pcf2127_nvmem_write(void *priv, unsigned int offset,
+@@ -248,10 +246,8 @@ static int pcf2127_nvmem_write(void *priv, unsigned int offset,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_WRT_CMD,
+-				val, bytes);
+-
+-	return ret ?: bytes;
++	return regmap_bulk_write(pcf2127->regmap, PCF2127_REG_RAM_WRT_CMD,
++				 val, bytes);
+ }
+ 
+ /* watchdog driver */
 -- 
 2.27.0
 
