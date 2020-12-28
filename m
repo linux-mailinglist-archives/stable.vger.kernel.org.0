@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D2F2E628E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE2382E3878
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405992AbgL1Nsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:48:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49880 "EHLO mail.kernel.org"
+        id S1731448AbgL1NKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:10:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405984AbgL1Nsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:48:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24D032072C;
-        Mon, 28 Dec 2020 13:48:33 +0000 (UTC)
+        id S1731447AbgL1NKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:10:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 397B621D94;
+        Mon, 28 Dec 2020 13:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163314;
-        bh=IsUwDPqynoOASa/y75Diw+kc2CaFnyzBxeGtKKxJ+FE=;
+        s=korg; t=1609161005;
+        bh=JkZOmcCqO+Q/QpBu1t9axmGuSDVFeQ+pf9AU+6gf4iU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CY5Y9WlEeqJVtiBn5rHa1M0QtqEIu1hX1dH4B9nMjnEy7lhobhTxY7u9DCERZOari
-         Pb8am1bf56LwMvlT1QHdJ203hAiTv0lnu1vLPV/n5QW8NAsVNyofU09QzgzIz7mhEh
-         2U46G9Afh7iOwF8WL4134E5tEivWC1KYm7s+WAMg=
+        b=r27uuiAUrB9B9ZKKI5YycIPbXjjXM3NoahmQ4PByxpehZraoWKmk9AaFBZJtkR6D/
+         gef6pCXOUQG9+PFFsTUhtzCriV2QGczxp6lCvMjsmGdXSrfNWrrH0jXAfg05jH5cds
+         dVhY82CUyBUkHA6Wu1ttZ8974EsXjB2qHsebW+/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 236/453] Bluetooth: btmtksdio: Add the missed release_firmware() in mtk_setup_firmware()
-Date:   Mon, 28 Dec 2020 13:47:52 +0100
-Message-Id: <20201228124948.575744463@linuxfoundation.org>
+Subject: [PATCH 4.14 068/242] RDMA/bnxt_re: Set queue pair state when being queried
+Date:   Mon, 28 Dec 2020 13:47:53 +0100
+Message-Id: <20201228124908.032215806@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit b73b5781a85c03113476f62346c390f0277baa4b ]
+[ Upstream commit 53839b51a7671eeb3fb44d479d541cf3a0f2dd45 ]
 
-mtk_setup_firmware() misses to call release_firmware() in an error
-path. Jump to free_fw to fix it.
+The API for ib_query_qp requires the driver to set cur_qp_state on return,
+add the missing set.
 
-Fixes: 737cd06072a7 ("Bluetooth: btmtksdio: fix up firmware download sequence")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/20201021114952.38876-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Acked-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtksdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bluetooth/btmtksdio.c b/drivers/bluetooth/btmtksdio.c
-index b7de7cb8cca90..304178be1ef40 100644
---- a/drivers/bluetooth/btmtksdio.c
-+++ b/drivers/bluetooth/btmtksdio.c
-@@ -703,7 +703,7 @@ static int mtk_setup_firmware(struct hci_dev *hdev, const char *fwname)
- 	err = mtk_hci_wmt_sync(hdev, &wmt_params);
- 	if (err < 0) {
- 		bt_dev_err(hdev, "Failed to power on data RAM (%d)", err);
--		return err;
-+		goto free_fw;
+diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+index ef9135aa392c1..ab218767bf05f 100644
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -1590,6 +1590,7 @@ int bnxt_re_query_qp(struct ib_qp *ib_qp, struct ib_qp_attr *qp_attr,
+ 		goto out;
  	}
- 
- 	fw_ptr = fw->data;
+ 	qp_attr->qp_state = __to_ib_qp_state(qplib_qp->state);
++	qp_attr->cur_qp_state = __to_ib_qp_state(qplib_qp->cur_qp_state);
+ 	qp_attr->en_sqd_async_notify = qplib_qp->en_sqd_async_notify ? 1 : 0;
+ 	qp_attr->qp_access_flags = __to_ib_access_flags(qplib_qp->access);
+ 	qp_attr->pkey_index = qplib_qp->pkey_index;
 -- 
 2.27.0
 
