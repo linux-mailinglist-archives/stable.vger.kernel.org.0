@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 360E02E644C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA6F2E3D73
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404095AbgL1PuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:50:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42050 "EHLO mail.kernel.org"
+        id S2440726AbgL1OPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391911AbgL1NmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E8F5207B2;
-        Mon, 28 Dec 2020 13:41:44 +0000 (UTC)
+        id S2440721AbgL1OPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:15:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B3221D94;
+        Mon, 28 Dec 2020 14:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162905;
-        bh=5wtHmznMSKzQvhIhsMue7qe4qW+4saipHXDeGXPOw+Y=;
+        s=korg; t=1609164901;
+        bh=LESRNoLnrgKCZu3BkKCQUvmXtiRK7LFBQ1IWXDI4R08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q76wQjyeO/oOjwMHwFNGv6ONsH3rvxuluKMjN/E/e+fs/oms9zjNGOxxMVmLEeGJY
-         DZcBY9Vwa7gc6nqioA1uYV8Jjh4ICrdAmKoOP/2YZCjgtWhXLoz6HTDDVeKhAPNNBr
-         oS8+Y7nYbVvl1BLDYB9eCkYhEuTzhR+FUrCpxD3o=
+        b=cxPQmreNt71Qx6beoTitQXBPiNt+NFuaooKMlynh9o5gpu5L3I1Rw/RMSCRDn3lkj
+         IkC7bBJF7yihtx54jTjUolP9jy/fYaWFMFZ+uMvh9o+PhSXJiG97Fhm1D9Y01+/G4d
+         eSsG6fYISv2oqRJIBakB6XbNwM92r8i1gNHjHpyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Niethe <jniethe5@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/453] powerpc/64: Set up a kernel stack for secondaries before cpu_restore()
+Subject: [PATCH 5.10 338/717] Bluetooth: btusb: Add the missed release_firmware() in btusb_mtk_setup_firmware()
 Date:   Mon, 28 Dec 2020 13:45:36 +0100
-Message-Id: <20201228124942.027895280@linuxfoundation.org>
+Message-Id: <20201228125037.217743756@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Niethe <jniethe5@gmail.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 3c0b976bf20d236c57adcefa80f86a0a1d737727 ]
+[ Upstream commit d1e9d232e1e60fa63df1b836ec3ecba5abd3fa9d ]
 
-Currently in generic_secondary_smp_init(), cur_cpu_spec->cpu_restore()
-is called before a stack has been set up in r1. This was previously fine
-as the cpu_restore() functions were implemented in assembly and did not
-use a stack. However commit 5a61ef74f269 ("powerpc/64s: Support new
-device tree binding for discovering CPU features") used
-__restore_cpu_cpufeatures() as the cpu_restore() function for a
-device-tree features based cputable entry. This is a C function and
-hence uses a stack in r1.
+btusb_mtk_setup_firmware() misses to call release_firmware() in an error
+path. Jump to err_release_fw to fix it.
 
-generic_secondary_smp_init() is entered on the secondary cpus via the
-primary cpu using the OPAL call opal_start_cpu(). In OPAL, each hardware
-thread has its own stack. The OPAL call is ran in the primary's hardware
-thread. During the call, a job is scheduled on a secondary cpu that will
-start executing at the address of generic_secondary_smp_init().  Hence
-the value that will be left in r1 when the secondary cpu enters the
-kernel is part of that secondary cpu's individual OPAL stack. This means
-that __restore_cpu_cpufeatures() will write to that OPAL stack. This is
-not horribly bad as each hardware thread has its own stack and the call
-that enters the kernel from OPAL never returns, but it is still wrong
-and should be corrected.
-
-Create the temp kernel stack before calling cpu_restore().
-
-As noted by mpe, for a kexec boot, the secondary CPUs are released from
-the spin loop at address 0x60 by smp_release_cpus() and then jump to
-generic_secondary_smp_init(). The call to smp_release_cpus() is in
-setup_arch(), and it comes before the call to emergency_stack_init().
-emergency_stack_init() allocates an emergency stack in the PACA for each
-CPU.  This address in the PACA is what is used to set up the temp kernel
-stack in generic_secondary_smp_init(). Move releasing the secondary CPUs
-to after the PACAs have been allocated an emergency stack, otherwise the
-PACA stack pointer will contain garbage and hence the temp kernel stack
-created from it will be broken.
-
-Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
-Signed-off-by: Jordan Niethe <jniethe5@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201014072837.24539-1-jniethe5@gmail.com
+Fixes: f645125711c8 ("Bluetooth: btusb: fix up firmware download sequence")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_64.S      | 8 ++++----
- arch/powerpc/kernel/setup-common.c | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/bluetooth/btusb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
-index 780f527eabd2c..d61b3b13a6ec8 100644
---- a/arch/powerpc/kernel/head_64.S
-+++ b/arch/powerpc/kernel/head_64.S
-@@ -420,6 +420,10 @@ generic_secondary_common_init:
- 	/* From now on, r24 is expected to be logical cpuid */
- 	mr	r24,r5
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 1005b6e8ff743..a9981678199d7 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -3067,7 +3067,7 @@ static int btusb_mtk_setup_firmware(struct hci_dev *hdev, const char *fwname)
+ 	err = btusb_mtk_hci_wmt_sync(hdev, &wmt_params);
+ 	if (err < 0) {
+ 		bt_dev_err(hdev, "Failed to power on data RAM (%d)", err);
+-		return err;
++		goto err_release_fw;
+ 	}
  
-+	/* Create a temp kernel stack for use before relocation is on.	*/
-+	ld	r1,PACAEMERGSP(r13)
-+	subi	r1,r1,STACK_FRAME_OVERHEAD
-+
- 	/* See if we need to call a cpu state restore handler */
- 	LOAD_REG_ADDR(r23, cur_cpu_spec)
- 	ld	r23,0(r23)
-@@ -448,10 +452,6 @@ generic_secondary_common_init:
- 	sync				/* order paca.run and cur_cpu_spec */
- 	isync				/* In case code patching happened */
- 
--	/* Create a temp kernel stack for use before relocation is on.	*/
--	ld	r1,PACAEMERGSP(r13)
--	subi	r1,r1,STACK_FRAME_OVERHEAD
--
- 	b	__secondary_start
- #endif /* SMP */
- 
-diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
-index 25aaa39030009..f281d011f4b97 100644
---- a/arch/powerpc/kernel/setup-common.c
-+++ b/arch/powerpc/kernel/setup-common.c
-@@ -903,8 +903,6 @@ void __init setup_arch(char **cmdline_p)
- 
- 	/* On BookE, setup per-core TLB data structures. */
- 	setup_tlb_core_data();
--
--	smp_release_cpus();
- #endif
- 
- 	/* Print various info about the machine that has been gathered so far. */
-@@ -925,6 +923,8 @@ void __init setup_arch(char **cmdline_p)
- 	exc_lvl_early_init();
- 	emergency_stack_init();
- 
-+	smp_release_cpus();
-+
- 	initmem_init();
- 
- 	early_memtest(min_low_pfn << PAGE_SHIFT, max_low_pfn << PAGE_SHIFT);
+ 	fw_ptr = fw->data;
 -- 
 2.27.0
 
