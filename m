@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB77F2E4313
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 868F82E3E7B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404403AbgL1N4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:56:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57948 "EHLO mail.kernel.org"
+        id S2502477AbgL1O2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:28:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407724AbgL1N4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0635A20791;
-        Mon, 28 Dec 2020 13:55:30 +0000 (UTC)
+        id S2502506AbgL1O2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:28:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 808512063A;
+        Mon, 28 Dec 2020 14:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163731;
-        bh=ATe23Rm/TKgb1NJsGRPJI5SJrqxqys9GsDW0OyV0fIw=;
+        s=korg; t=1609165679;
+        bh=HGMd/h8nbLcP8Sto8/VobMHZGzRZ2knmuCq3giUb4Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTMkIxZfgn33gmmCQs+HFDyM7f7z6UkAt122y47vpHDjz0SFD9kB9CFWgZ8Le+kum
-         sZ4+VL86q5fbzHzv0qEUgDyOcU/lInpyFUfENFi/LAxOAJxWFe/8a6SuTNuGlkQHTX
-         ZWioCv2KIKmDv7W+5pvWI/0wK7Grp0NxQpENnWew=
+        b=U2qLlFczPzDcUT41O+DU3h+B2yeml3H0V0wQm2wDrKG2Jp2mWWEHjVB10rB02aLax
+         V1XNAE1nO03De9On7cxDZ7cBaTVYLfdNcTATFIxkg9Qk+0octH+83pMBufrilK+THf
+         /0Cujot7znEPfjZ9qDklfrfY56+1n9PYfB07dfZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 371/453] USB: serial: keyspan_pda: fix write unthrottling
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 609/717] powerpc/rtas: Fix typo of ibm,open-errinjct in RTAS filter
 Date:   Mon, 28 Dec 2020 13:50:07 +0100
-Message-Id: <20201228124955.065305171@linuxfoundation.org>
+Message-Id: <20201228125050.095419182@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,104 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 320f9028c7873c3c7710e8e93e5c979f4c857490 upstream.
+commit f10881a46f8914428110d110140a455c66bdf27b upstream.
 
-The driver did not update its view of the available device buffer space
-until write() was called in task context. This meant that write_room()
-would return 0 even after the device had sent a write-unthrottle
-notification, something which could lead to blocked writers not being
-woken up (e.g. when using OPOST).
+Commit bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+introduced the following error when invoking the errinjct userspace
+tool:
 
-Note that we must also request an unthrottle notification is case a
-write() request fills the device buffer exactly.
+  [root@ltcalpine2-lp5 librtas]# errinjct open
+  [327884.071171] sys_rtas: RTAS call blocked - exploit attempt?
+  [327884.071186] sys_rtas: token=0x26, nargs=0 (called by errinjct)
+  errinjct: Could not open RTAS error injection facility
+  errinjct: librtas: open: Unexpected I/O error
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+The entry for ibm,open-errinjct in rtas_filter array has a typo where
+the "j" is omitted in the rtas call name. After fixing this typo the
+errinjct tool functions again as expected.
+
+  [root@ltcalpine2-lp5 linux]# errinjct open
+  RTAS error injection facility open, token = 1
+
+Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201208195434.8289-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/rtas.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -40,6 +40,8 @@
- #define DRIVER_AUTHOR "Brian Warner <warner@lothar.com>"
- #define DRIVER_DESC "USB Keyspan PDA Converter driver"
- 
-+#define KEYSPAN_TX_THRESHOLD	16
-+
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
-@@ -110,7 +112,7 @@ static void keyspan_pda_request_unthrott
- 				 7, /* request_unthrottle */
- 				 USB_TYPE_VENDOR | USB_RECIP_INTERFACE
- 				 | USB_DIR_OUT,
--				 16, /* value: threshold */
-+				 KEYSPAN_TX_THRESHOLD,
- 				 0, /* index */
- 				 NULL,
- 				 0,
-@@ -129,6 +131,8 @@ static void keyspan_pda_rx_interrupt(str
- 	int retval;
- 	int status = urb->status;
- 	struct keyspan_pda_private *priv;
-+	unsigned long flags;
-+
- 	priv = usb_get_serial_port_data(port);
- 
- 	switch (status) {
-@@ -171,7 +175,10 @@ static void keyspan_pda_rx_interrupt(str
- 		case 1: /* modemline change */
- 			break;
- 		case 2: /* tx unthrottle interrupt */
-+			spin_lock_irqsave(&port->lock, flags);
- 			priv->tx_throttled = 0;
-+			priv->tx_room = max(priv->tx_room, KEYSPAN_TX_THRESHOLD);
-+			spin_unlock_irqrestore(&port->lock, flags);
- 			/* queue up a wakeup at scheduler time */
- 			usb_serial_port_softint(port);
- 			break;
-@@ -505,7 +512,8 @@ static int keyspan_pda_write(struct tty_
- 			goto exit;
- 		}
- 	}
--	if (count > priv->tx_room) {
-+
-+	if (count >= priv->tx_room) {
- 		/* we're about to completely fill the Tx buffer, so
- 		   we'll be throttled afterwards. */
- 		count = priv->tx_room;
-@@ -560,14 +568,17 @@ static void keyspan_pda_write_bulk_callb
- static int keyspan_pda_write_room(struct tty_struct *tty)
- {
- 	struct usb_serial_port *port = tty->driver_data;
--	struct keyspan_pda_private *priv;
--	priv = usb_get_serial_port_data(port);
--	/* used by n_tty.c for processing of tabs and such. Giving it our
--	   conservative guess is probably good enough, but needs testing by
--	   running a console through the device. */
--	return priv->tx_room;
--}
-+	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
-+	unsigned long flags;
-+	int room = 0;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	if (test_bit(0, &port->write_urbs_free) && !priv->tx_throttled)
-+		room = priv->tx_room;
-+	spin_unlock_irqrestore(&port->lock, flags);
- 
-+	return room;
-+}
- 
- static int keyspan_pda_chars_in_buffer(struct tty_struct *tty)
- {
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1030,7 +1030,7 @@ static struct rtas_filter rtas_filters[]
+ 	{ "ibm,display-message", -1, 0, -1, -1, -1 },
+ 	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
+ 	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
+-	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
++	{ "ibm,open-errinjct", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
+ 	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
 
 
