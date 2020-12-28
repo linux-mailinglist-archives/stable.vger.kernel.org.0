@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 676AD2E3756
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D06452E4332
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbgL1MyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:54:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50724 "EHLO mail.kernel.org"
+        id S2407389AbgL1PeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:34:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728307AbgL1MyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:54:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13450208BA;
-        Mon, 28 Dec 2020 12:53:45 +0000 (UTC)
+        id S2407000AbgL1Nvy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D11D20791;
+        Mon, 28 Dec 2020 13:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160026;
-        bh=ptFPIz9lZpViiVcw/Tq59SMJUevrJ/8CJ9Pgv00+OmY=;
+        s=korg; t=1609163468;
+        bh=ZXI4vzSgiezYX6Z4oK95nPcAMdAI/wIpg2tzE35SBig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJ7/uPOSGYD6PoNYQIc6J+5PBCD+gLptu4Rs+/JYGyJyzf8SWGpjOdpLgpN/na/nC
-         uQdHvbXiGzPfdzZuCqXTw1WESAOLrfTvaXzXZysJsvhcAP846eIsToO+AFAOeN/PkP
-         QoNCzXXZ3sm/mgp+y8kKc8Ee0ovzMWI1g4eol/44=
+        b=rZHLoDf8PoSwQ91MGanPfv2gXRZ4vtKqGsja2bslv/cqGWIxpxVT0tIsuHYH04yYA
+         FI0NNzB0iR9tFz+LDRk8KzGBtpsY2czaIOoZW2Bt8I10ZXAre2SuBU82puN9jVpvFh
+         r8VwLXF3GEIFSDsjfe71AzZbkFkWdTPLKFub0mJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Jander <david@protonic.nl>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 048/132] Input: ads7846 - fix integer overflow on Rt calculation
+Subject: [PATCH 5.4 296/453] watchdog: qcom: Avoid context switch in restart handler
 Date:   Mon, 28 Dec 2020 13:48:52 +0100
-Message-Id: <20201228124848.758785759@linuxfoundation.org>
+Message-Id: <20201228124951.447773976@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 820830ec918f6c3dcd77a54a1c6198ab57407916 ]
+[ Upstream commit 7948fab26bcc468aa2a76462f441291b5fb0d5c7 ]
 
-In some rare cases the 32 bit Rt value will overflow if z2 and x is max,
-z1 is minimal value and x_plate_ohms is relatively high (for example 800
-ohm). This would happen on some screen age with low pressure.
+The use of msleep() in the restart handler will cause scheduler to
+induce a context switch which is not desirable. This generates below
+warning on SDX55 when WDT is the only available restart source:
 
-There are two possible fixes:
-- make Rt 64bit
-- reorder calculation to avoid overflow
+[   39.800188] reboot: Restarting system
+[   39.804115] ------------[ cut here ]------------
+[   39.807855] WARNING: CPU: 0 PID: 678 at kernel/rcu/tree_plugin.h:297 rcu_note_context_switch+0x190/0x764
+[   39.812538] Modules linked in:
+[   39.821954] CPU: 0 PID: 678 Comm: reboot Not tainted 5.10.0-rc1-00063-g33a9990d1d66-dirty #47
+[   39.824854] Hardware name: Generic DT based system
+[   39.833470] [<c0310fbc>] (unwind_backtrace) from [<c030c544>] (show_stack+0x10/0x14)
+[   39.838154] [<c030c544>] (show_stack) from [<c0c218f0>] (dump_stack+0x8c/0xa0)
+[   39.846049] [<c0c218f0>] (dump_stack) from [<c0322f80>] (__warn+0xd8/0xf0)
+[   39.853058] [<c0322f80>] (__warn) from [<c0c1dc08>] (warn_slowpath_fmt+0x64/0xc8)
+[   39.859925] [<c0c1dc08>] (warn_slowpath_fmt) from [<c038b6f4>] (rcu_note_context_switch+0x190/0x764)
+[   39.867503] [<c038b6f4>] (rcu_note_context_switch) from [<c0c2aa3c>] (__schedule+0x84/0x640)
+[   39.876685] [<c0c2aa3c>] (__schedule) from [<c0c2b050>] (schedule+0x58/0x10c)
+[   39.885095] [<c0c2b050>] (schedule) from [<c0c2eed0>] (schedule_timeout+0x1e8/0x3d4)
+[   39.892135] [<c0c2eed0>] (schedule_timeout) from [<c039ad40>] (msleep+0x2c/0x38)
+[   39.899947] [<c039ad40>] (msleep) from [<c0a59d0c>] (qcom_wdt_restart+0xc4/0xcc)
+[   39.907319] [<c0a59d0c>] (qcom_wdt_restart) from [<c0a58290>] (watchdog_restart_notifier+0x18/0x28)
+[   39.914715] [<c0a58290>] (watchdog_restart_notifier) from [<c03468e0>] (atomic_notifier_call_chain+0x60/0x84)
+[   39.923487] [<c03468e0>] (atomic_notifier_call_chain) from [<c030ae64>] (machine_restart+0x78/0x7c)
+[   39.933551] [<c030ae64>] (machine_restart) from [<c0348048>] (__do_sys_reboot+0xdc/0x1e0)
+[   39.942397] [<c0348048>] (__do_sys_reboot) from [<c0300060>] (ret_fast_syscall+0x0/0x54)
+[   39.950721] Exception stack(0xc3e0bfa8 to 0xc3e0bff0)
+[   39.958855] bfa0:                   0001221c bed2fe24 fee1dead 28121969 01234567 00000000
+[   39.963832] bfc0: 0001221c bed2fe24 00000003 00000058 000225e0 00000000 00000000 00000000
+[   39.971985] bfe0: b6e62560 bed2fc84 00010fd8 b6e62580
+[   39.980124] ---[ end trace 3f578288bad866e4 ]---
 
-The second variant seems to be preferable, since 64 bit calculation on
-32 bit system is a bit more expensive.
+Hence, replace msleep() with mdelay() to fix this issue.
 
-Fixes: ffa458c1bd9b6f653008d450f337602f3d52a646 ("spi: ads7846 driver")
-Co-developed-by: David Jander <david@protonic.nl>
-Signed-off-by: David Jander <david@protonic.nl>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20201113112240.1360-1-o.rempel@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 05e487d905ab ("watchdog: qcom: register a restart notifier")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201207060005.21293-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/ads7846.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/watchdog/qcom-wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index a61b2153ab8c2..b4ded36cc4162 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -785,10 +785,11 @@ static void ads7846_report_state(struct ads7846 *ts)
- 		/* compute touch pressure resistance using equation #2 */
- 		Rt = z2;
- 		Rt -= z1;
--		Rt *= x;
- 		Rt *= ts->x_plate_ohms;
-+		Rt = DIV_ROUND_CLOSEST(Rt, 16);
-+		Rt *= x;
- 		Rt /= z1;
--		Rt = (Rt + 2047) >> 12;
-+		Rt = DIV_ROUND_CLOSEST(Rt, 256);
- 	} else {
- 		Rt = 0;
- 	}
+diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
+index eb47fe5ed2805..ea8a6abd64ecb 100644
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -143,7 +143,7 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
+ 	 */
+ 	wmb();
+ 
+-	msleep(150);
++	mdelay(150);
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 
