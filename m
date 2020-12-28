@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 717F82E38C5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FC22E3BA3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732585AbgL1NOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:14:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
+        id S2407165AbgL1Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732583AbgL1NOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:14:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 812F7207C9;
-        Mon, 28 Dec 2020 13:14:12 +0000 (UTC)
+        id S2407018AbgL1Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A660520738;
+        Mon, 28 Dec 2020 13:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161253;
-        bh=5edn3WqNlmk3g3uK+pzaKXVoJ9oJ7VprZO77+CHT69c=;
+        s=korg; t=1609163546;
+        bh=yyNTEGvidqyY7u2UNfNu6Uh8DCiiaOGctmRuLJ5eDAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mCJfMKyk0hYtj9sA5G9iMcoNotKtQBQYjOG7EvbD+LiaYqenOEG5ZOq0N9O/xLtj
-         UsvHXqaO+iGOD2OrKH+cbHeZlfGRJ1X2RT/V8dH9xbxnq+9r2pR2SVwRaDv0GO/j05
-         ywd47Dou22AIAMtB6OKiZqztG5sjQLm/8EpAm/Pk=
+        b=F7X9eP18oKo7dTay0rEC9Ffm5ccLXqyLC284hOiX0sCJ7ZayXHgfras4Q21TwAoFC
+         7XLOvstcbjCJkvB4Gk+qNQk/g0FZfA7lnImJwlop8afgwV2RHsa2do4ByJ03+LATp2
+         H/hGLcNLR+j97iOlh+4DYkTuuHq/L+60pvL9PQVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C2=A0Cheng=C2=A0Lin=C2=A0?= <cheng.lin130@zte.com.cn>,
-        =?UTF-8?q?=C2=A0Yi=C2=A0Wang=C2=A0?= <wang.yi59@zte.com.cn>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 154/242] nfs_common: need lock during iterate through the list
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Kozlov Sergey <serjk@netup.ru>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 323/453] media: netup_unidvb: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:49:19 +0100
-Message-Id: <20201228124912.285004439@linuxfoundation.org>
+Message-Id: <20201228124952.751312582@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Lin <cheng.lin130@zte.com.cn>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 4a9d81caf841cd2c0ae36abec9c2963bf21d0284 ]
+commit e297ddf296de35037fa97f4302782def196d350a upstream.
 
-If the elem is deleted during be iterated on it, the iteration
-process will fall into an endless loop.
+If the call to spi_register_master() fails on probe of the NetUP
+Universal DVB driver, the spi_master struct is erroneously not freed.
 
-kernel: NMI watchdog: BUG: soft lockup - CPU#4 stuck for 22s! [nfsd:17137]
+Likewise, if spi_new_device() fails, the spi_controller struct is
+not unregistered.  Plug the leaks.
 
-PID: 17137  TASK: ffff8818d93c0000  CPU: 4   COMMAND: "nfsd"
-    [exception RIP: __state_in_grace+76]
-    RIP: ffffffffc00e817c  RSP: ffff8818d3aefc98  RFLAGS: 00000246
-    RAX: ffff881dc0c38298  RBX: ffffffff81b03580  RCX: ffff881dc02c9f50
-    RDX: ffff881e3fce8500  RSI: 0000000000000001  RDI: ffffffff81b03580
-    RBP: ffff8818d3aefca0   R8: 0000000000000020   R9: ffff8818d3aefd40
-    R10: ffff88017fc03800  R11: ffff8818e83933c0  R12: ffff8818d3aefd40
-    R13: 0000000000000000  R14: ffff8818e8391068  R15: ffff8818fa6e4000
-    CS: 0010  SS: 0018
- #0 [ffff8818d3aefc98] opens_in_grace at ffffffffc00e81e3 [grace]
- #1 [ffff8818d3aefca8] nfs4_preprocess_stateid_op at ffffffffc02a3e6c [nfsd]
- #2 [ffff8818d3aefd18] nfsd4_write at ffffffffc028ed5b [nfsd]
- #3 [ffff8818d3aefd80] nfsd4_proc_compound at ffffffffc0290a0d [nfsd]
- #4 [ffff8818d3aefdd0] nfsd_dispatch at ffffffffc027b800 [nfsd]
- #5 [ffff8818d3aefe08] svc_process_common at ffffffffc02017f3 [sunrpc]
- #6 [ffff8818d3aefe70] svc_process at ffffffffc0201ce3 [sunrpc]
- #7 [ffff8818d3aefe98] nfsd at ffffffffc027b117 [nfsd]
- #8 [ffff8818d3aefec8] kthread at ffffffff810b88c1
- #9 [ffff8818d3aeff50] ret_from_fork at ffffffff816d1607
+While at it, fix an ordering issue in netup_spi_release() wherein
+spi_unregister_master() is called after fiddling with the IRQ control
+register.  The correct order is to call spi_unregister_master() *before*
+this teardown step because bus accesses may still be ongoing until that
+function returns.
 
-The troublemake elem:
-crash> lock_manager ffff881dc0c38298
-struct lock_manager {
-  list = {
-    next = 0xffff881dc0c38298,
-    prev = 0xffff881dc0c38298
-  },
-  block_opens = false
-}
+Fixes: 52b1eaf4c59a ("[media] netup_unidvb: NetUP Universal DVB-S/S2/T/T2/C PCI-E card driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.3+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.3+
+Cc: Kozlov Sergey <serjk@netup.ru>
+Link: https://lore.kernel.org/r/c4c24f333fc7840f4a3db24789e6e10dd660bede.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: c87fb4a378f9 ("lockd: NLM grace period shouldn't block NFSv4 opens")
-Signed-off-by: Cheng Lin <cheng.lin130@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs_common/grace.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/pci/netup_unidvb/netup_unidvb_spi.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs_common/grace.c b/fs/nfs_common/grace.c
-index 3b13fb3b05530..63c9c2a70937f 100644
---- a/fs/nfs_common/grace.c
-+++ b/fs/nfs_common/grace.c
-@@ -75,10 +75,14 @@ __state_in_grace(struct net *net, bool open)
- 	if (!open)
- 		return !list_empty(grace_list);
+--- a/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
++++ b/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
+@@ -175,7 +175,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 	struct spi_master *master;
+ 	struct netup_spi *nspi;
  
-+	spin_lock(&grace_lock);
- 	list_for_each_entry(lm, grace_list, list) {
--		if (lm->block_opens)
-+		if (lm->block_opens) {
-+			spin_unlock(&grace_lock);
- 			return true;
-+		}
- 	}
-+	spin_unlock(&grace_lock);
- 	return false;
+-	master = spi_alloc_master(&ndev->pci_dev->dev,
++	master = devm_spi_alloc_master(&ndev->pci_dev->dev,
+ 		sizeof(struct netup_spi));
+ 	if (!master) {
+ 		dev_err(&ndev->pci_dev->dev,
+@@ -208,6 +208,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 		ndev->pci_slot,
+ 		ndev->pci_func);
+ 	if (!spi_new_device(master, &netup_spi_board)) {
++		spi_unregister_master(master);
+ 		ndev->spi = NULL;
+ 		dev_err(&ndev->pci_dev->dev,
+ 			"%s(): unable to create SPI device\n", __func__);
+@@ -226,13 +227,13 @@ void netup_spi_release(struct netup_unid
+ 	if (!spi)
+ 		return;
+ 
++	spi_unregister_master(spi->master);
+ 	spin_lock_irqsave(&spi->lock, flags);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg | NETUP_SPI_CTRL_IRQ, &spi->regs->control_stat);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg & ~NETUP_SPI_CTRL_IMASK, &spi->regs->control_stat);
+ 	spin_unlock_irqrestore(&spi->lock, flags);
+-	spi_unregister_master(spi->master);
+ 	ndev->spi = NULL;
  }
  
--- 
-2.27.0
-
 
 
