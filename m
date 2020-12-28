@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 086472E3D47
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5335B2E3ABE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440213AbgL1ONf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:13:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47362 "EHLO mail.kernel.org"
+        id S2403947AbgL1Nkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440209AbgL1ONe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA8BD205CB;
-        Mon, 28 Dec 2020 14:13:18 +0000 (UTC)
+        id S2403940AbgL1Nkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1DA92063A;
+        Mon, 28 Dec 2020 13:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164799;
-        bh=zzuJMY+o0rZHf9ldOzV0e4o8kbV+3YZQxBj4RWsQ82g=;
+        s=korg; t=1609162795;
+        bh=xU/1gEQBhMmzFwy+0MDHIawUXv4l2c99tIP6CZHlV/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFvWvzN0vke9UUs1TibiJeMn+TVnJaXRg/zMFbQe9Ki0lVWlvft5DZfb3yiLQgSPp
-         nfNq1XVPYkNEG6EZjime8o+eVhdXTV0UqZxCy4mY4qHtEJBP1SROR2zmsm2olUyMkb
-         yrY+X5keTBT66JrZdQL9g/avva3wPLLGBNWJCZkE=
+        b=pDWGCYmgFY5MD0RJlDN9BAAuxMWjW5XvZDyZOKMLpk53RecL7HmMteUme4SaLPeNz
+         8Cj7OdISHnjXNM/Sk2V2dzooJhi/BGym2U2dFsp/a0ge2qhdxnCrOepvVfSd52hSBf
+         SNdjKA8o4zFjexTZRHfXQ7h/gLspg+9CXiA1tczU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 302/717] mt76: mt7663s: fix a possible ple quota underflow
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.4 064/453] coresight: etb10: Fix possible NULL ptr dereference in etb_enable_perf()
 Date:   Mon, 28 Dec 2020 13:45:00 +0100
-Message-Id: <20201228125035.496787170@linuxfoundation.org>
+Message-Id: <20201228124940.327452148@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit 1c79a190e94325e01811f653f770a34e816fdd8f ]
+commit 22b2beaa7f166f550424cbb3b988aeaa7ef0425a upstream.
 
-Properly account current consumed ple quota in mt7663s_tx_pick_quota
-routine and avoid possible underflow.
+There was a report of NULL pointer dereference in ETF enable
+path for perf CS mode with PID monitoring. It is almost 100%
+reproducible when the process to monitor is something very
+active such as chrome and with ETF as the sink, not ETR.
 
-Fixes: 6ef2d665f64d ("mt76: mt7663s: split mt7663s_tx_update_sched in mt7663s_tx_{pick,update}_quota")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But code path shows that ETB has a similar path as ETF, so
+there could be possible NULL pointer dereference crash in
+ETB as well. Currently in a bid to find the pid, the owner
+is dereferenced via task_pid_nr() call in etb_enable_perf()
+and with owner being NULL, we can get a NULL pointer
+dereference, so have a similar fix as ETF where we cache PID
+in alloc_buffer() callback which is called as the part of
+etm_setup_aux().
+
+Fixes: 75d7dbd38824 ("coresight: etb10: Add support for CPU-wide trace scenarios")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20201127175256.1092685-11-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight-etb10.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c b/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-index 2486cda3243bc..69e38f477b1e4 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/sdio_txrx.c
-@@ -150,7 +150,7 @@ static int mt7663s_tx_pick_quota(struct mt76_sdio *sdio, enum mt76_txq_id qid,
- 			return -EBUSY;
- 	} else {
- 		if (sdio->sched.pse_data_quota < *pse_size + pse_sz ||
--		    sdio->sched.ple_data_quota < *ple_size)
-+		    sdio->sched.ple_data_quota < *ple_size + 1)
- 			return -EBUSY;
+--- a/drivers/hwtracing/coresight/coresight-etb10.c
++++ b/drivers/hwtracing/coresight/coresight-etb10.c
+@@ -176,6 +176,7 @@ static int etb_enable_perf(struct coresi
+ 	unsigned long flags;
+ 	struct etb_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+ 	struct perf_output_handle *handle = data;
++	struct cs_buffers *buf = etm_perf_sink_config(handle);
  
- 		*ple_size = *ple_size + 1;
--- 
-2.27.0
-
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
+ 
+@@ -186,7 +187,7 @@ static int etb_enable_perf(struct coresi
+ 	}
+ 
+ 	/* Get a handle on the pid of the process to monitor */
+-	pid = task_pid_nr(handle->event->owner);
++	pid = buf->pid;
+ 
+ 	if (drvdata->pid != -1 && drvdata->pid != pid) {
+ 		ret = -EBUSY;
+@@ -383,6 +384,7 @@ static void *etb_alloc_buffer(struct cor
+ 	if (!buf)
+ 		return NULL;
+ 
++	buf->pid = task_pid_nr(event->owner);
+ 	buf->snapshot = overwrite;
+ 	buf->nr_pages = nr_pages;
+ 	buf->data_pages = pages;
 
 
