@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 907942E3FD1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB7B2E3B9D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506409AbgL1Oor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:44:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60678 "EHLO mail.kernel.org"
+        id S2407106AbgL1NwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503147AbgL1OYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6FA020731;
-        Mon, 28 Dec 2020 14:24:36 +0000 (UTC)
+        id S2407101AbgL1NwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AAF020738;
+        Mon, 28 Dec 2020 13:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165477;
-        bh=TBN0Rupb7x2AMhVcEwary34ZDTbkcSxfptAImk294So=;
+        s=korg; t=1609163503;
+        bh=TQSSlT2EQRSgXCmBGXqu5Wg5Cl/1A1x7DS0kj6eoQgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gE1IR0X5rIXpkC08wwDJ0eDlSw9axEwHYv5ar2k/sSaKO4vS6MGAEFrUT94cV183Q
-         vngbBhE//EnrKTxdN6LAISXC9GmAYVucCYLClyeoV48pWCaeDvnVhZyU+eqzgjh9i9
-         y4r4vlIGsDRuLXMSyiRgKt8fRZAW7gBh6u/7tlF0=
+        b=DuFZ6asCHAY8C8tCGOimekM/Iomq1AmyRaCqfBzd8qKRqFFtBpE1n4y8tANzwqy+3
+         Tx1Ny8OqhGhXjtQdQCQIANm6v8n2T5y9X/AfUAamlAGvBK5ig4uQeDBqrVAVaJLY3d
+         HPx9iq4UdDGnhClVrC4xydjFUXXteaFRHGtPqmZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 515/717] media: gspca: Fix memory leak in probe
-Date:   Mon, 28 Dec 2020 13:48:33 +0100
-Message-Id: <20201228125045.636623499@linuxfoundation.org>
+        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 278/453] watchdog: sprd: check busy bit before new loading rather than after that
+Date:   Mon, 28 Dec 2020 13:48:34 +0100
+Message-Id: <20201228124950.593427844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Lingling Xu <ling_ling.xu@unisoc.com>
 
-commit e469d0b09a19496e1972a20974bbf55b728151eb upstream.
+[ Upstream commit 3e07d240939803bed9feb2a353d94686a411a7ca ]
 
-The gspca driver leaks memory when a probe fails.  gspca_dev_probe2()
-calls v4l2_device_register(), which takes a reference to the
-underlying device node (in this case, a USB interface).  But the
-failure pathway neglects to call v4l2_device_unregister(), the routine
-responsible for dropping this reference.  Consequently the memory for
-the USB interface and its device never gets released.
+As the specification described, users must check busy bit before start
+a new loading operation to make sure that the previous loading is done
+and the device is ready to accept a new one.
 
-This patch adds the missing function call.
+[ chunyan: Massaged changelog ]
 
-Reported-and-tested-by: syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
+Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201029023933.24548-3-zhang.lyra@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/sprd_wdt.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -1575,6 +1575,7 @@ out:
- 		input_unregister_device(gspca_dev->input_dev);
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
-+	v4l2_device_unregister(&gspca_dev->v4l2_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
+diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+index f3c90b4afead1..b9b1daa9e2a4c 100644
+--- a/drivers/watchdog/sprd_wdt.c
++++ b/drivers/watchdog/sprd_wdt.c
+@@ -108,18 +108,6 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+ 	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
+ 	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
+ 
+-	sprd_wdt_unlock(wdt->base);
+-	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
+-		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
+-	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
+-		       wdt->base + SPRD_WDT_LOAD_LOW);
+-	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
+-			SPRD_WDT_LOW_VALUE_MASK,
+-		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
+-	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
+-		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
+-	sprd_wdt_lock(wdt->base);
+-
+ 	/*
+ 	 * Waiting the load value operation done,
+ 	 * it needs two or three RTC clock cycles.
+@@ -134,6 +122,19 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+ 
+ 	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
+ 		return -EBUSY;
++
++	sprd_wdt_unlock(wdt->base);
++	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
++		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
++	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
++		       wdt->base + SPRD_WDT_LOAD_LOW);
++	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
++			SPRD_WDT_LOW_VALUE_MASK,
++		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
++	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
++		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
++	sprd_wdt_lock(wdt->base);
++
+ 	return 0;
+ }
+ 
+-- 
+2.27.0
+
 
 
