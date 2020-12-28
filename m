@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 204BC2E3A2A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2932E3E55
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389548AbgL1NdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:33:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
+        id S2503936AbgL1O1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390825AbgL1NbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:31:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B13A521D94;
-        Mon, 28 Dec 2020 13:31:08 +0000 (UTC)
+        id S2503304AbgL1OZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54BBA20715;
+        Mon, 28 Dec 2020 14:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162269;
-        bh=fWQJ8GJNj4rZDgu6T4wbPlxyJHgCU5LZGAH2iFSLVAo=;
+        s=korg; t=1609165536;
+        bh=pY0itU/xOz4MGKhhC9FFmTZzOSMxhay0JtAGkES93VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPNxOcisU0y3h7i6VEx3FrctHDuqX4kN7HdHiXY2RH+YfupQ6GxaWBwbkpRJ8OU5d
-         jr4hxWJWlZoYs2L9ssDw0xmn/+UuxbBTMXVWdvzlAK6PKZpNz8fI1DcLQgXmG8V+kS
-         4HYjlmc0Gq7D0Buiyv2tBqLRIwFySqM2yHcjfnys=
+        b=TDU+JGceMZswQlo6TUGZ5S/Xbhxtgfamu9z8z9rzSTs2y65i4Ib0+qd85ZixWrq0K
+         R3aO8AlxG/XkUHJZSj6D6el2gcgkVgayI6ExBaxr2NgETsJ/G1FuYjuliL1tlujjX2
+         rh9hv93x7SByJJc/yKDOKjSeAZEAxbzb8ZUPGdaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 245/346] pwm: zx: Add missing cleanup in error path
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 566/717] perf/x86/intel: Add event constraint for CYCLE_ACTIVITY.STALLS_MEM_ANY
 Date:   Mon, 28 Dec 2020 13:49:24 +0100
-Message-Id: <20201228124931.617592311@linuxfoundation.org>
+Message-Id: <20201228125048.029549742@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 269effd03f6142df4c74814cfdd5f0b041b30bf9 ]
+commit 306e3e91edf1c6739a55312edd110d298ff498dd upstream.
 
-zx_pwm_probe() called clk_prepare_enable() before; this must be undone
-in the error path.
+The event CYCLE_ACTIVITY.STALLS_MEM_ANY (0x14a3) should be available on
+all 8 GP counters on ICL, but it's only scheduled on the first four
+counters due to the current ICL constraint table.
 
-Fixes: 4836193c435c ("pwm: Add ZTE ZX PWM device driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a line for the CYCLE_ACTIVITY.STALLS_MEM_ANY event in the ICL
+constraint table.
+Correct the comments for the CYCLE_ACTIVITY.CYCLES_MEM_ANY event.
+
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Reported-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201019164529.32154-1-kan.liang@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pwm/pwm-zx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/intel/core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-zx.c b/drivers/pwm/pwm-zx.c
-index 5d27c16edfb13..0d4112410b69d 100644
---- a/drivers/pwm/pwm-zx.c
-+++ b/drivers/pwm/pwm-zx.c
-@@ -241,6 +241,7 @@ static int zx_pwm_probe(struct platform_device *pdev)
- 	ret = pwmchip_add(&zpc->chip);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to add PWM chip: %d\n", ret);
-+		clk_disable_unprepare(zpc->pclk);
- 		return ret;
- 	}
- 
--- 
-2.27.0
-
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -257,7 +257,8 @@ static struct event_constraint intel_icl
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
+ 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
+-	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
++	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
++	INTEL_UEVENT_CONSTRAINT(0x14a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
+ 	INTEL_EVENT_CONSTRAINT(0xa3, 0xf),      /* CYCLE_ACTIVITY.* */
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0xa8, 0xb0, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0xb7, 0xbd, 0xf),
 
 
