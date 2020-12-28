@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B729B2E37FC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DA92E4367
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730259AbgL1NDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59802 "EHLO mail.kernel.org"
+        id S2407181AbgL1PeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:34:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730258AbgL1NDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ED9D2242A;
-        Mon, 28 Dec 2020 13:02:58 +0000 (UTC)
+        id S2407104AbgL1NwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D33862078D;
+        Mon, 28 Dec 2020 13:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160578;
-        bh=dHrVGVhdnb0DIE9G+GObwxmVoak5xIrJdDOIlchM/o4=;
+        s=korg; t=1609163523;
+        bh=3HkZ9PXJwfxEQDm5KuWxlZSG6ooTyzHe2hj+hacBDpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZOV5If/kA08y4+h8yZeLgpVN9SuWt5ovqR2gDK0UT8v7EYFrbnhKkevLdxB0/wPy
-         bhIlOZADlU/GbM9NjpiRjzuuxoSAoB2KEoQuqb94T3uoFlSFeX37lnvjk/6H6WJ9GG
-         7p3elvxJnw2fYn/va6v4GHPkTupXYfOVVfkTuMiw=
+        b=OR3PKgXSemJTmhpF4BvhB5IaUwDlFmkvhrHKlB4RVC8UsMsOtuHF1livh3P70Y6B2
+         Qy6YKz0bhsegsLtma8iSeU4sgVjX3kwK/JT/Qtbn4A2DSlVPd8sEeZwQIuAabvDuSF
+         6iRb/o1r+kybWxsJ+2EP7JPspjYf7L5/XW8I9RlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Kent Russell <kent.russell@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 099/175] cpufreq: st: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 5.4 316/453] drm/amdkfd: Fix leak in dmabuf import
 Date:   Mon, 28 Dec 2020 13:49:12 +0100
-Message-Id: <20201228124858.043587571@linuxfoundation.org>
+Message-Id: <20201228124952.416088441@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 183747ab52654eb406fc6b5bfb40806b75d31811 ]
+[ Upstream commit c897934da15f182ce99536007f8ef61c4748c07e ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this cpufreq driver when it is
-compiled as an external module.
+Release dmabuf reference before returning from kfd_ioctl_import_dmabuf.
+amdgpu_amdkfd_gpuvm_import_dmabuf takes a reference to the underlying
+GEM BO and doesn't keep the reference to the dmabuf wrapper.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: ab0ea257fc58d ("cpufreq: st: Provide runtime initialised driver for ST's platforms")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Kent Russell <kent.russell@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/sti-cpufreq.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
-index 2cb3346e82d35..c7f0b2df15cdd 100644
---- a/drivers/cpufreq/sti-cpufreq.c
-+++ b/drivers/cpufreq/sti-cpufreq.c
-@@ -294,6 +294,13 @@ register_cpufreq_dt:
- }
- module_init(sti_cpufreq_init);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+index 1d3cd5c50d5f2..4a0ef9268918c 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+@@ -1664,6 +1664,7 @@ static int kfd_ioctl_import_dmabuf(struct file *filep,
+ 	}
  
-+static const struct of_device_id __maybe_unused sti_cpufreq_of_match[] = {
-+	{ .compatible = "st,stih407" },
-+	{ .compatible = "st,stih410" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, sti_cpufreq_of_match);
-+
- MODULE_DESCRIPTION("STMicroelectronics CPUFreq/OPP driver");
- MODULE_AUTHOR("Ajitpal Singh <ajitpal.singh@st.com>");
- MODULE_AUTHOR("Lee Jones <lee.jones@linaro.org>");
+ 	mutex_unlock(&p->mutex);
++	dma_buf_put(dmabuf);
+ 
+ 	args->handle = MAKE_HANDLE(args->gpu_id, idr_handle);
+ 
+@@ -1673,6 +1674,7 @@ err_free:
+ 	amdgpu_amdkfd_gpuvm_free_memory_of_gpu(dev->kgd, (struct kgd_mem *)mem);
+ err_unlock:
+ 	mutex_unlock(&p->mutex);
++	dma_buf_put(dmabuf);
+ 	return r;
+ }
+ 
 -- 
 2.27.0
 
