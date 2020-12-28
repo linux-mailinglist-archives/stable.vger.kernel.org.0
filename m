@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 743AF2E3787
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B4B2E3A07
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbgL1M4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:56:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53280 "EHLO mail.kernel.org"
+        id S2390443AbgL1Nbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:31:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728859AbgL1M4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:56:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62EE322583;
-        Mon, 28 Dec 2020 12:56:12 +0000 (UTC)
+        id S2390507AbgL1NbC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:31:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97792206ED;
+        Mon, 28 Dec 2020 13:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160173;
-        bh=GF3KQyN3rtuUpoa7lKZkvuJXX0pYjjNIGaempjK5EbM=;
+        s=korg; t=1609162221;
+        bh=34jlbLC7X+MvXZPxaSiNrgJDbHdBMDHUSBSMCEWZYng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqH8UICke3rXJkgBIkXhttKEGcil0TxFnZfV5wUWaxuFaXuAlg26IhNU1JwRjSKdo
-         7jy9dKrpYqboFCnOuiXedfOopsESZ5wsiC9atif1zDvjhmXR1JAOxOmi1d84R9Z39W
-         bonBx6Vg2s+PD1yvSGE57A/5C8+Uyg04GZBnANrc=
+        b=nwk5ttphVMN7M4ST/5lPVT6dFrrer+02AtqqpMYIbPaY1J8rfOQ56pmDOawkImz7W
+         9WXmwOk6oQRUIMtiEMoiPe2efLtDD2W2YwM4hQsPhafIExT9np07or86HPrF9sKVuR
+         sl4m0Kmdh2RsoQsXn1f82gvPMsGLl202JNAF29/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 064/132] pinctrl: falcon: add missing put_device() call in pinctrl_falcon_probe()
+Subject: [PATCH 4.19 229/346] watchdog: sprd: remove watchdog disable from resume fail path
 Date:   Mon, 28 Dec 2020 13:49:08 +0100
-Message-Id: <20201228124849.550392242@linuxfoundation.org>
+Message-Id: <20201228124930.845473990@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Lingling Xu <ling_ling.xu@unisoc.com>
 
-[ Upstream commit 89cce2b3f247a434ee174ab6803698041df98014 ]
+[ Upstream commit f61a59acb462840bebcc192f754fe71b6a16ff99 ]
 
-if of_find_device_by_node() succeed, pinctrl_falcon_probe() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+sprd_wdt_start() would return fail if the loading operation is not completed
+in a certain time, disabling watchdog for that case would probably cause
+the kernel crash when kick watchdog later, that's too bad, so remove the
+watchdog disable operation for the fail case to make sure other parts in
+the kernel can run normally.
 
-Fixes: e316cb2b16bb ("OF: pinctrl: MIPS: lantiq: adds support for FALCON SoC")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20201119011219.2248232-1-yukuai3@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+[ chunyan: Massaged changelog ]
+
+Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
+Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201029023933.24548-2-zhang.lyra@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-falcon.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/watchdog/sprd_wdt.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-falcon.c b/drivers/pinctrl/pinctrl-falcon.c
-index 0b0fc2eb48e0b..adcdb0585d398 100644
---- a/drivers/pinctrl/pinctrl-falcon.c
-+++ b/drivers/pinctrl/pinctrl-falcon.c
-@@ -438,24 +438,28 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
+diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
+index b6c65afd36778..ffe0346c5d0eb 100644
+--- a/drivers/watchdog/sprd_wdt.c
++++ b/drivers/watchdog/sprd_wdt.c
+@@ -360,15 +360,10 @@ static int __maybe_unused sprd_wdt_pm_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
- 	/* load and remap the pad resources of the different banks */
- 	for_each_compatible_node(np, NULL, "lantiq,pad-falcon") {
--		struct platform_device *ppdev = of_find_device_by_node(np);
- 		const __be32 *bank = of_get_property(np, "lantiq,bank", NULL);
- 		struct resource res;
-+		struct platform_device *ppdev;
- 		u32 avail;
- 		int pins;
- 
- 		if (!of_device_is_available(np))
- 			continue;
- 
--		if (!ppdev) {
--			dev_err(&pdev->dev, "failed to find pad pdev\n");
--			continue;
+-	if (watchdog_active(&wdt->wdd)) {
++	if (watchdog_active(&wdt->wdd))
+ 		ret = sprd_wdt_start(&wdt->wdd);
+-		if (ret) {
+-			sprd_wdt_disable(wdt);
+-			return ret;
 -		}
- 		if (!bank || *bank >= PORTS)
- 			continue;
- 		if (of_address_to_resource(np, 0, &res))
- 			continue;
-+
-+		ppdev = of_find_device_by_node(np);
-+		if (!ppdev) {
-+			dev_err(&pdev->dev, "failed to find pad pdev\n");
-+			continue;
-+		}
-+
- 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
-+		put_device(&ppdev->dev);
- 		if (IS_ERR(falcon_info.clk[*bank])) {
- 			dev_err(&ppdev->dev, "failed to get clock\n");
- 			return PTR_ERR(falcon_info.clk[*bank]);
+-	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct dev_pm_ops sprd_wdt_pm_ops = {
 -- 
 2.27.0
 
