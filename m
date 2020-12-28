@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC372E3C97
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 438582E3C98
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:05:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437395AbgL1OEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:04:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
+        id S2437418AbgL1OEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:04:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437382AbgL1OEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:04:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAFC7206D4;
-        Mon, 28 Dec 2020 14:04:18 +0000 (UTC)
+        id S2437407AbgL1OEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:04:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3422207B2;
+        Mon, 28 Dec 2020 14:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164259;
-        bh=3vucih4tF+dWL/5eSd/msFD16XeurQkjRefXMhHHfuc=;
+        s=korg; t=1609164262;
+        bh=MvwINwTEjv0gwNuT1fYEsw9EV77aWtaoNtaGfZNe9mI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2NdVei+QKYcUyNKn3x2nv94gE3dEGHmZWNHAivkGZeMm4laSZvBjgY+97TsrQ6rM
-         eBM6NDrn7kIa0CEm4+uFd1aPzc9vkenIm58yAQvatbg0bTwl0anawCFdmkfHJpdyRO
-         ndCNxCf4mvZtwsuBRIU93QHYQWOkzkfnEtCuIVb8=
+        b=WRc4XhyPpqLPQTXZEiZqd6BRp8bfcc425zect1+mYPB2LmSNfOYYjLRcDyp94TiRk
+         dEP4/jELF2cMYdpxYaZNS6M9rM3vKMToSdpJPtyCyG5b4slLn/QDKJNL8gkljIVWUJ
+         stEDFnaCJIGQFue8OzYoRm60H2QzOk25eu/n44mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 118/717] media: tm6000: Fix sizeof() mismatches
-Date:   Mon, 28 Dec 2020 13:41:56 +0100
-Message-Id: <20201228125026.614861728@linuxfoundation.org>
+Subject: [PATCH 5.10 119/717] media: platform: add missing put_device() call in mtk_jpeg_clk_init()
+Date:   Mon, 28 Dec 2020 13:41:57 +0100
+Message-Id: <20201228125026.663367165@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,47 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit a08ad6339e0441ca12533969ed94a87e3655426e ]
+[ Upstream commit f28a81a3b64270da3588174feff4628c36e0ff4e ]
 
-The are two instances of sizeof() being used incorrectly. The
-sizeof(void *) is incorrect because urb_buffer is a char ** pointer,
-fix this by using sizeof(*dev->urb_buffer).  The sizeof(dma_addr_t *)
-is incorrect, it should be sizeof(*dev->urb_dma), which is a dma_addr_t
-and not a dma_addr_t *.  This errors did not cause any issues because
-it just so happens the sizes are the same.
+if of_find_device_by_node() succeeds, mtk_jpeg_clk_init() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
-
-Fixes: 16427faf2867 ("[media] tm6000: Add parameter to keep urb bufs allocated")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 648372a87cee ("media: platform: Change the call functions of getting/enable/disable the jpeg's clock")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/tm6000/tm6000-video.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/tm6000/tm6000-video.c b/drivers/media/usb/tm6000/tm6000-video.c
-index bfba06ea60e9d..2df736c029d6e 100644
---- a/drivers/media/usb/tm6000/tm6000-video.c
-+++ b/drivers/media/usb/tm6000/tm6000-video.c
-@@ -461,11 +461,12 @@ static int tm6000_alloc_urb_buffers(struct tm6000_core *dev)
- 	if (dev->urb_buffer)
- 		return 0;
+diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+index 227245ccaedc7..106543391c460 100644
+--- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
++++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
+@@ -1306,6 +1306,7 @@ static int mtk_jpeg_clk_init(struct mtk_jpeg_dev *jpeg)
+ 				jpeg->variant->clks);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to get jpeg clock:%d\n", ret);
++		put_device(&pdev->dev);
+ 		return ret;
+ 	}
  
--	dev->urb_buffer = kmalloc_array(num_bufs, sizeof(void *), GFP_KERNEL);
-+	dev->urb_buffer = kmalloc_array(num_bufs, sizeof(*dev->urb_buffer),
-+					GFP_KERNEL);
- 	if (!dev->urb_buffer)
- 		return -ENOMEM;
- 
--	dev->urb_dma = kmalloc_array(num_bufs, sizeof(dma_addr_t *),
-+	dev->urb_dma = kmalloc_array(num_bufs, sizeof(*dev->urb_dma),
- 				     GFP_KERNEL);
- 	if (!dev->urb_dma)
- 		return -ENOMEM;
 -- 
 2.27.0
 
