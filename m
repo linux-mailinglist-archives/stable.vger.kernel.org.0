@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 367CD2E67F1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FBD2E657B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbgL1NEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:04:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
+        id S2390900AbgL1Nb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:31:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730423AbgL1NEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F00208BA;
-        Mon, 28 Dec 2020 13:04:06 +0000 (UTC)
+        id S2390476AbgL1Naz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFC9D22582;
+        Mon, 28 Dec 2020 13:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160647;
-        bh=LGYcnPgQ1+cnAP7AIx6BdKtJSMm1IwzMJKnzmIIGa/k=;
+        s=korg; t=1609162215;
+        bh=FMkKkDgfoQxTyWnUE2Qst9nVebKm1Hc8yMuI6M2USe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7cxoU5IwDwz2jvkEOpdsxSlIMVLJ1sgFu7wFCFfWUaP5NWNQ2pLgHOF3oQnSkgsy
-         lhjboIL02IByIOHNUA3ihrXzSYmypo6rxuKTVCPpGM7CtvKd565hnqVtxilC+IHs6N
-         yLbs0TC67AikxK/5jvOSiua0GbqUwgU3TlvTVdx8=
+        b=nGM5AH9FU/Mf+jyt+66+qcEx5YtksbMxd0th5uvHY4UTGLaYu/ygss2b8kcHGQb6F
+         9U+bMZz/tMYceQCnb4MAQWndhPNlESdi/GVbort3R8AsRerVoTKx8/gLnUEdpzakX/
+         XzBpjyrtk5eq6O7Zt5sJxUKnqjSjiLmDhwmGeLow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yu Kuai <yukuai3@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Antoine Tenart <atenart@kernel.org>,
+        Tsahee Zidenberg <tsahee@annapurnalabs.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 092/175] clocksource/drivers/cadence_ttc: Fix memory leak in ttc_setup_clockevent()
-Date:   Mon, 28 Dec 2020 13:49:05 +0100
-Message-Id: <20201228124857.705023177@linuxfoundation.org>
+Subject: [PATCH 4.19 227/346] irqchip/alpine-msi: Fix freeing of interrupts on allocation error path
+Date:   Mon, 28 Dec 2020 13:49:06 +0100
+Message-Id: <20201228124930.747944053@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit eee422c46e6840a81c9db18a497b74387a557b29 ]
+[ Upstream commit 3841245e8498a789c65dedd7ffa8fb2fee2c0684 ]
 
-If clk_notifier_register() failed, ttc_setup_clockevent() will return
-without freeing 'ttcce', which will leak memory.
+The alpine-msi driver has an interesting allocation error handling,
+where it frees the same interrupts repeatedly. Hilarity follows.
 
-Fixes: 70504f311d4b ("clocksource/drivers/cadence_ttc: Convert init function to return error")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201116135123.2164033-1-yukuai3@huawei.com
+This code is probably never executed, but let's fix it nonetheless.
+
+Fixes: e6b78f2c3e14 ("irqchip: Add the Alpine MSIX interrupt controller")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Antoine Tenart <atenart@kernel.org>
+Cc: Tsahee Zidenberg <tsahee@annapurnalabs.com>
+Cc: Antoine Tenart <atenart@kernel.org>
+Link: https://lore.kernel.org/r/20201129135525.396671-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/cadence_ttc_timer.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/irqchip/irq-alpine-msi.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/cadence_ttc_timer.c b/drivers/clocksource/cadence_ttc_timer.c
-index fbfbdec13b081..7cddc54be96cc 100644
---- a/drivers/clocksource/cadence_ttc_timer.c
-+++ b/drivers/clocksource/cadence_ttc_timer.c
-@@ -418,10 +418,8 @@ static int __init ttc_setup_clockevent(struct clk *clk,
- 	ttcce->ttc.clk = clk;
- 
- 	err = clk_prepare_enable(ttcce->ttc.clk);
--	if (err) {
--		kfree(ttcce);
--		return err;
--	}
-+	if (err)
-+		goto out_kfree;
- 
- 	ttcce->ttc.clk_rate_change_nb.notifier_call =
- 		ttc_rate_change_clockevent_cb;
-@@ -431,7 +429,7 @@ static int __init ttc_setup_clockevent(struct clk *clk,
- 				    &ttcce->ttc.clk_rate_change_nb);
- 	if (err) {
- 		pr_warn("Unable to register clock notifier.\n");
--		return err;
-+		goto out_kfree;
- 	}
- 
- 	ttcce->ttc.freq = clk_get_rate(ttcce->ttc.clk);
-@@ -460,15 +458,17 @@ static int __init ttc_setup_clockevent(struct clk *clk,
- 
- 	err = request_irq(irq, ttc_clock_event_interrupt,
- 			  IRQF_TIMER, ttcce->ce.name, ttcce);
--	if (err) {
--		kfree(ttcce);
--		return err;
--	}
-+	if (err)
-+		goto out_kfree;
- 
- 	clockevents_config_and_register(&ttcce->ce,
- 			ttcce->ttc.freq / PRESCALE, 1, 0xfffe);
- 
+diff --git a/drivers/irqchip/irq-alpine-msi.c b/drivers/irqchip/irq-alpine-msi.c
+index 23a3b877f7f1d..ede02dc2bcd0b 100644
+--- a/drivers/irqchip/irq-alpine-msi.c
++++ b/drivers/irqchip/irq-alpine-msi.c
+@@ -165,8 +165,7 @@ static int alpine_msix_middle_domain_alloc(struct irq_domain *domain,
  	return 0;
-+
-+out_kfree:
-+	kfree(ttcce);
-+	return err;
- }
  
- /**
+ err_sgi:
+-	while (--i >= 0)
+-		irq_domain_free_irqs_parent(domain, virq, i);
++	irq_domain_free_irqs_parent(domain, virq, i - 1);
+ 	alpine_msix_free_sgi(priv, sgi, nr_irqs);
+ 	return err;
+ }
 -- 
 2.27.0
 
