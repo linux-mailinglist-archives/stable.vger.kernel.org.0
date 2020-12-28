@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1DA2E67DB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B3B2E68DD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633629AbgL1Q3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:29:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
+        id S1728608AbgL1M7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:59:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729191AbgL1NHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:07:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10FF1208B6;
-        Mon, 28 Dec 2020 13:06:52 +0000 (UTC)
+        id S1728513AbgL1M7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FB9B208D5;
+        Mon, 28 Dec 2020 12:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160813;
-        bh=prpfV/7K5WxJDZkiaCAbTfjnEQzp7qDjT+B6Bxk0+rs=;
+        s=korg; t=1609160304;
+        bh=CVmvmXwBLVzLHTnV7nqcXfaHlf3iWf7sO7N46UH8uRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNKdrzMIEU+bTNJGu2zC71elGLd8O4rVivMuWwUCgIqfBOuOaaEmcwNlCU1wgs/F5
-         wcNgyU8bc5DDbW5W0+34JnRiJYLwEPTou76mRpDUEJsxw/8v4jlGz4dOu+PjMYFiKX
-         c9jPldfr4Hxd+ioAk1awOd0Vt0SlJzuvF2TeAmN0=
+        b=wiv6C6ZHlCn3B98WgsZRLUGnIChIZ6pYazpXK8ChQio48MUXqRnxgw+lqAf9w5ZCG
+         qKsqioLU+R6V1MCF8ewYV7WbJOEvwjfWQkRt4cxkAkLyqF3QqSomHUO5bBfrQ48RrP
+         As1GyByZEHRPK6/GZLlRUOkcYsT+xZ8e89U8/seI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 157/175] powerpc/xmon: Change printk() to pr_cont()
-Date:   Mon, 28 Dec 2020 13:50:10 +0100
-Message-Id: <20201228124900.850183967@linuxfoundation.org>
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        Michael Kurth <mku@amazon.de>,
+        Pawel Wieczorkiewicz <wipawel@amazon.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 127/132] xen/xenbus: Allow watches discard events before queueing
+Date:   Mon, 28 Dec 2020 13:50:11 +0100
+Message-Id: <20201228124852.551614596@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit 7c6c86b36a36dd4a13d30bba07718e767aa2e7a1 upstream.
+commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
 
-Since some time now, printk() adds carriage return, leading to
-unusable xmon output if there is no udbg backend available:
+If handling logics of watch events are slower than the events enqueue
+logic and the events can be created from the guests, the guests could
+trigger memory pressure by intensively inducing the events, because it
+will create a huge number of pending events that exhausting the memory.
 
-  [   54.288722] sysrq: Entering xmon
-  [   54.292209] Vector: 0  at [cace3d2c]
-  [   54.292274]     pc:
-  [   54.292331] c0023650
-  [   54.292468] : xmon+0x28/0x58
-  [   54.292519]
-  [   54.292574]     lr:
-  [   54.292630] c0023724
-  [   54.292749] : sysrq_handle_xmon+0xa4/0xfc
-  [   54.292801]
-  [   54.292867]     sp: cace3de8
-  [   54.292931]    msr: 9032
-  [   54.292999]   current = 0xc28d0000
-  [   54.293072]     pid   = 377, comm = sh
-  [   54.293157] Linux version 5.10.0-rc6-s3k-dev-01364-gedf13f0ccd76-dirty (root@po17688vm.idsi0.si.c-s.fr) (powerpc64-linux-gcc (GCC) 10.1.0, GNU ld (GNU Binutils) 2.34) #4211 PREEMPT Fri Dec 4 09:32:11 UTC 2020
-  [   54.293287] enter ? for help
-  [   54.293470] [cace3de8]
-  [   54.293532] c0023724
-  [   54.293654]  sysrq_handle_xmon+0xa4/0xfc
-  [   54.293711]  (unreliable)
-  ...
-  [   54.296002]
-  [   54.296159] --- Exception: c01 (System Call) at
-  [   54.296217] 0fd4e784
-  [   54.296303]
-  [   54.296375] SP (7fca6ff0) is in userspace
-  [   54.296431] mon>
-  [   54.296484]  <no input ...>
+Fortunately, some watch events could be ignored, depending on its
+handler callback.  For example, if the callback has interest in only one
+single path, the watch wouldn't want multiple pending events.  Or, some
+watches could ignore events to same path.
 
-Use pr_cont() instead.
+To let such watches to volutarily help avoiding the memory pressure
+situation, this commit introduces new watch callback, 'will_handle'.  If
+it is not NULL, it will be called for each new event just before
+enqueuing it.  Then, if the callback returns false, the event will be
+discarded.  No watch is using the callback for now, though.
 
-Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
-Cc: stable@vger.kernel.org # v4.9+
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Mention that it only happens when udbg is not available]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c8a6ec704416ecd5ff2bd26213c9bc026bdd19de.1607077340.git.christophe.leroy@csgroup.eu
+This is part of XSA-349
+
+Cc: stable@vger.kernel.org
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reported-by: Michael Kurth <mku@amazon.de>
+Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/powerpc/xmon/nonstdio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/xmon/nonstdio.c
-+++ b/arch/powerpc/xmon/nonstdio.c
-@@ -182,7 +182,7 @@ void xmon_printf(const char *format, ...
- 
- 	if (n && rc == 0) {
- 		/* No udbg hooks, fallback to printk() - dangerous */
--		printk("%s", xmon_outbuf);
-+		pr_cont("%s", xmon_outbuf);
+---
+ drivers/net/xen-netback/xenbus.c   |    2 ++
+ drivers/xen/xenbus/xenbus_client.c |    1 +
+ drivers/xen/xenbus/xenbus_xs.c     |    7 ++++++-
+ include/xen/xenbus.h               |    7 +++++++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -697,12 +697,14 @@ static int xen_register_watchers(struct
+ 		return -ENOMEM;
+ 	snprintf(node, maxlen, "%s/rate", dev->nodename);
+ 	vif->credit_watch.node = node;
++	vif->credit_watch.will_handle = NULL;
+ 	vif->credit_watch.callback = xen_net_rate_changed;
+ 	err = register_xenbus_watch(&vif->credit_watch);
+ 	if (err) {
+ 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
+ 		kfree(node);
+ 		vif->credit_watch.node = NULL;
++		vif->credit_watch.will_handle = NULL;
+ 		vif->credit_watch.callback = NULL;
  	}
- }
+ 	return err;
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
+ 	int err;
  
+ 	watch->node = path;
++	watch->will_handle = NULL;
+ 	watch->callback = callback;
+ 
+ 	err = register_xenbus_watch(watch);
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -903,7 +903,12 @@ static int process_msg(void)
+ 		spin_lock(&watches_lock);
+ 		msg->u.watch.handle = find_watch(
+ 			msg->u.watch.vec[XS_WATCH_TOKEN]);
+-		if (msg->u.watch.handle != NULL) {
++		if (msg->u.watch.handle != NULL &&
++				(!msg->u.watch.handle->will_handle ||
++				 msg->u.watch.handle->will_handle(
++					 msg->u.watch.handle,
++					 (const char **)msg->u.watch.vec,
++					 msg->u.watch.vec_size))) {
+ 			spin_lock(&watch_events_lock);
+ 			list_add_tail(&msg->list, &watch_events);
+ 			wake_up(&watch_events_waitq);
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -58,6 +58,13 @@ struct xenbus_watch
+ 	/* Path being watched. */
+ 	const char *node;
+ 
++	/*
++	 * Called just before enqueing new event while a spinlock is held.
++	 * The event will be discarded if this callback returns false.
++	 */
++	bool (*will_handle)(struct xenbus_watch *,
++			    const char **vec, unsigned int len);
++
+ 	/* Callback (executed in a process context with no locks held). */
+ 	void (*callback)(struct xenbus_watch *,
+ 			 const char **vec, unsigned int len);
 
 
