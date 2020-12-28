@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 482682E6671
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8642E6658
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394173AbgL1QMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:12:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49986 "EHLO mail.kernel.org"
+        id S2388095AbgL1NW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388077AbgL1NVY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:21:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE5920728;
-        Mon, 28 Dec 2020 13:20:42 +0000 (UTC)
+        id S1726650AbgL1NW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9820A207CF;
+        Mon, 28 Dec 2020 13:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161643;
-        bh=0etdmusmnf4X2h+ukIO8mMSYQ1qCs4MGSkboVyg6GGU=;
+        s=korg; t=1609161705;
+        bh=hkOGyiel6DQQsHN0zdExQmw97p7GybAFPgwUZOCrP7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAfaNp10AuJW+d7ZaGf2sMVo2LFaSY5/Gz3UhzA7x5nuQBENOOpCkVkOV5hrORxkU
-         PIxQdMmkybIH6jmT1Q9nOCis3KlVlmhTXu03fiuZ2a2Jc7gZUex87gvWI6y+pTkNw6
-         3GyZ40qnuEiM+jlfK/Sg4eK3+BRiP+L7AO2U/aOM=
+        b=PUrZxYsP/YS6lgBhQ+RP4mCqd7BX+u3ojWUY/7qPzpsE/nPEfM/vOqLhEPl7MuJRf
+         e1c1g9DHMehT7oGRrDmR1c+5tA3FRmZMFSSmWNsMxzoRzOrUHOIraRSmx+2gCbpvu4
+         Ulhst5Os6Bi6Uu/6UXeS8x/b8ZJ4VWrl9VceF1bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Kees Cook <keescook@chromium.org>,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 021/346] kbuild: avoid static_assert for genksyms
-Date:   Mon, 28 Dec 2020 13:45:40 +0100
-Message-Id: <20201228124920.796483219@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.19 023/346] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
+Date:   Mon, 28 Dec 2020 13:45:42 +0100
+Message-Id: <20201228124920.894651104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -46,48 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit 14dc3983b5dff513a90bd5a8cc90acaf7867c3d0 upstream.
+commit 29ac40cbed2bc06fa218ca25d7f5e280d3d08a25 upstream.
 
-genksyms does not know or care about the _Static_assert() built-in, and
-sometimes falls back to ignoring the later symbols, which causes
-undefined behavior such as
+The PAT bit is in different locations for 4k and 2M/1G page table
+entries.
 
-  WARNING: modpost: EXPORT symbol "ethtool_set_ethtool_phy_ops" [vmlinux] version generation failed, symbol will not be versioned.
-  ld: net/ethtool/common.o: relocation R_AARCH64_ABS32 against `__crc_ethtool_set_ethtool_phy_ops' can not be used when making a shared object
-  net/ethtool/common.o:(_ftrace_annotated_branch+0x0): dangerous relocation: unsupported relocation
+Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
+caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
+and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
+index for write-protected pages.
 
-Redefine static_assert for genksyms to avoid that.
-
-Link: https://lkml.kernel.org/r/20201203230955.1482058-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Cc: Marco Elver <elver@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/build_bug.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/include/asm/pgtable_types.h |    1 +
+ arch/x86/mm/mem_encrypt_identity.c   |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/linux/build_bug.h
-+++ b/include/linux/build_bug.h
-@@ -80,4 +80,9 @@
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -148,6 +148,7 @@ enum page_cache_mode {
+ #endif
  
- #endif	/* __CHECKER__ */
+ #define _PAGE_CACHE_MASK	(_PAGE_PAT | _PAGE_PCD | _PAGE_PWT)
++#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
+ #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
+ #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
  
-+#ifdef __GENKSYMS__
-+/* genksyms gets confused by _Static_assert */
-+#define _Static_assert(expr, ...)
-+#endif
-+
- #endif	/* _LINUX_BUILD_BUG_H */
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -47,8 +47,8 @@
+ #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
+ 
+ #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
+-#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
+-				 (_PAGE_PAT | _PAGE_PWT))
++#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
++				 (_PAGE_PAT_LARGE | _PAGE_PWT))
+ 
+ #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
+ 
 
 
