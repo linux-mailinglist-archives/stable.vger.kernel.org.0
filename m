@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CFF2E6626
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E5EE2E6631
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:11:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388668AbgL1NYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:24:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52718 "EHLO mail.kernel.org"
+        id S2388363AbgL1NWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:22:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388637AbgL1NYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C14CA22AAD;
-        Mon, 28 Dec 2020 13:23:29 +0000 (UTC)
+        id S2388293AbgL1NWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7965722AAA;
+        Mon, 28 Dec 2020 13:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161810;
-        bh=DzQVrDmpBv/nzWuap9GEoQhzLuYOWJZ/LoOP4HLkE0s=;
+        s=korg; t=1609161732;
+        bh=3VZTTU1/DT5s99lAbcVAK0JpoApMgDxTEM2O7AhCz5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWOiSa9cdM/AZRLgV0e8+krBKk93tSs+cq/8mc/FikT3j4O7A4v1Y6l8GxngXeX6o
-         g/ZcOlAKSkGidR0tbjYrtl1X5YlvP1y23kUr35YdmTfQsEhJERyjPBhy9B29nYYrO+
-         /AFTBc7JWVVDtsUnAbcSFO+1PS21Wz0qjIMv6Z/k=
+        b=ba/yjm6xop4sMUz8y67TU6EmorwSwE/1zTzwvsEurRkN/XaAXQY1lY31XE6t5vZno
+         EkrtC/veUqh5y9V75hyj3xr35lpfLmpCmD5/cEKHQZquVFU6Rq2Ia763r2NbVfitJK
+         lccLQjwtkF5j7wBNdD4elh2aLOw1Gj5Vw3YLk3D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-scsi@vger.kernel.org,
-        Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/346] scsi: bnx2i: Requires MMU
-Date:   Mon, 28 Dec 2020 13:46:18 +0100
-Message-Id: <20201228124922.648498092@linuxfoundation.org>
+Subject: [PATCH 4.19 063/346] block: factor out requeue handling from dispatch code
+Date:   Mon, 28 Dec 2020 13:46:22 +0100
+Message-Id: <20201228124922.842719364@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -45,50 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit 2d586494c4a001312650f0b919d534e429dd1e09 ]
+[ Upstream commit c92a41031a6d57395889b5c87cea359220a24d2a ]
 
-The SCSI_BNX2_ISCSI kconfig symbol selects CNIC and CNIC selects UIO, which
-depends on MMU.
+Factor out the requeue handling from the dispatch code, this will make
+subsequent addition of different requeueing schemes easier.
 
-Since 'select' does not follow dependency chains, add the same MMU
-dependency to SCSI_BNX2_ISCSI.
-
-Quietens this kconfig warning:
-
-WARNING: unmet direct dependencies detected for CNIC
-  Depends on [n]: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_BROADCOM [=y] && PCI [=y] && (IPV6 [=m] || IPV6 [=m]=n) && MMU [=n]
-  Selected by [m]:
-  - SCSI_BNX2_ISCSI [=m] && SCSI_LOWLEVEL [=y] && SCSI [=y] && NET [=y] && PCI [=y] && (IPV6 [=m] || IPV6 [=m]=n)
-
-Link: https://lore.kernel.org/r/20201129070916.3919-1-rdunlap@infradead.org
-Fixes: cf4e6363859d ("[SCSI] bnx2i: Add bnx2i iSCSI driver.")
-Cc: linux-scsi@vger.kernel.org
-Cc: Nilesh Javali <njavali@marvell.com>
-Cc: Manish Rangankar <mrangankar@marvell.com>
-Cc: GR-QLogic-Storage-Upstream@marvell.com
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bnx2i/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ block/blk-mq.c | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/bnx2i/Kconfig b/drivers/scsi/bnx2i/Kconfig
-index ba30ff86d5818..b27a3738d940c 100644
---- a/drivers/scsi/bnx2i/Kconfig
-+++ b/drivers/scsi/bnx2i/Kconfig
-@@ -3,6 +3,7 @@ config SCSI_BNX2_ISCSI
- 	depends on NET
- 	depends on PCI
- 	depends on (IPV6 || IPV6=n)
-+	depends on MMU
- 	select SCSI_ISCSI_ATTRS
- 	select NETDEVICES
- 	select ETHERNET
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index db2db0b70d34f..0df43515ff949 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1118,6 +1118,23 @@ static void blk_mq_update_dispatch_busy(struct blk_mq_hw_ctx *hctx, bool busy)
+ 
+ #define BLK_MQ_RESOURCE_DELAY	3		/* ms units */
+ 
++static void blk_mq_handle_dev_resource(struct request *rq,
++				       struct list_head *list)
++{
++	struct request *next =
++		list_first_entry_or_null(list, struct request, queuelist);
++
++	/*
++	 * If an I/O scheduler has been configured and we got a driver tag for
++	 * the next request already, free it.
++	 */
++	if (next)
++		blk_mq_put_driver_tag(next);
++
++	list_add(&rq->queuelist, list);
++	__blk_mq_requeue_request(rq);
++}
++
+ /*
+  * Returns true if we did some work AND can potentially do more.
+  */
+@@ -1185,17 +1202,7 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+ 
+ 		ret = q->mq_ops->queue_rq(hctx, &bd);
+ 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
+-			/*
+-			 * If an I/O scheduler has been configured and we got a
+-			 * driver tag for the next request already, free it
+-			 * again.
+-			 */
+-			if (!list_empty(list)) {
+-				nxt = list_first_entry(list, struct request, queuelist);
+-				blk_mq_put_driver_tag(nxt);
+-			}
+-			list_add(&rq->queuelist, list);
+-			__blk_mq_requeue_request(rq);
++			blk_mq_handle_dev_resource(rq, list);
+ 			break;
+ 		}
+ 
 -- 
 2.27.0
 
