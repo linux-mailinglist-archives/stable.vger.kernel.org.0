@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D4D2E6966
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB192E6590
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728073AbgL1Qs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:48:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
+        id S2393195AbgL1QCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:02:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728094AbgL1MxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 742CF22BEA;
-        Mon, 28 Dec 2020 12:52:46 +0000 (UTC)
+        id S2390189AbgL1N3v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10E5F20719;
+        Mon, 28 Dec 2020 13:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159967;
-        bh=9yUyVpWtHmtbW8ffzytxnswISzXu3eLT8hYgQKmS3ec=;
+        s=korg; t=1609162150;
+        bh=iRrV4hdtPk4eKcU5Iq0aDCH+J2vIQi9boaG6kCWLdjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJ/5kxis6UKiBJobz5bOPRWfc8CMrbbagyZvUhfVl5H7x8L+WnTkf7xSQX9wgkMjL
-         ftwGb3GhqRjf0JZhggW2K6BwE6AaVG02bBS4BatIbA4YWwP3rOvkFLx0q7QW1cB1+F
-         yDndXFcV8vMySgh9iF5ItF2KHE7i97EosEviDq5w=
+        b=WFfdILJQEJ9HwC/ANifKqEWrPqGAsNAhmjT/einTitP/Q3O73yAC89EhCP1uQmVu8
+         npfxuTP1tDRc+iQfMqr0L8uoQyDnJo74+ytOqs5V+vHn1fp0TE5L+vncyfP9KIMwZ5
+         2t2XHunq86sh41u90sORVErDFNdaQBHN0vCdQSXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 038/132] spi: spi-ti-qspi: fix reference leak in ti_qspi_setup
-Date:   Mon, 28 Dec 2020 13:48:42 +0100
-Message-Id: <20201228124848.249320651@linuxfoundation.org>
+Subject: [PATCH 4.19 204/346] cpufreq: highbank: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 28 Dec 2020 13:48:43 +0100
+Message-Id: <20201228124929.652978169@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 45c0cba753641e5d7c3207f04241bd0e7a021698 ]
+[ Upstream commit 9433777a6e0aae27468d3434b75cd51bb88ff711 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in ti_qspi_setup, so we should fix it.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-Fixes: 505a14954e2d7 ("spi/qspi: Add qspi flash controller")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103140947.3815-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 6754f556103be ("cpufreq / highbank: add support for highbank cpufreq")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-ti-qspi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/cpufreq/highbank-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
-index 5044c61983324..6e97f71a8cea3 100644
---- a/drivers/spi/spi-ti-qspi.c
-+++ b/drivers/spi/spi-ti-qspi.c
-@@ -159,6 +159,7 @@ static int ti_qspi_setup(struct spi_device *spi)
+diff --git a/drivers/cpufreq/highbank-cpufreq.c b/drivers/cpufreq/highbank-cpufreq.c
+index 1608f7105c9f8..ad743f2f31e78 100644
+--- a/drivers/cpufreq/highbank-cpufreq.c
++++ b/drivers/cpufreq/highbank-cpufreq.c
+@@ -104,6 +104,13 @@ out_put_node:
+ }
+ module_init(hb_cpufreq_driver_init);
  
- 	ret = pm_runtime_get_sync(qspi->dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(qspi->dev);
- 		dev_err(qspi->dev, "pm_runtime_get_sync() failed\n");
- 		return ret;
- 	}
++static const struct of_device_id __maybe_unused hb_cpufreq_of_match[] = {
++	{ .compatible = "calxeda,highbank" },
++	{ .compatible = "calxeda,ecx-2000" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, hb_cpufreq_of_match);
++
+ MODULE_AUTHOR("Mark Langsdorf <mark.langsdorf@calxeda.com>");
+ MODULE_DESCRIPTION("Calxeda Highbank cpufreq driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.27.0
 
