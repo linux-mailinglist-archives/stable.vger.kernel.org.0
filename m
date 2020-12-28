@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CC92E3EB7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C97212E3C29
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504058AbgL1Ob5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:31:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
+        id S2407911AbgL1N7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:59:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504446AbgL1Ob1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63CEB2063A;
-        Mon, 28 Dec 2020 14:30:46 +0000 (UTC)
+        id S2407603AbgL1N7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:59:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2252820799;
+        Mon, 28 Dec 2020 13:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165847;
-        bh=NwdPxoTRoLXPx4dbmmiENSNTu1eNUofaQufCluooSOE=;
+        s=korg; t=1609163915;
+        bh=BOI0U63bvqT8VCVhsJupU6ZaLjnY6hRo6eWrnkRVx4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtxuTnf+aypw9Y1MzpyVWLm7M0DKSBIHgJh0gkvjoAo4wAX+oaEIV6OwTJR0PDl+c
-         hA7NWQfD7QIO/9OXk//bcZkW3wWNbozZ35i20gzQakH9vGkL8QSuIBviHE8A+4dIA2
-         DA2mIKDW/Zd8VGfU1U0JBj3ETDX9FPJ6maDx876M=
+        b=lP+VxnklRfqg2YEZ+Oa/YYJ2g8GDP41uoXZCfA65OrF2W3Kr0CR+q02OKmu2B2uF4
+         szlNX4akCOJNxQPrbIgNQe8yo8oz6VDoEJUtZ9VzHgAwyKY2t/k4f0CWFW0zbJ0+KU
+         H8tBVpxjUSebM28rc4BDCwJD2vSqZkKnEvUhjRKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 674/717] iio: buffer: Fix demux update
-Date:   Mon, 28 Dec 2020 13:51:12 +0100
-Message-Id: <20201228125053.271255302@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 437/453] clk: ingenic: Fix divider calculation with div tables
+Date:   Mon, 28 Dec 2020 13:51:13 +0100
+Message-Id: <20201228124958.250269363@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sá <nuno.sa@analog.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 19ef7b70ca9487773c29b449adf0c70f540a0aab upstream.
+commit 11a163f2c7d6a9f27ce144cd7e367a81c851621a upstream.
 
-When updating the buffer demux, we will skip a scan element from the
-device in the case `in_ind != out_ind` and we enter the while loop.
-in_ind should only be refreshed with `find_next_bit()` in the end of the
-loop.
+The previous code assumed that a higher hardware value always resulted
+in a bigger divider, which is correct for the regular clocks, but is
+an invalid assumption when a divider table is provided for the clock.
 
-Note, to cause problems we need a situation where we are skippig over
-an element (channel not enabled) that happens to not have the same size
-as the next element.   Whilst this is a possible situation we haven't
-actually identified any cases in mainline where it happens as most drivers
-have consistent channel storage sizes with the exception of the timestamp
-which is the last element and hence never skipped over.
+Perfect example of this is the PLL0_HALF clock, which applies a /2
+divider with the hardware value 0, and a /1 divider otherwise.
 
-Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: a9fa2893fcc6 ("clk: ingenic: Add support for divider tables")
+Cc: <stable@vger.kernel.org> # 5.2
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20201212135733.38050-1-paul@crapouillou.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/industrialio-buffer.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/ingenic/cgu.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -865,12 +865,12 @@ static int iio_buffer_update_demux(struc
- 				       indio_dev->masklength,
- 				       in_ind + 1);
- 		while (in_ind != out_ind) {
--			in_ind = find_next_bit(indio_dev->active_scan_mask,
--					       indio_dev->masklength,
--					       in_ind + 1);
- 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 			/* Make sure we are aligned */
- 			in_loc = roundup(in_loc, length) + length;
-+			in_ind = find_next_bit(indio_dev->active_scan_mask,
-+					       indio_dev->masklength,
-+					       in_ind + 1);
- 		}
- 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
- 		out_loc = roundup(out_loc, length);
+--- a/drivers/clk/ingenic/cgu.c
++++ b/drivers/clk/ingenic/cgu.c
+@@ -393,15 +393,21 @@ static unsigned int
+ ingenic_clk_calc_hw_div(const struct ingenic_cgu_clk_info *clk_info,
+ 			unsigned int div)
+ {
+-	unsigned int i;
++	unsigned int i, best_i = 0, best = (unsigned int)-1;
+ 
+ 	for (i = 0; i < (1 << clk_info->div.bits)
+ 				&& clk_info->div.div_table[i]; i++) {
+-		if (clk_info->div.div_table[i] >= div)
+-			return i;
++		if (clk_info->div.div_table[i] >= div &&
++		    clk_info->div.div_table[i] < best) {
++			best = clk_info->div.div_table[i];
++			best_i = i;
++
++			if (div == best)
++				break;
++		}
+ 	}
+ 
+-	return i - 1;
++	return best_i;
+ }
+ 
+ static unsigned
 
 
