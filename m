@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5131E2E64FB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D403E2E3BE2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389122AbgL1NeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:34:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
+        id S2405305AbgL1Nzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:55:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389098AbgL1NeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:34:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2A8620867;
-        Mon, 28 Dec 2020 13:33:35 +0000 (UTC)
+        id S2405342AbgL1Nzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:55:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC3F22064B;
+        Mon, 28 Dec 2020 13:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162416;
-        bh=bctFitTEeo52VyCh0ydGO5T7uJluqm3P91V+Q30OYy8=;
+        s=korg; t=1609163708;
+        bh=Pp1oZr9QjFByhRyQ6o4RCW4FNfSeuKdiEuEVv85WAAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwWt57Dq7523dCuKD62uFFB+c+A+rOdXyzZfb8jyIBI9ZehZ9iFArBCnRCy9llB57
-         8Uh6C1ms9am1gD/UxirLOYWnX+0YF9WK2pJ4XilZS9AJlGxb9tsSBBtAqjPZk6NXTW
-         yk5BW/f1TrlhncF8pow2O5nQJieyfKge6rwR+vE0=
+        b=oSNQOzSTF7+R/sFHN3PMnl0YiMfzuVxnZDvBa2qvgbEV7O3WnDQX3Ci997ofOIGHE
+         DUa77cOWrXj3j80iXY8/kqMw6ZzwxDeBqTdKBrwbHXwhbkEcqCKzxzAEqQjhbsSIdS
+         mbll5Y5Y2nwbLAVZWkg/Ywi6sVPOTbCZ8hLzr/GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 298/346] ext4: fix deadlock with fs freezing and EA inodes
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 381/453] powerpc/rtas: Fix typo of ibm,open-errinjct in RTAS filter
 Date:   Mon, 28 Dec 2020 13:50:17 +0100
-Message-Id: <20201228124934.188145516@linuxfoundation.org>
+Message-Id: <20201228124955.540204716@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,110 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 46e294efc355c48d1dd4d58501aa56dac461792a upstream.
+commit f10881a46f8914428110d110140a455c66bdf27b upstream.
 
-Xattr code using inodes with large xattr data can end up dropping last
-inode reference (and thus deleting the inode) from places like
-ext4_xattr_set_entry(). That function is called with transaction started
-and so ext4_evict_inode() can deadlock against fs freezing like:
+Commit bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
+introduced the following error when invoking the errinjct userspace
+tool:
 
-CPU1					CPU2
+  [root@ltcalpine2-lp5 librtas]# errinjct open
+  [327884.071171] sys_rtas: RTAS call blocked - exploit attempt?
+  [327884.071186] sys_rtas: token=0x26, nargs=0 (called by errinjct)
+  errinjct: Could not open RTAS error injection facility
+  errinjct: librtas: open: Unexpected I/O error
 
-removexattr()				freeze_super()
-  vfs_removexattr()
-    ext4_xattr_set()
-      handle = ext4_journal_start()
-      ...
-      ext4_xattr_set_entry()
-        iput(old_ea_inode)
-          ext4_evict_inode(old_ea_inode)
-					  sb->s_writers.frozen = SB_FREEZE_FS;
-					  sb_wait_write(sb, SB_FREEZE_FS);
-					  ext4_freeze()
-					    jbd2_journal_lock_updates()
-					      -> blocks waiting for all
-					         handles to stop
-            sb_start_intwrite()
-	      -> blocks as sb is already in SB_FREEZE_FS state
+The entry for ibm,open-errinjct in rtas_filter array has a typo where
+the "j" is omitted in the rtas call name. After fixing this typo the
+errinjct tool functions again as expected.
 
-Generally it is advisable to delete inodes from a separate transaction
-as it can consume quite some credits however in this case it would be
-quite clumsy and furthermore the credits for inode deletion are quite
-limited and already accounted for. So just tweak ext4_evict_inode() to
-avoid freeze protection if we have transaction already started and thus
-it is not really needed anyway.
+  [root@ltcalpine2-lp5 linux]# errinjct open
+  RTAS error injection facility open, token = 1
 
+Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
 Cc: stable@vger.kernel.org
-Fixes: dec214d00e0d ("ext4: xattr inode deduplication")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20201127110649.24730-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201208195434.8289-1-tyreld@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/rtas.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -203,6 +203,7 @@ void ext4_evict_inode(struct inode *inod
- 	 */
- 	int extra_credits = 6;
- 	struct ext4_xattr_inode_array *ea_inode_array = NULL;
-+	bool freeze_protected = false;
- 
- 	trace_ext4_evict_inode(inode);
- 
-@@ -250,9 +251,14 @@ void ext4_evict_inode(struct inode *inod
- 
- 	/*
- 	 * Protect us against freezing - iput() caller didn't have to have any
--	 * protection against it
--	 */
--	sb_start_intwrite(inode->i_sb);
-+	 * protection against it. When we are in a running transaction though,
-+	 * we are already protected against freezing and we cannot grab further
-+	 * protection due to lock ordering constraints.
-+	 */
-+	if (!ext4_journal_current_handle()) {
-+		sb_start_intwrite(inode->i_sb);
-+		freeze_protected = true;
-+	}
- 
- 	if (!IS_NOQUOTA(inode))
- 		extra_credits += EXT4_MAXQUOTAS_DEL_BLOCKS(inode->i_sb);
-@@ -271,7 +277,8 @@ void ext4_evict_inode(struct inode *inod
- 		 * cleaned up.
- 		 */
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		goto no_delete;
- 	}
- 
-@@ -312,7 +319,8 @@ void ext4_evict_inode(struct inode *inod
- stop_handle:
- 		ext4_journal_stop(handle);
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		ext4_xattr_inode_array_free(ea_inode_array);
- 		goto no_delete;
- 	}
-@@ -341,7 +349,8 @@ stop_handle:
- 	else
- 		ext4_free_inode(handle, inode);
- 	ext4_journal_stop(handle);
--	sb_end_intwrite(inode->i_sb);
-+	if (freeze_protected)
-+		sb_end_intwrite(inode->i_sb);
- 	ext4_xattr_inode_array_free(ea_inode_array);
- 	return;
- no_delete:
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -978,7 +978,7 @@ static struct rtas_filter rtas_filters[]
+ 	{ "ibm,display-message", -1, 0, -1, -1, -1 },
+ 	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
+ 	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
+-	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
++	{ "ibm,open-errinjct", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
+ 	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
+ 	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
 
 
