@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4E52E65A7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A022E68A0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393828AbgL1QDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:03:54 -0500
+        id S1730196AbgL1QjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:39:01 -0500
 Received: from mail.kernel.org ([198.145.29.99]:57558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389981AbgL1N2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:28:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B963B2084D;
-        Mon, 28 Dec 2020 13:28:05 +0000 (UTC)
+        id S1729731AbgL1NBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81922208B6;
+        Mon, 28 Dec 2020 13:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162086;
-        bh=UgTDsomvO5pVjVr2vbcUZrE11dadQ4DwqVuwRyB5cyA=;
+        s=korg; t=1609160430;
+        bh=JuwKukq8lgf5WbumW5sYzDx3og/QUFn4dWKuiTmMJN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5WLPgKmJNxpZRb5V8RABzql9VUmOk+HSPMZ9PxuULlOd137KVACSYiBjXgcysuji
-         eX05bBMUoO1EXNkfPy6P8Ig1G8QtVeP6N/+fQ6z0MSX48GdCfoQ45N4DJGM8k3iWOi
-         u+4QhlFlBINVoahNm++yvZ0un2oHd2Skd0zpShuE=
+        b=Pkl2IlYywPh0jb56wngpUp8tMx0EKVaRWFbWKGpypp2y4X1pv6qmq6ilS+jLJ9dGR
+         6DgqTu3lPTvx6nCLgXO2mUlfcdEhBBS1Le1QXYLe41uKSr+iosS4c6rZozcH4cVYWh
+         /0enF88ZjQ48GJ+i6HE6OKxKP7BhKh8Pz4zE3/ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 181/346] PCI: Fix overflow in command-line resource alignment requests
-Date:   Mon, 28 Dec 2020 13:48:20 +0100
-Message-Id: <20201228124928.538881592@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com,
+        "Dae R. Jeong" <dae.r.jeong@kaist.ac.kr>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.9 048/175] md: fix a warning caused by a race between concurrent md_ioctl()s
+Date:   Mon, 28 Dec 2020 13:48:21 +0100
+Message-Id: <20201228124855.584925250@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
 
-[ Upstream commit cc73eb321d246776e5a9f7723d15708809aa3699 ]
+commit c731b84b51bf7fe83448bea8f56a6d55006b0615 upstream.
 
-The shift of 1 by align_order is evaluated using 32 bit arithmetic and the
-result is assigned to a resource_size_t type variable that is a 64 bit
-unsigned integer on 64 bit platforms. Fix an overflow before widening issue
-by making the 1 a ULL.
+Syzkaller reports a warning as belows.
+WARNING: CPU: 0 PID: 9647 at drivers/md/md.c:7169
+...
+Call Trace:
+...
+RIP: 0010:md_ioctl+0x4017/0x5980 drivers/md/md.c:7169
+RSP: 0018:ffff888096027950 EFLAGS: 00010293
+RAX: ffff88809322c380 RBX: 0000000000000932 RCX: ffffffff84e266f2
+RDX: 0000000000000000 RSI: ffffffff84e299f7 RDI: 0000000000000007
+RBP: ffff888096027bc0 R08: ffff88809322c380 R09: ffffed101341a482
+R10: ffff888096027940 R11: ffff88809a0d240f R12: 0000000000000932
+R13: ffff8880a2c14100 R14: ffff88809a0d2268 R15: ffff88809a0d2408
+ __blkdev_driver_ioctl block/ioctl.c:304 [inline]
+ blkdev_ioctl+0xece/0x1c10 block/ioctl.c:606
+ block_ioctl+0xee/0x130 fs/block_dev.c:1930
+ vfs_ioctl fs/ioctl.c:46 [inline]
+ file_ioctl fs/ioctl.c:509 [inline]
+ do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
+ ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+ __do_sys_ioctl fs/ioctl.c:720 [inline]
+ __se_sys_ioctl fs/ioctl.c:718 [inline]
+ __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+ do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: 32a9a682bef2 ("PCI: allow assignment of memory resources with a specified alignment")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is caused by a race between two concurrenct md_ioctl()s closing
+the array.
+CPU1 (md_ioctl())                   CPU2 (md_ioctl())
+------                              ------
+set_bit(MD_CLOSING, &mddev->flags);
+did_set_md_closing = true;
+                                    WARN_ON_ONCE(test_bit(MD_CLOSING,
+                                            &mddev->flags));
+if(did_set_md_closing)
+    clear_bit(MD_CLOSING, &mddev->flags);
+
+Fix the warning by returning immediately if the MD_CLOSING bit is set
+in &mddev->flags which indicates that the array is being closed.
+
+Fixes: 065e519e71b2 ("md: MD_CLOSING needs to be cleared after called md_set_readonly or do_md_stop")
+Reported-by: syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/md.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 5103d4b140ee3..cd628dd73719b 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5854,7 +5854,7 @@ static resource_size_t pci_specified_resource_alignment(struct pci_dev *dev,
- 		ret = pci_dev_str_match(dev, p, &p);
- 		if (ret == 1) {
- 			*resize = true;
--			align = 1 << align_order;
-+			align = 1ULL << align_order;
- 			break;
- 		} else if (ret < 0) {
- 			pr_err("PCI: Can't parse resource_alignment parameter: %s\n",
--- 
-2.27.0
-
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6857,8 +6857,11 @@ static int md_ioctl(struct block_device
+ 			err = -EBUSY;
+ 			goto out;
+ 		}
+-		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
+-		set_bit(MD_CLOSING, &mddev->flags);
++		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
++			mutex_unlock(&mddev->open_mutex);
++			err = -EBUSY;
++			goto out;
++		}
+ 		did_set_md_closing = true;
+ 		mutex_unlock(&mddev->open_mutex);
+ 		sync_blockdev(bdev);
 
 
