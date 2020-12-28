@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C899E2E42B2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F36C2E3EB0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388914AbgL1P02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:26:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59100 "EHLO mail.kernel.org"
+        id S2390410AbgL1Obn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:31:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406757AbgL1N5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 530A620715;
-        Mon, 28 Dec 2020 13:57:25 +0000 (UTC)
+        id S2504107AbgL1ObB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC15420715;
+        Mon, 28 Dec 2020 14:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163846;
-        bh=eiEb4v32L2uoSf4D9Ckw2K3GFDvoiZxEF34F7X0ZZls=;
+        s=korg; t=1609165821;
+        bh=w2MbZqHrbnV1/3vTaIVxhKkrqqnlg4ERx7+X5Is3acI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGoH7lObA0roH5FaNHWcBtipg9ml33YWCyAv3p91fWMmJHpp1HNM+gzjEa6cu1+rL
-         wnEU20/tsVA8GTwrZL3XjdyNxgmvlYGBDCdwni0DUkR1CuQexIlRBQ9xlew0KxDhF1
-         79eKmEALLMUgT49FJNtrOAmMgtQB9V0O1fj3KKqY=
+        b=rsvU26eWK13TazqIE2JHkxpH0AWXXJpmyziCwFS3iz4DujYfZduk2IEv7nDxSnLDr
+         Lkso3fmwwpiuQvrdKM5KkbiIqe0ENUd8XIYvbfJEz+BlvvIX4CFbhGwihZ7EKesvLp
+         FbG+y+Y3cwfmUlk6ERKgrNeWihWyjXIWAQOFxaik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org
-Subject: [PATCH 5.4 428/453] iio:light:st_uvis25: Fix timestamp alignment and prevent data leak.
+        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 666/717] mtd: core: Fix refcounting for unpartitioned MTDs
 Date:   Mon, 28 Dec 2020 13:51:04 +0100
-Message-Id: <20201228124957.817520045@linuxfoundation.org>
+Message-Id: <20201228125052.887156137@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Richard Weinberger <richard@nod.at>
 
-commit d837a996f57c29a985177bc03b0e599082047f27 upstream.
+commit 1ca71415f075353974524e96ed175306d8a937a8 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv()
+Apply changes to usecount also to the master partition.
+Otherwise we have no refcounting at all if an MTD has no partitions.
 
-This data is allocated with kzalloc() so no data can leak apart
-from previous readings.
-
-A local unsigned int variable is used for the regmap call so it
-is clear there is no potential issue with writing into the padding
-of the structure.
-
-Fixes: 3025c8688c1e ("iio: light: add support for UVIS25 sensor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-3-jic23@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 46b5889cc2c5 ("mtd: implement proper partition handling")
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201206202220.27290-1-richard@nod.at
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/st_uvis25.h      |    5 +++++
- drivers/iio/light/st_uvis25_core.c |    8 +++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ drivers/mtd/mtdcore.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/iio/light/st_uvis25.h
-+++ b/drivers/iio/light/st_uvis25.h
-@@ -27,6 +27,11 @@ struct st_uvis25_hw {
- 	struct iio_trigger *trig;
- 	bool enabled;
- 	int irq;
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u8 chan;
-+		s64 ts __aligned(8);
-+	} scan;
- };
+--- a/drivers/mtd/mtdcore.c
++++ b/drivers/mtd/mtdcore.c
+@@ -993,6 +993,8 @@ int __get_mtd_device(struct mtd_info *mt
+ 		}
+ 	}
  
- extern const struct dev_pm_ops st_uvis25_pm_ops;
---- a/drivers/iio/light/st_uvis25_core.c
-+++ b/drivers/iio/light/st_uvis25_core.c
-@@ -234,17 +234,19 @@ static const struct iio_buffer_setup_ops
- 
- static irqreturn_t st_uvis25_buffer_handler_thread(int irq, void *p)
- {
--	u8 buffer[ALIGN(sizeof(u8), sizeof(s64)) + sizeof(s64)];
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *iio_dev = pf->indio_dev;
- 	struct st_uvis25_hw *hw = iio_priv(iio_dev);
-+	unsigned int val;
- 	int err;
- 
--	err = regmap_read(hw->regmap, ST_UVIS25_REG_OUT_ADDR, (int *)buffer);
-+	err = regmap_read(hw->regmap, ST_UVIS25_REG_OUT_ADDR, &val);
- 	if (err < 0)
- 		goto out;
- 
--	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
-+	hw->scan.chan = val;
++	master->usecount++;
 +
-+	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
- 					   iio_get_time_ns(iio_dev));
+ 	while (mtd->parent) {
+ 		mtd->usecount++;
+ 		mtd = mtd->parent;
+@@ -1059,6 +1061,8 @@ void __put_mtd_device(struct mtd_info *m
+ 		mtd = mtd->parent;
+ 	}
  
- out:
++	master->usecount--;
++
+ 	if (master->_put_device)
+ 		master->_put_device(master);
+ 
 
 
