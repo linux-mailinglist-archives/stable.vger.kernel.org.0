@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0B02E3E14
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AA62E42E5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502781AbgL1OXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:23:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59278 "EHLO mail.kernel.org"
+        id S2406374AbgL1Nuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:50:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439224AbgL1OXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:23:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0E14229C5;
-        Mon, 28 Dec 2020 14:22:40 +0000 (UTC)
+        id S2406366AbgL1Nuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A4C92078D;
+        Mon, 28 Dec 2020 13:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165361;
-        bh=TWf9/haxjXMGxCoZSiwcAasoXVdfqAYS/IuwVtlsvMQ=;
+        s=korg; t=1609163385;
+        bh=uDjPJnmBqeV1mR5pM+Svy+++x/VKWwCvXW7KALZ9dnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvjR8XZhRuMqhUbdk7JV2J+03CSGYoaOAZE3JClik7PFvy8MhhxtvYHfjwrqfRajw
-         BP36Y+wGLZqIfpi5eKFBYSGGEZT3JfTZH8CJLO0/fZcX6al1EMK/NYjinu3LrMfYQu
-         9cvyAmOA6rOypdsdcfJZnDLFrJUBJgMKA9y0ltZk=
+        b=wmbKbkPH+YfRKlPXMceY2ngXLiwWZKkOWYSB8RSnXoA5SY5r6370CIP7m/SnPwQt8
+         CyvZM/zqEvzVHqKzNpM2Imj9vzBI2PySpbWVKdVsBtfYMo4Ttrmg4JrLpX1j/VIhrm
+         ornRPUsNdKvYbchiJBzI8TOGe9fU49EkOqYHJ4TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 503/717] ARM: 9044/1: vfp: use undef hook for VFP support detection
-Date:   Mon, 28 Dec 2020 13:48:21 +0100
-Message-Id: <20201228125045.056652350@linuxfoundation.org>
+Subject: [PATCH 5.4 266/453] clk: tegra: Fix duplicated SE clock entry
+Date:   Mon, 28 Dec 2020 13:48:22 +0100
+Message-Id: <20201228124950.025448627@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,129 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 3cce9d44321e460e7c88cdec4e4537a6e9ad7c0d ]
+[ Upstream commit 5bf5861d6ea6c3f4b38fc8fda2062b2dc44ac63d ]
 
-Commit f77ac2e378be9dd6 ("ARM: 9030/1: entry: omit FP emulation for UND
-exceptions taken in kernel mode") failed to take into account that there
-is in fact a case where we relied on this code path: during boot, the
-VFP detection code issues a read of FPSID, which will trigger an undef
-exception on cores that lack VFP support.
+The periph_clks[] array contains duplicated entry for Security Engine
+clock which was meant to be defined for T210, but it wasn't added
+properly. This patch corrects the T210 SE entry and fixes the following
+error message on T114/T124: "Tegra clk 127: register failed with -17".
 
-So let's reinstate this logic using an undef hook which is registered
-only for the duration of the initcall to vpf_init(), and which sets
-VFP_arch to a non-zero value - as before - if no VFP support is present.
-
-Fixes: f77ac2e378be9dd6 ("ARM: 9030/1: entry: omit FP emulation for UND ...")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: dc37fec48314 ("clk: tegra: periph: Add new periph clks and muxes for Tegra210")
+Tested-by Nicolas Chauvet <kwizart@gmail.com>
+Reported-by Nicolas Chauvet <kwizart@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20201025224212.7790-1-digetx@gmail.com
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/vfp/entry.S     | 17 -----------------
- arch/arm/vfp/vfpmodule.c | 25 ++++++++++++++++++++-----
- 2 files changed, 20 insertions(+), 22 deletions(-)
+ drivers/clk/tegra/clk-id.h           | 1 +
+ drivers/clk/tegra/clk-tegra-periph.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/vfp/entry.S b/arch/arm/vfp/entry.S
-index 0186cf9da890b..27b0a1f27fbdf 100644
---- a/arch/arm/vfp/entry.S
-+++ b/arch/arm/vfp/entry.S
-@@ -37,20 +37,3 @@ ENDPROC(vfp_null_entry)
- 	.align	2
- .LCvfp:
- 	.word	vfp_vector
--
--@ This code is called if the VFP does not exist. It needs to flag the
--@ failure to the VFP initialisation code.
--
--	__INIT
--ENTRY(vfp_testing_entry)
--	dec_preempt_count_ti r10, r4
--	ldr	r0, VFP_arch_address
--	str	r0, [r0]		@ set to non-zero value
--	ret	r9			@ we have handled the fault
--ENDPROC(vfp_testing_entry)
--
--	.align	2
--VFP_arch_address:
--	.word	VFP_arch
--
--	__FINIT
-diff --git a/arch/arm/vfp/vfpmodule.c b/arch/arm/vfp/vfpmodule.c
-index c3b6451c18bda..2cb355c1b5b71 100644
---- a/arch/arm/vfp/vfpmodule.c
-+++ b/arch/arm/vfp/vfpmodule.c
-@@ -32,7 +32,6 @@
- /*
-  * Our undef handlers (in entry.S)
-  */
--asmlinkage void vfp_testing_entry(void);
- asmlinkage void vfp_support_entry(void);
- asmlinkage void vfp_null_entry(void);
- 
-@@ -43,7 +42,7 @@ asmlinkage void (*vfp_vector)(void) = vfp_null_entry;
-  * Used in startup: set to non-zero if VFP checks fail
-  * After startup, holds VFP architecture
-  */
--unsigned int VFP_arch;
-+static unsigned int __initdata VFP_arch;
- 
- /*
-  * The pointer to the vfpstate structure of the thread which currently
-@@ -437,7 +436,7 @@ static void vfp_enable(void *unused)
-  * present on all CPUs within a SMP complex. Needs to be called prior to
-  * vfp_init().
-  */
--void vfp_disable(void)
-+void __init vfp_disable(void)
- {
- 	if (VFP_arch) {
- 		pr_debug("%s: should be called prior to vfp_init\n", __func__);
-@@ -707,7 +706,7 @@ static int __init vfp_kmode_exception_hook_init(void)
- 		register_undef_hook(&vfp_kmode_exception_hook[i]);
- 	return 0;
- }
--core_initcall(vfp_kmode_exception_hook_init);
-+subsys_initcall(vfp_kmode_exception_hook_init);
- 
- /*
-  * Kernel-side NEON support functions
-@@ -753,6 +752,21 @@ EXPORT_SYMBOL(kernel_neon_end);
- 
- #endif /* CONFIG_KERNEL_MODE_NEON */
- 
-+static int __init vfp_detect(struct pt_regs *regs, unsigned int instr)
-+{
-+	VFP_arch = UINT_MAX;	/* mark as not present */
-+	regs->ARM_pc += 4;
-+	return 0;
-+}
-+
-+static struct undef_hook vfp_detect_hook __initdata = {
-+	.instr_mask	= 0x0c000e00,
-+	.instr_val	= 0x0c000a00,
-+	.cpsr_mask	= MODE_MASK,
-+	.cpsr_val	= SVC_MODE,
-+	.fn		= vfp_detect,
-+};
-+
- /*
-  * VFP support code initialisation.
-  */
-@@ -773,10 +787,11 @@ static int __init vfp_init(void)
- 	 * The handler is already setup to just log calls, so
- 	 * we just need to read the VFPSID register.
- 	 */
--	vfp_vector = vfp_testing_entry;
-+	register_undef_hook(&vfp_detect_hook);
- 	barrier();
- 	vfpsid = fmrx(FPSID);
- 	barrier();
-+	unregister_undef_hook(&vfp_detect_hook);
- 	vfp_vector = vfp_null_entry;
- 
- 	pr_info("VFP support v0.3: ");
+diff --git a/drivers/clk/tegra/clk-id.h b/drivers/clk/tegra/clk-id.h
+index de466b4446da9..0efcb200dde5a 100644
+--- a/drivers/clk/tegra/clk-id.h
++++ b/drivers/clk/tegra/clk-id.h
+@@ -233,6 +233,7 @@ enum clk_id {
+ 	tegra_clk_sdmmc4,
+ 	tegra_clk_sdmmc4_8,
+ 	tegra_clk_se,
++	tegra_clk_se_10,
+ 	tegra_clk_soc_therm,
+ 	tegra_clk_soc_therm_8,
+ 	tegra_clk_sor0,
+diff --git a/drivers/clk/tegra/clk-tegra-periph.c b/drivers/clk/tegra/clk-tegra-periph.c
+index 49b9f2f85bad6..4dc11e1e61ba8 100644
+--- a/drivers/clk/tegra/clk-tegra-periph.c
++++ b/drivers/clk/tegra/clk-tegra-periph.c
+@@ -636,7 +636,7 @@ static struct tegra_periph_init_data periph_clks[] = {
+ 	INT8("host1x", mux_pllm_pllc2_c_c3_pllp_plla, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x_8),
+ 	INT8("host1x", mux_pllc4_out1_pllc_pllc4_out2_pllp_clkm_plla_pllc4_out0, CLK_SOURCE_HOST1X, 28, 0, tegra_clk_host1x_9),
+ 	INT8("se", mux_pllp_pllc2_c_c3_pllm_clkm, CLK_SOURCE_SE, 127, TEGRA_PERIPH_ON_APB, tegra_clk_se),
+-	INT8("se", mux_pllp_pllc2_c_c3_clkm, CLK_SOURCE_SE, 127, TEGRA_PERIPH_ON_APB, tegra_clk_se),
++	INT8("se", mux_pllp_pllc2_c_c3_clkm, CLK_SOURCE_SE, 127, TEGRA_PERIPH_ON_APB, tegra_clk_se_10),
+ 	INT8("2d", mux_pllm_pllc2_c_c3_pllp_plla, CLK_SOURCE_2D, 21, 0, tegra_clk_gr2d_8),
+ 	INT8("3d", mux_pllm_pllc2_c_c3_pllp_plla, CLK_SOURCE_3D, 24, 0, tegra_clk_gr3d_8),
+ 	INT8("vic03", mux_pllm_pllc_pllp_plla_pllc2_c3_clkm, CLK_SOURCE_VIC03, 178, 0, tegra_clk_vic03),
 -- 
 2.27.0
 
