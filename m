@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D8E2E37F5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B20CE2E3BA8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729240AbgL1NDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:03:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59388 "EHLO mail.kernel.org"
+        id S2407193AbgL1Nw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730204AbgL1NDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6668208B6;
-        Mon, 28 Dec 2020 13:02:37 +0000 (UTC)
+        id S2406450AbgL1Nu4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67F682072C;
+        Mon, 28 Dec 2020 13:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160558;
-        bh=OEI+F2eXkF78icNzIB7Lng2gWT0mNTs1W57z7MjfG88=;
+        s=korg; t=1609163415;
+        bh=sFbIyZ9uA3bLA/H5qOTyait014Jn6mbwR5xYsXwk01I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdLdVeAEdGQzdsjuvqQjtkw8p1b7nMZIDh3Hi0G4k5PMspe9w7JTPX7BWl+tcPvuZ
-         x0YA9JJUZlCx/tOl7fv1Tl4Eggq5+b2U5mNgQ/wukZUORtJEACYhhRlJsHI/DLtjOD
-         /i7Zxd2UGwlbFVe8kAivE6gtxC73mCBucn5jceNk=
+        b=gM4OeY5sD61O5z4nkzx73KDZJN5oqBK9Gq6UefsZa60O6bxQyMDIWJdY4FYiFRS9g
+         NPLvLNEHEKoCDVf0rS0vsNe7knOgpoMP5G7nfati5qPUT4zqb53lGvVLb8VyMnevd3
+         TH5kOk7RWQmn+RkcFBiTrnJbQ7CIYwZp7r+jmjKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 062/175] net: evaluate net.ipvX.conf.all.ignore_routes_with_linkdown
+Subject: [PATCH 5.4 279/453] watchdog: Fix potential dereferencing of null pointer
 Date:   Mon, 28 Dec 2020 13:48:35 +0100
-Message-Id: <20201228124856.260815320@linuxfoundation.org>
+Message-Id: <20201228124950.640960345@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,109 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Bernat <vincent@bernat.ch>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit c0c5a60f0f1311bcf08bbe735122096d6326fb5b ]
+[ Upstream commit 6f733cb2e7db38f8141b14740bcde577844a03b7 ]
 
-Introduced in 0eeb075fad73, the "ignore_routes_with_linkdown" sysctl
-ignores a route whose interface is down. It is provided as a
-per-interface sysctl. However, while a "all" variant is exposed, it
-was a noop since it was never evaluated. We use the usual "or" logic
-for this kind of sysctls.
+A reboot notifier, which stops the WDT by calling the stop hook without
+any check, would be registered when we set WDOG_STOP_ON_REBOOT flag.
 
-Tested with:
+Howerer we allow the WDT driver to omit the stop hook since commit
+"d0684c8a93549" ("watchdog: Make stop function optional") and provide
+a module parameter for user that controls the WDOG_STOP_ON_REBOOT flag
+in commit 9232c80659e94 ("watchdog: Add stop_on_reboot parameter to
+control reboot policy"). Together that commits make user potential to
+insert a watchdog driver that don't provide a stop hook but with the
+stop_on_reboot parameter set, then dereferencing of null pointer occurs
+on system reboot.
 
-    ip link add type veth # veth0 + veth1
-    ip link add type veth # veth1 + veth2
-    ip link set up dev veth0
-    ip link set up dev veth1 # link-status paired with veth0
-    ip link set up dev veth2
-    ip link set up dev veth3 # link-status paired with veth2
+Check the stop hook before registering the reboot notifier to fix the
+issue.
 
-    # First available path
-    ip -4 addr add 203.0.113.${uts#H}/24 dev veth0
-    ip -6 addr add 2001:db8:1::${uts#H}/64 dev veth0
-
-    # Second available path
-    ip -4 addr add 192.0.2.${uts#H}/24 dev veth2
-    ip -6 addr add 2001:db8:2::${uts#H}/64 dev veth2
-
-    # More specific route through first path
-    ip -4 route add 198.51.100.0/25 via 203.0.113.254 # via veth0
-    ip -6 route add 2001:db8:3::/56 via 2001:db8:1::ff # via veth0
-
-    # Less specific route through second path
-    ip -4 route add 198.51.100.0/24 via 192.0.2.254 # via veth2
-    ip -6 route add 2001:db8:3::/48 via 2001:db8:2::ff # via veth2
-
-    # H1: enable on "all"
-    # H2: enable on "veth0"
-    for v in ipv4 ipv6; do
-      case $uts in
-        H1)
-          sysctl -qw net.${v}.conf.all.ignore_routes_with_linkdown=1
-          ;;
-        H2)
-          sysctl -qw net.${v}.conf.veth0.ignore_routes_with_linkdown=1
-          ;;
-      esac
-    done
-
-    set -xe
-    # When veth0 is up, best route is through veth0
-    ip -o route get 198.51.100.1 | grep -Fw veth0
-    ip -o route get 2001:db8:3::1 | grep -Fw veth0
-
-    # When veth0 is down, best route should be through veth2 on H1/H2,
-    # but on veth0 on H2
-    ip link set down dev veth1 # down veth0
-    ip route show
-    [ $uts != H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth0
-    [ $uts != H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth0
-    [ $uts = H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth2
-    [ $uts = H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth2
-
-Without this patch, the two last lines would fail on H1 (the one using
-the "all" sysctl). With the patch, everything succeeds as expected.
-
-Also document the sysctl in `ip-sysctl.rst`.
-
-Fixes: 0eeb075fad73 ("net: ipv4 sysctl option to ignore routes when nexthop link is down")
-Signed-off-by: Vincent Bernat <vincent@bernat.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d0684c8a9354 ("watchdog: Make stop function optional")
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201109130512.28121-1-wangwensheng4@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 3 +++
- include/linux/inetdevice.h             | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/watchdog/watchdog_core.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index a374412610ba3..1526fc785a084 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -1237,6 +1237,9 @@ igmpv3_unsolicited_report_interval - INTEGER
- 	IGMPv3 report retransmit will take place.
- 	Default: 1000 (1 seconds)
+diff --git a/drivers/watchdog/watchdog_core.c b/drivers/watchdog/watchdog_core.c
+index 861daf4f37b28..faa46a666f4c5 100644
+--- a/drivers/watchdog/watchdog_core.c
++++ b/drivers/watchdog/watchdog_core.c
+@@ -255,15 +255,19 @@ static int __watchdog_register_device(struct watchdog_device *wdd)
+ 	}
  
-+ignore_routes_with_linkdown - BOOLEAN
-+        Ignore routes whose link is down when performing a FIB lookup.
+ 	if (test_bit(WDOG_STOP_ON_REBOOT, &wdd->status)) {
+-		wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
+-
+-		ret = register_reboot_notifier(&wdd->reboot_nb);
+-		if (ret) {
+-			pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
+-			       wdd->id, ret);
+-			watchdog_dev_unregister(wdd);
+-			ida_simple_remove(&watchdog_ida, id);
+-			return ret;
++		if (!wdd->ops->stop)
++			pr_warn("watchdog%d: stop_on_reboot not supported\n", wdd->id);
++		else {
++			wdd->reboot_nb.notifier_call = watchdog_reboot_notifier;
 +
- promote_secondaries - BOOLEAN
- 	When a primary IP address is removed from this interface
- 	promote a corresponding secondary IP address instead of
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index ee971f335a8b6..0e6cd645f67f3 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -121,7 +121,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
- 	  IN_DEV_ORCONF((in_dev), ACCEPT_REDIRECTS)))
++			ret = register_reboot_notifier(&wdd->reboot_nb);
++			if (ret) {
++				pr_err("watchdog%d: Cannot register reboot notifier (%d)\n",
++					wdd->id, ret);
++				watchdog_dev_unregister(wdd);
++				ida_simple_remove(&watchdog_ida, id);
++				return ret;
++			}
+ 		}
+ 	}
  
- #define IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) \
--	IN_DEV_CONF_GET((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
-+	IN_DEV_ORCONF((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
- 
- #define IN_DEV_ARPFILTER(in_dev)	IN_DEV_ORCONF((in_dev), ARPFILTER)
- #define IN_DEV_ARP_ACCEPT(in_dev)	IN_DEV_ORCONF((in_dev), ARP_ACCEPT)
 -- 
 2.27.0
 
