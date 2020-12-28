@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD1F52E3A4D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C882E3E89
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389273AbgL1NfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:35:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
+        id S2503606AbgL1O30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:29:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389247AbgL1NfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D97F20867;
-        Mon, 28 Dec 2020 13:34:20 +0000 (UTC)
+        id S2503588AbgL1O3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 924FE22CF7;
+        Mon, 28 Dec 2020 14:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162461;
-        bh=5WgcYWSDDePt94jcsRc3nPsBHCa+tVcKQWR8YcYSnjk=;
+        s=korg; t=1609165725;
+        bh=5wHv4GcBZGlIOVSG1HNdblnQfI/OavW97mCPO8ECgAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB5HV8zUmFkZw8Mbp436yUnwEjWDgqZxwQ8fOar0QlWuc6ZMb+ffIi/+b242ItdwF
-         01wE6RBQy1Hb0b3bFFLp6FSeCevb/q6Yqhu4VhS4YIkkOQYpw/Vg0kKGpwyexY08YS
-         ViaQeair/TJ9i9VcSJd+mxoTuLiIvHUptlxiyoBw=
+        b=ei6Tl4/68QyW/TyqpVO68nnh8WbHOHom8EiEzyUdW916b5O9MXcFgGggt/0uUntVQ
+         EfY46TgYjHXJVgkekeYgHEBfacFL0apuDSZjDl6b+pvh5+fdPCiKtVkWtvUniGo5ou
+         xv2deHY94mo/Ef39P4kIPlAJNA2o8ognjdxdZ+NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
-        Zhihao Cheng <chengzhihao1@huawei.com>
-Subject: [PATCH 4.19 311/346] ubifs: wbuf: Dont leak kernel memory to flash
+        stable@vger.kernel.org, Dave Kleikamp <dave.kleikamp@oracle.com>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Subject: [PATCH 5.10 632/717] jfs: Fix array index bounds check in dbAdjTree
 Date:   Mon, 28 Dec 2020 13:50:30 +0100
-Message-Id: <20201228124934.830128951@linuxfoundation.org>
+Message-Id: <20201228125051.196084057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Dave Kleikamp <dave.kleikamp@oracle.com>
 
-commit 20f1431160c6b590cdc269a846fc5a448abf5b98 upstream.
+commit c61b3e4839007668360ed8b87d7da96d2e59fc6c upstream.
 
-Write buffers use a kmalloc()'ed buffer, they can leak
-up to seven bytes of kernel memory to flash if writes are not
-aligned.
-So use ubifs_pad() to fill these gaps with padding bytes.
-This was never a problem while scanning because the scanner logic
-manually aligns node lengths and skips over these gaps.
+Bounds checking tools can flag a bug in dbAdjTree() for an array index
+out of bounds in dmt_stree. Since dmt_stree can refer to the stree in
+both structures dmaptree and dmapctl, use the larger array to eliminate
+the false positive.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ubifs/io.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ fs/jfs/jfs_dmap.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -331,7 +331,7 @@ void ubifs_pad(const struct ubifs_info *
- {
- 	uint32_t crc;
+--- a/fs/jfs/jfs_dmap.h
++++ b/fs/jfs/jfs_dmap.h
+@@ -183,7 +183,7 @@ typedef union dmtree {
+ #define	dmt_leafidx	t1.leafidx
+ #define	dmt_height	t1.height
+ #define	dmt_budmin	t1.budmin
+-#define	dmt_stree	t1.stree
++#define	dmt_stree	t2.stree
  
--	ubifs_assert(c, pad >= 0 && !(pad & 7));
-+	ubifs_assert(c, pad >= 0);
- 
- 	if (pad >= UBIFS_PAD_NODE_SZ) {
- 		struct ubifs_ch *ch = buf;
-@@ -728,6 +728,10 @@ int ubifs_wbuf_write_nolock(struct ubifs
- 		 * write-buffer.
- 		 */
- 		memcpy(wbuf->buf + wbuf->used, buf, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(c, aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
-+		}
- 
- 		if (aligned_len == wbuf->avail) {
- 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
-@@ -820,13 +824,18 @@ int ubifs_wbuf_write_nolock(struct ubifs
- 	}
- 
- 	spin_lock(&wbuf->lock);
--	if (aligned_len)
-+	if (aligned_len) {
- 		/*
- 		 * And now we have what's left and what does not take whole
- 		 * max. write unit, so write it to the write-buffer and we are
- 		 * done.
- 		 */
- 		memcpy(wbuf->buf, buf + written, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(c, aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
-+		}
-+	}
- 
- 	if (c->leb_size - wbuf->offs >= c->max_write_size)
- 		wbuf->size = c->max_write_size;
+ /*
+  *	on-disk aggregate disk allocation map descriptor.
 
 
