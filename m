@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D2C2E4128
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 771E72E3AE4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403948AbgL1PDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:03:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
+        id S2404335AbgL1Nm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:42:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439908AbgL1OMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E403B20715;
-        Mon, 28 Dec 2020 14:11:58 +0000 (UTC)
+        id S2403980AbgL1Nko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2811720719;
+        Mon, 28 Dec 2020 13:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164719;
-        bh=c88fvRr+swZWb2kxXqfSCfVxN/ZXmx4v3mzCTZg1Q+U=;
+        s=korg; t=1609162828;
+        bh=9zyrPAlEvTT4BM8lGuO/XnPG08yCDOi8FVi8ovlf+78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsRtaSG5ecx/dcOPHLvY2yV54yxbetL+OUyH+SSMC0QpumuoyTXBbBYQ9f2ypXYj3
-         0hplEhnTm2fyEoIK/6ZQYKdof18n81ncJLh3e6+AEOB+s89iMEk7S9j3FEzcdw2ooU
-         Sx3HByCK88PKpctGk2VJJkeXtpei6gpMEGQMcxmA=
+        b=bUqzYViPNseAyOwHKQl0iZTy6xEtUFC96OxlnPUFwOEAE6uSdESjrgaxd2u56cLBZ
+         13evXv/H42FnixUef2NYHoOD4clVEDzKjwJBnd7u3l5iaqUWQXQNCLGqp4za+/wAVm
+         eDyPQlrMk/talJ2ARM3rNe3O9b7kclB6pitMcJ70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 272/717] NFS: switch nfsiod to be an UNBOUND workqueue.
-Date:   Mon, 28 Dec 2020 13:44:30 +0100
-Message-Id: <20201228125034.047066316@linuxfoundation.org>
+Subject: [PATCH 5.4 035/453] selftests: fix poll error in udpgro.sh
+Date:   Mon, 28 Dec 2020 13:44:31 +0100
+Message-Id: <20201228124938.953315786@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit bf701b765eaa82dd164d65edc5747ec7288bb5c3 ]
+[ Upstream commit 38bf8cd821be292e7d8e6f6283d67c5d9708f887 ]
 
-nfsiod is currently a concurrency-managed workqueue (CMWQ).
-This means that workitems scheduled to nfsiod on a given CPU are queued
-behind all other work items queued on any CMWQ on the same CPU.  This
-can introduce unexpected latency.
+The test program udpgso_bench_rx always invokes the poll()
+syscall with a timeout of 10ms. If a larger timeout is specified
+via the command line, udpgso_bench_rx is supposed to do multiple
+poll() calls till the timeout is expired or an event is received.
 
-Occaionally nfsiod can even cause excessive latency.  If the work item
-to complete a CLOSE request calls the final iput() on an inode, the
-address_space of that inode will be dismantled.  This takes time
-proportional to the number of in-memory pages, which on a large host
-working on large files (e.g..  5TB), can be a large number of pages
-resulting in a noticable number of seconds.
+Currently the poll() loop errors out after the first invocation with
+no events, and may causes self-tests failure alike:
 
-We can avoid these latency problems by switching nfsiod to WQ_UNBOUND.
-This causes each concurrent work item to gets a dedicated thread which
-can be scheduled to an idle CPU.
+failed
+ GRO with custom segment size            ./udpgso_bench_rx: poll: 0x0 expected 0x1
 
-There is precedent for this as several other filesystems use WQ_UNBOUND
-workqueue for handling various async events.
+This change addresses the issue allowing the poll() loop to consume
+all the configured timeout.
 
-Signed-off-by: NeilBrown <neilb@suse.de>
-Fixes: ada609ee2ac2 ("workqueue: use WQ_MEM_RECLAIM instead of WQ_RESCUER")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: ada641ff6ed3 ("selftests: fixes for UDP GRO")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/udpgso_bench_rx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index aa6493905bbe8..43af053f467a7 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -2180,7 +2180,7 @@ static int nfsiod_start(void)
- {
- 	struct workqueue_struct *wq;
- 	dprintk("RPC:       creating workqueue nfsiod\n");
--	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM, 0);
-+	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM | WQ_UNBOUND, 0);
- 	if (wq == NULL)
- 		return -ENOMEM;
- 	nfsiod_workqueue = wq;
+diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
+index db3d4a8b5a4c4..76a24052f4b47 100644
+--- a/tools/testing/selftests/net/udpgso_bench_rx.c
++++ b/tools/testing/selftests/net/udpgso_bench_rx.c
+@@ -113,6 +113,9 @@ static void do_poll(int fd, int timeout_ms)
+ 				interrupted = true;
+ 				break;
+ 			}
++
++			/* no events and more time to wait, do poll again */
++			continue;
+ 		}
+ 		if (pfd.revents != POLLIN)
+ 			error(1, errno, "poll: 0x%x expected 0x%x\n",
 -- 
 2.27.0
 
