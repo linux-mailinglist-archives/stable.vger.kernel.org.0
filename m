@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1539B2E3AD0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 431DE2E646D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404074AbgL1Nlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:41:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42146 "EHLO mail.kernel.org"
+        id S2404028AbgL1Nlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:41:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404069AbgL1Nly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60205206ED;
-        Mon, 28 Dec 2020 13:41:12 +0000 (UTC)
+        id S2391879AbgL1Nlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:41:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 277A3207B2;
+        Mon, 28 Dec 2020 13:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162873;
-        bh=dyWkDjoN4+LbMxdoKB7/zPr4aeXpCUykO/2BiZOpTK8=;
+        s=korg; t=1609162875;
+        bh=HJywtKyUXIP+cDCvNHwB8gL28eYMZ4uU+AJdGUjhTT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQd8HgVH9EpgS7noTsAri3vcC0WGjVsw/D1W9zLjCaDSkByfhenK983DuozWcCo85
-         k8iYTNWB8u0inY2rgQ7R4V4ipI30I3gFJg7PGvgEnOzZSgpHGG8VUQvLy6c4BdUXFI
-         FaL5Htz5q9+alg5GKZEo9uxsOj/ydpNOcmOdnfBE=
+        b=QsKVcpY7+9KL38LF713kE3W1SY71g1nk9f2yMDCFC3+ZEDkENWN3OWeLFoWWWTzFI
+         CoWRk2gu3yPD7dqFadOggfvX5tBGy5+W/pppYcDqKQ66VbvqwC4uxBnxvRUjB/0Lny
+         Fp8jqaVwBs+AweiykBNX/JM6KPvR5UgNz/uAQPOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/453] x86/apic: Fix x2apic enablement without interrupt remapping
-Date:   Mon, 28 Dec 2020 13:45:26 +0100
-Message-Id: <20201228124941.564347749@linuxfoundation.org>
+Subject: [PATCH 5.4 091/453] sched/deadline: Fix sched_dl_global_validate()
+Date:   Mon, 28 Dec 2020 13:45:27 +0100
+Message-Id: <20201228124941.613008940@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -40,103 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Peng Liu <iwtbavbm@gmail.com>
 
-[ Upstream commit 26573a97746c7a99f394f9d398ce91a8853b3b89 ]
+[ Upstream commit a57415f5d1e43c3a5c5d412cd85e2792d7ed9b11 ]
 
-Currently, Linux as a hypervisor guest will enable x2apic only if there are
-no CPUs present at boot time with an APIC ID above 255.
+When change sched_rt_{runtime, period}_us, we validate that the new
+settings should at least accommodate the currently allocated -dl
+bandwidth:
 
-Hotplugging a CPU later with a higher APIC ID would result in a CPU which
-cannot be targeted by external interrupts.
+  sched_rt_handler()
+    -->	sched_dl_bandwidth_validate()
+	{
+		new_bw = global_rt_runtime()/global_rt_period();
 
-Add a filter in x2apic_apic_id_valid() which can be used to prevent such
-CPUs from coming online, and allow x2apic to be enabled even if they are
-present at boot time.
+		for_each_possible_cpu(cpu) {
+			dl_b = dl_bw_of(cpu);
+			if (new_bw < dl_b->total_bw)    <-------
+				ret = -EBUSY;
+		}
+	}
 
-Fixes: ce69a784504 ("x86/apic: Enable x2APIC without interrupt remapping under KVM")
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20201024213535.443185-2-dwmw2@infradead.org
+But under CONFIG_SMP, dl_bw is per root domain , but not per CPU,
+dl_b->total_bw is the allocated bandwidth of the whole root domain.
+Instead, we should compare dl_b->total_bw against "cpus*new_bw",
+where 'cpus' is the number of CPUs of the root domain.
+
+Also, below annotation(in kernel/sched/sched.h) implied implementation
+only appeared in SCHED_DEADLINE v2[1], then deadline scheduler kept
+evolving till got merged(v9), but the annotation remains unchanged,
+meaningless and misleading, update it.
+
+* With respect to SMP, the bandwidth is given on a per-CPU basis,
+* meaning that:
+*  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
+*  - dl_total_bw array contains, in the i-eth element, the currently
+*    allocated bandwidth on the i-eth CPU.
+
+[1]: https://lore.kernel.org/lkml/1267385230.13676.101.camel@Palantir/
+
+Fixes: 332ac17ef5bf ("sched/deadline: Add bandwidth management for SCHED_DEADLINE tasks")
+Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Acked-by: Juri Lelli <juri.lelli@redhat.com>
+Link: https://lkml.kernel.org/r/db6bbda316048cda7a1bbc9571defde193a8d67e.1602171061.git.iwtbavbm@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/apic.h        |  1 +
- arch/x86/kernel/apic/apic.c        | 14 ++++++++------
- arch/x86/kernel/apic/x2apic_phys.c |  9 +++++++++
- 3 files changed, 18 insertions(+), 6 deletions(-)
+ kernel/sched/deadline.c |  5 +++--
+ kernel/sched/sched.h    | 42 ++++++++++++++++++-----------------------
+ 2 files changed, 21 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index 19e94af9cc5d7..6016559ed1713 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -259,6 +259,7 @@ static inline u64 native_x2apic_icr_read(void)
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index 4cb00538a207b..4ce8c11e5e4ae 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -2469,7 +2469,7 @@ int sched_dl_global_validate(void)
+ 	u64 period = global_rt_period();
+ 	u64 new_bw = to_ratio(period, runtime);
+ 	struct dl_bw *dl_b;
+-	int cpu, ret = 0;
++	int cpu, cpus, ret = 0;
+ 	unsigned long flags;
  
- extern int x2apic_mode;
- extern int x2apic_phys;
-+extern void __init x2apic_set_max_apicid(u32 apicid);
- extern void __init check_x2apic(void);
- extern void x2apic_setup(void);
- static inline int x2apic_enabled(void)
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index fce94c799f015..06fa808d72032 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1886,20 +1886,22 @@ static __init void try_to_enable_x2apic(int remap_mode)
- 		return;
+ 	/*
+@@ -2484,9 +2484,10 @@ int sched_dl_global_validate(void)
+ 	for_each_possible_cpu(cpu) {
+ 		rcu_read_lock_sched();
+ 		dl_b = dl_bw_of(cpu);
++		cpus = dl_bw_cpus(cpu);
  
- 	if (remap_mode != IRQ_REMAP_X2APIC_MODE) {
--		/* IR is required if there is APIC ID > 255 even when running
--		 * under KVM
-+		/*
-+		 * Using X2APIC without IR is not architecturally supported
-+		 * on bare metal but may be supported in guests.
- 		 */
--		if (max_physical_apicid > 255 ||
--		    !x86_init.hyper.x2apic_available()) {
-+		if (!x86_init.hyper.x2apic_available()) {
- 			pr_info("x2apic: IRQ remapping doesn't support X2APIC mode\n");
- 			x2apic_disable();
- 			return;
- 		}
+ 		raw_spin_lock_irqsave(&dl_b->lock, flags);
+-		if (new_bw < dl_b->total_bw)
++		if (new_bw * cpus < dl_b->total_bw)
+ 			ret = -EBUSY;
+ 		raw_spin_unlock_irqrestore(&dl_b->lock, flags);
  
- 		/*
--		 * without IR all CPUs can be addressed by IOAPIC/MSI
--		 * only in physical mode
-+		 * Without IR, all CPUs can be addressed by IOAPIC/MSI only
-+		 * in physical mode, and CPUs with an APIC ID that cannnot
-+		 * be addressed must not be brought online.
- 		 */
-+		x2apic_set_max_apicid(255);
- 		x2apic_phys = 1;
- 	}
- 	x2apic_enable();
-diff --git a/arch/x86/kernel/apic/x2apic_phys.c b/arch/x86/kernel/apic/x2apic_phys.c
-index bc9693841353c..e14eae6d6ea71 100644
---- a/arch/x86/kernel/apic/x2apic_phys.c
-+++ b/arch/x86/kernel/apic/x2apic_phys.c
-@@ -8,6 +8,12 @@
- int x2apic_phys;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 3e7590813844f..e10fb9bf2988c 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -247,30 +247,6 @@ struct rt_bandwidth {
  
- static struct apic apic_x2apic_phys;
-+static u32 x2apic_max_apicid __ro_after_init;
-+
-+void __init x2apic_set_max_apicid(u32 apicid)
-+{
-+	x2apic_max_apicid = apicid;
-+}
+ void __dl_clear_params(struct task_struct *p);
  
- static int __init set_x2apic_phys_mode(char *arg)
- {
-@@ -98,6 +104,9 @@ static int x2apic_phys_probe(void)
- /* Common x2apic functions, also used by x2apic_cluster */
- int x2apic_apic_id_valid(u32 apicid)
- {
-+	if (x2apic_max_apicid && apicid > x2apic_max_apicid)
-+		return 0;
-+
- 	return 1;
+-/*
+- * To keep the bandwidth of -deadline tasks and groups under control
+- * we need some place where:
+- *  - store the maximum -deadline bandwidth of the system (the group);
+- *  - cache the fraction of that bandwidth that is currently allocated.
+- *
+- * This is all done in the data structure below. It is similar to the
+- * one used for RT-throttling (rt_bandwidth), with the main difference
+- * that, since here we are only interested in admission control, we
+- * do not decrease any runtime while the group "executes", neither we
+- * need a timer to replenish it.
+- *
+- * With respect to SMP, the bandwidth is given on a per-CPU basis,
+- * meaning that:
+- *  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
+- *  - dl_total_bw array contains, in the i-eth element, the currently
+- *    allocated bandwidth on the i-eth CPU.
+- * Moreover, groups consume bandwidth on each CPU, while tasks only
+- * consume bandwidth on the CPU they're running on.
+- * Finally, dl_total_bw_cpu is used to cache the index of dl_total_bw
+- * that will be shown the next time the proc or cgroup controls will
+- * be red. It on its turn can be changed by writing on its own
+- * control.
+- */
+ struct dl_bandwidth {
+ 	raw_spinlock_t		dl_runtime_lock;
+ 	u64			dl_runtime;
+@@ -282,6 +258,24 @@ static inline int dl_bandwidth_enabled(void)
+ 	return sysctl_sched_rt_runtime >= 0;
  }
  
++/*
++ * To keep the bandwidth of -deadline tasks under control
++ * we need some place where:
++ *  - store the maximum -deadline bandwidth of each cpu;
++ *  - cache the fraction of bandwidth that is currently allocated in
++ *    each root domain;
++ *
++ * This is all done in the data structure below. It is similar to the
++ * one used for RT-throttling (rt_bandwidth), with the main difference
++ * that, since here we are only interested in admission control, we
++ * do not decrease any runtime while the group "executes", neither we
++ * need a timer to replenish it.
++ *
++ * With respect to SMP, bandwidth is given on a per root domain basis,
++ * meaning that:
++ *  - bw (< 100%) is the deadline bandwidth of each CPU;
++ *  - total_bw is the currently allocated bandwidth in each root domain;
++ */
+ struct dl_bw {
+ 	raw_spinlock_t		lock;
+ 	u64			bw;
 -- 
 2.27.0
 
