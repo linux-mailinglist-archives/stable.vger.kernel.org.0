@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EEE2E3768
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9667C2E38AE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728464AbgL1MzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:55:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51624 "EHLO mail.kernel.org"
+        id S1732239AbgL1NN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:13:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgL1MzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6165321D94;
-        Mon, 28 Dec 2020 12:54:25 +0000 (UTC)
+        id S1732234AbgL1NN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3035207C9;
+        Mon, 28 Dec 2020 13:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160066;
-        bh=qR99icXdOK7HuB957VYZGa+83XTQNyl3hqtIOgs/ch4=;
+        s=korg; t=1609161166;
+        bh=E1GYUYAbH9ykkfF4Oarmxgi3hbfAtM29mibHRjVhMaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXjLne7wqTxKGuFCChKa0D5iJxeRU3q6mQgarrP7xQx/9jnSiHSr8mMVDnIXDCW6V
-         EnZfqBysogO2Cx28gs6ydyuBagbfh2y2ygWUuPonXuCPNkzs1Ks71DyKreiao8jK9x
-         uVGn4f+SLb//mrYDStx3NHRFhNZveR8jkGQkG6UE=
+        b=Z8wI/xnHGX2q2fGTmq+N5sVy2AvFPdyPOqeRakrCINalrd0O5nnl7jP+yJB/8nsoI
+         ZWF2mDo1IzZCfg62YibVVH0J3RRYwdG0kJoNH+ffXQQUdJQW0OEDuwAILvahAfPxRF
+         5uGRvwpbvhDHZBEB0i0orfaF8hR6EYZaqy7Jxp3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8881b478dad0a7971f79@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 027/132] USB: serial: option: add interface-number sanity check to flag handling
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 106/242] RDMA/cxgb4: Validate the number of CQEs
 Date:   Mon, 28 Dec 2020 13:48:31 +0100
-Message-Id: <20201228124847.721214773@linuxfoundation.org>
+Message-Id: <20201228124909.913851885@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit a251963f76fa0226d0fdf0c4f989496f18d9ae7f upstream.
+[ Upstream commit 6d8285e604e0221b67bd5db736921b7ddce37d00 ]
 
-Add an interface-number sanity check before testing the device flags to
-avoid relying on undefined behaviour when left shifting in case a device
-uses an interface number greater than or equal to BITS_PER_LONG (i.e. 64
-or 32).
+Before create CQ, make sure that the requested number of CQEs is in the
+supported range.
 
-Reported-by: syzbot+8881b478dad0a7971f79@syzkaller.appspotmail.com
-Fixes: c3a65808f04a ("USB: serial: option: reimplement interface masking")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: cfdda9d76436 ("RDMA/cxgb4: Add driver for Chelsio T4 RNIC")
+Link: https://lore.kernel.org/r/20201108132007.67537-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/cxgb4/cq.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -563,6 +563,9 @@ static void option_instat_callback(struc
+--- a/drivers/infiniband/hw/cxgb4/cq.c
++++ b/drivers/infiniband/hw/cxgb4/cq.c
+@@ -906,6 +906,9 @@ struct ib_cq *c4iw_create_cq(struct ib_d
  
- /* Device flags */
+ 	rhp = to_c4iw_dev(ibdev);
  
-+/* Highest interface number which can be used with NCTRL() and RSVD() */
-+#define FLAG_IFNUM_MAX	7
++	if (entries < 1 || entries > ibdev->attrs.max_cqe)
++		return ERR_PTR(-EINVAL);
 +
- /* Interface does not support modem-control requests */
- #define NCTRL(ifnum)	((BIT(ifnum) & 0xff) << 8)
+ 	if (vector >= rhp->rdev.lldi.nciq)
+ 		return ERR_PTR(-EINVAL);
  
-@@ -2086,6 +2089,14 @@ static struct usb_serial_driver * const
- 
- module_usb_serial_driver(serial_drivers, option_ids);
- 
-+static bool iface_is_reserved(unsigned long device_flags, u8 ifnum)
-+{
-+	if (ifnum > FLAG_IFNUM_MAX)
-+		return false;
-+
-+	return device_flags & RSVD(ifnum);
-+}
-+
- static int option_probe(struct usb_serial *serial,
- 			const struct usb_device_id *id)
- {
-@@ -2103,7 +2114,7 @@ static int option_probe(struct usb_seria
- 	 * the same class/subclass/protocol as the serial interfaces.  Look at
- 	 * the Windows driver .INF files for reserved interface numbers.
- 	 */
--	if (device_flags & RSVD(iface_desc->bInterfaceNumber))
-+	if (iface_is_reserved(device_flags, iface_desc->bInterfaceNumber))
- 		return -ENODEV;
- 	/*
- 	 * Don't bind network interface on Samsung GT-B3730, it is handled by
-@@ -2120,6 +2131,14 @@ static int option_probe(struct usb_seria
- 	return 0;
- }
- 
-+static bool iface_no_modem_control(unsigned long device_flags, u8 ifnum)
-+{
-+	if (ifnum > FLAG_IFNUM_MAX)
-+		return false;
-+
-+	return device_flags & NCTRL(ifnum);
-+}
-+
- static int option_attach(struct usb_serial *serial)
- {
- 	struct usb_interface_descriptor *iface_desc;
-@@ -2135,7 +2154,7 @@ static int option_attach(struct usb_seri
- 
- 	iface_desc = &serial->interface->cur_altsetting->desc;
- 
--	if (!(device_flags & NCTRL(iface_desc->bInterfaceNumber)))
-+	if (!iface_no_modem_control(device_flags, iface_desc->bInterfaceNumber))
- 		data->use_send_setup = 1;
- 
- 	if (device_flags & ZLP)
 
 
