@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A478B2E6450
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5532E412F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389228AbgL1NiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:38:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38336 "EHLO mail.kernel.org"
+        id S2439748AbgL1OMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391177AbgL1NiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:38:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D3D9208B3;
-        Mon, 28 Dec 2020 13:37:20 +0000 (UTC)
+        id S2439728AbgL1OMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82801207B7;
+        Mon, 28 Dec 2020 14:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162640;
-        bh=8xu1w7oIX7+HLRmXujkBO4p2QjrBuXKqX8drfMGGCbs=;
+        s=korg; t=1609164679;
+        bh=WlKXHPw2P3sDA/vXpx6wksKP9ovGFhoBM8z+BDlOdcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gKrGnFsX+ipPPhqsHromTz1nE6MInGlTeRkVMAiQyTmdscJLvby7N3DkrDYO8h/vu
-         9tn3JmJrBO0AjhTRb0VPWWm3bwR2D5iKzyF7nPJJ1VMnybKJNtKa7lQGnBz9ZRN2lq
-         k8/SOKxMRigzOl3p+QtfhYXM5tc7les2+Y6JD8yo=
+        b=V+DGDgfKnhU9Pqv2QP9PdVoQJfd6XW4WJ1I3y0B6zrH7bqti20U101QQdev4Jq0dw
+         X7eZ++4HHWKKQxNdBqz5FbU33P2uxkK+fUhJc0/jQ1WYR/frvGHty4nWYy5M2AXOeq
+         gg32Kshe+C9bd589Vs2JyNuUuUT0yuxdGfiLEsVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
-        kernel test robot <lkp@intel.com>,
-        Florian Westphal <fw@strlen.de>,
-        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/453] netfilter: x_tables: Switch synchronization to RCU
+Subject: [PATCH 5.10 260/717] ath11k: Dont cast ath11k_skb_cb to ieee80211_tx_info.control
 Date:   Mon, 28 Dec 2020 13:44:18 +0100
-Message-Id: <20201228124938.323082742@linuxfoundation.org>
+Message-Id: <20201228125033.455513792@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,392 +40,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit cc00bcaa589914096edef7fb87ca5cee4a166b5c ]
+[ Upstream commit f4d291b43f809b74c66b21f5190cd578af43070b ]
 
-When running concurrent iptables rules replacement with data, the per CPU
-sequence count is checked after the assignment of the new information.
-The sequence count is used to synchronize with the packet path without the
-use of any explicit locking. If there are any packets in the packet path using
-the table information, the sequence count is incremented to an odd value and
-is incremented to an even after the packet process completion.
+The driver_data area of ieee80211_tx_info is used in ath11k for
+ath11k_skb_cb. The first function in the TX patch which rewrites it to
+ath11k_skb_cb is already ath11k_mac_op_tx. No one else in the code path
+must use it for something else before it reinitializes it. Otherwise the
+data has to be considered uninitialized or corrupt.
 
-The new table value assignment is followed by a write memory barrier so every
-CPU should see the latest value. If the packet path has started with the old
-table information, the sequence counter will be odd and the iptables
-replacement will wait till the sequence count is even prior to freeing the
-old table info.
+But the ieee80211_tx_info.control shares exactly the same area as
+ieee80211_tx_info.driver_data and ath11k is still using it. This results in
+best case in a
 
-However, this assumes that the new table information assignment and the memory
-barrier is actually executed prior to the counter check in the replacement
-thread. If CPU decides to execute the assignment later as there is no user of
-the table information prior to the sequence check, the packet path in another
-CPU may use the old table information. The replacement thread would then free
-the table information under it leading to a use after free in the packet
-processing context-
+  ath11k c000000.wifi1: no vif found for mgmt frame, flags 0x0
 
-Unable to handle kernel NULL pointer dereference at virtual
-address 000000000000008e
-pc : ip6t_do_table+0x5d0/0x89c
-lr : ip6t_do_table+0x5b8/0x89c
-ip6t_do_table+0x5d0/0x89c
-ip6table_filter_hook+0x24/0x30
-nf_hook_slow+0x84/0x120
-ip6_input+0x74/0xe0
-ip6_rcv_finish+0x7c/0x128
-ipv6_rcv+0xac/0xe4
-__netif_receive_skb+0x84/0x17c
-process_backlog+0x15c/0x1b8
-napi_poll+0x88/0x284
-net_rx_action+0xbc/0x23c
-__do_softirq+0x20c/0x48c
+or (slightly worse) in a kernel oops.
 
-This could be fixed by forcing instruction order after the new table
-information assignment or by switching to RCU for the synchronization.
+Instead, the interesting data must be moved first into the ath11k_skb_cb
+and ieee80211_tx_info.control must then not be used anymore.
 
-Fixes: 80055dab5de0 ("netfilter: x_tables: make xt_replace_table wait until old rules are not used anymore")
-Reported-by: Sean Tranchetti <stranche@codeaurora.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.4.0.1.r1-00026-QCAHKSWPL_SILICONZ-2
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201119154235.263250-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/x_tables.h |  5 ++-
- net/ipv4/netfilter/arp_tables.c    | 14 ++++-----
- net/ipv4/netfilter/ip_tables.c     | 14 ++++-----
- net/ipv6/netfilter/ip6_tables.c    | 14 ++++-----
- net/netfilter/x_tables.c           | 49 +++++++++---------------------
- 5 files changed, 40 insertions(+), 56 deletions(-)
+ drivers/net/wireless/ath/ath11k/core.h  |  2 ++
+ drivers/net/wireless/ath/ath11k/dp_tx.c |  5 ++---
+ drivers/net/wireless/ath/ath11k/mac.c   | 26 ++++++++++++++++---------
+ 3 files changed, 21 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index 1b261c51b3a3a..f5c21b7d29748 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -227,7 +227,7 @@ struct xt_table {
- 	unsigned int valid_hooks;
+diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
+index 18b97420f0d8a..5a7915f75e1e2 100644
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -75,12 +75,14 @@ static inline enum wme_ac ath11k_tid_to_ac(u32 tid)
  
- 	/* Man behind the curtain... */
--	struct xt_table_info *private;
-+	struct xt_table_info __rcu *private;
+ enum ath11k_skb_flags {
+ 	ATH11K_SKB_HW_80211_ENCAP = BIT(0),
++	ATH11K_SKB_CIPHER_SET = BIT(1),
+ };
  
- 	/* Set this to THIS_MODULE if you are a module, otherwise NULL */
- 	struct module *me;
-@@ -448,6 +448,9 @@ xt_get_per_cpu_counter(struct xt_counters *cnt, unsigned int cpu)
+ struct ath11k_skb_cb {
+ 	dma_addr_t paddr;
+ 	u8 eid;
+ 	u8 flags;
++	u32 cipher;
+ 	struct ath11k *ar;
+ 	struct ieee80211_vif *vif;
+ } __packed;
+diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
+index 3d962eee4d61d..21dfd08d3debb 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_tx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
+@@ -84,7 +84,6 @@ int ath11k_dp_tx(struct ath11k *ar, struct ath11k_vif *arvif,
+ 	struct ath11k_dp *dp = &ab->dp;
+ 	struct hal_tx_info ti = {0};
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+-	struct ieee80211_key_conf *key = info->control.hw_key;
+ 	struct ath11k_skb_cb *skb_cb = ATH11K_SKB_CB(skb);
+ 	struct hal_srng *tcl_ring;
+ 	struct ieee80211_hdr *hdr = (void *)skb->data;
+@@ -149,9 +148,9 @@ tcl_ring_sel:
+ 	ti.meta_data_flags = arvif->tcl_metadata;
  
- struct nf_hook_ops *xt_hook_ops_alloc(const struct xt_table *, nf_hookfn *);
+ 	if (ti.encap_type == HAL_TCL_ENCAP_TYPE_RAW) {
+-		if (key) {
++		if (skb_cb->flags & ATH11K_SKB_CIPHER_SET) {
+ 			ti.encrypt_type =
+-				ath11k_dp_tx_get_encrypt_type(key->cipher);
++				ath11k_dp_tx_get_encrypt_type(skb_cb->cipher);
  
-+struct xt_table_info
-+*xt_table_get_private_protected(const struct xt_table *table);
-+
- #ifdef CONFIG_COMPAT
- #include <net/compat.h>
- 
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index f1f78a742b36a..8a6a4384e7916 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -203,7 +203,7 @@ unsigned int arpt_do_table(struct sk_buff *skb,
- 
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = READ_ONCE(table->private); /* Address dependency. */
-+	private = rcu_access_pointer(table->private);
- 	cpu     = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct arpt_entry **)private->jumpstack[cpu];
-@@ -649,7 +649,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ 			if (ieee80211_has_protected(hdr->frame_control))
+ 				skb_put(skb, IEEE80211_CCMP_MIC_LEN);
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index f5e49e1c11ed7..6b7f00e0086f5 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -3977,21 +3977,20 @@ static void ath11k_mgmt_over_wmi_tx_purge(struct ath11k *ar)
+ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
  {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	 * (other than comefrom, which userspace doesn't care
-@@ -673,7 +673,7 @@ static int copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct arpt_entry *e;
- 	struct xt_counters *counters;
--	struct xt_table_info *private = table->private;
-+	struct xt_table_info *private = xt_table_get_private_protected(table);
- 	int ret = 0;
- 	void *loc_cpu_entry;
- 
-@@ -808,7 +808,7 @@ static int get_info(struct net *net, void __user *user,
- 	t = xt_request_find_table_lock(net, NFPROTO_ARP, name);
- 	if (!IS_ERR(t)) {
- 		struct arpt_getinfo info;
--		const struct xt_table_info *private = t->private;
-+		const struct xt_table_info *private = xt_table_get_private_protected(t);
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
- 
-@@ -861,7 +861,7 @@ static int get_entries(struct net *net, struct arpt_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = t->private;
-+		const struct xt_table_info *private = xt_table_get_private_protected(t);
- 
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
-@@ -1020,7 +1020,7 @@ static int do_add_counters(struct net *net, const void __user *user,
- 	}
- 
- 	local_bh_disable();
--	private = t->private;
-+	private = xt_table_get_private_protected(t);
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1357,7 +1357,7 @@ static int compat_copy_entries_to_user(unsigned int total_size,
- 				       void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index 10b91ebdf2131..4852769995440 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -258,7 +258,7 @@ ipt_do_table(struct sk_buff *skb,
- 	WARN_ON(!(table->valid_hooks & (1 << hook)));
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = READ_ONCE(table->private); /* Address dependency. */
-+	private = rcu_access_pointer(table->private);
- 	cpu        = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct ipt_entry **)private->jumpstack[cpu];
-@@ -791,7 +791,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
- {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	   (other than comefrom, which userspace doesn't care
-@@ -815,7 +815,7 @@ copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct ipt_entry *e;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 	int ret = 0;
- 	const void *loc_cpu_entry;
- 
-@@ -965,7 +965,7 @@ static int get_info(struct net *net, void __user *user,
- 	t = xt_request_find_table_lock(net, AF_INET, name);
- 	if (!IS_ERR(t)) {
- 		struct ipt_getinfo info;
--		const struct xt_table_info *private = t->private;
-+		const struct xt_table_info *private = xt_table_get_private_protected(t);
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
- 
-@@ -1019,7 +1019,7 @@ get_entries(struct net *net, struct ipt_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, AF_INET, get.name);
- 	if (!IS_ERR(t)) {
--		const struct xt_table_info *private = t->private;
-+		const struct xt_table_info *private = xt_table_get_private_protected(t);
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
- 						   t, uptr->entrytable);
-@@ -1175,7 +1175,7 @@ do_add_counters(struct net *net, const void __user *user,
- 	}
- 
- 	local_bh_disable();
--	private = t->private;
-+	private = xt_table_get_private_protected(t);
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1570,7 +1570,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
- 			    void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index c973ace208c51..12735ee7713a7 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -280,7 +280,7 @@ ip6t_do_table(struct sk_buff *skb,
- 
- 	local_bh_disable();
- 	addend = xt_write_recseq_begin();
--	private = READ_ONCE(table->private); /* Address dependency. */
-+	private = rcu_access_pointer(table->private);
- 	cpu        = smp_processor_id();
- 	table_base = private->entries;
- 	jumpstack  = (struct ip6t_entry **)private->jumpstack[cpu];
-@@ -807,7 +807,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
- {
- 	unsigned int countersize;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 
- 	/* We need atomic snapshot of counters: rest doesn't change
- 	   (other than comefrom, which userspace doesn't care
-@@ -831,7 +831,7 @@ copy_entries_to_user(unsigned int total_size,
- 	unsigned int off, num;
- 	const struct ip6t_entry *e;
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 	int ret = 0;
- 	const void *loc_cpu_entry;
- 
-@@ -981,7 +981,7 @@ static int get_info(struct net *net, void __user *user,
- 	t = xt_request_find_table_lock(net, AF_INET6, name);
- 	if (!IS_ERR(t)) {
- 		struct ip6t_getinfo info;
--		const struct xt_table_info *private = t->private;
-+		const struct xt_table_info *private = xt_table_get_private_protected(t);
- #ifdef CONFIG_COMPAT
- 		struct xt_table_info tmp;
- 
-@@ -1036,7 +1036,7 @@ get_entries(struct net *net, struct ip6t_get_entries __user *uptr,
- 
- 	t = xt_find_table_lock(net, AF_INET6, get.name);
- 	if (!IS_ERR(t)) {
--		struct xt_table_info *private = t->private;
-+		struct xt_table_info *private = xt_table_get_private_protected(t);
- 		if (get.size == private->size)
- 			ret = copy_entries_to_user(private->size,
- 						   t, uptr->entrytable);
-@@ -1191,7 +1191,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len,
- 	}
- 
- 	local_bh_disable();
--	private = t->private;
-+	private = xt_table_get_private_protected(t);
- 	if (private->number != tmp.num_counters) {
- 		ret = -EINVAL;
- 		goto unlock_up_free;
-@@ -1579,7 +1579,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
- 			    void __user *userptr)
- {
- 	struct xt_counters *counters;
--	const struct xt_table_info *private = table->private;
-+	const struct xt_table_info *private = xt_table_get_private_protected(table);
- 	void __user *pos;
- 	unsigned int size;
- 	int ret = 0;
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 44f971f319920..d1ef2d7930739 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1349,6 +1349,14 @@ struct xt_counters *xt_counters_alloc(unsigned int counters)
- }
- EXPORT_SYMBOL(xt_counters_alloc);
- 
-+struct xt_table_info
-+*xt_table_get_private_protected(const struct xt_table *table)
-+{
-+	return rcu_dereference_protected(table->private,
-+					 mutex_is_locked(&xt[table->af].mutex));
-+}
-+EXPORT_SYMBOL(xt_table_get_private_protected);
-+
- struct xt_table_info *
- xt_replace_table(struct xt_table *table,
- 	      unsigned int num_counters,
-@@ -1356,7 +1364,6 @@ xt_replace_table(struct xt_table *table,
- 	      int *error)
- {
- 	struct xt_table_info *private;
--	unsigned int cpu;
+ 	struct ath11k *ar = container_of(work, struct ath11k, wmi_mgmt_tx_work);
+-	struct ieee80211_tx_info *info;
++	struct ath11k_skb_cb *skb_cb;
+ 	struct ath11k_vif *arvif;
+ 	struct sk_buff *skb;
  	int ret;
  
- 	ret = xt_jumpstack_alloc(newinfo);
-@@ -1366,47 +1373,20 @@ xt_replace_table(struct xt_table *table,
- 	}
+ 	while ((skb = skb_dequeue(&ar->wmi_mgmt_tx_queue)) != NULL) {
+-		info = IEEE80211_SKB_CB(skb);
+-		if (!info->control.vif) {
+-			ath11k_warn(ar->ab, "no vif found for mgmt frame, flags 0x%x\n",
+-				    info->control.flags);
++		skb_cb = ATH11K_SKB_CB(skb);
++		if (!skb_cb->vif) {
++			ath11k_warn(ar->ab, "no vif found for mgmt frame\n");
+ 			ieee80211_free_txskb(ar->hw, skb);
+ 			continue;
+ 		}
  
- 	/* Do the substitution. */
--	local_bh_disable();
--	private = table->private;
-+	private = xt_table_get_private_protected(table);
+-		arvif = ath11k_vif_to_arvif(info->control.vif);
++		arvif = ath11k_vif_to_arvif(skb_cb->vif);
+ 		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
+ 		    arvif->is_started) {
+ 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
+@@ -4004,8 +4003,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 			}
+ 		} else {
+ 			ath11k_warn(ar->ab,
+-				    "dropping mgmt frame for vdev %d, flags 0x%x is_started %d\n",
+-				    arvif->vdev_id, info->control.flags,
++				    "dropping mgmt frame for vdev %d, is_started %d\n",
++				    arvif->vdev_id,
+ 				    arvif->is_started);
+ 			ieee80211_free_txskb(ar->hw, skb);
+ 		}
+@@ -4053,10 +4052,19 @@ static void ath11k_mac_op_tx(struct ieee80211_hw *hw,
+ 	struct ieee80211_vif *vif = info->control.vif;
+ 	struct ath11k_vif *arvif = ath11k_vif_to_arvif(vif);
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
++	struct ieee80211_key_conf *key = info->control.hw_key;
++	u32 info_flags = info->flags;
+ 	bool is_prb_rsp;
+ 	int ret;
  
- 	/* Check inside lock: is the old number correct? */
- 	if (num_counters != private->number) {
- 		pr_debug("num_counters != table->private->number (%u/%u)\n",
- 			 num_counters, private->number);
--		local_bh_enable();
- 		*error = -EAGAIN;
- 		return NULL;
- 	}
- 
- 	newinfo->initial_entries = private->initial_entries;
--	/*
--	 * Ensure contents of newinfo are visible before assigning to
--	 * private.
--	 */
--	smp_wmb();
--	table->private = newinfo;
--
--	/* make sure all cpus see new ->private value */
--	smp_wmb();
- 
--	/*
--	 * Even though table entries have now been swapped, other CPU's
--	 * may still be using the old entries...
--	 */
--	local_bh_enable();
--
--	/* ... so wait for even xt_recseq on all cpus */
--	for_each_possible_cpu(cpu) {
--		seqcount_t *s = &per_cpu(xt_recseq, cpu);
--		u32 seq = raw_read_seqcount(s);
--
--		if (seq & 1) {
--			do {
--				cond_resched();
--				cpu_relax();
--			} while (seq == raw_read_seqcount(s));
--		}
--	}
-+	rcu_assign_pointer(table->private, newinfo);
-+	synchronize_rcu();
- 
- #ifdef CONFIG_AUDIT
- 	if (audit_enabled) {
-@@ -1447,12 +1427,12 @@ struct xt_table *xt_register_table(struct net *net,
- 	}
- 
- 	/* Simplifies replace_table code. */
--	table->private = bootstrap;
-+	rcu_assign_pointer(table->private, bootstrap);
- 
- 	if (!xt_replace_table(table, 0, newinfo, &ret))
- 		goto unlock;
- 
--	private = table->private;
-+	private = xt_table_get_private_protected(table);
- 	pr_debug("table->private->number = %u\n", private->number);
- 
- 	/* save number of initial entries */
-@@ -1475,7 +1455,8 @@ void *xt_unregister_table(struct xt_table *table)
- 	struct xt_table_info *private;
- 
- 	mutex_lock(&xt[table->af].mutex);
--	private = table->private;
-+	private = xt_table_get_private_protected(table);
-+	RCU_INIT_POINTER(table->private, NULL);
- 	list_del(&table->list);
- 	mutex_unlock(&xt[table->af].mutex);
- 	kfree(table);
+-	if (info->flags & IEEE80211_TX_CTL_HW_80211_ENCAP) {
++	skb_cb->vif = vif;
++
++	if (key) {
++		skb_cb->cipher = key->cipher;
++		skb_cb->flags |= ATH11K_SKB_CIPHER_SET;
++	}
++
++	if (info_flags & IEEE80211_TX_CTL_HW_80211_ENCAP) {
+ 		skb_cb->flags |= ATH11K_SKB_HW_80211_ENCAP;
+ 	} else if (ieee80211_is_mgmt(hdr->frame_control)) {
+ 		is_prb_rsp = ieee80211_is_probe_resp(hdr->frame_control);
 -- 
 2.27.0
 
