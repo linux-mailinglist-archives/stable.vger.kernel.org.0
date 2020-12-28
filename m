@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 031812E3E2A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:25:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A022E3FC9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503159AbgL1OY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60706 "EHLO mail.kernel.org"
+        id S2503169AbgL1OY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:24:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503157AbgL1OYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9163229C4;
-        Mon, 28 Dec 2020 14:24:39 +0000 (UTC)
+        id S2503164AbgL1OY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC2D221F0;
+        Mon, 28 Dec 2020 14:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165480;
-        bh=vqdLYbClBal+Jud/e7Od8n3nHS7UoXrCHd/ag/RUQxs=;
+        s=korg; t=1609165483;
+        bh=0O7lhUQg3Vk3mTZyYdpKNC64PDrNQGDsmxZneg17+/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2Yx0v3NOH7iP7JE/Pi2qcUqxoNkHKwsWnQ+SiuPcvOrxqKl29lKf7sMqjF2v0e2i
-         g+yo1zcEBZMjaThrbfetTHbSDqj9qbBbOZ0ntzj4b6ShezYRriFVnjdLkHaOMtkPwJ
-         EOHpOeflRKkwH5I6jTtrYQHXNLvBz/mIhX9OrUdM=
+        b=fKlf+EuUOUdDdvHTt/iEzpmOPCMc/cQLtBtKV6FDJI6ywpN2qzXI+kfl47k6K6fnI
+         Ad+Uhgzv2ZGJm8H9rT4KJyRxxMqzNssKibe9NEchQ+RUl1jxL3+rlzKlMips5pAGKU
+         gxGDoCRFNPCkxS5XzyG+oh2z3PuWfdhcdONJeqiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 516/717] io_uring: fix io_wqe->work_list corruption
-Date:   Mon, 28 Dec 2020 13:48:34 +0100
-Message-Id: <20201228125045.676509466@linuxfoundation.org>
+Subject: [PATCH 5.10 517/717] io_uring: fix 0-iov read buffer select
+Date:   Mon, 28 Dec 2020 13:48:35 +0100
+Message-Id: <20201228125045.724452992@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,67 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 0020ef04e48571a88d4f482ad08f71052c5c5a08 upstream.
+commit dd20166236953c8cd14f4c668bf972af32f0c6be upstream.
 
-For the first time a req punted to io-wq, we'll initialize io_wq_work's
-list to be NULL, then insert req to io_wqe->work_list. If this req is not
-inserted into tail of io_wqe->work_list, this req's io_wq_work list will
-point to another req's io_wq_work. For splitted bio case, this req maybe
-inserted to io_wqe->work_list repeatedly, once we insert it to tail of
-io_wqe->work_list for the second time, now io_wq_work->list->next will be
-invalid pointer, which then result in many strang error, panic, kernel
-soft-lockup, rcu stall, etc.
+Doing vectored buf-select read with 0 iovec passed is meaningless and
+utterly broken, forbid it.
 
-In my vm, kernel doest not have commit cc29e1bf0d63f7 ("block: disable
-iopoll for split bio"), below fio job can reproduce this bug steadily:
-[global]
-name=iouring-sqpoll-iopoll-1
-ioengine=io_uring
-iodepth=128
-numjobs=1
-thread
-rw=randread
-direct=1
-registerfiles=1
-hipri=1
-bs=4m
-size=100M
-runtime=120
-time_based
-group_reporting
-randrepeat=0
-
-[device]
-directory=/home/feiman.wxg/mntpoint/  # an ext4 mount point
-
-If we have commit cc29e1bf0d63f7 ("block: disable iopoll for split bio"),
-there will no splitted bio case for polled io, but I think we still to need
-to fix this list corruption, it also should maybe go to stable branchs.
-
-To fix this corruption, if a req is inserted into tail of io_wqe->work_list,
-initialize req->io_wq_work->list->next to bu NULL.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: <stable@vger.kernel.org> # 5.7+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io-wq.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -59,6 +59,7 @@ static inline void wq_list_add_tail(stru
- 		list->last->next = node;
- 		list->last = node;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3048,9 +3048,7 @@ static ssize_t io_iov_buffer_select(stru
+ 		iov[0].iov_len = kbuf->len;
+ 		return 0;
  	}
-+	node->next = NULL;
- }
+-	if (!req->rw.len)
+-		return 0;
+-	else if (req->rw.len > 1)
++	if (req->rw.len != 1)
+ 		return -EINVAL;
  
- static inline void wq_list_cut(struct io_wq_work_list *list,
+ #ifdef CONFIG_COMPAT
 
 
