@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDFF2E399C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CADD2E4047
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388910AbgL1NZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:25:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54250 "EHLO mail.kernel.org"
+        id S2437727AbgL1OUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:20:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388907AbgL1NZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C78DF22AAD;
-        Mon, 28 Dec 2020 13:24:47 +0000 (UTC)
+        id S2437712AbgL1OUN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:20:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EACF120791;
+        Mon, 28 Dec 2020 14:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161888;
-        bh=3cLwZCInZx++IO1sMxfgbSDeKbsAUbmDE/ERF4P4aqE=;
+        s=korg; t=1609165172;
+        bh=CMKylOKtoHz1W0vslQVxsRmMu8bKNp+Ga+jf0yGqgTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBxtrpaAMcmx36lD1JIaO5lRUUp+D4cb5RxynvqUD6JZlJHsaFyDVEkQeOyok0GAs
-         Nl4LvUtVBj8aCn9+PuujjRUUXDJDgLN6NhSIultU+0LgDcDs9e8xukZcqyi9APyaSd
-         +Ej0zlcCwqBFrGZoGynCStwT7XiQqG4xu29dmzt0=
+        b=Zm+Jx4gBqZsIqUlO+ycSapVSkgMA+xYAuy7rfsKyamT0sMGBmnX1e/7vVzD/gul1G
+         Wz3OZJHCtXqJ6C/2IfP1Wwjt5/3oNUaxrkX/FUJ5tViOjRR9rKTWj1o02WF2+oOT2m
+         nxKMfkqCLL2Swd7yv0Cv1X5mWKff/1tc8nM+4CvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/346] drm/amdgpu: fix build_coefficients() argument
-Date:   Mon, 28 Dec 2020 13:47:14 +0100
-Message-Id: <20201228124925.349182006@linuxfoundation.org>
+Subject: [PATCH 5.10 437/717] sunrpc: fix xs_read_xdr_buf for partial pages receive
+Date:   Mon, 28 Dec 2020 13:47:15 +0100
+Message-Id: <20201228125041.909680863@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Aloni <dan@kernelim.com>
 
-[ Upstream commit dbb60031dd0c2b85f10ce4c12ae604c28d3aaca4 ]
+[ Upstream commit ac9645c87380e39a8fa87a1b51721efcdea89dbf ]
 
-gcc -Wextra warns about a function taking an enum argument
-being called with a bool:
+When receiving pages data, return value 'ret' when positive includes
+`buf->page_base`, so we should subtract that before it is used for
+changing `offset` and comparing against `want`.
 
-drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c: In function 'apply_degamma_for_user_regamma':
-drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c:1617:29: warning: implicit conversion from 'enum <anonymous>' to 'enum dc_transfer_func_predefined' [-Wenum-conversion]
- 1617 |  build_coefficients(&coeff, true);
+This was discovered on the very rare cases where the server returned a
+chunk of bytes that when added to the already received amount of bytes
+for the pages happened to match the current `recv.len`, for example
+on this case:
 
-It appears that a patch was added using the old calling conventions
-after the type was changed, and the value should actually be 0
-(TRANSFER_FUNCTION_SRGB) here instead of 1 (true).
+     buf->page_base : 258356
+     actually received from socket: 1740
+     ret : 260096
+     want : 260096
 
-Fixes: 55a01d4023ce ("drm/amd/display: Add user_regamma to color module")
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+In this case neither of the two 'if ... goto out' trigger, and we
+continue to tail parsing.
+
+Worth to mention that the ensuing EMSGSIZE from the continued execution of
+`xs_read_xdr_buf` may be observed by an application due to 4 superfluous
+bytes being added to the pages data.
+
+Fixes: 277e4ab7d530 ("SUNRPC: Simplify TCP receive code by switching to using iterators")
+Signed-off-by: Dan Aloni <dan@kernelim.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprtsock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index 11ea1a0e629bd..458e82da3c85b 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1296,7 +1296,7 @@ static void apply_degamma_for_user_regamma(struct pwl_float_data_ex *rgb_regamma
- 	struct pwl_float_data_ex *rgb = rgb_regamma;
- 	const struct hw_x_point *coord_x = coordinates_x;
- 
--	build_coefficients(&coeff, true);
-+	build_coefficients(&coeff, TRANSFER_FUNCTION_SRGB);
- 
- 	i = 0;
- 	while (i != hw_points_num + 1) {
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index c93ff70da3f98..c56a66cdf4ac8 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -433,7 +433,8 @@ xs_read_xdr_buf(struct socket *sock, struct msghdr *msg, int flags,
+ 		if (ret <= 0)
+ 			goto sock_err;
+ 		xs_flush_bvec(buf->bvec, ret, seek + buf->page_base);
+-		offset += ret - buf->page_base;
++		ret -= buf->page_base;
++		offset += ret;
+ 		if (offset == count || msg->msg_flags & (MSG_EOR|MSG_TRUNC))
+ 			goto out;
+ 		if (ret != want)
 -- 
 2.27.0
 
