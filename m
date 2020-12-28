@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA1D2E6798
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CDF2E678A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437405AbgL1Q07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:26:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36046 "EHLO mail.kernel.org"
+        id S1729276AbgL1NIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730952AbgL1NIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC11E2076D;
-        Mon, 28 Dec 2020 13:08:21 +0000 (UTC)
+        id S1730964AbgL1NIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DECF20776;
+        Mon, 28 Dec 2020 13:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160902;
-        bh=VKZZq1lAep4ckvFSXWk1nX6K8L/Guxz5MJjcCRsjij8=;
+        s=korg; t=1609160905;
+        bh=hzLATFhTMvw5U2Ue3r+WBe0nWrIZBhd8kcXXvpxzRPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wu8ZkdtUtl6/D/fkMjQA8GxHKgzAK1FrhUTLAB7ilCIcxL7pL8oV8n6decuSHliNK
-         9thCBy0kaTTPc/1l9g+HY4HatFgxXWrRHLNB2JFzuAoISorsZcudnooZCUpw8d/mnd
-         K9wFz9FN/eyMGHEjIRE6TO5sK20Y/VVMG9CqHjNw=
+        b=b/kS3lx9S6occfOCcbUQ+GJLJhVPvKc1DtDsvKKU9oNm93Q+PLON6BdWZn7xl5GfG
+         ImJT6d8PrTg6+iHvHnFHvY0TjYdqz1xkaLvgu/2XkXzQ+2tEdJ73BhRxHI9owYPgvQ
+         p7+mvz82C0tKjG5NNO5Dd3B4HpY1BPS6/26+kxeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Subject: [PATCH 4.14 033/242] serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
-Date:   Mon, 28 Dec 2020 13:47:18 +0100
-Message-Id: <20201228124906.292663489@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Lyude Paul <lyude@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 034/242] drm: fix drm_dp_mst_port refcount leaks in drm_dp_mst_allocate_vcpi
+Date:   Mon, 28 Dec 2020 13:47:19 +0100
+Message-Id: <20201228124906.342397483@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -39,52 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-commit d96f04d347e4011977abdbb4da5d8f303ebd26f8 upstream.
+commit a34a0a632dd991a371fec56431d73279f9c54029 upstream
 
-It has been observed that once per 300-1300 port openings the first
-transmitted byte is being corrupted on AM3352 ("v" written to FIFO appeared
-as "e" on the wire). It only happened if single byte has been transmitted
-right after port open, which means, DMA is not used for this transfer and
-the corruption never happened afterwards.
+drm_dp_mst_allocate_vcpi() invokes
+drm_dp_mst_topology_get_port_validated(), which increases the refcount
+of the "port".
 
-Therefore I've carefully re-read the MDR1 errata (link below), which says
-"when accessing the MDR1 registers that causes a dummy under-run condition
-that will freeze the UART in IrDA transmission. In UART mode, this may
-corrupt the transferred data". Strictly speaking,
-omap_8250_mdr1_errataset() performs a read access and if the value is the
-same as should be written, exits without errata-recommended FIFO reset.
+These reference counting issues take place in two exception handling
+paths separately. Either when “slots” is less than 0 or when
+drm_dp_init_vcpi() returns a negative value, the function forgets to
+reduce the refcnt increased drm_dp_mst_topology_get_port_validated(),
+which results in a refcount leak.
 
-A brief check of the serial_omap_mdr1_errataset() from the competing
-omap-serial driver showed it has no read access of MDR1. After removing the
-read access from omap_8250_mdr1_errataset() the data corruption never
-happened any more.
+Fix these issues by pulling up the error handling when "slots" is less
+than 0, and calling drm_dp_mst_topology_put_port() before termination
+when drm_dp_init_vcpi() returns a negative value.
 
-Link: https://www.ti.com/lit/er/sprz360i/sprz360i.pdf
-Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Link: https://lore.kernel.org/r/20201210055257.1053028-1-alexander.sverdlin@gmail.com
+Fixes: 1e797f556c61 ("drm/dp: Split drm_dp_mst_allocate_vcpi")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200719154545.GA41231@xin-virtual-machine
+[sudip: use old functions before rename]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/8250/8250_omap.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -161,11 +161,6 @@ static void omap_8250_mdr1_errataset(str
- 				     struct omap8250_priv *priv)
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2629,11 +2629,11 @@ bool drm_dp_mst_allocate_vcpi(struct drm
  {
- 	u8 timeout = 255;
--	u8 old_mdr1;
--
--	old_mdr1 = serial_in(up, UART_OMAP_MDR1);
--	if (old_mdr1 == priv->mdr1)
--		return;
+ 	int ret;
  
- 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
- 	udelay(2);
+-	port = drm_dp_get_validated_port_ref(mgr, port);
+-	if (!port)
++	if (slots < 0)
+ 		return false;
+ 
+-	if (slots < 0)
++	port = drm_dp_get_validated_port_ref(mgr, port);
++	if (!port)
+ 		return false;
+ 
+ 	if (port->vcpi.vcpi > 0) {
+@@ -2648,6 +2648,7 @@ bool drm_dp_mst_allocate_vcpi(struct drm
+ 	if (ret) {
+ 		DRM_DEBUG_KMS("failed to init vcpi slots=%d max=63 ret=%d\n",
+ 				DIV_ROUND_UP(pbn, mgr->pbn_div), ret);
++		drm_dp_put_port(port);
+ 		goto out;
+ 	}
+ 	DRM_DEBUG_KMS("initing vcpi for pbn=%d slots=%d\n",
 
 
