@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78ADA2E656C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D97B2E6938
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390592AbgL1QBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:01:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60828 "EHLO mail.kernel.org"
+        id S1727738AbgL1QrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:47:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387686AbgL1NcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1342421D94;
-        Mon, 28 Dec 2020 13:31:26 +0000 (UTC)
+        id S1727651AbgL1MzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FCFD229C5;
+        Mon, 28 Dec 2020 12:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162287;
-        bh=Lnk/iVq27h4ROwe+OEDj5l41yCPtSdaHVoqU8ElfOac=;
+        s=korg; t=1609160084;
+        bh=2Vf7NGWYV5U5ZPeX3XdfW9EgvEVKGr/SKjFxs+XV1qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKjuWnLvq9HlEq+Esnde9KB/5ZnBKZnqDag8MiVWvEZOrUBm6CsYQ62+ngl6h5BOI
-         3UK5q8L2Ha9+mQtj++rSSLR8ShL0kFDWTJ0Va0aLP3e2Y22oBJ+NUR1FctDRWkorEH
-         eUaaIj90WiGWuzTq7Yp4LbK7AsIUMT2TBK0XJ9o4=
+        b=zjAwU8uGD6s+WxUTwkUy7sgD0eTBMk95/7zrq0xDCF1E8gFuIiZDeURx9GxBX1CDi
+         212jBCMfVbnPViw11yd3hk46cKqMsieJw6XTtEOuczZwipzbJ4CeIOm55Lyr7soD7M
+         3VCuxzYTG15GYiR9NqkNqJSKMamZR5WUm1sIMjgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 221/346] x86/kprobes: Restore BTF if the single-stepping is cancelled
+Subject: [PATCH 4.4 056/132] ARM: dts: at91: sama5d3_xplained: add pincontrol for USB Host
 Date:   Mon, 28 Dec 2020 13:49:00 +0100
-Message-Id: <20201228124930.462175957@linuxfoundation.org>
+Message-Id: <20201228124849.147593340@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit 78ff2733ff352175eb7f4418a34654346e1b6cd2 ]
+[ Upstream commit e1062fa7292f1e3744db0a487c4ac0109e09b03d ]
 
-Fix to restore BTF if single-stepping causes a page fault and
-it is cancelled.
+The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
+it the driver probes but VBus is not powered because of wrong pincontrol
+configuration.
 
-Usually the BTF flag was restored when the single stepping is done
-(in resume_execution()). However, if a page fault happens on the
-single stepping instruction, the fault handler is invoked and
-the single stepping is cancelled. Thus, the BTF flag is not
-restored.
-
-Fixes: 1ecc798c6764 ("x86: debugctlmsr kprobes")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/160389546985.106936.12727996109376240993.stgit@devnote2
+Fixes: b7c2b61570798 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
+Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Link: https://lore.kernel.org/r/20201118120019.1257580-4-cristian.birsan@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kprobes/core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/boot/dts/at91-sama5d3_xplained.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index 07e290244ca94..dfc3ab44bc5d3 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -1041,6 +1041,11 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
- 		 * So clear it by resetting the current kprobe:
- 		 */
- 		regs->flags &= ~X86_EFLAGS_TF;
-+		/*
-+		 * Since the single step (trap) has been cancelled,
-+		 * we need to restore BTF here.
-+		 */
-+		restore_btf();
+diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+index 0bd325c314e15..2b882d129b16a 100644
+--- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+@@ -231,6 +231,11 @@
+ 						atmel,pins =
+ 							<AT91_PIOE 9 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PE9, conflicts with A9 */
+ 					};
++					pinctrl_usb_default: usb_default {
++						atmel,pins =
++							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
+ 				};
+ 			};
+ 		};
+@@ -288,6 +293,8 @@
+ 					   &pioE 3 GPIO_ACTIVE_LOW
+ 					   &pioE 4 GPIO_ACTIVE_LOW
+ 					  >;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_usb_default>;
+ 			status = "okay";
+ 		};
  
- 		/*
- 		 * If the TF flag was set before the kprobe hit,
 -- 
 2.27.0
 
