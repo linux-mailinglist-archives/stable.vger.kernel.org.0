@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A78E62E645F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B7E2E3D30
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390488AbgL1Niv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:38:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39182 "EHLO mail.kernel.org"
+        id S2439880AbgL1OM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391269AbgL1Niu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:38:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98672207B2;
-        Mon, 28 Dec 2020 13:38:09 +0000 (UTC)
+        id S2439876AbgL1OM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D17D620731;
+        Mon, 28 Dec 2020 14:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162690;
-        bh=NkE/kTcoyyNVJvEcF1TJi+71Rb+4SByiLlhXS8urmCw=;
+        s=korg; t=1609164733;
+        bh=VJeCSk2OcPWhoWvyAv2BOS9dluNOfHJJX4tTZ0+pxPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXrXKuk1FD1q0SPul6+fJnfEcBIsbh1TK0ZMdFguf3q4AORFI2PJVOdYrdOjM+ddF
-         u8khj9U/2T6Tp9b/h1I/xsUs2klE5ZCwF7C0yztJYbrzEw+CrSxilwk8WQNndzCbEA
-         jyLiwz1/l+C2ESVwDasLGJC9UoB46MVRTgbN+aNY=
+        b=Ly61r5u5MzvGcWKYyOMDYvuLWLEZFuW+0W1enGQeeQCGYReF3x2PKJ4vBH9J+sxoh
+         As31LlgYk6ZU+SDnDgckaqNH+jN0N9t3PH10QuKC8RLDp7+gJWR6Ur/BkTjw12lmfX
+         g39rOcaNQOzeb+CgK8E+S6Pb0yT7uLMkPBoDmMtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernd Bauer <bernd.bauer@anton-paar.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 009/453] ARM: dts: imx6qdl-kontron-samx6i: fix I2C_PM scl pin
+Subject: [PATCH 5.10 247/717] scsi: hisi_sas: Fix up probe error handling for v3 hw
 Date:   Mon, 28 Dec 2020 13:44:05 +0100
-Message-Id: <20201228124937.693783925@linuxfoundation.org>
+Message-Id: <20201228125032.820369419@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Bauer <bernd.bauer@anton-paar.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 19ba8fb810c60b46869acc9f455613de454e0fca ]
+[ Upstream commit 2ebde94f2ea4cffd812ece2f318c2f4922239b1d ]
 
-Use the correct pin for the i2c scl signal else we can't access the
-SoM eeprom.
+Fix some rollbacks in function hisi_sas_v3_probe() and
+interrupt_init_v3_hw().
 
-Fixes: 2a51f9dae13d ("ARM: dts: imx6qdl-kontron-samx6i: Add iMX6-based Kontron SMARC-sAMX6i module")
-Signed-off-by: Bernd Bauer <bernd.bauer@anton-paar.com>
-[m.felsch@pengutronix.de: Adapt commit message]
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://lore.kernel.org/r/1606207594-196362-3-git-send-email-john.garry@huawei.com
+Fixes: 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ")
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-index 81c7ebb4b3fbe..6acc8591219a7 100644
---- a/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-kontron-samx6i.dtsi
-@@ -551,7 +551,7 @@
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 960de375ce699..2cbd8a524edab 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -2409,8 +2409,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " phy", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request phy interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
  
- 	pinctrl_i2c3: i2c3grp {
- 		fsl,pins = <
--			MX6QDL_PAD_GPIO_3__I2C3_SCL		0x4001b8b1
-+			MX6QDL_PAD_GPIO_5__I2C3_SCL		0x4001b8b1
- 			MX6QDL_PAD_GPIO_16__I2C3_SDA		0x4001b8b1
- 		>;
- 	};
+ 	rc = devm_request_irq(dev, pci_irq_vector(pdev, 2),
+@@ -2418,8 +2417,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " channel", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request chnl interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
+ 
+ 	rc = devm_request_irq(dev, pci_irq_vector(pdev, 11),
+@@ -2427,8 +2425,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 			      DRV_NAME " fatal", hisi_hba);
+ 	if (rc) {
+ 		dev_err(dev, "could not request fatal interrupt, rc=%d\n", rc);
+-		rc = -ENOENT;
+-		goto free_irq_vectors;
++		return -ENOENT;
+ 	}
+ 
+ 	if (hisi_sas_intr_conv)
+@@ -2449,8 +2446,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "could not request cq%d interrupt, rc=%d\n",
+ 				i, rc);
+-			rc = -ENOENT;
+-			goto free_irq_vectors;
++			return -ENOENT;
+ 		}
+ 		cq->irq_mask = pci_irq_get_affinity(pdev, i + BASE_VECTORS_V3_HW);
+ 		if (!cq->irq_mask) {
+@@ -2460,10 +2456,6 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
+ 	}
+ 
+ 	return 0;
+-
+-free_irq_vectors:
+-	pci_free_irq_vectors(pdev);
+-	return rc;
+ }
+ 
+ static int hisi_sas_v3_init(struct hisi_hba *hisi_hba)
+@@ -3317,11 +3309,11 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ 	rc = interrupt_preinit_v3_hw(hisi_hba);
+ 	if (rc)
+-		goto err_out_ha;
++		goto err_out_debugfs;
+ 	dev_err(dev, "%d hw queues\n", shost->nr_hw_queues);
+ 	rc = scsi_add_host(shost, dev);
+ 	if (rc)
+-		goto err_out_ha;
++		goto err_out_free_irq_vectors;
+ 
+ 	rc = sas_register_ha(sha);
+ 	if (rc)
+@@ -3348,8 +3340,12 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ err_out_register_ha:
+ 	scsi_remove_host(shost);
+-err_out_ha:
++err_out_free_irq_vectors:
++	pci_free_irq_vectors(pdev);
++err_out_debugfs:
+ 	hisi_sas_debugfs_exit(hisi_hba);
++err_out_ha:
++	hisi_sas_free(hisi_hba);
+ 	scsi_host_put(shost);
+ err_out_regions:
+ 	pci_release_regions(pdev);
 -- 
 2.27.0
 
