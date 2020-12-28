@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8FE82E3BBA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4CF02E38F0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407376AbgL1Nx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:53:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S2387412AbgL1NQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407370AbgL1Nxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 183EC2064B;
-        Mon, 28 Dec 2020 13:53:36 +0000 (UTC)
+        id S1733085AbgL1NQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66754207CF;
+        Mon, 28 Dec 2020 13:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163617;
-        bh=g2Zt8DLmwegqzrGW2W4zZDFBNp5yfj7K/uAC3UoCwFo=;
+        s=korg; t=1609161334;
+        bh=Vp37tht4LYIiuS99/4aMDCAyv9doVc/dWN+7hCcm6Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3pqoo/+YCFr0CvLGhKvbxcNcsbGd2XDSeOaVS+cTUSbd7vtwUreU+2OeqN8wekWo
-         Nsl9Alv0rvh/wmZBQOCFrcqPVc4hIy3pF2nKbvUzGoZQA+3uRGuDQ99/SUJ9Dctbkl
-         IU7VFNXSTjieCrdnr7RskvhE/c4F/AojcxwKZ4gs=
+        b=ITj8sferiwbitA8BT9SQIpXuANhRE67QoV4ZMi5T+zTBTtQQtruZTF0G1SHtvvct7
+         IdUaxEtbsg7CP134LiJdZKwWOkVQ5naF7NyZZZW8eaaS5wlYvNf7DbScuJwGwyZ4u9
+         aQ9gIb0aXlDSaMd4qHERnCPQopnxTgLJBRhILZ7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 349/453] s390/dasd: fix hanging device offline processing
+        stable@vger.kernel.org, Simon Beginn <linux@simonmicro.de>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 180/242] Input: goodix - add upside-down quirk for Teclast X98 Pro tablet
 Date:   Mon, 28 Dec 2020 13:49:45 +0100
-Message-Id: <20201228124954.002822703@linuxfoundation.org>
+Message-Id: <20201228124913.542046828@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Simon Beginn <linux@simonmicro.de>
 
-commit 658a337a606f48b7ebe451591f7681d383fa115e upstream.
+[ Upstream commit cffdd6d90482316e18d686060a4397902ea04bd2 ]
 
-For an LCU update a read unit address configuration IO is required.
-This is started using sleep_on(), which has early exit paths in case the
-device is not usable for IO. For example when it is in offline processing.
+The touchscreen on the Teclast x98 Pro is also mounted upside-down in
+relation to the display orientation.
 
-In those cases the LCU update should fail and not be retried.
-Therefore lcu_update_work checks if EOPNOTSUPP is returned or not.
-
-Commit 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-accidentally removed the EOPNOTSUPP return code from
-read_unit_address_configuration(), which in turn might lead to an endless
-loop of the LCU update in offline processing.
-
-Fix by returning EOPNOTSUPP again if the device is not able to perform the
-request.
-
-Fixes: 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-Cc: stable@vger.kernel.org #5.3
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Simon Beginn <linux@simonmicro.de>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Link: https://lore.kernel.org/r/20201117004253.27A5A27EFD@localhost
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/goodix.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -462,11 +462,19 @@ static int read_unit_address_configurati
- 	spin_unlock_irqrestore(&lcu->lock, flags);
- 
- 	rc = dasd_sleep_on(cqr);
--	if (rc && !suborder_not_supported(cqr)) {
-+	if (!rc)
-+		goto out;
-+
-+	if (suborder_not_supported(cqr)) {
-+		/* suborder not supported or device unusable for IO */
-+		rc = -EOPNOTSUPP;
-+	} else {
-+		/* IO failed but should be retried */
- 		spin_lock_irqsave(&lcu->lock, flags);
- 		lcu->flags |= NEED_UAC_UPDATE;
- 		spin_unlock_irqrestore(&lcu->lock, flags);
- 	}
-+out:
- 	dasd_sfree_request(cqr, cqr->memdev);
- 	return rc;
- }
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 777dd5b159d39..87f5722a67829 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -101,6 +101,18 @@ static const struct dmi_system_id rotated_screen[] = {
+ 			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
+ 		},
+ 	},
++	{
++		.ident = "Teclast X98 Pro",
++		.matches = {
++			/*
++			 * Only match BIOS date, because the manufacturers
++			 * BIOS does not report the board name at all
++			 * (sometimes)...
++			 */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
++		},
++	},
+ 	{
+ 		.ident = "WinBook TW100",
+ 		.matches = {
+-- 
+2.27.0
+
 
 
