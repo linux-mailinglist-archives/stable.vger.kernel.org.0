@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF6B2E428D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF5B2E3C3A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407774AbgL1PYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:24:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32768 "EHLO mail.kernel.org"
+        id S2407752AbgL1OAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:00:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436506AbgL1N7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:59:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E262205CB;
-        Mon, 28 Dec 2020 13:59:17 +0000 (UTC)
+        id S2407722AbgL1OAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:00:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 310AA20715;
+        Mon, 28 Dec 2020 13:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163958;
-        bh=KYnaW5VT+LD4I7nr33q2mCTt112/n4SdXczon4C11ik=;
+        s=korg; t=1609163961;
+        bh=EtrtNzjBt/6SdUvBKWT3J6QUlTOr5G5BUP1dzuw7Zzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIwLzJdb8QrFK0RdztBwSMmw0BjxM0uMPwoawX5kSGrPr/6ZIfLGqkwZ2O1dYzwX0
-         OThgYanqno5Za08+hPMNAgmNgR19GuLxGmtpqdxqV+F1CCSrvZVW6HLMwiCoZqmYDs
-         sAzTaPIQKLM4181AFc3TDBeu42nmLTvJsCTL4R3I=
+        b=nY93Ac7W4mGNGW2Xg6V3aKrUAHKzHCzrmv6tIx+2EM6gwNC2vu7Mlgll2YKNl54ui
+         hOsTVIZGt3OgHIqsohP8S3vStgQPvSlcuRtPKABvTr4SKw/+od1x3dxktqS9lG9z50
+         UuhBKquJmIJyJ63kPvl+zmbiyGywOuG3sV/GguGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 003/717] iio: adc: at91_adc: add Kconfig dep on the OF symbol and remove of_match_ptr()
-Date:   Mon, 28 Dec 2020 13:40:01 +0100
-Message-Id: <20201228125021.150202290@linuxfoundation.org>
+        Randy Dunlap <rdunlap@infradead.org>,
+        Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Michal Simek <monstr@monstr.eu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.ibm.com>, linux-mm@kvack.org,
+        linux-aspeed@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org,
+        David Airlie <airlied@linux.ie>,
+        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 004/717] drm/aspeed: Fix Kconfig warning & subsequent build errors
+Date:   Mon, 28 Dec 2020 13:40:02 +0100
+Message-Id: <20201228125021.199023747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,66 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f091d7c5fe6cc39e916b50f90e3cac67a032d0be ]
+[ Upstream commit bf296b35489b46780b73b74ad984d06750ed5479 ]
 
-This tries to solve a warning reported by the lkp bot:
+Kernel test robot reported build errors (undefined references)
+that didn't make much sense. After reproducing them, there is also
+a Kconfig warning that is the root cause of the build errors, so
+fix that Kconfig problem.
 
->> drivers/iio/adc/at91_adc.c:1439:34: warning: unused variable
->> 'at91_adc_dt_ids' [-Wunused-const-variable]
-   static const struct of_device_id at91_adc_dt_ids[] = {
-                                    ^
-   1 warning generated.
+Fixes this Kconfig warning:
+WARNING: unmet direct dependencies detected for CMA
+  Depends on [n]: MMU [=n]
+  Selected by [m]:
+  - DRM_ASPEED_GFX [=m] && HAS_IOMEM [=y] && DRM [=m] && OF [=y] && (COMPILE_TEST [=y] || ARCH_ASPEED) && HAVE_DMA_CONTIGUOUS [=y]
 
-This warning has appeared after the AT91_ADC driver compilation has been
-enabled via the COMPILE_TEST symbol dependency.
+and these dependent build errors:
+(.text+0x10c8c): undefined reference to `start_isolate_page_range'
+microblaze-linux-ld: (.text+0x10f14): undefined reference to `test_pages_isolated'
+microblaze-linux-ld: (.text+0x10fd0): undefined reference to `undo_isolate_page_range'
 
-The warning is caused by the 'of_match_ptr()' helper which returns NULL if
-OF is undefined. This driver should build only for device-tree context, so
-a dependency on the OF Kconfig symbol has been added.
-Also, the usage of of_match_ptr() helper has been removed since it
-shouldn't ever return NULL (because the driver should not be built for the
-non-OF context).
-
-Fixes: 4027860dcc4c ("iio: Kconfig: at91_adc: add COMPILE_TEST dependency to driver")
+Fixes: 76356a966e33 ("drm: aspeed: Clean up Kconfig options")
 Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200930135048.11530-4-alexandru.ardelean@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Andrew Jeffery <andrew@aj.id.au>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Michal Simek <monstr@monstr.eu>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: linux-mm@kvack.org
+Cc: linux-aspeed@lists.ozlabs.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: David Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201011230131.4922-1-rdunlap@infradead.org
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/Kconfig    | 2 +-
- drivers/iio/adc/at91_adc.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/aspeed/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 91ae90514aff4..17e9ceb9c6c48 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -295,7 +295,7 @@ config ASPEED_ADC
- config AT91_ADC
- 	tristate "Atmel AT91 ADC"
- 	depends on ARCH_AT91 || COMPILE_TEST
--	depends on INPUT && SYSFS
-+	depends on INPUT && SYSFS && OF
- 	select IIO_BUFFER
- 	select IIO_TRIGGERED_BUFFER
- 	help
-diff --git a/drivers/iio/adc/at91_adc.c b/drivers/iio/adc/at91_adc.c
-index 9b2c548fae957..0a793e7cd53ee 100644
---- a/drivers/iio/adc/at91_adc.c
-+++ b/drivers/iio/adc/at91_adc.c
-@@ -1469,7 +1469,7 @@ static struct platform_driver at91_adc_driver = {
- 	.id_table = at91_adc_ids,
- 	.driver = {
- 		   .name = DRIVER_NAME,
--		   .of_match_table = of_match_ptr(at91_adc_dt_ids),
-+		   .of_match_table = at91_adc_dt_ids,
- 		   .pm = &at91_adc_pm_ops,
- 	},
- };
+diff --git a/drivers/gpu/drm/aspeed/Kconfig b/drivers/gpu/drm/aspeed/Kconfig
+index 018383cfcfa79..5e95bcea43e92 100644
+--- a/drivers/gpu/drm/aspeed/Kconfig
++++ b/drivers/gpu/drm/aspeed/Kconfig
+@@ -3,6 +3,7 @@ config DRM_ASPEED_GFX
+ 	tristate "ASPEED BMC Display Controller"
+ 	depends on DRM && OF
+ 	depends on (COMPILE_TEST || ARCH_ASPEED)
++	depends on MMU
+ 	select DRM_KMS_HELPER
+ 	select DRM_KMS_CMA_HELPER
+ 	select DMA_CMA if HAVE_DMA_CONTIGUOUS
 -- 
 2.27.0
 
