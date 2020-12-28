@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCA72E393E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC882E6427
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387958AbgL1NV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:21:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
+        id S2404434AbgL1PsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:48:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387667AbgL1NU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:20:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C2822076D;
-        Mon, 28 Dec 2020 13:20:15 +0000 (UTC)
+        id S2404338AbgL1Nm5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A3E121D94;
+        Mon, 28 Dec 2020 13:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161616;
-        bh=vj2ed7+AWiUoB/glSpCktwd6vNk66i7qtwo0I/029LI=;
+        s=korg; t=1609162936;
+        bh=7qbWvyUZhBuQsezQYC36NKvbJ3vyf0uItlpsM9fJzB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4H/UIwjTEC52wWVWF/GCyS7/hTrSp5nEpmWI7WoTIQ1ss4XAkMcbQJui3k+hzgPj
-         mifDx6YKYcn8YGUPFbuVn+YR206XVOV0QAObnilWnDQ5ZSkkccUSTNy/xGyrSxkyVb
-         Qe1WoUP0fZJJxauVBlc4xyt/WZxu7Jrgh1wSEygA=
+        b=s2jG4PscTpeCgQKIlVSVUUNOaOqwZ/nzla/4edbzPq1r9I2AtLQTrexesSShxI2dG
+         xfTUp969tXD66v+68++CTGQHkhIWQLf2lVnPcE+pSsoVRCYCDqYHcmpmRHx6HWObI1
+         kTXVEDhC6j2/qMFQoBny1apobanvBIXcQK6pMEIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 030/346] tcp: select sane initial rcvq_space.space for big MSS
+        syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 113/453] Bluetooth: hci_h5: fix memory leak in h5_close
 Date:   Mon, 28 Dec 2020 13:45:49 +0100
-Message-Id: <20201228124921.236650037@linuxfoundation.org>
+Message-Id: <20201228124942.649868483@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 72d05c00d7ecda85df29abd046da7e41cc071c17 ]
+[ Upstream commit 855af2d74c870d747bf53509f8b2d7b9dc9ee2c3 ]
 
-Before commit a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
-small tcp_rmem[1] values were overridden by tcp_fixup_rcvbuf() to accommodate various MSS.
+When h5_close() is called, h5 is directly freed when !hu->serdev.
+However, h5->rx_skb is not freed, which causes a memory leak.
 
-This is no longer the case, and Hazem Mohamed Abuelfotoh reported
-that DRS would not work for MTU 9000 endpoints receiving regular (1500 bytes) frames.
+Freeing h5->rx_skb and setting it to NULL, fixes this memory leak.
 
-Root cause is that tcp_init_buffer_space() uses tp->rcv_wnd for upper limit
-of rcvq_space.space computation, while it can select later a smaller
-value for tp->rcv_ssthresh and tp->window_clamp.
-
-ss -temoi on receiver would show :
-
-skmem:(r0,rb131072,t0,tb46080,f0,w0,o0,bl0,d0) rcv_space:62496 rcv_ssthresh:56596
-
-This means that TCP can not increase its window in tcp_grow_window(),
-and that DRS can never kick.
-
-Fix this by making sure that rcvq_space.space is not bigger than number of bytes
-that can be held in TCP receive queue.
-
-People unable/unwilling to change their kernel can work around this issue by
-selecting a bigger tcp_rmem[1] value as in :
-
-echo "4096 196608 6291456" >/proc/sys/net/ipv4/tcp_rmem
-
-Based on an initial report and patch from Hazem Mohamed Abuelfotoh
- https://lore.kernel.org/netdev/20201204180622.14285-1-abuehaze@amazon.com/
-
-Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
-Fixes: 041a14d26715 ("tcp: start receiver buffer autotuning sooner")
-Reported-by: Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ce945552fde4 ("Bluetooth: hci_h5: Add support for serdev enumerated devices")
+Reported-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
+Tested-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/hci_h5.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -439,7 +439,6 @@ void tcp_init_buffer_space(struct sock *
- 	if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
- 		tcp_sndbuf_expand(sk);
+diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
+index 5df0651b6cd55..e11af747395dd 100644
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -244,6 +244,9 @@ static int h5_close(struct hci_uart *hu)
+ 	skb_queue_purge(&h5->rel);
+ 	skb_queue_purge(&h5->unrel);
  
--	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
- 	tcp_mstamp_refresh(tp);
- 	tp->rcvq_space.time = tp->tcp_mstamp;
- 	tp->rcvq_space.seq = tp->copied_seq;
-@@ -463,6 +462,8 @@ void tcp_init_buffer_space(struct sock *
++	kfree_skb(h5->rx_skb);
++	h5->rx_skb = NULL;
++
+ 	if (h5->vnd && h5->vnd->close)
+ 		h5->vnd->close(h5);
  
- 	tp->rcv_ssthresh = min(tp->rcv_ssthresh, tp->window_clamp);
- 	tp->snd_cwnd_stamp = tcp_jiffies32;
-+	tp->rcvq_space.space = min3(tp->rcv_ssthresh, tp->rcv_wnd,
-+				    (u32)TCP_INIT_CWND * tp->advmss);
- }
- 
- /* 4. Recalculate window clamp after socket hit its memory bounds. */
+-- 
+2.27.0
+
 
 
