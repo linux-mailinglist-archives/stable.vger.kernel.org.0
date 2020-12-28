@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D6A2E39D9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:29:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD5F2E400D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390037AbgL1N3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57558 "EHLO mail.kernel.org"
+        id S2387479AbgL1Ore (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:47:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390030AbgL1N3D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:29:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2BC62072C;
-        Mon, 28 Dec 2020 13:28:46 +0000 (UTC)
+        id S2502808AbgL1OXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:23:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90D32206E5;
+        Mon, 28 Dec 2020 14:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162127;
-        bh=Go5O+Ekl76VF6e9p5cmqsmgodlmRJ+kZfPXhZGg325Y=;
+        s=korg; t=1609165398;
+        bh=0sPQwrbSMMI3HQbhaGGImWtCf5NHsbUmzmfLgkEjfRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+BslyVEvqYElpc9MLsTeoF8DsASJj+1NXiDC4+eUYweGAw8q6sakt21VkTdETGBu
-         RhENr0xmhcu3i9wf+A7CpuRpfSE4TNPvFyr5Pnj4o2Ia2IGn1PZECVUEKfqJwPxnZ+
-         dpAp4gsbnnpfDfPPIQSjDtxQX3EuLryU3ETJv5pQ=
+        b=m0HxB/EDnIndJ6RJb2dGZdp4Yj9DnU8aK0Ih/Enc8Q6IAhNiXh4B0Vv8pUTm10SQ2
+         gGAbELojM4/J0tOvl4NVZmH84neqZTdFUEk16OIgCdVjG/N9U8kk1+1NVKPGNbyn9F
+         T7zqcgz8zcwxq1J6BCwhtcSB6XKtdfk+VJReD/mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/346] pinctrl: falcon: add missing put_device() call in pinctrl_falcon_probe()
+        stable@vger.kernel.org,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 518/717] io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()
 Date:   Mon, 28 Dec 2020 13:48:36 +0100
-Message-Id: <20201228124929.317417180@linuxfoundation.org>
+Message-Id: <20201228125045.774596353@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit 89cce2b3f247a434ee174ab6803698041df98014 ]
+commit c07e6719511e77c4b289f62bfe96423eb6ea061d upstream.
 
-if of_find_device_by_node() succeed, pinctrl_falcon_probe() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+io_iopoll_complete() does not hold completion_lock to complete polled io,
+so in io_wq_submit_work(), we can not call io_req_complete() directly, to
+complete polled io, otherwise there maybe concurrent access to cqring,
+defer_list, etc, which is not safe. Commit dad1b1242fd5 ("io_uring: always
+let io_iopoll_complete() complete polled io") has fixed this issue, but
+Pavel reported that IOPOLL apart from rw can do buf reg/unreg requests(
+IORING_OP_PROVIDE_BUFFERS or IORING_OP_REMOVE_BUFFERS), so the fix is not
+good.
 
-Fixes: e316cb2b16bb ("OF: pinctrl: MIPS: lantiq: adds support for FALCON SoC")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20201119011219.2248232-1-yukuai3@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Given that io_iopoll_complete() is always called under uring_lock, so here
+for polled io, we can also get uring_lock to fix this issue.
+
+Fixes: dad1b1242fd5 ("io_uring: always let io_iopoll_complete() complete polled io")
+Cc: <stable@vger.kernel.org> # 5.5+
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+[axboe: don't deref 'req' after completing it']
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/pinctrl-falcon.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ fs/io_uring.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-falcon.c b/drivers/pinctrl/pinctrl-falcon.c
-index fb73dcbb5ef37..68dcf53aaac34 100644
---- a/drivers/pinctrl/pinctrl-falcon.c
-+++ b/drivers/pinctrl/pinctrl-falcon.c
-@@ -438,24 +438,28 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6081,19 +6081,28 @@ static struct io_wq_work *io_wq_submit_w
+ 	}
  
- 	/* load and remap the pad resources of the different banks */
- 	for_each_compatible_node(np, NULL, "lantiq,pad-falcon") {
--		struct platform_device *ppdev = of_find_device_by_node(np);
- 		const __be32 *bank = of_get_property(np, "lantiq,bank", NULL);
- 		struct resource res;
-+		struct platform_device *ppdev;
- 		u32 avail;
- 		int pins;
+ 	if (ret) {
++		struct io_ring_ctx *lock_ctx = NULL;
++
++		if (req->ctx->flags & IORING_SETUP_IOPOLL)
++			lock_ctx = req->ctx;
++
+ 		/*
+-		 * io_iopoll_complete() does not hold completion_lock to complete
+-		 * polled io, so here for polled io, just mark it done and still let
+-		 * io_iopoll_complete() complete it.
++		 * io_iopoll_complete() does not hold completion_lock to
++		 * complete polled io, so here for polled io, we can not call
++		 * io_req_complete() directly, otherwise there maybe concurrent
++		 * access to cqring, defer_list, etc, which is not safe. Given
++		 * that io_iopoll_complete() is always called under uring_lock,
++		 * so here for polled io, we also get uring_lock to complete
++		 * it.
+ 		 */
+-		if (req->ctx->flags & IORING_SETUP_IOPOLL) {
+-			struct kiocb *kiocb = &req->rw.kiocb;
++		if (lock_ctx)
++			mutex_lock(&lock_ctx->uring_lock);
++
++		req_set_fail_links(req);
++		io_req_complete(req, ret);
  
- 		if (!of_device_is_available(np))
- 			continue;
- 
--		if (!ppdev) {
--			dev_err(&pdev->dev, "failed to find pad pdev\n");
--			continue;
+-			kiocb_done(kiocb, ret, NULL);
+-		} else {
+-			req_set_fail_links(req);
+-			io_req_complete(req, ret);
 -		}
- 		if (!bank || *bank >= PORTS)
- 			continue;
- 		if (of_address_to_resource(np, 0, &res))
- 			continue;
-+
-+		ppdev = of_find_device_by_node(np);
-+		if (!ppdev) {
-+			dev_err(&pdev->dev, "failed to find pad pdev\n");
-+			continue;
-+		}
-+
- 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
-+		put_device(&ppdev->dev);
- 		if (IS_ERR(falcon_info.clk[*bank])) {
- 			dev_err(&ppdev->dev, "failed to get clock\n");
- 			return PTR_ERR(falcon_info.clk[*bank]);
--- 
-2.27.0
-
++		if (lock_ctx)
++			mutex_unlock(&lock_ctx->uring_lock);
+ 	}
+ 
+ 	return io_steal_work(req);
 
 
