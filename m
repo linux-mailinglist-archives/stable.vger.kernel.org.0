@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E5D52E4085
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E35B72E6412
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441435AbgL1ORS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:17:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52378 "EHLO mail.kernel.org"
+        id S2391957AbgL1Pq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:46:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441429AbgL1ORR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E7620791;
-        Mon, 28 Dec 2020 14:16:36 +0000 (UTC)
+        id S2404497AbgL1Nni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C86F205CB;
+        Mon, 28 Dec 2020 13:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164997;
-        bh=Zb/f2CW08khvlm2AKI02eYmtEkyBjFDohoUzB3svI1Q=;
+        s=korg; t=1609163002;
+        bh=Qy6O7UFGwu6RzimuKDMLL3i6t7Q79U4OyBRspofJ90c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jG8NRM/yfcVYP7tmfveUaqYOXgoYriHOTP7XppjZFIh4uEtO8mqog2gGq8MW/M5To
-         vRnY8p3rYEDqm90gFW4sZHGo0aUFJbGqONypAfx/QqmaQsq9djj/11Ht0SQMUCqRyH
-         SjfvsEriw7/GwGTShlxVzgQl+7VmPlXL95turOaM=
+        b=0LNq54s8bro/+dq7oPQbPDj3N4BMKKdimA9vwai1VsIZKv4cDAgE1M6GtVMh0sGJ5
+         w/uBkrtvLIX6nH+XwoBKDfq3uYC99/8brE4TGGQ/MfdQIvOw+kduBMushujzNCdWTr
+         GRpREGX8Wrlu/uQ8lwSVpRt4MaZYPHNEDEzltjCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 372/717] usb: ehci-omap: Fix PM disable depth umbalance in ehci_hcd_omap_probe
+Subject: [PATCH 5.4 134/453] media: mtk-vcodec: add missing put_device() call in mtk_vcodec_release_dec_pm()
 Date:   Mon, 28 Dec 2020 13:46:10 +0100
-Message-Id: <20201228125038.830977493@linuxfoundation.org>
+Message-Id: <20201228124943.648971943@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit d6ff32478d7e95d6ca199b5c852710d6964d5811 ]
+[ Upstream commit 27c3943683f74e35e1d390ceb2e3639eff616ad6 ]
 
-The pm_runtime_enable will decrement the power disable depth. Imbalance
-depth will resulted in enabling runtime PM of device fails later.  Thus
-a pairing decrement must be needed on the error handling path to keep it
-balanced.
+mtk_vcodec_release_dec_pm() will be called in two places:
 
-Fixes: 6c984b066d84b ("ARM: OMAP: USBHOST: Replace usbhs core driver APIs by Runtime pm APIs")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201123145719.1455849-1-zhangqilong3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+a. mtk_vcodec_init_dec_pm() succeed while mtk_vcodec_probe() return error.
+b. mtk_vcodec_dec_remove().
+
+In both cases put_device() call is needed, since of_find_device_by_node()
+was called in mtk_vcodec_init_dec_pm() previously.
+
+Thus add put_devices() call in mtk_vcodec_release_dec_pm()
+
+Fixes: 590577a4e525 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Decoder Driver")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-omap.c | 1 +
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/ehci-omap.c b/drivers/usb/host/ehci-omap.c
-index 8771a2ed69268..7f4a03e8647af 100644
---- a/drivers/usb/host/ehci-omap.c
-+++ b/drivers/usb/host/ehci-omap.c
-@@ -220,6 +220,7 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+index 01e680ede9bd5..f9bbd0000bf3e 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+@@ -86,6 +86,7 @@ put_device:
+ void mtk_vcodec_release_dec_pm(struct mtk_vcodec_dev *dev)
+ {
+ 	pm_runtime_disable(dev->pm.dev);
++	put_device(dev->pm.larbvdec);
+ }
  
- err_pm_runtime:
- 	pm_runtime_put_sync(dev);
-+	pm_runtime_disable(dev);
- 
- err_phy:
- 	for (i = 0; i < omap->nports; i++) {
+ void mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm)
 -- 
 2.27.0
 
