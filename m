@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A439C2E672E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C22272E65D0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731643AbgL1QWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:22:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
+        id S2387877AbgL1QEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:04:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732024AbgL1NMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:12:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F11B2076D;
-        Mon, 28 Dec 2020 13:12:05 +0000 (UTC)
+        id S2389761AbgL1N1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:27:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0DC422472;
+        Mon, 28 Dec 2020 13:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161126;
-        bh=98j60LUhmHB494svGp885uJNy9G2/CW/lflLT5Rejug=;
+        s=korg; t=1609162033;
+        bh=BTAvjbVVQsa+KD4dezYI2fL5E+Y5760p7NFkr+BtQTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/aUuZBhd2RjE4n2QHORlKzxMZO7ixNrLruyvnIGb5Dx27RsUtH/ArrYtW+CKdciB
-         AOa0gKLn1w5b61A3UmZajJMeW6OMNEm6ceW9yoOTXPXa72PlMjCIAtgP7pJB8z1xvj
-         M16fxl4rDuWbqcbm+8Qm/nZUgAo0cYobJMFDm9/E=
+        b=xKDq47EG1igusZ3meSUb57069QMAWeK3Bh3+rJvMKGbTEqVOp04PcImc80TzFmBoY
+         xm5HIlQR3DhoLOapcJv8PHBKqWmLN5YLVECPhYMW25BjNRrVdDsLwrp34pVitDRA+9
+         TZnItLfyAQX4Y/XNzrENN5H4c/Meysu349fOZtUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anmol Karn <anmol.karan123@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+0bef568258653cff272f@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 080/242] Bluetooth: Fix null pointer dereference in hci_event_packet()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 166/346] dmaengine: mv_xor_v2: Fix error return code in mv_xor_v2_probe()
 Date:   Mon, 28 Dec 2020 13:48:05 +0100
-Message-Id: <20201228124908.628189007@linuxfoundation.org>
+Message-Id: <20201228124927.815361274@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anmol Karn <anmol.karan123@gmail.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 6dfccd13db2ff2b709ef60a50163925d477549aa ]
+[ Upstream commit c95e6515a8c065862361f7e0e452978ade7f94ec ]
 
-AMP_MGR is getting derefernced in hci_phy_link_complete_evt(), when called
-from hci_event_packet() and there is a possibility, that hcon->amp_mgr may
-not be found when accessing after initialization of hcon.
+Return the corresponding error code when first_msi_entry() returns
+NULL in mv_xor_v2_probe().
 
-- net/bluetooth/hci_event.c:4945
-The bug seems to get triggered in this line:
-
-bredr_hcon = hcon->amp_mgr->l2cap_conn->hcon;
-
-Fix it by adding a NULL check for the hcon->amp_mgr before checking the ev-status.
-
-Fixes: d5e911928bd8 ("Bluetooth: AMP: Process Physical Link Complete evt")
-Reported-and-tested-by: syzbot+0bef568258653cff272f@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=0bef568258653cff272f
-Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 19a340b1a820430 ("dmaengine: mv_xor_v2: new driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Link: https://lore.kernel.org/r/20201124010813.1939095-1-chengzhihao1@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/dma/mv_xor_v2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 0db218b14bf3c..5e05a96e0646a 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4350,6 +4350,11 @@ static void hci_phy_link_complete_evt(struct hci_dev *hdev,
- 		return;
- 	}
+diff --git a/drivers/dma/mv_xor_v2.c b/drivers/dma/mv_xor_v2.c
+index 8dc0aa4d73ab8..462adf7e4e952 100644
+--- a/drivers/dma/mv_xor_v2.c
++++ b/drivers/dma/mv_xor_v2.c
+@@ -777,8 +777,10 @@ static int mv_xor_v2_probe(struct platform_device *pdev)
+ 		goto disable_clk;
  
-+	if (!hcon->amp_mgr) {
-+		hci_dev_unlock(hdev);
-+		return;
+ 	msi_desc = first_msi_entry(&pdev->dev);
+-	if (!msi_desc)
++	if (!msi_desc) {
++		ret = -ENODEV;
+ 		goto free_msi_irqs;
 +	}
-+
- 	if (ev->status) {
- 		hci_conn_del(hcon);
- 		hci_dev_unlock(hdev);
+ 	xor_dev->msi_desc = msi_desc;
+ 
+ 	ret = devm_request_irq(&pdev->dev, msi_desc->irq,
 -- 
 2.27.0
 
