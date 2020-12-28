@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B7E2E3D30
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:13:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A312E6462
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439880AbgL1OM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:12:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        id S2391498AbgL1Niy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:38:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439876AbgL1OM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17D620731;
-        Mon, 28 Dec 2020 14:12:12 +0000 (UTC)
+        id S2391276AbgL1Nix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:38:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D31E208B3;
+        Mon, 28 Dec 2020 13:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164733;
-        bh=VJeCSk2OcPWhoWvyAv2BOS9dluNOfHJJX4tTZ0+pxPE=;
+        s=korg; t=1609162692;
+        bh=pVY1LVJRDZatBImIxWJH4xfQ9jiA4rIapbh2xaIrQAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ly61r5u5MzvGcWKYyOMDYvuLWLEZFuW+0W1enGQeeQCGYReF3x2PKJ4vBH9J+sxoh
-         As31LlgYk6ZU+SDnDgckaqNH+jN0N9t3PH10QuKC8RLDp7+gJWR6Ur/BkTjw12lmfX
-         g39rOcaNQOzeb+CgK8E+S6Pb0yT7uLMkPBoDmMtM=
+        b=B7/ud29W4U8jogJ14vK7nXh0F8hBPegf+Xj4cRi+ZTftSrdQdk+VQguw+V2AOk/KJ
+         o/CbWRdzPghHIw+odQwRzP6VuUHW0UGT47loMsIosskc8VBBRQkltOT+dVXT2UZnY5
+         BfUUiQw17XvnQ3UNliU+0T4zBeDKLC7U84RiAbN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 247/717] scsi: hisi_sas: Fix up probe error handling for v3 hw
-Date:   Mon, 28 Dec 2020 13:44:05 +0100
-Message-Id: <20201228125032.820369419@linuxfoundation.org>
+Subject: [PATCH 5.4 010/453] PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter
+Date:   Mon, 28 Dec 2020 13:44:06 +0100
+Message-Id: <20201228124937.740353201@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,106 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 2ebde94f2ea4cffd812ece2f318c2f4922239b1d ]
+[ Upstream commit dd8088d5a8969dc2b42f71d7bc01c25c61a78066 ]
 
-Fix some rollbacks in function hisi_sas_v3_probe() and
-interrupt_init_v3_hw().
+In many case, we need to check return value of pm_runtime_get_sync, but
+it brings a trouble to the usage counter processing. Many callers forget
+to decrease the usage counter when it failed, which could resulted in
+reference leak. It has been discussed a lot[0][1]. So we add a function
+to deal with the usage counter for better coding.
 
-Link: https://lore.kernel.org/r/1606207594-196362-3-git-send-email-john.garry@huawei.com
-Fixes: 8d98416a55eb ("scsi: hisi_sas: Switch v3 hw to MQ")
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[0]https://lkml.org/lkml/2020/6/14/88
+[1]https://patchwork.ozlabs.org/project/linux-tegra/list/?series=178139
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Acked-by: Rafael J. Wysocki  <rafael.j.wysocki@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+ include/linux/pm_runtime.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 960de375ce699..2cbd8a524edab 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2409,8 +2409,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
- 			      DRV_NAME " phy", hisi_hba);
- 	if (rc) {
- 		dev_err(dev, "could not request phy interrupt, rc=%d\n", rc);
--		rc = -ENOENT;
--		goto free_irq_vectors;
-+		return -ENOENT;
- 	}
- 
- 	rc = devm_request_irq(dev, pci_irq_vector(pdev, 2),
-@@ -2418,8 +2417,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
- 			      DRV_NAME " channel", hisi_hba);
- 	if (rc) {
- 		dev_err(dev, "could not request chnl interrupt, rc=%d\n", rc);
--		rc = -ENOENT;
--		goto free_irq_vectors;
-+		return -ENOENT;
- 	}
- 
- 	rc = devm_request_irq(dev, pci_irq_vector(pdev, 11),
-@@ -2427,8 +2425,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
- 			      DRV_NAME " fatal", hisi_hba);
- 	if (rc) {
- 		dev_err(dev, "could not request fatal interrupt, rc=%d\n", rc);
--		rc = -ENOENT;
--		goto free_irq_vectors;
-+		return -ENOENT;
- 	}
- 
- 	if (hisi_sas_intr_conv)
-@@ -2449,8 +2446,7 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
- 		if (rc) {
- 			dev_err(dev, "could not request cq%d interrupt, rc=%d\n",
- 				i, rc);
--			rc = -ENOENT;
--			goto free_irq_vectors;
-+			return -ENOENT;
- 		}
- 		cq->irq_mask = pci_irq_get_affinity(pdev, i + BASE_VECTORS_V3_HW);
- 		if (!cq->irq_mask) {
-@@ -2460,10 +2456,6 @@ static int interrupt_init_v3_hw(struct hisi_hba *hisi_hba)
- 	}
- 
- 	return 0;
--
--free_irq_vectors:
--	pci_free_irq_vectors(pdev);
--	return rc;
+diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
+index fe61e3b9a9ca2..7145795b4b9da 100644
+--- a/include/linux/pm_runtime.h
++++ b/include/linux/pm_runtime.h
+@@ -224,6 +224,27 @@ static inline int pm_runtime_get_sync(struct device *dev)
+ 	return __pm_runtime_resume(dev, RPM_GET_PUT);
  }
  
- static int hisi_sas_v3_init(struct hisi_hba *hisi_hba)
-@@ -3317,11 +3309,11 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	rc = interrupt_preinit_v3_hw(hisi_hba);
- 	if (rc)
--		goto err_out_ha;
-+		goto err_out_debugfs;
- 	dev_err(dev, "%d hw queues\n", shost->nr_hw_queues);
- 	rc = scsi_add_host(shost, dev);
- 	if (rc)
--		goto err_out_ha;
-+		goto err_out_free_irq_vectors;
- 
- 	rc = sas_register_ha(sha);
- 	if (rc)
-@@ -3348,8 +3340,12 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- err_out_register_ha:
- 	scsi_remove_host(shost);
--err_out_ha:
-+err_out_free_irq_vectors:
-+	pci_free_irq_vectors(pdev);
-+err_out_debugfs:
- 	hisi_sas_debugfs_exit(hisi_hba);
-+err_out_ha:
-+	hisi_sas_free(hisi_hba);
- 	scsi_host_put(shost);
- err_out_regions:
- 	pci_release_regions(pdev);
++/**
++ * pm_runtime_resume_and_get - Bump up usage counter of a device and resume it.
++ * @dev: Target device.
++ *
++ * Resume @dev synchronously and if that is successful, increment its runtime
++ * PM usage counter. Return 0 if the runtime PM usage counter of @dev has been
++ * incremented or a negative error code otherwise.
++ */
++static inline int pm_runtime_resume_and_get(struct device *dev)
++{
++	int ret;
++
++	ret = __pm_runtime_resume(dev, RPM_GET_PUT);
++	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
++		return ret;
++	}
++
++	return 0;
++}
++
+ static inline int pm_runtime_put(struct device *dev)
+ {
+ 	return __pm_runtime_idle(dev, RPM_GET_PUT | RPM_ASYNC);
 -- 
 2.27.0
 
