@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 994222E67A7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA92F2E67A3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633478AbgL1Q1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
+        id S1730907AbgL1Q1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:27:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730876AbgL1NIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FDA4208B6;
-        Mon, 28 Dec 2020 13:07:34 +0000 (UTC)
+        id S1730893AbgL1NIT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD232242A;
+        Mon, 28 Dec 2020 13:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160855;
-        bh=mO0L3GZjY/iQu0aOfTqBqJ0euAD8j2aeJ+KkTPJ3IgE=;
+        s=korg; t=1609160857;
+        bh=pm2huu2Z72gk00xjWAXQG5QhEIA27tHDi5N8MBYVjPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHaCHFcm2pYYjyqR3exX2st7Xi6/Rge2y/7LlWbj8De7qsLzYzwqDFAwKDllZ0Hsn
-         K7z0Bg55l5D7dnGHImsspo/vuX642dd2V2f2WMc+Blg4LIf9JCL3f9z1pDt09aZ2Qu
-         aJhQfYCd3x2POKxzElKlmitJNUEVxtcbgxx7usZM=
+        b=PdXw0x9ns5UWUn0K+Mr+jLBSH27HfLCYQfiH3kGFdF6aCBNsu+1E5zRmr5oZDUOl7
+         bvlq254bM6pCr1Vd4HCHQCPdnl7A9TjrWXWfGfrHIh1Amz7gEn2qWfGW2jhkY4yHIM
+         Dm38ZT+mi6j0+59gOb7oHr7gAUozVh79tk9AbouQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ingemar Johansson <ingemar.s.johansson@ericsson.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 018/242] tcp: fix cwnd-limited bug for TSO deferral where we send nothing
-Date:   Mon, 28 Dec 2020 13:47:03 +0100
-Message-Id: <20201228124905.562635497@linuxfoundation.org>
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 019/242] net/mlx4_en: Avoid scheduling restart task if it is already running
+Date:   Mon, 28 Dec 2020 13:47:04 +0100
+Message-Id: <20201228124905.612749029@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -44,86 +40,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 299bcb55ecd1412f6df606e9dc0912d55610029e ]
+[ Upstream commit fed91613c9dd455dd154b22fa8e11b8526466082 ]
 
-When cwnd is not a multiple of the TSO skb size of N*MSS, we can get
-into persistent scenarios where we have the following sequence:
+Add restarting state flag to avoid scheduling another restart task while
+such task is already running. Change task name from watchdog_task to
+restart_task to better fit the task role.
 
-(1) ACK for full-sized skb of N*MSS arrives
-  -> tcp_write_xmit() transmit full-sized skb with N*MSS
-  -> move pacing release time forward
-  -> exit tcp_write_xmit() because pacing time is in the future
-
-(2) TSQ callback or TCP internal pacing timer fires
-  -> try to transmit next skb, but TSO deferral finds remainder of
-     available cwnd is not big enough to trigger an immediate send
-     now, so we defer sending until the next ACK.
-
-(3) repeat...
-
-So we can get into a case where we never mark ourselves as
-cwnd-limited for many seconds at a time, even with
-bulk/infinite-backlog senders, because:
-
-o In case (1) above, every time in tcp_write_xmit() we have enough
-cwnd to send a full-sized skb, we are not fully using the cwnd
-(because cwnd is not a multiple of the TSO skb size). So every time we
-send data, we are not cwnd limited, and so in the cwnd-limited
-tracking code in tcp_cwnd_validate() we mark ourselves as not
-cwnd-limited.
-
-o In case (2) above, every time in tcp_write_xmit() that we try to
-transmit the "remainder" of the cwnd but defer, we set the local
-variable is_cwnd_limited to true, but we do not send any packets, so
-sent_pkts is zero, so we don't call the cwnd-limited logic to update
-tp->is_cwnd_limited.
-
-Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
-Reported-by: Ingemar Johansson <ingemar.s.johansson@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201209035759.1225145-1-ncardwell.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1e338db56e5a ("mlx4_en: Fix a race at restart task")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_output.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c |   20 +++++++++++++-------
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    7 ++++++-
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1620,7 +1620,8 @@ static void tcp_cwnd_validate(struct soc
- 	 * window, and remember whether we were cwnd-limited then.
- 	 */
- 	if (!before(tp->snd_una, tp->max_packets_seq) ||
--	    tp->packets_out > tp->max_packets_out) {
-+	    tp->packets_out > tp->max_packets_out ||
-+	    is_cwnd_limited) {
- 		tp->max_packets_out = tp->packets_out;
- 		tp->max_packets_seq = tp->snd_nxt;
- 		tp->is_cwnd_limited = is_cwnd_limited;
-@@ -2411,6 +2412,10 @@ repair:
- 	else
- 		tcp_chrono_stop(sk, TCP_CHRONO_RWND_LIMITED);
- 
-+	is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
-+	if (likely(sent_pkts || is_cwnd_limited))
-+		tcp_cwnd_validate(sk, is_cwnd_limited);
-+
- 	if (likely(sent_pkts)) {
- 		if (tcp_in_cwnd_reduction(sk))
- 			tp->prr_out += sent_pkts;
-@@ -2418,8 +2423,6 @@ repair:
- 		/* Send one loss probe per tail loss episode. */
- 		if (push_one != 2)
- 			tcp_schedule_loss_probe(sk, false);
--		is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
--		tcp_cwnd_validate(sk, is_cwnd_limited);
- 		return false;
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1389,8 +1389,10 @@ static void mlx4_en_tx_timeout(struct ne
  	}
- 	return !tp->packets_out && tcp_send_head(sk);
+ 
+ 	priv->port_stats.tx_timeout++;
+-	en_dbg(DRV, priv, "Scheduling watchdog\n");
+-	queue_work(mdev->workqueue, &priv->watchdog_task);
++	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
++		en_dbg(DRV, priv, "Scheduling port restart\n");
++		queue_work(mdev->workqueue, &priv->restart_task);
++	}
+ }
+ 
+ 
+@@ -1839,6 +1841,7 @@ int mlx4_en_start_port(struct net_device
+ 		local_bh_enable();
+ 	}
+ 
++	clear_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state);
+ 	netif_tx_start_all_queues(dev);
+ 	netif_device_attach(dev);
+ 
+@@ -2009,7 +2012,7 @@ void mlx4_en_stop_port(struct net_device
+ static void mlx4_en_restart(struct work_struct *work)
+ {
+ 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
+-						 watchdog_task);
++						 restart_task);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
+ 	struct net_device *dev = priv->dev;
+ 
+@@ -2388,7 +2391,7 @@ static int mlx4_en_change_mtu(struct net
+ 	if (netif_running(dev)) {
+ 		mutex_lock(&mdev->state_lock);
+ 		if (!mdev->device_up) {
+-			/* NIC is probably restarting - let watchdog task reset
++			/* NIC is probably restarting - let restart task reset
+ 			 * the port */
+ 			en_dbg(DRV, priv, "Change MTU called with card down!?\n");
+ 		} else {
+@@ -2397,7 +2400,9 @@ static int mlx4_en_change_mtu(struct net
+ 			if (err) {
+ 				en_err(priv, "Failed restarting port:%d\n",
+ 					 priv->port);
+-				queue_work(mdev->workqueue, &priv->watchdog_task);
++				if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING,
++						      &priv->state))
++					queue_work(mdev->workqueue, &priv->restart_task);
+ 			}
+ 		}
+ 		mutex_unlock(&mdev->state_lock);
+@@ -2883,7 +2888,8 @@ static int mlx4_xdp_set(struct net_devic
+ 		if (err) {
+ 			en_err(priv, "Failed starting port %d for XDP change\n",
+ 			       priv->port);
+-			queue_work(mdev->workqueue, &priv->watchdog_task);
++			if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
++				queue_work(mdev->workqueue, &priv->restart_task);
+ 		}
+ 	}
+ 
+@@ -3284,7 +3290,7 @@ int mlx4_en_init_netdev(struct mlx4_en_d
+ 	priv->counter_index = MLX4_SINK_COUNTER_INDEX(mdev->dev);
+ 	spin_lock_init(&priv->stats_lock);
+ 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
+-	INIT_WORK(&priv->watchdog_task, mlx4_en_restart);
++	INIT_WORK(&priv->restart_task, mlx4_en_restart);
+ 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
+ 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
+ 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
+--- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
++++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
+@@ -525,6 +525,10 @@ struct mlx4_en_stats_bitmap {
+ 	struct mutex mutex; /* for mutual access to stats bitmap */
+ };
+ 
++enum {
++	MLX4_EN_STATE_FLAG_RESTARTING,
++};
++
+ struct mlx4_en_priv {
+ 	struct mlx4_en_dev *mdev;
+ 	struct mlx4_en_port_profile *prof;
+@@ -590,7 +594,7 @@ struct mlx4_en_priv {
+ 	struct mlx4_en_cq *rx_cq[MAX_RX_RINGS];
+ 	struct mlx4_qp drop_qp;
+ 	struct work_struct rx_mode_task;
+-	struct work_struct watchdog_task;
++	struct work_struct restart_task;
+ 	struct work_struct linkstate_task;
+ 	struct delayed_work stats_task;
+ 	struct delayed_work service_task;
+@@ -637,6 +641,7 @@ struct mlx4_en_priv {
+ 	u32 pflags;
+ 	u8 rss_key[MLX4_EN_RSS_KEY_SIZE];
+ 	u8 rss_hash_fn;
++	unsigned long state;
+ };
+ 
+ enum mlx4_en_wol {
 
 
