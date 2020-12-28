@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4302E642D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 332642E3940
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404316AbgL1Nmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:42:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
+        id S1731575AbgL1NVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:21:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404300AbgL1Nmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBBD12072C;
-        Mon, 28 Dec 2020 13:42:30 +0000 (UTC)
+        id S2387908AbgL1NVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:21:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC41F207C9;
+        Mon, 28 Dec 2020 13:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162951;
-        bh=XJEZDLXC9tySH+fMBbsB+74kFzf3SVYlO/GRCf7iwTA=;
+        s=korg; t=1609161631;
+        bh=lMs1uzFsLCBKQ961/06UdSYFUPJ3xEaiiqMoE3S69EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFdy/L/BhW+Tv/Sx05ly4YuE/ZK77aDfKSI1QwiBynzSMXVM02vVngOqgrCGfw5Pp
-         B44JPZXFO1Vd3DomilzplaxjIYABH4+8Mmxm00X/1rmEaDCXOQZocySG7+8mZMO3Bs
-         60Yz7sjiPlrYI8Y/DmvQ+5qWU0YGSQeef3BbRY8k=
+        b=vk7zrctiTI13CRrx8n2ePEJsjMrVJhBU4NMJfaaLQj5oh0jAOosOeyGMT+zJtNIzz
+         cDo+UOmk0ebvLvNzY4hM0iJ3CvyIwipy9SPd9muFzSBbAODVj5i3yDB1BvMfkpynHv
+         /JU1viserbtVVwv+02qJCTUlmsYefU8BMTdiOGkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 118/453] spi: tegra114: fix reference leak in tegra spi ops
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 035/346] net: stmmac: delete the eee_ctrl_timer after napi disabled
 Date:   Mon, 28 Dec 2020 13:45:54 +0100
-Message-Id: <20201228124942.894434047@linuxfoundation.org>
+Message-Id: <20201228124921.480673231@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit a042184c7fb99961ea083d4ec192614bec671969 ]
+[ Upstream commit 5f58591323bf3f342920179f24515935c4b5fd60 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in two callers(tegra_spi_setup and
-tegra_spi_resume), so we should fix it.
+There have chance to re-enable the eee_ctrl_timer and fire the timer
+in napi callback after delete the timer in .stmmac_release(), which
+introduces to access eee registers in the timer function after clocks
+are disabled then causes system hang. Found this issue when do
+suspend/resume and reboot stress test.
 
-Fixes: f333a331adfac ("spi/tegra114: add spi driver")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103141306.5607-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is safe to delete the timer after napi disabled and disable lpi mode.
+
+Fixes: d765955d2ae0b ("stmmac: add the Energy Efficient Ethernet support")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-tegra114.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index 39374c2edcf3b..594905bf89aa8 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -954,6 +954,7 @@ static int tegra_spi_setup(struct spi_device *spi)
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2702,9 +2702,6 @@ static int stmmac_release(struct net_dev
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	u32 chan;
  
- 	ret = pm_runtime_get_sync(tspi->dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(tspi->dev);
- 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
- 		if (cdata)
- 			tegra_spi_cleanup(spi);
-@@ -1472,6 +1473,7 @@ static int tegra_spi_resume(struct device *dev)
+-	if (priv->eee_enabled)
+-		del_timer_sync(&priv->eee_ctrl_timer);
+-
+ 	/* Stop and disconnect the PHY */
+ 	if (dev->phydev) {
+ 		phy_stop(dev->phydev);
+@@ -2723,6 +2720,11 @@ static int stmmac_release(struct net_dev
+ 	if (priv->lpi_irq > 0)
+ 		free_irq(priv->lpi_irq, dev);
  
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(dev);
- 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
- 		return ret;
- 	}
--- 
-2.27.0
-
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
++
+ 	/* Stop TX/RX DMA and clear the descriptors */
+ 	stmmac_stop_all_dma(priv);
+ 
+@@ -4510,6 +4512,11 @@ int stmmac_suspend(struct device *dev)
+ 	for (chan = 0; chan < priv->plat->tx_queues_to_use; chan++)
+ 		del_timer_sync(&priv->tx_queue[chan].txtimer);
+ 
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
++
+ 	/* Stop TX/RX DMA */
+ 	stmmac_stop_all_dma(priv);
+ 
 
 
