@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 809A22E67E9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6888E2E67BF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728369AbgL1NGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33828 "EHLO mail.kernel.org"
+        id S1729613AbgL1NHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:07:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729639AbgL1NGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:06:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEC35208BA;
-        Mon, 28 Dec 2020 13:06:16 +0000 (UTC)
+        id S1730654AbgL1NHB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:07:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A09202242A;
+        Mon, 28 Dec 2020 13:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160777;
-        bh=FQP+rt9NpICwzj/HNlIQdtXAEm7tcSEAdjcSZDwBpWA=;
+        s=korg; t=1609160780;
+        bh=4FLg/tRKbiYKuEHf1ONFKkPAmAa3l7zTo+kJRelJwxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQoEaJe/PYanlZQcFFNE+6F9vrHrQl8dFzMsDnP92gOLHIhWT6D06Hxi7QMXPrYHb
-         //g1iTN5yVSKHHksJpgSM2nc+oMfIp3edoOnK3kCRbFVFOhJhM8vkwJ/5pmJ8O7sIx
-         oEOrjeA2EkB1eQ8zfDx6PYH4u1rL9gRTmADmJhKo=
+        b=D+pZMSsZ6+6LvZUdfKr2Gwio82S+3Mc4G8Wh1NvemlIcANe1iCdTnNSCsVv8QyG8O
+         jh6Y55KjHGdwMRldACiz66uOsDs9TeG7g23q3GnZtT9ayHxU3iQGkWJCidAHz2cZF7
+         6+4v0o7sNq1722UPas5nLPuNC1nkS3dQvLdMs2kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Evan Green <evgreen@chromium.org>
-Subject: [PATCH 4.9 168/175] soc: qcom: smp2p: Safely acquire spinlock without IRQs
-Date:   Mon, 28 Dec 2020 13:50:21 +0100
-Message-Id: <20201228124901.372180359@linuxfoundation.org>
+        stable@vger.kernel.org, Ron Minnich <rminnich@google.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.9 169/175] mtd: parser: cmdline: Fix parsing of part-names with colons
+Date:   Mon, 28 Dec 2020 13:50:22 +0100
+Message-Id: <20201228124901.421407170@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
 References: <20201228124853.216621466@linuxfoundation.org>
@@ -41,55 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit fc3e62e25c3896855b7c3d72df19ca6be3459c9f upstream.
+commit 639a82434f16a6df0ce0e7c8595976f1293940fd upstream.
 
-smp2p_update_bits() should disable interrupts when it acquires its
-spinlock. This is important because without the _irqsave, a priority
-inversion can occur.
+Some devices (especially QCA ones) are already using hardcoded partition
+names with colons in it. The OpenMesh A62 for example provides following
+mtd relevant information via cmdline:
 
-This function is called both with interrupts enabled in
-qcom_q6v5_request_stop(), and with interrupts disabled in
-ipa_smp2p_panic_notifier(). IRQ handling of spinlocks should be
-consistent to avoid the panic notifier deadlocking because it's
-sitting on the thread that's already got the lock via _request_stop().
+  root=31:11 mtdparts=spi0.0:256k(0:SBL1),128k(0:MIBIB),384k(0:QSEE),64k(0:CDT),64k(0:DDRPARAMS),64k(0:APPSBLENV),512k(0:APPSBL),64k(0:ART),64k(custom),64k(0:KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive) rootfsname=rootfs rootwait
 
-Found via lockdep.
+The change to split only on the last colon between mtd-id and partitions
+will cause newpart to see following string for the first partition:
 
+  KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive)
+
+Such a partition list cannot be parsed and thus the device fails to boot.
+
+Avoid this behavior by making sure that the start of the first part-name
+("(") will also be the last byte the mtd-id split algorithm is using for
+its colon search.
+
+Fixes: eb13fa022741 ("mtd: parser: cmdline: Support MTD names containing one or more colons")
 Cc: stable@vger.kernel.org
-Fixes: 50e99641413e7 ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20200929133040.RESEND.1.Ideabf6dcdfc577cf39ce3d95b0e4aa1ac8b38f0c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Ron Minnich <rminnich@google.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201124062506.185392-1-sven@narfation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/qcom/smp2p.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mtd/cmdlinepart.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/soc/qcom/smp2p.c
-+++ b/drivers/soc/qcom/smp2p.c
-@@ -314,15 +314,16 @@ static int qcom_smp2p_inbound_entry(stru
- static int smp2p_update_bits(void *data, u32 mask, u32 value)
- {
- 	struct smp2p_entry *entry = data;
-+	unsigned long flags;
- 	u32 orig;
- 	u32 val;
+--- a/drivers/mtd/cmdlinepart.c
++++ b/drivers/mtd/cmdlinepart.c
+@@ -228,7 +228,7 @@ static int mtdpart_setup_real(char *s)
+ 		struct cmdline_mtd_partition *this_mtd;
+ 		struct mtd_partition *parts;
+ 		int mtd_id_len, num_parts;
+-		char *p, *mtd_id, *semicol;
++		char *p, *mtd_id, *semicol, *open_parenth;
  
--	spin_lock(&entry->lock);
-+	spin_lock_irqsave(&entry->lock, flags);
- 	val = orig = readl(entry->value);
- 	val &= ~mask;
- 	val |= value;
- 	writel(val, entry->value);
--	spin_unlock(&entry->lock);
-+	spin_unlock_irqrestore(&entry->lock, flags);
+ 		/*
+ 		 * Replace the first ';' by a NULL char so strrchr can work
+@@ -238,6 +238,14 @@ static int mtdpart_setup_real(char *s)
+ 		if (semicol)
+ 			*semicol = '\0';
  
- 	if (val != orig)
- 		qcom_smp2p_kick(entry->smp2p);
++		/*
++		 * make sure that part-names with ":" will not be handled as
++		 * part of the mtd-id with an ":"
++		 */
++		open_parenth = strchr(s, '(');
++		if (open_parenth)
++			*open_parenth = '\0';
++
+ 		mtd_id = s;
+ 
+ 		/*
+@@ -247,6 +255,10 @@ static int mtdpart_setup_real(char *s)
+ 		 */
+ 		p = strrchr(s, ':');
+ 
++		/* Restore the '(' now. */
++		if (open_parenth)
++			*open_parenth = '(';
++
+ 		/* Restore the ';' now. */
+ 		if (semicol)
+ 			*semicol = ';';
 
 
