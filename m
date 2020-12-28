@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1D72E3948
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75BEE2E3D8A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:17:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388181AbgL1NV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:21:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50348 "EHLO mail.kernel.org"
+        id S2441242AbgL1OQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:16:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388184AbgL1NV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:21:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FE4320719;
-        Mon, 28 Dec 2020 13:21:16 +0000 (UTC)
+        id S2441236AbgL1OQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:16:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFBCA207A9;
+        Mon, 28 Dec 2020 14:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161676;
-        bh=ry6M5yp688WGwiaHQBdcQbu45j94HpT7HrYXdeK19sU=;
+        s=korg; t=1609164964;
+        bh=tabp5gX2tkCFcibSKiI8VWJhPIInDjw/Up4ucq/JRHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7A7NTr8M+gQIrGNcGKAsF8WeadnpHKPPzEZu8GEOFlvY9hydeAQaUb4e94AqELp1
-         Fmzi4MuknmLClOedU1ElT9+UHURIdoX6apoe+9wMlaog7i2JShxjyCYVjY76ThL3R4
-         +rdW9ktGmirBpiF+PnrLrtCDAgSxBfMA61pgTPLI=
+        b=jyTaS7HNZfKMaLICgqUrna7iqlkADQvraiouzOZmWUlG5GorY9KJmqM5yJ6j/5pw2
+         5c4Je3Hxekz346QOdgSZiNhsMw8FZ/6fyY0T4fhuU6y2UeNxjuW+hjBu2FuFN51myz
+         UJ7ZSckrwP9/W4zlL15htsXz6BrlvypEN+ZxUDws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 022/346] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
-Date:   Mon, 28 Dec 2020 13:45:41 +0100
-Message-Id: <20201228124920.844258802@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 344/717] platform/x86: intel-vbtn: Fix SW_TABLET_MODE always reporting 1 on some HP x360 models
+Date:   Mon, 28 Dec 2020 13:45:42 +0100
+Message-Id: <20201228125037.508636844@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
+[ Upstream commit a4327979a19e8734ddefbd8bcbb73bd9905b69cd ]
 
-My patch caused kernel Oopses and delays in boot.  Revert it.
+Some HP x360 models have an ACPI VGBS method which sets bit 4 instead of
+bit 6 when NOT in tablet mode at boot. Inspecting all the DSDTs in my DSDT
+collection shows only one other model, the Medion E1239T ever setting bit 4
+and it always sets this together with bit 6.
 
-The problem was that I moved the "mem->dma = paddr;" before the call to
-be_fill_queue().  But the first thing that the be_fill_queue() function
-does is memset the whole struct to zero which overwrites the assignment.
+So lets treat bit 4 as a second bit which when set indicates the device not
+being in tablet-mode, as we already do for bit 6.
 
-Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
-Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it also prefix all VGBS constant defines with "VGBS_".
 
+Note this wrokaround was first added to the kernel as
+commit d823346876a9 ("platform/x86: intel-vbtn: Fix SW_TABLET_MODE always
+reporting 1 on the HP Pavilion 11 x360").
+After commit 8169bd3e6e19 ("platform/x86: intel-vbtn: Switch to an
+allow-list for SW_TABLET_MODE reporting") got added to the kernel this
+was reverted, because with the new allow-list approach the workaround
+was no longer necessary for the model on which the issue was first
+reported.
+
+But it turns out that the workaround is still necessary because some
+affected models report a chassis-type of 31 which is on the allow-list.
+
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1894017
+Fixes: 21d64817c724 ("platform/x86: intel-vbtn: Revert "Fix SW_TABLET_MODE always reporting 1 on the HP Pavilion 11 x360"")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -3039,7 +3039,6 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 0419c8001fe33..123401f04b55a 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -15,9 +15,13 @@
+ #include <linux/platform_device.h>
+ #include <linux/suspend.h>
  
--		mem->dma = paddr;
- 		mem->va = eq_vaddress;
- 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
- 				    sizeof(struct be_eq_entry), eq_vaddress);
-@@ -3049,6 +3048,7 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
++/* Returned when NOT in tablet mode on some HP Stream x360 11 models */
++#define VGBS_TABLET_MODE_FLAG_ALT	0x10
+ /* When NOT in tablet mode, VGBS returns with the flag 0x40 */
+-#define TABLET_MODE_FLAG 0x40
+-#define DOCK_MODE_FLAG   0x80
++#define VGBS_TABLET_MODE_FLAG		0x40
++#define VGBS_DOCK_MODE_FLAG		0x80
++
++#define VGBS_TABLET_MODE_FLAGS (VGBS_TABLET_MODE_FLAG | VGBS_TABLET_MODE_FLAG_ALT)
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
- 					    BEISCSI_EQ_DELAY_DEF);
- 		if (ret) {
-@@ -3105,7 +3105,6 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("AceLan Kao");
+@@ -72,9 +76,9 @@ static void detect_tablet_mode(struct platform_device *device)
+ 	if (ACPI_FAILURE(status))
+ 		return;
  
--		mem->dma = paddr;
- 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
- 				    sizeof(struct sol_cqe), cq_vaddress);
- 		if (ret) {
-@@ -3115,6 +3114,7 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
+-	m = !(vgbs & TABLET_MODE_FLAG);
++	m = !(vgbs & VGBS_TABLET_MODE_FLAGS);
+ 	input_report_switch(priv->input_dev, SW_TABLET_MODE, m);
+-	m = (vgbs & DOCK_MODE_FLAG) ? 1 : 0;
++	m = (vgbs & VGBS_DOCK_MODE_FLAG) ? 1 : 0;
+ 	input_report_switch(priv->input_dev, SW_DOCK, m);
+ }
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
- 					    false, 0);
- 		if (ret) {
+-- 
+2.27.0
+
 
 
