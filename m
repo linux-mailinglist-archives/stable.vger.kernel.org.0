@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB7B2E3B9D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96FC52E37F3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407106AbgL1NwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:52:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
+        id S1730201AbgL1NDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:03:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407101AbgL1NwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:52:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AAF020738;
-        Mon, 28 Dec 2020 13:51:42 +0000 (UTC)
+        id S1730197AbgL1NDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7EB4224D2;
+        Mon, 28 Dec 2020 13:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163503;
-        bh=TQSSlT2EQRSgXCmBGXqu5Wg5Cl/1A1x7DS0kj6eoQgw=;
+        s=korg; t=1609160555;
+        bh=tPHNLy6ChmPxCDv8jojGpiPaY8KCHrWmaRARlMv547s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuFZ6asCHAY8C8tCGOimekM/Iomq1AmyRaCqfBzd8qKRqFFtBpE1n4y8tANzwqy+3
-         Tx1Ny8OqhGhXjtQdQCQIANm6v8n2T5y9X/AfUAamlAGvBK5ig4uQeDBqrVAVaJLY3d
-         HPx9iq4UdDGnhClVrC4xydjFUXXteaFRHGtPqmZ8=
+        b=XMd0/qyiHSQ3Xaz/QPSXURrutDkij4NahX04Id3COiXqkNz6d8aaYV+/RZpAk29is
+         m8tVqPDetNV/uOYmF/7h9xOQ9u0s1O4c0RhbHVt/u6XFyvQeN7oAZgybZAIetHNIn9
+         BxbqnAeB1Drc2o3XuK+0hr7ib4sCILdTHzh93Kl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lingling Xu <ling_ling.xu@unisoc.com>,
-        Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 278/453] watchdog: sprd: check busy bit before new loading rather than after that
+Subject: [PATCH 4.9 061/175] spi: tegra114: fix reference leak in tegra spi ops
 Date:   Mon, 28 Dec 2020 13:48:34 +0100
-Message-Id: <20201228124950.593427844@linuxfoundation.org>
+Message-Id: <20201228124856.213790632@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lingling Xu <ling_ling.xu@unisoc.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 3e07d240939803bed9feb2a353d94686a411a7ca ]
+[ Upstream commit a042184c7fb99961ea083d4ec192614bec671969 ]
 
-As the specification described, users must check busy bit before start
-a new loading operation to make sure that the previous loading is done
-and the device is ready to accept a new one.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in two callers(tegra_spi_setup and
+tegra_spi_resume), so we should fix it.
 
-[ chunyan: Massaged changelog ]
-
-Fixes: 477603467009 ("watchdog: Add Spreadtrum watchdog driver")
-Signed-off-by: Lingling Xu <ling_ling.xu@unisoc.com>
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201029023933.24548-3-zhang.lyra@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: f333a331adfac ("spi/tegra114: add spi driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141306.5607-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sprd_wdt.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/spi/spi-tegra114.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/watchdog/sprd_wdt.c b/drivers/watchdog/sprd_wdt.c
-index f3c90b4afead1..b9b1daa9e2a4c 100644
---- a/drivers/watchdog/sprd_wdt.c
-+++ b/drivers/watchdog/sprd_wdt.c
-@@ -108,18 +108,6 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
- 	u32 tmr_step = timeout * SPRD_WDT_CNT_STEP;
- 	u32 prtmr_step = pretimeout * SPRD_WDT_CNT_STEP;
+diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
+index e37712bed0b2d..d1ca8f619b828 100644
+--- a/drivers/spi/spi-tegra114.c
++++ b/drivers/spi/spi-tegra114.c
+@@ -801,6 +801,7 @@ static int tegra_spi_setup(struct spi_device *spi)
  
--	sprd_wdt_unlock(wdt->base);
--	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
--		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
--	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
--		       wdt->base + SPRD_WDT_LOAD_LOW);
--	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
--			SPRD_WDT_LOW_VALUE_MASK,
--		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
--	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
--		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
--	sprd_wdt_lock(wdt->base);
--
- 	/*
- 	 * Waiting the load value operation done,
- 	 * it needs two or three RTC clock cycles.
-@@ -134,6 +122,19 @@ static int sprd_wdt_load_value(struct sprd_wdt *wdt, u32 timeout,
+ 	ret = pm_runtime_get_sync(tspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(tspi->dev);
+ 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
+@@ -1214,6 +1215,7 @@ static int tegra_spi_resume(struct device *dev)
  
- 	if (delay_cnt >= SPRD_WDT_LOAD_TIMEOUT)
- 		return -EBUSY;
-+
-+	sprd_wdt_unlock(wdt->base);
-+	writel_relaxed((tmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+		      SPRD_WDT_LOW_VALUE_MASK, wdt->base + SPRD_WDT_LOAD_HIGH);
-+	writel_relaxed((tmr_step & SPRD_WDT_LOW_VALUE_MASK),
-+		       wdt->base + SPRD_WDT_LOAD_LOW);
-+	writel_relaxed((prtmr_step >> SPRD_WDT_CNT_HIGH_SHIFT) &
-+			SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_HIGH);
-+	writel_relaxed(prtmr_step & SPRD_WDT_LOW_VALUE_MASK,
-+		       wdt->base + SPRD_WDT_IRQ_LOAD_LOW);
-+	sprd_wdt_lock(wdt->base);
-+
- 	return 0;
- }
- 
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
