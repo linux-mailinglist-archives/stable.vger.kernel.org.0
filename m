@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E52052E6923
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF202E67FC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgL1QpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:45:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52962 "EHLO mail.kernel.org"
+        id S1730610AbgL1QbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:31:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbgL1M4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:56:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FEFC208D5;
-        Mon, 28 Dec 2020 12:56:33 +0000 (UTC)
+        id S1730586AbgL1NFR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:05:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D622245C;
+        Mon, 28 Dec 2020 13:04:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160193;
-        bh=fI4JeCBIOMgmJEBljdtZVIXUtoKF/x3OGmUcqh+eO+w=;
+        s=korg; t=1609160676;
+        bh=rN1UhIVGmv1kbOBSZbu95fHxVkQe5md3+jf0hDU4j3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFM/99Rd+cGU7KNzdUU0oIPc0r434DlpilqSEQJa3MakKbHroGAPYxN55Ne6ATPyi
-         JgPsQX6KaEtob+PzGILbeCvhyNNGtPmGJiiZfJCOWgIzJ+f6Nq5H8DE9dFl1/3N7nm
-         NHGAB9OcWOAkntbHodgYcWH+IbPtSdZU11JcdsaQ=
+        b=iyheYx+9LRpvtrXlfHeP7XlcK3PPZO+EyEHtB39PzM7kFyrQvSefGL1QHZLUqCVP9
+         8qBH/KOHU1WiKUg1vOPZxhK8VlNuhFnk/73bURDPY71n8YVAfGXSHw+XhMjbatYyyU
+         Kfp+SkCLOqK2M3XzMVEnm4V07BRHqhgTk43H4vs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Scally <djrscally@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.4 101/132] Revert "ACPI / resources: Use AE_CTRL_TERMINATE to terminate resources walks"
-Date:   Mon, 28 Dec 2020 13:49:45 +0100
-Message-Id: <20201228124851.300725133@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Kozlov Sergey <serjk@netup.ru>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 133/175] media: netup_unidvb: Dont leak SPI master in probe error path
+Date:   Mon, 28 Dec 2020 13:49:46 +0100
+Message-Id: <20201228124859.696786162@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <djrscally@gmail.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 12fc4dad94dfac25599f31257aac181c691ca96f upstream.
+commit e297ddf296de35037fa97f4302782def196d350a upstream.
 
-This reverts commit 8a66790b7850a6669129af078768a1d42076a0ef.
+If the call to spi_register_master() fails on probe of the NetUP
+Universal DVB driver, the spi_master struct is erroneously not freed.
 
-Switching this function to AE_CTRL_TERMINATE broke the documented
-behaviour of acpi_dev_get_resources() - AE_CTRL_TERMINATE does not, in
-fact, terminate the resource walk because acpi_walk_resource_buffer()
-ignores it (specifically converting it to AE_OK), referring to that
-value as "an OK termination by the user function". This means that
-acpi_dev_get_resources() does not abort processing when the preproc
-function returns a negative value.
+Likewise, if spi_new_device() fails, the spi_controller struct is
+not unregistered.  Plug the leaks.
 
-Signed-off-by: Daniel Scally <djrscally@gmail.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+While at it, fix an ordering issue in netup_spi_release() wherein
+spi_unregister_master() is called after fiddling with the IRQ control
+register.  The correct order is to call spi_unregister_master() *before*
+this teardown step because bus accesses may still be ongoing until that
+function returns.
+
+Fixes: 52b1eaf4c59a ("[media] netup_unidvb: NetUP Universal DVB-S/S2/T/T2/C PCI-E card driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.3+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.3+
+Cc: Kozlov Sergey <serjk@netup.ru>
+Link: https://lore.kernel.org/r/c4c24f333fc7840f4a3db24789e6e10dd660bede.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/resource.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/netup_unidvb/netup_unidvb_spi.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -506,7 +506,7 @@ static acpi_status acpi_dev_process_reso
- 		ret = c->preproc(ares, c->preproc_data);
- 		if (ret < 0) {
- 			c->error = ret;
--			return AE_CTRL_TERMINATE;
-+			return AE_ABORT_METHOD;
- 		} else if (ret > 0) {
- 			return AE_OK;
- 		}
+--- a/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
++++ b/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
+@@ -184,7 +184,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 	struct spi_master *master;
+ 	struct netup_spi *nspi;
+ 
+-	master = spi_alloc_master(&ndev->pci_dev->dev,
++	master = devm_spi_alloc_master(&ndev->pci_dev->dev,
+ 		sizeof(struct netup_spi));
+ 	if (!master) {
+ 		dev_err(&ndev->pci_dev->dev,
+@@ -217,6 +217,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 		ndev->pci_slot,
+ 		ndev->pci_func);
+ 	if (!spi_new_device(master, &netup_spi_board)) {
++		spi_unregister_master(master);
+ 		ndev->spi = NULL;
+ 		dev_err(&ndev->pci_dev->dev,
+ 			"%s(): unable to create SPI device\n", __func__);
+@@ -235,13 +236,13 @@ void netup_spi_release(struct netup_unid
+ 	if (!spi)
+ 		return;
+ 
++	spi_unregister_master(spi->master);
+ 	spin_lock_irqsave(&spi->lock, flags);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg | NETUP_SPI_CTRL_IRQ, &spi->regs->control_stat);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg & ~NETUP_SPI_CTRL_IMASK, &spi->regs->control_stat);
+ 	spin_unlock_irqrestore(&spi->lock, flags);
+-	spi_unregister_master(spi->master);
+ 	ndev->spi = NULL;
+ }
+ 
 
 
