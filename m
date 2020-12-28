@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 755682E407F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE922E3B28
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389251AbgL1OxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:53:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54492 "EHLO mail.kernel.org"
+        id S2404941AbgL1Nqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:46:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502109AbgL1OTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 819712063A;
-        Mon, 28 Dec 2020 14:19:20 +0000 (UTC)
+        id S2405353AbgL1Nq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:46:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E078420738;
+        Mon, 28 Dec 2020 13:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165161;
-        bh=30wRvLYMuuuOmbb8sDTf0kxDzspVdth8YwEHI/ToWGo=;
+        s=korg; t=1609163172;
+        bh=M/qAnnzeGcdtmxSXRA2Zp3upGgGp15J/cO8lq87pHCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCLS0iuibm14bO12+MEN7c/Nat9vCH3+WEZZYxW5ikYWAwSEkDvQ+pTV2aHdAYHT5
-         CJDLESz4HqKfkuvXWlbB/0VKQAxLyzSW7lR2ZGlRBUwel5HG6zXwc0IpHVZ+z+kJAZ
-         ODfI1V33AT6GCQwU4UksiOaReP7yHb2D/U/WLxdc=
+        b=Gr1KmdhOi6I3pJlu4kC7I2rxg6vrNEQeerr9EyV4o63GE8NtLBxuxN+Jw6GrjznB+
+         Y61kWKEU3e5F7x02nlaSNCQSdc+i/zDdFVF7UePOUYq5uy3eADYxBzY2mDkUNJxknA
+         yZcG717A/N3ipa5WDDcnkCajoHVFq30D2vNWein0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 433/717] ubifs: Fix error return code in ubifs_init_authentication()
+Subject: [PATCH 5.4 195/453] platform/x86: dell-smbios-base: Fix error return code in dell_smbios_init
 Date:   Mon, 28 Dec 2020 13:47:11 +0100
-Message-Id: <20201228125041.716926890@linuxfoundation.org>
+Message-Id: <20201228124946.597081531@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang ShaoBo <bobo.shaobowang@huawei.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 3cded66330591cfd2554a3fd5edca8859ea365a2 ]
+[ Upstream commit 2425ccd30fd78ce35237350fe8baac31dc18bd45 ]
 
-Fix to return PTR_ERR() error code from the error handling case where
-ubifs_hash_get_desc() failed instead of 0 in ubifs_init_authentication(),
-as done elsewhere in this function.
+Fix to return the error code -ENODEV when fails to init wmi and
+smm.
 
-Fixes: 49525e5eecca5 ("ubifs: Add helper functions for authentication support")
-Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 41e36f2f85af ("platform/x86: dell-smbios: Link all dell-smbios-* modules together")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@dell.com>
+Link: https://lore.kernel.org/r/20201125065032.154125-1-miaoqinglang@huawei.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/auth.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/dell-smbios-base.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ubifs/auth.c b/fs/ubifs/auth.c
-index b93b3cd10bfd3..8c50de693e1d4 100644
---- a/fs/ubifs/auth.c
-+++ b/fs/ubifs/auth.c
-@@ -338,8 +338,10 @@ int ubifs_init_authentication(struct ubifs_info *c)
- 	c->authenticated = true;
- 
- 	c->log_hash = ubifs_hash_get_desc(c);
--	if (IS_ERR(c->log_hash))
-+	if (IS_ERR(c->log_hash)) {
-+		err = PTR_ERR(c->log_hash);
- 		goto out_free_hmac;
-+	}
- 
- 	err = 0;
+diff --git a/drivers/platform/x86/dell-smbios-base.c b/drivers/platform/x86/dell-smbios-base.c
+index fe59b0ebff314..ceb8e701028df 100644
+--- a/drivers/platform/x86/dell-smbios-base.c
++++ b/drivers/platform/x86/dell-smbios-base.c
+@@ -594,6 +594,7 @@ static int __init dell_smbios_init(void)
+ 	if (wmi && smm) {
+ 		pr_err("No SMBIOS backends available (wmi: %d, smm: %d)\n",
+ 			wmi, smm);
++		ret = -ENODEV;
+ 		goto fail_create_group;
+ 	}
  
 -- 
 2.27.0
