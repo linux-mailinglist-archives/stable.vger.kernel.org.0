@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6362E6864
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:37:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C07C02E6575
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393666AbgL1Qfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:35:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58042 "EHLO mail.kernel.org"
+        id S2390257AbgL1NaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:30:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729933AbgL1NCB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:02:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D193208BA;
-        Mon, 28 Dec 2020 13:01:45 +0000 (UTC)
+        id S2390249AbgL1NaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B922C2072C;
+        Mon, 28 Dec 2020 13:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160506;
-        bh=hBqEKjtQH9pCeJpw+i2B+swTLS0iJvzOgIPDh8J/Cjg=;
+        s=korg; t=1609162162;
+        bh=k5RTE5SuaIMdDo6xyKA23v9Nr8Y6BhKBS/cDvULcEcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R97YQfP2UDbNQxYGKhJkPt0Uz2wbm1AWVMROhOnkN8yrjtiTyrAbv85XbinKqZ1zR
-         hgTOpgTK+Up2OAUYOez78PIBeV68XfubmTRPHLAc3/0gMceu89kl+D2GrTred2MLgF
-         pxCURJa8YrxN4v+6bnHH7ZNkV91mM/B5c3WKjVUs=
+        b=GT6qbtcVE2QKuHf9Nxa4ygfr95y8mbUk7+tvwL7PgjVDyXr6YNXe7hrJLlMl7JGTb
+         wJn0O4GwdrK9a6wkP9lqZ5zQblElSmrpCSbujyKCs89sU1UoAqXzttKHPibsGplEA6
+         3uM3lW/7rqP/V4nuYg2njly3KOnbr3xi5EDDvSJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 074/175] soc: ti: Fix reference imbalance in knav_dma_probe
+Subject: [PATCH 4.19 208/346] cpufreq: scpi: Add missing MODULE_ALIAS
 Date:   Mon, 28 Dec 2020 13:48:47 +0100
-Message-Id: <20201228124856.823088447@linuxfoundation.org>
+Message-Id: <20201228124929.849436692@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit b4fa73358c306d747a2200aec6f7acb97e5750e6 ]
+[ Upstream commit c0382d049d2def37b81e907a8b22661a4a4a6eb5 ]
 
-The patch fix two reference leak.
+This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
+driver when it is compiled as an external module.
 
-  1) pm_runtime_get_sync will increment pm usage counter even it
-     failed. Forgetting to call put operation will result in
-     reference leak.
-
-  2) The pm_runtime_enable will increase power disable depth. Thus
-     a pairing decrement is needed on the error handling path to
-     keep it balanced.
-
-We fix it by: 1) adding call pm_runtime_put_noidle or
-pm_runtime_put_sync in error handling. 2) adding pm_runtime_disable
-in error handling, to keep usage counter and disable depth balanced.
-
-Fixes: 88139ed030583 ("soc: ti: add Keystone Navigator DMA support")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 8def31034d033 ("cpufreq: arm_big_little: add SCPI interface driver")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/knav_dma.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/cpufreq/scpi-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soc/ti/knav_dma.c b/drivers/soc/ti/knav_dma.c
-index 1a7b5caa127b5..b86bea4537325 100644
---- a/drivers/soc/ti/knav_dma.c
-+++ b/drivers/soc/ti/knav_dma.c
-@@ -752,8 +752,9 @@ static int knav_dma_probe(struct platform_device *pdev)
- 	pm_runtime_enable(kdev->dev);
- 	ret = pm_runtime_get_sync(kdev->dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(kdev->dev);
- 		dev_err(kdev->dev, "unable to enable pktdma, err %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
+diff --git a/drivers/cpufreq/scpi-cpufreq.c b/drivers/cpufreq/scpi-cpufreq.c
+index 87a98ec77773a..0338885332a75 100644
+--- a/drivers/cpufreq/scpi-cpufreq.c
++++ b/drivers/cpufreq/scpi-cpufreq.c
+@@ -246,6 +246,7 @@ static struct platform_driver scpi_cpufreq_platdrv = {
+ };
+ module_platform_driver(scpi_cpufreq_platdrv);
  
- 	/* Initialise all packet dmas */
-@@ -767,13 +768,21 @@ static int knav_dma_probe(struct platform_device *pdev)
- 
- 	if (list_empty(&kdev->list)) {
- 		dev_err(dev, "no valid dma instance\n");
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_put_sync;
- 	}
- 
- 	debugfs_create_file("knav_dma", S_IFREG | S_IRUGO, NULL, NULL,
- 			    &knav_dma_debug_ops);
- 
- 	return ret;
-+
-+err_put_sync:
-+	pm_runtime_put_sync(kdev->dev);
-+err_pm_disable:
-+	pm_runtime_disable(kdev->dev);
-+
-+	return ret;
- }
- 
- static int knav_dma_remove(struct platform_device *pdev)
++MODULE_ALIAS("platform:scpi-cpufreq");
+ MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
+ MODULE_DESCRIPTION("ARM SCPI CPUFreq interface driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.27.0
 
