@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC882E383A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 813E12E6502
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730774AbgL1NHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:07:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
+        id S2389185AbgL1Nee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:34:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbgL1NHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:07:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C692E208BA;
-        Mon, 28 Dec 2020 13:06:39 +0000 (UTC)
+        id S2391142AbgL1Ned (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:34:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE75207B2;
+        Mon, 28 Dec 2020 13:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160800;
-        bh=0aLngOLlZjpxpVbTroKiMfMr9Wb/XUWSAoNOcIe9ss8=;
+        s=korg; t=1609162458;
+        bh=O9qS/MAmnFhi9/af/HnY3Uf21tkvjHdUH0xv1zmydWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18dLkgS81hIT+6U0IIm5wmfHe3uTzA8oWhkmyfU6l40AP1GW4YuPWHFa/qtltQlpn
-         6CQ4fgJuHrpALuib3Dw/HYFQ6Of3fz+s7YpMvdjSddhQCAdauIqWqdf8VEgjL6We+3
-         EK/goyd72TZnpmI/lFRmr5xigVwrV4cyuoAVeMYc=
+        b=ZmjWvoxszdqRSi27Udtmi+mu8s4MQ3yRZAAUD/c6fw1g58k14dGq/DXXau+GY3OTw
+         oBJoXwJTC9GHen3Ml3lj3LjqsV+vnZM7T+HPccdIySI9o6U/8hR1kB/Ok7SemEbLWI
+         bvtb1uptmod6oP8CSkp9GPK0Rgkqauef6ixM3/GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jubin Zhong <zhongjubin@huawei.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.9 175/175] PCI: Fix pci_slot_release() NULL pointer dereference
-Date:   Mon, 28 Dec 2020 13:50:28 +0100
-Message-Id: <20201228124901.716690755@linuxfoundation.org>
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 310/346] SMB3.1.1: do not log warning message if server doesnt populate salt
+Date:   Mon, 28 Dec 2020 13:50:29 +0100
+Message-Id: <20201228124934.778573319@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jubin Zhong <zhongjubin@huawei.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 4684709bf81a2d98152ed6b610e3d5c403f9bced upstream.
+commit 7955f105afb6034af344038d663bc98809483cdd upstream.
 
-If kobject_init_and_add() fails, pci_slot_release() is called to delete
-slot->list from parent->slots.  But slot->list hasn't been initialized
-yet, so we dereference a NULL pointer:
+In the negotiate protocol preauth context, the server is not required
+to populate the salt (although it is done by most servers) so do
+not warn on mount.
 
-  Unable to handle kernel NULL pointer dereference at virtual address
-00000000
-  ...
-  CPU: 10 PID: 1 Comm: swapper/0 Not tainted 4.4.240 #197
-  task: ffffeb398a45ef10 task.stack: ffffeb398a470000
-  PC is at __list_del_entry_valid+0x5c/0xb0
-  LR is at pci_slot_release+0x84/0xe4
-  ...
-  __list_del_entry_valid+0x5c/0xb0
-  pci_slot_release+0x84/0xe4
-  kobject_put+0x184/0x1c4
-  pci_create_slot+0x17c/0x1b4
-  __pci_hp_initialize+0x68/0xa4
-  pciehp_probe+0x1a4/0x2fc
-  pcie_port_probe_service+0x58/0x84
-  driver_probe_device+0x320/0x470
+We retain the checks (warn) that the preauth context is the minimum
+size and that the salt does not exceed DataLength of the SMB response.
+Although we use the defaults in the case that the preauth context
+response is invalid, these checks may be useful in the future
+as servers add support for additional mechanisms.
 
-Initialize slot->list before calling kobject_init_and_add() to avoid this.
-
-Fixes: 8a94644b440e ("PCI: Fix pci_create_slot() reference count leak")
-Link: https://lore.kernel.org/r/1606876422-117457-1-git-send-email-zhongjubin@huawei.com
-Signed-off-by: Jubin Zhong <zhongjubin@huawei.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org	# v5.9+
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/slot.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/smb2pdu.c |    7 +++++--
+ fs/cifs/smb2pdu.h |   14 +++++++++++---
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -307,6 +307,9 @@ placeholder:
- 		goto err;
- 	}
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -406,8 +406,8 @@ build_preauth_ctxt(struct smb2_preauth_n
+ 	pneg_ctxt->ContextType = SMB2_PREAUTH_INTEGRITY_CAPABILITIES;
+ 	pneg_ctxt->DataLength = cpu_to_le16(38);
+ 	pneg_ctxt->HashAlgorithmCount = cpu_to_le16(1);
+-	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_SALT_SIZE);
+-	get_random_bytes(pneg_ctxt->Salt, SMB311_SALT_SIZE);
++	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_LINUX_CLIENT_SALT_SIZE);
++	get_random_bytes(pneg_ctxt->Salt, SMB311_LINUX_CLIENT_SALT_SIZE);
+ 	pneg_ctxt->HashAlgorithms = SMB2_PREAUTH_INTEGRITY_SHA512;
+ }
  
-+	INIT_LIST_HEAD(&slot->list);
-+	list_add(&slot->list, &parent->slots);
+@@ -461,6 +461,9 @@ static void decode_preauth_context(struc
+ 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
+ 		printk_once(KERN_WARNING "server sent bad preauth context\n");
+ 		return;
++	} else if (len < MIN_PREAUTH_CTXT_DATA_LEN + le16_to_cpu(ctxt->SaltLength)) {
++		pr_warn_once("server sent invalid SaltLength\n");
++		return;
+ 	}
+ 	if (le16_to_cpu(ctxt->HashAlgorithmCount) != 1)
+ 		printk_once(KERN_WARNING "illegal SMB3 hash algorithm count\n");
+--- a/fs/cifs/smb2pdu.h
++++ b/fs/cifs/smb2pdu.h
+@@ -257,12 +257,20 @@ struct smb2_neg_context {
+ 	/* Followed by array of data */
+ } __packed;
+ 
+-#define SMB311_SALT_SIZE			32
++#define SMB311_LINUX_CLIENT_SALT_SIZE			32
+ /* Hash Algorithm Types */
+ #define SMB2_PREAUTH_INTEGRITY_SHA512	cpu_to_le16(0x0001)
+ #define SMB2_PREAUTH_HASH_SIZE 64
+ 
+-#define MIN_PREAUTH_CTXT_DATA_LEN	(SMB311_SALT_SIZE + 6)
++/*
++ * SaltLength that the server send can be zero, so the only three required
++ * fields (all __le16) end up six bytes total, so the minimum context data len
++ * in the response is six bytes which accounts for
++ *
++ *      HashAlgorithmCount, SaltLength, and 1 HashAlgorithm.
++ */
++#define MIN_PREAUTH_CTXT_DATA_LEN 6
 +
- 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
- 				   "%s", slot_name);
- 	if (err) {
-@@ -314,9 +317,6 @@ placeholder:
- 		goto err;
- 	}
+ struct smb2_preauth_neg_context {
+ 	__le16	ContextType; /* 1 */
+ 	__le16	DataLength;
+@@ -270,7 +278,7 @@ struct smb2_preauth_neg_context {
+ 	__le16	HashAlgorithmCount; /* 1 */
+ 	__le16	SaltLength;
+ 	__le16	HashAlgorithms; /* HashAlgorithms[0] since only one defined */
+-	__u8	Salt[SMB311_SALT_SIZE];
++	__u8	Salt[SMB311_LINUX_CLIENT_SALT_SIZE];
+ } __packed;
  
--	INIT_LIST_HEAD(&slot->list);
--	list_add(&slot->list, &parent->slots);
--
- 	down_read(&pci_bus_sem);
- 	list_for_each_entry(dev, &parent->devices, bus_list)
- 		if (PCI_SLOT(dev->devfn) == slot_nr)
+ /* Encryption Algorithms Ciphers */
 
 
