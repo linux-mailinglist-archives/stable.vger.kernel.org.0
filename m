@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E752E409C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563512E3AF3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408058AbgL1Oyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:54:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52332 "EHLO mail.kernel.org"
+        id S2404487AbgL1Nng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441393AbgL1ORM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59E61205CB;
-        Mon, 28 Dec 2020 14:16:31 +0000 (UTC)
+        id S2404483AbgL1Nnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BEE520731;
+        Mon, 28 Dec 2020 13:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164992;
-        bh=RlDsBlXLsQ3QoR4KAsOlMurTbZ/ADKzYradXQZvelg0=;
+        s=korg; t=1609163000;
+        bh=p1LOqc7mA8BmYbckF1NJwYlflQhqX/m1vxUTO6PIYxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBRlbtUft8X9UM5uR1FQQ6w5dhei7K1B2LhLihOAG8NtWf9umXKCGk3V6STqzlGBH
-         dU+2CzybvTnOVN4Ua2qy76M5iS0/1esw+TJyReKUgrErwk59hM9VdYYbUdaW09Z/sA
-         SgNa8Wq0PJy2/kjTfH6Pg9pfwOeuBeelhRX/2Olw=
+        b=jb4LBO3zp5W/4HBFiDa2J28YCAFYNngrM8OVgjGE1e+ZFVrmHJEE4MI8AR8mXy/eP
+         7/+A6dgp3rCUD88zbnwd2CTK1x81lLvNSEGFz4nuearYz9o4/xvZEDY7UU4eBX7+e7
+         +TD/CBLly2jRf/qgowQowsE9XnZ8DtUPTFz3xeCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 371/717] powerpc/mm: sanity_check_fault() should work for all, not only BOOK3S
+Subject: [PATCH 5.4 133/453] media: mtk-vcodec: add missing put_device() call in mtk_vcodec_init_dec_pm()
 Date:   Mon, 28 Dec 2020 13:46:09 +0100
-Message-Id: <20201228125038.782440876@linuxfoundation.org>
+Message-Id: <20201228124943.607177432@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 7ceb40027e19567a0a066e3b380cc034cdd9a124 ]
+[ Upstream commit 5d4fa2c50125c9cda9e380d89268757cc5fa743d ]
 
-The verification and message introduced by commit 374f3f5979f9
-("powerpc/mm/hash: Handle user access of kernel address gracefully")
-applies to all platforms, it should not be limited to BOOK3S.
+if of_find_device_by_node() succeed, mtk_vcodec_init_dec_pm() doesn't have
+a corresponding put_device(). Thus add jump target to fix the exception
+handling for this function implementation.
 
-Make the BOOK3S version of sanity_check_fault() the one for all,
-and bail out earlier if not BOOK3S.
-
-Fixes: 374f3f5979f9 ("powerpc/mm/hash: Handle user access of kernel address gracefully")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/fe199d5af3578d3bf80035d203a94d742a7a28af.1607491748.git.christophe.leroy@csgroup.eu
+Fixes: 590577a4e525 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Decoder Driver")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/fault.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ .../platform/mtk-vcodec/mtk_vcodec_dec_pm.c    | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index 0add963a849b3..72e1b51beb10c 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -303,7 +303,6 @@ static inline void cmo_account_page_fault(void)
- static inline void cmo_account_page_fault(void) { }
- #endif /* CONFIG_PPC_SMLPAR */
- 
--#ifdef CONFIG_PPC_BOOK3S
- static void sanity_check_fault(bool is_write, bool is_user,
- 			       unsigned long error_code, unsigned long address)
- {
-@@ -320,6 +319,9 @@ static void sanity_check_fault(bool is_write, bool is_user,
- 		return;
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+index 5a6ec8fb52daa..01e680ede9bd5 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+@@ -48,11 +48,14 @@ int mtk_vcodec_init_dec_pm(struct mtk_vcodec_dev *mtkdev)
+ 		dec_clk->clk_info = devm_kcalloc(&pdev->dev,
+ 			dec_clk->clk_num, sizeof(*clk_info),
+ 			GFP_KERNEL);
+-		if (!dec_clk->clk_info)
+-			return -ENOMEM;
++		if (!dec_clk->clk_info) {
++			ret = -ENOMEM;
++			goto put_device;
++		}
+ 	} else {
+ 		mtk_v4l2_err("Failed to get vdec clock count");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_device;
  	}
  
-+	if (!IS_ENABLED(CONFIG_PPC_BOOK3S))
-+		return;
-+
- 	/*
- 	 * For hash translation mode, we should never get a
- 	 * PROTFAULT. Any update to pte to reduce access will result in us
-@@ -354,10 +356,6 @@ static void sanity_check_fault(bool is_write, bool is_user,
+ 	for (i = 0; i < dec_clk->clk_num; i++) {
+@@ -61,19 +64,22 @@ int mtk_vcodec_init_dec_pm(struct mtk_vcodec_dev *mtkdev)
+ 			"clock-names", i, &clk_info->clk_name);
+ 		if (ret) {
+ 			mtk_v4l2_err("Failed to get clock name id = %d", i);
+-			return ret;
++			goto put_device;
+ 		}
+ 		clk_info->vcodec_clk = devm_clk_get(&pdev->dev,
+ 			clk_info->clk_name);
+ 		if (IS_ERR(clk_info->vcodec_clk)) {
+ 			mtk_v4l2_err("devm_clk_get (%d)%s fail", i,
+ 				clk_info->clk_name);
+-			return PTR_ERR(clk_info->vcodec_clk);
++			ret = PTR_ERR(clk_info->vcodec_clk);
++			goto put_device;
+ 		}
+ 	}
  
- 	WARN_ON_ONCE(error_code & DSISR_PROTFAULT);
+ 	pm_runtime_enable(&pdev->dev);
+-
++	return 0;
++put_device:
++	put_device(pm->larbvdec);
+ 	return ret;
  }
--#else
--static void sanity_check_fault(bool is_write, bool is_user,
--			       unsigned long error_code, unsigned long address) { }
--#endif /* CONFIG_PPC_BOOK3S */
  
- /*
-  * Define the correct "is_write" bit in error_code based
 -- 
 2.27.0
 
