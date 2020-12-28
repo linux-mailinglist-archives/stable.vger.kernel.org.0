@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D403E2E3BE2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F7C2E3E7D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405305AbgL1Nzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:55:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57446 "EHLO mail.kernel.org"
+        id S2502536AbgL1O2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:28:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405342AbgL1Nzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:55:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC3F22064B;
-        Mon, 28 Dec 2020 13:55:07 +0000 (UTC)
+        id S2502519AbgL1O2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:28:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC31208B6;
+        Mon, 28 Dec 2020 14:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163708;
-        bh=Pp1oZr9QjFByhRyQ6o4RCW4FNfSeuKdiEuEVv85WAAg=;
+        s=korg; t=1609165685;
+        bh=wAAhsgCdQH/YGceVJMG3dh+I4tdKvBIPXAipij5iSCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSNQOzSTF7+R/sFHN3PMnl0YiMfzuVxnZDvBa2qvgbEV7O3WnDQX3Ci997ofOIGHE
-         DUa77cOWrXj3j80iXY8/kqMw6ZzwxDeBqTdKBrwbHXwhbkEcqCKzxzAEqQjhbsSIdS
-         mbll5Y5Y2nwbLAVZWkg/Ywi6sVPOTbCZ8hLzr/GQ=
+        b=zZxnIxI7jf/75J7MAWxAxHU8K8q2/FLGyHGLJnxQV2maOrrqklFDglQ+uBsRFM8XI
+         /iLRDcAA2sc7wEceebNzaf6UoETfmcw/aAWVIHbNLnhwGjpJmSQXKI94WLT34VebAO
+         Hhu5O1wvZbfPkPoSxso0xaDilE8R5j+RphhvKEk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 381/453] powerpc/rtas: Fix typo of ibm,open-errinjct in RTAS filter
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.10 619/717] ima: Dont modify file descriptor mode on the fly
 Date:   Mon, 28 Dec 2020 13:50:17 +0100
-Message-Id: <20201228124955.540204716@linuxfoundation.org>
+Message-Id: <20201228125050.581685971@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit f10881a46f8914428110d110140a455c66bdf27b upstream.
+commit 207cdd565dfc95a0a5185263a567817b7ebf5467 upstream.
 
-Commit bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-introduced the following error when invoking the errinjct userspace
-tool:
+Commit a408e4a86b36b ("ima: open a new file instance if no read
+permissions") already introduced a second open to measure a file when the
+original file descriptor does not allow it. However, it didn't remove the
+existing method of changing the mode of the original file descriptor, which
+is still necessary if the current process does not have enough privileges
+to open a new one.
 
-  [root@ltcalpine2-lp5 librtas]# errinjct open
-  [327884.071171] sys_rtas: RTAS call blocked - exploit attempt?
-  [327884.071186] sys_rtas: token=0x26, nargs=0 (called by errinjct)
-  errinjct: Could not open RTAS error injection facility
-  errinjct: librtas: open: Unexpected I/O error
+Changing the mode isn't really an option, as the filesystem might need to
+do preliminary steps to make the read possible. Thus, this patch removes
+the code and keeps the second open as the only option to measure a file
+when it is unreadable with the original file descriptor.
 
-The entry for ibm,open-errinjct in rtas_filter array has a typo where
-the "j" is omitted in the rtas call name. After fixing this typo the
-errinjct tool functions again as expected.
-
-  [root@ltcalpine2-lp5 linux]# errinjct open
-  RTAS error injection facility open, token = 1
-
-Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201208195434.8289-1-tyreld@linux.ibm.com
+Cc: <stable@vger.kernel.org> # 4.20.x: 0014cc04e8ec0 ima: Set file->f_mode
+Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/rtas.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/integrity/ima/ima_crypto.c |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -978,7 +978,7 @@ static struct rtas_filter rtas_filters[]
- 	{ "ibm,display-message", -1, 0, -1, -1, -1 },
- 	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
- 	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
--	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
-+	{ "ibm,open-errinjct", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
- 	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -537,7 +537,7 @@ int ima_calc_file_hash(struct file *file
+ 	loff_t i_size;
+ 	int rc;
+ 	struct file *f = file;
+-	bool new_file_instance = false, modified_mode = false;
++	bool new_file_instance = false;
+ 
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -555,18 +555,10 @@ int ima_calc_file_hash(struct file *file
+ 				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
+ 		flags |= O_RDONLY;
+ 		f = dentry_open(&file->f_path, flags, file->f_cred);
+-		if (IS_ERR(f)) {
+-			/*
+-			 * Cannot open the file again, lets modify f_mode
+-			 * of original and continue
+-			 */
+-			pr_info_ratelimited("Unable to reopen file for reading.\n");
+-			f = file;
+-			f->f_mode |= FMODE_READ;
+-			modified_mode = true;
+-		} else {
+-			new_file_instance = true;
+-		}
++		if (IS_ERR(f))
++			return PTR_ERR(f);
++
++		new_file_instance = true;
+ 	}
+ 
+ 	i_size = i_size_read(file_inode(f));
+@@ -581,8 +573,6 @@ int ima_calc_file_hash(struct file *file
+ out:
+ 	if (new_file_instance)
+ 		fput(f);
+-	else if (modified_mode)
+-		f->f_mode &= ~FMODE_READ;
+ 	return rc;
+ }
+ 
 
 
