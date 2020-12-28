@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 688612E37CB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44A192E3E03
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729492AbgL1NAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
+        id S2502714AbgL1OWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:22:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbgL1NA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:00:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B9022A84;
-        Mon, 28 Dec 2020 13:00:11 +0000 (UTC)
+        id S2502696AbgL1OWn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:22:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C51C522B30;
+        Mon, 28 Dec 2020 14:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160412;
-        bh=oWJXZo+0BclQizMraScsx3nBU4Nn0LYmt4uqg1UzAbU=;
+        s=korg; t=1609165347;
+        bh=SGoB8j5yDF3J909SAHZihhflgFYzkjcmdLEJAdoZbjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNN0/IDU2vKaSSxoJy11uR8pFvGPUDV3SOl4zuRj5JVMFp+UkSiSqX5QxSbhSE94a
-         iG3psVVbuTnkihybkN8flmCudxraJ8aLwvVwIwNhN09IX2uJn3rKFb9ZVRC+rk2oTy
-         w+TbKnJXlugRekXhOvIJpf73i3xY2U8DVzk6toTo=
+        b=DCyhoPgKa/eApoOLnlaAOnIq8XKZcqMjqh7I77d58Xt649S6qkqPIZSdoCKwuIqKf
+         i9JwqHhUY/DZB5Hyzoz8jxF+Mm2TorkNTJjC6glxHotjPiVonXaBqnhg0jQYWYLzN8
+         w6nnE2k7mfnXOoNEWZz1CdnzP1uFNVFl2X6SK0l8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
-Subject: [PATCH 4.9 042/175] ARM: dts: exynos: fix roles of USB 3.0 ports on Odroid XU
-Date:   Mon, 28 Dec 2020 13:48:15 +0100
-Message-Id: <20201228124855.290195717@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <mripard@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 498/717] clk: sunxi-ng: Make sure divider tables have sentinel
+Date:   Mon, 28 Dec 2020 13:48:16 +0100
+Message-Id: <20201228125044.826880929@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-commit ecc1ff532b499d20304a4f682247137025814c34 upstream.
+[ Upstream commit 48f68de00c1405351fa0e7bc44bca067c49cd0a3 ]
 
-On Odroid XU board the USB3-0 port is a microUSB and USB3-1 port is USB
-type A (host).  The roles were copied from Odroid XU3 (Exynos5422)
-design which has it reversed.
+Two clock divider tables are missing sentinel at the end. Effect of that
+is that clock framework reads past the last entry. Fix that with adding
+sentinel at the end.
 
-Fixes: 8149afe4dbf9 ("ARM: dts: exynos: Add initial support for Odroid XU board")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201015182044.480562-1-krzk@kernel.org
-Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Issue was discovered with KASan.
 
+Fixes: 0577e4853bfb ("clk: sunxi-ng: Add H3 clocks")
+Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Link: https://lore.kernel.org/r/20201202203817.438713-1-jernej.skrabec@siol.net
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5410-odroidxu.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 1 +
+ drivers/clk/sunxi-ng/ccu-sun8i-h3.c   | 1 +
+ 2 files changed, 2 insertions(+)
 
---- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
-+++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
-@@ -560,11 +560,11 @@
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+index 5f66bf8797723..149cfde817cba 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+@@ -389,6 +389,7 @@ static struct clk_div_table ths_div_table[] = {
+ 	{ .val = 1, .div = 2 },
+ 	{ .val = 2, .div = 4 },
+ 	{ .val = 3, .div = 6 },
++	{ /* Sentinel */ },
  };
- 
- &usbdrd_dwc3_0 {
--	dr_mode = "host";
-+	dr_mode = "peripheral";
+ static const char * const ths_parents[] = { "osc24M" };
+ static struct ccu_div ths_clk = {
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-h3.c b/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
+index 6b636362379ee..7e629a4493afd 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
+@@ -322,6 +322,7 @@ static struct clk_div_table ths_div_table[] = {
+ 	{ .val = 1, .div = 2 },
+ 	{ .val = 2, .div = 4 },
+ 	{ .val = 3, .div = 6 },
++	{ /* Sentinel */ },
  };
- 
- &usbdrd_dwc3_1 {
--	dr_mode = "peripheral";
-+	dr_mode = "host";
- };
- 
- &usbdrd3_0 {
+ static SUNXI_CCU_DIV_TABLE_WITH_GATE(ths_clk, "ths", "osc24M",
+ 				     0x074, 0, 2, ths_div_table, BIT(31), 0);
+-- 
+2.27.0
+
 
 
