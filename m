@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B066E2E3B42
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2912E386E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404375AbgL1NsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:48:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
+        id S1731318AbgL1NKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:10:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404362AbgL1NsA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:48:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 160E4208B3;
-        Mon, 28 Dec 2020 13:47:43 +0000 (UTC)
+        id S1731312AbgL1NKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:10:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F0822583;
+        Mon, 28 Dec 2020 13:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163264;
-        bh=cv7KZcCqWqu2Ff/MUhPhwKhtfYbKVVlPTixFms5VXDw=;
+        s=korg; t=1609160970;
+        bh=BDMdtDImohmx+gtDsTvBpXzt4RsvTcqtfy7+Tkh0CXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnzaqPUKUw9yFuFew7ArbIgtbJkGxGsyxUd4YOETh41/gKd82XU3le2CL6QlB4Jlj
-         8ETqRz5k5WqDETTtyR+fBcN63gBjiOeCTKRyuVei5E2JPXAL0JMY8TNYfynuTBBj8W
-         kIEep6ZcchR+IwPTUr5FEQDDNm1ZlqyvtVguxGBw=
+        b=T+PN2kRv90QHc9HF3GHCCSKYRkJE9/4+DC/uI9OwAnvGvJPbiqfs79rfV1WXZXcE7
+         /JFWAUR6FlPsSXy69aBHI5geOCpavn1anjoiGK9AWIoAnIiizxII7myomI8CJx9k20
+         ZVdNNj1RJFIQagDvyk2ZLhszwi7ozg2QSREbfJlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 226/453] clocksource/drivers/arm_arch_timer: Correct fault programming of CNTKCTL_EL1.EVNTI
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 4.14 057/242] ARM: dts: exynos: fix USB 3.0 pins supply being turned off on Odroid XU
 Date:   Mon, 28 Dec 2020 13:47:42 +0100
-Message-Id: <20201228124948.097013832@linuxfoundation.org>
+Message-Id: <20201228124907.487763158@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keqian Zhu <zhukeqian1@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 8b7770b877d187bfdae1eaf587bd2b792479a31c ]
+commit bd7e7ff56feea7810df900fb09c9741d259861d9 upstream.
 
-ARM virtual counter supports event stream, it can only trigger an event
-when the trigger bit (the value of CNTKCTL_EL1.EVNTI) of CNTVCT_EL0 changes,
-so the actual period of event stream is 2^(cntkctl_evnti + 1). For example,
-when the trigger bit is 0, then virtual counter trigger an event for every
-two cycles.
+On Odroid XU LDO12 and LDO15 supplies the power to USB 3.0 blocks but
+the GPK GPIO pins are supplied by LDO7 (VDDQ_LCD).  LDO7 also supplies
+GPJ GPIO pins.
 
-While we're at it, rework the way we compute the trigger bit position
-by making it more obvious that when bits [n:n-1] are both set (with n
-being the most significant bit), we pick bit (n + 1).
+The Exynos pinctrl driver does not take any supplies, so to have entire
+GPIO block always available, make the regulator always on.
 
-Fixes: 037f637767a8 ("drivers: clocksource: add support for ARM architected timer event stream")
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201204073126.6920-3-zhukeqian1@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 88644b4c750b ("ARM: dts: exynos: Configure PWM, usb3503, PMIC and thermal on Odroid XU board")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201015182044.480562-3-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clocksource/arm_arch_timer.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/exynos5410-odroidxu.dts |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index d2120fcf1f3f6..39cdda2c9a98b 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -818,15 +818,24 @@ static void arch_timer_evtstrm_enable(int divider)
+--- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
++++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+@@ -327,6 +327,8 @@
+ 				regulator-name = "vddq_lcd";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				/* Supplies also GPK and GPJ */
++				regulator-always-on;
+ 			};
  
- static void arch_timer_configure_evtstream(void)
- {
--	int evt_stream_div, pos;
-+	int evt_stream_div, lsb;
-+
-+	/*
-+	 * As the event stream can at most be generated at half the frequency
-+	 * of the counter, use half the frequency when computing the divider.
-+	 */
-+	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ / 2;
-+
-+	/*
-+	 * Find the closest power of two to the divisor. If the adjacent bit
-+	 * of lsb (last set bit, starts from 0) is set, then we use (lsb + 1).
-+	 */
-+	lsb = fls(evt_stream_div) - 1;
-+	if (lsb > 0 && (evt_stream_div & BIT(lsb - 1)))
-+		lsb++;
- 
--	/* Find the closest power of two to the divisor */
--	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ;
--	pos = fls(evt_stream_div);
--	if (pos > 1 && !(evt_stream_div & (1 << (pos - 2))))
--		pos--;
- 	/* enable event stream */
--	arch_timer_evtstrm_enable(min(pos, 15));
-+	arch_timer_evtstrm_enable(max(0, min(lsb, 15)));
- }
- 
- static void arch_counter_set_user_access(void)
--- 
-2.27.0
-
+ 			ldo8_reg: LDO8 {
 
 
