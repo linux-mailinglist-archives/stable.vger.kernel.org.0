@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B91BF2E36C2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EABD2E36C4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726530AbgL1LtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:49:08 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:54625 "EHLO
+        id S1726363AbgL1Luf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:50:35 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:52193 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726263AbgL1LtI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:49:08 -0500
+        by vger.kernel.org with ESMTP id S1726263AbgL1Luf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:50:35 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id E87297EC;
-        Mon, 28 Dec 2020 06:48:21 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:48:22 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 228B977D;
+        Mon, 28 Dec 2020 06:49:49 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:49:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jqO7Hc
-        IEe3pB3owWGd8bo98HetVOD/0DHgpy0TachNQ=; b=KZNjXLxYGg6lcuZSei56pH
-        Hswtxxj/JOMoDGDEeVqCrT/qhSIPfwDomfKCVwb1Tz4ezjzcC2zyHebfBcI+j2kt
-        JpMNUfAvjAzvRvK5O+F4BfCn7Q3jO1iG4a08dNqM522pa+XBTC1Og7BYVbKZ5sGm
-        NdZQMAXvW6D5sBETfvMxhwFO1nwSBHtp19zDDjToZLRGWwpeALvVEFxzl0iRNHUK
-        r/YBW5yCCOCb7Mwo93XFGMQHVw4gqZ49af7vs+vBoztu7JqQF4tfOhgMpvYXUiTl
-        Nn1yAnLQqGUxe4lC92j5MynWqf5XR/BG1svB+9bcMEGYiZ/jXJRNWEICcaoC4s1w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=9/2fS+
+        NsNQT6KfUTYUVXid3+0kfFP0m9GiblROugShg=; b=Dyps8tww5l5z0xPkuURUho
+        /5JQO+t3tN1icxoBCFYj51cR58u2OUNOGjZAC3PySddXxW4rIXvZbwleaFrvDSho
+        Yr4usNVZRiuomizjawkIBMNrgpV1xTY1NnH3tFsV+pQu6HqZW997zUNl1kenqwtB
+        2qDzrsTiorXicvmihM7CzanUHEGkeJDKzWsEIEdGQpNBfMy0yyLAlCiqdQYIr/TE
+        da/PO+Y57ooArlIJV1mtxr3WAVxTSg81y+ZMidXYQKMDOSgz+I/BF4HapsU3pKlm
+        7pjUHVQbM+cLMYJ4XU2jr5TlThVN7CKcxsmpPpIBp6Iw7IomsGGJRGnN2o89drqw
         ==
-X-ME-Sender: <xms:BcbpX8eYKt6KI69t597VdHlxrdFnMe5QEqTNkA3FGXsLsInFA_AxCg>
-    <xme:BcbpX-Pyz440a4JmH94CLBPpes-V-3Db8x9POQwaXaU__b9DciyBsdwRdIJlpi2aC
-    m4xmLKOJNIAgw>
+X-ME-Sender: <xms:XMbpX34RqhcgsaNX8Bgt70XxXXyP6ultVplqlM2VTYPxVVSDLIoKng>
+    <xme:XMbpX87CPovsZA07VH338TDaDGJejZ_lKdJwqsibpQAN6Y5myI0gXGMzbcbwzin1U
+    p5IQeVrWXna-Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:BcbpX9i0Zl0NEoCjK6GAOLTiJE00PdbgwCBH_is9lz7vJKT0IvJ_4Q>
-    <xmx:BcbpXx98OFeZUpDk3cNGT1toi6pvDfw7qPdrLvXs8SSD2DQPWqp1Pw>
-    <xmx:BcbpX4t3aG19ziUeaD1KPT_QDQnVOcUVAj1AIVA4WJNDO6rsLALJ5g>
-    <xmx:BcbpX0J5Mgs4zVGNW-q7campveFGSZ0ecvl2eEBQtcsI7tKqgDk4OIbwgNY>
+X-ME-Proxy: <xmx:XMbpX-ddBt6uVDuODg0ECdwu6ZTfoln1_wp1kF9xKmRPCsJEPu7OZw>
+    <xmx:XMbpX4Lx6mgrX23do2no7MuCEsotUZ1LWBvKfM3MhkSNJUta1tP35g>
+    <xmx:XMbpX7JkH13fRHrDjuXqNoYUFlABJCJvPYtNERd7NJalyckdl87eEQ>
+    <xmx:XMbpXyWWG1lPiDrSXwBCBZ6zvrSzf0g30Goa-Cucm10SWSgSPX7YKfzT3hc>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 08DFC240057;
-        Mon, 28 Dec 2020 06:48:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] null_blk: Fix zone size initialization" failed to apply to 5.4-stable tree
-To:     damien.lemoal@wdc.com, axboe@kernel.dk, hch@lst.de,
-        johannes.thumshirn@wdc.com, naohiro.aota@wdc.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id D54141080057;
+        Mon, 28 Dec 2020 06:49:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] libnvdimm/namespace: Fix reaping of invalidated" failed to apply to 4.9-stable tree
+To:     dan.j.williams@intel.com, dave.jiang@intel.com,
+        ira.weiny@intel.com, stable@vger.kernel.org,
+        vishal.l.verma@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:49:36 +0100
-Message-ID: <160915617623242@kroah.com>
+Date:   Mon, 28 Dec 2020 12:51:10 +0100
+Message-ID: <160915627095183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,85 +72,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0ebcdd702f49aeb0ad2e2d894f8c124a0acc6e23 Mon Sep 17 00:00:00 2001
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Date: Fri, 20 Nov 2020 10:55:11 +0900
-Subject: [PATCH] null_blk: Fix zone size initialization
+From 2dd2a1740ee19cd2636d247276cf27bfa434b0e2 Mon Sep 17 00:00:00 2001
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Fri, 20 Nov 2020 08:50:07 -0800
+Subject: [PATCH] libnvdimm/namespace: Fix reaping of invalidated
+ block-window-namespace labels
 
-For a null_blk device with zoned mode enabled is currently initialized
-with a number of zones equal to the device capacity divided by the zone
-size, without considering if the device capacity is a multiple of the
-zone size. If the zone size is not a divisor of the capacity, the zones
-end up not covering the entire capacity, potentially resulting is out
-of bounds accesses to the zone array.
+A recent change to ndctl to attempt to reconfigure namespaces in place
+uncovered a label accounting problem in block-window-type namespaces.
+The ndctl "create.sh" test is able to trigger this signature:
 
-Fix this by adding one last smaller zone with a size equal to the
-remainder of the disk capacity divided by the zone size if the capacity
-is not a multiple of the zone size. For such smaller last zone, the zone
-capacity is also checked so that it does not exceed the smaller zone
-size.
+ WARNING: CPU: 34 PID: 9167 at drivers/nvdimm/label.c:1100 __blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ RIP: 0010:__blk_label_update+0x9a3/0xbc0 [libnvdimm]
+ [..]
+ Call Trace:
+  uuid_store+0x21b/0x2f0 [libnvdimm]
+  kernfs_fop_write+0xcf/0x1c0
+  vfs_write+0xcc/0x380
+  ksys_write+0x68/0xe0
 
-Reported-by: Naohiro Aota <naohiro.aota@wdc.com>
-Fixes: ca4b2a011948 ("null_blk: add zone support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+When allocated capacity for a namespace is renamed (new UUID) the labels
+with the old UUID need to be deleted. The ndctl behavior to always
+destroy namespaces on reconfiguration hid this problem.
 
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index beb34b4f76b0..1d0370d91fe7 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -6,8 +6,7 @@
- #define CREATE_TRACE_POINTS
- #include "null_blk_trace.h"
- 
--/* zone_size in MBs to sectors. */
--#define ZONE_SIZE_SHIFT		11
-+#define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
- 
- static inline unsigned int null_zone_no(struct nullb_device *dev, sector_t sect)
- {
-@@ -16,7 +15,7 @@ static inline unsigned int null_zone_no(struct nullb_device *dev, sector_t sect)
- 
- int null_init_zoned_dev(struct nullb_device *dev, struct request_queue *q)
- {
--	sector_t dev_size = (sector_t)dev->size * 1024 * 1024;
-+	sector_t dev_capacity_sects, zone_capacity_sects;
- 	sector_t sector = 0;
- 	unsigned int i;
- 
-@@ -38,9 +37,13 @@ int null_init_zoned_dev(struct nullb_device *dev, struct request_queue *q)
- 		return -EINVAL;
+The immediate impact of this bug is limited since block-window-type
+namespaces only seem to exist in the specification and not in any
+shipping products. However, the label handling code is being reused for
+other technologies like CXL region labels, so there is a benefit to
+making sure both vertical labels sets (block-window) and horizontal
+label sets (pmem) have a functional reference implementation in
+libnvdimm.
+
+Fixes: c4703ce11c23 ("libnvdimm/namespace: Fix label tracking error")
+Cc: <stable@vger.kernel.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+
+diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
+index 47a4828b8b31..6f2be7a34598 100644
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -980,6 +980,15 @@ static int __blk_label_update(struct nd_region *nd_region,
+ 		}
  	}
  
--	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
--	dev->nr_zones = dev_size >>
--				(SECTOR_SHIFT + ilog2(dev->zone_size_sects));
-+	zone_capacity_sects = MB_TO_SECTS(dev->zone_capacity);
-+	dev_capacity_sects = MB_TO_SECTS(dev->size);
-+	dev->zone_size_sects = MB_TO_SECTS(dev->zone_size);
-+	dev->nr_zones = dev_capacity_sects >> ilog2(dev->zone_size_sects);
-+	if (dev_capacity_sects & (dev->zone_size_sects - 1))
-+		dev->nr_zones++;
++	/* release slots associated with any invalidated UUIDs */
++	mutex_lock(&nd_mapping->lock);
++	list_for_each_entry_safe(label_ent, e, &nd_mapping->labels, list)
++		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)) {
++			reap_victim(nd_mapping, label_ent);
++			list_move(&label_ent->list, &list);
++		}
++	mutex_unlock(&nd_mapping->lock);
 +
- 	dev->zones = kvmalloc_array(dev->nr_zones, sizeof(struct blk_zone),
- 			GFP_KERNEL | __GFP_ZERO);
- 	if (!dev->zones)
-@@ -101,8 +104,12 @@ int null_init_zoned_dev(struct nullb_device *dev, struct request_queue *q)
- 		struct blk_zone *zone = &dev->zones[i];
- 
- 		zone->start = zone->wp = sector;
--		zone->len = dev->zone_size_sects;
--		zone->capacity = dev->zone_capacity << ZONE_SIZE_SHIFT;
-+		if (zone->start + dev->zone_size_sects > dev_capacity_sects)
-+			zone->len = dev_capacity_sects - zone->start;
-+		else
-+			zone->len = dev->zone_size_sects;
-+		zone->capacity =
-+			min_t(sector_t, zone->len, zone_capacity_sects);
- 		zone->type = BLK_ZONE_TYPE_SEQWRITE_REQ;
- 		zone->cond = BLK_ZONE_COND_EMPTY;
- 
+ 	/*
+ 	 * Find the resource associated with the first label in the set
+ 	 * per the v1.2 namespace specification.
 
