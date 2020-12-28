@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69CF52E6834
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5D52E692E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633601AbgL1QdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:33:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60124 "EHLO mail.kernel.org"
+        id S1727739AbgL1Mz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730326AbgL1NEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90E97207C9;
-        Mon, 28 Dec 2020 13:03:18 +0000 (UTC)
+        id S1728657AbgL1Mzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA08207C9;
+        Mon, 28 Dec 2020 12:55:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160599;
-        bh=Wdwhs5Y5kdLWDSBFMmEc8WP8wop4/0dX/8rxrLoADWA=;
+        s=korg; t=1609160114;
+        bh=Q8Jma1sP/c+EfQWsNXNfmNNGb0Xk9HnEbDSWPklweC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aOzgsDoIZUJovsN+m2W/K1R2k/fTrQgOA4MEcVvgPrtYOszqqaBag1o/cobv21KUK
-         CoR7qFvWnPGI9lRJ1msxdpsNb6r5PCbmC6pKPoSzWYLQM9951fLqtm8A/BlaTkrvYP
-         Apiz/v1gC4fDy+dJb7z1HqXGyjY8dwz/CGV+5muU=
+        b=PvxymbtSciFlnHQeBmZwTrl94VOQZWmL3ITRV7/8wnJuXometj2CYq2h/79sjycZe
+         p7gCZJAjxrzshILuVxguc+6lZpMefmkDCNdc7jTQZx7cxsAqtiy5OQoXpew8Mfgh7b
+         If3fsa5piMG3gpdZF0ex8y4meOHPguuPwL3yOUbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Karan Tilak Kumar <kartilak@cisco.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/175] powerpc/pseries/hibernation: drop pseries_suspend_begin() from suspend ops
+Subject: [PATCH 4.4 074/132] scsi: fnic: Fix error return code in fnic_probe()
 Date:   Mon, 28 Dec 2020 13:49:18 +0100
-Message-Id: <20201228124858.338904074@linuxfoundation.org>
+Message-Id: <20201228124850.018852032@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 52719fce3f4c7a8ac9eaa191e8d75a697f9fbcbc ]
+[ Upstream commit d4fc94fe65578738ded138e9fce043db6bfc3241 ]
 
-There are three ways pseries_suspend_begin() can be reached:
+Return a negative error code from the error handling case instead of 0 as
+done elsewhere in this function.
 
-1. When "mem" is written to /sys/power/state:
-
-kobj_attr_store()
--> state_store()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This never works because there is no way to supply a valid stream id
-using this interface, and H_VASI_STATE is called with a stream id of
-zero. So this call path is useless at best.
-
-2. When a stream id is written to /sys/devices/system/power/hibernate.
-pseries_suspend_begin() is polled directly from store_hibernate()
-until the stream is in the "Suspending" state (i.e. the platform is
-ready for the OS to suspend execution):
-
-dev_attr_store()
--> store_hibernate()
-  -> pseries_suspend_begin()
-
-3. When a stream id is written to /sys/devices/system/power/hibernate
-(continued). After #2, pseries_suspend_begin() is called once again
-from the pm core:
-
-dev_attr_store()
--> store_hibernate()
-  -> pm_suspend()
-    -> suspend_devices_and_enter()
-      -> pseries_suspend_begin()
-
-This is redundant because the VASI suspend state is already known to
-be Suspending.
-
-The begin() callback of platform_suspend_ops is optional, so we can
-simply remove that assignment with no loss of function.
-
-Fixes: 32d8ad4e621d ("powerpc/pseries: Partition hibernation support")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201207215200.1785968-18-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/1607068060-31203-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Karan Tilak Kumar <kartilak@cisco.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/suspend.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/fnic/fnic_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/pseries/suspend.c b/arch/powerpc/platforms/pseries/suspend.c
-index e76aefae2aa2b..0a0e0c8256f67 100644
---- a/arch/powerpc/platforms/pseries/suspend.c
-+++ b/arch/powerpc/platforms/pseries/suspend.c
-@@ -224,7 +224,6 @@ static struct bus_type suspend_subsys = {
+diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
+index 58ce9020d69c5..389c13e1c9788 100644
+--- a/drivers/scsi/fnic/fnic_main.c
++++ b/drivers/scsi/fnic/fnic_main.c
+@@ -735,6 +735,7 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	for (i = 0; i < FNIC_IO_LOCKS; i++)
+ 		spin_lock_init(&fnic->io_req_lock[i]);
  
- static const struct platform_suspend_ops pseries_suspend_ops = {
- 	.valid		= suspend_valid_only_mem,
--	.begin		= pseries_suspend_begin,
- 	.prepare_late	= pseries_prepare_late,
- 	.enter		= pseries_suspend_enter,
- };
++	err = -ENOMEM;
+ 	fnic->io_req_pool = mempool_create_slab_pool(2, fnic_io_req_cache);
+ 	if (!fnic->io_req_pool)
+ 		goto err_out_free_resources;
 -- 
 2.27.0
 
