@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B938F2E426A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC6B2E4280
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436653AbgL1PWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:22:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
+        id S2407801AbgL1OAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:00:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408196AbgL1OB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 429E8207A9;
-        Mon, 28 Dec 2020 14:01:10 +0000 (UTC)
+        id S2407492AbgL1OAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:00:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B5C205CB;
+        Mon, 28 Dec 2020 13:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164070;
-        bh=oIU7PlTYB7Ozwx+0YOvB968wcTowWf/f2sSjhiCt/8U=;
+        s=korg; t=1609163975;
+        bh=4WkGcy/+keBscqkemL2ALHP+oJLlWlSiD0U4fUeB4C8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=whZaTyQ1FD6anKGdQOgjD1tRqtwEZnozjz6X6dd3DMX32ndLnuJOrKa2oaWlHByCb
-         iyNPZtUyrgx6WNeHRYtK8VQSPkyeeYMFlR0oj31z4kE55WRZkLxP6AqU0EYB8fbXVM
-         qSdB5Mubd1IhEYHWhLhQrxbMo5Ijqs/lCRd2BaXw=
+        b=EmFD20L9zDveAYp2uTsC+EKFlZ4YK7rDH5cNydunyONYK479SddCRpiEvw4FPrcNI
+         tOTLvHTbmxV3VXagGfE6ujHm0UKjkew5yd97hhvoY3FvmRHf0RCdDdLn8rNPgzuI7Z
+         bUNPICSCCjibsYrDWQdTEtuUlvfruR+Z0Kq1y5C4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/717] arm64: dts: renesas: cat875: Remove rxc-skew-ps from ethernet-phy node
-Date:   Mon, 28 Dec 2020 13:40:06 +0100
-Message-Id: <20201228125021.385627404@linuxfoundation.org>
+Subject: [PATCH 5.10 009/717] soc: renesas: rmobile-sysc: Fix some leaks in rmobile_init_pm_domains()
+Date:   Mon, 28 Dec 2020 13:40:07 +0100
+Message-Id: <20201228125021.433809342@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,35 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 53e573dc39fba1834f3e4fa002cb754b61a30701 ]
+[ Upstream commit cf25d802e029c31efac8bdc979236927f37183bd ]
 
-The CAT875 sub board from Silicon Linux uses Realtek phy and the driver
-does not support rxc-skew-ps property.
+This code needs to call iounmap() on one error path.
 
-Fixes: 6b170cd3ed02949f ("arm64: dts: renesas: cat875: Add ethernet support")
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20201015132350.8360-2-biju.das.jz@bp.renesas.com
+Fixes: 2173fc7cb681 ("ARM: shmobile: R-Mobile: Add DT support for PM domains")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200923113142.GC1473821@mwanda
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/cat875.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/soc/renesas/rmobile-sysc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/renesas/cat875.dtsi b/arch/arm64/boot/dts/renesas/cat875.dtsi
-index 33daa95706840..801ea54b027c4 100644
---- a/arch/arm64/boot/dts/renesas/cat875.dtsi
-+++ b/arch/arm64/boot/dts/renesas/cat875.dtsi
-@@ -21,7 +21,6 @@
- 	status = "okay";
+diff --git a/drivers/soc/renesas/rmobile-sysc.c b/drivers/soc/renesas/rmobile-sysc.c
+index 54b616ad4a62a..beb1c7211c3d6 100644
+--- a/drivers/soc/renesas/rmobile-sysc.c
++++ b/drivers/soc/renesas/rmobile-sysc.c
+@@ -327,6 +327,7 @@ static int __init rmobile_init_pm_domains(void)
  
- 	phy0: ethernet-phy@0 {
--		rxc-skew-ps = <1500>;
- 		reg = <0>;
- 		interrupt-parent = <&gpio2>;
- 		interrupts = <21 IRQ_TYPE_LEVEL_LOW>;
+ 		pmd = of_get_child_by_name(np, "pm-domains");
+ 		if (!pmd) {
++			iounmap(base);
+ 			pr_warn("%pOF lacks pm-domains node\n", np);
+ 			continue;
+ 		}
 -- 
 2.27.0
 
