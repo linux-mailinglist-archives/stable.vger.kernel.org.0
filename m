@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB4C2E3F40
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D94902E3F34
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392305AbgL1OiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:38:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39864 "EHLO mail.kernel.org"
+        id S2392251AbgL1Ohb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:37:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504142AbgL1OcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 769CF2063A;
-        Mon, 28 Dec 2020 14:31:53 +0000 (UTC)
+        id S2504743AbgL1Och (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D15D20715;
+        Mon, 28 Dec 2020 14:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165914;
-        bh=9ssjzMwYka8fIx+hvUzcJBCprK54wHmDvbZlEVUhIHk=;
+        s=korg; t=1609165916;
+        bh=+pSnwWsCMByYdsFsfpHiPyCaC6g7YzUC9AlAXhW96sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUFSepV9C0u0WxEpmIolWSDO4kFx37ZhgJERZpDBba7/79P6AYOemTI1LJ1D1GqEZ
-         Yd9vzA8WkEjll5Qpi714ONLlYLQtWi4mVEPK9zIY7lT7GaOJeroDf+FrwDbT1HjLm0
-         gqVPklKAQvyj5RdW+N6oI/+4oKSsqyAZxlP/ORHw=
+        b=fHV2xsrMZH7nfCOcUl7oP+lmJZqyDTicaW/OK1Ap9rpAJ+w6tT3vh3sHKjOUCH/0V
+         dcFw05PYRTEh9Rs/w3yehiHijE+UDtAl93VJZRmwpo7p13C0C9v33lGkPZao2fCz5x
+         CKJ0pxFVUQxtRSTXGGd2p9lU/C8MKwCfsiPvj29Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Michael Kurth <mku@amazon.de>,
         Pawel Wieczorkiewicz <wipawel@amazon.de>,
         Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 699/717] xen/xenbus: Count pending messages for each watch
-Date:   Mon, 28 Dec 2020 13:51:37 +0100
-Message-Id: <20201228125054.474872245@linuxfoundation.org>
+Subject: [PATCH 5.10 700/717] xenbus/xenbus_backend: Disallow pending watch messages
+Date:   Mon, 28 Dec 2020 13:51:38 +0100
+Message-Id: <20201228125054.519478188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,12 +43,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: SeongJae Park <sjpark@amazon.de>
 
-commit 3dc86ca6b4c8cfcba9da7996189d1b5a358a94fc upstream.
+commit 9996bd494794a2fe393e97e7a982388c6249aa76 upstream.
 
-This commit adds a counter of pending messages for each watch in the
-struct.  It is used to skip unnecessary pending messages lookup in
-'unregister_xenbus_watch()'.  It could also be used in 'will_handle'
-callback.
+'xenbus_backend' watches 'state' of devices, which is writable by
+guests.  Hence, if guests intensively updates it, dom0 will have lots of
+pending events that exhausting memory of dom0.  In other words, guests
+can trigger dom0 memory pressure.  This is known as XSA-349.  However,
+the watch callback of it, 'frontend_changed()', reads only 'state', so
+doesn't need to have the pending events.
+
+To avoid the problem, this commit disallows pending watch messages for
+'xenbus_backend' using the 'will_handle()' watch callback.
 
 This is part of XSA-349
 
@@ -61,88 +66,31 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xenbus/xenbus_xs.c |   29 ++++++++++++++++++-----------
- include/xen/xenbus.h           |    2 ++
- 2 files changed, 20 insertions(+), 11 deletions(-)
+ drivers/xen/xenbus/xenbus_probe_backend.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -711,6 +711,7 @@ int xs_watch_msg(struct xs_watch_event *
- 				 event->path, event->token))) {
- 		spin_lock(&watch_events_lock);
- 		list_add_tail(&event->list, &watch_events);
-+		event->handle->nr_pending++;
- 		wake_up(&watch_events_waitq);
- 		spin_unlock(&watch_events_lock);
- 	} else
-@@ -768,6 +769,8 @@ int register_xenbus_watch(struct xenbus_
+--- a/drivers/xen/xenbus/xenbus_probe_backend.c
++++ b/drivers/xen/xenbus/xenbus_probe_backend.c
+@@ -180,6 +180,12 @@ static int xenbus_probe_backend(struct x
+ 	return err;
+ }
  
- 	sprintf(token, "%lX", (long)watch);
- 
-+	watch->nr_pending = 0;
++static bool frontend_will_handle(struct xenbus_watch *watch,
++				 const char *path, const char *token)
++{
++	return watch->nr_pending == 0;
++}
 +
- 	down_read(&xs_watch_rwsem);
- 
- 	spin_lock(&watches_lock);
-@@ -817,11 +820,14 @@ void unregister_xenbus_watch(struct xenb
- 
- 	/* Cancel pending watch events. */
- 	spin_lock(&watch_events_lock);
--	list_for_each_entry_safe(event, tmp, &watch_events, list) {
--		if (event->handle != watch)
--			continue;
--		list_del(&event->list);
--		kfree(event);
-+	if (watch->nr_pending) {
-+		list_for_each_entry_safe(event, tmp, &watch_events, list) {
-+			if (event->handle != watch)
-+				continue;
-+			list_del(&event->list);
-+			kfree(event);
-+		}
-+		watch->nr_pending = 0;
- 	}
- 	spin_unlock(&watch_events_lock);
- 
-@@ -868,7 +874,6 @@ void xs_suspend_cancel(void)
- 
- static int xenwatch_thread(void *unused)
+ static void frontend_changed(struct xenbus_watch *watch,
+ 			     const char *path, const char *token)
  {
--	struct list_head *ent;
- 	struct xs_watch_event *event;
- 
- 	xenwatch_pid = current->pid;
-@@ -883,13 +888,15 @@ static int xenwatch_thread(void *unused)
- 		mutex_lock(&xenwatch_mutex);
- 
- 		spin_lock(&watch_events_lock);
--		ent = watch_events.next;
--		if (ent != &watch_events)
--			list_del(ent);
-+		event = list_first_entry_or_null(&watch_events,
-+				struct xs_watch_event, list);
-+		if (event) {
-+			list_del(&event->list);
-+			event->handle->nr_pending--;
-+		}
- 		spin_unlock(&watch_events_lock);
- 
--		if (ent != &watch_events) {
--			event = list_entry(ent, struct xs_watch_event, list);
-+		if (event) {
- 			event->handle->callback(event->handle, event->path,
- 						event->token);
- 			kfree(event);
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -61,6 +61,8 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
- 
-+	unsigned int nr_pending;
-+
- 	/*
- 	 * Called just before enqueing new event while a spinlock is held.
- 	 * The event will be discarded if this callback returns false.
+@@ -191,6 +197,7 @@ static struct xen_bus_type xenbus_backen
+ 	.levels = 3,		/* backend/type/<frontend>/<id> */
+ 	.get_bus_id = backend_bus_id,
+ 	.probe = xenbus_probe_backend,
++	.otherend_will_handle = frontend_will_handle,
+ 	.otherend_changed = frontend_changed,
+ 	.bus = {
+ 		.name		= "xen-backend",
 
 
