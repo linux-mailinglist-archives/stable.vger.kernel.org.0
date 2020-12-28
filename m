@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DAE2E666C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5122E6657
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407871AbgL1QMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:12:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
+        id S2388248AbgL1NW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387967AbgL1NV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:21:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60598207C9;
-        Mon, 28 Dec 2020 13:21:13 +0000 (UTC)
+        id S2388235AbgL1NWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A59207C9;
+        Mon, 28 Dec 2020 13:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161674;
-        bh=zVhJz5NUX6hGPxi2AWc77kBUaBzn4WGc1q3gf0E/Xpc=;
+        s=korg; t=1609161702;
+        bh=SEF2i0iPA5d6UNnZnlZX4c/P+nQpD0ufL6j88hVYMu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTzSdefijYiGsohz/r+ZPlkpZ4mM/+JRvTVi9NYEINQonQBI/hiLvcGWe08OLiWM8
-         Kl44R7ci7fIBjk1SyvxuJCfxnvfxiBQAix9XPho4X0T7iqINIUkSzkadOeXupniMFb
-         769u0YSQam/1Znah6Puq8q5NyIOMPdtpIDYZUsCI=
+        b=gHH7UBbO6UxsBMgFS25CkxjVytHhg1oHhoBBQd9DNLsNX+R9oGpW2aETIZkQMcU7S
+         +9hdUigT9cqdf09GPTWue7uHLVT+r17k6tdtAdvfGw6fLQZceC0Uh1meQIYrYi1yKY
+         JpLshJHwobUC2GFZIlnzZB5DISYVGaA69tFLcAZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 048/346] drm/xen-front: Fix misused IS_ERR_OR_NULL checks
-Date:   Mon, 28 Dec 2020 13:46:07 +0100
-Message-Id: <20201228124922.112563517@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Amit Kachhap <Amit.Kachhap@arm.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.19 051/346] arm64: lse: Fix LSE atomics with LLVM
+Date:   Mon, 28 Dec 2020 13:46:10 +0100
+Message-Id: <20201228124922.260235014@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -42,106 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-commit 14dee058610446aa464254fc5c8e88c7535195e0 upstream
+commit dd1f6308b28edf0452dd5dc7877992903ec61e69 upstream.
 
-The patch c575b7eeb89f: "drm/xen-front: Add support for Xen PV
-display frontend" from Apr 3, 2018, leads to the following static
-checker warning:
+Commit e0d5896bd356 ("arm64: lse: fix LSE atomics with LLVM's integrated
+assembler") broke the build when clang is used in connjunction with the
+binutils assembler ("-no-integrated-as"). This happens because
+__LSE_PREAMBLE is defined as ".arch armv8-a+lse", which overrides the
+version of the CPU architecture passed via the "-march" paramter to gas:
 
-	drivers/gpu/drm/xen/xen_drm_front_gem.c:140 xen_drm_front_gem_create()
-	warn: passing zero to 'ERR_CAST'
+$ aarch64-none-linux-gnu-as -EL -I ./arch/arm64/include
+                                -I ./arch/arm64/include/generated
+                                -I ./include -I ./include
+                                -I ./arch/arm64/include/uapi
+                                -I ./arch/arm64/include/generated/uapi
+                                -I ./include/uapi -I ./include/generated/uapi
+                                -I ./init -I ./init
+                                -march=armv8.3-a -o init/do_mounts.o
+                                /tmp/do_mounts-d7992a.s
+/tmp/do_mounts-d7992a.s: Assembler messages:
+/tmp/do_mounts-d7992a.s:1959: Error: selected processor does not support `autiasp'
+/tmp/do_mounts-d7992a.s:2021: Error: selected processor does not support `paciasp'
+/tmp/do_mounts-d7992a.s:2157: Error: selected processor does not support `autiasp'
+/tmp/do_mounts-d7992a.s:2175: Error: selected processor does not support `paciasp'
+/tmp/do_mounts-d7992a.s:2494: Error: selected processor does not support `autiasp'
 
-drivers/gpu/drm/xen/xen_drm_front_gem.c
-   133  struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
-   134                                                  size_t size)
-   135  {
-   136          struct xen_gem_object *xen_obj;
-   137
-   138          xen_obj = gem_create(dev, size);
-   139          if (IS_ERR_OR_NULL(xen_obj))
-   140                  return ERR_CAST(xen_obj);
+Fix the issue by replacing ".arch armv8-a+lse" with ".arch_extension lse".
+Sami confirms that the clang integrated assembler does now support the
+'.arch_extension' directive, so this change will be fine even for LTO
+builds in future.
 
-Fix this and the rest of misused places with IS_ERR_OR_NULL in the
-driver.
-
-Fixes:  c575b7eeb89f: "drm/xen-front: Add support for Xen PV display frontend"
-
-Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200813062113.11030-3-andr2000@gmail.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: e0d5896bd356cd ("arm64: lse: fix LSE atomics with LLVM's integrated assembler")
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Reported-by: Amit Kachhap <Amit.Kachhap@arm.com>
+Tested-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/xen/xen_drm_front.c     |    2 +-
- drivers/gpu/drm/xen/xen_drm_front_gem.c |    8 ++++----
- drivers/gpu/drm/xen/xen_drm_front_kms.c |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/lse.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/xen/xen_drm_front.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front.c
-@@ -410,7 +410,7 @@ static int xen_drm_drv_dumb_create(struc
- 	args->size = args->pitch * args->height;
+--- a/arch/arm64/include/asm/lse.h
++++ b/arch/arm64/include/asm/lse.h
+@@ -4,7 +4,7 @@
  
- 	obj = xen_drm_front_gem_create(dev, args->size);
--	if (IS_ERR_OR_NULL(obj)) {
-+	if (IS_ERR(obj)) {
- 		ret = PTR_ERR(obj);
- 		goto fail;
- 	}
---- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-@@ -85,7 +85,7 @@ static struct xen_gem_object *gem_create
+ #if defined(CONFIG_AS_LSE) && defined(CONFIG_ARM64_LSE_ATOMICS)
  
- 	size = round_up(size, PAGE_SIZE);
- 	xen_obj = gem_create_obj(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return xen_obj;
+-#define __LSE_PREAMBLE	".arch armv8-a+lse\n"
++#define __LSE_PREAMBLE	".arch_extension lse\n"
  
- 	if (drm_info->front_info->cfg.be_alloc) {
-@@ -119,7 +119,7 @@ static struct xen_gem_object *gem_create
- 	 */
- 	xen_obj->num_pages = DIV_ROUND_UP(size, PAGE_SIZE);
- 	xen_obj->pages = drm_gem_get_pages(&xen_obj->base);
--	if (IS_ERR_OR_NULL(xen_obj->pages)) {
-+	if (IS_ERR(xen_obj->pages)) {
- 		ret = PTR_ERR(xen_obj->pages);
- 		xen_obj->pages = NULL;
- 		goto fail;
-@@ -138,7 +138,7 @@ struct drm_gem_object *xen_drm_front_gem
- 	struct xen_gem_object *xen_obj;
- 
- 	xen_obj = gem_create(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return ERR_CAST(xen_obj);
- 
- 	return &xen_obj->base;
-@@ -196,7 +196,7 @@ xen_drm_front_gem_import_sg_table(struct
- 
- 	size = attach->dmabuf->size;
- 	xen_obj = gem_create_obj(dev, size);
--	if (IS_ERR_OR_NULL(xen_obj))
-+	if (IS_ERR(xen_obj))
- 		return ERR_CAST(xen_obj);
- 
- 	ret = gem_alloc_pages_array(xen_obj, size);
---- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
-@@ -59,7 +59,7 @@ fb_create(struct drm_device *dev, struct
- 	int ret;
- 
- 	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
--	if (IS_ERR_OR_NULL(fb))
-+	if (IS_ERR(fb))
- 		return fb;
- 
- 	gem_obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
+ #include <linux/compiler_types.h>
+ #include <linux/export.h>
 
 
