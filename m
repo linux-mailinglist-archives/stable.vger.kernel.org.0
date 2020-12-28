@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4821C2E645B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5852E412A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391179AbgL1Nie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:38:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
+        id S2439898AbgL1OMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391460AbgL1Nib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:38:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24CBD21D94;
-        Mon, 28 Dec 2020 13:38:14 +0000 (UTC)
+        id S2439892AbgL1OMe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3098720791;
+        Mon, 28 Dec 2020 14:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162695;
-        bh=ibitAx/TqGr5tKS3rwIEAbmfpBvzBzaEFxioBppa8bs=;
+        s=korg; t=1609164738;
+        bh=gSS2vlDOAi6OYsuXe17tLsbwFm5CEC6ChWEJjmiHSAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uU6i+5gOS7PUptXWX0Ui/3m0gdBOwXuUhXxy/NjZgCXpF1s6bLsepin2A3Kda1to/
-         yxUAZjmrcr+OJ/PNxMy08k7z6pDK+H9UOPdVKwZ1lVEbceNnsD+yYQrtrInvPPSQiR
-         ZSZxXTHtXTf+vioZoFkKUSR/5Jz676oeDxEIyTBQ=
+        b=1XIC5NpvN9xPmNdklhIFdsREE97rksNsHs/OZC85nMvZM9mDf7xTv2Y7NONvXwpGn
+         pAFSfUnqOL51BdN6knBu0SCuvb0K6BBnQBwmv2rX+z2WnMS+DGSvii7k8oS80pyPPs
+         A4qDfmnjw+Z1FUwPZExBmOJKO7WEo/jCn+FLO5Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/453] gpio: zynq: fix reference leak in zynq_gpio functions
+Subject: [PATCH 5.10 249/717] spi: spi-fsl-dspi: Use max_native_cs instead of num_chipselect to set SPI_MCR
 Date:   Mon, 28 Dec 2020 13:44:07 +0100
-Message-Id: <20201228124937.788163322@linuxfoundation.org>
+Message-Id: <20201228125032.916685247@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-[ Upstream commit 7f57b295f990c0fa07f96d51ca1c82c52dbf79cc ]
+[ Upstream commit 2c2b3ad2c4c801bab1eec7264ea6991b1e4e8f2c ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to putting operation will result in a
-reference leak here.
+If cs-gpios property is used in devicetree then ctlr->num_chipselect value
+may be changed by spi_get_gpio_descs().
+So use ctlr->max_native_cs instead of ctlr->num_chipselect to set SPI_MCR
 
-A new function pm_runtime_resume_and_get is introduced in
-[0] to keep usage counter balanced. So We fix the reference
-leak by replacing it with new funtion.
-
-[0] dd8088d5a896 ("PM: runtime: Add  pm_runtime_resume_and_get to deal with usage counter")
-
-Fixes: c2df3de0d07e ("gpio: zynq: properly support runtime PM for GPIO used as interrupts")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 4fcc7c2292de (spi: spi-fsl-dspi: Don't access reserved fields in SPI_MCR)
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Link: https://lore.kernel.org/r/20201201085916.63543-1-fido_max@inbox.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-zynq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
-index 7835aad6d1628..88b04d8a7fa7d 100644
---- a/drivers/gpio/gpio-zynq.c
-+++ b/drivers/gpio/gpio-zynq.c
-@@ -556,7 +556,7 @@ static int zynq_gpio_irq_reqres(struct irq_data *d)
- 	struct gpio_chip *chip = irq_data_get_irq_chip_data(d);
- 	int ret;
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 1a08c1d584abe..0287366874882 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1165,7 +1165,7 @@ static int dspi_init(struct fsl_dspi *dspi)
+ 	unsigned int mcr;
  
--	ret = pm_runtime_get_sync(chip->parent);
-+	ret = pm_runtime_resume_and_get(chip->parent);
- 	if (ret < 0)
- 		return ret;
+ 	/* Set idle states for all chip select signals to high */
+-	mcr = SPI_MCR_PCSIS(GENMASK(dspi->ctlr->num_chipselect - 1, 0));
++	mcr = SPI_MCR_PCSIS(GENMASK(dspi->ctlr->max_native_cs - 1, 0));
  
-@@ -884,7 +884,7 @@ static int zynq_gpio_probe(struct platform_device *pdev)
+ 	if (dspi->devtype_data->trans_mode == DSPI_XSPI_MODE)
+ 		mcr |= SPI_MCR_XSPI;
+@@ -1250,7 +1250,7 @@ static int dspi_probe(struct platform_device *pdev)
  
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
--	ret = pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
- 	if (ret < 0)
- 		goto err_pm_dis;
+ 	pdata = dev_get_platdata(&pdev->dev);
+ 	if (pdata) {
+-		ctlr->num_chipselect = pdata->cs_num;
++		ctlr->num_chipselect = ctlr->max_native_cs = pdata->cs_num;
+ 		ctlr->bus_num = pdata->bus_num;
  
+ 		/* Only Coldfire uses platform data */
+@@ -1263,7 +1263,7 @@ static int dspi_probe(struct platform_device *pdev)
+ 			dev_err(&pdev->dev, "can't get spi-num-chipselects\n");
+ 			goto out_ctlr_put;
+ 		}
+-		ctlr->num_chipselect = cs_num;
++		ctlr->num_chipselect = ctlr->max_native_cs = cs_num;
+ 
+ 		of_property_read_u32(np, "bus-num", &bus_num);
+ 		ctlr->bus_num = bus_num;
 -- 
 2.27.0
 
