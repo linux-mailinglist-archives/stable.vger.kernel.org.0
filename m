@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 969702E42F6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6C62E3FC2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407163AbgL1Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:52:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54592 "EHLO mail.kernel.org"
+        id S2503259AbgL1OZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407158AbgL1Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:52:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2BB7205CB;
-        Mon, 28 Dec 2020 13:51:59 +0000 (UTC)
+        id S2503250AbgL1OZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 510F120731;
+        Mon, 28 Dec 2020 14:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163520;
-        bh=wkgRYiQ9peJU+x7wP2bPPnDxmwh+pI6/UVGrQmVkiko=;
+        s=korg; t=1609165497;
+        bh=YsNWC9QPj/tB4tfx3OBGJz9UKKByDqFrrZuimQ/Tfko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fPQn35SDE4bJmR00iMhViCOK6ijhH2dTfGIryjNS1sYCJUgvDXLYsMJeyKIIZEZ9
-         FoIGNgjLCCs0n8y4FHvMtk1VQkvlc8Ozfg1rHeHTMne5jQeLjnJeKATpdN+5GAPgcD
-         goUK1CqUYYfuG2DXnkrPXPV506/Z6CiFLwfU3xCQ=
+        b=Vf/EOlr5TI1TrYAc17gG/5a+qYZhFgEEO/eUqpxHmaDSrprYyrT/xsyPvSLxKLM+4
+         q19Ooq3XVGTXV9kK7VT5fVhSsl7UT3iy166Zz2LDieyztB5pr89Vj579VOv2p438zP
+         YsiNDBnqUUgrbgt20J/ULByGShMWV7eYoqemrVFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
-        Wenjing Liu <Wenjing.Liu@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 315/453] drm/amd/display: Prevent bandwidth overflow
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH 5.10 553/717] s390/idle: add missing mt_cycles calculation
 Date:   Mon, 28 Dec 2020 13:49:11 +0100
-Message-Id: <20201228124952.365781046@linuxfoundation.org>
+Message-Id: <20201228125047.431022393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +39,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Park <Chris.Park@amd.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 80089dd8410f356d5104496d5ab71a66a4f4646b ]
+commit e259b3fafa7de362b04ecd86e7fa9a9e9273e5fb upstream.
 
-[Why]
-At very high pixel clock, bandwidth calculation exceeds 32 bit size
-and overflow value. This causes the resulting selection of link rate
-to be inaccurate.
+During removal of the critical section cleanup the calculation
+of mt_cycles during idle was removed. This causes invalid
+accounting on systems with SMT enabled.
 
-[How]
-Change order of operation and use fixed point to deal with integer
-accuracy. Also address bug found when forcing link rate.
+Fixes: 0b0ed657fe00 ("s390: remove critical section cleanup from entry.S")
+Cc: <stable@vger.kernel.org> # 5.8
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Chris Park <Chris.Park@amd.com>
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/s390/kernel/entry.S |   34 +++++++++++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index 47cefc05fd3f5..f933791f1fbbb 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -2906,11 +2906,14 @@ uint32_t dc_bandwidth_in_kbps_from_timing(
- {
- 	uint32_t bits_per_channel = 0;
- 	uint32_t kbps;
-+	struct fixed31_32 link_bw_kbps;
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -112,7 +112,7 @@ _LPP_OFFSET	= __LC_LPP
  
- #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
- 	if (timing->flags.DSC) {
--		kbps = (timing->pix_clk_100hz * timing->dsc_cfg.bits_per_pixel);
--		kbps = kbps / 160 + ((kbps % 160) ? 1 : 0);
-+		link_bw_kbps = dc_fixpt_from_int(timing->pix_clk_100hz);
-+		link_bw_kbps = dc_fixpt_div_int(link_bw_kbps, 160);
-+		link_bw_kbps = dc_fixpt_mul_int(link_bw_kbps, timing->dsc_cfg.bits_per_pixel);
-+		kbps = dc_fixpt_ceil(link_bw_kbps);
- 		return kbps;
- 	}
+ 	.macro	SWITCH_ASYNC savearea,timer
+ 	tmhh	%r8,0x0001		# interrupting from user ?
+-	jnz	2f
++	jnz	4f
+ #if IS_ENABLED(CONFIG_KVM)
+ 	lgr	%r14,%r9
+ 	larl	%r13,.Lsie_gmap
+@@ -125,9 +125,25 @@ _LPP_OFFSET	= __LC_LPP
  #endif
--- 
-2.27.0
-
+ 0:	larl	%r13,.Lpsw_idle_exit
+ 	cgr	%r13,%r9
+-	jne	1f
++	jne	3f
+ 
+-	mvc	__CLOCK_IDLE_EXIT(8,%r2), __LC_INT_CLOCK
++	larl	%r1,smp_cpu_mtid
++	llgf	%r1,0(%r1)
++	ltgr	%r1,%r1
++	jz	2f			# no SMT, skip mt_cycles calculation
++	.insn	rsy,0xeb0000000017,%r1,5,__SF_EMPTY+80(%r15)
++	larl	%r3,mt_cycles
++	ag	%r3,__LC_PERCPU_OFFSET
++	la	%r4,__SF_EMPTY+16(%r15)
++1:	lg	%r0,0(%r3)
++	slg	%r0,0(%r4)
++	alg	%r0,64(%r4)
++	stg	%r0,0(%r3)
++	la	%r3,8(%r3)
++	la	%r4,8(%r4)
++	brct	%r1,1b
++
++2:	mvc	__CLOCK_IDLE_EXIT(8,%r2), __LC_INT_CLOCK
+ 	mvc	__TIMER_IDLE_EXIT(8,%r2), __LC_ASYNC_ENTER_TIMER
+ 	# account system time going idle
+ 	ni	__LC_CPU_FLAGS+7,255-_CIF_ENABLED_WAIT
+@@ -146,17 +162,17 @@ _LPP_OFFSET	= __LC_LPP
+ 	mvc	__LC_LAST_UPDATE_TIMER(8),__TIMER_IDLE_EXIT(%r2)
+ 
+ 	nihh	%r8,0xfcfd		# clear wait state and irq bits
+-1:	lg	%r14,__LC_ASYNC_STACK	# are we already on the target stack?
++3:	lg	%r14,__LC_ASYNC_STACK	# are we already on the target stack?
+ 	slgr	%r14,%r15
+ 	srag	%r14,%r14,STACK_SHIFT
+-	jnz	3f
++	jnz	5f
+ 	CHECK_STACK \savearea
+ 	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
+-	j	4f
+-2:	UPDATE_VTIME %r14,%r15,\timer
++	j	6f
++4:	UPDATE_VTIME %r14,%r15,\timer
+ 	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
+-3:	lg	%r15,__LC_ASYNC_STACK	# load async stack
+-4:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
++5:	lg	%r15,__LC_ASYNC_STACK	# load async stack
++6:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+ 	.endm
+ 
+ 	.macro UPDATE_VTIME w1,w2,enter_timer
 
 
