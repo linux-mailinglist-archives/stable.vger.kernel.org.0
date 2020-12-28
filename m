@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2932E3E55
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE592E42FF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503936AbgL1O1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:27:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
+        id S2391558AbgL1Nx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:53:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503304AbgL1OZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:25:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54BBA20715;
-        Mon, 28 Dec 2020 14:25:36 +0000 (UTC)
+        id S2391551AbgL1NxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE90205CB;
+        Mon, 28 Dec 2020 13:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165536;
-        bh=pY0itU/xOz4MGKhhC9FFmTZzOSMxhay0JtAGkES93VQ=;
+        s=korg; t=1609163563;
+        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDU+JGceMZswQlo6TUGZ5S/Xbhxtgfamu9z8z9rzSTs2y65i4Ib0+qd85ZixWrq0K
-         R3aO8AlxG/XkUHJZSj6D6el2gcgkVgayI6ExBaxr2NgETsJ/G1FuYjuliL1tlujjX2
-         rh9hv93x7SByJJc/yKDOKjSeAZEAxbzb8ZUPGdaM=
+        b=FTvefcYTq9+m7AVWw/wn5NEicWUChSycBcl/yysZPqqoJFf1WphsPhVykaMwO97XW
+         lGYN81iAzQYivLUqtOJvB7WLNDUCH5zcI6clOk0IF0GqxNya67Pegr0yT3xaV85Fbw
+         M5Wu6y+7FGjphXiu6jE+Qpphv0qPNeGKAs3hoFQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 566/717] perf/x86/intel: Add event constraint for CYCLE_ACTIVITY.STALLS_MEM_ANY
-Date:   Mon, 28 Dec 2020 13:49:24 +0100
-Message-Id: <20201228125048.029549742@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 329/453] Input: cyapa_gen6 - fix out-of-bounds stack access
+Date:   Mon, 28 Dec 2020 13:49:25 +0100
+Message-Id: <20201228124953.049408937@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 306e3e91edf1c6739a55312edd110d298ff498dd upstream.
+commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
 
-The event CYCLE_ACTIVITY.STALLS_MEM_ANY (0x14a3) should be available on
-all 8 GP counters on ICL, but it's only scheduled on the first four
-counters due to the current ICL constraint table.
+gcc -Warray-bounds warns about a serious bug in
+cyapa_pip_retrieve_data_structure:
 
-Add a line for the CYCLE_ACTIVITY.STALLS_MEM_ANY event in the ICL
-constraint table.
-Correct the comments for the CYCLE_ACTIVITY.CYCLES_MEM_ANY event.
+drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
+include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
+   40 |  *((__le16 *)p) = cpu_to_le16(val);
+drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
+  569 |  } __packed cmd;
+      |             ^~~
 
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Reported-by: Andi Kleen <ak@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Apparently the '-2' was added to the pointer instead of the value,
+writing garbage into the stack next to this variable.
+
+Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201019164529.32154-1-kan.liang@linux.intel.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/intel/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/mouse/cyapa_gen6.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -257,7 +257,8 @@ static struct event_constraint intel_icl
- 	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
- 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
- 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
--	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
-+	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
-+	INTEL_UEVENT_CONSTRAINT(0x14a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
- 	INTEL_EVENT_CONSTRAINT(0xa3, 0xf),      /* CYCLE_ACTIVITY.* */
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xa8, 0xb0, 0xf),
- 	INTEL_EVENT_CONSTRAINT_RANGE(0xb7, 0xbd, 0xf),
+--- a/drivers/input/mouse/cyapa_gen6.c
++++ b/drivers/input/mouse/cyapa_gen6.c
+@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
+ 
+ 	memset(&cmd, 0, sizeof(cmd));
+ 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
+-	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
++	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
+ 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
+ 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
+ 	put_unaligned_le16(read_offset, &cmd.read_offset);
 
 
