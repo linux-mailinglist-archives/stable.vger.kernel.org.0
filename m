@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D14282E66A6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4D7E2E66AD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731776AbgL1NSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47104 "EHLO mail.kernel.org"
+        id S2388547AbgL1QOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:14:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387521AbgL1NSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C23321D94;
-        Mon, 28 Dec 2020 13:17:51 +0000 (UTC)
+        id S1731771AbgL1NSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54005207C9;
+        Mon, 28 Dec 2020 13:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161472;
-        bh=myJXd/ejH3AtWz8r5FJjFiaPuC1NOfsQw5brZ6bn/5Y=;
+        s=korg; t=1609161476;
+        bh=3fNXPCLn+df4fHPGcmz0dIT0FYWo1Wbk35m/GDVDrW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M86UWaP0ALu43hISx2hjqSGQc3n7D4l0ynjdjZkmqGrhZnAxOW8Mja6TLi88Qkuaa
-         ByQ2d+9AnrOQ4P0Uj4YBzkDSKRRZnXo9CJEYXcN2Ok67+zJFPVxRLebTwhdb4CJBxi
-         yJY0j+yh13vlmbNMVifE3YGNbCpS7A0AxgfjU734=
+        b=dBqvTeg9eHhbzgKxf91WUlzTEXs1UOFOA7bgV6aakC/O9HckYvpu67QCPrGd4gm/k
+         zfXv23b8fhuNfSu0SPLoRDxNmHy459quY8GS1YlZG+bPzZ9V68o5sV8x7pQhYg9xtC
+         oj9s8mCNunQb3+2DIreqHoGetS9Qt6YkKI/wxiN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Phil Reid <preid@electromag.com.au>,
+        Chuhong Yuan <hslester96@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 224/242] spi: sc18is602: Dont leak SPI master in probe error path
-Date:   Mon, 28 Dec 2020 13:50:29 +0100
-Message-Id: <20201228124915.700979989@linuxfoundation.org>
+Subject: [PATCH 4.14 225/242] spi: st-ssc4: Fix unbalanced pm_runtime_disable() in probe error path
+Date:   Mon, 28 Dec 2020 13:50:30 +0100
+Message-Id: <20201228124915.753072800@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -42,59 +42,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 5b8c88462d83331dacb48aeaec8388117fef82e0 upstream.
+commit 5ef76dac0f2c26aeae4ee79eb830280f16d5aceb upstream.
 
-If the call to devm_gpiod_get_optional() fails on probe of the NXP
-SC18IS602/603 SPI driver, the spi_master struct is erroneously not freed.
+If the calls to devm_platform_ioremap_resource(), irq_of_parse_and_map()
+or devm_request_irq() fail on probe of the ST SSC4 SPI driver, the
+runtime PM disable depth is incremented even though it was not
+decremented before.  Fix it.
 
-Fix by switching over to the new devm_spi_alloc_master() helper.
-
-Fixes: f99008013e19 ("spi: sc18is602: Add reset control via gpio pin.")
+Fixes: cd050abeba2a ("spi: st-ssc4: add missed pm_runtime_disable")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Phil Reid <preid@electromag.com.au>
-Link: https://lore.kernel.org/r/d5f715527b894b91d530fe11a86f51b3184a4e1a.1607286887.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v5.5+
+Cc: Chuhong Yuan <hslester96@gmail.com>
+Link: https://lore.kernel.org/r/fbe8768c30dc829e2d77eabe7be062ca22f84024.1604874488.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-sc18is602.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/spi/spi-st-ssc4.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/spi/spi-sc18is602.c
-+++ b/drivers/spi/spi-sc18is602.c
-@@ -248,13 +248,12 @@ static int sc18is602_probe(struct i2c_cl
- 	struct sc18is602_platform_data *pdata = dev_get_platdata(dev);
- 	struct sc18is602 *hw;
- 	struct spi_master *master;
--	int error;
+--- a/drivers/spi/spi-st-ssc4.c
++++ b/drivers/spi/spi-st-ssc4.c
+@@ -379,13 +379,14 @@ static int spi_st_probe(struct platform_
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to register master\n");
+-		goto clk_disable;
++		goto rpm_disable;
+ 	}
  
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
- 				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
- 		return -EINVAL;
+ 	return 0;
  
--	master = spi_alloc_master(dev, sizeof(struct sc18is602));
-+	master = devm_spi_alloc_master(dev, sizeof(struct sc18is602));
- 	if (!master)
- 		return -ENOMEM;
- 
-@@ -308,15 +307,7 @@ static int sc18is602_probe(struct i2c_cl
- 	master->min_speed_hz = hw->freq / 128;
- 	master->max_speed_hz = hw->freq / 4;
- 
--	error = devm_spi_register_master(dev, master);
--	if (error)
--		goto error_reg;
--
--	return 0;
--
--error_reg:
--	spi_master_put(master);
--	return error;
-+	return devm_spi_register_master(dev, master);
- }
- 
- static const struct i2c_device_id sc18is602_id[] = {
+-clk_disable:
++rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
++clk_disable:
+ 	clk_disable_unprepare(spi_st->clk);
+ put_master:
+ 	spi_master_put(master);
 
 
