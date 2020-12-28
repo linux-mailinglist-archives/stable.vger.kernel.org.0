@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3292E691E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 976E42E6805
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2634642AbgL1Qot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:44:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53498 "EHLO mail.kernel.org"
+        id S1730830AbgL1Qbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:31:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728905AbgL1M5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:57:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CD92224D2;
-        Mon, 28 Dec 2020 12:56:24 +0000 (UTC)
+        id S1730492AbgL1NEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:04:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23324208B6;
+        Mon, 28 Dec 2020 13:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160184;
-        bh=LzODAm2jd7+cJ0Nb28iwyizDMXqK1TTzgakTksqgk5M=;
+        s=korg; t=1609160664;
+        bh=DNj8wKmS+On55spJH+hBnLHl71y+QuPxP82hLgDYX0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIYRJK8YRBLvn4uWv2saOOZokmMc78QJH9sq2XU5XhzbeZJODEqERPSmAH/OXrhrK
-         A5Um8Ro4+ySj1PBA+rcUGkOsBfu2uwztp+HOYKULLu+93dQflRlWi1f6Hzedal7Nv2
-         Ml/1ThbhGNRoUXuOxiwtYTb3zXtztz+a0uw7rX/w=
+        b=fLyR3uCxebTlWWNYjCB2IKBCtvQBOltUbffTQ0Ci5sQL6HhgMPT2aQjGDC9nuY6ve
+         6D51Tn33nXF5njkYN08rEzkJFCcD4jt0y+9SCr6JrfYgWXTcpMxvjf1tjErcMlEEcs
+         BkI9q2w/YHeARHRcgxI4WsQN/Vw4M3fuCzvQwTIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Maxime Ripard <mripard@kernel.org>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.4 098/132] media: sunxi-cir: ensure IR is handled when it is continuous
+        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 129/175] Input: cros_ec_keyb - send scancodes in addition to key events
 Date:   Mon, 28 Dec 2020 13:49:42 +0100
-Message-Id: <20201228124851.148457058@linuxfoundation.org>
+Message-Id: <20201228124859.505795207@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 3f56df4c8ffeb120ed41906d3aae71799b7e726a upstream.
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-If a user holds a button down on a remote, then no ir idle interrupt will
-be generated until the user releases the button, depending on how quickly
-the remote repeats. No IR is processed until that point, which means that
-holding down a button may not do anything.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-This also resolves an issue on a Cubieboard 1 where the IR receiver is
-picking up ambient infrared as IR and spews out endless
-"rc rc0: IR event FIFO is full!" messages unless you choose to live in
-the dark.
-
-Cc: stable@vger.kernel.org
-Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/sunxi-cir.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/rc/sunxi-cir.c
-+++ b/drivers/media/rc/sunxi-cir.c
-@@ -132,6 +132,8 @@ static irqreturn_t sunxi_ir_irq(int irqn
- 	} else if (status & REG_RXINT_RPEI_EN) {
- 		ir_raw_event_set_idle(ir->rc, true);
- 		ir_raw_event_handle(ir->rc);
-+	} else {
-+		ir_raw_event_handle(ir->rc);
- 	}
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 25943e9bc8bff..328792e26a9f6 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -140,6 +140,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
- 	spin_unlock(&ir->ir_lock);
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
+-- 
+2.27.0
+
 
 
