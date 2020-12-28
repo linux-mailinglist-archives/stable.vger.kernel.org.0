@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155E32E3EF3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:35:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ADF82E3EF2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505179AbgL1Oem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:34:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
+        id S2505178AbgL1Oej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:34:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505180AbgL1Oek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:34:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF9FE206D4;
-        Mon, 28 Dec 2020 14:33:59 +0000 (UTC)
+        id S2505182AbgL1Oei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:34:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F40522063A;
+        Mon, 28 Dec 2020 14:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609166040;
-        bh=GF05NxWV2kcZZ0i9OH8fSmj5XB+uPKJ5Ypt34NRf4Tc=;
+        s=korg; t=1609166037;
+        bh=ndQMN8q9lGQe5NGlIRy9i1XSVAaFtciJrsSFtAEzQLc=;
         h=Subject:To:From:Date:From;
-        b=FwrUy+CsrKjPUSF3cFsAJB2oWbzwXaeAmF0CzoQ0xAGWGC0gYbn4qvC3VAHwvfSKT
-         OZrRJikjoZq9S/weF3N8HgULj/MdlwRtfroe7UuCUd6P+vaRLlBFo9UDugEL2BimZR
-         V4leuDCKIg/VSH516wgD0zxUmIFAVyH6osmjlbu0=
-Subject: patch "Staging: comedi: Return -EFAULT if copy_to_user() fails" added to staging-linus
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        b=dxcHotWbB1AUPmUyFAgnX2KRMNTKd3fpPp7bRgdnsNNr40hR9rxWmkps1zltvFPSZ
+         sACUDIKqylLD5lgEbgnKASKSVXb5CbHGJKx337fGiWDjM3j+9PNnVUfzeRaYcaIssz
+         r6PLgvCivdg0+md3DdjepT3B7JhR+kZG6B3wAgVQ=
+Subject: patch "staging: mt7621-dma: Fix a resource leak in an error handling path" added to staging-linus
+To:     christophe.jaillet@wanadoo.fr, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 28 Dec 2020 15:15:10 +0100
-Message-ID: <1609164910103190@kroah.com>
+Message-ID: <1609164910202203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Staging: comedi: Return -EFAULT if copy_to_user() fails
+    staging: mt7621-dma: Fix a resource leak in an error handling path
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,38 +51,46 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From cab36da4bf1a35739b091b73714a39a1bbd02b05 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Wed, 2 Dec 2020 09:43:49 +0300
-Subject: Staging: comedi: Return -EFAULT if copy_to_user() fails
+From d887d6104adeb94d1b926936ea21f07367f0ff9f Mon Sep 17 00:00:00 2001
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Sun, 13 Dec 2020 16:35:13 +0100
+Subject: staging: mt7621-dma: Fix a resource leak in an error handling path
 
-Return -EFAULT on error instead of the number of bytes remaining to be
-copied.
+If an error occurs after calling 'mtk_hsdma_init()', it must be undone by
+a corresponding call to 'mtk_hsdma_uninit()' as already done in the
+remove function.
 
-Fixes: bac42fb21259 ("comedi: get rid of compat_alloc_user_space() mess in COMEDI_CMD{,TEST} compat")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 0853c7a53eb3 ("staging: mt7621-dma: ralink: add rt2880 dma engine")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/X8c3pfwFy2jpy4BP@mwanda
+Link: https://lore.kernel.org/r/20201213153513.138723-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/comedi_fops.c | 4 +++-
+ drivers/staging/mt7621-dma/mtk-hsdma.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/comedi/comedi_fops.c b/drivers/staging/comedi/comedi_fops.c
-index d99231c737fb..80d74cce2a01 100644
---- a/drivers/staging/comedi/comedi_fops.c
-+++ b/drivers/staging/comedi/comedi_fops.c
-@@ -2987,7 +2987,9 @@ static int put_compat_cmd(struct comedi32_cmd_struct __user *cmd32,
- 	v32.chanlist_len = cmd->chanlist_len;
- 	v32.data = ptr_to_compat(cmd->data);
- 	v32.data_len = cmd->data_len;
--	return copy_to_user(cmd32, &v32, sizeof(v32));
-+	if (copy_to_user(cmd32, &v32, sizeof(v32)))
-+		return -EFAULT;
-+	return 0;
+diff --git a/drivers/staging/mt7621-dma/mtk-hsdma.c b/drivers/staging/mt7621-dma/mtk-hsdma.c
+index d241349214e7..bc4bb4374313 100644
+--- a/drivers/staging/mt7621-dma/mtk-hsdma.c
++++ b/drivers/staging/mt7621-dma/mtk-hsdma.c
+@@ -712,7 +712,7 @@ static int mtk_hsdma_probe(struct platform_device *pdev)
+ 	ret = dma_async_device_register(dd);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register dma device\n");
+-		return ret;
++		goto err_uninit_hsdma;
+ 	}
+ 
+ 	ret = of_dma_controller_register(pdev->dev.of_node,
+@@ -728,6 +728,8 @@ static int mtk_hsdma_probe(struct platform_device *pdev)
+ 
+ err_unregister:
+ 	dma_async_device_unregister(dd);
++err_uninit_hsdma:
++	mtk_hsdma_uninit(hsdma);
+ 	return ret;
  }
  
- /* Handle 32-bit COMEDI_CMD ioctl. */
 -- 
 2.29.2
 
