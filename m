@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3187E2E669C
+	by mail.lfdr.de (Postfix) with ESMTP id AA6342E669D
 	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731694AbgL1NSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
+        id S1731688AbgL1NSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbgL1NSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 039A02076D;
-        Mon, 28 Dec 2020 13:17:27 +0000 (UTC)
+        id S2387473AbgL1NSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D62220728;
+        Mon, 28 Dec 2020 13:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161448;
-        bh=i7OZ7g5EYwwab0/iT21/W9zFYz9gbkRlmjrjXA+IToU=;
+        s=korg; t=1609161451;
+        bh=DmmkrcitPC7QTS2tPwHnuEaW7XBeQ9vxE83FylVSuew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HL1zOqcsFw+8OYuMjSTN0ngsUo5cAhwLC/qLvUS8xV5wQWFSPVRMi+bT6L8nmULyj
-         E7mCC9YRbvt6pFdOHX/r4Fai5iE6JUUH/35NJcWZ6V2V6qY2VHQXdgbuT4uBMekxCE
-         RCZOLQl9YSF2FICPtPZxgHba5ehD1s4ngAEWj3LU=
+        b=ycSSLTX25+mWPoCNsUzQulEDQefvlqOCbB45I0jy9p+FXNagOs984E6wxkwn7Ll7y
+         2NBN4f7WFTTqbbrC5WVyM30v6V98Mf7Z5osc/9kTz2vAzBgnN2szGGamAXiB0TJFTv
+         CWncr1RDjWaHW46NJl7rzvNeRG0zdyDHOzu+vhvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhe Li <lizhe67@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 217/242] jffs2: Fix GC exit abnormally
-Date:   Mon, 28 Dec 2020 13:50:22 +0100
-Message-Id: <20201228124915.352914906@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Kleikamp <dave.kleikamp@oracle.com>,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Subject: [PATCH 4.14 218/242] jfs: Fix array index bounds check in dbAdjTree
+Date:   Mon, 28 Dec 2020 13:50:23 +0100
+Message-Id: <20201228124915.401408063@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -39,76 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhe Li <lizhe67@huawei.com>
+From: Dave Kleikamp <dave.kleikamp@oracle.com>
 
-commit 9afc9a8a4909fece0e911e72b1060614ba2f7969 upstream.
+commit c61b3e4839007668360ed8b87d7da96d2e59fc6c upstream.
 
-The log of this problem is:
-jffs2: Error garbage collecting node at 0x***!
-jffs2: No space for garbage collection. Aborting GC thread
+Bounds checking tools can flag a bug in dbAdjTree() for an array index
+out of bounds in dmt_stree. Since dmt_stree can refer to the stree in
+both structures dmaptree and dmapctl, use the larger array to eliminate
+the false positive.
 
-This is because GC believe that it do nothing, so it abort.
-
-After going over the image of jffs2, I find a scene that
-can trigger this problem stably.
-The scene is: there is a normal dirent node at summary-area,
-but abnormal at corresponding not-summary-area with error
-name_crc.
-
-The reason that GC exit abnormally is because it find that
-abnormal dirent node to GC, but when it goes to function
-jffs2_add_fd_to_list, it cannot meet the condition listed
-below:
-
-if ((*prev)->nhash == new->nhash && !strcmp((*prev)->name, new->name))
-
-So no node is marked obsolete, statistical information of
-erase_block do not change, which cause GC exit abnormally.
-
-The root cause of this problem is: we do not check the
-name_crc of the abnormal dirent node with summary is enabled.
-
-Noticed that in function jffs2_scan_dirent_node, we use
-function jffs2_scan_dirty_space to deal with the dirent
-node with error name_crc. So this patch add a checking
-code in function read_direntry to ensure the correctness
-of dirent node. If checked failed, the dirent node will
-be marked obsolete so GC will pass this node and this
-problem will be fixed.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhe Li <lizhe67@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jffs2/readinode.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/jfs/jfs_dmap.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jffs2/readinode.c
-+++ b/fs/jffs2/readinode.c
-@@ -672,6 +672,22 @@ static inline int read_direntry(struct j
- 			jffs2_free_full_dirent(fd);
- 			return -EIO;
- 		}
-+
-+#ifdef CONFIG_JFFS2_SUMMARY
-+		/*
-+		 * we use CONFIG_JFFS2_SUMMARY because without it, we
-+		 * have checked it while mounting
-+		 */
-+		crc = crc32(0, fd->name, rd->nsize);
-+		if (unlikely(crc != je32_to_cpu(rd->name_crc))) {
-+			JFFS2_NOTICE("name CRC failed on dirent node at"
-+			   "%#08x: read %#08x,calculated %#08x\n",
-+			   ref_offset(ref), je32_to_cpu(rd->node_crc), crc);
-+			jffs2_mark_node_obsolete(c, ref);
-+			jffs2_free_full_dirent(fd);
-+			return 0;
-+		}
-+#endif
- 	}
+--- a/fs/jfs/jfs_dmap.h
++++ b/fs/jfs/jfs_dmap.h
+@@ -196,7 +196,7 @@ typedef union dmtree {
+ #define	dmt_leafidx	t1.leafidx
+ #define	dmt_height	t1.height
+ #define	dmt_budmin	t1.budmin
+-#define	dmt_stree	t1.stree
++#define	dmt_stree	t2.stree
  
- 	fd->nhash = full_name_hash(NULL, fd->name, rd->nsize);
+ /*
+  *	on-disk aggregate disk allocation map descriptor.
 
 
