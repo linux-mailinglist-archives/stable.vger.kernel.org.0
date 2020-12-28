@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32AC92E3C5C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE332E4262
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436766AbgL1OCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S2436785AbgL1OCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436760AbgL1OCF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DECE20715;
-        Mon, 28 Dec 2020 14:01:24 +0000 (UTC)
+        id S2436779AbgL1OCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BCDA20731;
+        Mon, 28 Dec 2020 14:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164085;
-        bh=U0x52ZTbZHpuD3FlCFf6BKzXv+nrYvKYlN1jlfRTMuI=;
+        s=korg; t=1609164088;
+        bh=0fnv0UIBbTODUrQK1CeIPBPfnLukRyy9Epf9av9hHnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omC1pPgjjiWTMT25/SkmGy3XJIwvefWmnexZJEizzIwlaUORZgLJVzB2ngVwpGTx+
-         05KZXO3Mx1aI52Jhzrg1SxT5GTl4izHqOvuxbOto+Vr+Mq2SUNgygB0jWgRPZR3lfA
-         QOI49WMZ1MLcmg1LEis7KHxQ4c4ctQcaYIeeZ1Qg=
+        b=dyIvn5jWGVWejFcSPvzAY9CJIzqKp/7CG1mPJlVctkfymbObbQtvyGBLJ0K6sy47E
+         GDKO208yPHv6Bq3homh7JxY0pApwJ7qHgZGHKkCZpb8X1f20jCBlVlZli7kwqLaL6Q
+         M+82gZFiDwjWZislf4eFGbUBijQRlSktqHWb8WzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/717] libbpf: Fix BTF data layout checks and allow empty BTF
-Date:   Mon, 28 Dec 2020 13:40:53 +0100
-Message-Id: <20201228125023.630228905@linuxfoundation.org>
+Subject: [PATCH 5.10 056/717] crypto: arm64/poly1305-neon - reorder PAC authentication with SP update
+Date:   Mon, 28 Dec 2020 13:40:54 +0100
+Message-Id: <20201228125023.678780150@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,62 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit d8123624506cd62730c9cd9c7672c698e462703d ]
+[ Upstream commit 519a0d7e495a6d3ce62594e485aea2a3a4a2ca0a ]
 
-Make data section layout checks stricter, disallowing overlap of types and
-strings data.
+PAC pointer authentication signs the return address against the value
+of the stack pointer, to prevent stack overrun exploits from corrupting
+the control flow. However, this requires that the AUTIASP is issued with
+SP holding the same value as it held when the PAC value was generated.
+The Poly1305 NEON code got this wrong, resulting in crashes on PAC
+capable hardware.
 
-Additionally, allow BTFs with no type data. There is nothing inherently wrong
-with having BTF with no types (put potentially with some strings). This could
-be a situation with kernel module BTFs, if module doesn't introduce any new
-type information.
-
-Also fix invalid offset alignment check for btf->hdr->type_off.
-
-Fixes: 8a138aed4a80 ("bpf: btf: Add BTF support to libbpf")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20201105043402.2530976-8-andrii@kernel.org
+Fixes: f569ca164751 ("crypto: arm64/poly1305 - incorporate OpenSSL/CRYPTOGAMS ...")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ arch/arm64/crypto/poly1305-armv8.pl       | 2 +-
+ arch/arm64/crypto/poly1305-core.S_shipped | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 231b07203e3d2..987c1515b828b 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -215,22 +215,18 @@ static int btf_parse_hdr(struct btf *btf)
- 		return -EINVAL;
- 	}
+diff --git a/arch/arm64/crypto/poly1305-armv8.pl b/arch/arm64/crypto/poly1305-armv8.pl
+index 6e5576d19af8f..cbc980fb02e33 100644
+--- a/arch/arm64/crypto/poly1305-armv8.pl
++++ b/arch/arm64/crypto/poly1305-armv8.pl
+@@ -840,7 +840,6 @@ poly1305_blocks_neon:
+ 	 ldp	d14,d15,[sp,#64]
+ 	addp	$ACC2,$ACC2,$ACC2
+ 	 ldr	x30,[sp,#8]
+-	 .inst	0xd50323bf		// autiasp
  
--	if (meta_left < hdr->type_off) {
--		pr_debug("Invalid BTF type section offset:%u\n", hdr->type_off);
-+	if (meta_left < hdr->str_off + hdr->str_len) {
-+		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
- 		return -EINVAL;
- 	}
+ 	////////////////////////////////////////////////////////////////
+ 	// lazy reduction, but without narrowing
+@@ -882,6 +881,7 @@ poly1305_blocks_neon:
+ 	str	x4,[$ctx,#8]		// set is_base2_26
  
--	if (meta_left < hdr->str_off) {
--		pr_debug("Invalid BTF string section offset:%u\n", hdr->str_off);
-+	if (hdr->type_off + hdr->type_len > hdr->str_off) {
-+		pr_debug("Invalid BTF data sections layout: type data at %u + %u, strings data at %u + %u\n",
-+			 hdr->type_off, hdr->type_len, hdr->str_off, hdr->str_len);
- 		return -EINVAL;
- 	}
+ 	ldr	x29,[sp],#80
++	 .inst	0xd50323bf		// autiasp
+ 	ret
+ .size	poly1305_blocks_neon,.-poly1305_blocks_neon
  
--	if (hdr->type_off >= hdr->str_off) {
--		pr_debug("BTF type section offset >= string section offset. No type?\n");
--		return -EINVAL;
--	}
--
--	if (hdr->type_off & 0x02) {
-+	if (hdr->type_off % 4) {
- 		pr_debug("BTF type section is not aligned to 4 bytes\n");
- 		return -EINVAL;
- 	}
+diff --git a/arch/arm64/crypto/poly1305-core.S_shipped b/arch/arm64/crypto/poly1305-core.S_shipped
+index 8d1c4e420ccdc..fb2822abf63aa 100644
+--- a/arch/arm64/crypto/poly1305-core.S_shipped
++++ b/arch/arm64/crypto/poly1305-core.S_shipped
+@@ -779,7 +779,6 @@ poly1305_blocks_neon:
+ 	 ldp	d14,d15,[sp,#64]
+ 	addp	v21.2d,v21.2d,v21.2d
+ 	 ldr	x30,[sp,#8]
+-	 .inst	0xd50323bf		// autiasp
+ 
+ 	////////////////////////////////////////////////////////////////
+ 	// lazy reduction, but without narrowing
+@@ -821,6 +820,7 @@ poly1305_blocks_neon:
+ 	str	x4,[x0,#8]		// set is_base2_26
+ 
+ 	ldr	x29,[sp],#80
++	 .inst	0xd50323bf		// autiasp
+ 	ret
+ .size	poly1305_blocks_neon,.-poly1305_blocks_neon
+ 
 -- 
 2.27.0
 
