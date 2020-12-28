@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6452E40F5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69BF32E3ABC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440315AbgL1OOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:14:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
+        id S2403946AbgL1Nkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440309AbgL1OOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:14:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9540720731;
-        Mon, 28 Dec 2020 14:13:21 +0000 (UTC)
+        id S2403971AbgL1Nkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9999022BF5;
+        Mon, 28 Dec 2020 13:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164802;
-        bh=fZ6Kn4rPUq9KtioS1e0jKBS0B5PWzIC6EwLWFf1z2Zc=;
+        s=korg; t=1609162801;
+        bh=pmSgCVoq2MLairhTK6x22id34JRh42THxs/MAJ6h7Vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+AW7z/fSZiMKzFjOaKxGGH7rpjj0M+842MDO/+aNYJRF0d7UoIgjao8M/N6O/chT
-         er+kkCdSfBnvo5CuW+XGgu8abDFKaPJ59fcSKllf2RZHE9BsiHQ0CYI/JkTCu+xRyH
-         48QtyP0/TfejChmRHP38FuXOy1sQTkVOzZjz7Eqg=
+        b=1SoP5F3nWP1sBmcv2nKtn6gIwBbIfWKd5Z4IL9HLoPuXYUHKTGuziNp3+vzhRBcZX
+         ftOxybpral/vAmWRS166Qq5IymN/lOo+iPJqK7j/408aOFDLKLOpeuVxgMs5qTwk+T
+         0JwwBnkke/grDKFoRA0Phmq1SZvyRaZbX2xqmYRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 303/717] mt76: mt7915: set fops_sta_stats.owner to THIS_MODULE
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 065/453] scsi: megaraid_sas: Check user-provided offsets
 Date:   Mon, 28 Dec 2020 13:45:01 +0100
-Message-Id: <20201228125035.544901560@linuxfoundation.org>
+Message-Id: <20201228124940.375578738@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5efbe3b1b8992d5f837388091920945c23212159 ]
+commit 381d34e376e3d9d27730fda8a0e870600e6c8196 upstream.
 
-If THIS_MODULE is not set, the module would be removed while debugfs is
-being used.
-It eventually makes kernel panic.
+It sounds unwise to let user space pass an unchecked 32-bit offset into a
+kernel structure in an ioctl. This is an unsigned variable, so checking the
+upper bound for the size of the structure it points into is sufficient to
+avoid data corruption, but as the pointer might also be unaligned, it has
+to be written carefully as well.
 
-Fixes: ec9742a8f38e ("mt76: mt7915: add .sta_add_debugfs support")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While I stumbled over this problem by reading the code, I did not continue
+checking the function for further problems like it.
+
+Link: https://lore.kernel.org/r/20201030164450.1253641-2-arnd@kernel.org
+Fixes: c4a3e0a529ab ("[SCSI] MegaRAID SAS RAID: new driver")
+Cc: <stable@vger.kernel.org> # v2.6.15+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/megaraid/megaraid_sas_base.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-index 1049927faf246..d2ac7e5ee60a2 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
-@@ -460,6 +460,7 @@ static const struct file_operations fops_sta_stats = {
- 	.read = seq_read,
- 	.llseek = seq_lseek,
- 	.release = single_release,
-+	.owner = THIS_MODULE,
- };
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -8038,7 +8038,7 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	int error = 0, i;
+ 	void *sense = NULL;
+ 	dma_addr_t sense_handle;
+-	unsigned long *sense_ptr;
++	void *sense_ptr;
+ 	u32 opcode = 0;
  
- void mt7915_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
--- 
-2.27.0
-
+ 	memset(kbuff_arr, 0, sizeof(kbuff_arr));
+@@ -8160,6 +8160,13 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	}
+ 
+ 	if (ioc->sense_len) {
++		/* make sure the pointer is part of the frame */
++		if (ioc->sense_off >
++		    (sizeof(union megasas_frame) - sizeof(__le64))) {
++			error = -EINVAL;
++			goto out;
++		}
++
+ 		sense = dma_alloc_coherent(&instance->pdev->dev, ioc->sense_len,
+ 					     &sense_handle, GFP_KERNEL);
+ 		if (!sense) {
+@@ -8167,12 +8174,11 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 			goto out;
+ 		}
+ 
+-		sense_ptr =
+-		(unsigned long *) ((unsigned long)cmd->frame + ioc->sense_off);
++		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+ 		if (instance->consistent_mask_64bit)
+-			*sense_ptr = cpu_to_le64(sense_handle);
++			put_unaligned_le64(sense_handle, sense_ptr);
+ 		else
+-			*sense_ptr = cpu_to_le32(sense_handle);
++			put_unaligned_le32(sense_handle, sense_ptr);
+ 	}
+ 
+ 	/*
 
 
