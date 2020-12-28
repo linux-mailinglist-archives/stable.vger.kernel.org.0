@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55702E6930
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 216F32E66EB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728620AbgL1Mzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:55:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52070 "EHLO mail.kernel.org"
+        id S1732631AbgL1NPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727753AbgL1Mzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F135F229C5;
-        Mon, 28 Dec 2020 12:55:30 +0000 (UTC)
+        id S1732626AbgL1NPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0492B208D5;
+        Mon, 28 Dec 2020 13:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160131;
-        bh=owhsRuGIO55+9gnazWXkz4HofZ08rWMcjfMjujq6K8o=;
+        s=korg; t=1609161268;
+        bh=LD53EuW78+nIuuED95cWG7ISgb2eJLTE/RViJDF/wkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fAs1VT77T1WdYOE/gpFUH8W6sKd5+NicEqbnbK03J+A03rZ7tF/3y3D39YX/HdpIs
-         bw/GNzlTZSHV6fpC9U9v8si/ojWriuC+z2S/oqrPe2raaxutu1NL4oGH+hzwbuGQWI
-         cW+J710wBwkKNUUFMhs96dFaPTY+LBqwXTtrgiVY=
+        b=i/DIz+Tm2MNTMahYSi1xVMw3eOCaK8povPbO/jqlc3cazAcisTtpNJPLktqAWlsnR
+         9KcKtu4txGN3/1rYfDBJTO6G5+NAdc0LNOC59RbD8qoGLJr5Tmriwe9zGW/LTXv5aC
+         k5yhCb39ufKoZ143DfXI0gnPwjPKFJbMkn/Ldl9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C2=A0Cheng=C2=A0Lin=C2=A0?= <cheng.lin130@zte.com.cn>,
-        =?UTF-8?q?=C2=A0Yi=C2=A0Wang=C2=A0?= <wang.yi59@zte.com.cn>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 079/132] nfs_common: need lock during iterate through the list
+Subject: [PATCH 4.14 158/242] ASoC: wm_adsp: remove "ctl" from list on error in wm_adsp_create_control()
 Date:   Mon, 28 Dec 2020 13:49:23 +0100
-Message-Id: <20201228124850.254193588@linuxfoundation.org>
+Message-Id: <20201228124912.481993035@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Lin <cheng.lin130@zte.com.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4a9d81caf841cd2c0ae36abec9c2963bf21d0284 ]
+[ Upstream commit 85a7555575a0e48f9b73db310d0d762a08a46d63 ]
 
-If the elem is deleted during be iterated on it, the iteration
-process will fall into an endless loop.
+The error handling frees "ctl" but it's still on the "dsp->ctl_list"
+list so that could result in a use after free.  Remove it from the list
+before returning.
 
-kernel: NMI watchdog: BUG: soft lockup - CPU#4 stuck for 22s! [nfsd:17137]
-
-PID: 17137  TASK: ffff8818d93c0000  CPU: 4   COMMAND: "nfsd"
-    [exception RIP: __state_in_grace+76]
-    RIP: ffffffffc00e817c  RSP: ffff8818d3aefc98  RFLAGS: 00000246
-    RAX: ffff881dc0c38298  RBX: ffffffff81b03580  RCX: ffff881dc02c9f50
-    RDX: ffff881e3fce8500  RSI: 0000000000000001  RDI: ffffffff81b03580
-    RBP: ffff8818d3aefca0   R8: 0000000000000020   R9: ffff8818d3aefd40
-    R10: ffff88017fc03800  R11: ffff8818e83933c0  R12: ffff8818d3aefd40
-    R13: 0000000000000000  R14: ffff8818e8391068  R15: ffff8818fa6e4000
-    CS: 0010  SS: 0018
- #0 [ffff8818d3aefc98] opens_in_grace at ffffffffc00e81e3 [grace]
- #1 [ffff8818d3aefca8] nfs4_preprocess_stateid_op at ffffffffc02a3e6c [nfsd]
- #2 [ffff8818d3aefd18] nfsd4_write at ffffffffc028ed5b [nfsd]
- #3 [ffff8818d3aefd80] nfsd4_proc_compound at ffffffffc0290a0d [nfsd]
- #4 [ffff8818d3aefdd0] nfsd_dispatch at ffffffffc027b800 [nfsd]
- #5 [ffff8818d3aefe08] svc_process_common at ffffffffc02017f3 [sunrpc]
- #6 [ffff8818d3aefe70] svc_process at ffffffffc0201ce3 [sunrpc]
- #7 [ffff8818d3aefe98] nfsd at ffffffffc027b117 [nfsd]
- #8 [ffff8818d3aefec8] kthread at ffffffff810b88c1
- #9 [ffff8818d3aeff50] ret_from_fork at ffffffff816d1607
-
-The troublemake elem:
-crash> lock_manager ffff881dc0c38298
-struct lock_manager {
-  list = {
-    next = 0xffff881dc0c38298,
-    prev = 0xffff881dc0c38298
-  },
-  block_opens = false
-}
-
-Fixes: c87fb4a378f9 ("lockd: NLM grace period shouldn't block NFSv4 opens")
-Signed-off-by: Cheng Lin <cheng.lin130@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 2323736dca72 ("ASoC: wm_adsp: Add basic support for rev 1 firmware file format")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/X9B0keV/02wrx9Xs@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs_common/grace.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wm_adsp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs_common/grace.c b/fs/nfs_common/grace.c
-index 77d136ac89099..c21fca0dcba74 100644
---- a/fs/nfs_common/grace.c
-+++ b/fs/nfs_common/grace.c
-@@ -75,10 +75,14 @@ __state_in_grace(struct net *net, bool open)
- 	if (!open)
- 		return !list_empty(grace_list);
- 
-+	spin_lock(&grace_lock);
- 	list_for_each_entry(lm, grace_list, list) {
--		if (lm->block_opens)
-+		if (lm->block_opens) {
-+			spin_unlock(&grace_lock);
- 			return true;
-+		}
+diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
+index 158ce68bc9bf3..1516252aa0a53 100644
+--- a/sound/soc/codecs/wm_adsp.c
++++ b/sound/soc/codecs/wm_adsp.c
+@@ -1391,7 +1391,7 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
+ 	ctl_work = kzalloc(sizeof(*ctl_work), GFP_KERNEL);
+ 	if (!ctl_work) {
+ 		ret = -ENOMEM;
+-		goto err_ctl_cache;
++		goto err_list_del;
  	}
-+	spin_unlock(&grace_lock);
- 	return false;
- }
  
+ 	ctl_work->dsp = dsp;
+@@ -1401,7 +1401,8 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
+ 
+ 	return 0;
+ 
+-err_ctl_cache:
++err_list_del:
++	list_del(&ctl->list);
+ 	kfree(ctl->cache);
+ err_ctl_name:
+ 	kfree(ctl->name);
 -- 
 2.27.0
 
