@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA92F2E67A3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7182E661D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730907AbgL1Q1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36018 "EHLO mail.kernel.org"
+        id S2390223AbgL1QJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:09:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730893AbgL1NIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD232242A;
-        Mon, 28 Dec 2020 13:07:37 +0000 (UTC)
+        id S2388814AbgL1NY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC39E206ED;
+        Mon, 28 Dec 2020 13:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160857;
-        bh=pm2huu2Z72gk00xjWAXQG5QhEIA27tHDi5N8MBYVjPo=;
+        s=korg; t=1609161856;
+        bh=a3VtAI9EWvHTMsREjZvzqzchoZk68QqwDXfiu3G1nnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdXw0x9ns5UWUn0K+Mr+jLBSH27HfLCYQfiH3kGFdF6aCBNsu+1E5zRmr5oZDUOl7
-         bvlq254bM6pCr1Vd4HCHQCPdnl7A9TjrWXWfGfrHIh1Amz7gEn2qWfGW2jhkY4yHIM
-         Dm38ZT+mi6j0+59gOb7oHr7gAUozVh79tk9AbouQ=
+        b=B7CrZSSu6JJLdySqmTVZ/1i1lSBh2WlTQkZ5+ZucOljE58Y6Lz5wZacmRNRmvKP3o
+         SlvD/wEyG/qc/R9NvaXI2HUh7MdZkQJmS+3TrklbN4a4I3nnFS/6DLIOFFHddRd2mc
+         UbesMTC1UbRo9fa/jQKHaiNEmqzWhOAve0gKANMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 019/242] net/mlx4_en: Avoid scheduling restart task if it is already running
+        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 105/346] ARM: dts: aspeed: s2600wf: Fix VGA memory region location
 Date:   Mon, 28 Dec 2020 13:47:04 +0100
-Message-Id: <20201228124905.612749029@linuxfoundation.org>
+Message-Id: <20201228124924.859898132@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit fed91613c9dd455dd154b22fa8e11b8526466082 ]
+[ Upstream commit 9e1cc9679776f5b9e42481d392b1550753ebd084 ]
 
-Add restarting state flag to avoid scheduling another restart task while
-such task is already running. Change task name from watchdog_task to
-restart_task to better fit the task role.
+The VGA memory region is always from the top of RAM. On this board, that
+is 0x80000000 + 0x20000000 - 0x01000000 = 0x9f000000.
 
-Fixes: 1e338db56e5a ("mlx4_en: Fix a race at restart task")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was not an issue in practice as the region is "reserved" by the
+vendor's u-boot reducing the amount of available RAM, and the only user
+is the host VGA device poking at RAM over PCIe. That is, nothing from
+the ARM touches it.
+
+It is worth fixing as developers copy existing device trees when
+building their machines, and the XDMA driver does use the memory region
+from the ARM side.
+
+Fixes: c4043ecac34a ("ARM: dts: aspeed: Add S2600WF BMC Machine")
+Reported-by: John Wang <wangzhiqiang.bj@bytedance.com>
+Link: https://lore.kernel.org/r/20200922064234.163799-1-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |   20 +++++++++++++-------
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    7 ++++++-
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1389,8 +1389,10 @@ static void mlx4_en_tx_timeout(struct ne
- 	}
+diff --git a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
+index 22dade6393d06..d1dbe3b6ad5a7 100644
+--- a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
+@@ -22,9 +22,9 @@
+ 		#size-cells = <1>;
+ 		ranges;
  
- 	priv->port_stats.tx_timeout++;
--	en_dbg(DRV, priv, "Scheduling watchdog\n");
--	queue_work(mdev->workqueue, &priv->watchdog_task);
-+	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
-+		en_dbg(DRV, priv, "Scheduling port restart\n");
-+		queue_work(mdev->workqueue, &priv->restart_task);
-+	}
- }
+-		vga_memory: framebuffer@7f000000 {
++		vga_memory: framebuffer@9f000000 {
+ 			no-map;
+-			reg = <0x7f000000 0x01000000>;
++			reg = <0x9f000000 0x01000000>; /* 16M */
+ 		};
+ 	};
  
- 
-@@ -1839,6 +1841,7 @@ int mlx4_en_start_port(struct net_device
- 		local_bh_enable();
- 	}
- 
-+	clear_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state);
- 	netif_tx_start_all_queues(dev);
- 	netif_device_attach(dev);
- 
-@@ -2009,7 +2012,7 @@ void mlx4_en_stop_port(struct net_device
- static void mlx4_en_restart(struct work_struct *work)
- {
- 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
--						 watchdog_task);
-+						 restart_task);
- 	struct mlx4_en_dev *mdev = priv->mdev;
- 	struct net_device *dev = priv->dev;
- 
-@@ -2388,7 +2391,7 @@ static int mlx4_en_change_mtu(struct net
- 	if (netif_running(dev)) {
- 		mutex_lock(&mdev->state_lock);
- 		if (!mdev->device_up) {
--			/* NIC is probably restarting - let watchdog task reset
-+			/* NIC is probably restarting - let restart task reset
- 			 * the port */
- 			en_dbg(DRV, priv, "Change MTU called with card down!?\n");
- 		} else {
-@@ -2397,7 +2400,9 @@ static int mlx4_en_change_mtu(struct net
- 			if (err) {
- 				en_err(priv, "Failed restarting port:%d\n",
- 					 priv->port);
--				queue_work(mdev->workqueue, &priv->watchdog_task);
-+				if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING,
-+						      &priv->state))
-+					queue_work(mdev->workqueue, &priv->restart_task);
- 			}
- 		}
- 		mutex_unlock(&mdev->state_lock);
-@@ -2883,7 +2888,8 @@ static int mlx4_xdp_set(struct net_devic
- 		if (err) {
- 			en_err(priv, "Failed starting port %d for XDP change\n",
- 			       priv->port);
--			queue_work(mdev->workqueue, &priv->watchdog_task);
-+			if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
-+				queue_work(mdev->workqueue, &priv->restart_task);
- 		}
- 	}
- 
-@@ -3284,7 +3290,7 @@ int mlx4_en_init_netdev(struct mlx4_en_d
- 	priv->counter_index = MLX4_SINK_COUNTER_INDEX(mdev->dev);
- 	spin_lock_init(&priv->stats_lock);
- 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
--	INIT_WORK(&priv->watchdog_task, mlx4_en_restart);
-+	INIT_WORK(&priv->restart_task, mlx4_en_restart);
- 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
- 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
- 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -525,6 +525,10 @@ struct mlx4_en_stats_bitmap {
- 	struct mutex mutex; /* for mutual access to stats bitmap */
- };
- 
-+enum {
-+	MLX4_EN_STATE_FLAG_RESTARTING,
-+};
-+
- struct mlx4_en_priv {
- 	struct mlx4_en_dev *mdev;
- 	struct mlx4_en_port_profile *prof;
-@@ -590,7 +594,7 @@ struct mlx4_en_priv {
- 	struct mlx4_en_cq *rx_cq[MAX_RX_RINGS];
- 	struct mlx4_qp drop_qp;
- 	struct work_struct rx_mode_task;
--	struct work_struct watchdog_task;
-+	struct work_struct restart_task;
- 	struct work_struct linkstate_task;
- 	struct delayed_work stats_task;
- 	struct delayed_work service_task;
-@@ -637,6 +641,7 @@ struct mlx4_en_priv {
- 	u32 pflags;
- 	u8 rss_key[MLX4_EN_RSS_KEY_SIZE];
- 	u8 rss_hash_fn;
-+	unsigned long state;
- };
- 
- enum mlx4_en_wol {
+-- 
+2.27.0
+
 
 
