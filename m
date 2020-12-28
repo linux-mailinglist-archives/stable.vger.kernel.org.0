@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526142E3DBF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:20:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B71BB2E398B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441639AbgL1OT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:19:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54796 "EHLO mail.kernel.org"
+        id S2388765AbgL1NYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441635AbgL1OT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C5B82245C;
-        Mon, 28 Dec 2020 14:18:46 +0000 (UTC)
+        id S2388754AbgL1NYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6169322583;
+        Mon, 28 Dec 2020 13:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165127;
-        bh=473GlbrqqYrf5qztBNlQMElMWOAaR3QPNrjWoDOeHdI=;
+        s=korg; t=1609161845;
+        bh=VadtmX2gIC+KaRA84QBd3FXfFWAFrIlW/3GpavfT9vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWxps1Q54eeGBg0x8NEBI0xVNcinvWedNyxhNm2Q+UEgCqDwf+gkx5JemeGDPH6qu
-         h2P9J6CjMG+WLP+2ecBC9D5MVdajItTRsteVlS1eaUlQfIpDkrYK1p98uVsJ2mRJ7G
-         5sYKGA+IbwPG8BEXUO54idIUTkIB5Q69BYv0QYSk=
+        b=bKPdAqv0orUl/AwQx9CglAO7IjOfifrhLETvXgEISny8TnCbRf/6P5mkQBQ9m6sG5
+         9h7TmGgRZtZZ6BIdsh6QSWccecQffRCuyN7l1sIAFly03dt0Vs50Vu2bMLiQIL/4DM
+         4R9zqYw27ijioke1P9jE/9j6yEQdXqAoqtdlEmAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenpeng Liang <liangwenpeng@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Akash Asthana <akashast@codeaurora.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 422/717] RDMA/hns: Limit the length of data copied between kernel and userspace
-Date:   Mon, 28 Dec 2020 13:47:00 +0100
-Message-Id: <20201228125041.182667076@linuxfoundation.org>
+Subject: [PATCH 4.19 102/346] soc: qcom: geni: More properly switch to DMA mode
+Date:   Mon, 28 Dec 2020 13:47:01 +0100
+Message-Id: <20201228124924.713360847@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +43,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenpeng Liang <liangwenpeng@huawei.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 1c0ca9cd1741687f529498ddb899805fc2c51caa ]
+[ Upstream commit 4b6ea87be44ef34732846fc71e44c41125f0c4fa ]
 
-For ib_copy_from_user(), the length of udata may not be the same as that
-of cmd. For ib_copy_to_user(), the length of udata may not be the same as
-that of resp. So limit the length to prevent out-of-bounds read and write
-operations from ib_copy_from_user() and ib_copy_to_user().
+On geni-i2c transfers using DMA, it was seen that if you program the
+command (I2C_READ) before calling geni_se_rx_dma_prep() that it could
+cause interrupts to fire.  If we get unlucky, these interrupts can
+just keep firing (and not be handled) blocking further progress and
+hanging the system.
 
-Fixes: de77503a5940 ("RDMA/hns: RDMA/hns: Assign rq head pointer when enable rq record db")
-Fixes: 633fb4d9fdaa ("RDMA/hns: Use structs to describe the uABI instead of opencoding")
-Fixes: ae85bf92effc ("RDMA/hns: Optimize qp param setup flow")
-Fixes: 6fd610c5733d ("RDMA/hns: Support 0 hop addressing for SRQ buffer")
-Fixes: 9d9d4ff78884 ("RDMA/hns: Update the kernel header file of hns")
-Link: https://lore.kernel.org/r/1607650657-35992-2-git-send-email-liweihang@huawei.com
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+In commit 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
+we avoided that by making sure we didn't program the command until
+after geni_se_rx_dma_prep() was called.  While that avoided the
+problems, it also turns out to be invalid.  At least in the TX case we
+started seeing sporadic corrupted transfers.  This is easily seen by
+adding an msleep() between the DMA prep and the writing of the
+command, which makes the problem worse.  That means we need to revert
+that commit and find another way to fix the bogus IRQs.
+
+Specifically, after reverting commit 02b9aec59243 ("i2c:
+i2c-qcom-geni: Fix DMA transfer race"), I put some traces in.  I found
+that the when the interrupts were firing like crazy:
+- "m_stat" had bits for M_RX_IRQ_EN, M_RX_FIFO_WATERMARK_EN set.
+- "dma" was set.
+
+Further debugging showed that I could make the problem happen more
+reliably by adding an "msleep(1)" any time after geni_se_setup_m_cmd()
+ran up until geni_se_rx_dma_prep() programmed the length.
+
+A rather simple fix is to change geni_se_select_dma_mode() so it's a
+true inverse of geni_se_select_fifo_mode() and disables all the FIFO
+related interrupts.  Now the problematic interrupts can't fire and we
+can program things in the correct order without worrying.
+
+As part of this, let's also change the writel_relaxed() in the prepare
+function to a writel() so that our DMA is guaranteed to be prepared
+now that we can't rely on geni_se_setup_m_cmd()'s writel().
+
+NOTE: the only current user of GENI_SE_DMA in mainline is i2c.
+
+Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
+Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Akash Asthana <akashast@codeaurora.org>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20201013142448.v2.1.Ifdb1b69fa3367b81118e16e9e4e63299980ca798@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_cq.c   |  5 +++--
- drivers/infiniband/hw/hns/hns_roce_main.c |  3 ++-
- drivers/infiniband/hw/hns/hns_roce_pd.c   | 11 ++++++-----
- drivers/infiniband/hw/hns/hns_roce_qp.c   |  9 ++++++---
- drivers/infiniband/hw/hns/hns_roce_srq.c  | 10 +++++-----
- 5 files changed, 22 insertions(+), 16 deletions(-)
+ drivers/soc/qcom/qcom-geni-se.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_cq.c b/drivers/infiniband/hw/hns/hns_roce_cq.c
-index 809b22aa5056c..da346129f6e9e 100644
---- a/drivers/infiniband/hw/hns/hns_roce_cq.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_cq.c
-@@ -274,7 +274,7 @@ int hns_roce_create_cq(struct ib_cq *ib_cq, const struct ib_cq_init_attr *attr,
+diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+index ee89ffb6dde84..7369b061929bb 100644
+--- a/drivers/soc/qcom/qcom-geni-se.c
++++ b/drivers/soc/qcom/qcom-geni-se.c
+@@ -275,6 +275,7 @@ static void geni_se_select_fifo_mode(struct geni_se *se)
  
- 	if (udata) {
- 		ret = ib_copy_from_udata(&ucmd, udata,
--					 min(sizeof(ucmd), udata->inlen));
-+					 min(udata->inlen, sizeof(ucmd)));
- 		if (ret) {
- 			ibdev_err(ibdev, "Failed to copy CQ udata, err %d\n",
- 				  ret);
-@@ -313,7 +313,8 @@ int hns_roce_create_cq(struct ib_cq *ib_cq, const struct ib_cq_init_attr *attr,
+ static void geni_se_select_dma_mode(struct geni_se *se)
+ {
++	u32 proto = geni_se_read_proto(se);
+ 	u32 val;
  
- 	if (udata) {
- 		resp.cqn = hr_cq->cqn;
--		ret = ib_copy_to_udata(udata, &resp, sizeof(resp));
-+		ret = ib_copy_to_udata(udata, &resp,
-+				       min(udata->outlen, sizeof(resp)));
- 		if (ret)
- 			goto err_cqc;
- 	}
-diff --git a/drivers/infiniband/hw/hns/hns_roce_main.c b/drivers/infiniband/hw/hns/hns_roce_main.c
-index afeffafc59f90..a6277d1c36ba9 100644
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -325,7 +325,8 @@ static int hns_roce_alloc_ucontext(struct ib_ucontext *uctx,
+ 	writel_relaxed(0, se->base + SE_GSI_EVENT_EN);
+@@ -284,6 +285,18 @@ static void geni_se_select_dma_mode(struct geni_se *se)
+ 	writel_relaxed(0xffffffff, se->base + SE_DMA_RX_IRQ_CLR);
+ 	writel_relaxed(0xffffffff, se->base + SE_IRQ_EN);
  
- 	resp.cqe_size = hr_dev->caps.cqe_sz;
- 
--	ret = ib_copy_to_udata(udata, &resp, sizeof(resp));
-+	ret = ib_copy_to_udata(udata, &resp,
-+			       min(udata->outlen, sizeof(resp)));
- 	if (ret)
- 		goto error_fail_copy_to_udata;
- 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_pd.c b/drivers/infiniband/hw/hns/hns_roce_pd.c
-index 98f69496adb49..f78fa1d3d8075 100644
---- a/drivers/infiniband/hw/hns/hns_roce_pd.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_pd.c
-@@ -70,16 +70,17 @@ int hns_roce_alloc_pd(struct ib_pd *ibpd, struct ib_udata *udata)
- 	}
- 
- 	if (udata) {
--		struct hns_roce_ib_alloc_pd_resp uresp = {.pdn = pd->pdn};
-+		struct hns_roce_ib_alloc_pd_resp resp = {.pdn = pd->pdn};
- 
--		if (ib_copy_to_udata(udata, &uresp, sizeof(uresp))) {
-+		ret = ib_copy_to_udata(udata, &resp,
-+				       min(udata->outlen, sizeof(resp)));
-+		if (ret) {
- 			hns_roce_pd_free(to_hr_dev(ib_dev), pd->pdn);
--			ibdev_err(ib_dev, "failed to copy to udata\n");
--			return -EFAULT;
-+			ibdev_err(ib_dev, "failed to copy to udata, ret = %d\n", ret);
- 		}
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- int hns_roce_dealloc_pd(struct ib_pd *pd, struct ib_udata *udata)
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index 71ea8fd9041b9..800141ab643a3 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -865,9 +865,12 @@ static int set_qp_param(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp,
- 	}
- 
- 	if (udata) {
--		if (ib_copy_from_udata(ucmd, udata, sizeof(*ucmd))) {
--			ibdev_err(ibdev, "Failed to copy QP ucmd\n");
--			return -EFAULT;
-+		ret = ib_copy_from_udata(ucmd, udata,
-+					 min(udata->inlen, sizeof(*ucmd)));
-+		if (ret) {
-+			ibdev_err(ibdev,
-+				  "failed to copy QP ucmd, ret = %d\n", ret);
-+			return ret;
- 		}
- 
- 		ret = set_user_sq_size(hr_dev, &init_attr->cap, hr_qp, ucmd);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_srq.c b/drivers/infiniband/hw/hns/hns_roce_srq.c
-index 8caf74e44efd9..75d74f4bb52c9 100644
---- a/drivers/infiniband/hw/hns/hns_roce_srq.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_srq.c
-@@ -300,7 +300,8 @@ int hns_roce_create_srq(struct ib_srq *ib_srq,
- 	srq->max_gs = init_attr->attr.max_sge;
- 
- 	if (udata) {
--		ret = ib_copy_from_udata(&ucmd, udata, sizeof(ucmd));
-+		ret = ib_copy_from_udata(&ucmd, udata,
-+					 min(udata->inlen, sizeof(ucmd)));
- 		if (ret) {
- 			ibdev_err(ibdev, "Failed to copy SRQ udata, err %d\n",
- 				  ret);
-@@ -343,11 +344,10 @@ int hns_roce_create_srq(struct ib_srq *ib_srq,
- 	resp.srqn = srq->srqn;
- 
- 	if (udata) {
--		if (ib_copy_to_udata(udata, &resp,
--				     min(udata->outlen, sizeof(resp)))) {
--			ret = -EFAULT;
-+		ret = ib_copy_to_udata(udata, &resp,
-+				       min(udata->outlen, sizeof(resp)));
-+		if (ret)
- 			goto err_srqc_alloc;
--		}
- 	}
- 
++	val = readl_relaxed(se->base + SE_GENI_M_IRQ_EN);
++	if (proto != GENI_SE_UART) {
++		val &= ~(M_CMD_DONE_EN | M_TX_FIFO_WATERMARK_EN);
++		val &= ~(M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN);
++	}
++	writel_relaxed(val, se->base + SE_GENI_M_IRQ_EN);
++
++	val = readl_relaxed(se->base + SE_GENI_S_IRQ_EN);
++	if (proto != GENI_SE_UART)
++		val &= ~S_CMD_DONE_EN;
++	writel_relaxed(val, se->base + SE_GENI_S_IRQ_EN);
++
+ 	val = readl_relaxed(se->base + SE_GENI_DMA_MODE_EN);
+ 	val |= GENI_DMA_MODE_EN;
+ 	writel_relaxed(val, se->base + SE_GENI_DMA_MODE_EN);
+@@ -633,7 +646,7 @@ int geni_se_tx_dma_prep(struct geni_se *se, void *buf, size_t len,
+ 	writel_relaxed(lower_32_bits(*iova), se->base + SE_DMA_TX_PTR_L);
+ 	writel_relaxed(upper_32_bits(*iova), se->base + SE_DMA_TX_PTR_H);
+ 	writel_relaxed(GENI_SE_DMA_EOT_BUF, se->base + SE_DMA_TX_ATTR);
+-	writel_relaxed(len, se->base + SE_DMA_TX_LEN);
++	writel(len, se->base + SE_DMA_TX_LEN);
  	return 0;
+ }
+ EXPORT_SYMBOL(geni_se_tx_dma_prep);
+@@ -667,7 +680,7 @@ int geni_se_rx_dma_prep(struct geni_se *se, void *buf, size_t len,
+ 	writel_relaxed(upper_32_bits(*iova), se->base + SE_DMA_RX_PTR_H);
+ 	/* RX does not have EOT buffer type bit. So just reset RX_ATTR */
+ 	writel_relaxed(0, se->base + SE_DMA_RX_ATTR);
+-	writel_relaxed(len, se->base + SE_DMA_RX_LEN);
++	writel(len, se->base + SE_DMA_RX_LEN);
+ 	return 0;
+ }
+ EXPORT_SYMBOL(geni_se_rx_dma_prep);
 -- 
 2.27.0
 
