@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4772E3B2F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7EA2E3996
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405208AbgL1NrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:47:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47132 "EHLO mail.kernel.org"
+        id S2388861AbgL1NZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:25:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405311AbgL1NqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:46:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA68208B3;
-        Mon, 28 Dec 2020 13:46:08 +0000 (UTC)
+        id S2388872AbgL1NZO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 113012072C;
+        Mon, 28 Dec 2020 13:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163169;
-        bh=u1RmK2n4WrR6ZsiKYdSVWT0u3BwXqrt0kpx3qnfWZlw=;
+        s=korg; t=1609161873;
+        bh=+AoAnIZZ/9A6WTdD5RGCO12One7qNrVF0qIULMCRCF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgNZJmCbp9ESaqEQCo1THLEDuN4Wr8zqc+kO5c1ZikerN/iRiD1kk1q3zBVN2wEsV
-         G+x5V1FbpY4JHldIivDFJWK1e6ei/yuHQ+FCtSRLBz3UFaCkHEI7a8x7DM/tXG4EJv
-         cnO6wRGSDT6yZS3jetc33kMHAXGqOLh1iK/wWzjg=
+        b=Q7yKdiQ+fw4KGtbAdV9rJsBINUtzeuAc6tz6IiybYUusdS7HRfwAm6uyqelTzBd3M
+         i+gu6u0S/dZNyWdMsZiEIxi3Vx3EekXWFwaLNC6Kg80GrtXgUiF+5XkPhexag6zZui
+         yREGktMd95ibEeUfMKZJJooLNYEYns+ok6p7115w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 194/453] ARM: dts: at91: at91sam9rl: fix ADC triggers
+Subject: [PATCH 4.19 111/346] sched: Reenable interrupts in do_sched_yield()
 Date:   Mon, 28 Dec 2020 13:47:10 +0100
-Message-Id: <20201228124946.548654752@linuxfoundation.org>
+Message-Id: <20201228124925.154328017@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 851a95da583c26e2ddeb7281e9b61f0d76ea5aba ]
+[ Upstream commit 345a957fcc95630bf5535d7668a59ed983eb49a7 ]
 
-The triggers for the ADC were taken from at91sam9260 dtsi but are not
-correct.
+do_sched_yield() invokes schedule() with interrupts disabled which is
+not allowed. This goes back to the pre git era to commit a6efb709806c
+("[PATCH] irqlock patch 2.5.27-H6") in the history tree.
 
-Fixes: a4c1d6c75822 ("ARM: at91/dt: sam9rl: add lcd, adc, usb gadget and pwm support")
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20201128222818.1910764-10-alexandre.belloni@bootlin.com
+Reenable interrupts and remove the misleading comment which "explains" it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/87r1pt7y5c.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91sam9rl.dtsi | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ kernel/sched/core.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91sam9rl.dtsi b/arch/arm/boot/dts/at91sam9rl.dtsi
-index ea024e4b6e095..0121bb0ecde16 100644
---- a/arch/arm/boot/dts/at91sam9rl.dtsi
-+++ b/arch/arm/boot/dts/at91sam9rl.dtsi
-@@ -278,23 +278,26 @@
- 				atmel,adc-use-res = "highres";
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index b166320f7633e..013b1c6cb4ed9 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -4984,12 +4984,8 @@ static void do_sched_yield(void)
+ 	schedstat_inc(rq->yld_count);
+ 	current->sched_class->yield_task(rq);
  
- 				trigger0 {
--					trigger-name = "timer-counter-0";
-+					trigger-name = "external-rising";
- 					trigger-value = <0x1>;
-+					trigger-external;
- 				};
-+
- 				trigger1 {
--					trigger-name = "timer-counter-1";
--					trigger-value = <0x3>;
-+					trigger-name = "external-falling";
-+					trigger-value = <0x2>;
-+					trigger-external;
- 				};
+-	/*
+-	 * Since we are going to call schedule() anyway, there's
+-	 * no need to preempt or enable interrupts:
+-	 */
+ 	preempt_disable();
+-	rq_unlock(rq, &rf);
++	rq_unlock_irq(rq, &rf);
+ 	sched_preempt_enable_no_resched();
  
- 				trigger2 {
--					trigger-name = "timer-counter-2";
--					trigger-value = <0x5>;
-+					trigger-name = "external-any";
-+					trigger-value = <0x3>;
-+					trigger-external;
- 				};
- 
- 				trigger3 {
--					trigger-name = "external";
--					trigger-value = <0x13>;
--					trigger-external;
-+					trigger-name = "continuous";
-+					trigger-value = <0x6>;
- 				};
- 			};
- 
+ 	schedule();
 -- 
 2.27.0
 
