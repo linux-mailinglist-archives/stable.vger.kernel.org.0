@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F24232E3A06
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D1612E376D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390386AbgL1Nbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:31:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
+        id S1728517AbgL1MzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390513AbgL1NbC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:31:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B72C2063A;
-        Mon, 28 Dec 2020 13:30:46 +0000 (UTC)
+        id S1728532AbgL1MzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ECAA21D94;
+        Mon, 28 Dec 2020 12:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162247;
-        bh=gRrXgq1PQVIFpp0lYZ6kmYk7t8/lNj+WZGrm1MT0R7w=;
+        s=korg; t=1609160108;
+        bh=ci3KWQqG2OE0gpHKegO9G9QEaQ6kaQo8gHt7d04SwKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xr+ltnh7hgS0wVMtIRdwfK3md+8qPqJHm6Zydd8TH8yOAuHIzI1XbgiwzFG08dSJw
-         QXFRUhgrMgvG5a1qRIqA6vZNBH13dRAqMpQGRwu+ddc/l0x59CG7DYzGdVbJ/0t1rT
-         q/C6/KkF8xNquaz6rKCdasJ63m+nxub/B694FEk0=
+        b=rQY03ivERynW5EJeMFaCNHl5pySc5tGo+/6DTWPIbolzsk+aKwAeBOS/37TiCedj0
+         Unla0IeCUmhy5MUpRlyc+ZVcFjdW4LNeLgnhzk3nSV/jcR+sN3+7/0qR/5m0CXkUu6
+         4Ll+XFIGTQMbZyLqUj9A6NGLOeYwSUmhY+gsHPZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dwaipayan Ray <dwaipayanray1@gmail.com>,
-        Joe Perches <joe@perches.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 237/346] checkpatch: fix unescaped left brace
+Subject: [PATCH 4.4 072/132] scsi: pm80xx: Fix error return in pm8001_pci_probe()
 Date:   Mon, 28 Dec 2020 13:49:16 +0100
-Message-Id: <20201228124931.229690810@linuxfoundation.org>
+Message-Id: <20201228124849.928325822@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dwaipayan Ray <dwaipayanray1@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 03f4935135b9efeb780b970ba023c201f81cf4e6 ]
+[ Upstream commit 97031ccffa4f62728602bfea8439dd045cd3aeb2 ]
 
-There is an unescaped left brace in a regex in OPEN_BRACE check.  This
-throws a runtime error when checkpatch is run with --fix flag and the
-OPEN_BRACE check is executed.
+The driver did not return an error in the case where
+pm8001_configure_phy_settings() failed.
 
-Fix it by escaping the left brace.
+Use rc to store the return value of pm8001_configure_phy_settings().
 
-Link: https://lkml.kernel.org/r/20201115202928.81955-1-dwaipayanray1@gmail.com
-Fixes: 8d1824780f2f ("checkpatch: add --fix option for a couple OPEN_BRACE misuses")
-Signed-off-by: Dwaipayan Ray <dwaipayanray1@gmail.com>
-Acked-by: Joe Perches <joe@perches.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20201205115551.2079471-1-zhangqilong3@huawei.com
+Fixes: 279094079a44 ("[SCSI] pm80xx: Phy settings support for motherboard controller.")
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/checkpatch.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/pm8001/pm8001_init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
-index 7eb944cbbaeab..2e31ec1378219 100755
---- a/scripts/checkpatch.pl
-+++ b/scripts/checkpatch.pl
-@@ -4059,7 +4059,7 @@ sub process {
- 			    $fix) {
- 				fix_delete_line($fixlinenr, $rawline);
- 				my $fixed_line = $rawline;
--				$fixed_line =~ /(^..*$Type\s*$Ident\(.*\)\s*){(.*)$/;
-+				$fixed_line =~ /(^..*$Type\s*$Ident\(.*\)\s*)\{(.*)$/;
- 				my $line1 = $1;
- 				my $line2 = $2;
- 				fix_insert_line($fixlinenr, ltrim($line1));
+diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
+index 062ab34b86f8b..a982701bc3e0c 100644
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -1063,7 +1063,8 @@ static int pm8001_pci_probe(struct pci_dev *pdev,
+ 
+ 	pm8001_init_sas_add(pm8001_ha);
+ 	/* phy setting support for motherboard controller */
+-	if (pm8001_configure_phy_settings(pm8001_ha))
++	rc = pm8001_configure_phy_settings(pm8001_ha);
++	if (rc)
+ 		goto err_out_shost;
+ 
+ 	pm8001_post_sas_ha_init(shost, chip);
 -- 
 2.27.0
 
