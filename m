@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5532E412F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7CE2E64B1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439748AbgL1OMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:12:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
+        id S2632981AbgL1PwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:52:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439728AbgL1OMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82801207B7;
-        Mon, 28 Dec 2020 14:11:18 +0000 (UTC)
+        id S2391199AbgL1NiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:38:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0637321D94;
+        Mon, 28 Dec 2020 13:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164679;
-        bh=WlKXHPw2P3sDA/vXpx6wksKP9ovGFhoBM8z+BDlOdcQ=;
+        s=korg; t=1609162643;
+        bh=pWFcgJnEpPRBx3+LSSh3e7Tj68NxMszCxzBSFJwjvT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+DGDgfKnhU9Pqv2QP9PdVoQJfd6XW4WJ1I3y0B6zrH7bqti20U101QQdev4Jq0dw
-         X7eZ++4HHWKKQxNdBqz5FbU33P2uxkK+fUhJc0/jQ1WYR/frvGHty4nWYy5M2AXOeq
-         gg32Kshe+C9bd589Vs2JyNuUuUT0yuxdGfiLEsVE=
+        b=E+cCtl0L1F2sWsNWtnx21OcrphCQNlaXWSWDER0Icpijhc+oGNFUBQdM1kNXNVgBy
+         23Lb8zuY4iOzIhCZiLJ1bs14XVp0yybfL1WQbiybVKK7ALuWHz78dopfe2Xoyp7HOl
+         36CPDoyTx9VllpsLxCdKeIKVoFfb7Az0YZC8MszY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Pablo Neira Ayso <pablo@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 260/717] ath11k: Dont cast ath11k_skb_cb to ieee80211_tx_info.control
-Date:   Mon, 28 Dec 2020 13:44:18 +0100
-Message-Id: <20201228125033.455513792@linuxfoundation.org>
+Subject: [PATCH 5.4 023/453] netfilter: nft_compat: make sure xtables destructors have run
+Date:   Mon, 28 Dec 2020 13:44:19 +0100
+Message-Id: <20201228124938.370882595@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,146 +40,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit f4d291b43f809b74c66b21f5190cd578af43070b ]
+[ Upstream commit ffe8923f109b7ea92c0842c89e61300eefa11c94 ]
 
-The driver_data area of ieee80211_tx_info is used in ath11k for
-ath11k_skb_cb. The first function in the TX patch which rewrites it to
-ath11k_skb_cb is already ath11k_mac_op_tx. No one else in the code path
-must use it for something else before it reinitializes it. Otherwise the
-data has to be considered uninitialized or corrupt.
+Pablo Neira found that after recent update of xt_IDLETIMER the
+iptables-nft tests sometimes show an error.
 
-But the ieee80211_tx_info.control shares exactly the same area as
-ieee80211_tx_info.driver_data and ath11k is still using it. This results in
-best case in a
+He tracked this down to the delayed cleanup used by nf_tables core:
+del rule (transaction A)
+add rule (transaction B)
 
-  ath11k c000000.wifi1: no vif found for mgmt frame, flags 0x0
+Its possible that by time transaction B (both in same netns) runs,
+the xt target destructor has not been invoked yet.
 
-or (slightly worse) in a kernel oops.
+For native nft expressions this is no problem because all expressions
+that have such side effects make sure these are handled from the commit
+phase, rather than async cleanup.
 
-Instead, the interesting data must be moved first into the ath11k_skb_cb
-and ieee80211_tx_info.control must then not be used anymore.
+For nft_compat however this isn't true.
 
-Tested-on: IPQ8074 hw2.0 WLAN.HK.2.4.0.1.r1-00026-QCAHKSWPL_SILICONZ-2
+Instead of forcing synchronous behaviour for nft_compat, keep track
+of the number of outstanding destructor calls.
 
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201119154235.263250-1-sven@narfation.org
+When we attempt to create a new expression, flush the cleanup worker
+to make sure destructors have completed.
+
+With lots of help from Pablo Neira.
+
+Reported-by: Pablo Neira Ayso <pablo@netfilter.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/core.h  |  2 ++
- drivers/net/wireless/ath/ath11k/dp_tx.c |  5 ++---
- drivers/net/wireless/ath/ath11k/mac.c   | 26 ++++++++++++++++---------
- 3 files changed, 21 insertions(+), 12 deletions(-)
+ include/net/netfilter/nf_tables.h |  2 ++
+ net/netfilter/nf_tables_api.c     | 10 +++++++--
+ net/netfilter/nft_compat.c        | 36 +++++++++++++++++++++++++++----
+ 3 files changed, 42 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index 18b97420f0d8a..5a7915f75e1e2 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -75,12 +75,14 @@ static inline enum wme_ac ath11k_tid_to_ac(u32 tid)
+diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
+index a576bcbba2fcc..6a6fcd10d3185 100644
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -1462,4 +1462,6 @@ void nft_chain_filter_fini(void);
  
- enum ath11k_skb_flags {
- 	ATH11K_SKB_HW_80211_ENCAP = BIT(0),
-+	ATH11K_SKB_CIPHER_SET = BIT(1),
+ void __init nft_chain_route_init(void);
+ void nft_chain_route_fini(void);
++
++void nf_tables_trans_destroy_flush_work(void);
+ #endif /* _NET_NF_TABLES_H */
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 459b7c0547115..7753d6f1467c9 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -6605,6 +6605,12 @@ static void nf_tables_trans_destroy_work(struct work_struct *w)
+ 	}
+ }
+ 
++void nf_tables_trans_destroy_flush_work(void)
++{
++	flush_work(&trans_destroy_work);
++}
++EXPORT_SYMBOL_GPL(nf_tables_trans_destroy_flush_work);
++
+ static int nf_tables_commit_chain_prepare(struct net *net, struct nft_chain *chain)
+ {
+ 	struct nft_rule *rule;
+@@ -6776,9 +6782,9 @@ static void nf_tables_commit_release(struct net *net)
+ 	spin_unlock(&nf_tables_destroy_list_lock);
+ 
+ 	nf_tables_module_autoload_cleanup(net);
+-	mutex_unlock(&net->nft.commit_mutex);
+-
+ 	schedule_work(&trans_destroy_work);
++
++	mutex_unlock(&net->nft.commit_mutex);
+ }
+ 
+ static int nf_tables_commit(struct net *net, struct sk_buff *skb)
+diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
+index f9adca62ccb3d..0e3e0ff805812 100644
+--- a/net/netfilter/nft_compat.c
++++ b/net/netfilter/nft_compat.c
+@@ -27,6 +27,8 @@ struct nft_xt_match_priv {
+ 	void *info;
  };
  
- struct ath11k_skb_cb {
- 	dma_addr_t paddr;
- 	u8 eid;
- 	u8 flags;
-+	u32 cipher;
- 	struct ath11k *ar;
- 	struct ieee80211_vif *vif;
- } __packed;
-diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
-index 3d962eee4d61d..21dfd08d3debb 100644
---- a/drivers/net/wireless/ath/ath11k/dp_tx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
-@@ -84,7 +84,6 @@ int ath11k_dp_tx(struct ath11k *ar, struct ath11k_vif *arvif,
- 	struct ath11k_dp *dp = &ab->dp;
- 	struct hal_tx_info ti = {0};
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
--	struct ieee80211_key_conf *key = info->control.hw_key;
- 	struct ath11k_skb_cb *skb_cb = ATH11K_SKB_CB(skb);
- 	struct hal_srng *tcl_ring;
- 	struct ieee80211_hdr *hdr = (void *)skb->data;
-@@ -149,9 +148,9 @@ tcl_ring_sel:
- 	ti.meta_data_flags = arvif->tcl_metadata;
- 
- 	if (ti.encap_type == HAL_TCL_ENCAP_TYPE_RAW) {
--		if (key) {
-+		if (skb_cb->flags & ATH11K_SKB_CIPHER_SET) {
- 			ti.encrypt_type =
--				ath11k_dp_tx_get_encrypt_type(key->cipher);
-+				ath11k_dp_tx_get_encrypt_type(skb_cb->cipher);
- 
- 			if (ieee80211_has_protected(hdr->frame_control))
- 				skb_put(skb, IEEE80211_CCMP_MIC_LEN);
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index f5e49e1c11ed7..6b7f00e0086f5 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -3977,21 +3977,20 @@ static void ath11k_mgmt_over_wmi_tx_purge(struct ath11k *ar)
- static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
++static refcount_t nft_compat_pending_destroy = REFCOUNT_INIT(1);
++
+ static int nft_compat_chain_validate_dependency(const struct nft_ctx *ctx,
+ 						const char *tablename)
  {
- 	struct ath11k *ar = container_of(work, struct ath11k, wmi_mgmt_tx_work);
--	struct ieee80211_tx_info *info;
-+	struct ath11k_skb_cb *skb_cb;
- 	struct ath11k_vif *arvif;
- 	struct sk_buff *skb;
- 	int ret;
+@@ -236,6 +238,15 @@ nft_target_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
  
- 	while ((skb = skb_dequeue(&ar->wmi_mgmt_tx_queue)) != NULL) {
--		info = IEEE80211_SKB_CB(skb);
--		if (!info->control.vif) {
--			ath11k_warn(ar->ab, "no vif found for mgmt frame, flags 0x%x\n",
--				    info->control.flags);
-+		skb_cb = ATH11K_SKB_CB(skb);
-+		if (!skb_cb->vif) {
-+			ath11k_warn(ar->ab, "no vif found for mgmt frame\n");
- 			ieee80211_free_txskb(ar->hw, skb);
- 			continue;
- 		}
+ 	nft_target_set_tgchk_param(&par, ctx, target, info, &e, proto, inv);
  
--		arvif = ath11k_vif_to_arvif(info->control.vif);
-+		arvif = ath11k_vif_to_arvif(skb_cb->vif);
- 		if (ar->allocated_vdev_map & (1LL << arvif->vdev_id) &&
- 		    arvif->is_started) {
- 			ret = ath11k_mac_mgmt_tx_wmi(ar, arvif, skb);
-@@ -4004,8 +4003,8 @@ static void ath11k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 			}
- 		} else {
- 			ath11k_warn(ar->ab,
--				    "dropping mgmt frame for vdev %d, flags 0x%x is_started %d\n",
--				    arvif->vdev_id, info->control.flags,
-+				    "dropping mgmt frame for vdev %d, is_started %d\n",
-+				    arvif->vdev_id,
- 				    arvif->is_started);
- 			ieee80211_free_txskb(ar->hw, skb);
- 		}
-@@ -4053,10 +4052,19 @@ static void ath11k_mac_op_tx(struct ieee80211_hw *hw,
- 	struct ieee80211_vif *vif = info->control.vif;
- 	struct ath11k_vif *arvif = ath11k_vif_to_arvif(vif);
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
-+	struct ieee80211_key_conf *key = info->control.hw_key;
-+	u32 info_flags = info->flags;
- 	bool is_prb_rsp;
- 	int ret;
- 
--	if (info->flags & IEEE80211_TX_CTL_HW_80211_ENCAP) {
-+	skb_cb->vif = vif;
++	/* xtables matches or targets can have side effects, e.g.
++	 * creation/destruction of /proc files.
++	 * The xt ->destroy functions are run asynchronously from
++	 * work queue.  If we have pending invocations we thus
++	 * need to wait for those to finish.
++	 */
++	if (refcount_read(&nft_compat_pending_destroy) > 1)
++		nf_tables_trans_destroy_flush_work();
 +
-+	if (key) {
-+		skb_cb->cipher = key->cipher;
-+		skb_cb->flags |= ATH11K_SKB_CIPHER_SET;
-+	}
+ 	ret = xt_check_target(&par, size, proto, inv);
+ 	if (ret < 0)
+ 		return ret;
+@@ -247,6 +258,13 @@ nft_target_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	return 0;
+ }
+ 
++static void __nft_mt_tg_destroy(struct module *me, const struct nft_expr *expr)
++{
++	refcount_dec(&nft_compat_pending_destroy);
++	module_put(me);
++	kfree(expr->ops);
++}
 +
-+	if (info_flags & IEEE80211_TX_CTL_HW_80211_ENCAP) {
- 		skb_cb->flags |= ATH11K_SKB_HW_80211_ENCAP;
- 	} else if (ieee80211_is_mgmt(hdr->frame_control)) {
- 		is_prb_rsp = ieee80211_is_probe_resp(hdr->frame_control);
+ static void
+ nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
+ {
+@@ -262,8 +280,7 @@ nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
+ 	if (par.target->destroy != NULL)
+ 		par.target->destroy(&par);
+ 
+-	module_put(me);
+-	kfree(expr->ops);
++	__nft_mt_tg_destroy(me, expr);
+ }
+ 
+ static int nft_extension_dump_info(struct sk_buff *skb, int attr,
+@@ -494,8 +511,7 @@ __nft_match_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	if (par.match->destroy != NULL)
+ 		par.match->destroy(&par);
+ 
+-	module_put(me);
+-	kfree(expr->ops);
++	__nft_mt_tg_destroy(me, expr);
+ }
+ 
+ static void
+@@ -700,6 +716,14 @@ static const struct nfnetlink_subsystem nfnl_compat_subsys = {
+ 
+ static struct nft_expr_type nft_match_type;
+ 
++static void nft_mt_tg_deactivate(const struct nft_ctx *ctx,
++				 const struct nft_expr *expr,
++				 enum nft_trans_phase phase)
++{
++	if (phase == NFT_TRANS_COMMIT)
++		refcount_inc(&nft_compat_pending_destroy);
++}
++
+ static const struct nft_expr_ops *
+ nft_match_select_ops(const struct nft_ctx *ctx,
+ 		     const struct nlattr * const tb[])
+@@ -738,6 +762,7 @@ nft_match_select_ops(const struct nft_ctx *ctx,
+ 	ops->type = &nft_match_type;
+ 	ops->eval = nft_match_eval;
+ 	ops->init = nft_match_init;
++	ops->deactivate = nft_mt_tg_deactivate,
+ 	ops->destroy = nft_match_destroy;
+ 	ops->dump = nft_match_dump;
+ 	ops->validate = nft_match_validate;
+@@ -828,6 +853,7 @@ nft_target_select_ops(const struct nft_ctx *ctx,
+ 	ops->size = NFT_EXPR_SIZE(XT_ALIGN(target->targetsize));
+ 	ops->init = nft_target_init;
+ 	ops->destroy = nft_target_destroy;
++	ops->deactivate = nft_mt_tg_deactivate,
+ 	ops->dump = nft_target_dump;
+ 	ops->validate = nft_target_validate;
+ 	ops->data = target;
+@@ -891,6 +917,8 @@ static void __exit nft_compat_module_exit(void)
+ 	nfnetlink_subsys_unregister(&nfnl_compat_subsys);
+ 	nft_unregister_expr(&nft_target_type);
+ 	nft_unregister_expr(&nft_match_type);
++
++	WARN_ON_ONCE(refcount_read(&nft_compat_pending_destroy) != 1);
+ }
+ 
+ MODULE_ALIAS_NFNL_SUBSYS(NFNL_SUBSYS_NFT_COMPAT);
 -- 
 2.27.0
 
