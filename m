@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DC232E4333
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 991762E3A01
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407407AbgL1PeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53694 "EHLO mail.kernel.org"
+        id S2390421AbgL1Nag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:30:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407009AbgL1Nv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 880D2205CB;
-        Mon, 28 Dec 2020 13:51:16 +0000 (UTC)
+        id S2390392AbgL1Naf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAD3C22B37;
+        Mon, 28 Dec 2020 13:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163477;
-        bh=yjUlEKd5ygr9SW1++B5dKs9qCU8QU9GqMbPdH2NIO/0=;
+        s=korg; t=1609162194;
+        bh=RDtDIuD4ctPNmHaOHCk9zXG9K0V2zEWKfmAdnPO22Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QSfeUHrRH+T900g/zM2N2p6rRF8Sp+vjhvcjX4KIvNhJiUzay+OLnG8BJt0KHpXUe
-         l6aFKRTsGfM/nEGxwTp297y53vaFSmUY288sOZ4bmSzjMf+OjyQdW6LmrDAPcH4tO/
-         tfuujbfIAnU7MOHQYtzUouGB/IgZT+7psrf5/9CY=
+        b=Zfg1N8uOczZyhIG6ZNtHUnMOyo6H01Ou5EzPev3YiEH5hF2ceWQwi/UAVmq5x5J49
+         mT17GmW2kAjn5MNEIn/UKxhntxnHfzXggEb/rZU6LoCuo6V64Oi5vLxGFDFm/Pm74o
+         BT53gF9ZBKwT8xx9lkQpKvKwSc86fgK2xm6AtN8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 272/453] mac80211: dont set set TDLS STA bandwidth wider than possible
+Subject: [PATCH 4.19 189/346] NFSv4.2: condition READDIRs mask for security label based on LSM state
 Date:   Mon, 28 Dec 2020 13:48:28 +0100
-Message-Id: <20201228124950.319388768@linuxfoundation.org>
+Message-Id: <20201228124928.925918024@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit f65607cdbc6b0da356ef5a22552ddd9313cf87a0 ]
+[ Upstream commit 05ad917561fca39a03338cb21fe9622f998b0f9c ]
 
-When we set up a TDLS station, we set sta->sta.bandwidth solely based
-on the capabilities, because the "what's the current bandwidth" check
-is bypassed and only applied for other types of stations.
+Currently, the client will always ask for security_labels if the server
+returns that it supports that feature regardless of any LSM modules
+(such as Selinux) enforcing security policy. This adds performance
+penalty to the READDIR operation.
 
-This leads to the unfortunate scenario that the sta->sta.bandwidth is
-160 MHz if both stations support it, but we never actually configure
-this bandwidth unless the AP is already using 160 MHz; even for wider
-bandwidth support we only go up to 80 MHz (at least right now.)
+Client adjusts superblock's support of the security_label based on
+the server's support but also current client's configuration of the
+LSM modules. Thus, prior to using the default bitmask in READDIR,
+this patch checks the server's capabilities and then instructs
+READDIR to remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
 
-For iwlwifi, this can also lead to firmware asserts, telling us that
-we've configured the TX rates for a higher bandwidth than is actually
-available due to the PHY configuration.
+v5: fixing silly mistakes of the rushed v4
+v4: simplifying logic
+v3: changing label's initialization per Ondrej's comment
+v2: dropping selinux hook and using the sb cap.
 
-For non-TDLS, we check against the interface's requested bandwidth,
-but we explicitly skip this check for TDLS to cope with the wider BW
-case. Change this to
- (a) still limit to the TDLS peer's own chandef, which gets factored
-     into the overall PHY configuration we request from the driver,
-     and
- (b) limit it to when the TDLS peer is authorized, because it's only
-     factored into the channel context in this case.
-
-Fixes: 504871e602d9 ("mac80211: fix bandwidth computation for TDLS peers")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20201206145305.fcc7d29c4590.I11f77e9e25ddf871a3c8d5604650c763e2c5887a@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Suggested-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/vht.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4proc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/vht.c b/net/mac80211/vht.c
-index aabc63dadf176..cea83fa5fc5b9 100644
---- a/net/mac80211/vht.c
-+++ b/net/mac80211/vht.c
-@@ -446,12 +446,18 @@ enum ieee80211_sta_rx_bandwidth ieee80211_sta_cur_vht_bw(struct sta_info *sta)
- 	 * IEEE80211-2016 specification makes higher bandwidth operation
- 	 * possible on the TDLS link if the peers have wider bandwidth
- 	 * capability.
-+	 *
-+	 * However, in this case, and only if the TDLS peer is authorized,
-+	 * limit to the tdls_chandef so that the configuration here isn't
-+	 * wider than what's actually requested on the channel context.
- 	 */
- 	if (test_sta_flag(sta, WLAN_STA_TDLS_PEER) &&
--	    test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW))
--		return bw;
--
--	bw = min(bw, ieee80211_chan_width_to_rx_bw(bss_width));
-+	    test_sta_flag(sta, WLAN_STA_TDLS_WIDER_BW) &&
-+	    test_sta_flag(sta, WLAN_STA_AUTHORIZED) &&
-+	    sta->tdls_chandef.chan)
-+		bw = min(bw, ieee80211_chan_width_to_rx_bw(sta->tdls_chandef.width));
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index fe7b42c277ac5..1a395647ae265 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -4687,12 +4687,12 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
+ 		u64 cookie, struct page **pages, unsigned int count, bool plus)
+ {
+ 	struct inode		*dir = d_inode(dentry);
++	struct nfs_server	*server = NFS_SERVER(dir);
+ 	struct nfs4_readdir_arg args = {
+ 		.fh = NFS_FH(dir),
+ 		.pages = pages,
+ 		.pgbase = 0,
+ 		.count = count,
+-		.bitmask = NFS_SERVER(d_inode(dentry))->attr_bitmask,
+ 		.plus = plus,
+ 	};
+ 	struct nfs4_readdir_res res;
+@@ -4707,9 +4707,15 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
+ 	dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
+ 			dentry,
+ 			(unsigned long long)cookie);
++	if (!(server->caps & NFS_CAP_SECURITY_LABEL))
++		args.bitmask = server->attr_bitmask_nl;
 +	else
-+		bw = min(bw, ieee80211_chan_width_to_rx_bw(bss_width));
- 
- 	return bw;
- }
++		args.bitmask = server->attr_bitmask;
++
+ 	nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
+ 	res.pgbase = args.pgbase;
+-	status = nfs4_call_sync(NFS_SERVER(dir)->client, NFS_SERVER(dir), &msg, &args.seq_args, &res.seq_res, 0);
++	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args,
++			&res.seq_res, 0);
+ 	if (status >= 0) {
+ 		memcpy(NFS_I(dir)->cookieverf, res.verifier.data, NFS4_VERIFIER_SIZE);
+ 		status += args.pgbase;
 -- 
 2.27.0
 
