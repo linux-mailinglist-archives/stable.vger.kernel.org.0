@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2662E3D85
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53572E3AEE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441222AbgL1OQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:16:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51720 "EHLO mail.kernel.org"
+        id S2404452AbgL1Nn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441219AbgL1OQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:16:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEA41206D4;
-        Mon, 28 Dec 2020 14:15:57 +0000 (UTC)
+        id S2404463AbgL1Nn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 428EE22A84;
+        Mon, 28 Dec 2020 13:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164958;
-        bh=i1Dt65RvreWIrBV+6ERdoz0JaZiix6xmnIsd71PAcxQ=;
+        s=korg; t=1609162965;
+        bh=rpPCfVZQyy01jOPBv/Ni6TGVmXUUZpxrNOG1S3ScqKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJxCxSG8D1IVyY49Rh6mIhdokr9F9ktU4FoCH3nzarORZH8rNNpy5g0H5vE9SMRgL
-         S3faZVoyinGAqtyWhHkXPjVLXPxIpyO397WxDjHvQdNqvcYXJOqhtg/LfvPMtYkpgx
-         cucOmKgU4K18B8IoTmOWX5ZprjFCOJQYfFHvZUho=
+        b=wESuu0+ut90afeCoTWulD8rBiy8aUTHrPgK1QYY0cFCIlv9pX8M+lrgA43YzqY5U0
+         ssylw6gYEdhpUKC+QypCR0yzNLuPp6z8zkAOfXw+kHa3VmDHa+4MzDuabGnhmnIAp/
+         EZ4B9m9u9wSclIC4vN9pRIE8J0m4SnFG70CTtAEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Karan Tilak Kumar <kartilak@cisco.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 360/717] scsi: fnic: Fix error return code in fnic_probe()
+Subject: [PATCH 5.4 122/453] ASoC: wm8998: Fix PM disable depth imbalance on error
 Date:   Mon, 28 Dec 2020 13:45:58 +0100
-Message-Id: <20201228125038.260978936@linuxfoundation.org>
+Message-Id: <20201228124943.086548002@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit d4fc94fe65578738ded138e9fce043db6bfc3241 ]
+[ Upstream commit 193aa0a043645220d2a2f783ba06ae13d4601078 ]
 
-Return a negative error code from the error handling case instead of 0 as
-done elsewhere in this function.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-Link: https://lore.kernel.org/r/1607068060-31203-1-git-send-email-zhangchangzhong@huawei.com
-Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Karan Tilak Kumar <kartilak@cisco.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 31833ead95c2c ("ASoC: arizona: Move request of speaker IRQs into bus probe")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20201111041326.1257558-4-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fnic/fnic_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/wm8998.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
-index 5f8a7ef8f6a8e..4f7befb43d604 100644
---- a/drivers/scsi/fnic/fnic_main.c
-+++ b/drivers/scsi/fnic/fnic_main.c
-@@ -740,6 +740,7 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	for (i = 0; i < FNIC_IO_LOCKS; i++)
- 		spin_lock_init(&fnic->io_req_lock[i]);
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 7c18992195733..817ccddd63448 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -1375,7 +1375,7 @@ static int wm8998_probe(struct platform_device *pdev)
  
-+	err = -ENOMEM;
- 	fnic->io_req_pool = mempool_create_slab_pool(2, fnic_io_req_cache);
- 	if (!fnic->io_req_pool)
- 		goto err_out_free_resources;
+ 	ret = arizona_init_spk_irqs(arizona);
+ 	if (ret < 0)
+-		return ret;
++		goto err_pm_disable;
+ 
+ 	ret = devm_snd_soc_register_component(&pdev->dev,
+ 					      &soc_component_dev_wm8998,
+@@ -1390,6 +1390,8 @@ static int wm8998_probe(struct platform_device *pdev)
+ 
+ err_spk_irqs:
+ 	arizona_free_spk_irqs(arizona);
++err_pm_disable:
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	return ret;
+ }
 -- 
 2.27.0
 
