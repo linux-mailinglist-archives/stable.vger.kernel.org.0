@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7A52E3B95
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 143272E3FD2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407006AbgL1Nv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:51:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53664 "EHLO mail.kernel.org"
+        id S2506411AbgL1Oos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:44:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407001AbgL1Nvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8BC221D94;
-        Mon, 28 Dec 2020 13:51:13 +0000 (UTC)
+        id S2503146AbgL1OYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F0320715;
+        Mon, 28 Dec 2020 14:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163474;
-        bh=hJPvZ98uWfYMgHk6MR39rxcwhu74WZNtnAqFZCpUbFE=;
+        s=korg; t=1609165451;
+        bh=GKJLJ8uHxLBb24RT1d7AlBVDke3QDveQAz71l4+BKNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwxh97tXLZv4zvQGw5/lBS76Bz7v7MWpEPCmYs8g6f9FQG7uSMqric5KY067fqUjm
-         unMzs/unhEgSgAfQCVKQ6F5R5DFpPwoOHCGhVnSLq81YfqGGRM16cIi5ZFAS5d6V62
-         pTl8mWuYEs33wagDOm6zx7nzj/qGVgVeYGio2Qsw=
+        b=0VoVDm7R+UrcPRJdZD3JEm5XPjMiaGGkut89Ehp3RlCDTLqaKMa+ODtsHlC2ks/HQ
+         esu3O9MJ3y94LeHlurZV/24m5XJk3GZ5nc3zlbpa257/UufTjunUNiWDUABAbGBKjD
+         L36SCbVf++WupIoRGVt18FSJdLVlbxQmEud5jTQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 298/453] clk: ti: Fix memleak in ti_fapll_synth_setup
+        stable@vger.kernel.org, stable@kernel.org,
+        Connor McAdams <conmanx360@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 536/717] ALSA: hda/ca0132 - Fix AE-5 rear headphone pincfg.
 Date:   Mon, 28 Dec 2020 13:48:54 +0100
-Message-Id: <20201228124951.544748021@linuxfoundation.org>
+Message-Id: <20201228125046.652741465@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Connor McAdams <conmanx360@gmail.com>
 
-[ Upstream commit 8c6239f6e95f583bb763d0228e02d4dd0fb3d492 ]
+commit c697ba85a94b8f65bf90dec5ef9af5c39c3e73b2 upstream.
 
-If clk_register fails, we should goto free branch
-before function returns to prevent memleak.
+The Windows driver sets the pincfg for the AE-5's rear-headphone to
+report as a microphone. This causes issues with Pulseaudio mistakenly
+believing there is no headphone plugged in. In Linux, we should instead
+set it to be a headphone.
 
-Fixes: 163152cbbe321 ("clk: ti: Add support for FAPLL on dm816x")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201113131623.2098222-1-zhangqilong3@huawei.com
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a6b0961b39896 ("ALSA: hda/ca0132 - fix AE-5 pincfg")
+Cc: <stable@kernel.org>
+Signed-off-by: Connor McAdams <conmanx360@gmail.com>
+Link: https://lore.kernel.org/r/20201208195223.424753-1-conmanx360@gmail.com
+Link: https://lore.kernel.org/r/20201210173550.2968-1-conmanx360@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/ti/fapll.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_ca0132.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ti/fapll.c b/drivers/clk/ti/fapll.c
-index 95e36ba64accf..8024c6d2b9e95 100644
---- a/drivers/clk/ti/fapll.c
-+++ b/drivers/clk/ti/fapll.c
-@@ -498,6 +498,7 @@ static struct clk * __init ti_fapll_synth_setup(struct fapll_data *fd,
- {
- 	struct clk_init_data *init;
- 	struct fapll_synth *synth;
-+	struct clk *clk = ERR_PTR(-ENOMEM);
- 
- 	init = kzalloc(sizeof(*init), GFP_KERNEL);
- 	if (!init)
-@@ -520,13 +521,19 @@ static struct clk * __init ti_fapll_synth_setup(struct fapll_data *fd,
- 	synth->hw.init = init;
- 	synth->clk_pll = pll_clk;
- 
--	return clk_register(NULL, &synth->hw);
-+	clk = clk_register(NULL, &synth->hw);
-+	if (IS_ERR(clk)) {
-+		pr_err("failed to register clock\n");
-+		goto free;
-+	}
-+
-+	return clk;
- 
- free:
- 	kfree(synth);
- 	kfree(init);
- 
--	return ERR_PTR(-ENOMEM);
-+	return clk;
- }
- 
- static void __init ti_fapll_setup(struct device_node *node)
--- 
-2.27.0
-
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1223,7 +1223,7 @@ static const struct hda_pintbl ae5_pincf
+ 	{ 0x0e, 0x01c510f0 }, /* SPDIF In */
+ 	{ 0x0f, 0x01017114 }, /* Port A -- Rear L/R. */
+ 	{ 0x10, 0x01017012 }, /* Port D -- Center/LFE or FP Hp */
+-	{ 0x11, 0x01a170ff }, /* Port B -- LineMicIn2 / Rear Headphone */
++	{ 0x11, 0x012170ff }, /* Port B -- LineMicIn2 / Rear Headphone */
+ 	{ 0x12, 0x01a170f0 }, /* Port C -- LineIn1 */
+ 	{ 0x13, 0x908700f0 }, /* What U Hear In*/
+ 	{ 0x18, 0x50d000f0 }, /* N/A */
 
 
