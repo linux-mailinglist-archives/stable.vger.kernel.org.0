@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C242E3AF5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34172E40B1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391946AbgL1Nnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43904 "EHLO mail.kernel.org"
+        id S2408078AbgL1Ozb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:55:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404405AbgL1Nno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:43:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DAA621D94;
-        Mon, 28 Dec 2020 13:43:27 +0000 (UTC)
+        id S2441329AbgL1ORB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:17:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 301C4207B2;
+        Mon, 28 Dec 2020 14:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163008;
-        bh=PC5/RpDZfIvt+bcLuIFw1MvS8/iDa+IkvDQlQSaFfWg=;
+        s=korg; t=1609165005;
+        bh=xb0Uv21e94yMnrikOM3ZpNUJhYWgw2Lpwh5CLNix+K8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCYcevWEX9EmASCkOiZRbq0H9z2IdVTMzhOlaogt6ygUeEYXAKMdazQYKF6eJo+6P
-         Hwa2wIeL6/eWoQMRW72ROLN0tsMCxg6WZyUnL2huiQf4fCRM76cq+E3CPAx2PZv1YO
-         da4Aq69ToCQt+Qxjxc1KJolp7e+QyFi2IZno88gM=
+        b=y3uCfk5FMKGJuwV9x6FCIi7hK0uHwydQCHNEgxBaEnyex7jMTamqzHKkuStqSO9Hu
+         E1PjZY89J1V31vHAk6l0jPz7gWUWWL8azQtCH9Q9SwOAY4lVTPdOgHzvu7ffr1MzjB
+         qa/7rOKbzegnFrEHQ5vcfqjZn0heNAyjqWPYnNkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Michael Walle <michael@walle.cc>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/453] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
-Date:   Mon, 28 Dec 2020 13:45:43 +0100
-Message-Id: <20201228124942.363945272@linuxfoundation.org>
+Subject: [PATCH 5.10 346/717] mtd: spi-nor: sst: fix BPn bits for the SST25VF064C
+Date:   Mon, 28 Dec 2020 13:45:44 +0100
+Message-Id: <20201228125037.603931498@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,99 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 ]
+[ Upstream commit 989d4b72bae3b05c1564d38e71e18f65b12734fb ]
 
-A previous fix, commit 83370b31a915 ("selinux: fix error initialization
-in inode_doinit_with_dentry()"), changed how failures were handled
-before a SELinux policy was loaded.  Unfortunately that patch was
-potentially problematic for two reasons: it set the isec->initialized
-state without holding a lock, and it didn't set the inode's SELinux
-label to the "default" for the particular filesystem.  The later can
-be a problem if/when a later attempt to revalidate the inode fails
-and SELinux reverts to the existing inode label.
+This flash part actually has 4 block protection bits.
 
-This patch should restore the default inode labeling that existed
-before the original fix, without affecting the LABEL_INVALID marking
-such that revalidation will still be attempted in the future.
+Please note, that this patch is just based on information of the
+datasheet of the datasheet and wasn't tested.
 
-Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: 3e0930f109e7 ("mtd: spi-nor: Rework the disabling of block write protection")
+Reported-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20201203162959.29589-2-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 31 +++++++++++++------------------
- 1 file changed, 13 insertions(+), 18 deletions(-)
+ drivers/mtd/spi-nor/sst.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 76f7eb5690c8e..717a398ef4d05 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1499,13 +1499,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
- 			 */
--			isec->initialized = LABEL_INVALID;
--			/*
--			 * There is nothing useful to jump to the "out"
--			 * label, except a needless spin lock/unlock
--			 * cycle.
--			 */
--			return 0;
-+			goto out_invalid;
- 		}
- 
- 		rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
-@@ -1559,15 +1553,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit() with a dentry, before these inodes
- 			 * could be used again by userspace.
- 			 */
--			if (!dentry) {
--				isec->initialized = LABEL_INVALID;
--				/*
--				 * There is nothing useful to jump to the "out"
--				 * label, except a needless spin lock/unlock
--				 * cycle.
--				 */
--				return 0;
--			}
-+			if (!dentry)
-+				goto out_invalid;
- 			rc = selinux_genfs_get_sid(dentry, sclass,
- 						   sbsec->flags, &sid);
- 			if (rc) {
-@@ -1592,11 +1579,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- out:
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_PENDING) {
--		if (!sid || rc) {
-+		if (rc) {
- 			isec->initialized = LABEL_INVALID;
- 			goto out_unlock;
- 		}
--
- 		isec->initialized = LABEL_INITIALIZED;
- 		isec->sid = sid;
- 	}
-@@ -1604,6 +1590,15 @@ out:
- out_unlock:
- 	spin_unlock(&isec->lock);
- 	return rc;
-+
-+out_invalid:
-+	spin_lock(&isec->lock);
-+	if (isec->initialized == LABEL_PENDING) {
-+		isec->initialized = LABEL_INVALID;
-+		isec->sid = sid;
-+	}
-+	spin_unlock(&isec->lock);
-+	return 0;
- }
- 
- /* Convert a Linux signal to an access vector. */
+diff --git a/drivers/mtd/spi-nor/sst.c b/drivers/mtd/spi-nor/sst.c
+index e0af6d25d573b..0ab07624fb73f 100644
+--- a/drivers/mtd/spi-nor/sst.c
++++ b/drivers/mtd/spi-nor/sst.c
+@@ -18,7 +18,8 @@ static const struct flash_info sst_parts[] = {
+ 			      SECT_4K | SST_WRITE) },
+ 	{ "sst25vf032b", INFO(0xbf254a, 0, 64 * 1024, 64,
+ 			      SECT_4K | SST_WRITE) },
+-	{ "sst25vf064c", INFO(0xbf254b, 0, 64 * 1024, 128, SECT_4K) },
++	{ "sst25vf064c", INFO(0xbf254b, 0, 64 * 1024, 128,
++			      SECT_4K | SPI_NOR_4BIT_BP) },
+ 	{ "sst25wf512",  INFO(0xbf2501, 0, 64 * 1024,  1,
+ 			      SECT_4K | SST_WRITE) },
+ 	{ "sst25wf010",  INFO(0xbf2502, 0, 64 * 1024,  2,
 -- 
 2.27.0
 
