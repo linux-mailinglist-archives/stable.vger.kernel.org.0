@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF792E408C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9282E40AC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441499AbgL1ORq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:17:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
+        id S1731675AbgL1OzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:55:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2501883AbgL1ORe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B81207A9;
-        Mon, 28 Dec 2020 14:16:47 +0000 (UTC)
+        id S2441347AbgL1ORG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:17:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6640522583;
+        Mon, 28 Dec 2020 14:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165008;
-        bh=J8EDAHR5nrjdH7QAF5tISe7lha4W7Duhqv6amCs6azE=;
+        s=korg; t=1609165011;
+        bh=yILNp6kH/yw5GNmBb/hw2thVBIH/jQnLg3VdnXrTiR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDZmqz3NfbvXJpt9yFDVkSHLXA9K8AJhwcFhJw6aSx6ZnMcBNlDOIyjXzW3kc735P
-         Z+6q5yvt0iwxeB1h/M45XIxO6zh2zw/HKoLiorrhCzKTGPOVX1tq4mp6Y2zOMXotgK
-         8f37FPnC5+SiwxtaBT3BK96K0hgV6380OlG1iglo=
+        b=ZKU+1NO/shupuddV9rpAe8uAEF/8TcIAyCc/yZgmvkMwWA+4ZYUuWlEk8cb/HXyEq
+         XgGj2qvPtOkVqrM2ni2SiOZd4UN1IkED7EUUX3lib/nAHyh2qd9PdiHJP26GLt8Sev
+         3CAUZRqO5menYAUPc4FSXPjkyK3xwS9TPYoRZuJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Tudor Ambarus <tudor.ambarus@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 347/717] mtd: spi-nor: ignore errors in spi_nor_unlock_all()
-Date:   Mon, 28 Dec 2020 13:45:45 +0100
-Message-Id: <20201228125037.652430535@linuxfoundation.org>
+Subject: [PATCH 5.10 348/717] mtd: spi-nor: atmel: remove global protection flag
+Date:   Mon, 28 Dec 2020 13:45:46 +0100
+Message-Id: <20201228125037.701027739@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,84 +43,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit bdb1a75e4b9df6861ec6a6e3e3997820d3cebabe ]
+[ Upstream commit e6204d4620276398ed7317d64c369813a1f96615 ]
 
-Just try to unlock the whole SPI-NOR flash array. Don't abort the
-probing in case of an error. Justifications:
- (1) For some boards, this just works because
-     spi_nor_write_16bit_sr_and_check() is broken and just checks the
-     second half of the 16bit. Once that will be fixed, SPI probe will
-     fail for boards which has hardware-write protected SPI-NOR flashes.
- (2) Until now, hardware write-protection was the only viable solution
-     to use the block protection bits. This is because this very
-     function spi_nor_unlock_all() will be called unconditionally on
-     every linux boot. Therefore, this bits only makes sense in
-     combination with the hardware write-protection. If we would fail
-     the SPI probe on an error in spi_nor_unlock_all() we'd break
-     virtually all users of the block protection bits.
- (3) We should try hard to keep the MTD working even if the flash might
-     not be writable/erasable.
+This is considered bad for the following reasons:
+ (1) We only support the block protection with BPn bits for write
+     protection. Not all Atmel parts support this.
+ (2) Newly added flash chip will automatically inherit the "has
+     locking" support and thus needs to explicitly tested. Better
+     be opt-in instead of opt-out.
+ (3) There are already supported flashes which doesn't support
+     the locking scheme. So I assume this wasn't properly tested
+     before adding that chip; which enforces my previous argument
+     that locking support should be an opt-in.
 
-Fixes: 3e0930f109e7 ("mtd: spi-nor: Rework the disabling of block write protection")
+Remove the global flag and add individual flags to all flashes which
+supports BP locking. In particular the following flashes don't support
+the BP scheme:
+ - AT26F004
+ - AT25SL321
+ - AT45DB081D
+
+Please note, that some flashes which are marked as SPI_NOR_HAS_LOCK just
+support Global Protection, i.e. not our supported block protection
+locking scheme. This is to keep backwards compatibility with the
+current "unlock all at boot" mechanism. In particular the following
+flashes doesn't have BP bits:
+ - AT25DF041A
+ - AT25DF321
+ - AT25DF321A
+ - AT25DF641
+ - AT26DF081A
+ - AT26DF161A
+ - AT26DF321
+
 Signed-off-by: Michael Walle <michael@walle.cc>
 Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20201203162959.29589-3-michael@walle.cc
+Link: https://lore.kernel.org/r/20201203162959.29589-4-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/core.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/mtd/spi-nor/atmel.c | 28 +++++++++-------------------
+ 1 file changed, 9 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index f0ae7a01703a1..61b00d4965475 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -2915,20 +2915,27 @@ static int spi_nor_quad_enable(struct spi_nor *nor)
- }
+diff --git a/drivers/mtd/spi-nor/atmel.c b/drivers/mtd/spi-nor/atmel.c
+index 3f5f21a473a69..49d392c6c8bc5 100644
+--- a/drivers/mtd/spi-nor/atmel.c
++++ b/drivers/mtd/spi-nor/atmel.c
+@@ -10,37 +10,27 @@
  
- /**
-- * spi_nor_unlock_all() - Unlocks the entire flash memory array.
-+ * spi_nor_try_unlock_all() - Tries to unlock the entire flash memory array.
-  * @nor:	pointer to a 'struct spi_nor'.
-  *
-  * Some SPI NOR flashes are write protected by default after a power-on reset
-  * cycle, in order to avoid inadvertent writes during power-up. Backward
-  * compatibility imposes to unlock the entire flash memory array at power-up
-  * by default.
-+ *
-+ * Unprotecting the entire flash array will fail for boards which are hardware
-+ * write-protected. Thus any errors are ignored.
-  */
--static int spi_nor_unlock_all(struct spi_nor *nor)
-+static void spi_nor_try_unlock_all(struct spi_nor *nor)
- {
--	if (nor->flags & SNOR_F_HAS_LOCK)
--		return spi_nor_unlock(&nor->mtd, 0, nor->params->size);
-+	int ret;
+ static const struct flash_info atmel_parts[] = {
+ 	/* Atmel -- some are (confusingly) marketed as "DataFlash" */
+-	{ "at25fs010",  INFO(0x1f6601, 0, 32 * 1024,   4, SECT_4K) },
+-	{ "at25fs040",  INFO(0x1f6604, 0, 64 * 1024,   8, SECT_4K) },
++	{ "at25fs010",  INFO(0x1f6601, 0, 32 * 1024,   4, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at25fs040",  INFO(0x1f6604, 0, 64 * 1024,   8, SECT_4K | SPI_NOR_HAS_LOCK) },
  
--	return 0;
-+	if (!(nor->flags & SNOR_F_HAS_LOCK))
-+		return;
-+
-+	ret = spi_nor_unlock(&nor->mtd, 0, nor->params->size);
-+	if (ret)
-+		dev_dbg(nor->dev, "Failed to unlock the entire flash memory array\n");
- }
+-	{ "at25df041a", INFO(0x1f4401, 0, 64 * 1024,   8, SECT_4K) },
+-	{ "at25df321",  INFO(0x1f4700, 0, 64 * 1024,  64, SECT_4K) },
+-	{ "at25df321a", INFO(0x1f4701, 0, 64 * 1024,  64, SECT_4K) },
+-	{ "at25df641",  INFO(0x1f4800, 0, 64 * 1024, 128, SECT_4K) },
++	{ "at25df041a", INFO(0x1f4401, 0, 64 * 1024,   8, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at25df321",  INFO(0x1f4700, 0, 64 * 1024,  64, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at25df321a", INFO(0x1f4701, 0, 64 * 1024,  64, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at25df641",  INFO(0x1f4800, 0, 64 * 1024, 128, SECT_4K | SPI_NOR_HAS_LOCK) },
  
- static int spi_nor_init(struct spi_nor *nor)
-@@ -2941,11 +2948,7 @@ static int spi_nor_init(struct spi_nor *nor)
- 		return err;
- 	}
+ 	{ "at25sl321",	INFO(0x1f4216, 0, 64 * 1024, 64,
+ 			     SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
  
--	err = spi_nor_unlock_all(nor);
--	if (err) {
--		dev_dbg(nor->dev, "Failed to unlock the entire flash memory array\n");
--		return err;
--	}
-+	spi_nor_try_unlock_all(nor);
+ 	{ "at26f004",   INFO(0x1f0400, 0, 64 * 1024,  8, SECT_4K) },
+-	{ "at26df081a", INFO(0x1f4501, 0, 64 * 1024, 16, SECT_4K) },
+-	{ "at26df161a", INFO(0x1f4601, 0, 64 * 1024, 32, SECT_4K) },
+-	{ "at26df321",  INFO(0x1f4700, 0, 64 * 1024, 64, SECT_4K) },
++	{ "at26df081a", INFO(0x1f4501, 0, 64 * 1024, 16, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at26df161a", INFO(0x1f4601, 0, 64 * 1024, 32, SECT_4K | SPI_NOR_HAS_LOCK) },
++	{ "at26df321",  INFO(0x1f4700, 0, 64 * 1024, 64, SECT_4K | SPI_NOR_HAS_LOCK) },
  
- 	if (nor->addr_width == 4 && !(nor->flags & SNOR_F_4B_OPCODES)) {
- 		/*
+ 	{ "at45db081d", INFO(0x1f2500, 0, 64 * 1024, 16, SECT_4K) },
+ };
+ 
+-static void atmel_default_init(struct spi_nor *nor)
+-{
+-	nor->flags |= SNOR_F_HAS_LOCK;
+-}
+-
+-static const struct spi_nor_fixups atmel_fixups = {
+-	.default_init = atmel_default_init,
+-};
+-
+ const struct spi_nor_manufacturer spi_nor_atmel = {
+ 	.name = "atmel",
+ 	.parts = atmel_parts,
+ 	.nparts = ARRAY_SIZE(atmel_parts),
+-	.fixups = &atmel_fixups,
+ };
 -- 
 2.27.0
 
