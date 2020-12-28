@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C8C2E650E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5902E42B6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390546AbgL1NgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:36:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
+        id S2387683AbgL1P0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:26:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390523AbgL1NgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C29F22072C;
-        Mon, 28 Dec 2020 13:36:04 +0000 (UTC)
+        id S2406619AbgL1N5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:57:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DFA20795;
+        Mon, 28 Dec 2020 13:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162565;
-        bh=Rb9gVF6snt8o4h8pQ9mprHThiSD9X64SAysIHTmO9Hs=;
+        s=korg; t=1609163837;
+        bh=kVQY4Ze5p0zS+vM8C1BKtTVnG1EX5CGtx+gq8ljbsHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsQAAQbWmIFvBR1RO33dwAq1cRAImW9gu9es8UnAVKbZSvRw9Gu4UoJng6l46yzM5
-         Bd+wy5mvEWaBNUPkYqKQb6jZoB+ynzmYViQBl5EusjinvCPqXcbGZI6Sr0iByV9Qbd
-         2TjJO4my4I2j9H34pxpIVZEh4LdIvoXULIyhMF4Q=
+        b=cN9fr1Z42cmZBOmv3Ftc2L1jtP+sRGnj2Eajs7a8cd0Okfe30xQ3f7QwIO/LTi0sb
+         md5MgQdfpsBf6RQoikPpdTvLhReQmXmE4SJLrgjwcpBhDUmO4EYixtQDDdbixQn34g
+         Rd7tfeGqRLZFmf/NzVVIF0wBaieJkujtzkaTJfEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 342/346] xen/xenbus: Count pending messages for each watch
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 425/453] iio: buffer: Fix demux update
 Date:   Mon, 28 Dec 2020 13:51:01 +0100
-Message-Id: <20201228124936.287678811@linuxfoundation.org>
+Message-Id: <20201228124957.674507266@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 3dc86ca6b4c8cfcba9da7996189d1b5a358a94fc upstream.
+commit 19ef7b70ca9487773c29b449adf0c70f540a0aab upstream.
 
-This commit adds a counter of pending messages for each watch in the
-struct.  It is used to skip unnecessary pending messages lookup in
-'unregister_xenbus_watch()'.  It could also be used in 'will_handle'
-callback.
+When updating the buffer demux, we will skip a scan element from the
+device in the case `in_ind != out_ind` and we enter the while loop.
+in_ind should only be refreshed with `find_next_bit()` in the end of the
+loop.
 
-This is part of XSA-349
+Note, to cause problems we need a situation where we are skippig over
+an element (channel not enabled) that happens to not have the same size
+as the next element.   Whilst this is a possible situation we haven't
+actually identified any cases in mainline where it happens as most drivers
+have consistent channel storage sizes with the exception of the timestamp
+which is the last element and hence never skipped over.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xenbus/xenbus_xs.c |   29 ++++++++++++++++++-----------
- include/xen/xenbus.h           |    2 ++
- 2 files changed, 20 insertions(+), 11 deletions(-)
+ drivers/iio/industrialio-buffer.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -711,6 +711,7 @@ int xs_watch_msg(struct xs_watch_event *
- 				 event->path, event->token))) {
- 		spin_lock(&watch_events_lock);
- 		list_add_tail(&event->list, &watch_events);
-+		event->handle->nr_pending++;
- 		wake_up(&watch_events_waitq);
- 		spin_unlock(&watch_events_lock);
- 	} else
-@@ -768,6 +769,8 @@ int register_xenbus_watch(struct xenbus_
- 
- 	sprintf(token, "%lX", (long)watch);
- 
-+	watch->nr_pending = 0;
-+
- 	down_read(&xs_watch_rwsem);
- 
- 	spin_lock(&watches_lock);
-@@ -817,11 +820,14 @@ void unregister_xenbus_watch(struct xenb
- 
- 	/* Cancel pending watch events. */
- 	spin_lock(&watch_events_lock);
--	list_for_each_entry_safe(event, tmp, &watch_events, list) {
--		if (event->handle != watch)
--			continue;
--		list_del(&event->list);
--		kfree(event);
-+	if (watch->nr_pending) {
-+		list_for_each_entry_safe(event, tmp, &watch_events, list) {
-+			if (event->handle != watch)
-+				continue;
-+			list_del(&event->list);
-+			kfree(event);
-+		}
-+		watch->nr_pending = 0;
- 	}
- 	spin_unlock(&watch_events_lock);
- 
-@@ -868,7 +874,6 @@ void xs_suspend_cancel(void)
- 
- static int xenwatch_thread(void *unused)
- {
--	struct list_head *ent;
- 	struct xs_watch_event *event;
- 
- 	xenwatch_pid = current->pid;
-@@ -883,13 +888,15 @@ static int xenwatch_thread(void *unused)
- 		mutex_lock(&xenwatch_mutex);
- 
- 		spin_lock(&watch_events_lock);
--		ent = watch_events.next;
--		if (ent != &watch_events)
--			list_del(ent);
-+		event = list_first_entry_or_null(&watch_events,
-+				struct xs_watch_event, list);
-+		if (event) {
-+			list_del(&event->list);
-+			event->handle->nr_pending--;
-+		}
- 		spin_unlock(&watch_events_lock);
- 
--		if (ent != &watch_events) {
--			event = list_entry(ent, struct xs_watch_event, list);
-+		if (event) {
- 			event->handle->callback(event->handle, event->path,
- 						event->token);
- 			kfree(event);
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -59,6 +59,8 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
- 
-+	unsigned int nr_pending;
-+
- 	/*
- 	 * Called just before enqueing new event while a spinlock is held.
- 	 * The event will be discarded if this callback returns false.
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -845,12 +845,12 @@ static int iio_buffer_update_demux(struc
+ 				       indio_dev->masklength,
+ 				       in_ind + 1);
+ 		while (in_ind != out_ind) {
+-			in_ind = find_next_bit(indio_dev->active_scan_mask,
+-					       indio_dev->masklength,
+-					       in_ind + 1);
+ 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 			/* Make sure we are aligned */
+ 			in_loc = roundup(in_loc, length) + length;
++			in_ind = find_next_bit(indio_dev->active_scan_mask,
++					       indio_dev->masklength,
++					       in_ind + 1);
+ 		}
+ 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 		out_loc = roundup(out_loc, length);
 
 
