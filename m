@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF10D2E3B26
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903A92E39B8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405331AbgL1Nqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
+        id S2389055AbgL1N1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404870AbgL1Npm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61A17208BA;
-        Mon, 28 Dec 2020 13:45:01 +0000 (UTC)
+        id S2388913AbgL1NZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86B3922583;
+        Mon, 28 Dec 2020 13:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163101;
-        bh=kcQcT50e+KY9CvtMnXIEG9ksrtvfBy4mW+T/7NcRMfY=;
+        s=korg; t=1609161915;
+        bh=ewUbeonuSABiYuryc/eIXCU6xuf/hURurVVDNm5Mnbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaxIOTu7bdKvAzqdEc0a42vtTxFIyMe0aCn8NgLpiq2gG90ojppaQegJL4iNN3KnC
-         dvuUUSCImEA4bZNE84qJl7NXu7ZRMvAJrnm/L96jCe/v5nr9SIYgHa0O3kFN/czid2
-         B8pzKTf/d8VQNbZ1Xzkpjv73gbXeA0Us4hK4+pqw=
+        b=DBMG29dn4sZn1hVyxIlLhTzm8r59y7kVmSRyKDDW3AndLEKyUZvEj8BqczbZyTcVd
+         ETwa5wTvQVkcZHauyCj/rMVQ0+aFt5rUPUJAnYhl295CWDWBufB1utfEqF/KbLJCyn
+         Vb8D4bcWoYfm1+YnR2V2piF1+lM08nDuARdlR4KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/453] dmaengine: mv_xor_v2: Fix error return code in mv_xor_v2_probe()
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 4.19 085/346] ARM: dts: exynos: fix USB 3.0 VBUS control and over-current pins on Exynos5410
 Date:   Mon, 28 Dec 2020 13:46:44 +0100
-Message-Id: <20201228124945.280092805@linuxfoundation.org>
+Message-Id: <20201228124923.911995985@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit c95e6515a8c065862361f7e0e452978ade7f94ec ]
+commit 3d992fd8f4e0f09c980726308d2f2725587b32d6 upstream.
 
-Return the corresponding error code when first_msi_entry() returns
-NULL in mv_xor_v2_probe().
+The VBUS control (PWREN) and over-current pins of USB 3.0 DWC3
+controllers are on Exynos5410 regular GPIOs.  This is different than for
+example on Exynos5422 where these are special ETC pins with proper reset
+values (pulls, functions).
 
-Fixes: 19a340b1a820430 ("dmaengine: mv_xor_v2: new driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Link: https://lore.kernel.org/r/20201124010813.1939095-1-chengzhihao1@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Therefore these pins should be configured to enable proper USB 3.0
+peripheral and host modes.  This also fixes over-current warning:
+
+    [    6.024658] usb usb4-port1: over-current condition
+    [    6.028271] usb usb3-port1: over-current condition
+
+Fixes: cb0896562228 ("ARM: dts: exynos: Add USB to Exynos5410")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201015182044.480562-2-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/mv_xor_v2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5410-pinctrl.dtsi |   28 ++++++++++++++++++++++++++++
+ arch/arm/boot/dts/exynos5410.dtsi         |    4 ++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/dma/mv_xor_v2.c b/drivers/dma/mv_xor_v2.c
-index e3850f04f6763..889a94af4c851 100644
---- a/drivers/dma/mv_xor_v2.c
-+++ b/drivers/dma/mv_xor_v2.c
-@@ -766,8 +766,10 @@ static int mv_xor_v2_probe(struct platform_device *pdev)
- 		goto disable_clk;
+--- a/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
+@@ -560,6 +560,34 @@
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
+ 	};
++
++	usb3_1_oc: usb3-1-oc {
++		samsung,pins = "gpk2-4", "gpk2-5";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_1_vbusctrl: usb3-1-vbusctrl {
++		samsung,pins = "gpk2-6", "gpk2-7";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_oc: usb3-0-oc {
++		samsung,pins = "gpk3-0", "gpk3-1";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_vbusctrl: usb3-0-vbusctrl {
++		samsung,pins = "gpk3-2", "gpk3-3";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
+ };
  
- 	msi_desc = first_msi_entry(&pdev->dev);
--	if (!msi_desc)
-+	if (!msi_desc) {
-+		ret = -ENODEV;
- 		goto free_msi_irqs;
-+	}
- 	xor_dev->msi_desc = msi_desc;
+ &pinctrl_2 {
+--- a/arch/arm/boot/dts/exynos5410.dtsi
++++ b/arch/arm/boot/dts/exynos5410.dtsi
+@@ -392,6 +392,8 @@
+ &usbdrd3_0 {
+ 	clocks = <&clock CLK_USBD300>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_0_oc>, <&usb3_0_vbusctrl>;
+ };
  
- 	ret = devm_request_irq(&pdev->dev, msi_desc->irq,
--- 
-2.27.0
-
+ &usbdrd_phy0 {
+@@ -403,6 +405,8 @@
+ &usbdrd3_1 {
+ 	clocks = <&clock CLK_USBD301>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_1_oc>, <&usb3_1_vbusctrl>;
+ };
+ 
+ &usbdrd_dwc3_1 {
 
 
