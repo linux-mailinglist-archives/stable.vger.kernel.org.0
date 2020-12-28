@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B95D82E6666
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 919592E6676
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388259AbgL1NWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:22:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
+        id S2394198AbgL1QMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:12:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388291AbgL1NWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A057208BA;
-        Mon, 28 Dec 2020 13:21:53 +0000 (UTC)
+        id S2388310AbgL1NWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA9420719;
+        Mon, 28 Dec 2020 13:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161714;
-        bh=LIoN4sHjZ9CILxxIIUYHgb99RMJPp6BZLGeWeHf3D/k=;
+        s=korg; t=1609161720;
+        bh=ylzqM8KhXK8zCtXRPgixepl+5KPoh8+oPaVmLWVdj4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrVZQAYnSltSg2Hp4jsDbRzxG4niqRIzWP4C6ZHQLaGBvcb9QpFCuuCpr7Bm0roiO
-         Q6tuj9mizApnP+D3muktBDnXRMgCI7huNuR9i8nWpnFDTeTMrwAHYm31bsJ+kH4+K2
-         0548Zc44nocqYaVBeymB7dR+Adl1LN8yNdL7Nj2M=
+        b=ebRNEeXJCyEL1jRl1K52+RfiSarPGwAHoaxrU8EoZcXgpDPqwcefCKYcUSPoTT9pq
+         3EAE4bGcuy+6oUUX6o6jWbMV0ctNpZbYXisav+wPQd7fsHK6MEjrf7MHoFmD7CFPJL
+         FpkxLgBk7y+UIbZVzqHryEBd2pyS0b+uZDUS1dSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 026/346] compiler.h: fix barrier_data() on clang
-Date:   Mon, 28 Dec 2020 13:45:45 +0100
-Message-Id: <20201228124921.041082673@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 028/346] mac80211: mesh: fix mesh_pathtbl_init() error path
+Date:   Mon, 28 Dec 2020 13:45:47 +0100
+Message-Id: <20201228124921.139854066@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -43,119 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 3347acc6fcd4ee71ad18a9ff9d9dac176b517329 upstream.
+[ Upstream commit 905b2032fa424f253d9126271439cc1db2b01130 ]
 
-Commit 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h
-mutually exclusive") neglected to copy barrier_data() from
-compiler-gcc.h into compiler-clang.h.
+If tbl_mpp can not be allocated, we call mesh_table_free(tbl_path)
+while tbl_path rhashtable has not yet been initialized, which causes
+panics.
 
-The definition in compiler-gcc.h was really to work around clang's more
-aggressive optimization, so this broke barrier_data() on clang, and
-consequently memzero_explicit() as well.
+Simply factorize the rhashtable_init() call into mesh_table_alloc()
 
-For example, this results in at least the memzero_explicit() call in
-lib/crypto/sha256.c:sha256_transform() being optimized away by clang.
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __flush_work kernel/workqueue.c:3040 [inline]
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Modules linked in:
+CPU: 1 PID: 8474 Comm: syz-executor663 Not tainted 5.10.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__flush_work kernel/workqueue.c:3040 [inline]
+RIP: 0010:__cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Code: 5d c3 e8 bf ae 29 00 0f 0b e9 f0 fd ff ff e8 b3 ae 29 00 0f 0b 43 80 3c 3e 00 0f 85 31 ff ff ff e9 34 ff ff ff e8 9c ae 29 00 <0f> 0b e9 dc fe ff ff 89 e9 80 e1 07 80 c1 03 38 c1 0f 8c 7d fd ff
+RSP: 0018:ffffc9000165f5a0 EFLAGS: 00010293
+RAX: ffffffff814b7064 RBX: 0000000000000001 RCX: ffff888021c80000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffff888024039ca0 R08: dffffc0000000000 R09: fffffbfff1dd3e64
+R10: fffffbfff1dd3e64 R11: 0000000000000000 R12: 1ffff920002cbebd
+R13: ffff888024039c88 R14: 1ffff11004807391 R15: dffffc0000000000
+FS:  0000000001347880(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000140 CR3: 000000002cc0a000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ rhashtable_free_and_destroy+0x25/0x9c0 lib/rhashtable.c:1137
+ mesh_table_free net/mac80211/mesh_pathtbl.c:69 [inline]
+ mesh_pathtbl_init+0x287/0x2e0 net/mac80211/mesh_pathtbl.c:785
+ ieee80211_mesh_init_sdata+0x2ee/0x530 net/mac80211/mesh.c:1591
+ ieee80211_setup_sdata+0x733/0xc40 net/mac80211/iface.c:1569
+ ieee80211_if_add+0xd5c/0x1cd0 net/mac80211/iface.c:1987
+ ieee80211_add_iface+0x59/0x130 net/mac80211/cfg.c:125
+ rdev_add_virtual_intf net/wireless/rdev-ops.h:45 [inline]
+ nl80211_new_interface+0x563/0xb40 net/wireless/nl80211.c:3855
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:739 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0xe4e/0x1280 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x190/0x3a0 net/netlink/af_netlink.c:2494
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+ netlink_unicast+0x780/0x930 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0x9a8/0xd40 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ ____sys_sendmsg+0x519/0x800 net/socket.c:2353
+ ___sys_sendmsg net/socket.c:2407 [inline]
+ __sys_sendmsg+0x2b1/0x360 net/socket.c:2440
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fix this by moving the definition of barrier_data() into compiler.h.
-
-Also move the gcc/clang definition of barrier() into compiler.h,
-__memory_barrier() is icc-specific (and barrier() is already defined
-using it in compiler-intel.h) and doesn't belong in compiler.h.
-
-[rdunlap@infradead.org: fix ALPHA builds when SMP is not enabled]
-
-Link: https://lkml.kernel.org/r/20201101231835.4589-1-rdunlap@infradead.org
-Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20201014212631.207844-1-nivedita@alum.mit.edu
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[nd: backport to account for missing
-  commit e506ea451254a ("compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h")
-  commit d08b9f0ca6605 ("scs: Add support for Clang's Shadow Call Stack (SCS)")
-  commit a3f8a30f3f00 ("Compiler Attributes: use feature checks instead of version checks")]
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
+Link: https://lore.kernel.org/r/20201204162428.2583119-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/compiler-clang.h |    1 -
- include/linux/compiler-gcc.h   |   19 -------------------
- include/linux/compiler.h       |   18 ++++++++++++++++--
- 3 files changed, 16 insertions(+), 22 deletions(-)
+ net/mac80211/mesh_pathtbl.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/include/linux/compiler-clang.h
-+++ b/include/linux/compiler-clang.h
-@@ -39,7 +39,6 @@
-  * and may be redefined here because they should not be shared with other
-  * compilers, like ICC.
-  */
--#define barrier() __asm__ __volatile__("" : : : "memory")
- #define __must_be_array(a) BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
- #define __assume_aligned(a, ...)	\
- 	__attribute__((__assume_aligned__(a, ## __VA_ARGS__)))
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -14,25 +14,6 @@
- # error Sorry, your compiler is too old - please upgrade it.
- #endif
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -63,6 +63,7 @@ static struct mesh_table *mesh_table_all
+ 	atomic_set(&newtbl->entries,  0);
+ 	spin_lock_init(&newtbl->gates_lock);
+ 	spin_lock_init(&newtbl->walk_lock);
++	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
  
--/* Optimization barrier */
+ 	return newtbl;
+ }
+@@ -786,9 +787,6 @@ int mesh_pathtbl_init(struct ieee80211_s
+ 		goto free_path;
+ 	}
+ 
+-	rhashtable_init(&tbl_path->rhead, &mesh_rht_params);
+-	rhashtable_init(&tbl_mpp->rhead, &mesh_rht_params);
 -
--/* The "volatile" is due to gcc bugs */
--#define barrier() __asm__ __volatile__("": : :"memory")
--/*
-- * This version is i.e. to prevent dead stores elimination on @ptr
-- * where gcc and llvm may behave differently when otherwise using
-- * normal barrier(): while gcc behavior gets along with a normal
-- * barrier(), llvm needs an explicit input variable to be assumed
-- * clobbered. The issue is as follows: while the inline asm might
-- * access any memory it wants, the compiler could have fit all of
-- * @ptr into memory registers instead, and since @ptr never escaped
-- * from that, it proved that the inline asm wasn't touching any of
-- * it. This version works well with both compilers, i.e. we're telling
-- * the compiler that the inline asm absolutely may see the contents
-- * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-- */
--#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
--
- /*
-  * This macro obfuscates arithmetic on a variable address so that gcc
-  * shouldn't recognize the original var, and make assumptions about it.
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -79,11 +79,25 @@ void ftrace_likely_update(struct ftrace_
+ 	sdata->u.mesh.mesh_paths = tbl_path;
+ 	sdata->u.mesh.mpp_paths = tbl_mpp;
  
- /* Optimization barrier */
- #ifndef barrier
--# define barrier() __memory_barrier()
-+/* The "volatile" is due to gcc bugs */
-+# define barrier() __asm__ __volatile__("": : :"memory")
- #endif
- 
- #ifndef barrier_data
--# define barrier_data(ptr) barrier()
-+/*
-+ * This version is i.e. to prevent dead stores elimination on @ptr
-+ * where gcc and llvm may behave differently when otherwise using
-+ * normal barrier(): while gcc behavior gets along with a normal
-+ * barrier(), llvm needs an explicit input variable to be assumed
-+ * clobbered. The issue is as follows: while the inline asm might
-+ * access any memory it wants, the compiler could have fit all of
-+ * @ptr into memory registers instead, and since @ptr never escaped
-+ * from that, it proved that the inline asm wasn't touching any of
-+ * it. This version works well with both compilers, i.e. we're telling
-+ * the compiler that the inline asm absolutely may see the contents
-+ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
-+ */
-+# define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
- #endif
- 
- /* workaround for GCC PR82365 if needed */
 
 
