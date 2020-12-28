@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1610E2E3B22
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F04C02E3990
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405013AbgL1Nqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
+        id S2388831AbgL1NZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:25:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405016AbgL1NqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:46:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D90C5208BA;
-        Mon, 28 Dec 2020 13:45:48 +0000 (UTC)
+        id S2388825AbgL1NY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D47C20728;
+        Mon, 28 Dec 2020 13:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163149;
-        bh=4HGJGRqVwBUVXqqlVS5LfyPC/hJ/b7vlDDk97G3RzK0=;
+        s=korg; t=1609161859;
+        bh=gBTYxyz9FVCKR/c+SIw2G089LFP/frB1+sQhJj4VgAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVKjLGjg5uKPt1+vHfPHOmQ/kccpmR4pp2aRo7x9kxoLHBnpPVunklv3a5M8LDOh7
-         /qc2Mkhqb87aD4j70mpv2GEi9TH/D+K30vV5BvjkgApGMH30IQfsydqmyemavD3OTQ
-         Ia4Bs+nOWQTqv/LaP//Dz8i0x1n010pTWTGBtGgo=
+        b=Mnu2wlMIj7pETDaxBi2RsGsc2Vg7jZiidvnZykCV4NRqoBQ2bCOFluCfckeJ+yncp
+         uotD7rU742/PQH80xQrKa10PgXB+RJJhniJOAgHZzzHPdPoCMhpV7Q/LXNigTaChrs
+         +GdTH8J0oyHL1xAh9uGc32bXXCIjs9IyOxdU5Rac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 188/453] PCI: Bounds-check command-line resource alignment requests
-Date:   Mon, 28 Dec 2020 13:47:04 +0100
-Message-Id: <20201228124946.257457484@linuxfoundation.org>
+Subject: [PATCH 4.19 106/346] RDMA/rxe: Compute PSN windows correctly
+Date:   Mon, 28 Dec 2020 13:47:05 +0100
+Message-Id: <20201228124924.909570739@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 6534aac198b58309ff2337981d3f893e0be1d19d ]
+[ Upstream commit bb3ab2979fd69db23328691cb10067861df89037 ]
 
-32-bit BARs are limited to 2GB size (2^31).  By extension, I assume 64-bit
-BARs are limited to 2^63 bytes.  Limit the alignment requested by the
-"pci=resource_alignment=" command-line parameter to 2^63.
+The code which limited the number of unacknowledged PSNs was incorrect.
+The PSNs are limited to 24 bits and wrap back to zero from 0x00ffffff.
+The test was computing a 32 bit value which wraps at 32 bits so that
+qp->req.psn can appear smaller than the limit when it is actually larger.
 
-Link: https://lore.kernel.org/r/20201007123045.GS4282@kadam
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Replace '>' test with psn_compare which is used for other PSN comparisons
+and correctly handles the 24 bit size.
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20201013170741.3590-1-rpearson@hpe.com
+Signed-off-by: Bob Pearson <rpearson@hpe.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_req.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index b1b2c8ddbc927..158a7aa2a8e6e 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -6129,19 +6129,21 @@ static resource_size_t pci_specified_resource_alignment(struct pci_dev *dev,
- 	while (*p) {
- 		count = 0;
- 		if (sscanf(p, "%d%n", &align_order, &count) == 1 &&
--							p[count] == '@') {
-+		    p[count] == '@') {
- 			p += count + 1;
-+			if (align_order > 63) {
-+				pr_err("PCI: Invalid requested alignment (order %d)\n",
-+				       align_order);
-+				align_order = PAGE_SHIFT;
-+			}
- 		} else {
--			align_order = -1;
-+			align_order = PAGE_SHIFT;
- 		}
+diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
+index 1c1eae0ef8c28..63db49144f62b 100644
+--- a/drivers/infiniband/sw/rxe/rxe_req.c
++++ b/drivers/infiniband/sw/rxe/rxe_req.c
+@@ -664,7 +664,8 @@ next_wqe:
+ 	}
  
- 		ret = pci_dev_str_match(dev, p, &p);
- 		if (ret == 1) {
- 			*resize = true;
--			if (align_order == -1)
--				align = PAGE_SIZE;
--			else
--				align = 1 << align_order;
-+			align = 1 << align_order;
- 			break;
- 		} else if (ret < 0) {
- 			pr_err("PCI: Can't parse resource_alignment parameter: %s\n",
+ 	if (unlikely(qp_type(qp) == IB_QPT_RC &&
+-		     qp->req.psn > (qp->comp.psn + RXE_MAX_UNACKED_PSNS))) {
++		psn_compare(qp->req.psn, (qp->comp.psn +
++				RXE_MAX_UNACKED_PSNS)) > 0)) {
+ 		qp->req.wait_psn = 1;
+ 		goto exit;
+ 	}
 -- 
 2.27.0
 
