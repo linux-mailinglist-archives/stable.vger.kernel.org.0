@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4FD2E675C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C3D22E695F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389547AbgL1QXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:23:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39566 "EHLO mail.kernel.org"
+        id S2441911AbgL1Qso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:48:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730117AbgL1NLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:11:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93C58208BA;
-        Mon, 28 Dec 2020 13:10:55 +0000 (UTC)
+        id S1728153AbgL1Mx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23DF6208BA;
+        Mon, 28 Dec 2020 12:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161056;
-        bh=dXkCDmG6F/mAODuZ3uIxXPadXIBMnnqmj+jRl1Z/38E=;
+        s=korg; t=1609159935;
+        bh=D50ocQ46Y0usibPJqOjqYiZXPOXd36kJIs18QMt4zFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEYkk4iwC59VFKZKp/c5SYy3qyB6iTbpSXi6yKBlVOtTC7DG/1mI7kj73BSu1z3di
-         YcKO7qF8580ME+gTQ+fwDgAiaQarcGe+nlusJQmEO0uV57rCPU3hWJG3PeB6hYWKSM
-         l/St3lFA/5SY67Wm/HUoRG+IOKTWkuf5RVL7FKhI=
+        b=D5QlC+QL0h5yS7EzjvNHJRZIjjuwdRqbgbtgmifBVCQ0SJpMZrfYvQMlLFJHS9PhN
+         ileoyYFh4Bv+FVETjdhChMmTgbSyFabH57ovg0baWY0hCeju2Eev+LymJRdn4YNbnL
+         zyX7lp5luFNvWI3Gi0njHaOMNWrfaH7MFEhbhsrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 086/242] ASoC: wm8998: Fix PM disable depth imbalance on error
+        stable@vger.kernel.org, Coiby Xu <coiby.xu@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.4 007/132] pinctrl: amd: remove debounce filter setting in IRQ type setting
 Date:   Mon, 28 Dec 2020 13:48:11 +0100
-Message-Id: <20201228124908.929096754@linuxfoundation.org>
+Message-Id: <20201228124846.772979076@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Coiby Xu <coiby.xu@gmail.com>
 
-[ Upstream commit 193aa0a043645220d2a2f783ba06ae13d4601078 ]
+commit 47a0001436352c9853d72bf2071e85b316d688a2 upstream.
 
-The pm_runtime_enable will increase power disable depth. Thus
-a pairing decrement is needed on the error handling path to
-keep it balanced according to context.
+Debounce filter setting should be independent from IRQ type setting
+because according to the ACPI specs, there are separate arguments for
+specifying debounce timeout and IRQ type in GpioIo() and GpioInt().
 
-Fixes: 31833ead95c2c ("ASoC: arizona: Move request of speaker IRQs into bus probe")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20201111041326.1257558-4-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Together with commit 06abe8291bc31839950f7d0362d9979edc88a666
+("pinctrl: amd: fix incorrect way to disable debounce filter") and
+Andy's patch "gpiolib: acpi: Take into account debounce settings" [1],
+this will fix broken touchpads for laptops whose BIOS set the
+debounce timeout to a relatively large value. For example, the BIOS
+of Lenovo AMD gaming laptops including Legion-5 15ARH05 (R7000),
+Legion-5P (R7000P) and IdeaPad Gaming 3 15ARH05, set the debounce
+timeout to 124.8ms. This led to the kernel receiving only ~7 HID
+reports per second from the Synaptics touchpad
+(MSFT0001:00 06CB:7F28).
+
+Existing touchpads like [2][3] are not troubled by this bug because
+the debounce timeout has been set to 0 by the BIOS before enabling
+the debounce filter in setting IRQ type.
+
+[1] https://lore.kernel.org/linux-gpio/20201111222008.39993-11-andriy.shevchenko@linux.intel.com/
+    8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
+[2] https://github.com/Syniurge/i2c-amd-mp2/issues/11#issuecomment-721331582
+[3] https://forum.manjaro.org/t/random-short-touchpad-freezes/30832/28
+
+Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-gpio/CAHp75VcwiGREBUJ0A06EEw-SyabqYsp%2Bdqs2DpSrhaY-2GVdAA%40mail.gmail.com/
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
+Link: https://lore.kernel.org/r/20201125130320.311059-1-coiby.xu@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/wm8998.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-amd.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
-index 44f447136e224..a94e0aeb2e198 100644
---- a/sound/soc/codecs/wm8998.c
-+++ b/sound/soc/codecs/wm8998.c
-@@ -1425,7 +1425,7 @@ static int wm8998_probe(struct platform_device *pdev)
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -399,7 +399,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
  
- 	ret = arizona_init_spk_irqs(arizona);
- 	if (ret < 0)
--		return ret;
-+		goto err_pm_disable;
+@@ -407,7 +406,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
  
- 	ret = snd_soc_register_codec(&pdev->dev, &soc_codec_dev_wm8998,
- 				     wm8998_dai, ARRAY_SIZE(wm8998_dai));
-@@ -1438,6 +1438,8 @@ static int wm8998_probe(struct platform_device *pdev)
+@@ -415,7 +413,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= BOTH_EADGE << ACTIVE_LEVEL_OFF;
+-		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
  
- err_spk_irqs:
- 	arizona_free_spk_irqs(arizona);
-+err_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
+@@ -423,8 +420,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
  
- 	return ret;
- }
--- 
-2.27.0
-
+@@ -432,8 +427,6 @@ static int amd_gpio_irq_set_type(struct
+ 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
+ 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
+ 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
+-		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
+-		pin_reg |= DB_TYPE_PRESERVE_HIGH_GLITCH << DB_CNTRL_OFF;
+ 		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 
 
 
