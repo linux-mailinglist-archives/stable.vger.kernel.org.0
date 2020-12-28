@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DC32E6524
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5701F2E3F7B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:42:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393240AbgL1P5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
+        id S2502480AbgL1O2g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:28:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389197AbgL1Neg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:34:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 248352072C;
-        Mon, 28 Dec 2020 13:33:54 +0000 (UTC)
+        id S2502477AbgL1O2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:28:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8F4F22583;
+        Mon, 28 Dec 2020 14:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162435;
-        bh=4hn+pLi687Q08yitiwgTWR/9lJ2XAeC4138kLyzwCX8=;
+        s=korg; t=1609165699;
+        bh=2eT1tiFrlrdnQyphbP6Kozpy3B250w82TeHZUqxlaJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXhCLxLizr+RcBQdNgL61xUpXoeCdlD8of5e7p6WjqJ+r+8or/7y9ivqrQyisOiEE
-         zWlNrp06Up+ALsf9RitEbaGCduFzFmSniOaM5J3YvaPy01AmnZl53N2HEnq5cJKZv/
-         o4iBNRa7FFL5PLZxHelynr4F5MiEDronkB0rmMXo=
+        b=qfGxchV9Sd3J3Bc/HeGzCFPFTm+vrrHvCvFCxN9cjD9NTJCS1DxHxyCSRLggDjuk+
+         rb+OWeObHudOV9hiNU7+mcHCsPq8JyXbJEILA3kTL/C9fEtuwSSp3MwoCWmi2kiiVh
+         9TB8jaarKX3nFjTIQnmMuKL0Vo4Nb6P1tfuGsm+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 303/346] powerpc/rtas: Fix typo of ibm,open-errinjct in RTAS filter
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 624/717] SMB3.1.1: remove confusing mount warning when no SPNEGO info on negprot rsp
 Date:   Mon, 28 Dec 2020 13:50:22 +0100
-Message-Id: <20201228124934.433209104@linuxfoundation.org>
+Message-Id: <20201228125050.815411013@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit f10881a46f8914428110d110140a455c66bdf27b upstream.
+commit bc7c4129d4cdc56d1b5477c1714246f27df914dd upstream.
 
-Commit bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-introduced the following error when invoking the errinjct userspace
-tool:
+Azure does not send an SPNEGO blob in the negotiate protocol response,
+so we shouldn't assume that it is there when validating the location
+of the first negotiate context.  This avoids the potential confusing
+mount warning:
 
-  [root@ltcalpine2-lp5 librtas]# errinjct open
-  [327884.071171] sys_rtas: RTAS call blocked - exploit attempt?
-  [327884.071186] sys_rtas: token=0x26, nargs=0 (called by errinjct)
-  errinjct: Could not open RTAS error injection facility
-  errinjct: librtas: open: Unexpected I/O error
+   CIFS: Invalid negotiate context offset
 
-The entry for ibm,open-errinjct in rtas_filter array has a typo where
-the "j" is omitted in the rtas call name. After fixing this typo the
-errinjct tool functions again as expected.
-
-  [root@ltcalpine2-lp5 linux]# errinjct open
-  RTAS error injection facility open, token = 1
-
-Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201208195434.8289-1-tyreld@linux.ibm.com
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/rtas.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2misc.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1095,7 +1095,7 @@ static struct rtas_filter rtas_filters[]
- 	{ "ibm,display-message", -1, 0, -1, -1, -1 },
- 	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
- 	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
--	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
-+	{ "ibm,open-errinjct", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
- 	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -94,6 +94,8 @@ static const __le16 smb2_rsp_struct_size
+ 	/* SMB2_OPLOCK_BREAK */ cpu_to_le16(24)
+ };
+ 
++#define SMB311_NEGPROT_BASE_SIZE (sizeof(struct smb2_sync_hdr) + sizeof(struct smb2_negotiate_rsp))
++
+ static __u32 get_neg_ctxt_len(struct smb2_sync_hdr *hdr, __u32 len,
+ 			      __u32 non_ctxlen)
+ {
+@@ -109,11 +111,17 @@ static __u32 get_neg_ctxt_len(struct smb
+ 
+ 	/* Make sure that negotiate contexts start after gss security blob */
+ 	nc_offset = le32_to_cpu(pneg_rsp->NegotiateContextOffset);
+-	if (nc_offset < non_ctxlen) {
+-		pr_warn_once("Invalid negotiate context offset\n");
++	if (nc_offset + 1 < non_ctxlen) {
++		pr_warn_once("Invalid negotiate context offset %d\n", nc_offset);
+ 		return 0;
+-	}
+-	size_of_pad_before_neg_ctxts = nc_offset - non_ctxlen;
++	} else if (nc_offset + 1 == non_ctxlen) {
++		cifs_dbg(FYI, "no SPNEGO security blob in negprot rsp\n");
++		size_of_pad_before_neg_ctxts = 0;
++	} else if (non_ctxlen == SMB311_NEGPROT_BASE_SIZE)
++		/* has padding, but no SPNEGO blob */
++		size_of_pad_before_neg_ctxts = nc_offset - non_ctxlen + 1;
++	else
++		size_of_pad_before_neg_ctxts = nc_offset - non_ctxlen;
+ 
+ 	/* Verify that at least minimal negotiate contexts fit within frame */
+ 	if (len < nc_offset + (neg_count * sizeof(struct smb2_neg_context))) {
 
 
