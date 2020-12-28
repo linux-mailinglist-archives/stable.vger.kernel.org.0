@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14AE32E38C0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59AE22E3F99
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732518AbgL1NOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:14:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42452 "EHLO mail.kernel.org"
+        id S2503819AbgL1O0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:26:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732509AbgL1NOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:14:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B0CC2076D;
-        Mon, 28 Dec 2020 13:14:18 +0000 (UTC)
+        id S2503869AbgL1O0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:26:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AAC6207B2;
+        Mon, 28 Dec 2020 14:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161259;
-        bh=hr/RIXSi7ckCRx6TPnC5jjk7QCnko/RVz4FSAX8Fj0g=;
+        s=korg; t=1609165562;
+        bh=DieRUxCgiy8BL/gIK1JwZmNJdIR2pQqOk5P2wFx3Of4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnOzaTOxY7IP8o3t/Fowu8JOSzchiLR82xdltas5XFdtahOmbbIbesCxmROr0GMf1
-         iWehTTzc7wibgXR2+PV74YKp/78don2a47L5PsIfRpXIbbwQEPrBDUVDTmhvFP0lCT
-         qYei5do7YGiGCbsMSTvyqYq1jaKwz+pxofCIMSLM=
+        b=0XB+wvPlPAcKb08HPFJElzI9Af0k1OLjQ6vm9xLmV+Z/ADGv6XoUj3s4dDZVqpxhA
+         hfEJyrC9nCKq8QehI6KjfSgJMxtlc5awo84UmfTb66SWZCMyeyV2xqDvu8ECWq2MWa
+         vcziY4y0z0HuuongCxZaQnDIvPxKkfzoMkzf6ARo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/242] clocksource/drivers/arm_arch_timer: Correct fault programming of CNTKCTL_EL1.EVNTI
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
+        Jian-Hong Pan <jhp@endlessos.org>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 545/717] ALSA: hda/realtek: Remove dummy lineout on Acer TravelMate P648/P658
 Date:   Mon, 28 Dec 2020 13:49:03 +0100
-Message-Id: <20201228124911.500120023@linuxfoundation.org>
+Message-Id: <20201228125047.051904184@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keqian Zhu <zhukeqian1@huawei.com>
+From: Chris Chiu <chiu@endlessos.org>
 
-[ Upstream commit 8b7770b877d187bfdae1eaf587bd2b792479a31c ]
+commit 34cdf405aa5de827b8bef79a6c82c39120b3729b upstream.
 
-ARM virtual counter supports event stream, it can only trigger an event
-when the trigger bit (the value of CNTKCTL_EL1.EVNTI) of CNTVCT_EL0 changes,
-so the actual period of event stream is 2^(cntkctl_evnti + 1). For example,
-when the trigger bit is 0, then virtual counter trigger an event for every
-two cycles.
+Acer TravelMate laptops P648/P658 series with codec ALC282 only have
+one physical jack for headset but there's a confusing lineout pin on
+NID 0x1b reported. Audio applications hence misunderstand that there
+are a speaker and a lineout, and take the lineout as the default audio
+output.
 
-While we're at it, rework the way we compute the trigger bit position
-by making it more obvious that when bits [n:n-1] are both set (with n
-being the most significant bit), we pick bit (n + 1).
+Add a new quirk to remove the useless lineout and enable the pin 0x18
+for jack sensing and headset microphone.
 
-Fixes: 037f637767a8 ("drivers: clocksource: add support for ARM architected timer event stream")
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201204073126.6920-3-zhukeqian1@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chris Chiu <chiu@endlessos.org>
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201216125200.27053-1-chiu@endlessos.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clocksource/arm_arch_timer.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ sound/pci/hda/patch_realtek.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-index 14e2419063e93..2c5913057b87b 100644
---- a/drivers/clocksource/arm_arch_timer.c
-+++ b/drivers/clocksource/arm_arch_timer.c
-@@ -744,15 +744,24 @@ static void arch_timer_evtstrm_enable(int divider)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6369,6 +6369,7 @@ enum {
+ 	ALC287_FIXUP_HP_GPIO_LED,
+ 	ALC256_FIXUP_HP_HEADSET_MIC,
+ 	ALC236_FIXUP_DELL_AIO_HEADSET_MIC,
++	ALC282_FIXUP_ACER_DISABLE_LINEOUT,
+ };
  
- static void arch_timer_configure_evtstream(void)
- {
--	int evt_stream_div, pos;
-+	int evt_stream_div, lsb;
-+
-+	/*
-+	 * As the event stream can at most be generated at half the frequency
-+	 * of the counter, use half the frequency when computing the divider.
-+	 */
-+	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ / 2;
-+
-+	/*
-+	 * Find the closest power of two to the divisor. If the adjacent bit
-+	 * of lsb (last set bit, starts from 0) is set, then we use (lsb + 1).
-+	 */
-+	lsb = fls(evt_stream_div) - 1;
-+	if (lsb > 0 && (evt_stream_div & BIT(lsb - 1)))
-+		lsb++;
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7792,6 +7793,16 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE
+ 	},
++	[ALC282_FIXUP_ACER_DISABLE_LINEOUT] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x1b, 0x411111f0 },
++			{ 0x18, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ },
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE
++	},
+ };
  
--	/* Find the closest power of two to the divisor */
--	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ;
--	pos = fls(evt_stream_div);
--	if (pos > 1 && !(evt_stream_div & (1 << (pos - 2))))
--		pos--;
- 	/* enable event stream */
--	arch_timer_evtstrm_enable(min(pos, 15));
-+	arch_timer_evtstrm_enable(max(0, min(lsb, 15)));
- }
- 
- static void arch_counter_set_user_access(void)
--- 
-2.27.0
-
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8569,6 +8580,22 @@ static const struct snd_hda_pin_quirk al
+ 		{0x12, 0x90a60140},
+ 		{0x19, 0x04a11030},
+ 		{0x21, 0x04211020}),
++	SND_HDA_PIN_QUIRK(0x10ec0282, 0x1025, "Acer", ALC282_FIXUP_ACER_DISABLE_LINEOUT,
++		ALC282_STANDARD_PINS,
++		{0x12, 0x90a609c0},
++		{0x18, 0x03a11830},
++		{0x19, 0x04a19831},
++		{0x1a, 0x0481303f},
++		{0x1b, 0x04211020},
++		{0x21, 0x0321101f}),
++	SND_HDA_PIN_QUIRK(0x10ec0282, 0x1025, "Acer", ALC282_FIXUP_ACER_DISABLE_LINEOUT,
++		ALC282_STANDARD_PINS,
++		{0x12, 0x90a60940},
++		{0x18, 0x03a11830},
++		{0x19, 0x04a19831},
++		{0x1a, 0x0481303f},
++		{0x1b, 0x04211020},
++		{0x21, 0x0321101f}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0283, 0x1028, "Dell", ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 		ALC282_STANDARD_PINS,
+ 		{0x12, 0x90a60130},
 
 
