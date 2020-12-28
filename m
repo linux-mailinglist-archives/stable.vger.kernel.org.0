@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B0B2E3A63
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6852E3E9A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391471AbgL1NgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36062 "EHLO mail.kernel.org"
+        id S2503544AbgL1OaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390498AbgL1Nf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6516207B2;
-        Mon, 28 Dec 2020 13:35:39 +0000 (UTC)
+        id S2503479AbgL1OaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E3C320791;
+        Mon, 28 Dec 2020 14:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162540;
-        bh=RnQTv64rydMjK3Y6SRdeQkHo3ZbtiMVRbJzu7OiKbGQ=;
+        s=korg; t=1609165790;
+        bh=OD/8JqmLw/fSfLhRr3bWNJIQ0pJiqbzcAHeMDFV1myo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ck2kKAZRynCzYKKXdMLdpYC+5bB2begM23UoTHi6gnAiTbs4/eWRmw9QyEIW0S5w
-         FJs2ybZay40QZD9OsHoeZ5EO86M7VdLhTRx7hMXpcmwQExSqemEQni2no4sNucAVCM
-         AQgM5/Hy8N1fvR2JmL+FFOBizBhcDeTnjZvvCSTs=
+        b=2cCViBgNc3VfGSifvLKa7YqebpqoAvy70u8WAgSFITJZQwsd2dtVGzZxuRNdbZPgd
+         doKwG4LsuPlGQLid/ezw8C/Du1G8iSyUDe61o3LIvgvtqsaMF/s/gfnG8k1p3scT0J
+         AitgoW23gkNy2raf7gieItdsFwkF2KKsa+8BdzX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhao Heming <heming.zhao@suse.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.19 335/346] md/cluster: fix deadlock when node is doing resync job
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 656/717] spi: spi-qcom-qspi: Fix use-after-free on unbind
 Date:   Mon, 28 Dec 2020 13:50:54 +0100
-Message-Id: <20201228124935.962394074@linuxfoundation.org>
+Message-Id: <20201228125052.378435782@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,293 +40,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit bca5b0658020be90b6b504ca514fd80110204f71 upstream.
+commit 6cfd39e212dee2e77a0227ce4e0f55fa06d79f46 upstream.
 
-md-cluster uses MD_CLUSTER_SEND_LOCK to make node can exclusively send msg.
-During sending msg, node can concurrently receive msg from another node.
-When node does resync job, grab token_lockres:EX may trigger a deadlock:
-```
-nodeA                       nodeB
---------------------     --------------------
-a.
-send METADATA_UPDATED
-held token_lockres:EX
-                         b.
-                         md_do_sync
-                          resync_info_update
-                            send RESYNCING
-                             + set MD_CLUSTER_SEND_LOCK
-                             + wait for holding token_lockres:EX
+qcom_qspi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-                         c.
-                         mdadm /dev/md0 --remove /dev/sdg
-                          + held reconfig_mutex
-                          + send REMOVE
-                             + wait_event(MD_CLUSTER_SEND_LOCK)
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-                         d.
-                         recv_daemon //METADATA_UPDATED from A
-                          process_metadata_update
-                           + (mddev_trylock(mddev) ||
-                              MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD)
-                             //this time, both return false forever
-```
-Explaination:
-a. A send METADATA_UPDATED
-   This will block another node to send msg
-
-b. B does sync jobs, which will send RESYNCING at intervals.
-   This will be block for holding token_lockres:EX lock.
-
-c. B do "mdadm --remove", which will send REMOVE.
-   This will be blocked by step <b>: MD_CLUSTER_SEND_LOCK is 1.
-
-d. B recv METADATA_UPDATED msg, which send from A in step <a>.
-   This will be blocked by step <c>: holding mddev lock, it makes
-   wait_event can't hold mddev lock. (btw,
-   MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD keep ZERO in this scenario.)
-
-There is a similar deadlock in commit 0ba959774e93
-("md-cluster: use sync way to handle METADATA_UPDATED msg")
-In that commit, step c is "update sb". This patch step c is
-"mdadm --remove".
-
-For fixing this issue, we can refer the solution of function:
-metadata_update_start. Which does the same grab lock_token action.
-lock_comm can use the same steps to avoid deadlock. By moving
-MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD from lock_token to lock_comm.
-It enlarge a little bit window of MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
-but it is safe & can break deadlock.
-
-Repro steps (I only triggered 3 times with hundreds tests):
-
-two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB.
-```
-ssh root@node2 "mdadm -S --scan"
-mdadm -S --scan
-for i in {g,h,i};do dd if=/dev/zero of=/dev/sd$i oflag=direct bs=1M \
-count=20; done
-
-mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh \
- --bitmap-chunk=1M
-ssh root@node2 "mdadm -A /dev/md0 /dev/sdg /dev/sdh"
-
-sleep 5
-
-mkfs.xfs /dev/md0
-mdadm --manage --add /dev/md0 /dev/sdi
-mdadm --wait /dev/md0
-mdadm --grow --raid-devices=3 /dev/md0
-
-mdadm /dev/md0 --fail /dev/sdg
-mdadm /dev/md0 --remove /dev/sdg
-mdadm --grow --raid-devices=2 /dev/md0
-```
-
-test script will hung when executing "mdadm --remove".
-
-```
- # dump stacks by "echo t > /proc/sysrq-trigger"
-md0_cluster_rec D    0  5329      2 0x80004000
-Call Trace:
- __schedule+0x1f6/0x560
- ? _cond_resched+0x2d/0x40
- ? schedule+0x4a/0xb0
- ? process_metadata_update.isra.0+0xdb/0x140 [md_cluster]
- ? wait_woken+0x80/0x80
- ? process_recvd_msg+0x113/0x1d0 [md_cluster]
- ? recv_daemon+0x9e/0x120 [md_cluster]
- ? md_thread+0x94/0x160 [md_mod]
- ? wait_woken+0x80/0x80
- ? md_congested+0x30/0x30 [md_mod]
- ? kthread+0x115/0x140
- ? __kthread_bind_mask+0x60/0x60
- ? ret_from_fork+0x1f/0x40
-
-mdadm           D    0  5423      1 0x00004004
-Call Trace:
- __schedule+0x1f6/0x560
- ? __schedule+0x1fe/0x560
- ? schedule+0x4a/0xb0
- ? lock_comm.isra.0+0x7b/0xb0 [md_cluster]
- ? wait_woken+0x80/0x80
- ? remove_disk+0x4f/0x90 [md_cluster]
- ? hot_remove_disk+0xb1/0x1b0 [md_mod]
- ? md_ioctl+0x50c/0xba0 [md_mod]
- ? wait_woken+0x80/0x80
- ? blkdev_ioctl+0xa2/0x2a0
- ? block_ioctl+0x39/0x40
- ? ksys_ioctl+0x82/0xc0
- ? __x64_sys_ioctl+0x16/0x20
- ? do_syscall_64+0x5f/0x150
- ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-md0_resync      D    0  5425      2 0x80004000
-Call Trace:
- __schedule+0x1f6/0x560
- ? schedule+0x4a/0xb0
- ? dlm_lock_sync+0xa1/0xd0 [md_cluster]
- ? wait_woken+0x80/0x80
- ? lock_token+0x2d/0x90 [md_cluster]
- ? resync_info_update+0x95/0x100 [md_cluster]
- ? raid1_sync_request+0x7d3/0xa40 [raid1]
- ? md_do_sync.cold+0x737/0xc8f [md_mod]
- ? md_thread+0x94/0x160 [md_mod]
- ? md_congested+0x30/0x30 [md_mod]
- ? kthread+0x115/0x140
- ? __kthread_bind_mask+0x60/0x60
- ? ret_from_fork+0x1f/0x40
-```
-
-At last, thanks for Xiao's solution.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Suggested-by: Xiao Ni <xni@redhat.com>
-Reviewed-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: f79a158d37c2 ("spi: spi-qcom-qspi: Use OPP API to set clk/perf state")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v5.9+
+Cc: Rajendra Nayak <rnayak@codeaurora.org>
+Link: https://lore.kernel.org/r/b6d3c4dce571d78a532fd74f27def0d5dc8d8a24.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md-cluster.c |   67 +++++++++++++++++++++++++++---------------------
- drivers/md/md.c         |    6 ++--
- 2 files changed, 42 insertions(+), 31 deletions(-)
+ drivers/spi/spi-qcom-qspi.c |   42 ++++++++++++++++--------------------------
+ 1 file changed, 16 insertions(+), 26 deletions(-)
 
---- a/drivers/md/md-cluster.c
-+++ b/drivers/md/md-cluster.c
-@@ -669,9 +669,27 @@ out:
-  * Takes the lock on the TOKEN lock resource so no other
-  * node can communicate while the operation is underway.
-  */
--static int lock_token(struct md_cluster_info *cinfo, bool mddev_locked)
-+static int lock_token(struct md_cluster_info *cinfo)
- {
--	int error, set_bit = 0;
-+	int error;
+--- a/drivers/spi/spi-qcom-qspi.c
++++ b/drivers/spi/spi-qcom-qspi.c
+@@ -462,7 +462,7 @@ static int qcom_qspi_probe(struct platfo
+ 
+ 	dev = &pdev->dev;
+ 
+-	master = spi_alloc_master(dev, sizeof(*ctrl));
++	master = devm_spi_alloc_master(dev, sizeof(*ctrl));
+ 	if (!master)
+ 		return -ENOMEM;
+ 
+@@ -473,54 +473,49 @@ static int qcom_qspi_probe(struct platfo
+ 	spin_lock_init(&ctrl->lock);
+ 	ctrl->dev = dev;
+ 	ctrl->base = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(ctrl->base)) {
+-		ret = PTR_ERR(ctrl->base);
+-		goto exit_probe_master_put;
+-	}
++	if (IS_ERR(ctrl->base))
++		return PTR_ERR(ctrl->base);
+ 
+ 	ctrl->clks = devm_kcalloc(dev, QSPI_NUM_CLKS,
+ 				  sizeof(*ctrl->clks), GFP_KERNEL);
+-	if (!ctrl->clks) {
+-		ret = -ENOMEM;
+-		goto exit_probe_master_put;
+-	}
++	if (!ctrl->clks)
++		return -ENOMEM;
+ 
+ 	ctrl->clks[QSPI_CLK_CORE].id = "core";
+ 	ctrl->clks[QSPI_CLK_IFACE].id = "iface";
+ 	ret = devm_clk_bulk_get(dev, QSPI_NUM_CLKS, ctrl->clks);
+ 	if (ret)
+-		goto exit_probe_master_put;
++		return ret;
+ 
+ 	ctrl->icc_path_cpu_to_qspi = devm_of_icc_get(dev, "qspi-config");
+-	if (IS_ERR(ctrl->icc_path_cpu_to_qspi)) {
+-		ret = dev_err_probe(dev, PTR_ERR(ctrl->icc_path_cpu_to_qspi),
+-				    "Failed to get cpu path\n");
+-		goto exit_probe_master_put;
+-	}
++	if (IS_ERR(ctrl->icc_path_cpu_to_qspi))
++		return dev_err_probe(dev, PTR_ERR(ctrl->icc_path_cpu_to_qspi),
++				     "Failed to get cpu path\n");
 +
-+	error = dlm_lock_sync(cinfo->token_lockres, DLM_LOCK_EX);
-+	if (error) {
-+		pr_err("md-cluster(%s:%d): failed to get EX on TOKEN (%d)\n",
-+				__func__, __LINE__, error);
-+	} else {
-+		/* Lock the receive sequence */
-+		mutex_lock(&cinfo->recv_mutex);
-+	}
-+	return error;
-+}
-+
-+/* lock_comm()
-+ * Sets the MD_CLUSTER_SEND_LOCK bit to lock the send channel.
-+ */
-+static int lock_comm(struct md_cluster_info *cinfo, bool mddev_locked)
-+{
-+	int rv, set_bit = 0;
- 	struct mddev *mddev = cinfo->mddev;
- 
- 	/*
-@@ -682,34 +700,19 @@ static int lock_token(struct md_cluster_
- 	 */
- 	if (mddev_locked && !test_bit(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
- 				      &cinfo->state)) {
--		error = test_and_set_bit_lock(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
-+		rv = test_and_set_bit_lock(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD,
- 					      &cinfo->state);
--		WARN_ON_ONCE(error);
-+		WARN_ON_ONCE(rv);
- 		md_wakeup_thread(mddev->thread);
- 		set_bit = 1;
- 	}
--	error = dlm_lock_sync(cinfo->token_lockres, DLM_LOCK_EX);
--	if (set_bit)
--		clear_bit_unlock(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD, &cinfo->state);
- 
--	if (error)
--		pr_err("md-cluster(%s:%d): failed to get EX on TOKEN (%d)\n",
--				__func__, __LINE__, error);
--
--	/* Lock the receive sequence */
--	mutex_lock(&cinfo->recv_mutex);
--	return error;
--}
--
--/* lock_comm()
-- * Sets the MD_CLUSTER_SEND_LOCK bit to lock the send channel.
-- */
--static int lock_comm(struct md_cluster_info *cinfo, bool mddev_locked)
--{
- 	wait_event(cinfo->wait,
- 		   !test_and_set_bit(MD_CLUSTER_SEND_LOCK, &cinfo->state));
--
--	return lock_token(cinfo, mddev_locked);
-+	rv = lock_token(cinfo);
-+	if (set_bit)
-+		clear_bit_unlock(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD, &cinfo->state);
-+	return rv;
- }
- 
- static void unlock_comm(struct md_cluster_info *cinfo)
-@@ -789,9 +792,11 @@ static int sendmsg(struct md_cluster_inf
- {
- 	int ret;
- 
--	lock_comm(cinfo, mddev_locked);
--	ret = __sendmsg(cinfo, cmsg);
--	unlock_comm(cinfo);
-+	ret = lock_comm(cinfo, mddev_locked);
-+	if (!ret) {
-+		ret = __sendmsg(cinfo, cmsg);
-+		unlock_comm(cinfo);
-+	}
- 	return ret;
- }
- 
-@@ -1063,7 +1068,7 @@ static int metadata_update_start(struct
- 		return 0;
- 	}
- 
--	ret = lock_token(cinfo, 1);
-+	ret = lock_token(cinfo);
- 	clear_bit_unlock(MD_CLUSTER_HOLDING_MUTEX_FOR_RECVD, &cinfo->state);
- 	return ret;
- }
-@@ -1181,7 +1186,10 @@ static void update_size(struct mddev *md
- 	int raid_slot = -1;
- 
- 	md_update_sb(mddev, 1);
--	lock_comm(cinfo, 1);
-+	if (lock_comm(cinfo, 1)) {
-+		pr_err("%s: lock_comm failed\n", __func__);
-+		return;
-+	}
- 
- 	memset(&cmsg, 0, sizeof(cmsg));
- 	cmsg.type = cpu_to_le32(METADATA_UPDATED);
-@@ -1330,7 +1338,8 @@ static int add_new_disk(struct mddev *md
- 	cmsg.type = cpu_to_le32(NEWDISK);
- 	memcpy(cmsg.uuid, uuid, 16);
- 	cmsg.raid_slot = cpu_to_le32(rdev->desc_nr);
--	lock_comm(cinfo, 1);
-+	if (lock_comm(cinfo, 1))
-+		return -EAGAIN;
- 	ret = __sendmsg(cinfo, &cmsg);
+ 	/* Set BW vote for register access */
+ 	ret = icc_set_bw(ctrl->icc_path_cpu_to_qspi, Bps_to_icc(1000),
+ 				Bps_to_icc(1000));
  	if (ret) {
- 		unlock_comm(cinfo);
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6564,8 +6564,10 @@ static int hot_remove_disk(struct mddev
- 		goto busy;
+ 		dev_err(ctrl->dev, "%s: ICC BW voting failed for cpu: %d\n",
+ 				__func__, ret);
+-		goto exit_probe_master_put;
++		return ret;
+ 	}
  
- kick_rdev:
--	if (mddev_is_clustered(mddev))
--		md_cluster_ops->remove_disk(mddev, rdev);
-+	if (mddev_is_clustered(mddev)) {
-+		if (md_cluster_ops->remove_disk(mddev, rdev))
-+			goto busy;
-+	}
+ 	ret = icc_disable(ctrl->icc_path_cpu_to_qspi);
+ 	if (ret) {
+ 		dev_err(ctrl->dev, "%s: ICC disable failed for cpu: %d\n",
+ 				__func__, ret);
+-		goto exit_probe_master_put;
++		return ret;
+ 	}
  
- 	md_kick_rdev_from_array(rdev);
- 	set_bit(MD_SB_CHANGE_DEVS, &mddev->sb_flags);
+ 	ret = platform_get_irq(pdev, 0);
+ 	if (ret < 0)
+-		goto exit_probe_master_put;
++		return ret;
+ 	ret = devm_request_irq(dev, ret, qcom_qspi_irq,
+ 			IRQF_TRIGGER_HIGH, dev_name(dev), ctrl);
+ 	if (ret) {
+ 		dev_err(dev, "Failed to request irq %d\n", ret);
+-		goto exit_probe_master_put;
++		return ret;
+ 	}
+ 
+ 	master->max_speed_hz = 300000000;
+@@ -537,10 +532,8 @@ static int qcom_qspi_probe(struct platfo
+ 	master->auto_runtime_pm = true;
+ 
+ 	ctrl->opp_table = dev_pm_opp_set_clkname(&pdev->dev, "core");
+-	if (IS_ERR(ctrl->opp_table)) {
+-		ret = PTR_ERR(ctrl->opp_table);
+-		goto exit_probe_master_put;
+-	}
++	if (IS_ERR(ctrl->opp_table))
++		return PTR_ERR(ctrl->opp_table);
+ 	/* OPP table is optional */
+ 	ret = dev_pm_opp_of_add_table(&pdev->dev);
+ 	if (ret && ret != -ENODEV) {
+@@ -562,9 +555,6 @@ static int qcom_qspi_probe(struct platfo
+ exit_probe_put_clkname:
+ 	dev_pm_opp_put_clkname(ctrl->opp_table);
+ 
+-exit_probe_master_put:
+-	spi_master_put(master);
+-
+ 	return ret;
+ }
+ 
 
 
