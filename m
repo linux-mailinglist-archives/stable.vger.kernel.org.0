@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 997DE2E42D9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E439C2E3F49
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392727AbgL1P2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:28:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
+        id S2503484AbgL1O34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:29:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387498AbgL1N5A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 414C220715;
-        Mon, 28 Dec 2020 13:56:19 +0000 (UTC)
+        id S2503408AbgL1O3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5142922C7E;
+        Mon, 28 Dec 2020 14:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163779;
-        bh=9u2VidfIrScgolGlJe0rbtCtj0YhJiBdkpE9hXTSrLY=;
+        s=korg; t=1609165753;
+        bh=Xpd+pIEKctHJU2+pXj8imbHkhlwWecnZgI8/5R8H2ho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZOeH965GKQsL9xDEK/aZ1KrOYtzwoVI/hYEAdqzzwnEBT1b7XCwKF63yVdz7tfsi
-         HQmBEztmUB+gpXjbcBjSb/Kpyrz1lUkh8j9O1omEtWL6di84UGenDZYOD+l0uKwP9S
-         diFsRzmAE7fv4hpMNyTjigmmaBkQLJnb/hneM8EE=
+        b=GCYyH6U3QOw4Yr6zR+qyC4Mbv4ouAILLjzcSblWs7MrXLkKu5155Ies50XagFWZww
+         Lf0uIniHOq03MApospDA/5zftcds5pS9wnSpvsXshx0Qs3rJzFuPhepQPrVIhILVhF
+         slvBT+XN2BHpXDrznSdZ/OTFOVD2JyHpkvqefnvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.4 374/453] ext4: fix a memory leak of ext4_free_data
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 612/717] powerpc/xmon: Change printk() to pr_cont()
 Date:   Mon, 28 Dec 2020 13:50:10 +0100
-Message-Id: <20201228124955.205444449@linuxfoundation.org>
+Message-Id: <20201228125050.234256296@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunguang Xu <brookxu@tencent.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit cca415537244f6102cbb09b5b90db6ae2c953bdd upstream.
+commit 7c6c86b36a36dd4a13d30bba07718e767aa2e7a1 upstream.
 
-When freeing metadata, we will create an ext4_free_data and
-insert it into the pending free list.  After the current
-transaction is committed, the object will be freed.
+Since some time now, printk() adds carriage return, leading to
+unusable xmon output if there is no udbg backend available:
 
-ext4_mb_free_metadata() will check whether the area to be freed
-overlaps with the pending free list. If true, return directly. At this
-time, ext4_free_data is leaked.  Fortunately, the probability of this
-problem is small, since it only occurs if the file system is corrupted
-such that a block is claimed by more one inode and those inodes are
-deleted within a single jbd2 transaction.
+  [   54.288722] sysrq: Entering xmon
+  [   54.292209] Vector: 0  at [cace3d2c]
+  [   54.292274]     pc:
+  [   54.292331] c0023650
+  [   54.292468] : xmon+0x28/0x58
+  [   54.292519]
+  [   54.292574]     lr:
+  [   54.292630] c0023724
+  [   54.292749] : sysrq_handle_xmon+0xa4/0xfc
+  [   54.292801]
+  [   54.292867]     sp: cace3de8
+  [   54.292931]    msr: 9032
+  [   54.292999]   current = 0xc28d0000
+  [   54.293072]     pid   = 377, comm = sh
+  [   54.293157] Linux version 5.10.0-rc6-s3k-dev-01364-gedf13f0ccd76-dirty (root@po17688vm.idsi0.si.c-s.fr) (powerpc64-linux-gcc (GCC) 10.1.0, GNU ld (GNU Binutils) 2.34) #4211 PREEMPT Fri Dec 4 09:32:11 UTC 2020
+  [   54.293287] enter ? for help
+  [   54.293470] [cace3de8]
+  [   54.293532] c0023724
+  [   54.293654]  sysrq_handle_xmon+0xa4/0xfc
+  [   54.293711]  (unreliable)
+  ...
+  [   54.296002]
+  [   54.296159] --- Exception: c01 (System Call) at
+  [   54.296217] 0fd4e784
+  [   54.296303]
+  [   54.296375] SP (7fca6ff0) is in userspace
+  [   54.296431] mon>
+  [   54.296484]  <no input ...>
 
-Signed-off-by: Chunguang Xu <brookxu@tencent.com>
-Link: https://lore.kernel.org/r/1604764698-4269-8-git-send-email-brookxu@tencent.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Use pr_cont() instead.
+
+Fixes: 4bcc595ccd80 ("printk: reinstate KERN_CONT for printing continuation lines")
+Cc: stable@vger.kernel.org # v4.9+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Mention that it only happens when udbg is not available]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/c8a6ec704416ecd5ff2bd26213c9bc026bdd19de.1607077340.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/mballoc.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/xmon/nonstdio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -4691,6 +4691,7 @@ ext4_mb_free_metadata(handle_t *handle,
- 				ext4_group_first_block_no(sb, group) +
- 				EXT4_C2B(sbi, cluster),
- 				"Block already on to-be-freed list");
-+			kmem_cache_free(ext4_free_data_cachep, new_entry);
- 			return 0;
- 		}
+--- a/arch/powerpc/xmon/nonstdio.c
++++ b/arch/powerpc/xmon/nonstdio.c
+@@ -178,7 +178,7 @@ void xmon_printf(const char *format, ...
+ 
+ 	if (n && rc == 0) {
+ 		/* No udbg hooks, fallback to printk() - dangerous */
+-		printk("%s", xmon_outbuf);
++		pr_cont("%s", xmon_outbuf);
  	}
+ }
+ 
 
 
