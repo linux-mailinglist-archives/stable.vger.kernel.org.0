@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 454992E660F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 955E52E6778
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388769AbgL1NYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:24:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
+        id S1731033AbgL1QZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:25:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388765AbgL1NYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABC7222475;
-        Mon, 28 Dec 2020 13:23:58 +0000 (UTC)
+        id S1729566AbgL1NJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:09:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF3FF2076D;
+        Mon, 28 Dec 2020 13:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161839;
-        bh=hibfEYcZMpAQOZQcxA1X8HzL8fC7B2ItYcXpA3QsG5U=;
+        s=korg; t=1609160938;
+        bh=jlEoGlvam1dqY/S4LvxCZltUWdzE35GaNWLiSc1IZGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwlJFUU4HAr5cJBwwnBkqOUDJ3Qmf+zKiw+80V57FM7t1CbUNO+4aQ48go2q395Ef
-         NxppuN9M9sEkmGuCkvpGzw5/5F1N4ULudXrxj2kumOt1bPEFaMHPqBgYVpWicIwCzQ
-         Ww2tR6+pFrDaDNyyinpDX8+LSK503OCZQuZK2OaQ=
+        b=QsuW50L1PF+T6Jzaw+/OguA3E/UleUobvvvCaJJP3hzDawtRRCDulVb6zMlnn2DiR
+         zkcGbWAwCybVqSv5QmLW2FMmLlVIyKGcurvYL3n50SgxOBVp3jNDtzK+wNLsV6hhb5
+         hk+PVNmfjN04/X0WoeCtiQnIovVEI+v1AySVi/Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/346] soc: renesas: rmobile-sysc: Fix some leaks in rmobile_init_pm_domains()
-Date:   Mon, 28 Dec 2020 13:46:59 +0100
-Message-Id: <20201228124924.617704645@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 4.14 015/242] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
+Date:   Mon, 28 Dec 2020 13:47:00 +0100
+Message-Id: <20201228124905.415751134@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit cf25d802e029c31efac8bdc979236927f37183bd ]
+commit 29ac40cbed2bc06fa218ca25d7f5e280d3d08a25 upstream.
 
-This code needs to call iounmap() on one error path.
+The PAT bit is in different locations for 4k and 2M/1G page table
+entries.
 
-Fixes: 2173fc7cb681 ("ARM: shmobile: R-Mobile: Add DT support for PM domains")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200923113142.GC1473821@mwanda
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
+caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
+and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
+index for write-protected pages.
+
+Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/mach-shmobile/pm-rmobile.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/pgtable_types.h |    1 +
+ arch/x86/mm/mem_encrypt.c            |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-shmobile/pm-rmobile.c b/arch/arm/mach-shmobile/pm-rmobile.c
-index e348bcfe389da..cb8b02a1abe26 100644
---- a/arch/arm/mach-shmobile/pm-rmobile.c
-+++ b/arch/arm/mach-shmobile/pm-rmobile.c
-@@ -330,6 +330,7 @@ static int __init rmobile_init_pm_domains(void)
+--- a/arch/x86/include/asm/pgtable_types.h
++++ b/arch/x86/include/asm/pgtable_types.h
+@@ -148,6 +148,7 @@ enum page_cache_mode {
+ #endif
  
- 		pmd = of_get_child_by_name(np, "pm-domains");
- 		if (!pmd) {
-+			iounmap(base);
- 			pr_warn("%pOF lacks pm-domains node\n", np);
- 			continue;
- 		}
--- 
-2.27.0
-
+ #define _PAGE_CACHE_MASK	(_PAGE_PAT | _PAGE_PCD | _PAGE_PWT)
++#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
+ #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
+ #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
+ 
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -248,8 +248,8 @@ static void __init sme_clear_pgd(struct
+ #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
+ 
+ #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
+-#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
+-				 (_PAGE_PAT | _PAGE_PWT))
++#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
++				 (_PAGE_PAT_LARGE | _PAGE_PWT))
+ 
+ #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
+ 
 
 
