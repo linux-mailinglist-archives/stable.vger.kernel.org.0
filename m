@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 254FB2E3C82
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:04:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3392E4210
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437186AbgL1ODk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S2437310AbgL1OE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:04:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437160AbgL1OD3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:03:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3B83206D4;
-        Mon, 28 Dec 2020 14:03:13 +0000 (UTC)
+        id S2437349AbgL1OE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:04:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFD2F205CB;
+        Mon, 28 Dec 2020 14:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164194;
-        bh=uK7ZcFfCS7K7aNfFEFcM0fZ+Z+I7c2//vK28nrvLgZ4=;
+        s=korg; t=1609164226;
+        bh=DwjKYSdCdXLNQ4MAbFarS4plnVMXTaX54jA/H30xUyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XaVXsngO9MwqkCRtQxzeSzn+LhkHdKgmgUksrnn3vn5q7Mz97Sb/wrWmM7iyBo2tl
-         Y3AxK9V8Ek6CyH4fSLVma7aoxJzR63BWj9RAZa33ZN+56VgpQ8W1TnZkTNaT5I9TKx
-         1vFbZGTIH7qq+dG6lHxEMSzfj45Q6OMpA0HKCsKA=
+        b=OoTg47WiD0YwemZIAMN/YTlmaqJtY4BkJCjSMRfZrSYXbCmXjqxYRyHbL/LCVgLwS
+         hN7YERzlb/imsUiqCZK66kpEGUndAbf14weriZLvM5Ah50Funbk+wbi0r78lovz5KK
+         ZfL2EMcBF5kAhhTTYN1xdH3gqD1isM01L/z9vphk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/717] spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
-Date:   Mon, 28 Dec 2020 13:41:15 +0100
-Message-Id: <20201228125024.676319235@linuxfoundation.org>
+Subject: [PATCH 5.10 078/717] spi: tegra20-slink: fix reference leak in slink ops of tegra20
+Date:   Mon, 28 Dec 2020 13:41:16 +0100
+Message-Id: <20201228125024.724689207@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,42 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 702b15cb97123cedcec56a39d9a21c5288eb9ae1 ]
+[ Upstream commit 763eab7074f6e71babd85d796156f05a675f9510 ]
 
-Fix the missing clk_disable_unprepare() before return
-from mt7621_spi_probe in the error handling case.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in two callers(tegra_slink_setup and
+tegra_slink_resume), so we should fix it.
 
-Fixes: cbd66c626e16 ("spi: mt7621: Move SPI driver out of staging")
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201103074912.195576-1-miaoqinglang@huawei.com
+Fixes: dc4dc36056392 ("spi: tegra: add spi driver for SLINK controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141345.6188-1-zhangqilong3@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mt7621.c | 2 ++
+ drivers/spi/spi-tegra20-slink.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
-index 2c3b7a2a1ec77..2cdae7994e2aa 100644
---- a/drivers/spi/spi-mt7621.c
-+++ b/drivers/spi/spi-mt7621.c
-@@ -353,6 +353,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
- 	master = spi_alloc_master(&pdev->dev, sizeof(*rs));
- 	if (!master) {
- 		dev_info(&pdev->dev, "master allocation failed\n");
-+		clk_disable_unprepare(clk);
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index a0810765d4e52..f7c832fd40036 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -751,6 +751,7 @@ static int tegra_slink_setup(struct spi_device *spi)
  
-@@ -377,6 +378,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
- 	ret = device_reset(&pdev->dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "SPI reset failed!\n");
-+		clk_disable_unprepare(clk);
+ 	ret = pm_runtime_get_sync(tspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(tspi->dev);
+ 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
  		return ret;
  	}
+@@ -1188,6 +1189,7 @@ static int tegra_slink_resume(struct device *dev)
  
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
