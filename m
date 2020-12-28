@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06452E4332
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2132E3FE7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407389AbgL1PeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53602 "EHLO mail.kernel.org"
+        id S1732135AbgL1Opt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:45:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407000AbgL1Nvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D11D20791;
-        Mon, 28 Dec 2020 13:51:07 +0000 (UTC)
+        id S2503057AbgL1OYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 067C922D04;
+        Mon, 28 Dec 2020 14:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163468;
-        bh=ZXI4vzSgiezYX6Z4oK95nPcAMdAI/wIpg2tzE35SBig=;
+        s=korg; t=1609165446;
+        bh=8VkzJDBeMi29PFDS0HI5w7Ul2rXmw/Asb617Y2dy6Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZHLoDf8PoSwQ91MGanPfv2gXRZ4vtKqGsja2bslv/cqGWIxpxVT0tIsuHYH04yYA
-         FI0NNzB0iR9tFz+LDRk8KzGBtpsY2czaIOoZW2Bt8I10ZXAre2SuBU82puN9jVpvFh
-         r8VwLXF3GEIFSDsjfe71AzZbkFkWdTPLKFub0mJE=
+        b=MOspK4wZb1kmqeZMfetx2i5reiIDOEH+ugsfJDPcQKXN9YdHoYLPnPi3v/yU9vZvq
+         5wlnmmPVXH5GnVEQL2coUnHU8IxiKSYc9K0eowH8Xm7NxIDpdgbD7OpRFzMJLl6s+f
+         ysDx5WdbXeDvqzxOOdVRufSXhMaJvgOmQQ/7Yvl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 296/453] watchdog: qcom: Avoid context switch in restart handler
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hui Wang <hui.wang@canonical.com>
+Subject: [PATCH 5.10 534/717] ACPI: PNP: compare the string length in the matching_id()
 Date:   Mon, 28 Dec 2020 13:48:52 +0100
-Message-Id: <20201228124951.447773976@linuxfoundation.org>
+Message-Id: <20201228125046.556137216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 7948fab26bcc468aa2a76462f441291b5fb0d5c7 ]
+commit b08221c40febcbda9309dd70c61cf1b0ebb0e351 upstream.
 
-The use of msleep() in the restart handler will cause scheduler to
-induce a context switch which is not desirable. This generates below
-warning on SDX55 when WDT is the only available restart source:
+Recently we met a touchscreen problem on some Thinkpad machines, the
+touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
+work.
 
-[   39.800188] reboot: Restarting system
-[   39.804115] ------------[ cut here ]------------
-[   39.807855] WARNING: CPU: 0 PID: 678 at kernel/rcu/tree_plugin.h:297 rcu_note_context_switch+0x190/0x764
-[   39.812538] Modules linked in:
-[   39.821954] CPU: 0 PID: 678 Comm: reboot Not tainted 5.10.0-rc1-00063-g33a9990d1d66-dirty #47
-[   39.824854] Hardware name: Generic DT based system
-[   39.833470] [<c0310fbc>] (unwind_backtrace) from [<c030c544>] (show_stack+0x10/0x14)
-[   39.838154] [<c030c544>] (show_stack) from [<c0c218f0>] (dump_stack+0x8c/0xa0)
-[   39.846049] [<c0c218f0>] (dump_stack) from [<c0322f80>] (__warn+0xd8/0xf0)
-[   39.853058] [<c0322f80>] (__warn) from [<c0c1dc08>] (warn_slowpath_fmt+0x64/0xc8)
-[   39.859925] [<c0c1dc08>] (warn_slowpath_fmt) from [<c038b6f4>] (rcu_note_context_switch+0x190/0x764)
-[   39.867503] [<c038b6f4>] (rcu_note_context_switch) from [<c0c2aa3c>] (__schedule+0x84/0x640)
-[   39.876685] [<c0c2aa3c>] (__schedule) from [<c0c2b050>] (schedule+0x58/0x10c)
-[   39.885095] [<c0c2b050>] (schedule) from [<c0c2eed0>] (schedule_timeout+0x1e8/0x3d4)
-[   39.892135] [<c0c2eed0>] (schedule_timeout) from [<c039ad40>] (msleep+0x2c/0x38)
-[   39.899947] [<c039ad40>] (msleep) from [<c0a59d0c>] (qcom_wdt_restart+0xc4/0xcc)
-[   39.907319] [<c0a59d0c>] (qcom_wdt_restart) from [<c0a58290>] (watchdog_restart_notifier+0x18/0x28)
-[   39.914715] [<c0a58290>] (watchdog_restart_notifier) from [<c03468e0>] (atomic_notifier_call_chain+0x60/0x84)
-[   39.923487] [<c03468e0>] (atomic_notifier_call_chain) from [<c030ae64>] (machine_restart+0x78/0x7c)
-[   39.933551] [<c030ae64>] (machine_restart) from [<c0348048>] (__do_sys_reboot+0xdc/0x1e0)
-[   39.942397] [<c0348048>] (__do_sys_reboot) from [<c0300060>] (ret_fast_syscall+0x0/0x54)
-[   39.950721] Exception stack(0xc3e0bfa8 to 0xc3e0bff0)
-[   39.958855] bfa0:                   0001221c bed2fe24 fee1dead 28121969 01234567 00000000
-[   39.963832] bfc0: 0001221c bed2fe24 00000003 00000058 000225e0 00000000 00000000 00000000
-[   39.971985] bfe0: b6e62560 bed2fc84 00010fd8 b6e62580
-[   39.980124] ---[ end trace 3f578288bad866e4 ]---
+An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
+the current rule in matching_id(), this device will be regarded as
+a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
+this PNP device is attached to the acpi device as the 1st
+physical_node, this will make the i2c bus match fail when i2c bus
+calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
+driver.
 
-Hence, replace msleep() with mdelay() to fix this issue.
+WACF2200 is an i2c device instead of a PNP device, after adding the
+string length comparing, the matching_id() will return false when
+matching WACF2200 and WACFXXX, and it is reasonable to compare the
+string length when matching two IDs.
 
-Fixes: 05e487d905ab ("watchdog: qcom: register a restart notifier")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201207060005.21293-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/watchdog/qcom-wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpi_pnp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/watchdog/qcom-wdt.c b/drivers/watchdog/qcom-wdt.c
-index eb47fe5ed2805..ea8a6abd64ecb 100644
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -143,7 +143,7 @@ static int qcom_wdt_restart(struct watchdog_device *wdd, unsigned long action,
- 	 */
- 	wmb();
+--- a/drivers/acpi/acpi_pnp.c
++++ b/drivers/acpi/acpi_pnp.c
+@@ -319,6 +319,9 @@ static bool matching_id(const char *idst
+ {
+ 	int i;
  
--	msleep(150);
-+	mdelay(150);
- 	return 0;
- }
++	if (strlen(idstr) != strlen(list_id))
++		return false;
++
+ 	if (memcmp(idstr, list_id, 3))
+ 		return false;
  
--- 
-2.27.0
-
 
 
