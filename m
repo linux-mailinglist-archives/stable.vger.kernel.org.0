@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 419F42E6799
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A2A2E65C7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730988AbgL1Q1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35858 "EHLO mail.kernel.org"
+        id S2389642AbgL1N1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730942AbgL1NIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF79A21D94;
-        Mon, 28 Dec 2020 13:08:15 +0000 (UTC)
+        id S2389200AbgL1N1d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:27:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB54207CF;
+        Mon, 28 Dec 2020 13:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160896;
-        bh=ZQx4jiJYSqq0ifLV2fS+ihkyAB+CjY19pTM7Afr80S8=;
+        s=korg; t=1609162012;
+        bh=InYEAi5x9ssMkOFcR2sFRHZZKhTE2Ms5ZxN+puv4VaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FFjoX43TD+MDOHaW6R+DYwmIIwNrbMUuP/MIQhm31xOAHy7gfH8vAVuiNKS/KtyJ3
-         ZtzYxLSz0RVmTkXemezp9KeYTjtGCKo3IFu7eE1zu90sbmWtapdE1Qfab3dyjukjk3
-         UTsy1p9u9KSsULsQbTEvchg3lxMjndbzdIrWgRVs=
+        b=sqvH4KDSVpx0Lq13b4bSxNnml/2XsgCnaw1l5D1osOeYforQ6DjrQPsjaewchSgBD
+         uhHZHLmlEuDxkrnYbX6zfqm8qLUl3+WbKbDWSusY5UY2Qp2HnPzDq/0Aqm0Mzq3m5Y
+         uuflAHWGxDELXXsq59NlrQ+I9kzvfVMdJFGPxfbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        linux-usb@vger.kernel.org
-Subject: [PATCH 4.14 031/242] USB: sisusbvga: Make console support depend on BROKEN
-Date:   Mon, 28 Dec 2020 13:47:16 +0100
-Message-Id: <20201228124906.194088309@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 118/346] drm/msm/dsi_pll_10nm: restore VCO rate during restore_state
+Date:   Mon, 28 Dec 2020 13:47:17 +0100
+Message-Id: <20201228124925.498438496@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 862ee699fefe1e6d6f2c1518395f0b999b8beb15 upstream.
+[ Upstream commit a4ccc37693a271330a46208afbeaed939d54fdbb ]
 
-The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
-to detect contexts in which it cannot sleep despite the big fat comment in
-preempt.h which says: Do not use in_atomic() in driver code.
+PHY disable/enable resets PLL registers to default values. Thus in
+addition to restoring several registers we also need to restore VCO rate
+settings.
 
-in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
-means that spin/rw_lock held regions are not detected by it.
-
-There is no way to make this work by handing context information through to
-the driver and this only can be solved once the core printk infrastructure
-supports sleepable console drivers.
-
-Make it depend on BROKEN for now.
-
-Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201019101109.603244207@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: c6659785dfb3 ("drm/msm/dsi/pll: call vco set rate explicitly")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/sisusbvga/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/misc/sisusbvga/Kconfig
-+++ b/drivers/usb/misc/sisusbvga/Kconfig
-@@ -15,7 +15,7 @@ config USB_SISUSBVGA
+diff --git a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
+index 21a69b046625a..d15511b521cb7 100644
+--- a/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
++++ b/drivers/gpu/drm/msm/dsi/pll/dsi_pll_10nm.c
+@@ -554,6 +554,7 @@ static int dsi_pll_10nm_restore_state(struct msm_dsi_pll *pll)
+ 	struct pll_10nm_cached_state *cached = &pll_10nm->cached_state;
+ 	void __iomem *phy_base = pll_10nm->phy_cmn_mmio;
+ 	u32 val;
++	int ret;
  
- config USB_SISUSBVGA_CON
- 	bool "Text console and mode switching support" if USB_SISUSBVGA
--	depends on VT
-+	depends on VT && BROKEN
- 	select FONT_8x16
- 	---help---
- 	  Say Y here if you want a VGA text console via the USB dongle or
+ 	val = pll_read(pll_10nm->mmio + REG_DSI_10nm_PHY_PLL_PLL_OUTDIV_RATE);
+ 	val &= ~0x3;
+@@ -568,6 +569,13 @@ static int dsi_pll_10nm_restore_state(struct msm_dsi_pll *pll)
+ 	val |= cached->pll_mux;
+ 	pll_write(phy_base + REG_DSI_10nm_PHY_CMN_CLK_CFG1, val);
+ 
++	ret = dsi_pll_10nm_vco_set_rate(&pll->clk_hw, pll_10nm->vco_current_rate, pll_10nm->vco_ref_clk_rate);
++	if (ret) {
++		DRM_DEV_ERROR(&pll_10nm->pdev->dev,
++			"restore vco rate failed. ret=%d\n", ret);
++		return ret;
++	}
++
+ 	DBG("DSI PLL%d", pll_10nm->id);
+ 
+ 	return 0;
+-- 
+2.27.0
+
 
 
