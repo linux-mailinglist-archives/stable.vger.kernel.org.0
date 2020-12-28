@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 780422E3AED
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2D42E3AF0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391447AbgL1Nn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:43:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43880 "EHLO mail.kernel.org"
+        id S2404476AbgL1Nnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404439AbgL1NnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:43:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6366E20719;
-        Mon, 28 Dec 2020 13:42:42 +0000 (UTC)
+        id S2404470AbgL1Nna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9857207B2;
+        Mon, 28 Dec 2020 13:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162962;
-        bh=HnOhffahLUjkw78ZedWdR3NbMXwGxnTSBqkS1Nm+iwg=;
+        s=korg; t=1609162994;
+        bh=tb9Ia2GAtQAHmdUIOt64VVU5snLGcf1JJ3v1YH3/46Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVu6snvoNjfTIg7cP3igRjhjlZoSTfi0nhuF6p1IqvAs5y1lJBXThR/E1o5OACx3Z
-         MZLM5fLzEH5YMn0hoP0b6OLFjvA2HZZvM5qZKkPGAh/0Fr4HHqxKCM8RlwAbG0GhIs
-         rwU2gDSpE9r4rOG/hynitGkS5Dteja3eni4R8KmM=
+        b=cbaHEz/mpPzImSuVrnM1gRDiAtWeWOxvC9QxQQVqzFJoEnOD/GUqiMRQS3IGf5Wal
+         QXI7PSAaC2iELdr50wq9FkipPCUYKrb88A8asfIrhtV9YYiC/N0NbYqTt8bXJg8H6A
+         fshD9Qqc9etYMRuIFIEwFnq/FP6DzLCNZp9004Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/453] spi: spi-mem: fix reference leak in spi_mem_access_start
-Date:   Mon, 28 Dec 2020 13:45:40 +0100
-Message-Id: <20201228124942.224114893@linuxfoundation.org>
+Subject: [PATCH 5.4 105/453] ASoC: pcm: DRAIN support reactivation
+Date:   Mon, 28 Dec 2020 13:45:41 +0100
+Message-Id: <20201228124942.272264312@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -40,35 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit c02bb16b0e826bf0e19aa42c3ae60ea339f32cf5 ]
+[ Upstream commit 4c22b80f61540ea99d9b4af0127315338755f05b ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in spi_mem_access_start, so we should fix it.
+soc-pcm's dpcm_fe_dai_do_trigger() supported DRAIN commnad up to kernel
+v5.4 where explicit switch(cmd) has been introduced which takes into
+account all SNDRV_PCM_TRIGGER_xxx but SNDRV_PCM_TRIGGER_DRAIN. Update
+switch statement to reactive support for it.
 
-Fixes: f86c24f479530 ("spi: spi-mem: Split spi_mem_exec_op() code")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103140910.3482-1-zhangqilong3@huawei.com
+As DRAIN is somewhat unique by lacking negative/stop counterpart, bring
+behaviour of dpcm_fe_dai_do_trigger() for said command back to its
+pre-v5.4 state by adding it to START/RESUME/PAUSE_RELEASE group.
+
+Fixes: acbf27746ecf ("ASoC: pcm: update FE/BE trigger order based on the command")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20201026100129.8216-1-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mem.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-pcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
-index de0ba3e5449fa..33115bcfc787e 100644
---- a/drivers/spi/spi-mem.c
-+++ b/drivers/spi/spi-mem.c
-@@ -237,6 +237,7 @@ static int spi_mem_access_start(struct spi_mem *mem)
- 
- 		ret = pm_runtime_get_sync(ctlr->dev.parent);
- 		if (ret < 0) {
-+			pm_runtime_put_noidle(ctlr->dev.parent);
- 			dev_err(&ctlr->dev, "Failed to power device: %d\n",
- 				ret);
- 			return ret;
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index cc4e9aa80fb0d..1196167364d48 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2346,6 +2346,7 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
+ 		case SNDRV_PCM_TRIGGER_START:
+ 		case SNDRV_PCM_TRIGGER_RESUME:
+ 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		case SNDRV_PCM_TRIGGER_DRAIN:
+ 			ret = dpcm_dai_trigger_fe_be(substream, cmd, true);
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_STOP:
+@@ -2363,6 +2364,7 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
+ 		case SNDRV_PCM_TRIGGER_START:
+ 		case SNDRV_PCM_TRIGGER_RESUME:
+ 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
++		case SNDRV_PCM_TRIGGER_DRAIN:
+ 			ret = dpcm_dai_trigger_fe_be(substream, cmd, false);
+ 			break;
+ 		case SNDRV_PCM_TRIGGER_STOP:
 -- 
 2.27.0
 
