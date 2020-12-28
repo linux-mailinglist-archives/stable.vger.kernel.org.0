@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1D42E39B3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C068B2E37B7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389556AbgL1N0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:26:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S1728696AbgL1M7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:59:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389552AbgL1N0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 573A820719;
-        Mon, 28 Dec 2020 13:26:31 +0000 (UTC)
+        id S1728584AbgL1M7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB06522D00;
+        Mon, 28 Dec 2020 12:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161991;
-        bh=lZofJ3VNRktxQHlzSTjJmfu73GV5N5UgrLRwgsGVNag=;
+        s=korg; t=1609160333;
+        bh=LMZyDnsGvgQkL+DovBkrlqbPZ8PfoOXGkxyBxKN6irk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsAXne/SKjmcVDh8k24pX6Q4OSmEo1MxqUNyNhGRTRhsggj8T+t0TR3d8utf0Uxpr
-         SYatohJIPHGwV3zF1vuduitKjZwW8KHCxEvnvrhR9a+BvRMVO0W5LzCtH/AmBwYHwO
-         fR5ovrjwFDBcyxfoo8Xcc4H+0/HrdIFknlDuWfF0=
+        b=SYSngHYZ6nq1nwWn2II8CnQxlizm44wkC3pwvp4m5LiTHDQ3mTAmTQ2onqprQAZK2
+         yiJBcxNe02uyWSIqDsyRkyEcf2nR7PLR6kww5iHueneUoI0sYqfHbRySqLHB7Bu6ut
+         6Nr3MrPxhhw5KgitB8TZxHkNwGoeGdxklF//kCR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 150/346] usb/max3421: fix return error code in max3421_probe()
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 016/175] net: bridge: vlan: fix error return code in __vlan_add()
 Date:   Mon, 28 Dec 2020 13:47:49 +0100
-Message-Id: <20201228124927.036138519@linuxfoundation.org>
+Message-Id: <20201228124854.046832651@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 5a569343e8a618dc73edebe0957eb42f2ab476bd ]
+[ Upstream commit ee4f52a8de2c6f78b01f10b4c330867d88c1653a ]
 
-retval may be reassigned to 0 after max3421_of_vbus_en_pin(),
-if allocate memory failed after this, max3421_probe() cann't
-return ENOMEM, fix this by moving assign retval afther max3421_probe().
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 721fdc83b31b ("usb: max3421: Add devicetree support")
+Fixes: f8ed289fab84 ("bridge: vlan: use br_vlan_(get|put)_master to deal with refcounts")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20201117061500.3454223-1-yangyingliang@huawei.com
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/1607071737-33875-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/max3421-hcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bridge/br_vlan.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/max3421-hcd.c b/drivers/usb/host/max3421-hcd.c
-index afa321ab55fcf..c9acc59f4addd 100644
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -1864,7 +1864,7 @@ max3421_probe(struct spi_device *spi)
- 	struct max3421_hcd *max3421_hcd;
- 	struct usb_hcd *hcd = NULL;
- 	struct max3421_hcd_platform_data *pdata = NULL;
--	int retval = -ENOMEM;
-+	int retval;
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -238,8 +238,10 @@ static int __vlan_add(struct net_bridge_
+ 		}
  
- 	if (spi_setup(spi) < 0) {
- 		dev_err(&spi->dev, "Unable to setup SPI bus");
-@@ -1906,6 +1906,7 @@ max3421_probe(struct spi_device *spi)
- 		goto error;
+ 		masterv = br_vlan_get_master(br, v->vid);
+-		if (!masterv)
++		if (!masterv) {
++			err = -ENOMEM;
+ 			goto out_filt;
++		}
+ 		v->brvlan = masterv;
+ 		v->stats = masterv->stats;
  	}
- 
-+	retval = -ENOMEM;
- 	hcd = usb_create_hcd(&max3421_hcd_desc, &spi->dev,
- 			     dev_name(&spi->dev));
- 	if (!hcd) {
--- 
-2.27.0
-
 
 
