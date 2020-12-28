@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C56CE2E3E3F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 411D52E37FF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503294AbgL1OZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:25:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S1730298AbgL1NDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:03:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503304AbgL1OZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:25:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C5AD22B2E;
-        Mon, 28 Dec 2020 14:25:07 +0000 (UTC)
+        id S1730293AbgL1NDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A89432245C;
+        Mon, 28 Dec 2020 13:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165508;
-        bh=nZMrMAamCH8fxLv4x7n/eb5SNkknL3x8hgvUN8jEIWo=;
+        s=korg; t=1609160590;
+        bh=ZDLuezUecvvZpYdnsZTEvnhf/rHrjafxsKalCchwpfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pFNtAubDAOu2ygPfwTmyRuLTsYnwWP02KeVTK2AAw0R9wFmizGk2ygEOAzNyevQ8
-         RmoanEGHh8wN/5d6aWmUC/zwfrWFrIg7SEOYbFcm6PNnHdWbP0TdwRQe3GVoXWTR/Y
-         twioHsW7ZWgeSJruiS86qQGAShesY+reGc5OCph4=
+        b=K3AW9CL4ImGoQsDRTY7NHUdKi5wtJ3I/0myaTDuiplrL3emMtfUyQ8gcgH224liE5
+         L0Lfb/ujeh82ShYmqOnk3L5bldsj/tP06iJjovCfNAldlBNjISYoqU9bZcDubfMuFT
+         VDdHi1DZUuKU5b9Zgc4ZC8Qm1+SDURylDeHBBG6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 557/717] s390/dasd: fix list corruption of pavgroup group list
-Date:   Mon, 28 Dec 2020 13:49:15 +0100
-Message-Id: <20201228125047.619220403@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 103/175] seq_buf: Avoid type mismatch for seq_buf_init
+Date:   Mon, 28 Dec 2020 13:49:16 +0100
+Message-Id: <20201228124858.240683231@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 0ede91f83aa335da1c3ec68eb0f9e228f269f6d8 upstream.
+[ Upstream commit d9a9280a0d0ae51dc1d4142138b99242b7ec8ac6 ]
 
-dasd_alias_add_device() moves devices to the active_devices list in case
-of a scheduled LCU update regardless if they have previously been in a
-pavgroup or not.
+Building with W=2 prints a number of warnings for one function that
+has a pointer type mismatch:
 
-Example: device A and B are in the same pavgroup.
+linux/seq_buf.h: In function 'seq_buf_init':
+linux/seq_buf.h:35:12: warning: pointer targets in assignment from 'unsigned char *' to 'char *' differ in signedness [-Wpointer-sign]
 
-Device A has already been in a pavgroup and the private->pavgroup pointer
-is set and points to a valid pavgroup. While going through dasd_add_device
-it is moved from the pavgroup to the active_devices list.
+Change the type in the function prototype according to the type in
+the structure.
 
-In parallel device B might be removed from the same pavgroup in
-remove_device_from_lcu() which in turn checks if the group is empty
-and deletes it accordingly because device A has already been removed from
-there.
+Link: https://lkml.kernel.org/r/20201026161108.3707783-1-arnd@kernel.org
 
-When now device A enters remove_device_from_lcu() it is tried to remove it
-from the pavgroup again because the pavgroup pointer is still set and again
-the empty group will be cleaned up which leads to a list corruption.
-
-Fix by setting private->pavgroup to NULL in dasd_add_device.
-
-If the device has been the last device on the pavgroup an empty pavgroup
-remains but this will be cleaned up by the scheduled lcu_update which
-iterates over all existing pavgroups.
-
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 9a7777935c34 ("tracing: Convert seq_buf fields to be like seq_file fields")
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_alias.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/seq_buf.h   | 2 +-
+ include/linux/trace_seq.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -642,6 +642,7 @@ int dasd_alias_add_device(struct dasd_de
- 	}
- 	if (lcu->flags & UPDATE_PENDING) {
- 		list_move(&device->alias_list, &lcu->active_devices);
-+		private->pavgroup = NULL;
- 		_schedule_lcu_update(lcu, device);
- 	}
- 	spin_unlock_irqrestore(&lcu->lock, flags);
+diff --git a/include/linux/seq_buf.h b/include/linux/seq_buf.h
+index fb7eb9ccb1cd4..d4c3c9bab5826 100644
+--- a/include/linux/seq_buf.h
++++ b/include/linux/seq_buf.h
+@@ -29,7 +29,7 @@ static inline void seq_buf_clear(struct seq_buf *s)
+ }
+ 
+ static inline void
+-seq_buf_init(struct seq_buf *s, unsigned char *buf, unsigned int size)
++seq_buf_init(struct seq_buf *s, char *buf, unsigned int size)
+ {
+ 	s->buffer = buf;
+ 	s->size = size;
+diff --git a/include/linux/trace_seq.h b/include/linux/trace_seq.h
+index cfaf5a1d4bad7..f5be2716b01c6 100644
+--- a/include/linux/trace_seq.h
++++ b/include/linux/trace_seq.h
+@@ -11,7 +11,7 @@
+  */
+ 
+ struct trace_seq {
+-	unsigned char		buffer[PAGE_SIZE];
++	char			buffer[PAGE_SIZE];
+ 	struct seq_buf		seq;
+ 	int			full;
+ };
+@@ -50,7 +50,7 @@ static inline int trace_seq_used(struct trace_seq *s)
+  * that is about to be written to and then return the result
+  * of that write.
+  */
+-static inline unsigned char *
++static inline char *
+ trace_seq_buffer_ptr(struct trace_seq *s)
+ {
+ 	return s->buffer + seq_buf_used(&s->seq);
+-- 
+2.27.0
+
 
 
