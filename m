@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66D602E3A09
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FAD2E432E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390587AbgL1Nbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:31:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
+        id S2405383AbgL1Pd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390563AbgL1NbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:31:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA679207C9;
-        Mon, 28 Dec 2020 13:30:51 +0000 (UTC)
+        id S2407230AbgL1NxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6176206D4;
+        Mon, 28 Dec 2020 13:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162252;
-        bh=etFg+hdY9cYDgYnDmZBzPds9btDoJxw4EV86C3JFYyc=;
+        s=korg; t=1609163543;
+        bh=oyxHf38LfVs3BMuQZNo6mChDDNivTtpjWazb4r/hZUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjskC6bu147HNzftAhWtrye4fy+UpaYTiceUj0lVkCvurlMEv/tqX0m5JJKPHd3cf
-         TuoTD7SnuBQdLfMvvFmmT6bOX1QKRCdYqMQ+1AS6t4zN4gnpL/NfbhPD6fvURVXrAE
-         y/FFKdeN8bGaAHIAIK8UXbfhT0MPFmWArxlHDH9U=
+        b=gmrFl7s1ERhMC1u3xcCiVP+O6e62sHNKHNrWAR6PtSRKvayQvGhPAnW7hTF8nQaJp
+         uZXFgXKpshUuPMtdGYZ/z1EyLzF2o88Xi2atFX13umHiaxaLi+T6D5gzqfwBVxTAR/
+         N1FYdGWLvesu5YTVUP+kV9+smVdZD3S/j7BXjxo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 239/346] net: allwinner: Fix some resources leak in the error handling path of the probe and in the remove function
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Maxime Ripard <mripard@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 322/453] media: sunxi-cir: ensure IR is handled when it is continuous
 Date:   Mon, 28 Dec 2020 13:49:18 +0100
-Message-Id: <20201228124931.316767201@linuxfoundation.org>
+Message-Id: <20201228124952.702486385@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 322e53d1e2529ae9d501f5e0f20604a79b873aef ]
+commit 3f56df4c8ffeb120ed41906d3aae71799b7e726a upstream.
 
-'irq_of_parse_and_map()' should be balanced by a corresponding
-'irq_dispose_mapping()' call. Otherwise, there is some resources leaks.
+If a user holds a button down on a remote, then no ir idle interrupt will
+be generated until the user releases the button, depending on how quickly
+the remote repeats. No IR is processed until that point, which means that
+holding down a button may not do anything.
 
-Add such a call in the error handling path of the probe function and in the
-remove function.
+This also resolves an issue on a Cubieboard 1 where the IR receiver is
+picking up ambient infrared as IR and spews out endless
+"rc rc0: IR event FIFO is full!" messages unless you choose to live in
+the dark.
 
-Fixes: 492205050d77 ("net: Add EMAC ethernet driver found on Allwinner A10 SoC's")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201214202117.146293-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/rc/sunxi-cir.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index c458b81ba63af..d249a4309da2f 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -847,13 +847,13 @@ static int emac_probe(struct platform_device *pdev)
- 	db->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(db->clk)) {
- 		ret = PTR_ERR(db->clk);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
+--- a/drivers/media/rc/sunxi-cir.c
++++ b/drivers/media/rc/sunxi-cir.c
+@@ -137,6 +137,8 @@ static irqreturn_t sunxi_ir_irq(int irqn
+ 	} else if (status & REG_RXSTA_RPE) {
+ 		ir_raw_event_set_idle(ir->rc, true);
+ 		ir_raw_event_handle(ir->rc);
++	} else {
++		ir_raw_event_handle(ir->rc);
  	}
  
- 	ret = clk_prepare_enable(db->clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Error couldn't enable clock (%d)\n", ret);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
- 
- 	ret = sunxi_sram_claim(&pdev->dev);
-@@ -910,6 +910,8 @@ out_release_sram:
- 	sunxi_sram_release(&pdev->dev);
- out_clk_disable_unprepare:
- 	clk_disable_unprepare(db->clk);
-+out_dispose_mapping:
-+	irq_dispose_mapping(ndev->irq);
- out_iounmap:
- 	iounmap(db->membase);
- out:
-@@ -928,6 +930,7 @@ static int emac_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	sunxi_sram_release(&pdev->dev);
- 	clk_disable_unprepare(db->clk);
-+	irq_dispose_mapping(ndev->irq);
- 	iounmap(db->membase);
- 	free_netdev(ndev);
- 
--- 
-2.27.0
-
+ 	spin_unlock(&ir->ir_lock);
 
 
