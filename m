@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5335B2E3ABE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6452E40F5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403947AbgL1Nkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:40:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S2440315AbgL1OOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:14:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403940AbgL1Nkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:40:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1DA92063A;
-        Mon, 28 Dec 2020 13:39:54 +0000 (UTC)
+        id S2440309AbgL1OOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9540720731;
+        Mon, 28 Dec 2020 14:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162795;
-        bh=xU/1gEQBhMmzFwy+0MDHIawUXv4l2c99tIP6CZHlV/k=;
+        s=korg; t=1609164802;
+        bh=fZ6Kn4rPUq9KtioS1e0jKBS0B5PWzIC6EwLWFf1z2Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDWGCYmgFY5MD0RJlDN9BAAuxMWjW5XvZDyZOKMLpk53RecL7HmMteUme4SaLPeNz
-         8Cj7OdISHnjXNM/Sk2V2dzooJhi/BGym2U2dFsp/a0ge2qhdxnCrOepvVfSd52hSBf
-         SNdjKA8o4zFjexTZRHfXQ7h/gLspg+9CXiA1tczU=
+        b=h+AW7z/fSZiMKzFjOaKxGGH7rpjj0M+842MDO/+aNYJRF0d7UoIgjao8M/N6O/chT
+         er+kkCdSfBnvo5CuW+XGgu8abDFKaPJ59fcSKllf2RZHE9BsiHQ0CYI/JkTCu+xRyH
+         48QtyP0/TfejChmRHP38FuXOy1sQTkVOzZjz7Eqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.4 064/453] coresight: etb10: Fix possible NULL ptr dereference in etb_enable_perf()
-Date:   Mon, 28 Dec 2020 13:45:00 +0100
-Message-Id: <20201228124940.327452148@linuxfoundation.org>
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 303/717] mt76: mt7915: set fops_sta_stats.owner to THIS_MODULE
+Date:   Mon, 28 Dec 2020 13:45:01 +0100
+Message-Id: <20201228125035.544901560@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 22b2beaa7f166f550424cbb3b988aeaa7ef0425a upstream.
+[ Upstream commit 5efbe3b1b8992d5f837388091920945c23212159 ]
 
-There was a report of NULL pointer dereference in ETF enable
-path for perf CS mode with PID monitoring. It is almost 100%
-reproducible when the process to monitor is something very
-active such as chrome and with ETF as the sink, not ETR.
+If THIS_MODULE is not set, the module would be removed while debugfs is
+being used.
+It eventually makes kernel panic.
 
-But code path shows that ETB has a similar path as ETF, so
-there could be possible NULL pointer dereference crash in
-ETB as well. Currently in a bid to find the pid, the owner
-is dereferenced via task_pid_nr() call in etb_enable_perf()
-and with owner being NULL, we can get a NULL pointer
-dereference, so have a similar fix as ETF where we cache PID
-in alloc_buffer() callback which is called as the part of
-etm_setup_aux().
-
-Fixes: 75d7dbd38824 ("coresight: etb10: Add support for CPU-wide trace scenarios")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201127175256.1092685-11-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ec9742a8f38e ("mt76: mt7915: add .sta_add_debugfs support")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etb10.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwtracing/coresight/coresight-etb10.c
-+++ b/drivers/hwtracing/coresight/coresight-etb10.c
-@@ -176,6 +176,7 @@ static int etb_enable_perf(struct coresi
- 	unsigned long flags;
- 	struct etb_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
- 	struct perf_output_handle *handle = data;
-+	struct cs_buffers *buf = etm_perf_sink_config(handle);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+index 1049927faf246..d2ac7e5ee60a2 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/debugfs.c
+@@ -460,6 +460,7 @@ static const struct file_operations fops_sta_stats = {
+ 	.read = seq_read,
+ 	.llseek = seq_lseek,
+ 	.release = single_release,
++	.owner = THIS_MODULE,
+ };
  
- 	spin_lock_irqsave(&drvdata->spinlock, flags);
- 
-@@ -186,7 +187,7 @@ static int etb_enable_perf(struct coresi
- 	}
- 
- 	/* Get a handle on the pid of the process to monitor */
--	pid = task_pid_nr(handle->event->owner);
-+	pid = buf->pid;
- 
- 	if (drvdata->pid != -1 && drvdata->pid != pid) {
- 		ret = -EBUSY;
-@@ -383,6 +384,7 @@ static void *etb_alloc_buffer(struct cor
- 	if (!buf)
- 		return NULL;
- 
-+	buf->pid = task_pid_nr(event->owner);
- 	buf->snapshot = overwrite;
- 	buf->nr_pages = nr_pages;
- 	buf->data_pages = pages;
+ void mt7915_sta_add_debugfs(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+-- 
+2.27.0
+
 
 
