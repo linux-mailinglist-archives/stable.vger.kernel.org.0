@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6663A2E68D2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6117A2E68E4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgL1M6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:58:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54596 "EHLO mail.kernel.org"
+        id S2438704AbgL1Qmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:42:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729128AbgL1M6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:58:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C620208D5;
-        Mon, 28 Dec 2020 12:57:37 +0000 (UTC)
+        id S1728380AbgL1M55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E27B21D94;
+        Mon, 28 Dec 2020 12:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160258;
-        bh=8dyUYSe/Na24K0kM/LeTfDuyVy+8G6zFL/I6y3Mm1eU=;
+        s=korg; t=1609160261;
+        bh=fReGIGQu1LkWSVh5Pf8Peep6B+5Bo7W7k0DYixId1pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S95gK+s/fltKPgNTokuuozhv0SnQMbPVlnMUjf8jyPy5Ba5Vrn0F8Dkscli81OPMJ
-         lzVBGpvWKctONVwiTsSWfhm3yvG/epODVHtWyfEH60EtY8eWr4iAfbLDfSA7DDgVhl
-         Px07luoDl2N9SBlw5/cTadll8rupZVZU+ZPDk6s8=
+        b=brQjhMn+A08zMYVoG6VLqUwy9vI/MN53hFoGRyK8LuWKzMLckhvtcZwXb5LOaX4Kb
+         OU7aCfYBhwIhpTPHqAlVsyOJ0YFPTiUr2EX37ESZC5oNtzV0UjQc9jRkk4s7yAxoOH
+         qUCidtCb6hGG9HYdGvZrrjdsuRt992B7MEGUU/UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 093/132] clk: s2mps11: Fix a resource leak in error handling paths in the probe function
-Date:   Mon, 28 Dec 2020 13:49:37 +0100
-Message-Id: <20201228124850.926719457@linuxfoundation.org>
+Subject: [PATCH 4.4 094/132] cfg80211: initialize rekey_data
+Date:   Mon, 28 Dec 2020 13:49:38 +0100
+Message-Id: <20201228124850.970693582@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
 References: <20201228124846.409999325@linuxfoundation.org>
@@ -42,38 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit d2d94fc567624f96187e8b52083795620f93e69f ]
+[ Upstream commit f495acd8851d7b345e5f0e521b2645b1e1f928a0 ]
 
-Some resource should be released in the error handling path of the probe
-function, as already done in the remove function.
+In case we have old supplicant, the akm field is uninitialized.
 
-The remove function was fixed in commit bf416bd45738 ("clk: s2mps11: Add
-missing of_node_put and of_clk_del_provider")
-
-Fixes: 7cc560dea415 ("clk: s2mps11: Add support for s2mps11")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212122818.86195-1-christophe.jaillet@wanadoo.fr
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201129172929.930f0ab7ebee.Ic546e384efab3f4a89f318eafddc3eb7d556aecb@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-s2mps11.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index 14af5c916c9ca..8a42a9c2a8f28 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -263,6 +263,7 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
- 	return ret;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 7748d674677c9..eb25998a0032e 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -9836,7 +9836,7 @@ static int nl80211_set_rekey_data(struct sk_buff *skb, struct genl_info *info)
+ 	struct net_device *dev = info->user_ptr[1];
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	struct nlattr *tb[NUM_NL80211_REKEY_DATA];
+-	struct cfg80211_gtk_rekey_data rekey_data;
++	struct cfg80211_gtk_rekey_data rekey_data = {};
+ 	int err;
  
- err_reg:
-+	of_node_put(s2mps11_clks[0].clk_np);
- 	while (--i >= 0)
- 		clkdev_drop(s2mps11_clks[i].lookup);
- 
+ 	if (!info->attrs[NL80211_ATTR_REKEY_DATA])
 -- 
 2.27.0
 
