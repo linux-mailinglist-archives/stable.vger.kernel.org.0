@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE942E4264
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB3E2E3C6E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728040AbgL1OCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34824 "EHLO mail.kernel.org"
+        id S2436960AbgL1OCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436819AbgL1OCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66EA4207A9;
-        Mon, 28 Dec 2020 14:01:59 +0000 (UTC)
+        id S2436953AbgL1OCn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1869C206D4;
+        Mon, 28 Dec 2020 14:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164119;
-        bh=LyuqagvAZnhjEVnA+8H7ULKSX4ToYQRil6fFJvJUzKo=;
+        s=korg; t=1609164122;
+        bh=4MGHoEv84Ba7fJbw5MLd8o0IbZKXfUu6u+TPGm3kb1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ck7FqFLQU1O9S4/wKBbCTelnjM3nNuyw3Vfu3gA4oJ2HDwnRbEVeM2xh2zF5kxFhg
-         bjgpizu+TSNx17qFp1D0uOBMtSrEYO4rZhv7o9lLyazD3p1WuRzFN1vXRJvoQf0Ge2
-         mGVBmeX0L+7LD3To7NujzntEWZ8sZF0HHsAf5ioY=
+        b=jQIQCWw6bgctzAEY3WFdsiWhR1+3OYVaOFa5xd2BhNlAvRAfKGPokE3KADGg1e2e1
+         PjMxOv6+UHGCezAEERFxT8fsNc9qdDRwMKa8VvbWnGDhTn8XnALjHzn7S2zX8xZi3r
+         Henwz3Kp+7hWmUAdtiev/ykcXKX6z7Z+8Q9LajPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Karthikeyan Periyasamy <periyasa@codeaurora.org>,
+        stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
+        Seung-Woo Kim <sw0312.kim@samsung.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/717] ath11k: fix wmi init configuration
-Date:   Mon, 28 Dec 2020 13:41:05 +0100
-Message-Id: <20201228125024.206493233@linuxfoundation.org>
+Subject: [PATCH 5.10 068/717] brcmfmac: Fix memory leak for unpaired brcmf_{alloc/free}
+Date:   Mon, 28 Dec 2020 13:41:06 +0100
+Message-Id: <20201228125024.254098971@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,51 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Periyasamy <periyasa@codeaurora.org>
+From: Seung-Woo Kim <sw0312.kim@samsung.com>
 
-[ Upstream commit 36c7c640ffeb87168e5ff79b7a36ae3a020bd378 ]
+[ Upstream commit 9db946284e07bb27309dd546b7fee528664ba82a ]
 
-Assign the correct hw_op ath11k_init_wmi_config_ipq8074 to
-the hw IPQ8074. Also update the correct TWT radio count.
-Incorrect TWT radio count cause TWT feature fails on radio2
-because physical device count is hardcoded to 2. so set
-the value dynamically.
+There are missig brcmf_free() for brcmf_alloc(). Fix memory leak
+by adding missed brcmf_free().
 
-Found this during code review.
-
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.1.0.1-01238-QCAHKSWPL_SILICONZ-2
-
-Fixes: 2d4bcbed5b7d53e1 ("ath11k: initialize wmi config based on hw_params")
-Signed-off-by: Karthikeyan Periyasamy <periyasa@codeaurora.org>
+Reported-by: Jaehoon Chung <jh80.chung@samsung.com>
+Fixes: a1f5aac1765a ("brcmfmac: don't realloc wiphy during PCIe reset")
+Signed-off-by: Seung-Woo Kim <sw0312.kim@samsung.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1604512020-25197-1-git-send-email-periyasa@codeaurora.org
+Link: https://lore.kernel.org/r/1603849967-22817-1-git-send-email-sw0312.kim@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/hw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 6 ++++--
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/hw.c b/drivers/net/wireless/ath/ath11k/hw.c
-index 11a411b76fe42..66331da350129 100644
---- a/drivers/net/wireless/ath/ath11k/hw.c
-+++ b/drivers/net/wireless/ath/ath11k/hw.c
-@@ -127,7 +127,7 @@ static void ath11k_init_wmi_config_ipq8074(struct ath11k_base *ab,
- 	config->beacon_tx_offload_max_vdev = ab->num_radios * TARGET_MAX_BCN_OFFLD;
- 	config->rx_batchmode = TARGET_RX_BATCHMODE;
- 	config->peer_map_unmap_v2_support = 1;
--	config->twt_ap_pdev_count = 2;
-+	config->twt_ap_pdev_count = ab->num_radios;
- 	config->twt_ap_sta_count = 1000;
- }
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index 39381cbde89e6..d8db0dbcfe091 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -1936,16 +1936,18 @@ brcmf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	fwreq = brcmf_pcie_prepare_fw_request(devinfo);
+ 	if (!fwreq) {
+ 		ret = -ENOMEM;
+-		goto fail_bus;
++		goto fail_brcmf;
+ 	}
  
-@@ -157,7 +157,7 @@ static int ath11k_hw_mac_id_to_srng_id_qca6390(struct ath11k_hw_params *hw,
+ 	ret = brcmf_fw_get_firmwares(bus->dev, fwreq, brcmf_pcie_setup);
+ 	if (ret < 0) {
+ 		kfree(fwreq);
+-		goto fail_bus;
++		goto fail_brcmf;
+ 	}
+ 	return 0;
  
- const struct ath11k_hw_ops ipq8074_ops = {
- 	.get_hw_mac_from_pdev_id = ath11k_hw_ipq8074_mac_from_pdev_id,
--	.wmi_init_config = ath11k_init_wmi_config_qca6390,
-+	.wmi_init_config = ath11k_init_wmi_config_ipq8074,
- 	.mac_id_to_pdev_id = ath11k_hw_mac_id_to_pdev_id_ipq8074,
- 	.mac_id_to_srng_id = ath11k_hw_mac_id_to_srng_id_ipq8074,
- };
++fail_brcmf:
++	brcmf_free(&devinfo->pdev->dev);
+ fail_bus:
+ 	kfree(bus->msgbuf);
+ 	kfree(bus);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index 99987a789e7e3..59c2b2b6027da 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -4541,6 +4541,7 @@ void brcmf_sdio_remove(struct brcmf_sdio *bus)
+ 		brcmf_sdiod_intr_unregister(bus->sdiodev);
+ 
+ 		brcmf_detach(bus->sdiodev->dev);
++		brcmf_free(bus->sdiodev->dev);
+ 
+ 		cancel_work_sync(&bus->datawork);
+ 		if (bus->brcmf_wq)
 -- 
 2.27.0
 
