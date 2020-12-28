@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 246B32E64DA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27B482E415A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:06:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389261AbgL1Nhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37994 "EHLO mail.kernel.org"
+        id S2439493AbgL1PFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:05:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389256AbgL1Nhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56DA7205CB;
-        Mon, 28 Dec 2020 13:37:01 +0000 (UTC)
+        id S2439502AbgL1OLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:11:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4128E206D4;
+        Mon, 28 Dec 2020 14:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162621;
-        bh=+oYEI6wNaeyn24hg6BjHs8COG6wyhia1T/n0EIJ/4No=;
+        s=korg; t=1609164661;
+        bh=WOyWTKS1/AeQ+4IuzWEwZx+a4HHz9y3tyyN8JZ5E8NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USAn3K8eUB8gwbWgc1gfeKzFoIIS7AUX8Jl6bdN7siGW8pMdoWlMTqM2mU/4UPZrl
-         rldu64+ALKgpOrQ3MKPFhYagF7JbN64c/gCYBW8XC+1XnXm6vkJvEp5DJFqugRg37L
-         LQjq6eQtxJzYgp6YG3urbMuzEV3NRP8djDc8vXUw=
+        b=j0Moh1yg1U55U3oNByEkT1dKSm/0mpyYSJpNpMNj+bdWQ3I5swRv8r7AH15Knok7N
+         8MCh9P9U2UEfiBN516ViMbdGd6HWGEDqVhE6jXJtrEn3AOq2WBCasAdTFo7sgiHq2f
+         8lJ9RxZyDXLg/I+TJ3YC0SIPkVpuBvU8pB4eKuzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/453] can: softing: softing_netdev_open(): fix error handling
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 254/717] soundwire: master: use pm_runtime_set_active() on add
 Date:   Mon, 28 Dec 2020 13:44:12 +0100
-Message-Id: <20201228124938.033247028@linuxfoundation.org>
+Message-Id: <20201228125033.156662583@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 4d1be581ec6b92a338bb7ed23e1381f45ddf336f ]
+[ Upstream commit e04e60fce47e61743a8726d76b0149c1f4ad8957 ]
 
-If softing_netdev_open() fails, we should call close_candev() to avoid
-reference leak.
+The 'master' device acts as a glue layer used during bus
+initialization only, and it needs to be 'transparent' for pm_runtime
+management. Its behavior should be that it becomes active when one of
+its children becomes active, and suspends when all of its children are
+suspended.
 
-Fixes: 03fd3cf5a179d ("can: add driver for Softing card")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Link: https://lore.kernel.org/r/20201202151632.1343786-1-zhangqilong3@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/r/20201204133508.742120-2-mkl@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In our tests on Intel platforms, we routinely see these sort of
+warnings on the initial boot:
+
+[ 21.447345] rt715 sdw:3:25d:715:0: runtime PM trying to activate
+child device sdw:3:25d:715:0 but parent (sdw-master-3) is not active
+
+This is root-caused to a missing setup to make the device 'active' on
+probe. Since we don't want the device to remain active forever after
+the probe, the autosuspend configuration is also enabled at the end of
+the probe - the device will actually autosuspend only in the case
+where there are no devices physically attached. In practice, the
+master device will suspend when all its children are no longer active.
+
+Fixes: bd84256e86ecf ('soundwire: master: enable pm runtime')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20201124130742.10986-1-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/softing/softing_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/soundwire/master.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/can/softing/softing_main.c b/drivers/net/can/softing/softing_main.c
-index 8242fb287cbbe..16e3f55efa311 100644
---- a/drivers/net/can/softing/softing_main.c
-+++ b/drivers/net/can/softing/softing_main.c
-@@ -382,8 +382,13 @@ static int softing_netdev_open(struct net_device *ndev)
+diff --git a/drivers/soundwire/master.c b/drivers/soundwire/master.c
+index 3488bb824e845..9b05c9e25ebe4 100644
+--- a/drivers/soundwire/master.c
++++ b/drivers/soundwire/master.c
+@@ -8,6 +8,15 @@
+ #include <linux/soundwire/sdw_type.h>
+ #include "bus.h"
  
- 	/* check or determine and set bittime */
- 	ret = open_candev(ndev);
--	if (!ret)
--		ret = softing_startstop(ndev, 1);
-+	if (ret)
-+		return ret;
++/*
++ * The 3s value for autosuspend will only be used if there are no
++ * devices physically attached on a bus segment. In practice enabling
++ * the bus operation will result in children devices become active and
++ * the master device will only suspend when all its children are no
++ * longer active.
++ */
++#define SDW_MASTER_SUSPEND_DELAY_MS 3000
 +
-+	ret = softing_startstop(ndev, 1);
-+	if (ret < 0)
-+		close_candev(ndev);
-+
+ /*
+  * The sysfs for properties reflects the MIPI description as given
+  * in the MIPI DisCo spec
+@@ -154,7 +163,12 @@ int sdw_master_device_add(struct sdw_bus *bus, struct device *parent,
+ 	bus->dev = &md->dev;
+ 	bus->md = md;
+ 
++	pm_runtime_set_autosuspend_delay(&bus->md->dev, SDW_MASTER_SUSPEND_DELAY_MS);
++	pm_runtime_use_autosuspend(&bus->md->dev);
++	pm_runtime_mark_last_busy(&bus->md->dev);
++	pm_runtime_set_active(&bus->md->dev);
+ 	pm_runtime_enable(&bus->md->dev);
++	pm_runtime_idle(&bus->md->dev);
+ device_register_err:
  	return ret;
  }
- 
 -- 
 2.27.0
 
