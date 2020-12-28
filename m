@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1012E3A61
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C663C2E3C04
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390302AbgL1Nfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:35:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
+        id S2406727AbgL1N5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:57:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390265AbgL1Nfx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C347E2063A;
-        Mon, 28 Dec 2020 13:35:36 +0000 (UTC)
+        id S2406728AbgL1N5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:57:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E85206D4;
+        Mon, 28 Dec 2020 13:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162537;
-        bh=L/E+7J6dGfw5xTQiGkp8ecsc9W6Ce2KLtFxFlBvbHqM=;
+        s=korg; t=1609163814;
+        bh=nVSzycZt+EukXHEr+gvwkZdSZQA/LEWomxafvatUCB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nekKmobkUG0cX2a5jdEU1qYp91b+Q9yAIu1iQBtKzmJr0BX/lQSPC4BWSP6sIkGIM
-         h/5e5ksF+9jXq1SRqZHjjK0xcQycBglvtfvyOtus6yeSFR8OAgXS8NgkKXN+qRqUCJ
-         6qQqbZ8crEpnPvA/ZOYEAVO5vZD64MI8/eNzRSy4=
+        b=cK2kjrn3sKgrm3SDPR7jyx+fs+YNNOFP31V40kiAB+evipMbQjSOxPT3LvF0yLmcd
+         /JmNWWhSNVgUEQiC9DwF++LNL2zvS9mwKic5nILh58zoxUhkL83/hx4zQwFjV9ziQE
+         gEpmnfuvkhHBQQDqed5VbQRh7bIsrDonOifOUm+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhao Heming <heming.zhao@suse.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.19 334/346] md/cluster: block reshape with remote resync job
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Evan Green <evgreen@chromium.org>
+Subject: [PATCH 5.4 417/453] soc: qcom: smp2p: Safely acquire spinlock without IRQs
 Date:   Mon, 28 Dec 2020 13:50:53 +0100
-Message-Id: <20201228124935.917152773@linuxfoundation.org>
+Message-Id: <20201228124957.285923389@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Evan Green <evgreen@chromium.org>
 
-commit a8da01f79c89755fad55ed0ea96e8d2103242a72 upstream.
+commit fc3e62e25c3896855b7c3d72df19ca6be3459c9f upstream.
 
-Reshape request should be blocked with ongoing resync job. In cluster
-env, a node can start resync job even if the resync cmd isn't executed
-on it, e.g., user executes "mdadm --grow" on node A, sometimes node B
-will start resync job. However, current update_raid_disks() only check
-local recovery status, which is incomplete. As a result, we see user will
-execute "mdadm --grow" successfully on local, while the remote node deny
-to do reshape job when it doing resync job. The inconsistent handling
-cause array enter unexpected status. If user doesn't observe this issue
-and continue executing mdadm cmd, the array doesn't work at last.
+smp2p_update_bits() should disable interrupts when it acquires its
+spinlock. This is important because without the _irqsave, a priority
+inversion can occur.
 
-Fix this issue by blocking reshape request. When node executes "--grow"
-and detects ongoing resync, it should stop and report error to user.
+This function is called both with interrupts enabled in
+qcom_q6v5_request_stop(), and with interrupts disabled in
+ipa_smp2p_panic_notifier(). IRQ handling of spinlocks should be
+consistent to avoid the panic notifier deadlocking because it's
+sitting on the thread that's already got the lock via _request_stop().
 
-The following script reproduces the issue with ~100% probability.
-(two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB)
-```
- # on node1, node2 is the remote node.
-ssh root@node2 "mdadm -S --scan"
-mdadm -S --scan
-for i in {g,h,i};do dd if=/dev/zero of=/dev/sd$i oflag=direct bs=1M \
-count=20; done
-
-mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh
-ssh root@node2 "mdadm -A /dev/md0 /dev/sdg /dev/sdh"
-
-sleep 5
-
-mdadm --manage --add /dev/md0 /dev/sdi
-mdadm --wait /dev/md0
-mdadm --grow --raid-devices=3 /dev/md0
-
-mdadm /dev/md0 --fail /dev/sdg
-mdadm /dev/md0 --remove /dev/sdg
-mdadm --grow --raid-devices=2 /dev/md0
-```
+Found via lockdep.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 50e99641413e7 ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Link: https://lore.kernel.org/r/20200929133040.RESEND.1.Ideabf6dcdfc577cf39ce3d95b0e4aa1ac8b38f0c@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/smp2p.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6895,6 +6895,7 @@ static int update_raid_disks(struct mdde
- 		return -EINVAL;
- 	if (mddev->sync_thread ||
- 	    test_bit(MD_RECOVERY_RUNNING, &mddev->recovery) ||
-+	    test_bit(MD_RESYNCING_REMOTE, &mddev->recovery) ||
- 	    mddev->reshape_position != MaxSector)
- 		return -EBUSY;
+--- a/drivers/soc/qcom/smp2p.c
++++ b/drivers/soc/qcom/smp2p.c
+@@ -318,15 +318,16 @@ static int qcom_smp2p_inbound_entry(stru
+ static int smp2p_update_bits(void *data, u32 mask, u32 value)
+ {
+ 	struct smp2p_entry *entry = data;
++	unsigned long flags;
+ 	u32 orig;
+ 	u32 val;
  
-@@ -9241,8 +9242,11 @@ static void check_sb_changes(struct mdde
- 		}
- 	}
+-	spin_lock(&entry->lock);
++	spin_lock_irqsave(&entry->lock, flags);
+ 	val = orig = readl(entry->value);
+ 	val &= ~mask;
+ 	val |= value;
+ 	writel(val, entry->value);
+-	spin_unlock(&entry->lock);
++	spin_unlock_irqrestore(&entry->lock, flags);
  
--	if (mddev->raid_disks != le32_to_cpu(sb->raid_disks))
--		update_raid_disks(mddev, le32_to_cpu(sb->raid_disks));
-+	if (mddev->raid_disks != le32_to_cpu(sb->raid_disks)) {
-+		ret = update_raid_disks(mddev, le32_to_cpu(sb->raid_disks));
-+		if (ret)
-+			pr_warn("md: updating array disks failed. %d\n", ret);
-+	}
- 
- 	/* Finally set the event to be up to date */
- 	mddev->events = le64_to_cpu(sb->events);
+ 	if (val != orig)
+ 		qcom_smp2p_kick(entry->smp2p);
 
 
