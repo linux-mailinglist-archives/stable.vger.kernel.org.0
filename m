@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 152132E65A9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B2D2E6967
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393841AbgL1QEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:04:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57428 "EHLO mail.kernel.org"
+        id S1727769AbgL1Mwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:52:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389955AbgL1N2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:28:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B082A2063A;
-        Mon, 28 Dec 2020 13:27:55 +0000 (UTC)
+        id S1726420AbgL1Mwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC6C8224D2;
+        Mon, 28 Dec 2020 12:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162076;
-        bh=HdLseoInt71HfnRMfCq6HUtvPugn160byvqCV7QqdOs=;
+        s=korg; t=1609159902;
+        bh=dwqTAokXpysVZGBemVnEBeDmQu20+uI6XLgm1AZ8Yks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kz9y/5MyDkbZrF2HWz3v0iyHXmLo7jvzhBRqXM4e/Agv7PKU5tFKoYDr21vi6N5dh
-         1ZLAexCLh4y4aGheQFTheAbyn7rKGbF/UR55G9Yf2MyaiHSQeKV3rG8P/WRmiCMlFX
-         5TynkegMI7chamR+y5VcYBYV5Ym5pGjWlhw7QKyk=
+        b=j1TigjctYOKNG9BdrwfpsXMLsFxzuzzb1Hchew+S9Ui5p0hK/Y24TsqiyczPHugnb
+         VhCmAaN3lCNGcoDp0AasMf84RyxXyznVcO6x91m6ChlglCEJYXO6LDuyg7WpaS9bR8
+         zXxFc3QGdowJUuW49qsDqqM0LvOQ5SiWBh5Iq/8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 179/346] genirq/irqdomain: Dont try to free an interrupt that has no mapping
-Date:   Mon, 28 Dec 2020 13:48:18 +0100
-Message-Id: <20201228124928.441796020@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 015/132] ALSA: usb-audio: Fix potential out-of-bounds shift
+Date:   Mon, 28 Dec 2020 13:48:19 +0100
+Message-Id: <20201228124847.139402278@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4615fbc3788ddc8e7c6d697714ad35a53729aa2c ]
+commit 43d5ca88dfcd35e43010fdd818e067aa9a55f5ba upstream.
 
-When an interrupt allocation fails for N interrupts, it is pretty
-common for the error handling code to free the same number of interrupts,
-no matter how many interrupts have actually been allocated.
+syzbot spotted a potential out-of-bounds shift in the USB-audio format
+parser that receives the arbitrary shift value from the USB
+descriptor.
 
-This may result in the domain freeing code to be unexpectedly called
-for interrupts that have no mapping in that domain. Things end pretty
-badly.
+Add a range check for avoiding the undefined behavior.
 
-Instead, add some checks to irq_domain_free_irqs_hierarchy() to make sure
-that thiss does not follow the hierarchy if no mapping exists for a given
-interrupt.
+Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201209084552.17109-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 6a6544e520abe ("genirq/irqdomain: Remove auto-recursive hierarchy support")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20201129135551.396777-1-maz@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/usb/format.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 0a76c44eb6b29..1e42fc2ad4d57 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -1247,8 +1247,15 @@ static void irq_domain_free_irqs_hierarchy(struct irq_domain *domain,
- 					   unsigned int irq_base,
- 					   unsigned int nr_irqs)
- {
--	if (domain->ops->free)
--		domain->ops->free(domain, irq_base, nr_irqs);
-+	unsigned int i;
-+
-+	if (!domain->ops->free)
-+		return;
-+
-+	for (i = 0; i < nr_irqs; i++) {
-+		if (irq_domain_get_irq_data(domain, irq_base + i))
-+			domain->ops->free(domain, irq_base + i, 1);
-+	}
- }
- 
- int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
--- 
-2.27.0
-
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -52,6 +52,8 @@ static u64 parse_audio_format_i_type(str
+ 	case UAC_VERSION_1:
+ 	default: {
+ 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
++		if (format >= 64)
++			return 0; /* invalid format */
+ 		sample_width = fmt->bBitResolution;
+ 		sample_bytes = fmt->bSubframeSize;
+ 		format = 1 << format;
 
 
