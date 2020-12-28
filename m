@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD71E2E3E20
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9855E2E3A2B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503045AbgL1OYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60164 "EHLO mail.kernel.org"
+        id S2389766AbgL1NdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:33:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503005AbgL1OYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 584DC22B3B;
-        Mon, 28 Dec 2020 14:24:03 +0000 (UTC)
+        id S2390309AbgL1NaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:30:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3490F22583;
+        Mon, 28 Dec 2020 13:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165443;
-        bh=ycu+JE1DE1QEQDhy6MtUTnnqk2x6wQmu47w4i+VT+l0=;
+        s=korg; t=1609162173;
+        bh=qDp9szX+YSvaKOm6PkUMvX0UtQZ13+FwDBXWeP98A84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jl9STrmU2LpkWW4MQWIkLI5ZPiwP1IZ2YEeIMJ7XZdd+yDy2HeZAEcGduPnPfcNPw
-         C5wBJf00tn8p6mZe9J3+aaFyUYTgUmc9pOYBuoaBxHC/n+kuJI+xVqQphomk7U9D9e
-         VHqz2sDd4M9eD5CBeUdxKSw/7AWUnINCiTByZql8=
+        b=i8FcO70eYO+rfgFRX506NU8qb1OQGp054ih/tFQ1X92XNMU2A1hsWAtvcOHQy2T22
+         td6SBPBdczILpkiQFKBOgOKBHQNEJ6NNoAEeZVJPEaN7bUzF0JdTktB+t8dZr8joDE
+         n7qseUfKD4owEVOELMkPQllMPu3q6YvpmkAvYy30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Scally <djrscally@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 533/717] Revert "ACPI / resources: Use AE_CTRL_TERMINATE to terminate resources walks"
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Karan Tilak Kumar <kartilak@cisco.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 212/346] scsi: fnic: Fix error return code in fnic_probe()
 Date:   Mon, 28 Dec 2020 13:48:51 +0100
-Message-Id: <20201228125046.506749180@linuxfoundation.org>
+Message-Id: <20201228124930.035768869@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <djrscally@gmail.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-commit 12fc4dad94dfac25599f31257aac181c691ca96f upstream.
+[ Upstream commit d4fc94fe65578738ded138e9fce043db6bfc3241 ]
 
-This reverts commit 8a66790b7850a6669129af078768a1d42076a0ef.
+Return a negative error code from the error handling case instead of 0 as
+done elsewhere in this function.
 
-Switching this function to AE_CTRL_TERMINATE broke the documented
-behaviour of acpi_dev_get_resources() - AE_CTRL_TERMINATE does not, in
-fact, terminate the resource walk because acpi_walk_resource_buffer()
-ignores it (specifically converting it to AE_OK), referring to that
-value as "an OK termination by the user function". This means that
-acpi_dev_get_resources() does not abort processing when the preproc
-function returns a negative value.
-
-Signed-off-by: Daniel Scally <djrscally@gmail.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/1607068060-31203-1-git-send-email-zhangchangzhong@huawei.com
+Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Karan Tilak Kumar <kartilak@cisco.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/fnic/fnic_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -541,7 +541,7 @@ static acpi_status acpi_dev_process_reso
- 		ret = c->preproc(ares, c->preproc_data);
- 		if (ret < 0) {
- 			c->error = ret;
--			return AE_CTRL_TERMINATE;
-+			return AE_ABORT_METHOD;
- 		} else if (ret > 0) {
- 			return AE_OK;
- 		}
+diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
+index e52599f441707..bc5dbe3bae5c5 100644
+--- a/drivers/scsi/fnic/fnic_main.c
++++ b/drivers/scsi/fnic/fnic_main.c
+@@ -746,6 +746,7 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	for (i = 0; i < FNIC_IO_LOCKS; i++)
+ 		spin_lock_init(&fnic->io_req_lock[i]);
+ 
++	err = -ENOMEM;
+ 	fnic->io_req_pool = mempool_create_slab_pool(2, fnic_io_req_cache);
+ 	if (!fnic->io_req_pool)
+ 		goto err_out_free_resources;
+-- 
+2.27.0
+
 
 
