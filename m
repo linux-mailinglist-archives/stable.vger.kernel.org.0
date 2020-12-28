@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1AA2E6734
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6B02E65C9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441000AbgL1QWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:22:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
+        id S2389706AbgL1N1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731995AbgL1NMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:12:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1124B20776;
-        Mon, 28 Dec 2020 13:11:59 +0000 (UTC)
+        id S2389701AbgL1N1s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:27:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F12452076D;
+        Mon, 28 Dec 2020 13:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161120;
-        bh=g/v+1rTa2gjUBjXl4NS7as3TpK2nuD+hQqywd1ongmw=;
+        s=korg; t=1609162027;
+        bh=enMOCIPANzVOGRlEJ1DX0GGHjgYFcqvmGDAoReC0aZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeS31qM+ptCUMB42JU+uGQx2grLT9yp/O0kEaMBCaRtrm5k6WAammGAKBTxVnRdgE
-         ItX30zy8+it2+ZlTBeJLDxVu7nesEjL1cunckdHoJMAceEvfDr3gaCx1O2NCGISWAm
-         cLJBuQklmSVD+2OFQRVRl3wZRiHLdBWwefIc9awM=
+        b=kE87u0Kac4EOKBx+DEjo7TjNHzsehtWJjeSSwI6PnVecPQP7R5pGNOnt0aJWM+uPA
+         Xc/pla1Me7NjOwX1R9ENqIAWvHxKT0jU1LaxHA633b+XLmfDMQbbfN29hxyHyj/748
+         Fq8YCcK1d/l19GpSDf95XRhkZPOJcVik+8P9qGcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/242] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
+Subject: [PATCH 4.19 164/346] orinoco: Move context allocation after processing the skb
 Date:   Mon, 28 Dec 2020 13:48:03 +0100
-Message-Id: <20201228124908.524696329@linuxfoundation.org>
+Message-Id: <20201228124927.718578791@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,99 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 ]
+[ Upstream commit a31eb615646a63370aa1da1053c45439c7653d83 ]
 
-A previous fix, commit 83370b31a915 ("selinux: fix error initialization
-in inode_doinit_with_dentry()"), changed how failures were handled
-before a SELinux policy was loaded.  Unfortunately that patch was
-potentially problematic for two reasons: it set the isec->initialized
-state without holding a lock, and it didn't set the inode's SELinux
-label to the "default" for the particular filesystem.  The later can
-be a problem if/when a later attempt to revalidate the inode fails
-and SELinux reverts to the existing inode label.
+ezusb_xmit() allocates a context which is leaked if
+orinoco_process_xmit_skb() returns an error.
 
-This patch should restore the default inode labeling that existed
-before the original fix, without affecting the LABEL_INVALID marking
-such that revalidation will still be attempted in the future.
+Move ezusb_alloc_ctx() after the invocation of
+orinoco_process_xmit_skb() because the context is not needed so early.
+ezusb_access_ltv() will cleanup the context in case of an error.
 
-Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: bac6fafd4d6a0 ("orinoco: refactor xmit path")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201113212252.2243570-2-bigeasy@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 31 +++++++++++++------------------
- 1 file changed, 13 insertions(+), 18 deletions(-)
+ .../net/wireless/intersil/orinoco/orinoco_usb.c    | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index af8ddae0ddedb..895d369bc4103 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1569,13 +1569,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
- 			 */
--			isec->initialized = LABEL_INVALID;
--			/*
--			 * There is nothing useful to jump to the "out"
--			 * label, except a needless spin lock/unlock
--			 * cycle.
--			 */
--			return 0;
-+			goto out_invalid;
- 		}
+diff --git a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+index b704e4bce171d..a04d598430228 100644
+--- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
++++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
+@@ -1237,13 +1237,6 @@ static netdev_tx_t ezusb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (skb->len < ETH_HLEN)
+ 		goto drop;
  
- 		len = INITCONTEXTLEN;
-@@ -1683,15 +1677,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit() with a dentry, before these inodes
- 			 * could be used again by userspace.
- 			 */
--			if (!dentry) {
--				isec->initialized = LABEL_INVALID;
--				/*
--				 * There is nothing useful to jump to the "out"
--				 * label, except a needless spin lock/unlock
--				 * cycle.
--				 */
--				return 0;
--			}
-+			if (!dentry)
-+				goto out_invalid;
- 			rc = selinux_genfs_get_sid(dentry, sclass,
- 						   sbsec->flags, &sid);
- 			dput(dentry);
-@@ -1704,11 +1691,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- out:
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_PENDING) {
--		if (!sid || rc) {
-+		if (rc) {
- 			isec->initialized = LABEL_INVALID;
- 			goto out_unlock;
- 		}
+-	ctx = ezusb_alloc_ctx(upriv, EZUSB_RID_TX, 0);
+-	if (!ctx)
+-		goto busy;
 -
- 		isec->initialized = LABEL_INITIALIZED;
- 		isec->sid = sid;
- 	}
-@@ -1716,6 +1702,15 @@ out:
- out_unlock:
- 	spin_unlock(&isec->lock);
- 	return rc;
-+
-+out_invalid:
-+	spin_lock(&isec->lock);
-+	if (isec->initialized == LABEL_PENDING) {
-+		isec->initialized = LABEL_INVALID;
-+		isec->sid = sid;
-+	}
-+	spin_unlock(&isec->lock);
-+	return 0;
- }
+-	memset(ctx->buf, 0, BULK_BUF_SIZE);
+-	buf = ctx->buf->data;
+-
+ 	tx_control = 0;
  
- /* Convert a Linux signal to an access vector. */
+ 	err = orinoco_process_xmit_skb(skb, dev, priv, &tx_control,
+@@ -1251,6 +1244,13 @@ static netdev_tx_t ezusb_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	if (err)
+ 		goto drop;
+ 
++	ctx = ezusb_alloc_ctx(upriv, EZUSB_RID_TX, 0);
++	if (!ctx)
++		goto drop;
++
++	memset(ctx->buf, 0, BULK_BUF_SIZE);
++	buf = ctx->buf->data;
++
+ 	{
+ 		__le16 *tx_cntl = (__le16 *)buf;
+ 		*tx_cntl = cpu_to_le16(tx_control);
 -- 
 2.27.0
 
