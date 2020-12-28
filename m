@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D67DC2E3ED1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9462E42AA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504847AbgL1Oc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
+        id S2391634AbgL1N6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504230AbgL1ObN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D81E02242A;
-        Mon, 28 Dec 2020 14:30:31 +0000 (UTC)
+        id S2391624AbgL1N6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37A3F2078D;
+        Mon, 28 Dec 2020 13:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165832;
-        bh=5kUw6xINQzqCX/9KsdwsemcGkxbASYE+So9v/uQK7s8=;
+        s=korg; t=1609163859;
+        bh=JJ98nMTw0U+b1TISDdZ/VTbdI0leF7vvt/tfhi4+4g0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUUsU1IRvxN0A2VLV8rok3nsRy0fy2t4yjW2DDD/EtE/E4dwua51RijR6pyKmFhJs
-         +F90wRCI/aABlPrLBbNTHRxbtzxzFu5RZUEF+RDPqsIiPO4od63VK+atkTlAVvsh+c
-         qvtVTJApA/EeV5dhfMbtAJIA9TwfwUMY4WZoEvS8=
+        b=IJ4fAW4BVYWzRBUXQW8YPgIhIx8mn1S8ykj01Ta4tTJvoArN0M6cBqqam25w2ioGp
+         vMaqhCIHWYojkOaJ4XzFECDX2bMVDPZ6YqOIlGAe94TYExSczgVMWFsdlhQKb+gOyW
+         9a0k9/gsEyQYX1zXdrzsHKv+bnTeHr7e2wwAU7sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 670/717] scsi: lpfc: Fix invalid sleeping context in lpfc_sli4_nvmet_alloc()
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Dan Murphy <dmurphy@ti.com>, Stable@vger.kernel.org
+Subject: [PATCH 5.4 432/453] iio:adc:ti-ads124s08: Fix buffer being too long.
 Date:   Mon, 28 Dec 2020 13:51:08 +0100
-Message-Id: <20201228125053.085491795@linuxfoundation.org>
+Message-Id: <20201228124958.015381701@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 62e3a931db60daf94fdb3159d685a5bc6ad4d0cf upstream.
+commit b0bd27f02d768e3a861c4e6c27f8e369720e6c25 upstream.
 
-The following calltrace was seen:
+The buffer is expressed as a u32 array, yet the extra space for
+the s64 timestamp was expressed as sizeof(s64)/sizeof(u16).
+This will result in 2 extra u32 elements.
+Fix by dividing by sizeof(u32).
 
-BUG: sleeping function called from invalid context at mm/slab.h:494
-...
-Call Trace:
- dump_stack+0x9a/0xf0
- ___might_sleep.cold.63+0x13d/0x178
- slab_pre_alloc_hook+0x6a/0x90
- kmem_cache_alloc_trace+0x3a/0x2d0
- lpfc_sli4_nvmet_alloc+0x4c/0x280 [lpfc]
- lpfc_post_rq_buffer+0x2e7/0xa60 [lpfc]
- lpfc_sli4_hba_setup+0x6b4c/0xa4b0 [lpfc]
- lpfc_pci_probe_one_s4.isra.15+0x14f8/0x2280 [lpfc]
- lpfc_pci_probe_one+0x260/0x2880 [lpfc]
- local_pci_probe+0xd4/0x180
- work_for_cpu_fn+0x51/0xa0
- process_one_work+0x8f0/0x17b0
- worker_thread+0x536/0xb50
- kthread+0x30c/0x3d0
- ret_from_fork+0x3a/0x50
-
-A prior patch introduced a spin_lock_irqsave(hbalock) in the
-lpfc_post_rq_buffer() routine. Call trace is seen as the hbalock is held
-with interrupts disabled during a GFP_KERNEL allocation in
-lpfc_sli4_nvmet_alloc().
-
-Fix by reordering locking so that hbalock not held when calling
-sli4_nvmet_alloc() (aka rqb_buf_list()).
-
-Link: https://lore.kernel.org/r/20201020202719.54726-2-james.smart@broadcom.com
-Fixes: 411de511c694 ("scsi: lpfc: Fix RQ empty firmware trap")
-Cc: <stable@vger.kernel.org> # v4.17+
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: e717f8c6dfec ("iio: adc: Add the TI ads124s08 ADC code")
+Signed-off-by: Jonathan Cameron<Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Dan Murphy <dmurphy@ti.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-8-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/lpfc/lpfc_mem.c |    4 +---
- drivers/scsi/lpfc/lpfc_sli.c |   10 ++++++++--
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/iio/adc/ti-ads124s08.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/lpfc/lpfc_mem.c
-+++ b/drivers/scsi/lpfc/lpfc_mem.c
-@@ -588,8 +588,6 @@ lpfc_sli4_rb_free(struct lpfc_hba *phba,
-  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
-  * pool along a non-DMA-mapped container for it.
-  *
-- * Notes: Not interrupt-safe.  Must be called with no locks held.
-- *
-  * Returns:
-  *   pointer to HBQ on success
-  *   NULL on failure
-@@ -599,7 +597,7 @@ lpfc_sli4_nvmet_alloc(struct lpfc_hba *p
- {
- 	struct rqb_dmabuf *dma_buf;
+--- a/drivers/iio/adc/ti-ads124s08.c
++++ b/drivers/iio/adc/ti-ads124s08.c
+@@ -270,7 +270,7 @@ static irqreturn_t ads124s_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct ads124s_private *priv = iio_priv(indio_dev);
+-	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u16)];
++	u32 buffer[ADS124S08_MAX_CHANNELS + sizeof(s64)/sizeof(u32)];
+ 	int scan_index, j = 0;
+ 	int ret;
  
--	dma_buf = kzalloc(sizeof(struct rqb_dmabuf), GFP_KERNEL);
-+	dma_buf = kzalloc(sizeof(*dma_buf), GFP_KERNEL);
- 	if (!dma_buf)
- 		return NULL;
- 
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -7248,12 +7248,16 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
- 	struct rqb_dmabuf *rqb_buffer;
- 	LIST_HEAD(rqb_buf_list);
- 
--	spin_lock_irqsave(&phba->hbalock, flags);
- 	rqbp = hrq->rqbp;
- 	for (i = 0; i < count; i++) {
-+		spin_lock_irqsave(&phba->hbalock, flags);
- 		/* IF RQ is already full, don't bother */
--		if (rqbp->buffer_count + i >= rqbp->entry_count - 1)
-+		if (rqbp->buffer_count + i >= rqbp->entry_count - 1) {
-+			spin_unlock_irqrestore(&phba->hbalock, flags);
- 			break;
-+		}
-+		spin_unlock_irqrestore(&phba->hbalock, flags);
-+
- 		rqb_buffer = rqbp->rqb_alloc_buffer(phba);
- 		if (!rqb_buffer)
- 			break;
-@@ -7262,6 +7266,8 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
- 		rqb_buffer->idx = idx;
- 		list_add_tail(&rqb_buffer->hbuf.list, &rqb_buf_list);
- 	}
-+
-+	spin_lock_irqsave(&phba->hbalock, flags);
- 	while (!list_empty(&rqb_buf_list)) {
- 		list_remove_head(&rqb_buf_list, rqb_buffer, struct rqb_dmabuf,
- 				 hbuf.list);
 
 
