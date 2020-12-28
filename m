@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CCA2E3DCB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B00672E405A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436566AbgL1OUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55172 "EHLO mail.kernel.org"
+        id S2502336AbgL1Ouo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:50:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408005AbgL1OUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:20:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77251221F0;
-        Mon, 28 Dec 2020 14:19:48 +0000 (UTC)
+        id S2436590AbgL1OUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:20:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 707A4208B6;
+        Mon, 28 Dec 2020 14:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165189;
-        bh=WELlsGTqnbuhWH5PLeUYdwZwP852T/UdbZrQpX/kV+A=;
+        s=korg; t=1609165192;
+        bh=eDtlkN/uQRrSLj+hooNLEcFWfstvoopKkKILnGJFquA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVr4aFnMybxRaINKuXjIpjCY7DCS69havfty46QQ9nkUpmsSl7vZwZ4fwKabTFcEF
-         J4yXpfm+MlFSzfXJbyCmeae+KpQnHfdCYOfg8hhqIRdtecUkKZp97JXOAon4B5YgiJ
-         sLNKg9C3ml3n4cTbg8iCgXMJa7wMmf9XULvKcSOI=
+        b=SO1l2dkUBwOcaNsguv7n/nt8C7QkJyu+RNLrBbV68AH3NdDmuUWTgEuQyHVisKv56
+         lQPpO/krnNvmXofOL+2EbS2JovyTOHRCy8Z/29eI78Y6r+QDLMzYl5F+Oo+r07hG+2
+         5ss0wSDagd17rZUaVFM4cgZVjV7LIkb86sL51pNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 413/717] extcon: max77693: Fix modalias string
-Date:   Mon, 28 Dec 2020 13:46:51 +0100
-Message-Id: <20201228125040.757229975@linuxfoundation.org>
+Subject: [PATCH 5.10 414/717] crypto: atmel-i2c - select CONFIG_BITREVERSE
+Date:   Mon, 28 Dec 2020 13:46:52 +0100
+Message-Id: <20201228125040.805651764@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,32 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e1efdb604f5c9903a5d92ef42244009d3c04880f ]
+[ Upstream commit d33a23b0532d5d1b5b700e8641661261e7dbef61 ]
 
-The platform device driver name is "max77693-muic", so advertise it
-properly in the modalias string. This fixes automated module loading when
-this driver is compiled as a module.
+The bitreverse helper is almost always built into the kernel,
+but in a rare randconfig build it is possible to hit a case
+in which it is a loadable module while the atmel-i2c driver
+is built-in:
 
-Fixes: db1b9037424b ("extcon: MAX77693: Add extcon-max77693 driver to support Maxim MAX77693 MUIC device")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+arm-linux-gnueabi-ld: drivers/crypto/atmel-i2c.o: in function `atmel_i2c_checksum':
+atmel-i2c.c:(.text+0xa0): undefined reference to `byte_rev_table'
+
+Add one more 'select' statement to prevent this.
+
+Fixes: 11105693fa05 ("crypto: atmel-ecc - introduce Microchip / Atmel ECC driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-max77693.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon-max77693.c
-index 4a410fd2ea9ae..92af97e00828f 100644
---- a/drivers/extcon/extcon-max77693.c
-+++ b/drivers/extcon/extcon-max77693.c
-@@ -1277,4 +1277,4 @@ module_platform_driver(max77693_muic_driver);
- MODULE_DESCRIPTION("Maxim MAX77693 Extcon driver");
- MODULE_AUTHOR("Chanwoo Choi <cw00.choi@samsung.com>");
- MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:extcon-max77693");
-+MODULE_ALIAS("platform:max77693-muic");
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index 37da0c070a883..9d6645b1f0abe 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -548,6 +548,7 @@ config CRYPTO_DEV_ATMEL_SHA
+ 
+ config CRYPTO_DEV_ATMEL_I2C
+ 	tristate
++	select BITREVERSE
+ 
+ config CRYPTO_DEV_ATMEL_ECC
+ 	tristate "Support for Microchip / Atmel ECC hw accelerator"
 -- 
 2.27.0
 
