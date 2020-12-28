@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4611C2E38EA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C32B82E3F9C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733301AbgL1NQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:16:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45082 "EHLO mail.kernel.org"
+        id S2502275AbgL1O1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733276AbgL1NQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:16:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8796822582;
-        Mon, 28 Dec 2020 13:16:04 +0000 (UTC)
+        id S2502262AbgL1O1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:27:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C73C4207B2;
+        Mon, 28 Dec 2020 14:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161365;
-        bh=4pKSHHTAMsA8a3Dqhp1akLyFJ8DIxV3rVTcOKmonuZU=;
+        s=korg; t=1609165625;
+        bh=YUvDYKl1YaQMAKEZb9Jty3IKzOJ0k5YRbzPmcB8eCt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roo9X2L6+N4mAtxQWUOjm/advjQZ+WXhYiSJXsRLXk5RRBOmXc+qzlmI6e0OYeMBI
-         Gown46/KfV8eQphNbPBiF+d4i6DUGg8xXSMmaNNGEkgY0l6n/y2thV/Ky/1vvGzwBB
-         QUmHtLNVb80qYxtDaMWBW3Y0PDdrHpr1lw0Cwn58=
+        b=Oc1Nd6Bg2cjBDVwKcbXZHupxzfjs6MLEdyLJ/z3AX09Me1qJZR45wLeHkfGwyws4T
+         qcbaMcxPEkJVZ8xMxb7ZA/yyubUHRdiLGKqa5FREYvEBYygORpHmypfv+9/W7W+pQe
+         0mO/RIFhoBGJ9eVAj8uZdqxdB5+FKo9AnZl3vy/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 189/242] ALSA: pcm: oss: Fix a few more UBSAN fixes
-Date:   Mon, 28 Dec 2020 13:49:54 +0100
-Message-Id: <20201228124913.998531846@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 597/717] KVM: arm64: Introduce handling of AArch32 TTBCR2 traps
+Date:   Mon, 28 Dec 2020 13:49:55 +0100
+Message-Id: <20201228125049.515721353@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 11cb881bf075cea41092a20236ba708b18e1dbb2 upstream.
+commit ca4e514774930f30b66375a974b5edcbebaf0e7e upstream.
 
-There are a few places that call round{up|down}_pow_of_two() with the
-value zero, and this causes undefined behavior warnings.  Avoid
-calling those macros if such a nonsense value is passed; it's a minor
-optimization as well, as we handle it as either an error or a value to
-be skipped, instead.
+ARMv8.2 introduced TTBCR2, which shares TCR_EL1 with TTBCR.
+Gracefully handle traps to this register when HCR_EL2.TVM is set.
 
-Reported-by: syzbot+33ef0b6639a8d2d42b4c@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201218161730.26596-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/pcm_oss.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ arch/arm64/include/asm/kvm_host.h |    1 +
+ arch/arm64/kvm/sys_regs.c         |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -708,6 +708,8 @@ static int snd_pcm_oss_period_size(struc
- 
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
-+	if (!oss_buffer_size)
-+		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
- 		if (oss_buffer_size > runtime->oss.mmap_bytes)
-@@ -743,17 +745,21 @@ static int snd_pcm_oss_period_size(struc
- 
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	min_period_size *= oss_frame_size;
--	min_period_size = roundup_pow_of_two(min_period_size);
--	if (oss_period_size < min_period_size)
--		oss_period_size = min_period_size;
-+	if (min_period_size) {
-+		min_period_size *= oss_frame_size;
-+		min_period_size = roundup_pow_of_two(min_period_size);
-+		if (oss_period_size < min_period_size)
-+			oss_period_size = min_period_size;
-+	}
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	max_period_size *= oss_frame_size;
--	max_period_size = rounddown_pow_of_two(max_period_size);
--	if (oss_period_size > max_period_size)
--		oss_period_size = max_period_size;
-+	if (max_period_size) {
-+		max_period_size *= oss_frame_size;
-+		max_period_size = rounddown_pow_of_two(max_period_size);
-+		if (oss_period_size > max_period_size)
-+			oss_period_size = max_period_size;
-+	}
- 
- 	oss_periods = oss_buffer_size / oss_period_size;
- 
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -214,6 +214,7 @@ enum vcpu_sysreg {
+ #define c2_TTBR1	(TTBR1_EL1 * 2)	/* Translation Table Base Register 1 */
+ #define c2_TTBR1_high	(c2_TTBR1 + 1)	/* TTBR1 top 32 bits */
+ #define c2_TTBCR	(TCR_EL1 * 2)	/* Translation Table Base Control R. */
++#define c2_TTBCR2	(c2_TTBCR + 1)	/* Translation Table Base Control R. 2 */
+ #define c3_DACR		(DACR32_EL2 * 2)/* Domain Access Control Register */
+ #define c5_DFSR		(ESR_EL1 * 2)	/* Data Fault Status Register */
+ #define c5_IFSR		(IFSR32_EL2 * 2)/* Instruction Fault Status Register */
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1987,6 +1987,7 @@ static const struct sys_reg_desc cp15_re
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 0), access_vm_reg, NULL, c2_TTBR0 },
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 1), access_vm_reg, NULL, c2_TTBR1 },
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 2), access_vm_reg, NULL, c2_TTBCR },
++	{ Op1( 0), CRn( 2), CRm( 0), Op2( 3), access_vm_reg, NULL, c2_TTBCR2 },
+ 	{ Op1( 0), CRn( 3), CRm( 0), Op2( 0), access_vm_reg, NULL, c3_DACR },
+ 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 0), access_vm_reg, NULL, c5_DFSR },
+ 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 1), access_vm_reg, NULL, c5_IFSR },
 
 
