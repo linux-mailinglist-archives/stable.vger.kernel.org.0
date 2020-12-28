@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484782E38FE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E662E64FD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731570AbgL1NRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:17:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S2391132AbgL1NeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:34:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731554AbgL1NR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56A5820728;
-        Mon, 28 Dec 2020 13:17:12 +0000 (UTC)
+        id S2389123AbgL1NeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:34:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C112B20719;
+        Mon, 28 Dec 2020 13:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161433;
-        bh=InEEN5TLcf6aB59Y6YcfDqtxH4ByJKED1/yu9sBITZ8=;
+        s=korg; t=1609162420;
+        bh=isSAkKMBstPr7qdUrp9/6zGpLjU+b3IX4mEHBV7tq7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0VscWeWvj5hX0BS46hRvrawO4XHFKI+WSNI6em3UuEVYjaSQ2JlzFR+/coWmVS10
-         yzR5C5OaHPINnyt3JqcOO3sYzZ5rDQHMK/Cca+z1t/H0ooXcexdcNi2oUHnjCUdoRr
-         g8qIBFZSQPJjAHPLxxFJOsJOOmoa2bXHCuce1uxM=
+        b=UUymVS0ZsEXYwI2LWvobIsCxNpqPfoKLz81cMxVc7jSBo0uHSoHPe6pyaAfunhDbR
+         ZiKG/LyJ4bC6zLaG8w05BPF53PhVx7htAHijTji/dHuknEmNE8dalp8cVZKZdwpKV5
+         Yv3tgU5ecItWh30qLN28+wPYhNbDfeDzzLithaIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 212/242] powerpc/rtas: Fix typo of ibm,open-errinjct in RTAS filter
-Date:   Mon, 28 Dec 2020 13:50:17 +0100
-Message-Id: <20201228124915.107833640@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 299/346] KVM: arm64: Introduce handling of AArch32 TTBCR2 traps
+Date:   Mon, 28 Dec 2020 13:50:18 +0100
+Message-Id: <20201228124934.239041920@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit f10881a46f8914428110d110140a455c66bdf27b upstream.
+commit ca4e514774930f30b66375a974b5edcbebaf0e7e upstream.
 
-Commit bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
-introduced the following error when invoking the errinjct userspace
-tool:
+ARMv8.2 introduced TTBCR2, which shares TCR_EL1 with TTBCR.
+Gracefully handle traps to this register when HCR_EL2.TVM is set.
 
-  [root@ltcalpine2-lp5 librtas]# errinjct open
-  [327884.071171] sys_rtas: RTAS call blocked - exploit attempt?
-  [327884.071186] sys_rtas: token=0x26, nargs=0 (called by errinjct)
-  errinjct: Could not open RTAS error injection facility
-  errinjct: librtas: open: Unexpected I/O error
-
-The entry for ibm,open-errinjct in rtas_filter array has a typo where
-the "j" is omitted in the rtas call name. After fixing this typo the
-errinjct tool functions again as expected.
-
-  [root@ltcalpine2-lp5 linux]# errinjct open
-  RTAS error injection facility open, token = 1
-
-Fixes: bd59380c5ba4 ("powerpc/rtas: Restrict RTAS requests from userspace")
 Cc: stable@vger.kernel.org
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201208195434.8289-1-tyreld@linux.ibm.com
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/rtas.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/kvm_host.h |    1 +
+ arch/arm64/kvm/sys_regs.c         |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1094,7 +1094,7 @@ static struct rtas_filter rtas_filters[]
- 	{ "ibm,display-message", -1, 0, -1, -1, -1 },
- 	{ "ibm,errinjct", -1, 2, -1, -1, -1, 1024 },
- 	{ "ibm,close-errinjct", -1, -1, -1, -1, -1 },
--	{ "ibm,open-errinct", -1, -1, -1, -1, -1 },
-+	{ "ibm,open-errinjct", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-config-addr-info2", -1, -1, -1, -1, -1 },
- 	{ "ibm,get-dynamic-sensor-state", -1, 1, -1, -1, -1 },
- 	{ "ibm,get-indices", -1, 2, 3, -1, -1 },
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -165,6 +165,7 @@ enum vcpu_sysreg {
+ #define c2_TTBR1	(TTBR1_EL1 * 2)	/* Translation Table Base Register 1 */
+ #define c2_TTBR1_high	(c2_TTBR1 + 1)	/* TTBR1 top 32 bits */
+ #define c2_TTBCR	(TCR_EL1 * 2)	/* Translation Table Base Control R. */
++#define c2_TTBCR2	(c2_TTBCR + 1)	/* Translation Table Base Control R. 2 */
+ #define c3_DACR		(DACR32_EL2 * 2)/* Domain Access Control Register */
+ #define c5_DFSR		(ESR_EL1 * 2)	/* Data Fault Status Register */
+ #define c5_IFSR		(IFSR32_EL2 * 2)/* Instruction Fault Status Register */
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1661,6 +1661,7 @@ static const struct sys_reg_desc cp15_re
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 0), access_vm_reg, NULL, c2_TTBR0 },
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 1), access_vm_reg, NULL, c2_TTBR1 },
+ 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 2), access_vm_reg, NULL, c2_TTBCR },
++	{ Op1( 0), CRn( 2), CRm( 0), Op2( 3), access_vm_reg, NULL, c2_TTBCR2 },
+ 	{ Op1( 0), CRn( 3), CRm( 0), Op2( 0), access_vm_reg, NULL, c3_DACR },
+ 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 0), access_vm_reg, NULL, c5_DFSR },
+ 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 1), access_vm_reg, NULL, c5_IFSR },
 
 
