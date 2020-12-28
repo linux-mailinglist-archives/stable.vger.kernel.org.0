@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 398D02E4112
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8F12E3ABD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440047AbgL1ONG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:13:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47804 "EHLO mail.kernel.org"
+        id S2403966AbgL1Nkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440042AbgL1ONG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B2B3206E5;
-        Mon, 28 Dec 2020 14:12:25 +0000 (UTC)
+        id S2403959AbgL1Nkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D358D22582;
+        Mon, 28 Dec 2020 13:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164746;
-        bh=kMBpl3mriyFVPMZ7QTYRs14rMU1WvrC9xKG598VRvrA=;
+        s=korg; t=1609162798;
+        bh=Oa20sEDdC1IawuHUg97xmiqF754hoTkKfQRSveJVtAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eV7BkMnvtP8d4SfP9IZ08qcw8CKnIJHh8l7TvWX3kcnhObEMCpKNZRw3YM7/MJ1Hm
-         Qk6HebTVTfRkpIrpnMT/7FPJQsOmXw0FWlmC9ibYHRSaNeu+AqNWNfJMI7woCLpVBq
-         X+qsSwlqI0YFjdKuWOX7ya84j995CzdnWAOtItFM=
+        b=uWkJ5ybXF0uBhgGgaAN28pjpzBY/aXFsEDMIUqGIL7pGu8r77kFUXqfNjJqdH5jIz
+         I3m5gUGMMM3WfOpOHevO7kwjwhMHkQ6kAy++FbjRPmnh25yhZgvjXKsu+bprlxv4Oq
+         lxUdx+r1xAcgm+KNESV8vgn86lSMrpa0QsEHbuGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeongseok Kim <hyeongseok@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 276/717] f2fs: fix double free of unicode map
+Subject: [PATCH 5.4 038/453] kernel/cpu: add arch override for clear_tasks_mm_cpumask() mm handling
 Date:   Mon, 28 Dec 2020 13:44:34 +0100
-Message-Id: <20201228125034.239891216@linuxfoundation.org>
+Message-Id: <20201228124939.089523372@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyeongseok Kim <hyeongseok@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 89ff6005039a878afac87889fee748fa3f957c3a ]
+[ Upstream commit 8ff00399b153440c1c83e20c43020385b416415b ]
 
-In case of retrying fill_super with skip_recovery,
-s_encoding for casefold would not be loaded again even though it's
-already been freed because it's not NULL.
-Set NULL after free to prevent double freeing when unmount.
+powerpc/64s keeps a counter in the mm which counts bits set in
+mm_cpumask as well as other things. This means it can't use generic code
+to clear bits out of the mask and doesn't adjust the arch specific
+counter.
 
-Fixes: eca4873ee1b6 ("f2fs: Use generic casefolding support")
-Signed-off-by: Hyeongseok Kim <hyeongseok@gmail.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Add an arch override that allows powerpc/64s to use
+clear_tasks_mm_cpumask().
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201126102530.691335-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/cpu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 00eff2f518079..fef22e476c526 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -3918,6 +3918,7 @@ free_bio_info:
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 7527825ac7daa..fa0e5727b4d9c 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -815,6 +815,10 @@ void __init cpuhp_threads_init(void)
+ }
  
- #ifdef CONFIG_UNICODE
- 	utf8_unload(sb->s_encoding);
-+	sb->s_encoding = NULL;
- #endif
- free_options:
- #ifdef CONFIG_QUOTA
+ #ifdef CONFIG_HOTPLUG_CPU
++#ifndef arch_clear_mm_cpumask_cpu
++#define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
++#endif
++
+ /**
+  * clear_tasks_mm_cpumask - Safely clear tasks' mm_cpumask for a CPU
+  * @cpu: a CPU id
+@@ -850,7 +854,7 @@ void clear_tasks_mm_cpumask(int cpu)
+ 		t = find_lock_task_mm(p);
+ 		if (!t)
+ 			continue;
+-		cpumask_clear_cpu(cpu, mm_cpumask(t->mm));
++		arch_clear_mm_cpumask_cpu(cpu, t->mm);
+ 		task_unlock(t);
+ 	}
+ 	rcu_read_unlock();
 -- 
 2.27.0
 
