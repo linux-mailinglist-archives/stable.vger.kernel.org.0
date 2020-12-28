@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ABCD2E3832
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:07:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9652E3FA1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729594AbgL1NG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:06:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
+        id S2502391AbgL1O1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730841AbgL1NGO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:06:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7FB208BA;
-        Mon, 28 Dec 2020 13:05:33 +0000 (UTC)
+        id S2502387AbgL1O1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:27:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD0A2245C;
+        Mon, 28 Dec 2020 14:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160734;
-        bh=eptr1VOMUZ/Sxd/aF0suxtNHdsUVfmGFUTJTc3GzE6k=;
+        s=korg; t=1609165644;
+        bh=QeQsraruizf+1XRGJzaAFvFpyM4WlOZqvz9ypgycZlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/uYxL2/1UHVwn+Gj9Eo+spsZwzSQKAmh1JLxLngkQSH0fxrTXTmD/yPu/16mdap3
-         +yPjdlGufpsJVF6/B8I7VTWYYGMWYn+Xx2qGupjUXNpexNoVXxFDD0c/izu79kCfoq
-         +UyqrM1XlvqT9HsyGx7mTdSRAL5tes5Uy1v88DBM=
+        b=yot5ccyp3DhYt493SuBTPkjselHX+Hcc8uGcu3xzz0OTnct6q+rvnO4DZAjxyTU94
+         Wq6Q1MQVznL6q86lUHhNXhsrK+fJYHj36MpVxykqmnnvjx0DkXMh2qkOf8d2FrDLgu
+         7bHi6jlZ6ybYOc7LYe5GbkzAND51FCBJjGsd4U9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/175] net: korina: fix return value
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.10 577/717] cpuset: fix race between hotplug work and later CPU offline
 Date:   Mon, 28 Dec 2020 13:49:35 +0100
-Message-Id: <20201228124859.170110953@linuxfoundation.org>
+Message-Id: <20201228125048.564078778@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 7eb000bdbe7c7da811ef51942b356f6e819b13ba ]
+commit 406100f3da08066c00105165db8520bbc7694a36 upstream.
 
-The ndo_start_xmit() method must not attempt to free the skb to transmit
-when returning NETDEV_TX_BUSY. Therefore, make sure the
-korina_send_packet() function returns NETDEV_TX_OK when it frees a packet.
+One of our machines keeled over trying to rebuild the scheduler domains.
+Mainline produces the same splat:
 
-Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20201214220952.19935-1-vincent.stehle@laposte.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BUG: unable to handle page fault for address: 0000607f820054db
+  CPU: 2 PID: 149 Comm: kworker/1:1 Not tainted 5.10.0-rc1-master+ #6
+  Workqueue: events cpuset_hotplug_workfn
+  RIP: build_sched_domains
+  Call Trace:
+   partition_sched_domains_locked
+   rebuild_sched_domains_locked
+   cpuset_hotplug_workfn
+
+It happens with cgroup2 and exclusive cpusets only.  This reproducer
+triggers it on an 8-cpu vm and works most effectively with no
+preexisting child cgroups:
+
+  cd $UNIFIED_ROOT
+  mkdir cg1
+  echo 4-7 > cg1/cpuset.cpus
+  echo root > cg1/cpuset.cpus.partition
+
+  # with smt/control reading 'on',
+  echo off > /sys/devices/system/cpu/smt/control
+
+RIP maps to
+
+  sd->shared = *per_cpu_ptr(sdd->sds, sd_id);
+
+from sd_init().  sd_id is calculated earlier in the same function:
+
+  cpumask_and(sched_domain_span(sd), cpu_map, tl->mask(cpu));
+  sd_id = cpumask_first(sched_domain_span(sd));
+
+tl->mask(cpu), which reads cpu_sibling_map on x86, returns an empty mask
+and so cpumask_first() returns >= nr_cpu_ids, which leads to the bogus
+value from per_cpu_ptr() above.
+
+The problem is a race between cpuset_hotplug_workfn() and a later
+offline of CPU N.  cpuset_hotplug_workfn() updates the effective masks
+when N is still online, the offline clears N from cpu_sibling_map, and
+then the worker uses the stale effective masks that still have N to
+generate the scheduling domains, leading the worker to read
+N's empty cpu_sibling_map in sd_init().
+
+rebuild_sched_domains_locked() prevented the race during the cgroup2
+cpuset series up until the Fixes commit changed its check.  Make the
+check more robust so that it can detect an offline CPU in any exclusive
+cpuset's effective mask, not just the top one.
+
+Fixes: 0ccea8feb980 ("cpuset: Make generate_sched_domains() work with partition")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201112171711.639541-1-daniel.m.jordan@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/korina.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c |   33 ++++++++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index cd8895838a04c..4cf1fc89df3c6 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -216,7 +216,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
- 			dev_kfree_skb_any(skb);
- 			spin_unlock_irqrestore(&lp->lock, flags);
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -983,25 +983,48 @@ partition_and_rebuild_sched_domains(int
+  */
+ static void rebuild_sched_domains_locked(void)
+ {
++	struct cgroup_subsys_state *pos_css;
+ 	struct sched_domain_attr *attr;
+ 	cpumask_var_t *doms;
++	struct cpuset *cs;
+ 	int ndoms;
  
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
- 		}
- 	}
+ 	lockdep_assert_cpus_held();
+ 	percpu_rwsem_assert_held(&cpuset_rwsem);
  
--- 
-2.27.0
-
+ 	/*
+-	 * We have raced with CPU hotplug. Don't do anything to avoid
++	 * If we have raced with CPU hotplug, return early to avoid
+ 	 * passing doms with offlined cpu to partition_sched_domains().
+-	 * Anyways, hotplug work item will rebuild sched domains.
++	 * Anyways, cpuset_hotplug_workfn() will rebuild sched domains.
++	 *
++	 * With no CPUs in any subpartitions, top_cpuset's effective CPUs
++	 * should be the same as the active CPUs, so checking only top_cpuset
++	 * is enough to detect racing CPU offlines.
+ 	 */
+ 	if (!top_cpuset.nr_subparts_cpus &&
+ 	    !cpumask_equal(top_cpuset.effective_cpus, cpu_active_mask))
+ 		return;
+ 
+-	if (top_cpuset.nr_subparts_cpus &&
+-	   !cpumask_subset(top_cpuset.effective_cpus, cpu_active_mask))
+-		return;
++	/*
++	 * With subpartition CPUs, however, the effective CPUs of a partition
++	 * root should be only a subset of the active CPUs.  Since a CPU in any
++	 * partition root could be offlined, all must be checked.
++	 */
++	if (top_cpuset.nr_subparts_cpus) {
++		rcu_read_lock();
++		cpuset_for_each_descendant_pre(cs, pos_css, &top_cpuset) {
++			if (!is_partition_root(cs)) {
++				pos_css = css_rightmost_descendant(pos_css);
++				continue;
++			}
++			if (!cpumask_subset(cs->effective_cpus,
++					    cpu_active_mask)) {
++				rcu_read_unlock();
++				return;
++			}
++		}
++		rcu_read_unlock();
++	}
+ 
+ 	/* Generate domain masks and attrs */
+ 	ndoms = generate_sched_domains(&doms, &attr);
 
 
