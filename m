@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 660872E4322
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE742E4306
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392441AbgL1Pdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
+        id S2407430AbgL1NyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:54:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407420AbgL1NyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:54:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25C822072C;
-        Mon, 28 Dec 2020 13:54:01 +0000 (UTC)
+        id S2407426AbgL1NyV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1719E20731;
+        Mon, 28 Dec 2020 13:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163642;
-        bh=Vspq1NyWK5U2pSRKCUGnocBPT87eBJsEI+Tiu+wYztg=;
+        s=korg; t=1609163645;
+        bh=kDeyWoOTSIi6e2FPwv9y7pptJVbrcPiTxTn3WalqPg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qve5cvE51mPKPwZv0xEuaaKmv/KnnhiDJpl6Jy/MefiXyQOsLp8QWIVS2MljjrBcU
-         527fCIrxu1syteMxqzSAZG74wnud7DE/zCRUt881pB13+mpp30Bym4V2dN0g/tZoUQ
-         mdEKG+Wi/KeNyQ6vszXuBGJxSL3tvrUrpXU//DEU=
+        b=w9IF/0q0doE8TGH0c0UkBbFNgWo4Bi31PBo3ug7IQXB3hG+FEuqwv39tSimOf54WV
+         mPHTxKeMxy1zaIYslwGCjENrdSWIsWumM6RTb1t2UIaPdDrmshp/yTW1Gka/En1f3r
+         HslamLWf+76YmfC/5GuuoVsl5OPLl8iIMovC6i1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 357/453] perf/x86/intel: Fix rtm_abort_event encoding on Ice Lake
-Date:   Mon, 28 Dec 2020 13:49:53 +0100
-Message-Id: <20201228124954.386748663@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 358/453] powerpc/perf: Exclude kernel samples while counting events in user space.
+Date:   Mon, 28 Dec 2020 13:49:54 +0100
+Message-Id: <20201228124954.435901547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -39,39 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit 46b72e1bf4fc571da0c29c6fb3e5b2a2107a4c26 upstream.
+commit aa8e21c053d72b6639ea5a7f1d3a1d0209534c94 upstream.
 
-According to the event list from icelake_core_v1.09.json, the encoding
-of the RTM_RETIRED.ABORTED event on Ice Lake should be,
-    "EventCode": "0xc9",
-    "UMask": "0x04",
-    "EventName": "RTM_RETIRED.ABORTED",
+Perf event attritube supports exclude_kernel flag to avoid
+sampling/profiling in supervisor state (kernel). Based on this event
+attr flag, Monitor Mode Control Register bit is set to freeze on
+supervisor state. But sometimes (due to hardware limitation), Sampled
+Instruction Address Register (SIAR) locks on to kernel address even
+when freeze on supervisor is set. Patch here adds a check to drop
+those samples.
 
-Correct the wrong encoding.
-
-Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201125213720.15692-1-kan.liang@linux.intel.com
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1606289215-1433-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/events/intel/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/core-book3s.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -5058,7 +5058,7 @@ __init int intel_pmu_init(void)
- 		extra_skl_attr = skl_format_attr;
- 		mem_attr = icl_events_attrs;
- 		tsx_attr = icl_tsx_events_attrs;
--		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xca, .umask=0x02);
-+		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xc9, .umask=0x04);
- 		x86_pmu.lbr_pt_coexist = true;
- 		intel_pmu_pebs_data_source_skl(pmem);
- 		pr_cont("Icelake events, ");
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2090,6 +2090,16 @@ static void record_and_restart(struct pe
+ 	perf_event_update_userpage(event);
+ 
+ 	/*
++	 * Due to hardware limitation, sometimes SIAR could sample a kernel
++	 * address even when freeze on supervisor state (kernel) is set in
++	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
++	 * these cases.
++	 */
++	if (event->attr.exclude_kernel && record)
++		if (is_kernel_addr(mfspr(SPRN_SIAR)))
++			record = 0;
++
++	/*
+ 	 * Finally record data if requested.
+ 	 */
+ 	if (record) {
 
 
