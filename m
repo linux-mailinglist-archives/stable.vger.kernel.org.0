@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 460372E42B7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 427B42E3A6A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390723AbgL1P1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:27:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59544 "EHLO mail.kernel.org"
+        id S2390722AbgL1Ngi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:36:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407356AbgL1N5u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04CD6207B2;
-        Mon, 28 Dec 2020 13:57:08 +0000 (UTC)
+        id S2390716AbgL1Ngh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F07172063A;
+        Mon, 28 Dec 2020 13:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163829;
-        bh=0UXZ5Xu4lGwMTbbpkjoPkzPf6hBHmRGue10oF+aePmQ=;
+        s=korg; t=1609162556;
+        bh=6YHOCf7TsLyHBFqaLybcqHGXcXbfOBWS8yKwbrmuzfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/OJnK0GUgHoj9p6Vx1V5UqBILNdAEKSOVRzJ00kuHdgC/VUBR/uQNmUck4DMVwc6
-         dMHSacaFmn/YF8zmdpNJxyPeYG4Snorw9itKQrWN7VFtxVAXkP58V8cm2MlVXXzJ04
-         ZDoREXzMy/coSlF+yBg/12NrVfQb4SCDYs74lIjY=
+        b=JlWQEqGvrPYGnIOgu2Un671we+raDLih1WJgRyFYqjTh7+H6V9RXnEkJDlElazYqp
+         zF4uJ55x/36nHkv2Xi4nTnVc+EKY1qLQWpfcDaCG1T+mXOtOSDWL3u+cVKy3ADzagi
+         2sF/zS92wZOfk5rOrzWZG2m05GCd1FZyflHE3mLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 422/453] scsi: qla2xxx: Fix crash during driver load on big endian machines
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        Michael Kurth <mku@amazon.de>,
+        Pawel Wieczorkiewicz <wipawel@amazon.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 339/346] xen/xenbus: Allow watches discard events before queueing
 Date:   Mon, 28 Dec 2020 13:50:58 +0100
-Message-Id: <20201228124957.526710894@linuxfoundation.org>
+Message-Id: <20201228124936.144040423@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit 8de309e7299a00b3045fb274f82b326f356404f0 upstream.
+commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
 
-Crash stack:
-	[576544.715489] Unable to handle kernel paging request for data at address 0xd00000000f970000
-	[576544.715497] Faulting instruction address: 0xd00000000f880f64
-	[576544.715503] Oops: Kernel access of bad area, sig: 11 [#1]
-	[576544.715506] SMP NR_CPUS=2048 NUMA pSeries
-	:
-	[576544.715703] NIP [d00000000f880f64] .qla27xx_fwdt_template_valid+0x94/0x100 [qla2xxx]
-	[576544.715722] LR [d00000000f7952dc] .qla24xx_load_risc_flash+0x2fc/0x590 [qla2xxx]
-	[576544.715726] Call Trace:
-	[576544.715731] [c0000004d0ffb000] [c0000006fe02c350] 0xc0000006fe02c350 (unreliable)
-	[576544.715750] [c0000004d0ffb080] [d00000000f7952dc] .qla24xx_load_risc_flash+0x2fc/0x590 [qla2xxx]
-	[576544.715770] [c0000004d0ffb170] [d00000000f7aa034] .qla81xx_load_risc+0x84/0x1a0 [qla2xxx]
-	[576544.715789] [c0000004d0ffb210] [d00000000f79f7c8] .qla2x00_setup_chip+0xc8/0x910 [qla2xxx]
-	[576544.715808] [c0000004d0ffb300] [d00000000f7a631c] .qla2x00_initialize_adapter+0x4dc/0xb00 [qla2xxx]
-	[576544.715826] [c0000004d0ffb3e0] [d00000000f78ce28] .qla2x00_probe_one+0xf08/0x2200 [qla2xxx]
+If handling logics of watch events are slower than the events enqueue
+logic and the events can be created from the guests, the guests could
+trigger memory pressure by intensively inducing the events, because it
+will create a huge number of pending events that exhausting the memory.
 
-Link: https://lore.kernel.org/r/20201202132312.19966-8-njavali@marvell.com
-Fixes: f73cb695d3ec ("[SCSI] qla2xxx: Add support for ISP2071.")
+Fortunately, some watch events could be ignored, depending on its
+handler callback.  For example, if the callback has interest in only one
+single path, the watch wouldn't want multiple pending events.  Or, some
+watches could ignore events to same path.
+
+To let such watches to volutarily help avoiding the memory pressure
+situation, this commit introduces new watch callback, 'will_handle'.  If
+it is not NULL, it will be called for each new event just before
+enqueuing it.  Then, if the callback returns false, the event will be
+discarded.  No watch is using the callback for now, though.
+
+This is part of XSA-349
+
 Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reported-by: Michael Kurth <mku@amazon.de>
+Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_tmpl.c |    9 +++++----
- drivers/scsi/qla2xxx/qla_tmpl.h |    2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/xen-netback/xenbus.c   |    4 ++++
+ drivers/xen/xenbus/xenbus_client.c |    1 +
+ drivers/xen/xenbus/xenbus_xs.c     |    5 ++++-
+ include/xen/xenbus.h               |    7 +++++++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_tmpl.c
-+++ b/drivers/scsi/qla2xxx/qla_tmpl.c
-@@ -910,7 +910,8 @@ qla27xx_template_checksum(void *p, ulong
- static inline int
- qla27xx_verify_template_checksum(struct qla27xx_fwdt_template *tmp)
- {
--	return qla27xx_template_checksum(tmp, tmp->template_size) == 0;
-+	return qla27xx_template_checksum(tmp,
-+		le32_to_cpu(tmp->template_size)) == 0;
- }
- 
- static inline int
-@@ -926,7 +927,7 @@ qla27xx_execute_fwdt_template(struct scs
- 	ulong len = 0;
- 
- 	if (qla27xx_fwdt_template_valid(tmp)) {
--		len = tmp->template_size;
-+		len = le32_to_cpu(tmp->template_size);
- 		tmp = memcpy(buf, tmp, len);
- 		ql27xx_edit_template(vha, tmp);
- 		qla27xx_walk_template(vha, tmp, buf, &len);
-@@ -942,7 +943,7 @@ qla27xx_fwdt_calculate_dump_size(struct
- 	ulong len = 0;
- 
- 	if (qla27xx_fwdt_template_valid(tmp)) {
--		len = tmp->template_size;
-+		len = le32_to_cpu(tmp->template_size);
- 		qla27xx_walk_template(vha, tmp, NULL, &len);
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -777,12 +777,14 @@ static int xen_register_credit_watch(str
+ 		return -ENOMEM;
+ 	snprintf(node, maxlen, "%s/rate", dev->nodename);
+ 	vif->credit_watch.node = node;
++	vif->credit_watch.will_handle = NULL;
+ 	vif->credit_watch.callback = xen_net_rate_changed;
+ 	err = register_xenbus_watch(&vif->credit_watch);
+ 	if (err) {
+ 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
+ 		kfree(node);
+ 		vif->credit_watch.node = NULL;
++		vif->credit_watch.will_handle = NULL;
+ 		vif->credit_watch.callback = NULL;
  	}
+ 	return err;
+@@ -829,6 +831,7 @@ static int xen_register_mcast_ctrl_watch
+ 	snprintf(node, maxlen, "%s/request-multicast-control",
+ 		 dev->otherend);
+ 	vif->mcast_ctrl_watch.node = node;
++	vif->mcast_ctrl_watch.will_handle = NULL;
+ 	vif->mcast_ctrl_watch.callback = xen_mcast_ctrl_changed;
+ 	err = register_xenbus_watch(&vif->mcast_ctrl_watch);
+ 	if (err) {
+@@ -836,6 +839,7 @@ static int xen_register_mcast_ctrl_watch
+ 		       vif->mcast_ctrl_watch.node);
+ 		kfree(node);
+ 		vif->mcast_ctrl_watch.node = NULL;
++		vif->mcast_ctrl_watch.will_handle = NULL;
+ 		vif->mcast_ctrl_watch.callback = NULL;
+ 	}
+ 	return err;
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
+ 	int err;
  
-@@ -954,7 +955,7 @@ qla27xx_fwdt_template_size(void *p)
- {
- 	struct qla27xx_fwdt_template *tmp = p;
+ 	watch->node = path;
++	watch->will_handle = NULL;
+ 	watch->callback = callback;
  
--	return tmp->template_size;
-+	return le32_to_cpu(tmp->template_size);
- }
+ 	err = register_xenbus_watch(watch);
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -705,7 +705,10 @@ int xs_watch_msg(struct xs_watch_event *
  
- int
---- a/drivers/scsi/qla2xxx/qla_tmpl.h
-+++ b/drivers/scsi/qla2xxx/qla_tmpl.h
-@@ -13,7 +13,7 @@
- struct __packed qla27xx_fwdt_template {
- 	__le32 template_type;
- 	__le32 entry_offset;
--	uint32_t template_size;
-+	__le32 template_size;
- 	uint32_t count;		/* borrow field for running/residual count */
+ 	spin_lock(&watches_lock);
+ 	event->handle = find_watch(event->token);
+-	if (event->handle != NULL) {
++	if (event->handle != NULL &&
++			(!event->handle->will_handle ||
++			 event->handle->will_handle(event->handle,
++				 event->path, event->token))) {
+ 		spin_lock(&watch_events_lock);
+ 		list_add_tail(&event->list, &watch_events);
+ 		wake_up(&watch_events_waitq);
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -59,6 +59,13 @@ struct xenbus_watch
+ 	/* Path being watched. */
+ 	const char *node;
  
- 	__le32 entry_count;
++	/*
++	 * Called just before enqueing new event while a spinlock is held.
++	 * The event will be discarded if this callback returns false.
++	 */
++	bool (*will_handle)(struct xenbus_watch *,
++			      const char *path, const char *token);
++
+ 	/* Callback (executed in a process context with no locks held). */
+ 	void (*callback)(struct xenbus_watch *,
+ 			 const char *path, const char *token);
 
 
