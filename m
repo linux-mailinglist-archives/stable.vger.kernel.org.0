@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C812E3D53
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C791E2E64AE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440387AbgL1OOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:14:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
+        id S2407488AbgL1PxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:53:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440380AbgL1OOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:14:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEE2B207AB;
-        Mon, 28 Dec 2020 14:14:02 +0000 (UTC)
+        id S2391872AbgL1Nl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:41:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B7B22472;
+        Mon, 28 Dec 2020 13:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164843;
-        bh=6i/clCzBH3uarIZ3RgFanfUSn3WBwtaGc4nPJE7PGtc=;
+        s=korg; t=1609162846;
+        bh=zfiEHNH3EgVijgoxyD7rjWszXcQfbM/YjwI0AH/gbeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=os7bSPjEhY4+bGiCBP+HEMlmZRoZnovn2J7SQsKl/NmeWrZk+t8nvCEFRuFNcE9ru
-         8nbnTKL78StzaZT74ETzq34zy2HcPonIVt91SmY65s1paiPMx7s3ytFnKN/Bjv1ECW
-         k4gdwl6AXHpNpVwbJqLzTifxF8gKJgBCwrcm+a/M=
+        b=fG9FUenMcca95vAsXLbiJB/PQA1U7Bj/CRiGQJicyaPWV4WOIYD7f1bJx839DT8Xw
+         LbmURi5fCaoUtY3BWn7tey/9MmACpec/6pfZYiJj61ODSfQld1Dfz5zttcOOc2Wz8h
+         Z2IW3No6nUXrSmCIdvinxZ7ZaMCI7Sf29P9B1AUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Akash Asthana <akashast@codeaurora.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 319/717] drm/msm: a5xx: Make preemption reset case reentrant
-Date:   Mon, 28 Dec 2020 13:45:17 +0100
-Message-Id: <20201228125036.318013218@linuxfoundation.org>
+Subject: [PATCH 5.4 082/453] Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
+Date:   Mon, 28 Dec 2020 13:45:18 +0100
+Message-Id: <20201228124941.183020708@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 7cc29fcdfcc8784e97c5151c848e193800ec79ac ]
+[ Upstream commit 9cb4c67d7717135d6f4600a49ab07b470ea4ee2f ]
 
-nr_rings is reset to 1, but when this function is called for a second
-(and third!) time nr_rings > 1 is false, thus the else case is entered
-to set up a buffer for the RPTR shadow and consequently written to
-RB_RPTR_ADDR, hanging platforms without WHERE_AM_I firmware support.
+This reverts commit 02b9aec59243c6240fc42884acc958602146ddf6.
 
-Restructure the condition in such a way that shadow buffer setup only
-ever happens when has_whereami is true; otherwise preemption is only
-finalized when the number of ring buffers has not been reset to 1 yet.
+As talked about in the patch ("soc: qcom: geni: More properly switch
+to DMA mode"), swapping the order of geni_se_setup_m_cmd() and
+geni_se_xx_dma_prep() can sometimes cause corrupted transfers.  Thus
+we traded one problem for another.  Now that we've debugged the
+problem further and fixed the geni helper functions to more disable
+FIFO interrupts when we move to DMA mode we can revert it and end up
+with (hopefully) zero problems!
 
-Fixes: 8907afb476ac ("drm/msm: Allow a5xx to mark the RPTR shadow as privileged")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Tested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+To be explicit, the patch ("soc: qcom: geni: More properly switch
+to DMA mode") is a prerequisite for this one.
+
+Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Akash Asthana <akashast@codeaurora.org>
+Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20201013142448.v2.2.I7b22281453b8a18ab16ef2bfd4c641fb1cc6a92c@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index 8aa08976aad17..69ed2c6094665 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -755,12 +755,8 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
- 	gpu_write(gpu, REG_A5XX_CP_RB_CNTL,
- 		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index aafc76ee93e02..17abf60c94aeb 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -368,6 +368,7 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
  
--	/* Disable preemption if WHERE_AM_I isn't available */
--	if (!a5xx_gpu->has_whereami && gpu->nr_rings > 1) {
--		a5xx_preempt_fini(gpu);
--		gpu->nr_rings = 1;
--	} else {
--		/* Create a privileged buffer for the RPTR shadow */
-+	/* Create a privileged buffer for the RPTR shadow */
-+	if (a5xx_gpu->has_whereami) {
- 		if (!a5xx_gpu->shadow_bo) {
- 			a5xx_gpu->shadow = msm_gem_kernel_new(gpu->dev,
- 				sizeof(u32) * gpu->nr_rings,
-@@ -774,6 +770,10 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
+ 	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
++	geni_se_setup_m_cmd(se, I2C_READ, m_param);
  
- 		gpu_write64(gpu, REG_A5XX_CP_RB_RPTR_ADDR,
- 			REG_A5XX_CP_RB_RPTR_ADDR_HI, shadowptr(a5xx_gpu, gpu->rb[0]));
-+	} else if (gpu->nr_rings > 1) {
-+		/* Disable preemption if WHERE_AM_I isn't available */
-+		a5xx_preempt_fini(gpu);
-+		gpu->nr_rings = 1;
+ 	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+@@ -375,8 +376,6 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		dma_buf = NULL;
  	}
  
- 	a5xx_preempt_hw_init(gpu);
+-	geni_se_setup_m_cmd(se, I2C_READ, m_param);
+-
+ 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
+ 	if (!time_left)
+ 		geni_i2c_abort_xfer(gi2c);
+@@ -410,6 +409,7 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+ 
+ 	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
++	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
+ 
+ 	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
+ 		geni_se_select_mode(se, GENI_SE_FIFO);
+@@ -417,8 +417,6 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 		dma_buf = NULL;
+ 	}
+ 
+-	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
+-
+ 	if (!dma_buf) /* Get FIFO IRQ */
+ 		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
+ 
 -- 
 2.27.0
 
