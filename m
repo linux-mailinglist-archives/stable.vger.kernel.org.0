@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFCC2E6659
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D252E6673
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733080AbgL1NTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:19:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48458 "EHLO mail.kernel.org"
+        id S1732266AbgL1QMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:12:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733006AbgL1NTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:19:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D48F22583;
-        Mon, 28 Dec 2020 13:19:11 +0000 (UTC)
+        id S2387549AbgL1NUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:20:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD82C229EF;
+        Mon, 28 Dec 2020 13:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161552;
-        bh=C3YwL2f4xogoUOPxv3liD/thayajrduA9lFFDYXaz+E=;
+        s=korg; t=1609161584;
+        bh=cp5yAWSsmGzTB6HvGKaK6i/WsFk3L5RGH48JWKlLltg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbJ2DTMmBnrYbWLCmyboBemxCiQtDgoY0I6GMs8grdDKvnb+ubuyynw6xvAsK1kwm
-         IifAGCrV/OTZjSFqcmNZWJW1dzAKfP5qGkGu0XIxDEOaMX7csl0I6Bp1cL/NeWly9g
-         xFoREWYCnP3ib7bESx8sHSyhOUnPciXfTpOyaUes=
+        b=yWBnzTXr7SuMZxsLiBP6kqRo6BWxIVp7c/7yNj6wCOh6tvsneMQHdZ0xSVrgipNYp
+         qxQn7w3tp6lsgx7yjxC7QwcHbI8MmXjgr97BLJXmD4592gT75tMH+iWFMfiiXd59/8
+         dwTyjSy0+dY9mllTjDGhbogFX20fRdnADh+56nq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.19 001/346] Kbuild: do not emit debug info for assembly with LLVM_IAS=1
-Date:   Mon, 28 Dec 2020 13:45:20 +0100
-Message-Id: <20201228124919.821830406@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 003/346] spi: bcm2835aux: Fix use-after-free on unbind
+Date:   Mon, 28 Dec 2020 13:45:22 +0100
+Message-Id: <20201228124919.920683667@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,54 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit b8a9092330da2030496ff357272f342eb970d51b upstream.
+[ Upstream commit e13ee6cc4781edaf8c7321bee19217e3702ed481 ]
 
-Clang's integrated assembler produces the warning for assembly files:
+bcm2835aux_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-warning: DWARF2 only supports one section per compilation unit
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-If -Wa,-gdwarf-* is unspecified, then debug info is not emitted for
-assembly sources (it is still emitted for C sources).  This will be
-re-enabled for newer DWARF versions in a follow up patch.
-
-Enables defconfig+CONFIG_DEBUG_INFO to build cleanly with
-LLVM=1 LLVM_IAS=1 for x86_64 and arm64.
-
-Cc: <stable@vger.kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/716
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Dmitry Golovin <dima@golovin.in>
-Suggested-by: Nathan Chancellor <natechancellor@gmail.com>
-Suggested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nd: backport to avoid conflicts from:
-  commit 10e68b02c861 ("Makefile: support compressed debug info")
-  commit 7b16994437c7 ("Makefile: Improve compressed debug info support detection")
-  commit 695afd3d7d58 ("kbuild: Simplify DEBUG_INFO Kconfig handling")]
+Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-bcm2835aux.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -745,8 +745,11 @@ KBUILD_CFLAGS   += $(call cc-option, -gs
- else
- KBUILD_CFLAGS	+= -g
- endif
-+ifneq ($(LLVM_IAS),1)
- KBUILD_AFLAGS	+= -Wa,-gdwarf-2
- endif
-+endif
-+
- ifdef CONFIG_DEBUG_INFO_DWARF4
- KBUILD_CFLAGS	+= $(call cc-option, -gdwarf-4,)
- endif
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -407,7 +407,7 @@ static int bcm2835aux_spi_probe(struct p
+ 	unsigned long clk_hz;
+ 	int err;
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
+ 		return -ENOMEM;
+@@ -439,30 +439,26 @@ static int bcm2835aux_spi_probe(struct p
+ 	/* the main area */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
+ 
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if ((!bs->clk) || (IS_ERR(bs->clk))) {
+-		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return PTR_ERR(bs->clk);
+ 	}
+ 
+ 	bs->irq = platform_get_irq(pdev, 0);
+ 	if (bs->irq <= 0) {
+ 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
++		return bs->irq ? bs->irq : -ENODEV;
+ 	}
+ 
+ 	/* this also enables the HW block */
+ 	err = clk_prepare_enable(bs->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	/* just checking if the clock returns a sane value */
+@@ -495,8 +491,6 @@ static int bcm2835aux_spi_probe(struct p
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
+-	spi_master_put(master);
+ 	return err;
+ }
+ 
 
 
