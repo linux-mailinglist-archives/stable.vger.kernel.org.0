@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E413D2E3F20
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D552E3F0E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504992AbgL1Ofb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:35:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41388 "EHLO mail.kernel.org"
+        id S2504863AbgL1OdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504977AbgL1OdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:33:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A945922B47;
-        Mon, 28 Dec 2020 14:32:40 +0000 (UTC)
+        id S2504854AbgL1Oc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8860F20739;
+        Mon, 28 Dec 2020 14:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165961;
-        bh=mTzp8PxnVwQDWI2mXYN5jopzxNsmJpph0lSvYFAynyk=;
+        s=korg; t=1609165964;
+        bh=gRy94s2sbUg0C1X15+6rKhNBxvvc770rBBVwx5EyJ28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlnAj/tiPpXiws91HUkD6PtbF7IwQ6w/B1li8ep0DfA5DFlR6aj2E2ISgWAtqooam
-         M+1tP3QDTu87Rv5EEk2TMoxne93cvFkEM16ea2TrXU3WloDvqduNHrnncYe2AB+Dic
-         E2jxtytnwfxG78S/vFFue6IRbN7U4XUSeTF62RjM=
+        b=lhITvIEDAIu2cmrAVOjQbq7Tr80DHypZVZcavNbTaewIKiJEosKWpE9YvEL6kGd9n
+         Lw7hSi7g2LVCNhiKDtzCx/apdQYcNe0jrpgsYjoKsLeCVEgN39+zA2m8Sk3VUyXIM0
+         yHrjU7RL24FELfzEaWmLpfTEXDLWIV1x56ZkkTPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 709/717] of: fix linker-section match-table corruption
-Date:   Mon, 28 Dec 2020 13:51:47 +0100
-Message-Id: <20201228125054.960692969@linuxfoundation.org>
+        stable@vger.kernel.org, Jubin Zhong <zhongjubin@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 710/717] PCI: Fix pci_slot_release() NULL pointer dereference
+Date:   Mon, 28 Dec 2020 13:51:48 +0100
+Message-Id: <20201228125055.010697113@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -38,63 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jubin Zhong <zhongjubin@huawei.com>
 
-commit 5812b32e01c6d86ba7a84110702b46d8a8531fe9 upstream.
+commit 4684709bf81a2d98152ed6b610e3d5c403f9bced upstream.
 
-Specify type alignment when declaring linker-section match-table entries
-to prevent gcc from increasing alignment and corrupting the various
-tables with padding (e.g. timers, irqchips, clocks, reserved memory).
+If kobject_init_and_add() fails, pci_slot_release() is called to delete
+slot->list from parent->slots.  But slot->list hasn't been initialized
+yet, so we dereference a NULL pointer:
 
-This is specifically needed on x86 where gcc (typically) aligns larger
-objects like struct of_device_id with static extent on 32-byte
-boundaries which at best prevents matching on anything but the first
-entry. Specifying alignment when declaring variables suppresses this
-optimisation.
+  Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+  ...
+  CPU: 10 PID: 1 Comm: swapper/0 Not tainted 4.4.240 #197
+  task: ffffeb398a45ef10 task.stack: ffffeb398a470000
+  PC is at __list_del_entry_valid+0x5c/0xb0
+  LR is at pci_slot_release+0x84/0xe4
+  ...
+  __list_del_entry_valid+0x5c/0xb0
+  pci_slot_release+0x84/0xe4
+  kobject_put+0x184/0x1c4
+  pci_create_slot+0x17c/0x1b4
+  __pci_hp_initialize+0x68/0xa4
+  pciehp_probe+0x1a4/0x2fc
+  pcie_port_probe_service+0x58/0x84
+  driver_probe_device+0x320/0x470
 
-Here's a 64-bit example where all entries are corrupt as 16 bytes of
-padding has been inserted before the first entry:
+Initialize slot->list before calling kobject_init_and_add() to avoid this.
 
-	ffffffff8266b4b0 D __clk_of_table
-	ffffffff8266b4c0 d __of_table_fixed_factor_clk
-	ffffffff8266b5a0 d __of_table_fixed_clk
-	ffffffff8266b680 d __clk_of_table_sentinel
-
-And here's a 32-bit example where the 8-byte-aligned table happens to be
-placed on a 32-byte boundary so that all but the first entry are corrupt
-due to the 28 bytes of padding inserted between entries:
-
-	812b3ec0 D __irqchip_of_table
-	812b3ec0 d __of_table_irqchip1
-	812b3fa0 d __of_table_irqchip2
-	812b4080 d __of_table_irqchip3
-	812b4160 d irqchip_of_match_end
-
-Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
-alignment), and on arm using gcc-7.2.
-
-Note that there are no in-tree users of these tables on x86 currently
-(even if they are included in the image).
-
-Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
-Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
-Cc: stable <stable@vger.kernel.org>     # 3.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
+Fixes: 8a94644b440e ("PCI: Fix pci_create_slot() reference count leak")
+Link: https://lore.kernel.org/r/1606876422-117457-1-git-send-email-zhongjubin@huawei.com
+Signed-off-by: Jubin Zhong <zhongjubin@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v5.9+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/of.h |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1300,6 +1300,7 @@ static inline int of_get_available_child
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section("__" #table "_of_table")		\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
+---
+ drivers/pci/slot.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/pci/slot.c
++++ b/drivers/pci/slot.c
+@@ -272,6 +272,9 @@ placeholder:
+ 		goto err;
+ 	}
+ 
++	INIT_LIST_HEAD(&slot->list);
++	list_add(&slot->list, &parent->slots);
++
+ 	err = kobject_init_and_add(&slot->kobj, &pci_slot_ktype, NULL,
+ 				   "%s", slot_name);
+ 	if (err) {
+@@ -279,9 +282,6 @@ placeholder:
+ 		goto err;
+ 	}
+ 
+-	INIT_LIST_HEAD(&slot->list);
+-	list_add(&slot->list, &parent->slots);
+-
+ 	down_read(&pci_bus_sem);
+ 	list_for_each_entry(dev, &parent->devices, bus_list)
+ 		if (PCI_SLOT(dev->devfn) == slot_nr)
 
 
