@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4BCC2E3FA9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 276C32E3BC2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506347AbgL1Omu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35058 "EHLO mail.kernel.org"
+        id S2404999AbgL1Nyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:54:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502297AbgL1O12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFCCE22B47;
-        Mon, 28 Dec 2020 14:27:12 +0000 (UTC)
+        id S2407435AbgL1Nyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C02682078D;
+        Mon, 28 Dec 2020 13:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165633;
-        bh=SMCuzkho3iONEHA+ypwyjYM27vyyE6C+l++XRAgkjs8=;
+        s=korg; t=1609163657;
+        bh=sPag3cLLCt1QnPUmMbo5zJk1ZDJ1i9W8wMeUdoZBYp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQGJFesucOBxMnJQpF+i0K3Yt9cZ2hFpwwIO7iVdENVZ5tpd+OMi0I0V7kiil0gdO
-         p1LaqzGlEXc89n/CPXvHhcpX927l7TiJU3y70Pfb3Oex1XmqhnqfJrO8Ux+7wk/X4T
-         RkM415hnWqWrRoI3X1yuR2OSEfaQpJSIcNe9+l28=
+        b=jUc7t31l2Mgs+BfrcO/skwZ3xr6FJR0IKBFVougEq4ObjJsTtkOkfiAP+kbOM9BH5
+         TvctXDtOjjGR/tyiOLEN1l1c30q0fMGXRkbElXYs1EjJqJB4cVam2iCetFATf2pXCN
+         hHTlFo/0ygzKtBs83hYBDJcO5C5cl9D5908B2wN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Steev Klimaszewski <steev@kali.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 600/717] iommu/arm-smmu: Allow implementation specific write_s2cr
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 362/453] EDAC/amd64: Fix PCI component registration
 Date:   Mon, 28 Dec 2020 13:49:58 +0100
-Message-Id: <20201228125049.652618236@linuxfoundation.org>
+Message-Id: <20201228124954.621781330@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +38,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Borislav Petkov <bp@suse.de>
 
-commit 56b75b51ed6d5e7bffda59440404409bca2dff00 upstream.
+commit 706657b1febf446a9ba37dc51b89f46604f57ee9 upstream.
 
-The firmware found in some Qualcomm platforms intercepts writes to the
-S2CR register in order to replace the BYPASS type with FAULT. Further
-more it treats faults at this level as catastrophic and restarts the
-device.
+In order to setup its PCI component, the driver needs any node private
+instance in order to get a reference to the PCI device and hand that
+into edac_pci_create_generic_ctl(). For convenience, it uses the 0th
+memory controller descriptor under the assumption that if any, the 0th
+will be always present.
 
-Add support for providing implementation specific versions of the S2CR
-write function, to allow the Qualcomm driver to work around this
-behavior.
+However, this assumption goes wrong when the 0th node doesn't have
+memory and the driver doesn't initialize an instance for it:
+
+  EDAC amd64: F17h detected (node 0).
+  ...
+  EDAC amd64: Node 0: No DIMMs detected.
+
+But looking up node instances is not really needed - all one needs is
+the pointer to the proper device which gets discovered during instance
+init.
+
+So stash that pointer into a variable and use it when setting up the
+EDAC PCI component.
+
+Clear that variable when the driver needs to unwind due to some
+instances failing init to avoid any registration imbalance.
 
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20201019182323.3162386-2-bjorn.andersson@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20201122150815.13808-1-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c |   13 ++++++++++---
- drivers/iommu/arm/arm-smmu/arm-smmu.h |    1 +
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ drivers/edac/amd64_edac.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -929,9 +929,16 @@ static void arm_smmu_write_smr(struct ar
- static void arm_smmu_write_s2cr(struct arm_smmu_device *smmu, int idx)
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -22,6 +22,9 @@ static struct ecc_settings **ecc_stngs;
+ /* Number of Unified Memory Controllers */
+ static u8 num_umcs;
+ 
++/* Device for the PCI component */
++static struct device *pci_ctl_dev;
++
+ /*
+  * Valid scrub rates for the K8 hardware memory scrubber. We map the scrubbing
+  * bandwidth to a valid bit pattern. The 'set' operation finds the 'matching-
+@@ -2672,6 +2675,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
+ 			return -ENODEV;
+ 		}
+ 
++		if (!pci_ctl_dev)
++			pci_ctl_dev = &pvt->F0->dev;
++
+ 		edac_dbg(1, "F0: %s\n", pci_name(pvt->F0));
+ 		edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
+ 		edac_dbg(1, "F6: %s\n", pci_name(pvt->F6));
+@@ -2696,6 +2702,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
+ 		return -ENODEV;
+ 	}
+ 
++	if (!pci_ctl_dev)
++		pci_ctl_dev = &pvt->F2->dev;
++
+ 	edac_dbg(1, "F1: %s\n", pci_name(pvt->F1));
+ 	edac_dbg(1, "F2: %s\n", pci_name(pvt->F2));
+ 	edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
+@@ -3626,21 +3635,10 @@ static void remove_one_instance(unsigned
+ 
+ static void setup_pci_device(void)
  {
- 	struct arm_smmu_s2cr *s2cr = smmu->s2crs + idx;
--	u32 reg = FIELD_PREP(ARM_SMMU_S2CR_TYPE, s2cr->type) |
--		  FIELD_PREP(ARM_SMMU_S2CR_CBNDX, s2cr->cbndx) |
--		  FIELD_PREP(ARM_SMMU_S2CR_PRIVCFG, s2cr->privcfg);
-+	u32 reg;
-+
-+	if (smmu->impl && smmu->impl->write_s2cr) {
-+		smmu->impl->write_s2cr(smmu, idx);
-+		return;
-+	}
-+
-+	reg = FIELD_PREP(ARM_SMMU_S2CR_TYPE, s2cr->type) |
-+	      FIELD_PREP(ARM_SMMU_S2CR_CBNDX, s2cr->cbndx) |
-+	      FIELD_PREP(ARM_SMMU_S2CR_PRIVCFG, s2cr->privcfg);
+-	struct mem_ctl_info *mci;
+-	struct amd64_pvt *pvt;
+-
+ 	if (pci_ctl)
+ 		return;
  
- 	if (smmu->features & ARM_SMMU_FEAT_EXIDS && smmu->smrs &&
- 	    smmu->smrs[idx].valid)
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.h
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.h
-@@ -436,6 +436,7 @@ struct arm_smmu_impl {
- 	int (*alloc_context_bank)(struct arm_smmu_domain *smmu_domain,
- 				  struct arm_smmu_device *smmu,
- 				  struct device *dev, int start);
-+	void (*write_s2cr)(struct arm_smmu_device *smmu, int idx);
- };
+-	mci = edac_mc_find(0);
+-	if (!mci)
+-		return;
+-
+-	pvt = mci->pvt_info;
+-	if (pvt->umc)
+-		pci_ctl = edac_pci_create_generic_ctl(&pvt->F0->dev, EDAC_MOD_STR);
+-	else
+-		pci_ctl = edac_pci_create_generic_ctl(&pvt->F2->dev, EDAC_MOD_STR);
++	pci_ctl = edac_pci_create_generic_ctl(pci_ctl_dev, EDAC_MOD_STR);
+ 	if (!pci_ctl) {
+ 		pr_warn("%s(): Unable to create PCI control\n", __func__);
+ 		pr_warn("%s(): PCI error report via EDAC not set\n", __func__);
+@@ -3723,6 +3721,8 @@ static int __init amd64_edac_init(void)
+ 	return 0;
  
- #define INVALID_SMENDX			-1
+ err_pci:
++	pci_ctl_dev = NULL;
++
+ 	msrs_free(msrs);
+ 	msrs = NULL;
+ 
+@@ -3754,6 +3754,8 @@ static void __exit amd64_edac_exit(void)
+ 	kfree(ecc_stngs);
+ 	ecc_stngs = NULL;
+ 
++	pci_ctl_dev = NULL;
++
+ 	msrs_free(msrs);
+ 	msrs = NULL;
+ }
 
 
