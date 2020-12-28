@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22AEA2E642C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CCA12E3961
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632821AbgL1PsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:48:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
+        id S2387835AbgL1NWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:22:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404012AbgL1Nmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81985207C9;
-        Mon, 28 Dec 2020 13:42:13 +0000 (UTC)
+        id S2387633AbgL1NUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:20:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A3A422B3A;
+        Mon, 28 Dec 2020 13:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162934;
-        bh=mBBkQV3NfvSkS5Jk6QXjpzw4M/wS0DwkY6cMxo2LbQ4=;
+        s=korg; t=1609161611;
+        bh=psMJmn0U8LBYlZGjFhl2S4Bx8FPMsq6TB8tL321W/Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zjebaQ2VvavJa9WKnpDDn9RBPfg+izwa6rb9J9dAbPM8NstsaV+dO1uah9ejZJpGj
-         DugahCNI9k8FJEhaa/1DoHP8uIgYbJ4T5n9ssGqGeV35d9yHQCQ7TmHGQlITgUHyG0
-         rXl68/jSvjxrqZld1X4/caEUT4r83Yw8LWK1ULDY=
+        b=tZNuGH/t/kxvZFGoJet1UgbW0+Vjy3D/YwwQoc8KVcuNlG4sJ7c5G2VPorwkBqWeu
+         Ofb0fjpIboUScJIkrVrf6bJxr0ZM0LEp8fnMw6l3Kl2ngQQ1qGU1i5c1LjlT87HbsE
+         5VH8FZOkmk5OGGicT5SzV9RG7b0vNx90cJikpaL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anmol Karn <anmol.karan123@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+0bef568258653cff272f@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 112/453] Bluetooth: Fix null pointer dereference in hci_event_packet()
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 029/346] net: stmmac: free tx skb buffer in stmmac_resume()
 Date:   Mon, 28 Dec 2020 13:45:48 +0100
-Message-Id: <20201228124942.601892327@linuxfoundation.org>
+Message-Id: <20201228124921.187857361@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anmol Karn <anmol.karan123@gmail.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 6dfccd13db2ff2b709ef60a50163925d477549aa ]
+[ Upstream commit 4ec236c7c51f89abb0224a4da4a6b77f9beb6600 ]
 
-AMP_MGR is getting derefernced in hci_phy_link_complete_evt(), when called
-from hci_event_packet() and there is a possibility, that hcon->amp_mgr may
-not be found when accessing after initialization of hcon.
+When do suspend/resume test, there have WARN_ON() log dump from
+stmmac_xmit() funciton, the code logic:
+	entry = tx_q->cur_tx;
+	first_entry = entry;
+	WARN_ON(tx_q->tx_skbuff[first_entry]);
 
-- net/bluetooth/hci_event.c:4945
-The bug seems to get triggered in this line:
+In normal case, tx_q->tx_skbuff[txq->cur_tx] should be NULL because
+the skb should be handled and freed in stmmac_tx_clean().
 
-bredr_hcon = hcon->amp_mgr->l2cap_conn->hcon;
+But stmmac_resume() reset queue parameters like below, skb buffers
+may not be freed.
+	tx_q->cur_tx = 0;
+	tx_q->dirty_tx = 0;
 
-Fix it by adding a NULL check for the hcon->amp_mgr before checking the ev-status.
+So free tx skb buffer in stmmac_resume() to avoid warning and
+memory leak.
 
-Fixes: d5e911928bd8 ("Bluetooth: AMP: Process Physical Link Complete evt")
-Reported-and-tested-by: syzbot+0bef568258653cff272f@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=0bef568258653cff272f
-Signed-off-by: Anmol Karn <anmol.karan123@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+log:
+[   46.139824] ------------[ cut here ]------------
+[   46.144453] WARNING: CPU: 0 PID: 0 at drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:3235 stmmac_xmit+0x7a0/0x9d0
+[   46.154969] Modules linked in: crct10dif_ce vvcam(O) flexcan can_dev
+[   46.161328] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G           O      5.4.24-2.1.0+g2ad925d15481 #1
+[   46.170369] Hardware name: NXP i.MX8MPlus EVK board (DT)
+[   46.175677] pstate: 80000005 (Nzcv daif -PAN -UAO)
+[   46.180465] pc : stmmac_xmit+0x7a0/0x9d0
+[   46.184387] lr : dev_hard_start_xmit+0x94/0x158
+[   46.188913] sp : ffff800010003cc0
+[   46.192224] x29: ffff800010003cc0 x28: ffff000177e2a100
+[   46.197533] x27: ffff000176ef0840 x26: ffff000176ef0090
+[   46.202842] x25: 0000000000000000 x24: 0000000000000000
+[   46.208151] x23: 0000000000000003 x22: ffff8000119ddd30
+[   46.213460] x21: ffff00017636f000 x20: ffff000176ef0cc0
+[   46.218769] x19: 0000000000000003 x18: 0000000000000000
+[   46.224078] x17: 0000000000000000 x16: 0000000000000000
+[   46.229386] x15: 0000000000000079 x14: 0000000000000000
+[   46.234695] x13: 0000000000000003 x12: 0000000000000003
+[   46.240003] x11: 0000000000000010 x10: 0000000000000010
+[   46.245312] x9 : ffff00017002b140 x8 : 0000000000000000
+[   46.250621] x7 : ffff00017636f000 x6 : 0000000000000010
+[   46.255930] x5 : 0000000000000001 x4 : ffff000176ef0000
+[   46.261238] x3 : 0000000000000003 x2 : 00000000ffffffff
+[   46.266547] x1 : ffff000177e2a000 x0 : 0000000000000000
+[   46.271856] Call trace:
+[   46.274302]  stmmac_xmit+0x7a0/0x9d0
+[   46.277874]  dev_hard_start_xmit+0x94/0x158
+[   46.282056]  sch_direct_xmit+0x11c/0x338
+[   46.285976]  __qdisc_run+0x118/0x5f0
+[   46.289549]  net_tx_action+0x110/0x198
+[   46.293297]  __do_softirq+0x120/0x23c
+[   46.296958]  irq_exit+0xb8/0xd8
+[   46.300098]  __handle_domain_irq+0x64/0xb8
+[   46.304191]  gic_handle_irq+0x5c/0x148
+[   46.307936]  el1_irq+0xb8/0x180
+[   46.311076]  cpuidle_enter_state+0x84/0x360
+[   46.315256]  cpuidle_enter+0x34/0x48
+[   46.318829]  call_cpuidle+0x18/0x38
+[   46.322314]  do_idle+0x1e0/0x280
+[   46.325539]  cpu_startup_entry+0x24/0x40
+[   46.329460]  rest_init+0xd4/0xe0
+[   46.332687]  arch_call_rest_init+0xc/0x14
+[   46.336695]  start_kernel+0x420/0x44c
+[   46.340353] ---[ end trace bc1ee695123cbacd ]---
+
+Fixes: 47dd7a540b8a0 ("net: add support for STMicroelectronics Ethernet controllers.")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index ada778bbbec97..0a88645f103f0 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4791,6 +4791,11 @@ static void hci_phy_link_complete_evt(struct hci_dev *hdev,
- 		return;
- 	}
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1429,6 +1429,19 @@ static void dma_free_tx_skbufs(struct st
+ }
  
-+	if (!hcon->amp_mgr) {
-+		hci_dev_unlock(hdev);
-+		return;
-+	}
+ /**
++ * stmmac_free_tx_skbufs - free TX skb buffers
++ * @priv: private structure
++ */
++static void stmmac_free_tx_skbufs(struct stmmac_priv *priv)
++{
++	u32 tx_queue_cnt = priv->plat->tx_queues_to_use;
++	u32 queue;
 +
- 	if (ev->status) {
- 		hci_conn_del(hcon);
- 		hci_dev_unlock(hdev);
--- 
-2.27.0
-
++	for (queue = 0; queue < tx_queue_cnt; queue++)
++		dma_free_tx_skbufs(priv, queue);
++}
++
++/**
+  * free_dma_rx_desc_resources - free RX dma desc resources
+  * @priv: private structure
+  */
+@@ -4591,6 +4604,7 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_reset_queues_param(priv);
+ 
++	stmmac_free_tx_skbufs(priv);
+ 	stmmac_clear_descriptors(priv);
+ 
+ 	stmmac_hw_setup(ndev, false);
 
 
