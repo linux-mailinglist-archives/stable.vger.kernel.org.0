@@ -2,42 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF5B2E3C3A
+	by mail.lfdr.de (Postfix) with ESMTP id 88F452E3C3B
 	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407752AbgL1OAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:00:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33656 "EHLO mail.kernel.org"
+        id S2407772AbgL1OAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:00:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407722AbgL1OAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:00:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 310AA20715;
-        Mon, 28 Dec 2020 13:59:20 +0000 (UTC)
+        id S2388142AbgL1OAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:00:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AA1922583;
+        Mon, 28 Dec 2020 13:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163961;
-        bh=EtrtNzjBt/6SdUvBKWT3J6QUlTOr5G5BUP1dzuw7Zzk=;
+        s=korg; t=1609163963;
+        bh=jsR4YepOQvPa4iBNPHuoPd1qCWu7x9H2/OUePiphl0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY93Ac7W4mGNGW2Xg6V3aKrUAHKzHCzrmv6tIx+2EM6gwNC2vu7Mlgll2YKNl54ui
-         hOsTVIZGt3OgHIqsohP8S3vStgQPvSlcuRtPKABvTr4SKw/+od1x3dxktqS9lG9z50
-         UuhBKquJmIJyJ63kPvl+zmbiyGywOuG3sV/GguGA=
+        b=badrfQr4ylu75aHuKL78HqWNk4Lo37x+jAFaVxjUW1fYIsttpS96E64REdfpHuwW9
+         XqW1ZENM3FOpCixjJ8cZ2t3CDzCe5jVP2lgVemkLDnbF8ouL7HLJkYuqjtdKq7tGXx
+         qD1gMuJDG096WXTnVu47AhazURrnrSOqddQ88kdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Michal Simek <monstr@monstr.eu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, linux-mm@kvack.org,
-        linux-aspeed@lists.ozlabs.org,
-        linux-arm-kernel@lists.infradead.org,
-        David Airlie <airlied@linux.ie>,
-        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/717] drm/aspeed: Fix Kconfig warning & subsequent build errors
-Date:   Mon, 28 Dec 2020 13:40:02 +0100
-Message-Id: <20201228125021.199023747@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 005/717] drm/mcde: Fix handling of platform_get_irq() error
+Date:   Mon, 28 Dec 2020 13:40:03 +0100
+Message-Id: <20201228125021.240180180@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -49,61 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit bf296b35489b46780b73b74ad984d06750ed5479 ]
+[ Upstream commit e2dae672a9d5e11856fe30ede63467c65f999a81 ]
 
-Kernel test robot reported build errors (undefined references)
-that didn't make much sense. After reproducing them, there is also
-a Kconfig warning that is the root cause of the build errors, so
-fix that Kconfig problem.
+platform_get_irq() returns -ERRNO on error.  In such case comparison
+to 0 would pass the check.
 
-Fixes this Kconfig warning:
-WARNING: unmet direct dependencies detected for CMA
-  Depends on [n]: MMU [=n]
-  Selected by [m]:
-  - DRM_ASPEED_GFX [=m] && HAS_IOMEM [=y] && DRM [=m] && OF [=y] && (COMPILE_TEST [=y] || ARCH_ASPEED) && HAVE_DMA_CONTIGUOUS [=y]
-
-and these dependent build errors:
-(.text+0x10c8c): undefined reference to `start_isolate_page_range'
-microblaze-linux-ld: (.text+0x10f14): undefined reference to `test_pages_isolated'
-microblaze-linux-ld: (.text+0x10fd0): undefined reference to `undo_isolate_page_range'
-
-Fixes: 76356a966e33 ("drm: aspeed: Clean up Kconfig options")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Cc: Joel Stanley <joel@jms.id.au>
-Cc: Andrew Jeffery <andrew@aj.id.au>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Michal Simek <monstr@monstr.eu>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: linux-mm@kvack.org
-Cc: linux-aspeed@lists.ozlabs.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: David Airlie <airlied@linux.ie>
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201011230131.4922-1-rdunlap@infradead.org
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 5fc537bfd000 ("drm/mcde: Add new driver for ST-Ericsson MCDE")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200827071107.27429-1-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/aspeed/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/mcde/mcde_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/aspeed/Kconfig b/drivers/gpu/drm/aspeed/Kconfig
-index 018383cfcfa79..5e95bcea43e92 100644
---- a/drivers/gpu/drm/aspeed/Kconfig
-+++ b/drivers/gpu/drm/aspeed/Kconfig
-@@ -3,6 +3,7 @@ config DRM_ASPEED_GFX
- 	tristate "ASPEED BMC Display Controller"
- 	depends on DRM && OF
- 	depends on (COMPILE_TEST || ARCH_ASPEED)
-+	depends on MMU
- 	select DRM_KMS_HELPER
- 	select DRM_KMS_CMA_HELPER
- 	select DMA_CMA if HAVE_DMA_CONTIGUOUS
+diff --git a/drivers/gpu/drm/mcde/mcde_drv.c b/drivers/gpu/drm/mcde/mcde_drv.c
+index 92f8bd907193f..210f5e1630081 100644
+--- a/drivers/gpu/drm/mcde/mcde_drv.c
++++ b/drivers/gpu/drm/mcde/mcde_drv.c
+@@ -331,8 +331,8 @@ static int mcde_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		ret = -EINVAL;
++	if (irq < 0) {
++		ret = irq;
+ 		goto clk_disable;
+ 	}
+ 
 -- 
 2.27.0
 
