@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0786F2E3A22
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44BD92E3FD9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390359AbgL1NaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:30:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58950 "EHLO mail.kernel.org"
+        id S2506422AbgL1OpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:45:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390358AbgL1NaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF743207CF;
-        Mon, 28 Dec 2020 13:30:08 +0000 (UTC)
+        id S2503094AbgL1OYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7117A20731;
+        Mon, 28 Dec 2020 14:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162209;
-        bh=sIkrY9ahmq6FzHj0sTmx7fGF6h34bkUohrvKkuMTLlM=;
+        s=korg; t=1609165460;
+        bh=J5sCxb/otfwBgWgygE5auJlMJnoZMLXJK9b1f4D41ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwgZOdNLXukg6qAbL/oxK8fiqIk0yYQbQcaWv6elIjpYuX+Vyubi1FCj7NhcH3bub
-         9wMgyCAufxaPFXJIjTSCkEsYiRikB82WJ2N9EZvFJzza4PrvmM4CHmT6//SGxE1mv0
-         r42DJMAmvyiyYmOZvHO+Sin8yDNj2y3zCyhAccUw=
+        b=QGKecVjYj9L5jAAZcGKuzWhReHg1gXsAdIb/ThZJReaHkzF5YN+8rbQBg2PeZ7+yO
+         yjj0L52RTARXkUz8C8T4uJXS4uICXag4rqMPXbjwo7t4RqQlRwz3FJ3xL82E82na85
+         zalZclzqdt/YQzWKQ1N68pgCCS3c08mF90NHd3BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 217/346] usb: oxu210hp-hcd: Fix memory leak in oxu_create
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
+        Jian-Hong Pan <jhp@endlessos.org>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 538/717] ALSA: hda/realtek - Enable headset mic of ASUS X430UN with ALC256
 Date:   Mon, 28 Dec 2020 13:48:56 +0100
-Message-Id: <20201228124930.269831430@linuxfoundation.org>
+Message-Id: <20201228125046.734585938@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Chris Chiu <chiu@endlessos.org>
 
-[ Upstream commit e5548b05631ec3e6bfdaef1cad28c799545b791b ]
+commit 5cfca59604e423f720297e30a9dc493eea623493 upstream.
 
-usb_create_hcd will alloc memory for hcd, and we should
-call usb_put_hcd to free it when adding fails to prevent
-memory leak.
+The ASUS laptop X430UN with ALC256 can't detect the headset microphone
+until ALC256_FIXUP_ASUS_MIC_NO_PRESENCE quirk applied.
 
-Fixes: b92a78e582b1a ("usb host: Oxford OXU210HP HCD driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201123145809.1456541-1-zhangqilong3@huawei.com
+Signed-off-by: Chris Chiu <chiu@endlessos.org>
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201207072755.16210-1-chiu@endlessos.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/host/oxu210hp-hcd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
-index c5e6e8d0b5ef5..10d97261b433f 100644
---- a/drivers/usb/host/oxu210hp-hcd.c
-+++ b/drivers/usb/host/oxu210hp-hcd.c
-@@ -3719,8 +3719,10 @@ static struct usb_hcd *oxu_create(struct platform_device *pdev,
- 	oxu->is_otg = otg;
- 
- 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
--	if (ret < 0)
-+	if (ret < 0) {
-+		usb_put_hcd(hcd);
- 		return ERR_PTR(ret);
-+	}
- 
- 	device_wakeup_enable(hcd->self.controller);
- 	return hcd;
--- 
-2.27.0
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7958,6 +7958,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x10d0, "ASUS X540LA/X540LJ", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x115d, "Asus 1015E", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x1043, 0x11c0, "ASUS X556UR", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1043, 0x1271, "ASUS X430UN", ALC256_FIXUP_ASUS_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x1290, "ASUS X441SA", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x12a0, "ASUS X441UV", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1043, 0x12f0, "ASUS X541UV", ALC256_FIXUP_ASUS_MIC),
 
 
