@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02D2E2E668C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B34BC2E68C2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733036AbgL1NTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:19:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47926 "EHLO mail.kernel.org"
+        id S1729219AbgL1M6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:58:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733023AbgL1NTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:19:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5650208BA;
-        Mon, 28 Dec 2020 13:18:36 +0000 (UTC)
+        id S1729213AbgL1M6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ED4E21D94;
+        Mon, 28 Dec 2020 12:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161517;
-        bh=CyLpaegTezDKg5h28YKOQECTFbI0IVQUAWUYwAU9eI0=;
+        s=korg; t=1609160281;
+        bh=ULK609EFnTBW8KsazZ5uOOaBEPQe7mf2MfJu790YcjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rAx0iyVW/llqNa+FOCnl9caZWjIUOBFMXMVnk4D4iFVlzF3NkQykpocdzBJ8unQiQ
-         /n7WN9H+Q1JbCsQqqX5kUToszytX1x9nao8VGeIDaVV2f1hw6qh5BE0Amq+8ZC340O
-         N4L3OuGHFB99IS8dOr8ZUl+oCazsr9ejTfDdCIes=
+        b=rmqo7ewBPazxscTdYmttunF6x/mnZCQRH2xj1qNZrdoS1uGaOURLXWfR3QsqmrOJ0
+         9T2aHEsgr/06mkWL0yAKLlcsyLcSgueet4hyxef+gDVq8gnv2bQ2EEn/Xe7zWXXXhg
+         kkVFlWr6wpnWTrcqvgXDCVleNllUcxi5mSRMVjOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.14 210/242] KVM: arm64: Introduce handling of AArch32 TTBCR2 traps
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        Michael Kurth <mku@amazon.de>,
+        Pawel Wieczorkiewicz <wipawel@amazon.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 131/132] xenbus/xenbus_backend: Disallow pending watch messages
 Date:   Mon, 28 Dec 2020 13:50:15 +0100
-Message-Id: <20201228124915.009802482@linuxfoundation.org>
+Message-Id: <20201228124852.745074084@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit ca4e514774930f30b66375a974b5edcbebaf0e7e upstream.
+commit 9996bd494794a2fe393e97e7a982388c6249aa76 upstream.
 
-ARMv8.2 introduced TTBCR2, which shares TCR_EL1 with TTBCR.
-Gracefully handle traps to this register when HCR_EL2.TVM is set.
+'xenbus_backend' watches 'state' of devices, which is writable by
+guests.  Hence, if guests intensively updates it, dom0 will have lots of
+pending events that exhausting memory of dom0.  In other words, guests
+can trigger dom0 memory pressure.  This is known as XSA-349.  However,
+the watch callback of it, 'frontend_changed()', reads only 'state', so
+doesn't need to have the pending events.
+
+To avoid the problem, this commit disallows pending watch messages for
+'xenbus_backend' using the 'will_handle()' watch callback.
+
+This is part of XSA-349
 
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reported-by: Michael Kurth <mku@amazon.de>
+Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/arm64/include/asm/kvm_host.h |    1 +
- arch/arm64/kvm/sys_regs.c         |    1 +
- 2 files changed, 2 insertions(+)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -158,6 +158,7 @@ enum vcpu_sysreg {
- #define c2_TTBR1	(TTBR1_EL1 * 2)	/* Translation Table Base Register 1 */
- #define c2_TTBR1_high	(c2_TTBR1 + 1)	/* TTBR1 top 32 bits */
- #define c2_TTBCR	(TCR_EL1 * 2)	/* Translation Table Base Control R. */
-+#define c2_TTBCR2	(c2_TTBCR + 1)	/* Translation Table Base Control R. 2 */
- #define c3_DACR		(DACR32_EL2 * 2)/* Domain Access Control Register */
- #define c5_DFSR		(ESR_EL1 * 2)	/* Data Fault Status Register */
- #define c5_IFSR		(IFSR32_EL2 * 2)/* Instruction Fault Status Register */
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1286,6 +1286,7 @@ static const struct sys_reg_desc cp15_re
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 0), access_vm_reg, NULL, c2_TTBR0 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 1), access_vm_reg, NULL, c2_TTBR1 },
- 	{ Op1( 0), CRn( 2), CRm( 0), Op2( 2), access_vm_reg, NULL, c2_TTBCR },
-+	{ Op1( 0), CRn( 2), CRm( 0), Op2( 3), access_vm_reg, NULL, c2_TTBCR2 },
- 	{ Op1( 0), CRn( 3), CRm( 0), Op2( 0), access_vm_reg, NULL, c3_DACR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 0), access_vm_reg, NULL, c5_DFSR },
- 	{ Op1( 0), CRn( 5), CRm( 0), Op2( 1), access_vm_reg, NULL, c5_IFSR },
+---
+ drivers/xen/xenbus/xenbus_probe_backend.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/drivers/xen/xenbus/xenbus_probe_backend.c
++++ b/drivers/xen/xenbus/xenbus_probe_backend.c
+@@ -181,6 +181,12 @@ static int xenbus_probe_backend(struct x
+ 	return err;
+ }
+ 
++static bool frontend_will_handle(struct xenbus_watch *watch,
++				 const char **vec, unsigned int len)
++{
++	return watch->nr_pending == 0;
++}
++
+ static void frontend_changed(struct xenbus_watch *watch,
+ 			    const char **vec, unsigned int len)
+ {
+@@ -192,6 +198,7 @@ static struct xen_bus_type xenbus_backen
+ 	.levels = 3,		/* backend/type/<frontend>/<id> */
+ 	.get_bus_id = backend_bus_id,
+ 	.probe = xenbus_probe_backend,
++	.otherend_will_handle = frontend_will_handle,
+ 	.otherend_changed = frontend_changed,
+ 	.bus = {
+ 		.name		= "xen-backend",
 
 
