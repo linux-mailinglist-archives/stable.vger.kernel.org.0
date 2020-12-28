@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 874F72E4177
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:08:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA702E4191
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:09:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729774AbgL1OIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
+        id S2440288AbgL1PIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:08:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391724AbgL1OId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:08:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E906207B6;
-        Mon, 28 Dec 2020 14:07:52 +0000 (UTC)
+        id S2438606AbgL1OIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:08:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78D6822BF3;
+        Mon, 28 Dec 2020 14:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164473;
-        bh=W1/Eyi+BG4w4SYfSf+Dkb69rokoHW+jY7PK5zicu2GE=;
+        s=korg; t=1609164476;
+        bh=yUnsg7Y2RZWDBhbIFotTajM4xrb9o9ofOCs6HDfpEsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJ86krnbzaakdlGbPb22oGcxaMCd0jkXTH0M3+zPDfl/+h8TLDNxqmqRWNpsnrDC7
-         50OiJ0Q3Rh2g8PzmkQ8ivtKUGIMGAjEcrcF9I7qgwsW9yjAXHSI2pl8XhxETssHExz
-         imGrV4hHak+4WEt9Y/vxOSied4KndM3/HGffeqvo=
+        b=hL9T8MGoRDzhixfZEILd54B/Dy/+inIup+LRinzc+/f6W9ABIETsSF/Q/2Ort2gJF
+         zMUcPyjpd4YA8sZx57+CZ8g2FnfklNpXNq8KiPGx8xwZGBbhYXySwj3PjO3QwLJ0JM
+         aJbgHU2/G4ie5P41rmh7IyKdGhRqwTwNy/Ny/uGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Ludovic Desroches <ludovic.desroches@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 193/717] ARM: dts: at91: sama5d4_xplained: add pincontrol for USB Host
-Date:   Mon, 28 Dec 2020 13:43:11 +0100
-Message-Id: <20201228125030.213148964@linuxfoundation.org>
+Subject: [PATCH 5.10 194/717] ARM: dts: at91: sama5d3_xplained: add pincontrol for USB Host
+Date:   Mon, 28 Dec 2020 13:43:12 +0100
+Message-Id: <20201228125030.262341457@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -44,41 +44,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Cristian Birsan <cristian.birsan@microchip.com>
 
-[ Upstream commit be4dd2d448816a27c1446f8f37fce375daf64148 ]
+[ Upstream commit e1062fa7292f1e3744db0a487c4ac0109e09b03d ]
 
 The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
 it the driver probes but VBus is not powered because of wrong pincontrol
 configuration.
 
-Fixes: 38153a017896f ("ARM: at91/dt: sama5d4: add dts for sama5d4 xplained board")
+Fixes: b7c2b61570798 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
 Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Link: https://lore.kernel.org/r/20201118120019.1257580-3-cristian.birsan@microchip.com
+Link: https://lore.kernel.org/r/20201118120019.1257580-4-cristian.birsan@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d4_xplained.dts | 7 +++++++
+ arch/arm/boot/dts/at91-sama5d3_xplained.dts | 7 +++++++
  1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-index e5974a17374cf..0b3ad1b580b83 100644
---- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-@@ -134,6 +134,11 @@
+diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+index cf13632edd444..5179258f92470 100644
+--- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+@@ -242,6 +242,11 @@
  						atmel,pins =
- 							<AT91_PIOE 31 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;
+ 							<AT91_PIOE 9 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PE9, conflicts with A9 */
  					};
 +					pinctrl_usb_default: usb_default {
 +						atmel,pins =
-+							<AT91_PIOE 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 14 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
 +					};
- 					pinctrl_key_gpio: key_gpio_0 {
- 						atmel,pins =
- 							<AT91_PIOE 8 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
-@@ -159,6 +164,8 @@
- 					   &pioE 11 GPIO_ACTIVE_HIGH
- 					   &pioE 14 GPIO_ACTIVE_HIGH
+ 				};
+ 			};
+ 		};
+@@ -259,6 +264,8 @@
+ 					   &pioE 3 GPIO_ACTIVE_LOW
+ 					   &pioE 4 GPIO_ACTIVE_LOW
  					  >;
 +			pinctrl-names = "default";
 +			pinctrl-0 = <&pinctrl_usb_default>;
