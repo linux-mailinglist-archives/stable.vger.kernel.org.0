@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5752E3CEC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:09:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4892E4176
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:08:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438731AbgL1OIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:08:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43352 "EHLO mail.kernel.org"
+        id S2391728AbgL1OIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:08:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438717AbgL1OIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:08:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C85D0206D4;
-        Mon, 28 Dec 2020 14:08:09 +0000 (UTC)
+        id S2391717AbgL1OI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:08:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E81206E5;
+        Mon, 28 Dec 2020 14:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164490;
-        bh=jAOjQE2Thmvh0+P9hIbZqSU8IQfXLj4L9XRYNK+rX0g=;
+        s=korg; t=1609164493;
+        bh=R2+XnK1mBVZDZaoo85ii98mkoFyxt2WLuIpLD2Hc6/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljJAKO9+FOWKbt+IO7Hyat+HgCHXH9E7nHPDPO4TH6TgPxvTJleDf320WlxC0vbLG
-         KWl3yGeMbosIFQD8yrcztg3lIh63p7K2duvnLxv+vQxs9BtDn5ygovPvPI0CYN2ThI
-         3P53uKDOY3/YfRcKS84l6mfMnxfIckVK72dfw0kI=
+        b=UhNJHOg88dQLOZOG0YlzLEPKyT8onIq6WgbOR8yqG1rux4BLH0qgViU/AL4XwYvjo
+         /THGx4ytsU84ztREB+nv7NmCsE+fyEgsaO+pKXXFTib1oG0mJWT6nl1WN1QmQl7uiP
+         FZ0xaXrfYSTSoyf97lu/xEcSMO6yXwjfJOkbBLRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 198/717] qtnfmac: fix error return code in qtnf_pcie_probe()
-Date:   Mon, 28 Dec 2020 13:43:16 +0100
-Message-Id: <20201228125030.460189932@linuxfoundation.org>
+Subject: [PATCH 5.10 199/717] rsi: fix error return code in rsi_reset_card()
+Date:   Mon, 28 Dec 2020 13:43:17 +0100
+Message-Id: <20201228125030.508897943@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,50 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 31e07aa33fa7cdc93fa91c3f78f031e8d38862c2 ]
+[ Upstream commit fb21d14694bd46a538258d86498736490b3ba855 ]
 
 Fix to return a negative error code from the error handling
 case instead of 0, as done elsewhere in this function.
 
-Fixes: b7da53cd6cd1 ("qtnfmac_pcie: use single PCIe driver for all platforms")
+Fixes: 17ff2c794f39 ("rsi: reset device changes for 9116")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201114123347.29632-1-wanghai38@huawei.com
+Link: https://lore.kernel.org/r/1605582454-39649-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_usb.c | 30 +++++++++++++-------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-index 5337e67092ca6..0f328ce47fee3 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/pcie/pcie.c
-@@ -299,19 +299,19 @@ static int qtnf_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	sysctl_bar = qtnf_map_bar(pdev, QTN_SYSCTL_BAR);
- 	if (IS_ERR(sysctl_bar)) {
- 		pr_err("failed to map BAR%u\n", QTN_SYSCTL_BAR);
--		return ret;
-+		return PTR_ERR(sysctl_bar);
+diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
+index a62d41c0ccbc0..00b5589847985 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_usb.c
++++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
+@@ -741,24 +741,24 @@ static int rsi_reset_card(struct rsi_hw *adapter)
+ 		if (ret < 0)
+ 			goto fail;
+ 	} else {
+-		if ((rsi_usb_master_reg_write(adapter,
+-					      NWP_WWD_INTERRUPT_TIMER,
+-					      NWP_WWD_INT_TIMER_CLKS,
+-					      RSI_9116_REG_SIZE)) < 0) {
++		ret = rsi_usb_master_reg_write(adapter,
++					       NWP_WWD_INTERRUPT_TIMER,
++					       NWP_WWD_INT_TIMER_CLKS,
++					       RSI_9116_REG_SIZE);
++		if (ret < 0)
+ 			goto fail;
+-		}
+-		if ((rsi_usb_master_reg_write(adapter,
+-					      NWP_WWD_SYSTEM_RESET_TIMER,
+-					      NWP_WWD_SYS_RESET_TIMER_CLKS,
+-					      RSI_9116_REG_SIZE)) < 0) {
++		ret = rsi_usb_master_reg_write(adapter,
++					       NWP_WWD_SYSTEM_RESET_TIMER,
++					       NWP_WWD_SYS_RESET_TIMER_CLKS,
++					       RSI_9116_REG_SIZE);
++		if (ret < 0)
+ 			goto fail;
+-		}
+-		if ((rsi_usb_master_reg_write(adapter,
+-					      NWP_WWD_MODE_AND_RSTART,
+-					      NWP_WWD_TIMER_DISABLE,
+-					      RSI_9116_REG_SIZE)) < 0) {
++		ret = rsi_usb_master_reg_write(adapter,
++					       NWP_WWD_MODE_AND_RSTART,
++					       NWP_WWD_TIMER_DISABLE,
++					       RSI_9116_REG_SIZE);
++		if (ret < 0)
+ 			goto fail;
+-		}
  	}
  
- 	dmareg_bar = qtnf_map_bar(pdev, QTN_DMA_BAR);
- 	if (IS_ERR(dmareg_bar)) {
- 		pr_err("failed to map BAR%u\n", QTN_DMA_BAR);
--		return ret;
-+		return PTR_ERR(dmareg_bar);
- 	}
- 
- 	epmem_bar = qtnf_map_bar(pdev, QTN_SHMEM_BAR);
- 	if (IS_ERR(epmem_bar)) {
- 		pr_err("failed to map BAR%u\n", QTN_SHMEM_BAR);
--		return ret;
-+		return PTR_ERR(epmem_bar);
- 	}
- 
- 	chipid = qtnf_chip_id_get(sysctl_bar);
+ 	rsi_dbg(INFO_ZONE, "Reset card done\n");
 -- 
 2.27.0
 
