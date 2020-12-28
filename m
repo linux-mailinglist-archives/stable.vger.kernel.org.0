@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF7CE2E64B1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932842E4131
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632981AbgL1PwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:52:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38366 "EHLO mail.kernel.org"
+        id S2439773AbgL1OMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:12:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391199AbgL1NiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:38:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0637321D94;
-        Mon, 28 Dec 2020 13:37:22 +0000 (UTC)
+        id S2439782AbgL1OMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D83C7206E5;
+        Mon, 28 Dec 2020 14:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162643;
-        bh=pWFcgJnEpPRBx3+LSSh3e7Tj68NxMszCxzBSFJwjvT4=;
+        s=korg; t=1609164685;
+        bh=6eGZIhwszPDKtwNIuHo1dw9GczcQwikWsynXpGVXpDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+cCtl0L1F2sWsNWtnx21OcrphCQNlaXWSWDER0Icpijhc+oGNFUBQdM1kNXNVgBy
-         23Lb8zuY4iOzIhCZiLJ1bs14XVp0yybfL1WQbiybVKK7ALuWHz78dopfe2Xoyp7HOl
-         36CPDoyTx9VllpsLxCdKeIKVoFfb7Az0YZC8MszY=
+        b=eiN+Dr8kXjYHby62ibo2u3O7qXiQRpCOb4f7t66k2+gMolIE2apdPi3YrKj6z7XIh
+         7VrLtPMk1xDL79+O9kIANWm0yeqcM9H3Q41mKNkvUz34BoAnYBuvmDgMqJlLuVLw+G
+         YU8m7nOQwKtWp4VWm2ehECAR2JyzMDblsQdbYYEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/453] netfilter: nft_compat: make sure xtables destructors have run
+Subject: [PATCH 5.10 261/717] ath11k: Reset ath11k_skb_cb before setting new flags
 Date:   Mon, 28 Dec 2020 13:44:19 +0100
-Message-Id: <20201228124938.370882595@linuxfoundation.org>
+Message-Id: <20201228125033.504498972@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,187 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit ffe8923f109b7ea92c0842c89e61300eefa11c94 ]
+[ Upstream commit 5da7acfec5ec55aa0b69b8760f1d2116b4e2ad26 ]
 
-Pablo Neira found that after recent update of xt_IDLETIMER the
-iptables-nft tests sometimes show an error.
+It was observed that the codepath for the ATH11K_SKB_HW_80211_ENCAP was
+used even when the IEEE80211_TX_CTRL_HW_80211_ENCAP was not enabled for a
+an skbuff. This became even more prominent when the QCAs wlan-open patchset
+for ath11k [1] was applied and a sane looking fix just caused crashes when
+injecting frames via a monitor interface (for example with ratechecker):
 
-He tracked this down to the delayed cleanup used by nf_tables core:
-del rule (transaction A)
-add rule (transaction B)
+  [   86.963152] Unable to handle kernel NULL pointer dereference at virtual address 00000338
+  [   86.963192] pgd = ffffffc0008f0000
+  [   86.971034] [00000338] *pgd=0000000051706003, *pud=0000000051706003, *pmd=0000000051707003, *pte=00e800000b000707
+  [   86.984292] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+  [...]
+  [   87.713339] [<ffffffbffc802480>] ieee80211_tx_status_8023+0xf8/0x220 [mac80211]
+  [   87.715654] [<ffffffbffc98bad4>] ath11k_dp_tx_completion_handler+0x42c/0xa10 [ath11k]
+  [   87.722924] [<ffffffbffc989190>] ath11k_dp_service_srng+0x70/0x3c8 [ath11k]
+  [   87.730831] [<ffffffbffca03460>] 0xffffffbffca03460
+  [   87.737599] [<ffffffc00046ef58>] net_rx_action+0xf8/0x288
+  [   87.742462] [<ffffffc000097554>] __do_softirq+0xfc/0x220
+  [   87.748014] [<ffffffc000097900>] irq_exit+0x98/0xe8
+  [   87.753396] [<ffffffc0000cf188>] __handle_domain_irq+0x90/0xb8
+  [   87.757999] [<ffffffc000081ca4>] gic_handle_irq+0x6c/0xc8
+  [   87.763899] Exception stack(0xffffffc00081bdc0 to 0xffffffc00081bef0)
 
-Its possible that by time transaction B (both in same netns) runs,
-the xt target destructor has not been invoked yet.
+Problem is that the state of ath11k_skb_cb->flags must be considered
+unknown and could contain anything when it is not manually initialized. So
+it could also contain ATH11K_SKB_HW_80211_ENCAP. And this can result in the
+code to assume that the ath11k_skb_cb->vif is set - even when this is not
+always the case for non ATH11K_SKB_HW_80211_ENCAP transmissions.
 
-For native nft expressions this is no problem because all expressions
-that have such side effects make sure these are handled from the commit
-phase, rather than async cleanup.
+Tested-on: IPQ8074 hw2.0 WLAN.HK.2.4.0.1.r1-00026-QCAHKSWPL_SILICONZ-2
 
-For nft_compat however this isn't true.
+[1] https://source.codeaurora.org/quic/qsdk/oss/system/feeds/wlan-open/tree/mac80211/patches?h=NHSS.QSDK.11.4.r3
+    (162 patches at the moment which are often not upstreamed but essential
+     to get ath11k working)
 
-Instead of forcing synchronous behaviour for nft_compat, keep track
-of the number of outstanding destructor calls.
-
-When we attempt to create a new expression, flush the cleanup worker
-to make sure destructors have completed.
-
-With lots of help from Pablo Neira.
-
-Reported-by: Pablo Neira Ayso <pablo@netfilter.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e7f33e0c52c0 ("ath11k: add tx hw 802.11 encapsulation offloading support")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201119154235.263250-2-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h |  2 ++
- net/netfilter/nf_tables_api.c     | 10 +++++++--
- net/netfilter/nft_compat.c        | 36 +++++++++++++++++++++++++++----
- 3 files changed, 42 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index a576bcbba2fcc..6a6fcd10d3185 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -1462,4 +1462,6 @@ void nft_chain_filter_fini(void);
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 6b7f00e0086f5..af427d9051a07 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -4057,6 +4057,7 @@ static void ath11k_mac_op_tx(struct ieee80211_hw *hw,
+ 	bool is_prb_rsp;
+ 	int ret;
  
- void __init nft_chain_route_init(void);
- void nft_chain_route_fini(void);
-+
-+void nf_tables_trans_destroy_flush_work(void);
- #endif /* _NET_NF_TABLES_H */
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 459b7c0547115..7753d6f1467c9 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6605,6 +6605,12 @@ static void nf_tables_trans_destroy_work(struct work_struct *w)
- 	}
- }
++	memset(skb_cb, 0, sizeof(*skb_cb));
+ 	skb_cb->vif = vif;
  
-+void nf_tables_trans_destroy_flush_work(void)
-+{
-+	flush_work(&trans_destroy_work);
-+}
-+EXPORT_SYMBOL_GPL(nf_tables_trans_destroy_flush_work);
-+
- static int nf_tables_commit_chain_prepare(struct net *net, struct nft_chain *chain)
- {
- 	struct nft_rule *rule;
-@@ -6776,9 +6782,9 @@ static void nf_tables_commit_release(struct net *net)
- 	spin_unlock(&nf_tables_destroy_list_lock);
- 
- 	nf_tables_module_autoload_cleanup(net);
--	mutex_unlock(&net->nft.commit_mutex);
--
- 	schedule_work(&trans_destroy_work);
-+
-+	mutex_unlock(&net->nft.commit_mutex);
- }
- 
- static int nf_tables_commit(struct net *net, struct sk_buff *skb)
-diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
-index f9adca62ccb3d..0e3e0ff805812 100644
---- a/net/netfilter/nft_compat.c
-+++ b/net/netfilter/nft_compat.c
-@@ -27,6 +27,8 @@ struct nft_xt_match_priv {
- 	void *info;
- };
- 
-+static refcount_t nft_compat_pending_destroy = REFCOUNT_INIT(1);
-+
- static int nft_compat_chain_validate_dependency(const struct nft_ctx *ctx,
- 						const char *tablename)
- {
-@@ -236,6 +238,15 @@ nft_target_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 
- 	nft_target_set_tgchk_param(&par, ctx, target, info, &e, proto, inv);
- 
-+	/* xtables matches or targets can have side effects, e.g.
-+	 * creation/destruction of /proc files.
-+	 * The xt ->destroy functions are run asynchronously from
-+	 * work queue.  If we have pending invocations we thus
-+	 * need to wait for those to finish.
-+	 */
-+	if (refcount_read(&nft_compat_pending_destroy) > 1)
-+		nf_tables_trans_destroy_flush_work();
-+
- 	ret = xt_check_target(&par, size, proto, inv);
- 	if (ret < 0)
- 		return ret;
-@@ -247,6 +258,13 @@ nft_target_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	return 0;
- }
- 
-+static void __nft_mt_tg_destroy(struct module *me, const struct nft_expr *expr)
-+{
-+	refcount_dec(&nft_compat_pending_destroy);
-+	module_put(me);
-+	kfree(expr->ops);
-+}
-+
- static void
- nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
- {
-@@ -262,8 +280,7 @@ nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
- 	if (par.target->destroy != NULL)
- 		par.target->destroy(&par);
- 
--	module_put(me);
--	kfree(expr->ops);
-+	__nft_mt_tg_destroy(me, expr);
- }
- 
- static int nft_extension_dump_info(struct sk_buff *skb, int attr,
-@@ -494,8 +511,7 @@ __nft_match_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	if (par.match->destroy != NULL)
- 		par.match->destroy(&par);
- 
--	module_put(me);
--	kfree(expr->ops);
-+	__nft_mt_tg_destroy(me, expr);
- }
- 
- static void
-@@ -700,6 +716,14 @@ static const struct nfnetlink_subsystem nfnl_compat_subsys = {
- 
- static struct nft_expr_type nft_match_type;
- 
-+static void nft_mt_tg_deactivate(const struct nft_ctx *ctx,
-+				 const struct nft_expr *expr,
-+				 enum nft_trans_phase phase)
-+{
-+	if (phase == NFT_TRANS_COMMIT)
-+		refcount_inc(&nft_compat_pending_destroy);
-+}
-+
- static const struct nft_expr_ops *
- nft_match_select_ops(const struct nft_ctx *ctx,
- 		     const struct nlattr * const tb[])
-@@ -738,6 +762,7 @@ nft_match_select_ops(const struct nft_ctx *ctx,
- 	ops->type = &nft_match_type;
- 	ops->eval = nft_match_eval;
- 	ops->init = nft_match_init;
-+	ops->deactivate = nft_mt_tg_deactivate,
- 	ops->destroy = nft_match_destroy;
- 	ops->dump = nft_match_dump;
- 	ops->validate = nft_match_validate;
-@@ -828,6 +853,7 @@ nft_target_select_ops(const struct nft_ctx *ctx,
- 	ops->size = NFT_EXPR_SIZE(XT_ALIGN(target->targetsize));
- 	ops->init = nft_target_init;
- 	ops->destroy = nft_target_destroy;
-+	ops->deactivate = nft_mt_tg_deactivate,
- 	ops->dump = nft_target_dump;
- 	ops->validate = nft_target_validate;
- 	ops->data = target;
-@@ -891,6 +917,8 @@ static void __exit nft_compat_module_exit(void)
- 	nfnetlink_subsys_unregister(&nfnl_compat_subsys);
- 	nft_unregister_expr(&nft_target_type);
- 	nft_unregister_expr(&nft_match_type);
-+
-+	WARN_ON_ONCE(refcount_read(&nft_compat_pending_destroy) != 1);
- }
- 
- MODULE_ALIAS_NFNL_SUBSYS(NFNL_SUBSYS_NFT_COMPAT);
+ 	if (key) {
 -- 
 2.27.0
 
