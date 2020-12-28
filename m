@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 819F32E64F5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C63F2E3EAE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390685AbgL1Nge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:36:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
+        id S2503615AbgL1OaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390523AbgL1Ngd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 935E1205CB;
-        Mon, 28 Dec 2020 13:35:51 +0000 (UTC)
+        id S2503596AbgL1OaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC3B722583;
+        Mon, 28 Dec 2020 14:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162552;
-        bh=cYKIWtitTmOCqJ67n06KAUnkiW4C0HOfRQEAM2qKt70=;
+        s=korg; t=1609165798;
+        bh=ohAf4PqIY0e3xX5N4dK2Ghc2vU/y1SbUlJb42ulvZmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCK3ZYXlXhq9HqTz5+/53/cXbtXAl51s5iW1Mho3m5qDDRGV/eqeqrnD7uxCr+Atf
-         7N1R59E4uQAv7Q8AFcEOhu3e6Q42KpRRGKRXG7kEc1P/BmE0+JG/a+RJP9jQNmhF33
-         Of4vxsMYgajBe0Ibne8wFuBGEuRyPamSGOVovHnE=
+        b=nQUNPoe/QQssnj70eO9Z0BYfCUkyI9+tM5mKiv1fvrblNRBnXJoaNPYXqgpnvj9o7
+         yBWunW25OFNpqhQ4RtkvpVB1xb1sjpj/BRRvLn9de8flqg6H2evRDrXa0UeykHk1sQ
+         DpajYX0c1bBCnYXcB2SaJVK3R7k1uJSOoK7zLNMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Benjamin <oliben@amazon.com>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Julien Grall <jgrall@amazon.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 338/346] xen-blkback: set ring->xenblkd to NULL after kthread_stop()
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 659/717] spi: mt7621: Disable clock in probe error path
 Date:   Mon, 28 Dec 2020 13:50:57 +0100
-Message-Id: <20201228124936.096961407@linuxfoundation.org>
+Message-Id: <20201228125052.533439362@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Wieczorkiewicz <wipawel@amazon.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 1c728719a4da6e654afb9cc047164755072ed7c9 upstream.
+commit 24f7033405abe195224ec793dbc3d7a27dec0b98 upstream.
 
-When xen_blkif_disconnect() is called, the kernel thread behind the
-block interface is stopped by calling kthread_stop(ring->xenblkd).
-The ring->xenblkd thread pointer being non-NULL determines if the
-thread has been already stopped.
-Normally, the thread's function xen_blkif_schedule() sets the
-ring->xenblkd to NULL, when the thread's main loop ends.
+Commit 702b15cb9712 ("spi: mt7621: fix missing clk_disable_unprepare()
+on error in mt7621_spi_probe") sought to disable the SYS clock on probe
+errors, but only did so for 2 of 3 potentially failing calls:  The clock
+needs to be disabled on failure of devm_spi_register_controller() as
+well.
 
-However, when the thread has not been started yet (i.e.
-wake_up_process() has not been called on it), the xen_blkif_schedule()
-function would not be called yet.
+Moreover, the commit purports to fix a bug in commit cbd66c626e16 ("spi:
+mt7621: Move SPI driver out of staging") but in reality the bug has
+existed since the driver was first introduced.
 
-In such case the kthread_stop() call returns -EINTR and the
-ring->xenblkd remains dangling.
-When this happens, any consecutive call to xen_blkif_disconnect (for
-example in frontend_changed() callback) leads to a kernel crash in
-kthread_stop() (e.g. NULL pointer dereference in exit_creds()).
-
-This is XSA-350.
-
-Cc: <stable@vger.kernel.org> # 4.12
-Fixes: a24fa22ce22a ("xen/blkback: don't use xen_blkif_get() in xen-blkback kthread")
-Reported-by: Olivier Benjamin <oliben@amazon.com>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Signed-off-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.17+: 702b15cb9712: spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/36ad42760087952fb7c10aae7d2628547c26a7ec.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkback/xenbus.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-mt7621.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -264,6 +264,7 @@ static int xen_blkif_disconnect(struct x
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -382,7 +382,11 @@ static int mt7621_spi_probe(struct platf
+ 		return ret;
+ 	}
  
- 		if (ring->xenblkd) {
- 			kthread_stop(ring->xenblkd);
-+			ring->xenblkd = NULL;
- 			wake_up(&ring->shutdown_wq);
- 		}
+-	return devm_spi_register_controller(&pdev->dev, master);
++	ret = devm_spi_register_controller(&pdev->dev, master);
++	if (ret)
++		clk_disable_unprepare(clk);
++
++	return ret;
+ }
  
+ static int mt7621_spi_remove(struct platform_device *pdev)
 
 
