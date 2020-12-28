@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC942E387F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D042E3DE7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731400AbgL1NKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:10:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38274 "EHLO mail.kernel.org"
+        id S2437921AbgL1OVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:21:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731359AbgL1NK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 079F422AAD;
-        Mon, 28 Dec 2020 13:09:47 +0000 (UTC)
+        id S2502427AbgL1OVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:21:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1004B22B2C;
+        Mon, 28 Dec 2020 14:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160988;
-        bh=x7wPcdaHSJvPn+6YXf9F4WM7LGOJSdklufUles/136E=;
+        s=korg; t=1609165260;
+        bh=b0jcMGLxfRGb7TrSxt2oYTfuWtuHkhr6KAf1Dqypw7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UvBD1Pd2kZe5WrdmeMba7WcPiBpOHvVErtnnyQmT3XRZfU3m7rOQemBwtPwa+j5h
-         z5CEDBchD0vODHRWxNj5PCmXs/j56w55Ub0ymkuiNKe0RGUP+wjx345/Tx/qAf9YPt
-         ozaaTzGX0J5mZB1JN6gZE/S9/GV1uUlfO5VolTCQ=
+        b=oCfrdj1r/sRWoqNd1dcNR1OcziFO4alxnNTwz8c3CIoyhpnV9maiXhCoCAPFxrOv9
+         9lY4WNxX/p9nWg+zR/cf3fhtS4PYEjAE/dO1Bhh8ad0PV3r7lnMPLxpu33CYjiHDre
+         U2LtrtTd4fQsXDrDhr+NMGMGJh8GAp7F+l0VStIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 062/242] crypto: af_alg - avoid undefined behavior accessing salg_name
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 469/717] block/rnbd-clt: Get rid of warning regarding size argument in strlcpy
 Date:   Mon, 28 Dec 2020 13:47:47 +0100
-Message-Id: <20201228124907.733528701@linuxfoundation.org>
+Message-Id: <20201228125043.440779235@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
 
-commit 92eb6c3060ebe3adf381fd9899451c5b047bb14d upstream.
+[ Upstream commit e7508d48565060af5d89f10cb83c9359c8ae1310 ]
 
-Commit 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm
-names") made the kernel start accepting arbitrarily long algorithm names
-in sockaddr_alg.  However, the actual length of the salg_name field
-stayed at the original 64 bytes.
+The kernel test robot triggerred the following warning,
 
-This is broken because the kernel can access indices >= 64 in salg_name,
-which is undefined behavior -- even though the memory that is accessed
-is still located within the sockaddr structure.  It would only be
-defined behavior if the array were properly marked as arbitrary-length
-(either by making it a flexible array, which is the recommended way
-these days, or by making it an array of length 0 or 1).
+>> drivers/block/rnbd/rnbd-clt.c:1397:42: warning: size argument in
+'strlcpy' call appears to be size of the source; expected the size of the
+destination [-Wstrlcpy-strlcat-size]
+	strlcpy(dev->pathname, pathname, strlen(pathname) + 1);
+					      ~~~~~~~^~~~~~~~~~~~~
 
-We can't simply change salg_name into a flexible array, since that would
-break source compatibility with userspace programs that embed
-sockaddr_alg into another struct, or (more commonly) declare a
-sockaddr_alg like 'struct sockaddr_alg sa = { .salg_name = "foo" };'.
+To get rid of the above warning, use a kstrdup as Bart suggested.
 
-One solution would be to change salg_name into a flexible array only
-when '#ifdef __KERNEL__'.  However, that would keep userspace without an
-easy way to actually use the longer algorithm names.
-
-Instead, add a new structure 'sockaddr_alg_new' that has the flexible
-array field, and expose it to both userspace and the kernel.
-Make the kernel use it correctly in alg_bind().
-
-This addresses the syzbot report
-"UBSAN: array-index-out-of-bounds in alg_bind"
-(https://syzkaller.appspot.com/bug?extid=92ead4eb8e26a26d465e).
-
-Reported-by: syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
-Fixes: 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm names")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 64e8a6ece1a5 ("block/rnbd-clt: Dynamically alloc buffer for pathname & blk_symlink_name")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c             |   10 +++++++---
- include/uapi/linux/if_alg.h |   16 ++++++++++++++++
- 2 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/block/rnbd/rnbd-clt.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -151,7 +151,7 @@ static int alg_bind(struct socket *sock,
- 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
- 	struct sock *sk = sock->sk;
- 	struct alg_sock *ask = alg_sk(sk);
--	struct sockaddr_alg *sa = (void *)uaddr;
-+	struct sockaddr_alg_new *sa = (void *)uaddr;
- 	const struct af_alg_type *type;
- 	void *private;
- 	int err;
-@@ -159,7 +159,11 @@ static int alg_bind(struct socket *sock,
- 	if (sock->state == SS_CONNECTED)
- 		return -EINVAL;
+diff --git a/drivers/block/rnbd/rnbd-clt.c b/drivers/block/rnbd/rnbd-clt.c
+index f180ebf1e11c9..7af1b60582fe5 100644
+--- a/drivers/block/rnbd/rnbd-clt.c
++++ b/drivers/block/rnbd/rnbd-clt.c
+@@ -1383,12 +1383,11 @@ static struct rnbd_clt_dev *init_dev(struct rnbd_clt_session *sess,
+ 		goto out_queues;
+ 	}
  
--	if (addr_len < sizeof(*sa))
-+	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
-+		     offsetof(struct sockaddr_alg, salg_name));
-+	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
-+
-+	if (addr_len < sizeof(*sa) + 1)
- 		return -EINVAL;
+-	dev->pathname = kzalloc(strlen(pathname) + 1, GFP_KERNEL);
++	dev->pathname = kstrdup(pathname, GFP_KERNEL);
+ 	if (!dev->pathname) {
+ 		ret = -ENOMEM;
+ 		goto out_queues;
+ 	}
+-	strlcpy(dev->pathname, pathname, strlen(pathname) + 1);
  
- 	/* If caller uses non-allowed flag, return error. */
-@@ -167,7 +171,7 @@ static int alg_bind(struct socket *sock,
- 		return -EINVAL;
- 
- 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
--	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
-+	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
- 
- 	type = alg_get_type(sa->salg_type);
- 	if (IS_ERR(type) && PTR_ERR(type) == -ENOENT) {
---- a/include/uapi/linux/if_alg.h
-+++ b/include/uapi/linux/if_alg.h
-@@ -24,6 +24,22 @@ struct sockaddr_alg {
- 	__u8	salg_name[64];
- };
- 
-+/*
-+ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
-+ * arbitrary-length field.  We had to keep the original struct above for source
-+ * compatibility with existing userspace programs, though.  Use the new struct
-+ * below if support for very long algorithm names is needed.  To do this,
-+ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
-+ * copy algname (including the null terminator) into salg_name.
-+ */
-+struct sockaddr_alg_new {
-+	__u16	salg_family;
-+	__u8	salg_type[14];
-+	__u32	salg_feat;
-+	__u32	salg_mask;
-+	__u8	salg_name[];
-+};
-+
- struct af_alg_iv {
- 	__u32	ivlen;
- 	__u8	iv[0];
+ 	dev->clt_device_id	= ret;
+ 	dev->sess		= sess;
+-- 
+2.27.0
+
 
 
