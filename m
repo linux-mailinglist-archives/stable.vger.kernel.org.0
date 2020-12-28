@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 207D42E40C3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D852E3AFF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441316AbgL1OQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:16:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
+        id S2387397AbgL1No2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441309AbgL1OQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:16:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C525224D2;
-        Mon, 28 Dec 2020 14:16:42 +0000 (UTC)
+        id S2404587AbgL1No1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A7C205CB;
+        Mon, 28 Dec 2020 13:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165003;
-        bh=u7U7ZDOaWHRgLeeX7erQMopLpmQycItBIAlMY5QEK9M=;
+        s=korg; t=1609163026;
+        bh=718uaZjV8dNsrR/+hDI8u+6rEXV3EMRdfLq49M2Okx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9WeqvAlaYVKzv51p6dQB0SiksxayVxaKOO91hl0vcbSzPV9nVl2huoCUPw2nts36
-         aUT2O4SR94S6xn/lPR4XtOEagVoQi9nacFps8bpExLBYnsPrQGACS+Fa2yM3fL3CSU
-         0jHv21ms98WL21h9kE4Pl2hF3PoO976iifFR/LEE=
+        b=BjsXhlnwiTT4GDmTo59vZzmxie+yN/m+JgWAur7o81CIp8pgVxKdbT4Y7BaTnaGwa
+         FoG9ZFcXnXl8eA38aQFwaeKU9uckqWHupbw6ed7OUqn5qy1dWf1uST5kpslcMPJ0LB
+         Zh3RLU5fzspwtd5D6ZGBqPn8hHhvn2LqSnVingKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 374/717] speakup: fix uninitialized flush_lock
+Subject: [PATCH 5.4 136/453] media: v4l2-fwnode: Return -EINVAL for invalid bus-type
 Date:   Mon, 28 Dec 2020 13:46:12 +0100
-Message-Id: <20201228125038.927642989@linuxfoundation.org>
+Message-Id: <20201228124943.747974418@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit d1b928ee1cfa965a3327bbaa59bfa005d97fa0fe ]
+[ Upstream commit 69baf338fc16a4d55c78da8874ce3f06feb38c78 ]
 
-The flush_lock is uninitialized, use DEFINE_SPINLOCK
-to define and initialize flush_lock.
+Return -EINVAL if invalid bus-type is detected while parsing endpoints.
 
-Fixes: c6e3fd22cd53 ("Staging: add speakup to the staging directory")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20201117012229.3395186-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 26c1126c9b56 ("media: v4l: fwnode: Use media bus type for bus parser selection")
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/accessibility/speakup/speakup_dectlk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-fwnode.c | 6 +++++-
+ include/media/v4l2-mediabus.h         | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/accessibility/speakup/speakup_dectlk.c b/drivers/accessibility/speakup/speakup_dectlk.c
-index 780214b5ca16e..ab6d61e80b1cb 100644
---- a/drivers/accessibility/speakup/speakup_dectlk.c
-+++ b/drivers/accessibility/speakup/speakup_dectlk.c
-@@ -37,7 +37,7 @@ static unsigned char get_index(struct spk_synth *synth);
- static int in_escape;
- static int is_flushing;
+diff --git a/drivers/media/v4l2-core/v4l2-fwnode.c b/drivers/media/v4l2-core/v4l2-fwnode.c
+index 3bd1888787eb3..48c3b9f72722a 100644
+--- a/drivers/media/v4l2-core/v4l2-fwnode.c
++++ b/drivers/media/v4l2-core/v4l2-fwnode.c
+@@ -93,7 +93,7 @@ v4l2_fwnode_bus_type_to_mbus(enum v4l2_fwnode_bus_type type)
+ 	const struct v4l2_fwnode_bus_conv *conv =
+ 		get_v4l2_fwnode_bus_conv_by_fwnode_bus(type);
  
--static spinlock_t flush_lock;
-+static DEFINE_SPINLOCK(flush_lock);
- static DECLARE_WAIT_QUEUE_HEAD(flush);
+-	return conv ? conv->mbus_type : V4L2_MBUS_UNKNOWN;
++	return conv ? conv->mbus_type : V4L2_MBUS_INVALID;
+ }
  
- static struct var_t vars[] = {
+ static const char *
+@@ -436,6 +436,10 @@ static int __v4l2_fwnode_endpoint_parse(struct fwnode_handle *fwnode,
+ 		 v4l2_fwnode_mbus_type_to_string(vep->bus_type),
+ 		 vep->bus_type);
+ 	mbus_type = v4l2_fwnode_bus_type_to_mbus(bus_type);
++	if (mbus_type == V4L2_MBUS_INVALID) {
++		pr_debug("unsupported bus type %u\n", bus_type);
++		return -EINVAL;
++	}
+ 
+ 	if (vep->bus_type != V4L2_MBUS_UNKNOWN) {
+ 		if (mbus_type != V4L2_MBUS_UNKNOWN &&
+diff --git a/include/media/v4l2-mediabus.h b/include/media/v4l2-mediabus.h
+index 45f88f0248c4e..c072ed1418113 100644
+--- a/include/media/v4l2-mediabus.h
++++ b/include/media/v4l2-mediabus.h
+@@ -78,6 +78,7 @@
+  * @V4L2_MBUS_CCP2:	CCP2 (Compact Camera Port 2)
+  * @V4L2_MBUS_CSI2_DPHY: MIPI CSI-2 serial interface, with D-PHY
+  * @V4L2_MBUS_CSI2_CPHY: MIPI CSI-2 serial interface, with C-PHY
++ * @V4L2_MBUS_INVALID:	invalid bus type (keep as last)
+  */
+ enum v4l2_mbus_type {
+ 	V4L2_MBUS_UNKNOWN,
+@@ -87,6 +88,7 @@ enum v4l2_mbus_type {
+ 	V4L2_MBUS_CCP2,
+ 	V4L2_MBUS_CSI2_DPHY,
+ 	V4L2_MBUS_CSI2_CPHY,
++	V4L2_MBUS_INVALID,
+ };
+ 
+ /**
 -- 
 2.27.0
 
