@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F072E433C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B20D12E3FC1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408471AbgL1PeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S2503735AbgL1O0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:26:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407188AbgL1Nwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:52:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 680FA20715;
-        Mon, 28 Dec 2020 13:52:14 +0000 (UTC)
+        id S2503331AbgL1OZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8DB022AEC;
+        Mon, 28 Dec 2020 14:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163535;
-        bh=C/gBNapSyXLn8ieLTufOfneQYnWUQ9QESDsfm6uBEFk=;
+        s=korg; t=1609165514;
+        bh=R7hPqRPRgIIrkzn0lvGXXPQkYZa7EbjSF48MeX3NhJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWsnmyp0JUBBTZNcAwl1e0htxDvr+WRXF6LGBIEkiGem0snm+VKAKGOwDwAX2pf95
-         qE2x55pwgSZpcHIQGwQmRfFCF8rMGl+PDQGPmZ8lJdZ/ORP4SPP9l0tb5OmKDWTTre
-         fV/FX8sLefuUWzOONVE5cVuz54SFUG4igt7RgmQg=
+        b=sUypuMdjJ/m4NQYG1MYkiFhLVMmFUTjjwHU7rowJ3cOFB3izt+fH9dgRZw1oiQbiv
+         WhYCO/NyVRBNlL5nrG0qYs0EAGEDWSHjxGsnSpi4BwQ/WSxBxjyLpezkgdyTcMpgfh
+         ecKUsVPV4sHmtT3ICplCy2Ycr5MmzGxUO9/Nm3ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.4 320/453] vfio/pci/nvlink2: Do not attempt NPU2 setup on POWER8NVL NPU
-Date:   Mon, 28 Dec 2020 13:49:16 +0100
-Message-Id: <20201228124952.610173617@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Subject: [PATCH 5.10 559/717] binder: add flag to clear buffer on txn complete
+Date:   Mon, 28 Dec 2020 13:49:17 +0100
+Message-Id: <20201228125047.705472163@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +38,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Todd Kjos <tkjos@google.com>
 
-commit d22f9a6c92de96304c81792942ae7c306f08ac77 upstream.
+commit 0f966cba95c78029f491b433ea95ff38f414a761 upstream.
 
-We execute certain NPU2 setup code (such as mapping an LPID to a device
-in NPU2) unconditionally if an Nvlink bridge is detected. However this
-cannot succeed on POWER8NVL machines as the init helpers return an error
-other than ENODEV which means the device is there is and setup failed so
-vfio_pci_enable() fails and pass through is not possible.
+Add a per-transaction flag to indicate that the buffer
+must be cleared when the transaction is complete to
+prevent copies of sensitive data from being preserved
+in memory.
 
-This changes the two NPU2 related init helpers to return -ENODEV if
-there is no "memory-region" device tree property as this is
-the distinction between NPU and NPU2.
-
-Tested on
-- POWER9 pvr=004e1201, Ubuntu 19.04 host, Ubuntu 18.04 vm,
-  NVIDIA GV100 10de:1db1 driver 418.39
-- POWER8 pvr=004c0100, RHEL 7.6 host, Ubuntu 16.10 vm,
-  NVIDIA P100 10de:15f9 driver 396.47
-
-Fixes: 7f92891778df ("vfio_pci: Add NVIDIA GV100GL [Tesla V100 SXM2] subdriver")
-Cc: stable@vger.kernel.org # 5.0
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Link: https://lore.kernel.org/r/20201120233743.3617529-1-tkjos@google.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/pci/vfio_pci_nvlink2.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/android/binder.c            |    1 
+ drivers/android/binder_alloc.c      |   48 ++++++++++++++++++++++++++++++++++++
+ drivers/android/binder_alloc.h      |    4 ++-
+ include/uapi/linux/android/binder.h |    1 
+ 4 files changed, 53 insertions(+), 1 deletion(-)
 
---- a/drivers/vfio/pci/vfio_pci_nvlink2.c
-+++ b/drivers/vfio/pci/vfio_pci_nvlink2.c
-@@ -231,7 +231,7 @@ int vfio_pci_nvdia_v100_nvlink2_init(str
- 		return -EINVAL;
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3146,6 +3146,7 @@ static void binder_transaction(struct bi
+ 	t->buffer->debug_id = t->debug_id;
+ 	t->buffer->transaction = t;
+ 	t->buffer->target_node = target_node;
++	t->buffer->clear_on_free = !!(t->flags & TF_CLEAR_BUF);
+ 	trace_binder_transaction_alloc_buf(t->buffer);
  
- 	if (of_property_read_u32(npu_node, "memory-region", &mem_phandle))
--		return -EINVAL;
-+		return -ENODEV;
+ 	if (binder_alloc_copy_user_to_buffer(
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -696,6 +696,8 @@ static void binder_free_buf_locked(struc
+ 	binder_insert_free_buffer(alloc, buffer);
+ }
  
- 	mem_node = of_find_node_by_phandle(mem_phandle);
- 	if (!mem_node)
-@@ -393,7 +393,7 @@ int vfio_pci_ibm_npu2_init(struct vfio_p
- 	int ret;
- 	struct vfio_pci_npu2_data *data;
- 	struct device_node *nvlink_dn;
--	u32 nvlink_index = 0;
-+	u32 nvlink_index = 0, mem_phandle = 0;
- 	struct pci_dev *npdev = vdev->pdev;
- 	struct device_node *npu_node = pci_device_to_OF_node(npdev);
- 	struct pci_controller *hose = pci_bus_to_host(npdev->bus);
-@@ -408,6 +408,9 @@ int vfio_pci_ibm_npu2_init(struct vfio_p
- 	if (!pnv_pci_get_gpu_dev(vdev->pdev))
- 		return -ENODEV;
++static void binder_alloc_clear_buf(struct binder_alloc *alloc,
++				   struct binder_buffer *buffer);
+ /**
+  * binder_alloc_free_buf() - free a binder buffer
+  * @alloc:	binder_alloc for this proc
+@@ -706,6 +708,18 @@ static void binder_free_buf_locked(struc
+ void binder_alloc_free_buf(struct binder_alloc *alloc,
+ 			    struct binder_buffer *buffer)
+ {
++	/*
++	 * We could eliminate the call to binder_alloc_clear_buf()
++	 * from binder_alloc_deferred_release() by moving this to
++	 * binder_alloc_free_buf_locked(). However, that could
++	 * increase contention for the alloc mutex if clear_on_free
++	 * is used frequently for large buffers. The mutex is not
++	 * needed for correctness here.
++	 */
++	if (buffer->clear_on_free) {
++		binder_alloc_clear_buf(alloc, buffer);
++		buffer->clear_on_free = false;
++	}
+ 	mutex_lock(&alloc->mutex);
+ 	binder_free_buf_locked(alloc, buffer);
+ 	mutex_unlock(&alloc->mutex);
+@@ -802,6 +816,10 @@ void binder_alloc_deferred_release(struc
+ 		/* Transaction should already have been freed */
+ 		BUG_ON(buffer->transaction);
  
-+	if (of_property_read_u32(npu_node, "memory-region", &mem_phandle))
-+		return -ENODEV;
++		if (buffer->clear_on_free) {
++			binder_alloc_clear_buf(alloc, buffer);
++			buffer->clear_on_free = false;
++		}
+ 		binder_free_buf_locked(alloc, buffer);
+ 		buffers++;
+ 	}
+@@ -1136,6 +1154,36 @@ static struct page *binder_alloc_get_pag
+ }
+ 
+ /**
++ * binder_alloc_clear_buf() - zero out buffer
++ * @alloc: binder_alloc for this proc
++ * @buffer: binder buffer to be cleared
++ *
++ * memset the given buffer to 0
++ */
++static void binder_alloc_clear_buf(struct binder_alloc *alloc,
++				   struct binder_buffer *buffer)
++{
++	size_t bytes = binder_alloc_buffer_size(alloc, buffer);
++	binder_size_t buffer_offset = 0;
 +
- 	/*
- 	 * NPU2 normally has 8 ATSD registers (for concurrency) and 6 links
- 	 * so we can allocate one register per link, using nvlink index as
++	while (bytes) {
++		unsigned long size;
++		struct page *page;
++		pgoff_t pgoff;
++		void *kptr;
++
++		page = binder_alloc_get_page(alloc, buffer,
++					     buffer_offset, &pgoff);
++		size = min_t(size_t, bytes, PAGE_SIZE - pgoff);
++		kptr = kmap(page) + pgoff;
++		memset(kptr, 0, size);
++		kunmap(page);
++		bytes -= size;
++		buffer_offset += size;
++	}
++}
++
++/**
+  * binder_alloc_copy_user_to_buffer() - copy src user to tgt user
+  * @alloc: binder_alloc for this proc
+  * @buffer: binder buffer to be accessed
+--- a/drivers/android/binder_alloc.h
++++ b/drivers/android/binder_alloc.h
+@@ -23,6 +23,7 @@ struct binder_transaction;
+  * @entry:              entry alloc->buffers
+  * @rb_node:            node for allocated_buffers/free_buffers rb trees
+  * @free:               %true if buffer is free
++ * @clear_on_free:      %true if buffer must be zeroed after use
+  * @allow_user_free:    %true if user is allowed to free buffer
+  * @async_transaction:  %true if buffer is in use for an async txn
+  * @debug_id:           unique ID for debugging
+@@ -41,9 +42,10 @@ struct binder_buffer {
+ 	struct rb_node rb_node; /* free entry by size or allocated entry */
+ 				/* by address */
+ 	unsigned free:1;
++	unsigned clear_on_free:1;
+ 	unsigned allow_user_free:1;
+ 	unsigned async_transaction:1;
+-	unsigned debug_id:29;
++	unsigned debug_id:28;
+ 
+ 	struct binder_transaction *transaction;
+ 
+--- a/include/uapi/linux/android/binder.h
++++ b/include/uapi/linux/android/binder.h
+@@ -248,6 +248,7 @@ enum transaction_flags {
+ 	TF_ROOT_OBJECT	= 0x04,	/* contents are the component's root object */
+ 	TF_STATUS_CODE	= 0x08,	/* contents are a 32-bit status code */
+ 	TF_ACCEPT_FDS	= 0x10,	/* allow replies with file descriptors */
++	TF_CLEAR_BUF	= 0x20,	/* clear buffer on txn complete */
+ };
+ 
+ struct binder_transaction_data {
 
 
