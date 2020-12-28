@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9942E63B6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0752E3DAD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392004AbgL1NpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45162 "EHLO mail.kernel.org"
+        id S2391856AbgL1OSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:18:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387411AbgL1NpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BFC0205CB;
-        Mon, 28 Dec 2020 13:44:46 +0000 (UTC)
+        id S2501994AbgL1OSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:18:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75551221F0;
+        Mon, 28 Dec 2020 14:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163087;
-        bh=SQzHwa6T+eq2wQVMMfVjvoZJuszvA2TFWHrYUN7xhIM=;
+        s=korg; t=1609165080;
+        bh=CskcqQqMF6ViCEiw1r+UT6Ii0uBwWycuPsB2aTMK1Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhufFAsBA/jsH+sqCF5CxdTmUftYB3bFpseiLXzl+zqA10iPF9/YfF2qpnf38gVD9
-         y1bBq1c+N9A85TS5UZHexzT4xGMq65wOrr/mFSSh4cO/xu+ohLQ0c4EOe1oUvM38/z
-         YtRKebvjv07XhlqRHi/jnxTO2YSzWXiHMzFlF37I=
+        b=NZ11/2cMDYc7QWMTqwDbWUl0ChnqbgJ0VqMWYYMrdSkFdYFBlmjhFwOsB+DwzgqUU
+         T5gSIA25e5zrdLVLx0LC+xeeeB33BTMvWHTL7zjlKBcadz2ZStsq5EMrjDgi68naaA
+         gX0O38UQ7kuN8a5eLOcwaq1pDyCDHFmpDlf9AkfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        YueHaibing <yuehaibing@huawei.com>, Suman Anna <s-anna@ti.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 164/453] orinoco: Move context allocation after processing the skb
-Date:   Mon, 28 Dec 2020 13:46:40 +0100
-Message-Id: <20201228124945.102799302@linuxfoundation.org>
+Subject: [PATCH 5.10 403/717] remoteproc: k3-dsp: Fix return value check in k3_dsp_rproc_of_get_memories()
+Date:   Mon, 28 Dec 2020 13:46:41 +0100
+Message-Id: <20201228125040.297684913@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit a31eb615646a63370aa1da1053c45439c7653d83 ]
+[ Upstream commit 6dfdf6e4e7096fead7755d47d91d72e896bb4804 ]
 
-ezusb_xmit() allocates a context which is leaked if
-orinoco_process_xmit_skb() returns an error.
+In case of error, the function devm_ioremap_wc() returns NULL pointer
+not ERR_PTR(). The IS_ERR() test in the return value check should be
+replaced with NULL test.
 
-Move ezusb_alloc_ctx() after the invocation of
-orinoco_process_xmit_skb() because the context is not needed so early.
-ezusb_access_ltv() will cleanup the context in case of an error.
-
-Fixes: bac6fafd4d6a0 ("orinoco: refactor xmit path")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201113212252.2243570-2-bigeasy@linutronix.de
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 6edbe024ba17 ("remoteproc: k3-dsp: Add a remoteproc driver of K3 C66x DSPs")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Suman Anna <s-anna@ti.com>
+Link: https://lore.kernel.org/r/20200905122503.17352-1-yuehaibing@huawei.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intersil/orinoco/orinoco_usb.c    | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/remoteproc/ti_k3_dsp_remoteproc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-index e753f43e0162f..e2368bfe3e468 100644
---- a/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-+++ b/drivers/net/wireless/intersil/orinoco/orinoco_usb.c
-@@ -1234,13 +1234,6 @@ static netdev_tx_t ezusb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (skb->len < ETH_HLEN)
- 		goto drop;
+diff --git a/drivers/remoteproc/ti_k3_dsp_remoteproc.c b/drivers/remoteproc/ti_k3_dsp_remoteproc.c
+index 9011e477290ce..863c0214e0a8e 100644
+--- a/drivers/remoteproc/ti_k3_dsp_remoteproc.c
++++ b/drivers/remoteproc/ti_k3_dsp_remoteproc.c
+@@ -445,10 +445,10 @@ static int k3_dsp_rproc_of_get_memories(struct platform_device *pdev,
  
--	ctx = ezusb_alloc_ctx(upriv, EZUSB_RID_TX, 0);
--	if (!ctx)
--		goto busy;
--
--	memset(ctx->buf, 0, BULK_BUF_SIZE);
--	buf = ctx->buf->data;
--
- 	tx_control = 0;
- 
- 	err = orinoco_process_xmit_skb(skb, dev, priv, &tx_control,
-@@ -1248,6 +1241,13 @@ static netdev_tx_t ezusb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (err)
- 		goto drop;
- 
-+	ctx = ezusb_alloc_ctx(upriv, EZUSB_RID_TX, 0);
-+	if (!ctx)
-+		goto drop;
-+
-+	memset(ctx->buf, 0, BULK_BUF_SIZE);
-+	buf = ctx->buf->data;
-+
- 	{
- 		__le16 *tx_cntl = (__le16 *)buf;
- 		*tx_cntl = cpu_to_le16(tx_control);
+ 		kproc->mem[i].cpu_addr = devm_ioremap_wc(dev, res->start,
+ 							 resource_size(res));
+-		if (IS_ERR(kproc->mem[i].cpu_addr)) {
++		if (!kproc->mem[i].cpu_addr) {
+ 			dev_err(dev, "failed to map %s memory\n",
+ 				data->mems[i].name);
+-			return PTR_ERR(kproc->mem[i].cpu_addr);
++			return -ENOMEM;
+ 		}
+ 		kproc->mem[i].bus_addr = res->start;
+ 		kproc->mem[i].dev_addr = data->mems[i].dev_addr;
 -- 
 2.27.0
 
