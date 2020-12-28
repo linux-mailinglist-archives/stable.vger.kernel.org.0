@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A00B82E4365
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD71E2E3E20
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408292AbgL1PeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52842 "EHLO mail.kernel.org"
+        id S2503045AbgL1OYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:24:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405630AbgL1NvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD7FB206D4;
-        Mon, 28 Dec 2020 13:51:01 +0000 (UTC)
+        id S2503005AbgL1OYT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 584DC22B3B;
+        Mon, 28 Dec 2020 14:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163462;
-        bh=Q7iuGwhXio1TWt9u6d1V9bWObd4jcJvFwHvZOEyNLO8=;
+        s=korg; t=1609165443;
+        bh=ycu+JE1DE1QEQDhy6MtUTnnqk2x6wQmu47w4i+VT+l0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUPACSBpNlxLWKmMd18veL/bxWuuPE3tO8GGghF738xcfvnBwwZRsUgxqLZjmYyQP
-         QvK+PDJW/m958mO5q0qPX/4E1YlWSKkZEC6TVa4qu4zT+UP2v72LP2c1tsvcvBGe6s
-         jD6JZtB+Ai+v55CvkXpPFmX/QwXYSHWUv/XXvwLA=
+        b=jl9STrmU2LpkWW4MQWIkLI5ZPiwP1IZ2YEeIMJ7XZdd+yDy2HeZAEcGduPnPfcNPw
+         C5wBJf00tn8p6mZe9J3+aaFyUYTgUmc9pOYBuoaBxHC/n+kuJI+xVqQphomk7U9D9e
+         VHqz2sDd4M9eD5CBeUdxKSw/7AWUnINCiTByZql8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 294/453] net: korina: fix return value
-Date:   Mon, 28 Dec 2020 13:48:50 +0100
-Message-Id: <20201228124951.351324312@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Scally <djrscally@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 533/717] Revert "ACPI / resources: Use AE_CTRL_TERMINATE to terminate resources walks"
+Date:   Mon, 28 Dec 2020 13:48:51 +0100
+Message-Id: <20201228125046.506749180@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Daniel Scally <djrscally@gmail.com>
 
-[ Upstream commit 7eb000bdbe7c7da811ef51942b356f6e819b13ba ]
+commit 12fc4dad94dfac25599f31257aac181c691ca96f upstream.
 
-The ndo_start_xmit() method must not attempt to free the skb to transmit
-when returning NETDEV_TX_BUSY. Therefore, make sure the
-korina_send_packet() function returns NETDEV_TX_OK when it frees a packet.
+This reverts commit 8a66790b7850a6669129af078768a1d42076a0ef.
 
-Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20201214220952.19935-1-vincent.stehle@laposte.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switching this function to AE_CTRL_TERMINATE broke the documented
+behaviour of acpi_dev_get_resources() - AE_CTRL_TERMINATE does not, in
+fact, terminate the resource walk because acpi_walk_resource_buffer()
+ignores it (specifically converting it to AE_OK), referring to that
+value as "an OK termination by the user function". This means that
+acpi_dev_get_resources() does not abort processing when the preproc
+function returns a negative value.
+
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/korina.c | 2 +-
+ drivers/acpi/resource.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index 993f495e2bf7b..9f804e2aba359 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -219,7 +219,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
- 			dev_kfree_skb_any(skb);
- 			spin_unlock_irqrestore(&lp->lock, flags);
- 
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -541,7 +541,7 @@ static acpi_status acpi_dev_process_reso
+ 		ret = c->preproc(ares, c->preproc_data);
+ 		if (ret < 0) {
+ 			c->error = ret;
+-			return AE_CTRL_TERMINATE;
++			return AE_ABORT_METHOD;
+ 		} else if (ret > 0) {
+ 			return AE_OK;
  		}
- 	}
- 
--- 
-2.27.0
-
 
 
