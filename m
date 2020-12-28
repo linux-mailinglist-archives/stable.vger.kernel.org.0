@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE5B2E681E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:33:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC81E2E6914
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729825AbgL1Qc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:32:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33276 "EHLO mail.kernel.org"
+        id S1728964AbgL1M52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:57:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730615AbgL1NF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:05:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 637C821D94;
-        Mon, 28 Dec 2020 13:04:44 +0000 (UTC)
+        id S1728953AbgL1M51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCDE6208BA;
+        Mon, 28 Dec 2020 12:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160685;
-        bh=cRicDIf1s2m/epyd1+FFfQ5TZVTtW4rSXtzd0631iK0=;
+        s=korg; t=1609160206;
+        bh=qA4XfFoJXSk7xNjMcRZKS/oFgOclCgHcjJNDgC90tY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqU6jQMljyrFHhwNbsmsPkvmkKcylmqyPtp0ds2Ic7KC356THu016VSr5nr7JIz69
-         Y3MgBWGonn1S/AXDww8Omu7FuM0LDbsO6vHYLaqFCbyawaHni6u/VZyzFWTGb9m4Pn
-         MI4N+74Aiu2kPSItF0C0mKaHDHsSSxTNM1cOrH3w=
+        b=pMfGYHLlAUJZvDHAuF5E27xYLVsH+miRGuoN7ITCTvDATJWM6DEV+ZQBdvCy9ClGK
+         bEi0aDiI7kTKFj8zAKAREIwSABzNCCv7/9r6bWDZ97fA6Kl/r/+BRUaPKJYj11MR7t
+         9fXcy+tZ8P2OAG9OgxfroETY41btSvGBsilXlQhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH 4.9 136/175] ACPI: PNP: compare the string length in the matching_id()
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 105/132] s390/dasd: fix list corruption of lcu list
 Date:   Mon, 28 Dec 2020 13:49:49 +0100
-Message-Id: <20201228124859.835762152@linuxfoundation.org>
+Message-Id: <20201228124851.484831378@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit b08221c40febcbda9309dd70c61cf1b0ebb0e351 upstream.
+commit 53a7f655834c7c335bf683f248208d4fbe4b47bc upstream.
 
-Recently we met a touchscreen problem on some Thinkpad machines, the
-touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
-work.
+In dasd_alias_disconnect_device_from_lcu the device is removed from any
+list on the LCU. Afterwards the LCU is removed from the lcu list if it
+does not contain devices any longer.
 
-An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
-the current rule in matching_id(), this device will be regarded as
-a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
-this PNP device is attached to the acpi device as the 1st
-physical_node, this will make the i2c bus match fail when i2c bus
-calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
-driver.
+The lcu->lock protects the lcu from parallel updates. But to cancel all
+workers and wait for completion the lcu->lock has to be unlocked.
 
-WACF2200 is an i2c device instead of a PNP device, after adding the
-string length comparing, the matching_id() will return false when
-matching WACF2200 and WACFXXX, and it is reasonable to compare the
-string length when matching two IDs.
+If two devices are removed in parallel and both are removed from the LCU
+the first device that takes the lcu->lock again will delete the LCU because
+it is already empty but the second device also tries to free the LCU which
+leads to a list corruption of the lcu list.
 
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix by removing the device right before the lcu is checked without
+unlocking the lcu->lock in between.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_pnp.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/s390/block/dasd_alias.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_pnp.c
-+++ b/drivers/acpi/acpi_pnp.c
-@@ -320,6 +320,9 @@ static bool matching_id(const char *idst
- {
- 	int i;
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -258,7 +258,6 @@ void dasd_alias_disconnect_device_from_l
+ 		return;
+ 	device->discipline->get_uid(device, &uid);
+ 	spin_lock_irqsave(&lcu->lock, flags);
+-	list_del_init(&device->alias_list);
+ 	/* make sure that the workers don't use this device */
+ 	if (device == lcu->suc_data.device) {
+ 		spin_unlock_irqrestore(&lcu->lock, flags);
+@@ -285,6 +284,7 @@ void dasd_alias_disconnect_device_from_l
  
-+	if (strlen(idstr) != strlen(list_id))
-+		return false;
-+
- 	if (memcmp(idstr, list_id, 3))
- 		return false;
- 
+ 	spin_lock_irqsave(&aliastree.lock, flags);
+ 	spin_lock(&lcu->lock);
++	list_del_init(&device->alias_list);
+ 	if (list_empty(&lcu->grouplist) &&
+ 	    list_empty(&lcu->active_devices) &&
+ 	    list_empty(&lcu->inactive_devices)) {
 
 
