@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1EF2E3BDA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6C82E3E4D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405276AbgL1Nzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:55:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57308 "EHLO mail.kernel.org"
+        id S2503804AbgL1O0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:26:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405266AbgL1Nzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:55:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C4C320715;
-        Mon, 28 Dec 2020 13:54:56 +0000 (UTC)
+        id S2503853AbgL1O0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:26:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED44720731;
+        Mon, 28 Dec 2020 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163697;
-        bh=NecWOzjnZUiftZew2B7dyjBERYLrGFApJjP+NCByVC8=;
+        s=korg; t=1609165559;
+        bh=upuwEagy7mTEvIkefEbRQRnKWmT7ZSsFLCL1J9gpGRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKUuKEmnK7TkS8fUdYaN+as92ITh9Zx40GmY0u+hme+7fUpb/ZRy+D/eS0ETWbERb
-         n7d/VCORxASeAl4ArH79bTeCNXx/2qnoeJGemrVKMYbm/z2REvcvWJUQDCTILDkqkQ
-         jWTc6QvFB3O7AmnnZ8TDYYHK8CRcFWipFf6e2WWE=
+        b=vfgAJ9vwJ/eR3YPWKyJYgO5so8WyC184JONsJOuN06+Z85//UdXXsIzSkpkpjZ+CO
+         8Zm1FxuinI0QGsqnPiNxP/pptl2wrq0PmUg4cp5beYLmzF+6bgAAupRahgwKu+9hoh
+         L2IZ2FEA/C/bLYjOB0t7Zl65eRmz6gzYScoxqzoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Connor McAdams <conmanx360@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 335/453] ALSA: hda/ca0132 - Fix AE-5 rear headphone pincfg.
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Joshua Thompson <funaho@jurai.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Laurent Vivier <laurent@vivier.eu>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 5.10 573/717] m68k: Fix WARNING splat in pmac_zilog driver
 Date:   Mon, 28 Dec 2020 13:49:31 +0100
-Message-Id: <20201228124953.343674398@linuxfoundation.org>
+Message-Id: <20201228125048.372844641@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +45,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor McAdams <conmanx360@gmail.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-commit c697ba85a94b8f65bf90dec5ef9af5c39c3e73b2 upstream.
+commit a7b5458ce73b235be027cf2658c39b19b7e58cf2 upstream.
 
-The Windows driver sets the pincfg for the AE-5's rear-headphone to
-report as a microphone. This causes issues with Pulseaudio mistakenly
-believing there is no headphone plugged in. In Linux, we should instead
-set it to be a headphone.
+Don't add platform resources that won't be used. This avoids a
+recently-added warning from the driver core, that can show up on a
+multi-platform kernel when !MACH_IS_MAC.
 
-Fixes: a6b0961b39896 ("ALSA: hda/ca0132 - fix AE-5 pincfg")
-Cc: <stable@kernel.org>
-Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Link: https://lore.kernel.org/r/20201208195223.424753-1-conmanx360@gmail.com
-Link: https://lore.kernel.org/r/20201210173550.2968-1-conmanx360@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at drivers/base/platform.c:224 platform_get_irq_optional+0x8e/0xce
+0 is an invalid IRQ number
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.9.0-multi #1
+Stack from 004b3f04:
+        004b3f04 00462c2f 00462c2f 004b3f20 0002e128 004754db 004b6ad4 004b3f4c
+        0002e19c 004754f7 000000e0 00285ba0 00000009 00000000 004b3f44 ffffffff
+        004754db 004b3f64 004b3f74 00285ba0 004754f7 000000e0 00000009 004754db
+        004fdf0c 005269e2 004fdf0c 00000000 004b3f88 00285cae 004b6964 00000000
+        004fdf0c 004b3fac 0051cc68 004b6964 00000000 004b6964 00000200 00000000
+        0051cc3e 0023c18a 004b3fc0 0051cd8a 004fdf0c 00000002 0052b43c 004b3fc8
+Call Trace: [<0002e128>] __warn+0xa6/0xd6
+ [<0002e19c>] warn_slowpath_fmt+0x44/0x76
+ [<00285ba0>] platform_get_irq_optional+0x8e/0xce
+ [<00285ba0>] platform_get_irq_optional+0x8e/0xce
+ [<00285cae>] platform_get_irq+0x12/0x4c
+ [<0051cc68>] pmz_init_port+0x2a/0xa6
+ [<0051cc3e>] pmz_init_port+0x0/0xa6
+ [<0023c18a>] strlen+0x0/0x22
+ [<0051cd8a>] pmz_probe+0x34/0x88
+ [<0051cde6>] pmz_console_init+0x8/0x28
+ [<00511776>] console_init+0x1e/0x28
+ [<0005a3bc>] printk+0x0/0x16
+ [<0050a8a6>] start_kernel+0x368/0x4ce
+ [<005094f8>] _sinittext+0x4f8/0xc48
+random: get_random_bytes called from print_oops_end_marker+0x56/0x80 with crng_init=0
+---[ end trace 392d8e82eed68d6c ]---
+
+Commit a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid"),
+which introduced the WARNING, suggests that testing for irq == 0 is
+undesirable. Instead of that comparison, just test for resource existence.
+
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Joshua Thompson <funaho@jurai.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: stable@vger.kernel.org # v5.8+
+Reported-by: Laurent Vivier <laurent@vivier.eu>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Link: https://lore.kernel.org/r/0c0fe1e4f11ccec202d4df09ea7d9d98155d101a.1606001297.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/mac/config.c          |   17 +++++++++--------
+ drivers/tty/serial/pmac_zilog.c |   14 +++++++++-----
+ 2 files changed, 18 insertions(+), 13 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1147,7 +1147,7 @@ static const struct hda_pintbl ae5_pincf
- 	{ 0x0e, 0x01c510f0 }, /* SPDIF In */
- 	{ 0x0f, 0x01017114 }, /* Port A -- Rear L/R. */
- 	{ 0x10, 0x01017012 }, /* Port D -- Center/LFE or FP Hp */
--	{ 0x11, 0x01a170ff }, /* Port B -- LineMicIn2 / Rear Headphone */
-+	{ 0x11, 0x012170ff }, /* Port B -- LineMicIn2 / Rear Headphone */
- 	{ 0x12, 0x01a170f0 }, /* Port C -- LineIn1 */
- 	{ 0x13, 0x908700f0 }, /* What U Hear In*/
- 	{ 0x18, 0x50d000f0 }, /* N/A */
+--- a/arch/m68k/mac/config.c
++++ b/arch/m68k/mac/config.c
+@@ -777,16 +777,12 @@ static struct resource scc_b_rsrcs[] = {
+ struct platform_device scc_a_pdev = {
+ 	.name           = "scc",
+ 	.id             = 0,
+-	.num_resources  = ARRAY_SIZE(scc_a_rsrcs),
+-	.resource       = scc_a_rsrcs,
+ };
+ EXPORT_SYMBOL(scc_a_pdev);
+ 
+ struct platform_device scc_b_pdev = {
+ 	.name           = "scc",
+ 	.id             = 1,
+-	.num_resources  = ARRAY_SIZE(scc_b_rsrcs),
+-	.resource       = scc_b_rsrcs,
+ };
+ EXPORT_SYMBOL(scc_b_pdev);
+ 
+@@ -813,10 +809,15 @@ static void __init mac_identify(void)
+ 
+ 	/* Set up serial port resources for the console initcall. */
+ 
+-	scc_a_rsrcs[0].start = (resource_size_t) mac_bi_data.sccbase + 2;
+-	scc_a_rsrcs[0].end   = scc_a_rsrcs[0].start;
+-	scc_b_rsrcs[0].start = (resource_size_t) mac_bi_data.sccbase;
+-	scc_b_rsrcs[0].end   = scc_b_rsrcs[0].start;
++	scc_a_rsrcs[0].start     = (resource_size_t)mac_bi_data.sccbase + 2;
++	scc_a_rsrcs[0].end       = scc_a_rsrcs[0].start;
++	scc_a_pdev.num_resources = ARRAY_SIZE(scc_a_rsrcs);
++	scc_a_pdev.resource      = scc_a_rsrcs;
++
++	scc_b_rsrcs[0].start     = (resource_size_t)mac_bi_data.sccbase;
++	scc_b_rsrcs[0].end       = scc_b_rsrcs[0].start;
++	scc_b_pdev.num_resources = ARRAY_SIZE(scc_b_rsrcs);
++	scc_b_pdev.resource      = scc_b_rsrcs;
+ 
+ 	switch (macintosh_config->scc_type) {
+ 	case MAC_SCC_PSC:
+--- a/drivers/tty/serial/pmac_zilog.c
++++ b/drivers/tty/serial/pmac_zilog.c
+@@ -1693,22 +1693,26 @@ static int __init pmz_probe(void)
+ 
+ #else
+ 
++/* On PCI PowerMacs, pmz_probe() does an explicit search of the OpenFirmware
++ * tree to obtain the device_nodes needed to start the console before the
++ * macio driver. On Macs without OpenFirmware, global platform_devices take
++ * the place of those device_nodes.
++ */
+ extern struct platform_device scc_a_pdev, scc_b_pdev;
+ 
+ static int __init pmz_init_port(struct uart_pmac_port *uap)
+ {
+-	struct resource *r_ports;
+-	int irq;
++	struct resource *r_ports, *r_irq;
+ 
+ 	r_ports = platform_get_resource(uap->pdev, IORESOURCE_MEM, 0);
+-	irq = platform_get_irq(uap->pdev, 0);
+-	if (!r_ports || irq <= 0)
++	r_irq = platform_get_resource(uap->pdev, IORESOURCE_IRQ, 0);
++	if (!r_ports || !r_irq)
+ 		return -ENODEV;
+ 
+ 	uap->port.mapbase  = r_ports->start;
+ 	uap->port.membase  = (unsigned char __iomem *) r_ports->start;
+ 	uap->port.iotype   = UPIO_MEM;
+-	uap->port.irq      = irq;
++	uap->port.irq      = r_irq->start;
+ 	uap->port.uartclk  = ZS_CLOCK;
+ 	uap->port.fifosize = 1;
+ 	uap->port.ops      = &pmz_pops;
 
 
