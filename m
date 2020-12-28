@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 158E52E398E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B2B2E399B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388810AbgL1NYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:24:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53494 "EHLO mail.kernel.org"
+        id S2388906AbgL1NZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:25:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388805AbgL1NYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC8A229EF;
-        Mon, 28 Dec 2020 13:24:12 +0000 (UTC)
+        id S2388902AbgL1NZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:25:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF9F220719;
+        Mon, 28 Dec 2020 13:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161853;
-        bh=t9K5CfISInwcT+8p3Cm6DucWHTaMEzf4lThFKR6c7CY=;
+        s=korg; t=1609161885;
+        bh=6JE0UNhSRbQ5lIXyrZXz7GwSnXiv+R1sJx4VaR0Fduk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IF8R+f+m/xtY490VBD3BRjUi6XT4rfQ0h4w4hXwAUvkVA77AMKd/FoQKGN5kkx03H
-         wJTtbFHkTpG2huaR6j2Ew47wOtxh8HiuBzVX63dEYi4+S1HLIl/v100q/voFVMyPLh
-         DgsRc2EfZwjPy2dmZn9mP6mCYf7F1d+ftKUR7ySA=
+        b=E1J6TdSD0SA1HLcmzkxoCyqr3g80TuNdXT2kt6cz6g1SS+YiNfL5XuVIhaDal683q
+         /8n+8tA3w86PXC3nNKXQspiBRVKXsLZnUljdret5kWDQVR6Qh+oaW354zXN4h8/jpb
+         ygQtlsaRd/7EZikZjIVaQS23jaYcNGoSuMTmKEu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mao Jinlong <jinlmao@codeaurora.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.19 087/346] coresight: tmc-etr: Check if page is valid before dma_map_page()
-Date:   Mon, 28 Dec 2020 13:46:46 +0100
-Message-Id: <20201228124924.011181694@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 088/346] scsi: megaraid_sas: Check user-provided offsets
+Date:   Mon, 28 Dec 2020 13:46:47 +0100
+Message-Id: <20201228124924.055088871@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -41,58 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Jinlong <jinlmao@codeaurora.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 1cc573d5754e92372a7e30e35468644f8811e1a4 upstream.
+commit 381d34e376e3d9d27730fda8a0e870600e6c8196 upstream.
 
-alloc_pages_node() return should be checked before calling
-dma_map_page() to make sure that valid page is mapped or
-else it can lead to aborts as below:
+It sounds unwise to let user space pass an unchecked 32-bit offset into a
+kernel structure in an ioctl. This is an unsigned variable, so checking the
+upper bound for the size of the structure it points into is sufficient to
+avoid data corruption, but as the pointer might also be unaligned, it has
+to be written carefully as well.
 
- Unable to handle kernel paging request at virtual address ffffffc008000000
- Mem abort info:
- <snip>...
- pc : __dma_inv_area+0x40/0x58
- lr : dma_direct_map_page+0xd8/0x1c8
+While I stumbled over this problem by reading the code, I did not continue
+checking the function for further problems like it.
 
- Call trace:
-  __dma_inv_area
-  tmc_pages_alloc
-  tmc_alloc_data_pages
-  tmc_alloc_sg_table
-  tmc_init_etr_sg_table
-  tmc_alloc_etr_buf
-  tmc_enable_etr_sink_sysfs
-  tmc_enable_etr_sink
-  coresight_enable_path
-  coresight_enable
-  enable_source_store
-  dev_attr_store
-  sysfs_kf_write
-
-Fixes: 99443ea19e8b ("coresight: Add generic TMC sg table framework")
-Cc: stable@vger.kernel.org
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mao Jinlong <jinlmao@codeaurora.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201127175256.1092685-13-mathieu.poirier@linaro.org
+Link: https://lore.kernel.org/r/20201030164450.1253641-2-arnd@kernel.org
+Fixes: c4a3e0a529ab ("[SCSI] MegaRAID SAS RAID: new driver")
+Cc: <stable@vger.kernel.org> # v2.6.15+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/coresight/coresight-tmc-etr.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/megaraid/megaraid_sas_base.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
-@@ -183,6 +183,8 @@ static int tmc_pages_alloc(struct tmc_pa
- 		} else {
- 			page = alloc_pages_node(node,
- 						GFP_KERNEL | __GFP_ZERO, 0);
-+			if (!page)
-+				goto err;
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -7192,7 +7192,7 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	int error = 0, i;
+ 	void *sense = NULL;
+ 	dma_addr_t sense_handle;
+-	unsigned long *sense_ptr;
++	void *sense_ptr;
+ 	u32 opcode = 0;
+ 
+ 	memset(kbuff_arr, 0, sizeof(kbuff_arr));
+@@ -7309,6 +7309,13 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 	}
+ 
+ 	if (ioc->sense_len) {
++		/* make sure the pointer is part of the frame */
++		if (ioc->sense_off >
++		    (sizeof(union megasas_frame) - sizeof(__le64))) {
++			error = -EINVAL;
++			goto out;
++		}
++
+ 		sense = dma_alloc_coherent(&instance->pdev->dev, ioc->sense_len,
+ 					     &sense_handle, GFP_KERNEL);
+ 		if (!sense) {
+@@ -7316,12 +7323,11 @@ megasas_mgmt_fw_ioctl(struct megasas_ins
+ 			goto out;
  		}
- 		paddr = dma_map_page(dev, page, 0, PAGE_SIZE, dir);
- 		if (dma_mapping_error(dev, paddr))
+ 
+-		sense_ptr =
+-		(unsigned long *) ((unsigned long)cmd->frame + ioc->sense_off);
++		sense_ptr = (void *)cmd->frame + ioc->sense_off;
+ 		if (instance->consistent_mask_64bit)
+-			*sense_ptr = cpu_to_le64(sense_handle);
++			put_unaligned_le64(sense_handle, sense_ptr);
+ 		else
+-			*sense_ptr = cpu_to_le32(sense_handle);
++			put_unaligned_le32(sense_handle, sense_ptr);
+ 	}
+ 
+ 	/*
 
 
