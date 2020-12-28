@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 010B92E37F6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFB02E42FB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730218AbgL1NDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:03:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59410 "EHLO mail.kernel.org"
+        id S2407198AbgL1Nw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730212AbgL1NDW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFF14208D5;
-        Mon, 28 Dec 2020 13:02:40 +0000 (UTC)
+        id S2406434AbgL1Nux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77D0E22BEF;
+        Mon, 28 Dec 2020 13:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160561;
-        bh=SPLp9f0aNYouVDYwphkyzjOzpzihlP3PNM3XX/4RLcE=;
+        s=korg; t=1609163413;
+        bh=TYGqGoHWcQkY9WzaNVv33lvZzYth66cp92ZyHGd365Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nk7DCqy/fq/ywQqnPGHb2HrUJ92fXjb2NF2Ja0vxwSutm7F72N0mTZt/NB/0yvPll
-         yzZnbuzGkELfs+vvQGsyuRV6OZmx+auJBFYobhvjsa7hMp9v9XRYgTjk/TnK1K+1T4
-         ioqsg+pg06zP/xjzYFPwUfRnCS/FJqb4Rx7UGHWU=
+        b=laShKtCW2BIkHidSZUvsV0elFEd2+ECw6woi13SlJYbdsI/lAc/Xn23L9WpdCYPMx
+         R31KMEAATXwMNAu4zzyyuN+vbwLK5SPrp0nIl3cQ7BE2oT69lqXjbxw8/8uQnFcDm+
+         ihhDAAs5GnEikIOYGWH50FyTQPhSWaNtaQpB2gRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/175] crypto: talitos - Fix return type of current_desc_hdr()
+Subject: [PATCH 5.4 270/453] extcon: max77693: Fix modalias string
 Date:   Mon, 28 Dec 2020 13:48:26 +0100
-Message-Id: <20201228124855.822829518@linuxfoundation.org>
+Message-Id: <20201228124950.222604836@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
+[ Upstream commit e1efdb604f5c9903a5d92ef42244009d3c04880f ]
 
-current_desc_hdr() returns a u32 but in fact this is a __be32,
-leading to a lot of sparse warnings.
+The platform device driver name is "max77693-muic", so advertise it
+properly in the modalias string. This fixes automated module loading when
+this driver is compiled as a module.
 
-Change the return type to __be32 and ensure it is handled as
-sure by the caller.
-
-Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: db1b9037424b ("extcon: MAX77693: Add extcon-max77693 driver to support Maxim MAX77693 MUIC device")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/extcon/extcon-max77693.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 059c2d4ad18fb..f4a6be76468d5 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -447,7 +447,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
- /*
-  * locate current (offending) descriptor
-  */
--static u32 current_desc_hdr(struct device *dev, int ch)
-+static __be32 current_desc_hdr(struct device *dev, int ch)
- {
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	int tail, iter;
-@@ -478,13 +478,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- /*
-  * user diagnostics; report root cause of error based on execution unit status
-  */
--static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
-+static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
- {
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	int i;
- 
- 	if (!desc_hdr)
--		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
-+		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
- 
- 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
- 	case DESC_HDR_SEL0_AFEU:
+diff --git a/drivers/extcon/extcon-max77693.c b/drivers/extcon/extcon-max77693.c
+index 32fc5a66ffa98..26c7041f70698 100644
+--- a/drivers/extcon/extcon-max77693.c
++++ b/drivers/extcon/extcon-max77693.c
+@@ -1277,4 +1277,4 @@ module_platform_driver(max77693_muic_driver);
+ MODULE_DESCRIPTION("Maxim MAX77693 Extcon driver");
+ MODULE_AUTHOR("Chanwoo Choi <cw00.choi@samsung.com>");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:extcon-max77693");
++MODULE_ALIAS("platform:max77693-muic");
 -- 
 2.27.0
 
