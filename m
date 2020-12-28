@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A84BE2E63AF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F272E3988
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405216AbgL1Nql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47172 "EHLO mail.kernel.org"
+        id S2388721AbgL1NYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405115AbgL1NqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:46:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D4E82063A;
-        Mon, 28 Dec 2020 13:45:30 +0000 (UTC)
+        id S2388754AbgL1NYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3BD52076D;
+        Mon, 28 Dec 2020 13:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163131;
-        bh=9U3upSxYlBXjhkpUqNlElFC4H3T32885hb1ZB7T2aXo=;
+        s=korg; t=1609161836;
+        bh=omeGwpKob5krkYf00FuukKZDGrFgRZLhv+qccT7cFTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlrLIGVLgwYqTpS3dlBwrot4TEPwyNCbf9cknjhd2nhHmvL8oYb8RSiPp6RcCTr8C
-         j4QJKYvRCwpq+ahYkcfNRYDxl8g86YQNYAfK5mkWVu9PyA6WGepW2FriNkmpXT5nCo
-         jplFMN/uSJYgnBy6MAhCtyEfIMQWqc44ZI36u1BY=
+        b=O0WFycbC/6WomUyfeiLkOQkPG3fV7Bq7LuXiaHxJ+69UIacYNzDd5gHqcTr2P2l9U
+         cXdnqhI7poaxGBHy5gPku7UqnhK6F6cc/TU5mBvVIxy3fYF2uiwF6MYNG77GvLWFWJ
+         ohGe3B9v4Ma0iRew9YVFQejPs0TiCuSJnn8o5B4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh+dt@kernel.org>,
-        devicetree@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/453] arm64: dts: armada-3720-turris-mox: update ethernet-phy handle name
-Date:   Mon, 28 Dec 2020 13:46:57 +0100
-Message-Id: <20201228124945.912741305@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 099/346] drm/tve200: Fix handling of platform_get_irq() error
+Date:   Mon, 28 Dec 2020 13:46:58 +0100
+Message-Id: <20201228124924.568494183@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 3aa669a994c9110a2dc7e08a5c0958a9ea5eb17c ]
+[ Upstream commit 77bb5aaf2bb8180e7d1bb70b4df306f511707a7d ]
 
-Use property name `phy-handle` instead of the deprecated `phy` to
-connect eth2 to the PHY.
+platform_get_irq() returns -ERRNO on error.  In such case comparison
+to 0 would pass the check.
 
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: devicetree@vger.kernel.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 179c02fe90a4 ("drm/tve200: Add new driver for TVE200")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200827071107.27429-2-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/tve200/tve200_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index c3668187b8446..aa52927e2e9c2 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -144,7 +144,7 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&rgmii_pins>;
- 	phy-mode = "rgmii-id";
--	phy = <&phy1>;
-+	phy-handle = <&phy1>;
- 	status = "okay";
- };
+diff --git a/drivers/gpu/drm/tve200/tve200_drv.c b/drivers/gpu/drm/tve200/tve200_drv.c
+index ac344ddb23bc8..f93384c232066 100644
+--- a/drivers/gpu/drm/tve200/tve200_drv.c
++++ b/drivers/gpu/drm/tve200/tve200_drv.c
+@@ -223,8 +223,8 @@ static int tve200_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		ret = -EINVAL;
++	if (irq < 0) {
++		ret = irq;
+ 		goto clk_disable;
+ 	}
  
 -- 
 2.27.0
