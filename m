@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B932E65C1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14FC2E68CC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389278AbgL1N1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
+        id S2634366AbgL1QlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:41:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389412AbgL1N0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1E492072C;
-        Mon, 28 Dec 2020 13:25:37 +0000 (UTC)
+        id S1729292AbgL1M7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA4C522582;
+        Mon, 28 Dec 2020 12:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161938;
-        bh=1aLIONNo7VULB/zM0kUYcO0gvgKxQJHh/aZ9o2agKcA=;
+        s=korg; t=1609160313;
+        bh=cp5yAWSsmGzTB6HvGKaK6i/WsFk3L5RGH48JWKlLltg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvNS4nuqDlQ4BwtRDrH5YTxlQ+ZPkw9GQocVBhj25WSwUNnOhZYJcDSYnPrmYwzHS
-         S6O0szVhcCHjCuukIUkBEpQ4RA3yhLcNkHlpE0K6sqAbL3asX0RdqkoIEaAF6XTjTi
-         ZkMl5QkPEzOOlf4YCHSPIrUrFqCx15Ba7MrX7CsU=
+        b=DGHjnhndapMQ8xlR9PA54sOAjc4Wx8Ni07Wbv8Hckp0+D6qmWZRhMxCOEfJbunWHX
+         5R4ZyWLIczIaVe2b/RrAjfPisU44gowmIp/s1fj6L0hG4Jw6+DjDtogkrJADA3Va7b
+         lGStJT1IdIFgltJNzuMJjMtWKDzCKd8iv6/Vyf/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 134/346] ASoC: arizona: Fix a wrong free in wm8997_probe
-Date:   Mon, 28 Dec 2020 13:47:33 +0100
-Message-Id: <20201228124926.266770980@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 001/175] spi: bcm2835aux: Fix use-after-free on unbind
+Date:   Mon, 28 Dec 2020 13:47:34 +0100
+Message-Id: <20201228124853.297298171@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,40 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 5e7aace13df24ff72511f29c14ebbfe638ef733c ]
+[ Upstream commit e13ee6cc4781edaf8c7321bee19217e3702ed481 ]
 
-In the normal path, we should not free the arizona,
-we should return immediately. It will be free when
-call remove operation.
+bcm2835aux_spi_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Fixes: 31833ead95c2c ("ASoC: arizona: Move request of speaker IRQs into bus probe")
-Reported-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20201111130923.220186-2-zhangqilong3@huawei.com
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
+
+Fixes: b9dd3f6d4172 ("spi: bcm2835aux: Fix controller unregister order")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.4+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.4+: b9dd3f6d4172: spi: bcm2835aux: Fix controller unregister order
+Cc: <stable@vger.kernel.org> # v4.4+
+Link: https://lore.kernel.org/r/b290b06357d0c0bdee9cecc539b840a90630f101.1605121038.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8997.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-bcm2835aux.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
-index df5b36b8fc5a6..bb6a95be87265 100644
---- a/sound/soc/codecs/wm8997.c
-+++ b/sound/soc/codecs/wm8997.c
-@@ -1180,6 +1180,8 @@ static int wm8997_probe(struct platform_device *pdev)
- 		goto err_spk_irqs;
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -407,7 +407,7 @@ static int bcm2835aux_spi_probe(struct p
+ 	unsigned long clk_hz;
+ 	int err;
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master) {
+ 		dev_err(&pdev->dev, "spi_alloc_master() failed\n");
+ 		return -ENOMEM;
+@@ -439,30 +439,26 @@ static int bcm2835aux_spi_probe(struct p
+ 	/* the main area */
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	bs->regs = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(bs->regs)) {
+-		err = PTR_ERR(bs->regs);
+-		goto out_master_put;
+-	}
++	if (IS_ERR(bs->regs))
++		return PTR_ERR(bs->regs);
+ 
+ 	bs->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if ((!bs->clk) || (IS_ERR(bs->clk))) {
+-		err = PTR_ERR(bs->clk);
+ 		dev_err(&pdev->dev, "could not get clk: %d\n", err);
+-		goto out_master_put;
++		return PTR_ERR(bs->clk);
  	}
  
-+	return ret;
-+
- err_spk_irqs:
- 	arizona_free_spk_irqs(arizona);
+ 	bs->irq = platform_get_irq(pdev, 0);
+ 	if (bs->irq <= 0) {
+ 		dev_err(&pdev->dev, "could not get IRQ: %d\n", bs->irq);
+-		err = bs->irq ? bs->irq : -ENODEV;
+-		goto out_master_put;
++		return bs->irq ? bs->irq : -ENODEV;
+ 	}
  
--- 
-2.27.0
-
+ 	/* this also enables the HW block */
+ 	err = clk_prepare_enable(bs->clk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not prepare clock: %d\n", err);
+-		goto out_master_put;
++		return err;
+ 	}
+ 
+ 	/* just checking if the clock returns a sane value */
+@@ -495,8 +491,6 @@ static int bcm2835aux_spi_probe(struct p
+ 
+ out_clk_disable:
+ 	clk_disable_unprepare(bs->clk);
+-out_master_put:
+-	spi_master_put(master);
+ 	return err;
+ }
+ 
 
 
