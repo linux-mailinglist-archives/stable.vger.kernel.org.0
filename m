@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8B92E3F9E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0E72E38DF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502280AbgL1O1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:27:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
+        id S1733198AbgL1NQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:16:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502271AbgL1O1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A6EF20731;
-        Mon, 28 Dec 2020 14:26:42 +0000 (UTC)
+        id S1733190AbgL1NQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50262207C9;
+        Mon, 28 Dec 2020 13:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165603;
-        bh=ClAFoqKd4rQlBjNQV5GkKaU1Hf441krcqAmQs/nsaDg=;
+        s=korg; t=1609161342;
+        bh=rN1UhIVGmv1kbOBSZbu95fHxVkQe5md3+jf0hDU4j3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWZfSGfptHcM6aWrSlXx5dEqr4wpv9ODhW7H2glXk85imHC+9HhOaBfVZ2X3zgj+2
-         sVCNfOtAQqvQqA/vap7Qtg+VlsD4Vp+G2IP011bvduvcLxRVOs1qh21O39AEGgyuol
-         f2FSpvZ8E1xs4Dhr7tH05Ewao/702pkQ/VhoNK74=
+        b=FrEj0kz/gq0IXLsENKM1Fwbxom1vHWxyTLRwIWIz9GZ2QNAv008CelMWnMee3LY49
+         Ifp7akbAaKBZ0r9S4lzdHuhGdoEYnu2/tY3qmhqsaEY4ryALncokdKLtFSi+iuAfM4
+         zMgxlunNunmQwvKNYgzAZba52qhUVn2fcVnhrEWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 590/717] ext4: fix an IS_ERR() vs NULL check
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Kozlov Sergey <serjk@netup.ru>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 183/242] media: netup_unidvb: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:49:48 +0100
-Message-Id: <20201228125049.178226312@linuxfoundation.org>
+Message-Id: <20201228124913.693729843@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit bc18546bf68e47996a359d2533168d5770a22024 upstream.
+commit e297ddf296de35037fa97f4302782def196d350a upstream.
 
-The ext4_find_extent() function never returns NULL, it returns error
-pointers.
+If the call to spi_register_master() fails on probe of the NetUP
+Universal DVB driver, the spi_master struct is erroneously not freed.
 
-Fixes: 44059e503b03 ("ext4: fast commit recovery path")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20201023112232.GB282278@mwanda
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Likewise, if spi_new_device() fails, the spi_controller struct is
+not unregistered.  Plug the leaks.
+
+While at it, fix an ordering issue in netup_spi_release() wherein
+spi_unregister_master() is called after fiddling with the IRQ control
+register.  The correct order is to call spi_unregister_master() *before*
+this teardown step because bus accesses may still be ongoing until that
+function returns.
+
+Fixes: 52b1eaf4c59a ("[media] netup_unidvb: NetUP Universal DVB-S/S2/T/T2/C PCI-E card driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.3+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.3+
+Cc: Kozlov Sergey <serjk@netup.ru>
+Link: https://lore.kernel.org/r/c4c24f333fc7840f4a3db24789e6e10dd660bede.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/netup_unidvb/netup_unidvb_spi.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -5815,8 +5815,8 @@ int ext4_ext_replay_update_ex(struct ino
- 	int ret;
+--- a/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
++++ b/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
+@@ -184,7 +184,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 	struct spi_master *master;
+ 	struct netup_spi *nspi;
  
- 	path = ext4_find_extent(inode, start, NULL, 0);
--	if (!path)
--		return -EINVAL;
-+	if (IS_ERR(path))
-+		return PTR_ERR(path);
- 	ex = path[path->p_depth].p_ext;
- 	if (!ex) {
- 		ret = -EFSCORRUPTED;
+-	master = spi_alloc_master(&ndev->pci_dev->dev,
++	master = devm_spi_alloc_master(&ndev->pci_dev->dev,
+ 		sizeof(struct netup_spi));
+ 	if (!master) {
+ 		dev_err(&ndev->pci_dev->dev,
+@@ -217,6 +217,7 @@ int netup_spi_init(struct netup_unidvb_d
+ 		ndev->pci_slot,
+ 		ndev->pci_func);
+ 	if (!spi_new_device(master, &netup_spi_board)) {
++		spi_unregister_master(master);
+ 		ndev->spi = NULL;
+ 		dev_err(&ndev->pci_dev->dev,
+ 			"%s(): unable to create SPI device\n", __func__);
+@@ -235,13 +236,13 @@ void netup_spi_release(struct netup_unid
+ 	if (!spi)
+ 		return;
+ 
++	spi_unregister_master(spi->master);
+ 	spin_lock_irqsave(&spi->lock, flags);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg | NETUP_SPI_CTRL_IRQ, &spi->regs->control_stat);
+ 	reg = readw(&spi->regs->control_stat);
+ 	writew(reg & ~NETUP_SPI_CTRL_IMASK, &spi->regs->control_stat);
+ 	spin_unlock_irqrestore(&spi->lock, flags);
+-	spi_unregister_master(spi->master);
+ 	ndev->spi = NULL;
+ }
+ 
 
 
