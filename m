@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6714D2E3F86
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:42:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F15252E4304
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502540AbgL1Okz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:40:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
+        id S2407398AbgL1NyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:54:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502473AbgL1O2g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:28:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EC620739;
-        Mon, 28 Dec 2020 14:27:55 +0000 (UTC)
+        id S2407391AbgL1NyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0553121D94;
+        Mon, 28 Dec 2020 13:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165676;
-        bh=I2cXp1MT7EnjWf0cayzQn7ATh5TaaXPWvohR2tD1TEU=;
+        s=korg; t=1609163603;
+        bh=xnugOAyweDGQtyHPz09FHGcpIxllkk0KFbeZ9EuxOKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIyHc9ydFlRa5c3HJw5tMWNJGex/n4zECohOuI4cGQ7Lp8VEs5O7nbkgGP0JC2TFk
-         3Vnc+dF0JlsnzDtNMNW0HZGGn7NzAeQbqB8fh6fYCVY6rdIzJS8WyK4dX5lUZhU/Iq
-         kWB1DMI8CwtMu1y251pP3Zm7YyokcrWzG9xI+U+Y=
+        b=p/+De1ajMwa9ItEof/Hbx04TWyy5C65SgY86v24gaLrGml4RSc+e/ZS5YLuU2wH8c
+         IKIjbIzpJutZmhdT1n3XTf6JbfwlyjnSJ+SfL1NLyH1M8QtDGTy+DXe/4TqtvpmYmo
+         VDkwcCTl1TWGee4aywzLPiFITiLxuKvJTjXY6130=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.10 574/717] Documentation: seqlock: s/LOCKTYPE/LOCKNAME/g
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 336/453] ALSA: hda/realtek: make bass spk volume adjustable on a yoga laptop
 Date:   Mon, 28 Dec 2020 13:49:32 +0100
-Message-Id: <20201228125048.421617679@linuxfoundation.org>
+Message-Id: <20201228124953.391899634@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit cf48647243cc28d15280600292db5777592606c5 upstream.
+commit c72b9bfe0f914639cc475585f45722a3eb57a56d upstream.
 
-Sequence counters with an associated write serialization lock are called
-seqcount_LOCKNAME_t. Fix the documentation accordingly.
+This change could fix 2 issues on this machine:
+ - the bass speaker's output volume can't be adjusted, that is because
+   the bass speaker is routed to the DAC (Nid 0x6) which has no volume
+   control.
+ - after plugging a headset with vol+, vol- and pause buttons on it,
+   press those buttons, nothing happens, this means those buttons
+   don't work at all. This machine has alc287 codec, need to add the
+   codec id to the disable/enable_headset_jack_key(), then the headset
+   button could work.
 
-While at it, remove a paragraph that inappropriately discussed a
-seqlock.h implementation detail.
+The quirk of ALC285_FIXUP_THINKPAD_HEADSET_JACK could fix both of these
+2 issues.
 
-Fixes: 6dd699b13d53 ("seqlock: seqcount_LOCKNAME_t: Standardize naming convention")
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201206162143.14387-2-a.darwish@linutronix.de
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20201205051130.8122-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/locking/seqlock.rst |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ sound/pci/hda/patch_realtek.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/Documentation/locking/seqlock.rst
-+++ b/Documentation/locking/seqlock.rst
-@@ -89,7 +89,7 @@ Read path::
- 
- .. _seqcount_locktype_t:
- 
--Sequence counters with associated locks (``seqcount_LOCKTYPE_t``)
-+Sequence counters with associated locks (``seqcount_LOCKNAME_t``)
- -----------------------------------------------------------------
- 
- As discussed at :ref:`seqcount_t`, sequence count write side critical
-@@ -115,27 +115,26 @@ The following sequence counters with ass
-   - ``seqcount_mutex_t``
-   - ``seqcount_ww_mutex_t``
- 
--The plain seqcount read and write APIs branch out to the specific
--seqcount_LOCKTYPE_t implementation at compile-time. This avoids kernel
--API explosion per each new seqcount LOCKTYPE.
-+The sequence counter read and write APIs can take either a plain
-+seqcount_t or any of the seqcount_LOCKNAME_t variants above.
- 
--Initialization (replace "LOCKTYPE" with one of the supported locks)::
-+Initialization (replace "LOCKNAME" with one of the supported locks)::
- 
- 	/* dynamic */
--	seqcount_LOCKTYPE_t foo_seqcount;
--	seqcount_LOCKTYPE_init(&foo_seqcount, &lock);
-+	seqcount_LOCKNAME_t foo_seqcount;
-+	seqcount_LOCKNAME_init(&foo_seqcount, &lock);
- 
- 	/* static */
--	static seqcount_LOCKTYPE_t foo_seqcount =
--		SEQCNT_LOCKTYPE_ZERO(foo_seqcount, &lock);
-+	static seqcount_LOCKNAME_t foo_seqcount =
-+		SEQCNT_LOCKNAME_ZERO(foo_seqcount, &lock);
- 
- 	/* C99 struct init */
- 	struct {
--		.seq   = SEQCNT_LOCKTYPE_ZERO(foo.seq, &lock),
-+		.seq   = SEQCNT_LOCKNAME_ZERO(foo.seq, &lock),
- 	} foo;
- 
- Write path: same as in :ref:`seqcount_t`, while running from a context
--with the associated LOCKTYPE lock acquired.
-+with the associated write serialization lock acquired.
- 
- Read path: same as in :ref:`seqcount_t`.
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3094,6 +3094,7 @@ static void alc_disable_headset_jack_key
+ 	case 0x10ec0215:
+ 	case 0x10ec0225:
+ 	case 0x10ec0285:
++	case 0x10ec0287:
+ 	case 0x10ec0295:
+ 	case 0x10ec0289:
+ 	case 0x10ec0299:
+@@ -3120,6 +3121,7 @@ static void alc_enable_headset_jack_key(
+ 	case 0x10ec0215:
+ 	case 0x10ec0225:
+ 	case 0x10ec0285:
++	case 0x10ec0287:
+ 	case 0x10ec0295:
+ 	case 0x10ec0289:
+ 	case 0x10ec0299:
+@@ -8526,6 +8528,11 @@ static const struct snd_hda_pin_quirk al
+ 		{0x14, 0x90170110},
+ 		{0x19, 0x04a11040},
+ 		{0x21, 0x04211020}),
++	SND_HDA_PIN_QUIRK(0x10ec0287, 0x17aa, "Lenovo", ALC285_FIXUP_THINKPAD_HEADSET_JACK,
++		{0x14, 0x90170110},
++		{0x17, 0x90170111},
++		{0x19, 0x03a11030},
++		{0x21, 0x03211020}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0286, 0x1025, "Acer", ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE,
+ 		{0x12, 0x90a60130},
+ 		{0x17, 0x90170110},
 
 
