@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2CF2E3F4F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CFA2E4285
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392136AbgL1Oi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:38:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39562 "EHLO mail.kernel.org"
+        id S2436502AbgL1N7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:59:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503624AbgL1Obz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 239712242A;
-        Mon, 28 Dec 2020 14:31:38 +0000 (UTC)
+        id S2407619AbgL1N7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:59:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B7FD2064B;
+        Mon, 28 Dec 2020 13:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165899;
-        bh=MqYK4bByvyed3WeX+W3EJNVYkbjV7CdwuADB16FkQpw=;
+        s=korg; t=1609163924;
+        bh=z8lqmZyRB6iygxKL0yrJ5fz8aqgGhXJ2TaFbTZYYv0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sN1eXa2tWKisNKRjMqTUL9V6Y9PqVnKSFm2juca+9Vw+2sB5doM0FoJVcH+pCeb4V
-         K8Ua1hdLwhWDMwy7h4K2GUXwnKS74teuvxRYruhq8yQPXH2io9BrbOlcJcwcFaEcAU
-         r68kfjCT+o9vD6Hg8TkGWvMPOpyPF4Q9gaieoukY=
+        b=bg5Ta/EAxVwlEeUDdP9DMaNxDT5Lf5w18+G1GrEwRlRZr+dzrUh4dNIfSCF6PJj1T
+         dHT5FQ6ypQlvqrH3ktECzFKLsBvudP0YVtVMMYqW8GWT5c64dY7csUV6m4z96IhqfG
+         poF5EtrSUylyNgYm6PzODGwNqPsDTFTxxZcCEh90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.10 677/717] iio:light:rpr0521: Fix timestamp alignment and prevent data leak.
-Date:   Mon, 28 Dec 2020 13:51:15 +0100
-Message-Id: <20201228125053.419129991@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.4 440/453] device-dax/core: Fix memory leak when rmmod dax.ko
+Date:   Mon, 28 Dec 2020 13:51:16 +0100
+Message-Id: <20201228124958.392829106@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit a61817216bcc755eabbcb1cf281d84ccad267ed1 upstream.
+commit 1aa574312518ef1d60d2dc62d58f7021db3b163a upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv().
-This data is allocated with kzalloc() so no data can leak apart
-from previous readings and in this case the status byte from the device.
+When I repeatedly modprobe and rmmod dax.ko, kmemleak report a
+memory leak as follows:
 
-The forced alignment of ts is not necessary in this case but it
-potentially makes the code less fragile.
+unreferenced object 0xffff9a5588c05088 (size 8):
+  comm "modprobe", pid 261, jiffies 4294693644 (age 42.063s)
+...
+  backtrace:
+    [<00000000e007ced0>] kstrdup+0x35/0x70
+    [<000000002ae73897>] kstrdup_const+0x3d/0x50
+    [<000000002b00c9c3>] kvasprintf_const+0xbc/0xf0
+    [<000000008023282f>] kobject_set_name_vargs+0x3b/0xd0
+    [<00000000d2cbaa4e>] kobject_set_name+0x62/0x90
+    [<00000000202e7a22>] bus_register+0x7f/0x2b0
+    [<000000000b77792c>] 0xffffffffc02840f7
+    [<000000002d5be5ac>] 0xffffffffc02840b4
+    [<00000000dcafb7cd>] do_one_initcall+0x58/0x240
+    [<00000000049fe480>] do_init_module+0x56/0x1e2
+    [<0000000022671491>] load_module+0x2517/0x2840
+    [<000000001a2201cb>] __do_sys_finit_module+0x9c/0xe0
+    [<000000003eb304e7>] do_syscall_64+0x33/0x40
+    [<0000000051c5fd06>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
->From personal communications with Mikko:
+When rmmod dax is executed, dax_bus_exit() is missing. This patch
+can fix this bug.
 
-We could probably split the reading of the int register, but it
-would mean a significant performance cost of 20 i2c clock cycles.
-
-Fixes: e12ffd241c00 ("iio: light: rpr0521 triggered buffer")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-2-jic23@kernel.org
+Fixes: 9567da0b408a ("device-dax: Introduce bus + driver model")
+Cc: <stable@vger.kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Link: https://lore.kernel.org/r/20201201135929.66530-1-wanghai38@huawei.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/rpr0521.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/dax/super.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/light/rpr0521.c
-+++ b/drivers/iio/light/rpr0521.c
-@@ -194,6 +194,17 @@ struct rpr0521_data {
- 	bool pxs_need_dis;
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -720,6 +720,7 @@ err_chrdev:
  
- 	struct regmap *regmap;
-+
-+	/*
-+	 * Ensure correct naturally aligned timestamp.
-+	 * Note that the read will put garbage data into
-+	 * the padding but this should not be a problem
-+	 */
-+	struct {
-+		__le16 channels[3];
-+		u8 garbage;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- static IIO_CONST_ATTR(in_intensity_scale_available, RPR0521_ALS_SCALE_AVAIL);
-@@ -449,8 +460,6 @@ static irqreturn_t rpr0521_trigger_consu
- 	struct rpr0521_data *data = iio_priv(indio_dev);
- 	int err;
- 
--	u8 buffer[16]; /* 3 16-bit channels + padding + ts */
--
- 	/* Use irq timestamp when reasonable. */
- 	if (iio_trigger_using_own(indio_dev) && data->irq_timestamp) {
- 		pf->timestamp = data->irq_timestamp;
-@@ -461,11 +470,11 @@ static irqreturn_t rpr0521_trigger_consu
- 		pf->timestamp = iio_get_time_ns(indio_dev);
- 
- 	err = regmap_bulk_read(data->regmap, RPR0521_REG_PXS_DATA,
--		&buffer,
-+		data->scan.channels,
- 		(3 * 2) + 1);	/* 3 * 16-bit + (discarded) int clear reg. */
- 	if (!err)
- 		iio_push_to_buffers_with_timestamp(indio_dev,
--						   buffer, pf->timestamp);
-+						   &data->scan, pf->timestamp);
- 	else
- 		dev_err(&data->client->dev,
- 			"Trigger consumer can't read from sensor.\n");
+ static void __exit dax_core_exit(void)
+ {
++	dax_bus_exit();
+ 	unregister_chrdev_region(dax_devt, MINORMASK+1);
+ 	ida_destroy(&dax_minor_ida);
+ 	dax_fs_exit();
 
 
