@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 435372E39F6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A8E2E3FC6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390378AbgL1Na3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:30:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59436 "EHLO mail.kernel.org"
+        id S2503201AbgL1OZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:25:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390392AbgL1Na3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D244B22C7E;
-        Mon, 28 Dec 2020 13:29:47 +0000 (UTC)
+        id S2503197AbgL1OZ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:25:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C833229C5;
+        Mon, 28 Dec 2020 14:24:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162188;
-        bh=2Yzs0RJG/rrec0gELQ7GRzXpQJwfWuq9NsNKxqTfAds=;
+        s=korg; t=1609165485;
+        bh=AiQ5/sQNlZG7KPCDNVwAS1q8blgrB27JK5GC4mhyu84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZamEyA54xYaCZdGAy7WvKWCNCg7g+JE7B6/Cg7iQYHUX3D+6GIujrbizHRP+h5KzQ
-         /04phcWDZR9ShWZTAWwbWsXXSnKs3nLiNFUN3qkezYw//kRh+jGJxVepF7z8qjh7UG
-         2ExCsIHDVY9pTgxRN9jIhqH+yF4r/N8pJX+BxtVQ=
+        b=t7qaYDyDACVpBMqjpHSzrjNw2Mvf23mlaOogFz5A5tOcw9LhaILIMnNRsIJCHdS5Q
+         pW20UMK0j1zMELUdbpv7u1plZBflMrG2PKIpvTEwG7OtF08y1lw4gvKD3cJSMAAaxK
+         G4tr0A8RCiONX9RmV9P1L1S6SpsgEXTLO1hdAP+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/346] ath10k: Fix an error handling path
+Subject: [PATCH 5.10 508/717] Smack: Handle io_uring kernel thread privileges
 Date:   Mon, 28 Dec 2020 13:48:26 +0100
-Message-Id: <20201228124928.830205275@linuxfoundation.org>
+Message-Id: <20201228125045.299088799@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit ed3573bc3943c27d2d8e405a242f87ed14572ca1 ]
+[ Upstream commit 942cb357ae7d9249088e3687ee6a00ed2745a0c7 ]
 
-If 'ath10k_usb_create()' fails, we should release some resources and report
-an error instead of silently continuing.
+Smack assumes that kernel threads are privileged for smackfs
+operations. This was necessary because the credential of the
+kernel thread was not related to a user operation. With io_uring
+the credential does reflect a user's rights and can be used.
 
-Fixes: 4db66499df91 ("ath10k: add initial USB support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201122170342.1346011-1-christophe.jaillet@wanadoo.fr
+Suggested-by: Jens Axboe <axboe@kernel.dk>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Acked-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ security/smack/smack_access.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/usb.c b/drivers/net/wireless/ath/ath10k/usb.c
-index c64a03f164c0f..f4e6d84bfb91c 100644
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -1019,6 +1019,8 @@ static int ath10k_usb_probe(struct usb_interface *interface,
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index efe2406a39609..7eabb448acab4 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -688,9 +688,10 @@ bool smack_privileged_cred(int cap, const struct cred *cred)
+ bool smack_privileged(int cap)
+ {
+ 	/*
+-	 * All kernel tasks are privileged
++	 * Kernel threads may not have credentials we can use.
++	 * The io_uring kernel threads do have reliable credentials.
+ 	 */
+-	if (unlikely(current->flags & PF_KTHREAD))
++	if ((current->flags & (PF_KTHREAD | PF_IO_WORKER)) == PF_KTHREAD)
+ 		return true;
  
- 	ar_usb = ath10k_usb_priv(ar);
- 	ret = ath10k_usb_create(ar, interface);
-+	if (ret)
-+		goto err;
- 	ar_usb->ar = ar;
- 
- 	ar->dev_id = product_id;
+ 	return smack_privileged_cred(cap, current_cred());
 -- 
 2.27.0
 
