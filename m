@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A592E675E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F12262E65DF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729937AbgL1NLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
+        id S2393005AbgL1QFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:05:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731375AbgL1NKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0253A22582;
-        Mon, 28 Dec 2020 13:09:41 +0000 (UTC)
+        id S2389574AbgL1N05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:26:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C4B208D5;
+        Mon, 28 Dec 2020 13:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160982;
-        bh=RoysQs+gxXGp63xNUERVOgDtnxepKhU9f5tOZDw9G7M=;
+        s=korg; t=1609161977;
+        bh=c4MEjh3aajCgt0ELuYGrCFGbA9KmeIe2hN9K9DXQABg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EytxmuFsiz6lfvtH2pz/lFIILUfsiBHvrIUvumUm9KbTkMrgLzKWlZhGRXMYukgjs
-         A7l0Au3+DXosh3X0Ny4wZqBdavrjWdMMi2RG3eHIRDtQ7s/X5ajm/+Pwn1I6sIQtf3
-         m5WBvfwlLO+lyi1sJcWqiBbFOlBLdcB4FO2hqv2w=
+        b=pZbmPZpxfhOv9nqW/foJYg3A2qjqlF1AHK8XsjgOha0Z1R5lZThCrQQWD7BCnfqe1
+         16XNh2E84ND/ffekeI2uwQxOwn8MPK7iXnmlswZIJ3T0Z3+fK+wvaRKFr9JRC8rOnP
+         gpSHCkNMJ6YitMVpTzoYA/XgoJ4YjvdZtCDOvoL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f816042a7ae2225f25ba@syzkaller.appspotmail.com,
-        Andreas Dilger <adilger@dilger.ca>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 060/242] quota: Sanity-check quota file headers on load
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 146/346] drm/omap: dmm_tiler: fix return error code in omap_dmm_probe()
 Date:   Mon, 28 Dec 2020 13:47:45 +0100
-Message-Id: <20201228124907.634285755@linuxfoundation.org>
+Message-Id: <20201228124926.846886925@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 11c514a99bb960941535134f0587102855e8ddee upstream.
+[ Upstream commit 723ae803218da993143387bf966042eccefac077 ]
 
-Perform basic sanity checks of quota headers to avoid kernel crashes on
-corrupted quota files.
+Return -ENOMEM when allocating refill memory failed.
 
-CC: stable@vger.kernel.org
-Reported-by: syzbot+f816042a7ae2225f25ba@syzkaller.appspotmail.com
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 71e8831f6407 ("drm/omap: DMM/TILER support for OMAP4+ platform")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201117061045.3452287-1-yangyingliang@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_v2.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/gpu/drm/omapdrm/omap_dmm_tiler.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/quota/quota_v2.c
-+++ b/fs/quota/quota_v2.c
-@@ -158,6 +158,25 @@ static int v2_read_file_info(struct supe
- 		qinfo->dqi_entry_size = sizeof(struct v2r1_disk_dqblk);
- 		qinfo->dqi_ops = &v2r1_qtree_ops;
+diff --git a/drivers/gpu/drm/omapdrm/omap_dmm_tiler.c b/drivers/gpu/drm/omapdrm/omap_dmm_tiler.c
+index e884183c018ac..cb5ce73f72694 100644
+--- a/drivers/gpu/drm/omapdrm/omap_dmm_tiler.c
++++ b/drivers/gpu/drm/omapdrm/omap_dmm_tiler.c
+@@ -763,6 +763,7 @@ static int omap_dmm_probe(struct platform_device *dev)
+ 					   &omap_dmm->refill_pa, GFP_KERNEL);
+ 	if (!omap_dmm->refill_va) {
+ 		dev_err(&dev->dev, "could not allocate refill memory\n");
++		ret = -ENOMEM;
+ 		goto fail;
  	}
-+	ret = -EUCLEAN;
-+	/* Some sanity checks of the read headers... */
-+	if ((loff_t)qinfo->dqi_blocks << qinfo->dqi_blocksize_bits >
-+	    i_size_read(sb_dqopt(sb)->files[type])) {
-+		quota_error(sb, "Number of blocks too big for quota file size (%llu > %llu).",
-+		    (loff_t)qinfo->dqi_blocks << qinfo->dqi_blocksize_bits,
-+		    i_size_read(sb_dqopt(sb)->files[type]));
-+		goto out;
-+	}
-+	if (qinfo->dqi_free_blk >= qinfo->dqi_blocks) {
-+		quota_error(sb, "Free block number too big (%u >= %u).",
-+			    qinfo->dqi_free_blk, qinfo->dqi_blocks);
-+		goto out;
-+	}
-+	if (qinfo->dqi_free_entry >= qinfo->dqi_blocks) {
-+		quota_error(sb, "Block with free entry too big (%u >= %u).",
-+			    qinfo->dqi_free_entry, qinfo->dqi_blocks);
-+		goto out;
-+	}
- 	ret = 0;
- out:
- 	up_read(&dqopt->dqio_sem);
+ 
+-- 
+2.27.0
+
 
 
