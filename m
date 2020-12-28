@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D62AC2E3D7F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B892E6442
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440769AbgL1OQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:16:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
+        id S2404456AbgL1Pt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:49:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440758AbgL1OP4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:15:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 602BB206D4;
-        Mon, 28 Dec 2020 14:15:15 +0000 (UTC)
+        id S2391413AbgL1NmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E9CF22472;
+        Mon, 28 Dec 2020 13:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164915;
-        bh=McX3MUokFltlpXln2uNqUzzILleat18UODOFSqGWzX8=;
+        s=korg; t=1609162922;
+        bh=eQfeG3TLY9JJRhz0A0Q1qy1m92GSfQIMcnlrqPaUubw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkiv5FJyHqtiZy2EenPfwkRxVItVJ1cjiCKodReSLMvScdukkAjkEUGNIWDUeIBQL
-         0OuWEyAeN+z34X4frFEgJuO6hmAqgUc3/KnvgbUiQRC+Rnuhcx9hpgoCTFlCXOJBzd
-         GvLb6YhqrELj3YY9WRceyQAwm8ZaWsD8lEM94iwQ=
+        b=IJmfW/gtPTZa7SgoxqVF3z3l18tu1/6YodKiMARba5RsGtxycatD17md2LUfyTq1F
+         aR165EPst0C0D0304SHud4b2oCwgkelZSWUWVh9ubRSjQArpAHSCsk5XWVHZFz/IxO
+         Hoq7vBO95wuQX2oQN/Zog8uKUxQjxBgHc0YGn8jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 313/717] ASoC: atmel: mchp-spdifrx needs COMMON_CLK
-Date:   Mon, 28 Dec 2020 13:45:11 +0100
-Message-Id: <20201228125036.028019749@linuxfoundation.org>
+Subject: [PATCH 5.4 076/453] drm/tve200: Fix handling of platform_get_irq() error
+Date:   Mon, 28 Dec 2020 13:45:12 +0100
+Message-Id: <20201228124940.896627543@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 29275309b0e32bb838d67158c6b6e687275f43e9 ]
+[ Upstream commit 77bb5aaf2bb8180e7d1bb70b4df306f511707a7d ]
 
-Compile-testing this driver on an older platform without CONFIG_COMMON_CLK fails with
+platform_get_irq() returns -ERRNO on error.  In such case comparison
+to 0 would pass the check.
 
-ERROR: modpost: "clk_set_min_rate" [sound/soc/atmel/snd-soc-mchp-spdifrx.ko] undefined!
-
-Make this is a strict dependency.
-
-Fixes: ef265c55c1ac ("ASoC: mchp-spdifrx: add driver for SPDIF RX")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20201203223815.1353451-1-arnd@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 179c02fe90a4 ("drm/tve200: Add new driver for TVE200")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200827071107.27429-2-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/tve200/tve200_drv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
-index bd8854bfd2ee4..142373ec411ad 100644
---- a/sound/soc/atmel/Kconfig
-+++ b/sound/soc/atmel/Kconfig
-@@ -148,6 +148,7 @@ config SND_MCHP_SOC_SPDIFTX
- config SND_MCHP_SOC_SPDIFRX
- 	tristate "Microchip ASoC driver for boards using S/PDIF RX"
- 	depends on OF && (ARCH_AT91 || COMPILE_TEST)
-+	depends on COMMON_CLK
- 	select SND_SOC_GENERIC_DMAENGINE_PCM
- 	select REGMAP_MMIO
- 	help
+diff --git a/drivers/gpu/drm/tve200/tve200_drv.c b/drivers/gpu/drm/tve200/tve200_drv.c
+index 416f24823c0aa..02836d4e80237 100644
+--- a/drivers/gpu/drm/tve200/tve200_drv.c
++++ b/drivers/gpu/drm/tve200/tve200_drv.c
+@@ -210,8 +210,8 @@ static int tve200_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		ret = -EINVAL;
++	if (irq < 0) {
++		ret = irq;
+ 		goto clk_disable;
+ 	}
+ 
 -- 
 2.27.0
 
