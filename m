@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C68E2E3F3D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBCF2E3F52
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392282AbgL1OiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:38:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S2505653AbgL1Oij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:38:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504620AbgL1OcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7001422573;
-        Mon, 28 Dec 2020 14:31:30 +0000 (UTC)
+        id S2392098AbgL1Obt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D19320739;
+        Mon, 28 Dec 2020 14:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165891;
-        bh=AxoiFViYVZh/CH7Pv/I6I/Qv+57/z6Bfmh3oI2XqIOg=;
+        s=korg; t=1609165893;
+        bh=DKMCf1vF635AK2N9p/BqQ9Rel0Li6bF80vN4i84En7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDwnOz6O21VQG1wd22xK9RdOIR/8Yp6Un9uFg2Wh1mMZ4tUdcVEtZuSTmDFe0e5H5
-         Cmuw4w1KRMZtsP/ojrHGvBarqTb4PnCMlrowbyU1R13iHA9EFQ2qmnL4+NrGEud0p9
-         eui64JtvQ1YzpdeHLae6JwMk6BTzX8stcTwlbW60=
+        b=ZAruYKr4NacivC+N+lXA4QJy0Q0BQ4TlKObTju9/M0Adr/lHP0/zN8gz85oPgn2iV
+         m23vxE/VV89AiU72LNCawQO1wzGmRHQJs1O8gKFm3NZIlQOc/cR669sMk/w2C4tt9O
+         AAzAmkcAG2nYesvHmqfnSn71pKj8k0yJrucKLloI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 692/717] device-dax/core: Fix memory leak when rmmod dax.ko
-Date:   Mon, 28 Dec 2020 13:51:30 +0100
-Message-Id: <20201228125054.130588190@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>
+Subject: [PATCH 5.10 693/717] dma-buf/dma-resv: Respect num_fences when initializing the shared fence list.
+Date:   Mon, 28 Dec 2020 13:51:31 +0100
+Message-Id: <20201228125054.183148246@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,56 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
-commit 1aa574312518ef1d60d2dc62d58f7021db3b163a upstream.
+commit bf8975837dac156c33a4d15d46602700998cb6dd upstream.
 
-When I repeatedly modprobe and rmmod dax.ko, kmemleak report a
-memory leak as follows:
+We hardcode the maximum number of shared fences to 4, instead of
+respecting num_fences. Use a minimum of 4, but more if num_fences
+is higher.
 
-unreferenced object 0xffff9a5588c05088 (size 8):
-  comm "modprobe", pid 261, jiffies 4294693644 (age 42.063s)
-...
-  backtrace:
-    [<00000000e007ced0>] kstrdup+0x35/0x70
-    [<000000002ae73897>] kstrdup_const+0x3d/0x50
-    [<000000002b00c9c3>] kvasprintf_const+0xbc/0xf0
-    [<000000008023282f>] kobject_set_name_vargs+0x3b/0xd0
-    [<00000000d2cbaa4e>] kobject_set_name+0x62/0x90
-    [<00000000202e7a22>] bus_register+0x7f/0x2b0
-    [<000000000b77792c>] 0xffffffffc02840f7
-    [<000000002d5be5ac>] 0xffffffffc02840b4
-    [<00000000dcafb7cd>] do_one_initcall+0x58/0x240
-    [<00000000049fe480>] do_init_module+0x56/0x1e2
-    [<0000000022671491>] load_module+0x2517/0x2840
-    [<000000001a2201cb>] __do_sys_finit_module+0x9c/0xe0
-    [<000000003eb304e7>] do_syscall_64+0x33/0x40
-    [<0000000051c5fd06>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This seems to have been an oversight when first implementing the
+api.
 
-When rmmod dax is executed, dax_bus_exit() is missing. This patch
-can fix this bug.
-
-Fixes: 9567da0b408a ("device-dax: Introduce bus + driver model")
-Cc: <stable@vger.kernel.org>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20201201135929.66530-1-wanghai38@huawei.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 04a5faa8cbe5 ("reservation: update api and add some helpers")
+Cc: <stable@vger.kernel.org> # v3.17+
+Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201124115707.406917-1-maarten.lankhorst@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dax/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma-buf/dma-resv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -752,6 +752,7 @@ err_chrdev:
+--- a/drivers/dma-buf/dma-resv.c
++++ b/drivers/dma-buf/dma-resv.c
+@@ -200,7 +200,7 @@ int dma_resv_reserve_shared(struct dma_r
+ 			max = max(old->shared_count + num_fences,
+ 				  old->shared_max * 2);
+ 	} else {
+-		max = 4;
++		max = max(4ul, roundup_pow_of_two(num_fences));
+ 	}
  
- static void __exit dax_core_exit(void)
- {
-+	dax_bus_exit();
- 	unregister_chrdev_region(dax_devt, MINORMASK+1);
- 	ida_destroy(&dax_minor_ida);
- 	dax_fs_exit();
+ 	new = dma_resv_list_alloc(max);
 
 
