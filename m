@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4462E3C4F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 328F62E4252
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388142AbgL1OBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:01:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
+        id S2391655AbgL1OBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:01:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407993AbgL1OAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:00:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF710206D4;
-        Mon, 28 Dec 2020 14:00:14 +0000 (UTC)
+        id S2408020AbgL1OA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:00:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE36205CB;
+        Mon, 28 Dec 2020 14:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164015;
-        bh=AJpwapILn+fBr2s2XAzdACyoOVzWiBbyzW+HqMm0wxM=;
+        s=korg; t=1609164018;
+        bh=jkdvp4P6CGqgVbo3PZq4eG/vyjqANxpDc1/XBKeUPS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7lX2Tg7s2I0seFDx4NE1kdwsrLoB6jdb0Jp2kph0BnjZI6wc2G5zR5sUGPsZ+MDv
-         ZrE3AIBSLtPmNOttKaGv56YxMdUY+9Lm+Dmb0DUReJWaWM1T8sutNPXusDDM6fMtlr
-         f8qinzphXLuMXhgjTp8DInGDRpLdj0QQEj5vQz6w=
+        b=0G4ikcEbMD9fRma9DRdgTgY+WYbsxnX46rYjME3Qr+sRdaZEzYtRVGNQ0Krja0Fyp
+         C6x1tFZiHac0ngy9/W8Ny4SKcvge56bEF9LQ7aeUaTCvKdZkrKOFntlmSZ8QGPNnAh
+         GkA+oc2BF+3NrKrfzJLRsjlmZdQ91gLB0TDBazdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/717] ASoC: qcom: fix unsigned int bitwidth compared to less than zero
-Date:   Mon, 28 Dec 2020 13:40:28 +0100
-Message-Id: <20201228125022.431229801@linuxfoundation.org>
+Subject: [PATCH 5.10 031/717] sched/deadline: Fix sched_dl_global_validate()
+Date:   Mon, 28 Dec 2020 13:40:29 +0100
+Message-Id: <20201228125022.479346722@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,36 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Peng Liu <iwtbavbm@gmail.com>
 
-[ Upstream commit bcc96dc3cf8048c80af7c487af17e19be27ac57d ]
+[ Upstream commit a57415f5d1e43c3a5c5d412cd85e2792d7ed9b11 ]
 
-The check for an error return from the call to snd_pcm_format_width
-is never true as the unsigned int bitwidth can never be less than
-zero. Fix this by making bitwidth an int.
+When change sched_rt_{runtime, period}_us, we validate that the new
+settings should at least accommodate the currently allocated -dl
+bandwidth:
 
-Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20201028115112.109017-1-colin.king@canonical.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  sched_rt_handler()
+    -->	sched_dl_bandwidth_validate()
+	{
+		new_bw = global_rt_runtime()/global_rt_period();
+
+		for_each_possible_cpu(cpu) {
+			dl_b = dl_bw_of(cpu);
+			if (new_bw < dl_b->total_bw)    <-------
+				ret = -EBUSY;
+		}
+	}
+
+But under CONFIG_SMP, dl_bw is per root domain , but not per CPU,
+dl_b->total_bw is the allocated bandwidth of the whole root domain.
+Instead, we should compare dl_b->total_bw against "cpus*new_bw",
+where 'cpus' is the number of CPUs of the root domain.
+
+Also, below annotation(in kernel/sched/sched.h) implied implementation
+only appeared in SCHED_DEADLINE v2[1], then deadline scheduler kept
+evolving till got merged(v9), but the annotation remains unchanged,
+meaningless and misleading, update it.
+
+* With respect to SMP, the bandwidth is given on a per-CPU basis,
+* meaning that:
+*  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
+*  - dl_total_bw array contains, in the i-eth element, the currently
+*    allocated bandwidth on the i-eth CPU.
+
+[1]: https://lore.kernel.org/lkml/1267385230.13676.101.camel@Palantir/
+
+Fixes: 332ac17ef5bf ("sched/deadline: Add bandwidth management for SCHED_DEADLINE tasks")
+Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Acked-by: Juri Lelli <juri.lelli@redhat.com>
+Link: https://lkml.kernel.org/r/db6bbda316048cda7a1bbc9571defde193a8d67e.1602171061.git.iwtbavbm@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/deadline.c |  5 +++--
+ kernel/sched/sched.h    | 42 ++++++++++++++++++-----------------------
+ 2 files changed, 21 insertions(+), 26 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-hdmi.c b/sound/soc/qcom/lpass-hdmi.c
-index 172952d3a5d66..abfb8737a89f4 100644
---- a/sound/soc/qcom/lpass-hdmi.c
-+++ b/sound/soc/qcom/lpass-hdmi.c
-@@ -24,7 +24,7 @@ static int lpass_hdmi_daiops_hw_params(struct snd_pcm_substream *substream,
- 	unsigned int rate = params_rate(params);
- 	unsigned int channels = params_channels(params);
- 	unsigned int ret;
--	unsigned int bitwidth;
-+	int bitwidth;
- 	unsigned int word_length;
- 	unsigned int ch_sts_buf0;
- 	unsigned int ch_sts_buf1;
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index 1d3c97268ec0d..8d06d1f4e2f7b 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -2547,7 +2547,7 @@ int sched_dl_global_validate(void)
+ 	u64 period = global_rt_period();
+ 	u64 new_bw = to_ratio(period, runtime);
+ 	struct dl_bw *dl_b;
+-	int cpu, ret = 0;
++	int cpu, cpus, ret = 0;
+ 	unsigned long flags;
+ 
+ 	/*
+@@ -2562,9 +2562,10 @@ int sched_dl_global_validate(void)
+ 	for_each_possible_cpu(cpu) {
+ 		rcu_read_lock_sched();
+ 		dl_b = dl_bw_of(cpu);
++		cpus = dl_bw_cpus(cpu);
+ 
+ 		raw_spin_lock_irqsave(&dl_b->lock, flags);
+-		if (new_bw < dl_b->total_bw)
++		if (new_bw * cpus < dl_b->total_bw)
+ 			ret = -EBUSY;
+ 		raw_spin_unlock_irqrestore(&dl_b->lock, flags);
+ 
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index df80bfcea92eb..c122176c627ec 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -257,30 +257,6 @@ struct rt_bandwidth {
+ 
+ void __dl_clear_params(struct task_struct *p);
+ 
+-/*
+- * To keep the bandwidth of -deadline tasks and groups under control
+- * we need some place where:
+- *  - store the maximum -deadline bandwidth of the system (the group);
+- *  - cache the fraction of that bandwidth that is currently allocated.
+- *
+- * This is all done in the data structure below. It is similar to the
+- * one used for RT-throttling (rt_bandwidth), with the main difference
+- * that, since here we are only interested in admission control, we
+- * do not decrease any runtime while the group "executes", neither we
+- * need a timer to replenish it.
+- *
+- * With respect to SMP, the bandwidth is given on a per-CPU basis,
+- * meaning that:
+- *  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
+- *  - dl_total_bw array contains, in the i-eth element, the currently
+- *    allocated bandwidth on the i-eth CPU.
+- * Moreover, groups consume bandwidth on each CPU, while tasks only
+- * consume bandwidth on the CPU they're running on.
+- * Finally, dl_total_bw_cpu is used to cache the index of dl_total_bw
+- * that will be shown the next time the proc or cgroup controls will
+- * be red. It on its turn can be changed by writing on its own
+- * control.
+- */
+ struct dl_bandwidth {
+ 	raw_spinlock_t		dl_runtime_lock;
+ 	u64			dl_runtime;
+@@ -292,6 +268,24 @@ static inline int dl_bandwidth_enabled(void)
+ 	return sysctl_sched_rt_runtime >= 0;
+ }
+ 
++/*
++ * To keep the bandwidth of -deadline tasks under control
++ * we need some place where:
++ *  - store the maximum -deadline bandwidth of each cpu;
++ *  - cache the fraction of bandwidth that is currently allocated in
++ *    each root domain;
++ *
++ * This is all done in the data structure below. It is similar to the
++ * one used for RT-throttling (rt_bandwidth), with the main difference
++ * that, since here we are only interested in admission control, we
++ * do not decrease any runtime while the group "executes", neither we
++ * need a timer to replenish it.
++ *
++ * With respect to SMP, bandwidth is given on a per root domain basis,
++ * meaning that:
++ *  - bw (< 100%) is the deadline bandwidth of each CPU;
++ *  - total_bw is the currently allocated bandwidth in each root domain;
++ */
+ struct dl_bw {
+ 	raw_spinlock_t		lock;
+ 	u64			bw;
 -- 
 2.27.0
 
