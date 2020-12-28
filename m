@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B66342E383D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7ABC2E3E9B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730811AbgL1NHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:07:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35342 "EHLO mail.kernel.org"
+        id S2503561AbgL1OaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730805AbgL1NHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:07:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBEE022AAA;
-        Mon, 28 Dec 2020 13:06:58 +0000 (UTC)
+        id S2503498AbgL1O37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D119520731;
+        Mon, 28 Dec 2020 14:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160819;
-        bh=i7OZ7g5EYwwab0/iT21/W9zFYz9gbkRlmjrjXA+IToU=;
+        s=korg; t=1609165759;
+        bh=vFPyLfDPH6Ev0LuAJ5FVdAVsKR+J70aSxKEyxcdBivE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aR1AhipCDObhlfOnGu0ClVdtgrT7cPn1s3tIA3vH+MGuAzgGiCKn8Z65OiqhSIzc+
-         1+qDJLJTYr37BzSGM86doW36GicIX+YNzbzjF+LxrYLWN4S48T2429z7Ky0sCsMUGy
-         6jbJ++bByC7+p7qlvkHVth5e8t6F1uhyaptkGe9k=
+        b=G5Wm05W2NnNOHscUdI6qrMC5ppPsMBFIsfGsCu3JD478ncoeYYQpPqDX+tdcYwXKC
+         vvzGmRwruc1okyVZkXcH+hX9jPmWMHcHpSEOAX6bnEm3e7yo63VS3KYRWkaEqsVvYW
+         kZBBIKaoaUSWglJ2KLBizJBJZIwq0znB2xZHAu5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhe Li <lizhe67@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 159/175] jffs2: Fix GC exit abnormally
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 614/717] powerpc/mm: Fix verification of MMU_FTR_TYPE_44x
 Date:   Mon, 28 Dec 2020 13:50:12 +0100
-Message-Id: <20201228124900.943466481@linuxfoundation.org>
+Message-Id: <20201228125050.334345593@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,76 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhe Li <lizhe67@huawei.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 9afc9a8a4909fece0e911e72b1060614ba2f7969 upstream.
+commit 17179aeb9d34cc81e1a4ae3f85e5b12b13a1f8d0 upstream.
 
-The log of this problem is:
-jffs2: Error garbage collecting node at 0x***!
-jffs2: No space for garbage collection. Aborting GC thread
+MMU_FTR_TYPE_44x cannot be checked by cpu_has_feature()
 
-This is because GC believe that it do nothing, so it abort.
+Use mmu_has_feature() instead
 
-After going over the image of jffs2, I find a scene that
-can trigger this problem stably.
-The scene is: there is a normal dirent node at summary-area,
-but abnormal at corresponding not-summary-area with error
-name_crc.
-
-The reason that GC exit abnormally is because it find that
-abnormal dirent node to GC, but when it goes to function
-jffs2_add_fd_to_list, it cannot meet the condition listed
-below:
-
-if ((*prev)->nhash == new->nhash && !strcmp((*prev)->name, new->name))
-
-So no node is marked obsolete, statistical information of
-erase_block do not change, which cause GC exit abnormally.
-
-The root cause of this problem is: we do not check the
-name_crc of the abnormal dirent node with summary is enabled.
-
-Noticed that in function jffs2_scan_dirent_node, we use
-function jffs2_scan_dirty_space to deal with the dirent
-node with error name_crc. So this patch add a checking
-code in function read_direntry to ensure the correctness
-of dirent node. If checked failed, the dirent node will
-be marked obsolete so GC will pass this node and this
-problem will be fixed.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Zhe Li <lizhe67@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 23eb7f560a2a ("powerpc: Convert flush_icache_range & friends to C")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/ceede82fadf37f3b8275e61fcf8cf29a3e2ec7fe.1602351011.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jffs2/readinode.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/powerpc/mm/mem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jffs2/readinode.c
-+++ b/fs/jffs2/readinode.c
-@@ -672,6 +672,22 @@ static inline int read_direntry(struct j
- 			jffs2_free_full_dirent(fd);
- 			return -EIO;
- 		}
-+
-+#ifdef CONFIG_JFFS2_SUMMARY
-+		/*
-+		 * we use CONFIG_JFFS2_SUMMARY because without it, we
-+		 * have checked it while mounting
-+		 */
-+		crc = crc32(0, fd->name, rd->nsize);
-+		if (unlikely(crc != je32_to_cpu(rd->name_crc))) {
-+			JFFS2_NOTICE("name CRC failed on dirent node at"
-+			   "%#08x: read %#08x,calculated %#08x\n",
-+			   ref_offset(ref), je32_to_cpu(rd->node_crc), crc);
-+			jffs2_mark_node_obsolete(c, ref);
-+			jffs2_free_full_dirent(fd);
-+			return 0;
-+		}
-+#endif
- 	}
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -532,7 +532,7 @@ void __flush_dcache_icache(void *p)
+ 	 * space occurs, before returning to user space.
+ 	 */
  
- 	fd->nhash = full_name_hash(NULL, fd->name, rd->nsize);
+-	if (cpu_has_feature(MMU_FTR_TYPE_44x))
++	if (mmu_has_feature(MMU_FTR_TYPE_44x))
+ 		return;
+ 
+ 	invalidate_icache_range(addr, addr + PAGE_SIZE);
 
 
