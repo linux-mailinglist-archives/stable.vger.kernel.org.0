@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 674F52E6596
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F6B2E6969
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389970AbgL1N2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:28:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57484 "EHLO mail.kernel.org"
+        id S1727803AbgL1Mwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:52:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389965AbgL1N2l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:28:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F19B207FF;
-        Mon, 28 Dec 2020 13:27:59 +0000 (UTC)
+        id S1726420AbgL1Mwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:52:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE30222573;
+        Mon, 28 Dec 2020 12:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162080;
-        bh=R2JNKXKJLp+/RplIksuI/Oz7ovJqYk/Hgm0atTwAcFM=;
+        s=korg; t=1609159905;
+        bh=WtlSLN4XZP4ZNu6wKgOsvW+Y/Df6jIb8sTST1jujJt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHmYmlqb7zOtITkVS+NDwJiPhSGhhKCnPxmqzs1Bfh0zaGneyw3afNzytQEOAWebF
-         v7tWm6H7UaaN9M94q/zCrlM34CkpdBHLXzFB8/xeE07fGSClY+nTn7bZtbOQXR6Jc8
-         e+VRuI/32563+5RIk39LYhmx/0HtNgOfleney9es=
+        b=PhKh2yImDny+kNLtflPlyJjLftO15qZ02+LAiMKI+DGxPZMmolyjUW2qgN1bDAlrZ
+         0yG3SkreLhdTLuAZnlqcH1SJ+Xbrnfuf25xOv5CQ8MgO+BRk2zRvedCiSIeAzncxX7
+         PUFsJ3sVipKrhQclJNdM5yAx37u3CA0gxzFW80r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/346] PCI: Bounds-check command-line resource alignment requests
-Date:   Mon, 28 Dec 2020 13:48:19 +0100
-Message-Id: <20201228124928.490779191@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 016/132] ALSA: usb-audio: Fix control access overflow errors from chmap
+Date:   Mon, 28 Dec 2020 13:48:20 +0100
+Message-Id: <20201228124847.189863677@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +38,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6534aac198b58309ff2337981d3f893e0be1d19d ]
+commit c6dde8ffd071aea9d1ce64279178e470977b235c upstream.
 
-32-bit BARs are limited to 2GB size (2^31).  By extension, I assume 64-bit
-BARs are limited to 2^63 bytes.  Limit the alignment requested by the
-"pci=resource_alignment=" command-line parameter to 2^63.
+The current channel-map control implementation in USB-audio driver may
+lead to an error message like
+  "control 3:0:0:Playback Channel Map:0: access overflow"
+when CONFIG_SND_CTL_VALIDATION is set.  It's because the chmap get
+callback clears the whole array no matter which count is set, and
+rather the false-positive detection.
 
-Link: https://lore.kernel.org/r/20201007123045.GS4282@kadam
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes the problem by clearing only the needed array range
+at usb_chmap_ctl_get().
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201211130048.6358-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/pci.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ sound/usb/stream.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 57a87a001b4f4..5103d4b140ee3 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5840,19 +5840,21 @@ static resource_size_t pci_specified_resource_alignment(struct pci_dev *dev,
- 	while (*p) {
- 		count = 0;
- 		if (sscanf(p, "%d%n", &align_order, &count) == 1 &&
--							p[count] == '@') {
-+		    p[count] == '@') {
- 			p += count + 1;
-+			if (align_order > 63) {
-+				pr_err("PCI: Invalid requested alignment (order %d)\n",
-+				       align_order);
-+				align_order = PAGE_SHIFT;
-+			}
- 		} else {
--			align_order = -1;
-+			align_order = PAGE_SHIFT;
- 		}
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -187,16 +187,16 @@ static int usb_chmap_ctl_get(struct snd_
+ 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
+ 	struct snd_usb_substream *subs = info->private_data;
+ 	struct snd_pcm_chmap_elem *chmap = NULL;
+-	int i;
++	int i = 0;
  
- 		ret = pci_dev_str_match(dev, p, &p);
- 		if (ret == 1) {
- 			*resize = true;
--			if (align_order == -1)
--				align = PAGE_SIZE;
--			else
--				align = 1 << align_order;
-+			align = 1 << align_order;
- 			break;
- 		} else if (ret < 0) {
- 			pr_err("PCI: Can't parse resource_alignment parameter: %s\n",
--- 
-2.27.0
-
+-	memset(ucontrol->value.integer.value, 0,
+-	       sizeof(ucontrol->value.integer.value));
+ 	if (subs->cur_audiofmt)
+ 		chmap = subs->cur_audiofmt->chmap;
+ 	if (chmap) {
+ 		for (i = 0; i < chmap->channels; i++)
+ 			ucontrol->value.integer.value[i] = chmap->map[i];
+ 	}
++	for (; i < subs->channels_max; i++)
++		ucontrol->value.integer.value[i] = 0;
+ 	return 0;
+ }
+ 
 
 
