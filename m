@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 955A32E67FA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DB52E654E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728574AbgL1QbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
+        id S2391036AbgL1Nc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:32:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728096AbgL1NGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:06:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA2522573;
-        Mon, 28 Dec 2020 13:05:41 +0000 (UTC)
+        id S2391035AbgL1Nc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:32:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDCC02063A;
+        Mon, 28 Dec 2020 13:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160742;
-        bh=FyR/7yesFD8c3AUgFGAKvtK+gPXqYGUgHihsinTiIq8=;
+        s=korg; t=1609162307;
+        bh=1mN1gvFPpgh3S5yaPiOksxal2vVQ++Atys4FqiF8s4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZMpVpvwf63DwAmoy1nbAFXCsg6Umnxc70UVJ1qxMKMblqE3fgth1W8u9ZZKjzFXK
-         7Ffg+cDE9HJZ8CARN71CmAbBTjnsIa+H0kCiXxiQECZAk46AHsnzHYVosaFrB5WVOT
-         3Ecs1+C7t39+tpaZYTLCHlOpLOoBznJ/veWyQVz8=
+        b=DRLnU1CHax+S+gcyss1M+pwxmrJnszhUq0nLrOp0TormOSeY0/xsLHDqreW78PfWV
+         Wh785gbs1FybgZ0lFN9vmA4VK0wSE/YPTQs/jsjBkM1WfO9Zw2gYFvkKBlPjqcAwSI
+         F+T5T5dt3ONLxZMpcYyfOS03XagBkHF/jSnVHmSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Zengkai <zhengzengkai@huawei.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Li Bin <huawei.libin@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 125/175] =?UTF-8?q?perf=20record:=20Fix=20memory=20leak=20when=20using=20?= =?UTF-8?q?--user-regs=3D=3F=20to=20list=20registers?=
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Maxime Ripard <mripard@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 259/346] media: sunxi-cir: ensure IR is handled when it is continuous
 Date:   Mon, 28 Dec 2020 13:49:38 +0100
-Message-Id: <20201228124859.308604190@linuxfoundation.org>
+Message-Id: <20201228124932.302990081@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Zengkai <zhengzengkai@huawei.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 2eb5dd418034ecea2f7031e3d33f2991a878b148 ]
+commit 3f56df4c8ffeb120ed41906d3aae71799b7e726a upstream.
 
-When using 'perf record's option '-I' or '--user-regs=' along with
-argument '?' to list available register names, memory of variable 'os'
-allocated by strdup() needs to be released before __parse_regs()
-returns, otherwise memory leak will occur.
+If a user holds a button down on a remote, then no ir idle interrupt will
+be generated until the user releases the button, depending on how quickly
+the remote repeats. No IR is processed until that point, which means that
+holding down a button may not do anything.
 
-Fixes: bcc84ec65ad1 ("perf record: Add ability to name registers to record")
-Signed-off-by: Zheng Zengkai <zhengzengkai@huawei.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Li Bin <huawei.libin@huawei.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20200703093344.189450-1-zhengzengkai@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This also resolves an issue on a Cubieboard 1 where the IR receiver is
+picking up ambient infrared as IR and spews out endless
+"rc rc0: IR event FIFO is full!" messages unless you choose to live in
+the dark.
+
+Cc: stable@vger.kernel.org
+Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/perf/util/parse-regs-options.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/sunxi-cir.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/parse-regs-options.c b/tools/perf/util/parse-regs-options.c
-index 646ecf736aadb..be2ab1091c2bb 100644
---- a/tools/perf/util/parse-regs-options.c
-+++ b/tools/perf/util/parse-regs-options.c
-@@ -40,7 +40,7 @@ parse_regs(const struct option *opt, const char *str, int unset)
- 				}
- 				fputc('\n', stderr);
- 				/* just printing available regs */
--				return -1;
-+				goto error;
- 			}
- 			for (r = sample_reg_masks; r->name; r++) {
- 				if (!strcasecmp(s, r->name))
--- 
-2.27.0
-
+--- a/drivers/media/rc/sunxi-cir.c
++++ b/drivers/media/rc/sunxi-cir.c
+@@ -129,6 +129,8 @@ static irqreturn_t sunxi_ir_irq(int irqn
+ 	} else if (status & REG_RXINT_RPEI_EN) {
+ 		ir_raw_event_set_idle(ir->rc, true);
+ 		ir_raw_event_handle(ir->rc);
++	} else {
++		ir_raw_event_handle(ir->rc);
+ 	}
+ 
+ 	spin_unlock(&ir->ir_lock);
 
 
