@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 755D52E6488
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C55F2E40DA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633121AbgL1PwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:52:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41374 "EHLO mail.kernel.org"
+        id S2439338AbgL1O6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:58:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404000AbgL1Nlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC5C62064B;
-        Mon, 28 Dec 2020 13:41:23 +0000 (UTC)
+        id S2440534AbgL1OO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1599022AAD;
+        Mon, 28 Dec 2020 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162884;
-        bh=5D5vsKIauw3841bEV34po+Flpl6AJx7+cQ2zoBbsgMo=;
+        s=korg; t=1609164881;
+        bh=BThpZ5djaZCNKZZrYR7gqdhOtxJEpl/PIxIzu+CFFPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W10XqxtIGEpsbVNW3KtEEKhMlYOqUVYLNnFYBta4DKa6yZ8ryxMkVWPilVNgBr60J
-         34zJcJ7InHEi5si0+XWUV748vJDA2oraaoro3CcYoQxPRIp2pimFrmcY9eiLZsHF7m
-         gsE7EPYb0+He91c9MEqx6zcoUx21xrK0sH/Wyydk=
+        b=qdkAASDu5HAVK1J0jx3yJ5yzqJN4/4D7m1QgxzYQLthpDsU5pvfWSmivXIT9jc4dJ
+         hL/K/0IfXVqdfl0fNP0PJcEDABKaEYJmSRfIbeisrsLUNy1AoV8lnwHS3dELqkG0eZ
+         BusHYqknkmLDDHk98DBf75BSMcaOcy3M9cxJkFD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 094/453] crypto: talitos - Endianess in current_desc_hdr()
+Subject: [PATCH 5.10 332/717] cpufreq: imx: fix NVMEM_IMX_OCOTP dependency
 Date:   Mon, 28 Dec 2020 13:45:30 +0100
-Message-Id: <20201228124941.754881559@linuxfoundation.org>
+Message-Id: <20201228125036.929757567@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 195404db27f9533c71fdcb78d32a77075c2cb4a2 ]
+[ Upstream commit fc928b901dc68481ba3e524860a641fe13e25dfe ]
 
-current_desc_hdr() compares the value of the current descriptor
-with the next_desc member of the talitos_desc struct.
+A driver should not 'select' drivers from another subsystem.
+If NVMEM is disabled, this one results in a warning:
 
-While the current descriptor is obtained from in_be32() which
-return CPU ordered bytes, next_desc member is in big endian order.
+WARNING: unmet direct dependencies detected for NVMEM_IMX_OCOTP
+  Depends on [n]: NVMEM [=n] && (ARCH_MXC [=y] || COMPILE_TEST [=y]) && HAS_IOMEM [=y]
+  Selected by [y]:
+  - ARM_IMX6Q_CPUFREQ [=y] && CPU_FREQ [=y] && (ARM || ARM64 [=y]) && ARCH_MXC [=y] && REGULATOR_ANATOP [=y]
 
-Convert the current descriptor into big endian before comparing it
-with next_desc.
+Change the 'select' to 'depends on' to prevent it from going wrong,
+and allow compile-testing without that driver, since it is only
+a runtime dependency.
 
-This fixes a sparse warning.
-
-Fixes: 37b5e8897eb5 ("crypto: talitos - chain in buffered data for ahash on SEC1")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 2782ef34ed23 ("cpufreq: imx: Select NVMEM_IMX_OCOTP")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/cpufreq/Kconfig.arm | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 56e3068c9947a..261c0bfa8f185 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -478,7 +478,7 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- 
- 	iter = tail;
- 	while (priv->chan[ch].fifo[iter].dma_desc != cur_desc &&
--	       priv->chan[ch].fifo[iter].desc->next_desc != cur_desc) {
-+	       priv->chan[ch].fifo[iter].desc->next_desc != cpu_to_be32(cur_desc)) {
- 		iter = (iter + 1) & (priv->fifo_len - 1);
- 		if (iter == tail) {
- 			dev_err(dev, "couldn't locate current descriptor\n");
-@@ -486,7 +486,7 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- 		}
- 	}
- 
--	if (priv->chan[ch].fifo[iter].desc->next_desc == cur_desc) {
-+	if (priv->chan[ch].fifo[iter].desc->next_desc == cpu_to_be32(cur_desc)) {
- 		struct talitos_edesc *edesc;
- 
- 		edesc = container_of(priv->chan[ch].fifo[iter].desc,
+diff --git a/drivers/cpufreq/Kconfig.arm b/drivers/cpufreq/Kconfig.arm
+index 015ec0c028358..1f73fa75b1a05 100644
+--- a/drivers/cpufreq/Kconfig.arm
++++ b/drivers/cpufreq/Kconfig.arm
+@@ -94,7 +94,7 @@ config ARM_IMX6Q_CPUFREQ
+ 	tristate "Freescale i.MX6 cpufreq support"
+ 	depends on ARCH_MXC
+ 	depends on REGULATOR_ANATOP
+-	select NVMEM_IMX_OCOTP
++	depends on NVMEM_IMX_OCOTP || COMPILE_TEST
+ 	select PM_OPP
+ 	help
+ 	  This adds cpufreq driver support for Freescale i.MX6 series SoCs.
 -- 
 2.27.0
 
