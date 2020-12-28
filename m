@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 188252E6675
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2DA52E6679
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394186AbgL1QMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:12:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
+        id S1733172AbgL1QNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388326AbgL1NWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DBC52076D;
-        Mon, 28 Dec 2020 13:22:02 +0000 (UTC)
+        id S2387541AbgL1NUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:20:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5938B22A84;
+        Mon, 28 Dec 2020 13:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161723;
-        bh=8sRN3kC2fZfCYConWxPUT2pKZSzuU0N6jwYgsArqwD4=;
+        s=korg; t=1609161609;
+        bh=ioJolGDsEiRfj9kGkq4M0fg2pckBsmbqcey0JYHsZZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tm/2th9SFq/h16Je0nlNRCJV2tjuvxzcyaK+KvnQZf6ZrgFKGwP5bKTY2WIG/QQYy
-         NITtoMJiAJVZ7J0jvLZTJkPwSTET90EjvTpbQKlKfVas6FMhtxPCuW6QolIZ7bpMyV
-         ZkJWPs216t0IOqp80b7oOJEn+QCYZpKWj/BcsARo=
+        b=HoZINvalRaJxcLn5gRSaQV1wBknHtvFl7suapAT83t7CdtdZSkGNXfdf5tIr1wwDO
+         W/qXxhWIUb/8UeIPJWyxHlDl028umzyamyR3CEKEOxjzPtX6gW55One2P/3BcdjcG/
+         LLdoVEKtlXSdiWDsTQOYdid7WuAiSXQ0Lo3op0DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coiby Xu <coiby.xu@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 019/346] pinctrl: amd: remove debounce filter setting in IRQ type setting
-Date:   Mon, 28 Dec 2020 13:45:38 +0100
-Message-Id: <20201228124920.699185325@linuxfoundation.org>
+        stable@vger.kernel.org, Zhan Liu <zliua@micron.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 020/346] mmc: block: Fixup condition for CMD13 polling for RPMB requests
+Date:   Mon, 28 Dec 2020 13:45:39 +0100
+Message-Id: <20201228124920.748053050@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -42,93 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coiby Xu <coiby.xu@gmail.com>
+From: Bean Huo <beanhuo@micron.com>
 
-commit 47a0001436352c9853d72bf2071e85b316d688a2 upstream.
+commit 6246d7c9d15aaff0bc3863f67900c6a6e6be921b upstream.
 
-Debounce filter setting should be independent from IRQ type setting
-because according to the ACPI specs, there are separate arguments for
-specifying debounce timeout and IRQ type in GpioIo() and GpioInt().
+The CMD13 polling is needed for commands with R1B responses. In commit
+a0d4c7eb71dd ("mmc: block: Add CMD13 polling for MMC IOCTLS with R1B
+response"), the intent was to introduce this for requests targeted to the
+RPMB partition. However, the condition to trigger the polling loop became
+wrong, leading to unnecessary polling. Let's fix the condition to avoid
+this.
 
-Together with commit 06abe8291bc31839950f7d0362d9979edc88a666
-("pinctrl: amd: fix incorrect way to disable debounce filter") and
-Andy's patch "gpiolib: acpi: Take into account debounce settings" [1],
-this will fix broken touchpads for laptops whose BIOS set the
-debounce timeout to a relatively large value. For example, the BIOS
-of Lenovo AMD gaming laptops including Legion-5 15ARH05 (R7000),
-Legion-5P (R7000P) and IdeaPad Gaming 3 15ARH05, set the debounce
-timeout to 124.8ms. This led to the kernel receiving only ~7 HID
-reports per second from the Synaptics touchpad
-(MSFT0001:00 06CB:7F28).
-
-Existing touchpads like [2][3] are not troubled by this bug because
-the debounce timeout has been set to 0 by the BIOS before enabling
-the debounce filter in setting IRQ type.
-
-[1] https://lore.kernel.org/linux-gpio/20201111222008.39993-11-andriy.shevchenko@linux.intel.com/
-    8dcb7a15a585 ("gpiolib: acpi: Take into account debounce settings")
-[2] https://github.com/Syniurge/i2c-amd-mp2/issues/11#issuecomment-721331582
-[3] https://forum.manjaro.org/t/random-short-touchpad-freezes/30832/28
-
-Signed-off-by: Coiby Xu <coiby.xu@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Fixes: a0d4c7eb71dd ("mmc: block: Add CMD13 polling for MMC IOCTLS with R1B response")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-gpio/CAHp75VcwiGREBUJ0A06EEw-SyabqYsp%2Bdqs2DpSrhaY-2GVdAA%40mail.gmail.com/
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1887190
-Link: https://lore.kernel.org/r/20201125130320.311059-1-coiby.xu@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reported-by: Zhan Liu <zliua@micron.com>
+Signed-off-by: Zhan Liu <zliua@micron.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Link: https://lore.kernel.org/r/20201202202320.22165-1-huobean@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/mmc/core/block.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -439,7 +439,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -631,7 +631,7 @@ static int __mmc_blk_ioctl_cmd(struct mm
  
-@@ -447,7 +446,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
+ 	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
  
-@@ -455,7 +453,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg &= ~BIT(LEVEL_TRIG_OFF);
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= BOTH_EADGE << ACTIVE_LEVEL_OFF;
--		pin_reg |= DB_TYPE_REMOVE_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_edge_irq);
- 		break;
- 
-@@ -463,8 +460,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_HIGH << ACTIVE_LEVEL_OFF;
--		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
--		pin_reg |= DB_TYPE_PRESERVE_LOW_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_level_irq);
- 		break;
- 
-@@ -472,8 +467,6 @@ static int amd_gpio_irq_set_type(struct
- 		pin_reg |= LEVEL_TRIGGER << LEVEL_TRIG_OFF;
- 		pin_reg &= ~(ACTIVE_LEVEL_MASK << ACTIVE_LEVEL_OFF);
- 		pin_reg |= ACTIVE_LOW << ACTIVE_LEVEL_OFF;
--		pin_reg &= ~(DB_CNTRl_MASK << DB_CNTRL_OFF);
--		pin_reg |= DB_TYPE_PRESERVE_HIGH_GLITCH << DB_CNTRL_OFF;
- 		irq_set_handler_locked(d, handle_level_irq);
- 		break;
- 
+-	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B)) {
++	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+ 		 * Ensure RPMB/R1B command has completed by polling CMD13
+ 		 * "Send Status".
 
 
