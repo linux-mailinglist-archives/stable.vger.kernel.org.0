@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 330D52E6875
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 235202E6955
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441803AbgL1QhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:37:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S2441773AbgL1QsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729789AbgL1NB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:01:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3996E22B3B;
-        Mon, 28 Dec 2020 13:01:16 +0000 (UTC)
+        id S1728187AbgL1Mxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3525022B48;
+        Mon, 28 Dec 2020 12:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160476;
-        bh=pTvif6N61dk2LqyTuqvqgcraYYX9lXCcL5IFWOtqYGQ=;
+        s=korg; t=1609159955;
+        bh=XPrLHvjy1D0U7+uWTrMugontJHopxbq1B2WUlSbEi+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUygsIZTNl/cVObHE8MC6w0mM/I+KNgXWb4a+jHsxteIxHJeBaYLKXuQj74wsbouC
-         TksI+Co8KvkMU304TI+jFhCSeOcIvV7gc7TnptZxw/YQRe31rb6Y4n0A2QJsABMlqX
-         ZjDsL5g9lDQ1KKPPXLwG1MEW25Jl4FfkMjmv7908=
+        b=VrRWPFNJj+cifINEKYx3qgM4gFnkIW8n8pcVLikdwPeKkXklEUfzmFdWedF9wLKCB
+         F9IUHBZhZ5tC54ie3AR8Y9nL6oidabs8GT/gml8/cwgxgAwAAYQgL+mmw5TLyh18Y4
+         cPwppgCN3vogH/eal/f8HN0f3cuC6+efkSmszUAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 065/175] MIPS: BCM47XX: fix kconfig dependency bug for BCM47XX_BCMA
+Subject: [PATCH 4.4 034/132] crypto: talitos - Fix return type of current_desc_hdr()
 Date:   Mon, 28 Dec 2020 13:48:38 +0100
-Message-Id: <20201228124856.397541279@linuxfoundation.org>
+Message-Id: <20201228124848.055276573@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 3a5fe2fb9635c43359c9729352f45044f3c8df6b ]
+[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
 
-When BCM47XX_BCMA is enabled and BCMA_DRIVER_PCI is disabled, it results
-in the following Kbuild warning:
+current_desc_hdr() returns a u32 but in fact this is a __be32,
+leading to a lot of sparse warnings.
 
-WARNING: unmet direct dependencies detected for BCMA_DRIVER_PCI_HOSTMODE
-  Depends on [n]: MIPS [=y] && BCMA_DRIVER_PCI [=n] && PCI_DRIVERS_LEGACY [=y] && BCMA [=y]=y
-  Selected by [y]:
-  - BCM47XX_BCMA [=y] && BCM47XX [=y] && PCI [=y]
+Change the return type to __be32 and ensure it is handled as
+sure by the caller.
 
-The reason is that BCM47XX_BCMA selects BCMA_DRIVER_PCI_HOSTMODE without
-depending on or selecting BCMA_DRIVER_PCI while BCMA_DRIVER_PCI_HOSTMODE
-depends on BCMA_DRIVER_PCI. This can also fail building the kernel.
-
-Honor the kconfig dependency to remove unmet direct dependency warnings
-and avoid any potential build failures.
-
-Fixes: c1d1c5d4213e ("bcm47xx: add support for bcma bus")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209879
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/talitos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/bcm47xx/Kconfig b/arch/mips/bcm47xx/Kconfig
-index e970fd9cf7693..7ca7384fd5c9d 100644
---- a/arch/mips/bcm47xx/Kconfig
-+++ b/arch/mips/bcm47xx/Kconfig
-@@ -26,6 +26,7 @@ config BCM47XX_BCMA
- 	select BCMA
- 	select BCMA_HOST_SOC
- 	select BCMA_DRIVER_MIPS
-+	select BCMA_DRIVER_PCI if PCI
- 	select BCMA_DRIVER_PCI_HOSTMODE if PCI
- 	select BCMA_DRIVER_GPIO
- 	default y
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 1c8857e7db894..cfefa18bca28b 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -440,7 +440,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
+ /*
+  * locate current (offending) descriptor
+  */
+-static u32 current_desc_hdr(struct device *dev, int ch)
++static __be32 current_desc_hdr(struct device *dev, int ch)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int tail, iter;
+@@ -471,13 +471,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
+ /*
+  * user diagnostics; report root cause of error based on execution unit status
+  */
+-static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
++static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	int i;
+ 
+ 	if (!desc_hdr)
+-		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
++		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
+ 
+ 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
+ 	case DESC_HDR_SEL0_AFEU:
 -- 
 2.27.0
 
