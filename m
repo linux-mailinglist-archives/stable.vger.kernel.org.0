@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F8B2E4323
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 424FA2E38D6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404268AbgL1Pdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56056 "EHLO mail.kernel.org"
+        id S1732732AbgL1NPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407412AbgL1NyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:54:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1E1322583;
-        Mon, 28 Dec 2020 13:53:31 +0000 (UTC)
+        id S1732757AbgL1NPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF91206ED;
+        Mon, 28 Dec 2020 13:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163612;
-        bh=aVvIsjuDZmxifQFP46s5EK43q5qX4+WDyA4yYa8Vkyc=;
+        s=korg; t=1609161331;
+        bh=V2ODb96vyRtKwmpH35cYHAptDz6ZCJwVHgbA6g6OKJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T2vzVeUS5zfpzGYdt6MPkxy11dapcRfboOFbyvATeBYRQgUm4tPFileLDUtIKzxCH
-         mLOlBf8iL/phg/EWnJQWOPA4niOm4d38/QI5GzU4ApetZFqwhlKVD8kXU4aXE1X8iO
-         TLYxH1J0iqdAiNI1FUUeVX/EAwJtgvp7aJTq5tPI=
+        b=D3Hxsbe8cBT79yEB/woD43vjjQIiK5bE3AposmjvFH8OZCz3Tc0Ys0yFJsCdNoH3w
+         NcOy7+FwdrGvKknmf0Fal+I7FwNnl2TwGWdx9+0RKKPyrnOHBuD1bR5v6/VEZ2LDVS
+         ScTQJWMyF4VY/7Y9Qe1fyNPKjRqP3UUZihaVFlkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, stable@kernel.org
-Subject: [PATCH 5.4 347/453] s390/smp: perform initial CPU reset also for SMT siblings
-Date:   Mon, 28 Dec 2020 13:49:43 +0100
-Message-Id: <20201228124953.910228293@linuxfoundation.org>
+        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 179/242] Input: cros_ec_keyb - send scancodes in addition to key events
+Date:   Mon, 28 Dec 2020 13:49:44 +0100
+Message-Id: <20201228124913.496426290@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit b5e438ebd7e808d1d2435159ac4742e01a94b8da upstream.
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-Not resetting the SMT siblings might leave them in unpredictable
-state. One of the observed problems was that the CPU timer wasn't
-reset and therefore large system time values where accounted during
-CPU bringup.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-Cc: <stable@kernel.org> # 4.0
-Fixes: 10ad34bc76dfb ("s390: add SMT support")
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/smp.c |   18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -885,24 +885,12 @@ static void __no_sanitize_address smp_st
- /* Upping and downing of CPUs */
- int __cpu_up(unsigned int cpu, struct task_struct *tidle)
- {
--	struct pcpu *pcpu;
--	int base, i, rc;
-+	struct pcpu *pcpu = pcpu_devices + cpu;
-+	int rc;
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 0993b3f12df6a..149f4045f0f15 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -196,6 +196,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
--	pcpu = pcpu_devices + cpu;
- 	if (pcpu->state != CPU_STATE_CONFIGURED)
- 		return -EIO;
--	base = smp_get_base_cpu(cpu);
--	for (i = 0; i <= smp_cpu_mtid; i++) {
--		if (base + i < nr_cpu_ids)
--			if (cpu_online(base + i))
--				break;
--	}
--	/*
--	 * If this is the first CPU of the core to get online
--	 * do an initial CPU reset.
--	 */
--	if (i > smp_cpu_mtid &&
--	    pcpu_sigp_retry(pcpu_devices + base, SIGP_INITIAL_CPU_RESET, 0) !=
-+	if (pcpu_sigp_retry(pcpu, SIGP_INITIAL_CPU_RESET, 0) !=
- 	    SIGP_CC_ORDER_CODE_ACCEPTED)
- 		return -EIO;
- 
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
+-- 
+2.27.0
+
 
 
