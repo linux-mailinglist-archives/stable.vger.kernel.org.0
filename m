@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8EDD2E646A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26EBA2E3D61
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:15:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403998AbgL1Nlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40824 "EHLO mail.kernel.org"
+        id S2440532AbgL1OPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391674AbgL1NlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EB6B21D94;
-        Mon, 28 Dec 2020 13:40:57 +0000 (UTC)
+        id S2440535AbgL1OO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4892A20715;
+        Mon, 28 Dec 2020 14:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162858;
-        bh=a3VtAI9EWvHTMsREjZvzqzchoZk68QqwDXfiu3G1nnQ=;
+        s=korg; t=1609164856;
+        bh=TimHOi2l3Cn3cz0kU1swTkrhBXrNoxgAWGazdD8RELU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBz+AcTO8mI8C1uDfKJdbkn+zOzfdVFVeP56YQCCYIFWG+GpE7Ut3jNOTALeHt1vn
-         XvUJBzR7tzAo4eUDk9zEOEQwvuQ0Ubk6oYOGu5Oc2xzsjsfq/DPvzLXT4fD4NSKcFa
-         Bd1HziZHLbhpNgEcASdM1AriwQv44fvy+1fP3yuQ=
+        b=tXIBROPf7k9rNySLBHq03n3qCNCZxBkfoOEMotkWnbckJJVE3vOEFGfpWSWawSfhL
+         NLzZuwzCDx6yS9JCKbnvvgdbIsMHDWcd7ppfa48EEtTYCs+Nj9lbXIsA4twzKTgU8r
+         OiEwdP9oqVCPy/IY+230KEhKuj2BAgx87Fi1fw/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/453] ARM: dts: aspeed: s2600wf: Fix VGA memory region location
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 324/717] cpufreq: highbank: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 28 Dec 2020 13:45:22 +0100
-Message-Id: <20201228124941.369267197@linuxfoundation.org>
+Message-Id: <20201228125036.542395877@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 9e1cc9679776f5b9e42481d392b1550753ebd084 ]
+[ Upstream commit 9433777a6e0aae27468d3434b75cd51bb88ff711 ]
 
-The VGA memory region is always from the top of RAM. On this board, that
-is 0x80000000 + 0x20000000 - 0x01000000 = 0x9f000000.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-This was not an issue in practice as the region is "reserved" by the
-vendor's u-boot reducing the amount of available RAM, and the only user
-is the host VGA device poking at RAM over PCIe. That is, nothing from
-the ARM touches it.
-
-It is worth fixing as developers copy existing device trees when
-building their machines, and the XDMA driver does use the memory region
-from the ARM side.
-
-Fixes: c4043ecac34a ("ARM: dts: aspeed: Add S2600WF BMC Machine")
-Reported-by: John Wang <wangzhiqiang.bj@bytedance.com>
-Link: https://lore.kernel.org/r/20200922064234.163799-1-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 6754f556103be ("cpufreq / highbank: add support for highbank cpufreq")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/cpufreq/highbank-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-index 22dade6393d06..d1dbe3b6ad5a7 100644
---- a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-@@ -22,9 +22,9 @@
- 		#size-cells = <1>;
- 		ranges;
+diff --git a/drivers/cpufreq/highbank-cpufreq.c b/drivers/cpufreq/highbank-cpufreq.c
+index 5a7f6dafcddb6..ac57cddc5f2fe 100644
+--- a/drivers/cpufreq/highbank-cpufreq.c
++++ b/drivers/cpufreq/highbank-cpufreq.c
+@@ -101,6 +101,13 @@ out_put_node:
+ }
+ module_init(hb_cpufreq_driver_init);
  
--		vga_memory: framebuffer@7f000000 {
-+		vga_memory: framebuffer@9f000000 {
- 			no-map;
--			reg = <0x7f000000 0x01000000>;
-+			reg = <0x9f000000 0x01000000>; /* 16M */
- 		};
- 	};
- 
++static const struct of_device_id __maybe_unused hb_cpufreq_of_match[] = {
++	{ .compatible = "calxeda,highbank" },
++	{ .compatible = "calxeda,ecx-2000" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, hb_cpufreq_of_match);
++
+ MODULE_AUTHOR("Mark Langsdorf <mark.langsdorf@calxeda.com>");
+ MODULE_DESCRIPTION("Calxeda Highbank cpufreq driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.27.0
 
