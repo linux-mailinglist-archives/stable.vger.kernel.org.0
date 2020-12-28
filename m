@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AA12E651B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C682E3909
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:19:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393245AbgL1P5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:57:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34950 "EHLO mail.kernel.org"
+        id S2387452AbgL1NSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390338AbgL1Ne1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:34:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E8122582;
-        Mon, 28 Dec 2020 13:33:45 +0000 (UTC)
+        id S1731669AbgL1NSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A328520776;
+        Mon, 28 Dec 2020 13:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162426;
-        bh=J2SqDQrRDDD2Lz1QVpJNR4dJlokZt+XplGNZdAynU2A=;
+        s=korg; t=1609161442;
+        bh=QIOKw+a1dqpbLal4EBucqqYTu9j9NGnLum/n8hrfvwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSxycVy9up2S+ItXFn/NEE+frY2T5zr3TxS/BgXgKtOVwy/xehX1aLX4zwN86+PYO
-         U+jtHT2agIwzuN7OW42NiHG1OuCdAFy+xvzmh8MQh6U+E4QWH3qvYaD/hxL9hF80Tw
-         PWuTCIGD6ic2BQRzM3Atwc2ODkSDhK5t+7MX6lX4=
+        b=ceEHUZqnywsBNDrmxpSKwAlzlgPln2mSSoDUgPm0R7SdzvlCZXZI4WcxhV2ZKaLOs
+         0Bi5ss5Y3gIopBKgUCRbS+N/AY7uunWjw2v0aQ6VF2bGYzAKyWTZED4D82VakqBnQZ
+         lUT7BMQgKscPLXrRIw7kgrZWkrlTjp3wnBT0QH2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Sneddon <dan.sneddon@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Cristian Birsan <cristian.birsan@microchip.com>
-Subject: [PATCH 4.19 301/346] ARM: dts: at91: sama5d2: fix CAN message ram offset and size
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.14 215/242] ima: Dont modify file descriptor mode on the fly
 Date:   Mon, 28 Dec 2020 13:50:20 +0100
-Message-Id: <20201228124934.334416531@linuxfoundation.org>
+Message-Id: <20201228124915.249292543@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 85b8350ae99d1300eb6dc072459246c2649a8e50 upstream.
+commit 207cdd565dfc95a0a5185263a567817b7ebf5467 upstream.
 
-CAN0 and CAN1 instances share the same message ram configured
-at 0x210000 on sama5d2 Linux systems.
-According to current configuration of CAN0, we need 0x1c00 bytes
-so that the CAN1 don't overlap its message ram:
-64 x RX FIFO0 elements => 64 x 72 bytes
-32 x TXE (TX Event FIFO) elements => 32 x 8 bytes
-32 x TXB (TX Buffer) elements => 32 x 72 bytes
-So a total of 7168 bytes (0x1C00).
+Commit a408e4a86b36b ("ima: open a new file instance if no read
+permissions") already introduced a second open to measure a file when the
+original file descriptor does not allow it. However, it didn't remove the
+existing method of changing the mode of the original file descriptor, which
+is still necessary if the current process does not have enough privileges
+to open a new one.
 
-Fix offset to match this needed size.
-Make the CAN0 message ram ioremap match exactly this size so that is
-easily understandable.  Adapt CAN1 size accordingly.
+Changing the mode isn't really an option, as the filesystem might need to
+do preliminary steps to make the read possible. Thus, this patch removes
+the code and keeps the second open as the only option to measure a file
+when it is unreadable with the original file descriptor.
 
-Fixes: bc6d5d7666b7 ("ARM: dts: at91: sama5d2: add m_can nodes")
-Reported-by: Dan Sneddon <dan.sneddon@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Cc: stable@vger.kernel.org # v4.13+
-Link: https://lore.kernel.org/r/20201203091949.9015-1-nicolas.ferre@microchip.com
+Cc: <stable@vger.kernel.org> # 4.20.x: 0014cc04e8ec0 ima: Set file->f_mode
+Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sama5d2.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima_crypto.c |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
---- a/arch/arm/boot/dts/sama5d2.dtsi
-+++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -1298,7 +1298,7 @@
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -432,7 +432,7 @@ int ima_calc_file_hash(struct file *file
+ 	loff_t i_size;
+ 	int rc;
+ 	struct file *f = file;
+-	bool new_file_instance = false, modified_mode = false;
++	bool new_file_instance = false;
  
- 			can0: can@f8054000 {
- 				compatible = "bosch,m_can";
--				reg = <0xf8054000 0x4000>, <0x210000 0x4000>;
-+				reg = <0xf8054000 0x4000>, <0x210000 0x1c00>;
- 				reg-names = "m_can", "message_ram";
- 				interrupts = <56 IRQ_TYPE_LEVEL_HIGH 7>,
- 					     <64 IRQ_TYPE_LEVEL_HIGH 7>;
-@@ -1491,7 +1491,7 @@
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -450,18 +450,10 @@ int ima_calc_file_hash(struct file *file
+ 				O_TRUNC | O_CREAT | O_NOCTTY | O_EXCL);
+ 		flags |= O_RDONLY;
+ 		f = dentry_open(&file->f_path, flags, file->f_cred);
+-		if (IS_ERR(f)) {
+-			/*
+-			 * Cannot open the file again, lets modify f_mode
+-			 * of original and continue
+-			 */
+-			pr_info_ratelimited("Unable to reopen file for reading.\n");
+-			f = file;
+-			f->f_mode |= FMODE_READ;
+-			modified_mode = true;
+-		} else {
+-			new_file_instance = true;
+-		}
++		if (IS_ERR(f))
++			return PTR_ERR(f);
++
++		new_file_instance = true;
+ 	}
  
- 			can1: can@fc050000 {
- 				compatible = "bosch,m_can";
--				reg = <0xfc050000 0x4000>, <0x210000 0x4000>;
-+				reg = <0xfc050000 0x4000>, <0x210000 0x3800>;
- 				reg-names = "m_can", "message_ram";
- 				interrupts = <57 IRQ_TYPE_LEVEL_HIGH 7>,
- 					     <65 IRQ_TYPE_LEVEL_HIGH 7>;
-@@ -1501,7 +1501,7 @@
- 				assigned-clocks = <&can1_gclk>;
- 				assigned-clock-parents = <&utmi>;
- 				assigned-clock-rates = <40000000>;
--				bosch,mram-cfg = <0x1100 0 0 64 0 0 32 32>;
-+				bosch,mram-cfg = <0x1c00 0 0 64 0 0 32 32>;
- 				status = "disabled";
- 			};
+ 	i_size = i_size_read(file_inode(f));
+@@ -476,8 +468,6 @@ int ima_calc_file_hash(struct file *file
+ out:
+ 	if (new_file_instance)
+ 		fput(f);
+-	else if (modified_mode)
+-		f->f_mode &= ~FMODE_READ;
+ 	return rc;
+ }
  
 
 
