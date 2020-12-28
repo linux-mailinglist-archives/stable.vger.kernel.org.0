@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9A52E3F43
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73EC02E3C26
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504594AbgL1OiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:38:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40144 "EHLO mail.kernel.org"
+        id S2407856AbgL1N7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:59:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389082AbgL1OcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E02229C5;
-        Mon, 28 Dec 2020 14:31:19 +0000 (UTC)
+        id S2436490AbgL1N7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:59:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89D8020715;
+        Mon, 28 Dec 2020 13:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165880;
-        bh=6KMEH1bve/4MgV21p22avlgY6vY+npyznjrhFxmLHPs=;
+        s=korg; t=1609163908;
+        bh=2lh3KjgtC180oUH/FoUgxKmPy2AKsKnomUdG+vOBz08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c92njSTqDoqQVpa7CT4h2nMEip29G44t2kJc9h5xmJaIHW6pzlH7HiDIYLW5G0MKm
-         Ss5QJDGb6TgpW0T6k/JkdjfcDoZaCzdcFKVq3YH1BpmcyTCTEnZngLE/XlXyhC4duc
-         yNy7Wf9ZOCBEPcMy/4iSoSQkNsi4FavyohsbkLkY=
+        b=ehDogzlNmigJBhTz+qtkk9xK6IgSCL9DQzFLQ+UNFvvpB6QsrRnAyORgPMzgN2dut
+         ZdRPnGkQ3dcGg+L8LkXTpssyTJ2xJQMYqci+/dtJ3nfgFPk2O0P9efgiEFo+S3SPxK
+         3lxgOUyE6y8MxXjbh2ZR5xIj8ryE5nZOBmCN4JFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.10 688/717] clk: ingenic: Fix divider calculation with div tables
-Date:   Mon, 28 Dec 2020 13:51:26 +0100
-Message-Id: <20201228125053.932528023@linuxfoundation.org>
+        stable@vger.kernel.org, DingHua Ma <dinghua.ma.sz@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 451/453] regulator: axp20x: Fix DLDO2 voltage control register mask for AXP22x
+Date:   Mon, 28 Dec 2020 13:51:27 +0100
+Message-Id: <20201228124958.923179526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: DingHua Ma <dinghua.ma.sz@gmail.com>
 
-commit 11a163f2c7d6a9f27ce144cd7e367a81c851621a upstream.
+commit 291de1d102fafef0798cdad9666cd4f8da7da7cc upstream.
 
-The previous code assumed that a higher hardware value always resulted
-in a bigger divider, which is correct for the regular clocks, but is
-an invalid assumption when a divider table is provided for the clock.
+When I use the axp20x chip to power my SDIO device on the 5.4 kernel,
+the output voltage of DLDO2 is wrong. After comparing the register
+manual and source code of the chip, I found that the mask bit of the
+driver register of the port was wrong. I fixed this error by modifying
+the mask register of the source code. This error seems to be a copy
+error of the macro when writing the code. Now the voltage output of
+the DLDO2 port of axp20x is correct. My development environment is
+Allwinner A40I of arm architecture, and the kernel version is 5.4.
 
-Perfect example of this is the PLL0_HALF clock, which applies a /2
-divider with the hardware value 0, and a /1 divider otherwise.
-
-Fixes: a9fa2893fcc6 ("clk: ingenic: Add support for divider tables")
-Cc: <stable@vger.kernel.org> # 5.2
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20201212135733.38050-1-paul@crapouillou.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: DingHua Ma <dinghua.ma.sz@gmail.com>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Cc: <stable@vger.kernel.org>
+Fixes: db4a555f7c4c ("regulator: axp20x: use defines for masks")
+Link: https://lore.kernel.org/r/20201201001000.22302-1-dinghua.ma.sz@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/ingenic/cgu.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/regulator/axp20x-regulator.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/clk/ingenic/cgu.c
-+++ b/drivers/clk/ingenic/cgu.c
-@@ -392,15 +392,21 @@ static unsigned int
- ingenic_clk_calc_hw_div(const struct ingenic_cgu_clk_info *clk_info,
- 			unsigned int div)
- {
--	unsigned int i;
-+	unsigned int i, best_i = 0, best = (unsigned int)-1;
- 
- 	for (i = 0; i < (1 << clk_info->div.bits)
- 				&& clk_info->div.div_table[i]; i++) {
--		if (clk_info->div.div_table[i] >= div)
--			return i;
-+		if (clk_info->div.div_table[i] >= div &&
-+		    clk_info->div.div_table[i] < best) {
-+			best = clk_info->div.div_table[i];
-+			best_i = i;
-+
-+			if (div == best)
-+				break;
-+		}
- 	}
- 
--	return i - 1;
-+	return best_i;
- }
- 
- static unsigned
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -596,7 +596,7 @@ static const struct regulator_desc axp22
+ 		 AXP22X_DLDO1_V_OUT, AXP22X_DLDO1_V_OUT_MASK,
+ 		 AXP22X_PWR_OUT_CTRL2, AXP22X_PWR_OUT_DLDO1_MASK),
+ 	AXP_DESC(AXP22X, DLDO2, "dldo2", "dldoin", 700, 3300, 100,
+-		 AXP22X_DLDO2_V_OUT, AXP22X_PWR_OUT_DLDO2_MASK,
++		 AXP22X_DLDO2_V_OUT, AXP22X_DLDO2_V_OUT_MASK,
+ 		 AXP22X_PWR_OUT_CTRL2, AXP22X_PWR_OUT_DLDO2_MASK),
+ 	AXP_DESC(AXP22X, DLDO3, "dldo3", "dldoin", 700, 3300, 100,
+ 		 AXP22X_DLDO3_V_OUT, AXP22X_DLDO3_V_OUT_MASK,
 
 
