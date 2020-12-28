@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4790C2E423C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 254FB2E3C82
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:04:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437048AbgL1OC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:02:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36256 "EHLO mail.kernel.org"
+        id S2437186AbgL1ODk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:03:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730351AbgL1OC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:02:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE4D720715;
-        Mon, 28 Dec 2020 14:02:42 +0000 (UTC)
+        id S2437160AbgL1OD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:03:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3B83206D4;
+        Mon, 28 Dec 2020 14:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164163;
-        bh=vEBXCzMcOLDYbWVlJV6QcKpciEsXRmU2/Y2TwoAduZo=;
+        s=korg; t=1609164194;
+        bh=uK7ZcFfCS7K7aNfFEFcM0fZ+Z+I7c2//vK28nrvLgZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXafyTMeIKdajwU5RL14Us/cQxyPo41oQq+IC7qHjiUOLd3pu/Rr7QyTk7DUSKUw9
-         oNjkhL2+DFppRXWu2YFPlJcrofGShI4Qx4Mki6YSLv38hXaizABbcvml7K90YYaq9n
-         yQCjxCzxJd2+PGe7fLaeQRkwCJTO3WM7wNQFvC9A=
+        b=XaVXsngO9MwqkCRtQxzeSzn+LhkHdKgmgUksrnn3vn5q7Mz97Sb/wrWmM7iyBo2tl
+         Y3AxK9V8Ek6CyH4fSLVma7aoxJzR63BWj9RAZa33ZN+56VgpQ8W1TnZkTNaT5I9TKx
+         1vFbZGTIH7qq+dG6lHxEMSzfj45Q6OMpA0HKCsKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/717] spi: spi-ti-qspi: fix reference leak in ti_qspi_setup
-Date:   Mon, 28 Dec 2020 13:41:14 +0100
-Message-Id: <20201228125024.628733567@linuxfoundation.org>
+Subject: [PATCH 5.10 077/717] spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
+Date:   Mon, 28 Dec 2020 13:41:15 +0100
+Message-Id: <20201228125024.676319235@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,35 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 45c0cba753641e5d7c3207f04241bd0e7a021698 ]
+[ Upstream commit 702b15cb97123cedcec56a39d9a21c5288eb9ae1 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in ti_qspi_setup, so we should fix it.
+Fix the missing clk_disable_unprepare() before return
+from mt7621_spi_probe in the error handling case.
 
-Fixes: 505a14954e2d7 ("spi/qspi: Add qspi flash controller")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103140947.3815-1-zhangqilong3@huawei.com
+Fixes: cbd66c626e16 ("spi: mt7621: Move SPI driver out of staging")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201103074912.195576-1-miaoqinglang@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-ti-qspi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-mt7621.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-ti-qspi.c b/drivers/spi/spi-ti-qspi.c
-index 3c41649698a5b..9417385c09217 100644
---- a/drivers/spi/spi-ti-qspi.c
-+++ b/drivers/spi/spi-ti-qspi.c
-@@ -174,6 +174,7 @@ static int ti_qspi_setup(struct spi_device *spi)
+diff --git a/drivers/spi/spi-mt7621.c b/drivers/spi/spi-mt7621.c
+index 2c3b7a2a1ec77..2cdae7994e2aa 100644
+--- a/drivers/spi/spi-mt7621.c
++++ b/drivers/spi/spi-mt7621.c
+@@ -353,6 +353,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 	master = spi_alloc_master(&pdev->dev, sizeof(*rs));
+ 	if (!master) {
+ 		dev_info(&pdev->dev, "master allocation failed\n");
++		clk_disable_unprepare(clk);
+ 		return -ENOMEM;
+ 	}
  
- 	ret = pm_runtime_get_sync(qspi->dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(qspi->dev);
- 		dev_err(qspi->dev, "pm_runtime_get_sync() failed\n");
+@@ -377,6 +378,7 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 	ret = device_reset(&pdev->dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "SPI reset failed!\n");
++		clk_disable_unprepare(clk);
  		return ret;
  	}
+ 
 -- 
 2.27.0
 
