@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D480C2E6719
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78ADA2E656C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732385AbgL1NOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:14:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
+        id S2390592AbgL1QBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:01:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732382AbgL1NOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:14:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED5DA208BA;
-        Mon, 28 Dec 2020 13:13:22 +0000 (UTC)
+        id S2387686AbgL1NcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:32:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1342421D94;
+        Mon, 28 Dec 2020 13:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161203;
-        bh=sxK1OPT0/O2hOVRIPuksVqKHu0D+wcbjUwnwMnkF/40=;
+        s=korg; t=1609162287;
+        bh=Lnk/iVq27h4ROwe+OEDj5l41yCPtSdaHVoqU8ElfOac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaUcr9e5lrpryOM+keGGbofA9mxVTiR1SApIqxJ472UbUyjkn39FiX6dwupAPSJp6
-         4IXLhcieJM4XkpF5jZPAormg+0rXE1Y3HGA9HNpB6/PGAf4+ehyPAJ1GLwrSRpzEkU
-         CUXceK4BiSKxIhUheXsv4R42vfo/SnqFr+uNKF5g=
+        b=tKjuWnLvq9HlEq+Esnde9KB/5ZnBKZnqDag8MiVWvEZOrUBm6CsYQ62+ngl6h5BOI
+         3UK5q8L2Ha9+mQtj++rSSLR8ShL0kFDWTJ0Va0aLP3e2Y22oBJ+NUR1FctDRWkorEH
+         eUaaIj90WiGWuzTq7Yp4LbK7AsIUMT2TBK0XJ9o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/242] net/mlx5: Properly convey driver version to firmware
+Subject: [PATCH 4.19 221/346] x86/kprobes: Restore BTF if the single-stepping is cancelled
 Date:   Mon, 28 Dec 2020 13:49:00 +0100
-Message-Id: <20201228124911.353183171@linuxfoundation.org>
+Message-Id: <20201228124930.462175957@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 907af0f0cab4ee5d5604f182ecec2c5b5119d294 ]
+[ Upstream commit 78ff2733ff352175eb7f4418a34654346e1b6cd2 ]
 
-mlx5 firmware expects driver version in specific format X.X.X, so
-make it always correct and based on real kernel version aligned with
-the driver.
+Fix to restore BTF if single-stepping causes a page fault and
+it is cancelled.
 
-Fixes: 012e50e109fd ("net/mlx5: Set driver version into firmware")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Usually the BTF flag was restored when the single stepping is done
+(in resume_execution()). However, if a page fault happens on the
+single stepping instruction, the fault handler is invoked and
+the single stepping is cancelled. Thus, the BTF flag is not
+restored.
+
+Fixes: 1ecc798c6764 ("x86: debugctlmsr kprobes")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/160389546985.106936.12727996109376240993.stgit@devnote2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/kprobes/core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 1ac0e173da12c..049d9d19c66d9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -51,6 +51,7 @@
- #ifdef CONFIG_RFS_ACCEL
- #include <linux/cpu_rmap.h>
- #endif
-+#include <linux/version.h>
- #include <net/devlink.h>
- #include "mlx5_core.h"
- #include "fs_core.h"
-@@ -204,7 +205,10 @@ static void mlx5_set_driver_version(struct mlx5_core_dev *dev)
- 	strncat(string, ",", remaining_size);
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index 07e290244ca94..dfc3ab44bc5d3 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -1041,6 +1041,11 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+ 		 * So clear it by resetting the current kprobe:
+ 		 */
+ 		regs->flags &= ~X86_EFLAGS_TF;
++		/*
++		 * Since the single step (trap) has been cancelled,
++		 * we need to restore BTF here.
++		 */
++		restore_btf();
  
- 	remaining_size = max_t(int, 0, driver_ver_sz - strlen(string));
--	strncat(string, DRIVER_VERSION, remaining_size);
-+
-+	snprintf(string + strlen(string), remaining_size, "%u.%u.%u",
-+		 (u8)((LINUX_VERSION_CODE >> 16) & 0xff), (u8)((LINUX_VERSION_CODE >> 8) & 0xff),
-+		 (u16)(LINUX_VERSION_CODE & 0xffff));
- 
- 	/*Send the command*/
- 	MLX5_SET(set_driver_version_in, in, opcode,
+ 		/*
+ 		 * If the TF flag was set before the kprobe hit,
 -- 
 2.27.0
 
