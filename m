@@ -2,174 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B22F92E6A12
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 19:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F67E2E6A1B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 19:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728804AbgL1SuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 13:50:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37618 "EHLO mail.kernel.org"
+        id S1727180AbgL1SvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 13:51:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728802AbgL1SuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 13:50:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87350221F8;
-        Mon, 28 Dec 2020 18:49:39 +0000 (UTC)
+        id S1726597AbgL1SvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 13:51:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BD4222B45
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 18:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609181379;
-        bh=dAFuJzF1b9qGeRQvQOMo1/z2sIG717gVfFInQMDZZkc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uN32AtsBVvAECC9TMngB81MNnQaUjIJHHJmgL+hY66pjIZ35M2zJfMET57oQmP61Z
-         q6v5KTEK1n1PCZqdOjqEiyniBa8M79tPw712+nz4Bim+9pb4oiyPwOqiiftjr0JW8b
-         7smGavViIaKOrZu3875dK4JJOMzHVkKiTW9T8faJxL4PMPjQYYaYbmqvoSBjxvjPo4
-         pCv9Udu6p5vM7ELC+2Mn48Wlzz1MuySBMEl4bhOWzCRKfWOtHkkIAn6eghxDtq/b6J
-         pXyF+MUOdOLQm4Tfc/NYL3sDeRghwqne1Rfl8HqovEv5a1LNqsSroo/Liw2Py74uDW
-         WgCpS9zmSzolA==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-fscrypt@vger.kernel.org
-Subject: [PATCH 5.4] fscrypt: remove kernel-internal constants from UAPI header
-Date:   Mon, 28 Dec 2020 10:47:47 -0800
-Message-Id: <20201228184747.56259-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.29.2
+        s=k20201202; t=1609181434;
+        bh=6YqwLVWGZ7ybOF3Ak7Rutxzpv/0P68frB/ABbtNRx2A=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=AaTJQGDx58ZoPUwIflwplFjWLnIFD807YZxgy/wYiFKWT1laWnPttoNEf6fcvtHHU
+         +1CZ1iOYgjTejeFWS++DiH29gBHSy8svPa+lVVWyGWKVVVrLK0b4deZrIMXHHkUZav
+         Cbh7w6P49o2HymZPH6nKYAV5V/DIz4ohgdngS6R+6FETrskhWBi87AJduXHvoFDd99
+         f4+7QHkuPbqsmYqNWe6Q41r1iNa231xtvKSnlNbahIH/zwC+CDwxNnAeD2oXFPcWSf
+         M9A+zrh7bnLWxYVHHSprHpra4oKbHl/w+xYPE2jSLv3Y/SWoptfm2qEu1lf6V4xPqh
+         2uJEMxqBjqKBw==
+Received: by mail-wm1-f52.google.com with SMTP id 3so256544wmg.4
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 10:50:34 -0800 (PST)
+X-Gm-Message-State: AOAM530wKqSzJT4GJNjFqO00VFeH+5dFjCMH9bFhI/PsMtCfa6Y0cLlr
+        4Au/yomnFynWwpDE40ApowHb8lCR9/EmO/RbZBAx6Q==
+X-Google-Smtp-Source: ABdhPJy2pGQl+qZycpaVqhSpXhzX+qb6KsnFF26UHOwhZZYqp85PUh6OZSCBMuyYlamRKZ+/qeujbpFqUc9sglmMa5s=
+X-Received: by 2002:a7b:c40b:: with SMTP id k11mr257558wmi.36.1609181432795;
+ Mon, 28 Dec 2020 10:50:32 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
+ <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
+ <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
+ <20201228102537.GG1551@shell.armlinux.org.uk> <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
+ <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com>
+In-Reply-To: <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Mon, 28 Dec 2020 10:50:20 -0800
+X-Gmail-Original-Message-ID: <CALCETrV_0+1S6PTxY20ex5au8oNz5TVxn+HXvxta-ZVv03nckQ@mail.gmail.com>
+Message-ID: <CALCETrV_0+1S6PTxY20ex5au8oNz5TVxn+HXvxta-ZVv03nckQ@mail.gmail.com>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+To:     Jann Horn <jannh@google.com>
+Cc:     Andy Lutomirski <luto@kernel.org>, Will Deacon <will@kernel.org>,
+        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        x86 <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Mon, Dec 28, 2020 at 10:30 AM Jann Horn <jannh@google.com> wrote:
+>
+> On Mon, Dec 28, 2020 at 6:14 PM Andy Lutomirski <luto@kernel.org> wrote:
+> > On Mon, Dec 28, 2020 at 2:25 AM Russell King - ARM Linux admin
+> > <linux@armlinux.org.uk> wrote:
+> > >
+> > > On Sun, Dec 27, 2020 at 01:36:13PM -0800, Andy Lutomirski wrote:
+> > > > On Sun, Dec 27, 2020 at 12:18 PM Mathieu Desnoyers
+> > > > <mathieu.desnoyers@efficios.com> wrote:
+> > > > >
+> > > > > ----- On Dec 27, 2020, at 1:28 PM, Andy Lutomirski luto@kernel.org wrote:
+> > > > >
+> > > >
+> > > > > >
+> > > > > > I admit that I'm rather surprised that the code worked at all on arm64,
+> > > > > > and I'm suspicious that it has never been very well tested.  My apologies
+> > > > > > for not reviewing this more carefully in the first place.
+> > > > >
+> > > > > Please refer to Documentation/features/sched/membarrier-sync-core/arch-support.txt
+> > > > >
+> > > > > It clearly states that only arm, arm64, powerpc and x86 support the membarrier
+> > > > > sync core feature as of now:
+> > > >
+> > > > Sigh, I missed arm (32).  Russell or ARM folks, what's the right
+> > > > incantation to make the CPU notice instruction changes initiated by
+> > > > other cores on 32-bit ARM?
+> > >
+> > > You need to call flush_icache_range(), since the changes need to be
+> > > flushed from the data cache to the point of unification (of the Harvard
+> > > I and D), and the instruction cache needs to be invalidated so it can
+> > > then see those updated instructions. This will also take care of the
+> > > necessary barriers that the CPU requires for you.
+> >
+> > With what parameters?   From looking at the header, this is for the
+> > case in which the kernel writes some memory and then intends to
+> > execute it.  That's not what membarrier() does at all.  membarrier()
+> > works like this:
+> >
+> > User thread 1:
+> >
+> > write to RWX memory *or* write to an RW alias of an X region.
+> > membarrier(...);
+> > somehow tell thread 2 that we're ready (with a store release, perhaps,
+> > or even just a relaxed store.)
+> >
+> > User thread 2:
+> >
+> > wait for the indication from thread 1.
+> > barrier();
+> > jump to the code.
+> >
+> > membarrier() is, for better or for worse, not given a range of addresses.
+> >
+> > On x86, the documentation is a bit weak, but a strict reading
+> > indicates that thread 2 must execute a serializing instruction at some
+> > point after thread 1 writes the code and before thread 2 runs it.
+> > membarrier() does this by sending an IPI and ensuring that a
+> > "serializing" instruction (thanks for great terminology, Intel) is
+> > executed.  Note that flush_icache_range() is a no-op on x86, and I've
+> > asked Intel's architects to please clarify their precise rules.  No
+> > response yet.
+> >
+> > On arm64, flush_icache_range() seems to send an IPI, and that's not
+> > what I want.  membarrier() already does an IPI.
+>
+> After chatting with rmk about this (but without claiming that any of
+> this is his opinion), based on the manpage, I think membarrier()
+> currently doesn't really claim to be synchronizing caches? It just
+> serializes cores. So arguably if userspace wants to use membarrier()
+> to synchronize code changes, userspace should first do the code
+> change, then flush icache as appropriate for the architecture, and
+> then do the membarrier() to ensure that the old code is unused?
 
-commit 3ceb6543e9cf6ed87cc1fbc6f23ca2db903564cd upstream.
-[Please apply to 5.4-stable.]
+I haven't the faintest clue what "serializes cores" means.  It seems
+to be a bit of a mishmash of x86 SDM terminology and Linux x86
+"sync_core" terminology.  The latter means very little to me, even as
+an x86 person.
 
-There isn't really any valid reason to use __FSCRYPT_MODE_MAX or
-FSCRYPT_POLICY_FLAGS_VALID in a userspace program.  These constants are
-only meant to be used by the kernel internally, and they are defined in
-the UAPI header next to the mode numbers and flags only so that kernel
-developers don't forget to update them when adding new modes or flags.
+I'm moderately confident that the *intent* is that a multithreaded
+program can write some JIT code to memory, do this membarrier()
+operation, and then execute the code, and it will work.  Maybe it's
+even intended to work cross-architecture without any additional help
+from the program.  But maybe the existing API is simply incorrect for
+this.
 
-In https://lkml.kernel.org/r/20201005074133.1958633-2-satyat@google.com
-there was an example of someone wanting to use __FSCRYPT_MODE_MAX in a
-user program, and it was wrong because the program would have broken if
-__FSCRYPT_MODE_MAX were ever increased.  So having this definition
-available is harmful.  FSCRYPT_POLICY_FLAGS_VALID has the same problem.
+>
+> For 32-bit arm, rmk pointed out that that would be the cacheflush()
+> syscall. That might cause you to end up with two IPIs instead of one
+> in total, but we probably don't care _that_ much about extra IPIs on
+> 32-bit arm?
+>
+> For arm64, I believe userspace can flush icache across the entire
+> system with some instructions from userspace - "DC CVAU" followed by
+> "DSB ISH", or something like that, I think? (See e.g.
+> compat_arm_syscall(), the arm64 compat code that implements the 32-bit
+> arm cacheflush() syscall.)
 
-So, remove these definitions from the UAPI header.  Replace
-FSCRYPT_POLICY_FLAGS_VALID with just listing the valid flags explicitly
-in the one kernel function that needs it.  Move __FSCRYPT_MODE_MAX to
-fscrypt_private.h, remove the double underscores (which were only
-present to discourage use by userspace), and add a BUILD_BUG_ON() and
-comments to (hopefully) ensure it is kept in sync.
-
-Keep the old name FS_POLICY_FLAGS_VALID, since it's been around for
-longer and there's a greater chance that removing it would break source
-compatibility with some program.  Indeed, mtd-utils is using it in
-an #ifdef, and removing it would introduce compiler warnings (about
-FS_POLICY_FLAGS_PAD_* being redefined) into the mtd-utils build.
-However, reduce its value to 0x07 so that it only includes the flags
-with old names (the ones present before Linux 5.4), and try to make it
-clear that it's now "frozen" and no new flags should be added to it.
-
-Fixes: 2336d0deb2d4 ("fscrypt: use FSCRYPT_ prefix for uapi constants")
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/20201024005132.495952-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/crypto/fscrypt_private.h  | 5 ++++-
- fs/crypto/keysetup.c         | 2 ++
- fs/crypto/policy.c           | 6 ++++--
- include/uapi/linux/fscrypt.h | 5 ++---
- 4 files changed, 12 insertions(+), 6 deletions(-)
-
-diff --git a/fs/crypto/fscrypt_private.h b/fs/crypto/fscrypt_private.h
-index e84efc01512e4..ec73872661902 100644
---- a/fs/crypto/fscrypt_private.h
-+++ b/fs/crypto/fscrypt_private.h
-@@ -23,6 +23,9 @@
- #define FSCRYPT_CONTEXT_V1	1
- #define FSCRYPT_CONTEXT_V2	2
- 
-+/* Keep this in sync with include/uapi/linux/fscrypt.h */
-+#define FSCRYPT_MODE_MAX	FSCRYPT_MODE_ADIANTUM
-+
- struct fscrypt_context_v1 {
- 	u8 version; /* FSCRYPT_CONTEXT_V1 */
- 	u8 contents_encryption_mode;
-@@ -387,7 +390,7 @@ struct fscrypt_master_key {
- 	spinlock_t		mk_decrypted_inodes_lock;
- 
- 	/* Per-mode tfms for DIRECT_KEY policies, allocated on-demand */
--	struct crypto_skcipher	*mk_mode_keys[__FSCRYPT_MODE_MAX + 1];
-+	struct crypto_skcipher	*mk_mode_keys[FSCRYPT_MODE_MAX + 1];
- 
- } __randomize_layout;
- 
-diff --git a/fs/crypto/keysetup.c b/fs/crypto/keysetup.c
-index 75898340eb468..3e86f75b532a2 100644
---- a/fs/crypto/keysetup.c
-+++ b/fs/crypto/keysetup.c
-@@ -55,6 +55,8 @@ static struct fscrypt_mode *
- select_encryption_mode(const union fscrypt_policy *policy,
- 		       const struct inode *inode)
- {
-+	BUILD_BUG_ON(ARRAY_SIZE(available_modes) != FSCRYPT_MODE_MAX + 1);
-+
- 	if (S_ISREG(inode->i_mode))
- 		return &available_modes[fscrypt_policy_contents_mode(policy)];
- 
-diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
-index 4072ba644595b..8e1b10861c104 100644
---- a/fs/crypto/policy.c
-+++ b/fs/crypto/policy.c
-@@ -55,7 +55,8 @@ bool fscrypt_supported_policy(const union fscrypt_policy *policy_u,
- 			return false;
- 		}
- 
--		if (policy->flags & ~FSCRYPT_POLICY_FLAGS_VALID) {
-+		if (policy->flags & ~(FSCRYPT_POLICY_FLAGS_PAD_MASK |
-+				      FSCRYPT_POLICY_FLAG_DIRECT_KEY)) {
- 			fscrypt_warn(inode,
- 				     "Unsupported encryption flags (0x%02x)",
- 				     policy->flags);
-@@ -76,7 +77,8 @@ bool fscrypt_supported_policy(const union fscrypt_policy *policy_u,
- 			return false;
- 		}
- 
--		if (policy->flags & ~FSCRYPT_POLICY_FLAGS_VALID) {
-+		if (policy->flags & ~(FSCRYPT_POLICY_FLAGS_PAD_MASK |
-+				      FSCRYPT_POLICY_FLAG_DIRECT_KEY)) {
- 			fscrypt_warn(inode,
- 				     "Unsupported encryption flags (0x%02x)",
- 				     policy->flags);
-diff --git a/include/uapi/linux/fscrypt.h b/include/uapi/linux/fscrypt.h
-index 39ccfe9311c38..b14f436f4ebd3 100644
---- a/include/uapi/linux/fscrypt.h
-+++ b/include/uapi/linux/fscrypt.h
-@@ -17,7 +17,6 @@
- #define FSCRYPT_POLICY_FLAGS_PAD_32		0x03
- #define FSCRYPT_POLICY_FLAGS_PAD_MASK		0x03
- #define FSCRYPT_POLICY_FLAG_DIRECT_KEY		0x04
--#define FSCRYPT_POLICY_FLAGS_VALID		0x07
- 
- /* Encryption algorithms */
- #define FSCRYPT_MODE_AES_256_XTS		1
-@@ -25,7 +24,7 @@
- #define FSCRYPT_MODE_AES_128_CBC		5
- #define FSCRYPT_MODE_AES_128_CTS		6
- #define FSCRYPT_MODE_ADIANTUM			9
--#define __FSCRYPT_MODE_MAX			9
-+/* If adding a mode number > 9, update FSCRYPT_MODE_MAX in fscrypt_private.h */
- 
- /*
-  * Legacy policy version; ad-hoc KDF and no key verification.
-@@ -162,7 +161,7 @@ struct fscrypt_get_key_status_arg {
- #define FS_POLICY_FLAGS_PAD_32		FSCRYPT_POLICY_FLAGS_PAD_32
- #define FS_POLICY_FLAGS_PAD_MASK	FSCRYPT_POLICY_FLAGS_PAD_MASK
- #define FS_POLICY_FLAG_DIRECT_KEY	FSCRYPT_POLICY_FLAG_DIRECT_KEY
--#define FS_POLICY_FLAGS_VALID		FSCRYPT_POLICY_FLAGS_VALID
-+#define FS_POLICY_FLAGS_VALID		0x07	/* contains old flags only */
- #define FS_ENCRYPTION_MODE_INVALID	0	/* never used */
- #define FS_ENCRYPTION_MODE_AES_256_XTS	FSCRYPT_MODE_AES_256_XTS
- #define FS_ENCRYPTION_MODE_AES_256_GCM	2	/* never used */
--- 
-2.29.2
-
+I have no idea what DC anything does.   Based on my very cursory
+reading of the manual, ISB is the right approach, but I don't pretend
+I understand all the details.
