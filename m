@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA87D2E3F06
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ADAF2E3ED0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504799AbgL1Ocq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40716 "EHLO mail.kernel.org"
+        id S2504821AbgL1Oct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504793AbgL1Ocp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:32:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 542DE20791;
-        Mon, 28 Dec 2020 14:32:04 +0000 (UTC)
+        id S2504812AbgL1Ocs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3404D208B6;
+        Mon, 28 Dec 2020 14:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165924;
-        bh=oEpAsOXC8JAkhskm4KmIIR73+oZa6SuIWEHqgz7/hek=;
+        s=korg; t=1609165927;
+        bh=JTOq2aEU0ZWooTYDgXao8lvG8zqtcoMDAX26rbdrnlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouOOfjDnlgu2ceX+5bbGEndA0GrjTrhVKap/SAnlrIBqjJ1yZhB5KU9COPhCfq7eZ
-         TBJWQ8vZKukQ7WRKg6Y0G/mk8R92XWXo7omxOamZsq7neFhmla7Eqw7gJqBA/BL6R7
-         a/tN33w8GVx/NbtjLUhCy0A1jymyo9sF6BQN+FbM=
+        b=ksZ4gyUwax7bcD2QlzdQv53ZXAH/emcdtHQf5xKONxASxdCALiOo5ON/aJmbVZysk
+         bp9Ayy8YF2m8cczwMS4R7tr4xjvk1nNaMIwJhmOw2DQUK2/jIOGbT38P1/DiFGyxh9
+         qi7eauZMEsygFVVinpHpEuL7+tLv0/Mfk0GgF2AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
         Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.10 703/717] memory: renesas-rpc-if: Return correct value to the caller of rpcif_manual_xfer()
-Date:   Mon, 28 Dec 2020 13:51:41 +0100
-Message-Id: <20201228125054.665891197@linuxfoundation.org>
+Subject: [PATCH 5.10 704/717] memory: renesas-rpc-if: Fix unbalanced pm_runtime_enable in rpcif_{enable,disable}_rpm
+Date:   Mon, 28 Dec 2020 13:51:42 +0100
+Message-Id: <20201228125054.715581873@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -44,43 +44,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-commit a0453f4ed066cae651b3119ed11f52d31dae1eca upstream.
+commit 61a6d854b9555b420fbfae62ef26baa8b9493b32 upstream.
 
-In the error path of rpcif_manual_xfer() the value of ret is overwritten
-by value returned by reset_control_reset() function and thus returning
-incorrect value to the caller.
-
-This patch makes sure the correct value is returned to the caller of
-rpcif_manual_xfer() by dropping the overwrite of ret in error path.
-Also now we ignore the value returned by reset_control_reset() in the
-error path and instead print a error message when it fails.
+rpcif_enable_rpm calls pm_runtime_enable, so rpcif_disable_rpm needs to
+call pm_runtime_disable and not pm_runtime_put_sync.
 
 Fixes: ca7d8b980b67f ("memory: add Renesas RPC-IF driver")
-Reported-by: Pavel Machek <pavel@denx.de>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Pavel Machek (CIP) <pavel@denx.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201126191146.8753-2-prabhakar.mahadev-lad.rj@bp.renesas.com
+Link: https://lore.kernel.org/r/20201126191146.8753-3-prabhakar.mahadev-lad.rj@bp.renesas.com
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/memory/renesas-rpc-if.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/memory/renesas-rpc-if.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/memory/renesas-rpc-if.c
 +++ b/drivers/memory/renesas-rpc-if.c
-@@ -508,7 +508,8 @@ exit:
- 	return ret;
+@@ -212,7 +212,7 @@ EXPORT_SYMBOL(rpcif_enable_rpm);
  
- err_out:
--	ret = reset_control_reset(rpc->rstc);
-+	if (reset_control_reset(rpc->rstc))
-+		dev_err(rpc->dev, "Failed to reset HW\n");
- 	rpcif_hw_init(rpc, rpc->bus_size == 2);
- 	goto exit;
+ void rpcif_disable_rpm(struct rpcif *rpc)
+ {
+-	pm_runtime_put_sync(rpc->dev);
++	pm_runtime_disable(rpc->dev);
  }
+ EXPORT_SYMBOL(rpcif_disable_rpm);
+ 
 
 
