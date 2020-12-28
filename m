@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 125122E3FAE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:44:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508342E4324
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389231AbgL1OnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:43:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34896 "EHLO mail.kernel.org"
+        id S2404974AbgL1Pds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437875AbgL1O1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14BED22B37;
-        Mon, 28 Dec 2020 14:26:24 +0000 (UTC)
+        id S2407405AbgL1NyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D622C20738;
+        Mon, 28 Dec 2020 13:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165585;
-        bh=7hQPigtsRT2t7knbIwv1eFx0rp32ngh5c8ITz69p8O0=;
+        s=korg; t=1609163609;
+        bh=r24g29K/F1pGRKDRsBgJJuEEfKWtMmPrNKuHGtX5zjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBZcBamzgaPA+Ql0Mfs2q4OqJFy4uIX+9n7oAVabaOVqmiy0oklRQUfaxuzCJDwMz
-         a//X3Uza78gFal+tXsmSkQYlfLVftZ/HU/AsV2VdUgAnRlD5lJ1t/OPZTyMB19hmhF
-         zJTylQej1LyYi6AaG37n6eYms2MmjRWR3tHwhg1c=
+        b=EB3LC1qLhnH/yzktjsrpWAyvSR1aB8JBVEPOuaKHEUAJJ6yvKngzrEa2vUlJ3QkA4
+         KVMVDsSvB0wXg/D9tt6kHYX93WW/7wfSSGB46XsWnte1SnPk2U5PZnTVDXkL3Iziyb
+         RRQDC+0xmxuNlEE0P2vdziXbZxdHaH8L1hcgzeB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 584/717] USB: serial: keyspan_pda: fix write-wakeup use-after-free
+        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 346/453] ALSA: core: memalloc: add page alignment for iram
 Date:   Mon, 28 Dec 2020 13:49:42 +0100
-Message-Id: <20201228125048.891593697@linuxfoundation.org>
+Message-Id: <20201228124953.871962440@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Robin Gong <yibin.gong@nxp.com>
 
-commit 37faf50615412947868c49aee62f68233307f4e4 upstream.
+commit 74c64efa1557fef731b59eb813f115436d18078e upstream.
 
-The driver's deferred write wakeup was never flushed on disconnect,
-something which could lead to the driver port data being freed while the
-wakeup work is still scheduled.
+Since mmap for userspace is based on page alignment, add page alignment
+for iram alloc from pool, otherwise, some good data located in the same
+page of dmab->area maybe touched wrongly by userspace like pulseaudio.
 
-Fix this by using the usb-serial write wakeup which gets cancelled
-properly on disconnect.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1608221747-3474-1-git-send-email-yibin.gong@nxp.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ sound/core/memalloc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -43,8 +43,7 @@
- struct keyspan_pda_private {
- 	int			tx_room;
- 	int			tx_throttled;
--	struct work_struct			wakeup_work;
--	struct work_struct			unthrottle_work;
-+	struct work_struct	unthrottle_work;
- 	struct usb_serial	*serial;
- 	struct usb_serial_port	*port;
- };
-@@ -97,15 +96,6 @@ static const struct usb_device_id id_tab
- };
- #endif
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -76,7 +76,8 @@ static void snd_malloc_dev_iram(struct s
+ 	/* Assign the pool into private_data field */
+ 	dmab->private_data = pool;
  
--static void keyspan_pda_wakeup_write(struct work_struct *work)
--{
--	struct keyspan_pda_private *priv =
--		container_of(work, struct keyspan_pda_private, wakeup_work);
--	struct usb_serial_port *port = priv->port;
--
--	tty_port_tty_wakeup(&port->port);
--}
--
- static void keyspan_pda_request_unthrottle(struct work_struct *work)
- {
- 	struct keyspan_pda_private *priv =
-@@ -183,7 +173,7 @@ static void keyspan_pda_rx_interrupt(str
- 		case 2: /* tx unthrottle interrupt */
- 			priv->tx_throttled = 0;
- 			/* queue up a wakeup at scheduler time */
--			schedule_work(&priv->wakeup_work);
-+			usb_serial_port_softint(port);
- 			break;
- 		default:
- 			break;
-@@ -563,7 +553,7 @@ static void keyspan_pda_write_bulk_callb
- 	priv = usb_get_serial_port_data(port);
- 
- 	/* queue up a wakeup at scheduler time */
--	schedule_work(&priv->wakeup_work);
-+	usb_serial_port_softint(port);
+-	dmab->area = gen_pool_dma_alloc(pool, size, &dmab->addr);
++	dmab->area = gen_pool_dma_alloc_align(pool, size, &dmab->addr,
++					PAGE_SIZE);
  }
  
- 
-@@ -715,7 +705,6 @@ static int keyspan_pda_port_probe(struct
- 	if (!priv)
- 		return -ENOMEM;
- 
--	INIT_WORK(&priv->wakeup_work, keyspan_pda_wakeup_write);
- 	INIT_WORK(&priv->unthrottle_work, keyspan_pda_request_unthrottle);
- 	priv->serial = port->serial;
- 	priv->port = port;
+ /**
 
 
