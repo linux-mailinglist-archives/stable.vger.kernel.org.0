@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 337CD2E652B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 150252E42D2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391108AbgL1NeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:34:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33748 "EHLO mail.kernel.org"
+        id S2406772AbgL1N46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:56:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387850AbgL1NeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:34:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA619208BA;
-        Mon, 28 Dec 2020 13:33:48 +0000 (UTC)
+        id S2405399AbgL1N4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:56:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55FCE207B2;
+        Mon, 28 Dec 2020 13:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162429;
-        bh=g5pToJZmXPcrVVJlBDpsti+Y/MlgPW5vov2T6UWPMXw=;
+        s=korg; t=1609163719;
+        bh=PZUVlD8vaoqY2SjVW9TsaC6wGz3NxxKcN0zJnovltDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coVHSitk08WlgMNoLOBB5TuQqvF63dNsnJmBB3VP7wxSHd8HOPGOCSw1+nWvriq66
-         2QOQBub1ap3qGFNpM+RNiAUCTDOSpt42eystp1yFi+kcfVRH+6MgZ7yqJrmwt5GXEQ
-         /HFeFoVsGmTHgOh1nWIO5z6QHmFol15bjaD/UFHY=
+        b=yuCsnYGFBe/eHQsuODZylTSsZXyoKv/wtY3C/GZKcr3XCscy5GT3VOl8JPT0aEhoR
+         7garK3Jb8fgpbcOjFhgJEd4akyFi8syRn0kuAH1+t/7NoOP2OSfgo24hnk0KTV/4t/
+         LKKb/XRXhfycevHUAw6VJmodgYC/DKqoInXdJj2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 302/346] powerpc: Fix incorrect stw{, ux, u, x} instructions in __set_pte_at
+Subject: [PATCH 5.4 385/453] powerpc/mm: Fix verification of MMU_FTR_TYPE_44x
 Date:   Mon, 28 Dec 2020 13:50:21 +0100
-Message-Id: <20201228124934.386624650@linuxfoundation.org>
+Message-Id: <20201228124955.728150407@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit d85be8a49e733dcd23674aa6202870d54bf5600d upstream.
+commit 17179aeb9d34cc81e1a4ae3f85e5b12b13a1f8d0 upstream.
 
-The placeholder for instruction selection should use the second
-argument's operand, which is %1, not %0. This could generate incorrect
-assembly code if the memory addressing of operand %0 is a different
-form from that of operand %1.
+MMU_FTR_TYPE_44x cannot be checked by cpu_has_feature()
 
-Also remove the %Un placeholder because having %Un placeholders
-for two operands which are based on the same local var (ptep) doesn't
-make much sense. By the way, it doesn't change the current behaviour
-because "<>" constraint is missing for the associated "=m".
+Use mmu_has_feature() instead
 
-[chleroy: revised commit log iaw segher's comments and removed %U0]
-
-Fixes: 9bf2b5cdc5fe ("powerpc: Fixes for CONFIG_PTE_64BIT for SMP support")
-Cc: <stable@vger.kernel.org> # v2.6.28+
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Fixes: 23eb7f560a2a ("powerpc: Convert flush_icache_range & friends to C")
+Cc: stable@vger.kernel.org
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Segher Boessenkool <segher@kernel.crashing.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/96354bd77977a6a933fe9020da57629007fdb920.1603358942.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/ceede82fadf37f3b8275e61fcf8cf29a3e2ec7fe.1602351011.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/book3s/32/pgtable.h |    4 ++--
- arch/powerpc/include/asm/nohash/pgtable.h    |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/mm/mem.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/book3s/32/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
-@@ -434,9 +434,9 @@ static inline void __set_pte_at(struct m
- 	if (pte_val(*ptep) & _PAGE_HASHPTE)
- 		flush_hash_entry(mm, ptep, addr);
- 	__asm__ __volatile__("\
--		stw%U0%X0 %2,%0\n\
-+		stw%X0 %2,%0\n\
- 		eieio\n\
--		stw%U0%X0 %L2,%1"
-+		stw%X1 %L2,%1"
- 	: "=m" (*ptep), "=m" (*((unsigned char *)ptep+4))
- 	: "r" (pte) : "memory");
- 
---- a/arch/powerpc/include/asm/nohash/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/pgtable.h
-@@ -151,9 +151,9 @@ static inline void __set_pte_at(struct m
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -530,7 +530,7 @@ void __flush_dcache_icache(void *p)
+ 	 * space occurs, before returning to user space.
  	 */
- 	if (IS_ENABLED(CONFIG_PPC32) && IS_ENABLED(CONFIG_PTE_64BIT) && !percpu) {
- 		__asm__ __volatile__("\
--			stw%U0%X0 %2,%0\n\
-+			stw%X0 %2,%0\n\
- 			eieio\n\
--			stw%U0%X0 %L2,%1"
-+			stw%X1 %L2,%1"
- 		: "=m" (*ptep), "=m" (*((unsigned char *)ptep+4))
- 		: "r" (pte) : "memory");
+ 
+-	if (cpu_has_feature(MMU_FTR_TYPE_44x))
++	if (mmu_has_feature(MMU_FTR_TYPE_44x))
  		return;
+ 
+ 	invalidate_icache_range(addr, addr + PAGE_SIZE);
 
 
