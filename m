@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9855E2E3A2B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:34:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C13C32E42EE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389766AbgL1NdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:33:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
+        id S2406980AbgL1Nvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:51:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390309AbgL1NaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3490F22583;
-        Mon, 28 Dec 2020 13:29:33 +0000 (UTC)
+        id S2406976AbgL1Nvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90BDD2072C;
+        Mon, 28 Dec 2020 13:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162173;
-        bh=qDp9szX+YSvaKOm6PkUMvX0UtQZ13+FwDBXWeP98A84=;
+        s=korg; t=1609163465;
+        bh=ZnULBoh5qmZPHWWE9q2VxdVQt5TjHmDwwe8aLxDIELM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8FcO70eYO+rfgFRX506NU8qb1OQGp054ih/tFQ1X92XNMU2A1hsWAtvcOHQy2T22
-         td6SBPBdczILpkiQFKBOgOKBHQNEJ6NNoAEeZVJPEaN7bUzF0JdTktB+t8dZr8joDE
-         n7qseUfKD4owEVOELMkPQllMPu3q6YvpmkAvYy30=
+        b=njH5qYtdr/c+siwHn9LXpuALzstHUkAketjwse7aRsU1i++o16z029WbeXMwqv9ng
+         Jl2m8NBFEa/O1YNowflgI6JhBSctv7M2EqOap+nTcxKTk4fNWcIhLOvUFwU0z2qNhX
+         kkc3U7TF1CVkswdHgegGOPC8fLTuNBWKhzXM50Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Karan Tilak Kumar <kartilak@cisco.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 212/346] scsi: fnic: Fix error return code in fnic_probe()
+Subject: [PATCH 5.4 295/453] libnvdimm/label: Return -ENXIO for no slot in __blk_label_update
 Date:   Mon, 28 Dec 2020 13:48:51 +0100
-Message-Id: <20201228124930.035768869@linuxfoundation.org>
+Message-Id: <20201228124951.399694435@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit d4fc94fe65578738ded138e9fce043db6bfc3241 ]
+[ Upstream commit 4c46764733c85b82c07e9559b39da4d00a7dd659 ]
 
-Return a negative error code from the error handling case instead of 0 as
-done elsewhere in this function.
+Forget to set error code when nd_label_alloc_slot failed, and we
+add it to avoid overwritten error code.
 
-Link: https://lore.kernel.org/r/1607068060-31203-1-git-send-email-zhangchangzhong@huawei.com
-Fixes: 5df6d737dd4b ("[SCSI] fnic: Add new Cisco PCI-Express FCoE HBA")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Karan Tilak Kumar <kartilak@cisco.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 0ba1c634892b ("libnvdimm: write blk label set")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201205115056.2076523-1-zhangqilong3@huawei.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/fnic/fnic_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvdimm/label.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/fnic/fnic_main.c b/drivers/scsi/fnic/fnic_main.c
-index e52599f441707..bc5dbe3bae5c5 100644
---- a/drivers/scsi/fnic/fnic_main.c
-+++ b/drivers/scsi/fnic/fnic_main.c
-@@ -746,6 +746,7 @@ static int fnic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	for (i = 0; i < FNIC_IO_LOCKS; i++)
- 		spin_lock_init(&fnic->io_req_lock[i]);
+diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
+index 47a4828b8b310..05c1f186a6be8 100644
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -999,8 +999,10 @@ static int __blk_label_update(struct nd_region *nd_region,
+ 		if (is_old_resource(res, old_res_list, old_num_resources))
+ 			continue; /* carry-over */
+ 		slot = nd_label_alloc_slot(ndd);
+-		if (slot == UINT_MAX)
++		if (slot == UINT_MAX) {
++			rc = -ENXIO;
+ 			goto abort;
++		}
+ 		dev_dbg(ndd->dev, "allocated: %d\n", slot);
  
-+	err = -ENOMEM;
- 	fnic->io_req_pool = mempool_create_slab_pool(2, fnic_io_req_cache);
- 	if (!fnic->io_req_pool)
- 		goto err_out_free_resources;
+ 		nd_label = to_label(ndd, slot);
 -- 
 2.27.0
 
