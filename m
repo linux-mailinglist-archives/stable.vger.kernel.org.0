@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4822E3B7E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B81E2E39E8
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:30:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406404AbgL1Nus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:50:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
+        id S2390140AbgL1N3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:29:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406395AbgL1Nup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:50:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C937920715;
-        Mon, 28 Dec 2020 13:50:23 +0000 (UTC)
+        id S2390134AbgL1N3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D39DF207C9;
+        Mon, 28 Dec 2020 13:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163424;
-        bh=nVCVeaYmCZ31IeiiiRWPTdvvzAVNd5cTuQmGpIDznt0=;
+        s=korg; t=1609162133;
+        bh=nGJ90IrqbdsBV/ws8iByTFp1Ml671DcSkl3mZyrk41o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOGYBjpRNJ2F55McWeNWRjEN26/3VzHInaAQBqUPy4ZZS2Pxti7KBXqNqzxIqUDYF
-         3SlhQtI3YhCFJgZEEJNu5OkHjYi8ailHKP95S165jd2Oz+rAaNCG3IW0TT6+Pmv0li
-         rdOU/+SR1vfOtH8o71X11YG6G+9aaaHWpzw0heL0=
+        b=l8EXMtH4pa0O0AJ9p3LQEzJMLgwWP8MAjT/VYXObXj4KD87CEiM9U9SYWHiYfsJd8
+         RLbFWjsM7FaQxo+pbm6xzSBJtDCptRIPuTQAQy3TM1w9InfaLDmIBlmF8UjZc03b3h
+         6IfyMvxlAKygDiNmZRlyHz6iwSCMTJSnvEYfcfww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 282/453] um: tty: Fix handling of close in tty lines
+Subject: [PATCH 4.19 199/346] memstick: r592: Fix error return in r592_probe()
 Date:   Mon, 28 Dec 2020 13:48:38 +0100
-Message-Id: <20201228124950.781042007@linuxfoundation.org>
+Message-Id: <20201228124929.413698459@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 9b1c0c0e25dcccafd30e7d4c150c249cc65550eb ]
+[ Upstream commit db29d3d1c2451e673e29c7257471e3ce9d50383a ]
 
-Fix a logical error in tty reading. We get 0 and errno == EAGAIN
-on the first attempt to read from a closed file descriptor.
+Fix to return a error code from the error handling case instead of 0.
 
-Compared to that a true EAGAIN is EAGAIN and -1.
-
-If we check errno for EAGAIN first, before checking the return
-value we miss the fact that the descriptor is closed.
-
-This bug is as old as the driver. It was not showing up with
-the original POLL based IRQ controller, because it was
-producing multiple events. Switching to EPOLL unmasked it.
-
-Fixes: ff6a17989c08 ("Epoll based IRQ controller")
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 926341250102 ("memstick: add driver for Ricoh R5C592 card reader")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Link: https://lore.kernel.org/r/20201125014718.153563-1-jingxiangfeng@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/chan_user.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/memstick/host/r592.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/um/drivers/chan_user.c b/arch/um/drivers/chan_user.c
-index 4d80526a4236e..d8845d4aac6a7 100644
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -26,10 +26,10 @@ int generic_read(int fd, char *c_out, void *unused)
- 	n = read(fd, c_out, sizeof(*c_out));
- 	if (n > 0)
- 		return n;
--	else if (errno == EAGAIN)
--		return 0;
- 	else if (n == 0)
- 		return -EIO;
-+	else if (errno == EAGAIN)
-+		return 0;
- 	return -errno;
- }
+diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
+index 627d6e62fe313..4559593ecd5a9 100644
+--- a/drivers/memstick/host/r592.c
++++ b/drivers/memstick/host/r592.c
+@@ -762,8 +762,10 @@ static int r592_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto error3;
  
+ 	dev->mmio = pci_ioremap_bar(pdev, 0);
+-	if (!dev->mmio)
++	if (!dev->mmio) {
++		error = -ENOMEM;
+ 		goto error4;
++	}
+ 
+ 	dev->irq = pdev->irq;
+ 	spin_lock_init(&dev->irq_lock);
+@@ -789,12 +791,14 @@ static int r592_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		&dev->dummy_dma_page_physical_address, GFP_KERNEL);
+ 	r592_stop_dma(dev , 0);
+ 
+-	if (request_irq(dev->irq, &r592_irq, IRQF_SHARED,
+-			  DRV_NAME, dev))
++	error = request_irq(dev->irq, &r592_irq, IRQF_SHARED,
++			  DRV_NAME, dev);
++	if (error)
+ 		goto error6;
+ 
+ 	r592_update_card_detect(dev);
+-	if (memstick_add_host(host))
++	error = memstick_add_host(host);
++	if (error)
+ 		goto error7;
+ 
+ 	message("driver successfully loaded");
 -- 
 2.27.0
 
