@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6142E3EA6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35ECB2E64E5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503731AbgL1Oap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:30:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38366 "EHLO mail.kernel.org"
+        id S2393098AbgL1PyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:54:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503708AbgL1Oae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E715C20791;
-        Mon, 28 Dec 2020 14:30:17 +0000 (UTC)
+        id S2390533AbgL1Ngy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D70B208BA;
+        Mon, 28 Dec 2020 13:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165818;
-        bh=lMgZnTW8lRXAthM3O6g19JlnkWU8bTM5YTCcDXiKfrQ=;
+        s=korg; t=1609162573;
+        bh=e0IZh525pkgb6dEeDXzOIDHtJSeTXIyNUPCn/PWaoHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRWaYf7JiY09rRDU+A7aSHYaZM0l+d5XePhCZoTiFQF5tQ3A02AqWVcnZ2v/8r27C
-         h0GX+bzZEneRatVsky6Ar9V7Q+PYxvIp4wvehZT7GEImxQv5szmjpLw4c9+CJWvhx/
-         MHGvD90SaqZC4jas3+PcWGv+me34HjZFRJaLTtKY=
+        b=0p0JI5kFs0ADSPt5dkYAHqXOLCx+406hU7De2K4WdqETOWZfwgBhwGDkmR/MDad/U
+         wBgfDYN0IIdriivJV2qSqBtczwtOxcbNla30D4psQ8qeDju1HJFJZftN+fqZw9QENw
+         fLniqCizH8ygPMtoEJCKzBybC05e4R6Nlf2haKKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ron Minnich <rminnich@google.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 665/717] mtd: parser: cmdline: Fix parsing of part-names with colons
-Date:   Mon, 28 Dec 2020 13:51:03 +0100
-Message-Id: <20201228125052.838948559@linuxfoundation.org>
+        stable@vger.kernel.org, Carlos Garnacho <carlosg@gnome.org>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.19 345/346] platform/x86: intel-vbtn: Allow switch events on Acer Switch Alpha 12
+Date:   Mon, 28 Dec 2020 13:51:04 +0100
+Message-Id: <20201228124936.436604903@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Carlos Garnacho <carlosg@gnome.org>
 
-commit 639a82434f16a6df0ce0e7c8595976f1293940fd upstream.
+commit fe6000990394639ed374cb76c313be3640714f47 upstream.
 
-Some devices (especially QCA ones) are already using hardcoded partition
-names with colons in it. The OpenMesh A62 for example provides following
-mtd relevant information via cmdline:
+This 2-in-1 model (Product name: Switch SA5-271) features a SW_TABLET_MODE
+that works as it would be expected, both when detaching the keyboard and
+when folding it behind the tablet body.
 
-  root=31:11 mtdparts=spi0.0:256k(0:SBL1),128k(0:MIBIB),384k(0:QSEE),64k(0:CDT),64k(0:DDRPARAMS),64k(0:APPSBLENV),512k(0:APPSBL),64k(0:ART),64k(custom),64k(0:KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive) rootfsname=rootfs rootwait
+It used to work until the introduction of the allow list at
+commit 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list
+for SW_TABLET_MODE reporting"). Add this model to it, so that the Virtual
+Buttons device announces the EV_SW features again.
 
-The change to split only on the last colon between mtd-id and partitions
-will cause newpart to see following string for the first partition:
-
-  KEYS),0x002b0000(kernel),0x00c80000(rootfs),15552k(inactive)
-
-Such a partition list cannot be parsed and thus the device fails to boot.
-
-Avoid this behavior by making sure that the start of the first part-name
-("(") will also be the last byte the mtd-id split algorithm is using for
-its colon search.
-
-Fixes: eb13fa022741 ("mtd: parser: cmdline: Support MTD names containing one or more colons")
+Fixes: 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list for SW_TABLET_MODE reporting")
 Cc: stable@vger.kernel.org
-Cc: Ron Minnich <rminnich@google.com>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20201124062506.185392-1-sven@narfation.org
+Signed-off-by: Carlos Garnacho <carlosg@gnome.org>
+Link: https://lore.kernel.org/r/20201201135727.212917-1-carlosg@gnome.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/parsers/cmdlinepart.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/platform/x86/intel-vbtn.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/mtd/parsers/cmdlinepart.c
-+++ b/drivers/mtd/parsers/cmdlinepart.c
-@@ -226,7 +226,7 @@ static int mtdpart_setup_real(char *s)
- 		struct cmdline_mtd_partition *this_mtd;
- 		struct mtd_partition *parts;
- 		int mtd_id_len, num_parts;
--		char *p, *mtd_id, *semicol;
-+		char *p, *mtd_id, *semicol, *open_parenth;
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -203,6 +203,12 @@ static const struct dmi_system_id dmi_sw
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
+ 		},
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
++		},
++	},
+ 	{} /* Array terminator */
+ };
  
- 		/*
- 		 * Replace the first ';' by a NULL char so strrchr can work
-@@ -236,6 +236,14 @@ static int mtdpart_setup_real(char *s)
- 		if (semicol)
- 			*semicol = '\0';
- 
-+		/*
-+		 * make sure that part-names with ":" will not be handled as
-+		 * part of the mtd-id with an ":"
-+		 */
-+		open_parenth = strchr(s, '(');
-+		if (open_parenth)
-+			*open_parenth = '\0';
-+
- 		mtd_id = s;
- 
- 		/*
-@@ -245,6 +253,10 @@ static int mtdpart_setup_real(char *s)
- 		 */
- 		p = strrchr(s, ':');
- 
-+		/* Restore the '(' now. */
-+		if (open_parenth)
-+			*open_parenth = '(';
-+
- 		/* Restore the ';' now. */
- 		if (semicol)
- 			*semicol = ';';
 
 
