@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E88F2E65E2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13BCD2E65FE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389007AbgL1QGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389000AbgL1QGt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 11:06:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389494AbgL1N0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A374220728;
-        Mon, 28 Dec 2020 13:25:49 +0000 (UTC)
+        id S2389524AbgL1N0i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:26:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 526A522475;
+        Mon, 28 Dec 2020 13:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161950;
-        bh=L29C2rA1dyuGhtjDbgne65PWnPns4sq593oj4UkwEus=;
+        s=korg; t=1609161983;
+        bh=3eWDB9OsAbmc9/uqUMhmfDFYxJ0LVDMxRLeyCrIVHV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPdglN8uye48WLxSPZnGliE5Oj3ClnkCdi+SuTE52hqObMeYLp3gkkYA6utxBF2vP
-         GQQJHbPE0GrpJ9Qp+9GDNfXN/53aQfOovQtAU3CyOtf7renvDcl05wuZFy8eqKZ6TS
-         NjSEhNhx8wgIOrCJfsrxKeKijxwOZ9NiHnCHAZro=
+        b=bsTuzgBJ2FFmZupB2phb+wNKLt2Buif6ELYF5ol4UtgaKHvMQe2SO16eQoaXMSJf8
+         EyObfmLgq0Y/ERiRCGvgLPsMVRQMz9+w4KsUmVv1ecqkAAviGBVtkWl4FbW8A0Ew87
+         aWZdS/kpyryPbWtg+xG69sLUAqTClWS4BtMGgiX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/346] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
-Date:   Mon, 28 Dec 2020 13:47:19 +0100
-Message-Id: <20201228124925.596058220@linuxfoundation.org>
+Subject: [PATCH 4.19 121/346] arm64: dts: exynos: Include common syscon restart/poweroff for Exynos7
+Date:   Mon, 28 Dec 2020 13:47:20 +0100
+Message-Id: <20201228124925.646591886@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -41,99 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 ]
+[ Upstream commit 73bc7510ea0dafb4ff1ae6808759627a8ec51f5a ]
 
-A previous fix, commit 83370b31a915 ("selinux: fix error initialization
-in inode_doinit_with_dentry()"), changed how failures were handled
-before a SELinux policy was loaded.  Unfortunately that patch was
-potentially problematic for two reasons: it set the isec->initialized
-state without holding a lock, and it didn't set the inode's SELinux
-label to the "default" for the particular filesystem.  The later can
-be a problem if/when a later attempt to revalidate the inode fails
-and SELinux reverts to the existing inode label.
+Exynos7 uses the same syscon reboot and poweroff nodes as other Exynos
+SoCs, so instead of duplicating code we can just include common dtsi
+file, which already contains definitions of them. After this change,
+poweroff node will be also available, previously this dts file did
+contain only reboot node.
 
-This patch should restore the default inode labeling that existed
-before the original fix, without affecting the LABEL_INVALID marking
-such that revalidation will still be attempted in the future.
-
-Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fixes: fb026cb65247 ("arm64: dts: Add reboot node for exynos7")
+Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Link: https://lore.kernel.org/r/20201107133926.37187-1-pawel.mikolaj.chmiel@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 31 +++++++++++++------------------
- 1 file changed, 13 insertions(+), 18 deletions(-)
+ arch/arm64/boot/dts/exynos/exynos7.dtsi | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 02afe52a55d0d..08833bbb97aab 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1618,13 +1618,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
- 			 */
--			isec->initialized = LABEL_INVALID;
--			/*
--			 * There is nothing useful to jump to the "out"
--			 * label, except a needless spin lock/unlock
--			 * cycle.
--			 */
--			return 0;
-+			goto out_invalid;
- 		}
- 
- 		len = INITCONTEXTLEN;
-@@ -1739,15 +1733,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit() with a dentry, before these inodes
- 			 * could be used again by userspace.
- 			 */
--			if (!dentry) {
--				isec->initialized = LABEL_INVALID;
--				/*
--				 * There is nothing useful to jump to the "out"
--				 * label, except a needless spin lock/unlock
--				 * cycle.
--				 */
--				return 0;
--			}
-+			if (!dentry)
-+				goto out_invalid;
- 			rc = selinux_genfs_get_sid(dentry, sclass,
- 						   sbsec->flags, &sid);
- 			dput(dentry);
-@@ -1760,11 +1747,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- out:
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_PENDING) {
--		if (!sid || rc) {
-+		if (rc) {
- 			isec->initialized = LABEL_INVALID;
- 			goto out_unlock;
- 		}
+diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+index 31b1a606cb664..38a07d9763a3f 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -494,13 +494,6 @@
+ 		pmu_system_controller: system-controller@105c0000 {
+ 			compatible = "samsung,exynos7-pmu", "syscon";
+ 			reg = <0x105c0000 0x5000>;
 -
- 		isec->initialized = LABEL_INITIALIZED;
- 		isec->sid = sid;
- 	}
-@@ -1772,6 +1758,15 @@ out:
- out_unlock:
- 	spin_unlock(&isec->lock);
- 	return rc;
-+
-+out_invalid:
-+	spin_lock(&isec->lock);
-+	if (isec->initialized == LABEL_PENDING) {
-+		isec->initialized = LABEL_INVALID;
-+		isec->sid = sid;
-+	}
-+	spin_unlock(&isec->lock);
-+	return 0;
- }
+-			reboot: syscon-reboot {
+-				compatible = "syscon-reboot";
+-				regmap = <&pmu_system_controller>;
+-				offset = <0x0400>;
+-				mask = <0x1>;
+-			};
+ 		};
  
- /* Convert a Linux signal to an access vector. */
+ 		rtc: rtc@10590000 {
+@@ -638,3 +631,4 @@
+ };
+ 
+ #include "exynos7-pinctrl.dtsi"
++#include "arm/exynos-syscon-restart.dtsi"
 -- 
 2.27.0
 
