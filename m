@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51F12E65E1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B60182E68E7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390137AbgL1QGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:06:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55564 "EHLO mail.kernel.org"
+        id S2441226AbgL1Qm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:42:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389553AbgL1N0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 779E322583;
-        Mon, 28 Dec 2020 13:26:07 +0000 (UTC)
+        id S1729299AbgL1M7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A85122B2A;
+        Mon, 28 Dec 2020 12:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161968;
-        bh=NJNJjFN2jYrgPs9/CjylmAxINwqm4XykE8NI9sQAEY0=;
+        s=korg; t=1609160316;
+        bh=F+YAm5F8ehhJEr6UPnNkkXN2owInqTsH48L2UHh36XI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJU8egRWQouKAnxTRISSRpRzuon6MLhzseti1ACAWDm99u5wOnUJKZIVWJgYqI8S1
-         ylCEdsCXGQNHbpnXicc9YBsMAcfqMoYOtoRHF1e+yxqEtysQr+m2OtNlUiEkMAdx3l
-         7zO/U0jJEwkMqjjuSZjbxqMaDC8c3LUCu6Z4uRk8=
+        b=ZyojWe2klI5Do37uPIulN7kqrTIaq5yyTtWzINLEmYqL0URYKmz5qhK5nGigeuhKH
+         G//fBCa9czpdny9QI/9AK4c6Mtgc1sK4J/jzmcjsC492nk/Ht28Zzlws/ehkIhfgtK
+         NnzQLz1G/tp16eTDixTHPdU91Z+H6As9bxgTHg8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Martin Wilck <mwilck@suse.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/346] scsi: core: Fix VPD LUN ID designator priorities
-Date:   Mon, 28 Dec 2020 13:47:42 +0100
-Message-Id: <20201228124926.698635809@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 010/175] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
+Date:   Mon, 28 Dec 2020 13:47:43 +0100
+Message-Id: <20201228124853.751432261@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,261 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2e4209b3806cda9b89c30fd5e7bfecb7044ec78b ]
+commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
 
-The current implementation of scsi_vpd_lun_id() uses the designator length
-as an implicit measure of priority. This works most of the time, but not
-always. For example, some Hitachi storage arrays return this in VPD 0x83:
+My patch caused kernel Oopses and delays in boot.  Revert it.
 
-VPD INQUIRY: Device Identification page
-  Designation descriptor number 1, descriptor length: 24
-    designator_type: T10 vendor identification,  code_set: ASCII
-    associated with the Addressed logical unit
-      vendor id: HITACHI
-      vendor specific: 5030C3502025
-  Designation descriptor number 2, descriptor length: 6
-    designator_type: vendor specific [0x0],  code_set: Binary
-    associated with the Target port
-      vendor specific: 08 03
-  Designation descriptor number 3, descriptor length: 20
-    designator_type: NAA,  code_set: Binary
-    associated with the Addressed logical unit
-      NAA 6, IEEE Company_id: 0x60e8
-      Vendor Specific Identifier: 0x7c35000
-      Vendor Specific Identifier Extension: 0x30c35000002025
-      [0x60060e8007c350000030c35000002025]
+The problem was that I moved the "mem->dma = paddr;" before the call to
+be_fill_queue().  But the first thing that the be_fill_queue() function
+does is memset the whole struct to zero which overwrites the assignment.
 
-The current code would use the first descriptor because it's longer than
-the NAA descriptor. But this is wrong, the kernel is supposed to prefer NAA
-descriptors over T10 vendor ID. Designator length should only be used to
-compare designators of the same type.
-
-This patch addresses the issue by separating designator priority and
-length.
-
-Link: https://lore.kernel.org/r/20201029170846.14786-1-mwilck@suse.com
-Fixes: 9983bed3907c ("scsi: Add scsi_vpd_lun_id()")
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
+Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
+Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/scsi_lib.c | 126 +++++++++++++++++++++++++++-------------
- 1 file changed, 86 insertions(+), 40 deletions(-)
+ drivers/scsi/be2iscsi/be_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index c501fb5190a38..fe5ae2b221c19 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -3446,6 +3446,78 @@ void sdev_enable_disk_events(struct scsi_device *sdev)
- }
- EXPORT_SYMBOL(sdev_enable_disk_events);
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3052,7 +3052,6 @@ static int beiscsi_create_eqs(struct bei
+ 		if (!eq_vaddress)
+ 			goto create_eq_error;
  
-+static unsigned char designator_prio(const unsigned char *d)
-+{
-+	if (d[1] & 0x30)
-+		/* not associated with LUN */
-+		return 0;
-+
-+	if (d[3] == 0)
-+		/* invalid length */
-+		return 0;
-+
-+	/*
-+	 * Order of preference for lun descriptor:
-+	 * - SCSI name string
-+	 * - NAA IEEE Registered Extended
-+	 * - EUI-64 based 16-byte
-+	 * - EUI-64 based 12-byte
-+	 * - NAA IEEE Registered
-+	 * - NAA IEEE Extended
-+	 * - EUI-64 based 8-byte
-+	 * - SCSI name string (truncated)
-+	 * - T10 Vendor ID
-+	 * as longer descriptors reduce the likelyhood
-+	 * of identification clashes.
-+	 */
-+
-+	switch (d[1] & 0xf) {
-+	case 8:
-+		/* SCSI name string, variable-length UTF-8 */
-+		return 9;
-+	case 3:
-+		switch (d[4] >> 4) {
-+		case 6:
-+			/* NAA registered extended */
-+			return 8;
-+		case 5:
-+			/* NAA registered */
-+			return 5;
-+		case 4:
-+			/* NAA extended */
-+			return 4;
-+		case 3:
-+			/* NAA locally assigned */
-+			return 1;
-+		default:
-+			break;
-+		}
-+		break;
-+	case 2:
-+		switch (d[3]) {
-+		case 16:
-+			/* EUI64-based, 16 byte */
-+			return 7;
-+		case 12:
-+			/* EUI64-based, 12 byte */
-+			return 6;
-+		case 8:
-+			/* EUI64-based, 8 byte */
-+			return 3;
-+		default:
-+			break;
-+		}
-+		break;
-+	case 1:
-+		/* T10 vendor ID */
-+		return 1;
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * scsi_vpd_lun_id - return a unique device identification
-  * @sdev: SCSI device
-@@ -3462,7 +3534,7 @@ EXPORT_SYMBOL(sdev_enable_disk_events);
-  */
- int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- {
--	u8 cur_id_type = 0xff;
-+	u8 cur_id_prio = 0;
- 	u8 cur_id_size = 0;
- 	const unsigned char *d, *cur_id_str;
- 	const struct scsi_vpd *vpd_pg83;
-@@ -3475,20 +3547,6 @@ int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- 		return -ENXIO;
- 	}
+-		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3062,6 +3061,7 @@ static int beiscsi_create_eqs(struct bei
+ 			goto create_eq_error;
+ 		}
  
--	/*
--	 * Look for the correct descriptor.
--	 * Order of preference for lun descriptor:
--	 * - SCSI name string
--	 * - NAA IEEE Registered Extended
--	 * - EUI-64 based 16-byte
--	 * - EUI-64 based 12-byte
--	 * - NAA IEEE Registered
--	 * - NAA IEEE Extended
--	 * - T10 Vendor ID
--	 * as longer descriptors reduce the likelyhood
--	 * of identification clashes.
--	 */
--
- 	/* The id string must be at least 20 bytes + terminating NULL byte */
- 	if (id_len < 21) {
- 		rcu_read_unlock();
-@@ -3498,8 +3556,9 @@ int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- 	memset(id, 0, id_len);
- 	d = vpd_pg83->data + 4;
- 	while (d < vpd_pg83->data + vpd_pg83->len) {
--		/* Skip designators not referring to the LUN */
--		if ((d[1] & 0x30) != 0x00)
-+		u8 prio = designator_prio(d);
-+
-+		if (prio == 0 || cur_id_prio > prio)
- 			goto next_desig;
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    phwi_context->cur_eqd);
+ 		if (ret) {
+@@ -3116,7 +3116,6 @@ static int beiscsi_create_cqs(struct bei
+ 		if (!cq_vaddress)
+ 			goto create_cq_error;
  
- 		switch (d[1] & 0xf) {
-@@ -3507,28 +3566,19 @@ int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- 			/* T10 Vendor ID */
- 			if (cur_id_size > d[3])
- 				break;
--			/* Prefer anything */
--			if (cur_id_type > 0x01 && cur_id_type != 0xff)
--				break;
-+			cur_id_prio = prio;
- 			cur_id_size = d[3];
- 			if (cur_id_size + 4 > id_len)
- 				cur_id_size = id_len - 4;
- 			cur_id_str = d + 4;
--			cur_id_type = d[1] & 0xf;
- 			id_size = snprintf(id, id_len, "t10.%*pE",
- 					   cur_id_size, cur_id_str);
- 			break;
- 		case 0x2:
- 			/* EUI-64 */
--			if (cur_id_size > d[3])
--				break;
--			/* Prefer NAA IEEE Registered Extended */
--			if (cur_id_type == 0x3 &&
--			    cur_id_size == d[3])
--				break;
-+			cur_id_prio = prio;
- 			cur_id_size = d[3];
- 			cur_id_str = d + 4;
--			cur_id_type = d[1] & 0xf;
- 			switch (cur_id_size) {
- 			case 8:
- 				id_size = snprintf(id, id_len,
-@@ -3546,17 +3596,14 @@ int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- 						   cur_id_str);
- 				break;
- 			default:
--				cur_id_size = 0;
- 				break;
- 			}
- 			break;
- 		case 0x3:
- 			/* NAA */
--			if (cur_id_size > d[3])
--				break;
-+			cur_id_prio = prio;
- 			cur_id_size = d[3];
- 			cur_id_str = d + 4;
--			cur_id_type = d[1] & 0xf;
- 			switch (cur_id_size) {
- 			case 8:
- 				id_size = snprintf(id, id_len,
-@@ -3569,26 +3616,25 @@ int scsi_vpd_lun_id(struct scsi_device *sdev, char *id, size_t id_len)
- 						   cur_id_str);
- 				break;
- 			default:
--				cur_id_size = 0;
- 				break;
- 			}
- 			break;
- 		case 0x8:
- 			/* SCSI name string */
--			if (cur_id_size + 4 > d[3])
-+			if (cur_id_size > d[3])
- 				break;
- 			/* Prefer others for truncated descriptor */
--			if (cur_id_size && d[3] > id_len)
--				break;
-+			if (d[3] > id_len) {
-+				prio = 2;
-+				if (cur_id_prio > prio)
-+					break;
-+			}
-+			cur_id_prio = prio;
- 			cur_id_size = id_size = d[3];
- 			cur_id_str = d + 4;
--			cur_id_type = d[1] & 0xf;
- 			if (cur_id_size >= id_len)
- 				cur_id_size = id_len - 1;
- 			memcpy(id, cur_id_str, cur_id_size);
--			/* Decrease priority for truncated descriptor */
--			if (cur_id_size != id_size)
--				cur_id_size = 6;
- 			break;
- 		default:
- 			break;
--- 
-2.27.0
-
+-		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3126,6 +3125,7 @@ static int beiscsi_create_cqs(struct bei
+ 			goto create_cq_error;
+ 		}
+ 
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
 
 
