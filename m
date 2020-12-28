@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F123C2E41F1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 143B52E41F5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437481AbgL1OEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:04:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
+        id S2438163AbgL1PPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:15:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437407AbgL1OEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:04:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B94EA207AB;
-        Mon, 28 Dec 2020 14:04:07 +0000 (UTC)
+        id S2437488AbgL1OEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:04:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85A8121D94;
+        Mon, 28 Dec 2020 14:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164248;
-        bh=+cmMv0uMJrujWPoK3N8mcTeU9YsK9TRbgsnMpu+2CUU=;
+        s=korg; t=1609164251;
+        bh=gyENQ7KWCYm9B7OxZ1NKziauzyC86sTqMIco/x552u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mb7qh44LpD43DGSF3zeLgOf+nU8Ajc5i660eYvZQJ78pklv5IPU645yHmX6GUPoX3
-         dVu295efgLWmoUNdRQgsJ2SaBKD1z8fTzFh6fq3/zDQPBeZzZkXbCzhCM2QpLpS39n
-         PtV5xrKUre2iVnc8sljK/XcGLa2FT70wydpZTVTo=
+        b=MUdPh5abeMIxE4afJS1GN/sK2STewya3uN0QUzIAfkMoTUfjTJAjjWAgpsVKIU3qd
+         Z6+qW+A09Ly5iL0Z16Eb+KlodfuotEivtYNKtH1nXoZNfNbFy6hbJ06UtaVZ2QFYVe
+         ebVmsjkMes/hz/uoY3ioHzgVlBpr8nxQ6RPAN9XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Alex Dewar <alex.dewar90@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/717] ASoC: qcom: common: Fix refcounting in qcom_snd_parse_of()
-Date:   Mon, 28 Dec 2020 13:41:21 +0100
-Message-Id: <20201228125024.962206587@linuxfoundation.org>
+Subject: [PATCH 5.10 084/717] ath11k: Handle errors if peer creation fails
+Date:   Mon, 28 Dec 2020 13:41:22 +0100
+Message-Id: <20201228125025.010687826@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,79 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alex Dewar <alex.dewar90@gmail.com>
 
-[ Upstream commit 4e59dd249cd513a211e2ecce2cb31f4e29a5ce5b ]
+[ Upstream commit c134d1f8c436d96b3f62896c630278e3ec001280 ]
 
-There are two issues in this function.
+ath11k_peer_create() is called without its return value being checked,
+meaning errors will be unhandled. Add missing check and, as the mutex is
+unconditionally unlocked on leaving this function, simplify the exit
+path.
 
-1) We can't drop the refrences on "cpu", "codec" and "platform" before
-   we take the reference.  This doesn't cause a problem on the first
-   iteration because those pointers start as NULL so the of_node_put()
-   is a no-op.  But on the subsequent iterations, it will lead to a use
-   after free.
-
-2) If the devm_kzalloc() allocation failed then the code returned
-   directly instead of cleaning up.
-
-Fixes: c1e6414cdc37 ("ASoC: qcom: common: Fix refcount imbalance on error")
-Fixes: 1e36ea360ab9 ("ASoC: qcom: common: use modern dai_link style")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20201105125154.GA176426@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Addresses-Coverity-ID: 1497531 ("Code maintainability issues")
+Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
+Signed-off-by: Alex Dewar <alex.dewar90@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201004100218.311653-1-alex.dewar90@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/common.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/qcom/common.c b/sound/soc/qcom/common.c
-index 54660f126d09e..09af007007007 100644
---- a/sound/soc/qcom/common.c
-+++ b/sound/soc/qcom/common.c
-@@ -58,7 +58,7 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
- 		dlc = devm_kzalloc(dev, 2 * sizeof(*dlc), GFP_KERNEL);
- 		if (!dlc) {
- 			ret = -ENOMEM;
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 7f8dd47d23333..7a2c9708693ec 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5225,20 +5225,26 @@ ath11k_mac_op_assign_vif_chanctx(struct ieee80211_hw *hw,
+ 	    arvif->vdev_type != WMI_VDEV_TYPE_AP &&
+ 	    arvif->vdev_type != WMI_VDEV_TYPE_MONITOR) {
+ 		memcpy(&arvif->chanctx, ctx, sizeof(*ctx));
+-		mutex_unlock(&ar->conf_mutex);
+-		return 0;
++		ret = 0;
++		goto out;
+ 	}
+ 
+ 	if (WARN_ON(arvif->is_started)) {
+-		mutex_unlock(&ar->conf_mutex);
+-		return -EBUSY;
++		ret = -EBUSY;
++		goto out;
+ 	}
+ 
+ 	if (ab->hw_params.vdev_start_delay) {
+ 		param.vdev_id = arvif->vdev_id;
+ 		param.peer_type = WMI_PEER_TYPE_DEFAULT;
+ 		param.peer_addr = ar->mac_addr;
++
+ 		ret = ath11k_peer_create(ar, arvif, NULL, &param);
++		if (ret) {
++			ath11k_warn(ab, "failed to create peer after vdev start delay: %d",
++				    ret);
++			goto out;
++		}
+ 	}
+ 
+ 	ret = ath11k_mac_vdev_start(arvif, &ctx->def);
+@@ -5246,23 +5252,21 @@ ath11k_mac_op_assign_vif_chanctx(struct ieee80211_hw *hw,
+ 		ath11k_warn(ab, "failed to start vdev %i addr %pM on freq %d: %d\n",
+ 			    arvif->vdev_id, vif->addr,
+ 			    ctx->def.chan->center_freq, ret);
+-		goto err;
++		goto out;
+ 	}
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_MONITOR) {
+ 		ret = ath11k_monitor_vdev_up(ar, arvif->vdev_id);
+ 		if (ret)
 -			goto err;
-+			goto err_put_np;
- 		}
++			goto out;
+ 	}
  
- 		link->cpus	= &dlc[0];
-@@ -70,7 +70,7 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
- 		ret = of_property_read_string(np, "link-name", &link->name);
- 		if (ret) {
- 			dev_err(card->dev, "error getting codec dai_link name\n");
--			goto err;
-+			goto err_put_np;
- 		}
+ 	arvif->is_started = true;
  
- 		cpu = of_get_child_by_name(np, "cpu");
-@@ -130,8 +130,10 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
- 		} else {
- 			/* DPCM frontend */
- 			dlc = devm_kzalloc(dev, sizeof(*dlc), GFP_KERNEL);
--			if (!dlc)
--				return -ENOMEM;
-+			if (!dlc) {
-+				ret = -ENOMEM;
-+				goto err;
-+			}
+ 	/* TODO: Setup ps and cts/rts protection */
  
- 			link->codecs	 = dlc;
- 			link->num_codecs = 1;
-@@ -158,10 +160,11 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
+-	mutex_unlock(&ar->conf_mutex);
+-
+-	return 0;
++	ret = 0;
  
- 	return 0;
- err:
--	of_node_put(np);
- 	of_node_put(cpu);
- 	of_node_put(codec);
- 	of_node_put(platform);
-+err_put_np:
-+	of_node_put(np);
+-err:
++out:
+ 	mutex_unlock(&ar->conf_mutex);
+ 
  	return ret;
- }
- EXPORT_SYMBOL(qcom_snd_parse_of);
 -- 
 2.27.0
 
