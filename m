@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 500F12E3D80
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD132E6436
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440968AbgL1OQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:16:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
+        id S2404151AbgL1NmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:42:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440944AbgL1OQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:16:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0EB22583;
-        Mon, 28 Dec 2020 14:15:29 +0000 (UTC)
+        id S2404147AbgL1NmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:42:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D8D1205CB;
+        Mon, 28 Dec 2020 13:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164930;
-        bh=9PRscArJdIz080d3J4yv/u/iu37fCnpUoJZKn9l/q1M=;
+        s=korg; t=1609162896;
+        bh=oRHnTpcAZgPodK6LZL4Hk1wuy1Oh7dJRh2rmb1UtDKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUPrOMRqL7kpaOjV7mBnLdH8JEWHAPz73bFT0ErKIF858htFZrOjZ4dRHWtDoWkGK
-         FlzLRViTdnzxZrWFpvaby8RRi4MClqjl0IyktsB7GhTt7if/7oNqh6nxOsfX8YfAqo
-         IW+AAzy0X4p6aHJ9Ko6+QrbN2nRYHLdygdo/LS9c=
+        b=F/UOpvNvvFhGNn2MUbDR7MRGbMdpiKXTthBSYALZfnHd1DrLjGHenTHlnqTrQGnQe
+         BfY5o8snJy79WPb/1u4ec978yWqrOM2M6KudrlcRsQwvdarDd6B9DrOPS44Z70dr2i
+         4GBfuYO3hOoP0XCHI44VNCyxQ9lTH8ItblaKLrFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YN Chen <yn.chen@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/717] mt76: fix tkip configuration for mt7615/7663 devices
-Date:   Mon, 28 Dec 2020 13:45:06 +0100
-Message-Id: <20201228125035.784546506@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 071/453] crypto: af_alg - avoid undefined behavior accessing salg_name
+Date:   Mon, 28 Dec 2020 13:45:07 +0100
+Message-Id: <20201228124940.664094778@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 930e0eaddf810cfa90e114a0df02f48539e1346f ]
+commit 92eb6c3060ebe3adf381fd9899451c5b047bb14d upstream.
 
-Fix Tx-Rx MIC overwrite during TKIP hw key configuration
+Commit 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm
+names") made the kernel start accepting arbitrarily long algorithm names
+in sockaddr_alg.  However, the actual length of the salg_name field
+stayed at the original 64 bytes.
 
-Fixes: 01cfc1b45421 ("mt76: mt7615: add BIP_CMAC_128 cipher support")
-Tested-by: YN Chen <yn.chen@mediatek.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is broken because the kernel can access indices >= 64 in salg_name,
+which is undefined behavior -- even though the memory that is accessed
+is still located within the sockaddr structure.  It would only be
+defined behavior if the array were properly marked as arbitrary-length
+(either by making it a flexible array, which is the recommended way
+these days, or by making it an array of length 0 or 1).
+
+We can't simply change salg_name into a flexible array, since that would
+break source compatibility with userspace programs that embed
+sockaddr_alg into another struct, or (more commonly) declare a
+sockaddr_alg like 'struct sockaddr_alg sa = { .salg_name = "foo" };'.
+
+One solution would be to change salg_name into a flexible array only
+when '#ifdef __KERNEL__'.  However, that would keep userspace without an
+easy way to actually use the longer algorithm names.
+
+Instead, add a new structure 'sockaddr_alg_new' that has the flexible
+array field, and expose it to both userspace and the kernel.
+Make the kernel use it correctly in alg_bind().
+
+This addresses the syzbot report
+"UBSAN: array-index-out-of-bounds in alg_bind"
+(https://syzkaller.appspot.com/bug?extid=92ead4eb8e26a26d465e).
+
+Reported-by: syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
+Fixes: 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm names")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ crypto/af_alg.c             |   10 +++++++---
+ include/uapi/linux/if_alg.h |   16 ++++++++++++++++
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index 8dc645e398fda..3d62fda067e44 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1046,15 +1046,17 @@ int mt7615_mac_wtbl_update_key(struct mt7615_dev *dev,
- 	if (cmd == SET_KEY) {
- 		if (cipher == MT_CIPHER_TKIP) {
- 			/* Rx/Tx MIC keys are swapped */
-+			memcpy(data, key, 16);
- 			memcpy(data + 16, key + 24, 8);
- 			memcpy(data + 24, key + 16, 8);
-+		} else {
-+			if (cipher != MT_CIPHER_BIP_CMAC_128 && wcid->cipher)
-+				memmove(data + 16, data, 16);
-+			if (cipher != MT_CIPHER_BIP_CMAC_128 || !wcid->cipher)
-+				memcpy(data, key, keylen);
-+			else if (cipher == MT_CIPHER_BIP_CMAC_128)
-+				memcpy(data + 16, key, 16);
- 		}
--		if (cipher != MT_CIPHER_BIP_CMAC_128 && wcid->cipher)
--			memmove(data + 16, data, 16);
--		if (cipher != MT_CIPHER_BIP_CMAC_128 || !wcid->cipher)
--			memcpy(data, key, keylen);
--		else if (cipher == MT_CIPHER_BIP_CMAC_128)
--			memcpy(data + 16, key, 16);
- 	} else {
- 		if (wcid->cipher & ~BIT(cipher)) {
- 			if (cipher != MT_CIPHER_BIP_CMAC_128)
--- 
-2.27.0
-
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -147,7 +147,7 @@ static int alg_bind(struct socket *sock,
+ 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
+ 	struct sock *sk = sock->sk;
+ 	struct alg_sock *ask = alg_sk(sk);
+-	struct sockaddr_alg *sa = (void *)uaddr;
++	struct sockaddr_alg_new *sa = (void *)uaddr;
+ 	const struct af_alg_type *type;
+ 	void *private;
+ 	int err;
+@@ -155,7 +155,11 @@ static int alg_bind(struct socket *sock,
+ 	if (sock->state == SS_CONNECTED)
+ 		return -EINVAL;
+ 
+-	if (addr_len < sizeof(*sa))
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
++		     offsetof(struct sockaddr_alg, salg_name));
++	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
++
++	if (addr_len < sizeof(*sa) + 1)
+ 		return -EINVAL;
+ 
+ 	/* If caller uses non-allowed flag, return error. */
+@@ -163,7 +167,7 @@ static int alg_bind(struct socket *sock,
+ 		return -EINVAL;
+ 
+ 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
+-	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
++	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
+ 
+ 	type = alg_get_type(sa->salg_type);
+ 	if (IS_ERR(type) && PTR_ERR(type) == -ENOENT) {
+--- a/include/uapi/linux/if_alg.h
++++ b/include/uapi/linux/if_alg.h
+@@ -24,6 +24,22 @@ struct sockaddr_alg {
+ 	__u8	salg_name[64];
+ };
+ 
++/*
++ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
++ * arbitrary-length field.  We had to keep the original struct above for source
++ * compatibility with existing userspace programs, though.  Use the new struct
++ * below if support for very long algorithm names is needed.  To do this,
++ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
++ * copy algname (including the null terminator) into salg_name.
++ */
++struct sockaddr_alg_new {
++	__u16	salg_family;
++	__u8	salg_type[14];
++	__u32	salg_feat;
++	__u32	salg_mask;
++	__u8	salg_name[];
++};
++
+ struct af_alg_iv {
+ 	__u32	ivlen;
+ 	__u8	iv[0];
 
 
