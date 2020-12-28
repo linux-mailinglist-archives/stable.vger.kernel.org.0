@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AE3D2E3957
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E252E641C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387600AbgL1NUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:20:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48934 "EHLO mail.kernel.org"
+        id S2404396AbgL1Prx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:47:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387598AbgL1NUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:20:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6931206ED;
-        Mon, 28 Dec 2020 13:20:21 +0000 (UTC)
+        id S1733245AbgL1NnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B73202064B;
+        Mon, 28 Dec 2020 13:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161622;
-        bh=qsmmPX6pmSoGwGwZr2ikKchIhMXq13YrZ/QwNbpVD/I=;
+        s=korg; t=1609162945;
+        bh=U8PU8k4XkuE7XkJAA7fvh/s1HA+nsegywggQybwCYno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDAcQoJTNVKAde0rR9qpNFe/oQjHfJGteKXPCeh19c6/onR2qdk9Fd/mOsk+TZCeO
-         0BZj7HxcIUUDCIMezFb45gUuSBumhmzVwmIrPNLRbb5CgLGfzSE6r++5W9nA8H1MdZ
-         /3CyrPRx1p0L9mtrGwKI+X+IUV1CaCpIMpTTTRc4=
+        b=PisAWYxN8aFuYt3ueYhQxRR+oEUqdfxDFwTWv9HISpMxXLQQ+bKFHn3bpwWFz7rse
+         8BuHSo5zJ+k73dGDjvbLc86bFrQV90AcRST1uzaEkpbzDouCgKD8YYQBO3w8IDDxT5
+         kZYKWf/Mg5BM0yoapsaNijDRY6w0/zpeGzeAZolQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 032/346] net/mlx4_en: Avoid scheduling restart task if it is already running
-Date:   Mon, 28 Dec 2020 13:45:51 +0100
-Message-Id: <20201228124921.335339693@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 116/453] spi: tegra20-slink: fix reference leak in slink ops of tegra20
+Date:   Mon, 28 Dec 2020 13:45:52 +0100
+Message-Id: <20201228124942.795111924@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit fed91613c9dd455dd154b22fa8e11b8526466082 ]
+[ Upstream commit 763eab7074f6e71babd85d796156f05a675f9510 ]
 
-Add restarting state flag to avoid scheduling another restart task while
-such task is already running. Change task name from watchdog_task to
-restart_task to better fit the task role.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in two callers(tegra_slink_setup and
+tegra_slink_resume), so we should fix it.
 
-Fixes: 1e338db56e5a ("mlx4_en: Fix a race at restart task")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dc4dc36056392 ("spi: tegra: add spi driver for SLINK controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141345.6188-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |   20 +++++++++++++-------
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    7 ++++++-
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ drivers/spi/spi-tegra20-slink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1384,8 +1384,10 @@ static void mlx4_en_tx_timeout(struct ne
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index 374a2a32edcd3..2a1905c43a0b7 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -756,6 +756,7 @@ static int tegra_slink_setup(struct spi_device *spi)
+ 
+ 	ret = pm_runtime_get_sync(tspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(tspi->dev);
+ 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
  	}
+@@ -1192,6 +1193,7 @@ static int tegra_slink_resume(struct device *dev)
  
- 	priv->port_stats.tx_timeout++;
--	en_dbg(DRV, priv, "Scheduling watchdog\n");
--	queue_work(mdev->workqueue, &priv->watchdog_task);
-+	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
-+		en_dbg(DRV, priv, "Scheduling port restart\n");
-+		queue_work(mdev->workqueue, &priv->restart_task);
-+	}
- }
- 
- 
-@@ -1835,6 +1837,7 @@ int mlx4_en_start_port(struct net_device
- 		local_bh_enable();
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
  	}
- 
-+	clear_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state);
- 	netif_tx_start_all_queues(dev);
- 	netif_device_attach(dev);
- 
-@@ -2005,7 +2008,7 @@ void mlx4_en_stop_port(struct net_device
- static void mlx4_en_restart(struct work_struct *work)
- {
- 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
--						 watchdog_task);
-+						 restart_task);
- 	struct mlx4_en_dev *mdev = priv->mdev;
- 	struct net_device *dev = priv->dev;
- 
-@@ -2387,7 +2390,7 @@ static int mlx4_en_change_mtu(struct net
- 	if (netif_running(dev)) {
- 		mutex_lock(&mdev->state_lock);
- 		if (!mdev->device_up) {
--			/* NIC is probably restarting - let watchdog task reset
-+			/* NIC is probably restarting - let restart task reset
- 			 * the port */
- 			en_dbg(DRV, priv, "Change MTU called with card down!?\n");
- 		} else {
-@@ -2396,7 +2399,9 @@ static int mlx4_en_change_mtu(struct net
- 			if (err) {
- 				en_err(priv, "Failed restarting port:%d\n",
- 					 priv->port);
--				queue_work(mdev->workqueue, &priv->watchdog_task);
-+				if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING,
-+						      &priv->state))
-+					queue_work(mdev->workqueue, &priv->restart_task);
- 			}
- 		}
- 		mutex_unlock(&mdev->state_lock);
-@@ -2882,7 +2887,8 @@ static int mlx4_xdp_set(struct net_devic
- 		if (err) {
- 			en_err(priv, "Failed starting port %d for XDP change\n",
- 			       priv->port);
--			queue_work(mdev->workqueue, &priv->watchdog_task);
-+			if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
-+				queue_work(mdev->workqueue, &priv->restart_task);
- 		}
- 	}
- 
-@@ -3280,7 +3286,7 @@ int mlx4_en_init_netdev(struct mlx4_en_d
- 	priv->counter_index = MLX4_SINK_COUNTER_INDEX(mdev->dev);
- 	spin_lock_init(&priv->stats_lock);
- 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
--	INIT_WORK(&priv->watchdog_task, mlx4_en_restart);
-+	INIT_WORK(&priv->restart_task, mlx4_en_restart);
- 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
- 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
- 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -530,6 +530,10 @@ struct mlx4_en_stats_bitmap {
- 	struct mutex mutex; /* for mutual access to stats bitmap */
- };
- 
-+enum {
-+	MLX4_EN_STATE_FLAG_RESTARTING,
-+};
-+
- struct mlx4_en_priv {
- 	struct mlx4_en_dev *mdev;
- 	struct mlx4_en_port_profile *prof;
-@@ -595,7 +599,7 @@ struct mlx4_en_priv {
- 	struct mlx4_en_cq *rx_cq[MAX_RX_RINGS];
- 	struct mlx4_qp drop_qp;
- 	struct work_struct rx_mode_task;
--	struct work_struct watchdog_task;
-+	struct work_struct restart_task;
- 	struct work_struct linkstate_task;
- 	struct delayed_work stats_task;
- 	struct delayed_work service_task;
-@@ -643,6 +647,7 @@ struct mlx4_en_priv {
- 	u32 pflags;
- 	u8 rss_key[MLX4_EN_RSS_KEY_SIZE];
- 	u8 rss_hash_fn;
-+	unsigned long state;
- };
- 
- enum mlx4_en_wol {
+-- 
+2.27.0
+
 
 
