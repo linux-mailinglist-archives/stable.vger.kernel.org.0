@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EBE2E42D5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 621102E3F4C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392685AbgL1P2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:28:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S2503551AbgL1OaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406523AbgL1N5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0304420782;
-        Mon, 28 Dec 2020 13:56:50 +0000 (UTC)
+        id S2503517AbgL1OaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 567692063A;
+        Mon, 28 Dec 2020 14:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163811;
-        bh=FgAvX5q8uBUQ9ARkg1kdFr4ER2t34gxlaxZVlDPXBsM=;
+        s=korg; t=1609165784;
+        bh=4QNrSvkhcb45febz3gyZQuCw5TBarU7vQw7vc9eJhyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcDvcdGOYKEiRuCfBBMeKjVjG5L7tC2mutg2vreiCSRZIg2Euke563HXnvQRzIjXa
-         OV+H4QYssbMc52hOQXvza0X5Ls/C6GgaJRJJceQiZHY6XGAw44B7db1XKI7FiUWxxL
-         cK4OSfBykZNi5/Bt62wP0xQXFnXOZ+eQas+xwFbo=
+        b=OyCx2D5WrpeRMe4gsHbI6h12aJTnqcvojko217CQ9eM9IZfKZYBxEgm6bTZRVHf/Q
+         kFKhD6WYl+WXDvI3SZ1aR3Kh92HpkRi9trrfFawatnyOfB5CMJoN1gBWnjxishYAT3
+         +W28n9OTv+BIJdzkyRF5tJZkzHlW/jGBbiIz8yc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Burkart <tom@aussec.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Phil Reid <preid@electromag.com.au>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 416/453] spi: atmel-quadspi: Fix AHB memory accesses
+Subject: [PATCH 5.10 654/717] spi: sc18is602: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:50:52 +0100
-Message-Id: <20201228124957.240440116@linuxfoundation.org>
+Message-Id: <20201228125052.279810463@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit cac8c821059639b015586abf61623c62cc549a13 upstream.
+commit 5b8c88462d83331dacb48aeaec8388117fef82e0 upstream.
 
-Following error was seen when mounting a 16MByte ubifs:
-UBIFS error (ubi0:0 pid 1893): check_lpt_type.constprop.6: invalid type (15) in LPT node type
+If the call to devm_gpiod_get_optional() fails on probe of the NXP
+SC18IS602/603 SPI driver, the spi_master struct is erroneously not freed.
 
-QSPI_IFR.TFRTYP was not set correctly. When data transfer is enabled
-and one wants to access the serial memory through AHB in order to:
- - read in the serial memory, but not a memory data, for example
-   a JEDEC-ID, QSPI_IFR.TFRTYP must be written to '0' (both sama5d2
-   and sam9x60).
- - read in the serial memory, and particularly a memory data,
-   TFRTYP must be written to '1' (both sama5d2 and sam9x60).
- - write in the serial memory, but not a memory data, for example
-   writing the configuration or the QSPI_SR, TFRTYP must be written
-   to '2' for sama5d2 and to '0' for sam9x60.
- - write in the serial memory in particular to program a memory data,
-   TFRTYP must be written to '3' for sama5d2 and to '1' for sam9x60.
+Fix by switching over to the new devm_spi_alloc_master() helper.
 
-Fix the setting of the QSPI_IFR.TFRTYP field.
-
-Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
-Cc: <stable@vger.kernel.org> # v5.0+
-Reported-by: Tom Burkart <tom@aussec.com>
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20201207135959.154124-2-tudor.ambarus@microchip.com
+Fixes: f99008013e19 ("spi: sc18is602: Add reset control via gpio pin.")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Phil Reid <preid@electromag.com.au>
+Link: https://lore.kernel.org/r/d5f715527b894b91d530fe11a86f51b3184a4e1a.1607286887.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/atmel-quadspi.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/spi/spi-sc18is602.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -284,10 +284,14 @@ static int atmel_qspi_set_cfg(struct atm
- 	if (dummy_cycles)
- 		ifr |= QSPI_IFR_NBDUM(dummy_cycles);
+--- a/drivers/spi/spi-sc18is602.c
++++ b/drivers/spi/spi-sc18is602.c
+@@ -238,13 +238,12 @@ static int sc18is602_probe(struct i2c_cl
+ 	struct sc18is602_platform_data *pdata = dev_get_platdata(dev);
+ 	struct sc18is602 *hw;
+ 	struct spi_master *master;
+-	int error;
  
--	/* Set data enable */
--	if (op->data.nbytes)
-+	/* Set data enable and data transfer type. */
-+	if (op->data.nbytes) {
- 		ifr |= QSPI_IFR_DATAEN;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
+ 				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+ 		return -EINVAL;
  
-+		if (op->addr.nbytes)
-+			ifr |= QSPI_IFR_TFRTYP_MEM;
-+	}
-+
- 	/*
- 	 * If the QSPI controller is set in regular SPI mode, set it in
- 	 * Serial Memory Mode (SMM).
-@@ -312,7 +316,7 @@ static int atmel_qspi_set_cfg(struct atm
- 			writel_relaxed(icr, aq->regs + QSPI_WICR);
- 		writel_relaxed(ifr, aq->regs + QSPI_IFR);
- 	} else {
--		if (op->data.dir == SPI_MEM_DATA_OUT)
-+		if (op->data.nbytes && op->data.dir == SPI_MEM_DATA_OUT)
- 			ifr |= QSPI_IFR_SAMA5D2_WRITE_TRSFR;
+-	master = spi_alloc_master(dev, sizeof(struct sc18is602));
++	master = devm_spi_alloc_master(dev, sizeof(struct sc18is602));
+ 	if (!master)
+ 		return -ENOMEM;
  
- 		/* Set QSPI Instruction Frame registers */
+@@ -298,15 +297,7 @@ static int sc18is602_probe(struct i2c_cl
+ 	master->min_speed_hz = hw->freq / 128;
+ 	master->max_speed_hz = hw->freq / 4;
+ 
+-	error = devm_spi_register_master(dev, master);
+-	if (error)
+-		goto error_reg;
+-
+-	return 0;
+-
+-error_reg:
+-	spi_master_put(master);
+-	return error;
++	return devm_spi_register_master(dev, master);
+ }
+ 
+ static const struct i2c_device_id sc18is602_id[] = {
 
 
