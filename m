@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC422E67F4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14062E66E6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730479AbgL1NEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:04:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60762 "EHLO mail.kernel.org"
+        id S2436956AbgL1QSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:18:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730474AbgL1NEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AAB521D94;
-        Mon, 28 Dec 2020 13:03:55 +0000 (UTC)
+        id S1732703AbgL1NPa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E018207F7;
+        Mon, 28 Dec 2020 13:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160636;
-        bh=aHniJjZWYDqJ8uI0brVmuB9pz9xGHCTqUR9DUqDyVkM=;
+        s=korg; t=1609161289;
+        bh=u7CIHf/dDFgrykRtPa391aRQl2kDb3EmGEJwUoVbDjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p6cqLgMDIwaAKsc2+FjvcsZouv1Vub5JMC7TwzSxEGqePlrOzofj0rvKLEDGe3ggW
-         m9XXvDMyxKPQS5myvcnEmDqGDQ9yBwHJ7wI7fRqeKil8eNIpsEykXGrdN/Nv9NdFJS
-         /7AY0S6FYz7S0H0AXP0rR/m3hD1NDQzQ1jbjS51U=
+        b=tfPQbhYmDukgaJD50NMXLZdJOI/u6efbPu9eIFFQJayt4HmV1EEP9Fql7dJ27Pvsh
+         ExHyVSYSPuabEXt2hPil6wcciNFdw/dsKmOM7fxW16kKOox1ch2MVo/guWl9ntxCa6
+         LzMQtQVcgOz3Y1GSZO66HwX1osBKHMLQ4mhPtDhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bongsu Jeon <bongsu.jeon@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 117/175] nfc: s3fwrn5: Release the nfc firmware
+Subject: [PATCH 4.14 165/242] net: bcmgenet: Fix a resource leak in an error handling path in the probe functin
 Date:   Mon, 28 Dec 2020 13:49:30 +0100
-Message-Id: <20201228124858.924140659@linuxfoundation.org>
+Message-Id: <20201228124912.823025242@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bongsu Jeon <bongsu.jeon@samsung.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a4485baefa1efa596702ebffd5a9c760d42b14b5 ]
+[ Upstream commit 4375ada01963d1ebf733d60d1bb6e5db401e1ac6 ]
 
-add the code to release the nfc firmware when the firmware image size is
-wrong.
+If the 'register_netdev()' call fails, we must undo a previous
+'bcmgenet_mii_init()' call.
 
-Fixes: c04c674fadeb ("nfc: s3fwrn5: Add driver for Samsung S3FWRN5 NFC Chip")
-Signed-off-by: Bongsu Jeon <bongsu.jeon@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201213095850.28169-1-bongsu.jeon@samsung.com
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20201212182005.120437-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/s3fwrn5/firmware.c | 4 +++-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/s3fwrn5/firmware.c b/drivers/nfc/s3fwrn5/firmware.c
-index 5f97da1947e39..e6ca1f9a7f63e 100644
---- a/drivers/nfc/s3fwrn5/firmware.c
-+++ b/drivers/nfc/s3fwrn5/firmware.c
-@@ -304,8 +304,10 @@ static int s3fwrn5_fw_request_firmware(struct s3fwrn5_fw_info *fw_info)
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 8bfa2523e2533..5855ffec49528 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -3593,8 +3593,10 @@ static int bcmgenet_probe(struct platform_device *pdev)
+ 	clk_disable_unprepare(priv->clk);
  
--	if (fw->fw->size < S3FWRN5_FW_IMAGE_HEADER_SIZE)
-+	if (fw->fw->size < S3FWRN5_FW_IMAGE_HEADER_SIZE) {
-+		release_firmware(fw->fw);
- 		return -EINVAL;
+ 	err = register_netdev(dev);
+-	if (err)
++	if (err) {
++		bcmgenet_mii_exit(dev);
+ 		goto err;
 +	}
  
- 	memcpy(fw->date, fw->fw->data + 0x00, 12);
- 	fw->date[12] = '\0';
+ 	return err;
+ 
 -- 
 2.27.0
 
