@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BDE62E37F9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:04:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D282E38ED
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730236AbgL1NDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:03:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59646 "EHLO mail.kernel.org"
+        id S1732826AbgL1NP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730225AbgL1NDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFDF222582;
-        Mon, 28 Dec 2020 13:02:49 +0000 (UTC)
+        id S1732825AbgL1NP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A725208D5;
+        Mon, 28 Dec 2020 13:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160570;
-        bh=wXBaScD4/w/XArzcbfOiAv5YV72PALyJRo9O6USkGNA=;
+        s=korg; t=1609161318;
+        bh=Dc8TqSxw7FrpSg0OKuwPOKxQNp/mLu0Qs0TY3IujqTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkpHp8ob+85qdot2jEYH311ky2T9PD8ROQBfdjJ6eHmbAdnGB9ROdkX22j/T5QZx/
-         7H2kyZPEHu3m041oVhRgYO0zMSrvoX6XMGhsz9AwMwU+VAOeGHiKpjyPPHImpPUUA9
-         jSfCqb0zCEnpqiq5WXncgZ4WeLFSm7RUWMl5GXZk=
+        b=15jUA93mIgM+KKXbN6BUr13zFNHgYftpeND6npOWiv2rJvsH1K35vRtwt5izPnRfO
+         6ZlKwmTlC3crTqy6hNwrt1g0erCvu/1EOUKv71XK4iz7ZWvGp8xo/KMjRNKyUB8Ws6
+         LD2jMhucUyflsNPfOI2dJv7muJGaCvIj/Hm9zIGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
         Qinglang Miao <miaoqinglang@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 096/175] dm ioctl: fix error return code in target_message
+Subject: [PATCH 4.14 144/242] scsi: qedi: Fix missing destroy_workqueue() on error in __qedi_probe
 Date:   Mon, 28 Dec 2020 13:49:09 +0100
-Message-Id: <20201228124857.897615525@linuxfoundation.org>
+Message-Id: <20201228124911.792747810@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 4d7659bfbe277a43399a4a2d90fca141e70f29e1 ]
+[ Upstream commit 62eebd5247c4e4ce08826ad5995cf4dd7ce919dd ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Add the missing destroy_workqueue() before return from __qedi_probe in the
+error handling case when fails to create workqueue qedi->offload_thread.
 
-Fixes: 2ca4c92f58f9 ("dm ioctl: prevent empty message")
-Reported-by: Hulk Robot <hulkci@huawei.com>
+Link: https://lore.kernel.org/r/20201109091518.55941-1-miaoqinglang@huawei.com
+Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ioctl.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/qedi/qedi_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index 6964b252952a4..836a2808c0c71 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -1549,6 +1549,7 @@ static int target_message(struct dm_ioctl *param, size_t param_size)
+diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
+index 24b945b555ba3..a742b88567762 100644
+--- a/drivers/scsi/qedi/qedi_main.c
++++ b/drivers/scsi/qedi/qedi_main.c
+@@ -2387,7 +2387,7 @@ static int __qedi_probe(struct pci_dev *pdev, int mode)
+ 			QEDI_ERR(&qedi->dbg_ctx,
+ 				 "Unable to start offload thread!\n");
+ 			rc = -ENODEV;
+-			goto free_cid_que;
++			goto free_tmf_thread;
+ 		}
  
- 	if (!argc) {
- 		DMWARN("Empty message received.");
-+		r = -EINVAL;
- 		goto out_argv;
- 	}
+ 		/* F/w needs 1st task context memory entry for performance */
+@@ -2407,6 +2407,8 @@ static int __qedi_probe(struct pci_dev *pdev, int mode)
  
+ 	return 0;
+ 
++free_tmf_thread:
++	destroy_workqueue(qedi->tmf_thread);
+ free_cid_que:
+ 	qedi_release_cid_que(qedi);
+ free_uio:
 -- 
 2.27.0
 
