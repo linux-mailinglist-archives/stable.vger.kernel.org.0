@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B16022E38DD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0439C2E433B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733077AbgL1NQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:16:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44242 "EHLO mail.kernel.org"
+        id S2408469AbgL1PeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:34:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733024AbgL1NQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:16:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DE5120728;
-        Mon, 28 Dec 2020 13:15:54 +0000 (UTC)
+        id S2407414AbgL1NyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A4C320715;
+        Mon, 28 Dec 2020 13:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161354;
-        bh=cRicDIf1s2m/epyd1+FFfQ5TZVTtW4rSXtzd0631iK0=;
+        s=korg; t=1609163639;
+        bh=rqAGrUS9PFp+3i35Hl1bBKWLlvGa35s9Zufv48SJd00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXa7jv3E77NyD+YK9PJff1YxLgzjhbH2n+8pn7r2hJvAMjx3/q7UrVogDZ5qRY4Vu
-         SjB6Vz+XAzRQ41lNI+RqLms+QrhMowEuk7tp0/ii+MNVFa7IYgGa0lRdgPvZeX/FCz
-         yLUynlzPMFdljAkM4jciyQHZHPsZEorAMyd461j8=
+        b=C0zcqPpFqcrE06whXELQ/zewn1UmWCjw8w0yM04XxF+G9hwDnnDWKiBdJKVQExMx5
+         EzdV393dU+OtL+qoXz0V1rSWreRof3mnJoqnvjmsvCE1KJl4LXWeq7Zi/PbzjSRtb4
+         FrAhXSoPZT+AMFVyi1/Oyoq3FhXRQlau8Fhawkco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH 4.14 187/242] ACPI: PNP: compare the string length in the matching_id()
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 356/453] perf/x86/intel: Add event constraint for CYCLE_ACTIVITY.STALLS_MEM_ANY
 Date:   Mon, 28 Dec 2020 13:49:52 +0100
-Message-Id: <20201228124913.904559765@linuxfoundation.org>
+Message-Id: <20201228124954.339798392@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit b08221c40febcbda9309dd70c61cf1b0ebb0e351 upstream.
+commit 306e3e91edf1c6739a55312edd110d298ff498dd upstream.
 
-Recently we met a touchscreen problem on some Thinkpad machines, the
-touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
-work.
+The event CYCLE_ACTIVITY.STALLS_MEM_ANY (0x14a3) should be available on
+all 8 GP counters on ICL, but it's only scheduled on the first four
+counters due to the current ICL constraint table.
 
-An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
-the current rule in matching_id(), this device will be regarded as
-a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
-this PNP device is attached to the acpi device as the 1st
-physical_node, this will make the i2c bus match fail when i2c bus
-calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
-driver.
+Add a line for the CYCLE_ACTIVITY.STALLS_MEM_ANY event in the ICL
+constraint table.
+Correct the comments for the CYCLE_ACTIVITY.CYCLES_MEM_ANY event.
 
-WACF2200 is an i2c device instead of a PNP device, after adding the
-string length comparing, the matching_id() will return false when
-matching WACF2200 and WACFXXX, and it is reasonable to compare the
-string length when matching two IDs.
-
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Reported-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201019164529.32154-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_pnp.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/events/intel/core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_pnp.c
-+++ b/drivers/acpi/acpi_pnp.c
-@@ -320,6 +320,9 @@ static bool matching_id(const char *idst
- {
- 	int i;
- 
-+	if (strlen(idstr) != strlen(list_id))
-+		return false;
-+
- 	if (memcmp(idstr, list_id, 3))
- 		return false;
- 
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -253,7 +253,8 @@ static struct event_constraint intel_icl
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
+ 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
+-	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
++	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
++	INTEL_UEVENT_CONSTRAINT(0x14a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_MEM_ANY */
+ 	INTEL_EVENT_CONSTRAINT(0xa3, 0xf),      /* CYCLE_ACTIVITY.* */
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0xa8, 0xb0, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0xb7, 0xbd, 0xf),
 
 
