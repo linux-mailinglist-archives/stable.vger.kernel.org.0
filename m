@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 089C62E35FE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:45:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CD22E3600
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbgL1Kph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 05:45:37 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53977 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726958AbgL1Kph (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:45:37 -0500
+        id S1727176AbgL1KrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 05:47:06 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:49575 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727094AbgL1KrG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:47:06 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CEAB41942808;
-        Mon, 28 Dec 2020 05:44:30 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:44:30 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 529172DC;
+        Mon, 28 Dec 2020 05:46:00 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:46:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jd3WLw
-        1uXdwArI34mcS27HAzLtGdjexoFO8tKh3H5/M=; b=LeaHZLIZmfylf2tUOXrFcv
-        jZJiOwBRxl4DvqDdAShyib94Gue/0kJtedBAKXXBJAhONSgBLu6W5xR5pYVfBbRO
-        PEjPXEcYljAj1GXXwPJXJryAnhBcSHL4dlZIx5+XWCHW48VY6fnqA7ec67T9iyzE
-        nBN4uU82GLAna79w0mJArXPjYbybII3UGYAhtUahFr4MyWIkuvigQs8kUEf4ZLBI
-        XeN51dVRPosXBCnHRIQpqve8TyMrqFP9gq/eym7a9M1hXPHEGnMZiO/mcErp3jho
-        pgqcbSfbhJ8yimSwLeJwKUzHQUguEcS0faH33FTEWNmWuTVB1tqLoUNoWOgo/ejQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GokFX3
+        A2aiXkGCyqs2KkxrEz30KmRufEwGAtvJB0Qrg=; b=PofJofL4SqWc6uwMg4vy6Q
+        OE6rkWLKAnjFJ7V2LbI9cuMIw06Kh3c8icFfkHmDgUFgBAi49CIf/Us3emYowt1N
+        EuxQQXXtkJYvouDnxc/tLhn+uGGrWIRW6egl/XMeo9ff7VeFEDmPMdScXfzCig1d
+        HGzZ4P5SrDnLfWMarZ+m8/sQwSzeROE5OUtl43V3vneSIH8ltU+bRKuFNr3vPQ5x
+        dUXdV7XC7fZQKWBZjw122dsaw1894joAZpDnqBrUIhcQZKBk5U3ALznvz0cNgpl8
+        VOktJyZ3WYSZW3/afaiuM5AL2uFXn0IUNPfmEG0AdHQ4nHhn4Z7BQI6LCpENjrsQ
         ==
-X-ME-Sender: <xms:DrfpX8twLlGDXiP9vSkYEFqIRwJVGjpQ_JUORi_X4kyBqnYXN2mnIw>
-    <xme:DrfpX5eENpf1OVGub2zbliL60kIw3DwYY5c1H_ls34WGIYwqaQEy9BYr8vp2J9Jh9
-    iu2NP4Z18FrRw>
+X-ME-Sender: <xms:Z7fpX9GRHblaxO-2qpAeLQvbDxDJjWnYr-jTpz7YeiV6Aiv5IKzEHQ>
+    <xme:Z7fpXyX4OlXO51Ith92W9zSfOlW7R0njG9IbA8UgmJK1SMFd6_VBHwP4zkTKsxlA5
+    O7YLZhwJd7g9A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:DrfpX3x26oGXJDaQ20fK-oa3lYgWjMpuA5JhwRaO5hkO9AHmZBB6hQ>
-    <xmx:DrfpX_NGe_5PxIo9MGEWw9bdh9R6tOE1sLGVkkobAePS1jRPkQ0ZRw>
-    <xmx:DrfpX89Lg3pwaG82vvzvoQCv_MmYZ2t0S-5xE0trIgf3s8-nMCctuw>
-    <xmx:DrfpX7l1_YWQUtN-JD55JC4ZT_IKJ0hMHSbUpJHSXLlN7Crj2Kz9uQ>
+    gheqnecuggftrfgrthhtvghrnhepkefhhfefgfefheeffedugeeuvddvvefggffftdduue
+    ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Z7fpX_I9iRRpFDjk8tOL2EhhJk1rui2Jjthq7DUZE89yvj5RQf2VOA>
+    <xmx:Z7fpXzE4EkjvfTlaSfvrjqUOwyY4svp2JUAsOyteXvUAISHTMMh0dQ>
+    <xmx:Z7fpXzW3rZWzACrWGBEFuSx-NEZbFw_B0JslOBTKDZLPfs60adHhzg>
+    <xmx:Z7fpXwiWolI_E83Aaf58gJxXuPks2oEKnXMkNfODjtXaEaIrO0fBYGGnAdY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 20BC6240057;
-        Mon, 28 Dec 2020 05:44:30 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Add get_dig_frontend implementation for DCEx" failed to apply to 5.10-stable tree
-To:     Rodrigo.Siqueira@amd.com, Harry.Wentland@amd.com,
-        Nicholas.Kazlauskas@amd.com, alexander.deucher@amd.com,
-        bp@alien8.de, bp@suse.de, chiawen.huang@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E252F108005C;
+        Mon, 28 Dec 2020 05:45:58 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Fix mismatch between misplaced vma check and vma" failed to apply to 4.9-stable tree
+To:     chris@chris-wilson.co.uk, cq.tang@intel.com, jani.nikula@intel.com,
+        matthew.auld@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 11:45:53 +0100
-Message-ID: <16091523531566@kroah.com>
+Date:   Mon, 28 Dec 2020 11:47:22 +0100
+Message-ID: <160915244223115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,106 +71,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6bdeff12a96c9a5da95c8d11fefd145eb165e32a Mon Sep 17 00:00:00 2001
-From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Date: Tue, 15 Dec 2020 10:33:34 -0500
-Subject: [PATCH] drm/amd/display: Add get_dig_frontend implementation for DCEx
+From 0e53656ad8abc99e0a80c3de611e593ebbf55829 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Wed, 16 Dec 2020 09:29:51 +0000
+Subject: [PATCH] drm/i915: Fix mismatch between misplaced vma check and vma
+ insert
 
-Some old ASICs might not implement/require get_dig_frontend helper; in
-this scenario, we can have a NULL pointer exception when we try to call
-it inside vbios disable operation. For example, this situation might
-happen when using Polaris12 with an eDP panel. This commit avoids this
-situation by adding a specific get_dig_frontend implementation for DCEx.
+When inserting a VMA, we restrict the placement to the low 4G unless the
+caller opts into using the full range. This was done to allow usersapce
+the opportunity to transition slowly from a 32b address space, and to
+avoid breaking inherent 32b assumptions of some commands.
 
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Harry Wentland <Harry.Wentland@amd.com>
-Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Cc: Chiawen Huang <chiawen.huang@amd.com>
-Reported-and-tested-by: Borislav Petkov <bp@suse.de>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+However, for insert we limited ourselves to 4G-4K, but on verification
+we allowed the full 4G. This causes some attempts to bind a new buffer
+to sporadically fail with -ENOSPC, but at other times be bound
+successfully.
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
-index 4592ccdfa9b0..210466b2d863 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
-@@ -120,6 +120,7 @@ static const struct link_encoder_funcs dce110_lnk_enc_funcs = {
- 	.is_dig_enabled = dce110_is_dig_enabled,
- 	.destroy = dce110_link_encoder_destroy,
- 	.get_max_link_cap = dce110_link_encoder_get_max_link_cap,
-+	.get_dig_frontend = dce110_get_dig_frontend,
- };
+commit 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1
+page") suggests that there is a genuine problem with stateless addressing
+that cannot utilize the last page in 4G and so we purposefully excluded
+it. This means that the quick pin pass may cause us to utilize a buggy
+placement.
+
+Reported-by: CQ Tang <cq.tang@intel.com>
+Testcase: igt/gem_exec_params/larger-than-life-batch
+Fixes: 48ea1e32c39d ("drm/i915/gen9: Set PIN_ZONE_4G end to 4GB - 1 page")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: CQ Tang <cq.tang@intel.com>
+Reviewed-by: CQ Tang <cq.tang@intel.com>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v4.5+
+Link: https://patchwork.freedesktop.org/patch/msgid/20201216092951.7124-1-chris@chris-wilson.co.uk
+(cherry picked from commit 5f22cc0b134ab702d7f64b714e26018f7288ffee)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+index b07dc1156a0e..bcc80f428172 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -382,7 +382,7 @@ eb_vma_misplaced(const struct drm_i915_gem_exec_object2 *entry,
+ 		return true;
  
- static enum bp_result link_transmitter_control(
-@@ -235,6 +236,44 @@ static void set_link_training_complete(
+ 	if (!(flags & EXEC_OBJECT_SUPPORTS_48B_ADDRESS) &&
+-	    (vma->node.start + vma->node.size - 1) >> 32)
++	    (vma->node.start + vma->node.size + 4095) >> 32)
+ 		return true;
  
- }
- 
-+unsigned int dce110_get_dig_frontend(struct link_encoder *enc)
-+{
-+	struct dce110_link_encoder *enc110 = TO_DCE110_LINK_ENC(enc);
-+	u32 value;
-+	enum engine_id result;
-+
-+	REG_GET(DIG_BE_CNTL, DIG_FE_SOURCE_SELECT, &value);
-+
-+	switch (value) {
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGA:
-+		result = ENGINE_ID_DIGA;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGB:
-+		result = ENGINE_ID_DIGB;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGC:
-+		result = ENGINE_ID_DIGC;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGD:
-+		result = ENGINE_ID_DIGD;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGE:
-+		result = ENGINE_ID_DIGE;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGF:
-+		result = ENGINE_ID_DIGF;
-+		break;
-+	case DCE110_DIG_FE_SOURCE_SELECT_DIGG:
-+		result = ENGINE_ID_DIGG;
-+		break;
-+	default:
-+		// invalid source select DIG
-+		result = ENGINE_ID_UNKNOWN;
-+	}
-+
-+	return result;
-+}
-+
- void dce110_link_encoder_set_dp_phy_pattern_training_pattern(
- 	struct link_encoder *enc,
- 	uint32_t index)
-@@ -1665,7 +1704,8 @@ static const struct link_encoder_funcs dce60_lnk_enc_funcs = {
- 	.disable_hpd = dce110_link_encoder_disable_hpd,
- 	.is_dig_enabled = dce110_is_dig_enabled,
- 	.destroy = dce110_link_encoder_destroy,
--	.get_max_link_cap = dce110_link_encoder_get_max_link_cap
-+	.get_max_link_cap = dce110_link_encoder_get_max_link_cap,
-+	.get_dig_frontend = dce110_get_dig_frontend
- };
- 
- void dce60_link_encoder_construct(
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
-index cb714a48b171..fc6ade824c23 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
-@@ -295,6 +295,8 @@ void dce110_link_encoder_connect_dig_be_to_fe(
- 	enum engine_id engine,
- 	bool connect);
- 
-+unsigned int dce110_get_dig_frontend(struct link_encoder *enc);
-+
- void dce110_link_encoder_set_dp_phy_pattern_training_pattern(
- 	struct link_encoder *enc,
- 	uint32_t index);
+ 	if (flags & __EXEC_OBJECT_NEEDS_MAP &&
 
