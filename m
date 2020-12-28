@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FAC02E666F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07DAE2E666C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733261AbgL1QMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:12:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49632 "EHLO mail.kernel.org"
+        id S2407871AbgL1QMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:12:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388078AbgL1NV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:21:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36066207CF;
-        Mon, 28 Dec 2020 13:21:10 +0000 (UTC)
+        id S2387967AbgL1NV3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:21:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60598207C9;
+        Mon, 28 Dec 2020 13:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161670;
-        bh=MQH0UekFCSqVDxfI5w99oZSia+ZQgBruD/ikSCaCVlw=;
+        s=korg; t=1609161674;
+        bh=zVhJz5NUX6hGPxi2AWc77kBUaBzn4WGc1q3gf0E/Xpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWhSuYL+6kTgS5l9ytuEIE09UdrBfLdpLOrmIgxkqYO4KzdD6aT4g57dgUimbQk1V
-         Y+OjdRnr4GkJP6mAc0o09GAGcdrQAGccTgY5jpHoPkCMPVXxt7dI1NoWDsgGZK4yrf
-         jaPKO8+r/YiS3lqYU1GMG+X8Wh8VWJuvZGl/4CBY=
+        b=QTzSdefijYiGsohz/r+ZPlkpZ4mM/+JRvTVi9NYEINQonQBI/hiLvcGWe08OLiWM8
+         Kl44R7ci7fIBjk1SyvxuJCfxnvfxiBQAix9XPho4X0T7iqINIUkSzkadOeXupniMFb
+         769u0YSQam/1Znah6Puq8q5NyIOMPdtpIDYZUsCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Subject: [PATCH 4.19 047/346] serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
-Date:   Mon, 28 Dec 2020 13:46:06 +0100
-Message-Id: <20201228124922.065576597@linuxfoundation.org>
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 048/346] drm/xen-front: Fix misused IS_ERR_OR_NULL checks
+Date:   Mon, 28 Dec 2020 13:46:07 +0100
+Message-Id: <20201228124922.112563517@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -39,52 +42,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-commit d96f04d347e4011977abdbb4da5d8f303ebd26f8 upstream.
+commit 14dee058610446aa464254fc5c8e88c7535195e0 upstream
 
-It has been observed that once per 300-1300 port openings the first
-transmitted byte is being corrupted on AM3352 ("v" written to FIFO appeared
-as "e" on the wire). It only happened if single byte has been transmitted
-right after port open, which means, DMA is not used for this transfer and
-the corruption never happened afterwards.
+The patch c575b7eeb89f: "drm/xen-front: Add support for Xen PV
+display frontend" from Apr 3, 2018, leads to the following static
+checker warning:
 
-Therefore I've carefully re-read the MDR1 errata (link below), which says
-"when accessing the MDR1 registers that causes a dummy under-run condition
-that will freeze the UART in IrDA transmission. In UART mode, this may
-corrupt the transferred data". Strictly speaking,
-omap_8250_mdr1_errataset() performs a read access and if the value is the
-same as should be written, exits without errata-recommended FIFO reset.
+	drivers/gpu/drm/xen/xen_drm_front_gem.c:140 xen_drm_front_gem_create()
+	warn: passing zero to 'ERR_CAST'
 
-A brief check of the serial_omap_mdr1_errataset() from the competing
-omap-serial driver showed it has no read access of MDR1. After removing the
-read access from omap_8250_mdr1_errataset() the data corruption never
-happened any more.
+drivers/gpu/drm/xen/xen_drm_front_gem.c
+   133  struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
+   134                                                  size_t size)
+   135  {
+   136          struct xen_gem_object *xen_obj;
+   137
+   138          xen_obj = gem_create(dev, size);
+   139          if (IS_ERR_OR_NULL(xen_obj))
+   140                  return ERR_CAST(xen_obj);
 
-Link: https://www.ti.com/lit/er/sprz360i/sprz360i.pdf
-Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Link: https://lore.kernel.org/r/20201210055257.1053028-1-alexander.sverdlin@gmail.com
+Fix this and the rest of misused places with IS_ERR_OR_NULL in the
+driver.
+
+Fixes:  c575b7eeb89f: "drm/xen-front: Add support for Xen PV display frontend"
+
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200813062113.11030-3-andr2000@gmail.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/8250/8250_omap.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front.c     |    2 +-
+ drivers/gpu/drm/xen/xen_drm_front_gem.c |    8 ++++----
+ drivers/gpu/drm/xen/xen_drm_front_kms.c |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -163,11 +163,6 @@ static void omap_8250_mdr1_errataset(str
- 				     struct omap8250_priv *priv)
- {
- 	u8 timeout = 255;
--	u8 old_mdr1;
--
--	old_mdr1 = serial_in(up, UART_OMAP_MDR1);
--	if (old_mdr1 == priv->mdr1)
--		return;
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -410,7 +410,7 @@ static int xen_drm_drv_dumb_create(struc
+ 	args->size = args->pitch * args->height;
  
- 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
- 	udelay(2);
+ 	obj = xen_drm_front_gem_create(dev, args->size);
+-	if (IS_ERR_OR_NULL(obj)) {
++	if (IS_ERR(obj)) {
+ 		ret = PTR_ERR(obj);
+ 		goto fail;
+ 	}
+--- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
+@@ -85,7 +85,7 @@ static struct xen_gem_object *gem_create
+ 
+ 	size = round_up(size, PAGE_SIZE);
+ 	xen_obj = gem_create_obj(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return xen_obj;
+ 
+ 	if (drm_info->front_info->cfg.be_alloc) {
+@@ -119,7 +119,7 @@ static struct xen_gem_object *gem_create
+ 	 */
+ 	xen_obj->num_pages = DIV_ROUND_UP(size, PAGE_SIZE);
+ 	xen_obj->pages = drm_gem_get_pages(&xen_obj->base);
+-	if (IS_ERR_OR_NULL(xen_obj->pages)) {
++	if (IS_ERR(xen_obj->pages)) {
+ 		ret = PTR_ERR(xen_obj->pages);
+ 		xen_obj->pages = NULL;
+ 		goto fail;
+@@ -138,7 +138,7 @@ struct drm_gem_object *xen_drm_front_gem
+ 	struct xen_gem_object *xen_obj;
+ 
+ 	xen_obj = gem_create(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return ERR_CAST(xen_obj);
+ 
+ 	return &xen_obj->base;
+@@ -196,7 +196,7 @@ xen_drm_front_gem_import_sg_table(struct
+ 
+ 	size = attach->dmabuf->size;
+ 	xen_obj = gem_create_obj(dev, size);
+-	if (IS_ERR_OR_NULL(xen_obj))
++	if (IS_ERR(xen_obj))
+ 		return ERR_CAST(xen_obj);
+ 
+ 	ret = gem_alloc_pages_array(xen_obj, size);
+--- a/drivers/gpu/drm/xen/xen_drm_front_kms.c
++++ b/drivers/gpu/drm/xen/xen_drm_front_kms.c
+@@ -59,7 +59,7 @@ fb_create(struct drm_device *dev, struct
+ 	int ret;
+ 
+ 	fb = drm_gem_fb_create_with_funcs(dev, filp, mode_cmd, &fb_funcs);
+-	if (IS_ERR_OR_NULL(fb))
++	if (IS_ERR(fb))
+ 		return fb;
+ 
+ 	gem_obj = drm_gem_object_lookup(filp, mode_cmd->handles[0]);
 
 
