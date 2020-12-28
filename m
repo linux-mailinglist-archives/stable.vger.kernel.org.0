@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 215F52E39AA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C98EA2E3DFA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389066AbgL1N0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:26:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
+        id S2437845AbgL1OUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:20:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389269AbgL1N0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD3E822475;
-        Mon, 28 Dec 2020 13:25:55 +0000 (UTC)
+        id S2437843AbgL1OUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:20:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08E17207B2;
+        Mon, 28 Dec 2020 14:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161956;
-        bh=L9mDBH5eVRZxfYI8UmkOCZQry8Z7AIK961Dix1H0Myc=;
+        s=korg; t=1609165233;
+        bh=9z3QhStNbGViDW57q8obpyRWHXlccfZe9wh/heJ9Omg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OkInzqMWtrLGTFx059xVHo8QznKPkBlhaXxzKxA651AyVzF/OilI9SVx6cRriFHZK
-         6D5ycX4VL8LKT3QDgD2NDA690zZaIPNbCvLXOc7yPDD60saPXiHOrg82j9yYcB1jIN
-         7Oj4DmuUa0NS3R3OqHOmZyzWzlLK/yGeP/m1+v3g=
+        b=R5teCmd/zN3rRj1ybvoD633r3amgf+vtbVSSIS/vbcYVQWZsOsMteEy4FTYHnJp1u
+         QGMtzbNI6n9ndB1bIwyN3TnUbTAAs5ucWWwUR7GVPqPcNsfABb0t6IIrSmeoqKfzRm
+         M7OwHtMfbVXKE6I+hTMXhSPIBxDIzKNqdwDoG6ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 139/346] staging: gasket: interrupt: fix the missed eventfd_ctx_put() in gasket_interrupt.c
+Subject: [PATCH 5.10 460/717] s390/test_unwind: fix CALL_ON_STACK tests
 Date:   Mon, 28 Dec 2020 13:47:38 +0100
-Message-Id: <20201228124926.511801349@linuxfoundation.org>
+Message-Id: <20201228125043.007596265@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit ab5b769a23af12a675b9f3d7dd529250c527f5ac ]
+[ Upstream commit f22b9c219a798e1bf11110a3d2733d883e6da059 ]
 
-gasket_interrupt_set_eventfd() misses to call eventfd_ctx_put() in an
-error path. We check interrupt is valid before calling
-eventfd_ctx_fdget() to fix it.
+The CALL_ON_STACK tests use the no_dat stack to switch to a different
+stack for unwinding tests. If an interrupt or machine check happens
+while using that stack, and previously being on the async stack, the
+interrupt / machine check entry code (SWITCH_ASYNC) will assume that
+the previous context did not use the async stack and happily use the
+async stack again.
 
-There is the same issue in gasket_interrupt_clear_eventfd(), Add the
-missed function call to fix it.
+This will lead to stack corruption of the previous context.
 
-Fixes: 9a69f5087ccc ("drivers/staging: Gasket driver framework + Apex driver")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Link: https://lore.kernel.org/r/20201112064924.99680-1-jingxiangfeng@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To solve this disable both interrupts and machine checks before
+switching to the no_dat stack.
+
+Fixes: 7868249fbbc8 ("s390/test_unwind: add CALL_ON_STACK tests")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/gasket/gasket_interrupt.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/s390/lib/test_unwind.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/gasket/gasket_interrupt.c b/drivers/staging/gasket/gasket_interrupt.c
-index 1cfbc120f2284..225460c535d61 100644
---- a/drivers/staging/gasket/gasket_interrupt.c
-+++ b/drivers/staging/gasket/gasket_interrupt.c
-@@ -527,14 +527,16 @@ int gasket_interrupt_system_status(struct gasket_dev *gasket_dev)
- int gasket_interrupt_set_eventfd(struct gasket_interrupt_data *interrupt_data,
- 				 int interrupt, int event_fd)
+diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
+index 7c988994931f0..6bad84c372dcb 100644
+--- a/arch/s390/lib/test_unwind.c
++++ b/arch/s390/lib/test_unwind.c
+@@ -205,12 +205,15 @@ static noinline int unwindme_func3(struct unwindme *u)
+ /* This function must appear in the backtrace. */
+ static noinline int unwindme_func2(struct unwindme *u)
  {
--	struct eventfd_ctx *ctx = eventfd_ctx_fdget(event_fd);
--
--	if (IS_ERR(ctx))
--		return PTR_ERR(ctx);
-+	struct eventfd_ctx *ctx;
++	unsigned long flags;
+ 	int rc;
  
- 	if (interrupt < 0 || interrupt >= interrupt_data->num_interrupts)
- 		return -EINVAL;
- 
-+	ctx = eventfd_ctx_fdget(event_fd);
-+
-+	if (IS_ERR(ctx))
-+		return PTR_ERR(ctx);
-+
- 	interrupt_data->eventfd_ctxs[interrupt] = ctx;
- 	return 0;
- }
-@@ -545,6 +547,9 @@ int gasket_interrupt_clear_eventfd(struct gasket_interrupt_data *interrupt_data,
- 	if (interrupt < 0 || interrupt >= interrupt_data->num_interrupts)
- 		return -EINVAL;
- 
--	interrupt_data->eventfd_ctxs[interrupt] = NULL;
-+	if (interrupt_data->eventfd_ctxs[interrupt]) {
-+		eventfd_ctx_put(interrupt_data->eventfd_ctxs[interrupt]);
-+		interrupt_data->eventfd_ctxs[interrupt] = NULL;
-+	}
- 	return 0;
- }
+ 	if (u->flags & UWM_SWITCH_STACK) {
+-		preempt_disable();
++		local_irq_save(flags);
++		local_mcck_disable();
+ 		rc = CALL_ON_STACK(unwindme_func3, S390_lowcore.nodat_stack, 1, u);
+-		preempt_enable();
++		local_mcck_enable();
++		local_irq_restore(flags);
+ 		return rc;
+ 	} else {
+ 		return unwindme_func3(u);
 -- 
 2.27.0
 
