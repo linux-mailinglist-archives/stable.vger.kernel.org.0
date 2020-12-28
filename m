@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 301822E6463
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 003372E3D16
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730940AbgL1NjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:39:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39398 "EHLO mail.kernel.org"
+        id S2439105AbgL1OKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:10:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391286AbgL1Ni7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:38:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF64B20719;
-        Mon, 28 Dec 2020 13:38:17 +0000 (UTC)
+        id S2439036AbgL1OKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:10:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF482206D4;
+        Mon, 28 Dec 2020 14:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162698;
-        bh=KYlu5SC7gait3Hv275QjXFtKtU8AN/vqYVplx/fyv0w=;
+        s=korg; t=1609164628;
+        bh=0bgNJ6SK3RDenoRWk6Dpi+v4D/f0esydH9R3mgRVhz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+S4JtFbEzxsZhma0I34eR4YDPdQ9sbxC4mbUzN7QPl1inLrjSSkKj7IB2izGRz7X
-         kSEXTyC09oyW8z6Sv81Aac8EJYShHuDwVnIzXKlkntBBpe8kygDKwYjlFfqeYMKjx6
-         PkeNoYAwFNz6qNjiJZ4cG5O5hhg8HCq6mNYyaDlU=
+        b=dXCbxBTIKJ6SSKfufjNC+hc4LUA32qyDOfVXl+59vRTLfRXITotedI5jw/Ss0Jc+Y
+         oEADvnREAisa5RzLYXqq+zITG8u684wfIaAqzFFlvKxLyJNRXTqP1V7KNs0vNF6Lmv
+         X/frFZIXbfWe1oJfu4KMp90pFAQev1OGh2OaXRaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Greco <pgreco@centosproject.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 002/453] ARM: dts: sun8i: r40: bananapi-m2-berry: Fix dcdc1 regulator
+Subject: [PATCH 5.10 240/717] PCI: Bounds-check command-line resource alignment requests
 Date:   Mon, 28 Dec 2020 13:43:58 +0100
-Message-Id: <20201228124937.355959406@linuxfoundation.org>
+Message-Id: <20201228125032.488421074@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Greco <pgreco@centosproject.org>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit bd5cdcdc66e1f7179ff6d172d1e5f55e43403aa8 ]
+[ Upstream commit 6534aac198b58309ff2337981d3f893e0be1d19d ]
 
-DCDC1 regulator powers many different subsystems. While some of them can
-work at 3.0 V, some of them can not. For example, VCC-HDMI can only work
-between 3.24 V and 3.36 V. According to OS images provided by the board
-manufacturer this regulator should be set to 3.3 V.
+32-bit BARs are limited to 2GB size (2^31).  By extension, I assume 64-bit
+BARs are limited to 2^63 bytes.  Limit the alignment requested by the
+"pci=resource_alignment=" command-line parameter to 2^63.
 
-Set DCDC1 and DCDC1SW to 3.3 V in order to fix this.
-
-Fixes: 23edc168bd98 ("ARM: dts: sun8i: Add board dts file for Banana Pi M2 Berry")
-Fixes: 27e81e1970a8 ("ARM: dts: sun8i: v40: bananapi-m2-berry: Enable GMAC ethernet controller")
-Signed-off-by: Pablo Greco <pgreco@centosproject.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/1604326755-39742-1-git-send-email-pgreco@centosproject.org
+Link: https://lore.kernel.org/r/20201007123045.GS4282@kadam
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/pci/pci.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
-index 15c22b06fc4b6..84eb082957183 100644
---- a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
-+++ b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
-@@ -198,16 +198,16 @@
- };
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index e578d34095e91..b7a860e790979 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -6202,19 +6202,21 @@ static resource_size_t pci_specified_resource_alignment(struct pci_dev *dev,
+ 	while (*p) {
+ 		count = 0;
+ 		if (sscanf(p, "%d%n", &align_order, &count) == 1 &&
+-							p[count] == '@') {
++		    p[count] == '@') {
+ 			p += count + 1;
++			if (align_order > 63) {
++				pr_err("PCI: Invalid requested alignment (order %d)\n",
++				       align_order);
++				align_order = PAGE_SHIFT;
++			}
+ 		} else {
+-			align_order = -1;
++			align_order = PAGE_SHIFT;
+ 		}
  
- &reg_dc1sw {
--	regulator-min-microvolt = <3000000>;
--	regulator-max-microvolt = <3000000>;
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
- 	regulator-name = "vcc-gmac-phy";
- };
- 
- &reg_dcdc1 {
- 	regulator-always-on;
--	regulator-min-microvolt = <3000000>;
--	regulator-max-microvolt = <3000000>;
--	regulator-name = "vcc-3v0";
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-3v3";
- };
- 
- &reg_dcdc2 {
+ 		ret = pci_dev_str_match(dev, p, &p);
+ 		if (ret == 1) {
+ 			*resize = true;
+-			if (align_order == -1)
+-				align = PAGE_SIZE;
+-			else
+-				align = 1 << align_order;
++			align = 1 << align_order;
+ 			break;
+ 		} else if (ret < 0) {
+ 			pr_err("PCI: Can't parse resource_alignment parameter: %s\n",
 -- 
 2.27.0
 
