@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3291D2E3A7C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A478B2E6450
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390812AbgL1Nhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:37:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
+        id S2389228AbgL1NiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:38:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390798AbgL1Nhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15AB720719;
-        Mon, 28 Dec 2020 13:37:14 +0000 (UTC)
+        id S2391177AbgL1NiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:38:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D3D9208B3;
+        Mon, 28 Dec 2020 13:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162635;
-        bh=b3W3qxLUR+uGTD4xK2QVvQWDVrAxkeDSCuy0HJfUHEc=;
+        s=korg; t=1609162640;
+        bh=8xu1w7oIX7+HLRmXujkBO4p2QjrBuXKqX8drfMGGCbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q61SWo2NVuAqHvQAPXhOVOqMqdMB49jKH6IxeQnymMLTfA2QBEOMG0EMuPmUIn0a0
-         554A3boqJR7ZPQeCBGG171P4X1Z0TFUGvwjTXsUPGpKU4VCMgRbeXIMA69SAYKtMAx
-         ivzzAMLSlH6z8J35ImtMyVKZnOGh+cVLUYXIWaSQ=
+        b=gKrGnFsX+ipPPhqsHromTz1nE6MInGlTeRkVMAiQyTmdscJLvby7N3DkrDYO8h/vu
+         9tn3JmJrBO0AjhTRb0VPWWm3bwR2D5iKzyF7nPJJ1VMnybKJNtKa7lQGnBz9ZRN2lq
+         k8/SOKxMRigzOl3p+QtfhYXM5tc7les2+Y6JD8yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Billy Tsai <billy_tsai@aspeedtech.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
+        kernel test robot <lkp@intel.com>,
+        Florian Westphal <fw@strlen.de>,
+        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/453] pinctrl: aspeed: Fix GPIO requests on pass-through banks
-Date:   Mon, 28 Dec 2020 13:44:17 +0100
-Message-Id: <20201228124938.274155220@linuxfoundation.org>
+Subject: [PATCH 5.4 022/453] netfilter: x_tables: Switch synchronization to RCU
+Date:   Mon, 28 Dec 2020 13:44:18 +0100
+Message-Id: <20201228124938.323082742@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -42,163 +43,392 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Jeffery <andrew@aj.id.au>
+From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 
-[ Upstream commit 7aeb353802611a8e655e019f09a370ff682af1a6 ]
+[ Upstream commit cc00bcaa589914096edef7fb87ca5cee4a166b5c ]
 
-Commit 6726fbff19bf ("pinctrl: aspeed: Fix GPI only function problem.")
-fixes access to GPIO banks T and U on the AST2600. Both banks contain
-input-only pins and the GPIO pin function is named GPITx and GPIUx
-respectively. Unfortunately the fix had a negative impact on GPIO banks
-D and E for the AST2400 and AST2500 where the GPIO pass-through
-functions take similar "GPI"-style names. The net effect on the older
-SoCs was that when the GPIO subsystem requested a pin in banks D or E be
-muxed for GPIO, they were instead muxed for pass-through mode.
-Mistakenly muxing pass-through mode e.g. breaks booting the host on
-IBM's Witherspoon (AC922) platform where GPIOE0 is used for FSI.
+When running concurrent iptables rules replacement with data, the per CPU
+sequence count is checked after the assignment of the new information.
+The sequence count is used to synchronize with the packet path without the
+use of any explicit locking. If there are any packets in the packet path using
+the table information, the sequence count is incremented to an odd value and
+is incremented to an even after the packet process completion.
 
-Further exploit the names in the provided expression structure to
-differentiate pass-through from pin-specific GPIO modes.
+The new table value assignment is followed by a write memory barrier so every
+CPU should see the latest value. If the packet path has started with the old
+table information, the sequence counter will be odd and the iptables
+replacement will wait till the sequence count is even prior to freeing the
+old table info.
 
-This follow-up fix gives the expected behaviour for the following tests:
+However, this assumes that the new table information assignment and the memory
+barrier is actually executed prior to the counter check in the replacement
+thread. If CPU decides to execute the assignment later as there is no user of
+the table information prior to the sequence check, the packet path in another
+CPU may use the old table information. The replacement thread would then free
+the table information under it leading to a use after free in the packet
+processing context-
 
-Witherspoon BMC (AST2500):
+Unable to handle kernel NULL pointer dereference at virtual
+address 000000000000008e
+pc : ip6t_do_table+0x5d0/0x89c
+lr : ip6t_do_table+0x5b8/0x89c
+ip6t_do_table+0x5d0/0x89c
+ip6table_filter_hook+0x24/0x30
+nf_hook_slow+0x84/0x120
+ip6_input+0x74/0xe0
+ip6_rcv_finish+0x7c/0x128
+ipv6_rcv+0xac/0xe4
+__netif_receive_skb+0x84/0x17c
+process_backlog+0x15c/0x1b8
+napi_poll+0x88/0x284
+net_rx_action+0xbc/0x23c
+__do_softirq+0x20c/0x48c
 
-1. Power-on the Witherspoon host
-2. Request GPIOD1 be muxed via /sys/class/gpio/export
-3. Request GPIOE1 be muxed via /sys/class/gpio/export
-4. Request the balls for GPIOs E2 and E3 be muxed as GPIO pass-through
-   ("GPIE2" mode) via a pinctrl hog in the devicetree
+This could be fixed by forcing instruction order after the new table
+information assignment or by switching to RCU for the synchronization.
 
-Rainier BMC (AST2600):
-
-5. Request GPIT0 be muxed via /sys/class/gpio/export
-6. Request GPIU0 be muxed via /sys/class/gpio/export
-
-Together the tests demonstrate that all three pieces of functionality
-(general GPIOs via 1, 2 and 3, input-only GPIOs via 5 and 6, pass-through
-mode via 4) operate as desired across old and new SoCs.
-
-Fixes: 9b92f5c51e9a ("pinctrl: aspeed: Fix GPI only function problem.")
-Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Cc: Billy Tsai <billy_tsai@aspeedtech.com>
-Cc: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20201126063337.489927-1-andrew@aj.id.au
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 80055dab5de0 ("netfilter: x_tables: make xt_replace_table wait until old rules are not used anymore")
+Reported-by: Sean Tranchetti <stranche@codeaurora.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/aspeed/pinctrl-aspeed.c | 74 +++++++++++++++++++++++--
- drivers/pinctrl/aspeed/pinmux-aspeed.h  |  7 ++-
- 2 files changed, 72 insertions(+), 9 deletions(-)
+ include/linux/netfilter/x_tables.h |  5 ++-
+ net/ipv4/netfilter/arp_tables.c    | 14 ++++-----
+ net/ipv4/netfilter/ip_tables.c     | 14 ++++-----
+ net/ipv6/netfilter/ip6_tables.c    | 14 ++++-----
+ net/netfilter/x_tables.c           | 49 +++++++++---------------------
+ 5 files changed, 40 insertions(+), 56 deletions(-)
 
-diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed.c b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-index 93b5654ff2828..22aca6d182c0c 100644
---- a/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-+++ b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
-@@ -277,14 +277,76 @@ int aspeed_pinmux_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
- static bool aspeed_expr_is_gpio(const struct aspeed_sig_expr *expr)
- {
- 	/*
--	 * The signal type is GPIO if the signal name has "GPI" as a prefix.
--	 * strncmp (rather than strcmp) is used to implement the prefix
--	 * requirement.
-+	 * We need to differentiate between GPIO and non-GPIO signals to
-+	 * implement the gpio_request_enable() interface. For better or worse
-+	 * the ASPEED pinctrl driver uses the expression names to determine
-+	 * whether an expression will mux a pin for GPIO.
- 	 *
--	 * expr->signal might look like "GPIOB1" in the GPIO case.
--	 * expr->signal might look like "GPIT0" in the GPI case.
-+	 * Generally we have the following - A GPIO such as B1 has:
-+	 *
-+	 *    - expr->signal set to "GPIOB1"
-+	 *    - expr->function set to "GPIOB1"
-+	 *
-+	 * Using this fact we can determine whether the provided expression is
-+	 * a GPIO expression by testing the signal name for the string prefix
-+	 * "GPIO".
-+	 *
-+	 * However, some GPIOs are input-only, and the ASPEED datasheets name
-+	 * them differently. An input-only GPIO such as T0 has:
-+	 *
-+	 *    - expr->signal set to "GPIT0"
-+	 *    - expr->function set to "GPIT0"
-+	 *
-+	 * It's tempting to generalise the prefix test from "GPIO" to "GPI" to
-+	 * account for both GPIOs and GPIs, but in doing so we run aground on
-+	 * another feature:
-+	 *
-+	 * Some pins in the ASPEED BMC SoCs have a "pass-through" GPIO
-+	 * function where the input state of one pin is replicated as the
-+	 * output state of another (as if they were shorted together - a mux
-+	 * configuration that is typically enabled by hardware strapping).
-+	 * This feature allows the BMC to pass e.g. power button state through
-+	 * to the host while the BMC is yet to boot, but take control of the
-+	 * button state once the BMC has booted by muxing each pin as a
-+	 * separate, pin-specific GPIO.
-+	 *
-+	 * Conceptually this pass-through mode is a form of GPIO and is named
-+	 * as such in the datasheets, e.g. "GPID0". This naming similarity
-+	 * trips us up with the simple GPI-prefixed-signal-name scheme
-+	 * discussed above, as the pass-through configuration is not what we
-+	 * want when muxing a pin as GPIO for the GPIO subsystem.
-+	 *
-+	 * On e.g. the AST2400, a pass-through function "GPID0" is grouped on
-+	 * balls A18 and D16, where we have:
-+	 *
-+	 *    For ball A18:
-+	 *    - expr->signal set to "GPID0IN"
-+	 *    - expr->function set to "GPID0"
-+	 *
-+	 *    For ball D16:
-+	 *    - expr->signal set to "GPID0OUT"
-+	 *    - expr->function set to "GPID0"
-+	 *
-+	 * By contrast, the pin-specific GPIO expressions for the same pins are
-+	 * as follows:
-+	 *
-+	 *    For ball A18:
-+	 *    - expr->signal looks like "GPIOD0"
-+	 *    - expr->function looks like "GPIOD0"
-+	 *
-+	 *    For ball D16:
-+	 *    - expr->signal looks like "GPIOD1"
-+	 *    - expr->function looks like "GPIOD1"
-+	 *
-+	 * Testing both the signal _and_ function names gives us the means
-+	 * differentiate the pass-through GPIO pinmux configuration from the
-+	 * pin-specific configuration that the GPIO subsystem is after: An
-+	 * expression is a pin-specific (non-pass-through) GPIO configuration
-+	 * if the signal prefix is "GPI" and the signal name matches the
-+	 * function name.
- 	 */
--	return strncmp(expr->signal, "GPI", 3) == 0;
-+	return !strncmp(expr->signal, "GPI", 3) &&
-+			!strcmp(expr->signal, expr->function);
- }
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index 1b261c51b3a3a..f5c21b7d29748 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -227,7 +227,7 @@ struct xt_table {
+ 	unsigned int valid_hooks;
  
- static bool aspeed_gpio_in_exprs(const struct aspeed_sig_expr **exprs)
-diff --git a/drivers/pinctrl/aspeed/pinmux-aspeed.h b/drivers/pinctrl/aspeed/pinmux-aspeed.h
-index 140c5ce9fbc11..0aaa20653536f 100644
---- a/drivers/pinctrl/aspeed/pinmux-aspeed.h
-+++ b/drivers/pinctrl/aspeed/pinmux-aspeed.h
-@@ -452,10 +452,11 @@ struct aspeed_sig_desc {
-  * evaluation of the descriptors.
-  *
-  * @signal: The signal name for the priority level on the pin. If the signal
-- *          type is GPIO, then the signal name must begin with the string
-- *          "GPIO", e.g. GPIOA0, GPIOT4 etc.
-+ *          type is GPIO, then the signal name must begin with the
-+ *          prefix "GPI", e.g. GPIOA0, GPIT0 etc.
-  * @function: The name of the function the signal participates in for the
-- *            associated expression
-+ *            associated expression. For pin-specific GPIO, the function
-+ *            name must match the signal name.
-  * @ndescs: The number of signal descriptors in the expression
-  * @descs: Pointer to an array of signal descriptors that comprise the
-  *         function expression
+ 	/* Man behind the curtain... */
+-	struct xt_table_info *private;
++	struct xt_table_info __rcu *private;
+ 
+ 	/* Set this to THIS_MODULE if you are a module, otherwise NULL */
+ 	struct module *me;
+@@ -448,6 +448,9 @@ xt_get_per_cpu_counter(struct xt_counters *cnt, unsigned int cpu)
+ 
+ struct nf_hook_ops *xt_hook_ops_alloc(const struct xt_table *, nf_hookfn *);
+ 
++struct xt_table_info
++*xt_table_get_private_protected(const struct xt_table *table);
++
+ #ifdef CONFIG_COMPAT
+ #include <net/compat.h>
+ 
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index f1f78a742b36a..8a6a4384e7916 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -203,7 +203,7 @@ unsigned int arpt_do_table(struct sk_buff *skb,
+ 
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = READ_ONCE(table->private); /* Address dependency. */
++	private = rcu_access_pointer(table->private);
+ 	cpu     = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct arpt_entry **)private->jumpstack[cpu];
+@@ -649,7 +649,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	 * (other than comefrom, which userspace doesn't care
+@@ -673,7 +673,7 @@ static int copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct arpt_entry *e;
+ 	struct xt_counters *counters;
+-	struct xt_table_info *private = table->private;
++	struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	int ret = 0;
+ 	void *loc_cpu_entry;
+ 
+@@ -808,7 +808,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, NFPROTO_ARP, name);
+ 	if (!IS_ERR(t)) {
+ 		struct arpt_getinfo info;
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -861,7 +861,7 @@ static int get_entries(struct net *net, struct arpt_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ 
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+@@ -1020,7 +1020,7 @@ static int do_add_counters(struct net *net, const void __user *user,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = t->private;
++	private = xt_table_get_private_protected(t);
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1357,7 +1357,7 @@ static int compat_copy_entries_to_user(unsigned int total_size,
+ 				       void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index 10b91ebdf2131..4852769995440 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -258,7 +258,7 @@ ipt_do_table(struct sk_buff *skb,
+ 	WARN_ON(!(table->valid_hooks & (1 << hook)));
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = READ_ONCE(table->private); /* Address dependency. */
++	private = rcu_access_pointer(table->private);
+ 	cpu        = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct ipt_entry **)private->jumpstack[cpu];
+@@ -791,7 +791,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	   (other than comefrom, which userspace doesn't care
+@@ -815,7 +815,7 @@ copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct ipt_entry *e;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	int ret = 0;
+ 	const void *loc_cpu_entry;
+ 
+@@ -965,7 +965,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, AF_INET, name);
+ 	if (!IS_ERR(t)) {
+ 		struct ipt_getinfo info;
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -1019,7 +1019,7 @@ get_entries(struct net *net, struct ipt_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, AF_INET, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+ 						   t, uptr->entrytable);
+@@ -1175,7 +1175,7 @@ do_add_counters(struct net *net, const void __user *user,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = t->private;
++	private = xt_table_get_private_protected(t);
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1570,7 +1570,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
+ 			    void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index c973ace208c51..12735ee7713a7 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -280,7 +280,7 @@ ip6t_do_table(struct sk_buff *skb,
+ 
+ 	local_bh_disable();
+ 	addend = xt_write_recseq_begin();
+-	private = READ_ONCE(table->private); /* Address dependency. */
++	private = rcu_access_pointer(table->private);
+ 	cpu        = smp_processor_id();
+ 	table_base = private->entries;
+ 	jumpstack  = (struct ip6t_entry **)private->jumpstack[cpu];
+@@ -807,7 +807,7 @@ static struct xt_counters *alloc_counters(const struct xt_table *table)
+ {
+ 	unsigned int countersize;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 
+ 	/* We need atomic snapshot of counters: rest doesn't change
+ 	   (other than comefrom, which userspace doesn't care
+@@ -831,7 +831,7 @@ copy_entries_to_user(unsigned int total_size,
+ 	unsigned int off, num;
+ 	const struct ip6t_entry *e;
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	int ret = 0;
+ 	const void *loc_cpu_entry;
+ 
+@@ -981,7 +981,7 @@ static int get_info(struct net *net, void __user *user,
+ 	t = xt_request_find_table_lock(net, AF_INET6, name);
+ 	if (!IS_ERR(t)) {
+ 		struct ip6t_getinfo info;
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ #ifdef CONFIG_COMPAT
+ 		struct xt_table_info tmp;
+ 
+@@ -1036,7 +1036,7 @@ get_entries(struct net *net, struct ip6t_get_entries __user *uptr,
+ 
+ 	t = xt_find_table_lock(net, AF_INET6, get.name);
+ 	if (!IS_ERR(t)) {
+-		struct xt_table_info *private = t->private;
++		struct xt_table_info *private = xt_table_get_private_protected(t);
+ 		if (get.size == private->size)
+ 			ret = copy_entries_to_user(private->size,
+ 						   t, uptr->entrytable);
+@@ -1191,7 +1191,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len,
+ 	}
+ 
+ 	local_bh_disable();
+-	private = t->private;
++	private = xt_table_get_private_protected(t);
+ 	if (private->number != tmp.num_counters) {
+ 		ret = -EINVAL;
+ 		goto unlock_up_free;
+@@ -1579,7 +1579,7 @@ compat_copy_entries_to_user(unsigned int total_size, struct xt_table *table,
+ 			    void __user *userptr)
+ {
+ 	struct xt_counters *counters;
+-	const struct xt_table_info *private = table->private;
++	const struct xt_table_info *private = xt_table_get_private_protected(table);
+ 	void __user *pos;
+ 	unsigned int size;
+ 	int ret = 0;
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 44f971f319920..d1ef2d7930739 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1349,6 +1349,14 @@ struct xt_counters *xt_counters_alloc(unsigned int counters)
+ }
+ EXPORT_SYMBOL(xt_counters_alloc);
+ 
++struct xt_table_info
++*xt_table_get_private_protected(const struct xt_table *table)
++{
++	return rcu_dereference_protected(table->private,
++					 mutex_is_locked(&xt[table->af].mutex));
++}
++EXPORT_SYMBOL(xt_table_get_private_protected);
++
+ struct xt_table_info *
+ xt_replace_table(struct xt_table *table,
+ 	      unsigned int num_counters,
+@@ -1356,7 +1364,6 @@ xt_replace_table(struct xt_table *table,
+ 	      int *error)
+ {
+ 	struct xt_table_info *private;
+-	unsigned int cpu;
+ 	int ret;
+ 
+ 	ret = xt_jumpstack_alloc(newinfo);
+@@ -1366,47 +1373,20 @@ xt_replace_table(struct xt_table *table,
+ 	}
+ 
+ 	/* Do the substitution. */
+-	local_bh_disable();
+-	private = table->private;
++	private = xt_table_get_private_protected(table);
+ 
+ 	/* Check inside lock: is the old number correct? */
+ 	if (num_counters != private->number) {
+ 		pr_debug("num_counters != table->private->number (%u/%u)\n",
+ 			 num_counters, private->number);
+-		local_bh_enable();
+ 		*error = -EAGAIN;
+ 		return NULL;
+ 	}
+ 
+ 	newinfo->initial_entries = private->initial_entries;
+-	/*
+-	 * Ensure contents of newinfo are visible before assigning to
+-	 * private.
+-	 */
+-	smp_wmb();
+-	table->private = newinfo;
+-
+-	/* make sure all cpus see new ->private value */
+-	smp_wmb();
+ 
+-	/*
+-	 * Even though table entries have now been swapped, other CPU's
+-	 * may still be using the old entries...
+-	 */
+-	local_bh_enable();
+-
+-	/* ... so wait for even xt_recseq on all cpus */
+-	for_each_possible_cpu(cpu) {
+-		seqcount_t *s = &per_cpu(xt_recseq, cpu);
+-		u32 seq = raw_read_seqcount(s);
+-
+-		if (seq & 1) {
+-			do {
+-				cond_resched();
+-				cpu_relax();
+-			} while (seq == raw_read_seqcount(s));
+-		}
+-	}
++	rcu_assign_pointer(table->private, newinfo);
++	synchronize_rcu();
+ 
+ #ifdef CONFIG_AUDIT
+ 	if (audit_enabled) {
+@@ -1447,12 +1427,12 @@ struct xt_table *xt_register_table(struct net *net,
+ 	}
+ 
+ 	/* Simplifies replace_table code. */
+-	table->private = bootstrap;
++	rcu_assign_pointer(table->private, bootstrap);
+ 
+ 	if (!xt_replace_table(table, 0, newinfo, &ret))
+ 		goto unlock;
+ 
+-	private = table->private;
++	private = xt_table_get_private_protected(table);
+ 	pr_debug("table->private->number = %u\n", private->number);
+ 
+ 	/* save number of initial entries */
+@@ -1475,7 +1455,8 @@ void *xt_unregister_table(struct xt_table *table)
+ 	struct xt_table_info *private;
+ 
+ 	mutex_lock(&xt[table->af].mutex);
+-	private = table->private;
++	private = xt_table_get_private_protected(table);
++	RCU_INIT_POINTER(table->private, NULL);
+ 	list_del(&table->list);
+ 	mutex_unlock(&xt[table->af].mutex);
+ 	kfree(table);
 -- 
 2.27.0
 
