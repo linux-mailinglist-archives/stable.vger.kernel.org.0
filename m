@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B60182E68E7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2E72E65E6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441226AbgL1Qm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:42:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55560 "EHLO mail.kernel.org"
+        id S2393226AbgL1QG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:06:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729299AbgL1M7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A85122B2A;
-        Mon, 28 Dec 2020 12:58:35 +0000 (UTC)
+        id S2389468AbgL1N00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:26:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56AAD22472;
+        Mon, 28 Dec 2020 13:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160316;
-        bh=F+YAm5F8ehhJEr6UPnNkkXN2owInqTsH48L2UHh36XI=;
+        s=korg; t=1609161970;
+        bh=R4HCVuJckncNo86rai/qnKyc5qFsGtAwEsI37fni8L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyojWe2klI5Do37uPIulN7kqrTIaq5yyTtWzINLEmYqL0URYKmz5qhK5nGigeuhKH
-         G//fBCa9czpdny9QI/9AK4c6Mtgc1sK4J/jzmcjsC492nk/Ht28Zzlws/ehkIhfgtK
-         NnzQLz1G/tp16eTDixTHPdU91Z+H6As9bxgTHg8U=
+        b=J0xcdKx3Uc38BZH7sDHLsjMtjgXH3qoikyZsIdLYJU4OBWJUhuxAp/APm1StNsI6A
+         AYu9y74bZkr8KpNbccSmMnnD5jR6ayemVsWcP76YmbS3ZDZDM33EZ7dwSt9V/hf6hs
+         Tf2F/U/8VGO0i+nM61wOTwoTFuX0LBImGCRI71aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 010/175] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 144/346] media: solo6x10: fix missing snd_card_free in error handling case
 Date:   Mon, 28 Dec 2020 13:47:43 +0100
-Message-Id: <20201228124853.751432261@linuxfoundation.org>
+Message-Id: <20201228124926.748333114@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
+[ Upstream commit dcdff74fa6bc00c32079d0bebd620764c26f2d89 ]
 
-My patch caused kernel Oopses and delays in boot.  Revert it.
+Fix to goto snd_error in error handling case when fails
+to do snd_ctl_add, as done elsewhere in this function.
 
-The problem was that I moved the "mem->dma = paddr;" before the call to
-be_fill_queue().  But the first thing that the be_fill_queue() function
-does is memset the whole struct to zero which overwrites the assignment.
-
-Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
-Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 28cae868cd24 ("[media] solo6x10: move out of staging into drivers/media/pci.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/solo6x10/solo6x10-g723.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -3052,7 +3052,6 @@ static int beiscsi_create_eqs(struct bei
- 		if (!eq_vaddress)
- 			goto create_eq_error;
+diff --git a/drivers/media/pci/solo6x10/solo6x10-g723.c b/drivers/media/pci/solo6x10/solo6x10-g723.c
+index 2ac33b5cc4546..f06e6d35d846c 100644
+--- a/drivers/media/pci/solo6x10/solo6x10-g723.c
++++ b/drivers/media/pci/solo6x10/solo6x10-g723.c
+@@ -410,7 +410,7 @@ int solo_g723_init(struct solo_dev *solo_dev)
  
--		mem->dma = paddr;
- 		mem->va = eq_vaddress;
- 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
- 				    sizeof(struct be_eq_entry), eq_vaddress);
-@@ -3062,6 +3061,7 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+ 	ret = snd_ctl_add(card, snd_ctl_new1(&kctl, solo_dev));
+ 	if (ret < 0)
+-		return ret;
++		goto snd_error;
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
- 					    phwi_context->cur_eqd);
- 		if (ret) {
-@@ -3116,7 +3116,6 @@ static int beiscsi_create_cqs(struct bei
- 		if (!cq_vaddress)
- 			goto create_cq_error;
- 
--		mem->dma = paddr;
- 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
- 				    sizeof(struct sol_cqe), cq_vaddress);
- 		if (ret) {
-@@ -3126,6 +3125,7 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
- 
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
- 					    false, 0);
- 		if (ret) {
+ 	ret = solo_snd_pcm_init(solo_dev);
+ 	if (ret < 0)
+-- 
+2.27.0
+
 
 
