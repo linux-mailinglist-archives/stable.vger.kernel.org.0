@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA6342E669D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D541E2E67C0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731688AbgL1NSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46694 "EHLO mail.kernel.org"
+        id S1730672AbgL1NHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:07:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387473AbgL1NSM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D62220728;
-        Mon, 28 Dec 2020 13:17:30 +0000 (UTC)
+        id S1729617AbgL1NHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:07:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94D1E21D94;
+        Mon, 28 Dec 2020 13:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161451;
-        bh=DmmkrcitPC7QTS2tPwHnuEaW7XBeQ9vxE83FylVSuew=;
+        s=korg; t=1609160783;
+        bh=ZC7jmSmNoxuf+N+gxg4VQ1KIKXp32QeS8eSK5iclPyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycSSLTX25+mWPoCNsUzQulEDQefvlqOCbB45I0jy9p+FXNagOs984E6wxkwn7Ll7y
-         2NBN4f7WFTTqbbrC5WVyM30v6V98Mf7Z5osc/9kTz2vAzBgnN2szGGamAXiB0TJFTv
-         CWncr1RDjWaHW46NJl7rzvNeRG0zdyDHOzu+vhvE=
+        b=UNt0p0rtqDVTItnsZNSQoHofppfEqSsOgvTUyn+xmF7CB4x05S4kFX2TLEYip0XTF
+         RA1up6iDR5i0rXwQPrOcmnFQLaZWa6hWVQ0ST8ozp63QQ/US30xH3G/MA1rfeW5Wha
+         uQafaqw6mx+fhA3/QnHXoxNHkN8LatLQth+Nacws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Kleikamp <dave.kleikamp@oracle.com>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 4.14 218/242] jfs: Fix array index bounds check in dbAdjTree
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 170/175] iio: buffer: Fix demux update
 Date:   Mon, 28 Dec 2020 13:50:23 +0100
-Message-Id: <20201228124915.401408063@linuxfoundation.org>
+Message-Id: <20201228124901.462790066@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Kleikamp <dave.kleikamp@oracle.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit c61b3e4839007668360ed8b87d7da96d2e59fc6c upstream.
+commit 19ef7b70ca9487773c29b449adf0c70f540a0aab upstream.
 
-Bounds checking tools can flag a bug in dbAdjTree() for an array index
-out of bounds in dmt_stree. Since dmt_stree can refer to the stree in
-both structures dmaptree and dmapctl, use the larger array to eliminate
-the false positive.
+When updating the buffer demux, we will skip a scan element from the
+device in the case `in_ind != out_ind` and we enter the while loop.
+in_ind should only be refreshed with `find_next_bit()` in the end of the
+loop.
 
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Note, to cause problems we need a situation where we are skippig over
+an element (channel not enabled) that happens to not have the same size
+as the next element.   Whilst this is a possible situation we haven't
+actually identified any cases in mainline where it happens as most drivers
+have consistent channel storage sizes with the exception of the timestamp
+which is the last element and hence never skipped over.
+
+Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/jfs/jfs_dmap.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/industrialio-buffer.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/jfs/jfs_dmap.h
-+++ b/fs/jfs/jfs_dmap.h
-@@ -196,7 +196,7 @@ typedef union dmtree {
- #define	dmt_leafidx	t1.leafidx
- #define	dmt_height	t1.height
- #define	dmt_budmin	t1.budmin
--#define	dmt_stree	t1.stree
-+#define	dmt_stree	t2.stree
- 
- /*
-  *	on-disk aggregate disk allocation map descriptor.
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -1335,12 +1335,12 @@ static int iio_buffer_update_demux(struc
+ 				       indio_dev->masklength,
+ 				       in_ind + 1);
+ 		while (in_ind != out_ind) {
+-			in_ind = find_next_bit(indio_dev->active_scan_mask,
+-					       indio_dev->masklength,
+-					       in_ind + 1);
+ 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 			/* Make sure we are aligned */
+ 			in_loc = roundup(in_loc, length) + length;
++			in_ind = find_next_bit(indio_dev->active_scan_mask,
++					       indio_dev->masklength,
++					       in_ind + 1);
+ 		}
+ 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 		out_loc = roundup(out_loc, length);
 
 
