@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 440352E6408
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7FA2E6406
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406896AbgL1Ppx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:45:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45324 "EHLO mail.kernel.org"
+        id S2404641AbgL1Ppr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:45:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404637AbgL1Nol (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:44:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1837720738;
-        Mon, 28 Dec 2020 13:43:59 +0000 (UTC)
+        id S2404652AbgL1Noo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E62C322583;
+        Mon, 28 Dec 2020 13:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163040;
-        bh=tw0e43QpVeMlHeB4V0Mukm4z0BoW8F0ABVJvnt6wqWE=;
+        s=korg; t=1609163043;
+        bh=MpvcWBcRcmHhhLO6Hi2HRC7lIUzhMPPVIXn4GXh1hM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glYUe/FdxISe48fL9YWl/lutg66IqzlC6RV/gPF93ORK9mKf8SR/WRCYnuJi2E+wo
-         rB0zIJOxVcBCJOfQD3fYNeNgh9TbnrzMu3cQn5rEzPwF4PeJyK/UoPZsb3B2fjCWC8
-         Sh65bDLfXSyMxuiQp84Tzf4omauzqYqVBYmCTv8Y=
+        b=1n853YJK5x06b5GS2iCTNxMryL3PVKPjeuVIqAt4zyVwSREFFjsDH+9TmZ0YdvHSq
+         9Ub/Z0YebjFQ3RedrUCUdnAGOdB4VgzLGHmgYkBeln0rM9p+njHygcOMEySW7hn97/
+         6r5oUaOyrGVOs3yzhVKvXMrtsKdaWkUzyHYU08uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/453] powerpc/feature: Fix CPU_FTRS_ALWAYS by removing CPU_FTRS_GENERIC_32
-Date:   Mon, 28 Dec 2020 13:46:25 +0100
-Message-Id: <20201228124944.375872734@linuxfoundation.org>
+        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 150/453] EDAC/mce_amd: Use struct cpuinfo_x86.cpu_die_id for AMD NodeId
+Date:   Mon, 28 Dec 2020 13:46:26 +0100
+Message-Id: <20201228124944.423928426@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -41,66 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit 78665179e569c7e1fe102fb6c21d0f5b6951f084 ]
+[ Upstream commit 8de0c9917cc1297bc5543b61992d5bdee4ce621a ]
 
-On 8xx, we get the following features:
+The edac_mce_amd module calls decode_dram_ecc() on AMD Family17h and
+later systems. This function is used in amd64_edac_mod to do
+system-specific decoding for DRAM ECC errors. The function takes a
+"NodeId" as a parameter.
 
-[    0.000000] cpu_features      = 0x0000000000000100
-[    0.000000]   possible        = 0x0000000000000120
-[    0.000000]   always          = 0x0000000000000000
+In AMD documentation, NodeId is used to identify a physical die in a
+system. This can be used to identify a node in the AMD_NB code and also
+it is used with umc_normaddr_to_sysaddr().
 
-This is not correct. As CONFIG_PPC_8xx is mutually exclusive with all
-other configurations, the three lines should be equal.
+However, the input used for decode_dram_ecc() is currently the NUMA node
+of a logical CPU. In the default configuration, the NUMA node and
+physical die will be equivalent, so this doesn't have an impact.
 
-The problem is due to CPU_FTRS_GENERIC_32 which is taken when
-CONFIG_BOOK3S_32 is NOT selected. This CPU_FTRS_GENERIC_32 is
-pointless because there is no generic configuration supporting
-all 32 bits but book3s/32.
+But the NUMA node configuration can be adjusted with optional memory
+interleaving modes. This will cause the NUMA node enumeration to not
+match the physical die enumeration. The mismatch will cause the address
+translation function to fail or report incorrect results.
 
-Remove this pointless generic features definition to unbreak the
-calculation of 'possible' features and 'always' features.
+Use struct cpuinfo_x86.cpu_die_id for the node_id parameter to ensure the
+physical ID is used.
 
-Fixes: 76bc080ef5a3 ("[POWERPC] Make default cputable entries reflect selected CPU family")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/76a85f30bf981d1aeaae00df99321235494da254.1604426550.git.christophe.leroy@csgroup.eu
+Fixes: fbe63acf62f5 ("EDAC, mce_amd: Use cpu_to_node() to find the node ID")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20201109210659.754018-4-Yazen.Ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/cputable.h | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/edac/mce_amd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
-index cf00ff0d121de..dc8e8552bd487 100644
---- a/arch/powerpc/include/asm/cputable.h
-+++ b/arch/powerpc/include/asm/cputable.h
-@@ -407,7 +407,6 @@ static inline void cpu_feature_keys_init(void) { }
- 	    CPU_FTR_DBELL | CPU_FTR_POPCNTB | CPU_FTR_POPCNTD | \
- 	    CPU_FTR_DEBUG_LVL_EXC | CPU_FTR_EMB_HV | CPU_FTR_ALTIVEC_COMP | \
- 	    CPU_FTR_CELL_TB_BUG | CPU_FTR_SMT)
--#define CPU_FTRS_GENERIC_32	(CPU_FTR_COMMON | CPU_FTR_NODSISRALIGN)
+diff --git a/drivers/edac/mce_amd.c b/drivers/edac/mce_amd.c
+index ea622c6f3a393..c19640a453f22 100644
+--- a/drivers/edac/mce_amd.c
++++ b/drivers/edac/mce_amd.c
+@@ -975,7 +975,7 @@ static void decode_smca_error(struct mce *m)
+ 	}
  
- /* 64-bit CPUs */
- #define CPU_FTRS_PPC970	(CPU_FTR_LWSYNC | \
-@@ -507,8 +506,6 @@ enum {
- 	    CPU_FTRS_7447 | CPU_FTRS_7447A | CPU_FTRS_82XX |
- 	    CPU_FTRS_G2_LE | CPU_FTRS_E300 | CPU_FTRS_E300C2 |
- 	    CPU_FTRS_CLASSIC32 |
--#else
--	    CPU_FTRS_GENERIC_32 |
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX |
-@@ -585,8 +582,6 @@ enum {
- 	    CPU_FTRS_7447 & CPU_FTRS_7447A & CPU_FTRS_82XX &
- 	    CPU_FTRS_G2_LE & CPU_FTRS_E300 & CPU_FTRS_E300C2 &
- 	    CPU_FTRS_CLASSIC32 &
--#else
--	    CPU_FTRS_GENERIC_32 &
- #endif
- #ifdef CONFIG_PPC_8xx
- 	    CPU_FTRS_8XX &
+ 	if (bank_type == SMCA_UMC && xec == 0 && decode_dram_ecc)
+-		decode_dram_ecc(cpu_to_node(m->extcpu), m);
++		decode_dram_ecc(topology_die_id(m->extcpu), m);
+ }
+ 
+ static inline void amd_decode_err_code(u16 ec)
 -- 
 2.27.0
 
