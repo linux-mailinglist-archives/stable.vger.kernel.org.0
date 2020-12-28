@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69E82E3992
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2C02E384D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388839AbgL1NZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:25:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53766 "EHLO mail.kernel.org"
+        id S1730933AbgL1NI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388835AbgL1NZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F3F22A84;
-        Mon, 28 Dec 2020 13:24:21 +0000 (UTC)
+        id S1730929AbgL1NI1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBD2F22583;
+        Mon, 28 Dec 2020 13:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161862;
-        bh=16ofqNDOtTdD+Nbw3rTnBhytlvP13deUuWsiMlij8zo=;
+        s=korg; t=1609160866;
+        bh=KKNjEgsjAPsXXaD40dGiwIChTwm9XZA9TZLAwvKoQcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2KrN+YC1QCi+M1+KmayJaiaKFL95Rb1aMpx5Q3zt+jc1cnJ/UX5C6/nFzPF6gM1b
-         sbGePG5YNJm9pOBjDCuOJ0iIatoUjL1ewNmMyqab8LIc8tsThOwUnsCRZ34z3LaTLk
-         wGzmuUNnzvAAOMBSecEG81GfFbjdhAlTgR/XfvCY=
+        b=YJrrN3cPmyc77OvPIZ7a8IJJrvmOVPkAQOHBvOBXDl2vT0sanHt3zdyMStOnLohEd
+         YPJkYu+VV5KafkJYIY9lyq6jkPOlH2MVaX/lCcmbzn2mpspNCQ3RHsYlmYL3MseTnf
+         97tGMt49gZtwLr0Gtn+89Wcj0qoXDf89miGvoEwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Joerg Roedel <jroedel@suse.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/346] x86/mm/ident_map: Check for errors from ident_pud_init()
-Date:   Mon, 28 Dec 2020 13:47:06 +0100
-Message-Id: <20201228124924.958176082@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 022/242] net: stmmac: dwmac-meson8b: fix mask definition of the m250_sel mux
+Date:   Mon, 28 Dec 2020 13:47:07 +0100
+Message-Id: <20201228124905.764712265@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,73 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 1fcd009102ee02e217f2e7635ab65517d785da8e ]
+[ Upstream commit 82ca4c922b8992013a238d65cf4e60cc33e12f36 ]
 
-Commit
+The m250_sel mux clock uses bit 4 in the PRG_ETH0 register. Fix this by
+shifting the PRG_ETH0_CLK_M250_SEL_MASK accordingly as the "mask" in
+struct clk_mux expects the mask relative to the "shift" field in the
+same struct.
 
-  ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
+While here, get rid of the PRG_ETH0_CLK_M250_SEL_SHIFT macro and use
+__ffs() to determine it from the existing PRG_ETH0_CLK_M250_SEL_MASK
+macro.
 
-added ident_p4d_init() to support 5-level paging, but this function
-doesn't check and return errors from ident_pud_init().
-
-For example, the decompressor stub uses this code to create an identity
-mapping. If it runs out of pages while trying to allocate a PMD
-pagetable, the error will be currently ignored.
-
-Fix this to propagate errors.
-
- [ bp: Space out statements for better readability. ]
-
-Fixes: ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Link: https://lkml.kernel.org/r/20201027230648.1885111-1-nivedita@alum.mit.edu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 566e8251625304 ("net: stmmac: add a glue driver for the Amlogic Meson 8b / GXBB DWMAC")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20201205213207.519341-1-martin.blumenstingl@googlemail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/ident_map.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/mm/ident_map.c b/arch/x86/mm/ident_map.c
-index fe7a12599d8eb..968d7005f4a72 100644
---- a/arch/x86/mm/ident_map.c
-+++ b/arch/x86/mm/ident_map.c
-@@ -62,6 +62,7 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
- 			  unsigned long addr, unsigned long end)
- {
- 	unsigned long next;
-+	int result;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+@@ -30,7 +30,6 @@
+ #define PRG_ETH0_RGMII_MODE		BIT(0)
  
- 	for (; addr < end; addr = next) {
- 		p4d_t *p4d = p4d_page + p4d_index(addr);
-@@ -73,13 +74,20 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
+ /* mux to choose between fclk_div2 (bit unset) and mpll2 (bit set) */
+-#define PRG_ETH0_CLK_M250_SEL_SHIFT	4
+ #define PRG_ETH0_CLK_M250_SEL_MASK	GENMASK(4, 4)
  
- 		if (p4d_present(*p4d)) {
- 			pud = pud_offset(p4d, 0);
--			ident_pud_init(info, pud, addr, next);
-+			result = ident_pud_init(info, pud, addr, next);
-+			if (result)
-+				return result;
-+
- 			continue;
- 		}
- 		pud = (pud_t *)info->alloc_pgt_page(info->context);
- 		if (!pud)
- 			return -ENOMEM;
--		ident_pud_init(info, pud, addr, next);
-+
-+		result = ident_pud_init(info, pud, addr, next);
-+		if (result)
-+			return result;
-+
- 		set_p4d(p4d, __p4d(__pa(pud) | info->kernpg_flag));
- 	}
+ #define PRG_ETH0_TXDLY_SHIFT		5
+@@ -121,8 +120,9 @@ static int meson8b_init_clk(struct meson
+ 	init.num_parents = MUX_CLK_NUM_PARENTS;
  
--- 
-2.27.0
-
+ 	dwmac->m250_mux.reg = dwmac->regs + PRG_ETH0;
+-	dwmac->m250_mux.shift = PRG_ETH0_CLK_M250_SEL_SHIFT;
+-	dwmac->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK;
++	dwmac->m250_mux.shift = __ffs(PRG_ETH0_CLK_M250_SEL_MASK);
++	dwmac->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK >>
++			       dwmac->m250_mux.shift;
+ 	dwmac->m250_mux.flags = 0;
+ 	dwmac->m250_mux.table = NULL;
+ 	dwmac->m250_mux.hw.init = &init;
 
 
