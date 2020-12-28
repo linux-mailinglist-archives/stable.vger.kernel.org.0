@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610562E3DAC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B9C2E3972
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391833AbgL1OSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:18:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
+        id S2388566AbgL1NXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:23:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391829AbgL1OSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:18:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09BE1224D2;
-        Mon, 28 Dec 2020 14:17:51 +0000 (UTC)
+        id S2388546AbgL1NXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:23:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86EB2208D5;
+        Mon, 28 Dec 2020 13:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165072;
-        bh=1mpwmu2rQjWyRA2OQ+RoeB/jIrG4Sa2HWw1nGCzIb90=;
+        s=korg; t=1609161784;
+        bh=VSnBL4f5pgjlnXUot2WMuYZ+6vRGmw+BBFwmPtVlQFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/SzPe2lmGUizKnSx5eNu5H8JPXUpZZlgtNFjf48wXN7gI96x22LmMmr7c2h+/cdE
-         Boy+yJITArOn2pdbMlJtUjHzPgpQy03ivRHaI7SQx648BqymVYkr4ACdQuwIEfldBx
-         lRs4HXw6PeHqVdqOOFSUZfjoakNC3Eirgm9NVHGc=
+        b=CyvE51GYAiPu8B7BoeTEMCe1sDNRy+Dwj8jvKCK3VSzkHOmLeD6cVIPI1xeW/xxjm
+         QoeNaU7zTMNOcmLFyY0A3mLYw2hn/XS4WTOaXS/DwdcDeZz5WfRmvoJn8T23ApqLSX
+         HQ5zY5bK/l6Bb8XjSZj2kqCQHzXqicHfj75TIzUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 400/717] remoteproc: q6v5-mss: fix error handling in q6v5_pds_enable
-Date:   Mon, 28 Dec 2020 13:46:38 +0100
-Message-Id: <20201228125040.156084975@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Will McVicker <willmcvicker@google.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.19 080/346] USB: gadget: f_midi: setup SuperSpeed Plus descriptors
+Date:   Mon, 28 Dec 2020 13:46:39 +0100
+Message-Id: <20201228124923.667893084@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Will McVicker <willmcvicker@google.com>
 
-[ Upstream commit a24723050037303e4008b37f1f8dcc99c58901aa ]
+commit 457a902ba1a73b7720666b21ca038cd19764db18 upstream.
 
-If the pm_runtime_get_sync failed in q6v5_pds_enable when
-loop (i), The unroll_pd_votes will start from (i - 1), and
-it will resulted in following problems:
+Needed for SuperSpeed Plus support for f_midi.  This allows the
+gadget to work properly without crashing at SuperSpeed rates.
 
-  1) pm_runtime_get_sync will increment pm usage counter even it
-     failed. Forgetting to pm_runtime_put_noidle will result in
-     reference leak.
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20201127140559.381351-4-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  2) Have not reset pds[i] performance state.
-
-Then we fix it.
-
-Fixes: 4760a896be88e ("remoteproc: q6v5-mss: Vote for rpmh power domains")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201102143433.143996-1-zhangqilong3@huawei.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_mss.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_midi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index eb3457a6c3b73..ba6f7551242de 100644
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -349,8 +349,11 @@ static int q6v5_pds_enable(struct q6v5 *qproc, struct device **pds,
- 	for (i = 0; i < pd_count; i++) {
- 		dev_pm_genpd_set_performance_state(pds[i], INT_MAX);
- 		ret = pm_runtime_get_sync(pds[i]);
--		if (ret < 0)
-+		if (ret < 0) {
-+			pm_runtime_put_noidle(pds[i]);
-+			dev_pm_genpd_set_performance_state(pds[i], 0);
- 			goto unroll_pd_votes;
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1048,6 +1048,12 @@ static int f_midi_bind(struct usb_config
+ 		f->ss_descriptors = usb_copy_descriptors(midi_function);
+ 		if (!f->ss_descriptors)
+ 			goto fail_f_midi;
++
++		if (gadget_is_superspeed_plus(c->cdev->gadget)) {
++			f->ssp_descriptors = usb_copy_descriptors(midi_function);
++			if (!f->ssp_descriptors)
++				goto fail_f_midi;
 +		}
  	}
  
- 	return 0;
--- 
-2.27.0
-
+ 	kfree(midi_function);
 
 
