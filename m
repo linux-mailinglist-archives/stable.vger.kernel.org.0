@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D61082E6963
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DB92E685E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728149AbgL1Mx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:53:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
+        id S2441033AbgL1QfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:35:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728092AbgL1MxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9D5921D94;
-        Mon, 28 Dec 2020 12:53:09 +0000 (UTC)
+        id S1729979AbgL1NCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:02:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D2B22573;
+        Mon, 28 Dec 2020 13:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159990;
-        bh=pTvif6N61dk2LqyTuqvqgcraYYX9lXCcL5IFWOtqYGQ=;
+        s=korg; t=1609160513;
+        bh=w/jIiCdB4hH0VtmD/FjeQIDWgM8kH+eyi5kTzMPkg4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvamTBkoDDK0TMy9wFgsJYp1g6N2tC54n81dsGP5vuoSjAXevw+O5oFUXNs8opmqn
-         fO/05rsuzQWmUDiQeUpqAnJ6t6iua/8MvfXVvtyw2Rf65gvcb0M1plbx9euQ1WBna6
-         kYD04n2pkbTWeSpmJLN8SLJkZRfQ3Gc6XMERto0M=
+        b=mSDeXDuM3wd97s7+hTxvJm373CHM+Oph+6ZsfgnXqLdUDUd+B7gw0AXgMznwL1u+A
+         yx6YwWNkpK0YJLvyCDQQBJMvU0DqKr4U0nYqT2j1HSKdFldkMFuf7gCm4r0X+Jox6H
+         kkNGZPP+8a7n/ThpCmw2Wiw+tbfYTBGQBi9fhc4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 045/132] MIPS: BCM47XX: fix kconfig dependency bug for BCM47XX_BCMA
+Subject: [PATCH 4.9 076/175] RDMA/cxgb4: Validate the number of CQEs
 Date:   Mon, 28 Dec 2020 13:48:49 +0100
-Message-Id: <20201228124848.604885251@linuxfoundation.org>
+Message-Id: <20201228124856.922283475@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 3a5fe2fb9635c43359c9729352f45044f3c8df6b ]
+[ Upstream commit 6d8285e604e0221b67bd5db736921b7ddce37d00 ]
 
-When BCM47XX_BCMA is enabled and BCMA_DRIVER_PCI is disabled, it results
-in the following Kbuild warning:
+Before create CQ, make sure that the requested number of CQEs is in the
+supported range.
 
-WARNING: unmet direct dependencies detected for BCMA_DRIVER_PCI_HOSTMODE
-  Depends on [n]: MIPS [=y] && BCMA_DRIVER_PCI [=n] && PCI_DRIVERS_LEGACY [=y] && BCMA [=y]=y
-  Selected by [y]:
-  - BCM47XX_BCMA [=y] && BCM47XX [=y] && PCI [=y]
-
-The reason is that BCM47XX_BCMA selects BCMA_DRIVER_PCI_HOSTMODE without
-depending on or selecting BCMA_DRIVER_PCI while BCMA_DRIVER_PCI_HOSTMODE
-depends on BCMA_DRIVER_PCI. This can also fail building the kernel.
-
-Honor the kconfig dependency to remove unmet direct dependency warnings
-and avoid any potential build failures.
-
-Fixes: c1d1c5d4213e ("bcm47xx: add support for bcma bus")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209879
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: cfdda9d76436 ("RDMA/cxgb4: Add driver for Chelsio T4 RNIC")
+Link: https://lore.kernel.org/r/20201108132007.67537-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/cxgb4/cq.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/bcm47xx/Kconfig b/arch/mips/bcm47xx/Kconfig
-index e970fd9cf7693..7ca7384fd5c9d 100644
---- a/arch/mips/bcm47xx/Kconfig
-+++ b/arch/mips/bcm47xx/Kconfig
-@@ -26,6 +26,7 @@ config BCM47XX_BCMA
- 	select BCMA
- 	select BCMA_HOST_SOC
- 	select BCMA_DRIVER_MIPS
-+	select BCMA_DRIVER_PCI if PCI
- 	select BCMA_DRIVER_PCI_HOSTMODE if PCI
- 	select BCMA_DRIVER_GPIO
- 	default y
+diff --git a/drivers/infiniband/hw/cxgb4/cq.c b/drivers/infiniband/hw/cxgb4/cq.c
+index a856371bbe58c..501f496f4e1a1 100644
+--- a/drivers/infiniband/hw/cxgb4/cq.c
++++ b/drivers/infiniband/hw/cxgb4/cq.c
+@@ -893,6 +893,9 @@ struct ib_cq *c4iw_create_cq(struct ib_device *ibdev,
+ 
+ 	rhp = to_c4iw_dev(ibdev);
+ 
++	if (entries < 1 || entries > ibdev->attrs.max_cqe)
++		return -EINVAL;
++
+ 	if (vector >= rhp->rdev.lldi.nciq)
+ 		return ERR_PTR(-EINVAL);
+ 
 -- 
 2.27.0
 
