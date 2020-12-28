@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2045E2E655E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8722E66DC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393424AbgL1P7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:59:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33164 "EHLO mail.kernel.org"
+        id S1732876AbgL1QRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:17:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387802AbgL1Ncz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED22D20728;
-        Mon, 28 Dec 2020 13:32:39 +0000 (UTC)
+        id S1733276AbgL1NQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A417D22583;
+        Mon, 28 Dec 2020 13:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162360;
-        bh=ECKOa2gwPuuq5vSnyhxMzjd/ehAxMKezq4FcuxeCEp4=;
+        s=korg; t=1609161374;
+        bh=m3/3x9AANiyrBZ/NkeUEI3WE9L/neCAgUnormjva8/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrSLhOKieJ1mLjSDgYlVYtpmBeHesdQEnHe8hCiFg03V88YUaE/A9PqluaUpgovzU
-         AEAuMuz2S3TUT7JnRN0ZUCM9/3ZE+NgF1Asbd5X0dUlxTTm8TSwdt/HTYKI4Rbab7+
-         z1YcJ6mjBVYLUQWAqpgdBhyZixes5jPxMOYWm4og=
+        b=v+g6GrHgFSRYlO+aQmfIzcTMgn96N8UYpF09YLe91uzQAqlhrwPYPc6gHrBLeXtfI
+         H09LJAS/FOObXwYEeL8vjhGrwz0FFXrEBw4jlOR8GTkUj4X/nZQs3HNQWHIRdvD4+H
+         YV9nCiGlEHBbiWEKu31sfCWVXSDRGygAEpHgJ37c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 278/346] ALSA: usb-audio: Disable sample read check if firmware doesnt give back
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 192/242] s390/dasd: prevent inconsistent LCU device data
 Date:   Mon, 28 Dec 2020 13:49:57 +0100
-Message-Id: <20201228124933.219440955@linuxfoundation.org>
+Message-Id: <20201228124914.139293843@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,37 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 9df28edce7c6ab38050235f6f8b43dd7ccd01b6d upstream.
+commit a29ea01653493b94ea12bb2b89d1564a265081b6 upstream.
 
-Some buggy firmware don't give the current sample rate but leaves
-zero.  Handle this case more gracefully without warning but just skip
-the current rate verification from the next time.
+Prevent _lcu_update from adding a device to a pavgroup if the LCU still
+requires an update. The data is not reliable any longer and in parallel
+devices might have been moved on the lists already.
+This might lead to list corruptions or invalid PAV grouping.
+Only add devices to a pavgroup if the LCU is up to date. Additional steps
+are taken by the scheduled lcu update.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201218145858.2357-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/clock.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/s390/block/dasd_alias.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -508,6 +508,12 @@ static int set_sample_rate_v1(struct snd
- 	}
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -503,6 +503,14 @@ static int _lcu_update(struct dasd_devic
+ 		return rc;
  
- 	crate = data[0] | (data[1] << 8) | (data[2] << 16);
-+	if (!crate) {
-+		dev_info(&dev->dev, "failed to read current rate; disabling the check\n");
-+		chip->sample_rate_read_error = 3; /* three strikes, see above */
-+		return 0;
-+	}
-+
- 	if (crate != rate) {
- 		dev_warn(&dev->dev, "current rate %d is different from the runtime rate %d\n", crate, rate);
- 		// runtime->rate = crate;
+ 	spin_lock_irqsave(&lcu->lock, flags);
++	/*
++	 * there is another update needed skip the remaining handling
++	 * the data might already be outdated
++	 * but especially do not add the device to an LCU with pending
++	 * update
++	 */
++	if (lcu->flags & NEED_UAC_UPDATE)
++		goto out;
+ 	lcu->pav = NO_PAV;
+ 	for (i = 0; i < MAX_DEVICES_PER_LCU; ++i) {
+ 		switch (lcu->uac->unit[i].ua_type) {
+@@ -521,6 +529,7 @@ static int _lcu_update(struct dasd_devic
+ 				 alias_list) {
+ 		_add_device_to_lcu(lcu, device, refdev);
+ 	}
++out:
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
+ 	return 0;
+ }
 
 
