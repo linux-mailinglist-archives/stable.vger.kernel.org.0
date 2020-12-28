@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBCF2E3F52
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB0F2E3F41
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505653AbgL1Oij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:38:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39410 "EHLO mail.kernel.org"
+        id S2392108AbgL1OcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392098AbgL1Obt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D19320739;
-        Mon, 28 Dec 2020 14:31:33 +0000 (UTC)
+        id S2392101AbgL1Obw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4620920791;
+        Mon, 28 Dec 2020 14:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165893;
-        bh=DKMCf1vF635AK2N9p/BqQ9Rel0Li6bF80vN4i84En7w=;
+        s=korg; t=1609165896;
+        bh=WmPOZiA28eMxsh5USZaoHVnbE4Q8/E4DuTNXX/FnMBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAruYKr4NacivC+N+lXA4QJy0Q0BQ4TlKObTju9/M0Adr/lHP0/zN8gz85oPgn2iV
-         m23vxE/VV89AiU72LNCawQO1wzGmRHQJs1O8gKFm3NZIlQOc/cR669sMk/w2C4tt9O
-         AAzAmkcAG2nYesvHmqfnSn71pKj8k0yJrucKLloI=
+        b=SFcHHnFSqI5+OEse81ieiDahq6XGjyuqqfkGGEYdR08w9RfgFPHsDkg0xSYSD1Bos
+         GliyGoyqyQPijwa+p+YbtuWnZcPcntwKX+GPtMizIYEOGydsng1PGal2MvvDAgxWfK
+         qJJQYNgtBjOt6d7VjkLW/J3WH/viqVCJzMgBlvKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>
-Subject: [PATCH 5.10 693/717] dma-buf/dma-resv: Respect num_fences when initializing the shared fence list.
-Date:   Mon, 28 Dec 2020 13:51:31 +0100
-Message-Id: <20201228125054.183148246@linuxfoundation.org>
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Saravana Kannan <saravanak@google.com>
+Subject: [PATCH 5.10 694/717] driver: core: Fix list corruption after device_del()
+Date:   Mon, 28 Dec 2020 13:51:32 +0100
+Message-Id: <20201228125054.232036599@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,39 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit bf8975837dac156c33a4d15d46602700998cb6dd upstream.
+commit 66482f640755b31cb94371ff6cef17400cda6db5 upstream.
 
-We hardcode the maximum number of shared fences to 4, instead of
-respecting num_fences. Use a minimum of 4, but more if num_fences
-is higher.
+The device_links_purge() function (called from device_del()) tries to
+remove the links.needs_suppliers list entry, but it's using
+list_del(), hence it doesn't initialize after the removal.  This is OK
+for normal cases where device_del() is called via device_destroy().
+However, it's not guaranteed that the device object will be really
+deleted soon after device_del().  In a minor case like HD-audio codec
+reconfiguration that re-initializes the device after device_del(), it
+may lead to a crash by the corrupted list entry.
 
-This seems to have been an oversight when first implementing the
-api.
+As a simple fix, replace list_del() with list_del_init() in order to
+make the list intact after the device_del() call.
 
-Fixes: 04a5faa8cbe5 ("reservation: update api and add some helpers")
-Cc: <stable@vger.kernel.org> # v3.17+
-Reported-by: Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201124115707.406917-1-maarten.lankhorst@linux.intel.com
+Fixes: e2ae9bcc4aaa ("driver core: Add support for linking devices during device addition")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20201208190326.27531-1-tiwai@suse.de
+Cc: Saravana Kannan <saravanak@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma-buf/dma-resv.c |    2 +-
+ drivers/base/core.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma-buf/dma-resv.c
-+++ b/drivers/dma-buf/dma-resv.c
-@@ -200,7 +200,7 @@ int dma_resv_reserve_shared(struct dma_r
- 			max = max(old->shared_count + num_fences,
- 				  old->shared_max * 2);
- 	} else {
--		max = 4;
-+		max = max(4ul, roundup_pow_of_two(num_fences));
- 	}
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -1386,7 +1386,7 @@ static void device_links_purge(struct de
+ 		return;
  
- 	new = dma_resv_list_alloc(max);
+ 	mutex_lock(&wfs_lock);
+-	list_del(&dev->links.needs_suppliers);
++	list_del_init(&dev->links.needs_suppliers);
+ 	mutex_unlock(&wfs_lock);
+ 
+ 	/*
 
 
