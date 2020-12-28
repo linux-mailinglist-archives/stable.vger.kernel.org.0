@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 367DA2E3E78
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AA12E651B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502418AbgL1O20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:28:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35572 "EHLO mail.kernel.org"
+        id S2393245AbgL1P5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:57:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502416AbgL1O20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:28:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 413CD20731;
-        Mon, 28 Dec 2020 14:28:10 +0000 (UTC)
+        id S2390338AbgL1Ne1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:34:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E8122582;
+        Mon, 28 Dec 2020 13:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165690;
-        bh=q6i4Ow8AMMpZubhmhAaspN9L7Mzo5N5MGBIE6unncE8=;
+        s=korg; t=1609162426;
+        bh=J2SqDQrRDDD2Lz1QVpJNR4dJlokZt+XplGNZdAynU2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABS9D5UrL6fyA6BeD13i3QzsCwb/DW0+uuVTd5uOy81qpVMfjVjMlTUizYGwVRGtB
-         RXvTTUeCaryPgbEpCz9TNFIu6ML3HYVYX7RxdBEjMdgQf1yWjRcIlytKrzf537407M
-         ofEEpj2Ygwg8Rd63fmcZqle8yd/QzYED604v1uxk=
+        b=iSxycVy9up2S+ItXFn/NEE+frY2T5zr3TxS/BgXgKtOVwy/xehX1aLX4zwN86+PYO
+         U+jtHT2agIwzuN7OW42NiHG1OuCdAFy+xvzmh8MQh6U+E4QWH3qvYaD/hxL9hF80Tw
+         PWuTCIGD6ic2BQRzM3Atwc2ODkSDhK5t+7MX6lX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 621/717] um: Fix time-travel mode
-Date:   Mon, 28 Dec 2020 13:50:19 +0100
-Message-Id: <20201228125050.679669671@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Sneddon <dan.sneddon@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Cristian Birsan <cristian.birsan@microchip.com>
+Subject: [PATCH 4.19 301/346] ARM: dts: at91: sama5d2: fix CAN message ram offset and size
+Date:   Mon, 28 Dec 2020 13:50:20 +0100
+Message-Id: <20201228124934.334416531@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-commit ff9632d2a66512436d616ef4c380a0e73f748db1 upstream.
+commit 85b8350ae99d1300eb6dc072459246c2649a8e50 upstream.
 
-Since the time-travel rework, basic time-travel mode hasn't worked
-properly, but there's no longer a need for this WARN_ON() so just
-remove it and thereby fix things.
+CAN0 and CAN1 instances share the same message ram configured
+at 0x210000 on sama5d2 Linux systems.
+According to current configuration of CAN0, we need 0x1c00 bytes
+so that the CAN1 don't overlap its message ram:
+64 x RX FIFO0 elements => 64 x 72 bytes
+32 x TXE (TX Event FIFO) elements => 32 x 8 bytes
+32 x TXB (TX Buffer) elements => 32 x 72 bytes
+So a total of 7168 bytes (0x1C00).
 
-Cc: stable@vger.kernel.org
-Fixes: 4b786e24ca80 ("um: time-travel: Rewrite as an event scheduler")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fix offset to match this needed size.
+Make the CAN0 message ram ioremap match exactly this size so that is
+easily understandable.  Adapt CAN1 size accordingly.
+
+Fixes: bc6d5d7666b7 ("ARM: dts: at91: sama5d2: add m_can nodes")
+Reported-by: Dan Sneddon <dan.sneddon@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
+Cc: stable@vger.kernel.org # v4.13+
+Link: https://lore.kernel.org/r/20201203091949.9015-1-nicolas.ferre@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/um/kernel/time.c |    5 -----
- 1 file changed, 5 deletions(-)
+ arch/arm/boot/dts/sama5d2.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -260,11 +260,6 @@ static void __time_travel_add_event(stru
- 	struct time_travel_event *tmp;
- 	bool inserted = false;
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -1298,7 +1298,7 @@
  
--	if (WARN(time_travel_mode == TT_MODE_BASIC &&
--		 e != &time_travel_timer_event,
--		 "only timer events can be handled in basic mode"))
--		return;
--
- 	if (e->pending)
- 		return;
+ 			can0: can@f8054000 {
+ 				compatible = "bosch,m_can";
+-				reg = <0xf8054000 0x4000>, <0x210000 0x4000>;
++				reg = <0xf8054000 0x4000>, <0x210000 0x1c00>;
+ 				reg-names = "m_can", "message_ram";
+ 				interrupts = <56 IRQ_TYPE_LEVEL_HIGH 7>,
+ 					     <64 IRQ_TYPE_LEVEL_HIGH 7>;
+@@ -1491,7 +1491,7 @@
+ 
+ 			can1: can@fc050000 {
+ 				compatible = "bosch,m_can";
+-				reg = <0xfc050000 0x4000>, <0x210000 0x4000>;
++				reg = <0xfc050000 0x4000>, <0x210000 0x3800>;
+ 				reg-names = "m_can", "message_ram";
+ 				interrupts = <57 IRQ_TYPE_LEVEL_HIGH 7>,
+ 					     <65 IRQ_TYPE_LEVEL_HIGH 7>;
+@@ -1501,7 +1501,7 @@
+ 				assigned-clocks = <&can1_gclk>;
+ 				assigned-clock-parents = <&utmi>;
+ 				assigned-clock-rates = <40000000>;
+-				bosch,mram-cfg = <0x1100 0 0 64 0 0 32 32>;
++				bosch,mram-cfg = <0x1c00 0 0 64 0 0 32 32>;
+ 				status = "disabled";
+ 			};
  
 
 
