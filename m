@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7AC2E678B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C9F2E679F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730979AbgL1NIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:08:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36448 "EHLO mail.kernel.org"
+        id S1730910AbgL1Q1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:27:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgL1NIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A164206ED;
-        Mon, 28 Dec 2020 13:08:03 +0000 (UTC)
+        id S1730914AbgL1NIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A2B520776;
+        Mon, 28 Dec 2020 13:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160883;
-        bh=dwqTAokXpysVZGBemVnEBeDmQu20+uI6XLgm1AZ8Yks=;
+        s=korg; t=1609160886;
+        bh=i4mlgf1ETnynvb/IiFRi9wV8TT8jHuPnzxerrq2DIbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jk0GDjHhBcRJyK/eB2pymAQftoFbSJ2U3et4bY372RcAX13JKzrICOeJhEKjU1cxb
-         MN3bJuN7jjgth4DTgJSSu/EIQQVkbJmgeHgVlwU5sm9zlDpE13feyaS3ly/DhpAFb/
-         rsZlbz6L+5dqaahMaT2kWdcBp0hB3Z8Yqi7Glfkc=
+        b=NZmJZoU4iAFk/PcVL4MkOJvSrLwsmARiRdULdp9rha1ucoY0x0Pgd4w5fBdIl7Zik
+         vaFkB2x+QCsPt2z8i1CfX7fE0NqcOp3528SdLh1N4bQeKh8Mm/pTsX5z5PQAL7PfAU
+         +3/MwQXy/eYBY2qO/sCEanpxu77aqfpzlMB76HSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 027/242] ALSA: usb-audio: Fix potential out-of-bounds shift
-Date:   Mon, 28 Dec 2020 13:47:12 +0100
-Message-Id: <20201228124906.005792110@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 028/242] ALSA: usb-audio: Fix control access overflow errors from chmap
+Date:   Mon, 28 Dec 2020 13:47:13 +0100
+Message-Id: <20201228124906.051463137@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -42,34 +40,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 43d5ca88dfcd35e43010fdd818e067aa9a55f5ba upstream.
+commit c6dde8ffd071aea9d1ce64279178e470977b235c upstream.
 
-syzbot spotted a potential out-of-bounds shift in the USB-audio format
-parser that receives the arbitrary shift value from the USB
-descriptor.
+The current channel-map control implementation in USB-audio driver may
+lead to an error message like
+  "control 3:0:0:Playback Channel Map:0: access overflow"
+when CONFIG_SND_CTL_VALIDATION is set.  It's because the chmap get
+callback clears the whole array no matter which count is set, and
+rather the false-positive detection.
 
-Add a range check for avoiding the undefined behavior.
+This patch fixes the problem by clearing only the needed array range
+at usb_chmap_ctl_get().
 
-Reported-by: syzbot+df7dc146ebdd6435eea3@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201209084552.17109-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20201211130048.6358-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/format.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/stream.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -52,6 +52,8 @@ static u64 parse_audio_format_i_type(str
- 	case UAC_VERSION_1:
- 	default: {
- 		struct uac_format_type_i_discrete_descriptor *fmt = _fmt;
-+		if (format >= 64)
-+			return 0; /* invalid format */
- 		sample_width = fmt->bBitResolution;
- 		sample_bytes = fmt->bSubframeSize;
- 		format = 1 << format;
+--- a/sound/usb/stream.c
++++ b/sound/usb/stream.c
+@@ -185,16 +185,16 @@ static int usb_chmap_ctl_get(struct snd_
+ 	struct snd_pcm_chmap *info = snd_kcontrol_chip(kcontrol);
+ 	struct snd_usb_substream *subs = info->private_data;
+ 	struct snd_pcm_chmap_elem *chmap = NULL;
+-	int i;
++	int i = 0;
+ 
+-	memset(ucontrol->value.integer.value, 0,
+-	       sizeof(ucontrol->value.integer.value));
+ 	if (subs->cur_audiofmt)
+ 		chmap = subs->cur_audiofmt->chmap;
+ 	if (chmap) {
+ 		for (i = 0; i < chmap->channels; i++)
+ 			ucontrol->value.integer.value[i] = chmap->map[i];
+ 	}
++	for (; i < subs->channels_max; i++)
++		ucontrol->value.integer.value[i] = 0;
+ 	return 0;
+ }
+ 
 
 
