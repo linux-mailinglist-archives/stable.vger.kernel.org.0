@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FDE2E38AD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E82B2E3751
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732231AbgL1NNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:13:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41386 "EHLO mail.kernel.org"
+        id S1728252AbgL1Mxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:53:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731134AbgL1NNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:13:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E340208BA;
-        Mon, 28 Dec 2020 13:12:39 +0000 (UTC)
+        id S1728247AbgL1Mxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0952E208B6;
+        Mon, 28 Dec 2020 12:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161160;
-        bh=2Yzs0RJG/rrec0gELQ7GRzXpQJwfWuq9NsNKxqTfAds=;
+        s=korg; t=1609159984;
+        bh=Fmm/kgXWpnxgmi4B8ecICshe5ASoWJhbr29YPa50a4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjwu1bG+3b1a76+btRUXA82Erz/wvvAvNGBDCBktZaUI8TZB2c4Jrixkr4rJsFcIv
-         L6gnirLuGkpBVSiQnbBdZL6QTEFXsqRBvMWkzyxa3Qi5R059px5YRjQJKjx6w9UfX9
-         81OYL4ujR8t0Eu0BmZ4iSxOxNKjd2ClgAhOLDVpk=
+        b=aOYwVCj78cTGppkuEQpkgQYn7zvTlwmpkCBEpcedON3mufbp7PeOZ2BAbpRlgV2He
+         I4Pu/4CFM80IVX0Afwx3EZr6EybMEIaJl+vVRsq0ltNzncVdrDr+WY8wa2p+hT7dpY
+         ZNe8LliW5WL8TEQDb/VALzndTGkIGRduYWSZ5fug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 122/242] ath10k: Fix an error handling path
+Subject: [PATCH 4.4 043/132] net: evaluate net.ipv4.conf.all.proxy_arp_pvlan
 Date:   Mon, 28 Dec 2020 13:48:47 +0100
-Message-Id: <20201228124910.699456307@linuxfoundation.org>
+Message-Id: <20201228124848.506437697@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vincent Bernat <vincent@bernat.ch>
 
-[ Upstream commit ed3573bc3943c27d2d8e405a242f87ed14572ca1 ]
+[ Upstream commit 1af5318c00a8acc33a90537af49b3f23f72a2c4b ]
 
-If 'ath10k_usb_create()' fails, we should release some resources and report
-an error instead of silently continuing.
+Introduced in 65324144b50b, the "proxy_arp_vlan" sysctl is a
+per-interface sysctl to tune proxy ARP support for private VLANs.
+While the "all" variant is exposed, it was a noop and never evaluated.
+We use the usual "or" logic for this kind of sysctls.
 
-Fixes: 4db66499df91 ("ath10k: add initial USB support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201122170342.1346011-1-christophe.jaillet@wanadoo.fr
+Fixes: 65324144b50b ("net: RFC3069, private VLAN proxy arp support")
+Signed-off-by: Vincent Bernat <vincent@bernat.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/inetdevice.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/usb.c b/drivers/net/wireless/ath/ath10k/usb.c
-index c64a03f164c0f..f4e6d84bfb91c 100644
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -1019,6 +1019,8 @@ static int ath10k_usb_probe(struct usb_interface *interface,
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index 0e6cd645f67f3..65e88c62db7b2 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -100,7 +100,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
  
- 	ar_usb = ath10k_usb_priv(ar);
- 	ret = ath10k_usb_create(ar, interface);
-+	if (ret)
-+		goto err;
- 	ar_usb->ar = ar;
- 
- 	ar->dev_id = product_id;
+ #define IN_DEV_LOG_MARTIANS(in_dev)	IN_DEV_ORCONF((in_dev), LOG_MARTIANS)
+ #define IN_DEV_PROXY_ARP(in_dev)	IN_DEV_ORCONF((in_dev), PROXY_ARP)
+-#define IN_DEV_PROXY_ARP_PVLAN(in_dev)	IN_DEV_CONF_GET(in_dev, PROXY_ARP_PVLAN)
++#define IN_DEV_PROXY_ARP_PVLAN(in_dev)	IN_DEV_ORCONF((in_dev), PROXY_ARP_PVLAN)
+ #define IN_DEV_SHARED_MEDIA(in_dev)	IN_DEV_ORCONF((in_dev), SHARED_MEDIA)
+ #define IN_DEV_TX_REDIRECTS(in_dev)	IN_DEV_ORCONF((in_dev), SEND_REDIRECTS)
+ #define IN_DEV_SEC_REDIRECTS(in_dev)	IN_DEV_ORCONF((in_dev), \
 -- 
 2.27.0
 
