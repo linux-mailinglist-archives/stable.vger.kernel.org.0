@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E99E2E676F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1072C2E676A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:25:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633223AbgL1QYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:24:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37730 "EHLO mail.kernel.org"
+        id S2633341AbgL1QYL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:24:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731328AbgL1NKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7989F208BA;
-        Mon, 28 Dec 2020 13:09:59 +0000 (UTC)
+        id S1731312AbgL1NKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:10:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A56B2076D;
+        Mon, 28 Dec 2020 13:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161000;
-        bh=u0oCJXxMJ3xICbV8bdTrpRsE6r99GQjewMSFCa2WdC0=;
+        s=korg; t=1609161002;
+        bh=EeYPUFr/QSUl3eSn9plS5GQKVSDJK/lV+R1DyJ++noc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xe+gCFyXCgOm0B2xpNIaKB6KCERUNQzZeEFCQjVPPI90H7j7s8Fg85+I5+/f3rBmK
-         ae8TxAVZ+4JnaekSkJnOq6UT2SsGPNY1AkIRl/gMen1Qr2XrHMcsRQZpAvqtFo948j
-         PDFGjnkX4gtSvK/lmhm0aNZvPzzBjU8Ik9El7dbo=
+        b=GrGertujjL2ocv+sRXTeFGt99vb7oQbsYivDjZUTUCdcRaNAAP3HRFoWW3M7cDepW
+         7uOJ9ESPNxq2R25TYMaz0QA7Hsn1fQOoXPqb02fCA+fS/7TnOW9khT1OSlmUfsztAM
+         puCljuPF8eYnjsMNBnCVcuwFVBwX9qCQMJQRU7AQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 066/242] soc: renesas: rmobile-sysc: Fix some leaks in rmobile_init_pm_domains()
-Date:   Mon, 28 Dec 2020 13:47:51 +0100
-Message-Id: <20201228124907.931061857@linuxfoundation.org>
+Subject: [PATCH 4.14 067/242] soc: mediatek: Check if power domains can be powered on at boot time
+Date:   Mon, 28 Dec 2020 13:47:52 +0100
+Message-Id: <20201228124907.980113755@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -40,33 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nicolas Boichat <drinkcat@chromium.org>
 
-[ Upstream commit cf25d802e029c31efac8bdc979236927f37183bd ]
+[ Upstream commit 4007844b05815717f522c7ea9914e24ad0ff6c79 ]
 
-This code needs to call iounmap() on one error path.
+In the error case, where a power domain cannot be powered on
+successfully at boot time (in mtk_register_power_domains),
+pm_genpd_init would still be called with is_off=false, and the
+system would later try to disable the power domain again, triggering
+warnings as disabled clocks are disabled again (and other potential
+issues).
 
-Fixes: 2173fc7cb681 ("ARM: shmobile: R-Mobile: Add DT support for PM domains")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200923113142.GC1473821@mwanda
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Also print a warning splat in that case, as this should never
+happen.
+
+Fixes: c84e358718a66f7 ("soc: Mediatek: Add SCPSYS power domain driver")
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Link: https://lore.kernel.org/r/20200928113107.v2.1.I5e6f8c262031d0451fe7241b744f4f3111c1ce71@changeid
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-shmobile/pm-rmobile.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/mediatek/mtk-scpsys.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-shmobile/pm-rmobile.c b/arch/arm/mach-shmobile/pm-rmobile.c
-index 3a4ed4c33a68e..e312f676a0fdf 100644
---- a/arch/arm/mach-shmobile/pm-rmobile.c
-+++ b/arch/arm/mach-shmobile/pm-rmobile.c
-@@ -336,6 +336,7 @@ static int __init rmobile_init_pm_domains(void)
+diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
+index fb2a8b1e79791..d0b18cc7e61b5 100644
+--- a/drivers/soc/mediatek/mtk-scpsys.c
++++ b/drivers/soc/mediatek/mtk-scpsys.c
+@@ -481,6 +481,7 @@ static void mtk_register_power_domains(struct platform_device *pdev,
+ 	for (i = 0; i < num; i++) {
+ 		struct scp_domain *scpd = &scp->domains[i];
+ 		struct generic_pm_domain *genpd = &scpd->genpd;
++		bool on;
  
- 		pmd = of_get_child_by_name(np, "pm-domains");
- 		if (!pmd) {
-+			iounmap(base);
- 			pr_warn("%pOF lacks pm-domains node\n", np);
- 			continue;
- 		}
+ 		/*
+ 		 * Initially turn on all domains to make the domains usable
+@@ -488,9 +489,9 @@ static void mtk_register_power_domains(struct platform_device *pdev,
+ 		 * software.  The unused domains will be switched off during
+ 		 * late_init time.
+ 		 */
+-		genpd->power_on(genpd);
++		on = !WARN_ON(genpd->power_on(genpd) < 0);
+ 
+-		pm_genpd_init(genpd, NULL, false);
++		pm_genpd_init(genpd, NULL, !on);
+ 	}
+ 
+ 	/*
 -- 
 2.27.0
 
