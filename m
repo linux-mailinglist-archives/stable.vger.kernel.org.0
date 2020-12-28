@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C133C2E63B9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4772E3B2F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405320AbgL1Nqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:46:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46016 "EHLO mail.kernel.org"
+        id S2405208AbgL1NrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:47:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405262AbgL1NqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:46:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1448D2072C;
-        Mon, 28 Dec 2020 13:46:05 +0000 (UTC)
+        id S2405311AbgL1NqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:46:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA68208B3;
+        Mon, 28 Dec 2020 13:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163166;
-        bh=mi/DeJzRXz47S3VNF9DlNrEgzgIcmxls+PobV+WzrQE=;
+        s=korg; t=1609163169;
+        bh=u1RmK2n4WrR6ZsiKYdSVWT0u3BwXqrt0kpx3qnfWZlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lReYQ1YIZs1avwYaMD+zETV+uV2puybLkS/kOT0J0VE6a+1ufUzjYjl9g9P31f5gg
-         YluD2UeBTJz/9l2BwIU5BfgYM4ZQ8A4lbVcN2fDZcg6ATGvqWOmciuPLP/SqvsAd0l
-         iOl+ZSKiY3Bd47EQawDlrpUAJ0pas9TbPZdpz6xA=
+        b=kgNZJmCbp9ESaqEQCo1THLEDuN4Wr8zqc+kO5c1ZikerN/iRiD1kk1q3zBVN2wEsV
+         G+x5V1FbpY4JHldIivDFJWK1e6ei/yuHQ+FCtSRLBz3UFaCkHEI7a8x7DM/tXG4EJv
+         cnO6wRGSDT6yZS3jetc33kMHAXGqOLh1iK/wWzjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 193/453] soc: amlogic: canvas: add missing put_device() call in meson_canvas_get()
-Date:   Mon, 28 Dec 2020 13:47:09 +0100
-Message-Id: <20201228124946.500131514@linuxfoundation.org>
+Subject: [PATCH 5.4 194/453] ARM: dts: at91: at91sam9rl: fix ADC triggers
+Date:   Mon, 28 Dec 2020 13:47:10 +0100
+Message-Id: <20201228124946.548654752@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -41,40 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 28f851e6afa858f182802e23ac60c3ed7d1c04a1 ]
+[ Upstream commit 851a95da583c26e2ddeb7281e9b61f0d76ea5aba ]
 
-if of_find_device_by_node() succeed, meson_canvas_get() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+The triggers for the ADC were taken from at91sam9260 dtsi but are not
+correct.
 
-Fixes: 382f8be04551 ("soc: amlogic: canvas: Fix meson_canvas_get when probe failed")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20201117011322.522477-1-yukuai3@huawei.com
+Fixes: a4c1d6c75822 ("ARM: at91/dt: sam9rl: add lcd, adc, usb gadget and pwm support")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201128222818.1910764-10-alexandre.belloni@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/amlogic/meson-canvas.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/at91sam9rl.dtsi | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/soc/amlogic/meson-canvas.c b/drivers/soc/amlogic/meson-canvas.c
-index c655f5f92b124..d0329ad170d13 100644
---- a/drivers/soc/amlogic/meson-canvas.c
-+++ b/drivers/soc/amlogic/meson-canvas.c
-@@ -72,8 +72,10 @@ struct meson_canvas *meson_canvas_get(struct device *dev)
- 	 * current state, this driver probe cannot return -EPROBE_DEFER
- 	 */
- 	canvas = dev_get_drvdata(&canvas_pdev->dev);
--	if (!canvas)
-+	if (!canvas) {
-+		put_device(&canvas_pdev->dev);
- 		return ERR_PTR(-EINVAL);
-+	}
+diff --git a/arch/arm/boot/dts/at91sam9rl.dtsi b/arch/arm/boot/dts/at91sam9rl.dtsi
+index ea024e4b6e095..0121bb0ecde16 100644
+--- a/arch/arm/boot/dts/at91sam9rl.dtsi
++++ b/arch/arm/boot/dts/at91sam9rl.dtsi
+@@ -278,23 +278,26 @@
+ 				atmel,adc-use-res = "highres";
  
- 	return canvas;
- }
+ 				trigger0 {
+-					trigger-name = "timer-counter-0";
++					trigger-name = "external-rising";
+ 					trigger-value = <0x1>;
++					trigger-external;
+ 				};
++
+ 				trigger1 {
+-					trigger-name = "timer-counter-1";
+-					trigger-value = <0x3>;
++					trigger-name = "external-falling";
++					trigger-value = <0x2>;
++					trigger-external;
+ 				};
+ 
+ 				trigger2 {
+-					trigger-name = "timer-counter-2";
+-					trigger-value = <0x5>;
++					trigger-name = "external-any";
++					trigger-value = <0x3>;
++					trigger-external;
+ 				};
+ 
+ 				trigger3 {
+-					trigger-name = "external";
+-					trigger-value = <0x13>;
+-					trigger-external;
++					trigger-name = "continuous";
++					trigger-value = <0x6>;
+ 				};
+ 			};
+ 
 -- 
 2.27.0
 
