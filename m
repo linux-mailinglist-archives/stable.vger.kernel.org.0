@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9232E3BCB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:55:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DAFC2E3798
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405100AbgL1Nyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
+        id S1729046AbgL1M5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:57:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405092AbgL1Nyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:54:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0460A20782;
-        Mon, 28 Dec 2020 13:54:13 +0000 (UTC)
+        id S1729041AbgL1M5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC58922573;
+        Mon, 28 Dec 2020 12:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163654;
-        bh=y4SfpPFbFE6NSq2aVXjGsVDHDs1ZYgWjYCZfWwhbDXk=;
+        s=korg; t=1609160232;
+        bh=/PTLzEj6cYwZZ5m034J/AABUbzuJX3HoHvn9889b3d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aK0H+Sky55FM67GAaDNVEMuZ4DT0J8vAJRj1pCIdJJYk8oJKgFOzIV2zln4Sntd7Q
-         YctAZH1KfYmDzzaYHL/2qqdBxWsKZVgMZWUSvKdrJZAdsNfh0yKFBh4dun8FgdnP3F
-         OEzEbImsyARKK4PzsxCIIxI0DZ2QKIHe9nNk5fO4=
+        b=mPPL/NNAaMunzDhSMRwJB+glDNeo3/BdLztM7CBh5mZ2F/F5bFhoWuT5wxrAG8Mok
+         JbqYYWhP9btMT90fkzkQfGdlRhQoVae13HAKevJZ9rNiqjgP13+E3L8IXvKHnnKAEO
+         d3jBNTlc+iXrCWsMA7f0mviAgvw8ugipC0fV3mAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.4 361/453] EDAC/i10nm: Use readl() to access MMIO registers
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 113/132] USB: serial: keyspan_pda: fix tx-unthrottle use-after-free
 Date:   Mon, 28 Dec 2020 13:49:57 +0100
-Message-Id: <20201228124954.573493466@linuxfoundation.org>
+Message-Id: <20201228124851.875909188@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 83ff51c4e3fecf6b8587ce4d46f6eac59f5d7c5a upstream.
+commit 49fbb8e37a961396a5b6c82937c70df91de45e9d upstream.
 
-Instead of raw access, use readl() to access MMIO registers of
-memory controller to avoid possible compiler re-ordering.
+The driver's transmit-unthrottle work was never flushed on disconnect,
+something which could lead to the driver port data being freed while the
+unthrottle work is still scheduled.
 
-Fixes: d4dc89d069aa ("EDAC, i10nm: Add a driver for Intel 10nm server processors")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Fix this by cancelling the unthrottle work when shutting down the port.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/edac/i10nm_base.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/usb/serial/keyspan_pda.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/edac/i10nm_base.c
-+++ b/drivers/edac/i10nm_base.c
-@@ -6,6 +6,7 @@
-  */
- 
- #include <linux/kernel.h>
-+#include <linux/io.h>
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- #include <asm/mce.h>
-@@ -19,14 +20,16 @@
- #define i10nm_printk(level, fmt, arg...)	\
- 	edac_printk(level, "i10nm", fmt, ##arg)
- 
--#define I10NM_GET_SCK_BAR(d, reg)		\
-+#define I10NM_GET_SCK_BAR(d, reg)	\
- 	pci_read_config_dword((d)->uracu, 0xd0, &(reg))
- #define I10NM_GET_IMC_BAR(d, i, reg)	\
- 	pci_read_config_dword((d)->uracu, 0xd8 + (i) * 4, &(reg))
- #define I10NM_GET_DIMMMTR(m, i, j)	\
--	(*(u32 *)((m)->mbase + 0x2080c + (i) * 0x4000 + (j) * 4))
-+	readl((m)->mbase + 0x2080c + (i) * 0x4000 + (j) * 4)
- #define I10NM_GET_MCDDRTCFG(m, i, j)	\
--	(*(u32 *)((m)->mbase + 0x20970 + (i) * 0x4000 + (j) * 4))
-+	readl((m)->mbase + 0x20970 + (i) * 0x4000 + (j) * 4)
-+#define I10NM_GET_MCMTR(m, i)		\
-+	readl((m)->mbase + 0x20ef8 + (i) * 0x4000)
- 
- #define I10NM_GET_SCK_MMIO_BASE(reg)	(GET_BITFIELD(reg, 0, 28) << 23)
- #define I10NM_GET_IMC_MMIO_OFFSET(reg)	(GET_BITFIELD(reg, 0, 10) << 12)
-@@ -134,7 +137,7 @@ static bool i10nm_check_ecc(struct skx_i
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -651,8 +651,12 @@ error:
+ }
+ static void keyspan_pda_close(struct usb_serial_port *port)
  {
- 	u32 mcmtr;
++	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
++
+ 	usb_kill_urb(port->write_urb);
+ 	usb_kill_urb(port->interrupt_in_urb);
++
++	cancel_work_sync(&priv->unthrottle_work);
+ }
  
--	mcmtr = *(u32 *)(imc->mbase + 0x20ef8 + chan * 0x4000);
-+	mcmtr = I10NM_GET_MCMTR(imc, chan);
- 	edac_dbg(1, "ch%d mcmtr reg %x\n", chan, mcmtr);
  
- 	return !!GET_BITFIELD(mcmtr, 2, 2);
 
 
