@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0D62E65D1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903F32E688D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388005AbgL1QEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:04:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56334 "EHLO mail.kernel.org"
+        id S1729750AbgL1NBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:01:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389760AbgL1N1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:27:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD77322B40;
-        Mon, 28 Dec 2020 13:27:37 +0000 (UTC)
+        id S1729528AbgL1NAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:00:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1552A22583;
+        Mon, 28 Dec 2020 13:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162058;
-        bh=/Jik/UAVugPTOcm7K+/Agzh+F93IeBdxAX1SpkyMsfk=;
+        s=korg; t=1609160406;
+        bh=lLyxgcPt9F8rPa/YebkBCTauAUTHPvX84Z7WFjxvB/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DGWlM3vG99aLctKRJHPoby3ikMJK7dqdeBrGttfXBzKk7uQLvwUqHGk3p+qV9e223
-         vkxo/lg48R0X7FlDRsUdVz3tu27C86XFbNje29W5qBZETw+5e0lgo5N2cal95aLfd9
-         8t4dB2oK8xfR+v535AxNAXX1Gh7cKUT//nhMzvjU=
+        b=m4ipM92qRtA7dTcvnIfj+JEAVnfm7SqmFXT98c4ECz83nZnDJ+7bUyd0s3S1kC71q
+         sWpe3UZ8ADmYF2+B4sCKbO1T7dBz1cen5IYJelI/h4ocu3yFgJM7uqE/04cGruMuDJ
+         4nh5LL63wBoprNfCno0eQAHLMGHUwS5mceVeN79o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 173/346] slimbus: qcom-ngd-ctrl: Avoid sending power requests without QMI
-Date:   Mon, 28 Dec 2020 13:48:12 +0100
-Message-Id: <20201228124928.146879893@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 4.9 040/175] usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
+Date:   Mon, 28 Dec 2020 13:48:13 +0100
+Message-Id: <20201228124855.191101535@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +38,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit 39014ce6d6028614a46395923a2c92d058b6fa87 ]
+commit a353397b0d5dfa3c99b372505db3378fc919c6c6 upstream.
 
-Attempting to send a power request during PM operations, when the QMI
-handle isn't initialized results in a NULL pointer dereference. So check
-if the QMI handle has been initialized before attempting to post the
-power requests.
+In many cases a function that supports SuperSpeed can very well
+operate in SuperSpeedPlus, if a gadget controller supports it,
+as the endpoint descriptors (and companion descriptors) are
+generally identical and can be re-used. This is true for two
+commonly used functions: Android's ADB and MTP. So we can simply
+assign the usb_function's ssp_descriptors array to point to its
+ss_descriptors, if available. Similarly, we need to allow an
+epfile's ioctl for FUNCTIONFS_ENDPOINT_DESC to correctly
+return the corresponding SuperSpeed endpoint descriptor in case
+the connected speed is SuperSpeedPlus as well.
 
-Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20201127102451.17114-7-srinivas.kandagatla@linaro.org
+The only exception is if a function wants to implement an
+Isochronous endpoint capable of transferring more than 48KB per
+service interval when operating at greater than USB 3.1 Gen1
+speed, in which case it would require an additional SuperSpeedPlus
+Isochronous Endpoint Companion descriptor to be returned as part
+of the Configuration Descriptor. Support for that would need
+to be separately added to the userspace-facing FunctionFS API
+which may not be a trivial task--likely a new descriptor format
+(v3?) may need to be devised to allow for separate SS and SSP
+descriptors to be supplied.
+
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201027230731.9073-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/gadget/function/f_fs.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index 522a87fc573a6..44021620d1013 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1200,6 +1200,9 @@ static int qcom_slim_ngd_runtime_resume(struct device *dev)
- 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
- 	int ret = 0;
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1228,6 +1228,7 @@ static long ffs_epfile_ioctl(struct file
  
-+	if (!ctrl->qmi.handle)
-+		return 0;
-+
- 	if (ctrl->state >= QCOM_SLIM_NGD_CTRL_ASLEEP)
- 		ret = qcom_slim_ngd_power_up(ctrl);
- 	if (ret) {
-@@ -1493,6 +1496,9 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
- 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
- 	int ret = 0;
+ 			switch (epfile->ffs->gadget->speed) {
+ 			case USB_SPEED_SUPER:
++			case USB_SPEED_SUPER_PLUS:
+ 				desc_idx = 2;
+ 				break;
+ 			case USB_SPEED_HIGH:
+@@ -3067,7 +3068,8 @@ static int _ffs_func_bind(struct usb_con
+ 	}
  
-+	if (!ctrl->qmi.handle)
-+		return 0;
-+
- 	ret = qcom_slim_qmi_power_request(ctrl, false);
- 	if (ret && ret != -EBUSY)
- 		dev_info(ctrl->dev, "slim resource not idle:%d\n", ret);
--- 
-2.27.0
-
+ 	if (likely(super)) {
+-		func->function.ss_descriptors = vla_ptr(vlabuf, d, ss_descs);
++		func->function.ss_descriptors = func->function.ssp_descriptors =
++			vla_ptr(vlabuf, d, ss_descs);
+ 		ss_len = ffs_do_descs(ffs->ss_descs_count,
+ 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
+ 				d_raw_descs__sz - fs_len - hs_len,
+@@ -3507,6 +3509,7 @@ static void ffs_func_unbind(struct usb_c
+ 	func->function.fs_descriptors = NULL;
+ 	func->function.hs_descriptors = NULL;
+ 	func->function.ss_descriptors = NULL;
++	func->function.ssp_descriptors = NULL;
+ 	func->interfaces_nums = NULL;
+ 
+ 	ffs_event_add(ffs, FUNCTIONFS_UNBIND);
 
 
