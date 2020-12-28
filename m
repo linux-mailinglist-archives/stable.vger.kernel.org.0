@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 234442E425A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 652982E3C54
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391661AbgL1OBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:01:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        id S2408339AbgL1OB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:01:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436668AbgL1OBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B996205CB;
-        Mon, 28 Dec 2020 14:01:01 +0000 (UTC)
+        id S2391647AbgL1OBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:01:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C0CF207AB;
+        Mon, 28 Dec 2020 14:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164062;
-        bh=3ewlcxh5eRrg520qImP6XLXqZ0grow7r8TFHfAkhKLQ=;
+        s=korg; t=1609164065;
+        bh=rEp4/EuthB5IJGmtlH5QT1cP2AtTyVgA+IFAFAwZsCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QXNxFx9XszM0MZhCnIME0sHCTDWo4nUw/J1ZAT/Tnp3+zkpiSZS1nNKvl/chfKfZA
-         xO+zB6prDE9hiEPV/Ib9GFbmUVX1qlvK8/RQIFO4uml04VrxtPYeaBv7bSEK98baF1
-         UkFbizUcCGN1mp1JVsQbkc4QVyJc25uLq6yztPmA=
+        b=W6mPaocxj06MpdFg9YzcoRuqW8lzFnKSLiM+3GKg0kP1u8yc7+fYnLr71AV+awaik
+         QbiaNFDtVoWM11tHtGApfIppn2LHqGvYJDdWVl5aMsUNBnXdOGCqGNl4Ni1/AFZ4cS
+         faFiqRh0ALS7/S+7c4+NJWdJt2igdgjpSmD85vMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Akash Asthana <akashast@codeaurora.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 015/717] Revert "i2c: i2c-qcom-geni: Fix DMA transfer race"
-Date:   Mon, 28 Dec 2020 13:40:13 +0100
-Message-Id: <20201228125021.721220631@linuxfoundation.org>
+Subject: [PATCH 5.10 016/717] RDMA/bnxt_re: Set queue pair state when being queried
+Date:   Mon, 28 Dec 2020 13:40:14 +0100
+Message-Id: <20201228125021.768868248@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,73 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 9cb4c67d7717135d6f4600a49ab07b470ea4ee2f ]
+[ Upstream commit 53839b51a7671eeb3fb44d479d541cf3a0f2dd45 ]
 
-This reverts commit 02b9aec59243c6240fc42884acc958602146ddf6.
+The API for ib_query_qp requires the driver to set cur_qp_state on return,
+add the missing set.
 
-As talked about in the patch ("soc: qcom: geni: More properly switch
-to DMA mode"), swapping the order of geni_se_setup_m_cmd() and
-geni_se_xx_dma_prep() can sometimes cause corrupted transfers.  Thus
-we traded one problem for another.  Now that we've debugged the
-problem further and fixed the geni helper functions to more disable
-FIFO interrupts when we move to DMA mode we can revert it and end up
-with (hopefully) zero problems!
-
-To be explicit, the patch ("soc: qcom: geni: More properly switch
-to DMA mode") is a prerequisite for this one.
-
-Fixes: 02b9aec59243 ("i2c: i2c-qcom-geni: Fix DMA transfer race")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Akash Asthana <akashast@codeaurora.org>
-Tested-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20201013142448.v2.2.I7b22281453b8a18ab16ef2bfd4c641fb1cc6a92c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/20201021114952.38876-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Acked-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 8b4c35f47a70f..dce75b85253c1 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -366,6 +366,7 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
- 
- 	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_READ, m_param);
- 
- 	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -373,8 +374,6 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
+diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+index cf3db96283976..f9c999d5ba28e 100644
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -2078,6 +2078,7 @@ int bnxt_re_query_qp(struct ib_qp *ib_qp, struct ib_qp_attr *qp_attr,
+ 		goto out;
  	}
- 
--	geni_se_setup_m_cmd(se, I2C_READ, m_param);
--
- 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
- 	if (!time_left)
- 		geni_i2c_abort_xfer(gi2c);
-@@ -408,6 +407,7 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		geni_se_select_mode(se, GENI_SE_FIFO);
- 
- 	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
- 
- 	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
- 		geni_se_select_mode(se, GENI_SE_FIFO);
-@@ -415,8 +415,6 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 		dma_buf = NULL;
- 	}
- 
--	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
--
- 	if (!dma_buf) /* Get FIFO IRQ */
- 		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
- 
+ 	qp_attr->qp_state = __to_ib_qp_state(qplib_qp->state);
++	qp_attr->cur_qp_state = __to_ib_qp_state(qplib_qp->cur_qp_state);
+ 	qp_attr->en_sqd_async_notify = qplib_qp->en_sqd_async_notify ? 1 : 0;
+ 	qp_attr->qp_access_flags = __to_ib_access_flags(qplib_qp->access);
+ 	qp_attr->pkey_index = qplib_qp->pkey_index;
 -- 
 2.27.0
 
