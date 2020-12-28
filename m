@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBC882E6427
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 180382E3938
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404434AbgL1PsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:48:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43350 "EHLO mail.kernel.org"
+        id S2387584AbgL1NUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:20:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404338AbgL1Nm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A3E121D94;
-        Mon, 28 Dec 2020 13:42:16 +0000 (UTC)
+        id S2387582AbgL1NUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:20:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE951207F7;
+        Mon, 28 Dec 2020 13:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162936;
-        bh=7qbWvyUZhBuQsezQYC36NKvbJ3vyf0uItlpsM9fJzB8=;
+        s=korg; t=1609161619;
+        bh=jzr9CzzGDnYbvfNCc2grdd/Yq2DYbzJk6tz6jtEzKes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2jG4PscTpeCgQKIlVSVUUNOaOqwZ/nzla/4edbzPq1r9I2AtLQTrexesSShxI2dG
-         xfTUp969tXD66v+68++CTGQHkhIWQLf2lVnPcE+pSsoVRCYCDqYHcmpmRHx6HWObI1
-         kTXVEDhC6j2/qMFQoBny1apobanvBIXcQK6pMEIY=
+        b=iypeOr9lIsy1YuYVv6J9A+GpTltFYqwnglxE0M/0x+Ic16e5yq1YMjp5p1jJcB2D6
+         Wci3VizlfW+N74hWX1FX1F326oQAiPxf3+phJdQPK8jyoNDhXp6zfa6Jo9Y7Zw0QEN
+         xkgdsZBzdGj8rpUk0KJPLLmhgNsL3PeHSv7eID4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/453] Bluetooth: hci_h5: fix memory leak in h5_close
-Date:   Mon, 28 Dec 2020 13:45:49 +0100
-Message-Id: <20201228124942.649868483@linuxfoundation.org>
+        Ingemar Johansson <ingemar.s.johansson@ericsson.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 031/346] tcp: fix cwnd-limited bug for TSO deferral where we send nothing
+Date:   Mon, 28 Dec 2020 13:45:50 +0100
+Message-Id: <20201228124921.285247091@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit 855af2d74c870d747bf53509f8b2d7b9dc9ee2c3 ]
+[ Upstream commit 299bcb55ecd1412f6df606e9dc0912d55610029e ]
 
-When h5_close() is called, h5 is directly freed when !hu->serdev.
-However, h5->rx_skb is not freed, which causes a memory leak.
+When cwnd is not a multiple of the TSO skb size of N*MSS, we can get
+into persistent scenarios where we have the following sequence:
 
-Freeing h5->rx_skb and setting it to NULL, fixes this memory leak.
+(1) ACK for full-sized skb of N*MSS arrives
+  -> tcp_write_xmit() transmit full-sized skb with N*MSS
+  -> move pacing release time forward
+  -> exit tcp_write_xmit() because pacing time is in the future
 
-Fixes: ce945552fde4 ("Bluetooth: hci_h5: Add support for serdev enumerated devices")
-Reported-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
-Tested-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+(2) TSQ callback or TCP internal pacing timer fires
+  -> try to transmit next skb, but TSO deferral finds remainder of
+     available cwnd is not big enough to trigger an immediate send
+     now, so we defer sending until the next ACK.
+
+(3) repeat...
+
+So we can get into a case where we never mark ourselves as
+cwnd-limited for many seconds at a time, even with
+bulk/infinite-backlog senders, because:
+
+o In case (1) above, every time in tcp_write_xmit() we have enough
+cwnd to send a full-sized skb, we are not fully using the cwnd
+(because cwnd is not a multiple of the TSO skb size). So every time we
+send data, we are not cwnd limited, and so in the cwnd-limited
+tracking code in tcp_cwnd_validate() we mark ourselves as not
+cwnd-limited.
+
+o In case (2) above, every time in tcp_write_xmit() that we try to
+transmit the "remainder" of the cwnd but defer, we set the local
+variable is_cwnd_limited to true, but we do not send any packets, so
+sent_pkts is zero, so we don't call the cwnd-limited logic to update
+tp->is_cwnd_limited.
+
+Fixes: ca8a22634381 ("tcp: make cwnd-limited checks measurement-based, and gentler")
+Reported-by: Ingemar Johansson <ingemar.s.johansson@ericsson.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20201209035759.1225145-1-ncardwell.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/hci_h5.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/tcp_output.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index 5df0651b6cd55..e11af747395dd 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -244,6 +244,9 @@ static int h5_close(struct hci_uart *hu)
- 	skb_queue_purge(&h5->rel);
- 	skb_queue_purge(&h5->unrel);
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1622,7 +1622,8 @@ static void tcp_cwnd_validate(struct soc
+ 	 * window, and remember whether we were cwnd-limited then.
+ 	 */
+ 	if (!before(tp->snd_una, tp->max_packets_seq) ||
+-	    tp->packets_out > tp->max_packets_out) {
++	    tp->packets_out > tp->max_packets_out ||
++	    is_cwnd_limited) {
+ 		tp->max_packets_out = tp->packets_out;
+ 		tp->max_packets_seq = tp->snd_nxt;
+ 		tp->is_cwnd_limited = is_cwnd_limited;
+@@ -2407,6 +2408,10 @@ repair:
+ 	else
+ 		tcp_chrono_stop(sk, TCP_CHRONO_RWND_LIMITED);
  
-+	kfree_skb(h5->rx_skb);
-+	h5->rx_skb = NULL;
++	is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
++	if (likely(sent_pkts || is_cwnd_limited))
++		tcp_cwnd_validate(sk, is_cwnd_limited);
 +
- 	if (h5->vnd && h5->vnd->close)
- 		h5->vnd->close(h5);
- 
--- 
-2.27.0
-
+ 	if (likely(sent_pkts)) {
+ 		if (tcp_in_cwnd_reduction(sk))
+ 			tp->prr_out += sent_pkts;
+@@ -2414,8 +2419,6 @@ repair:
+ 		/* Send one loss probe per tail loss episode. */
+ 		if (push_one != 2)
+ 			tcp_schedule_loss_probe(sk, false);
+-		is_cwnd_limited |= (tcp_packets_in_flight(tp) >= tp->snd_cwnd);
+-		tcp_cwnd_validate(sk, is_cwnd_limited);
+ 		return false;
+ 	}
+ 	return !tp->packets_out && !tcp_write_queue_empty(sk);
 
 
