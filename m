@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A632E4274
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:23:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32AC92E3C5C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438563AbgL1PXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:23:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34824 "EHLO mail.kernel.org"
+        id S2436766AbgL1OCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:02:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408020AbgL1OBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8628B206E5;
-        Mon, 28 Dec 2020 14:01:21 +0000 (UTC)
+        id S2436760AbgL1OCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:02:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DECE20715;
+        Mon, 28 Dec 2020 14:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164082;
-        bh=PKJn3+d49AZyCWIvBqInIUOl+zm6lm+zmz6v55aWkgw=;
+        s=korg; t=1609164085;
+        bh=U0x52ZTbZHpuD3FlCFf6BKzXv+nrYvKYlN1jlfRTMuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPJG5POZtyaGPy7AUlcIHGK49wcVMLgkRsjViwiVK28eeQaWmOWXaR7o+J6mrFqPE
-         40jk27rAeT4vLXV5FRO/flhVXar4A0tA8eL0N6bVGVXYfOzOKHCN42BIzGXc2qXBRO
-         5pUDecDQcaSGisAQ3uWE/H7N6JvVJp3UQR+hNTUQ=
+        b=omC1pPgjjiWTMT25/SkmGy3XJIwvefWmnexZJEizzIwlaUORZgLJVzB2ngVwpGTx+
+         05KZXO3Mx1aI52Jhzrg1SxT5GTl4izHqOvuxbOto+Vr+Mq2SUNgygB0jWgRPZR3lfA
+         QOI49WMZ1MLcmg1LEis7KHxQ4c4ctQcaYIeeZ1Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/717] drm/bridge: tpd12s015: Fix irq registering in tpd12s015_probe
-Date:   Mon, 28 Dec 2020 13:40:52 +0100
-Message-Id: <20201228125023.582584608@linuxfoundation.org>
+Subject: [PATCH 5.10 055/717] libbpf: Fix BTF data layout checks and allow empty BTF
+Date:   Mon, 28 Dec 2020 13:40:53 +0100
+Message-Id: <20201228125023.630228905@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,39 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit c2530cc9610d84a5a0118ba40d0f09309605047f ]
+[ Upstream commit d8123624506cd62730c9cd9c7672c698e462703d ]
 
-gpiod_to_irq() return negative value in case of error,
-the existing code doesn't handle negative error codes.
-If the HPD gpio supports IRQs (gpiod_to_irq returns a
-valid number), we use the IRQ. If it doesn't (gpiod_to_irq
-returns an error), it gets polled via detect().
+Make data section layout checks stricter, disallowing overlap of types and
+strings data.
 
-Fixes: cff5e6f7e83f ("drm/bridge: Add driver for the TI TPD12S015 HDMI level shifter")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20201102143024.26216-1-yuehaibing@huawei.com
+Additionally, allow BTFs with no type data. There is nothing inherently wrong
+with having BTF with no types (put potentially with some strings). This could
+be a situation with kernel module BTFs, if module doesn't introduce any new
+type information.
+
+Also fix invalid offset alignment check for btf->hdr->type_off.
+
+Fixes: 8a138aed4a80 ("bpf: btf: Add BTF support to libbpf")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20201105043402.2530976-8-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-tpd12s015.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/btf.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-tpd12s015.c b/drivers/gpu/drm/bridge/ti-tpd12s015.c
-index 514cbf0eac75a..e0e015243a602 100644
---- a/drivers/gpu/drm/bridge/ti-tpd12s015.c
-+++ b/drivers/gpu/drm/bridge/ti-tpd12s015.c
-@@ -160,7 +160,7 @@ static int tpd12s015_probe(struct platform_device *pdev)
+diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
+index 231b07203e3d2..987c1515b828b 100644
+--- a/tools/lib/bpf/btf.c
++++ b/tools/lib/bpf/btf.c
+@@ -215,22 +215,18 @@ static int btf_parse_hdr(struct btf *btf)
+ 		return -EINVAL;
+ 	}
  
- 	/* Register the IRQ if the HPD GPIO is IRQ-capable. */
- 	tpd->hpd_irq = gpiod_to_irq(tpd->hpd_gpio);
--	if (tpd->hpd_irq) {
-+	if (tpd->hpd_irq >= 0) {
- 		ret = devm_request_threaded_irq(&pdev->dev, tpd->hpd_irq, NULL,
- 						tpd12s015_hpd_isr,
- 						IRQF_TRIGGER_RISING |
+-	if (meta_left < hdr->type_off) {
+-		pr_debug("Invalid BTF type section offset:%u\n", hdr->type_off);
++	if (meta_left < hdr->str_off + hdr->str_len) {
++		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (meta_left < hdr->str_off) {
+-		pr_debug("Invalid BTF string section offset:%u\n", hdr->str_off);
++	if (hdr->type_off + hdr->type_len > hdr->str_off) {
++		pr_debug("Invalid BTF data sections layout: type data at %u + %u, strings data at %u + %u\n",
++			 hdr->type_off, hdr->type_len, hdr->str_off, hdr->str_len);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (hdr->type_off >= hdr->str_off) {
+-		pr_debug("BTF type section offset >= string section offset. No type?\n");
+-		return -EINVAL;
+-	}
+-
+-	if (hdr->type_off & 0x02) {
++	if (hdr->type_off % 4) {
+ 		pr_debug("BTF type section is not aligned to 4 bytes\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.27.0
 
