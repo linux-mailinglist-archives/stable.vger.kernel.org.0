@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 105932E4302
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A407F2E3783
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407337AbgL1Nxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:53:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55548 "EHLO mail.kernel.org"
+        id S1728766AbgL1M4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:56:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407334AbgL1Nxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 688DB20715;
-        Mon, 28 Dec 2020 13:52:57 +0000 (UTC)
+        id S1728762AbgL1M4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:56:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E59021D94;
+        Mon, 28 Dec 2020 12:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163578;
-        bh=wSPhDxRyT4PeZSatzt6FDcS55+Dy8gu93xNK4cWhe0Y=;
+        s=korg; t=1609160152;
+        bh=UAFTBRjOWayQArKHk2ibWenA7R1IHmPQWIiHUJtUm0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrCwNCEM6N4lKlDKXgSwZWWOdL6ZrEW8/KoC8/sLcriBOSpnmTnTRDoDtvgoPpFSm
-         fSP7KYq72/HsE811IsS5dlTvVnXxfotlWaMl6o8/o64obxe9zlm29zJP+ButvBkCZU
-         4BTt7V7v57RkeHkhOQNiPUgx1x9qLf4Bk3qjyftE=
+        b=1H1zgwj1mqmlH94FYDB7gw2PHQ2oo0UzWj47y1R/ElcfTDkVzAaPp0r21TVLwVG5Q
+         AWZfBrz8LW+vkgXuZ4yjHau8DKZafY3MkeGcIlxkPEKwkO/2pKzTK3KQ3CcinK7ZBI
+         K4Eu220iIVOYvlci+gXAiuJWmDjD1sEGmPQ/Ffr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Hui Wang <hui.wang@canonical.com>
-Subject: [PATCH 5.4 333/453] ACPI: PNP: compare the string length in the matching_id()
+        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 085/132] powerpc/ps3: use dma_mapping_error()
 Date:   Mon, 28 Dec 2020 13:49:29 +0100
-Message-Id: <20201228124953.244598715@linuxfoundation.org>
+Message-Id: <20201228124850.545097076@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Vincent Stehlé <vincent.stehle@laposte.net>
 
-commit b08221c40febcbda9309dd70c61cf1b0ebb0e351 upstream.
+[ Upstream commit d0edaa28a1f7830997131cbce87b6c52472825d1 ]
 
-Recently we met a touchscreen problem on some Thinkpad machines, the
-touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
-work.
+The DMA address returned by dma_map_single() should be checked with
+dma_mapping_error(). Fix the ps3stor_setup() function accordingly.
 
-An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
-the current rule in matching_id(), this device will be regarded as
-a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
-this PNP device is attached to the acpi device as the 1st
-physical_node, this will make the i2c bus match fail when i2c bus
-calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
-driver.
-
-WACF2200 is an i2c device instead of a PNP device, after adding the
-string length comparing, the matching_id() will return false when
-matching WACF2200 and WACFXXX, and it is reasonable to compare the
-string length when matching two IDs.
-
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 80071802cb9c ("[POWERPC] PS3: Storage Driver Core")
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201213182622.23047-1-vincent.stehle@laposte.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_pnp.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/ps3/ps3stor_lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_pnp.c
-+++ b/drivers/acpi/acpi_pnp.c
-@@ -317,6 +317,9 @@ static bool matching_id(const char *idst
- {
- 	int i;
- 
-+	if (strlen(idstr) != strlen(list_id))
-+		return false;
-+
- 	if (memcmp(idstr, list_id, 3))
- 		return false;
- 
+diff --git a/drivers/ps3/ps3stor_lib.c b/drivers/ps3/ps3stor_lib.c
+index 8c3f5adf1bc65..2d76183756626 100644
+--- a/drivers/ps3/ps3stor_lib.c
++++ b/drivers/ps3/ps3stor_lib.c
+@@ -201,7 +201,7 @@ int ps3stor_setup(struct ps3_storage_device *dev, irq_handler_t handler)
+ 	dev->bounce_lpar = ps3_mm_phys_to_lpar(__pa(dev->bounce_buf));
+ 	dev->bounce_dma = dma_map_single(&dev->sbd.core, dev->bounce_buf,
+ 					 dev->bounce_size, DMA_BIDIRECTIONAL);
+-	if (!dev->bounce_dma) {
++	if (dma_mapping_error(&dev->sbd.core, dev->bounce_dma)) {
+ 		dev_err(&dev->sbd.core, "%s:%u: map DMA region failed\n",
+ 			__func__, __LINE__);
+ 		error = -ENODEV;
+-- 
+2.27.0
+
 
 
