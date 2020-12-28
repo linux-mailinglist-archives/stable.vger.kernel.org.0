@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7510F2E406E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:53:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B02512E3980
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501998AbgL1OSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:18:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
+        id S2388683AbgL1NYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2501990AbgL1OSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:18:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49CCC2242A;
-        Mon, 28 Dec 2020 14:18:18 +0000 (UTC)
+        id S2388637AbgL1NYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9DD1206ED;
+        Mon, 28 Dec 2020 13:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165099;
-        bh=tNgvctoeVXR7xM+pBVnx4ek8DlN/hObfI0BKU4+kJ/s=;
+        s=korg; t=1609161813;
+        bh=2XqWZFPId9bk6wT1G3ZQCRlY4/L2OQwvozFut9jjwqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpCuGqHN3qnwfDQSSfrCK0UJqVRh5MKbiv20GN0XThreT+o7cggORFdVqWxqfp8Pv
-         YQAhLzAmDEqdNcZ55zTURsqUOAJ03sZr38jl0Rc8NUGP4Rfrgwxrrw4IdHRadjg4ML
-         uFrqYzUrikfyWirX55g6dXVJJoeflE4pf8BovIIs=
+        b=OD0LIUeiOlXm8N/0Gu6Ji+WUmfNNK6tEXkhsLmEeFVycoPJx/BbpbO3vCbenfFLWO
+         AVFCmOH7NwbSZK+DUMRGtjFIbTDEAUNQrHCPKkHBmj+C1AiBuy9WPeZU9CGcxL27nK
+         kRh5EKrW8MrQP6++XBf7hVdhVQmoGPZE3mP7ibKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Glass <sjg@chromium.org>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alexandru M Stan <amstan@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 381/717] platform/chrome: cros_ec_spi: Dont overwrite spi::mode
+Subject: [PATCH 4.19 060/346] xsk: Fix xsk_poll()s return type
 Date:   Mon, 28 Dec 2020 13:46:19 +0100
-Message-Id: <20201228125039.255302733@linuxfoundation.org>
+Message-Id: <20201228124922.697398216@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit 74639cbf51d7c0304342544a83dfda354a6bd208 ]
+[ Upstream commit 5d946c5abbaf68083fa6a41824dd79e1f06286d8 ]
 
-There isn't any need to overwrite the mode here in the driver with what
-has been detected by the firmware, such as DT or ACPI. In fact, if we
-use the SPI CS gpio descriptor feature we will overwrite the mode with
-SPI_MODE_0 where it already contains SPI_MODE_0 and more importantly
-SPI_CS_HIGH. Clearing the SPI_CS_HIGH bit causes the CS line to toggle
-when the device is probed when it shouldn't change, confusing the driver
-and making it fail to probe. Drop the assignment and let the spi core
-take care of it.
+xsk_poll() is defined as returning 'unsigned int' but the
+.poll method is declared as returning '__poll_t', a bitwise type.
 
-Fixes: a17d94f0b6e1 ("mfd: Add ChromeOS EC SPI driver")
-Cc: Simon Glass <sjg@chromium.org>
-Cc: Gwendal Grignou <gwendal@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alexandru M Stan <amstan@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Simon Glass <sjg@chromium.org>
-Link: https://lore.kernel.org/r/20201204193540.3047030-2-swboyd@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by using the proper return type and using the EPOLL
+constants instead of the POLL ones, as required for __poll_t.
+
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20191120001042.30830-1-luc.vanoostenryck@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_spi.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/xdp/xsk.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_spi.c b/drivers/platform/chrome/cros_ec_spi.c
-index dfa1f816a45f4..f9df218fc2bbe 100644
---- a/drivers/platform/chrome/cros_ec_spi.c
-+++ b/drivers/platform/chrome/cros_ec_spi.c
-@@ -742,7 +742,6 @@ static int cros_ec_spi_probe(struct spi_device *spi)
- 	int err;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 9ff2ab63e6392..6bb0649c028c4 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -289,17 +289,17 @@ static int xsk_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 	return (xs->zc) ? xsk_zc_xmit(sk) : xsk_generic_xmit(sk, m, total_len);
+ }
  
- 	spi->bits_per_word = 8;
--	spi->mode = SPI_MODE_0;
- 	spi->rt = true;
- 	err = spi_setup(spi);
- 	if (err < 0)
+-static unsigned int xsk_poll(struct file *file, struct socket *sock,
++static __poll_t xsk_poll(struct file *file, struct socket *sock,
+ 			     struct poll_table_struct *wait)
+ {
+-	unsigned int mask = datagram_poll(file, sock, wait);
++	__poll_t mask = datagram_poll(file, sock, wait);
+ 	struct sock *sk = sock->sk;
+ 	struct xdp_sock *xs = xdp_sk(sk);
+ 
+ 	if (xs->rx && !xskq_empty_desc(xs->rx))
+-		mask |= POLLIN | POLLRDNORM;
++		mask |= EPOLLIN | EPOLLRDNORM;
+ 	if (xs->tx && !xskq_full_desc(xs->tx))
+-		mask |= POLLOUT | POLLWRNORM;
++		mask |= EPOLLOUT | EPOLLWRNORM;
+ 
+ 	return mask;
+ }
 -- 
 2.27.0
 
