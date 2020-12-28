@@ -2,155 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B772E3586
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:34:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 738412E3598
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:51:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgL1Jen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:34:43 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:54583 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1Jem (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:34:42 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id C719C769;
-        Mon, 28 Dec 2020 04:33:36 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:33:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Lk3Q2b
-        pRAdYvij2p3DikP0f/eJy1w1r1npb85MJl/EA=; b=iwciRNvnQZw7qjis4AA9N8
-        BrtxV+GGAQWXcG7m2jArruJNMbVGZ4gTzR80si+1CxL9N2F4EkKxp2bATHsL1Fp+
-        z2RSdSZWMM0Hp4jvq3Ohs4AH6ByKZpaPqk5j+JO7m0lt75oa/uB40sV/S6P644tg
-        C/n/lQo0bSaYVvQH9j7L6RhdZFBl6r5v476qNTVriHu324jSV1UATOAUjShMl/i3
-        w0yTN88X8hm3SHiRQqahIYu0lj3odVkKSwRaXiGd4Qg5ZEBmbEzqLA9bDL1gJafK
-        J8nwGIFRcUi2L/pp9E5hCwslKFw8HIF1UUotEz6rGKLRne25ythm7R1F0bGQxndQ
-        ==
-X-ME-Sender: <xms:cKbpX_LhAtjDM0tMUQok5c176fV6mjC-Vik8ZQJpTKHthGIYmTSd-Q>
-    <xme:cKbpXzK8R_-Cvwx-QdGbpWJ6KndvQPBeXQ495l-Ki5CUV8vn0hp6lwbV3UiiWMrRn
-    19SMSNqodGFiw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:cKbpX3tlGPblnJhSmHJiz32fnQqB4BL57Q6qWW_bnpCteibeMUOuKA>
-    <xmx:cKbpX4Yj1y9GFzJLLUlw4MQZHF7T-7vsm3nF_Q8S8JQNHfdPHdp_OQ>
-    <xmx:cKbpX2ZIUNj8PIYE40_40PRyw7B5_zbubIThFYFtHAX1FTNDRQLScw>
-    <xmx:cKbpX5zZgEELKAL78FUoNPa8hZ9bhWIcHY5uUnQdZ3nJ6PK2h5FdIjHc4WM>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 942D21080059;
-        Mon, 28 Dec 2020 04:33:35 -0500 (EST)
-Subject: FAILED: patch "[PATCH] SMB3.1.1: do not log warning message if server doesn't" failed to apply to 5.4-stable tree
-To:     stfrench@microsoft.com, pshilov@microsoft.com,
-        sprasad@microsoft.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 10:34:58 +0100
-Message-ID: <1609148098104221@kroah.com>
+        id S1726958AbgL1Jvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:51:39 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55436 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726556AbgL1Jvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:51:39 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 624FB1C0BA3; Mon, 28 Dec 2020 10:50:41 +0100 (CET)
+Date:   Mon, 28 Dec 2020 10:50:40 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
+Message-ID: <20201228095040.GA11960@amd>
+References: <20201223150515.553836647@linuxfoundation.org>
+ <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
+ <X+dRkTq+T+A6nWPz@kroah.com>
+ <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
+ <X+iwvG2d0QfPl+mc@kroah.com>
+ <c7688d9a00a510975f115305a9e8d245a4403773.camel@rajagiritech.edu.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+In-Reply-To: <c7688d9a00a510975f115305a9e8d245a4403773.camel@rajagiritech.edu.in>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi!
 
-greg k-h
+> > > > > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patc=
+h-5.10.3-rc1.gz
+> > > > > > or in the git tree and branch at:
+> > > > > > =A0=A0=A0=A0=A0=A0=A0=A0git://git.kernel.org/pub/scm/linux/kern=
+el/git/stable/
+> > > > > > linu
+> > > > > > x-
+> > > > > > stable-rc.git linux-5.10.y
+> > > > > > and the diffstat can be found below.
+> > > > > >=20
+> > > > > > thanks,
+> > > > > >=20
+> > > > > > greg k-h
+> > > > >=20
+> > > > > hello ,
+> > > > > Compiled and booted 5.10.3-rc1+.
+> > > > >=20
+> > > > > dmesg -l err gives...
+> > > > > --------------x-------------x------------------->
+> > > > > =A0=A0 43.190922] Bluetooth: hci0: don't support firmware rome
+> > > > > 0x31010100
+> > > > > --------------x---------------x----------------->
+> > > > >=20
+> > > > > My Bluetooth is Off.
+> > > >=20
+> > > > Is this a new warning?=A0 Does it show up on 5.10.2?
+> > > >=20
+> > > > > Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+> > > >=20
+> > > > thanks for testing?
+> > > >=20
+> > > > greg k-h
+> > >=20
+> > > this does not show up in 5.10.2-rc1+
+> >=20
+> > Odd.=A0 Can you run 'git bisect' to find the offending commit?
+> >=20
+> > Does this same error message show up in Linus's git tree?
 
------------------- original commit in Linus's tree ------------------
+> i will try to do "git bisect" .  i saw this error in linus's  tree.
 
-From 7955f105afb6034af344038d663bc98809483cdd Mon Sep 17 00:00:00 2001
-From: Steve French <stfrench@microsoft.com>
-Date: Wed, 9 Dec 2020 22:19:00 -0600
-Subject: [PATCH] SMB3.1.1: do not log warning message if server doesn't
- populate salt
+The bug is in -stable, too, so it is probably easiest to do bisect on
+-stable tree. IIRC there's less then few hundred commits, so it should
+be feasible to do bisection by hand if you are not familiar with git
+bisect.
 
-In the negotiate protocol preauth context, the server is not required
-to populate the salt (although it is done by most servers) so do
-not warn on mount.
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-We retain the checks (warn) that the preauth context is the minimum
-size and that the salt does not exceed DataLength of the SMB response.
-Although we use the defaults in the case that the preauth context
-response is invalid, these checks may be useful in the future
-as servers add support for additional mechanisms.
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-CC: Stable <stable@vger.kernel.org>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index acb72705062d..fc06c762fbbf 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -427,8 +427,8 @@ build_preauth_ctxt(struct smb2_preauth_neg_context *pneg_ctxt)
- 	pneg_ctxt->ContextType = SMB2_PREAUTH_INTEGRITY_CAPABILITIES;
- 	pneg_ctxt->DataLength = cpu_to_le16(38);
- 	pneg_ctxt->HashAlgorithmCount = cpu_to_le16(1);
--	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_SALT_SIZE);
--	get_random_bytes(pneg_ctxt->Salt, SMB311_SALT_SIZE);
-+	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_LINUX_CLIENT_SALT_SIZE);
-+	get_random_bytes(pneg_ctxt->Salt, SMB311_LINUX_CLIENT_SALT_SIZE);
- 	pneg_ctxt->HashAlgorithms = SMB2_PREAUTH_INTEGRITY_SHA512;
- }
- 
-@@ -566,6 +566,9 @@ static void decode_preauth_context(struct smb2_preauth_neg_context *ctxt)
- 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
- 		pr_warn_once("server sent bad preauth context\n");
- 		return;
-+	} else if (len < MIN_PREAUTH_CTXT_DATA_LEN + le16_to_cpu(ctxt->SaltLength)) {
-+		pr_warn_once("server sent invalid SaltLength\n");
-+		return;
- 	}
- 	if (le16_to_cpu(ctxt->HashAlgorithmCount) != 1)
- 		pr_warn_once("Invalid SMB3 hash algorithm count\n");
-diff --git a/fs/cifs/smb2pdu.h b/fs/cifs/smb2pdu.h
-index fa57b03ca98c..204a622b89ed 100644
---- a/fs/cifs/smb2pdu.h
-+++ b/fs/cifs/smb2pdu.h
-@@ -333,12 +333,20 @@ struct smb2_neg_context {
- 	/* Followed by array of data */
- } __packed;
- 
--#define SMB311_SALT_SIZE			32
-+#define SMB311_LINUX_CLIENT_SALT_SIZE			32
- /* Hash Algorithm Types */
- #define SMB2_PREAUTH_INTEGRITY_SHA512	cpu_to_le16(0x0001)
- #define SMB2_PREAUTH_HASH_SIZE 64
- 
--#define MIN_PREAUTH_CTXT_DATA_LEN	(SMB311_SALT_SIZE + 6)
-+/*
-+ * SaltLength that the server send can be zero, so the only three required
-+ * fields (all __le16) end up six bytes total, so the minimum context data len
-+ * in the response is six bytes which accounts for
-+ *
-+ *      HashAlgorithmCount, SaltLength, and 1 HashAlgorithm.
-+ */
-+#define MIN_PREAUTH_CTXT_DATA_LEN 6
-+
- struct smb2_preauth_neg_context {
- 	__le16	ContextType; /* 1 */
- 	__le16	DataLength;
-@@ -346,7 +354,7 @@ struct smb2_preauth_neg_context {
- 	__le16	HashAlgorithmCount; /* 1 */
- 	__le16	SaltLength;
- 	__le16	HashAlgorithms; /* HashAlgorithms[0] since only one defined */
--	__u8	Salt[SMB311_SALT_SIZE];
-+	__u8	Salt[SMB311_LINUX_CLIENT_SALT_SIZE];
- } __packed;
- 
- /* Encryption Algorithms Ciphers */
+iEYEARECAAYFAl/pqnAACgkQMOfwapXb+vKC1gCgmzjlt67NwgFrNRpxB9XQH5bA
+4HQAnj9CzHKtEA7HbPHvfTCuEK9pGwmY
+=Ay4Y
+-----END PGP SIGNATURE-----
 
+--qMm9M+Fa2AknHoGS--
