@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 720B12E388B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B6F2E5FD7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731364AbgL1NKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:10:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
+        id S2405889AbgL1Nsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:48:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731359AbgL1NKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 246B022A84;
-        Mon, 28 Dec 2020 13:09:38 +0000 (UTC)
+        id S2405848AbgL1Nsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:48:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF6DB208BA;
+        Mon, 28 Dec 2020 13:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160979;
-        bh=k48YHGmEnT4sQWtHkPdkLaz6oOYF6LTXY9/Hwp2J8fc=;
+        s=korg; t=1609163270;
+        bh=TimHOi2l3Cn3cz0kU1swTkrhBXrNoxgAWGazdD8RELU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QUIM+Ftl3Ag78A0UFgzA7Ajdj3CkLiERMRuC8bnrbHKzQAXKU/0u+v2bC0TShYBO
-         3J+nfFCfguVgdMF+UMFDWUT1u06laQcrw0VJg+HAp8NNcoNmya6pcvtDcrMO/nx+Of
-         qjiaAXNgogrdMguFf2FC8R8lKQwdFtFCt6j9KwDQ=
+        b=J9p2dKvY5qhxve640DsnvwCEflyqq+BpvVWfKvBND6pThJggwz2fIx5mBtHF+oqaT
+         WIqp4L7QbRAQuasSs33IMUyxoOlN+cxeMYSr37Ge9SDQhBG6CKhrxS+mnB2YDuRGYq
+         8n2yaB6sQRnYGnh54F/Y0bzfFyifaFuzxR97EWwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>
-Subject: [PATCH 4.14 059/242] serial_core: Check for port state when tty is in error state
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 228/453] cpufreq: highbank: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 28 Dec 2020 13:47:44 +0100
-Message-Id: <20201228124907.588529532@linuxfoundation.org>
+Message-Id: <20201228124948.193073169@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,47 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Pali Rohár <pali@kernel.org>
 
-commit 2f70e49ed860020f5abae4f7015018ebc10e1f0e upstream.
+[ Upstream commit 9433777a6e0aae27468d3434b75cd51bb88ff711 ]
 
-At the moment opening a serial device node (such as /dev/ttyS3)
-succeeds even if there is no actual serial device behind it.
-Reading/writing/ioctls fail as expected because the uart port is not
-initialized (the type is PORT_UNKNOWN) and the TTY_IO_ERROR error state
-bit is set fot the tty.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-However setting line discipline does not have these checks
-8250_port.c (8250 is the default choice made by univ8250_console_init()).
-As the result of PORT_UNKNOWN, uart_port::iobase is NULL which
-a platform translates onto some address accessing which produces a crash
-like below.
-
-This adds tty_port_initialized() to uart_set_ldisc() to prevent the crash.
-
-Found by syzkaller.
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Link: https://lore.kernel.org/r/20201203055834.45838-1-aik@ozlabs.ru
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 6754f556103be ("cpufreq / highbank: add support for highbank cpufreq")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/cpufreq/highbank-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1434,6 +1434,10 @@ static void uart_set_ldisc(struct tty_st
- {
- 	struct uart_state *state = tty->driver_data;
- 	struct uart_port *uport;
-+	struct tty_port *port = &state->port;
-+
-+	if (!tty_port_initialized(port))
-+		return;
+diff --git a/drivers/cpufreq/highbank-cpufreq.c b/drivers/cpufreq/highbank-cpufreq.c
+index 5a7f6dafcddb6..ac57cddc5f2fe 100644
+--- a/drivers/cpufreq/highbank-cpufreq.c
++++ b/drivers/cpufreq/highbank-cpufreq.c
+@@ -101,6 +101,13 @@ out_put_node:
+ }
+ module_init(hb_cpufreq_driver_init);
  
- 	mutex_lock(&state->port.mutex);
- 	uport = uart_port_check(state);
++static const struct of_device_id __maybe_unused hb_cpufreq_of_match[] = {
++	{ .compatible = "calxeda,highbank" },
++	{ .compatible = "calxeda,ecx-2000" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, hb_cpufreq_of_match);
++
+ MODULE_AUTHOR("Mark Langsdorf <mark.langsdorf@calxeda.com>");
+ MODULE_DESCRIPTION("Calxeda Highbank cpufreq driver");
+ MODULE_LICENSE("GPL");
+-- 
+2.27.0
+
 
 
