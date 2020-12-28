@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4422E3772
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 969702E42F6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728575AbgL1Mzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:55:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
+        id S2407163AbgL1Nwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728572AbgL1Mze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8ED7208B6;
-        Mon, 28 Dec 2020 12:54:52 +0000 (UTC)
+        id S2407158AbgL1Nwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:52:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2BB7205CB;
+        Mon, 28 Dec 2020 13:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160093;
-        bh=FtP72I1KDnV7xvAsnjQh8CU7bdgkJDotqt1/5LqzBxc=;
+        s=korg; t=1609163520;
+        bh=wkgRYiQ9peJU+x7wP2bPPnDxmwh+pI6/UVGrQmVkiko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dshhCWJ7xc9lrcTyFQ4vWQnsxAjilquShTrrSbtNFCGEOPI+O9XlNM0mD4hVR+t7k
-         6Sq3iS9Equ+8hkxeE+8Ir2T+bif095aV5agxp7OGiKuA/ZiSk/6YSVT+DskKXNBik0
-         McLDATOPVzs2sqyEEhrzLsIhus1NBiKQg0z4yxs0=
+        b=1fPQn35SDE4bJmR00iMhViCOK6ijhH2dTfGIryjNS1sYCJUgvDXLYsMJeyKIIZEZ9
+         FoIGNgjLCCs0n8y4FHvMtk1VQkvlc8Ozfg1rHeHTMne5jQeLjnJeKATpdN+5GAPgcD
+         goUK1CqUYYfuG2DXnkrPXPV506/Z6CiFLwfU3xCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
+        Wenjing Liu <Wenjing.Liu@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/132] dm ioctl: fix error return code in target_message
+Subject: [PATCH 5.4 315/453] drm/amd/display: Prevent bandwidth overflow
 Date:   Mon, 28 Dec 2020 13:49:11 +0100
-Message-Id: <20201228124849.695546946@linuxfoundation.org>
+Message-Id: <20201228124952.365781046@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Chris Park <Chris.Park@amd.com>
 
-[ Upstream commit 4d7659bfbe277a43399a4a2d90fca141e70f29e1 ]
+[ Upstream commit 80089dd8410f356d5104496d5ab71a66a4f4646b ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+[Why]
+At very high pixel clock, bandwidth calculation exceeds 32 bit size
+and overflow value. This causes the resulting selection of link rate
+to be inaccurate.
 
-Fixes: 2ca4c92f58f9 ("dm ioctl: prevent empty message")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[How]
+Change order of operation and use fixed point to deal with integer
+accuracy. Also address bug found when forcing link rate.
+
+Signed-off-by: Chris Park <Chris.Park@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ioctl.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
-index 9371194677dc3..eab3f7325e310 100644
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -1539,6 +1539,7 @@ static int target_message(struct dm_ioctl *param, size_t param_size)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 47cefc05fd3f5..f933791f1fbbb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2906,11 +2906,14 @@ uint32_t dc_bandwidth_in_kbps_from_timing(
+ {
+ 	uint32_t bits_per_channel = 0;
+ 	uint32_t kbps;
++	struct fixed31_32 link_bw_kbps;
  
- 	if (!argc) {
- 		DMWARN("Empty message received.");
-+		r = -EINVAL;
- 		goto out_argv;
+ #ifdef CONFIG_DRM_AMD_DC_DSC_SUPPORT
+ 	if (timing->flags.DSC) {
+-		kbps = (timing->pix_clk_100hz * timing->dsc_cfg.bits_per_pixel);
+-		kbps = kbps / 160 + ((kbps % 160) ? 1 : 0);
++		link_bw_kbps = dc_fixpt_from_int(timing->pix_clk_100hz);
++		link_bw_kbps = dc_fixpt_div_int(link_bw_kbps, 160);
++		link_bw_kbps = dc_fixpt_mul_int(link_bw_kbps, timing->dsc_cfg.bits_per_pixel);
++		kbps = dc_fixpt_ceil(link_bw_kbps);
+ 		return kbps;
  	}
- 
+ #endif
 -- 
 2.27.0
 
