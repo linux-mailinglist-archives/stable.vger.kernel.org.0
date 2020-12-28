@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849822E3FCB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FDE2E38AD
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503088AbgL1OYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60642 "EHLO mail.kernel.org"
+        id S1732231AbgL1NNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:13:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503084AbgL1OYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0B2207B2;
-        Mon, 28 Dec 2020 14:23:51 +0000 (UTC)
+        id S1731134AbgL1NNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E340208BA;
+        Mon, 28 Dec 2020 13:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165432;
-        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
+        s=korg; t=1609161160;
+        bh=2Yzs0RJG/rrec0gELQ7GRzXpQJwfWuq9NsNKxqTfAds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r33Qd8Jpxpfv7vEFanBDAl4+Mm7649uCA/WlhY6i/tQwRkbsMfdvqmHKeplnW15tY
-         fZefDBAD0fN1Fpig/8PYfcjeQh/4pw8lLdu7PmfgGDWLyly0uGxVt1qtsSL+Evj67b
-         td3QEI0lSRT9e4fQfBSp9RtGr9ADYJthEovvI8Qk=
+        b=kjwu1bG+3b1a76+btRUXA82Erz/wvvAvNGBDCBktZaUI8TZB2c4Jrixkr4rJsFcIv
+         L6gnirLuGkpBVSiQnbBdZL6QTEFXsqRBvMWkzyxa3Qi5R059px5YRjQJKjx6w9UfX9
+         81OYL4ujR8t0Eu0BmZ4iSxOxNKjd2ClgAhOLDVpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 529/717] Input: cyapa_gen6 - fix out-of-bounds stack access
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 122/242] ath10k: Fix an error handling path
 Date:   Mon, 28 Dec 2020 13:48:47 +0100
-Message-Id: <20201228125046.313733217@linuxfoundation.org>
+Message-Id: <20201228124910.699456307@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
+[ Upstream commit ed3573bc3943c27d2d8e405a242f87ed14572ca1 ]
 
-gcc -Warray-bounds warns about a serious bug in
-cyapa_pip_retrieve_data_structure:
+If 'ath10k_usb_create()' fails, we should release some resources and report
+an error instead of silently continuing.
 
-drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
-include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
-   40 |  *((__le16 *)p) = cpu_to_le16(val);
-drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
-  569 |  } __packed cmd;
-      |             ^~~
-
-Apparently the '-2' was added to the pointer instead of the value,
-writing garbage into the stack next to this variable.
-
-Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4db66499df91 ("ath10k: add initial USB support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201122170342.1346011-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/cyapa_gen6.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
+diff --git a/drivers/net/wireless/ath/ath10k/usb.c b/drivers/net/wireless/ath/ath10k/usb.c
+index c64a03f164c0f..f4e6d84bfb91c 100644
+--- a/drivers/net/wireless/ath/ath10k/usb.c
++++ b/drivers/net/wireless/ath/ath10k/usb.c
+@@ -1019,6 +1019,8 @@ static int ath10k_usb_probe(struct usb_interface *interface,
  
- 	memset(&cmd, 0, sizeof(cmd));
- 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
--	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
-+	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
- 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
- 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
- 	put_unaligned_le16(read_offset, &cmd.read_offset);
+ 	ar_usb = ath10k_usb_priv(ar);
+ 	ret = ath10k_usb_create(ar, interface);
++	if (ret)
++		goto err;
+ 	ar_usb->ar = ar;
+ 
+ 	ar->dev_id = product_id;
+-- 
+2.27.0
+
 
 
