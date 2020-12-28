@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0994B2E39B9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E31612E62BB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389585AbgL1N1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S2406047AbgL1NtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:49:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389032AbgL1N1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:27:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D294E22475;
-        Mon, 28 Dec 2020 13:26:48 +0000 (UTC)
+        id S2406054AbgL1NtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:49:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 289A220715;
+        Mon, 28 Dec 2020 13:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162009;
-        bh=U0/U1i8HR0x+2CSCRKI1xVVEDqW7pG7qBP2HTZjGIaM=;
+        s=korg; t=1609163306;
+        bh=MWqhqV0WAUtwhvrl3yqTNNKtks1ZzA7/SxhcmSY+EG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOTxFL+XW4v7p71olNIFLLMji02szbO7gDhmjZU5+oRSf4NkLANpw7Mb/IN6JhCKG
-         F1BNj3aAJtB3C7h54gsVBptBwcnhOjiAZBRxFj3MRvCr5QD9QY7qi+8hPJujDP2k4j
-         PtVqy/2XwRDfaoHara257ABzHg7fc8A0ecZJWAoQ=
+        b=MOwfbyaHlY6poHO+zY0aFL5zh1Ke6ZKg74wkscE/b51qEdW0AC1tfF+IL2IHpL+xp
+         smqMi9IXqj/nggdrfFfgDNYJciXoI9aPTO2VXYaCorBUROx1pURytyEaSlRn0eByCn
+         X3vRfM1x54cxnVUg+ZjA8zhe5DXuRgC4k+y0WgUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/346] spi: tegra20-sflash: fix reference leak in tegra_sflash_resume
+Subject: [PATCH 5.4 210/453] powerpc/perf: Fix crash with is_sier_available when pmu is not set
 Date:   Mon, 28 Dec 2020 13:47:26 +0100
-Message-Id: <20201228124925.931148104@linuxfoundation.org>
+Message-Id: <20201228124947.323247747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 3482e797ab688da6703fe18d8bad52f94199f4f2 ]
+[ Upstream commit f75e7d73bdf73f07b0701a6d21c111ef5d9021dd ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in tegra_sflash_resume, so we should fix it.
+On systems without any specific PMU driver support registered, running
+'perf record' with —intr-regs  will crash ( perf record -I <workload> ).
 
-Fixes: 8528547bcc336 ("spi: tegra: add spi driver for sflash controller")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103141323.5841-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The relevant portion from crash logs and Call Trace:
+
+Unable to handle kernel paging request for data at address 0x00000068
+Faulting instruction address: 0xc00000000013eb18
+Oops: Kernel access of bad area, sig: 11 [#1]
+CPU: 2 PID: 13435 Comm: kill Kdump: loaded Not tainted 4.18.0-193.el8.ppc64le #1
+NIP:  c00000000013eb18 LR: c000000000139f2c CTR: c000000000393d80
+REGS: c0000004a07ab4f0 TRAP: 0300   Not tainted  (4.18.0-193.el8.ppc64le)
+NIP [c00000000013eb18] is_sier_available+0x18/0x30
+LR [c000000000139f2c] perf_reg_value+0x6c/0xb0
+Call Trace:
+[c0000004a07ab770] [c0000004a07ab7c8] 0xc0000004a07ab7c8 (unreliable)
+[c0000004a07ab7a0] [c0000000003aa77c] perf_output_sample+0x60c/0xac0
+[c0000004a07ab840] [c0000000003ab3f0] perf_event_output_forward+0x70/0xb0
+[c0000004a07ab8c0] [c00000000039e208] __perf_event_overflow+0x88/0x1a0
+[c0000004a07ab910] [c00000000039e42c] perf_swevent_hrtimer+0x10c/0x1d0
+[c0000004a07abc50] [c000000000228b9c] __hrtimer_run_queues+0x17c/0x480
+[c0000004a07abcf0] [c00000000022aaf4] hrtimer_interrupt+0x144/0x520
+[c0000004a07abdd0] [c00000000002a864] timer_interrupt+0x104/0x2f0
+[c0000004a07abe30] [c0000000000091c4] decrementer_common+0x114/0x120
+
+When perf record session is started with "-I" option, capturing registers
+on each sample calls is_sier_available() to check for the
+SIER (Sample Instruction Event Register) availability in the platform.
+This function in core-book3s accesses 'ppmu->flags'. If a platform specific
+PMU driver is not registered, ppmu is set to NULL and accessing its
+members results in a crash. Fix the crash by returning false in
+is_sier_available() if ppmu is not set.
+
+Fixes: 333804dc3b7a ("powerpc/perf: Update perf_regs structure to include SIER")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1606185640-1720-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-sflash.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/perf/core-book3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-tegra20-sflash.c b/drivers/spi/spi-tegra20-sflash.c
-index 22893a7e0aa0e..749288310c36c 100644
---- a/drivers/spi/spi-tegra20-sflash.c
-+++ b/drivers/spi/spi-tegra20-sflash.c
-@@ -564,6 +564,7 @@ static int tegra_sflash_resume(struct device *dev)
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index f582aa2d98078..7bf1adcdfdaa1 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -133,6 +133,9 @@ static void pmao_restore_workaround(bool ebb) { }
  
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(dev);
- 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
- 		return ret;
- 	}
+ bool is_sier_available(void)
+ {
++	if (!ppmu)
++		return false;
++
+ 	if (ppmu->flags & PPMU_HAS_SIER)
+ 		return true;
+ 
 -- 
 2.27.0
 
