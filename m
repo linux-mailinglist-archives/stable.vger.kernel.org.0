@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08FB2E4220
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:18:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA0A2E3C86
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437201AbgL1ODo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:03:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S2437216AbgL1ODr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:03:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437160AbgL1ODn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:03:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 934B020791;
-        Mon, 28 Dec 2020 14:03:02 +0000 (UTC)
+        id S2437185AbgL1ODq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:03:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE7E207A9;
+        Mon, 28 Dec 2020 14:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164183;
-        bh=olZj1KjHhUKMN6RTBuDdrUGOGUDZ914utUyJaUpZVhE=;
+        s=korg; t=1609164185;
+        bh=rfExsww83arYKhUC20ckG0nEuoMmRNcFwTtyPdSk7UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRA1AFdCqzuR3Z7R5wDX+XeczaNHLbyab7RsmqJ0zHuGgB6ErvsHWmayL6JcKkbnX
-         Fraj+ITOQpXxfoBS9tI67LZpWDLoNW3YWxUIFz2idfpj3pqWB/fayX/ZtQ6rSG/PcK
-         jsa9PxECuxFtRdnjqfgpKFjTMkQyyfo6+eDGmlnI=
+        b=GTl5pjtk7nFkeYwQTNaE6V9PLf7i0pDCkQF0h+8UbtgKAiZnW+XrbKshMD3oCgJ/W
+         KylmcavL4/cMvimwEwCx1cFDQo6sTsan8tY/Hag90vsKHsMg5uhc6bQQB/yUjdtX3E
+         Vhr2d/JKvRxZpjznNVSc6Md9RxQ7QLuUkdElPC10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhinav Kumar <abhinavk@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/717] drm/msm/dp: do not notify audio subsystem if sink doesnt support audio
-Date:   Mon, 28 Dec 2020 13:41:29 +0100
-Message-Id: <20201228125025.336303531@linuxfoundation.org>
+Subject: [PATCH 5.10 092/717] selftests/run_kselftest.sh: fix dry-run typo
+Date:   Mon, 28 Dec 2020 13:41:30 +0100
+Message-Id: <20201228125025.383373808@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,48 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhinav Kumar <abhinavk@codeaurora.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit e8c765811b1064c200829eacf237ac8c25e79cd0 ]
+[ Upstream commit 93f20eff0cca972d74cb554a2e8b47730228be16 ]
 
-For sinks that do not support audio, there is no need to notify
-audio subsystem of the connection event.
+Should be -d instead of -n for dry-run.
 
-This will make sure that audio routes only to the primary display
-when connected to such sinks.
-
-changes in v2:
-  - Added fixes tag
-  - Removed nested if condition and removed usage of global pointer
-
-Fixes: d13e36d7d222 ("drm/msm/dp: add audio support for Display Port on MSM")
-Signed-off-by: Abhinav Kumar <abhinavk@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 5da1918446a1 ("selftests/run_kselftest.sh: Make each test individually selectable")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ tools/testing/selftests/run_kselftest.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 8703c63d85c87..fe0279542a1c2 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -563,7 +563,14 @@ static int dp_connect_pending_timeout(struct dp_display_private *dp, u32 data)
- static void dp_display_handle_plugged_change(struct msm_dp *dp_display,
- 		bool plugged)
- {
--	if (dp_display->plugged_cb && dp_display->codec_dev)
-+	struct dp_display_private *dp;
-+
-+	dp = container_of(dp_display,
-+			struct dp_display_private, dp_display);
-+
-+	/* notify audio subsystem only if sink supports audio */
-+	if (dp_display->plugged_cb && dp_display->codec_dev &&
-+			dp->audio_supported)
- 		dp_display->plugged_cb(dp_display->codec_dev, plugged);
- }
- 
+diff --git a/tools/testing/selftests/run_kselftest.sh b/tools/testing/selftests/run_kselftest.sh
+index 609a4ef9300e3..97165a83df632 100755
+--- a/tools/testing/selftests/run_kselftest.sh
++++ b/tools/testing/selftests/run_kselftest.sh
+@@ -48,7 +48,7 @@ while true; do
+ 		-l | --list)
+ 			echo "$available"
+ 			exit 0 ;;
+-		-n | --dry-run)
++		-d | --dry-run)
+ 			dryrun="echo"
+ 			shift ;;
+ 		-h | --help)
 -- 
 2.27.0
 
