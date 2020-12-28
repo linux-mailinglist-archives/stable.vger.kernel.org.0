@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99DA2E393F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 745882E40C6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:57:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388003AbgL1NVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:21:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49632 "EHLO mail.kernel.org"
+        id S2504210AbgL1O5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:57:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387831AbgL1NVJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:21:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E341207CF;
-        Mon, 28 Dec 2020 13:20:27 +0000 (UTC)
+        id S2391774AbgL1OQY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:16:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B77A220731;
+        Mon, 28 Dec 2020 14:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161628;
-        bh=VnU2hsuye1dxQWSsDFeU5tHpZiqoe5rdbw3/tas6XXo=;
+        s=korg; t=1609164944;
+        bh=LgldpMDVU4q8dllax2srGkExxRoqlemJ1a2XzNMXvZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMQgGfy08irkMOEMtoNUoAmywbzP6SDAaHHx6ZHVF1ZDjgvrkYP0ihcTs0j89sS5E
-         EL5t7T6c0grn2eC7vlE+xMIJ+RzjXMoG9aGgyh8ihusDH0CkVF2NcDuSx7+ehBG+m9
-         xGrYrxgPca7blUSs7HNTtk7XI9/vjXLVjyRaOxxs=
+        b=FMZVvYFnRNcMJtjC/ckovdL4pTkURF1LRqLVll2P1n7fGVy5uQcvLOwXDsSrwUUr5
+         4/rEoSq9JMX+5TO5obKW36CIiZcjnbUrh3Kduycq7HuJ7x1yl3tc/at+HZZlEF2SuE
+         DJXQwSgPnoN55HzJRgns1hBbYfft+3MbJab9w7uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 034/346] net/mlx4_en: Handle TX error CQE
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 355/717] clk: fsl-sai: fix memory leak
 Date:   Mon, 28 Dec 2020 13:45:53 +0100
-Message-Id: <20201228124921.431293634@linuxfoundation.org>
+Message-Id: <20201228125038.028369564@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit ba603d9d7b1215c72513d7c7aa02b6775fd4891b ]
+[ Upstream commit e81bed419f032824e7ddf8b5630153be6637e480 ]
 
-In case error CQE was found while polling TX CQ, the QP is in error
-state and all posted WQEs will generate error CQEs without any data
-transmitted. Fix it by reopening the channels, via same method used for
-TX timeout handling.
+If the device is removed we don't unregister the composite clock. Fix
+that.
 
-In addition add some more info on error CQE and WQE for debug.
-
-Fixes: bd2f631d7c60 ("net/mlx4_en: Notify user when TX ring in error state")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9cd10205227c ("clk: fsl-sai: new driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20201105192746.19564-2-michael@walle.cc
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    1 
- drivers/net/ethernet/mellanox/mlx4/en_tx.c     |   40 ++++++++++++++++++++-----
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    5 +++
- 3 files changed, 39 insertions(+), 7 deletions(-)
+ drivers/clk/clk-fsl-sai.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1741,6 +1741,7 @@ int mlx4_en_start_port(struct net_device
- 				mlx4_en_deactivate_cq(priv, cq);
- 				goto tx_err;
- 			}
-+			clear_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &tx_ring->state);
- 			if (t != TX_XDP) {
- 				tx_ring->tx_queue = netdev_get_tx_queue(dev, i);
- 				tx_ring->recycle_ring = NULL;
---- a/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-@@ -385,6 +385,35 @@ int mlx4_en_free_tx_buf(struct net_devic
- 	return cnt;
+diff --git a/drivers/clk/clk-fsl-sai.c b/drivers/clk/clk-fsl-sai.c
+index 0221180a4dd73..1e81c8d8a6fd3 100644
+--- a/drivers/clk/clk-fsl-sai.c
++++ b/drivers/clk/clk-fsl-sai.c
+@@ -68,9 +68,20 @@ static int fsl_sai_clk_probe(struct platform_device *pdev)
+ 	if (IS_ERR(hw))
+ 		return PTR_ERR(hw);
+ 
++	platform_set_drvdata(pdev, hw);
++
+ 	return devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get, hw);
  }
  
-+static void mlx4_en_handle_err_cqe(struct mlx4_en_priv *priv, struct mlx4_err_cqe *err_cqe,
-+				   u16 cqe_index, struct mlx4_en_tx_ring *ring)
++static int fsl_sai_clk_remove(struct platform_device *pdev)
 +{
-+	struct mlx4_en_dev *mdev = priv->mdev;
-+	struct mlx4_en_tx_info *tx_info;
-+	struct mlx4_en_tx_desc *tx_desc;
-+	u16 wqe_index;
-+	int desc_size;
++	struct clk_hw *hw = platform_get_drvdata(pdev);
 +
-+	en_err(priv, "CQE error - cqn 0x%x, ci 0x%x, vendor syndrome: 0x%x syndrome: 0x%x\n",
-+	       ring->sp_cqn, cqe_index, err_cqe->vendor_err_syndrome, err_cqe->syndrome);
-+	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, err_cqe, sizeof(*err_cqe),
-+		       false);
++	clk_hw_unregister_composite(hw);
 +
-+	wqe_index = be16_to_cpu(err_cqe->wqe_index) & ring->size_mask;
-+	tx_info = &ring->tx_info[wqe_index];
-+	desc_size = tx_info->nr_txbb << LOG_TXBB_SIZE;
-+	en_err(priv, "Related WQE - qpn 0x%x, wqe index 0x%x, wqe size 0x%x\n", ring->qpn,
-+	       wqe_index, desc_size);
-+	tx_desc = ring->buf + (wqe_index << LOG_TXBB_SIZE);
-+	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, tx_desc, desc_size, false);
-+
-+	if (test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
-+		return;
-+
-+	en_err(priv, "Scheduling port restart\n");
-+	queue_work(mdev->workqueue, &priv->restart_task);
++	return 0;
 +}
 +
- bool mlx4_en_process_tx_cq(struct net_device *dev,
- 			   struct mlx4_en_cq *cq, int napi_budget)
- {
-@@ -431,13 +460,10 @@ bool mlx4_en_process_tx_cq(struct net_de
- 		dma_rmb();
+ static const struct of_device_id of_fsl_sai_clk_ids[] = {
+ 	{ .compatible = "fsl,vf610-sai-clock" },
+ 	{ }
+@@ -79,6 +90,7 @@ MODULE_DEVICE_TABLE(of, of_fsl_sai_clk_ids);
  
- 		if (unlikely((cqe->owner_sr_opcode & MLX4_CQE_OPCODE_MASK) ==
--			     MLX4_CQE_OPCODE_ERROR)) {
--			struct mlx4_err_cqe *cqe_err = (struct mlx4_err_cqe *)cqe;
--
--			en_err(priv, "CQE error - vendor syndrome: 0x%x syndrome: 0x%x\n",
--			       cqe_err->vendor_err_syndrome,
--			       cqe_err->syndrome);
--		}
-+			     MLX4_CQE_OPCODE_ERROR))
-+			if (!test_and_set_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &ring->state))
-+				mlx4_en_handle_err_cqe(priv, (struct mlx4_err_cqe *)cqe, index,
-+						       ring);
- 
- 		/* Skip over last polled CQE */
- 		new_index = be16_to_cpu(cqe->wqe_index) & size_mask;
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -271,6 +271,10 @@ struct mlx4_en_page_cache {
- 	} buf[MLX4_EN_CACHE_SIZE];
- };
- 
-+enum {
-+	MLX4_EN_TX_RING_STATE_RECOVERING,
-+};
-+
- struct mlx4_en_priv;
- 
- struct mlx4_en_tx_ring {
-@@ -317,6 +321,7 @@ struct mlx4_en_tx_ring {
- 	 * Only queue_stopped might be used if BQL is not properly working.
- 	 */
- 	unsigned long		queue_stopped;
-+	unsigned long		state;
- 	struct mlx4_hwq_resources sp_wqres;
- 	struct mlx4_qp		sp_qp;
- 	struct mlx4_qp_context	sp_context;
+ static struct platform_driver fsl_sai_clk_driver = {
+ 	.probe = fsl_sai_clk_probe,
++	.remove = fsl_sai_clk_remove,
+ 	.driver		= {
+ 		.name	= "fsl-sai-clk",
+ 		.of_match_table = of_fsl_sai_clk_ids,
+-- 
+2.27.0
+
 
 
