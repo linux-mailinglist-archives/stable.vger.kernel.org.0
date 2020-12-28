@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0571D2E6847
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 263932E658A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730022AbgL1NCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:02:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58042 "EHLO mail.kernel.org"
+        id S2390503AbgL1QCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730035AbgL1NCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:02:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F7EB22583;
-        Mon, 28 Dec 2020 13:02:01 +0000 (UTC)
+        id S2390209AbgL1N3z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D68322AAA;
+        Mon, 28 Dec 2020 13:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160522;
-        bh=YWnU8QvDzIhKr4Qb2qPC6Jms2L0PaIX72e89p6sK0eA=;
+        s=korg; t=1609162179;
+        bh=v2j1NgCtxry56d7xIUjlsxc1o//7prUvdw6+0kbhgtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZezcrRAeoGa+I5k2oYlaHHu7vFhLcJRipqEilKkuelV/dh5X32A44juPhgwwoVs/
-         7yyEYtrSkM9m5xidbo4AHknA753dr0HSfxXyHRJWqzLkBGGyBJIeujzUbFFVs0qj+c
-         fDrUesBWpmekYU9v9guhvYJjp7F3LO8zCwqgvD3g=
+        b=AfLQJaQ0lf4bfOTj6q1r7Nnt8d558hE6zDUznxdGnwN5QWwaGsp59l61p3hl0Y/vR
+         WBZQ9HMi4h7ilinM51vK3LZAtcZ5OzfbO2KxfQFvi88+htmSRVx9OdWjJJfsgL5Emr
+         eoJG8W5pyaS6RT5ep5rHzfWUqeTLntbAjkVO0D4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 079/175] ARM: dts: at91: sama5d3_xplained: add pincontrol for USB Host
+Subject: [PATCH 4.19 213/346] platform/x86: mlx-platform: Fix item counter assignment for MSN2700, MSN24xx systems
 Date:   Mon, 28 Dec 2020 13:48:52 +0100
-Message-Id: <20201228124857.061505086@linuxfoundation.org>
+Message-Id: <20201228124930.084876385@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Birsan <cristian.birsan@microchip.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-[ Upstream commit e1062fa7292f1e3744db0a487c4ac0109e09b03d ]
+[ Upstream commit ba4939f1dd46dde08c2f9b9d7ac86ed3ea7ead86 ]
 
-The pincontrol node is needed for USB Host since Linux v5.7-rc1. Without
-it the driver probes but VBus is not powered because of wrong pincontrol
-configuration.
+Fix array names to match assignments for data items and data items
+counter in 'mlxplat_mlxcpld_default_items' structure for:
+	.data = mlxplat_mlxcpld_default_pwr_items_data,
+	.count = ARRAY_SIZE(mlxplat_mlxcpld_pwr),
+and
+	.data = mlxplat_mlxcpld_default_fan_items_data,
+	.count = ARRAY_SIZE(mlxplat_mlxcpld_fan),
 
-Fixes: b7c2b61570798 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
-Signed-off-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Link: https://lore.kernel.org/r/20201118120019.1257580-4-cristian.birsan@microchip.com
+Replace:
+- 'mlxplat_mlxcpld_pwr' by 'mlxplat_mlxcpld_default_pwr_items_data' for
+   ARRAY_SIZE() calculation.
+- 'mlxplat_mlxcpld_fan' by 'mlxplat_mlxcpld_default_fan_items_data'
+   for ARRAY_SIZE() calculation.
+
+Fixes: c6acad68eb2d ("platform/mellanox: mlxreg-hotplug: Modify to use a regmap interface")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/20201207174745.22889-2-vadimp@nvidia.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama5d3_xplained.dts | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/platform/x86/mlx-platform.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d3_xplained.dts b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-index 5a53fcf542abb..07133c5ad2944 100644
---- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-@@ -231,6 +231,11 @@
- 						atmel,pins =
- 							<AT91_PIOE 9 AT91_PERIPH_GPIO AT91_PINCTRL_DEGLITCH>;	/* PE9, conflicts with A9 */
- 					};
-+					pinctrl_usb_default: usb_default {
-+						atmel,pins =
-+							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 			};
- 		};
-@@ -288,6 +293,8 @@
- 					   &pioE 3 GPIO_ACTIVE_LOW
- 					   &pioE 4 GPIO_ACTIVE_LOW
- 					  >;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&pinctrl_usb_default>;
- 			status = "okay";
- 		};
- 
+diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
+index 850c719de68d4..39f2c0428a046 100644
+--- a/drivers/platform/x86/mlx-platform.c
++++ b/drivers/platform/x86/mlx-platform.c
+@@ -333,7 +333,7 @@ static struct mlxreg_core_item mlxplat_mlxcpld_default_items[] = {
+ 		.aggr_mask = MLXPLAT_CPLD_AGGR_PWR_MASK_DEF,
+ 		.reg = MLXPLAT_CPLD_LPC_REG_PWR_OFFSET,
+ 		.mask = MLXPLAT_CPLD_PWR_MASK,
+-		.count = ARRAY_SIZE(mlxplat_mlxcpld_pwr),
++		.count = ARRAY_SIZE(mlxplat_mlxcpld_default_pwr_items_data),
+ 		.inversed = 0,
+ 		.health = false,
+ 	},
+@@ -342,7 +342,7 @@ static struct mlxreg_core_item mlxplat_mlxcpld_default_items[] = {
+ 		.aggr_mask = MLXPLAT_CPLD_AGGR_FAN_MASK_DEF,
+ 		.reg = MLXPLAT_CPLD_LPC_REG_FAN_OFFSET,
+ 		.mask = MLXPLAT_CPLD_FAN_MASK,
+-		.count = ARRAY_SIZE(mlxplat_mlxcpld_fan),
++		.count = ARRAY_SIZE(mlxplat_mlxcpld_default_fan_items_data),
+ 		.inversed = 1,
+ 		.health = false,
+ 	},
 -- 
 2.27.0
 
