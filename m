@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EEC12E3ACE
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4B32E40D2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:58:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404065AbgL1Nlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:41:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42106 "EHLO mail.kernel.org"
+        id S2440576AbgL1OPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404060AbgL1Nlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C7C20719;
-        Mon, 28 Dec 2020 13:41:09 +0000 (UTC)
+        id S2440574AbgL1OPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:15:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1633207AB;
+        Mon, 28 Dec 2020 14:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162870;
-        bh=n7rfappW7oWifF3CAQFWAjlT9yzb30DGpKhwAeCeXHk=;
+        s=korg; t=1609164864;
+        bh=gTLGYdL02XKs0yupekkeEsMyPVc7aRlL9Kj0z/zmwxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxqkOqCUg5j5drYYtmUerzTO2sFV9EmRAF6Q9zjmqBsrNJXA3o/t82SQgpVoaX2tl
-         tPl6fMX7XjS7EU5yenESteqYjY1zBAVBvP6Tra779Qfyy2uAUbPDwIX0Unok81zm1x
-         BpoerqShNyOzUyZxIYJKt1BKg8jvFqT7y+kOyy2c=
+        b=sbh/KWow4Z5Ih+bY4kcm0Jd9qpUNe71FPr22TPGdf7zOTjM7JzLeXjuXNDBxgK8W2
+         KYtLl83rm4ufJ44y9jA+XNAnMqggisQztowX/xk59BbhBLx/vu5WpmttrQsuKrjj4H
+         S3+bhGpgikrzJ8z9b9VX85c2GAOm4xTNZmA2VQYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/453] ARM: p2v: fix handling of LPAE translation in BE mode
+Subject: [PATCH 5.10 327/717] cpufreq: st: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 28 Dec 2020 13:45:25 +0100
-Message-Id: <20201228124941.514883045@linuxfoundation.org>
+Message-Id: <20201228125036.686052143@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 4e79f0211b473f8e1eab8211a9fd50cc41a3a061 ]
+[ Upstream commit 183747ab52654eb406fc6b5bfb40806b75d31811 ]
 
-When running in BE mode on LPAE hardware with a PA-to-VA translation
-that exceeds 4 GB, we patch bits 39:32 of the offset into the wrong
-byte of the opcode. So fix that, by rotating the offset in r0 to the
-right by 8 bits, which will put the 8-bit immediate in bits 31:24.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-Note that this will also move bit #22 in its correct place when
-applying the rotation to the constant #0x400000.
-
-Fixes: d9a790df8e984 ("ARM: 7883/1: fix mov to mvn conversion in case of 64 bit phys_addr_t and BE")
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: ab0ea257fc58d ("cpufreq: st: Provide runtime initialised driver for ST's platforms")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/head.S | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/cpufreq/sti-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
-index c49b39340ddbd..f1cdc1f369575 100644
---- a/arch/arm/kernel/head.S
-+++ b/arch/arm/kernel/head.S
-@@ -671,12 +671,8 @@ ARM_BE8(rev16	ip, ip)
- 	ldrcc	r7, [r4], #4	@ use branch for delay slot
- 	bcc	1b
- 	bx	lr
--#else
--#ifdef CONFIG_CPU_ENDIAN_BE8
--	moveq	r0, #0x00004000	@ set bit 22, mov to mvn instruction
- #else
- 	moveq	r0, #0x400000	@ set bit 22, mov to mvn instruction
--#endif
- 	b	2f
- 1:	ldr	ip, [r7, r3]
- #ifdef CONFIG_CPU_ENDIAN_BE8
-@@ -685,7 +681,7 @@ ARM_BE8(rev16	ip, ip)
- 	tst	ip, #0x000f0000	@ check the rotation field
- 	orrne	ip, ip, r6, lsl #24 @ mask in offset bits 31-24
- 	biceq	ip, ip, #0x00004000 @ clear bit 22
--	orreq	ip, ip, r0      @ mask in offset bits 7-0
-+	orreq	ip, ip, r0, ror #8  @ mask in offset bits 7-0
- #else
- 	bic	ip, ip, #0x000000ff
- 	tst	ip, #0xf00	@ check the rotation field
+diff --git a/drivers/cpufreq/sti-cpufreq.c b/drivers/cpufreq/sti-cpufreq.c
+index 4ac6fb23792a0..c40d3d7d4ea43 100644
+--- a/drivers/cpufreq/sti-cpufreq.c
++++ b/drivers/cpufreq/sti-cpufreq.c
+@@ -292,6 +292,13 @@ register_cpufreq_dt:
+ }
+ module_init(sti_cpufreq_init);
+ 
++static const struct of_device_id __maybe_unused sti_cpufreq_of_match[] = {
++	{ .compatible = "st,stih407" },
++	{ .compatible = "st,stih410" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, sti_cpufreq_of_match);
++
+ MODULE_DESCRIPTION("STMicroelectronics CPUFreq/OPP driver");
+ MODULE_AUTHOR("Ajitpal Singh <ajitpal.singh@st.com>");
+ MODULE_AUTHOR("Lee Jones <lee.jones@linaro.org>");
 -- 
 2.27.0
 
