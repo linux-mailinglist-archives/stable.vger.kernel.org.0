@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9E92E374F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 400F62E38AB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728226AbgL1Mxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:53:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
+        id S1732212AbgL1NNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:13:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728205AbgL1Mxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E7E6207C9;
-        Mon, 28 Dec 2020 12:52:54 +0000 (UTC)
+        id S1732207AbgL1NNP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DE9D22AAA;
+        Mon, 28 Dec 2020 13:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159975;
-        bh=tPHNLy6ChmPxCDv8jojGpiPaY8KCHrWmaRARlMv547s=;
+        s=korg; t=1609161154;
+        bh=QfsbsvBUQaN7YX5Yo3V4C7JbuS2Go+0I3tJcw22i5b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVUZyw/k8SZTBwPZghn6x0f6acflo+waqL653w6x+OcmOeYfGIcxrO/x4JspEhHn2
-         BWwWRkf8EouztyOV9GgmJt9I9LjxCWBKAua/cWrhmWXUmXEKvv9wF2UIvYqWQAHUc5
-         PzauRwD3eK/sYdLEW5b6+lgMoTZ8i+OtVVaUDrHM=
+        b=Dml43/BpTbvF4UPf/yzwn4c5/kxVIsYstJVZIS0uj8rmrubEFgQizQdap6b7rosSq
+         Fq/AtddcRYfguaJcGi8rac586xnfwU0s8ROFHX0rCn66og2zQs8aB4weDwRw50K/Um
+         KQadHeYk0GhqkVgyQJsSxGEy5T971eraQe2NjhM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Bharat Gooty <bharat.gooty@broadcom.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/132] spi: tegra114: fix reference leak in tegra spi ops
+Subject: [PATCH 4.14 120/242] PCI: iproc: Fix out-of-bound array accesses
 Date:   Mon, 28 Dec 2020 13:48:45 +0100
-Message-Id: <20201228124848.403661294@linuxfoundation.org>
+Message-Id: <20201228124910.603364980@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Bharat Gooty <bharat.gooty@broadcom.com>
 
-[ Upstream commit a042184c7fb99961ea083d4ec192614bec671969 ]
+[ Upstream commit a3ff529f5d368a17ff35ada8009e101162ebeaf9 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in two callers(tegra_spi_setup and
-tegra_spi_resume), so we should fix it.
+Declare the full size array for all revisions of PAX register sets
+to avoid potentially out of bound access of the register array
+when they are being initialized in iproc_pcie_rev_init().
 
-Fixes: f333a331adfac ("spi/tegra114: add spi driver")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201103141306.5607-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20201001060054.6616-2-srinath.mannam@broadcom.com
+Fixes: 06324ede76cdf ("PCI: iproc: Improve core register population")
+Signed-off-by: Bharat Gooty <bharat.gooty@broadcom.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra114.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/host/pcie-iproc.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index e37712bed0b2d..d1ca8f619b828 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -801,6 +801,7 @@ static int tegra_spi_setup(struct spi_device *spi)
+diff --git a/drivers/pci/host/pcie-iproc.c b/drivers/pci/host/pcie-iproc.c
+index 8f8dac0155d63..2565abbe1a910 100644
+--- a/drivers/pci/host/pcie-iproc.c
++++ b/drivers/pci/host/pcie-iproc.c
+@@ -306,7 +306,7 @@ enum iproc_pcie_reg {
+ };
  
- 	ret = pm_runtime_get_sync(tspi->dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(tspi->dev);
- 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
- 		return ret;
- 	}
-@@ -1214,6 +1215,7 @@ static int tegra_spi_resume(struct device *dev)
+ /* iProc PCIe PAXB BCMA registers */
+-static const u16 iproc_pcie_reg_paxb_bcma[] = {
++static const u16 iproc_pcie_reg_paxb_bcma[IPROC_PCIE_MAX_NUM_REG] = {
+ 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
+ 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
+ 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
+@@ -317,7 +317,7 @@ static const u16 iproc_pcie_reg_paxb_bcma[] = {
+ };
  
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0) {
-+		pm_runtime_put_noidle(dev);
- 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
- 		return ret;
- 	}
+ /* iProc PCIe PAXB registers */
+-static const u16 iproc_pcie_reg_paxb[] = {
++static const u16 iproc_pcie_reg_paxb[IPROC_PCIE_MAX_NUM_REG] = {
+ 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
+ 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
+ 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
+@@ -333,7 +333,7 @@ static const u16 iproc_pcie_reg_paxb[] = {
+ };
+ 
+ /* iProc PCIe PAXB v2 registers */
+-static const u16 iproc_pcie_reg_paxb_v2[] = {
++static const u16 iproc_pcie_reg_paxb_v2[IPROC_PCIE_MAX_NUM_REG] = {
+ 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
+ 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x120,
+ 	[IPROC_PCIE_CFG_IND_DATA]	= 0x124,
+@@ -361,7 +361,7 @@ static const u16 iproc_pcie_reg_paxb_v2[] = {
+ };
+ 
+ /* iProc PCIe PAXC v1 registers */
+-static const u16 iproc_pcie_reg_paxc[] = {
++static const u16 iproc_pcie_reg_paxc[IPROC_PCIE_MAX_NUM_REG] = {
+ 	[IPROC_PCIE_CLK_CTRL]		= 0x000,
+ 	[IPROC_PCIE_CFG_IND_ADDR]	= 0x1f0,
+ 	[IPROC_PCIE_CFG_IND_DATA]	= 0x1f4,
+@@ -370,7 +370,7 @@ static const u16 iproc_pcie_reg_paxc[] = {
+ };
+ 
+ /* iProc PCIe PAXC v2 registers */
+-static const u16 iproc_pcie_reg_paxc_v2[] = {
++static const u16 iproc_pcie_reg_paxc_v2[IPROC_PCIE_MAX_NUM_REG] = {
+ 	[IPROC_PCIE_MSI_GIC_MODE]	= 0x050,
+ 	[IPROC_PCIE_MSI_BASE_ADDR]	= 0x074,
+ 	[IPROC_PCIE_MSI_WINDOW_SIZE]	= 0x078,
 -- 
 2.27.0
 
