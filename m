@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD002E429D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C102E64EE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407557AbgL1N6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:58:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60016 "EHLO mail.kernel.org"
+        id S2390299AbgL1Ngq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:36:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391620AbgL1N6R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 724DC206D4;
-        Mon, 28 Dec 2020 13:57:36 +0000 (UTC)
+        id S2390757AbgL1Ngp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5B0B208B3;
+        Mon, 28 Dec 2020 13:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163857;
-        bh=QUQBwe+w8UY2x4I69f9tbE4aqveZ8D5HF1lCcBfUCWI=;
+        s=korg; t=1609162590;
+        bh=L9b+n1hCMZtqDIVFQ/pZDCvENED2Cxb2QKO1Mlgv+Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uY99wrkpbzOZiK5Wyu3uRd0/QF3P6dSW8QIZTBRjcXX6u1hwttX61eVsv1HL8cAKF
-         PP1Q9BXmJR376JiUoy0Q1dePYHf4SvpFATXAnYLdMx0TJtQV/+zSv2/P42UVaioQle
-         FSmzFWYd/JerLzcisCBRVRKh95KjijIDMJxiW2q8=
+        b=JGEW5unHfLPVB89ad7KOkA5hKq1QvXCxwk/I6p1rwS006iFxMUOmPeykCikJRKIsV
+         BLGJJ5YKAA2unY7e2edvw7ljmQyjbsAxWU7PK4Jc/mj+DFU66y7urc+fhs0yCf3jGO
+         nK42Vv8W39GpQOOnE20FT2gCqGRi+YgCML/RuyBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 405/453] spi: fsl: fix use of spisel_boot signal on MPC8309
-Date:   Mon, 28 Dec 2020 13:50:41 +0100
-Message-Id: <20201228124956.701538844@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 4.19 323/346] mtd: spinand: Fix OOB read
+Date:   Mon, 28 Dec 2020 13:50:42 +0100
+Message-Id: <20201228124935.397724080@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +38,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 122541f2b10897b08f7f7e6db5f1eb693e51f0a1 upstream.
+commit 868cbe2a6dcee451bd8f87cbbb2a73cf463b57e5 upstream.
 
-Commit 0f0581b24bd0 ("spi: fsl: Convert to use CS GPIO descriptors")
-broke the use of the SPISEL_BOOT signal as a chip select on the
-MPC8309.
+So far OOB have never been used in SPI-NAND, add the missing memcpy to
+make it work properly.
 
-pdata->max_chipselect, which becomes master->num_chipselect, must be
-initialized to take into account the possibility that there's one more
-chip select in use than the number of GPIO chip selects.
-
-Cc: stable@vger.kernel.org # v5.4+
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 0f0581b24bd0 ("spi: fsl: Convert to use CS GPIO descriptors")
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Link: https://lore.kernel.org/r/20201127152947.376-1-rasmus.villemoes@prevas.dk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20201001102014.20100-6-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-fsl-spi.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/spi/core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -717,10 +717,11 @@ static int of_fsl_spi_probe(struct platf
- 	type = fsl_spi_get_type(&ofdev->dev);
- 	if (type == TYPE_FSL) {
- 		struct fsl_spi_platform_data *pdata = dev_get_platdata(dev);
-+		bool spisel_boot = false;
- #if IS_ENABLED(CONFIG_FSL_SOC)
- 		struct mpc8xxx_spi_probe_info *pinfo = to_of_pinfo(pdata);
--		bool spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
- 
-+		spisel_boot = of_property_read_bool(np, "fsl,spisel_boot");
- 		if (spisel_boot) {
- 			pinfo->immr_spi_cs = ioremap(get_immrbase() + IMMR_SPI_CS_OFFSET, 4);
- 			if (!pinfo->immr_spi_cs) {
-@@ -737,10 +738,14 @@ static int of_fsl_spi_probe(struct platf
- 		 * supported on the GRLIB variant.
- 		 */
- 		ret = gpiod_count(dev, "cs");
--		if (ret <= 0)
-+		if (ret < 0)
-+			ret = 0;
-+		if (ret == 0 && !spisel_boot) {
- 			pdata->max_chipselect = 1;
--		else
-+		} else {
-+			pdata->max_chipselect = ret + spisel_boot;
- 			pdata->cs_control = fsl_spi_cs_control;
-+		}
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -378,6 +378,10 @@ static int spinand_write_to_cache_op(str
+ 		}
  	}
  
- 	ret = of_address_to_resource(np, 0, &mem);
++	if (req->ooblen)
++		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
++		       req->ooblen);
++
+ 	return 0;
+ }
+ 
 
 
