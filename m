@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CB92E4281
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAA72E4284
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407522AbgL1N66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:58:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60342 "EHLO mail.kernel.org"
+        id S2436490AbgL1N7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407541AbgL1N6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 025A42063A;
-        Mon, 28 Dec 2020 13:58:37 +0000 (UTC)
+        id S2407630AbgL1N7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:59:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE36D206E5;
+        Mon, 28 Dec 2020 13:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163918;
-        bh=wWdwbggOAEpP2APycyx8kFOaofaTw6L3Q2Oc8VRWULA=;
+        s=korg; t=1609163921;
+        bh=B5J800G+Ltpx3J0hBV8/H2HsXXdlw+5y1GlVpDnbf1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgRNHy4yjh0Z2PZdMCN37Yz3zoOvzY5DT45FG05ks4rwVTdnn4cF7T37srKY3OkWI
-         rZycXHXloiuL2Yi+Jy+pTBmoxdRs9K9waBXTM+KpJrHo7GsNQA33fVDcSaALGbKRmf
-         eckheAVEL/l03Va+kpcwG30BUAs8MsfKOlt61Jq4=
+        b=Ov9VNudQLngNk1aHtQQvDB3tPCS4CxQ3oKJuhpZ5L3iTMBebWokxK+rQTHD4jvR2P
+         76lyhQqF9EEUhWoNDo137m07sUm8Nw9u+ngLLMz6FvP/PnyBhVHiu/dE4bXgHFcrxB
+         V1Gyj4y/jjLLLys/yV9b6eY7IZR70vH77fpakz+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Terry Zhou <bjzhou@marvell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 438/453] clk: mvebu: a3700: fix the XTAL MODE pin to MPP1_9
-Date:   Mon, 28 Dec 2020 13:51:14 +0100
-Message-Id: <20201228124958.299780724@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.4 439/453] clk: tegra: Do not return 0 on failure
+Date:   Mon, 28 Dec 2020 13:51:15 +0100
+Message-Id: <20201228124958.347682302@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -41,40 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Terry Zhou <bjzhou@marvell.com>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-commit 6f37689cf6b38fff96de52e7f0d3e78f22803ba0 upstream.
+commit 6160aca443148416994c022a35c77daeba948ea6 upstream.
 
-There is an error in the current code that the XTAL MODE
-pin was set to NB MPP1_31 which should be NB MPP1_9.
-The latch register of NB MPP1_9 has different offset of 0x8.
+Return values from read_dt_param() will be either TRUE (1) or
+FALSE (0), while dfll_fetch_pwm_params() returns 0 on success
+or an ERR code on failure.
 
-Signed-off-by: Terry Zhou <bjzhou@marvell.com>
-[pali: Fix pin name in commit message]
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 7ea8250406a6 ("clk: mvebu: Add the xtal clock for Armada 3700 SoC")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201106100039.11385-1-pali@kernel.org
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+So this patch fixes the bug of returning 0 on failure.
+
+Fixes: 36541f0499fe ("clk: tegra: dfll: support PWM regulator control")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/mvebu/armada-37xx-xtal.c |    4 ++--
+ drivers/clk/tegra/clk-dfll.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/mvebu/armada-37xx-xtal.c
-+++ b/drivers/clk/mvebu/armada-37xx-xtal.c
-@@ -13,8 +13,8 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
+--- a/drivers/clk/tegra/clk-dfll.c
++++ b/drivers/clk/tegra/clk-dfll.c
+@@ -1801,13 +1801,13 @@ static int dfll_fetch_pwm_params(struct
+ 			    &td->reg_init_uV);
+ 	if (!ret) {
+ 		dev_err(td->dev, "couldn't get initialized voltage\n");
+-		return ret;
++		return -EINVAL;
+ 	}
  
--#define NB_GPIO1_LATCH	0xC
--#define XTAL_MODE	    BIT(31)
-+#define NB_GPIO1_LATCH	0x8
-+#define XTAL_MODE	    BIT(9)
+ 	ret = read_dt_param(td, "nvidia,pwm-period-nanoseconds", &pwm_period);
+ 	if (!ret) {
+ 		dev_err(td->dev, "couldn't get PWM period\n");
+-		return ret;
++		return -EINVAL;
+ 	}
+ 	td->pwm_rate = (NSEC_PER_SEC / pwm_period) * (MAX_DFLL_VOLTAGES - 1);
  
- static int armada_3700_xtal_clock_probe(struct platform_device *pdev)
- {
 
 
