@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF7D2E3CCB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14EAE2E3CCC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438295AbgL1OHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:07:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S2438056AbgL1OHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:07:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437815AbgL1OGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:06:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 254E722B45;
-        Mon, 28 Dec 2020 14:05:54 +0000 (UTC)
+        id S2437871AbgL1OGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:06:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06ADC2063A;
+        Mon, 28 Dec 2020 14:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164355;
-        bh=j46StAFyhEDQgEQK2MouMzDAFqYogRt0xNVqxWIRz/M=;
+        s=korg; t=1609164358;
+        bh=uM8wcElyPBmjDfjfNNcNHri8j5m52cm+OCrV4o6HK/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dPyqd3O2h/F47p7QOVhlZ7O//yLT/Zwmo0jgmOlzsVkuFEXSIhsa3fppcHzA6vdy
-         K/lRIQB10/ZGJkG7/Wv3WVQMz2+bS3L+3cW89/V5d59DsdL/bk+LAFGjYId+HInJsK
-         uP4e1NWuPmwocRZQCbjc44nmukv/KYW8ee3g/7aw=
+        b=P6zuHbWej235SpjS9AK7qOH+K+nSGrKQFWiY9AVNaignqIHHlwjkyFi0YbuQrHcb3
+         LCYbFglM+ad68R56Dx/q//mro9lml+teXuCxYOCLOczaWx3p0T4THbtom6h0jQSvbs
+         Gunw+02ecAtl96GsqgJvgRc3ejJC+gmjGKXyieAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 152/717] usb/max3421: fix return error code in max3421_probe()
-Date:   Mon, 28 Dec 2020 13:42:30 +0100
-Message-Id: <20201228125028.240770332@linuxfoundation.org>
+Subject: [PATCH 5.10 153/717] spi: mxs: fix reference leak in mxs_spi_probe
+Date:   Mon, 28 Dec 2020 13:42:31 +0100
+Message-Id: <20201228125028.288336213@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,45 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 5a569343e8a618dc73edebe0957eb42f2ab476bd ]
+[ Upstream commit 03fc41afaa6549baa2dab7a84e1afaf5cadb5b18 ]
 
-retval may be reassigned to 0 after max3421_of_vbus_en_pin(),
-if allocate memory failed after this, max3421_probe() cann't
-return ENOMEM, fix this by moving assign retval afther max3421_probe().
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in mxs_spi_probe, so we should fix it.
 
-Fixes: 721fdc83b31b ("usb: max3421: Add devicetree support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20201117061500.3454223-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b7969caf41a1d ("spi: mxs: implement runtime pm")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201106012421.95420-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/max3421-hcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mxs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/max3421-hcd.c b/drivers/usb/host/max3421-hcd.c
-index 0894f6caccb2c..ebb8180b52ab1 100644
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -1847,7 +1847,7 @@ max3421_probe(struct spi_device *spi)
- 	struct max3421_hcd *max3421_hcd;
- 	struct usb_hcd *hcd = NULL;
- 	struct max3421_hcd_platform_data *pdata = NULL;
--	int retval = -ENOMEM;
-+	int retval;
+diff --git a/drivers/spi/spi-mxs.c b/drivers/spi/spi-mxs.c
+index 918918a9e0491..435309b09227e 100644
+--- a/drivers/spi/spi-mxs.c
++++ b/drivers/spi/spi-mxs.c
+@@ -607,6 +607,7 @@ static int mxs_spi_probe(struct platform_device *pdev)
  
- 	if (spi_setup(spi) < 0) {
- 		dev_err(&spi->dev, "Unable to setup SPI bus");
-@@ -1889,6 +1889,7 @@ max3421_probe(struct spi_device *spi)
- 		goto error;
+ 	ret = pm_runtime_get_sync(ssp->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(ssp->dev);
+ 		dev_err(ssp->dev, "runtime_get_sync failed\n");
+ 		goto out_pm_runtime_disable;
  	}
- 
-+	retval = -ENOMEM;
- 	hcd = usb_create_hcd(&max3421_hcd_desc, &spi->dev,
- 			     dev_name(&spi->dev));
- 	if (!hcd) {
 -- 
 2.27.0
 
