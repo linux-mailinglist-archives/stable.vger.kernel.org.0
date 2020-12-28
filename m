@@ -2,54 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4F12E69BA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 18:32:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1AD2E69C3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 18:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbgL1RcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 12:32:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
+        id S1728363AbgL1Rci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 12:32:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726848AbgL1RcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 12:32:00 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96B7C0613D6;
-        Mon, 28 Dec 2020 09:31:19 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id x16so15082505ejj.7;
-        Mon, 28 Dec 2020 09:31:19 -0800 (PST)
+        with ESMTP id S1728360AbgL1Rci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 12:32:38 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13827C061798;
+        Mon, 28 Dec 2020 09:31:58 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id ce23so15068266ejb.8;
+        Mon, 28 Dec 2020 09:31:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=L6jMggetbrrUEJcKxjzuL9oTosulpOnPLZ2l3XhwKRs=;
-        b=sTNImozLG8IUJ7j7UwjMpqjYlF4QAZZpCW/LSq75Vt0RO1PNnl+NlthpsCUNTS+oEY
-         Oji8WEtUKftUwXdtwbJzUQPnMJGy3Jv4UTXDo6EiV5zRGfTHvxEXGd0GtAD2rOKX8c5J
-         Hb+ec3q1e8ssIeDfVC+hOSCnKd/LiTdq5ZP5h0pMDXO9SKgijrI7UZ5fld2y3w48q7Zu
-         jByVPXR06kOSCI7JBI4qkUv+/ASVdjPP6ai0lrfqwJxiRxO9jtHe8mYAzbmh6RlHdJ+M
-         HL8UADYYuHy/ja4ArNgBGG15iWstN9HGqBT7aEtva3IvIKH77bETrMrW+u+s9Q6mS4/B
-         6E3Q==
+        bh=uMJv2lHE34Rym/NavReAV+zZuMZZwc2rochor9I7cUk=;
+        b=vLPjujywSriLbbbiWgkv3ouyHNliTmrBC13fnxtXf3p5EdEkmPy8fjwLxYBzletbU2
+         Y9VXV4wEV2YlNjWsd50etSvFYzhK6CanfhVa14AC0JRHzsAvc9QqZkaLC1okmuwCI/zp
+         6SgsMIAXYonjX0eU77bCj5AuZy4cUE1gc+vLMGI92yXhNKtyJ1w7Zi7ibDXAFuNn+1IR
+         W+gouTA96SF6W2a5hufEGWescv0KcA2OD/8Y7DLgL9YETPfbM+f/HCvQP0V/DDiT3JjA
+         80cZnTEJSqcl1k1jt968Mr69xOR+mHhFrrMBjy32xqIX/PjPpgQl1t88jsxwp90dfoZL
+         Byzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=L6jMggetbrrUEJcKxjzuL9oTosulpOnPLZ2l3XhwKRs=;
-        b=XHq3H/o4/5aJ/sHFlRuP+6BtmSb+8f1xFpQ7X4gVhfF3VQMpWdSx0dSLerjD1NqPB2
-         a0dKhZFfk2is6ORbon6uMJrZb6qVafBxNQEXxuxTJdgDzoUnqxKWBZVp36LAiWxcJYV2
-         ruY7upC1HTPATrbS1cQgvisiDgYz0WQzWO5yRaLgAay/079mJgwAgMwhJhEZuMDDFXW4
-         4B94JX9ZXiiFhqxqQiqzp+euBAu4yXjCvfFSuNXpK1XATVss7gYk9+L+SKsSkRfKZtdA
-         9abOqys0nr3KLpbMHmoHPmol8WxLgCCKV5Nzp9rqhmAypg4avc22gBVl/PY+SzanNRPI
-         bAIg==
-X-Gm-Message-State: AOAM5309KyWPf2c/znQHbM1JTY1v3k6bL/FtEV7zQfk0Ncx7CwqUsw2e
-        VB45dpT6z5MgGXqH8/g3E1HVduWLCCyL5u5igQQ=
-X-Google-Smtp-Source: ABdhPJwnGEJ77oSQj1FpVI6e1CvKlbyKgsHA+UHCeVILPPWIBeIAH1mKdtiFuhAXf57/MP63eN9cjUHniQLXulXtYgc=
-X-Received: by 2002:a17:906:b04f:: with SMTP id bj15mr41116505ejb.383.1609176677425;
- Mon, 28 Dec 2020 09:31:17 -0800 (PST)
+        bh=uMJv2lHE34Rym/NavReAV+zZuMZZwc2rochor9I7cUk=;
+        b=prwfh93Sc8/i4F2/NF8pQuiJUAGnRvTltbFRrFxtjvQwmOSZKRrFV+5bhY6QlVAOqv
+         Kr/eKd5RRumEaiEMFUqejVzUjHgW3lenWSbblT2wV36cCUIdpLItKm7qbSJr5gQAekzY
+         HHaNFPxy74u28oEr3l/HwKHNWpJ0OH0HKYaNg6Qo5QkgR6bFuoV1PImghEnNFlXv6v4O
+         xWDNBqnL55v1U8fMbOz0fsx0Pbd4CeVG2ntm00eojw65wwxirq6IYcE0OlGKudyPPFHE
+         DmfjCYQnNNHF6H/DX7kGlELYpadpX6K06ratubq8d9pTrI8jZuviw7qA5/w5DLfTkjES
+         yrGg==
+X-Gm-Message-State: AOAM531SWrZokgHolok/Wyiri2SgrRqWIlMH/qUqWUMyZlLtkvthlROX
+        QhvAsLyVBAAkbUriDA9Hfz7p3qgOp3ngHwaonwA=
+X-Google-Smtp-Source: ABdhPJwlEdPEG6+Ljrdij9m+oxcj4tYDG90MJqOSvbjZQgN/UtokII1B0CsF/WGzvH1xL8Y92L+rW2nu+KGZWALfB5Y=
+X-Received: by 2002:a17:906:6a45:: with SMTP id n5mr43209968ejs.514.1609176716860;
+ Mon, 28 Dec 2020 09:31:56 -0800 (PST)
 MIME-Version: 1.0
-References: <20201227181310.3235210-1-shakeelb@google.com>
-In-Reply-To: <20201227181310.3235210-1-shakeelb@google.com>
+References: <20201227181310.3235210-1-shakeelb@google.com> <20201227181310.3235210-2-shakeelb@google.com>
+ <CALvZod5bH6gP=_Qo5d2wx=mpRxXDKGcoxwO3oXGPqe=HXx8ifA@mail.gmail.com>
+In-Reply-To: <CALvZod5bH6gP=_Qo5d2wx=mpRxXDKGcoxwO3oXGPqe=HXx8ifA@mail.gmail.com>
 From:   Yang Shi <shy828301@gmail.com>
-Date:   Mon, 28 Dec 2020 09:31:05 -0800
-Message-ID: <CAHbLzkr16NLLLj2QoJRTsVBwvJHcfeHeubnx7sT28J4G3FYx2w@mail.gmail.com>
-Subject: Re: [PATCH 1/2] mm: memcg: fix memcg file_dirty numa stat
+Date:   Mon, 28 Dec 2020 09:31:45 -0800
+Message-ID: <CAHbLzkrR1VQLN8+i4S52F-6dJiTx7TExj+rMuMWqou7Ff7SkPA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] mm: fix numa stats for thp migration
 To:     Shakeel Butt <shakeelb@google.com>
 Cc:     Muchun Song <songmuchun@bytedance.com>,
         Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
@@ -58,48 +59,104 @@ Cc:     Muchun Song <songmuchun@bytedance.com>,
         Johannes Weiner <hannes@cmpxchg.org>,
         Roman Gushchin <guro@fb.com>,
         Cgroups <cgroups@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 27, 2020 at 10:13 AM Shakeel Butt <shakeelb@google.com> wrote:
+On Sun, Dec 27, 2020 at 10:16 AM Shakeel Butt <shakeelb@google.com> wrote:
 >
-> The kernel updates the per-node NR_FILE_DIRTY stats on page migration
-> but not the memcg numa stats. That was not an issue until recently the
-> commit 5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface
-> for cgroup v2") exposed numa stats for the memcg. So fixing the
-> file_dirty per-memcg numa stat.
+> On Sun, Dec 27, 2020 at 10:14 AM Shakeel Butt <shakeelb@google.com> wrote:
+> >
+> > Currently the kernel is not correctly updating the numa stats for
+> > NR_FILE_PAGES and NR_SHMEM on THP migration. Fix that. For NR_FILE_DIRTY
+> > and NR_ZONE_WRITE_PENDING, although at the moment there is no need to
+> > handle THP migration as kernel still does not have write support for
+> > file THP but to be more future proof, this patch adds the THP support
+> > for those stats as well.
+> >
+> > Fixes: e71769ae52609 ("mm: enable thp migration for shmem thp")
+> > Signed-off-by: Shakeel Butt <shakeelb@google.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+> >  mm/migrate.c | 23 ++++++++++++-----------
+> >  1 file changed, 12 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/mm/migrate.c b/mm/migrate.c
+> > index 613794f6a433..ade163c6ecdf 100644
+> > --- a/mm/migrate.c
+> > +++ b/mm/migrate.c
+> > @@ -402,6 +402,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
+> >         struct zone *oldzone, *newzone;
+> >         int dirty;
+> >         int expected_count = expected_page_refs(mapping, page) + extra_count;
+> > +       int nr = thp_nr_pages(page);
+> >
+> >         if (!mapping) {
+> >                 /* Anonymous page without mapping */
+> > @@ -437,7 +438,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
+> >          */
+> >         newpage->index = page->index;
+> >         newpage->mapping = page->mapping;
+> > -       page_ref_add(newpage, thp_nr_pages(page)); /* add cache reference */
+> > +       page_ref_add(newpage, nr); /* add cache reference */
+> >         if (PageSwapBacked(page)) {
+> >                 __SetPageSwapBacked(newpage);
+> >                 if (PageSwapCache(page)) {
+> > @@ -459,7 +460,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
+> >         if (PageTransHuge(page)) {
+> >                 int i;
+> >
+> > -               for (i = 1; i < HPAGE_PMD_NR; i++) {
+> > +               for (i = 1; i < nr; i++) {
+> >                         xas_next(&xas);
+> >                         xas_store(&xas, newpage);
+> >                 }
+> > @@ -470,7 +471,7 @@ int migrate_page_move_mapping(struct address_space *mapping,
+> >          * to one less reference.
+> >          * We know this isn't the last reference.
+> >          */
+> > -       page_ref_unfreeze(page, expected_count - thp_nr_pages(page));
+> > +       page_ref_unfreeze(page, expected_count - nr);
+> >
+> >         xas_unlock(&xas);
+> >         /* Leave irq disabled to prevent preemption while updating stats */
+> > @@ -493,17 +494,17 @@ int migrate_page_move_mapping(struct address_space *mapping,
+> >                 old_lruvec = mem_cgroup_lruvec(memcg, oldzone->zone_pgdat);
+> >                 new_lruvec = mem_cgroup_lruvec(memcg, newzone->zone_pgdat);
+> >
+> > -               __dec_lruvec_state(old_lruvec, NR_FILE_PAGES);
+> > -               __inc_lruvec_state(new_lruvec, NR_FILE_PAGES);
+> > +               __mod_lruvec_state(old_lruvec, NR_FILE_PAGES, -nr);
+> > +               __mod_lruvec_state(new_lruvec, NR_FILE_PAGES, nr);
+> >                 if (PageSwapBacked(page) && !PageSwapCache(page)) {
+> > -                       __dec_lruvec_state(old_lruvec, NR_SHMEM);
+> > -                       __inc_lruvec_state(new_lruvec, NR_SHMEM);
+> > +                       __mod_lruvec_state(old_lruvec, NR_SHMEM, -nr);
+> > +                       __mod_lruvec_state(new_lruvec, NR_SHMEM, nr);
+> >                 }
+> >                 if (dirty && mapping_can_writeback(mapping)) {
+> > -                       __dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
+> > -                       __dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
+> > -                       __inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
+> > -                       __inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
+> > +                       __mod_lruvec_state(old_lruvec, NR_FILE_DIRTY, -nr);
+> > +                       __mod_zone_page_tate(oldzone, NR_ZONE_WRITE_PENDING, -nr);
 >
-> Fixes: 5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface for cgroup v2")
-> Signed-off-by: Shakeel Butt <shakeelb@google.com>
-> Cc: <stable@vger.kernel.org>
+> This should be __mod_zone_page_state(). I fixed locally but sent the
+> older patch by mistake.
 
 Acked-by: Yang Shi <shy828301@gmail.com>
 
-> ---
->  mm/migrate.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> index ee5e612b4cd8..613794f6a433 100644
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -500,9 +500,9 @@ int migrate_page_move_mapping(struct address_space *mapping,
->                         __inc_lruvec_state(new_lruvec, NR_SHMEM);
->                 }
->                 if (dirty && mapping_can_writeback(mapping)) {
-> -                       __dec_node_state(oldzone->zone_pgdat, NR_FILE_DIRTY);
-> +                       __dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
->                         __dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
-> -                       __inc_node_state(newzone->zone_pgdat, NR_FILE_DIRTY);
-> +                       __inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
->                         __inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
->                 }
->         }
-> --
-> 2.29.2.729.g45daf8777d-goog
->
+> > +                       __mod_lruvec_state(new_lruvec, NR_FILE_DIRTY, nr);
+> > +                       __mod_zone_page_state(newzone, NR_ZONE_WRITE_PENDING, nr);
+> >                 }
+> >         }
+> >         local_irq_enable();
+> > --
+> > 2.29.2.729.g45daf8777d-goog
+> >
 >
