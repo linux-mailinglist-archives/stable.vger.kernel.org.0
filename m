@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60CC42E6729
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA792E6881
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:38:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732209AbgL1QVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:21:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
+        id S1729820AbgL1QhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:37:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732089AbgL1NMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:12:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAC15208D5;
-        Mon, 28 Dec 2020 13:12:16 +0000 (UTC)
+        id S1729822AbgL1NBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30CC9207C9;
+        Mon, 28 Dec 2020 13:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161137;
-        bh=b3YkWgAGCc8tgJYY2DJD3faZH2Q/m3Lni073ZwViY7g=;
+        s=korg; t=1609160479;
+        bh=HJIhZb/jp000vfo5nikW6TJi20kwbfRo40g+g5sqEZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l5OxAdPv2mObACiz1TWCBOgKY89P3gQ3qsD1YZQvao0jgUbfoTFq/YbmS/JuNRil6
-         2Ut2untCot+YpG39PT9Nq/0F9xi/XUrIHfXrA+xo4cwQeHjgTre5QlFG/jx2ZbmH+V
-         fdiIIxV+vUI4u9YweFNxORNR0NasVFUaQWb0ABS8=
+        b=PM/aYrUFYhPGEGvQ3z4s3kBAt7rzXaSbBOD3yYMBRNbbCUHFw5g+KohL1kIyKrwkz
+         U2yyNnY3NgE3Cb5uvvv38oHFAS1KvJHwILgrn5W3pH0UCk1jjGCATXsbf4e0F+trYL
+         5J1qxpN9xmvZH+B9URoF8EdD0XoY+BItGxEeFOtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 114/242] mips: cdmm: fix use-after-free in mips_cdmm_bus_discover
+Subject: [PATCH 4.9 066/175] staging: greybus: codecs: Fix reference counter leak in error handling
 Date:   Mon, 28 Dec 2020 13:48:39 +0100
-Message-Id: <20201228124910.304411845@linuxfoundation.org>
+Message-Id: <20201228124856.448340696@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit f0e82242b16826077a2775eacfe201d803bb7a22 ]
+[ Upstream commit 3952659a6108f77a0d062d8e8487bdbdaf52a66c ]
 
-kfree(dev) has been called inside put_device so anther
-kfree would cause a use-after-free bug/
+gb_pm_runtime_get_sync has increased the usage counter of the device here.
+Forgetting to call gb_pm_runtime_put_noidle will result in usage counter
+leak in the error branch of (gbcodec_hw_params and gbcodec_prepare). We
+fixed it by adding it.
 
-Fixes: 8286ae03308c ("MIPS: Add CDMM bus support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Acked-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: c388ae7696992 ("greybus: audio: Update pm runtime support in dai_ops callback")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201109131347.1725288-2-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mips_cdmm.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/staging/greybus/audio_codec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bus/mips_cdmm.c b/drivers/bus/mips_cdmm.c
-index 1b14256376d24..7c1da45be166e 100644
---- a/drivers/bus/mips_cdmm.c
-+++ b/drivers/bus/mips_cdmm.c
-@@ -544,10 +544,8 @@ static void mips_cdmm_bus_discover(struct mips_cdmm_bus *bus)
- 		dev_set_name(&dev->dev, "cdmm%u-%u", cpu, id);
- 		++id;
- 		ret = device_register(&dev->dev);
--		if (ret) {
-+		if (ret)
- 			put_device(&dev->dev);
--			kfree(dev);
--		}
+diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
+index 8a0744b58a329..4c2d6c2d4fb41 100644
+--- a/drivers/staging/greybus/audio_codec.c
++++ b/drivers/staging/greybus/audio_codec.c
+@@ -491,6 +491,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
+ 	if (ret) {
+ 		dev_err_ratelimited(dai->dev, "%d: Error during set_config\n",
+ 				    ret);
++		gb_pm_runtime_put_noidle(bundle);
+ 		mutex_unlock(&codec->lock);
+ 		return ret;
  	}
- }
- 
+@@ -562,6 +563,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
+ 		break;
+ 	}
+ 	if (ret) {
++		gb_pm_runtime_put_noidle(bundle);
+ 		mutex_unlock(&codec->lock);
+ 		dev_err_ratelimited(dai->dev, "set_data_size failed:%d\n",
+ 				     ret);
 -- 
 2.27.0
 
