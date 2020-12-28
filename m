@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C663C2E3C04
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D082E3EA3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:31:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406727AbgL1N5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:57:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59186 "EHLO mail.kernel.org"
+        id S2503683AbgL1Oa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406728AbgL1N5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:57:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9E85206D4;
-        Mon, 28 Dec 2020 13:56:53 +0000 (UTC)
+        id S2503622AbgL1Oa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01A5C2242A;
+        Mon, 28 Dec 2020 14:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163814;
-        bh=nVSzycZt+EukXHEr+gvwkZdSZQA/LEWomxafvatUCB8=;
+        s=korg; t=1609165787;
+        bh=H687u38BdewT2k778Tn/ubWbvkUT6uOb7eSRMJA/J28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cK2kjrn3sKgrm3SDPR7jyx+fs+YNNOFP31V40kiAB+evipMbQjSOxPT3LvF0yLmcd
-         /JmNWWhSNVgUEQiC9DwF++LNL2zvS9mwKic5nILh58zoxUhkL83/hx4zQwFjV9ziQE
-         gEpmnfuvkhHBQQDqed5VbQRh7bIsrDonOifOUm+c=
+        b=aIuXJv/A969tdMtBEvll/Jg+Bbx/qgc/VFdcWkq70S4YRQMwUoDseU+ClywSBCbmZ
+         cUDY/CkVbtfNLft0PoUfa+xJLTc2N8kZhZVpFX/mjla80qVeSRCMtxkPFrYglDmsmx
+         MDZdWDv7tQ4G8MVvPWBBuLMtlX9A/FBl+Iis8tQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Evan Green <evgreen@chromium.org>
-Subject: [PATCH 5.4 417/453] soc: qcom: smp2p: Safely acquire spinlock without IRQs
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Girish Mahadevan <girishm@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 655/717] spi: spi-geni-qcom: Fix use-after-free on unbind
 Date:   Mon, 28 Dec 2020 13:50:53 +0100
-Message-Id: <20201228124957.285923389@linuxfoundation.org>
+Message-Id: <20201228125052.331545389@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit fc3e62e25c3896855b7c3d72df19ca6be3459c9f upstream.
+commit 8f96c434dfbc85ffa755d6634c8c1cb2233fcf24 upstream.
 
-smp2p_update_bits() should disable interrupts when it acquires its
-spinlock. This is important because without the _irqsave, a priority
-inversion can occur.
+spi_geni_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-This function is called both with interrupts enabled in
-qcom_q6v5_request_stop(), and with interrupts disabled in
-ipa_smp2p_panic_notifier(). IRQ handling of spinlocks should be
-consistent to avoid the panic notifier deadlocking because it's
-sitting on the thread that's already got the lock via _request_stop().
+Moreover, since commit 1a9e489e6128 ("spi: spi-geni-qcom: Use OPP API to
+set clk/perf state"), spi_geni_probe() leaks the spi_master allocation
+if the calls to dev_pm_opp_set_clkname() or dev_pm_opp_of_add_table()
+fail.
 
-Found via lockdep.
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound and also
+avoids the spi_master leak on probe.
 
-Cc: stable@vger.kernel.org
-Fixes: 50e99641413e7 ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20200929133040.RESEND.1.Ideabf6dcdfc577cf39ce3d95b0e4aa1ac8b38f0c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.20+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.20+
+Cc: Rajendra Nayak <rnayak@codeaurora.org>
+Cc: Girish Mahadevan <girishm@codeaurora.org>
+Link: https://lore.kernel.org/r/dfa1d8c41b8acdfad87ec8654cd124e6e3cb3f31.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/qcom/smp2p.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/spi-geni-qcom.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/soc/qcom/smp2p.c
-+++ b/drivers/soc/qcom/smp2p.c
-@@ -318,15 +318,16 @@ static int qcom_smp2p_inbound_entry(stru
- static int smp2p_update_bits(void *data, u32 mask, u32 value)
- {
- 	struct smp2p_entry *entry = data;
-+	unsigned long flags;
- 	u32 orig;
- 	u32 val;
+--- a/drivers/spi/spi-geni-qcom.c
++++ b/drivers/spi/spi-geni-qcom.c
+@@ -603,7 +603,7 @@ static int spi_geni_probe(struct platfor
+ 	if (IS_ERR(clk))
+ 		return PTR_ERR(clk);
  
--	spin_lock(&entry->lock);
-+	spin_lock_irqsave(&entry->lock, flags);
- 	val = orig = readl(entry->value);
- 	val &= ~mask;
- 	val |= value;
- 	writel(val, entry->value);
--	spin_unlock(&entry->lock);
-+	spin_unlock_irqrestore(&entry->lock, flags);
+-	spi = spi_alloc_master(dev, sizeof(*mas));
++	spi = devm_spi_alloc_master(dev, sizeof(*mas));
+ 	if (!spi)
+ 		return -ENOMEM;
  
- 	if (val != orig)
- 		qcom_smp2p_kick(entry->smp2p);
+@@ -673,7 +673,6 @@ spi_geni_probe_free_irq:
+ 	free_irq(mas->irq, spi);
+ spi_geni_probe_runtime_disable:
+ 	pm_runtime_disable(dev);
+-	spi_master_put(spi);
+ 	dev_pm_opp_of_remove_table(&pdev->dev);
+ put_clkname:
+ 	dev_pm_opp_put_clkname(mas->se.opp_table);
 
 
