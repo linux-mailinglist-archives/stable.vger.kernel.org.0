@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C07C02E6575
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 593D42E6747
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390257AbgL1NaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:30:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58864 "EHLO mail.kernel.org"
+        id S1731584AbgL1QWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:22:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390249AbgL1NaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B922C2072C;
-        Mon, 28 Dec 2020 13:29:21 +0000 (UTC)
+        id S1732224AbgL1NNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E221C208D5;
+        Mon, 28 Dec 2020 13:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162162;
-        bh=k5RTE5SuaIMdDo6xyKA23v9Nr8Y6BhKBS/cDvULcEcA=;
+        s=korg; t=1609161163;
+        bh=waV4/zyCcsTYaqm0wBqC73lPK4M+tQcsB5fXUOYMaZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GT6qbtcVE2QKuHf9Nxa4ygfr95y8mbUk7+tvwL7PgjVDyXr6YNXe7hrJLlMl7JGTb
-         wJn0O4GwdrK9a6wkP9lqZ5zQblElSmrpCSbujyKCs89sU1UoAqXzttKHPibsGplEA6
-         3uM3lW/7rqP/V4nuYg2njly3KOnbr3xi5EDDvSJ4=
+        b=PAi13fgoeiIHhsK+HcXj04I9zig0E1DWf9S3RvO/VjJ5VI4nGD2y3p8Ko1uBfcKax
+         SFLCJT7f/8p2pDef6sZGSHG6KOvBpgy4jJzF/UFxbp5oULzbea8VblrbCWJlHEScJV
+         YP+p3Pg8CEKqhWURh7MFPWWehEH9+3EI7MZT55+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 208/346] cpufreq: scpi: Add missing MODULE_ALIAS
-Date:   Mon, 28 Dec 2020 13:48:47 +0100
-Message-Id: <20201228124929.849436692@linuxfoundation.org>
+Subject: [PATCH 4.14 123/242] ath10k: Release some resources in an error handling path
+Date:   Mon, 28 Dec 2020 13:48:48 +0100
+Message-Id: <20201228124910.751751761@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c0382d049d2def37b81e907a8b22661a4a4a6eb5 ]
+[ Upstream commit 6364e693f4a7a89a2fb3dd2cbd6cc06d5fd6e26d ]
 
-This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
-driver when it is compiled as an external module.
+Should an error occur after calling 'ath10k_usb_create()', it should be
+undone by a corresponding 'ath10k_usb_destroy()' call
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 8def31034d033 ("cpufreq: arm_big_little: add SCPI interface driver")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 4db66499df91 ("ath10k: add initial USB support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201122170358.1346065-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/scpi-cpufreq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath10k/usb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/scpi-cpufreq.c b/drivers/cpufreq/scpi-cpufreq.c
-index 87a98ec77773a..0338885332a75 100644
---- a/drivers/cpufreq/scpi-cpufreq.c
-+++ b/drivers/cpufreq/scpi-cpufreq.c
-@@ -246,6 +246,7 @@ static struct platform_driver scpi_cpufreq_platdrv = {
- };
- module_platform_driver(scpi_cpufreq_platdrv);
+diff --git a/drivers/net/wireless/ath/ath10k/usb.c b/drivers/net/wireless/ath/ath10k/usb.c
+index f4e6d84bfb91c..16d5fe6d1e2e4 100644
+--- a/drivers/net/wireless/ath/ath10k/usb.c
++++ b/drivers/net/wireless/ath/ath10k/usb.c
+@@ -1032,7 +1032,7 @@ static int ath10k_usb_probe(struct usb_interface *interface,
+ 	ret = ath10k_core_register(ar, chip_id);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to register driver core: %d\n", ret);
+-		goto err;
++		goto err_usb_destroy;
+ 	}
  
-+MODULE_ALIAS("platform:scpi-cpufreq");
- MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
- MODULE_DESCRIPTION("ARM SCPI CPUFreq interface driver");
- MODULE_LICENSE("GPL v2");
+ 	/* TODO: remove this once USB support is fully implemented */
+@@ -1040,6 +1040,9 @@ static int ath10k_usb_probe(struct usb_interface *interface,
+ 
+ 	return 0;
+ 
++err_usb_destroy:
++	ath10k_usb_destroy(ar);
++
+ err:
+ 	ath10k_core_destroy(ar);
+ 
 -- 
 2.27.0
 
