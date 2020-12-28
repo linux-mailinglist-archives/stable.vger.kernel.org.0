@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E43472E6937
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F6B2E682A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441640AbgL1QrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:47:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
+        id S1730203AbgL1NDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:03:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728498AbgL1MzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:55:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F23312242A;
-        Mon, 28 Dec 2020 12:54:58 +0000 (UTC)
+        id S1729197AbgL1NDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07F9E207C9;
+        Mon, 28 Dec 2020 13:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160099;
-        bh=iRrV4hdtPk4eKcU5Iq0aDCH+J2vIQi9boaG6kCWLdjY=;
+        s=korg; t=1609160581;
+        bh=sDx9sZ+7jBEinEnY8Rl+lvF5nYliEIwOHV9qA5blvpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VY5Mi6aHf8H1nlXwMJZCqJKB8F2e/kRAkujpz0Kf6ya6ZimnV9q7+/cQ0NpUsIFUC
-         jc3UECv3F9QoR8rQh45TrNaWJums6lywV0fjbelXkzukcUVPOb/i8Fi9imlMU2PUTl
-         ARGcWm8ZBtDGcsfzKGQ8X/h1RD9IOamyLaRVZd3I=
+        b=JJgYZRPupGfCyEVM34xy0L3D+Hm008NOoW6lYwvL/qqev8caIeZcSDIzXMIfXIibJ
+         3PUWzeLXyGjCdJE3Siko2yYO6uL7XVi5zb+Fx2PRcSBUPZt0Ckdih3vc0Cwjxq8FMb
+         hLqDF0K6BSDa+LXbPefGK4xOKGtb6AoefQnkAxFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 069/132] cpufreq: highbank: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 4.9 100/175] cpufreq: loongson1: Add missing MODULE_ALIAS
 Date:   Mon, 28 Dec 2020 13:49:13 +0100
-Message-Id: <20201228124849.776804680@linuxfoundation.org>
+Message-Id: <20201228124858.093340184@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 9433777a6e0aae27468d3434b75cd51bb88ff711 ]
+[ Upstream commit b9acab091842ca8b288882798bb809f7abf5408a ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this cpufreq driver when it is
-compiled as an external module.
+This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
+driver when it is compiled as an external module.
 
 Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 6754f556103be ("cpufreq / highbank: add support for highbank cpufreq")
+Fixes: a0a22cf14472f ("cpufreq: Loongson1: Add cpufreq driver for Loongson1B")
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/highbank-cpufreq.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/cpufreq/loongson1-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpufreq/highbank-cpufreq.c b/drivers/cpufreq/highbank-cpufreq.c
-index 1608f7105c9f8..ad743f2f31e78 100644
---- a/drivers/cpufreq/highbank-cpufreq.c
-+++ b/drivers/cpufreq/highbank-cpufreq.c
-@@ -104,6 +104,13 @@ out_put_node:
- }
- module_init(hb_cpufreq_driver_init);
+diff --git a/drivers/cpufreq/loongson1-cpufreq.c b/drivers/cpufreq/loongson1-cpufreq.c
+index be89416e2358f..9d902f67f8716 100644
+--- a/drivers/cpufreq/loongson1-cpufreq.c
++++ b/drivers/cpufreq/loongson1-cpufreq.c
+@@ -217,6 +217,7 @@ static struct platform_driver ls1x_cpufreq_platdrv = {
  
-+static const struct of_device_id __maybe_unused hb_cpufreq_of_match[] = {
-+	{ .compatible = "calxeda,highbank" },
-+	{ .compatible = "calxeda,ecx-2000" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, hb_cpufreq_of_match);
-+
- MODULE_AUTHOR("Mark Langsdorf <mark.langsdorf@calxeda.com>");
- MODULE_DESCRIPTION("Calxeda Highbank cpufreq driver");
+ module_platform_driver(ls1x_cpufreq_platdrv);
+ 
++MODULE_ALIAS("platform:ls1x-cpufreq");
+ MODULE_AUTHOR("Kelvin Cheung <keguang.zhang@gmail.com>");
+ MODULE_DESCRIPTION("Loongson1 CPUFreq driver");
  MODULE_LICENSE("GPL");
 -- 
 2.27.0
