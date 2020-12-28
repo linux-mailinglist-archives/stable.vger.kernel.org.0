@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F992E4052
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:52:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B066E2E3B42
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731701AbgL1OuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:50:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
+        id S2404375AbgL1NsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:48:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437910AbgL1OV2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:21:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C1792245C;
-        Mon, 28 Dec 2020 14:20:46 +0000 (UTC)
+        id S2404362AbgL1NsA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:48:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 160E4208B3;
+        Mon, 28 Dec 2020 13:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165247;
-        bh=JmT90eK62TK9pfmAO00JbPXpumOw2ZRjkYs+/K3GBoM=;
+        s=korg; t=1609163264;
+        bh=cv7KZcCqWqu2Ff/MUhPhwKhtfYbKVVlPTixFms5VXDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2HuM0THo11yAJQPiHvvB9JSsDJ8s1VP+u8l8bzisOCgPhiKxZ2mQsu6EbV2gE0Z7
-         RRF7MIq/cQo/c6BcFKbJLSNLGu4gFvXrR2aozrhmF0CVm3QvUkj6dFHC+6fV6M8FoR
-         gd1M4blmzlnios+PFx4sjnk4GuKtLTYHrCGXhm+U=
+        b=bnzaqPUKUw9yFuFew7ArbIgtbJkGxGsyxUd4YOETh41/gKd82XU3le2CL6QlB4Jlj
+         8ETqRz5k5WqDETTtyR+fBcN63gBjiOeCTKRyuVei5E2JPXAL0JMY8TNYfynuTBBj8W
+         kIEep6ZcchR+IwPTUr5FEQDDNm1ZlqyvtVguxGBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Keqian Zhu <zhukeqian1@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 464/717] net: dsa: qca: ar9331: fix sleeping function called from invalid context bug
+Subject: [PATCH 5.4 226/453] clocksource/drivers/arm_arch_timer: Correct fault programming of CNTKCTL_EL1.EVNTI
 Date:   Mon, 28 Dec 2020 13:47:42 +0100
-Message-Id: <20201228125043.201813366@linuxfoundation.org>
+Message-Id: <20201228124948.097013832@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,150 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Keqian Zhu <zhukeqian1@huawei.com>
 
-[ Upstream commit 3e47495fc4de4122598dd51ae8527b09b8209646 ]
+[ Upstream commit 8b7770b877d187bfdae1eaf587bd2b792479a31c ]
 
-With lockdep enabled, we will get following warning:
+ARM virtual counter supports event stream, it can only trigger an event
+when the trigger bit (the value of CNTKCTL_EL1.EVNTI) of CNTVCT_EL0 changes,
+so the actual period of event stream is 2^(cntkctl_evnti + 1). For example,
+when the trigger bit is 0, then virtual counter trigger an event for every
+two cycles.
 
- ar9331_switch ethernet.1:10 lan0 (uninitialized): PHY [!ahb!ethernet@1a000000!mdio!switch@10:00] driver [Qualcomm Atheros AR9331 built-in PHY] (irq=13)
- BUG: sleeping function called from invalid context at kernel/locking/mutex.c:935
- in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 18, name: kworker/0:1
- INFO: lockdep is turned off.
- irq event stamp: 602
- hardirqs last  enabled at (601): [<8073fde0>] _raw_spin_unlock_irq+0x3c/0x80
- hardirqs last disabled at (602): [<8073a4f4>] __schedule+0x184/0x800
- softirqs last  enabled at (0): [<80080f60>] copy_process+0x578/0x14c8
- softirqs last disabled at (0): [<00000000>] 0x0
- CPU: 0 PID: 18 Comm: kworker/0:1 Not tainted 5.10.0-rc3-ar9331-00734-g7d644991df0c #31
- Workqueue: events deferred_probe_work_func
- Stack : 80980000 80980000 8089ef70 80890000 804b5414 80980000 00000002 80b53728
-         00000000 800d1268 804b5414 ffffffde 00000017 800afe08 81943860 0f5bfc32
-         00000000 00000000 8089ef70 819436c0 ffffffea 00000000 00000000 00000000
-         8194390c 808e353c 0000000f 66657272 80980000 00000000 00000000 80890000
-         804b5414 80980000 00000002 80b53728 00000000 00000000 00000000 80d40000
-         ...
- Call Trace:
- [<80069ce0>] show_stack+0x9c/0x140
- [<800afe08>] ___might_sleep+0x220/0x244
- [<8073bfb0>] __mutex_lock+0x70/0x374
- [<8073c2e0>] mutex_lock_nested+0x2c/0x38
- [<804b5414>] regmap_update_bits_base+0x38/0x8c
- [<804ee584>] regmap_update_bits+0x1c/0x28
- [<804ee714>] ar9331_sw_unmask_irq+0x34/0x60
- [<800d91f0>] unmask_irq+0x48/0x70
- [<800d93d4>] irq_startup+0x114/0x11c
- [<800d65b4>] __setup_irq+0x4f4/0x6d0
- [<800d68a0>] request_threaded_irq+0x110/0x190
- [<804e3ef0>] phy_request_interrupt+0x4c/0xe4
- [<804df508>] phylink_bringup_phy+0x2c0/0x37c
- [<804df7bc>] phylink_of_phy_connect+0x118/0x130
- [<806c1a64>] dsa_slave_create+0x3d0/0x578
- [<806bc4ec>] dsa_register_switch+0x934/0xa20
- [<804eef98>] ar9331_sw_probe+0x34c/0x364
- [<804eb48c>] mdio_probe+0x44/0x70
- [<8049e3b4>] really_probe+0x30c/0x4f4
- [<8049ea10>] driver_probe_device+0x264/0x26c
- [<8049bc10>] bus_for_each_drv+0xb4/0xd8
- [<8049e684>] __device_attach+0xe8/0x18c
- [<8049ce58>] bus_probe_device+0x48/0xc4
- [<8049db70>] deferred_probe_work_func+0xdc/0xf8
- [<8009ff64>] process_one_work+0x2e4/0x4a0
- [<800a0770>] worker_thread+0x2a8/0x354
- [<800a774c>] kthread+0x16c/0x174
- [<8006306c>] ret_from_kernel_thread+0x14/0x1c
+While we're at it, rework the way we compute the trigger bit position
+by making it more obvious that when bits [n:n-1] are both set (with n
+being the most significant bit), we pick bit (n + 1).
 
- ar9331_switch ethernet.1:10 lan1 (uninitialized): PHY [!ahb!ethernet@1a000000!mdio!switch@10:02] driver [Qualcomm Atheros AR9331 built-in PHY] (irq=13)
- DSA: tree 0 setup
-
-To fix it, it is better to move access to MDIO register to the .irq_bus_sync_unlock
-call back.
-
-Fixes: ec6698c272de ("net: dsa: add support for Atheros AR9331 built-in switch")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20201211110317.17061-1-o.rempel@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 037f637767a8 ("drivers: clocksource: add support for ARM architected timer event stream")
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201204073126.6920-3-zhukeqian1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/qca/ar9331.c | 33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/clocksource/arm_arch_timer.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/dsa/qca/ar9331.c b/drivers/net/dsa/qca/ar9331.c
-index e24a99031b80f..4d49c5f2b7905 100644
---- a/drivers/net/dsa/qca/ar9331.c
-+++ b/drivers/net/dsa/qca/ar9331.c
-@@ -159,6 +159,8 @@ struct ar9331_sw_priv {
- 	struct dsa_switch ds;
- 	struct dsa_switch_ops ops;
- 	struct irq_domain *irqdomain;
-+	u32 irq_mask;
-+	struct mutex lock_irq;
- 	struct mii_bus *mbus; /* mdio master */
- 	struct mii_bus *sbus; /* mdio slave */
- 	struct regmap *regmap;
-@@ -520,32 +522,44 @@ static irqreturn_t ar9331_sw_irq(int irq, void *data)
- static void ar9331_sw_mask_irq(struct irq_data *d)
- {
- 	struct ar9331_sw_priv *priv = irq_data_get_irq_chip_data(d);
--	struct regmap *regmap = priv->regmap;
--	int ret;
+diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+index d2120fcf1f3f6..39cdda2c9a98b 100644
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -818,15 +818,24 @@ static void arch_timer_evtstrm_enable(int divider)
  
--	ret = regmap_update_bits(regmap, AR9331_SW_REG_GINT_MASK,
--				 AR9331_SW_GINT_PHY_INT, 0);
--	if (ret)
--		dev_err(priv->dev, "could not mask IRQ\n");
-+	priv->irq_mask = 0;
+ static void arch_timer_configure_evtstream(void)
+ {
+-	int evt_stream_div, pos;
++	int evt_stream_div, lsb;
++
++	/*
++	 * As the event stream can at most be generated at half the frequency
++	 * of the counter, use half the frequency when computing the divider.
++	 */
++	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ / 2;
++
++	/*
++	 * Find the closest power of two to the divisor. If the adjacent bit
++	 * of lsb (last set bit, starts from 0) is set, then we use (lsb + 1).
++	 */
++	lsb = fls(evt_stream_div) - 1;
++	if (lsb > 0 && (evt_stream_div & BIT(lsb - 1)))
++		lsb++;
+ 
+-	/* Find the closest power of two to the divisor */
+-	evt_stream_div = arch_timer_rate / ARCH_TIMER_EVT_STREAM_FREQ;
+-	pos = fls(evt_stream_div);
+-	if (pos > 1 && !(evt_stream_div & (1 << (pos - 2))))
+-		pos--;
+ 	/* enable event stream */
+-	arch_timer_evtstrm_enable(min(pos, 15));
++	arch_timer_evtstrm_enable(max(0, min(lsb, 15)));
  }
  
- static void ar9331_sw_unmask_irq(struct irq_data *d)
-+{
-+	struct ar9331_sw_priv *priv = irq_data_get_irq_chip_data(d);
-+
-+	priv->irq_mask = AR9331_SW_GINT_PHY_INT;
-+}
-+
-+static void ar9331_sw_irq_bus_lock(struct irq_data *d)
-+{
-+	struct ar9331_sw_priv *priv = irq_data_get_irq_chip_data(d);
-+
-+	mutex_lock(&priv->lock_irq);
-+}
-+
-+static void ar9331_sw_irq_bus_sync_unlock(struct irq_data *d)
- {
- 	struct ar9331_sw_priv *priv = irq_data_get_irq_chip_data(d);
- 	struct regmap *regmap = priv->regmap;
- 	int ret;
- 
- 	ret = regmap_update_bits(regmap, AR9331_SW_REG_GINT_MASK,
--				 AR9331_SW_GINT_PHY_INT,
--				 AR9331_SW_GINT_PHY_INT);
-+				 AR9331_SW_GINT_PHY_INT, priv->irq_mask);
- 	if (ret)
--		dev_err(priv->dev, "could not unmask IRQ\n");
-+		dev_err(priv->dev, "failed to change IRQ mask\n");
-+
-+	mutex_unlock(&priv->lock_irq);
- }
- 
- static struct irq_chip ar9331_sw_irq_chip = {
- 	.name = AR9331_SW_NAME,
- 	.irq_mask = ar9331_sw_mask_irq,
- 	.irq_unmask = ar9331_sw_unmask_irq,
-+	.irq_bus_lock = ar9331_sw_irq_bus_lock,
-+	.irq_bus_sync_unlock = ar9331_sw_irq_bus_sync_unlock,
- };
- 
- static int ar9331_sw_irq_map(struct irq_domain *domain, unsigned int irq,
-@@ -584,6 +598,7 @@ static int ar9331_sw_irq_init(struct ar9331_sw_priv *priv)
- 		return irq ? irq : -EINVAL;
- 	}
- 
-+	mutex_init(&priv->lock_irq);
- 	ret = devm_request_threaded_irq(dev, irq, NULL, ar9331_sw_irq,
- 					IRQF_ONESHOT, AR9331_SW_NAME, priv);
- 	if (ret) {
+ static void arch_counter_set_user_access(void)
 -- 
 2.27.0
 
