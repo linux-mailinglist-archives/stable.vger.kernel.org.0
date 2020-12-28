@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35ECB2E64E5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C899E2E42B2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393098AbgL1PyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:54:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
+        id S2388914AbgL1P02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:26:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390533AbgL1Ngy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D70B208BA;
-        Mon, 28 Dec 2020 13:36:13 +0000 (UTC)
+        id S2406757AbgL1N5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:57:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 530A620715;
+        Mon, 28 Dec 2020 13:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162573;
-        bh=e0IZh525pkgb6dEeDXzOIDHtJSeTXIyNUPCn/PWaoHk=;
+        s=korg; t=1609163846;
+        bh=eiEb4v32L2uoSf4D9Ckw2K3GFDvoiZxEF34F7X0ZZls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0p0JI5kFs0ADSPt5dkYAHqXOLCx+406hU7De2K4WdqETOWZfwgBhwGDkmR/MDad/U
-         wBgfDYN0IIdriivJV2qSqBtczwtOxcbNla30D4psQ8qeDju1HJFJZftN+fqZw9QENw
-         fLniqCizH8ygPMtoEJCKzBybC05e4R6Nlf2haKKY=
+        b=iGoH7lObA0roH5FaNHWcBtipg9ml33YWCyAv3p91fWMmJHpp1HNM+gzjEa6cu1+rL
+         wnEU20/tsVA8GTwrZL3XjdyNxgmvlYGBDCdwni0DUkR1CuQexIlRBQ9xlew0KxDhF1
+         79eKmEALLMUgT49FJNtrOAmMgtQB9V0O1fj3KKqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Garnacho <carlosg@gnome.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.19 345/346] platform/x86: intel-vbtn: Allow switch events on Acer Switch Alpha 12
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org
+Subject: [PATCH 5.4 428/453] iio:light:st_uvis25: Fix timestamp alignment and prevent data leak.
 Date:   Mon, 28 Dec 2020 13:51:04 +0100
-Message-Id: <20201228124936.436604903@linuxfoundation.org>
+Message-Id: <20201228124957.817520045@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Garnacho <carlosg@gnome.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit fe6000990394639ed374cb76c313be3640714f47 upstream.
+commit d837a996f57c29a985177bc03b0e599082047f27 upstream.
 
-This 2-in-1 model (Product name: Switch SA5-271) features a SW_TABLET_MODE
-that works as it would be expected, both when detaching the keyboard and
-when folding it behind the tablet body.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv()
 
-It used to work until the introduction of the allow list at
-commit 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list
-for SW_TABLET_MODE reporting"). Add this model to it, so that the Virtual
-Buttons device announces the EV_SW features again.
+This data is allocated with kzalloc() so no data can leak apart
+from previous readings.
 
-Fixes: 8169bd3e6e193 ("platform/x86: intel-vbtn: Switch to an allow-list for SW_TABLET_MODE reporting")
-Cc: stable@vger.kernel.org
-Signed-off-by: Carlos Garnacho <carlosg@gnome.org>
-Link: https://lore.kernel.org/r/20201201135727.212917-1-carlosg@gnome.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+A local unsigned int variable is used for the regmap call so it
+is clear there is no potential issue with writing into the padding
+of the structure.
+
+Fixes: 3025c8688c1e ("iio: light: add support for UVIS25 sensor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-3-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel-vbtn.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/iio/light/st_uvis25.h      |    5 +++++
+ drivers/iio/light/st_uvis25_core.c |    8 +++++---
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/platform/x86/intel-vbtn.c
-+++ b/drivers/platform/x86/intel-vbtn.c
-@@ -203,6 +203,12 @@ static const struct dmi_system_id dmi_sw
- 			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion 13 x360 PC"),
- 		},
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Switch SA5-271"),
-+		},
-+	},
- 	{} /* Array terminator */
+--- a/drivers/iio/light/st_uvis25.h
++++ b/drivers/iio/light/st_uvis25.h
+@@ -27,6 +27,11 @@ struct st_uvis25_hw {
+ 	struct iio_trigger *trig;
+ 	bool enabled;
+ 	int irq;
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u8 chan;
++		s64 ts __aligned(8);
++	} scan;
  };
  
+ extern const struct dev_pm_ops st_uvis25_pm_ops;
+--- a/drivers/iio/light/st_uvis25_core.c
++++ b/drivers/iio/light/st_uvis25_core.c
+@@ -234,17 +234,19 @@ static const struct iio_buffer_setup_ops
+ 
+ static irqreturn_t st_uvis25_buffer_handler_thread(int irq, void *p)
+ {
+-	u8 buffer[ALIGN(sizeof(u8), sizeof(s64)) + sizeof(s64)];
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *iio_dev = pf->indio_dev;
+ 	struct st_uvis25_hw *hw = iio_priv(iio_dev);
++	unsigned int val;
+ 	int err;
+ 
+-	err = regmap_read(hw->regmap, ST_UVIS25_REG_OUT_ADDR, (int *)buffer);
++	err = regmap_read(hw->regmap, ST_UVIS25_REG_OUT_ADDR, &val);
+ 	if (err < 0)
+ 		goto out;
+ 
+-	iio_push_to_buffers_with_timestamp(iio_dev, buffer,
++	hw->scan.chan = val;
++
++	iio_push_to_buffers_with_timestamp(iio_dev, &hw->scan,
+ 					   iio_get_time_ns(iio_dev));
+ 
+ out:
 
 
