@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1812E4297
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 277C82E3F54
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407514AbgL1N6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:58:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59100 "EHLO mail.kernel.org"
+        id S2392308AbgL1Oip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:38:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436475AbgL1N6s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C65D207A9;
-        Mon, 28 Dec 2020 13:58:32 +0000 (UTC)
+        id S2390383AbgL1Obn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B02702063A;
+        Mon, 28 Dec 2020 14:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163913;
-        bh=uDWq3PaX1WGn0o0S6EVK6RNdXjl95G3A457vOwB3pXE=;
+        s=korg; t=1609165888;
+        bh=mHnbGPAl7oQQAM2WMBXqXFUVy/YH317CVojGgq9XwiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOIuZRc8hCzI+ZFwY2bngL3xO7Y7ANoyMLwvg/T+XvfxEtSBVZHAgKdpXfZzGGOvg
-         N1X6vTOyg3Rtzg4Q39tBX32ND5tsYhSc+HqX9dXywpvvEJZvg3kC6tMNS8k80tQI1I
-         CzKAdFcxcTfq9vHFKn810tb9uuUlfO1xnh8CWaCE=
+        b=tHR+4R4A6h8btQcrogw2eg2EIy/GJfymPidMIlQWtrMbtXIean8Nkr9+KXvkxy3y7
+         p/olKh1wYbeqVcP5OspQrwkEQfKeW3LywxNbUVn2DIB+8AYbYYvgAhVPmZTusOcaWl
+         qe1jmSKrtfuTFroEYFoxp3CMxjFMR+36hkKhbaUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 453/453] Revert: "ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS"
+        stable@vger.kernel.org,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Kamel Bouhara <kamel.bouhara@bootlin.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 691/717] counter: microchip-tcb-capture: Fix CMR value check
 Date:   Mon, 28 Dec 2020 13:51:29 +0100
-Message-Id: <20201228124959.019574393@linuxfoundation.org>
+Message-Id: <20201228125054.081521313@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,109 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
 
-commit adab66b71abfe206a020f11e561f4df41f0b2aba upstream.
+commit 3418bd7cfce0bd8ef1ccedc4655f9f86f6c3b0ca upstream.
 
-It was believed that metag was the only architecture that required the ring
-buffer to keep 8 byte words aligned on 8 byte architectures, and with its
-removal, it was assumed that the ring buffer code did not need to handle
-this case. It appears that sparc64 also requires this.
+The ATMEL_TC_ETRGEDG_* defines are not masks but rather possible values
+for CMR. This patch fixes the action_get() callback to properly check
+for these values rather than mask them.
 
-The following was reported on a sparc64 boot up:
-
-   kernel: futex hash table entries: 65536 (order: 9, 4194304 bytes, linear)
-   kernel: Running postponed tracer tests:
-   kernel: Testing tracer function:
-   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
-   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
-   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
-   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
-   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
-   kernel: PASSED
-
-Need to put back the 64BIT aligned code for the ring buffer.
-
-Link: https://lore.kernel.org/r/CADxRZqzXQRYgKc=y-KV=S_yHL+Y8Ay2mh5ezeZUnpRvg+syWKw@mail.gmail.com
-
-Cc: stable@vger.kernel.org
-Fixes: 86b3de60a0b6 ("ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS")
-Reported-by: Anatoly Pugachev <matorola@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 106b104137fd ("counter: Add microchip TCB capture counter")
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201114232805.253108-1-vilhelm.gray@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/Kconfig               |   16 ++++++++++++++++
- kernel/trace/ring_buffer.c |   17 +++++++++++++----
- 2 files changed, 29 insertions(+), 4 deletions(-)
+ drivers/counter/microchip-tcb-capture.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -131,6 +131,22 @@ config UPROBES
- 	    managed by the kernel and kept transparent to the probed
- 	    application. )
+--- a/drivers/counter/microchip-tcb-capture.c
++++ b/drivers/counter/microchip-tcb-capture.c
+@@ -183,16 +183,20 @@ static int mchp_tc_count_action_get(stru
  
-+config HAVE_64BIT_ALIGNED_ACCESS
-+	def_bool 64BIT && !HAVE_EFFICIENT_UNALIGNED_ACCESS
-+	help
-+	  Some architectures require 64 bit accesses to be 64 bit
-+	  aligned, which also requires structs containing 64 bit values
-+	  to be 64 bit aligned too. This includes some 32 bit
-+	  architectures which can do 64 bit accesses, as well as 64 bit
-+	  architectures without unaligned access.
-+
-+	  This symbol should be selected by an architecture if 64 bit
-+	  accesses are required to be 64 bit aligned in this way even
-+	  though it is not a 64 bit architecture.
-+
-+	  See Documentation/unaligned-memory-access.txt for more
-+	  information on the topic of unaligned memory accesses.
-+
- config HAVE_EFFICIENT_UNALIGNED_ACCESS
- 	bool
- 	help
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -129,7 +129,16 @@ int ring_buffer_print_entry_header(struc
- #define RB_ALIGNMENT		4U
- #define RB_MAX_SMALL_DATA	(RB_ALIGNMENT * RINGBUF_TYPE_DATA_TYPE_LEN_MAX)
- #define RB_EVNT_MIN_SIZE	8U	/* two 32bit words */
--#define RB_ALIGN_DATA		__aligned(RB_ALIGNMENT)
-+
-+#ifndef CONFIG_HAVE_64BIT_ALIGNED_ACCESS
-+# define RB_FORCE_8BYTE_ALIGNMENT	0
-+# define RB_ARCH_ALIGNMENT		RB_ALIGNMENT
-+#else
-+# define RB_FORCE_8BYTE_ALIGNMENT	1
-+# define RB_ARCH_ALIGNMENT		8U
-+#endif
-+
-+#define RB_ALIGN_DATA		__aligned(RB_ARCH_ALIGNMENT)
+ 	regmap_read(priv->regmap, ATMEL_TC_REG(priv->channel[0], CMR), &cmr);
  
- /* define RINGBUF_TYPE_DATA for 'case RINGBUF_TYPE_DATA:' */
- #define RINGBUF_TYPE_DATA 0 ... RINGBUF_TYPE_DATA_TYPE_LEN_MAX
-@@ -2367,7 +2376,7 @@ rb_update_event(struct ring_buffer_per_c
+-	*action = MCHP_TC_SYNAPSE_ACTION_NONE;
+-
+-	if (cmr & ATMEL_TC_ETRGEDG_NONE)
++	switch (cmr & ATMEL_TC_ETRGEDG) {
++	default:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_NONE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_RISING)
++		break;
++	case ATMEL_TC_ETRGEDG_RISING:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_RISING_EDGE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_FALLING)
++		break;
++	case ATMEL_TC_ETRGEDG_FALLING:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_FALLING_EDGE;
+-	else if (cmr & ATMEL_TC_ETRGEDG_BOTH)
++		break;
++	case ATMEL_TC_ETRGEDG_BOTH:
+ 		*action = MCHP_TC_SYNAPSE_ACTION_BOTH_EDGE;
++		break;
++	}
  
- 	event->time_delta = delta;
- 	length -= RB_EVNT_HDR_SIZE;
--	if (length > RB_MAX_SMALL_DATA) {
-+	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT) {
- 		event->type_len = 0;
- 		event->array[0] = length;
- 	} else
-@@ -2382,11 +2391,11 @@ static unsigned rb_calculate_event_lengt
- 	if (!length)
- 		length++;
- 
--	if (length > RB_MAX_SMALL_DATA)
-+	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT)
- 		length += sizeof(event.array[0]);
- 
- 	length += RB_EVNT_HDR_SIZE;
--	length = ALIGN(length, RB_ALIGNMENT);
-+	length = ALIGN(length, RB_ARCH_ALIGNMENT);
- 
- 	/*
- 	 * In case the time delta is larger than the 27 bits for it
+ 	return 0;
+ }
 
 
