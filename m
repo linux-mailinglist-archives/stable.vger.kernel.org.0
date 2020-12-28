@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076F22E4098
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 780422E3AED
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391235AbgL1OyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:54:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52136 "EHLO mail.kernel.org"
+        id S2391447AbgL1Nn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:43:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441426AbgL1ORR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DCFA207B2;
-        Mon, 28 Dec 2020 14:17:01 +0000 (UTC)
+        id S2404439AbgL1NnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:43:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6366E20719;
+        Mon, 28 Dec 2020 13:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165022;
-        bh=gbZNBjrc2zlFcnWBSOD6PhrMpM+qwB4I32NGCWBDp/U=;
+        s=korg; t=1609162962;
+        bh=HnOhffahLUjkw78ZedWdR3NbMXwGxnTSBqkS1Nm+iwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkZHEAheBYSkJK+G9njY0SeAyFA2z0aRHGw0aT4Y5grrWIIfGNs/FPf/AMROlqUuN
-         ieiG88BMCYvOMhzYgeSy1y/h6Rjv8a2k9HOMr61peKORZHYDPWiwdlGlynUvXUtBYL
-         15axxs3OjZAkBkQLjgvm3I8CNjiCvhUvKo543x2k=
+        b=RVu6snvoNjfTIg7cP3igRjhjlZoSTfi0nhuF6p1IqvAs5y1lJBXThR/E1o5OACx3Z
+         MZLM5fLzEH5YMn0hoP0b6OLFjvA2HZZvM5qZKkPGAh/0Fr4HHqxKCM8RlwAbG0GhIs
+         rwU2gDSpE9r4rOG/hynitGkS5Dteja3eni4R8KmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 342/717] block/rnbd: fix a null pointer dereference on dev->blk_symlink_name
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 104/453] spi: spi-mem: fix reference leak in spi_mem_access_start
 Date:   Mon, 28 Dec 2020 13:45:40 +0100
-Message-Id: <20201228125037.409803523@linuxfoundation.org>
+Message-Id: <20201228124942.224114893@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 733c15bd3a944b8eeaacdddf061759b6a83dd3f4 ]
+[ Upstream commit c02bb16b0e826bf0e19aa42c3ae60ea339f32cf5 ]
 
-Currently in the case where dev->blk_symlink_name fails to be allocates
-the error return path attempts to set an end-of-string character to
-the unallocated dev->blk_symlink_name causing a null pointer dereference
-error. Fix this by returning with an explicity ENOMEM error (which also
-is missing in the original code as was not initialized).
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in spi_mem_access_start, so we should fix it.
 
-Fixes: 1eb54f8f5dd8 ("block/rnbd: client: sysfs interface functions")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Addresses-Coverity: ("Dereference after null check")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f86c24f479530 ("spi: spi-mem: Split spi_mem_exec_op() code")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103140910.3482-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rnbd/rnbd-clt-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-mem.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
-index b53df40c9a97f..d854f057056bb 100644
---- a/drivers/block/rnbd/rnbd-clt-sysfs.c
-+++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
-@@ -494,7 +494,7 @@ static int rnbd_clt_add_dev_symlink(struct rnbd_clt_dev *dev)
- 	dev->blk_symlink_name = kzalloc(len, GFP_KERNEL);
- 	if (!dev->blk_symlink_name) {
- 		rnbd_clt_err(dev, "Failed to allocate memory for blk_symlink_name\n");
--		goto out_err;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index de0ba3e5449fa..33115bcfc787e 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -237,6 +237,7 @@ static int spi_mem_access_start(struct spi_mem *mem)
  
- 	ret = rnbd_clt_get_path_name(dev, dev->blk_symlink_name,
+ 		ret = pm_runtime_get_sync(ctlr->dev.parent);
+ 		if (ret < 0) {
++			pm_runtime_put_noidle(ctlr->dev.parent);
+ 			dev_err(&ctlr->dev, "Failed to power device: %d\n",
+ 				ret);
+ 			return ret;
 -- 
 2.27.0
 
