@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BEB2E68B1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 531572E65BF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729333AbgL1M7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:59:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56052 "EHLO mail.kernel.org"
+        id S2389582AbgL1N1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:27:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728898AbgL1M7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4680224D2;
-        Mon, 28 Dec 2020 12:59:09 +0000 (UTC)
+        id S2389200AbgL1N0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:26:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5ABC22472;
+        Mon, 28 Dec 2020 13:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160350;
-        bh=p1SBuvEuvOnE6F0Yhv0RPPh1j3jJpmrPEhHjsIXR10c=;
+        s=korg; t=1609161953;
+        bh=NyJxix9UlwTf3UE+Z333I0rQe4WgJburj1ZJcyQebMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWRbKqKcYLyeeDHDR1+aM2oyTtt+oEiEBpY7WT9CfR6w1w7JxqMECq08gbeYhC4Nz
-         OhwaQJZ7b7xb5XXX8rhzWGn/BORSAM5rPj0tCFeyTL4hTgez8pp3nlNmmfBZ7iFT8t
-         htTFDjv3XTPU/Db/PA48ZRaTdVISRUbvD1j6HiNY=
+        b=WKxkwSTuMpWb9O17cEHJ+MGDnz/uFJcTZ61CmZtXtL+RmetF17sUhkHi0jnRYoqXW
+         45C+nf9EHt6WZpCEGJCzdzMY4GLdDgIYepfgM+bjdHmEWoxCIYiJ2h8EYyx/wMTN6W
+         4hrGe3GaykFs71/yLidBJim+5xAA9p7Aj4BaKGF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Reichl <m.reichl@fivetechno.de>,
-        Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 004/175] arm64: dts: rockchip: Assign a fixed index to mmc devices on rk3399 boards.
+Subject: [PATCH 4.19 138/346] staging: greybus: codecs: Fix reference counter leak in error handling
 Date:   Mon, 28 Dec 2020 13:47:37 +0100
-Message-Id: <20201228124853.453748321@linuxfoundation.org>
+Message-Id: <20201228124926.462859447@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Reichl <m.reichl@fivetechno.de>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 0011c6d182774fc781fb9e115ebe8baa356029ae ]
+[ Upstream commit 3952659a6108f77a0d062d8e8487bdbdaf52a66c ]
 
-Recently introduced async probe on mmc devices can shuffle block IDs.
-Pin them to fixed values to ease booting in environments where UUIDs
-are not practical. Use newly introduced aliases for mmcblk devices from [1].
+gb_pm_runtime_get_sync has increased the usage counter of the device here.
+Forgetting to call gb_pm_runtime_put_noidle will result in usage counter
+leak in the error branch of (gbcodec_hw_params and gbcodec_prepare). We
+fixed it by adding it.
 
-[1]
-https://patchwork.kernel.org/patch/11747669/
-
-Signed-off-by: Markus Reichl <m.reichl@fivetechno.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20201104162356.1251-1-m.reichl@fivetechno.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: c388ae7696992 ("greybus: audio: Update pm runtime support in dai_ops callback")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201109131347.1725288-2-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/greybus/audio_codec.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 7afbfb0f96a3c..dd211dbdaaae0 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -65,6 +65,9 @@
- 		i2c6 = &i2c6;
- 		i2c7 = &i2c7;
- 		i2c8 = &i2c8;
-+		mmc0 = &sdio0;
-+		mmc1 = &sdmmc;
-+		mmc2 = &sdhci;
- 		serial0 = &uart0;
- 		serial1 = &uart1;
- 		serial2 = &uart2;
+diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
+index 35acd55ca5ab7..6cbf69a57dfd9 100644
+--- a/drivers/staging/greybus/audio_codec.c
++++ b/drivers/staging/greybus/audio_codec.c
+@@ -489,6 +489,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
+ 	if (ret) {
+ 		dev_err_ratelimited(dai->dev, "%d: Error during set_config\n",
+ 				    ret);
++		gb_pm_runtime_put_noidle(bundle);
+ 		mutex_unlock(&codec->lock);
+ 		return ret;
+ 	}
+@@ -565,6 +566,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
+ 		break;
+ 	}
+ 	if (ret) {
++		gb_pm_runtime_put_noidle(bundle);
+ 		mutex_unlock(&codec->lock);
+ 		dev_err_ratelimited(dai->dev, "set_data_size failed:%d\n",
+ 				    ret);
 -- 
 2.27.0
 
