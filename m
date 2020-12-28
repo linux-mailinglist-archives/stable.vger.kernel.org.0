@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B20EB2E3826
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:07:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE28C2E6544
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728397AbgL1NGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:06:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
+        id S2387907AbgL1P7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:59:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730649AbgL1NGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:06:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED04206ED;
-        Mon, 28 Dec 2020 13:05:21 +0000 (UTC)
+        id S2387880AbgL1NdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:33:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF4DD20728;
+        Mon, 28 Dec 2020 13:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160722;
-        bh=nut+FdKbNn7Tk8axI6IDJ69X2ebRDC+tEa8dll2K1zg=;
+        s=korg; t=1609162384;
+        bh=emIa0BVJ+NWa0e0Klak/IepkNYYZCQVFt8R+pSxYSdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vj+rPcQhZDYtcmGhLAvCKheUpN65IUBntHILDDsyCl8FG73EkISwu1E6P/3ImWX0C
-         MG0AXLt/vtIxGSNr7f2VKWa0GfeGb7cpzLQERBph0xO/j0n+lNIOuTOyEcvXtaUS1Y
-         NEfTiVAPi4Yln6eSeHMa8ViPqSJzYUdWizC5egVg=
+        b=E6d41OQVEKJZwFNOMBxnNLMYyzqh3IUWxPOTfd/NZ3f19wYr1wma42+ANEsTIxOWQ
+         2z5FFGuSIAAREIBwwYvKdeCB+ZIxCn6ymVy2cw6BeojBRQ8yyrJACHuaQOzvqkY6A5
+         EXTF0X1AWlGmoyr0G6eH3oAZy2D9jz1WgkO2tjVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 121/175] net: allwinner: Fix some resources leak in the error handling path of the probe and in the remove function
-Date:   Mon, 28 Dec 2020 13:49:34 +0100
-Message-Id: <20201228124859.122157097@linuxfoundation.org>
+Subject: [PATCH 4.19 256/346] Input: cros_ec_keyb - send scancodes in addition to key events
+Date:   Mon, 28 Dec 2020 13:49:35 +0100
+Message-Id: <20201228124932.160991526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 322e53d1e2529ae9d501f5e0f20604a79b873aef ]
+[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
 
-'irq_of_parse_and_map()' should be balanced by a corresponding
-'irq_dispose_mapping()' call. Otherwise, there is some resources leaks.
+To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
+and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
+addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
+capability, so it is only matter of actually sending the events.
 
-Add such a call in the error handling path of the probe function and in the
-remove function.
-
-Fixes: 492205050d77 ("net: Add EMAC ethernet driver found on Allwinner A10 SoC's")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201214202117.146293-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
+Acked-by: Rajat Jain <rajatja@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index 672a8212c8d96..3dc101f7d6bd8 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -827,13 +827,13 @@ static int emac_probe(struct platform_device *pdev)
- 	db->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(db->clk)) {
- 		ret = PTR_ERR(db->clk);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index d560011815983..1edf0e8322ccc 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -183,6 +183,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+ 					"changed: [r%d c%d]: byte %02x\n",
+ 					row, col, new_state);
  
- 	ret = clk_prepare_enable(db->clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Error couldn't enable clock (%d)\n", ret);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
- 
- 	ret = sunxi_sram_claim(&pdev->dev);
-@@ -890,6 +890,8 @@ out_release_sram:
- 	sunxi_sram_release(&pdev->dev);
- out_clk_disable_unprepare:
- 	clk_disable_unprepare(db->clk);
-+out_dispose_mapping:
-+	irq_dispose_mapping(ndev->irq);
- out_iounmap:
- 	iounmap(db->membase);
- out:
-@@ -908,6 +910,7 @@ static int emac_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	sunxi_sram_release(&pdev->dev);
- 	clk_disable_unprepare(db->clk);
-+	irq_dispose_mapping(ndev->irq);
- 	iounmap(db->membase);
- 	free_netdev(ndev);
- 
++				input_event(idev, EV_MSC, MSC_SCAN, pos);
+ 				input_report_key(idev, keycodes[pos],
+ 						 new_state);
+ 			}
 -- 
 2.27.0
 
