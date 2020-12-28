@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E93882E368C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 958442E3689
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:36:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbgL1LfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:35:09 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:56615 "EHLO
+        id S1727307AbgL1Let (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:34:49 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:60905 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727329AbgL1LfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:35:08 -0500
+        by vger.kernel.org with ESMTP id S1727296AbgL1Let (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:34:49 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 09874839;
+        by mailforward.west.internal (Postfix) with ESMTP id DB3377F9;
         Mon, 28 Dec 2020 06:33:20 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
+Received: from mailfrontend1 ([10.202.2.162])
   by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:33:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
         :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ChBBNN
-        HcaLkHW1gBoDBh3N8g5lDqRmcOxKWOw7XbAXw=; b=detV43L/ArmOM6quyMoBFl
-        afELbG6dgX1OH5A/pYHfuYMFjYyfdqKDOGXDC5iJ/s4YfDSXmc+dXwNT4OsKE0To
-        9X+3aksQYLP5SyjpyiOIJ7RWI9QsxuRcEJtyUsxN6ysv8DngJEC/z1ypZMoV/YMG
-        lDBSC+dsg1ggtu5i9YCl40EzbX0eUt1o8As/fKl+lvEP+5rDbWwnSOptb1XjP/ZA
-        tdnO/riC2DRwxqvaRG2Vm/zVdm3OMxRXr+hQIgGejV+HiP5L57ETYOM9eBBiWc4C
-        BiDKjLOBr7YUt6MXqbm5VtnGFTRZr8YntQlvaY5xmR52NVOfJ3sz6JOIMwgxvvug
+        HcaLkHW1gBoDBh3N8g5lDqRmcOxKWOw7XbAXw=; b=cker8uKrOCKe5nD+edpya3
+        d3dhWQ/VGI2HUutVm9hCihyc64ZzDbL1J+3e/lpOuVtI9/5wPkyp0NLZLxnbI/xX
+        9zual/NMPVMaARb78leRbj3rr6TsB9xZq9YePcAPvemcQTUvGIjslQGE8HfwOdFy
+        UEqSqf2ErpNqPv3D1gA7CCCfN6f1bIbMaA27p5N7HQYFqn/gjk59scUSekE/gm5p
+        E82ZPjTWY+pu9RfYHsQHQcY3eCvj2w45TbrnuxyTI0DeFHVR+QAWjRRglQoEi3vY
+        ALX9giO3Qlq8mHDfsLUGeuDwOXp3f6IS6f2V5U57bYuZt2kwZQv9c4eo8GLZ1t6A
         ==
-X-ME-Sender: <xms:gMLpX0-zdl7okMlVGICmOC1bkqXGhtgbUdjqdzfGVkLWU_MKQdRlGQ>
-    <xme:gMLpX8tubfTPXPA7sR5tvRwizJJF2JPG1RBxAZ57C3GAvI0tuYiGk-JBOpTv-1K0J
-    yZ9FWEJKSft1Q>
+X-ME-Sender: <xms:gMLpX8btUiBcdt3N-pHBE4joY-tc3In5IoNLjFWvUpqcn-qv2kal_A>
+    <xme:gMLpX3Y9bXOCGgm65x2-zEGTxaSNWUb4JeNZDwwpaBmU76gtNixRZIVonDgdXxv-8
+    yhpIx17H-K9mA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,13 +38,13 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeduucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:gMLpX6Dmpogs1YIMEG7fbVwWNAaCwm4JjzT-P5f7BIhK4soLChYUvQ>
-    <xmx:gMLpX0dep8IgMzspcKIlL22SZC7nlE-ASp22GEqtafUUW2ud4t0gug>
-    <xmx:gMLpX5OyrvfhG3n2lUbbC26x_oeh269ll7EHenc6Y1e2y_lM_IM95A>
-    <xmx:gMLpXyZfeEcvSlbC823AM7snxex1J-jFCBkdcbx8mGPchoTW8--NtsEoehw>
+X-ME-Proxy: <xmx:gMLpX2-H4z6yvFp1LT9v45iLcD9kjmHzPivROsZPp02oOm0KPIPrnw>
+    <xmx:gMLpX2rQxZM2Fssz18u_x3t93zj-yabITAwF1S5x7eBa4jy6fP1jUQ>
+    <xmx:gMLpX3q9dO5y0jCE-94ifPeK3gBXRJ_c2kAs2AN9rVRpLNfFN-GTzw>
+    <xmx:gMLpX-0_KCSkWGEzETjqMNQFVkPobaXXnvtkt73Ytp5-dR_EGS8VhBasXrs>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 558AC1080059;
-        Mon, 28 Dec 2020 06:33:20 -0500 (EST)
+        by mail.messagingengine.com (Postfix) with ESMTPA id ED9D9240057;
+        Mon, 28 Dec 2020 06:33:19 -0500 (EST)
 Subject: FAILED: patch "[PATCH] xen-blkback: set ring->xenblkd to NULL after kthread_stop()" failed to apply to 4.4-stable tree
 To:     wipawel@amazon.de, jgrall@amazon.com, jgross@suse.com,
         oliben@amazon.com, stable@vger.kernel.org
