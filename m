@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A82EF2E65C2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 793AD2E6771
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389077AbgL1N1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54730 "EHLO mail.kernel.org"
+        id S2437295AbgL1QYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:24:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389380AbgL1N0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 848A5206ED;
-        Mon, 28 Dec 2020 13:26:01 +0000 (UTC)
+        id S1731296AbgL1NKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:10:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 203EF22B3A;
+        Mon, 28 Dec 2020 13:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161962;
-        bh=O4CSAGa5Z9/miuUnMjw8DLTlmpWSSZZ/K5bZIbYNyNg=;
+        s=korg; t=1609160967;
+        bh=1DKUcyuuGjk0ZLK2zckVHV4YP3EywcRPMhynTZVpuFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p12txIVBG3ILFyJW1eCAopshORhSH4dtWdihJGFCAfA/5QdCvrHXYFR2Nj6ZQHwo1
-         hlHUUb5iVL64PppblnRmONuH9rkggITf0VuRvZ6d6C87/AwGTKWXsY3ZsOigK/mvtc
-         Ng3WgUIbre+pvzL/wHMJEJlkVPWT1DpYmEC9vzWs=
+        b=ZRVtBS5ZR5VESzxGlKp+v4tGa08pPqac+9Vp9SVAqusk8o8lj+TvEV51TwRVOKZse
+         2lLy9GtknlT1MBw6MxajcVHMOf0/6/6dptv9NaF6GfICziGdnsq7NMY0dwcAv/jIof
+         YRCgo6YXsOVznFT7+/OzXgyjezOz5Uvw307uyQEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 141/346] media: mtk-vcodec: add missing put_device() call in mtk_vcodec_release_dec_pm()
-Date:   Mon, 28 Dec 2020 13:47:40 +0100
-Message-Id: <20201228124926.598900199@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 4.14 056/242] ARM: dts: exynos: fix USB 3.0 VBUS control and over-current pins on Exynos5410
+Date:   Mon, 28 Dec 2020 13:47:41 +0100
+Message-Id: <20201228124907.438782268@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 27c3943683f74e35e1d390ceb2e3639eff616ad6 ]
+commit 3d992fd8f4e0f09c980726308d2f2725587b32d6 upstream.
 
-mtk_vcodec_release_dec_pm() will be called in two places:
+The VBUS control (PWREN) and over-current pins of USB 3.0 DWC3
+controllers are on Exynos5410 regular GPIOs.  This is different than for
+example on Exynos5422 where these are special ETC pins with proper reset
+values (pulls, functions).
 
-a. mtk_vcodec_init_dec_pm() succeed while mtk_vcodec_probe() return error.
-b. mtk_vcodec_dec_remove().
+Therefore these pins should be configured to enable proper USB 3.0
+peripheral and host modes.  This also fixes over-current warning:
 
-In both cases put_device() call is needed, since of_find_device_by_node()
-was called in mtk_vcodec_init_dec_pm() previously.
+    [    6.024658] usb usb4-port1: over-current condition
+    [    6.028271] usb usb3-port1: over-current condition
 
-Thus add put_devices() call in mtk_vcodec_release_dec_pm()
+Fixes: cb0896562228 ("ARM: dts: exynos: Add USB to Exynos5410")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201015182044.480562-2-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 590577a4e525 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Decoder Driver")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5410-pinctrl.dtsi |   28 ++++++++++++++++++++++++++++
+ arch/arm/boot/dts/exynos5410.dtsi         |    4 ++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
-index 79ca03ac449c3..3f64119e8c082 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
-@@ -103,6 +103,7 @@ int mtk_vcodec_init_dec_pm(struct mtk_vcodec_dev *mtkdev)
- void mtk_vcodec_release_dec_pm(struct mtk_vcodec_dev *dev)
- {
- 	pm_runtime_disable(dev->pm.dev);
-+	put_device(dev->pm.larbvdec);
- }
+--- a/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5410-pinctrl.dtsi
+@@ -563,6 +563,34 @@
+ 		interrupt-controller;
+ 		#interrupt-cells = <2>;
+ 	};
++
++	usb3_1_oc: usb3-1-oc {
++		samsung,pins = "gpk2-4", "gpk2-5";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_1_vbusctrl: usb3-1-vbusctrl {
++		samsung,pins = "gpk2-6", "gpk2-7";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_oc: usb3-0-oc {
++		samsung,pins = "gpk3-0", "gpk3-1";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
++
++	usb3_0_vbusctrl: usb3-0-vbusctrl {
++		samsung,pins = "gpk3-2", "gpk3-3";
++		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
++		samsung,pin-pud = <EXYNOS_PIN_PULL_DOWN>;
++		samsung,pin-drv = <EXYNOS5420_PIN_DRV_LV1>;
++	};
+ };
  
- void mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm)
--- 
-2.27.0
-
+ &pinctrl_2 {
+--- a/arch/arm/boot/dts/exynos5410.dtsi
++++ b/arch/arm/boot/dts/exynos5410.dtsi
+@@ -381,6 +381,8 @@
+ &usbdrd3_0 {
+ 	clocks = <&clock CLK_USBD300>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_0_oc>, <&usb3_0_vbusctrl>;
+ };
+ 
+ &usbdrd_phy0 {
+@@ -392,6 +394,8 @@
+ &usbdrd3_1 {
+ 	clocks = <&clock CLK_USBD301>;
+ 	clock-names = "usbdrd30";
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb3_1_oc>, <&usb3_1_vbusctrl>;
+ };
+ 
+ &usbdrd_dwc3_1 {
 
 
