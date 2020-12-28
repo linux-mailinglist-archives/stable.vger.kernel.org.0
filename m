@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1A942E431B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B8D2E379C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392834AbgL1Pae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:30:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56918 "EHLO mail.kernel.org"
+        id S1729095AbgL1M6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:58:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405169AbgL1NzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:55:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E86082072C;
-        Mon, 28 Dec 2020 13:54:30 +0000 (UTC)
+        id S1729045AbgL1M6K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:58:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F5BA207C9;
+        Mon, 28 Dec 2020 12:57:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163671;
-        bh=7cQDaEUqqy2Z+ZsG1YF2Up5+GInOJP/+GzQEoaKyGPM=;
+        s=korg; t=1609160250;
+        bh=4QAC7qeL+YoC1ltwe3fWxolyc+FRKOcUV33qt+FjxCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgicSZ7fQpuyTtPYEnnlR3WBRj0kV3WMM0Ehsz2g8qRCCdXNPgaeHsW+CtdsOZoxW
-         UGSXyb9vwkiKjnOL8d0cc5GOaefIbNrH0tFd5v5TQP6Nlulp7pg9r/ozttP6q3MGfa
-         gBC3QNOHANijIPWIOfM4P9sCVAeRFKA1rkN8K+q0=
+        b=Cysb+AbdLqIH5SYO6bmcYtl4lcOrG/fe6sDrKMjHDKreFqKwWnBtuUfvB5TkV/1G6
+         2hDH+iUodiXh3bWpJrCHKSEsAyAl8A69t1Kq8GPD/rg3AfgFSUQHwVLPbuMBDuLO+0
+         r+y6TKM0JuKwHBf0iIIwSrQJo49ogJvrPqzCo/0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 366/453] USB: serial: keyspan_pda: fix dropped unthrottle interrupts
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        "Pavel Machek (CIP)" <pavel@denx.de>,
+        David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 118/132] btrfs: fix return value mixup in btrfs_get_extent
 Date:   Mon, 28 Dec 2020 13:50:02 +0100
-Message-Id: <20201228124954.818486155@linuxfoundation.org>
+Message-Id: <20201228124852.113626392@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pavel Machek <pavel@denx.de>
 
-commit 696c541c8c6cfa05d65aa24ae2b9e720fc01766e upstream.
+commit 881a3a11c2b858fe9b69ef79ac5ee9978a266dc9 upstream
 
-Commit c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity
-checks") broke write-unthrottle handling by dropping well-formed
-unthrottle-interrupt packets which are precisely two bytes long. This
-could lead to blocked writers not being woken up when buffer space again
-becomes available.
+btrfs_get_extent() sets variable ret, but out: error path expect error
+to be in variable err so the error code is lost.
 
-Instead, stop unconditionally printing the third byte which is
-(presumably) only valid on modem-line changes.
-
-Fixes: c528fcb116e6 ("USB: serial: keyspan_pda: fix receive sanity checks")
-Cc: stable <stable@vger.kernel.org>     # 4.11
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 6bf9e4bd6a27 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/keyspan_pda.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -172,11 +172,11 @@ static void keyspan_pda_rx_interrupt(str
- 		break;
- 	case 1:
- 		/* status interrupt */
--		if (len < 3) {
-+		if (len < 2) {
- 			dev_warn(&port->dev, "short interrupt message received\n");
- 			break;
- 		}
--		dev_dbg(&port->dev, "rx int, d1=%d, d2=%d\n", data[1], data[2]);
-+		dev_dbg(&port->dev, "rx int, d1=%d\n", data[1]);
- 		switch (data[1]) {
- 		case 1: /* modemline change */
- 			break;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -6923,7 +6923,7 @@ again:
+ 	    found_type == BTRFS_FILE_EXTENT_PREALLOC) {
+ 		/* Only regular file could have regular/prealloc extent */
+ 		if (!S_ISREG(inode->i_mode)) {
+-			ret = -EUCLEAN;
++			err = -EUCLEAN;
+ 			btrfs_crit(root->fs_info,
+ 		"regular/prealloc extent found for non-regular inode %llu",
+ 				   btrfs_ino(inode));
 
 
