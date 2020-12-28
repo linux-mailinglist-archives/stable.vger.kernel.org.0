@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 406E92E68B2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1AA2E6734
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729327AbgL1M7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:59:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55886 "EHLO mail.kernel.org"
+        id S2441000AbgL1QWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:22:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729321AbgL1M7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65BB422573;
-        Mon, 28 Dec 2020 12:59:33 +0000 (UTC)
+        id S1731995AbgL1NMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:12:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1124B20776;
+        Mon, 28 Dec 2020 13:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160374;
-        bh=Q8JP1zhbZqwQs90LgMLu1Sy3i8j2Y/HYBBqjMnVMYTs=;
+        s=korg; t=1609161120;
+        bh=g/v+1rTa2gjUBjXl4NS7as3TpK2nuD+hQqywd1ongmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBjwPEf+795ZVXxlZZNsgR4gNL5hAarGZ4vbS8cxTZO71npRFB6SSr7luryuRerOs
-         Gv70AR1OTxvX+JDWHjMe+MfbwYXIxH5ZyiNjCDOeesjS3OgoS2efSFdZgn9a/GvMOk
-         GUPMzy7iqvCOotYiKaJ6ySS8eSoIS6M7ZrZcH4Gw=
+        b=eeS31qM+ptCUMB42JU+uGQx2grLT9yp/O0kEaMBCaRtrm5k6WAammGAKBTxVnRdgE
+         ItX30zy8+it2+ZlTBeJLDxVu7nesEjL1cunckdHoJMAceEvfDr3gaCx1O2NCGISWAm
+         cLJBuQklmSVD+2OFQRVRl3wZRiHLdBWwefIc9awM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Amit Matityahu <mitm@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 030/175] RDMA/cm: Fix an attempt to use non-valid pointer when cleaning timewait
+Subject: [PATCH 4.14 078/242] selinux: fix inode_doinit_with_dentry() LABEL_INVALID error handling
 Date:   Mon, 28 Dec 2020 13:48:03 +0100
-Message-Id: <20201228124854.719587262@linuxfoundation.org>
+Message-Id: <20201228124908.524696329@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 340b940ea0ed12d9adbb8f72dea17d516b2019e8 ]
+[ Upstream commit 200ea5a2292dc444a818b096ae6a32ba3caa51b9 ]
 
-If cm_create_timewait_info() fails, the timewait_info pointer will contain
-an error value and will be used in cm_remove_remote() later.
+A previous fix, commit 83370b31a915 ("selinux: fix error initialization
+in inode_doinit_with_dentry()"), changed how failures were handled
+before a SELinux policy was loaded.  Unfortunately that patch was
+potentially problematic for two reasons: it set the isec->initialized
+state without holding a lock, and it didn't set the inode's SELinux
+label to the "default" for the particular filesystem.  The later can
+be a problem if/when a later attempt to revalidate the inode fails
+and SELinux reverts to the existing inode label.
 
-  general protection fault, probably for non-canonical address 0xdffffc0000000024: 0000 [#1] SMP KASAN PTI
-  KASAN: null-ptr-deref in range [0×0000000000000120-0×0000000000000127]
-  CPU: 2 PID: 12446 Comm: syz-executor.3 Not tainted 5.10.0-rc5-5d4c0742a60e #27
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:cm_remove_remote.isra.0+0x24/0×170 drivers/infiniband/core/cm.c:978
-  Code: 84 00 00 00 00 00 41 54 55 53 48 89 fb 48 8d ab 2d 01 00 00 e8 7d bf 4b fe 48 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <0f> b6 04 02 48 89 ea 83 e2 07 38 d0 7f 08 84 c0 0f 85 fc 00 00 00
-  RSP: 0018:ffff888013127918 EFLAGS: 00010006
-  RAX: dffffc0000000000 RBX: fffffffffffffff4 RCX: ffffc9000a18b000
-  RDX: 0000000000000024 RSI: ffffffff82edc573 RDI: fffffffffffffff4
-  RBP: 0000000000000121 R08: 0000000000000001 R09: ffffed1002624f1d
-  R10: 0000000000000003 R11: ffffed1002624f1c R12: ffff888107760c70
-  R13: ffff888107760c40 R14: fffffffffffffff4 R15: ffff888107760c9c
-  FS:  00007fe1ffcc1700(0000) GS:ffff88811a600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000001b2ff21000 CR3: 000000010f504001 CR4: 0000000000370ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   cm_destroy_id+0x189/0×15b0 drivers/infiniband/core/cm.c:1155
-   cma_connect_ib drivers/infiniband/core/cma.c:4029 [inline]
-   rdma_connect_locked+0x1100/0×17c0 drivers/infiniband/core/cma.c:4107
-   rdma_connect+0x2a/0×40 drivers/infiniband/core/cma.c:4140
-   ucma_connect+0x277/0×340 drivers/infiniband/core/ucma.c:1069
-   ucma_write+0x236/0×2f0 drivers/infiniband/core/ucma.c:1724
-   vfs_write+0x220/0×830 fs/read_write.c:603
-   ksys_write+0x1df/0×240 fs/read_write.c:658
-   do_syscall_64+0x33/0×40 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This patch should restore the default inode labeling that existed
+before the original fix, without affecting the LABEL_INVALID marking
+such that revalidation will still be attempted in the future.
 
-Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20201204064205.145795-1-leon@kernel.org
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Reported-by: Amit Matityahu <mitm@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 83370b31a915 ("selinux: fix error initialization in inode_doinit_with_dentry()")
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ security/selinux/hooks.c | 31 +++++++++++++------------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 304429fd04ddb..97168b856606b 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1252,6 +1252,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 							    id.local_id);
- 	if (IS_ERR(cm_id_priv->timewait_info)) {
- 		ret = PTR_ERR(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
- 		goto out;
- 	}
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index af8ddae0ddedb..895d369bc4103 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1569,13 +1569,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * inode_doinit with a dentry, before these inodes could
+ 			 * be used again by userspace.
+ 			 */
+-			isec->initialized = LABEL_INVALID;
+-			/*
+-			 * There is nothing useful to jump to the "out"
+-			 * label, except a needless spin lock/unlock
+-			 * cycle.
+-			 */
+-			return 0;
++			goto out_invalid;
+ 		}
  
-@@ -1683,6 +1684,7 @@ static int cm_req_handler(struct cm_work *work)
- 							    id.local_id);
- 	if (IS_ERR(cm_id_priv->timewait_info)) {
- 		ret = PTR_ERR(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
- 		goto destroy;
+ 		len = INITCONTEXTLEN;
+@@ -1683,15 +1677,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * inode_doinit() with a dentry, before these inodes
+ 			 * could be used again by userspace.
+ 			 */
+-			if (!dentry) {
+-				isec->initialized = LABEL_INVALID;
+-				/*
+-				 * There is nothing useful to jump to the "out"
+-				 * label, except a needless spin lock/unlock
+-				 * cycle.
+-				 */
+-				return 0;
+-			}
++			if (!dentry)
++				goto out_invalid;
+ 			rc = selinux_genfs_get_sid(dentry, sclass,
+ 						   sbsec->flags, &sid);
+ 			dput(dentry);
+@@ -1704,11 +1691,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ out:
+ 	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_PENDING) {
+-		if (!sid || rc) {
++		if (rc) {
+ 			isec->initialized = LABEL_INVALID;
+ 			goto out_unlock;
+ 		}
+-
+ 		isec->initialized = LABEL_INITIALIZED;
+ 		isec->sid = sid;
  	}
- 	cm_id_priv->timewait_info->work.remote_id = req_msg->local_comm_id;
+@@ -1716,6 +1702,15 @@ out:
+ out_unlock:
+ 	spin_unlock(&isec->lock);
+ 	return rc;
++
++out_invalid:
++	spin_lock(&isec->lock);
++	if (isec->initialized == LABEL_PENDING) {
++		isec->initialized = LABEL_INVALID;
++		isec->sid = sid;
++	}
++	spin_unlock(&isec->lock);
++	return 0;
+ }
+ 
+ /* Convert a Linux signal to an access vector. */
 -- 
 2.27.0
 
