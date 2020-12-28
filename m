@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8AE2E66D2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E37132E691A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731009AbgL1NRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:17:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
+        id S1728323AbgL1Qoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:44:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733148AbgL1NQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:16:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B41207F7;
-        Mon, 28 Dec 2020 13:15:36 +0000 (UTC)
+        id S1728314AbgL1M5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA5ED21D94;
+        Mon, 28 Dec 2020 12:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161337;
-        bh=Zk/fkRtIIpQdewPWSBL5BjP2GLGAsjF6KeSuKgOzpdE=;
+        s=korg; t=1609160196;
+        bh=cRicDIf1s2m/epyd1+FFfQ5TZVTtW4rSXtzd0631iK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXQ6EfSsz7sjKYqZruJt8Jyzz+uIZx1f0jgSW3qMcNPlQewAhcgpCJI++kyV3phGX
-         +6bL5D6RY47Gx7VsXj1GrMX0C/E3lTeDo6Nl5OKyoC+H0QPvdxR5rWUM/x2kdkyb2B
-         K+w+1QXUKmJ3Tqa/075FU+5TmFN/khn1PKffF07c=
+        b=emSZyFGxI7bL8iBxbFiS1qzfs+GzC7rq+Qx+Rb8UivjbAQMbBNyB2p3NfIC0snBFE
+         fjl70nIMjpiByZxpSa4JLKff+FR+LMOfBflzk3RHIhLb72piZ96n/Ac9GJk9lvmvvE
+         HzVIXko96VMnANWFBILTbmkAKQYZsXBCXUo/y7nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 181/242] media: gspca: Fix memory leak in probe
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hui Wang <hui.wang@canonical.com>
+Subject: [PATCH 4.4 102/132] ACPI: PNP: compare the string length in the matching_id()
 Date:   Mon, 28 Dec 2020 13:49:46 +0100
-Message-Id: <20201228124913.593561819@linuxfoundation.org>
+Message-Id: <20201228124851.349723624@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit e469d0b09a19496e1972a20974bbf55b728151eb upstream.
+commit b08221c40febcbda9309dd70c61cf1b0ebb0e351 upstream.
 
-The gspca driver leaks memory when a probe fails.  gspca_dev_probe2()
-calls v4l2_device_register(), which takes a reference to the
-underlying device node (in this case, a USB interface).  But the
-failure pathway neglects to call v4l2_device_unregister(), the routine
-responsible for dropping this reference.  Consequently the memory for
-the USB interface and its device never gets released.
+Recently we met a touchscreen problem on some Thinkpad machines, the
+touchscreen driver (i2c-hid) is not loaded and the touchscreen can't
+work.
 
-This patch adds the missing function call.
+An i2c ACPI device with the name WACF2200 is defined in the BIOS, with
+the current rule in matching_id(), this device will be regarded as
+a PNP device since there is WACFXXX in the acpi_pnp_device_ids[] and
+this PNP device is attached to the acpi device as the 1st
+physical_node, this will make the i2c bus match fail when i2c bus
+calls acpi_companion_match() to match the acpi_id_table in the i2c-hid
+driver.
 
-Reported-and-tested-by: syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
+WACF2200 is an i2c device instead of a PNP device, after adding the
+string length comparing, the matching_id() will return false when
+matching WACF2200 and WACFXXX, and it is reasonable to compare the
+string length when matching two IDs.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/gspca.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/acpi_pnp.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -2140,6 +2140,7 @@ out:
- 		input_unregister_device(gspca_dev->input_dev);
- #endif
- 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
-+	v4l2_device_unregister(&gspca_dev->v4l2_dev);
- 	kfree(gspca_dev->usb_buf);
- 	kfree(gspca_dev);
- 	return ret;
+--- a/drivers/acpi/acpi_pnp.c
++++ b/drivers/acpi/acpi_pnp.c
+@@ -320,6 +320,9 @@ static bool matching_id(const char *idst
+ {
+ 	int i;
+ 
++	if (strlen(idstr) != strlen(list_id))
++		return false;
++
+ 	if (memcmp(idstr, list_id, 3))
+ 		return false;
+ 
 
 
