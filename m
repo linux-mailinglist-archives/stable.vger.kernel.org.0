@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D772E695B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 972922E6862
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:37:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441790AbgL1Qsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:48:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50462 "EHLO mail.kernel.org"
+        id S1729966AbgL1Qfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:35:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728186AbgL1Mxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5AB422B49;
-        Mon, 28 Dec 2020 12:52:37 +0000 (UTC)
+        id S1729945AbgL1NCD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:02:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AE9722B45;
+        Mon, 28 Dec 2020 13:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159958;
-        bh=43jZFcOj5vK0zLOQ8Sa/NCBO2jRoU0V/bzj3PaumTcE=;
+        s=korg; t=1609160482;
+        bh=dSl2/P/8j2H5xUhBPuGDeNApT64Wt5n7LxaY+w4XpXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvooW1ibYj9nM09te2/XXFyTsioIEPrOX89GWd449faC4NSQEYhusJ0xgqpeOEP19
-         3UyvzEP2OxUSVwTaC3Jp1gRsJsEzZhQwJGP+FmMwZidRcAS5HXhFjaVDSaRXofVk1F
-         q79FtvyZhFUDcHV04kCfypKPFgkhCGglK5r5nTbA=
+        b=SRB4uY95cQr4ftZdpGc3qsacXOOSxM+BL+Boir1PLrleWElTv0AGY/NUYLSAXeIHW
+         LBBeAIUEqQM3VlD5mp317VbWdJ6tUqCTdObFME3eq57Huol2bmdLAHaHVbaFD7+L7k
+         LJoJNcq4JZVDxmkTrm3aLwuN187SrlPCGPGPB6hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/132] spi: img-spfi: fix reference leak in img_spfi_resume
-Date:   Mon, 28 Dec 2020 13:48:39 +0100
-Message-Id: <20201228124848.105178032@linuxfoundation.org>
+Subject: [PATCH 4.9 067/175] media: solo6x10: fix missing snd_card_free in error handling case
+Date:   Mon, 28 Dec 2020 13:48:40 +0100
+Message-Id: <20201228124856.496187586@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit ee5558a9084584015c8754ffd029ce14a5827fa8 ]
+[ Upstream commit dcdff74fa6bc00c32079d0bebd620764c26f2d89 ]
 
-pm_runtime_get_sync will increment pm usage counter even it
-failed. Forgetting to pm_runtime_put_noidle will result in
-reference leak in img_spfi_resume, so we should fix it.
+Fix to goto snd_error in error handling case when fails
+to do snd_ctl_add, as done elsewhere in this function.
 
-Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201102145651.3875-1-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 28cae868cd24 ("[media] solo6x10: move out of staging into drivers/media/pci.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-img-spfi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/pci/solo6x10/solo6x10-g723.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
-index c46c0738c7340..e58319e58ba4b 100644
---- a/drivers/spi/spi-img-spfi.c
-+++ b/drivers/spi/spi-img-spfi.c
-@@ -773,8 +773,10 @@ static int img_spfi_resume(struct device *dev)
- 	int ret;
+diff --git a/drivers/media/pci/solo6x10/solo6x10-g723.c b/drivers/media/pci/solo6x10/solo6x10-g723.c
+index 6a35107aca255..0fe69e71331db 100644
+--- a/drivers/media/pci/solo6x10/solo6x10-g723.c
++++ b/drivers/media/pci/solo6x10/solo6x10-g723.c
+@@ -385,7 +385,7 @@ int solo_g723_init(struct solo_dev *solo_dev)
  
- 	ret = pm_runtime_get_sync(dev);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_put_noidle(dev);
- 		return ret;
-+	}
- 	spfi_reset(spfi);
- 	pm_runtime_put(dev);
+ 	ret = snd_ctl_add(card, snd_ctl_new1(&kctl, solo_dev));
+ 	if (ret < 0)
+-		return ret;
++		goto snd_error;
  
+ 	ret = solo_snd_pcm_init(solo_dev);
+ 	if (ret < 0)
 -- 
 2.27.0
 
