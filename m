@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 976DC2E3982
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE812E3DBA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388637AbgL1NYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:24:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
+        id S2440595AbgL1OTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:19:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388691AbgL1NYQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B3D020728;
-        Mon, 28 Dec 2020 13:23:35 +0000 (UTC)
+        id S2441594AbgL1OTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:19:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96A8020791;
+        Mon, 28 Dec 2020 14:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161816;
-        bh=rGuSVwxJkHRGekfGMSmdNozwvjROPbEFrEBBJoHqFqQ=;
+        s=korg; t=1609165105;
+        bh=Kb6FM557K7LQCJDekFluo1OE78MT6aUs15VIRAGVmlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy/5K33Wz8gx3UlFh1uYQ7BsH/0SIiA1Wzhy1/ONZ2Il+Kl8th8ez8v4akxb3dWix
-         d42fveQf4xhaoFi4pczoERWYAZComHmDZHBnQYYxxpwMnS8JCxYlCY7wfFMeIoS61g
-         /mx81CJOVmaUmdf8/JfRbP92IqYVmSkgRupVBNr8=
+        b=XlNExq8B7Koos5LzTCMIN/VQUvVW0si8/V+rOpr2JHSslL+KeG7X7aoECQByhUmNN
+         qSfGDEEYXkHrrqUGNrGW2JU/4sP2DPFk4ZN+e4zCUTSm9uCpHg7YfE8GYiPRAfJFa9
+         uvaQ8GLa7L5xQ0cYmEBzriq0cHsb+/70ZfObESYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/346] can: softing: softing_netdev_open(): fix error handling
-Date:   Mon, 28 Dec 2020 13:46:20 +0100
-Message-Id: <20201228124922.745733929@linuxfoundation.org>
+Subject: [PATCH 5.10 383/717] bus: fsl-mc: add back accidentally dropped error check
+Date:   Mon, 28 Dec 2020 13:46:21 +0100
+Message-Id: <20201228125039.353044302@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 4d1be581ec6b92a338bb7ed23e1381f45ddf336f ]
+[ Upstream commit 61243c03dde238170001093a29716c2369e8358f ]
 
-If softing_netdev_open() fails, we should call close_candev() to avoid
-reference leak.
+A previous patch accidentally dropped an error check, so add it back.
 
-Fixes: 03fd3cf5a179d ("can: add driver for Softing card")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Link: https://lore.kernel.org/r/20201202151632.1343786-1-zhangqilong3@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/r/20201204133508.742120-2-mkl@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: aef85b56c3c1 ("bus: fsl-mc: MC control registers are not always available")
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20201105153050.19662-1-laurentiu.tudor@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/softing/softing_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/softing/softing_main.c b/drivers/net/can/softing/softing_main.c
-index e226961905830..bed5ffa75b276 100644
---- a/drivers/net/can/softing/softing_main.c
-+++ b/drivers/net/can/softing/softing_main.c
-@@ -393,8 +393,13 @@ static int softing_netdev_open(struct net_device *ndev)
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 76a6ee505d33d..806766b1b45f6 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -967,8 +967,11 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, mc);
  
- 	/* check or determine and set bittime */
- 	ret = open_candev(ndev);
--	if (!ret)
--		ret = softing_startstop(ndev, 1);
-+	if (ret)
-+		return ret;
-+
-+	ret = softing_startstop(ndev, 1);
-+	if (ret < 0)
-+		close_candev(ndev);
-+
- 	return ret;
- }
+ 	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	if (plat_res)
++	if (plat_res) {
+ 		mc->fsl_mc_regs = devm_ioremap_resource(&pdev->dev, plat_res);
++		if (IS_ERR(mc->fsl_mc_regs))
++			return PTR_ERR(mc->fsl_mc_regs);
++	}
  
+ 	if (mc->fsl_mc_regs && IS_ENABLED(CONFIG_ACPI) &&
+ 	    !dev_of_node(&pdev->dev)) {
 -- 
 2.27.0
 
