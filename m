@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 995CE2E4171
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC152E4170
 	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:07:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438958AbgL1OKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:10:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44596 "EHLO mail.kernel.org"
+        id S2438967AbgL1OKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:10:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438954AbgL1OKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:10:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 589842063A;
-        Mon, 28 Dec 2020 14:09:27 +0000 (UTC)
+        id S2438963AbgL1OKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:10:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F7DE206C3;
+        Mon, 28 Dec 2020 14:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164567;
-        bh=HE9mS7Tuxq/7/8YHkAYYWvH8V7n4kMaENMzxqSF3Mb0=;
+        s=korg; t=1609164570;
+        bh=WZZNQL4waOwc5Rt/nP4qhfP11LZ1Qtc92pWShd0huvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJvBFBL/B7e3dEdg+CNgrOK/DotAXOaJVnTP13Nbi/WCi/zv5C6oII/A+IP6EtCuA
-         iugeIigDBmuOMxVBdOx0i33bY+I6tNJ8YwgvGpr701Yrpu6OqdZaZFADxUwvdP6W1r
-         reMHTW5pMFrwh1AY37jlOnKP8DUaV1BAvpKxXj0w=
+        b=Wuxxi6wBJDItqkSEMWwmssJXdapPK1/VwoXGuxDinhtQ3O5qM98Yugd97a4q1lKPb
+         zqsEsaeDOkm7JsSZwG/KKZyuRiGTdZ3UAboTUaTR/ZpkoG4d/ZIVA1sz8Jv73mDMWO
+         tiq3gJdFtVVOYcKeOnYMzrLuBGmvghm/WdLX5eZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 221/717] media: max2175: fix max2175_set_csm_mode() error code
-Date:   Mon, 28 Dec 2020 13:43:39 +0100
-Message-Id: <20201228125031.570169273@linuxfoundation.org>
+Subject: [PATCH 5.10 222/717] slimbus: qcom-ngd-ctrl: Avoid sending power requests without QMI
+Date:   Mon, 28 Dec 2020 13:43:40 +0100
+Message-Id: <20201228125031.618183747@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,34 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 9b1b0cb0636166187478ef68d5b95f5caea062ec ]
+[ Upstream commit 39014ce6d6028614a46395923a2c92d058b6fa87 ]
 
-This is supposed to return negative error codes but the type is bool so
-it returns true instead.
+Attempting to send a power request during PM operations, when the QMI
+handle isn't initialized results in a NULL pointer dereference. So check
+if the QMI handle has been initialized before attempting to post the
+power requests.
 
-Fixes: b47b79d8a231 ("[media] media: i2c: max2175: Add MAX2175 support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 917809e2280b ("slimbus: ngd: Add qcom SLIMBus NGD driver")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20201127102451.17114-7-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/max2175.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/i2c/max2175.c b/drivers/media/i2c/max2175.c
-index 03b4ed3a61b83..661208c9bfc5d 100644
---- a/drivers/media/i2c/max2175.c
-+++ b/drivers/media/i2c/max2175.c
-@@ -503,7 +503,7 @@ static void max2175_set_bbfilter(struct max2175 *ctx)
- 	}
- }
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 218aefc3531cd..50cfd67c2871e 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1205,6 +1205,9 @@ static int qcom_slim_ngd_runtime_resume(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
  
--static bool max2175_set_csm_mode(struct max2175 *ctx,
-+static int max2175_set_csm_mode(struct max2175 *ctx,
- 			  enum max2175_csm_mode new_mode)
- {
- 	int ret = max2175_poll_csm_ready(ctx);
++	if (!ctrl->qmi.handle)
++		return 0;
++
+ 	if (ctrl->state >= QCOM_SLIM_NGD_CTRL_ASLEEP)
+ 		ret = qcom_slim_ngd_power_up(ctrl);
+ 	if (ret) {
+@@ -1503,6 +1506,9 @@ static int __maybe_unused qcom_slim_ngd_runtime_suspend(struct device *dev)
+ 	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
++	if (!ctrl->qmi.handle)
++		return 0;
++
+ 	ret = qcom_slim_qmi_power_request(ctrl, false);
+ 	if (ret && ret != -EBUSY)
+ 		dev_info(ctrl->dev, "slim resource not idle:%d\n", ret);
 -- 
 2.27.0
 
