@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A582E6836
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C55702E6930
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730305AbgL1Qde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:33:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
+        id S1728620AbgL1Mzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730286AbgL1NDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:03:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E9722582;
-        Mon, 28 Dec 2020 13:03:32 +0000 (UTC)
+        id S1727753AbgL1Mzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F135F229C5;
+        Mon, 28 Dec 2020 12:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160613;
+        s=korg; t=1609160131;
         bh=owhsRuGIO55+9gnazWXkz4HofZ08rWMcjfMjujq6K8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUtlvtatFAgylhrr9HSjjJqnLRkiOz3LMg16VwP8w/wrM+HtqRBkfp5m8wD1H0R5u
-         BM81gP+4y2f4jsWLNVcX/3resjd8szxOURi6nVw2rKgKm6dbgRTDXJ8sC7pcIZwZpT
-         qVcxaYyCFAdWVWUqnR3RPYmvBUaN20tMhwG80V2I=
+        b=fAs1VT77T1WdYOE/gpFUH8W6sKd5+NicEqbnbK03J+A03rZ7tF/3y3D39YX/HdpIs
+         bw/GNzlTZSHV6fpC9U9v8si/ojWriuC+z2S/oqrPe2raaxutu1NL4oGH+hzwbuGQWI
+         cW+J710wBwkKNUUFMhs96dFaPTY+LBqwXTtrgiVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?=C2=A0Yi=C2=A0Wang=C2=A0?= <wang.yi59@zte.com.cn>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 110/175] nfs_common: need lock during iterate through the list
+Subject: [PATCH 4.4 079/132] nfs_common: need lock during iterate through the list
 Date:   Mon, 28 Dec 2020 13:49:23 +0100
-Message-Id: <20201228124858.583653141@linuxfoundation.org>
+Message-Id: <20201228124850.254193588@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
