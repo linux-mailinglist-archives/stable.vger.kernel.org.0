@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DB02E66D3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A00F02E6916
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732760AbgL1NRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:17:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45354 "EHLO mail.kernel.org"
+        id S2634606AbgL1QoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:44:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731115AbgL1NRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:17:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3EFB207F7;
-        Mon, 28 Dec 2020 13:16:19 +0000 (UTC)
+        id S1728983AbgL1M5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32CDA21D94;
+        Mon, 28 Dec 2020 12:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161380;
-        bh=hZO3f+sU8DLpmWcx9RIoRxYScZUiG1znp4VtXoefxS8=;
+        s=korg; t=1609160238;
+        bh=oDISvas2pGZUuW07NLlTAfNN1dOhEfPKWMbtilyRO+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTjwJMqaKQqNjE4jXHDhtgcY/QF6Z1dGteEUPEgboRgAlF81TXDRKcPYqEangEUaF
-         kJXdwwwUSlnDi8KibV27hiUpDnkQKDjI7hOsGoLaPA0Yi8w3B2EUz2FWuMw3HLixkm
-         YWeATHRHO3gtnosApfWpKL1I/cU76KbMnZfNjrnQ=
+        b=S5dhLXJhg5eLpLLQzVF4YPOjrMcJyDgXFbOGqVioMPK6SD/TBcbe02uYGQwf06CKS
+         Ed+0MVuuCpz2VXCACbtpRt/MshK8HVPtMeOAYGXxgRmojsAWcahpr0C190mWVYECDA
+         SlKLQjmyXpo7tn6nLndg2PkXQtYGgr0BOrqJZKuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 194/242] s390/dasd: fix list corruption of lcu list
+        stable@vger.kernel.org,
+        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 115/132] btrfs: quota: Set rescan progress to (u64)-1 if we hit last leaf
 Date:   Mon, 28 Dec 2020 13:49:59 +0100
-Message-Id: <20201228124914.231387489@linuxfoundation.org>
+Message-Id: <20201228124851.968470638@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 53a7f655834c7c335bf683f248208d4fbe4b47bc upstream.
+commoit 6f7de19ed3d4d3526ca5eca428009f97cf969c2f upstream
 
-In dasd_alias_disconnect_device_from_lcu the device is removed from any
-list on the LCU. Afterwards the LCU is removed from the lcu list if it
-does not contain devices any longer.
+Commit ff3d27a048d9 ("btrfs: qgroup: Finish rescan when hit the last leaf
+of extent tree") added a new exit for rescan finish.
 
-The lcu->lock protects the lcu from parallel updates. But to cancel all
-workers and wait for completion the lcu->lock has to be unlocked.
+However after finishing quota rescan, we set
+fs_info->qgroup_rescan_progress to (u64)-1 before we exit through the
+original exit path.
+While we missed that assignment of (u64)-1 in the new exit path.
 
-If two devices are removed in parallel and both are removed from the LCU
-the first device that takes the lcu->lock again will delete the LCU because
-it is already empty but the second device also tries to free the LCU which
-leads to a list corruption of the lcu list.
+The end result is, the quota status item doesn't have the same value.
+(-1 vs the last bytenr + 1)
+Although it doesn't affect quota accounting, it's still better to keep
+the original behavior.
 
-Fix by removing the device right before the lcu is checked without
-unlocking the lcu->lock in between.
-
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+Fixes: ff3d27a048d9 ("btrfs: qgroup: Finish rescan when hit the last leaf of extent tree")
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/s390/block/dasd_alias.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/qgroup.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -256,7 +256,6 @@ void dasd_alias_disconnect_device_from_l
- 		return;
- 	device->discipline->get_uid(device, &uid);
- 	spin_lock_irqsave(&lcu->lock, flags);
--	list_del_init(&device->alias_list);
- 	/* make sure that the workers don't use this device */
- 	if (device == lcu->suc_data.device) {
- 		spin_unlock_irqrestore(&lcu->lock, flags);
-@@ -283,6 +282,7 @@ void dasd_alias_disconnect_device_from_l
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2288,8 +2288,10 @@ out:
+ 	}
+ 	btrfs_put_tree_mod_seq(fs_info, &tree_mod_seq_elem);
  
- 	spin_lock_irqsave(&aliastree.lock, flags);
- 	spin_lock(&lcu->lock);
-+	list_del_init(&device->alias_list);
- 	if (list_empty(&lcu->grouplist) &&
- 	    list_empty(&lcu->active_devices) &&
- 	    list_empty(&lcu->inactive_devices)) {
+-	if (done && !ret)
++	if (done && !ret) {
+ 		ret = 1;
++		fs_info->qgroup_rescan_progress.objectid = (u64)-1;
++	}
+ 	return ret;
+ }
+ 
 
 
