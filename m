@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE792E63D0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABC02E408F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406391AbgL1Pmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:42:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
+        id S2501935AbgL1OSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:18:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404808AbgL1NpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6859A206D4;
-        Mon, 28 Dec 2020 13:44:55 +0000 (UTC)
+        id S2441570AbgL1OSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:18:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25FF220791;
+        Mon, 28 Dec 2020 14:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163096;
-        bh=rWnUtGOoQnQMfh4NLsRhKVZMXguWtpqYAnpN39lDTxQ=;
+        s=korg; t=1609165087;
+        bh=mUGHk6r51IylLfP0yvXyk94WqmWSN719DKhiODtC8XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpRohaVjvgzEzSeibGD8lm2bTW4FfOlBwQPYR0x1aAngjVAZ/7QgMizQrBSLPAQIE
-         DN2y9x/CjYImJFkLic4eKFHtFoBvjLgHUW1cwlLQgF+tctRU2FGTDNmJ5pTCc7VXce
-         7yhHiGUzBqe9KmcZ/ESdf2HC4QROsm/VoJbT/1IQ=
+        b=nS0yzGYIC8cuALlf5MqqLRvT+k1ghSS9FahYLEne+AriYNu5By/l9Uk49qIS/ujZv
+         FPsbwX/FjR80XVwN5g9lbY7ZMv2N+hdLcGzsWk7teJOfvTjGHhAFKrwRA81ePnpli7
+         k9UoafUwiVO1e4DDg6dFkqWZYSTS8B8PH9U0jZlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Tzung-Bi Shih <tzungbi@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/453] rsi: fix error return code in rsi_reset_card()
-Date:   Mon, 28 Dec 2020 13:46:42 +0100
-Message-Id: <20201228124945.189610933@linuxfoundation.org>
+Subject: [PATCH 5.10 405/717] remoteproc/mediatek: unprepare clk if scp_before_load fails
+Date:   Mon, 28 Dec 2020 13:46:43 +0100
+Message-Id: <20201228125040.393149541@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit fb21d14694bd46a538258d86498736490b3ba855 ]
+[ Upstream commit 22c3df6f5574c8d401ea431c7ce24e7c5c5e7ef3 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+Fixes the error handling to unprepare clk if scp_before_load fails.
 
-Fixes: 17ff2c794f39 ("rsi: reset device changes for 9116")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1605582454-39649-1-git-send-email-zhangchangzhong@huawei.com
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: fd0b6c1ff85a ("remoteproc/mediatek: Add support for mt8192 SCP")
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20201203155914.3844426-1-tzungbi@google.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c | 30 +++++++++++++-------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/remoteproc/mtk_scp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 4b9e406b84612..a296f4e0d324a 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -733,24 +733,24 @@ static int rsi_reset_card(struct rsi_hw *adapter)
- 		if (ret < 0)
- 			goto fail;
- 	} else {
--		if ((rsi_usb_master_reg_write(adapter,
--					      NWP_WWD_INTERRUPT_TIMER,
--					      NWP_WWD_INT_TIMER_CLKS,
--					      RSI_9116_REG_SIZE)) < 0) {
-+		ret = rsi_usb_master_reg_write(adapter,
-+					       NWP_WWD_INTERRUPT_TIMER,
-+					       NWP_WWD_INT_TIMER_CLKS,
-+					       RSI_9116_REG_SIZE);
-+		if (ret < 0)
- 			goto fail;
--		}
--		if ((rsi_usb_master_reg_write(adapter,
--					      NWP_WWD_SYSTEM_RESET_TIMER,
--					      NWP_WWD_SYS_RESET_TIMER_CLKS,
--					      RSI_9116_REG_SIZE)) < 0) {
-+		ret = rsi_usb_master_reg_write(adapter,
-+					       NWP_WWD_SYSTEM_RESET_TIMER,
-+					       NWP_WWD_SYS_RESET_TIMER_CLKS,
-+					       RSI_9116_REG_SIZE);
-+		if (ret < 0)
- 			goto fail;
--		}
--		if ((rsi_usb_master_reg_write(adapter,
--					      NWP_WWD_MODE_AND_RSTART,
--					      NWP_WWD_TIMER_DISABLE,
--					      RSI_9116_REG_SIZE)) < 0) {
-+		ret = rsi_usb_master_reg_write(adapter,
-+					       NWP_WWD_MODE_AND_RSTART,
-+					       NWP_WWD_TIMER_DISABLE,
-+					       RSI_9116_REG_SIZE);
-+		if (ret < 0)
- 			goto fail;
--		}
- 	}
+diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
+index f74f22d4d1ffc..52fa01d67c18e 100644
+--- a/drivers/remoteproc/mtk_scp.c
++++ b/drivers/remoteproc/mtk_scp.c
+@@ -350,9 +350,10 @@ static int scp_load(struct rproc *rproc, const struct firmware *fw)
  
- 	rsi_dbg(INFO_ZONE, "Reset card done\n");
+ 	ret = scp->data->scp_before_load(scp);
+ 	if (ret < 0)
+-		return ret;
++		goto leave;
+ 
+ 	ret = scp_elf_load_segments(rproc, fw);
++leave:
+ 	clk_disable_unprepare(scp->clk);
+ 
+ 	return ret;
 -- 
 2.27.0
 
