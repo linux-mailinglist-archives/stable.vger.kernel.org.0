@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9642E6577
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2812E6743
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390268AbgL1NaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:30:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58734 "EHLO mail.kernel.org"
+        id S1731955AbgL1NMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:12:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390264AbgL1NaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:30:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB98522B3A;
-        Mon, 28 Dec 2020 13:29:50 +0000 (UTC)
+        id S1731950AbgL1NME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:12:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A7922582;
+        Mon, 28 Dec 2020 13:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162191;
-        bh=waV4/zyCcsTYaqm0wBqC73lPK4M+tQcsB5fXUOYMaZM=;
+        s=korg; t=1609161109;
+        bh=bc6GbhACSBu4w9iM3shQkXEetJ5QtseSPAXOKqeFWoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u95/ZMo6OTodXRKvcrN8vxUoRgWHFd/gzVi2hhep8MS+dmwR0bg6SYnCab3p3svNJ
-         kjmlwm2Cm8Jk5a0qa4FxkmpQcNGl50GOGikyIAAnpsBoZOmJVvHJiPWzBqC1QovbTS
-         kQ5CGshzKnBEJwFPER59Pr9CDu7XItPgfa3dTrR8=
+        b=pFGsVkBl3S1UhFcYSFbOglo28eWsjqZOzP2XfR3WT3aKe7PxOPJt35vv9pX2Vo+2K
+         xQ/gX3AHFyA0RU/Ov8lrX2ZnflxopNxyGfVU9p2JK06jwyhjze9KzBNXu3ga9nnuBy
+         zwMeUbJApCrRFGxsRN14IrDB9p/tyQTkFO+AVDpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/346] ath10k: Release some resources in an error handling path
+Subject: [PATCH 4.14 102/242] soc: ti: knav_qmss: fix reference leak in knav_queue_probe
 Date:   Mon, 28 Dec 2020 13:48:27 +0100
-Message-Id: <20201228124928.875918249@linuxfoundation.org>
+Message-Id: <20201228124909.714366547@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 6364e693f4a7a89a2fb3dd2cbd6cc06d5fd6e26d ]
+[ Upstream commit ec8684847d8062496c4619bc3fcff31c19d56847 ]
 
-Should an error occur after calling 'ath10k_usb_create()', it should be
-undone by a corresponding 'ath10k_usb_destroy()' call
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in knav_queue_probe, so we should fix it.
 
-Fixes: 4db66499df91 ("ath10k: add initial USB support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201122170358.1346065-1-christophe.jaillet@wanadoo.fr
+Fixes: 41f93af900a20 ("soc: ti: add Keystone Navigator QMSS driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/usb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/soc/ti/knav_qmss_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/usb.c b/drivers/net/wireless/ath/ath10k/usb.c
-index f4e6d84bfb91c..16d5fe6d1e2e4 100644
---- a/drivers/net/wireless/ath/ath10k/usb.c
-+++ b/drivers/net/wireless/ath/ath10k/usb.c
-@@ -1032,7 +1032,7 @@ static int ath10k_usb_probe(struct usb_interface *interface,
- 	ret = ath10k_core_register(ar, chip_id);
- 	if (ret) {
- 		ath10k_warn(ar, "failed to register driver core: %d\n", ret);
--		goto err;
-+		goto err_usb_destroy;
+diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
+index 9879ca5f8c5f5..eef79cd5a7238 100644
+--- a/drivers/soc/ti/knav_qmss_queue.c
++++ b/drivers/soc/ti/knav_qmss_queue.c
+@@ -1719,6 +1719,7 @@ static int knav_queue_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(&pdev->dev);
+ 		dev_err(dev, "Failed to enable QMSS\n");
+ 		return ret;
  	}
- 
- 	/* TODO: remove this once USB support is fully implemented */
-@@ -1040,6 +1040,9 @@ static int ath10k_usb_probe(struct usb_interface *interface,
- 
- 	return 0;
- 
-+err_usb_destroy:
-+	ath10k_usb_destroy(ar);
-+
- err:
- 	ath10k_core_destroy(ar);
- 
 -- 
 2.27.0
 
