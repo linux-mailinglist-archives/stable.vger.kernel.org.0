@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F02A2E3E64
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 056C42E38E5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502303AbgL1O1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:27:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
+        id S1733258AbgL1NQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:16:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502299AbgL1O12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:27:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C99AC229C5;
-        Mon, 28 Dec 2020 14:26:47 +0000 (UTC)
+        id S1733252AbgL1NQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4464D206ED;
+        Mon, 28 Dec 2020 13:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165608;
-        bh=ouWmlPyMFKcL4kW80E8RxcRo03ImrAsfCNh707PK3Tg=;
+        s=korg; t=1609161349;
+        bh=o0Sqk3TspSQKLHktsCBzyG/Q1OOmNE0RgkLxbj92loM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sB+WvhSmIuHP/tDUEe5V/dZnZ+yhu5wIENqpPAQ09SR3SlLn0X1VuQIyZ4oYuPFkK
-         2yDn4HuljLWAFbfoqzc+t72lRZzxKLl5vcTaDqNmmz0M3GHcET6dWueFW3mYJK9+Vi
-         0iBx0tvEOjHI/SaQz1BsqNuy6Koz0JtXF5BD7OZs=
+        b=stFgKRAcHuuPsYfehLXop0VVSjGm+WW+vd3+nc5JP6sFqq/E24mfPkGeHioN9xMQo
+         HNQt1Nmypuan2Wtgi+3j0w37wb68B76yx8gEGxWGKHJFPiMO7EMOe3+1b0lqXOHgTA
+         v5CI/CPrw80ml7VOfaiUNzEXWnhbx7Yr2qpk4QDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 592/717] ext4: fix deadlock with fs freezing and EA inodes
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 185/242] PM: ACPI: PCI: Drop acpi_pm_set_bridge_wakeup()
 Date:   Mon, 28 Dec 2020 13:49:50 +0100
-Message-Id: <20201228125049.274273481@linuxfoundation.org>
+Message-Id: <20201228124913.796956191@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,110 +41,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 46e294efc355c48d1dd4d58501aa56dac461792a upstream.
+commit 7482c5cb90e5a7f9e9e12dd154d405e0219656e3 upstream.
 
-Xattr code using inodes with large xattr data can end up dropping last
-inode reference (and thus deleting the inode) from places like
-ext4_xattr_set_entry(). That function is called with transaction started
-and so ext4_evict_inode() can deadlock against fs freezing like:
+The idea behind acpi_pm_set_bridge_wakeup() was to allow bridges to
+be reference counted for wakeup enabling, because they may be enabled
+to signal wakeup on behalf of their subordinate devices and that
+may happen for multiple times in a row, whereas for the other devices
+it only makes sense to enable wakeup signaling once.
 
-CPU1					CPU2
+However, this becomes problematic if the bridge itself is suspended,
+because it is treated as a "regular" device in that case and the
+reference counting doesn't work.
 
-removexattr()				freeze_super()
-  vfs_removexattr()
-    ext4_xattr_set()
-      handle = ext4_journal_start()
-      ...
-      ext4_xattr_set_entry()
-        iput(old_ea_inode)
-          ext4_evict_inode(old_ea_inode)
-					  sb->s_writers.frozen = SB_FREEZE_FS;
-					  sb_wait_write(sb, SB_FREEZE_FS);
-					  ext4_freeze()
-					    jbd2_journal_lock_updates()
-					      -> blocks waiting for all
-					         handles to stop
-            sb_start_intwrite()
-	      -> blocks as sb is already in SB_FREEZE_FS state
+For instance, suppose that there are two devices below a bridge and
+they both can signal wakeup.  Every time one of them is suspended,
+wakeup signaling is enabled for the bridge, so when they both have
+been suspended, the bridge's wakeup reference counter value is 2.
 
-Generally it is advisable to delete inodes from a separate transaction
-as it can consume quite some credits however in this case it would be
-quite clumsy and furthermore the credits for inode deletion are quite
-limited and already accounted for. So just tweak ext4_evict_inode() to
-avoid freeze protection if we have transaction already started and thus
-it is not really needed anyway.
+Say that the bridge is suspended subsequently and acpi_pci_wakeup()
+is called for it.  Because the bridge can signal wakeup, that
+function will invoke acpi_pm_set_device_wakeup() to configure it
+and __acpi_pm_set_device_wakeup() will be called with the last
+argument equal to 1.  This causes __acpi_device_wakeup_enable()
+invoked by it to omit the reference counting, because the reference
+counter of the target device (the bridge) is 2 at that time.
 
-Cc: stable@vger.kernel.org
-Fixes: dec214d00e0d ("ext4: xattr inode deduplication")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20201127110649.24730-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Now say that the bridge resumes and one of the device below it
+resumes too, so the bridge's reference counter becomes 0 and
+wakeup signaling is disabled for it, but there is still the other
+suspended device which may need the bridge to signal wakeup on its
+behalf and that is not going to work.
+
+To address this scenario, use wakeup enable reference counting for
+all devices, not just for bridges, so drop the last argument from
+__acpi_device_wakeup_enable() and __acpi_pm_set_device_wakeup(),
+which causes acpi_pm_set_device_wakeup() and
+acpi_pm_set_bridge_wakeup() to become identical, so drop the latter
+and use the former instead of it everywhere.
+
+Fixes: 1ba51a7c1496 ("ACPI / PCI / PM: Rework acpi_pci_propagate_wakeup()")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: 4.14+ <stable@vger.kernel.org> # 4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/acpi/device_pm.c |   41 ++++++++++++-----------------------------
+ drivers/pci/pci-acpi.c   |    4 ++--
+ include/acpi/acpi_bus.h  |    5 -----
+ 3 files changed, 14 insertions(+), 36 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -175,6 +175,7 @@ void ext4_evict_inode(struct inode *inod
- 	 */
- 	int extra_credits = 6;
- 	struct ext4_xattr_inode_array *ea_inode_array = NULL;
-+	bool freeze_protected = false;
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -694,7 +694,7 @@ static void acpi_pm_notify_work_func(str
+ static DEFINE_MUTEX(acpi_wakeup_lock);
  
- 	trace_ext4_evict_inode(inode);
+ static int __acpi_device_wakeup_enable(struct acpi_device *adev,
+-				       u32 target_state, int max_count)
++				       u32 target_state)
+ {
+ 	struct acpi_device_wakeup *wakeup = &adev->wakeup;
+ 	acpi_status status;
+@@ -702,9 +702,10 @@ static int __acpi_device_wakeup_enable(s
  
-@@ -232,9 +233,14 @@ void ext4_evict_inode(struct inode *inod
+ 	mutex_lock(&acpi_wakeup_lock);
  
- 	/*
- 	 * Protect us against freezing - iput() caller didn't have to have any
--	 * protection against it
--	 */
--	sb_start_intwrite(inode->i_sb);
-+	 * protection against it. When we are in a running transaction though,
-+	 * we are already protected against freezing and we cannot grab further
-+	 * protection due to lock ordering constraints.
-+	 */
-+	if (!ext4_journal_current_handle()) {
-+		sb_start_intwrite(inode->i_sb);
-+		freeze_protected = true;
+-	if (wakeup->enable_count >= max_count)
++	if (wakeup->enable_count >= INT_MAX) {
++		acpi_handle_info(adev->handle, "Wakeup enable count out of bounds!\n");
+ 		goto out;
+-
 +	}
+ 	if (wakeup->enable_count > 0)
+ 		goto inc;
  
- 	if (!IS_NOQUOTA(inode))
- 		extra_credits += EXT4_MAXQUOTAS_DEL_BLOCKS(inode->i_sb);
-@@ -253,7 +259,8 @@ void ext4_evict_inode(struct inode *inod
- 		 * cleaned up.
- 		 */
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		goto no_delete;
+@@ -741,7 +742,7 @@ out:
+  */
+ static int acpi_device_wakeup_enable(struct acpi_device *adev, u32 target_state)
+ {
+-	return __acpi_device_wakeup_enable(adev, target_state, 1);
++	return __acpi_device_wakeup_enable(adev, target_state);
+ }
+ 
+ /**
+@@ -771,8 +772,12 @@ out:
+ 	mutex_unlock(&acpi_wakeup_lock);
+ }
+ 
+-static int __acpi_pm_set_device_wakeup(struct device *dev, bool enable,
+-				       int max_count)
++/**
++ * acpi_pm_set_device_wakeup - Enable/disable remote wakeup for given device.
++ * @dev: Device to enable/disable to generate wakeup events.
++ * @enable: Whether to enable or disable the wakeup functionality.
++ */
++int acpi_pm_set_device_wakeup(struct device *dev, bool enable)
+ {
+ 	struct acpi_device *adev;
+ 	int error;
+@@ -792,37 +797,15 @@ static int __acpi_pm_set_device_wakeup(s
+ 		return 0;
  	}
  
-@@ -294,7 +301,8 @@ void ext4_evict_inode(struct inode *inod
- stop_handle:
- 		ext4_journal_stop(handle);
- 		ext4_orphan_del(NULL, inode);
--		sb_end_intwrite(inode->i_sb);
-+		if (freeze_protected)
-+			sb_end_intwrite(inode->i_sb);
- 		ext4_xattr_inode_array_free(ea_inode_array);
- 		goto no_delete;
+-	error = __acpi_device_wakeup_enable(adev, acpi_target_system_state(),
+-					    max_count);
++	error = __acpi_device_wakeup_enable(adev, acpi_target_system_state());
+ 	if (!error)
+ 		dev_dbg(dev, "Wakeup enabled by ACPI\n");
+ 
+ 	return error;
+ }
+-
+-/**
+- * acpi_pm_set_device_wakeup - Enable/disable remote wakeup for given device.
+- * @dev: Device to enable/disable to generate wakeup events.
+- * @enable: Whether to enable or disable the wakeup functionality.
+- */
+-int acpi_pm_set_device_wakeup(struct device *dev, bool enable)
+-{
+-	return __acpi_pm_set_device_wakeup(dev, enable, 1);
+-}
+ EXPORT_SYMBOL_GPL(acpi_pm_set_device_wakeup);
+ 
+ /**
+- * acpi_pm_set_bridge_wakeup - Enable/disable remote wakeup for given bridge.
+- * @dev: Bridge device to enable/disable to generate wakeup events.
+- * @enable: Whether to enable or disable the wakeup functionality.
+- */
+-int acpi_pm_set_bridge_wakeup(struct device *dev, bool enable)
+-{
+-	return __acpi_pm_set_device_wakeup(dev, enable, INT_MAX);
+-}
+-EXPORT_SYMBOL_GPL(acpi_pm_set_bridge_wakeup);
+-
+-/**
+  * acpi_dev_pm_low_power - Put ACPI device into a low-power state.
+  * @dev: Device to put into a low-power state.
+  * @adev: ACPI device node corresponding to @dev.
+--- a/drivers/pci/pci-acpi.c
++++ b/drivers/pci/pci-acpi.c
+@@ -573,7 +573,7 @@ static int acpi_pci_propagate_wakeup(str
+ {
+ 	while (bus->parent) {
+ 		if (acpi_pm_device_can_wakeup(&bus->self->dev))
+-			return acpi_pm_set_bridge_wakeup(&bus->self->dev, enable);
++			return acpi_pm_set_device_wakeup(&bus->self->dev, enable);
+ 
+ 		bus = bus->parent;
  	}
-@@ -323,7 +331,8 @@ stop_handle:
- 	else
- 		ext4_free_inode(handle, inode);
- 	ext4_journal_stop(handle);
--	sb_end_intwrite(inode->i_sb);
-+	if (freeze_protected)
-+		sb_end_intwrite(inode->i_sb);
- 	ext4_xattr_inode_array_free(ea_inode_array);
- 	return;
- no_delete:
+@@ -581,7 +581,7 @@ static int acpi_pci_propagate_wakeup(str
+ 	/* We have reached the root bus. */
+ 	if (bus->bridge) {
+ 		if (acpi_pm_device_can_wakeup(bus->bridge))
+-			return acpi_pm_set_bridge_wakeup(bus->bridge, enable);
++			return acpi_pm_set_device_wakeup(bus->bridge, enable);
+ 	}
+ 	return 0;
+ }
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -619,7 +619,6 @@ acpi_status acpi_remove_pm_notifier(stru
+ bool acpi_pm_device_can_wakeup(struct device *dev);
+ int acpi_pm_device_sleep_state(struct device *, int *, int);
+ int acpi_pm_set_device_wakeup(struct device *dev, bool enable);
+-int acpi_pm_set_bridge_wakeup(struct device *dev, bool enable);
+ #else
+ static inline void acpi_pm_wakeup_event(struct device *dev)
+ {
+@@ -650,10 +649,6 @@ static inline int acpi_pm_set_device_wak
+ {
+ 	return -ENODEV;
+ }
+-static inline int acpi_pm_set_bridge_wakeup(struct device *dev, bool enable)
+-{
+-	return -ENODEV;
+-}
+ #endif
+ 
+ #ifdef CONFIG_ACPI_SLEEP
 
 
