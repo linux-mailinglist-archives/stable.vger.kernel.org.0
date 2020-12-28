@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E7A2E3AA2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 242FD2E3AAA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391431AbgL1Nji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:39:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
+        id S2403822AbgL1NkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:40:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391427AbgL1Njg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:39:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14F6B2063A;
-        Mon, 28 Dec 2020 13:39:19 +0000 (UTC)
+        id S2403819AbgL1NkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5E932064B;
+        Mon, 28 Dec 2020 13:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162760;
-        bh=sV9cifRcauNGZ0LjAcCcdK89ZPt8u2a8dtWMPcGAeOM=;
+        s=korg; t=1609162763;
+        bh=VSnBL4f5pgjlnXUot2WMuYZ+6vRGmw+BBFwmPtVlQFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8yMzH1J6PHs9jVG543YeonVFbbqHJaqYcSOVuCfTttSG2NWB3313vTJ0u7Ud3m1c
-         LAT1RlrVVoLbIVsGRJ/wqLbTOakXZXjbIVkvRz+f4Es/6UAHH9GjESy6V9gS7Bqlrk
-         dTXGrIDvIxPaDWFkMCoOn0GLnOgUmkJj2o6RColE=
+        b=WfboJ4B6tJsg60hFFihJGIgh4BTMgGFq2ShWO8GvjgZaMEf5hqc/bL+wwLp/8tGEc
+         tg4hVAHGoPRTdXSB209Fz+LJRdivbwp3AGzA284pXdwjvWVeCKI6ZHS2A+yV2ECXWe
+         oVkHiGGIf4yS4AcvLFIniwAEioHQi8KSsMWd+e6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        "taehyun.cho" <taehyun.cho@samsung.com>,
         Will McVicker <willmcvicker@google.com>,
         Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.4 053/453] USB: gadget: f_acm: add support for SuperSpeed Plus
-Date:   Mon, 28 Dec 2020 13:44:49 +0100
-Message-Id: <20201228124939.807713207@linuxfoundation.org>
+Subject: [PATCH 5.4 054/453] USB: gadget: f_midi: setup SuperSpeed Plus descriptors
+Date:   Mon, 28 Dec 2020 13:44:50 +0100
+Message-Id: <20201228124939.855434142@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -41,35 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: taehyun.cho <taehyun.cho@samsung.com>
+From: Will McVicker <willmcvicker@google.com>
 
-commit 3ee05c20656782387aa9eb010fdb9bb16982ac3f upstream.
+commit 457a902ba1a73b7720666b21ca038cd19764db18 upstream.
 
-Setup the SuperSpeed Plus descriptors for f_acm.  This allows the gadget
-to work properly without crashing at SuperSpeed rates.
+Needed for SuperSpeed Plus support for f_midi.  This allows the
+gadget to work properly without crashing at SuperSpeed rates.
 
 Cc: Felipe Balbi <balbi@kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
 Signed-off-by: Will McVicker <willmcvicker@google.com>
 Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201127140559.381351-3-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20201127140559.381351-4-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_acm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_midi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/gadget/function/f_acm.c
-+++ b/drivers/usb/gadget/function/f_acm.c
-@@ -684,7 +684,7 @@ acm_bind(struct usb_configuration *c, st
- 	acm_ss_out_desc.bEndpointAddress = acm_fs_out_desc.bEndpointAddress;
+--- a/drivers/usb/gadget/function/f_midi.c
++++ b/drivers/usb/gadget/function/f_midi.c
+@@ -1048,6 +1048,12 @@ static int f_midi_bind(struct usb_config
+ 		f->ss_descriptors = usb_copy_descriptors(midi_function);
+ 		if (!f->ss_descriptors)
+ 			goto fail_f_midi;
++
++		if (gadget_is_superspeed_plus(c->cdev->gadget)) {
++			f->ssp_descriptors = usb_copy_descriptors(midi_function);
++			if (!f->ssp_descriptors)
++				goto fail_f_midi;
++		}
+ 	}
  
- 	status = usb_assign_descriptors(f, acm_fs_function, acm_hs_function,
--			acm_ss_function, NULL);
-+			acm_ss_function, acm_ss_function);
- 	if (status)
- 		goto fail;
- 
+ 	kfree(midi_function);
 
 
