@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 201742E401D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D942E62C3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502671AbgL1OWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:22:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56246 "EHLO mail.kernel.org"
+        id S2406241AbgL1Nt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:49:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502667AbgL1OWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:22:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51AD320731;
-        Mon, 28 Dec 2020 14:22:15 +0000 (UTC)
+        id S2406237AbgL1Nt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:49:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74BB22063A;
+        Mon, 28 Dec 2020 13:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165335;
-        bh=Al+ew9otR+njL6C8r5gDrw2MpAKsbWvr1VcofJGPCAM=;
+        s=korg; t=1609163356;
+        bh=ozsuKk+Lsw1SUCv83Axh3FACLSrWknCXoQQY5Baaj70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/SaoEcn0hJfJfEhZD6RuD+HHl94wQqc5JGi+zUGhP5hUHXZ3I+f70toZ1FPDzFBE
-         /aZhmu9zaHeTTf97i0EAo3wUMJD2aFfX3lj2nL41weNHbZhwnJOfJtRYLAumZb8Ir+
-         sP7oLxUkPwd9aCqGOpYYNC91vXv0QHitJJtNalnk=
+        b=sX0RFBbW4SOJs19oejlmjsAs9dqnI026mVTX1hfF2o2doelVpuM1iPCUS297wb/QS
+         ANXiQbUFz3aSKTlbNAh9YVStzReni+0G7jp6fRxXs6laNx2GA4PgpA4GGAo/B70Sa0
+         cXCVKo8rmXFjMqohHkN0+RaHHafy0evRItL8egw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 494/717] clk: bcm: dvp: Add MODULE_DEVICE_TABLE()
-Date:   Mon, 28 Dec 2020 13:48:12 +0100
-Message-Id: <20201228125044.632201023@linuxfoundation.org>
+Subject: [PATCH 5.4 257/453] bus: fsl-mc: fix error return code in fsl_mc_object_allocate()
+Date:   Mon, 28 Dec 2020 13:48:13 +0100
+Message-Id: <20201228124949.597707876@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit be439cc4c404f646a8ba090fa786d53c10926b12 ]
+[ Upstream commit 3d70fb03711c37bc64e8e9aea5830f498835f6bf ]
 
-Add MODULE_DEVICE_TABLE() so as to be able to use the driver as a
-module. More precisely, for the driver to be loaded automatically at
-boot.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 1bc95972715a ("clk: bcm: Add BCM2711 DVP driver")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20201202103518.21889-1-nsaenzjulienne@suse.de
-Reviewed-by: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 197f4d6a4a00 ("staging: fsl-mc: fsl-mc object allocator driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Acked-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Link: https://lore.kernel.org/r/1607068967-31991-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2711-dvp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bus/fsl-mc/fsl-mc-allocator.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2711-dvp.c b/drivers/clk/bcm/clk-bcm2711-dvp.c
-index 8333e20dc9d22..69e2f85f7029d 100644
---- a/drivers/clk/bcm/clk-bcm2711-dvp.c
-+++ b/drivers/clk/bcm/clk-bcm2711-dvp.c
-@@ -108,6 +108,7 @@ static const struct of_device_id clk_dvp_dt_ids[] = {
- 	{ .compatible = "brcm,brcm2711-dvp", },
- 	{ /* sentinel */ }
- };
-+MODULE_DEVICE_TABLE(of, clk_dvp_dt_ids);
+diff --git a/drivers/bus/fsl-mc/fsl-mc-allocator.c b/drivers/bus/fsl-mc/fsl-mc-allocator.c
+index cc7bb900f5249..95672306d3714 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-allocator.c
++++ b/drivers/bus/fsl-mc/fsl-mc-allocator.c
+@@ -292,8 +292,10 @@ int __must_check fsl_mc_object_allocate(struct fsl_mc_device *mc_dev,
+ 		goto error;
  
- static struct platform_driver clk_dvp_driver = {
- 	.probe	= clk_dvp_probe,
+ 	mc_adev = resource->data;
+-	if (!mc_adev)
++	if (!mc_adev) {
++		error = -EINVAL;
+ 		goto error;
++	}
+ 
+ 	mc_adev->consumer_link = device_link_add(&mc_dev->dev,
+ 						 &mc_adev->dev,
 -- 
 2.27.0
 
