@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF242E3D98
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 902352E6402
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501887AbgL1ORe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:17:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52136 "EHLO mail.kernel.org"
+        id S2404655AbgL1Ppg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:45:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2501881AbgL1ORe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27E59207B2;
-        Mon, 28 Dec 2020 14:17:17 +0000 (UTC)
+        id S2404664AbgL1Noq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF9B207B2;
+        Mon, 28 Dec 2020 13:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165038;
-        bh=+ckL7sCwj843aPBGGz7Zq03vrwFIHW76lI/94Rcm2x8=;
+        s=korg; t=1609163046;
+        bh=q5XlygyyjcXl+Xl2qKPDjMmQ+HCk39HiufzBvwAScRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJS8d1/bjjUDbxPpTFXx2kCuV6I8fQjG7U4FJBl1oLMomD3E2s8ARs19L39XndTVn
-         54A1IjG2ZFXQ3kpD5ion1raoVuEspX6+l39ULrDggAVue5aU1BEdxI/7vZbU1+OX8n
-         88aAbmQBcKzBVSRbmhe1AsYpUoRLBLd5sXTfKKpY=
+        b=iKWInWxRpFy81T+FuUd9ebdyR+/lhsVl8Lcr6palvzsiA3Q+50Ts2eoBj/pMgEhBq
+         z+f0axs5/s2zC4ndDTcCmMYvxwSrA3Mb9hNHoEezMa9p8876nh3fdlAsWe0XjxJxCq
+         x+dJvqiMRqfYsuZoYqDOnOAHy4xRplq0Cx6/Ncm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Huang Jianan <huangjianan@oppo.com>,
-        Guo Weichao <guoweichao@oppo.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 389/717] erofs: avoid using generic_block_bmap
+Subject: [PATCH 5.4 151/453] crypto: crypto4xx - Replace bitwise OR with logical OR in crypto4xx_build_pd
 Date:   Mon, 28 Dec 2020 13:46:27 +0100
-Message-Id: <20201228125039.642500610@linuxfoundation.org>
+Message-Id: <20201228124944.471835404@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Jianan <huangjianan@oppo.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit d8b3df8b1048405e73558b88cba2adf29490d468 ]
+[ Upstream commit 5bdad829c31a09069fd508534f03c2ea1576ac75 ]
 
-Surprisingly, `block' in sector_t indicates the number of
-i_blkbits-sized blocks rather than sectors for bmap.
+Clang warns:
 
-In addition, considering buffer_head limits mapped size to 32-bits,
-should avoid using generic_block_bmap.
+drivers/crypto/amcc/crypto4xx_core.c:921:60: warning: operator '?:' has
+lower precedence than '|'; '|' will be evaluated first
+[-Wbitwise-conditional-parentheses]
+                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+drivers/crypto/amcc/crypto4xx_core.c:921:60: note: place parentheses
+around the '|' expression to silence this warning
+                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
+                                                                         ^
+                                                                        )
+drivers/crypto/amcc/crypto4xx_core.c:921:60: note: place parentheses
+around the '?:' expression to evaluate it first
+                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
+                                                                         ^
+                 (
+1 warning generated.
 
-Link: https://lore.kernel.org/r/20201209115740.18802-1-huangjianan@oppo.com
-Fixes: 9da681e017a3 ("staging: erofs: support bmap")
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Reviewed-by: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-Signed-off-by: Guo Weichao <guoweichao@oppo.com>
-[ Gao Xiang: slightly update the commit message description. ]
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+It looks like this should have been a logical OR so that
+PD_CTL_HASH_FINAL gets added to the w bitmask if crypto_tfm_alg_type
+is either CRYPTO_ALG_TYPE_AHASH or CRYPTO_ALG_TYPE_AEAD. Change the
+operator so that everything works properly.
+
+Fixes: 4b5b79998af6 ("crypto: crypto4xx - fix stalls under heavy load")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1198
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/data.c | 26 +++++++-------------------
- 1 file changed, 7 insertions(+), 19 deletions(-)
+ drivers/crypto/amcc/crypto4xx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/erofs/data.c b/fs/erofs/data.c
-index 347be146884c3..ea4f693bee224 100644
---- a/fs/erofs/data.c
-+++ b/fs/erofs/data.c
-@@ -312,27 +312,12 @@ static void erofs_raw_access_readahead(struct readahead_control *rac)
- 		submit_bio(bio);
- }
- 
--static int erofs_get_block(struct inode *inode, sector_t iblock,
--			   struct buffer_head *bh, int create)
--{
--	struct erofs_map_blocks map = {
--		.m_la = iblock << 9,
--	};
--	int err;
--
--	err = erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW);
--	if (err)
--		return err;
--
--	if (map.m_flags & EROFS_MAP_MAPPED)
--		bh->b_blocknr = erofs_blknr(map.m_pa);
--
--	return err;
--}
--
- static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
- {
- 	struct inode *inode = mapping->host;
-+	struct erofs_map_blocks map = {
-+		.m_la = blknr_to_addr(block),
-+	};
- 
- 	if (EROFS_I(inode)->datalayout == EROFS_INODE_FLAT_INLINE) {
- 		erofs_blk_t blks = i_size_read(inode) >> LOG_BLOCK_SIZE;
-@@ -341,7 +326,10 @@ static sector_t erofs_bmap(struct address_space *mapping, sector_t block)
- 			return 0;
+diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
+index 7d6b695c4ab3f..230e8902c727c 100644
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -916,7 +916,7 @@ int crypto4xx_build_pd(struct crypto_async_request *req,
  	}
  
--	return generic_block_bmap(mapping, block, erofs_get_block);
-+	if (!erofs_map_blocks(inode, &map, EROFS_GET_BLOCKS_RAW))
-+		return erofs_blknr(map.m_pa);
-+
-+	return 0;
- }
- 
- /* for uncompressed (aligned) files and raw access for other files */
+ 	pd->pd_ctl.w = PD_CTL_HOST_READY |
+-		((crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AHASH) |
++		((crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AHASH) ||
+ 		 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
+ 			PD_CTL_HASH_FINAL : 0);
+ 	pd->pd_ctl_len.w = 0x00400000 | (assoclen + datalen);
 -- 
 2.27.0
 
