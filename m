@@ -2,44 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C242E6623
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D71402E661F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393555AbgL1QJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:09:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
+        id S2388758AbgL1QJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:09:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388732AbgL1NYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A23EC205CB;
-        Mon, 28 Dec 2020 13:23:49 +0000 (UTC)
+        id S2388745AbgL1NYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B19E6208D5;
+        Mon, 28 Dec 2020 13:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161830;
-        bh=H33UDjfOYPvhO9+xi+pxBnDvqxBOs2w6c22Uii5l59g=;
+        s=korg; t=1609161833;
+        bh=CRnndIvHQY0zl6wa+Y7Gp2oOuKghheazrB9fl+qO+Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eprnP3HngeJ2dizjqdpUxukEufywRYnlHR9dGc58Ot9QBdj0acZs58c1mCL+cERa
-         vq2G7fP58fAYY4qJrJR8cTmuVRfVJM27qKxg4FVCDGUqQSN6Ci/VCq6ca7tgKqp1zT
-         pwQPa46r8skPNfPStHJbsdyPunD3fI2t1qozCmpM=
+        b=akc5nIQ3a0R8L1AWukCKqOmjK8Vd0bxbqfbGyHvX11JwVAfsTRMTOW/KLKjLnVIL+
+         bKxZ3f+uCVtyoLnfsG1mGXfqFSuGOm1e/og0uGc++nj2BJOQOEkJwkc6vGWDztuRFf
+         N+KL2f2oBYf/EjaGivOMrkV3MCavbWQekrQusDo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Backlund <tmb@mageia.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Tor Jeremiassen <tor@ti.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.19 097/346] perf cs-etm: Move definition of traceid_list global variable from header file
-Date:   Mon, 28 Dec 2020 13:46:56 +0100
-Message-Id: <20201228124924.471691181@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 098/346] drm/gma500: fix double free of gma_connector
+Date:   Mon, 28 Dec 2020 13:46:57 +0100
+Message-Id: <20201228124924.519338988@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -51,64 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Tom Rix <trix@redhat.com>
 
-commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
+[ Upstream commit 4e19d51ca5b28a1d435a844c7b2a8e1b1b6fa237 ]
 
-The variable 'traceid_list' is defined in the header file cs-etm.h,
-if multiple C files include cs-etm.h the compiler might complaint for
-multiple definition of 'traceid_list'.
+clang static analysis reports this problem:
 
-To fix multiple definition error, move the definition of 'traceid_list'
-into cs-etm.c.
+cdv_intel_dp.c:2101:2: warning: Attempt to free released memory
+        kfree(gma_connector);
+        ^~~~~~~~~~~~~~~~~~~~
 
-Fixes: cd8bfd8c973e ("perf tools: Add processing of coresight metadata")
-Reported-by: Thomas Backlund <tmb@mageia.org>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Tested-by: Mike Leach <mike.leach@linaro.org>
-Tested-by: Thomas Backlund <tmb@mageia.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Tor Jeremiassen <tor@ti.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/20200505133642.4756-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In cdv_intel_dp_init() when the call to cdv_intel_edp_panel_vdd_off()
+fails, the handler calls cdv_intel_dp_destroy(connector) which does
+the first free of gma_connector. So adjust the goto label and skip
+the second free.
+
+Fixes: d112a8163f83 ("gma500/cdv: Add eDP support")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201003193928.18869-1-trix@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/cs-etm.c |    3 +++
- tools/perf/util/cs-etm.h |    3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/gma500/cdv_intel_dp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/cs-etm.c
-+++ b/tools/perf/util/cs-etm.c
-@@ -87,6 +87,9 @@ struct cs_etm_queue {
- 	struct cs_etm_packet *packet;
- };
- 
-+/* RB tree for quick conversion between traceID and metadata pointers */
-+static struct intlist *traceid_list;
-+
- static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
- static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
- 					   pid_t tid, u64 time_);
---- a/tools/perf/util/cs-etm.h
-+++ b/tools/perf/util/cs-etm.h
-@@ -53,9 +53,6 @@ enum {
- 	CS_ETMV4_PRIV_MAX,
- };
- 
--/* RB tree for quick conversion between traceID and metadata pointers */
--struct intlist *traceid_list;
--
- #define KiB(x) ((x) * 1024)
- #define MiB(x) ((x) * 1024 * 1024)
- 
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+index 05eba6dec5ebf..3e8b804cf7e7e 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+@@ -2124,7 +2124,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
+ 			DRM_INFO("failed to retrieve link info, disabling eDP\n");
+ 			cdv_intel_dp_encoder_destroy(encoder);
+ 			cdv_intel_dp_destroy(connector);
+-			goto err_priv;
++			goto err_connector;
+ 		} else {
+         		DRM_DEBUG_KMS("DPCD: Rev=%x LN_Rate=%x LN_CNT=%x LN_DOWNSP=%x\n",
+ 				intel_dp->dpcd[0], intel_dp->dpcd[1], 
+-- 
+2.27.0
+
 
 
