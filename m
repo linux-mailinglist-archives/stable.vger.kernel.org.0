@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34BE72E66E5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D982E671B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732707AbgL1QSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:18:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43604 "EHLO mail.kernel.org"
+        id S1732393AbgL1NOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732709AbgL1NPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:15:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F9C32076D;
-        Mon, 28 Dec 2020 13:15:20 +0000 (UTC)
+        id S1732388AbgL1NOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:14:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8CA2076D;
+        Mon, 28 Dec 2020 13:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161321;
-        bh=sGXZ3I6qiui6Kj2Gy9swHJhCbRugfhmlmZHm86NumJg=;
+        s=korg; t=1609161230;
+        bh=9/u1tfMPEVt67nmI4SkUXtwtNr5voLRc4WjZV+Ess7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t29B4oDcZ8YcXXtMLLS3XIDa6mUD1SenInugivOvFnmjJ9h4REpk+HuCLPmu3PZVR
-         rFX6vB/CAnZaDXARit06XwvQEBJqUMmApWtw+gbUBLHTHWqcKzwiHoOuhna+GqVXJG
-         fcdQjCTFMfe5lB4mXWiSV3GtiBW2BchL7aM0jRbY=
+        b=kiJUsWQX0tp3ZvmGFiQrKwec0YSwMBWay15ASTF+zIrdGNOI0iSb6FrjK+utTgyO4
+         pSk7aO/cld3bOewI0+X0XcHZawqsnubh7dJ9mlxrSlRljLB5efZuukGNLWR1QafAlL
+         zjdGMU8ETt1uHrhAecSBjlPKF3nooggJ2fZPp9yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 145/242] scsi: pm80xx: Fix error return in pm8001_pci_probe()
-Date:   Mon, 28 Dec 2020 13:49:10 +0100
-Message-Id: <20201228124911.842957287@linuxfoundation.org>
+Subject: [PATCH 4.14 146/242] seq_buf: Avoid type mismatch for seq_buf_init
+Date:   Mon, 28 Dec 2020 13:49:11 +0100
+Message-Id: <20201228124911.891869411@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,39 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 97031ccffa4f62728602bfea8439dd045cd3aeb2 ]
+[ Upstream commit d9a9280a0d0ae51dc1d4142138b99242b7ec8ac6 ]
 
-The driver did not return an error in the case where
-pm8001_configure_phy_settings() failed.
+Building with W=2 prints a number of warnings for one function that
+has a pointer type mismatch:
 
-Use rc to store the return value of pm8001_configure_phy_settings().
+linux/seq_buf.h: In function 'seq_buf_init':
+linux/seq_buf.h:35:12: warning: pointer targets in assignment from 'unsigned char *' to 'char *' differ in signedness [-Wpointer-sign]
 
-Link: https://lore.kernel.org/r/20201205115551.2079471-1-zhangqilong3@huawei.com
-Fixes: 279094079a44 ("[SCSI] pm80xx: Phy settings support for motherboard controller.")
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Change the type in the function prototype according to the type in
+the structure.
+
+Link: https://lkml.kernel.org/r/20201026161108.3707783-1-arnd@kernel.org
+
+Fixes: 9a7777935c34 ("tracing: Convert seq_buf fields to be like seq_file fields")
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/seq_buf.h   | 2 +-
+ include/linux/trace_seq.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 0e013f76b582e..30e49b4acaeaf 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -1054,7 +1054,8 @@ static int pm8001_pci_probe(struct pci_dev *pdev,
+diff --git a/include/linux/seq_buf.h b/include/linux/seq_buf.h
+index aa5deb041c25d..7cc952282e8be 100644
+--- a/include/linux/seq_buf.h
++++ b/include/linux/seq_buf.h
+@@ -30,7 +30,7 @@ static inline void seq_buf_clear(struct seq_buf *s)
+ }
  
- 	pm8001_init_sas_add(pm8001_ha);
- 	/* phy setting support for motherboard controller */
--	if (pm8001_configure_phy_settings(pm8001_ha))
-+	rc = pm8001_configure_phy_settings(pm8001_ha);
-+	if (rc)
- 		goto err_out_shost;
+ static inline void
+-seq_buf_init(struct seq_buf *s, unsigned char *buf, unsigned int size)
++seq_buf_init(struct seq_buf *s, char *buf, unsigned int size)
+ {
+ 	s->buffer = buf;
+ 	s->size = size;
+diff --git a/include/linux/trace_seq.h b/include/linux/trace_seq.h
+index 6609b39a72326..6db257466af68 100644
+--- a/include/linux/trace_seq.h
++++ b/include/linux/trace_seq.h
+@@ -12,7 +12,7 @@
+  */
  
- 	pm8001_post_sas_ha_init(shost, chip);
+ struct trace_seq {
+-	unsigned char		buffer[PAGE_SIZE];
++	char			buffer[PAGE_SIZE];
+ 	struct seq_buf		seq;
+ 	int			full;
+ };
+@@ -51,7 +51,7 @@ static inline int trace_seq_used(struct trace_seq *s)
+  * that is about to be written to and then return the result
+  * of that write.
+  */
+-static inline unsigned char *
++static inline char *
+ trace_seq_buffer_ptr(struct trace_seq *s)
+ {
+ 	return s->buffer + seq_buf_used(&s->seq);
 -- 
 2.27.0
 
