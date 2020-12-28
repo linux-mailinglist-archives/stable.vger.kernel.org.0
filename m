@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528EE2E4161
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 849B32E414E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439065AbgL1PFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:05:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
+        id S2439079AbgL1OKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:10:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439059AbgL1OKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:10:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E341920791;
-        Mon, 28 Dec 2020 14:09:55 +0000 (UTC)
+        id S2439077AbgL1OKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:10:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D30BB208B3;
+        Mon, 28 Dec 2020 14:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164596;
-        bh=7Ft/XUMKKsohRnffoVmtAMZzEzvC8B567WmWQE2bDs0=;
+        s=korg; t=1609164599;
+        bh=wwpa5s9xi/prcgth2or2y3XphmPJyV5G2xNHZiy0+78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o412OZWkXXBlEUzTYvROxgpGYNEjqkxWFQX/3zAJYzrM4dR2Y/qqk+YyRX1a/UOKH
-         merO+pyaiZQfXmr0O8QM+zH/vZKMZOcrdqwffiTshWHsJB9qOJrM+cz9bgDfl7cqc3
-         117GEyuP6ypL6uKoXSDYxElcRTVGcs58QweMz99s=
+        b=fE6I+sxkP5tRTSK9uT522C7yQklSWlGfN+NIoLWuFYp2AqRoIfZzhzyfxuQSru0Vj
+         I8MZzbsTlW3ajb6Mc0v0PNracJj1VtgXU2dYimb6OpsLEmivSnKSXOQAyaKouHzSk3
+         uAHs4rIWOAUUJdI/dSRTSWui/CEHgNPdb0y2ic2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timon Baetz <timon.baetz@protonmail.com>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 230/717] power: supply: max17042_battery: Fix current_{avg,now} hiding with no current sense
-Date:   Mon, 28 Dec 2020 13:43:48 +0100
-Message-Id: <20201228125032.007643995@linuxfoundation.org>
+Subject: [PATCH 5.10 231/717] power: supply: axp288_charger: Fix HP Pavilion x2 10 DMI matching
+Date:   Mon, 28 Dec 2020 13:43:49 +0100
+Message-Id: <20201228125032.056579966@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,38 +40,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4b0a56e692503692da6555337a697c17feabbb3e ]
+[ Upstream commit a0f1ccd96c7049377d892a4299b6d5e47ec9179d ]
 
-When current sense is disabled, max17042_no_current_sense_psy_desc gets
-used which ignores two last properties from the list.
+Commit 9c80662a74cd ("power: supply: axp288_charger: Add special handling
+for HP Pavilion x2 10") added special handling for HP Pavilion x2 10
+models which use the weird combination of a Type-C connector and the
+non Type-C aware AXP288 PMIC.
 
-Fixes: 21b01cc879cc ("power: supply: max17042_battery: Add support for the TTE_NOW prop")
-Reported-by: Timon Baetz <timon.baetz@protonmail.com>
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+This special handling was activated by a DMI match a the product-name
+of "HP Pavilion x2 Detachable". Recently I've learned that there are
+also older "HP Pavilion x2 Detachable" models with an AXP288 PMIC +
+a micro-usb connector where we should not activate the special handling
+for the Type-C connectors.
+
+Extend the matching to also match on the DMI board-name and match on the
+2 boards (one Bay Trail based one Cherry Trail based) of which we are
+certain that they use the AXP288 + Type-C connector combination.
+
+Note the DSDT code from these older (AXP288 + micro-USB) models contains
+some AML code (which never runs under Linux) which reads the micro-USB
+connector id-pin and if it is pulled to ground, which would normally mean
+the port is in host mode!, then it sets the input-current-limit to 3A,
+it seems HP is using the micro-USB port as a charging only connector
+and identifies their own 3A capable charger though this hack which is a
+major violation of the USB specs. Note HP also hardcodes a 2A limit
+when the id-pin is not pulled to ground, which is also in violation
+of the specs.
+
+I've no intention to add support for HP's hack to support 3A charging
+on these older models. By making the DMI matches for the Type-C equipped
+models workaround more tighter, these older models will be treated just
+like any other AXP288 + micro-USB equipped device and the input-current
+limit will follow the BC 1.2 spec (using the defacto standard values
+there where the BC 1.2 spec defines a range).
+
+Fixes: 9c80662a74cd ("power: supply: axp288_charger: Add special handling for HP Pavilion x2 10")
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1896924
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/supply/axp288_charger.c | 28 ++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index f284547913d6f..2e9672fe4df1f 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -85,9 +85,10 @@ static enum power_supply_property max17042_battery_props[] = {
- 	POWER_SUPPLY_PROP_TEMP_MAX,
- 	POWER_SUPPLY_PROP_HEALTH,
- 	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
-+	// these two have to be at the end on the list
- 	POWER_SUPPLY_PROP_CURRENT_NOW,
- 	POWER_SUPPLY_PROP_CURRENT_AVG,
--	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
- };
+diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
+index 9d981b76c1e72..a4df1ea923864 100644
+--- a/drivers/power/supply/axp288_charger.c
++++ b/drivers/power/supply/axp288_charger.c
+@@ -548,14 +548,15 @@ out:
  
- static int max17042_get_temperature(struct max17042_chip *chip, int *temp)
+ /*
+  * The HP Pavilion x2 10 series comes in a number of variants:
+- * Bay Trail SoC    + AXP288 PMIC, DMI_BOARD_NAME: "815D"
+- * Cherry Trail SoC + AXP288 PMIC, DMI_BOARD_NAME: "813E"
+- * Cherry Trail SoC + TI PMIC,     DMI_BOARD_NAME: "827C" or "82F4"
++ * Bay Trail SoC    + AXP288 PMIC, Micro-USB, DMI_BOARD_NAME: "8021"
++ * Bay Trail SoC    + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "815D"
++ * Cherry Trail SoC + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "813E"
++ * Cherry Trail SoC + TI PMIC,     Type-C,    DMI_BOARD_NAME: "827C" or "82F4"
+  *
+- * The variants with the AXP288 PMIC are all kinds of special:
++ * The variants with the AXP288 + Type-C connector are all kinds of special:
+  *
+- * 1. All variants use a Type-C connector which the AXP288 does not support, so
+- * when using a Type-C charger it is not recognized. Unlike most AXP288 devices,
++ * 1. They use a Type-C connector which the AXP288 does not support, so when
++ * using a Type-C charger it is not recognized. Unlike most AXP288 devices,
+  * this model actually has mostly working ACPI AC / Battery code, the ACPI code
+  * "solves" this by simply setting the input_current_limit to 3A.
+  * There are still some issues with the ACPI code, so we use this native driver,
+@@ -578,12 +579,17 @@ out:
+  */
+ static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
+ 	{
+-		/*
+-		 * Bay Trail model has "Hewlett-Packard" as sys_vendor, Cherry
+-		 * Trail model has "HP", so we only match on product_name.
+-		 */
+ 		.matches = {
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "815D"),
++		},
++	},
++	{
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "HP"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "813E"),
+ 		},
+ 	},
+ 	{} /* Terminating entry */
 -- 
 2.27.0
 
