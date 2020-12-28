@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 244782E650A
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE11F2E3F58
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389442AbgL1Nfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:35:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+        id S2503547AbgL1OjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:39:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389434AbgL1Nfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DB4820719;
-        Mon, 28 Dec 2020 13:35:31 +0000 (UTC)
+        id S2503488AbgL1O35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8326B221F0;
+        Mon, 28 Dec 2020 14:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162532;
-        bh=2mHN5tE8jCHCqxGUnH47ge8cRXer73I2uY6Qh9H0+8U=;
+        s=korg; t=1609165782;
+        bh=2Bklf9DCJXUl3thJCI/qgi4JWKZUxw/j6HvbSQKMAW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cF0I+Szb+eXtYAs9wPYQCFruSwH5tbZmQi9qyv6sPeXB/KX5q3YK0gzF3K+29RptB
-         FZ6SYsugjRcUBLTaKkJ1/+Ur7cToHIRUIEzWSeO9TS5zJyFXx+1KVQRtnOK0ljMIou
-         FT/OSWMjGiRiNOVEnzOlwVtnLC2AfW6xVNXetbh0=
+        b=KBNRQEXoINT3MAJ9Tu6pt8E6aYCV26WykJ/fIWjFVLWT2mRQRSMBrDnkdnaHeXZR7
+         +iINHngTD5RVviaRQ6vhARw90vaWr7cgqHI97vBoBrQjyNcN0LO7xQ+3uC85FZ8dS0
+         FvYKoD/4QpfyMkD0DpBUanpoAQQyzkrkbCwbyTDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>, Stable@vger.kernel.org
-Subject: [PATCH 4.19 332/346] iio:pressure:mpl3115: Force alignment of buffer
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Sergei Shtylyov <s.shtylyov@omprussia.ru>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 653/717] spi: rpc-if: Fix use-after-free on unbind
 Date:   Mon, 28 Dec 2020 13:50:51 +0100
-Message-Id: <20201228124935.823925345@linuxfoundation.org>
+Message-Id: <20201228125052.229988513@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 198cf32f0503d2ad60d320b95ef6fb8243db857f upstream.
+commit 393f981ca5f797b58b882d42b7621fb6e43c7f5b upstream.
 
-Whilst this is another case of the issue Lars reported with
-an array of elements of smaller than 8 bytes being passed
-to iio_push_to_buffers_with_timestamp(), the solution here is
-a bit different from the other cases and relies on __aligned
-working on the stack (true since 4.6?)
+rpcif_spi_remove() accesses the driver's private data after calling
+spi_unregister_controller() even though that function releases the last
+reference on the spi_controller and thereby frees the private data.
 
-This one is unusual.  We have to do an explicit memset() each time
-as we are reading 3 bytes into a potential 4 byte channel which
-may sometimes be a 2 byte channel depending on what is enabled.
-As such, moving the buffer to the heap in the iio_priv structure
-doesn't save us much.  We can't use a nice explicit structure
-on the stack either as the data channels have different storage
-sizes and are all separately controlled.
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-Fixes: cc26ad455f57 ("iio: Add Freescale MPL3115A2 pressure / temperature sensor driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-7-jic23@kernel.org
+Fixes: eb8d6d464a27 ("spi: add Renesas RPC-IF driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v5.9+
+Cc: Sergei Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/c5da472c28021da2f6517441685cef033d40b140.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/pressure/mpl3115.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/spi/spi-rpc-if.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/pressure/mpl3115.c
-+++ b/drivers/iio/pressure/mpl3115.c
-@@ -147,7 +147,14 @@ static irqreturn_t mpl3115_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mpl3115_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 32-bit channel + 16-bit channel + padding + ts */
-+	/*
-+	 * 32-bit channel + 16-bit channel + padding + ts
-+	 * Note that it is possible for only one of the first 2
-+	 * channels to be enabled. If that happens, the first element
-+	 * of the buffer may be either 16 or 32-bits.  As such we cannot
-+	 * use a simple structure definition to express this data layout.
-+	 */
-+	u8 buffer[16] __aligned(8);
- 	int ret, pos = 0;
+--- a/drivers/spi/spi-rpc-if.c
++++ b/drivers/spi/spi-rpc-if.c
+@@ -134,7 +134,7 @@ static int rpcif_spi_probe(struct platfo
+ 	struct rpcif *rpc;
+ 	int error;
  
- 	mutex_lock(&data->lock);
+-	ctlr = spi_alloc_master(&pdev->dev, sizeof(*rpc));
++	ctlr = devm_spi_alloc_master(&pdev->dev, sizeof(*rpc));
+ 	if (!ctlr)
+ 		return -ENOMEM;
+ 
+@@ -159,13 +159,8 @@ static int rpcif_spi_probe(struct platfo
+ 	error = spi_register_controller(ctlr);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "spi_register_controller failed\n");
+-		goto err_put_ctlr;
++		rpcif_disable_rpm(rpc);
+ 	}
+-	return 0;
+-
+-err_put_ctlr:
+-	rpcif_disable_rpm(rpc);
+-	spi_controller_put(ctlr);
+ 
+ 	return error;
+ }
 
 
