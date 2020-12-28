@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04C02E3990
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 857792E4040
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388831AbgL1NZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:25:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53548 "EHLO mail.kernel.org"
+        id S2502149AbgL1OTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:19:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388825AbgL1NY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D47C20728;
-        Mon, 28 Dec 2020 13:24:18 +0000 (UTC)
+        id S2392032AbgL1OTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:19:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EF78208B6;
+        Mon, 28 Dec 2020 14:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161859;
-        bh=gBTYxyz9FVCKR/c+SIw2G089LFP/frB1+sQhJj4VgAM=;
+        s=korg; t=1609165141;
+        bh=FmXvl1EVS9KHZmAGIQJFM7YJDBG6ot7telItY//m53U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mnu2wlMIj7pETDaxBi2RsGsc2Vg7jZiidvnZykCV4NRqoBQ2bCOFluCfckeJ+yncp
-         uotD7rU742/PQH80xQrKa10PgXB+RJJhniJOAgHZzzHPdPoCMhpV7Q/LXNigTaChrs
-         +GdTH8J0oyHL1xAh9uGc32bXXCIjs9IyOxdU5Rac=
+        b=tDNyy7AUShj5P1qvI+UDaiY9OSmDyzTGW5gnzG6aTRRWS/l5MASHkAdaZtnJz6htf
+         sCTBavAuu8HWC3zqYJw76tRgkOOqipYfufPP2wLQK36Dgcy4VYu0IJ6f/XfLgZcyyJ
+         WrLZcQfSNeI+P73+sa/M5TOw3CYL8hD44WHFaApU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Maulik Shah <mkshah@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/346] RDMA/rxe: Compute PSN windows correctly
+Subject: [PATCH 5.10 427/717] irqchip/qcom-pdc: Fix phantom irq when changing between rising/falling
 Date:   Mon, 28 Dec 2020 13:47:05 +0100
-Message-Id: <20201228124924.909570739@linuxfoundation.org>
+Message-Id: <20201228125041.423506901@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +42,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit bb3ab2979fd69db23328691cb10067861df89037 ]
+[ Upstream commit 2f5fbc4305d07725bfebaedb09e57271315691ef ]
 
-The code which limited the number of unacknowledged PSNs was incorrect.
-The PSNs are limited to 24 bits and wrap back to zero from 0x00ffffff.
-The test was computing a 32 bit value which wraps at 32 bits so that
-qp->req.psn can appear smaller than the limit when it is actually larger.
+We have a problem if we use gpio-keys and configure wakeups such that
+we only want one edge to wake us up.  AKA:
+  wakeup-event-action = <EV_ACT_DEASSERTED>;
+  wakeup-source;
 
-Replace '>' test with psn_compare which is used for other PSN comparisons
-and correctly handles the 24 bit size.
+Specifically we end up with a phantom interrupt that blocks suspend if
+the line was already high and we want wakeups on rising edges (AKA we
+want the GPIO to go low and then high again before we wake up).  The
+opposite is also problematic.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20201013170741.3590-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Specifically, here's what's happening today:
+1. Normally, gpio-keys configures to look for both edges.  Due to the
+   current workaround introduced in commit c3c0c2e18d94 ("pinctrl:
+   qcom: Handle broken/missing PDC dual edge IRQs on sc7180"), if the
+   line was high we'd configure for falling edges.
+2. At suspend time, we change to look for rising edges.
+3. After qcom_pdc_gic_set_type() runs, we get a phantom interrupt.
+
+We can solve this by just clearing the phantom interrupt.
+
+NOTE: it is possible that this could cause problems for a client with
+very specific needs, but there's not much we can do with this
+hardware.  As an example, let's say the interrupt signal is currently
+high and the client is looking for falling edges.  The client now
+changes to look for rising edges.  The client could possibly expect
+that if the line has a short pulse low (and back high) that it would
+always be detected.  Specifically no matter when the pulse happened,
+it should either have tripped the (old) falling edge trigger or the
+(new) rising edge trigger.  We will simply not trip it.  We could
+narrow down the race a bit by polling our parent before changing
+types, but no matter what we do there will still be a period of time
+where we can't tell the difference between a real transition (or more
+than one transition) and the phantom.
+
+Fixes: f55c73aef890 ("irqchip/pdc: Add PDC interrupt controller for QCOM SoCs")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Maulik Shah <mkshah@codeaurora.org>
+Reviewed-by: Maulik Shah <mkshah@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20201211141514.v4.1.I2702919afc253e2a451bebc3b701b462b2d22344@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/qcom-pdc.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index 1c1eae0ef8c28..63db49144f62b 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -664,7 +664,8 @@ next_wqe:
+diff --git a/drivers/irqchip/qcom-pdc.c b/drivers/irqchip/qcom-pdc.c
+index bd39e9de6ecf7..5dc63c20b67ea 100644
+--- a/drivers/irqchip/qcom-pdc.c
++++ b/drivers/irqchip/qcom-pdc.c
+@@ -159,6 +159,8 @@ static int qcom_pdc_gic_set_type(struct irq_data *d, unsigned int type)
+ {
+ 	int pin_out = d->hwirq;
+ 	enum pdc_irq_config_bits pdc_type;
++	enum pdc_irq_config_bits old_pdc_type;
++	int ret;
+ 
+ 	if (pin_out == GPIO_NO_WAKE_IRQ)
+ 		return 0;
+@@ -187,9 +189,26 @@ static int qcom_pdc_gic_set_type(struct irq_data *d, unsigned int type)
+ 		return -EINVAL;
  	}
  
- 	if (unlikely(qp_type(qp) == IB_QPT_RC &&
--		     qp->req.psn > (qp->comp.psn + RXE_MAX_UNACKED_PSNS))) {
-+		psn_compare(qp->req.psn, (qp->comp.psn +
-+				RXE_MAX_UNACKED_PSNS)) > 0)) {
- 		qp->req.wait_psn = 1;
- 		goto exit;
- 	}
++	old_pdc_type = pdc_reg_read(IRQ_i_CFG, pin_out);
+ 	pdc_reg_write(IRQ_i_CFG, pin_out, pdc_type);
+ 
+-	return irq_chip_set_type_parent(d, type);
++	ret = irq_chip_set_type_parent(d, type);
++	if (ret)
++		return ret;
++
++	/*
++	 * When we change types the PDC can give a phantom interrupt.
++	 * Clear it.  Specifically the phantom shows up when reconfiguring
++	 * polarity of interrupt without changing the state of the signal
++	 * but let's be consistent and clear it always.
++	 *
++	 * Doing this works because we have IRQCHIP_SET_TYPE_MASKED so the
++	 * interrupt will be cleared before the rest of the system sees it.
++	 */
++	if (old_pdc_type != pdc_type)
++		irq_chip_set_parent_state(d, IRQCHIP_STATE_PENDING, false);
++
++	return 0;
+ }
+ 
+ static struct irq_chip qcom_pdc_gic_chip = {
 -- 
 2.27.0
 
