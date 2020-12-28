@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCA42E4286
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 030E52E3F03
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407652AbgL1N7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:59:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
+        id S2504783AbgL1Ocn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:32:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436505AbgL1N7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:59:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04295207BC;
-        Mon, 28 Dec 2020 13:58:51 +0000 (UTC)
+        id S2504777AbgL1Ocm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:32:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC3E0207B2;
+        Mon, 28 Dec 2020 14:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163932;
-        bh=yRp7TAlyMOY3UjlQS2qI9K6VQ2w8z6dQqYEKaquX9g0=;
+        s=korg; t=1609165947;
+        bh=K24iJRIX4DRU9kl3rbz/XpvapenhOV22LKkXKlb/PJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Trdry1H27AwtGDmML/ooSGeVfybZcxyq2YuCAoqgyjyixCUeYaf1qJgAWqQ5whR8e
-         YIkuFo6ug2LQ2WVDKDHSJhUZGHdZmKQaFeqtKn5u+KEigm+MCFFyo4qVkopcEw+x4O
-         JDuJmjcmqPONnZUj3qwJ22FaaEeq5L/rq5zPJBA8=
+        b=o+CNjFyBO/uuWMs4wwStOlEAEHE0jyc+erJriEuVOYObsh05dn8WnJ+jRfw9rFsjn
+         YCDEqP/E6SJ2M1Q6bBBIQGd3dGVSz7GAN5IPlcKgDysoS2BHxD0wKwhUaopa62PFTt
+         xkMgHvK/jO7yTyUbRdIUBgHF4ty1W2HOk69GCk78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 443/453] xen/xenbus: Allow watches discard events before queueing
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Daniel Baluta <daniel.baluta@oss.nxp.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.10 681/717] iio:imu:bmi160: Fix too large a buffer.
 Date:   Mon, 28 Dec 2020 13:51:19 +0100
-Message-Id: <20201228124958.537598224@linuxfoundation.org>
+Message-Id: <20201228125053.607081381@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,115 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
+commit dc7de42d6b50a07b37feeba4c6b5136290fcee81 upstream.
 
-If handling logics of watch events are slower than the events enqueue
-logic and the events can be created from the guests, the guests could
-trigger memory pressure by intensively inducing the events, because it
-will create a huge number of pending events that exhausting the memory.
+The comment implies this device has 3 sensor types, but it only
+has an accelerometer and a gyroscope (both 3D).  As such the
+buffer does not need to be as long as stated.
 
-Fortunately, some watch events could be ignored, depending on its
-handler callback.  For example, if the callback has interest in only one
-single path, the watch wouldn't want multiple pending events.  Or, some
-watches could ignore events to same path.
+Note I've separated this from the following patch which fixes
+the alignment for passing to iio_push_to_buffers_with_timestamp()
+as they are different issues even if they affect the same line
+of code.
 
-To let such watches to volutarily help avoiding the memory pressure
-situation, this commit introduces new watch callback, 'will_handle'.  If
-it is not NULL, it will be called for each new event just before
-enqueuing it.  Then, if the callback returns false, the event will be
-discarded.  No watch is using the callback for now, though.
-
-This is part of XSA-349
-
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-5-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/xen-netback/xenbus.c   |    4 ++++
- drivers/xen/xenbus/xenbus_client.c |    1 +
- drivers/xen/xenbus/xenbus_xs.c     |    5 ++++-
- include/xen/xenbus.h               |    7 +++++++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/iio/imu/bmi160/bmi160_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -713,12 +713,14 @@ static int xen_register_credit_watch(str
- 		return -ENOMEM;
- 	snprintf(node, maxlen, "%s/rate", dev->nodename);
- 	vif->credit_watch.node = node;
-+	vif->credit_watch.will_handle = NULL;
- 	vif->credit_watch.callback = xen_net_rate_changed;
- 	err = register_xenbus_watch(&vif->credit_watch);
- 	if (err) {
- 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
- 		kfree(node);
- 		vif->credit_watch.node = NULL;
-+		vif->credit_watch.will_handle = NULL;
- 		vif->credit_watch.callback = NULL;
- 	}
- 	return err;
-@@ -765,6 +767,7 @@ static int xen_register_mcast_ctrl_watch
- 	snprintf(node, maxlen, "%s/request-multicast-control",
- 		 dev->otherend);
- 	vif->mcast_ctrl_watch.node = node;
-+	vif->mcast_ctrl_watch.will_handle = NULL;
- 	vif->mcast_ctrl_watch.callback = xen_mcast_ctrl_changed;
- 	err = register_xenbus_watch(&vif->mcast_ctrl_watch);
- 	if (err) {
-@@ -772,6 +775,7 @@ static int xen_register_mcast_ctrl_watch
- 		       vif->mcast_ctrl_watch.node);
- 		kfree(node);
- 		vif->mcast_ctrl_watch.node = NULL;
-+		vif->mcast_ctrl_watch.will_handle = NULL;
- 		vif->mcast_ctrl_watch.callback = NULL;
- 	}
- 	return err;
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
- 	int err;
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -427,8 +427,8 @@ static irqreturn_t bmi160_trigger_handle
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct bmi160_data *data = iio_priv(indio_dev);
+-	__le16 buf[16];
+-	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
++	__le16 buf[12];
++	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
+ 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
+ 	__le16 sample;
  
- 	watch->node = path;
-+	watch->will_handle = NULL;
- 	watch->callback = callback;
- 
- 	err = register_xenbus_watch(watch);
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -705,7 +705,10 @@ int xs_watch_msg(struct xs_watch_event *
- 
- 	spin_lock(&watches_lock);
- 	event->handle = find_watch(event->token);
--	if (event->handle != NULL) {
-+	if (event->handle != NULL &&
-+			(!event->handle->will_handle ||
-+			 event->handle->will_handle(event->handle,
-+				 event->path, event->token))) {
- 		spin_lock(&watch_events_lock);
- 		list_add_tail(&event->list, &watch_events);
- 		wake_up(&watch_events_waitq);
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -59,6 +59,13 @@ struct xenbus_watch
- 	/* Path being watched. */
- 	const char *node;
- 
-+	/*
-+	 * Called just before enqueing new event while a spinlock is held.
-+	 * The event will be discarded if this callback returns false.
-+	 */
-+	bool (*will_handle)(struct xenbus_watch *,
-+			      const char *path, const char *token);
-+
- 	/* Callback (executed in a process context with no locks held). */
- 	void (*callback)(struct xenbus_watch *,
- 			 const char *path, const char *token);
 
 
