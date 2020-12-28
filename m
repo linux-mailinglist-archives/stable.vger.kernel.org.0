@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44BD92E3FD9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A992E38B5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506422AbgL1OpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:45:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
+        id S1732316AbgL1NNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:13:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503094AbgL1OYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7117A20731;
-        Mon, 28 Dec 2020 14:24:19 +0000 (UTC)
+        id S1732315AbgL1NNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7523120776;
+        Mon, 28 Dec 2020 13:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165460;
-        bh=J5sCxb/otfwBgWgygE5auJlMJnoZMLXJK9b1f4D41ds=;
+        s=korg; t=1609161189;
+        bh=E5KaS4Hoa52hXqI/4RI+ExeS0aDhKRCmCEwd5G0LEJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGKecVjYj9L5jAAZcGKuzWhReHg1gXsAdIb/ThZJReaHkzF5YN+8rbQBg2PeZ7+yO
-         yjj0L52RTARXkUz8C8T4uJXS4uICXag4rqMPXbjwo7t4RqQlRwz3FJ3xL82E82na85
-         zalZclzqdt/YQzWKQ1N68pgCCS3c08mF90NHd3BE=
+        b=CGmqGXfk3RSesB16OapfKkWesWX91SDgq8fRSY0WF2IStzmm7b4S5nWz/d75QKmIC
+         g4jWi2fJ1d6acFl0soRxWnPM3YRK21AEq7RoTPUFfQ0RihvqFkX+lsDcUjdr4tlGTV
+         bjfVDKML6c6gNl76f4c5a9EOOFHMTfKdBlZxyUv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
-        Jian-Hong Pan <jhp@endlessos.org>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 538/717] ALSA: hda/realtek - Enable headset mic of ASUS X430UN with ALC256
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 131/242] ARM: dts: at91: sama5d2: map securam as device
 Date:   Mon, 28 Dec 2020 13:48:56 +0100
-Message-Id: <20201228125046.734585938@linuxfoundation.org>
+Message-Id: <20201228124911.151012157@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessos.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit 5cfca59604e423f720297e30a9dc493eea623493 upstream.
+[ Upstream commit 9b5dcc8d427e2bcb84c49eb03ffefe11e7537a55 ]
 
-The ASUS laptop X430UN with ALC256 can't detect the headset microphone
-until ALC256_FIXUP_ASUS_MIC_NO_PRESENCE quirk applied.
+Due to strobe signal not being propagated from CPU to securam
+the securam needs to be mapped as device or strongly ordered memory
+to work properly. Otherwise, updating to one offset may affect
+the adjacent locations in securam.
 
-Signed-off-by: Chris Chiu <chiu@endlessos.org>
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201207072755.16210-1-chiu@endlessos.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d4ce5f44d4409 ("ARM: dts: at91: sama5d2: Add securam node")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/1606903025-14197-3-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
+ arch/arm/boot/dts/sama5d2.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7958,6 +7958,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x10d0, "ASUS X540LA/X540LJ", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x115d, "Asus 1015E", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x1043, 0x11c0, "ASUS X556UR", ALC255_FIXUP_ASUS_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1043, 0x1271, "ASUS X430UN", ALC256_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x1290, "ASUS X441SA", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x12a0, "ASUS X441UV", ALC233_FIXUP_EAPD_COEF_AND_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x12f0, "ASUS X541UV", ALC256_FIXUP_ASUS_MIC),
+diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+index a8e4b89097d9c..8a09c2eab0f97 100644
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -1243,6 +1243,7 @@
+ 				clocks = <&securam_clk>;
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
++				no-memory-wc;
+ 				ranges = <0 0xf8044000 0x1420>;
+ 			};
+ 
+-- 
+2.27.0
+
 
 
