@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E012E3A0F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4442E436B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390920AbgL1Nbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:31:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60604 "EHLO mail.kernel.org"
+        id S2407049AbgL1Pdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390914AbgL1Nbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:31:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FD342063A;
-        Mon, 28 Dec 2020 13:31:03 +0000 (UTC)
+        id S2407308AbgL1NxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:53:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46D1422AAA;
+        Mon, 28 Dec 2020 13:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162263;
-        bh=hkzgwEg1qwZVnb6QJyZ+P4jfPhQ6upQiXNJsOzx6/wc=;
+        s=korg; t=1609163557;
+        bh=6oPqxRX3iyoDLdjqjGPCEyIyaWuKW6O8UfrLMjPjGPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdWieSvL7kIAseqNZygetaVzCyPgbvy/8rPcODx6r4MjFAkmJM5goXLbHvZ2rAvxk
-         xrShIgCb8vCjSqhIZQ1n5r6s3iiFEypWYNmGfivS1wDrLoNZCacbmsj7+bfnxBC4lV
-         d8a779LRKgTmZ9GCDBuynANM7wa+4MooAygGPTxw=
+        b=CibTSpu31dbgohkw/9F6riMkS3XEsMd7CpL6mUN9m868+Id/cPXbJC9nT6z8xt1VM
+         LXxEg0vNIN1HiH8piGRGKX9Gw0svAY3vkKSBMBgY6S8+lbv2/TQB49N8Cs81j00b5Q
+         83MjP/F9+MhIrVHBjQGeGfCVIgerekqdF7foc99c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 243/346] watchdog: coh901327: add COMMON_CLK dependency
-Date:   Mon, 28 Dec 2020 13:49:22 +0100
-Message-Id: <20201228124931.519376229@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 327/453] media: ipu3-cio2: Validate mbus format in setting subdev format
+Date:   Mon, 28 Dec 2020 13:49:23 +0100
+Message-Id: <20201228124952.947697197@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 36c47df85ee8e1f8a35366ac11324f8875de00eb ]
+commit a86cf9b29e8b12811cf53c4970eefe0c1d290476 upstream.
 
-clang produces a build failure in configurations without COMMON_CLK
-when a timeout calculation goes wrong:
+Validate media bus code, width and height when setting the subdev format.
 
-arm-linux-gnueabi-ld: drivers/watchdog/coh901327_wdt.o: in function `coh901327_enable':
-coh901327_wdt.c:(.text+0x50): undefined reference to `__bad_udelay'
+This effectively reworks how setting subdev format is implemented in the
+driver.
 
-Add a Kconfig dependency to only do build testing when COMMON_CLK
-is enabled.
+Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: stable@vger.kernel.org # v4.16 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201203223358.1269372-1-arnd@kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/intel/ipu3/ipu3-cio2.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9feeb8e82d500..fa7f4c61524d9 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -515,7 +515,7 @@ config SUNXI_WATCHDOG
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
+@@ -1269,6 +1269,9 @@ static int cio2_subdev_set_fmt(struct v4
+ 			       struct v4l2_subdev_format *fmt)
+ {
+ 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
++	struct v4l2_mbus_framefmt *mbus;
++	u32 mbus_code = fmt->format.code;
++	unsigned int i;
  
- config COH901327_WATCHDOG
- 	bool "ST-Ericsson COH 901 327 watchdog"
--	depends on ARCH_U300 || (ARM && COMPILE_TEST)
-+	depends on ARCH_U300 || (ARM && COMMON_CLK && COMPILE_TEST)
- 	default y if MACH_U300
- 	select WATCHDOG_CORE
- 	help
--- 
-2.27.0
-
+ 	/*
+ 	 * Only allow setting sink pad format;
+@@ -1277,18 +1280,26 @@ static int cio2_subdev_set_fmt(struct v4
+ 	if (fmt->pad == CIO2_PAD_SOURCE)
+ 		return cio2_subdev_get_fmt(sd, cfg, fmt);
+ 
+-	mutex_lock(&q->subdev_lock);
++	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
++		mbus = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
++	else
++		mbus = &q->subdev_fmt;
++
++	fmt->format.code = formats[0].mbus_code;
+ 
+-	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
+-		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
+-	} else {
+-		/* It's the sink, allow changing frame size */
+-		q->subdev_fmt.width = fmt->format.width;
+-		q->subdev_fmt.height = fmt->format.height;
+-		q->subdev_fmt.code = fmt->format.code;
+-		fmt->format = q->subdev_fmt;
++	for (i = 0; i < ARRAY_SIZE(formats); i++) {
++		if (formats[i].mbus_code == fmt->format.code) {
++			fmt->format.code = mbus_code;
++			break;
++		}
+ 	}
+ 
++	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
++	fmt->format.height = min_t(u32, fmt->format.height,
++				   CIO2_IMAGE_MAX_LENGTH);
++
++	mutex_lock(&q->subdev_lock);
++	*mbus = fmt->format;
+ 	mutex_unlock(&q->subdev_lock);
+ 
+ 	return 0;
 
 
