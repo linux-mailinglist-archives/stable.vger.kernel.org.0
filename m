@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EBF2E3BB8
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:54:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B55B22E38CA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407367AbgL1Nxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:53:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55658 "EHLO mail.kernel.org"
+        id S1732627AbgL1NPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407361AbgL1Nxu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F371E206D4;
-        Mon, 28 Dec 2020 13:53:08 +0000 (UTC)
+        id S1732623AbgL1NPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5754D20728;
+        Mon, 28 Dec 2020 13:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163589;
-        bh=SGoB8j5yDF3J909SAHZihhflgFYzkjcmdLEJAdoZbjc=;
+        s=korg; t=1609161293;
+        bh=iRrV4hdtPk4eKcU5Iq0aDCH+J2vIQi9boaG6kCWLdjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiDMUKYgoI8uum7lN4/+xDSEPKEGRyUZ9YX+KQ9S8dISaHenxzXBYEtlaIO0JA+iq
-         2rztZqNF4ff6oceNFKvz3Nmcz4a3ZyxNsHpqv1dyCLIrdb6H5f6eNmn+q6o63x2nM/
-         uNGddxgf7ciVVqpxNXwiBzO6DNhX2+92YRv/1kQ4=
+        b=rklHbjGy/dNJlFVRYC/1K9IczCDzsTD01OnNrlUD13nW0nsPK+5fbu6nvJE1D+8YT
+         cS+RuMRzdaaJH6C99KBBZFXRDc7C2oqf++CPIL4rQF/gRTP3o51fvKcqPHbQEPYaFs
+         XvyfNVR5OxLEH8FT3W4ZIOTa+KuC6+I1yXde2A90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <mripard@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 308/453] clk: sunxi-ng: Make sure divider tables have sentinel
+Subject: [PATCH 4.14 139/242] cpufreq: highbank: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 28 Dec 2020 13:49:04 +0100
-Message-Id: <20201228124952.034517149@linuxfoundation.org>
+Message-Id: <20201228124911.549316025@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 48f68de00c1405351fa0e7bc44bca067c49cd0a3 ]
+[ Upstream commit 9433777a6e0aae27468d3434b75cd51bb88ff711 ]
 
-Two clock divider tables are missing sentinel at the end. Effect of that
-is that clock framework reads past the last entry. Fix that with adding
-sentinel at the end.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this cpufreq driver when it is
+compiled as an external module.
 
-Issue was discovered with KASan.
-
-Fixes: 0577e4853bfb ("clk: sunxi-ng: Add H3 clocks")
-Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://lore.kernel.org/r/20201202203817.438713-1-jernej.skrabec@siol.net
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 6754f556103be ("cpufreq / highbank: add support for highbank cpufreq")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 1 +
- drivers/clk/sunxi-ng/ccu-sun8i-h3.c   | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/cpufreq/highbank-cpufreq.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-index 5f66bf8797723..149cfde817cba 100644
---- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
-@@ -389,6 +389,7 @@ static struct clk_div_table ths_div_table[] = {
- 	{ .val = 1, .div = 2 },
- 	{ .val = 2, .div = 4 },
- 	{ .val = 3, .div = 6 },
-+	{ /* Sentinel */ },
- };
- static const char * const ths_parents[] = { "osc24M" };
- static struct ccu_div ths_clk = {
-diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-h3.c b/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
-index 6b636362379ee..7e629a4493afd 100644
---- a/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun8i-h3.c
-@@ -322,6 +322,7 @@ static struct clk_div_table ths_div_table[] = {
- 	{ .val = 1, .div = 2 },
- 	{ .val = 2, .div = 4 },
- 	{ .val = 3, .div = 6 },
-+	{ /* Sentinel */ },
- };
- static SUNXI_CCU_DIV_TABLE_WITH_GATE(ths_clk, "ths", "osc24M",
- 				     0x074, 0, 2, ths_div_table, BIT(31), 0);
+diff --git a/drivers/cpufreq/highbank-cpufreq.c b/drivers/cpufreq/highbank-cpufreq.c
+index 1608f7105c9f8..ad743f2f31e78 100644
+--- a/drivers/cpufreq/highbank-cpufreq.c
++++ b/drivers/cpufreq/highbank-cpufreq.c
+@@ -104,6 +104,13 @@ out_put_node:
+ }
+ module_init(hb_cpufreq_driver_init);
+ 
++static const struct of_device_id __maybe_unused hb_cpufreq_of_match[] = {
++	{ .compatible = "calxeda,highbank" },
++	{ .compatible = "calxeda,ecx-2000" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, hb_cpufreq_of_match);
++
+ MODULE_AUTHOR("Mark Langsdorf <mark.langsdorf@calxeda.com>");
+ MODULE_DESCRIPTION("Calxeda Highbank cpufreq driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.27.0
 
