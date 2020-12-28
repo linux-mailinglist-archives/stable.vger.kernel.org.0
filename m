@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB72A2E6546
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5649A2E3E66
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393374AbgL1P7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33210 "EHLO mail.kernel.org"
+        id S2502316AbgL1O1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:27:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387872AbgL1NdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:33:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF9BB20719;
-        Mon, 28 Dec 2020 13:33:00 +0000 (UTC)
+        id S2390168AbgL1O1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:27:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6E6206D4;
+        Mon, 28 Dec 2020 14:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162381;
-        bh=UMXkwslyLVfcryHjAFU9fO2o4UZAqlRGery9h4JDerM=;
+        s=korg; t=1609165614;
+        bh=Fl1EJs50/0HCmOETgQqrnzrJTcAe/1qYPdacqQYGTpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqmM6aTkuj+NH3n5qPeEEzgpK2omYdRbYJQtj84udJJ3r6uK7CK9w8hqdcqEi5j2I
-         frDFMLHYX9y7Z7sFtUb8dXtCp+/je6a6ajK4eQBIelQxcsJqsosf8CGdyuUFukd04k
-         riP8wcFmJfxmj6l7xW4hil0yQth6WXd25xWB2X0w=
+        b=xTp3+sqZXRM2CpHB6vSab6gJi/QeraymnssLu0pZ6GOaKgDwzoVz3L326KwDnNljN
+         AOAyOunKTe01GywLwj3yHHL/wMrfaDIN5bGJ/ZIbB/q80Bwd8yKWZcMaMBgCtpZsVS
+         1AQzWGnocZRccReGuc6lGgtG+u8W0lq4RUEKTqug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dongdong Wang <wangdongdong.6@bytedance.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 255/346] lwt: Disable BH too in run_lwt_bpf()
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 576/717] EDAC/amd64: Fix PCI component registration
 Date:   Mon, 28 Dec 2020 13:49:34 +0100
-Message-Id: <20201228124932.111669638@linuxfoundation.org>
+Message-Id: <20201228125048.519291900@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +38,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongdong Wang <wangdongdong.6@bytedance.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit d9054a1ff585ba01029584ab730efc794603d68f ]
+commit 706657b1febf446a9ba37dc51b89f46604f57ee9 upstream.
 
-The per-cpu bpf_redirect_info is shared among all skb_do_redirect()
-and BPF redirect helpers. Callers on RX path are all in BH context,
-disabling preemption is not sufficient to prevent BH interruption.
+In order to setup its PCI component, the driver needs any node private
+instance in order to get a reference to the PCI device and hand that
+into edac_pci_create_generic_ctl(). For convenience, it uses the 0th
+memory controller descriptor under the assumption that if any, the 0th
+will be always present.
 
-In production, we observed strange packet drops because of the race
-condition between LWT xmit and TC ingress, and we verified this issue
-is fixed after we disable BH.
+However, this assumption goes wrong when the 0th node doesn't have
+memory and the driver doesn't initialize an instance for it:
 
-Although this bug was technically introduced from the beginning, that
-is commit 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure"),
-at that time call_rcu() had to be call_rcu_bh() to match the RCU context.
-So this patch may not work well before RCU flavor consolidation has been
-completed around v5.0.
+  EDAC amd64: F17h detected (node 0).
+  ...
+  EDAC amd64: Node 0: No DIMMs detected.
 
-Update the comments above the code too, as call_rcu() is now BH friendly.
+But looking up node instances is not really needed - all one needs is
+the pointer to the proper device which gets discovered during instance
+init.
 
-Signed-off-by: Dongdong Wang <wangdongdong.6@bytedance.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/bpf/20201205075946.497763-1-xiyou.wangcong@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So stash that pointer into a variable and use it when setting up the
+EDAC PCI component.
+
+Clear that variable when the driver needs to unwind due to some
+instances failing init to avoid any registration imbalance.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20201122150815.13808-1-bp@alien8.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/core/lwt_bpf.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/edac/amd64_edac.c |   26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index a648568c5e8fe..4a5f4fbffd836 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -44,12 +44,11 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- {
- 	int ret;
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -18,6 +18,9 @@ static struct amd64_family_type *fam_typ
+ /* Per-node stuff */
+ static struct ecc_settings **ecc_stngs;
  
--	/* Preempt disable is needed to protect per-cpu redirect_info between
--	 * BPF prog and skb_do_redirect(). The call_rcu in bpf_prog_put() and
--	 * access to maps strictly require a rcu_read_lock() for protection,
--	 * mixing with BH RCU lock doesn't work.
-+	/* Preempt disable and BH disable are needed to protect per-cpu
-+	 * redirect_info between BPF prog and skb_do_redirect().
- 	 */
- 	preempt_disable();
-+	local_bh_disable();
- 	bpf_compute_data_pointers(skb);
- 	ret = bpf_prog_run_save_cb(lwt->prog, skb);
++/* Device for the PCI component */
++static struct device *pci_ctl_dev;
++
+ /*
+  * Valid scrub rates for the K8 hardware memory scrubber. We map the scrubbing
+  * bandwidth to a valid bit pattern. The 'set' operation finds the 'matching-
+@@ -2683,6 +2686,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
+ 			return -ENODEV;
+ 		}
  
-@@ -82,6 +81,7 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- 		break;
++		if (!pci_ctl_dev)
++			pci_ctl_dev = &pvt->F0->dev;
++
+ 		edac_dbg(1, "F0: %s\n", pci_name(pvt->F0));
+ 		edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
+ 		edac_dbg(1, "F6: %s\n", pci_name(pvt->F6));
+@@ -2707,6 +2713,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
+ 		return -ENODEV;
  	}
  
-+	local_bh_enable();
- 	preempt_enable();
++	if (!pci_ctl_dev)
++		pci_ctl_dev = &pvt->F2->dev;
++
+ 	edac_dbg(1, "F1: %s\n", pci_name(pvt->F1));
+ 	edac_dbg(1, "F2: %s\n", pci_name(pvt->F2));
+ 	edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
+@@ -3623,21 +3632,10 @@ static void remove_one_instance(unsigned
  
- 	return ret;
--- 
-2.27.0
-
+ static void setup_pci_device(void)
+ {
+-	struct mem_ctl_info *mci;
+-	struct amd64_pvt *pvt;
+-
+ 	if (pci_ctl)
+ 		return;
+ 
+-	mci = edac_mc_find(0);
+-	if (!mci)
+-		return;
+-
+-	pvt = mci->pvt_info;
+-	if (pvt->umc)
+-		pci_ctl = edac_pci_create_generic_ctl(&pvt->F0->dev, EDAC_MOD_STR);
+-	else
+-		pci_ctl = edac_pci_create_generic_ctl(&pvt->F2->dev, EDAC_MOD_STR);
++	pci_ctl = edac_pci_create_generic_ctl(pci_ctl_dev, EDAC_MOD_STR);
+ 	if (!pci_ctl) {
+ 		pr_warn("%s(): Unable to create PCI control\n", __func__);
+ 		pr_warn("%s(): PCI error report via EDAC not set\n", __func__);
+@@ -3716,6 +3714,8 @@ static int __init amd64_edac_init(void)
+ 	return 0;
+ 
+ err_pci:
++	pci_ctl_dev = NULL;
++
+ 	msrs_free(msrs);
+ 	msrs = NULL;
+ 
+@@ -3745,6 +3745,8 @@ static void __exit amd64_edac_exit(void)
+ 	kfree(ecc_stngs);
+ 	ecc_stngs = NULL;
+ 
++	pci_ctl_dev = NULL;
++
+ 	msrs_free(msrs);
+ 	msrs = NULL;
+ }
 
 
