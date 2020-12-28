@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2D82E4118
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E23562E648A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408055AbgL1PCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:02:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
+        id S2633122AbgL1PwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:52:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440046AbgL1ONH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:13:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FD8206D8;
-        Mon, 28 Dec 2020 14:12:50 +0000 (UTC)
+        id S2403853AbgL1NkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:40:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68C28205CB;
+        Mon, 28 Dec 2020 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164771;
-        bh=XkvJicsoILytQwnFfqfHxky5WwbR/R+66ZcGl8JN7eI=;
+        s=korg; t=1609162772;
+        bh=k9eOuaPTiFozOgNF9rx9KZ06evrYinSvgIJmaQqBn34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8/WHD6GKx+zRtdORBR9Lm/6hNC5uljNofX78aYIku5bjl66+crMfhzznpGeAuHUr
-         9DERp53iGcETsmI7Y+mlYRROUme6J9qK7gfHtmhsvkVF0dpGor7axmqbkIzDFSQpwp
-         cN806Q6xTR//KSmZgITwraDKjiW5YvvbotWP8Ldw=
+        b=UGTZLPsIlJWLZG58xDQSYgYfRdll1A9d/RHxCEh6cCyKecknS+4QfELRpT2LJl1U6
+         p6aLmY3znWlOXC/8aKsXxSQEVS1YRV7RokfC9Y9njjDd2TMxDQN5fBbhigb9y2aqYG
+         4SuyLPnGvD1mIgTJ81ezdeXKrOreCfj+VU8zGO/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 293/717] ARM: dts: at91: sama5d2: map securam as device
-Date:   Mon, 28 Dec 2020 13:44:51 +0100
-Message-Id: <20201228125035.073178334@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        EJ Hsu <ejh@nvidia.com>, Peter Chen <peter.chen@nxp.com>,
+        Will McVicker <willmcvicker@google.com>
+Subject: [PATCH 5.4 056/453] USB: gadget: f_rndis: fix bitrate for SuperSpeed and above
+Date:   Mon, 28 Dec 2020 13:44:52 +0100
+Message-Id: <20201228124939.944846922@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Will McVicker <willmcvicker@google.com>
 
-[ Upstream commit 9b5dcc8d427e2bcb84c49eb03ffefe11e7537a55 ]
+commit b00f444f9add39b64d1943fa75538a1ebd54a290 upstream.
 
-Due to strobe signal not being propagated from CPU to securam
-the securam needs to be mapped as device or strongly ordered memory
-to work properly. Otherwise, updating to one offset may affect
-the adjacent locations in securam.
+Align the SuperSpeed Plus bitrate for f_rndis to match f_ncm's ncm_bitrate
+defined by commit 1650113888fe ("usb: gadget: f_ncm: add SuperSpeed descriptors
+for CDC NCM").
 
-Fixes: d4ce5f44d4409 ("ARM: dts: at91: sama5d2: Add securam node")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/1606903025-14197-3-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: EJ Hsu <ejh@nvidia.com>
+Cc: Peter Chen <peter.chen@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20201127140559.381351-2-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/sama5d2.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/f_rndis.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
-index 2ddc85dff8ce9..6d399ac0385d4 100644
---- a/arch/arm/boot/dts/sama5d2.dtsi
-+++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -656,6 +656,7 @@
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 51>;
- 				#address-cells = <1>;
- 				#size-cells = <1>;
-+				no-memory-wc;
- 				ranges = <0 0xf8044000 0x1420>;
- 			};
- 
--- 
-2.27.0
-
+--- a/drivers/usb/gadget/function/f_rndis.c
++++ b/drivers/usb/gadget/function/f_rndis.c
+@@ -87,8 +87,10 @@ static inline struct f_rndis *func_to_rn
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static unsigned int bitrate(struct usb_gadget *g)
+ {
++	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++		return 4250000000U;
+ 	if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+-		return 13 * 1024 * 8 * 1000 * 8;
++		return 3750000000U;
+ 	else if (gadget_is_dualspeed(g) && g->speed == USB_SPEED_HIGH)
+ 		return 13 * 512 * 8 * 1000 * 8;
+ 	else
 
 
