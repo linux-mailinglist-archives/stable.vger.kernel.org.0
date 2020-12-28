@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B8F22E3564
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:20:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6BA02E356B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:21:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgL1JUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:20:37 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:43301 "EHLO
+        id S1726693AbgL1JVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:21:37 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:57271 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1JUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:20:37 -0500
+        by vger.kernel.org with ESMTP id S1726555AbgL1JVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:21:37 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id AEC21608;
-        Mon, 28 Dec 2020 04:19:51 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 034D3788;
+        Mon, 28 Dec 2020 04:20:30 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:19:51 -0500
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:20:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5m7okS
-        yICps5OO9vZz8mDWh3Y7zk3XV+8u5RfmpqElE=; b=bvCyR8ytGeXgfHjUF7U7V3
-        yXqSOCfPmK40nT/fyDTBFPVZfVO9l6rogFODMafeK6Sctp66zFsMcucjn84xf9UO
-        hGSrjBkfB2TXKFqcMQEfiwbP7CCV5z9Folz3uVhl8jItWy6LyvXlw/0PwhbE+wka
-        Y/NRoxBi9fSrIe7wMZ6cdrAQsHS98ieug2VrmWto3isgqbCjGOQgEzqRGHJZNiLT
-        K3vbNLcStCJJqIVrF7nTE3lhv9dGtsmXn3D6ndam0bpT0bzc9175HpfP2RPRMfqH
-        T887fbzkOoU1seOEr518jt2Sf24mWgUoKz1i5DVKxAyvEdmVmohEg/52UZXS4y2A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=LMzpjZ
+        ENxyKCBlr9rMl8FE07SbF53CPf/1xxxfxlOh0=; b=G9C77NunYdIaXnkM/Hit9Q
+        HtefV1l6pt5QH2A6LUI7bBxUmZMkvmkF31D9jRrYiNETQUcBH9y5o8D6Da131Hd8
+        gVmiUoAavstYm6XkEpXBUjUzTmzgFqne+RBGqpHyh/xose8N4zwdDYcxY//zT3ZX
+        TdzgrZKWfkHXsf9wV1gmQw7zh2Gb84L74PhqmMLSFZ0ZonkrgB82PUx7N5/A0UNX
+        h5AGex6e0cIchWiz3iwA7GTI1982vgpyv5zcw+XZH7JONzWpZ/z+l14KY6pgZuE/
+        X/cDHbMNL39Wphqi3HrR9kpfj3YUL4nO0YJ+eytc4X+ApeIryBAgD+wdbjeIe07w
         ==
-X-ME-Sender: <xms:N6PpX9HhGaizqnC8muIsrHb-OcZXpGMnjD1Ke_Iuma39GBsHlEGjpQ>
-    <xme:N6PpX5tim0zsKFyOwyuC77sH4Ydh2WS6Uii77rFbbF0vgsZWBvLWcVaJToTrrMVVv
-    f3414NoGLPmTg>
+X-ME-Sender: <xms:XqPpXwlWvJzp6qTpThsqG_-SU8ZEkJzi8Wd8xdJyFCPWjBVJamQ7LQ>
+    <xme:XqPpX_3TvleXwQ9ys_ES5N8jfo_xZ6kjL_V7uf16r96TecWlPtzNs04ImdmSnMMdn
+    Enhq2hVcnZEgA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:N6PpX0tCcoiurBckYIOTdnECbiLWhtQmFUquLgmzfcNPoaZFwtVUjw>
-    <xmx:N6PpX_B3ndJxnMHNt79kLNXUCu8FaigJSwO7lKn15PFjH8iLfouWlA>
-    <xmx:N6PpX2MfvWYm80iWadNpy4Lc6gkSLsknvVU8Z18rtFNt4tkZcCBqyQ>
-    <xmx:N6PpX3Me1eJRoHRyvPQW2Xku890R5vVEdMm8JgqP9S5JkcMNkN59rj8iMvI>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:XqPpX-roUZmoCxpaEd_j7GiXXWF9TjlDQWO3lvXaFSDQAkhSkK-tCw>
+    <xmx:XqPpX8nTvcdljeCVfrHBm6tZqVCHEALcvY_iO6SFyaoFkm6aTL2-ew>
+    <xmx:XqPpX-2GqV8Gxl4wWNt-28TkW8msxm-DsCxaGtLKo4Okdp92VrNrYQ>
+    <xmx:XqPpXz8vZjSXWZ7ftJ0uKNjMQM7a8Sh5j-a4Chb7AvkhhwSR0Z25_vxcB4U>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 176B7108005C;
-        Mon, 28 Dec 2020 04:19:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: x86: reinstate vendor-agnostic check on SPEC_CTRL cpuid" failed to apply to 5.4-stable tree
-To:     pbonzini@redhat.com, den@openvz.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 23ECB1080059;
+        Mon, 28 Dec 2020 04:20:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] RDMA/mlx5: Assign dev to DM MR" failed to apply to 5.4-stable tree
+To:     maorg@nvidia.com, jgg@nvidia.com, leonro@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 10:19:09 +0100
-Message-ID: <16091471493172@kroah.com>
+Date:   Mon, 28 Dec 2020 10:21:45 +0100
+Message-ID: <160914730593109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,131 +70,314 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 39485ed95d6b83b62fa75c06c2c4d33992e0d971 Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Thu, 3 Dec 2020 09:40:15 -0500
-Subject: [PATCH] KVM: x86: reinstate vendor-agnostic check on SPEC_CTRL cpuid
- bits
+From ca991a7d14d4835b302bcd182fdbf54470f45520 Mon Sep 17 00:00:00 2001
+From: Maor Gottlieb <maorg@nvidia.com>
+Date: Thu, 3 Dec 2020 21:08:07 +0200
+Subject: [PATCH] RDMA/mlx5: Assign dev to DM MR
 
-Until commit e7c587da1252 ("x86/speculation: Use synthetic bits for
-IBRS/IBPB/STIBP"), KVM was testing both Intel and AMD CPUID bits before
-allowing the guest to write MSR_IA32_SPEC_CTRL and MSR_IA32_PRED_CMD.
-Testing only Intel bits on VMX processors, or only AMD bits on SVM
-processors, fails if the guests are created with the "opposite" vendor
-as the host.
+Currently, DM MR registration flow doesn't set the mlx5_ib_dev pointer and
+can cause a NULL pointer dereference if userspace dumps the MR via rdma
+tool.
 
-While at it, also tweak the host CPU check to use the vendor-agnostic
-feature bit X86_FEATURE_IBPB, since we only care about the availability
-of the MSR on the host here and not about specific CPUID bits.
+Assign the IB device together with the other fields and remove the
+redundant reference of mlx5_ib_dev from mlx5_ib_mr.
 
-Fixes: e7c587da1252 ("x86/speculation: Use synthetic bits for IBRS/IBPB/STIBP")
 Cc: stable@vger.kernel.org
-Reported-by: Denis V. Lunev <den@openvz.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 6c29f57ea475 ("IB/mlx5: Device memory mr registration support")
+Link: https://lore.kernel.org/r/20201203190807.127189-1-leon@kernel.org
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-diff --git a/arch/x86/kvm/cpuid.h b/arch/x86/kvm/cpuid.h
-index f7a6e8f83783..dc921d76e42e 100644
---- a/arch/x86/kvm/cpuid.h
-+++ b/arch/x86/kvm/cpuid.h
-@@ -264,6 +264,20 @@ static inline int guest_cpuid_stepping(struct kvm_vcpu *vcpu)
- 	return x86_stepping(best->eax);
+diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+index fac495e7834e..c33d6fd64fb6 100644
+--- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
++++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+@@ -669,7 +669,6 @@ struct mlx5_ib_mr {
+ 	struct mlx5_shared_mr_info	*smr_info;
+ 	struct list_head	list;
+ 	struct mlx5_cache_ent  *cache_ent;
+-	struct mlx5_ib_dev     *dev;
+ 	u32 out[MLX5_ST_SZ_DW(create_mkey_out)];
+ 	struct mlx5_core_sig_ctx    *sig;
+ 	void			*descs_alloc;
+@@ -1107,6 +1106,11 @@ static inline struct mlx5_ib_dev *to_mdev(struct ib_device *ibdev)
+ 	return container_of(ibdev, struct mlx5_ib_dev, ib_dev);
  }
  
-+static inline bool guest_has_spec_ctrl_msr(struct kvm_vcpu *vcpu)
++static inline struct mlx5_ib_dev *mr_to_mdev(struct mlx5_ib_mr *mr)
 +{
-+	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD));
++	return to_mdev(mr->ibmr.device);
 +}
 +
-+static inline bool guest_has_pred_cmd_msr(struct kvm_vcpu *vcpu)
-+{
-+	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB));
-+}
-+
- static inline bool supports_cpuid_fault(struct kvm_vcpu *vcpu)
+ static inline struct mlx5_ib_dev *mlx5_udata_to_mdev(struct ib_udata *udata)
  {
- 	return vcpu->arch.msr_platform_info & MSR_PLATFORM_INFO_CPUID_FAULT;
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 6dc337b9c231..0e52fac4f5ae 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -2545,10 +2545,7 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
+ 	struct mlx5_ib_ucontext *context = rdma_udata_to_drv_context(
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 281032d2827f..6fa869c30e3f 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -137,8 +137,8 @@ static void create_mkey_callback(int status, struct mlx5_async_work *context)
+ {
+ 	struct mlx5_ib_mr *mr =
+ 		container_of(context, struct mlx5_ib_mr, cb_work);
+-	struct mlx5_ib_dev *dev = mr->dev;
+ 	struct mlx5_cache_ent *ent = mr->cache_ent;
++	struct mlx5_ib_dev *dev = ent->dev;
+ 	unsigned long flags;
  
- 		msr_info->data = svm->spec_ctrl;
-@@ -2632,10 +2629,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
+ 	if (status) {
+@@ -176,7 +176,6 @@ static struct mlx5_ib_mr *alloc_cache_mr(struct mlx5_cache_ent *ent, void *mkc)
+ 	if (!mr)
+ 		return NULL;
+ 	mr->cache_ent = ent;
+-	mr->dev = ent->dev;
  
- 		if (kvm_spec_ctrl_test_value(data))
-@@ -2660,12 +2654,12 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		break;
- 	case MSR_IA32_PRED_CMD:
- 		if (!msr->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB))
-+		    !guest_has_pred_cmd_msr(vcpu))
- 			return 1;
+ 	set_mkc_access_pd_addr_fields(mkc, 0, 0, ent->dev->umrc.pd);
+ 	MLX5_SET(mkc, mkc, free, 1);
+@@ -931,6 +930,7 @@ static void set_mr_fields(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr,
+ 	mr->ibmr.lkey = mr->mmkey.key;
+ 	mr->ibmr.rkey = mr->mmkey.key;
+ 	mr->ibmr.length = length;
++	mr->ibmr.device = &dev->ib_dev;
+ 	mr->access_flags = access_flags;
+ }
  
- 		if (data & ~PRED_CMD_IBPB)
- 			return 1;
--		if (!boot_cpu_has(X86_FEATURE_AMD_IBPB))
-+		if (!boot_cpu_has(X86_FEATURE_IBPB))
- 			return 1;
- 		if (!data)
- 			break;
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index c3441e7e5a87..4b854a197e44 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1826,7 +1826,7 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
+@@ -1062,7 +1062,7 @@ static void *mlx5_ib_create_xlt_wr(struct mlx5_ib_mr *mr,
+ 				   size_t nents, size_t ent_size,
+ 				   unsigned int flags)
+ {
+-	struct mlx5_ib_dev *dev = mr->dev;
++	struct mlx5_ib_dev *dev = mr_to_mdev(mr);
+ 	struct device *ddev = &dev->mdev->pdev->dev;
+ 	dma_addr_t dma;
+ 	void *xlt;
+@@ -1124,7 +1124,7 @@ static unsigned int xlt_wr_final_send_flags(unsigned int flags)
+ int mlx5_ib_update_xlt(struct mlx5_ib_mr *mr, u64 idx, int npages,
+ 		       int page_shift, int flags)
+ {
+-	struct mlx5_ib_dev *dev = mr->dev;
++	struct mlx5_ib_dev *dev = mr_to_mdev(mr);
+ 	struct device *ddev = &dev->mdev->pdev->dev;
+ 	void *xlt;
+ 	struct mlx5_umr_wr wr;
+@@ -1203,7 +1203,7 @@ int mlx5_ib_update_xlt(struct mlx5_ib_mr *mr, u64 idx, int npages,
+  */
+ static int mlx5_ib_update_mr_pas(struct mlx5_ib_mr *mr, unsigned int flags)
+ {
+-	struct mlx5_ib_dev *dev = mr->dev;
++	struct mlx5_ib_dev *dev = mr_to_mdev(mr);
+ 	struct device *ddev = &dev->mdev->pdev->dev;
+ 	struct ib_block_iter biter;
+ 	struct mlx5_mtt *cur_mtt;
+@@ -1335,7 +1335,6 @@ static struct mlx5_ib_mr *reg_create(struct ib_pd *pd, struct ib_umem *umem,
+ 	}
+ 	mr->mmkey.type = MLX5_MKEY_MR;
+ 	mr->desc_size = sizeof(struct mlx5_mtt);
+-	mr->dev = dev;
+ 	mr->umem = umem;
+ 	set_mr_fields(dev, mr, umem->length, access_flags);
+ 	kvfree(in);
+@@ -1579,17 +1578,17 @@ int mlx5_mr_cache_invalidate(struct mlx5_ib_mr *mr)
+ {
+ 	struct mlx5_umr_wr umrwr = {};
  
- 		msr_info->data = to_vmx(vcpu)->spec_ctrl;
-@@ -2028,7 +2028,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
+-	if (mr->dev->mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
++	if (mr_to_mdev(mr)->mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+ 		return 0;
  
- 		if (kvm_spec_ctrl_test_value(data))
-@@ -2063,12 +2063,12 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		goto find_uret_msr;
- 	case MSR_IA32_PRED_CMD:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_pred_cmd_msr(vcpu))
- 			return 1;
+ 	umrwr.wr.send_flags = MLX5_IB_SEND_UMR_DISABLE_MR |
+ 			      MLX5_IB_SEND_UMR_UPDATE_PD_ACCESS;
+ 	umrwr.wr.opcode = MLX5_IB_WR_UMR;
+-	umrwr.pd = mr->dev->umrc.pd;
++	umrwr.pd = mr_to_mdev(mr)->umrc.pd;
+ 	umrwr.mkey = mr->mmkey.key;
+ 	umrwr.ignore_free_state = 1;
  
- 		if (data & ~PRED_CMD_IBPB)
- 			return 1;
--		if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL))
-+		if (!boot_cpu_has(X86_FEATURE_IBPB))
- 			return 1;
- 		if (!data)
- 			break;
+-	return mlx5_ib_post_send_wait(mr->dev, &umrwr);
++	return mlx5_ib_post_send_wait(mr_to_mdev(mr), &umrwr);
+ }
+ 
+ /*
+diff --git a/drivers/infiniband/hw/mlx5/odp.c b/drivers/infiniband/hw/mlx5/odp.c
+index f4a28a012187..aa2413b50adc 100644
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -102,7 +102,7 @@ static void populate_klm(struct mlx5_klm *pklm, size_t idx, size_t nentries,
+ 	if (flags & MLX5_IB_UPD_XLT_ZAP) {
+ 		for (; pklm != end; pklm++, idx++) {
+ 			pklm->bcount = cpu_to_be32(MLX5_IMR_MTT_SIZE);
+-			pklm->key = cpu_to_be32(imr->dev->null_mkey);
++			pklm->key = cpu_to_be32(mr_to_mdev(imr)->null_mkey);
+ 			pklm->va = 0;
+ 		}
+ 		return;
+@@ -129,7 +129,7 @@ static void populate_klm(struct mlx5_klm *pklm, size_t idx, size_t nentries,
+ 	 * locking around the xarray.
+ 	 */
+ 	lockdep_assert_held(&to_ib_umem_odp(imr->umem)->umem_mutex);
+-	lockdep_assert_held(&imr->dev->odp_srcu);
++	lockdep_assert_held(&mr_to_mdev(imr)->odp_srcu);
+ 
+ 	for (; pklm != end; pklm++, idx++) {
+ 		struct mlx5_ib_mr *mtt = xa_load(&imr->implicit_children, idx);
+@@ -139,7 +139,7 @@ static void populate_klm(struct mlx5_klm *pklm, size_t idx, size_t nentries,
+ 			pklm->key = cpu_to_be32(mtt->ibmr.lkey);
+ 			pklm->va = cpu_to_be64(idx * MLX5_IMR_MTT_SIZE);
+ 		} else {
+-			pklm->key = cpu_to_be32(imr->dev->null_mkey);
++			pklm->key = cpu_to_be32(mr_to_mdev(imr)->null_mkey);
+ 			pklm->va = 0;
+ 		}
+ 	}
+@@ -199,7 +199,7 @@ static void dma_fence_odp_mr(struct mlx5_ib_mr *mr)
+ 	mutex_unlock(&odp->umem_mutex);
+ 
+ 	if (!mr->cache_ent) {
+-		mlx5_core_destroy_mkey(mr->dev->mdev, &mr->mmkey);
++		mlx5_core_destroy_mkey(mr_to_mdev(mr)->mdev, &mr->mmkey);
+ 		WARN_ON(mr->descs);
+ 	}
+ }
+@@ -222,19 +222,19 @@ static void free_implicit_child_mr(struct mlx5_ib_mr *mr, bool need_imr_xlt)
+ 	WARN_ON(atomic_read(&mr->num_deferred_work));
+ 
+ 	if (need_imr_xlt) {
+-		srcu_key = srcu_read_lock(&mr->dev->odp_srcu);
++		srcu_key = srcu_read_lock(&mr_to_mdev(mr)->odp_srcu);
+ 		mutex_lock(&odp_imr->umem_mutex);
+ 		mlx5_ib_update_xlt(mr->parent, idx, 1, 0,
+ 				   MLX5_IB_UPD_XLT_INDIRECT |
+ 				   MLX5_IB_UPD_XLT_ATOMIC);
+ 		mutex_unlock(&odp_imr->umem_mutex);
+-		srcu_read_unlock(&mr->dev->odp_srcu, srcu_key);
++		srcu_read_unlock(&mr_to_mdev(mr)->odp_srcu, srcu_key);
+ 	}
+ 
+ 	dma_fence_odp_mr(mr);
+ 
+ 	mr->parent = NULL;
+-	mlx5_mr_cache_free(mr->dev, mr);
++	mlx5_mr_cache_free(mr_to_mdev(mr), mr);
+ 	ib_umem_odp_release(odp);
+ 	if (atomic_dec_and_test(&imr->num_deferred_work))
+ 		wake_up(&imr->q_deferred_work);
+@@ -274,7 +274,7 @@ static void destroy_unused_implicit_child_mr(struct mlx5_ib_mr *mr)
+ 		goto out_unlock;
+ 
+ 	atomic_inc(&imr->num_deferred_work);
+-	call_srcu(&mr->dev->odp_srcu, &mr->odp_destroy.rcu,
++	call_srcu(&mr_to_mdev(mr)->odp_srcu, &mr->odp_destroy.rcu,
+ 		  free_implicit_child_mr_rcu);
+ 
+ out_unlock:
+@@ -476,12 +476,13 @@ static struct mlx5_ib_mr *implicit_get_child_mr(struct mlx5_ib_mr *imr,
+ 	if (IS_ERR(odp))
+ 		return ERR_CAST(odp);
+ 
+-	ret = mr = mlx5_mr_cache_alloc(imr->dev, MLX5_IMR_MTT_CACHE_ENTRY,
+-				       imr->access_flags);
++	ret = mr = mlx5_mr_cache_alloc(
++		mr_to_mdev(imr), MLX5_IMR_MTT_CACHE_ENTRY, imr->access_flags);
+ 	if (IS_ERR(mr))
+ 		goto out_umem;
+ 
+ 	mr->ibmr.pd = imr->ibmr.pd;
++	mr->ibmr.device = &mr_to_mdev(imr)->ib_dev;
+ 	mr->umem = &odp->umem;
+ 	mr->ibmr.lkey = mr->mmkey.key;
+ 	mr->ibmr.rkey = mr->mmkey.key;
+@@ -517,11 +518,11 @@ static struct mlx5_ib_mr *implicit_get_child_mr(struct mlx5_ib_mr *imr,
+ 		goto out_mr;
+ 	}
+ 
+-	mlx5_ib_dbg(imr->dev, "key %x mr %p\n", mr->mmkey.key, mr);
++	mlx5_ib_dbg(mr_to_mdev(imr), "key %x mr %p\n", mr->mmkey.key, mr);
+ 	return mr;
+ 
+ out_mr:
+-	mlx5_mr_cache_free(imr->dev, mr);
++	mlx5_mr_cache_free(mr_to_mdev(imr), mr);
+ out_umem:
+ 	ib_umem_odp_release(odp);
+ 	return ret;
+@@ -555,6 +556,7 @@ struct mlx5_ib_mr *mlx5_ib_alloc_implicit_mr(struct mlx5_ib_pd *pd,
+ 	imr->umem = &umem_odp->umem;
+ 	imr->ibmr.lkey = imr->mmkey.key;
+ 	imr->ibmr.rkey = imr->mmkey.key;
++	imr->ibmr.device = &dev->ib_dev;
+ 	imr->umem = &umem_odp->umem;
+ 	imr->is_odp_implicit = true;
+ 	atomic_set(&imr->num_deferred_work, 0);
+@@ -588,7 +590,7 @@ struct mlx5_ib_mr *mlx5_ib_alloc_implicit_mr(struct mlx5_ib_pd *pd,
+ void mlx5_ib_free_implicit_mr(struct mlx5_ib_mr *imr)
+ {
+ 	struct ib_umem_odp *odp_imr = to_ib_umem_odp(imr->umem);
+-	struct mlx5_ib_dev *dev = imr->dev;
++	struct mlx5_ib_dev *dev = mr_to_mdev(imr);
+ 	struct list_head destroy_list;
+ 	struct mlx5_ib_mr *mtt;
+ 	struct mlx5_ib_mr *tmp;
+@@ -658,10 +660,10 @@ void mlx5_ib_free_implicit_mr(struct mlx5_ib_mr *imr)
+ void mlx5_ib_fence_odp_mr(struct mlx5_ib_mr *mr)
+ {
+ 	/* Prevent new page faults and prefetch requests from succeeding */
+-	xa_erase(&mr->dev->odp_mkeys, mlx5_base_mkey(mr->mmkey.key));
++	xa_erase(&mr_to_mdev(mr)->odp_mkeys, mlx5_base_mkey(mr->mmkey.key));
+ 
+ 	/* Wait for all running page-fault handlers to finish. */
+-	synchronize_srcu(&mr->dev->odp_srcu);
++	synchronize_srcu(&mr_to_mdev(mr)->odp_srcu);
+ 
+ 	wait_event(mr->q_deferred_work, !atomic_read(&mr->num_deferred_work));
+ 
+@@ -705,7 +707,7 @@ static int pagefault_real_mr(struct mlx5_ib_mr *mr, struct ib_umem_odp *odp,
+ 
+ 	if (ret < 0) {
+ 		if (ret != -EAGAIN)
+-			mlx5_ib_err(mr->dev,
++			mlx5_ib_err(mr_to_mdev(mr),
+ 				    "Failed to update mkey page tables\n");
+ 		goto out;
+ 	}
+@@ -795,7 +797,7 @@ static int pagefault_implicit_mr(struct mlx5_ib_mr *imr,
+ 					 MLX5_IB_UPD_XLT_ATOMIC);
+ 	mutex_unlock(&odp_imr->umem_mutex);
+ 	if (err) {
+-		mlx5_ib_err(imr->dev, "Failed to update PAS\n");
++		mlx5_ib_err(mr_to_mdev(imr), "Failed to update PAS\n");
+ 		return err;
+ 	}
+ 	return ret;
+@@ -815,7 +817,7 @@ static int pagefault_mr(struct mlx5_ib_mr *mr, u64 io_virt, size_t bcnt,
+ {
+ 	struct ib_umem_odp *odp = to_ib_umem_odp(mr->umem);
+ 
+-	lockdep_assert_held(&mr->dev->odp_srcu);
++	lockdep_assert_held(&mr_to_mdev(mr)->odp_srcu);
+ 	if (unlikely(io_virt < mr->mmkey.iova))
+ 		return -EFAULT;
+ 
+@@ -1783,7 +1785,7 @@ static void mlx5_ib_prefetch_mr_work(struct work_struct *w)
+ 
+ 	/* We rely on IB/core that work is executed if we have num_sge != 0 only. */
+ 	WARN_ON(!work->num_sge);
+-	dev = work->frags[0].mr->dev;
++	dev = mr_to_mdev(work->frags[0].mr);
+ 	/* SRCU should be held when calling to mlx5_odp_populate_xlt() */
+ 	srcu_key = srcu_read_lock(&dev->odp_srcu);
+ 	for (i = 0; i < work->num_sge; ++i) {
+diff --git a/drivers/infiniband/hw/mlx5/restrack.c b/drivers/infiniband/hw/mlx5/restrack.c
+index 887270dd3ce2..4ac429e72004 100644
+--- a/drivers/infiniband/hw/mlx5/restrack.c
++++ b/drivers/infiniband/hw/mlx5/restrack.c
+@@ -116,7 +116,7 @@ static int fill_res_mr_entry_raw(struct sk_buff *msg, struct ib_mr *ibmr)
+ {
+ 	struct mlx5_ib_mr *mr = to_mmr(ibmr);
+ 
+-	return fill_res_raw(msg, mr->dev, MLX5_SGMT_TYPE_PRM_QUERY_MKEY,
++	return fill_res_raw(msg, mr_to_mdev(mr), MLX5_SGMT_TYPE_PRM_QUERY_MKEY,
+ 			    mlx5_mkey_to_idx(mr->mmkey.key));
+ }
+ 
 
