@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F8FE2E37A3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 997DE2E42D9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729195AbgL1M6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:58:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S2392727AbgL1P2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:28:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728140AbgL1M6h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:58:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 377B2208BA;
-        Mon, 28 Dec 2020 12:58:21 +0000 (UTC)
+        id S2387498AbgL1N5A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:57:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 414C220715;
+        Mon, 28 Dec 2020 13:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160301;
-        bh=U/rmShT16J06mM0R42BKT9PDN+UC8RCxGEEbHBvPTYo=;
+        s=korg; t=1609163779;
+        bh=9u2VidfIrScgolGlJe0rbtCtj0YhJiBdkpE9hXTSrLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWgeLIp9x61JO1Gou7m5vwwtt0qIps9fCCwHh4QkSNuOjtTptS6GgLHWtNUAEW3DL
-         rVn6Kienlp3TCwNmEJ2GjQ+gJQXkSBibcTEa263jK0RvVLcaXYyGFxobTtAhs755SM
-         hPVjGkalorv0nf1Il2hRqHtRfnO3RP7Zp3Gopk8A=
+        b=SZOeH965GKQsL9xDEK/aZ1KrOYtzwoVI/hYEAdqzzwnEBT1b7XCwKF63yVdz7tfsi
+         HQmBEztmUB+gpXjbcBjSb/Kpyrz1lUkh8j9O1omEtWL6di84UGenDZYOD+l0uKwP9S
+         diFsRzmAE7fv4hpMNyTjigmmaBkQLJnb/hneM8EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>, Stable@vger.kernel.org
-Subject: [PATCH 4.4 126/132] iio:pressure:mpl3115: Force alignment of buffer
+        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 374/453] ext4: fix a memory leak of ext4_free_data
 Date:   Mon, 28 Dec 2020 13:50:10 +0100
-Message-Id: <20201228124852.501487166@linuxfoundation.org>
+Message-Id: <20201228124955.205444449@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Chunguang Xu <brookxu@tencent.com>
 
-commit 198cf32f0503d2ad60d320b95ef6fb8243db857f upstream.
+commit cca415537244f6102cbb09b5b90db6ae2c953bdd upstream.
 
-Whilst this is another case of the issue Lars reported with
-an array of elements of smaller than 8 bytes being passed
-to iio_push_to_buffers_with_timestamp(), the solution here is
-a bit different from the other cases and relies on __aligned
-working on the stack (true since 4.6?)
+When freeing metadata, we will create an ext4_free_data and
+insert it into the pending free list.  After the current
+transaction is committed, the object will be freed.
 
-This one is unusual.  We have to do an explicit memset() each time
-as we are reading 3 bytes into a potential 4 byte channel which
-may sometimes be a 2 byte channel depending on what is enabled.
-As such, moving the buffer to the heap in the iio_priv structure
-doesn't save us much.  We can't use a nice explicit structure
-on the stack either as the data channels have different storage
-sizes and are all separately controlled.
+ext4_mb_free_metadata() will check whether the area to be freed
+overlaps with the pending free list. If true, return directly. At this
+time, ext4_free_data is leaked.  Fortunately, the probability of this
+problem is small, since it only occurs if the file system is corrupted
+such that a block is claimed by more one inode and those inodes are
+deleted within a single jbd2 transaction.
 
-Fixes: cc26ad455f57 ("iio: Add Freescale MPL3115A2 pressure / temperature sensor driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-7-jic23@kernel.org
+Signed-off-by: Chunguang Xu <brookxu@tencent.com>
+Link: https://lore.kernel.org/r/1604764698-4269-8-git-send-email-brookxu@tencent.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/pressure/mpl3115.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/ext4/mballoc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/pressure/mpl3115.c
-+++ b/drivers/iio/pressure/mpl3115.c
-@@ -139,7 +139,14 @@ static irqreturn_t mpl3115_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mpl3115_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 32-bit channel + 16-bit channel + padding + ts */
-+	/*
-+	 * 32-bit channel + 16-bit channel + padding + ts
-+	 * Note that it is possible for only one of the first 2
-+	 * channels to be enabled. If that happens, the first element
-+	 * of the buffer may be either 16 or 32-bits.  As such we cannot
-+	 * use a simple structure definition to express this data layout.
-+	 */
-+	u8 buffer[16] __aligned(8);
- 	int ret, pos = 0;
- 
- 	mutex_lock(&data->lock);
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -4691,6 +4691,7 @@ ext4_mb_free_metadata(handle_t *handle,
+ 				ext4_group_first_block_no(sb, group) +
+ 				EXT4_C2B(sbi, cluster),
+ 				"Block already on to-be-freed list");
++			kmem_cache_free(ext4_free_data_cachep, new_entry);
+ 			return 0;
+ 		}
+ 	}
 
 
