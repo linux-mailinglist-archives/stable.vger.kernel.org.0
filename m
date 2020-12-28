@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9ED2E3633
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113782E3635
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727177AbgL1LJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:09:57 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50561 "EHLO
+        id S1727032AbgL1LKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:10:18 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:46399 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727019AbgL1LJ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:09:56 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 945CD7F2;
-        Mon, 28 Dec 2020 06:09:10 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 28 Dec 2020 06:09:10 -0500
+        by vger.kernel.org with ESMTP id S1727019AbgL1LKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:10:18 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 404CA7F4;
+        Mon, 28 Dec 2020 06:09:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:09:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=O9Ahvs
-        Yz1iC3U7HJSPEKvfOhXNnp7Xkfbw9pZkEeRtg=; b=WF3VUu9X0UD8ZbTYk9jVXE
-        GM0TA/oK/Tz6B7yNYtDo3lqsWu/uDKj6ydI8hdBCsFysIWjvYZFBV4v2wEjjQbAa
-        iVBp0w8MKIfJ0KdUZ34UveBpi9m9VXlxmdgxYRxX706Swg9ZTFeip1hVB/IL49Bh
-        j4jj142IchZorHrlfhnMKNxX0vw+Be9NWxcpYLZyHi0k6FKYABDrwbidp28fQ9an
-        49H5+tVhsphKvgnOyyugQgDGt5tB53YgiMNEWfJGfG9BFhIxfB3MG+Ywtk1mqkP/
-        9aZ9NJq7j52CvqhKoer484pBZYnXI+6AvMF44+YjfLmJmhNhbkzk1lQT/og0kY3g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OeDsZD
+        l/SUI8QOR4PM5S131vunFRwYKMZGHqWzLclpo=; b=epVbBTHZlSUnwlR/sStsmq
+        pcY54A2QckOjLjtFT79pBh9aInANpvKOSDZWk4RmEO+lnyP7/p2QmPcJT+MG2W+T
+        y/dElzJmamgmgw0nYOQWaIt2SKnQGCpoBFNOIo1mAhKKu+fJ8HLHsAs/Cp5HlfcS
+        +ohEOkdyae+kW+Z3L5gZ8T8op7MmZi5Ch7brGCWWqVKaEWXAwfpHnayBBp5xUoNO
+        ZA0W5KctCAkCo4I0s68WH+d9BeYIfLkHT5+TXghbeg7iFec37z4KJaQYIENlgAgK
+        2fQAQWDpHkwK6vdG+a236w9yKcvaKUnFLlN6jGz0wuzqwWpkSFoJ3IZtvSBD3LsQ
         ==
-X-ME-Sender: <xms:1bzpX6u6Ubw_79CykZq5ZgBp1dORfGXn5k3cKPwDm5JcVjhXNMwvjw>
-    <xme:1bzpXzsSS52XMteJH2k-RlSgnqU-iQOh_W4FtWotxxn6HYFnstIFj0ivCiGISXhvs
-    Fyl5ljKUq_yEg>
+X-ME-Sender: <xms:17zpX_riNsGHkIBTlLTQfRaVwlIJrqApNsIkTV6V8ZZrh__u7V83-g>
+    <xme:17zpX5pcueZGncr1M7UFXdYMNfc6wgVaajBKR9kBBTgMTU5OISyUTdKRNFrRDXanX
+    tl1-tXYhg5ADw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:1bzpXwyyZiUeJzL_Ky8t3bOgNfX25nyyHA0SoIFotlO4PiKNIUc7_g>
-    <xmx:1bzpX5igv8qy8xVScJsFCcOWMNcgRSINuJV44h2bqn2DST9EW6MYxQ>
-    <xmx:1bzpX0CQkzJ8TgH6akZLiKLGli_OocoCKcXGW77T2QuwmWiJzxjLQQ>
-    <xmx:1rzpX-9eyDuG98szi4s5SImh4oX7kxDKWeEUQI8uvJKJh-8DLlHYiPb3PJk>
+X-ME-Proxy: <xmx:17zpX8Mhd6etKD7mH6wlE3zQdlDEvBszGc54rFzE1aceHrdr-UybdA>
+    <xmx:17zpXy7-tdT9RkF0zzt3S-82EVXj15FO3dB9IhYKrkDwYw7QoXZTuw>
+    <xmx:17zpX-5Rhob4KOrqD0f1JraMz1rBvYpCrZxaRf941yAHmjOkpX4ezQ>
+    <xmx:17zpX-FuZCq-HcwxvTLzImnr0oMRQRdLhbLUzXsXvinJ2ZQ89isdi2OIoeA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B0B85240057;
-        Mon, 28 Dec 2020 06:09:09 -0500 (EST)
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash during driver load on big endian" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5717C108005B;
+        Mon, 28 Dec 2020 06:09:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Fix crash during driver load on big endian" failed to apply to 4.19-stable tree
 To:     aeasi@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:10:30 +0100
-Message-ID: <1609153830245194@kroah.com>
+Date:   Mon, 28 Dec 2020 12:10:31 +0100
+Message-ID: <160915383115474@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
