@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CBC2E63FA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 815392E40A4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:56:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404560AbgL1NoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:44:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44828 "EHLO mail.kernel.org"
+        id S2441244AbgL1OQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:16:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404549AbgL1NoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:44:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C05E208BA;
-        Mon, 28 Dec 2020 13:43:24 +0000 (UTC)
+        id S2441258AbgL1OQu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:16:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2224120731;
+        Mon, 28 Dec 2020 14:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163005;
-        bh=gmiXf0qrwhxFS4LZtMKgA/seRT37Go2stVujl5wb29s=;
+        s=korg; t=1609164994;
+        bh=fGdpDe3GdEdKv7k2MsyEgHarQQpAdk+OfVeTJVA5oiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PbTalQYRv47TZZ+bOSPpT86C6HOy8LxdwwA4/xVzQ4sOYVbhh0r9p3bkoiQuBX74
-         mggQBqCkUYQC8bREArpUISGNesl9ZXp3+gxqTZgz5gDtNKWLicl/zjWRShuAd/KWuH
-         2EPlmUYKFWbspffzWAJgFfXV1f+POFJ7aleR617A=
+        b=2rsSAd99zzffjxCgS7247cqmVZlWL0yQBKx/2DahtNL2IZYlw6zdwh+bzD8fcCx6Z
+         WbeTHF5FOI+5nB8ygcweeFXJrcYoxufbPSW/8JgAg+yoEgg1OBnaSm/j2CdCt40w+5
+         f+GktjbAPJCv8tQlJLyvatDDn1VNDbvyYPtD37MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/453] libbpf: Fix BTF data layout checks and allow empty BTF
-Date:   Mon, 28 Dec 2020 13:45:42 +0100
-Message-Id: <20201228124942.316302285@linuxfoundation.org>
+Subject: [PATCH 5.10 345/717] adm8211: fix error return code in adm8211_probe()
+Date:   Mon, 28 Dec 2020 13:45:43 +0100
+Message-Id: <20201228125037.555923763@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit d8123624506cd62730c9cd9c7672c698e462703d ]
+[ Upstream commit 05c2a61d69ea306e891884a86486e1ef37c4b78d ]
 
-Make data section layout checks stricter, disallowing overlap of types and
-strings data.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Additionally, allow BTFs with no type data. There is nothing inherently wrong
-with having BTF with no types (put potentially with some strings). This could
-be a situation with kernel module BTFs, if module doesn't introduce any new
-type information.
-
-Also fix invalid offset alignment check for btf->hdr->type_off.
-
-Fixes: 8a138aed4a80 ("bpf: btf: Add BTF support to libbpf")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20201105043402.2530976-8-andrii@kernel.org
+Fixes: cc0b88cf5ecf ("[PATCH] Add adm8211 802.11b wireless driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1607071638-33619-1-git-send-email-zhangchangzhong@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/net/wireless/admtek/adm8211.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index d606a358480da..3380aadb74655 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -100,22 +100,18 @@ static int btf_parse_hdr(struct btf *btf)
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/admtek/adm8211.c b/drivers/net/wireless/admtek/adm8211.c
+index 5cf2045fadeff..c41e72508d3db 100644
+--- a/drivers/net/wireless/admtek/adm8211.c
++++ b/drivers/net/wireless/admtek/adm8211.c
+@@ -1796,6 +1796,7 @@ static int adm8211_probe(struct pci_dev *pdev,
+ 	if (io_len < 256 || mem_len < 1024) {
+ 		printk(KERN_ERR "%s (adm8211): Too short PCI resources\n",
+ 		       pci_name(pdev));
++		err = -ENOMEM;
+ 		goto err_disable_pdev;
  	}
  
--	if (meta_left < hdr->type_off) {
--		pr_debug("Invalid BTF type section offset:%u\n", hdr->type_off);
-+	if (meta_left < hdr->str_off + hdr->str_len) {
-+		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
- 		return -EINVAL;
+@@ -1805,6 +1806,7 @@ static int adm8211_probe(struct pci_dev *pdev,
+ 	if (reg != ADM8211_SIG1 && reg != ADM8211_SIG2) {
+ 		printk(KERN_ERR "%s (adm8211): Invalid signature (0x%x)\n",
+ 		       pci_name(pdev), reg);
++		err = -EINVAL;
+ 		goto err_disable_pdev;
  	}
  
--	if (meta_left < hdr->str_off) {
--		pr_debug("Invalid BTF string section offset:%u\n", hdr->str_off);
-+	if (hdr->type_off + hdr->type_len > hdr->str_off) {
-+		pr_debug("Invalid BTF data sections layout: type data at %u + %u, strings data at %u + %u\n",
-+			 hdr->type_off, hdr->type_len, hdr->str_off, hdr->str_len);
- 		return -EINVAL;
+@@ -1815,8 +1817,8 @@ static int adm8211_probe(struct pci_dev *pdev,
+ 		return err; /* someone else grabbed it? don't disable it */
  	}
  
--	if (hdr->type_off >= hdr->str_off) {
--		pr_debug("BTF type section offset >= string section offset. No type?\n");
--		return -EINVAL;
--	}
--
--	if (hdr->type_off & 0x02) {
-+	if (hdr->type_off % 4) {
- 		pr_debug("BTF type section is not aligned to 4 bytes\n");
- 		return -EINVAL;
- 	}
+-	if (dma_set_mask(&pdev->dev, DMA_BIT_MASK(32)) ||
+-	    dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32))) {
++	err = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
++	if (err) {
+ 		printk(KERN_ERR "%s (adm8211): No suitable DMA available\n",
+ 		       pci_name(pdev));
+ 		goto err_free_reg;
 -- 
 2.27.0
 
