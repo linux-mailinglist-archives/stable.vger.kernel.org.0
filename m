@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A662E3B94
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB9C2E3766
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407002AbgL1Nvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:51:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
+        id S1728446AbgL1MzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405759AbgL1Nvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25A5120715;
-        Mon, 28 Dec 2020 13:51:31 +0000 (UTC)
+        id S1728444AbgL1MzD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 696A0208D5;
+        Mon, 28 Dec 2020 12:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163491;
-        bh=FMkKkDgfoQxTyWnUE2Qst9nVebKm1Hc8yMuI6M2USe4=;
+        s=korg; t=1609160063;
+        bh=E/Z9LZvYqn6ru0ZTP8p5p0hAmmDNU8np5PX/xj12fY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2e6RhgZmseLC7L9DxwCUqS91bBscIGx8LYn3rGRj7Uxx5yMV47Kjp3qFImsI4Yxrg
-         YFz6UGDq3iGRe0sdn/+sUVVJl57Qt7PxfzWyIMRZQM95jGdAJ9s0sJl75VvfM7EhO1
-         qcxmzYLmF/sya8EpjsnQhrhe+yxtlz1iBN39R5wM=
+        b=1Vd4PWF9NQzaclLz3lj96EylGSi0Rv6bPbeMqtsEkZ6N6FvpCx9DbbFQ+lrCGmI4A
+         RBhNhGnrd/BbrgRkge8zuthsLa2karpp9gDGeu76Hk52kF3MjxvE8j36jpB1DL8dHy
+         jYqIdzS4CHClvgZna3zQuWPvq6MGjsRS7341Ty08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Antoine Tenart <atenart@kernel.org>,
-        Tsahee Zidenberg <tsahee@annapurnalabs.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 274/453] irqchip/alpine-msi: Fix freeing of interrupts on allocation error path
+        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.4 026/132] soc/tegra: fuse: Fix index bug in get_process_id
 Date:   Mon, 28 Dec 2020 13:48:30 +0100
-Message-Id: <20201228124950.415054810@linuxfoundation.org>
+Message-Id: <20201228124847.671479907@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-[ Upstream commit 3841245e8498a789c65dedd7ffa8fb2fee2c0684 ]
+commit b9ce9b0f83b536a4ac7de7567a265d28d13e5bea upstream.
 
-The alpine-msi driver has an interesting allocation error handling,
-where it frees the same interrupts repeatedly. Hilarity follows.
+This patch simply fixes a bug of referencing speedos[num] in every
+for-loop iteration in get_process_id function.
 
-This code is probably never executed, but let's fix it nonetheless.
+Fixes: 0dc5a0d83675 ("soc/tegra: fuse: Add Tegra210 support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: e6b78f2c3e14 ("irqchip: Add the Alpine MSIX interrupt controller")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Antoine Tenart <atenart@kernel.org>
-Cc: Tsahee Zidenberg <tsahee@annapurnalabs.com>
-Cc: Antoine Tenart <atenart@kernel.org>
-Link: https://lore.kernel.org/r/20201129135525.396671-1-maz@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-alpine-msi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/soc/tegra/fuse/speedo-tegra210.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-alpine-msi.c b/drivers/irqchip/irq-alpine-msi.c
-index 23a3b877f7f1d..ede02dc2bcd0b 100644
---- a/drivers/irqchip/irq-alpine-msi.c
-+++ b/drivers/irqchip/irq-alpine-msi.c
-@@ -165,8 +165,7 @@ static int alpine_msix_middle_domain_alloc(struct irq_domain *domain,
- 	return 0;
+--- a/drivers/soc/tegra/fuse/speedo-tegra210.c
++++ b/drivers/soc/tegra/fuse/speedo-tegra210.c
+@@ -105,7 +105,7 @@ static int get_process_id(int value, con
+ 	unsigned int i;
  
- err_sgi:
--	while (--i >= 0)
--		irq_domain_free_irqs_parent(domain, virq, i);
-+	irq_domain_free_irqs_parent(domain, virq, i - 1);
- 	alpine_msix_free_sgi(priv, sgi, nr_irqs);
- 	return err;
- }
--- 
-2.27.0
-
+ 	for (i = 0; i < num; i++)
+-		if (value < speedos[num])
++		if (value < speedos[i])
+ 			return i;
+ 
+ 	return -EINVAL;
 
 
