@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A3D2E6222
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B602E404A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405961AbgL1Nsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:48:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50302 "EHLO mail.kernel.org"
+        id S2437925AbgL1OVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:21:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405848AbgL1Nsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:48:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7716822583;
-        Mon, 28 Dec 2020 13:48:05 +0000 (UTC)
+        id S2502484AbgL1OVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:21:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE33720791;
+        Mon, 28 Dec 2020 14:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163286;
-        bh=hKI9+bMyMnTnOxTtRK3FN9x3PmaDyT2Z2WXACaEfjuk=;
+        s=korg; t=1609165263;
+        bh=gB0sMBbjvHsllEBpp7DjNbg4rzoH6g7olzor5aVjVhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsnYYjyYvdo1z3KZybQvZ9bvkvZwCqYECFCf8m6fI9R7YGknPkiAscTdOk1bwwQm6
-         ZrBzI+HI/xFNcWBEy10iNcKycMVmnQz80wDLj3CmEbfR0vUMrvmocU0WHtRYoHTDb9
-         93tIfIY6AXLBP7HRMZeP53ZBhxRhqhm05eMi8zS4=
+        b=PQpXbrL1cbG7K4mSPiS0Y1aQ1uLKePCCakXSvQZ736cZhI2UlwypT+3XYGfhkd4Xx
+         5gjeZeFFKJMORgjBiC/sqCRhsBOvgzuQArkeWtcZi1K52z1EgXQxkxemO2XsCXwezw
+         /cpSbeWWs0LBboKISXPE5efdou3S1i2Syo+wLhZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Yangtao Li <tiny.windzz@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 232/453] cpufreq: sun50i: Add missing MODULE_DEVICE_TABLE
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 470/717] block/rnbd-clt: Fix possible memleak
 Date:   Mon, 28 Dec 2020 13:47:48 +0100
-Message-Id: <20201228124948.385169715@linuxfoundation.org>
+Message-Id: <20201228125043.489451327@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit af2096f285077e3339eb835ad06c50bdd59f01b5 ]
+[ Upstream commit 46067844efdb8275ade705923120fc5391543b53 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this cpufreq driver when it is
-compiled as an external module.
+In error case, we do not free the memory for blk_symlink_name.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: f328584f7bff8 ("cpufreq: Add sun50i nvmem based CPU scaling driver")
-Reviewed-by: Yangtao Li <tiny.windzz@gmail.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Do it by free the memory in error case, and set to NULL
+afterwards.
+
+Also fix the condition in rnbd_clt_remove_dev_symlink.
+
+Fixes: 64e8a6ece1a5 ("block/rnbd-clt: Dynamically alloc buffer for pathname & blk_symlink_name")
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/sun50i-cpufreq-nvmem.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/rnbd/rnbd-clt-sysfs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/sun50i-cpufreq-nvmem.c b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-index 9907a165135b7..2deed8d8773fa 100644
---- a/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-@@ -167,6 +167,7 @@ static const struct of_device_id sun50i_cpufreq_match_list[] = {
- 	{ .compatible = "allwinner,sun50i-h6" },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, sun50i_cpufreq_match_list);
+diff --git a/drivers/block/rnbd/rnbd-clt-sysfs.c b/drivers/block/rnbd/rnbd-clt-sysfs.c
+index d854f057056bb..d9dd138ca9c64 100644
+--- a/drivers/block/rnbd/rnbd-clt-sysfs.c
++++ b/drivers/block/rnbd/rnbd-clt-sysfs.c
+@@ -433,7 +433,7 @@ void rnbd_clt_remove_dev_symlink(struct rnbd_clt_dev *dev)
+ 	 * i.e. rnbd_clt_unmap_dev_store() leading to a sysfs warning because
+ 	 * of sysfs link already was removed already.
+ 	 */
+-	if (strlen(dev->blk_symlink_name) && try_module_get(THIS_MODULE)) {
++	if (dev->blk_symlink_name && try_module_get(THIS_MODULE)) {
+ 		sysfs_remove_link(rnbd_devs_kobj, dev->blk_symlink_name);
+ 		kfree(dev->blk_symlink_name);
+ 		module_put(THIS_MODULE);
+@@ -516,7 +516,8 @@ static int rnbd_clt_add_dev_symlink(struct rnbd_clt_dev *dev)
+ 	return 0;
  
- static const struct of_device_id *sun50i_cpufreq_match_node(void)
- {
+ out_err:
+-	dev->blk_symlink_name[0] = '\0';
++	kfree(dev->blk_symlink_name);
++	dev->blk_symlink_name = NULL ;
+ 	return ret;
+ }
+ 
 -- 
 2.27.0
 
