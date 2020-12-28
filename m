@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 411B22E3AC0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 046272E40EF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403902AbgL1Nk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:40:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40678 "EHLO mail.kernel.org"
+        id S2440184AbgL1ON3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:13:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403846AbgL1Nk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:40:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE244208B3;
-        Mon, 28 Dec 2020 13:39:45 +0000 (UTC)
+        id S2440179AbgL1ON3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:13:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FFCD20715;
+        Mon, 28 Dec 2020 14:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162786;
-        bh=fzaWFEEsxL/xQ3DwMGbAOHqY/3jgElM7nVCxPEbeWVY=;
+        s=korg; t=1609164793;
+        bh=aVFpPXGvmw0OX3WEYtjlnggwAkKFDkbWOUwsy8Faa/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dY+O/XDPCkz1xdROIepD8Z/XTlYenIcCLR1d8FBfYSfrlvkrReMwyR73u0r6NL3ap
-         swRZnaY83JB/26eLquF1oZIk3TlQ/wb86GYpPlRpc2NQ29S0yBAM4X3R06VTB9BBc+
-         ylg9nZ7d7tmxz/iyhLjmAk7fuIV64L4gtDb6WqBM=
+        b=EwPaxwZ25xP8CELDWFH/1/HMzwwFUXEoru3zb9VuL1wj1SXA15lr3uXHHIBsZWWGp
+         AdY1N8zbUpy6esPe22RUXpwqBbGK0GuwubnGQpuDu3c/QZ3Ln9lhOhx/Dajf40Oxx7
+         deJgLSGxhX4zC/UaZcxAW2hYUaly8z9nQq0hlbOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.4 061/453] coresight: tmc-etf: Fix NULL ptr dereference in tmc_enable_etf_sink_perf()
-Date:   Mon, 28 Dec 2020 13:44:57 +0100
-Message-Id: <20201228124940.179031378@linuxfoundation.org>
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 300/717] memstick: r592: Fix error return in r592_probe()
+Date:   Mon, 28 Dec 2020 13:44:58 +0100
+Message-Id: <20201228125035.401919220@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-commit 868663dd5d69fef05bfb004f91da5c30e9b93461 upstream.
+[ Upstream commit db29d3d1c2451e673e29c7257471e3ce9d50383a ]
 
-There was a report of NULL pointer dereference in ETF enable
-path for perf CS mode with PID monitoring. It is almost 100%
-reproducible when the process to monitor is something very
-active such as chrome and with ETF as the sink and not ETR.
-Currently in a bid to find the pid, the owner is dereferenced
-via task_pid_nr() call in tmc_enable_etf_sink_perf() and with
-owner being NULL, we get a NULL pointer dereference.
+Fix to return a error code from the error handling case instead of 0.
 
-Looking at the ETR and other places in the kernel, ETF and the
-ETB are the only places trying to dereference the task(owner)
-in tmc_enable_etf_sink_perf() which is also called from the
-sched_in path as in the call trace. Owner(task) is NULL even
-in the case of ETR in tmc_enable_etr_sink_perf(), but since we
-cache the PID in alloc_buffer() callback and it is done as part
-of etm_setup_aux() when allocating buffer for ETR sink, we never
-dereference this NULL pointer and we are safe. So lets do the
-same thing with ETF and cache the PID to which the cs_buffer
-belongs in tmc_alloc_etf_buffer() as done for ETR. This will
-also remove the unnecessary function calls(task_pid_nr()) since
-we are caching the PID.
-
-Easily reproducible running below:
-
- perf record -e cs_etm/@tmc_etf0/ -N -p <pid>
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000548
-Mem abort info:
-  ESR = 0x96000006
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000006
-  CM = 0, WnR = 0
-<snip>...
-Call trace:
- tmc_enable_etf_sink+0xe4/0x280
- coresight_enable_path+0x168/0x1fc
- etm_event_start+0x8c/0xf8
- etm_event_add+0x38/0x54
- event_sched_in+0x194/0x2ac
- group_sched_in+0x54/0x12c
- flexible_sched_in+0xd8/0x120
- visit_groups_merge+0x100/0x16c
- ctx_flexible_sched_in+0x50/0x74
- ctx_sched_in+0xa4/0xa8
- perf_event_sched_in+0x60/0x6c
- perf_event_context_sched_in+0x98/0xe0
- __perf_event_task_sched_in+0x5c/0xd8
- finish_task_switch+0x184/0x1cc
- schedule_tail+0x20/0xec
- ret_from_fork+0x4/0x18
-
-Fixes: 880af782c6e8 ("coresight: tmc-etf: Add support for CPU-wide trace scenarios")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20201127175256.1092685-10-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 926341250102 ("memstick: add driver for Ricoh R5C592 card reader")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Link: https://lore.kernel.org/r/20201125014718.153563-1-jingxiangfeng@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-priv.h    |    2 ++
- drivers/hwtracing/coresight/coresight-tmc-etf.c |    4 +++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/memstick/host/r592.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-priv.h
-+++ b/drivers/hwtracing/coresight/coresight-priv.h
-@@ -86,6 +86,7 @@ enum cs_mode {
-  * struct cs_buffer - keep track of a recording session' specifics
-  * @cur:	index of the current buffer
-  * @nr_pages:	max number of pages granted to us
-+ * @pid:	PID this cs_buffer belongs to
-  * @offset:	offset within the current buffer
-  * @data_size:	how much we collected in this run
-  * @snapshot:	is this run in snapshot mode
-@@ -94,6 +95,7 @@ enum cs_mode {
- struct cs_buffers {
- 	unsigned int		cur;
- 	unsigned int		nr_pages;
-+	pid_t			pid;
- 	unsigned long		offset;
- 	local_t			data_size;
- 	bool			snapshot;
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -227,6 +227,7 @@ static int tmc_enable_etf_sink_perf(stru
- 	unsigned long flags;
- 	struct tmc_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
- 	struct perf_output_handle *handle = data;
-+	struct cs_buffers *buf = etm_perf_sink_config(handle);
+diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
+index dd3a1f3dcc191..d2ef46337191c 100644
+--- a/drivers/memstick/host/r592.c
++++ b/drivers/memstick/host/r592.c
+@@ -759,8 +759,10 @@ static int r592_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto error3;
  
- 	spin_lock_irqsave(&drvdata->spinlock, flags);
- 	do {
-@@ -243,7 +244,7 @@ static int tmc_enable_etf_sink_perf(stru
- 		}
+ 	dev->mmio = pci_ioremap_bar(pdev, 0);
+-	if (!dev->mmio)
++	if (!dev->mmio) {
++		error = -ENOMEM;
+ 		goto error4;
++	}
  
- 		/* Get a handle on the pid of the process to monitor */
--		pid = task_pid_nr(handle->event->owner);
-+		pid = buf->pid;
+ 	dev->irq = pdev->irq;
+ 	spin_lock_init(&dev->irq_lock);
+@@ -786,12 +788,14 @@ static int r592_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		&dev->dummy_dma_page_physical_address, GFP_KERNEL);
+ 	r592_stop_dma(dev , 0);
  
- 		if (drvdata->pid != -1 && drvdata->pid != pid) {
- 			ret = -EBUSY;
-@@ -399,6 +400,7 @@ static void *tmc_alloc_etf_buffer(struct
- 	if (!buf)
- 		return NULL;
+-	if (request_irq(dev->irq, &r592_irq, IRQF_SHARED,
+-			  DRV_NAME, dev))
++	error = request_irq(dev->irq, &r592_irq, IRQF_SHARED,
++			  DRV_NAME, dev);
++	if (error)
+ 		goto error6;
  
-+	buf->pid = task_pid_nr(event->owner);
- 	buf->snapshot = overwrite;
- 	buf->nr_pages = nr_pages;
- 	buf->data_pages = pages;
+ 	r592_update_card_detect(dev);
+-	if (memstick_add_host(host))
++	error = memstick_add_host(host);
++	if (error)
+ 		goto error7;
+ 
+ 	message("driver successfully loaded");
+-- 
+2.27.0
+
 
 
