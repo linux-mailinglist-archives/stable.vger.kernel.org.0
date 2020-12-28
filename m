@@ -2,133 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F072E69C4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 18:34:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C2E2E69F3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 19:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbgL1ReH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 12:34:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34894 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726014AbgL1ReG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 12:34:06 -0500
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A796C0613D6;
-        Mon, 28 Dec 2020 09:33:26 -0800 (PST)
-Received: by mail-ot1-x334.google.com with SMTP id j20so9741175otq.5;
-        Mon, 28 Dec 2020 09:33:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9pXUSAUkIKNgWK4JezgGw9e+aY0WAfThKOk2pHojbBE=;
-        b=Ma/9j6LSS/StMm3DsKDwlgD7qFCRvvSJWmodvc7kUsti0W6Fck2Pxc0xqLSz4+VT6S
-         lQ4DBwtNxSfk22ALv3oX050e2nKlYbuQW//golylGgFkxf9wqMw61Z72TWM+4aGikDC8
-         j/Ov3w5LQx75mtlCgiFS6e6HFZ1zJz+tnWSdGkWafsVLa6qmKESJhKIA4kIuarcb13zU
-         zx7lXYJyQ4dpU08o4xgmYGdlTu6hS+bR5QyWjwTJSXHfKDQYP+xyThAjmhzzdVTpQcTN
-         5ECvMFMrRPtYt2oXMGvJT4jXYavYVQt+KCv/+VhtPXWsDqkozCCVY7ybOEDwaZYqxdtc
-         hCmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=9pXUSAUkIKNgWK4JezgGw9e+aY0WAfThKOk2pHojbBE=;
-        b=mS9K8uIrbi8Tahn4JVWuCFXhKlByjfcoHE7/3i+UaXHVSEmnAq7uFrcl+jzLb2JRvc
-         jvCcKANr54LMZ+O1F+cQdUtzTyQfK6Q+9CAqhfLQmbrxSRoK7Judf2ZJCTMBEFdiL1J7
-         JuwjHyDHHGosrghsnG0ltQx4iqMujPX6v4X95znp4znQGuNo6/BBsbfos4fMVRGfwZsi
-         OfKsbHrHPO/eOZbn8v7jfH2ne3DFxDd4GlrpqG/rKNmnm4sSexNLkONMQ0AfRfYRjome
-         SXg7/Io/YrZfuheppJKD9maY0nI7dZSaBm/q+axaEQ2pk11yUtP0O7SU96fuiC6mU0Vk
-         5L4Q==
-X-Gm-Message-State: AOAM531oqXi2pslatNhjZhBNtQB663Q9BbbEIKsA7pnr4PfMX2t6Fifz
-        O+sSAjf08NpDsnWkNVT6Ews+EFvJaGE=
-X-Google-Smtp-Source: ABdhPJzj6N8fm11en1Jq/1th5XoMcr6rt9VY2EDq3DANTl8h95crOiNr+AqNB7+BRTPKwM4Ia7oypw==
-X-Received: by 2002:a05:6830:1bef:: with SMTP id k15mr32970662otb.303.1609176805385;
-        Mon, 28 Dec 2020 09:33:25 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l134sm8919152oig.25.2020.12.28.09.33.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Dec 2020 09:33:24 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.4 000/453] 5.4.86-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-References: <20201228124937.240114599@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <1a037a15-0cc1-0fa2-ff89-31ab992ece94@roeck-us.net>
-Date:   Mon, 28 Dec 2020 09:33:22 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728296AbgL1SK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 13:10:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33672 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728073AbgL1SK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 13:10:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C72822B47
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 18:10:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609179016;
+        bh=UU5ZJ7wo09eeQJfHCA8zAN6QsAu7KkQNIOEasIFeWmg=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=NtSbNU38MzOGGEZybmJrqVrXIkZ7riOP6KLyDWXdcKOzPn2oBkVpWfP68WXcUvTXw
+         QPCvxMa9V7U58EGvYn028q8tNODv/ggjHZYdRKTszI+dI2VtLCOS/w4qSKGYw3UIh0
+         bYN14vc0bpBVomQt5g8Pobew4A1eaZjEyh7ugB5j3AJXzki4F6GHeV/cJ6tzgGs3Xi
+         jccf0pLuMoDyHVDChw9mxOzf/70bEUpgqc8fLJvWl/A0AJV94HAAkLYtXrSnTSxJ9R
+         Voqz0zee4pqZj7x4dfz/8/WNsBT6+tgi33/b34do1ws/GbSSgdpVtXhVSGrPvVgBLL
+         xHvCEkW1rbJ7A==
+Received: by mail-wr1-f49.google.com with SMTP id t30so12116386wrb.0
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 10:10:16 -0800 (PST)
+X-Gm-Message-State: AOAM530zQdKILRKiNakA/sC1JfR/RKp0Sl2VEbK98PzesUYNNImrNm7m
+        RSw3aUcJodKCxZVuwkd3XKS5RMabAwtykMhHuYemSQ==
+X-Google-Smtp-Source: ABdhPJxHP2b6pFiKrTNQ13geWSURUQyXlKEfQlURiSpdu2+ttGMTvrMYL94o5eJg5g/pfdfXcAWB78Wu9XbAQX8kJ/o=
+X-Received: by 2002:a5d:62c7:: with SMTP id o7mr336085wrv.257.1609179014608;
+ Mon, 28 Dec 2020 10:10:14 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
+ <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
+ <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
+ <20201228102537.GG1551@shell.armlinux.org.uk> <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
+ <20201228172301.GH1551@shell.armlinux.org.uk>
+In-Reply-To: <20201228172301.GH1551@shell.armlinux.org.uk>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Mon, 28 Dec 2020 10:10:02 -0800
+X-Gmail-Original-Message-ID: <CALCETrWn+LMgnTmrGFf7g_XJAe3MbuWWNhMT6VrujAY0sf-wmw@mail.gmail.com>
+Message-ID: <CALCETrWn+LMgnTmrGFf7g_XJAe3MbuWWNhMT6VrujAY0sf-wmw@mail.gmail.com>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        x86 <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/28/20 4:43 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.86 release.
-> There are 453 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 30 Dec 2020 12:48:23 +0000.
-> Anything received after that time might be too late.
-> 
+On Mon, Dec 28, 2020 at 9:23 AM Russell King - ARM Linux admin
+<linux@armlinux.org.uk> wrote:
+>
+> On Mon, Dec 28, 2020 at 09:14:23AM -0800, Andy Lutomirski wrote:
+> > On Mon, Dec 28, 2020 at 2:25 AM Russell King - ARM Linux admin
+> > <linux@armlinux.org.uk> wrote:
+> > >
+> > > On Sun, Dec 27, 2020 at 01:36:13PM -0800, Andy Lutomirski wrote:
+> > > > On Sun, Dec 27, 2020 at 12:18 PM Mathieu Desnoyers
+> > > > <mathieu.desnoyers@efficios.com> wrote:
+> > > > >
+> > > > > ----- On Dec 27, 2020, at 1:28 PM, Andy Lutomirski luto@kernel.org wrote:
+> > > > >
+> > > >
+> > > > > >
+> > > > > > I admit that I'm rather surprised that the code worked at all on arm64,
+> > > > > > and I'm suspicious that it has never been very well tested.  My apologies
+> > > > > > for not reviewing this more carefully in the first place.
+> > > > >
+> > > > > Please refer to Documentation/features/sched/membarrier-sync-core/arch-support.txt
+> > > > >
+> > > > > It clearly states that only arm, arm64, powerpc and x86 support the membarrier
+> > > > > sync core feature as of now:
+> > > >
+> > > > Sigh, I missed arm (32).  Russell or ARM folks, what's the right
+> > > > incantation to make the CPU notice instruction changes initiated by
+> > > > other cores on 32-bit ARM?
+> > >
+> > > You need to call flush_icache_range(), since the changes need to be
+> > > flushed from the data cache to the point of unification (of the Harvard
+> > > I and D), and the instruction cache needs to be invalidated so it can
+> > > then see those updated instructions. This will also take care of the
+> > > necessary barriers that the CPU requires for you.
+> >
+> > With what parameters?   From looking at the header, this is for the
+> > case in which the kernel writes some memory and then intends to
+> > execute it.  That's not what membarrier() does at all.  membarrier()
+> > works like this:
+>
+> You didn't specify that you weren't looking at kernel memory.
+>
+> If you're talking about userspace, then the interface you require
+> is flush_icache_user_range(), which does the same as
+> flush_icache_range() but takes userspace addresses. Note that this
+> requires that the memory is currently mapped at those userspace
+> addresses.
+>
+> If that doesn't fit your needs, there isn't an interface to do what
+> you require, and it basically means creating something brand new
+> on every architecture.
+>
+> What you are asking for is not "just a matter of a few instructions".
+> I have stated the required steps to achieve what you require above;
+> that is the minimum when you have non-snooping harvard caches, which
+> the majority of 32-bit ARMs have.
+>
+> > User thread 1:
+> >
+> > write to RWX memory *or* write to an RW alias of an X region.
+> > membarrier(...);
+> > somehow tell thread 2 that we're ready (with a store release, perhaps,
+> > or even just a relaxed store.)
+> >
+> > User thread 2:
+> >
+> > wait for the indication from thread 1.
+> > barrier();
+> > jump to the code.
+> >
+> > membarrier() is, for better or for worse, not given a range of addresses.
+>
+> Then, I'm sorry, it can't work on 32-bit ARM.
 
+Is there a way to flush the *entire* user icache?  If so, and if it
+has reasonable performance, then it could probably be used here.
+Otherwise I'll just send a revert for this whole mechanism on 32-bit
+ARM.
 
-Building arm:multi_v5_defconfig ... failed
---------------
-Error log:
-drivers/leds/leds-netxbig.c: In function 'netxbig_leds_get_of_pdata':
-drivers/leds/leds-netxbig.c:571:13: error: 'gpio_ext_dev' undeclared
-
-Guenter
+--Andy
