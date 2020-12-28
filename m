@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A70252E3603
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFB42E3605
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:49:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727210AbgL1Krw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 05:47:52 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:43713 "EHLO
+        id S1727163AbgL1KsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 05:48:13 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56879 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727163AbgL1Krw (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 28 Dec 2020 05:47:52 -0500
+        by vger.kernel.org with ESMTP id S1727019AbgL1KsN (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 28 Dec 2020 05:48:13 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id EEFAB7BA;
-        Mon, 28 Dec 2020 05:47:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:47:02 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id E4F9F7F4;
+        Mon, 28 Dec 2020 05:47:04 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:47:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=OouhOD
-        CVQvXQCuedRdESd7UzFylPVfQ0xpeQDrZdPFU=; b=KwM1mJ3wGgeOxha4TMhXhr
-        8A0lDXFwS4slBjXTWCbrHl1stnbUjLshDNa3Nu77yjpdr7F3HxNfns6LWTvVLzzr
-        IfDBwgElrtJ4S0ESs98g3QMlPu25emADFatwKw8e0UpnHfqkJL1tI23B/y06v+2D
-        DKB2aNeSvPnqE0tnibESwK8vYy5S+paYqod3NKJ471SYXwvCUZISp3U2YKkXrHu6
-        QQzbSwsHURx2MHXeqgiDe+sWLElM5UTjJ8rYVo6zng7ZAW4wL6jj6OtUFFrpk/6j
-        Q+letoBb2HMWlc39WnmSLeUhZvrnUiM0L+cSPd/Hpb6ll2wJeZpQ69JhhX66aRSA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7aAfj3
+        FksGCVaIfY6xJULrQ8F24F2wX29GYeYeOONPg=; b=E5q4lQlHZwDCARe8hWyipz
+        6NAecvwhDDqe4z9Nsj0Vqy6fxHISlWpOqXJ8OBEKp7MZhh3wnT6dsRpujOr7Kneb
+        oQ1jXsGV+5l1H3Aza3LLAz3Njg9rC8WmRvhDBSFXPblW6tnZEoU9jvmAHrBZJx+d
+        PFHJo25+FnHGEE2W8Aim3vWcLUc0kZcdHVNY0br24c8F59Xj7Au6nsDla8PBrIyz
+        VJ6DDnS2N/Ol/8Osxp4wEojd01bqE/MWWuyIEvSbaD+7Etvf2sTF74heSpGN7JeN
+        Pf5RZCakV6NRhZmBp3sncgT1l2yT9ivuiGjxZ7DEmkOx8pGD8LeJWMx+pCi78Stg
         ==
-X-ME-Sender: <xms:pbfpX9iXPaZh89RpEcOBZick8mAh88gK63yNXljrqEKGqOL9ssuVsA>
-    <xme:pbfpXyDTu7HUaDxRTTZRbCc4l3QJlDcB0yKm9KFtA9UNsIqKrQ0sDGhWpLfGYXxG1
-    oPQXrnNeb31Bg>
+X-ME-Sender: <xms:qLfpX407pn71PevzrdEkKXUxX81a-YW_7WMROJS4p3DqLMPQhOVyHQ>
+    <xme:qLfpXzElOrotPyt_xoT5UMsps153d_ENFGZnfmDq8C8NqTXqloaeg94U2I71SWeAH
+    3AWqrR2ngwGXA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:pbfpX9H8h8WDWH9FYjOOeig6DbVCjtDFffDsy7go426AAuE-TD1Dfg>
-    <xmx:pbfpXyTXmds-AbI-pHxozCiW4NYXiwPwF0F08nBhPgePCtQhimX7nA>
-    <xmx:pbfpX6y2PoECdGDXO4BN5Jeoouib4rVOhphbuuGpwmdwW7lVB10ulQ>
-    <xmx:pbfpX_oi_2pKscG_bjM8-Kui5cgBm4qWhRn2VpnHh-U5jRWKVOZ4Up5_2E8>
+X-ME-Proxy: <xmx:qLfpXw40uEYjFYi-DoSP1vcUhnprDnUFED4JO6EXEZDLdfUCO5sNuw>
+    <xmx:qLfpXx0q_gCOSuqPO5FMb8ecwGQ1sq4uuCtdvwKmC6JZ17z3Al_e8g>
+    <xmx:qLfpX7HADfs6eV0_uW8dmXixmunmHCifLRrOUH_Y4I4JmZwsv0egxA>
+    <xmx:qLfpXxN8czGEjQFyg62URFzoyg7q-R7Wmpw7slRGLPUbUYh55_gw_VEzzLA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 429BD1080059;
-        Mon, 28 Dec 2020 05:47:01 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iio: ad_sigma_delta: Don't put SPI transfer buffer on the" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3C47624005E;
+        Mon, 28 Dec 2020 05:47:04 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: ad_sigma_delta: Don't put SPI transfer buffer on the" failed to apply to 5.4-stable tree
 To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org, alexandru.ardelean@analog.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 11:48:21 +0100
-Message-ID: <1609152501101133@kroah.com>
+Date:   Mon, 28 Dec 2020 11:48:22 +0100
+Message-ID: <160915250262176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
