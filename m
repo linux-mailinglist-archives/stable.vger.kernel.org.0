@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB6C2E3A75
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F02C52E3EC1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390660AbgL1NhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:37:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37220 "EHLO mail.kernel.org"
+        id S2503278AbgL1Oap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390648AbgL1NhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:37:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF2012072C;
-        Mon, 28 Dec 2020 13:36:26 +0000 (UTC)
+        id S2503719AbgL1Oao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C59782063A;
+        Mon, 28 Dec 2020 14:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162587;
-        bh=EgEwkxeHYGzHCVQxUxkdRvN9i/l0RM58uL9yO3ezm48=;
+        s=korg; t=1609165804;
+        bh=u1Rb0Gtsl9RKgD2iH9QXEnvnwF01Ibb2MopdOSdHccA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFhHbHnvzUrprhZPjpk5wGFbbWp+ogMghHyJ+6/r9kK61KqStRYmw4RJ4j+b/xwXF
-         79rus11BpQo62JuixC5YHmQ993f2ZN4hAxrwBl2yOgJ64mdm124tWsa7YScEAaK9kX
-         bJ5OQRf/862hKKdifVwTUfsQppct3MYbC8Fcp/84=
+        b=Adwo0DCIPH4aasx/za8uWRfyxsmOfmpP0TT5q+5jpgzEZw724D0DZyRyirSDLIPaU
+         tTohKDHAhOZprDoaxv/VYn7J5Dh2loz/nNQOQR/GOdO1bthJzjMRimiXJjd/dzJO1L
+         BZtiVSuIYwz9MGuqbGqe7Yk0lYaeyuG20xcZphII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Evan Green <evgreen@chromium.org>
-Subject: [PATCH 4.19 322/346] soc: qcom: smp2p: Safely acquire spinlock without IRQs
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Piotr Bugalski <bugalski.piotr@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 643/717] spi: atmel-quadspi: Fix use-after-free on unbind
 Date:   Mon, 28 Dec 2020 13:50:41 +0100
-Message-Id: <20201228124935.349205784@linuxfoundation.org>
+Message-Id: <20201228125051.742956441@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit fc3e62e25c3896855b7c3d72df19ca6be3459c9f upstream.
+commit c7b884561cb5b641f3dbba950094110794119a6d upstream.
 
-smp2p_update_bits() should disable interrupts when it acquires its
-spinlock. This is important because without the _irqsave, a priority
-inversion can occur.
+atmel_qspi_remove() accesses the driver's private data after calling
+spi_unregister_controller() even though that function releases the last
+reference on the spi_controller and thereby frees the private data.
 
-This function is called both with interrupts enabled in
-qcom_q6v5_request_stop(), and with interrupts disabled in
-ipa_smp2p_panic_notifier(). IRQ handling of spinlocks should be
-consistent to avoid the panic notifier deadlocking because it's
-sitting on the thread that's already got the lock via _request_stop().
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound.
 
-Found via lockdep.
-
-Cc: stable@vger.kernel.org
-Fixes: 50e99641413e7 ("soc: qcom: smp2p: Qualcomm Shared Memory Point to Point")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20200929133040.RESEND.1.Ideabf6dcdfc577cf39ce3d95b0e4aa1ac8b38f0c@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.0+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v5.0+
+Cc: Piotr Bugalski <bugalski.piotr@gmail.com>
+Link: https://lore.kernel.org/r/4b05c65cf6f1ea3251484fe9a00b4c65478a1ae3.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/soc/qcom/smp2p.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/atmel-quadspi.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/drivers/soc/qcom/smp2p.c
-+++ b/drivers/soc/qcom/smp2p.c
-@@ -326,15 +326,16 @@ static int qcom_smp2p_inbound_entry(stru
- static int smp2p_update_bits(void *data, u32 mask, u32 value)
- {
- 	struct smp2p_entry *entry = data;
-+	unsigned long flags;
- 	u32 orig;
- 	u32 val;
+--- a/drivers/spi/atmel-quadspi.c
++++ b/drivers/spi/atmel-quadspi.c
+@@ -535,7 +535,7 @@ static int atmel_qspi_probe(struct platf
+ 	struct resource *res;
+ 	int irq, err = 0;
  
--	spin_lock(&entry->lock);
-+	spin_lock_irqsave(&entry->lock, flags);
- 	val = orig = readl(entry->value);
- 	val &= ~mask;
- 	val |= value;
- 	writel(val, entry->value);
--	spin_unlock(&entry->lock);
-+	spin_unlock_irqrestore(&entry->lock, flags);
+-	ctrl = spi_alloc_master(&pdev->dev, sizeof(*aq));
++	ctrl = devm_spi_alloc_master(&pdev->dev, sizeof(*aq));
+ 	if (!ctrl)
+ 		return -ENOMEM;
  
- 	if (val != orig)
- 		qcom_smp2p_kick(entry->smp2p);
+@@ -557,8 +557,7 @@ static int atmel_qspi_probe(struct platf
+ 	aq->regs = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(aq->regs)) {
+ 		dev_err(&pdev->dev, "missing registers\n");
+-		err = PTR_ERR(aq->regs);
+-		goto exit;
++		return PTR_ERR(aq->regs);
+ 	}
+ 
+ 	/* Map the AHB memory */
+@@ -566,8 +565,7 @@ static int atmel_qspi_probe(struct platf
+ 	aq->mem = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(aq->mem)) {
+ 		dev_err(&pdev->dev, "missing AHB memory\n");
+-		err = PTR_ERR(aq->mem);
+-		goto exit;
++		return PTR_ERR(aq->mem);
+ 	}
+ 
+ 	aq->mmap_size = resource_size(res);
+@@ -579,15 +577,14 @@ static int atmel_qspi_probe(struct platf
+ 
+ 	if (IS_ERR(aq->pclk)) {
+ 		dev_err(&pdev->dev, "missing peripheral clock\n");
+-		err = PTR_ERR(aq->pclk);
+-		goto exit;
++		return PTR_ERR(aq->pclk);
+ 	}
+ 
+ 	/* Enable the peripheral clock */
+ 	err = clk_prepare_enable(aq->pclk);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to enable the peripheral clock\n");
+-		goto exit;
++		return err;
+ 	}
+ 
+ 	aq->caps = of_device_get_match_data(&pdev->dev);
+@@ -638,8 +635,6 @@ disable_qspick:
+ 	clk_disable_unprepare(aq->qspick);
+ disable_pclk:
+ 	clk_disable_unprepare(aq->pclk);
+-exit:
+-	spi_controller_put(ctrl);
+ 
+ 	return err;
+ }
 
 
