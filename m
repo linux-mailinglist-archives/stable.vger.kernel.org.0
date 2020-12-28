@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A34B2E3D96
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:18:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4098F2E640A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391808AbgL1ORa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:17:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51268 "EHLO mail.kernel.org"
+        id S2404637AbgL1PqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:46:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391803AbgL1OR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C249321D94;
-        Mon, 28 Dec 2020 14:17:06 +0000 (UTC)
+        id S2404621AbgL1Noj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C587C20731;
+        Mon, 28 Dec 2020 13:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165027;
-        bh=Y8Yjzzyg2psTteEyj1alrB7veaOofi92smNum4P2V8Q=;
+        s=korg; t=1609163038;
+        bh=Y+hU/9rFnFfiBkKX+F+X9dIpD/bZ6nVE4GAQfHsgflo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZ2jIcAHliDAaSlVZ6KaExJ7tGDxPmqD31HaGwrLEMYK25ZQbk5Guryh6dMD22Js6
-         uHf633osVS4+E9KnV3z5ZSX5DTu1NnkDAxFkTjFDQFlPREDib9qkiQL6WTilHSmL0s
-         d4SwdDUzvUyPdOn1AQ4znvIl2rBrpiHmB7eb4OZA=
+        b=w8SvEFG26QuWM40WBjGnuYKVi7A9cifmepOWXNPDl36j00s/PMwvpEq2/s+Xv3H28
+         ZynhdnLPgiTaJiTj3De2ROv6WrsyGwl+N+8AAymu6mpPoA8dJLWv4z+tV7SwqSN2ZF
+         0pL/1cnjgb+BBJKgAHvHANvOtrKlzx6bToOWCS2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Milton Miller <miltonm@us.ibm.com>,
-        Eddie James <eajames@linux.ibm.com>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 385/717] fsi: Aspeed: Add mutex to protect HW access
-Date:   Mon, 28 Dec 2020 13:46:23 +0100
-Message-Id: <20201228125039.449097140@linuxfoundation.org>
+Subject: [PATCH 5.4 148/453] powerpc: Avoid broken GCC __attribute__((optimize))
+Date:   Mon, 28 Dec 2020 13:46:24 +0100
+Message-Id: <20201228124944.327586359@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,151 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit dfd7f2c1c532efaeff6084970bb60ec2f2e44191 ]
+[ Upstream commit a7223f5bfcaeade4a86d35263493bcda6c940891 ]
 
-There is nothing to prevent multiple commands being executed
-simultaneously. Add a mutex to prevent this.
+Commit 7053f80d9696 ("powerpc/64: Prevent stack protection in early
+boot") introduced a couple of uses of __attribute__((optimize)) with
+function scope, to disable the stack protector in some early boot
+code.
 
-Fixes: 606397d67f41 ("fsi: Add ast2600 master driver")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Milton Miller <miltonm@us.ibm.com>
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20201120004929.185239-1-joel@jms.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Unfortunately, and this is documented in the GCC man pages [0],
+overriding function attributes for optimization is broken, and is only
+supported for debug scenarios, not for production: the problem appears
+to be that setting GCC -f flags using this method will cause it to
+forget about some or all other optimization settings that have been
+applied.
+
+So the only safe way to disable the stack protector is to disable it
+for the entire source file.
+
+[0] https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
+
+Fixes: 7053f80d9696 ("powerpc/64: Prevent stack protection in early boot")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+[mpe: Drop one remaining use of __nostackprotector, reported by snowpatch]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201028080433.26799-1-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-master-aspeed.c | 45 +++++++++++++++++++++------------
- 1 file changed, 29 insertions(+), 16 deletions(-)
+ arch/powerpc/kernel/Makefile   | 3 +++
+ arch/powerpc/kernel/paca.c     | 4 ++--
+ arch/powerpc/kernel/setup.h    | 6 ------
+ arch/powerpc/kernel/setup_64.c | 2 +-
+ 4 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
-index c006ec008a1aa..90dbe58ca1edc 100644
---- a/drivers/fsi/fsi-master-aspeed.c
-+++ b/drivers/fsi/fsi-master-aspeed.c
-@@ -8,6 +8,7 @@
- #include <linux/io.h>
- #include <linux/mfd/syscon.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
-@@ -19,6 +20,7 @@
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index 59260eb962916..afbd47b0a75cc 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -181,6 +181,9 @@ KCOV_INSTRUMENT_cputable.o := n
+ KCOV_INSTRUMENT_setup_64.o := n
+ KCOV_INSTRUMENT_paca.o := n
  
- struct fsi_master_aspeed {
- 	struct fsi_master	master;
-+	struct mutex		lock;	/* protect HW access */
- 	struct device		*dev;
- 	void __iomem		*base;
- 	struct clk		*clk;
-@@ -254,6 +256,8 @@ static int aspeed_master_read(struct fsi_master *master, int link,
- 	addr |= id << 21;
- 	addr += link * FSI_HUB_LINK_SIZE;
- 
-+	mutex_lock(&aspeed->lock);
++CFLAGS_setup_64.o		+= -fno-stack-protector
++CFLAGS_paca.o			+= -fno-stack-protector
 +
- 	switch (size) {
- 	case 1:
- 		ret = opb_readb(aspeed, fsi_base + addr, val);
-@@ -265,14 +269,14 @@ static int aspeed_master_read(struct fsi_master *master, int link,
- 		ret = opb_readl(aspeed, fsi_base + addr, val);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto done;
- 	}
+ extra-$(CONFIG_PPC_FPU)		+= fpu.o
+ extra-$(CONFIG_ALTIVEC)		+= vector.o
+ extra-$(CONFIG_PPC64)		+= entry_64.o
+diff --git a/arch/powerpc/kernel/paca.c b/arch/powerpc/kernel/paca.c
+index 4ea0cca52e162..c786adfb9413f 100644
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -176,7 +176,7 @@ static struct slb_shadow * __init new_slb_shadow(int cpu, unsigned long limit)
+ struct paca_struct **paca_ptrs __read_mostly;
+ EXPORT_SYMBOL(paca_ptrs);
  
- 	ret = check_errors(aspeed, ret);
--	if (ret)
--		return ret;
--
--	return 0;
-+done:
-+	mutex_unlock(&aspeed->lock);
-+	return ret;
- }
- 
- static int aspeed_master_write(struct fsi_master *master, int link,
-@@ -287,6 +291,8 @@ static int aspeed_master_write(struct fsi_master *master, int link,
- 	addr |= id << 21;
- 	addr += link * FSI_HUB_LINK_SIZE;
- 
-+	mutex_lock(&aspeed->lock);
-+
- 	switch (size) {
- 	case 1:
- 		ret = opb_writeb(aspeed, fsi_base + addr, *(u8 *)val);
-@@ -298,14 +304,14 @@ static int aspeed_master_write(struct fsi_master *master, int link,
- 		ret = opb_writel(aspeed, fsi_base + addr, *(__be32 *)val);
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto done;
- 	}
- 
- 	ret = check_errors(aspeed, ret);
--	if (ret)
--		return ret;
--
--	return 0;
-+done:
-+	mutex_unlock(&aspeed->lock);
-+	return ret;
- }
- 
- static int aspeed_master_link_enable(struct fsi_master *master, int link,
-@@ -320,17 +326,21 @@ static int aspeed_master_link_enable(struct fsi_master *master, int link,
- 
- 	reg = cpu_to_be32(0x80000000 >> bit);
- 
--	if (!enable)
--		return opb_writel(aspeed, ctrl_base + FSI_MCENP0 + (4 * idx),
--				  reg);
-+	mutex_lock(&aspeed->lock);
-+
-+	if (!enable) {
-+		ret = opb_writel(aspeed, ctrl_base + FSI_MCENP0 + (4 * idx), reg);
-+		goto done;
-+	}
- 
- 	ret = opb_writel(aspeed, ctrl_base + FSI_MSENP0 + (4 * idx), reg);
- 	if (ret)
--		return ret;
-+		goto done;
- 
- 	mdelay(FSI_LINK_ENABLE_SETUP_TIME);
--
--	return 0;
-+done:
-+	mutex_unlock(&aspeed->lock);
-+	return ret;
- }
- 
- static int aspeed_master_term(struct fsi_master *master, int link, uint8_t id)
-@@ -431,9 +441,11 @@ static ssize_t cfam_reset_store(struct device *dev, struct device_attribute *att
+-void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int cpu)
++void __init initialise_paca(struct paca_struct *new_paca, int cpu)
  {
- 	struct fsi_master_aspeed *aspeed = dev_get_drvdata(dev);
- 
-+	mutex_lock(&aspeed->lock);
- 	gpiod_set_value(aspeed->cfam_reset_gpio, 1);
- 	usleep_range(900, 1000);
- 	gpiod_set_value(aspeed->cfam_reset_gpio, 0);
-+	mutex_unlock(&aspeed->lock);
- 
- 	return count;
+ #ifdef CONFIG_PPC_PSERIES
+ 	new_paca->lppaca_ptr = NULL;
+@@ -205,7 +205,7 @@ void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int
  }
-@@ -597,6 +609,7 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
  
- 	dev_set_drvdata(&pdev->dev, aspeed);
+ /* Put the paca pointer into r13 and SPRG_PACA */
+-void __nostackprotector setup_paca(struct paca_struct *new_paca)
++void setup_paca(struct paca_struct *new_paca)
+ {
+ 	/* Setup r13 */
+ 	local_paca = new_paca;
+diff --git a/arch/powerpc/kernel/setup.h b/arch/powerpc/kernel/setup.h
+index 1b02d338a5f55..c82577c4b15d3 100644
+--- a/arch/powerpc/kernel/setup.h
++++ b/arch/powerpc/kernel/setup.h
+@@ -8,12 +8,6 @@
+ #ifndef __ARCH_POWERPC_KERNEL_SETUP_H
+ #define __ARCH_POWERPC_KERNEL_SETUP_H
  
-+	mutex_init(&aspeed->lock);
- 	aspeed_master_init(aspeed);
+-#ifdef CONFIG_CC_IS_CLANG
+-#define __nostackprotector
+-#else
+-#define __nostackprotector __attribute__((__optimize__("no-stack-protector")))
+-#endif
+-
+ void initialize_cache_info(void);
+ void irqstack_early_init(void);
  
- 	rc = fsi_master_register(&aspeed->master);
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index 480c236724da2..5bc7e753df4d0 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -284,7 +284,7 @@ void __init record_spr_defaults(void)
+  * device-tree is not accessible via normal means at this point.
+  */
+ 
+-void __init __nostackprotector early_setup(unsigned long dt_ptr)
++void __init early_setup(unsigned long dt_ptr)
+ {
+ 	static __initdata struct paca_struct boot_paca;
+ 
 -- 
 2.27.0
 
