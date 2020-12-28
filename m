@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB042E4335
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7B62E3FE3
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407434AbgL1PeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:34:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52976 "EHLO mail.kernel.org"
+        id S2503078AbgL1Opk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:45:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406872AbgL1Nv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:51:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0A9B2064B;
-        Mon, 28 Dec 2020 13:51:10 +0000 (UTC)
+        id S1730132AbgL1OYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C17D6206D4;
+        Mon, 28 Dec 2020 14:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163471;
-        bh=cDRDiNUiAz22bBLFYws8YvUnvtciL92IYlOIDYofWe4=;
+        s=korg; t=1609165449;
+        bh=mUtCs0MCTTK9O+rzbXF+dLhzq+gEwN4e6MqoQwPhUwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+BKw8ToCbi2zS9nQN666bxTKajxKvY187Be37D/+F7Da7QMtIaryMXtOuyOY194H
-         IC45L7Vsq91owBtJqr3CkYJmb40naKCVkP7pt6gohjNY3dz3x+4L5zoDYtdgnDgZY+
-         EQTg5gQ4b0q5uVy6o5piWAX5Qb8a1+wpYqSFqXMQ=
+        b=Ki3TSxhkEc2x0OHiu94p6Yjhhigto+LUQ740hiyGk8iPIoMinn7DRTcNkH1BBA0pv
+         noFzevsLm+4LuRyaMd8OhB3Oq2G4xaVeQ1b+rP3ik/gPnbOQllmb1lsVOxnYqJl/2h
+         TRloB1IDVnVK8DVH3uouocIJozinvg/SdVeJr0Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 297/453] watchdog: coh901327: add COMMON_CLK dependency
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 535/717] ALSA: hda: Fix regressions on clear and reconfig sysfs
 Date:   Mon, 28 Dec 2020 13:48:53 +0100
-Message-Id: <20201228124951.496227175@linuxfoundation.org>
+Message-Id: <20201228125046.604257626@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +38,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 36c47df85ee8e1f8a35366ac11324f8875de00eb ]
+commit 2506318e382c4c7daa77bdc48f80a0ee82804588 upstream.
 
-clang produces a build failure in configurations without COMMON_CLK
-when a timeout calculation goes wrong:
+It seems that the HD-audio clear and reconfig sysfs don't work any
+longer after the recent driver core change.  There are multiple issues
+around that: the linked list corruption and the dead device handling.
+The former issue is fixed by another patch for the driver core itself,
+while the latter patch needs to be addressed in HD-audio side.
 
-arm-linux-gnueabi-ld: drivers/watchdog/coh901327_wdt.o: in function `coh901327_enable':
-coh901327_wdt.c:(.text+0x50): undefined reference to `__bad_udelay'
+This patch corresponds to the latter, it recovers those broken
+functions by replacing the device detach and attach actions with the
+standard core API functions, which are almost equivalent with unbind
+and bind actions.
 
-Add a Kconfig dependency to only do build testing when COMMON_CLK
-is enabled.
+Fixes: 654888327e9f ("driver core: Avoid binding drivers to dead devices")
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209207
+Link: https://lore.kernel.org/r/20201209150119.7705-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201203223358.1269372-1-arnd@kernel.org
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_codec.c |    2 +-
+ sound/pci/hda/hda_sysfs.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 6cdffbdaf98a5..1aa42e879e633 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -618,7 +618,7 @@ config SUNXI_WATCHDOG
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -1803,7 +1803,7 @@ int snd_hda_codec_reset(struct hda_codec
+ 		return -EBUSY;
  
- config COH901327_WATCHDOG
- 	bool "ST-Ericsson COH 901 327 watchdog"
--	depends on ARCH_U300 || (ARM && COMPILE_TEST)
-+	depends on ARCH_U300 || (ARM && COMMON_CLK && COMPILE_TEST)
- 	default y if MACH_U300
- 	select WATCHDOG_CORE
- 	help
--- 
-2.27.0
-
+ 	/* OK, let it free */
+-	snd_hdac_device_unregister(&codec->core);
++	device_release_driver(hda_codec_dev(codec));
+ 
+ 	/* allow device access again */
+ 	snd_hda_unlock_devices(bus);
+--- a/sound/pci/hda/hda_sysfs.c
++++ b/sound/pci/hda/hda_sysfs.c
+@@ -139,7 +139,7 @@ static int reconfig_codec(struct hda_cod
+ 			   "The codec is being used, can't reconfigure.\n");
+ 		goto error;
+ 	}
+-	err = snd_hda_codec_configure(codec);
++	err = device_reprobe(hda_codec_dev(codec));
+ 	if (err < 0)
+ 		goto error;
+ 	err = snd_card_register(codec->card);
 
 
