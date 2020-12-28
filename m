@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA7642E4018
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F82F2E3743
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388453AbgL1OsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:48:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58386 "EHLO mail.kernel.org"
+        id S1728082AbgL1MxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:53:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502726AbgL1OWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:22:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83892207B2;
-        Mon, 28 Dec 2020 14:22:04 +0000 (UTC)
+        id S1728066AbgL1MxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:53:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C557321D94;
+        Mon, 28 Dec 2020 12:52:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165325;
-        bh=bGare5+V4WK81xVo1PvOlyd3KvpwimvlkV0R4giQkh4=;
+        s=korg; t=1609159938;
+        bh=G7nfxjCotE97zJO4ym3np8gBJMDq0VUkcAbkBtEJTXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ec6CEB8r6MDYFTMwznW/CjcVv2E/QHfMfVXPez2Ctj8cQyU5r+x8m4kTcE4LABKhm
-         N8acgsHw3CR8EKrzdViRdSqTIaZv5ODyxUDcEO+0ox/3C3apz2fa/Vwvr8QQNC3HYc
-         kM/TY/c75QxzCYFI8FAc7FV/6xaV3LQFaybLUmzs=
+        b=DJeh66hTUgm4ki0YvsU2Ab5sA6aEFliEwIBp4JJ3fpWVw8J05afj70nCvLxBwXl/Q
+         J3T6Ah+Wqkw1ivV3ysFabqSM8Da29tUsxH387rUx9Nr/c8exSgN76xTLLFcsMybWeB
+         fTVg79Hvs3vMTilc3Yvwm+Rfc27OkErxKXonXIwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Soheil Hassas Yeganeh <soheil@google.com>,
-        Guantao Liu <guantaol@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 493/717] epoll: check for events when removing a timed out thread from the wait queue
-Date:   Mon, 28 Dec 2020 13:48:11 +0100
-Message-Id: <20201228125044.585494704@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 008/132] spi: Prevent adding devices below an unregistering controller
+Date:   Mon, 28 Dec 2020 13:48:12 +0100
+Message-Id: <20201228124846.806218057@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,127 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Soheil Hassas Yeganeh <soheil@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 289caf5d8f6c61c6d2b7fd752a7f483cd153f182 ]
+commit ddf75be47ca748f8b12d28ac64d624354fddf189 upstream
 
-Patch series "simplify ep_poll".
+CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
+using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
+same via sysfs.
 
-This patch series is a followup based on the suggestions and feedback by
-Linus:
-https://lkml.kernel.org/r/CAHk-=wizk=OxUyQPbO8MS41w2Pag1kniUV5WdD5qWL-gq1kjDA@mail.gmail.com
+But there are no precautions to prevent adding a device below a
+controller that's being removed.  Such a device is unusable and may not
+even be able to unbind cleanly as it becomes inaccessible once the
+controller has been torn down.  E.g. it is then impossible to quiesce
+the device's interrupt.
 
-The first patch in the series is a fix for the epoll race in presence of
-timeouts, so that it can be cleanly backported to all affected stable
-kernels.
+of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
+but otherwise run lockless against spi_unregister_controller().
 
-The rest of the patch series simplify the ep_poll() implementation.  Some
-of these simplifications result in minor performance enhancements as well.
-We have kept these changes under self tests and internal benchmarks for a
-few days, and there are minor (1-2%) performance enhancements as a result.
+Fix by holding the spi_add_lock in spi_unregister_controller() and
+bailing out of spi_add_device() if the controller has been unregistered
+concurrently.
 
-This patch (of 8):
-
-After abc610e01c66 ("fs/epoll: avoid barrier after an epoll_wait(2)
-timeout"), we break out of the ep_poll loop upon timeout, without checking
-whether there is any new events available.  Prior to that patch-series we
-always called ep_events_available() after exiting the loop.
-
-This can cause races and missed wakeups.  For example, consider the
-following scenario reported by Guantao Liu:
-
-Suppose we have an eventfd added using EPOLLET to an epollfd.
-
-Thread 1: Sleeps for just below 5ms and then writes to an eventfd.
-Thread 2: Calls epoll_wait with a timeout of 5 ms. If it sees an
-          event of the eventfd, it will write back on that fd.
-Thread 3: Calls epoll_wait with a negative timeout.
-
-Prior to abc610e01c66, it is guaranteed that Thread 3 will wake up either
-by Thread 1 or Thread 2.  After abc610e01c66, Thread 3 can be blocked
-indefinitely if Thread 2 sees a timeout right before the write to the
-eventfd by Thread 1.  Thread 2 will be woken up from
-schedule_hrtimeout_range and, with evail 0, it will not call
-ep_send_events().
-
-To fix this issue:
-1) Simplify the timed_out case as suggested by Linus.
-2) while holding the lock, recheck whether the thread was woken up
-   after its time out has reached.
-
-Note that (2) is different from Linus' original suggestion: It do not set
-"eavail = ep_events_available(ep)" to avoid unnecessary contention (when
-there are too many timed-out threads and a small number of events), as
-well as races mentioned in the discussion thread.
-
-This is the first patch in the series so that the backport to stable
-releases is straightforward.
-
-Link: https://lkml.kernel.org/r/20201106231635.3528496-1-soheil.kdev@gmail.com
-Link: https://lkml.kernel.org/r/CAHk-=wizk=OxUyQPbO8MS41w2Pag1kniUV5WdD5qWL-gq1kjDA@mail.gmail.com
-Link: https://lkml.kernel.org/r/20201106231635.3528496-2-soheil.kdev@gmail.com
-Fixes: abc610e01c66 ("fs/epoll: avoid barrier after an epoll_wait(2) timeout")
-Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
-Tested-by: Guantao Liu <guantaol@google.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Guantao Liu <guantaol@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.19+
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/eventpoll.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/spi/Kconfig |    3 +++
+ drivers/spi/spi.c   |   21 ++++++++++++++++++++-
+ 2 files changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 4df61129566d4..117b1c395ae4a 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1902,23 +1902,30 @@ fetch_events:
- 		}
- 		write_unlock_irq(&ep->lock);
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -706,4 +706,7 @@ endif # SPI_MASTER
  
--		if (eavail || res)
--			break;
-+		if (!eavail && !res)
-+			timed_out = !schedule_hrtimeout_range(to, slack,
-+							      HRTIMER_MODE_ABS);
+ # (slave support would go here)
  
--		if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS)) {
--			timed_out = 1;
--			break;
--		}
--
--		/* We were woken up, thus go and try to harvest some events */
-+		/*
-+		 * We were woken up, thus go and try to harvest some events.
-+		 * If timed out and still on the wait queue, recheck eavail
-+		 * carefully under lock, below.
-+		 */
- 		eavail = 1;
--
- 	} while (0);
++config SPI_DYNAMIC
++	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
++
+ endif # SPI
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -418,6 +418,12 @@ static LIST_HEAD(spi_master_list);
+  */
+ static DEFINE_MUTEX(board_lock);
  
- 	__set_current_state(TASK_RUNNING);
- 
- 	if (!list_empty_careful(&wait.entry)) {
- 		write_lock_irq(&ep->lock);
-+		/*
-+		 * If the thread timed out and is not on the wait queue, it
-+		 * means that the thread was woken up after its timeout expired
-+		 * before it could reacquire the lock. Thus, when wait.entry is
-+		 * empty, it needs to harvest events.
-+		 */
-+		if (timed_out)
-+			eavail = list_empty(&wait.entry);
- 		__remove_wait_queue(&ep->wq, &wait);
- 		write_unlock_irq(&ep->lock);
++/*
++ * Prevents addition of devices with same chip select and
++ * addition of devices below an unregistering controller.
++ */
++static DEFINE_MUTEX(spi_add_lock);
++
+ /**
+  * spi_alloc_device - Allocate a new SPI device
+  * @master: Controller to which device is connected
+@@ -496,7 +502,6 @@ static int spi_dev_check(struct device *
+  */
+ int spi_add_device(struct spi_device *spi)
+ {
+-	static DEFINE_MUTEX(spi_add_lock);
+ 	struct spi_master *master = spi->master;
+ 	struct device *dev = master->dev.parent;
+ 	int status;
+@@ -525,6 +530,13 @@ int spi_add_device(struct spi_device *sp
+ 		goto done;
  	}
--- 
-2.27.0
-
+ 
++	/* Controller may unregister concurrently */
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
++	    !device_is_registered(&master->dev)) {
++		status = -ENODEV;
++		goto done;
++	}
++
+ 	if (master->cs_gpios)
+ 		spi->cs_gpio = master->cs_gpios[spi->chip_select];
+ 
+@@ -1962,6 +1974,10 @@ static int __unregister(struct device *d
+  */
+ void spi_unregister_master(struct spi_master *master)
+ {
++	/* Prevent addition of new devices, unregister existing ones */
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
++		mutex_lock(&spi_add_lock);
++
+ 	device_for_each_child(&master->dev, NULL, __unregister);
+ 
+ 	if (master->queued) {
+@@ -1981,6 +1997,9 @@ void spi_unregister_master(struct spi_ma
+ 	if (!devres_find(master->dev.parent, devm_spi_release_master,
+ 			 devm_spi_match_master, master))
+ 		put_device(&master->dev);
++
++	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
++		mutex_unlock(&spi_add_lock);
+ }
+ EXPORT_SYMBOL_GPL(spi_unregister_master);
+ 
 
 
