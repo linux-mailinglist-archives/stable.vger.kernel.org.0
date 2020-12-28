@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDC22E66A4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D14282E66A6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387519AbgL1NSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:18:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47074 "EHLO mail.kernel.org"
+        id S1731776AbgL1NSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387517AbgL1NSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32662208BA;
-        Mon, 28 Dec 2020 13:17:48 +0000 (UTC)
+        id S2387521AbgL1NSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C23321D94;
+        Mon, 28 Dec 2020 13:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161469;
-        bh=HKVBM16avOEKdjz+NaHmxjroT+xlNi3GmgGkoe+Jq/U=;
+        s=korg; t=1609161472;
+        bh=myJXd/ejH3AtWz8r5FJjFiaPuC1NOfsQw5brZ6bn/5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LIrqxJipnRbvU5u0CnuIJS2V+Dj96XnZA/jIP/K5vCp18mTZHnlOvwvss1foCFcIY
-         uxMKqMNbV7JCTIp1q3xY2NKsFynRwimdDskrMsSwZowb6udo4brVYao0la7fhCEHZV
-         0mBlU8vKseWjW5Bgm1Nn/Flv7SQnNGapu8qIdF2k=
+        b=M86UWaP0ALu43hISx2hjqSGQc3n7D4l0ynjdjZkmqGrhZnAxOW8Mja6TLi88Qkuaa
+         ByQ2d+9AnrOQ4P0Uj4YBzkDSKRRZnXo9CJEYXcN2Ok67+zJFPVxRLebTwhdb4CJBxi
+         yJY0j+yh13vlmbNMVifE3YGNbCpS7A0AxgfjU734=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Bert Vermeulen <bert@biot.com>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 223/242] spi: rb4xx: Dont leak SPI master in probe error path
-Date:   Mon, 28 Dec 2020 13:50:28 +0100
-Message-Id: <20201228124915.647530034@linuxfoundation.org>
+        Phil Reid <preid@electromag.com.au>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 224/242] spi: sc18is602: Dont leak SPI master in probe error path
+Date:   Mon, 28 Dec 2020 13:50:29 +0100
+Message-Id: <20201228124915.700979989@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,37 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit a4729c3506c3eb1a6ca5c0289f4e7cafa4115065 upstream.
+commit 5b8c88462d83331dacb48aeaec8388117fef82e0 upstream.
 
-If the calls to devm_clk_get(), devm_spi_register_master() or
-clk_prepare_enable() fail on probe of the Mikrotik RB4xx SPI driver,
-the spi_master struct is erroneously not freed.
+If the call to devm_gpiod_get_optional() fails on probe of the NXP
+SC18IS602/603 SPI driver, the spi_master struct is erroneously not freed.
 
 Fix by switching over to the new devm_spi_alloc_master() helper.
 
-Fixes: 05aec357871f ("spi: Add SPI driver for Mikrotik RB4xx series boards")
+Fixes: f99008013e19 ("spi: sc18is602: Add reset control via gpio pin.")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.2+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.2+
-Cc: Bert Vermeulen <bert@biot.com>
-Link: https://lore.kernel.org/r/369bf26d71927f60943b1d9d8f51810f00b0237d.1607286887.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v4.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Phil Reid <preid@electromag.com.au>
+Link: https://lore.kernel.org/r/d5f715527b894b91d530fe11a86f51b3184a4e1a.1607286887.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-rb4xx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-sc18is602.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/spi/spi-rb4xx.c
-+++ b/drivers/spi/spi-rb4xx.c
-@@ -148,7 +148,7 @@ static int rb4xx_spi_probe(struct platfo
- 	if (IS_ERR(spi_base))
- 		return PTR_ERR(spi_base);
+--- a/drivers/spi/spi-sc18is602.c
++++ b/drivers/spi/spi-sc18is602.c
+@@ -248,13 +248,12 @@ static int sc18is602_probe(struct i2c_cl
+ 	struct sc18is602_platform_data *pdata = dev_get_platdata(dev);
+ 	struct sc18is602 *hw;
+ 	struct spi_master *master;
+-	int error;
  
--	master = spi_alloc_master(&pdev->dev, sizeof(*rbspi));
-+	master = devm_spi_alloc_master(&pdev->dev, sizeof(*rbspi));
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
+ 				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+ 		return -EINVAL;
+ 
+-	master = spi_alloc_master(dev, sizeof(struct sc18is602));
++	master = devm_spi_alloc_master(dev, sizeof(struct sc18is602));
  	if (!master)
  		return -ENOMEM;
  
+@@ -308,15 +307,7 @@ static int sc18is602_probe(struct i2c_cl
+ 	master->min_speed_hz = hw->freq / 128;
+ 	master->max_speed_hz = hw->freq / 4;
+ 
+-	error = devm_spi_register_master(dev, master);
+-	if (error)
+-		goto error_reg;
+-
+-	return 0;
+-
+-error_reg:
+-	spi_master_put(master);
+-	return error;
++	return devm_spi_register_master(dev, master);
+ }
+ 
+ static const struct i2c_device_id sc18is602_id[] = {
 
 
