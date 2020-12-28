@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93A892E3AEB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155C22E3951
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404446AbgL1NnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:43:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
+        id S2388131AbgL1NVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:21:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404441AbgL1NnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:43:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E519820731;
-        Mon, 28 Dec 2020 13:42:59 +0000 (UTC)
+        id S2388125AbgL1NVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:21:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 000B622A84;
+        Mon, 28 Dec 2020 13:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162980;
-        bh=tcm3hy+Kvs/ttSTig7YLBWJy0rFbu6SrNmbnPn61H2o=;
+        s=korg; t=1609161661;
+        bh=U3yHKivQRVGNFrJtSvxdpBPinVe69YAA6C0rK95jaQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGrzd6uj7a1fG8It15jhM8PJxvN9o9qM+umWShcZoQfpW99KAUKOKQHDyiv8eoL4F
-         tGf7hEuxtWKF6AX08K84fCUUrGHpEDTnd3L/qNfJ8QGxPqmNhm2SBuKnYbSqUe0cSV
-         Bec6mmD6ce0ddo8Xif1sI2h1Fkjy9afjz+P6Qn98=
+        b=UM01AABcOBr9apjPMlLQdb/f6TGUyable2E6ywhnkS5h4KYM0Bl4C/ON4+rYwvT3b
+         wVItDZgM2q3rU0D399OT/DR3nNkU8t1wPVvDWRzCLuIqDzoPWo+irtDRFSju/U0mTH
+         46k6e4tsPl5rdTPk/OLILCnmth5LiDm2urOgQFH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/453] RDMa/mthca: Work around -Wenum-conversion warning
+        stable@vger.kernel.org,
+        "David C. Partridge" <david.partridge@perdrix.co.uk>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 044/346] USB: UAS: introduce a quirk to set no_write_same
 Date:   Mon, 28 Dec 2020 13:46:03 +0100
-Message-Id: <20201228124943.329214273@linuxfoundation.org>
+Message-Id: <20201228124921.920510440@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit fbb7dc5db6dee553b5a07c27e86364a5223e244c ]
+commit 8010622c86ca5bb44bc98492f5968726fc7c7a21 upstream.
 
-gcc points out a suspicious mixing of enum types in a function that
-converts from MTHCA_OPCODE_* values to IB_WC_* values:
+UAS does not share the pessimistic assumption storage is making that
+devices cannot deal with WRITE_SAME.  A few devices supported by UAS,
+are reported to not deal well with WRITE_SAME. Those need a quirk.
 
-drivers/infiniband/hw/mthca/mthca_cq.c: In function 'mthca_poll_one':
-drivers/infiniband/hw/mthca/mthca_cq.c:607:21: warning: implicit conversion from 'enum <anonymous>' to 'enum ib_wc_opcode' [-Wenum-conversion]
-  607 |    entry->opcode    = MTHCA_OPCODE_INVALID;
+Add it to the device that needs it.
 
-Nothing seems to ever check for MTHCA_OPCODE_INVALID again, no idea if
-this is meaningful, but it seems harmless as it deals with an invalid
-input.
+Reported-by: David C. Partridge <david.partridge@perdrix.co.uk>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201209152639.9195-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Remove MTHCA_OPCODE_INVALID and set the ib_wc_opcode to 0xFF, which is
-still bogus, but at least doesn't make compiler warnings.
-
-Fixes: 2a4443a69934 ("[PATCH] IB/mthca: fill in opcode field for send completions")
-Link: https://lore.kernel.org/r/20201026211311.3887003-1-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mthca/mthca_cq.c  | 2 +-
- drivers/infiniband/hw/mthca/mthca_dev.h | 1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |    1 +
+ drivers/usb/storage/uas.c                       |    3 +++
+ drivers/usb/storage/unusual_uas.h               |    7 +++++--
+ drivers/usb/storage/usb.c                       |    3 +++
+ include/linux/usb_usual.h                       |    2 ++
+ 5 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
-index 119b2573c9a08..26c3408dcacae 100644
---- a/drivers/infiniband/hw/mthca/mthca_cq.c
-+++ b/drivers/infiniband/hw/mthca/mthca_cq.c
-@@ -604,7 +604,7 @@ static inline int mthca_poll_one(struct mthca_dev *dev,
- 			entry->byte_len  = MTHCA_ATOMIC_BYTE_LEN;
- 			break;
- 		default:
--			entry->opcode    = MTHCA_OPCODE_INVALID;
-+			entry->opcode = 0xFF;
- 			break;
- 		}
- 	} else {
-diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
-index bfd4eebc1182f..58d46449b0e86 100644
---- a/drivers/infiniband/hw/mthca/mthca_dev.h
-+++ b/drivers/infiniband/hw/mthca/mthca_dev.h
-@@ -105,7 +105,6 @@ enum {
- 	MTHCA_OPCODE_ATOMIC_CS      = 0x11,
- 	MTHCA_OPCODE_ATOMIC_FA      = 0x12,
- 	MTHCA_OPCODE_BIND_MW        = 0x18,
--	MTHCA_OPCODE_INVALID        = 0xff
- };
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4998,6 +4998,7 @@
+ 					device);
+ 				j = NO_REPORT_LUNS (don't use report luns
+ 					command, uas only);
++				k = NO_SAME (do not use WRITE_SAME, uas only)
+ 				l = NOT_LOCKABLE (don't try to lock and
+ 					unlock ejectable media, not on uas);
+ 				m = MAX_SECTORS_64 (don't transfer more
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -874,6 +874,9 @@ static int uas_slave_configure(struct sc
+ 	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
+ 		sdev->no_read_capacity_16 = 1;
  
- enum {
--- 
-2.27.0
-
++	/* Some disks cannot handle WRITE_SAME */
++	if (devinfo->flags & US_FL_NO_SAME)
++		sdev->no_write_same = 1;
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -35,12 +35,15 @@ UNUSUAL_DEV(0x054c, 0x087d, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_OPCODES),
+ 
+-/* Reported-by: Julian Groß <julian.g@posteo.de> */
++/*
++ *  Initially Reported-by: Julian Groß <julian.g@posteo.de>
++ *  Further reports David C. Partridge <david.partridge@perdrix.co.uk>
++ */
+ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
+ 		"LaCie",
+ 		"2Big Quadra USB3",
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_NO_REPORT_OPCODES),
++		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+ 
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+--- a/drivers/usb/storage/usb.c
++++ b/drivers/usb/storage/usb.c
+@@ -541,6 +541,9 @@ void usb_stor_adjust_quirks(struct usb_d
+ 		case 'j':
+ 			f |= US_FL_NO_REPORT_LUNS;
+ 			break;
++		case 'k':
++			f |= US_FL_NO_SAME;
++			break;
+ 		case 'l':
+ 			f |= US_FL_NOT_LOCKABLE;
+ 			break;
+--- a/include/linux/usb_usual.h
++++ b/include/linux/usb_usual.h
+@@ -84,6 +84,8 @@
+ 		/* Cannot handle REPORT_LUNS */			\
+ 	US_FLAG(ALWAYS_SYNC, 0x20000000)			\
+ 		/* lies about caching, so always sync */	\
++	US_FLAG(NO_SAME, 0x40000000)				\
++		/* Cannot handle WRITE_SAME */			\
+ 
+ #define US_FLAG(name, value)	US_FL_##name = value ,
+ enum { US_DO_ALL_FLAGS };
 
 
