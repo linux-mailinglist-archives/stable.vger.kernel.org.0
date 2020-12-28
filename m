@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CCC2E3E23
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:25:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0AC2E3B8F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503074AbgL1OYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60566 "EHLO mail.kernel.org"
+        id S2406930AbgL1Nvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:51:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503068AbgL1OYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61910221F0;
-        Mon, 28 Dec 2020 14:23:43 +0000 (UTC)
+        id S2406921AbgL1Nvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A44E22AAA;
+        Mon, 28 Dec 2020 13:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165424;
-        bh=6CxI0oYMukW3gknS1K+e8u/qrECFPRdN1esVcMhONXo=;
+        s=korg; t=1609163450;
+        bh=lTAu36PeAIUM246DJgTHHIVmE5guwNs/u1OzxfBnD6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08TrYlnR5TMiH1JTvL7ikT9Re9HxvmVxY9+rlUb3bX3tG3btw+sthA4Pyqs/xdhfY
-         bJdsd3jDuQFsLUdXApjmP5f0PizvFcxqerZkm+LXpcArCRp0ouxUK40ygZZfT1LfwZ
-         0Y9RRDIsqlvdCMvs8NUqbZA56guWT0K2RP8NglDU=
+        b=QggLmyZLaGHfbgxD2ps9Ad4rF0AougiX5DWeECJe0yjHRRU4MK8pMKIOnjTWZuwiy
+         7FGGXRVRySP0cTLlsyyV22iH71NNrbPZ5NAixt9fwCIYOef/AZlt24IS8Lapw1RGGn
+         NCgf2bL3ZUoVpbOaLIaOL39vtqiqBSotpiV1ySrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 527/717] media: ipu3-cio2: Validate mbus format in setting subdev format
-Date:   Mon, 28 Dec 2020 13:48:45 +0100
-Message-Id: <20201228125046.214023397@linuxfoundation.org>
+        stable@vger.kernel.org, Dwaipayan Ray <dwaipayanray1@gmail.com>,
+        Joe Perches <joe@perches.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 290/453] checkpatch: fix unescaped left brace
+Date:   Mon, 28 Dec 2020 13:48:46 +0100
+Message-Id: <20201228124951.162420855@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Dwaipayan Ray <dwaipayanray1@gmail.com>
 
-commit a86cf9b29e8b12811cf53c4970eefe0c1d290476 upstream.
+[ Upstream commit 03f4935135b9efeb780b970ba023c201f81cf4e6 ]
 
-Validate media bus code, width and height when setting the subdev format.
+There is an unescaped left brace in a regex in OPEN_BRACE check.  This
+throws a runtime error when checkpatch is run with --fix flag and the
+OPEN_BRACE check is executed.
 
-This effectively reworks how setting subdev format is implemented in the
-driver.
+Fix it by escaping the left brace.
 
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lkml.kernel.org/r/20201115202928.81955-1-dwaipayanray1@gmail.com
+Fixes: 8d1824780f2f ("checkpatch: add --fix option for a couple OPEN_BRACE misuses")
+Signed-off-by: Dwaipayan Ray <dwaipayanray1@gmail.com>
+Acked-by: Joe Perches <joe@perches.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ scripts/checkpatch.pl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1258,6 +1258,9 @@ static int cio2_subdev_set_fmt(struct v4
- 			       struct v4l2_subdev_format *fmt)
- {
- 	struct cio2_queue *q = container_of(sd, struct cio2_queue, subdev);
-+	struct v4l2_mbus_framefmt *mbus;
-+	u32 mbus_code = fmt->format.code;
-+	unsigned int i;
- 
- 	/*
- 	 * Only allow setting sink pad format;
-@@ -1266,18 +1269,26 @@ static int cio2_subdev_set_fmt(struct v4
- 	if (fmt->pad == CIO2_PAD_SOURCE)
- 		return cio2_subdev_get_fmt(sd, cfg, fmt);
- 
--	mutex_lock(&q->subdev_lock);
-+	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY)
-+		mbus = v4l2_subdev_get_try_format(sd, cfg, fmt->pad);
-+	else
-+		mbus = &q->subdev_fmt;
-+
-+	fmt->format.code = formats[0].mbus_code;
- 
--	if (fmt->which == V4L2_SUBDEV_FORMAT_TRY) {
--		*v4l2_subdev_get_try_format(sd, cfg, fmt->pad) = fmt->format;
--	} else {
--		/* It's the sink, allow changing frame size */
--		q->subdev_fmt.width = fmt->format.width;
--		q->subdev_fmt.height = fmt->format.height;
--		q->subdev_fmt.code = fmt->format.code;
--		fmt->format = q->subdev_fmt;
-+	for (i = 0; i < ARRAY_SIZE(formats); i++) {
-+		if (formats[i].mbus_code == fmt->format.code) {
-+			fmt->format.code = mbus_code;
-+			break;
-+		}
- 	}
- 
-+	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
-+	fmt->format.height = min_t(u32, fmt->format.height,
-+				   CIO2_IMAGE_MAX_LENGTH);
-+
-+	mutex_lock(&q->subdev_lock);
-+	*mbus = fmt->format;
- 	mutex_unlock(&q->subdev_lock);
- 
- 	return 0;
+diff --git a/scripts/checkpatch.pl b/scripts/checkpatch.pl
+index 0c9b114202796..a358af93cd7fc 100755
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -4150,7 +4150,7 @@ sub process {
+ 			    $fix) {
+ 				fix_delete_line($fixlinenr, $rawline);
+ 				my $fixed_line = $rawline;
+-				$fixed_line =~ /(^..*$Type\s*$Ident\(.*\)\s*){(.*)$/;
++				$fixed_line =~ /(^..*$Type\s*$Ident\(.*\)\s*)\{(.*)$/;
+ 				my $line1 = $1;
+ 				my $line2 = $2;
+ 				fix_insert_line($fixlinenr, ltrim($line1));
+-- 
+2.27.0
+
 
 
