@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E54582E3788
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6714D2E3F86
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:42:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728881AbgL1M5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53436 "EHLO mail.kernel.org"
+        id S2502540AbgL1Okz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:40:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728877AbgL1M47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:56:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5643E22B2A;
-        Mon, 28 Dec 2020 12:56:18 +0000 (UTC)
+        id S2502473AbgL1O2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:28:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EC620739;
+        Mon, 28 Dec 2020 14:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160179;
-        bh=ONt4nk/a+QTVXVjJdUb9gQVVvW0lf3awMesF8wzikHQ=;
+        s=korg; t=1609165676;
+        bh=I2cXp1MT7EnjWf0cayzQn7ATh5TaaXPWvohR2tD1TEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPH3NvyN+hyd0Ltv4pC0rMXfyMA39lmbioSAWm0x/uBUl4xLCYPLR4qYuWe8Tw3Pt
-         /SBYjX6QXDdmlT34PSmhXv5x6fxqS5LjJAqKt8gFzmC1EiuBRIlAlupVLYRyPLOr4p
-         bpPXCxfxRUy41i75ZkyqWpKI3+QEzWJTTPPO4SzE=
+        b=uIyHc9ydFlRa5c3HJw5tMWNJGex/n4zECohOuI4cGQ7Lp8VEs5O7nbkgGP0JC2TFk
+         3Vnc+dF0JlsnzDtNMNW0HZGGn7NzAeQbqB8fh6fYCVY6rdIzJS8WyK4dX5lUZhU/Iq
+         kWB1DMI8CwtMu1y251pP3Zm7YyokcrWzG9xI+U+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 088/132] net: allwinner: Fix some resources leak in the error handling path of the probe and in the remove function
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 574/717] Documentation: seqlock: s/LOCKTYPE/LOCKNAME/g
 Date:   Mon, 28 Dec 2020 13:49:32 +0100
-Message-Id: <20201228124850.682868257@linuxfoundation.org>
+Message-Id: <20201228125048.421617679@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ahmed S. Darwish <a.darwish@linutronix.de>
 
-[ Upstream commit 322e53d1e2529ae9d501f5e0f20604a79b873aef ]
+commit cf48647243cc28d15280600292db5777592606c5 upstream.
 
-'irq_of_parse_and_map()' should be balanced by a corresponding
-'irq_dispose_mapping()' call. Otherwise, there is some resources leaks.
+Sequence counters with an associated write serialization lock are called
+seqcount_LOCKNAME_t. Fix the documentation accordingly.
 
-Add such a call in the error handling path of the probe function and in the
-remove function.
+While at it, remove a paragraph that inappropriately discussed a
+seqlock.h implementation detail.
 
-Fixes: 492205050d77 ("net: Add EMAC ethernet driver found on Allwinner A10 SoC's")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201214202117.146293-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6dd699b13d53 ("seqlock: seqcount_LOCKNAME_t: Standardize naming convention")
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20201206162143.14387-2-a.darwish@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Documentation/locking/seqlock.rst |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index dde3cd2d47631..10dda58849c6e 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -853,13 +853,13 @@ static int emac_probe(struct platform_device *pdev)
- 	db->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(db->clk)) {
- 		ret = PTR_ERR(db->clk);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
+--- a/Documentation/locking/seqlock.rst
++++ b/Documentation/locking/seqlock.rst
+@@ -89,7 +89,7 @@ Read path::
  
- 	ret = clk_prepare_enable(db->clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Error couldn't enable clock (%d)\n", ret);
--		goto out_iounmap;
-+		goto out_dispose_mapping;
- 	}
+ .. _seqcount_locktype_t:
  
- 	ret = sunxi_sram_claim(&pdev->dev);
-@@ -916,6 +916,8 @@ out_release_sram:
- 	sunxi_sram_release(&pdev->dev);
- out_clk_disable_unprepare:
- 	clk_disable_unprepare(db->clk);
-+out_dispose_mapping:
-+	irq_dispose_mapping(ndev->irq);
- out_iounmap:
- 	iounmap(db->membase);
- out:
-@@ -934,6 +936,7 @@ static int emac_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	sunxi_sram_release(&pdev->dev);
- 	clk_disable_unprepare(db->clk);
-+	irq_dispose_mapping(ndev->irq);
- 	iounmap(db->membase);
- 	free_netdev(ndev);
+-Sequence counters with associated locks (``seqcount_LOCKTYPE_t``)
++Sequence counters with associated locks (``seqcount_LOCKNAME_t``)
+ -----------------------------------------------------------------
  
--- 
-2.27.0
-
+ As discussed at :ref:`seqcount_t`, sequence count write side critical
+@@ -115,27 +115,26 @@ The following sequence counters with ass
+   - ``seqcount_mutex_t``
+   - ``seqcount_ww_mutex_t``
+ 
+-The plain seqcount read and write APIs branch out to the specific
+-seqcount_LOCKTYPE_t implementation at compile-time. This avoids kernel
+-API explosion per each new seqcount LOCKTYPE.
++The sequence counter read and write APIs can take either a plain
++seqcount_t or any of the seqcount_LOCKNAME_t variants above.
+ 
+-Initialization (replace "LOCKTYPE" with one of the supported locks)::
++Initialization (replace "LOCKNAME" with one of the supported locks)::
+ 
+ 	/* dynamic */
+-	seqcount_LOCKTYPE_t foo_seqcount;
+-	seqcount_LOCKTYPE_init(&foo_seqcount, &lock);
++	seqcount_LOCKNAME_t foo_seqcount;
++	seqcount_LOCKNAME_init(&foo_seqcount, &lock);
+ 
+ 	/* static */
+-	static seqcount_LOCKTYPE_t foo_seqcount =
+-		SEQCNT_LOCKTYPE_ZERO(foo_seqcount, &lock);
++	static seqcount_LOCKNAME_t foo_seqcount =
++		SEQCNT_LOCKNAME_ZERO(foo_seqcount, &lock);
+ 
+ 	/* C99 struct init */
+ 	struct {
+-		.seq   = SEQCNT_LOCKTYPE_ZERO(foo.seq, &lock),
++		.seq   = SEQCNT_LOCKNAME_ZERO(foo.seq, &lock),
+ 	} foo;
+ 
+ Write path: same as in :ref:`seqcount_t`, while running from a context
+-with the associated LOCKTYPE lock acquired.
++with the associated write serialization lock acquired.
+ 
+ Read path: same as in :ref:`seqcount_t`.
+ 
 
 
