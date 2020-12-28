@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C547B2E3DE9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA282E3B53
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437940AbgL1OVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:21:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56840 "EHLO mail.kernel.org"
+        id S2405964AbgL1Nsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:48:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502581AbgL1OVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:21:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C16422AAA;
-        Mon, 28 Dec 2020 14:20:35 +0000 (UTC)
+        id S2405949AbgL1Nsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:48:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 878B7208B3;
+        Mon, 28 Dec 2020 13:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165236;
-        bh=1nDgGknWBmv1BH/g6hqZLjhfPhhRHpLAfYTIg+dyEIc=;
+        s=korg; t=1609163283;
+        bh=U6SqWbEkaG/8u1jjxg/WAFc0b1gBsJItYBAL4O4GLsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhWDQx6L1s23HC8OuZxeyCK/pdPrpt605AwT0VUMDId4rXM/vo0m6WGzzp67W2mH0
-         wRFV8KHCl9D/Ayegy/A0cDkU7vsueF+/WfIwTbd2YWo0zXUtSRMQJM910/bFVEY+08
-         W4bVCMcT5ZpEqKHrmIu6LJnwSWwySOwzR9kYlP8E=
+        b=oBAZIdO98o4/Ekyv0/+olKStfnBLVoQt+ZAw/MZlwY3CwJOnJKckD7bk5Jj57WEeg
+         FvBSoHedHUbIDkpnXux54R5fFi9KJwXmbgXty+MfM3Uz/jlj9w/0M0BHI6kkS0pH5d
+         /E12T0Ep1QoWovc0bcXSLMjLO861QFdS/jpCB37I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 443/717] powerpc/ps3: use dma_mapping_error()
+Subject: [PATCH 5.4 205/453] NFS: switch nfsiod to be an UNBOUND workqueue.
 Date:   Mon, 28 Dec 2020 13:47:21 +0100
-Message-Id: <20201228125042.194295189@linuxfoundation.org>
+Message-Id: <20201228124947.080807659@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit d0edaa28a1f7830997131cbce87b6c52472825d1 ]
+[ Upstream commit bf701b765eaa82dd164d65edc5747ec7288bb5c3 ]
 
-The DMA address returned by dma_map_single() should be checked with
-dma_mapping_error(). Fix the ps3stor_setup() function accordingly.
+nfsiod is currently a concurrency-managed workqueue (CMWQ).
+This means that workitems scheduled to nfsiod on a given CPU are queued
+behind all other work items queued on any CMWQ on the same CPU.  This
+can introduce unexpected latency.
 
-Fixes: 80071802cb9c ("[POWERPC] PS3: Storage Driver Core")
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201213182622.23047-1-vincent.stehle@laposte.net
+Occaionally nfsiod can even cause excessive latency.  If the work item
+to complete a CLOSE request calls the final iput() on an inode, the
+address_space of that inode will be dismantled.  This takes time
+proportional to the number of in-memory pages, which on a large host
+working on large files (e.g..  5TB), can be a large number of pages
+resulting in a noticable number of seconds.
+
+We can avoid these latency problems by switching nfsiod to WQ_UNBOUND.
+This causes each concurrent work item to gets a dedicated thread which
+can be scheduled to an idle CPU.
+
+There is precedent for this as several other filesystems use WQ_UNBOUND
+workqueue for handling various async events.
+
+Signed-off-by: NeilBrown <neilb@suse.de>
+Fixes: ada609ee2ac2 ("workqueue: use WQ_MEM_RECLAIM instead of WQ_RESCUER")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ps3/ps3stor_lib.c | 2 +-
+ fs/nfs/inode.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ps3/ps3stor_lib.c b/drivers/ps3/ps3stor_lib.c
-index 333ba83006e48..a12a1ad9b5fe3 100644
---- a/drivers/ps3/ps3stor_lib.c
-+++ b/drivers/ps3/ps3stor_lib.c
-@@ -189,7 +189,7 @@ int ps3stor_setup(struct ps3_storage_device *dev, irq_handler_t handler)
- 	dev->bounce_lpar = ps3_mm_phys_to_lpar(__pa(dev->bounce_buf));
- 	dev->bounce_dma = dma_map_single(&dev->sbd.core, dev->bounce_buf,
- 					 dev->bounce_size, DMA_BIDIRECTIONAL);
--	if (!dev->bounce_dma) {
-+	if (dma_mapping_error(&dev->sbd.core, dev->bounce_dma)) {
- 		dev_err(&dev->sbd.core, "%s:%u: map DMA region failed\n",
- 			__func__, __LINE__);
- 		error = -ENODEV;
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 6de41f7412808..53604cc090ca5 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -2151,7 +2151,7 @@ static int nfsiod_start(void)
+ {
+ 	struct workqueue_struct *wq;
+ 	dprintk("RPC:       creating workqueue nfsiod\n");
+-	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM, 0);
++	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM | WQ_UNBOUND, 0);
+ 	if (wq == NULL)
+ 		return -ENOMEM;
+ 	nfsiod_workqueue = wq;
 -- 
 2.27.0
 
