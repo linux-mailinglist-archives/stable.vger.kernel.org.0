@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6892E6903
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DDF2E66C0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729008AbgL1M5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:57:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53728 "EHLO mail.kernel.org"
+        id S1731606AbgL1NRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:17:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729002AbgL1M5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:57:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A552B229C6;
-        Mon, 28 Dec 2020 12:57:23 +0000 (UTC)
+        id S1731597AbgL1NRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:17:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E36F7207F7;
+        Mon, 28 Dec 2020 13:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160244;
-        bh=qCPZnGg71nA+DH7EWZ4M3f0d3yuNrU/7XVXfB7ri/M0=;
+        s=korg; t=1609161423;
+        bh=iLYMcQBwitkX9mE9n7XKOk4UMtd6LaR0JtVOcPrOQiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0yDvi9b908dT0Njykr8PmSL2POmZHvk00kJ7yHqKLM4dDcK9VI7Xj5iPJOUiOlSw
-         4hIyfT+Osgk/wUU/y42fhZmlmg+V8K+wuVi0FuoAhH3MyK77RAiA4xqMI0vLqJbnAI
-         L8d1VViBljKkSJvNMMWCXsmy7XEHzrUae7MpNWF8=
+        b=h1yL9L+lGGXFdOa/PMI3fAbbVlKwErxQR1YufwCVEHZ8SxReii4rqDypiXaDc90tt
+         dJqnZAFEFEUgEqUckfzRQlg/FgY5/jxyTMwcTA0GTJEFx+LNMIGl9edyzGUGelhLM5
+         2hW71p/NOKX+AkY7EhrkS3ewTmwdbeN1DVsr1ULQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 090/132] clk: ti: Fix memleak in ti_fapll_synth_setup
+Subject: [PATCH 4.14 169/242] watchdog: coh901327: add COMMON_CLK dependency
 Date:   Mon, 28 Dec 2020 13:49:34 +0100
-Message-Id: <20201228124850.777225725@linuxfoundation.org>
+Message-Id: <20201228124913.018110163@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 8c6239f6e95f583bb763d0228e02d4dd0fb3d492 ]
+[ Upstream commit 36c47df85ee8e1f8a35366ac11324f8875de00eb ]
 
-If clk_register fails, we should goto free branch
-before function returns to prevent memleak.
+clang produces a build failure in configurations without COMMON_CLK
+when a timeout calculation goes wrong:
 
-Fixes: 163152cbbe321 ("clk: ti: Add support for FAPLL on dm816x")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201113131623.2098222-1-zhangqilong3@huawei.com
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+arm-linux-gnueabi-ld: drivers/watchdog/coh901327_wdt.o: in function `coh901327_enable':
+coh901327_wdt.c:(.text+0x50): undefined reference to `__bad_udelay'
+
+Add a Kconfig dependency to only do build testing when COMMON_CLK
+is enabled.
+
+Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201203223358.1269372-1-arnd@kernel.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/fapll.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ti/fapll.c b/drivers/clk/ti/fapll.c
-index 66a0d0ed8b550..02ff499e36536 100644
---- a/drivers/clk/ti/fapll.c
-+++ b/drivers/clk/ti/fapll.c
-@@ -497,6 +497,7 @@ static struct clk * __init ti_fapll_synth_setup(struct fapll_data *fd,
- {
- 	struct clk_init_data *init;
- 	struct fapll_synth *synth;
-+	struct clk *clk = ERR_PTR(-ENOMEM);
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 529b0527bf2e2..de228669a2c8b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -495,7 +495,7 @@ config SUNXI_WATCHDOG
  
- 	init = kzalloc(sizeof(*init), GFP_KERNEL);
- 	if (!init)
-@@ -519,13 +520,19 @@ static struct clk * __init ti_fapll_synth_setup(struct fapll_data *fd,
- 	synth->hw.init = init;
- 	synth->clk_pll = pll_clk;
- 
--	return clk_register(NULL, &synth->hw);
-+	clk = clk_register(NULL, &synth->hw);
-+	if (IS_ERR(clk)) {
-+		pr_err("failed to register clock\n");
-+		goto free;
-+	}
-+
-+	return clk;
- 
- free:
- 	kfree(synth);
- 	kfree(init);
- 
--	return ERR_PTR(-ENOMEM);
-+	return clk;
- }
- 
- static void __init ti_fapll_setup(struct device_node *node)
+ config COH901327_WATCHDOG
+ 	bool "ST-Ericsson COH 901 327 watchdog"
+-	depends on ARCH_U300 || (ARM && COMPILE_TEST)
++	depends on ARCH_U300 || (ARM && COMMON_CLK && COMPILE_TEST)
+ 	default y if MACH_U300
+ 	select WATCHDOG_CORE
+ 	help
 -- 
 2.27.0
 
