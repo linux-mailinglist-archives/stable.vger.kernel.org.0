@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A582E66E1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A02A62E6830
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732733AbgL1NPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
+        id S2633321AbgL1Qcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:32:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732723AbgL1NPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:15:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86175208BA;
-        Mon, 28 Dec 2020 13:14:58 +0000 (UTC)
+        id S1730620AbgL1NFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:05:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AD36208BA;
+        Mon, 28 Dec 2020 13:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161299;
-        bh=ztMcmLP2ndXdqPR+hukrhRnfY7xl5Qigjm84IOAIvwk=;
+        s=korg; t=1609160690;
+        bh=tMxKk1dA9zroC0Ot3nMh5RXMEalN7FryCBJZmPAqsSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZr91lxrALg2jBIflJfUL3/sYTFM/O6V3eVUsuc8mmzmE3kGOtXt0Cit3Jy6fl7pX
-         AjkxzlihabgeoAzMOvB9dON+3+W7pj7lPZi7c0FSFW+nNdMMwt0meMyN0SLRm2h5eO
-         JnfOiKsxgZkEONZQTMxSAUIRXWTel7hLYXECNS08=
+        b=kXdBXouq6+NsuWu9aesPRizOLAfMlsZWbobl8dGqTvqWCFAlkddlNtrUUy9NQ+p9i
+         GmYoqowYNg95BdCadebs70eGUFPoIzu2ipRpTFEOyHzcnEpPpKrN+YvX9tjnZ8UsjB
+         ZJIJEkGcA3bQ7o8BFiaopUBmsXEpgQ25ZGR7QpK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 167/242] net: korina: fix return value
-Date:   Mon, 28 Dec 2020 13:49:32 +0100
-Message-Id: <20201228124912.916528298@linuxfoundation.org>
+Subject: [PATCH 4.9 120/175] net: bcmgenet: Fix a resource leak in an error handling path in the probe functin
+Date:   Mon, 28 Dec 2020 13:49:33 +0100
+Message-Id: <20201228124859.072412064@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 7eb000bdbe7c7da811ef51942b356f6e819b13ba ]
+[ Upstream commit 4375ada01963d1ebf733d60d1bb6e5db401e1ac6 ]
 
-The ndo_start_xmit() method must not attempt to free the skb to transmit
-when returning NETDEV_TX_BUSY. Therefore, make sure the
-korina_send_packet() function returns NETDEV_TX_OK when it frees a packet.
+If the 'register_netdev()' call fails, we must undo a previous
+'bcmgenet_mii_init()' call.
 
-Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20201214220952.19935-1-vincent.stehle@laposte.net
+Link: https://lore.kernel.org/r/20201212182005.120437-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/korina.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
-index 1eccdbaa9a515..ec1c14e3eace6 100644
---- a/drivers/net/ethernet/korina.c
-+++ b/drivers/net/ethernet/korina.c
-@@ -216,7 +216,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
- 			dev_kfree_skb_any(skb);
- 			spin_unlock_irqrestore(&lp->lock, flags);
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 5d4189c94718c..2921ae13db283 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -3433,8 +3433,10 @@ static int bcmgenet_probe(struct platform_device *pdev)
+ 	clk_disable_unprepare(priv->clk);
  
--			return NETDEV_TX_BUSY;
-+			return NETDEV_TX_OK;
- 		}
- 	}
+ 	err = register_netdev(dev);
+-	if (err)
++	if (err) {
++		bcmgenet_mii_exit(dev);
+ 		goto err;
++	}
+ 
+ 	return err;
  
 -- 
 2.27.0
