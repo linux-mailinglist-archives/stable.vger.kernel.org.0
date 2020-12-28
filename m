@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F432E66D6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 905412E66C9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731506AbgL1QRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:17:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S1731507AbgL1QRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:17:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731502AbgL1NRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:17:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C18E7207C9;
-        Mon, 28 Dec 2020 13:16:25 +0000 (UTC)
+        id S1731506AbgL1NRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:17:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05FC620728;
+        Mon, 28 Dec 2020 13:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161386;
-        bh=flFALhujOsQ/SdUfxgVQE78tjaNosgiy4sL9SMFY8oY=;
+        s=korg; t=1609161389;
+        bh=FDM1bQrrBwAJ8UlQWbpyLw1SCK+IuHp/9BB247poVos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntS1r7dZiAvFy+He3D93PjcT+7kVxCtNyvCR6+E5zGrElmobVOYcG7HLFcI+aJh3H
-         LXM6KZhihNbfoPfSXJS7+vH+BJKI44qYP9x+uBSveYPPoWvbPZhCUSFeYNsEuVcde/
-         AgrjI1jc3yQFwgDj0pBcJTR//JSSUmjl5hqim+eE=
+        b=JM/dbOlTMHwhyxXct4wlS+gnbHK/W8bPpAlysuCSBl4B6jlDOVyoZZt5U0n7X2SJA
+         UGhwgoRLjkFUHJHv1s3lLt4UMn5YnwZd+XsNEojIGXGbHosiR3K4ciqXKEXSudK13x
+         WMz0bzL/S+QXmWvzR0Y8NBtlrcUHdTOeLY+8Cpd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 196/242] powerpc/perf: Exclude kernel samples while counting events in user space.
-Date:   Mon, 28 Dec 2020 13:50:01 +0100
-Message-Id: <20201228124914.329789714@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 197/242] crypto: ecdh - avoid unaligned accesses in ecdh_set_secret()
+Date:   Mon, 28 Dec 2020 13:50:02 +0100
+Message-Id: <20201228124914.381056475@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -40,46 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit aa8e21c053d72b6639ea5a7f1d3a1d0209534c94 upstream.
+commit 17858b140bf49961b71d4e73f1c3ea9bc8e7dda0 upstream.
 
-Perf event attritube supports exclude_kernel flag to avoid
-sampling/profiling in supervisor state (kernel). Based on this event
-attr flag, Monitor Mode Control Register bit is set to freeze on
-supervisor state. But sometimes (due to hardware limitation), Sampled
-Instruction Address Register (SIAR) locks on to kernel address even
-when freeze on supervisor is set. Patch here adds a check to drop
-those samples.
+ecdh_set_secret() casts a void* pointer to a const u64* in order to
+feed it into ecc_is_key_valid(). This is not generally permitted by
+the C standard, and leads to actual misalignment faults on ARMv6
+cores. In some cases, these are fixed up in software, but this still
+leads to performance hits that are entirely avoidable.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1606289215-1433-1-git-send-email-atrajeev@linux.vnet.ibm.com
+So let's copy the key into the ctx buffer first, which we will do
+anyway in the common case, and which guarantees correct alignment.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/perf/core-book3s.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ crypto/ecdh.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2068,6 +2068,16 @@ static void record_and_restart(struct pe
- 	perf_event_update_userpage(event);
+--- a/crypto/ecdh.c
++++ b/crypto/ecdh.c
+@@ -57,12 +57,13 @@ static int ecdh_set_secret(struct crypto
+ 		return ecc_gen_privkey(ctx->curve_id, ctx->ndigits,
+ 				       ctx->private_key);
  
- 	/*
-+	 * Due to hardware limitation, sometimes SIAR could sample a kernel
-+	 * address even when freeze on supervisor state (kernel) is set in
-+	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
-+	 * these cases.
-+	 */
-+	if (event->attr.exclude_kernel && record)
-+		if (is_kernel_addr(mfspr(SPRN_SIAR)))
-+			record = 0;
-+
-+	/*
- 	 * Finally record data if requested.
- 	 */
- 	if (record) {
+-	if (ecc_is_key_valid(ctx->curve_id, ctx->ndigits,
+-			     (const u64 *)params.key, params.key_size) < 0)
+-		return -EINVAL;
+-
+ 	memcpy(ctx->private_key, params.key, params.key_size);
+ 
++	if (ecc_is_key_valid(ctx->curve_id, ctx->ndigits,
++			     ctx->private_key, params.key_size) < 0) {
++		memzero_explicit(ctx->private_key, params.key_size);
++		return -EINVAL;
++	}
+ 	return 0;
+ }
+ 
 
 
