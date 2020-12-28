@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C72D32E64ED
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A77D2E3C0D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390801AbgL1Pyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37046 "EHLO mail.kernel.org"
+        id S2405112AbgL1N6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390802AbgL1Ngt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA23F207C9;
-        Mon, 28 Dec 2020 13:36:07 +0000 (UTC)
+        id S2407491AbgL1N6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D63842064B;
+        Mon, 28 Dec 2020 13:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162568;
-        bh=+pSnwWsCMByYdsFsfpHiPyCaC6g7YzUC9AlAXhW96sA=;
+        s=korg; t=1609163840;
+        bh=uDNo/bqltRqyWn1OWKZO/QWcAC4H4wazbhYVmb6d6Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjLKl+Ou0xXMCiQFEhzqRFqPjAt393Hu6nUbb+65vl9Iwab+1afgux2uLXDOYYHcY
-         VZ94CRYRIQoIJteIqMLBLgrBYg3zIiJ1J57geGD5Cai6po04xdMmn1poWodBbsm1ms
-         cWvuKiXm8PfEda7Hlvoallpy9LBGj2IgC05pxmyg=
+        b=W/0a3l+nuBZrdYuTlLaBDFSgdsvZl7KW6/V8NOCOzGN0vqDKtnByjJiz9ngYTrc8t
+         rgXuoJENJ+oDEOP14vKijxKCJ0VnuZkzjVNbnRkqF/DZ/gt4A5K1+s9iHmDIxZ5D+5
+         MzrrkDUWRx4mRoLgOiqdzdtWmgVD53NkHrUGu0i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 343/346] xenbus/xenbus_backend: Disallow pending watch messages
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 426/453] iio: adc: rockchip_saradc: fix missing clk_disable_unprepare() on error in rockchip_saradc_resume
 Date:   Mon, 28 Dec 2020 13:51:02 +0100
-Message-Id: <20201228124936.337727453@linuxfoundation.org>
+Message-Id: <20201228124957.723876424@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 9996bd494794a2fe393e97e7a982388c6249aa76 upstream.
+commit 560c6b914c6ec7d9d9a69fddbb5bf3bf71433e8b upstream.
 
-'xenbus_backend' watches 'state' of devices, which is writable by
-guests.  Hence, if guests intensively updates it, dom0 will have lots of
-pending events that exhausting memory of dom0.  In other words, guests
-can trigger dom0 memory pressure.  This is known as XSA-349.  However,
-the watch callback of it, 'frontend_changed()', reads only 'state', so
-doesn't need to have the pending events.
+Fix the missing clk_disable_unprepare() of info->pclk
+before return from rockchip_saradc_resume in the error
+handling case when fails to prepare and enable info->clk.
 
-To avoid the problem, this commit disallows pending watch messages for
-'xenbus_backend' using the 'will_handle()' watch callback.
-
-This is part of XSA-349
-
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Fixes: 44d6f2ef94f9 ("iio: adc: add driver for Rockchip saradc")
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201103120743.110662-1-miaoqinglang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xenbus/xenbus_probe_backend.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/adc/rockchip_saradc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/xenbus/xenbus_probe_backend.c
-+++ b/drivers/xen/xenbus/xenbus_probe_backend.c
-@@ -180,6 +180,12 @@ static int xenbus_probe_backend(struct x
- 	return err;
- }
+--- a/drivers/iio/adc/rockchip_saradc.c
++++ b/drivers/iio/adc/rockchip_saradc.c
+@@ -372,7 +372,7 @@ static int rockchip_saradc_resume(struct
  
-+static bool frontend_will_handle(struct xenbus_watch *watch,
-+				 const char *path, const char *token)
-+{
-+	return watch->nr_pending == 0;
-+}
-+
- static void frontend_changed(struct xenbus_watch *watch,
- 			     const char *path, const char *token)
- {
-@@ -191,6 +197,7 @@ static struct xen_bus_type xenbus_backen
- 	.levels = 3,		/* backend/type/<frontend>/<id> */
- 	.get_bus_id = backend_bus_id,
- 	.probe = xenbus_probe_backend,
-+	.otherend_will_handle = frontend_will_handle,
- 	.otherend_changed = frontend_changed,
- 	.bus = {
- 		.name		= "xen-backend",
+ 	ret = clk_prepare_enable(info->clk);
+ 	if (ret)
+-		return ret;
++		clk_disable_unprepare(info->pclk);
+ 
+ 	return ret;
+ }
 
 
