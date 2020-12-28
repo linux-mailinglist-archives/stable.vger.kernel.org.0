@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D012E403B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 001822E3B24
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441621AbgL1OTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:19:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53782 "EHLO mail.kernel.org"
+        id S2405168AbgL1Nqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441604AbgL1OTO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A59292063A;
-        Mon, 28 Dec 2020 14:18:52 +0000 (UTC)
+        id S2404993AbgL1NqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:46:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03D0E205CB;
+        Mon, 28 Dec 2020 13:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165133;
-        bh=3a+ctO0yqJxck/oNVejavCFPkt1+69fp32cMpyrDFTA=;
+        s=korg; t=1609163146;
+        bh=ZMz1VaCoNoltprG8mhf06g9t/TJKHaD2DDu0AwVhxso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJ1w929EVz3gcuewbWvWdWaUV8mlhIGD4E+61w8lmLH8U6hyGgmlDwjDlEkiseUdl
-         Vq2dcPNDn25q2cltTV9AuX/Xck0s1X7SR2DZgo8IWdbrD080EmJ03IDVxuKSu5/KAV
-         jyV6M5/xit2Xm7xg/Z233rdfxcvWjkXNA6lp86bU=
+        b=Zc62AZlwcud0hvvfKX4q7yIayYn5MW+u+3BHFRja+CFA992JUTWF1l8HbOWINQ2HR
+         ZEC+t2RsrcUIFxEMgOk1m8Q3JI38pM6PjtISs0Q2hNxMpRy4347I6DlRs63+0lIUXy
+         hhAC1H9Ukug0LOBcXGBzQkmkLQF3MsPUNNJXNVeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 424/717] RDMA/hns: Do shift on traffic class when using RoCEv2
-Date:   Mon, 28 Dec 2020 13:47:02 +0100
-Message-Id: <20201228125041.278633547@linuxfoundation.org>
+Subject: [PATCH 5.4 187/453] arm64: dts: qcom: c630: Polish i2c-hid devices
+Date:   Mon, 28 Dec 2020 13:47:03 +0100
+Message-Id: <20201228124946.209170540@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +40,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weihang Li <liweihang@huawei.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 603bee935f38080a3674c763c50787751e387779 ]
+[ Upstream commit 11d0e4f281565ef757479764ce7fd8d35eeb01b0 ]
 
-The high 6 bits of traffic class in GRH is DSCP (Differentiated Services
-Codepoint), the driver should shift it before the hardware gets it when
-using RoCEv2.
+The numbering of the i2c busses differs from ACPI and a number of typos
+was made in the original patch. Further more the irq flags for the
+various resources was not correct and i2c3 only has one of the two
+client devices active in any one device.
 
-Fixes: 606bf89e98ef ("RDMA/hns: Refactor for hns_roce_v2_modify_qp function")
-Fixes: fba429fcf9a5 ("RDMA/hns: Fix missing fields in address vector")
-Link: https://lore.kernel.org/r/1607650657-35992-4-git-send-email-liweihang@huawei.com
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Also label the various devices, for easier comparison with the ACPI
+tables.
+
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Fixes: 44acee207844 ("arm64: dts: qcom: Add Lenovo Yoga C630")
+Link: https://lore.kernel.org/r/20201130165924.319708-1-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_ah.c     |  2 +-
- drivers/infiniband/hw/hns/hns_roce_device.h |  8 ++++++++
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  | 10 +++-------
- 3 files changed, 12 insertions(+), 8 deletions(-)
+ .../boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 31 +++++++++++--------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_ah.c b/drivers/infiniband/hw/hns/hns_roce_ah.c
-index d65ff6aa322fa..7dd3b6097226f 100644
---- a/drivers/infiniband/hw/hns/hns_roce_ah.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_ah.c
-@@ -74,7 +74,7 @@ int hns_roce_create_ah(struct ib_ah *ibah, struct rdma_ah_init_attr *init_attr,
- 	ah->av.flowlabel = grh->flow_label;
- 	ah->av.udp_sport = get_ah_udp_sport(ah_attr);
- 	ah->av.sl = rdma_ah_get_sl(ah_attr);
--	ah->av.tclass = grh->traffic_class;
-+	ah->av.tclass = get_tclass(grh);
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index ded120d3aef58..f539b3655f6b9 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -244,23 +244,28 @@
+ 	status = "okay";
+ 	clock-frequency = <400000>;
  
- 	memcpy(ah->av.dgid, grh->dgid.raw, HNS_ROCE_GID_SIZE);
- 	memcpy(ah->av.mac, ah_attr->roce.dmac, ETH_ALEN);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
-index b025841e08154..1ea87f92aabbe 100644
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -1132,6 +1132,14 @@ static inline u32 to_hr_hem_entries_shift(u32 count, u32 buf_shift)
- 	return ilog2(to_hr_hem_entries_count(count, buf_shift));
- }
+-	hid@15 {
++	tsel: hid@15 {
+ 		compatible = "hid-over-i2c";
+ 		reg = <0x15>;
+ 		hid-descr-addr = <0x1>;
  
-+#define DSCP_SHIFT 2
+-		interrupts-extended = <&tlmm 37 IRQ_TYPE_EDGE_RISING>;
++		interrupts-extended = <&tlmm 37 IRQ_TYPE_LEVEL_HIGH>;
 +
-+static inline u8 get_tclass(const struct ib_global_route *grh)
-+{
-+	return grh->sgid_attr->gid_type == IB_GID_TYPE_ROCE_UDP_ENCAP ?
-+	       grh->traffic_class >> DSCP_SHIFT : grh->traffic_class;
-+}
-+
- int hns_roce_init_uar_table(struct hns_roce_dev *dev);
- int hns_roce_uar_alloc(struct hns_roce_dev *dev, struct hns_roce_uar *uar);
- void hns_roce_uar_free(struct hns_roce_dev *dev, struct hns_roce_uar *uar);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index c287dbd2f384d..5c29c7d8c50e6 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4460,15 +4460,11 @@ static int hns_roce_v2_set_path(struct ib_qp *ibqp,
- 	roce_set_field(qpc_mask->byte_24_mtu_tc, V2_QPC_BYTE_24_HOP_LIMIT_M,
- 		       V2_QPC_BYTE_24_HOP_LIMIT_S, 0);
++		pinctrl-names = "default";
++		pinctrl-0 = <&i2c3_hid_active>;
+ 	};
  
--	if (is_udp)
--		roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
--			       V2_QPC_BYTE_24_TC_S, grh->traffic_class >> 2);
--	else
--		roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
--			       V2_QPC_BYTE_24_TC_S, grh->traffic_class);
--
-+	roce_set_field(context->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
-+		       V2_QPC_BYTE_24_TC_S, get_tclass(&attr->ah_attr.grh));
- 	roce_set_field(qpc_mask->byte_24_mtu_tc, V2_QPC_BYTE_24_TC_M,
- 		       V2_QPC_BYTE_24_TC_S, 0);
+-	hid@2c {
++	tsc2: hid@2c {
+ 		compatible = "hid-over-i2c";
+ 		reg = <0x2c>;
+ 		hid-descr-addr = <0x20>;
+ 
+-		interrupts-extended = <&tlmm 37 IRQ_TYPE_EDGE_RISING>;
++		interrupts-extended = <&tlmm 37 IRQ_TYPE_LEVEL_HIGH>;
+ 
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&i2c2_hid_active>;
++		pinctrl-0 = <&i2c3_hid_active>;
 +
- 	roce_set_field(context->byte_28_at_fl, V2_QPC_BYTE_28_FL_M,
- 		       V2_QPC_BYTE_28_FL_S, grh->flow_label);
- 	roce_set_field(qpc_mask->byte_28_at_fl, V2_QPC_BYTE_28_FL_M,
++		status = "disabled";
+ 	};
+ };
+ 
+@@ -268,15 +273,15 @@
+ 	status = "okay";
+ 	clock-frequency = <400000>;
+ 
+-	hid@10 {
++	tsc1: hid@10 {
+ 		compatible = "hid-over-i2c";
+ 		reg = <0x10>;
+ 		hid-descr-addr = <0x1>;
+ 
+-		interrupts-extended = <&tlmm 125 IRQ_TYPE_EDGE_FALLING>;
++		interrupts-extended = <&tlmm 125 IRQ_TYPE_LEVEL_LOW>;
+ 
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&i2c6_hid_active>;
++		pinctrl-0 = <&i2c5_hid_active>;
+ 	};
+ };
+ 
+@@ -284,7 +289,7 @@
+ 	status = "okay";
+ 	clock-frequency = <400000>;
+ 
+-	hid@5c {
++	ecsh: hid@5c {
+ 		compatible = "hid-over-i2c";
+ 		reg = <0x5c>;
+ 		hid-descr-addr = <0x1>;
+@@ -292,7 +297,7 @@
+ 		interrupts-extended = <&tlmm 92 IRQ_TYPE_LEVEL_LOW>;
+ 
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&i2c12_hid_active>;
++		pinctrl-0 = <&i2c11_hid_active>;
+ 	};
+ };
+ 
+@@ -335,7 +340,7 @@
+ &tlmm {
+ 	gpio-reserved-ranges = <0 4>, <81 4>;
+ 
+-	i2c2_hid_active: i2c2-hid-active {
++	i2c3_hid_active: i2c2-hid-active {
+ 		pins = <37>;
+ 		function = "gpio";
+ 
+@@ -344,7 +349,7 @@
+ 		drive-strength = <2>;
+ 	};
+ 
+-	i2c6_hid_active: i2c6-hid-active {
++	i2c5_hid_active: i2c5-hid-active {
+ 		pins = <125>;
+ 		function = "gpio";
+ 
+@@ -353,7 +358,7 @@
+ 		drive-strength = <2>;
+ 	};
+ 
+-	i2c12_hid_active: i2c12-hid-active {
++	i2c11_hid_active: i2c11-hid-active {
+ 		pins = <92>;
+ 		function = "gpio";
+ 
 -- 
 2.27.0
 
