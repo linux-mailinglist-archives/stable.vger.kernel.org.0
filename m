@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9C82E3EBB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1812E4297
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:25:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388995AbgL1Ob7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:31:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
+        id S2407514AbgL1N6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504578AbgL1Obk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0844D207B2;
-        Mon, 28 Dec 2020 14:31:24 +0000 (UTC)
+        id S2436475AbgL1N6s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C65D207A9;
+        Mon, 28 Dec 2020 13:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165885;
-        bh=OIsg5iqHskreU7phmPvjN1qdo3ycv5upKiRro15Yhcc=;
+        s=korg; t=1609163913;
+        bh=uDWq3PaX1WGn0o0S6EVK6RNdXjl95G3A457vOwB3pXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ID2n2oIJiqWvVddokUnnoNTJwE8+8B+BL9us1OQukDbIA7OsUTvxpqGxye9B+0+ZT
-         nGFfi8bqeSSnnEWd1EAX2HWhfJJopnoza0EQb7y2i6LGuiuLhbU38fEy+t6k6OgjEk
-         1D1XLeGjzO6ECVVJ0FhfB6fdHAeihDOD+faOQGgk=
+        b=sOIuZRc8hCzI+ZFwY2bngL3xO7Y7ANoyMLwvg/T+XvfxEtSBVZHAgKdpXfZzGGOvg
+         N1X6vTOyg3Rtzg4Q39tBX32ND5tsYhSc+HqX9dXywpvvEJZvg3kC6tMNS8k80tQI1I
+         CzKAdFcxcTfq9vHFKn810tb9uuUlfO1xnh8CWaCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolin Chen <nicoleotsuka@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.10 690/717] clk: tegra: Do not return 0 on failure
-Date:   Mon, 28 Dec 2020 13:51:28 +0100
-Message-Id: <20201228125054.030386186@linuxfoundation.org>
+        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 453/453] Revert: "ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS"
+Date:   Mon, 28 Dec 2020 13:51:29 +0100
+Message-Id: <20201228124959.019574393@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +39,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicoleotsuka@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 6160aca443148416994c022a35c77daeba948ea6 upstream.
+commit adab66b71abfe206a020f11e561f4df41f0b2aba upstream.
 
-Return values from read_dt_param() will be either TRUE (1) or
-FALSE (0), while dfll_fetch_pwm_params() returns 0 on success
-or an ERR code on failure.
+It was believed that metag was the only architecture that required the ring
+buffer to keep 8 byte words aligned on 8 byte architectures, and with its
+removal, it was assumed that the ring buffer code did not need to handle
+this case. It appears that sparc64 also requires this.
 
-So this patch fixes the bug of returning 0 on failure.
+The following was reported on a sparc64 boot up:
 
-Fixes: 36541f0499fe ("clk: tegra: dfll: support PWM regulator control")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+   kernel: futex hash table entries: 65536 (order: 9, 4194304 bytes, linear)
+   kernel: Running postponed tracer tests:
+   kernel: Testing tracer function:
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: PASSED
+
+Need to put back the 64BIT aligned code for the ring buffer.
+
+Link: https://lore.kernel.org/r/CADxRZqzXQRYgKc=y-KV=S_yHL+Y8Ay2mh5ezeZUnpRvg+syWKw@mail.gmail.com
+
+Cc: stable@vger.kernel.org
+Fixes: 86b3de60a0b6 ("ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS")
+Reported-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/tegra/clk-dfll.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/Kconfig               |   16 ++++++++++++++++
+ kernel/trace/ring_buffer.c |   17 +++++++++++++----
+ 2 files changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/clk/tegra/clk-dfll.c
-+++ b/drivers/clk/tegra/clk-dfll.c
-@@ -1856,13 +1856,13 @@ static int dfll_fetch_pwm_params(struct
- 			    &td->reg_init_uV);
- 	if (!ret) {
- 		dev_err(td->dev, "couldn't get initialized voltage\n");
--		return ret;
-+		return -EINVAL;
- 	}
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -131,6 +131,22 @@ config UPROBES
+ 	    managed by the kernel and kept transparent to the probed
+ 	    application. )
  
- 	ret = read_dt_param(td, "nvidia,pwm-period-nanoseconds", &pwm_period);
- 	if (!ret) {
- 		dev_err(td->dev, "couldn't get PWM period\n");
--		return ret;
-+		return -EINVAL;
- 	}
- 	td->pwm_rate = (NSEC_PER_SEC / pwm_period) * (MAX_DFLL_VOLTAGES - 1);
++config HAVE_64BIT_ALIGNED_ACCESS
++	def_bool 64BIT && !HAVE_EFFICIENT_UNALIGNED_ACCESS
++	help
++	  Some architectures require 64 bit accesses to be 64 bit
++	  aligned, which also requires structs containing 64 bit values
++	  to be 64 bit aligned too. This includes some 32 bit
++	  architectures which can do 64 bit accesses, as well as 64 bit
++	  architectures without unaligned access.
++
++	  This symbol should be selected by an architecture if 64 bit
++	  accesses are required to be 64 bit aligned in this way even
++	  though it is not a 64 bit architecture.
++
++	  See Documentation/unaligned-memory-access.txt for more
++	  information on the topic of unaligned memory accesses.
++
+ config HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	bool
+ 	help
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -129,7 +129,16 @@ int ring_buffer_print_entry_header(struc
+ #define RB_ALIGNMENT		4U
+ #define RB_MAX_SMALL_DATA	(RB_ALIGNMENT * RINGBUF_TYPE_DATA_TYPE_LEN_MAX)
+ #define RB_EVNT_MIN_SIZE	8U	/* two 32bit words */
+-#define RB_ALIGN_DATA		__aligned(RB_ALIGNMENT)
++
++#ifndef CONFIG_HAVE_64BIT_ALIGNED_ACCESS
++# define RB_FORCE_8BYTE_ALIGNMENT	0
++# define RB_ARCH_ALIGNMENT		RB_ALIGNMENT
++#else
++# define RB_FORCE_8BYTE_ALIGNMENT	1
++# define RB_ARCH_ALIGNMENT		8U
++#endif
++
++#define RB_ALIGN_DATA		__aligned(RB_ARCH_ALIGNMENT)
  
+ /* define RINGBUF_TYPE_DATA for 'case RINGBUF_TYPE_DATA:' */
+ #define RINGBUF_TYPE_DATA 0 ... RINGBUF_TYPE_DATA_TYPE_LEN_MAX
+@@ -2367,7 +2376,7 @@ rb_update_event(struct ring_buffer_per_c
+ 
+ 	event->time_delta = delta;
+ 	length -= RB_EVNT_HDR_SIZE;
+-	if (length > RB_MAX_SMALL_DATA) {
++	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT) {
+ 		event->type_len = 0;
+ 		event->array[0] = length;
+ 	} else
+@@ -2382,11 +2391,11 @@ static unsigned rb_calculate_event_lengt
+ 	if (!length)
+ 		length++;
+ 
+-	if (length > RB_MAX_SMALL_DATA)
++	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT)
+ 		length += sizeof(event.array[0]);
+ 
+ 	length += RB_EVNT_HDR_SIZE;
+-	length = ALIGN(length, RB_ALIGNMENT);
++	length = ALIGN(length, RB_ARCH_ALIGNMENT);
+ 
+ 	/*
+ 	 * In case the time delta is larger than the 27 bits for it
 
 
