@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F222E3CBC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E8D2E3CA7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:05:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437550AbgL1OFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:05:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
+        id S2437541AbgL1OFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:05:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437532AbgL1OFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:05:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397F2206E5;
-        Mon, 28 Dec 2020 14:04:50 +0000 (UTC)
+        id S2437532AbgL1OFI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:05:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC2A2063A;
+        Mon, 28 Dec 2020 14:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164290;
-        bh=hwmcmGIyo9MKZsDK2ej6AsRvBoISgFkZALkHMfkTwKM=;
+        s=korg; t=1609164293;
+        bh=q3NY13z8LWQZ5YfejJIROehaop8JhByp7uRRPIsIRe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0tiYDuVvBZJDnmU0GMBUoLZCcsU/YDy5jCvz3piCgqj24liUUPB/zwY374WCgG9k
-         5O0GWktIw0/5rUZISN4BjObJ3LBGDerJULGG9zAgx5pvDk9380ZFU9z5V61E+PaGhB
-         vTPikmQ7ODL1SQxVl76Xt1rlKT1PNOnNWMyoVvCg=
+        b=W3B/o3PPXuP/Ed0pCwPm9J/2aJdLEVKoH3eZg4F5wFaQu3GiHkiSmnBXSAkee7KaH
+         52/jM1CVTN3cJ4KXdNGVSv+I/HyyyBgfxic94HJ8YDyC+INoEKlESdbti4wz872S4u
+         mheE1APNh0HUOZegCaEJDgtwhFCtM6lMp6jBxiLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org,
+        Mansur Alisha Shaik <mansur@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/717] media: platform: add missing put_device() call in mtk_jpeg_probe() and mtk_jpeg_remove()
-Date:   Mon, 28 Dec 2020 13:42:06 +0100
-Message-Id: <20201228125027.081282909@linuxfoundation.org>
+Subject: [PATCH 5.10 129/717] media: venus: core: change clk enable and disable order in resume and suspend
+Date:   Mon, 28 Dec 2020 13:42:07 +0100
+Message-Id: <20201228125027.129998550@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,56 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Mansur Alisha Shaik <mansur@codeaurora.org>
 
-[ Upstream commit 0d72f489995bb8565f6fe30539d4504c88356a9e ]
+[ Upstream commit 21926d466e3a4f35c2536244d1d56512cc81a0a9 ]
 
-if mtk_jpeg_clk_init() succeed, mtk_jpeg_probe() and mtk_jpeg_remove()
-doesn't have a corresponding put_device(). Thus add a new helper
-mtk_jpeg_clk_release() to fix it.
+Currently video driver is voting after clk enable and un voting
+before clk disable. This is incorrect, video driver should vote
+before clk enable and unvote after clk disable.
 
-Fixes: b2f0d2724ba4 ("[media] vcodec: mediatek: Add Mediatek JPEG Decoder Driver")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Corrected this by changing the order of clk enable and clk disable.
+
+suspend")
+
+Fixes: 07f8f22a33a9e ("media: venus: core: remove CNOC voting while device
+Signed-off-by: Mansur Alisha Shaik <mansur@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/platform/qcom/venus/core.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-index 106543391c460..88a23bce569d9 100644
---- a/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-+++ b/drivers/media/platform/mtk-jpeg/mtk_jpeg_core.c
-@@ -1332,6 +1332,12 @@ static void mtk_jpeg_job_timeout_work(struct work_struct *work)
- 	v4l2_m2m_buf_done(dst_buf, VB2_BUF_STATE_ERROR);
- 	v4l2_m2m_job_finish(jpeg->m2m_dev, ctx->fh.m2m_ctx);
- }
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index 6103aaf43987b..52a3886c496eb 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -355,13 +355,16 @@ static __maybe_unused int venus_runtime_suspend(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	if (pm_ops->core_power) {
++		ret = pm_ops->core_power(dev, POWER_OFF);
++		if (ret)
++			return ret;
++	}
 +
-+static inline void mtk_jpeg_clk_release(struct mtk_jpeg_dev *jpeg)
-+{
-+	put_device(jpeg->larb);
-+}
-+
- static int mtk_jpeg_probe(struct platform_device *pdev)
- {
- 	struct mtk_jpeg_dev *jpeg;
-@@ -1436,6 +1442,7 @@ err_m2m_init:
- 	v4l2_device_unregister(&jpeg->v4l2_dev);
+ 	ret = icc_set_bw(core->cpucfg_path, 0, 0);
+ 	if (ret)
+ 		return ret;
  
- err_dev_register:
-+	mtk_jpeg_clk_release(jpeg);
- 
- err_clk_init:
- 
-@@ -1453,6 +1460,7 @@ static int mtk_jpeg_remove(struct platform_device *pdev)
- 	video_device_release(jpeg->vdev);
- 	v4l2_m2m_release(jpeg->m2m_dev);
- 	v4l2_device_unregister(&jpeg->v4l2_dev);
-+	mtk_jpeg_clk_release(jpeg);
- 
- 	return 0;
+-	if (pm_ops->core_power)
+-		ret = pm_ops->core_power(dev, POWER_OFF);
+-
+ 	return ret;
  }
+ 
+@@ -371,16 +374,16 @@ static __maybe_unused int venus_runtime_resume(struct device *dev)
+ 	const struct venus_pm_ops *pm_ops = core->pm_ops;
+ 	int ret;
+ 
++	ret = icc_set_bw(core->cpucfg_path, 0, kbps_to_icc(1000));
++	if (ret)
++		return ret;
++
+ 	if (pm_ops->core_power) {
+ 		ret = pm_ops->core_power(dev, POWER_ON);
+ 		if (ret)
+ 			return ret;
+ 	}
+ 
+-	ret = icc_set_bw(core->cpucfg_path, 0, kbps_to_icc(1000));
+-	if (ret)
+-		return ret;
+-
+ 	return hfi_core_resume(core, false);
+ }
+ 
 -- 
 2.27.0
 
