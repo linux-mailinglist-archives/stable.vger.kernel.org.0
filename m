@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E995B2E385E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C1F2E3989
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731143AbgL1NJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37366 "EHLO mail.kernel.org"
+        id S2388783AbgL1NYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbgL1NJg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:09:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DFF222582;
-        Mon, 28 Dec 2020 13:08:54 +0000 (UTC)
+        id S2388778AbgL1NYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0C6320719;
+        Mon, 28 Dec 2020 13:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160935;
-        bh=fShka0oswP6q+oPjMziHDeTMWXTj5YhmY3JA6kuv8N8=;
+        s=korg; t=1609161842;
+        bh=H+4vj7ofXrwo4F/JSe/g8dUAV3F9/NP1aIxW60Tzgwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUzW5WfKSMtEkFcl6R2PoQFpcotPdtZRjGFhNHiX/8sXpshfpK5XqytJbT5RUQr6a
-         AhoLzjq2xL5xJ7mC0URZVRRa75q1zrms8RSQqUSVFM6ezu6dC4pzbqX29kJG6KUdkq
-         7JVgK2171oL85Zu7u/nGU6RVXSaxjE/3lUd7NyxY=
+        b=r2BR221Fvn28wB0RhyUn2PVNKTz71HBP02BdvsazmxQIm7mgSRQYIVfJhkjbPVYko
+         j1BTCMrGYI8CDwiOh5rlyH0GWwqshN/hIB30vUCDwIT0/mZCdYVMH4mFOnRcs99j/k
+         ae4sn1hukKjHwj0MjYut6lKWyxUAzfpO5o2MQlBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 014/242] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
-Date:   Mon, 28 Dec 2020 13:46:59 +0100
-Message-Id: <20201228124905.365452340@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 101/346] soc: mediatek: Check if power domains can be powered on at boot time
+Date:   Mon, 28 Dec 2020 13:47:00 +0100
+Message-Id: <20201228124924.666064778@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nicolas Boichat <drinkcat@chromium.org>
 
-commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
+[ Upstream commit 4007844b05815717f522c7ea9914e24ad0ff6c79 ]
 
-My patch caused kernel Oopses and delays in boot.  Revert it.
+In the error case, where a power domain cannot be powered on
+successfully at boot time (in mtk_register_power_domains),
+pm_genpd_init would still be called with is_off=false, and the
+system would later try to disable the power domain again, triggering
+warnings as disabled clocks are disabled again (and other potential
+issues).
 
-The problem was that I moved the "mem->dma = paddr;" before the call to
-be_fill_queue().  But the first thing that the be_fill_queue() function
-does is memset the whole struct to zero which overwrites the assignment.
+Also print a warning splat in that case, as this should never
+happen.
 
-Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
-Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c84e358718a66f7 ("soc: Mediatek: Add SCPSYS power domain driver")
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Link: https://lore.kernel.org/r/20200928113107.v2.1.I5e6f8c262031d0451fe7241b744f4f3111c1ce71@changeid
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/mediatek/mtk-scpsys.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -3013,7 +3013,6 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
+index 5b24bb4bfbf66..ef54f1638d207 100644
+--- a/drivers/soc/mediatek/mtk-scpsys.c
++++ b/drivers/soc/mediatek/mtk-scpsys.c
+@@ -454,6 +454,7 @@ static void mtk_register_power_domains(struct platform_device *pdev,
+ 	for (i = 0; i < num; i++) {
+ 		struct scp_domain *scpd = &scp->domains[i];
+ 		struct generic_pm_domain *genpd = &scpd->genpd;
++		bool on;
  
--		mem->dma = paddr;
- 		mem->va = eq_vaddress;
- 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
- 				    sizeof(struct be_eq_entry), eq_vaddress);
-@@ -3023,6 +3022,7 @@ static int beiscsi_create_eqs(struct bei
- 			goto create_eq_error;
- 		}
+ 		/*
+ 		 * Initially turn on all domains to make the domains usable
+@@ -461,9 +462,9 @@ static void mtk_register_power_domains(struct platform_device *pdev,
+ 		 * software.  The unused domains will be switched off during
+ 		 * late_init time.
+ 		 */
+-		genpd->power_on(genpd);
++		on = !WARN_ON(genpd->power_on(genpd) < 0);
  
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
- 					    phwi_context->cur_eqd);
- 		if (ret) {
-@@ -3079,7 +3079,6 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
+-		pm_genpd_init(genpd, NULL, false);
++		pm_genpd_init(genpd, NULL, !on);
+ 	}
  
--		mem->dma = paddr;
- 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
- 				    sizeof(struct sol_cqe), cq_vaddress);
- 		if (ret) {
-@@ -3089,6 +3088,7 @@ static int beiscsi_create_cqs(struct bei
- 			goto create_cq_error;
- 		}
- 
-+		mem->dma = paddr;
- 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
- 					    false, 0);
- 		if (ret) {
+ 	/*
+-- 
+2.27.0
+
 
 
