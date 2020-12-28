@@ -2,215 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 498432E6BEE
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:15:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0D52E6BEB
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:15:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730558AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729341AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 17:55:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729438AbgL1UmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 15:42:12 -0500
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48BDC061793;
-        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
-Received: by mail-oi1-x22c.google.com with SMTP id d203so12670657oia.0;
-        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
+        with ESMTP id S1729446AbgL1Up2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 15:45:28 -0500
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF12BC061793
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 12:44:47 -0800 (PST)
+Received: by mail-pl1-x634.google.com with SMTP id t6so6170681plq.1
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 12:44:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to;
-        bh=8TtPh3kxQMMdTUXv5QBSr4ZIMcMzV+MdW+h+TpWT5gs=;
-        b=lx9GOWEZ0gOpcdB82/K+qzRqIGfjX81DW7I1TVTD8R2OcvYn8nERibmCucvS8i7/U4
-         t8PUW5EQt0Qppu+CGMWkoJIWDC7YDQGqoTuy4D5e9omR1pPqfH/7CPqMXiPodFyGcH4a
-         3+GsRD0PhS3XZQLkfIK9GwDt5WDZOyy9SqqvsD1nbkCMhHdDGKZVEI+mjeDIN2VDsrl5
-         3mxjfCkCGtMkxwTTjWAp2MLJqfQngVoyAx0XZyhkK9fCpiO3IOWMMkR8GgJON7EUTdQg
-         llP0w8mddsc0U2UySebOwPGnIb8QniLE/PQeJ+sJSMWxPXw2SiHR4qxzzhaE76eS+4Nf
-         kYgw==
+        d=sargun.me; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=46zWNq1MQMAllPErESq+P0d3wb/+jK7l73bBEn1MKsw=;
+        b=ULQrG5MLVRY0Vzr34XFrkm3y61mmJ5AIS4J3bNrtIG1AIchd+p7ay3R7CbXRclN8uZ
+         M6UeZQrH5oUiOCriZCg/UIiQDgd2JN5KLqd9nEs81cSqo5rI+PVH6kv0v+k6Yl5MCUjV
+         09OOnYx+vrVOj+ICiXMmKDiBDca8BE0gsq5OE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to;
-        bh=8TtPh3kxQMMdTUXv5QBSr4ZIMcMzV+MdW+h+TpWT5gs=;
-        b=TSfBpZcdkc4qiKH3YTIvlDDL1xTrg9KpbAe+rRB1jCE985P3puBmTY6dy2jjTcvvrH
-         riDUQRLadvoNBMlP5VpCNCpsFBkHG4AVaeH15bYJA9UJ5KYy4OZVHk0HxUzxlYABlpXO
-         +RRkHG2M8ruBGWHGMS+hi5Lr+IpYWWPJS7b/Q7R4Z8jQVYUL5WSxs545ImyJwpCukrNs
-         DYSM59hfDqNdhsyoVq2DDYXlsObSXObf+jX0YaaLqptw2pbvbG5xvlVaIy41Ca5imUKm
-         1WL8FolSjVCwUZGZxaziCpsKl6IbIECI1dsVTJxZPFouMsGJ9+qj7xmn9eh9BXURXqsm
-         dRfg==
-X-Gm-Message-State: AOAM5308m8cIho3xZChh3iqKYMMdsfGvxz2H2iORc/LgHpOTDON5iEZk
-        nrRqfvqyppJ0wjtxbfdrIVe4/tppf6k=
-X-Google-Smtp-Source: ABdhPJzFttKtxsaYBe0Ecy0txuAtgl8tTWgsgWOepEiUobWs7SGtsB4ULTfyyJapxCgjvDNdd0+m7w==
-X-Received: by 2002:aca:ac82:: with SMTP id v124mr479168oie.56.1609188091110;
-        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c18sm9200182oib.31.2020.12.28.12.41.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Dec 2020 12:41:30 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
-To:     Pavel Machek <pavel@denx.de>,
-        Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-References: <20201223150515.553836647@linuxfoundation.org>
- <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
- <X+dRkTq+T+A6nWPz@kroah.com>
- <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
- <X+iwvG2d0QfPl+mc@kroah.com>
- <c7688d9a00a510975f115305a9e8d245a4403773.camel@rajagiritech.edu.in>
- <20201228095040.GA11960@amd>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <356ddc03-038e-71b6-8134-5b41f090d448@roeck-us.net>
-Date:   Mon, 28 Dec 2020 12:41:27 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=46zWNq1MQMAllPErESq+P0d3wb/+jK7l73bBEn1MKsw=;
+        b=a1H0oGGSmBz/oZ3EqDQJJmR+qH1MiHRhO/wGCEjeaDKjGBrPvvKcwd5QqxsN9aiVgY
+         bndicW2Fmm6kCHXwxSZ8Q9QnNWKKluKsYlJy2zkeNo+p1O1DTYv3tL1WME4PsFMtlrjG
+         YqZ3eygQiGOCA9jktul0KpJv4NCeHO1XqaU+PkPCqp4sawI/NwYa/kIDLHKobVXApQ+T
+         /rqFqNsGjW33Dx6VYM4l7BLm3zbfQ6X7qqax+fro0/XfVp75lQxuiOB1bCl/gxWKlJxd
+         bpqUSmx3l4KkgHdr03i7FZ0OTm69k6QGNqSZ3IDLLmcb9B/EeN2u1rOWL3W2aSlP7Elo
+         t7hw==
+X-Gm-Message-State: AOAM5310STopZdT+kd+TgCpGT1/o5Ppbmywh/mXG3bG3L0As+dvYqEpM
+        Z2KU3uqiQQEOCkwPHUli0sq/+A==
+X-Google-Smtp-Source: ABdhPJxzW5BNpGbiIkly/rGtsowvBDABW0hzn/xoLQGi8JxAkFaLtLng/NVzkkuRgLFRoydQzclBJQ==
+X-Received: by 2002:a17:90b:24c:: with SMTP id fz12mr668157pjb.138.1609188287184;
+        Mon, 28 Dec 2020 12:44:47 -0800 (PST)
+Received: from ubuntu.netflix.com (203.20.25.136.in-addr.arpa. [136.25.20.203])
+        by smtp.gmail.com with ESMTPSA id b129sm37843077pgc.52.2020.12.28.12.44.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Dec 2020 12:44:46 -0800 (PST)
+From:   Sargun Dhillon <sargun@sargun.me>
+To:     Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Sargun Dhillon <sargun@sargun.me>,
+        Kyle Anderson <kylea@netflix.com>,
+        Manas Alekar <malekar@netflix.com>,
+        linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org,
+        Rob Gulewich <rgulewich@netflix.com>,
+        Zoran Simic <zsimic@netflix.com>, stable@vger.kernel.org
+Subject: [RESEND PATCH] fs: Validate flags and capabilities before looking up path in ksys_umount
+Date:   Mon, 28 Dec 2020 12:44:38 -0800
+Message-Id: <20201228204438.1726-1-sargun@sargun.me>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20201228095040.GA11960@amd>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y
-Content-Type: multipart/mixed; boundary="IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj"
+ksys_umount was refactored to into split into another function
+(path_umount) to enable sharing code. This changed the order that flags and
+permissions are validated in, and made it so that user_path_at was called
+before validating flags and capabilities.
 
---IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Unfortunately, libfuse2[1] and libmount[2] rely on the old flag validation
+behaviour to determine whether or not the kernel supports UMOUNT_NOFOLLOW.
+The other path that this validation is being checked on is
+init_umount->path_umount->can_umount. That's all internal to the kernel.
 
-On 12/28/20 1:50 AM, Pavel Machek wrote:
-> Hi!
->=20
->>>>>>> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.3-rc1.gz
->>>>>>> or in the git tree and branch at:
->>>>>>> =A0=A0=A0=A0=A0=A0=A0=A0git://git.kernel.org/pub/scm/linux/kernel=
-/git/stable/
->>>>>>> linu
->>>>>>> x-
->>>>>>> stable-rc.git linux-5.10.y
->>>>>>> and the diffstat can be found below.
->>>>>>>
->>>>>>> thanks,
->>>>>>>
->>>>>>> greg k-h
->>>>>>
->>>>>> hello ,
->>>>>> Compiled and booted 5.10.3-rc1+.
->>>>>>
->>>>>> dmesg -l err gives...
->>>>>> --------------x-------------x------------------->
->>>>>> =A0=A0 43.190922] Bluetooth: hci0: don't support firmware rome
->>>>>> 0x31010100
->>>>>> --------------x---------------x----------------->
->>>>>>
->>>>>> My Bluetooth is Off.
->>>>>
->>>>> Is this a new warning?=A0 Does it show up on 5.10.2?
->>>>>
->>>>>> Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
->>>>>
->>>>> thanks for testing?
->>>>>
->>>>> greg k-h
->>>>
->>>> this does not show up in 5.10.2-rc1+
->>>
->>> Odd.=A0 Can you run 'git bisect' to find the offending commit?
->>>
->>> Does this same error message show up in Linus's git tree?
->=20
->> i will try to do "git bisect" .  i saw this error in linus's  tree.
->=20
-> The bug is in -stable, too, so it is probably easiest to do bisect on
-> -stable tree. IIRC there's less then few hundred commits, so it should
-> be feasible to do bisection by hand if you are not familiar with git
-> bisect.
->=20
+[1]: https://github.com/libfuse/libfuse/blob/9bfbeb576c5901b62a171d35510f0d1a922020b7/util/fusermount.c#L403
+[2]: https://github.com/karelzak/util-linux/blob/7ed579523b556b1270f28dbdb7ee07dee310f157/libmount/src/context_umount.c#L813
 
-My wild guess would be commit b260e4a68853 ("Bluetooth: Fix slab-out-of-b=
-ounds
-read in hci_le_direct_adv_report_evt()"), but I don't see what might be w=
-rong
-with it unless some BT device sends a bad report which used to be accepte=
-d
-but is now silently ignored.
+Signed-off-by: Sargun Dhillon <sargun@sargun.me>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Fixes: 41525f56e256 ("fs: refactor ksys_umount")
+---
+ fs/namespace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Guenter
+diff --git a/fs/namespace.c b/fs/namespace.c
+index cebaa3e81794..dc76f1cb89f4 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1710,10 +1710,6 @@ static int can_umount(const struct path *path, int flags)
+ {
+ 	struct mount *mnt = real_mount(path->mnt);
+ 
+-	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
+-		return -EINVAL;
+-	if (!may_mount())
+-		return -EPERM;
+ 	if (path->dentry != path->mnt->mnt_root)
+ 		return -EINVAL;
+ 	if (!check_mnt(mnt))
+@@ -1746,6 +1742,12 @@ static int ksys_umount(char __user *name, int flags)
+ 	struct path path;
+ 	int ret;
+ 
++	if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
++		return -EINVAL;
++
++	if (!may_mount())
++		return -EPERM;
++
+ 	if (!(flags & UMOUNT_NOFOLLOW))
+ 		lookup_flags |= LOOKUP_FOLLOW;
+ 	ret = user_path_at(AT_FDCWD, name, lookup_flags, &path);
+-- 
+2.25.1
 
-
---IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj--
-
---PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEiHPvMQj9QTOCiqgVyx8mb86fmYEFAl/qQvcACgkQyx8mb86f
-mYEWrw//c7B1i+fj8/qiO4hoSdF0nCU8Q9/w/6b9hzk6MSAHusOsaiOWlALQ2yP7
-e3+6eu/CeM8jwUBArzfVc3t4tra+02jkYEjao3PGOrzNeHoVflZV9faXUuv9d/8q
-oE8gKb2wOMtPJWiFf14R4nias4kgbxGH+J05ebClIx2UB6+2HYAkdR6qQPluWiwv
-V9cMANG3IkrEHlt7msuzm4waEPAKvvJ9kcv+H6/9CFhoH3ZOZfcT9B4o/I8bDmpu
-F72Asrxq82Q5cQDDbwzU6HIDZko2ct8gtCQiKQyX9qYA9yxTVg3FxPloHpr9AocX
-3z0VmPyWB+9grXu3a5K1ZPms6msDhlnK1bIbF8vh181T7ReobTWRErIS7pfyKW3B
-NaV0OJ7G2wY8s93XZV322hVoihAGLX3Wby2FjoAOTZRnknj0oQw3X59/GsH4e9WE
-ZyGfUYS7scMR7WqNOE1ADJDGS41Kk9kGk62ANYFcrkC8CNyzx39Bc0kYE6ifqFHe
-Bva3Ti9KcOf1XYklnbS80YRU9kd4mtt2ddeAib/C+EgJq3DQXuFryTu9yyAYkUH9
-Gc4MGPCa9q9uAe2pQ9M4MtIuEGb7JozqcuWMR/VKB9ZBkhCzkxLmxzjMGHY8llRU
-IvRaiKpninjCvhB83XnkZoXz3E8CVP8Pa2mAAcusHttySVPMeTM=
-=MqLb
------END PGP SIGNATURE-----
-
---PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y--
