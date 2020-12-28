@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 830AA2E3B16
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 158E52E398E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404891AbgL1Npj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:45:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
+        id S2388810AbgL1NYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404815AbgL1Npi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B25822A84;
-        Mon, 28 Dec 2020 13:45:22 +0000 (UTC)
+        id S2388805AbgL1NYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC8A229EF;
+        Mon, 28 Dec 2020 13:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163123;
-        bh=+jIsBt0TnYTjNaN2jd5NfNVzqy0sB32kblYF54LC4qU=;
+        s=korg; t=1609161853;
+        bh=t9K5CfISInwcT+8p3Cm6DucWHTaMEzf4lThFKR6c7CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O6JwefnYPW3A7xhVIpzg/bZFpOFUOZ/EHFtOaX3ZbtG0POAEheeK/J0ek6owgFaIO
-         jSjSf4bbaJJDT0sv2brdy9zChfDcH24UB2LkQtTeehiuGPxN8cOPlTDY9UJ4Ez6diC
-         lMSLlvaIMRvrA7/7MVYNlYVbJw1rRIQHYjB4WjME=
+        b=IF8R+f+m/xtY490VBD3BRjUi6XT4rfQ0h4w4hXwAUvkVA77AMKd/FoQKGN5kkx03H
+         wJTtbFHkTpG2huaR6j2Ew47wOtxh8HiuBzVX63dEYi4+S1HLIl/v100q/voFVMyPLh
+         DgsRc2EfZwjPy2dmZn9mP6mCYf7F1d+ftKUR7ySA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 170/453] arm64: tegra: Fix DT binding for IO High Voltage entry
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mao Jinlong <jinlmao@codeaurora.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.19 087/346] coresight: tmc-etr: Check if page is valid before dma_map_page()
 Date:   Mon, 28 Dec 2020 13:46:46 +0100
-Message-Id: <20201228124945.377862083@linuxfoundation.org>
+Message-Id: <20201228124924.011181694@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Mao Jinlong <jinlmao@codeaurora.org>
 
-[ Upstream commit 6b26c1a034885923822f6c4d94f8644d32bc2481 ]
+commit 1cc573d5754e92372a7e30e35468644f8811e1a4 upstream.
 
-Fix the device-tree entry that represents I/O High Voltage property
-by replacing 'nvidia,io-high-voltage' with 'nvidia,io-hv' as the former
-entry is deprecated.
+alloc_pages_node() return should be checked before calling
+dma_map_page() to make sure that valid page is mapped or
+else it can lead to aborts as below:
 
-Fixes: dbb72e2c305b ("arm64: tegra: Add configuration for PCIe C5 sideband signals")
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ Unable to handle kernel paging request at virtual address ffffffc008000000
+ Mem abort info:
+ <snip>...
+ pc : __dma_inv_area+0x40/0x58
+ lr : dma_direct_map_page+0xd8/0x1c8
+
+ Call trace:
+  __dma_inv_area
+  tmc_pages_alloc
+  tmc_alloc_data_pages
+  tmc_alloc_sg_table
+  tmc_init_etr_sg_table
+  tmc_alloc_etr_buf
+  tmc_enable_etr_sink_sysfs
+  tmc_enable_etr_sink
+  coresight_enable_path
+  coresight_enable
+  enable_source_store
+  dev_attr_store
+  sysfs_kf_write
+
+Fixes: 99443ea19e8b ("coresight: Add generic TMC sg table framework")
+Cc: stable@vger.kernel.org
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Mao Jinlong <jinlmao@codeaurora.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20201127175256.1092685-13-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-tmc-etr.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 78f7e6e50beb0..0821754f0fd6d 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -144,7 +144,7 @@
- 					nvidia,schmitt = <TEGRA_PIN_DISABLE>;
- 					nvidia,lpdr = <TEGRA_PIN_ENABLE>;
- 					nvidia,enable-input = <TEGRA_PIN_DISABLE>;
--					nvidia,io-high-voltage = <TEGRA_PIN_ENABLE>;
-+					nvidia,io-hv = <TEGRA_PIN_ENABLE>;
- 					nvidia,tristate = <TEGRA_PIN_DISABLE>;
- 					nvidia,pull = <TEGRA_PIN_PULL_NONE>;
- 				};
-@@ -156,7 +156,7 @@
- 					nvidia,schmitt = <TEGRA_PIN_DISABLE>;
- 					nvidia,lpdr = <TEGRA_PIN_ENABLE>;
- 					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
--					nvidia,io-high-voltage = <TEGRA_PIN_ENABLE>;
-+					nvidia,io-hv = <TEGRA_PIN_ENABLE>;
- 					nvidia,tristate = <TEGRA_PIN_DISABLE>;
- 					nvidia,pull = <TEGRA_PIN_PULL_NONE>;
- 				};
--- 
-2.27.0
-
+--- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+@@ -183,6 +183,8 @@ static int tmc_pages_alloc(struct tmc_pa
+ 		} else {
+ 			page = alloc_pages_node(node,
+ 						GFP_KERNEL | __GFP_ZERO, 0);
++			if (!page)
++				goto err;
+ 		}
+ 		paddr = dma_map_page(dev, page, 0, PAGE_SIZE, dir);
+ 		if (dma_mapping_error(dev, paddr))
 
 
