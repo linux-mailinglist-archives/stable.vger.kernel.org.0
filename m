@@ -2,60 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433D32E6A1E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 19:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2012E6A20
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 19:55:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727647AbgL1Svk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 13:51:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38072 "EHLO mail.kernel.org"
+        id S1727629AbgL1SzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 13:55:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727629AbgL1Svk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 13:51:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B531221F8;
-        Mon, 28 Dec 2020 18:50:59 +0000 (UTC)
+        id S1726420AbgL1SzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 13:55:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC9F6221F8;
+        Mon, 28 Dec 2020 18:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609181459;
-        bh=KX4NZzabGMTKNUQe8pLfvyR3mEnwdWu/VuP08b7f/h8=;
+        s=k20201202; t=1609181665;
+        bh=NWnEu5HaAGiZiFcDZvuHZGseyVq9ff5u4/mPVtDJ6fM=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=VEFqtJUaaMp9NCLwaoyhp7AHGEd+y8I0+oH9skDs9zjpdfJWMZoLocz6uQZn86z9q
-         VCG2rWu8epugtD0Csq+ONjid5WzKeeSKMrNF+JaNrRxeBpjwrSMvvzQgpyXcG+6CMl
-         uc7VUga+11pscVCWIZGZNymJp0bpbq1dDg+YhQnLR/QiZIXpA30FmT92TS9jVGj3ZY
-         pUZl5Uo8hLkuSGaUJeYX2RXe3IQsPtrOSODwtYgfMI43tn0B3osiHXaPgdW+df6eeS
-         LzqPPsiNlPGOTkF5PVI/6oMYOCXY2abmEO7DKPk/0QoLpfoN6hS/kei83bPM2+Xmqg
-         bT8rvz6o2GeGg==
-Date:   Mon, 28 Dec 2020 10:50:58 -0800
+        b=CAC3xZ6SWM5I7K7ey7IlppP2BHU56kZMHBGKAqFeCphiW5FX0Rep3t1VD216BhO99
+         Q1jemfpEJz/7U5lTv583EQTHRmA9c5X1qtNPXDtQXDC/5IYZS/SSaZ9xBnZLjLWXur
+         tVo6FBppZGHhFiJcEnUOZPGXiC6vAeyJL2indVUi1S3SL2ttaV4hadoIjQz3iHxS2g
+         L2MmX3eVMyzVPI4BtBVzkYu+xHbQmLETwyxyVnelAs3KTt5og9du0BYvjcTV9PaVpt
+         7j1IOZlrGRbzAq5NRgRi69acSG4Uf4FL2TcR1+XyCJuUDYm3VfHSSK+9HHYZhRET+y
+         F2hhdwBumCaEQ==
+Date:   Mon, 28 Dec 2020 10:54:23 -0800
 From:   Jakub Kicinski <kuba@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vincent Bernat <vincent@bernat.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 098/717] net: evaluate
- net.ipvX.conf.all.ignore_routes_with_linkdown
-Message-ID: <20201228105058.7c66e522@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201228125025.671560851@linuxfoundation.org>
+        =?UTF-8?B?Qmo=?= =?UTF-8?B?w7ZybiBUw7ZwZWw=?= 
+        <bjorn.topel@intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 462/717] ice, xsk: clear the status bits for the
+ next_to_use descriptor
+Message-ID: <20201228105423.46e77460@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201228125043.105740628@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
-        <20201228125025.671560851@linuxfoundation.org>
+        <20201228125043.105740628@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Dec 2020 13:41:36 +0100 Greg Kroah-Hartman wrote:
-> From: Vincent Bernat <vincent@bernat.ch>
-> 
-> [ Upstream commit c0c5a60f0f1311bcf08bbe735122096d6326fb5b ]
-> 
-> Introduced in 0eeb075fad73, the "ignore_routes_with_linkdown" sysctl
-> ignores a route whose interface is down. It is provided as a
-> per-interface sysctl. However, while a "all" variant is exposed, it
-> was a noop since it was never evaluated. We use the usual "or" logic
-> for this kind of sysctls.
+On Mon, 28 Dec 2020 13:47:40 +0100 Greg Kroah-Hartman wrote:
+> From: Bj=C3=B6rn T=C3=B6pel <bjorn.topel@intel.com>
+>=20
+> [ Upstream commit 8d14768a7972b92c73259f0c9c45b969d85e3a60 ]
+>=20
+> On the Rx side, the next_to_use index points to the next item in the
+> HW ring to be refilled/allocated, and next_to_clean points to the next
+> item to potentially be processed.
+>=20
+> When the HW Rx ring is fully refilled, i.e. no packets has been
+> processed, the next_to_use will be next_to_clean - 1. When the ring is
+> fully processed next_to_clean will be equal to next_to_use. The latter
+> case is where a bug is triggered.
+>=20
+> If the next_to_use bits are not cleared, and the "fully processed"
+> state is entered, a stale descriptor can be processed.
+>=20
+> The skb-path correctly clear the status bit for the next_to_use
+> descriptor, but the AF_XDP zero-copy path did not do that.
+>=20
+> This change adds the status bits clearing of the next_to_use
+> descriptor.
+>=20
+> Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
+> Signed-off-by: Bj=C3=B6rn T=C3=B6pel <bjorn.topel@intel.com>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I'd recommend to drop 98 and 99, at least for now.
+Oh wow, so much for Sasha waiting longer for code to get tested before
+auto-pulling things into stable :/
 
-The kernel always behaved this way, and it remains to be seen if anyone
-depended on that (mis) behavior.
+I have this change and other changes here queued, but haven't sent the
+submission yet.
 
-This needs to hit a real release.
+How long is the auto-backporting delay in terms of calendar days?
