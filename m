@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849B32E414E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 680042E415F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439079AbgL1OKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:10:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45102 "EHLO mail.kernel.org"
+        id S2439471AbgL1PFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:05:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439077AbgL1OKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:10:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D30BB208B3;
-        Mon, 28 Dec 2020 14:09:58 +0000 (UTC)
+        id S2439092AbgL1OKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:10:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C23207A9;
+        Mon, 28 Dec 2020 14:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164599;
-        bh=wwpa5s9xi/prcgth2or2y3XphmPJyV5G2xNHZiy0+78=;
+        s=korg; t=1609164602;
+        bh=/H0URN6vjAXxVFYXc2J8OtP/uXBDLqmC5M9Wr3X1s7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fE6I+sxkP5tRTSK9uT522C7yQklSWlGfN+NIoLWuFYp2AqRoIfZzhzyfxuQSru0Vj
-         I8MZzbsTlW3ajb6Mc0v0PNracJj1VtgXU2dYimb6OpsLEmivSnKSXOQAyaKouHzSk3
-         uAHs4rIWOAUUJdI/dSRTSWui/CEHgNPdb0y2ic2U=
+        b=xEPZjLH840Fs3xVefnn0sI2GDtsv+7wpEpZ1mZEooFfu90MFrHeNLYuWCOdNSBZJt
+         VbiDUcMNmYq1245UzvbnM4wQO75yC9fdSf7T1//GaXjWSjsb3qzo7jTKcpbmxNli4A
+         0YdbBNqnYXIe1gQfyuOvN+KFrIontKZK+0DmbTVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 231/717] power: supply: axp288_charger: Fix HP Pavilion x2 10 DMI matching
-Date:   Mon, 28 Dec 2020 13:43:49 +0100
-Message-Id: <20201228125032.056579966@linuxfoundation.org>
+Subject: [PATCH 5.10 232/717] power: supply: bq24190_charger: fix reference leak
+Date:   Mon, 28 Dec 2020 13:43:50 +0100
+Message-Id: <20201228125032.103817478@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,100 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit a0f1ccd96c7049377d892a4299b6d5e47ec9179d ]
+[ Upstream commit b2f6cb78eaa1cad57dd3fe11d0458cd4fae9a584 ]
 
-Commit 9c80662a74cd ("power: supply: axp288_charger: Add special handling
-for HP Pavilion x2 10") added special handling for HP Pavilion x2 10
-models which use the weird combination of a Type-C connector and the
-non Type-C aware AXP288 PMIC.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put_noidle will result
+in reference leak in callers(bq24190_sysfs_show,
+bq24190_charger_get_property, bq24190_charger_set_property,
+bq24190_battery_get_property, bq24190_battery_set_property),
+so we should fix it.
 
-This special handling was activated by a DMI match a the product-name
-of "HP Pavilion x2 Detachable". Recently I've learned that there are
-also older "HP Pavilion x2 Detachable" models with an AXP288 PMIC +
-a micro-usb connector where we should not activate the special handling
-for the Type-C connectors.
-
-Extend the matching to also match on the DMI board-name and match on the
-2 boards (one Bay Trail based one Cherry Trail based) of which we are
-certain that they use the AXP288 + Type-C connector combination.
-
-Note the DSDT code from these older (AXP288 + micro-USB) models contains
-some AML code (which never runs under Linux) which reads the micro-USB
-connector id-pin and if it is pulled to ground, which would normally mean
-the port is in host mode!, then it sets the input-current-limit to 3A,
-it seems HP is using the micro-USB port as a charging only connector
-and identifies their own 3A capable charger though this hack which is a
-major violation of the USB specs. Note HP also hardcodes a 2A limit
-when the id-pin is not pulled to ground, which is also in violation
-of the specs.
-
-I've no intention to add support for HP's hack to support 3A charging
-on these older models. By making the DMI matches for the Type-C equipped
-models workaround more tighter, these older models will be treated just
-like any other AXP288 + micro-USB equipped device and the input-current
-limit will follow the BC 1.2 spec (using the defacto standard values
-there where the BC 1.2 spec defines a range).
-
-Fixes: 9c80662a74cd ("power: supply: axp288_charger: Add special handling for HP Pavilion x2 10")
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1896924
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: f385e6e2a1532 ("power: bq24190_charger: Use PM runtime autosuspend")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_charger.c | 28 ++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/power/supply/bq24190_charger.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index 9d981b76c1e72..a4df1ea923864 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -548,14 +548,15 @@ out:
+diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
+index d14186525e1e9..845af0f44c022 100644
+--- a/drivers/power/supply/bq24190_charger.c
++++ b/drivers/power/supply/bq24190_charger.c
+@@ -448,8 +448,10 @@ static ssize_t bq24190_sysfs_show(struct device *dev,
+ 		return -EINVAL;
  
- /*
-  * The HP Pavilion x2 10 series comes in a number of variants:
-- * Bay Trail SoC    + AXP288 PMIC, DMI_BOARD_NAME: "815D"
-- * Cherry Trail SoC + AXP288 PMIC, DMI_BOARD_NAME: "813E"
-- * Cherry Trail SoC + TI PMIC,     DMI_BOARD_NAME: "827C" or "82F4"
-+ * Bay Trail SoC    + AXP288 PMIC, Micro-USB, DMI_BOARD_NAME: "8021"
-+ * Bay Trail SoC    + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "815D"
-+ * Cherry Trail SoC + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "813E"
-+ * Cherry Trail SoC + TI PMIC,     Type-C,    DMI_BOARD_NAME: "827C" or "82F4"
-  *
-- * The variants with the AXP288 PMIC are all kinds of special:
-+ * The variants with the AXP288 + Type-C connector are all kinds of special:
-  *
-- * 1. All variants use a Type-C connector which the AXP288 does not support, so
-- * when using a Type-C charger it is not recognized. Unlike most AXP288 devices,
-+ * 1. They use a Type-C connector which the AXP288 does not support, so when
-+ * using a Type-C charger it is not recognized. Unlike most AXP288 devices,
-  * this model actually has mostly working ACPI AC / Battery code, the ACPI code
-  * "solves" this by simply setting the input_current_limit to 3A.
-  * There are still some issues with the ACPI code, so we use this native driver,
-@@ -578,12 +579,17 @@ out:
-  */
- static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
- 	{
--		/*
--		 * Bay Trail model has "Hewlett-Packard" as sys_vendor, Cherry
--		 * Trail model has "HP", so we only match on product_name.
--		 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "815D"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "813E"),
- 		},
- 	},
- 	{} /* Terminating entry */
+ 	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
++	}
+ 
+ 	ret = bq24190_read_mask(bdi, info->reg, info->mask, info->shift, &v);
+ 	if (ret)
+@@ -1077,8 +1079,10 @@ static int bq24190_charger_get_property(struct power_supply *psy,
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+ 	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
++	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
+@@ -1149,8 +1153,10 @@ static int bq24190_charger_set_property(struct power_supply *psy,
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+ 	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
++	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_ONLINE:
+@@ -1410,8 +1416,10 @@ static int bq24190_battery_get_property(struct power_supply *psy,
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+ 	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
++	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_STATUS:
+@@ -1456,8 +1464,10 @@ static int bq24190_battery_set_property(struct power_supply *psy,
+ 	dev_dbg(bdi->dev, "prop: %d\n", psp);
+ 
+ 	ret = pm_runtime_get_sync(bdi->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(bdi->dev);
+ 		return ret;
++	}
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_ONLINE:
 -- 
 2.27.0
 
