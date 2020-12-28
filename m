@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02BFD2E3874
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E47B2E4373
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731403AbgL1NKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:10:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37962 "EHLO mail.kernel.org"
+        id S2392990AbgL1PiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:38:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729679AbgL1NKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E441A20728;
-        Mon, 28 Dec 2020 13:10:13 +0000 (UTC)
+        id S2406325AbgL1Nue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:50:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18CFA2064B;
+        Mon, 28 Dec 2020 13:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161014;
-        bh=fRTe/BIEwO1lR6nwfXwwrFYIGxDT2pdPzAUgcL/kN0M=;
+        s=korg; t=1609163393;
+        bh=/Ph6NisSeSE9OtDa9TmHsa/AjWs5KjLXJCpFh5R8m4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2UPcqcVHhlQEb/ojl327mHCBX+MXCq0ivV6z1cl2loksL3kVcNp9rPyBItMpzfNB
-         12sy9A5+idS5ahACVV33oqHEHvofGL6OqpfY15NQ8cGiplspMm7XMQEab451+bewjB
-         zgqR5kg4cly/8wEukQjSWyTH+NRhFUQC5ufsUgE4=
+        b=ZIePZfIneENA7UXQ+oZYFjLyI5woQelp7jlhxEPCM9CL22slNcbJyAVlGK3ifl29+
+         Sy1pEqn6MQeN7QHtLgL0WgIGHG3eGwN7RhMU7fvEMcfM45BpZmzC1aKJ2p1k4soCZ0
+         fI/3EdSF9F2XbHjQDRVjjMdbmkiICIwjYsLIA2QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 070/242] RDMA/rxe: Compute PSN windows correctly
+Subject: [PATCH 5.4 239/453] arm64: dts: meson: g12a: x96-max: fix PHY deassert timing requirements
 Date:   Mon, 28 Dec 2020 13:47:55 +0100
-Message-Id: <20201228124908.132070682@linuxfoundation.org>
+Message-Id: <20201228124948.722663966@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit bb3ab2979fd69db23328691cb10067861df89037 ]
+[ Upstream commit 3d07c3b3a886fefd583c1b485b5e4e3c4e2da493 ]
 
-The code which limited the number of unacknowledged PSNs was incorrect.
-The PSNs are limited to 24 bits and wrap back to zero from 0x00ffffff.
-The test was computing a 32 bit value which wraps at 32 bits so that
-qp->req.psn can appear smaller than the limit when it is actually larger.
+According to the datasheet (Rev. 1.9) the RTL8211F requires at least
+72ms "for internal circuits settling time" before accessing the PHY
+registers. On similar boards with the same PHY this fixes an issue where
+Ethernet link would not come up when using ip link set down/up.
 
-Replace '>' test with psn_compare which is used for other PSN comparisons
-and correctly handles the 24 bit size.
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20201013170741.3590-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: ed5e8f689154 ("arm64: dts: meson: g12a: x96-max: fix the Ethernet PHY reset line")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/12506964ca5d5f936579a280ad0a7e7f9a0a2d4c.1607363522.git.stefan@agner.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index e6785b1ea85fc..693884160f001 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -664,7 +664,8 @@ next_wqe:
- 	}
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+index 17155fb73fce9..c48125bf9d1e3 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+@@ -340,7 +340,7 @@
+ 		eee-broken-1000t;
  
- 	if (unlikely(qp_type(qp) == IB_QPT_RC &&
--		     qp->req.psn > (qp->comp.psn + RXE_MAX_UNACKED_PSNS))) {
-+		psn_compare(qp->req.psn, (qp->comp.psn +
-+				RXE_MAX_UNACKED_PSNS)) > 0)) {
- 		qp->req.wait_psn = 1;
- 		goto exit;
- 	}
+ 		reset-assert-us = <10000>;
+-		reset-deassert-us = <30000>;
++		reset-deassert-us = <80000>;
+ 		reset-gpios = <&gpio GPIOZ_15 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+ 
+ 		interrupt-parent = <&gpio_intc>;
 -- 
 2.27.0
 
