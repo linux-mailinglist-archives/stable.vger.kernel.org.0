@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE742E62BC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8FE2E401B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406068AbgL1NtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:49:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49620 "EHLO mail.kernel.org"
+        id S2388480AbgL1OsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:48:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406079AbgL1NtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:49:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A09B520738;
-        Mon, 28 Dec 2020 13:48:55 +0000 (UTC)
+        id S2389854AbgL1OWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:22:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 347F822B2E;
+        Mon, 28 Dec 2020 14:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163336;
-        bh=/QTD93ioTxXLqscl0R4W/C93PNa/4cpPRsqMePBQCcQ=;
+        s=korg; t=1609165313;
+        bh=Z33ymT/htmLNfqyeiWzePYAIqRjutd7RXpdwRGEqUpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcsYPSJuATitH0sOYCFkpsUKZozJO77O27Ni0iq/4eWuPX1tTDwG2hej5+3Q4ErSC
-         TcKORjzPyX8jcQRS+zIyLckq3x+h/O59vSl8gMrH6TrjUbntt76FPXL0TdL1kjd4Rc
-         Gws/7aJiottFjhGma0pPibcRvabKTZZ3azAJH8BY=
+        b=XJ+aScgmUfnzkeMJ/qrvhjgT8l+xnz9QgFS4hL9/vqHut+qF7QNmz97CqZjObYCx0
+         brrxoEmIl78GBYC7JMQVq1we4pwHPTNfjUUjhk/Wv35TbpRM7ACq6Jp3VO9zvv+RvM
+         3dX93xM91mxctk2w30pWTj2zRSECf/89FLM61Z0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org,
+        Robert Buhren <robert.buhren@sect.tu-berlin.de>,
+        Felicitas Hetzelt <file@sect.tu-berlin.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 251/453] usb: oxu210hp-hcd: Fix memory leak in oxu_create
+Subject: [PATCH 5.10 489/717] virtio_ring: Cut and paste bugs in vring_create_virtqueue_packed()
 Date:   Mon, 28 Dec 2020 13:48:07 +0100
-Message-Id: <20201228124949.304670323@linuxfoundation.org>
+Message-Id: <20201228125044.392700333@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e5548b05631ec3e6bfdaef1cad28c799545b791b ]
+[ Upstream commit ae93d8ea0fa701e84ab9df0db9fb60ec6c80d7b8 ]
 
-usb_create_hcd will alloc memory for hcd, and we should
-call usb_put_hcd to free it when adding fails to prevent
-memory leak.
+There is a copy and paste bug in the error handling of this code and
+it uses "ring_dma_addr" three times instead of "device_event_dma_addr"
+and "driver_event_dma_addr".
 
-Fixes: b92a78e582b1a ("usb host: Oxford OXU210HP HCD driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201123145809.1456541-1-zhangqilong3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ce9e6055fa0 (" virtio_ring: introduce packed ring support")
+Reported-by: Robert Buhren <robert.buhren@sect.tu-berlin.de>
+Reported-by: Felicitas Hetzelt <file@sect.tu-berlin.de>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X8pGRJlEzyn+04u2@mwanda
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/oxu210hp-hcd.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_ring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/oxu210hp-hcd.c b/drivers/usb/host/oxu210hp-hcd.c
-index e67242e437edc..65985247fc00f 100644
---- a/drivers/usb/host/oxu210hp-hcd.c
-+++ b/drivers/usb/host/oxu210hp-hcd.c
-@@ -4149,8 +4149,10 @@ static struct usb_hcd *oxu_create(struct platform_device *pdev,
- 	oxu->is_otg = otg;
- 
- 	ret = usb_add_hcd(hcd, irq, IRQF_SHARED);
--	if (ret < 0)
-+	if (ret < 0) {
-+		usb_put_hcd(hcd);
- 		return ERR_PTR(ret);
-+	}
- 
- 	device_wakeup_enable(hcd->self.controller);
- 	return hcd;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index becc776979602..924b6b85376bd 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1676,9 +1676,9 @@ err_desc_extra:
+ err_desc_state:
+ 	kfree(vq);
+ err_vq:
+-	vring_free_queue(vdev, event_size_in_bytes, device, ring_dma_addr);
++	vring_free_queue(vdev, event_size_in_bytes, device, device_event_dma_addr);
+ err_device:
+-	vring_free_queue(vdev, event_size_in_bytes, driver, ring_dma_addr);
++	vring_free_queue(vdev, event_size_in_bytes, driver, driver_event_dma_addr);
+ err_driver:
+ 	vring_free_queue(vdev, ring_size_in_bytes, ring, ring_dma_addr);
+ err_ring:
 -- 
 2.27.0
 
