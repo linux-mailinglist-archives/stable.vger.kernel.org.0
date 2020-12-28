@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D7FA2E6406
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240A82E4096
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404641AbgL1Ppr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:45:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
+        id S2391816AbgL1OyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:54:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404652AbgL1Noo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:44:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E62C322583;
-        Mon, 28 Dec 2020 13:44:02 +0000 (UTC)
+        id S2391809AbgL1ORb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:17:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AFD9205CB;
+        Mon, 28 Dec 2020 14:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163043;
-        bh=MpvcWBcRcmHhhLO6Hi2HRC7lIUzhMPPVIXn4GXh1hM0=;
+        s=korg; t=1609165035;
+        bh=wz1AgKTjKSqxZdocjf0zMjlGlZPvXlAleSkU5XWIUK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1n853YJK5x06b5GS2iCTNxMryL3PVKPjeuVIqAt4zyVwSREFFjsDH+9TmZ0YdvHSq
-         9Ub/Z0YebjFQ3RedrUCUdnAGOdB4VgzLGHmgYkBeln0rM9p+njHygcOMEySW7hn97/
-         6r5oUaOyrGVOs3yzhVKvXMrtsKdaWkUzyHYU08uo=
+        b=JPjG4K6ABBWYqpjA0WwUOH6/p519t5vRMaX0UkdrMJEqZ2fOaiPIBaDC8VrbO8qFN
+         /KxKVUkJu4bIzaw96v4rj3MdzyweoAn7+FV5dr1LSg9XPL4lIeVDwQCyI4q2PAI/B2
+         OVkKFEnuN88prxtqtYqTBfAPgF8TiJ/oCe+7e5mQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 150/453] EDAC/mce_amd: Use struct cpuinfo_x86.cpu_die_id for AMD NodeId
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 388/717] iwlwifi: mvm: hook up missing RX handlers
 Date:   Mon, 28 Dec 2020 13:46:26 +0100
-Message-Id: <20201228124944.423928426@linuxfoundation.org>
+Message-Id: <20201228125039.594170347@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 8de0c9917cc1297bc5543b61992d5bdee4ce621a ]
+[ Upstream commit 8a59d39033c35bb484f6bd91891db86ebe07fdc2 ]
 
-The edac_mce_amd module calls decode_dram_ecc() on AMD Family17h and
-later systems. This function is used in amd64_edac_mod to do
-system-specific decoding for DRAM ECC errors. The function takes a
-"NodeId" as a parameter.
+The RX handlers for probe response data and channel switch weren't
+hooked up properly, fix that.
 
-In AMD documentation, NodeId is used to identify a physical die in a
-system. This can be used to identify a node in the AMD_NB code and also
-it is used with umc_normaddr_to_sysaddr().
-
-However, the input used for decode_dram_ecc() is currently the NUMA node
-of a logical CPU. In the default configuration, the NUMA node and
-physical die will be equivalent, so this doesn't have an impact.
-
-But the NUMA node configuration can be adjusted with optional memory
-interleaving modes. This will cause the NUMA node enumeration to not
-match the physical die enumeration. The mismatch will cause the address
-translation function to fail or report incorrect results.
-
-Use struct cpuinfo_x86.cpu_die_id for the node_id parameter to ensure the
-physical ID is used.
-
-Fixes: fbe63acf62f5 ("EDAC, mce_amd: Use cpu_to_node() to find the node ID")
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201109210659.754018-4-Yazen.Ghannam@amd.com
+Fixes: 86e177d80ff7 ("iwlwifi: mvm: add NOA and CSA to a probe response")
+Fixes: d3a108a48dc6 ("iwlwifi: mvm: Support CSA countdown offloading")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20201209231352.2d07dcee0d35.I07a61b5d734478db57d9434ff303e4c90bf6c32b@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/mce_amd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/edac/mce_amd.c b/drivers/edac/mce_amd.c
-index ea622c6f3a393..c19640a453f22 100644
---- a/drivers/edac/mce_amd.c
-+++ b/drivers/edac/mce_amd.c
-@@ -975,7 +975,7 @@ static void decode_smca_error(struct mce *m)
- 	}
- 
- 	if (bank_type == SMCA_UMC && xec == 0 && decode_dram_ecc)
--		decode_dram_ecc(cpu_to_node(m->extcpu), m);
-+		decode_dram_ecc(topology_die_id(m->extcpu), m);
- }
- 
- static inline void amd_decode_err_code(u16 ec)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index f1c5b3a9c26f7..0d1118f66f0d5 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -315,6 +315,12 @@ static const struct iwl_rx_handlers iwl_mvm_rx_handlers[] = {
+ 		       iwl_mvm_mu_mimo_grp_notif, RX_HANDLER_SYNC),
+ 	RX_HANDLER_GRP(DATA_PATH_GROUP, STA_PM_NOTIF,
+ 		       iwl_mvm_sta_pm_notif, RX_HANDLER_SYNC),
++	RX_HANDLER_GRP(MAC_CONF_GROUP, PROBE_RESPONSE_DATA_NOTIF,
++		       iwl_mvm_probe_resp_data_notif,
++		       RX_HANDLER_ASYNC_LOCKED),
++	RX_HANDLER_GRP(MAC_CONF_GROUP, CHANNEL_SWITCH_NOA_NOTIF,
++		       iwl_mvm_channel_switch_noa_notif,
++		       RX_HANDLER_SYNC),
+ };
+ #undef RX_HANDLER
+ #undef RX_HANDLER_GRP
 -- 
 2.27.0
 
