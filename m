@@ -2,16 +2,16 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AAD82E3683
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194E02E367E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727163AbgL1LeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:34:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57870 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbgL1LeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727129AbgL1LeI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Dec 2020 06:34:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBD61229C4;
+Received: from mail.kernel.org ([198.145.29.99]:57860 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727094AbgL1LeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 06:34:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BFB222583;
         Mon, 28 Dec 2020 11:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
         s=korg; t=1609155208;
