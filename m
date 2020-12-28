@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA072E67F2
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A702E692C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbgL1NE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:04:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60522 "EHLO mail.kernel.org"
+        id S2633811AbgL1Qpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:45:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730437AbgL1NEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6166422AAD;
-        Mon, 28 Dec 2020 13:03:44 +0000 (UTC)
+        id S1728668AbgL1Mz7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B01C022B2A;
+        Mon, 28 Dec 2020 12:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160625;
-        bh=vPiaashSEX8gxRguCs74Y+WbjVCYfj1pZ+KOXv7UFrU=;
+        s=korg; t=1609160143;
+        bh=4jLqyF3EjFvGTRYAS3QjW9dDV4q6T3QEhnp5c8bsMhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tA7SKwCSWpFigTFvfLe0wmt5yS9096qZiE0TIogxs8vrYfi1aC3WlTuJlT631Mz0n
-         UiglyivWXBkQTFJzCa/yO6sL8LpjHLhQ1VctSGWqa431wJWVAglaog0XehzzzdxGb7
-         l5wNNYJIlEGx0Mvz5kfP67HO22eltJ6alGMjUwBE=
+        b=yRh5lx6IqZ9OALk0LF0xh52VZhbNwcQkV69GB801mCzGOcYj/VBMChDUL2Y7vH6K9
+         3yY41c5H06MIH7O5zi7VLoqEh3JVCYJRyUSNRaSjK9vMpwEfSQw5MJcfI4wtNvrRbt
+         tHF+mAd+efFRYwKE9mADAKgQjwO0CAUffdPn5IPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/175] ASoC: wm_adsp: remove "ctl" from list on error in wm_adsp_create_control()
+Subject: [PATCH 4.4 083/132] um: chan_xterm: Fix fd leak
 Date:   Mon, 28 Dec 2020 13:49:27 +0100
-Message-Id: <20201228124858.775092340@linuxfoundation.org>
+Message-Id: <20201228124850.446993739@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-[ Upstream commit 85a7555575a0e48f9b73db310d0d762a08a46d63 ]
+[ Upstream commit 9431f7c199ab0d02da1482d62255e0b4621cb1b5 ]
 
-The error handling frees "ctl" but it's still on the "dsp->ctl_list"
-list so that could result in a use after free.  Remove it from the list
-before returning.
+xterm serial channel was leaking a fd used in setting up the
+port helper
 
-Fixes: 2323736dca72 ("ASoC: wm_adsp: Add basic support for rev 1 firmware file format")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/X9B0keV/02wrx9Xs@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This bug is prehistoric - it predates switching to git. The "fixes"
+header here is really just to mark all the versions we would like this to
+apply to which is "Anything from the Cretaceous period onwards".
+
+No dinosaurs were harmed in fixing this bug.
+
+Fixes: b40997b872cd ("um: drivers/xterm.c: fix a file descriptor leak")
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm_adsp.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/um/drivers/xterm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/wm_adsp.c b/sound/soc/codecs/wm_adsp.c
-index 28eb55bc46634..00dd37f10daff 100644
---- a/sound/soc/codecs/wm_adsp.c
-+++ b/sound/soc/codecs/wm_adsp.c
-@@ -1156,7 +1156,7 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
- 	ctl_work = kzalloc(sizeof(*ctl_work), GFP_KERNEL);
- 	if (!ctl_work) {
- 		ret = -ENOMEM;
--		goto err_ctl_cache;
-+		goto err_list_del;
+diff --git a/arch/um/drivers/xterm.c b/arch/um/drivers/xterm.c
+index 20e30be44795b..e3b422ebce09f 100644
+--- a/arch/um/drivers/xterm.c
++++ b/arch/um/drivers/xterm.c
+@@ -18,6 +18,7 @@
+ struct xterm_chan {
+ 	int pid;
+ 	int helper_pid;
++	int chan_fd;
+ 	char *title;
+ 	int device;
+ 	int raw;
+@@ -33,6 +34,7 @@ static void *xterm_init(char *str, int device, const struct chan_opts *opts)
+ 		return NULL;
+ 	*data = ((struct xterm_chan) { .pid 		= -1,
+ 				       .helper_pid 	= -1,
++				       .chan_fd		= -1,
+ 				       .device 		= device,
+ 				       .title 		= opts->xterm_title,
+ 				       .raw  		= opts->raw } );
+@@ -149,6 +151,7 @@ static int xterm_open(int input, int output, int primary, void *d,
+ 		goto out_kill;
  	}
  
- 	ctl_work->dsp = dsp;
-@@ -1166,7 +1166,8 @@ static int wm_adsp_create_control(struct wm_adsp *dsp,
++	data->chan_fd = fd;
+ 	new = xterm_fd(fd, &data->helper_pid);
+ 	if (new < 0) {
+ 		err = new;
+@@ -206,6 +209,8 @@ static void xterm_close(int fd, void *d)
+ 		os_kill_process(data->helper_pid, 0);
+ 	data->helper_pid = -1;
  
- 	return 0;
++	if (data->chan_fd != -1)
++		os_close_file(data->chan_fd);
+ 	os_close_file(fd);
+ }
  
--err_ctl_cache:
-+err_list_del:
-+	list_del(&ctl->list);
- 	kfree(ctl->cache);
- err_ctl_name:
- 	kfree(ctl->name);
 -- 
 2.27.0
 
