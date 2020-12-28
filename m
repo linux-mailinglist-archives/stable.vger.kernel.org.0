@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DBA2E660C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEA1D2E6798
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388919AbgL1NZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:25:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53950 "EHLO mail.kernel.org"
+        id S2437405AbgL1Q07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:26:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388913AbgL1NZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F35E2072C;
-        Mon, 28 Dec 2020 13:25:17 +0000 (UTC)
+        id S1730952AbgL1NIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC11E2076D;
+        Mon, 28 Dec 2020 13:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161918;
-        bh=V/6JNkaSfVK6TfVI1895ZxL0BT9b7+WoGm6BJcSfgi4=;
+        s=korg; t=1609160902;
+        bh=VKZZq1lAep4ckvFSXWk1nX6K8L/Guxz5MJjcCRsjij8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvikxRpEmKDEhzLMtqmXVT7985mWGc551mfYiinD1vzZS/cLxT6llRn7+kmCCsZPA
-         I/uzSzyRTQM2sV+9Oqvrxf9YYjRvS8/ylvRQYau3b8sVsl/aIEbvsppy54cTEAJgGB
-         +1OpwC6cXH814dSX3e5530MoFWLw60JdcWSrlvMM=
+        b=wu8ZkdtUtl6/D/fkMjQA8GxHKgzAK1FrhUTLAB7ilCIcxL7pL8oV8n6decuSHliNK
+         9thCBy0kaTTPc/1l9g+HY4HatFgxXWrRHLNB2JFzuAoISorsZcudnooZCUpw8d/mnd
+         K9wFz9FN/eyMGHEjIRE6TO5sK20Y/VVMG9CqHjNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/346] ASoC: pcm: DRAIN support reactivation
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Subject: [PATCH 4.14 033/242] serial: 8250_omap: Avoid FIFO corruption caused by MDR1 access
 Date:   Mon, 28 Dec 2020 13:47:18 +0100
-Message-Id: <20201228124925.546595955@linuxfoundation.org>
+Message-Id: <20201228124906.292663489@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
 
-[ Upstream commit 4c22b80f61540ea99d9b4af0127315338755f05b ]
+commit d96f04d347e4011977abdbb4da5d8f303ebd26f8 upstream.
 
-soc-pcm's dpcm_fe_dai_do_trigger() supported DRAIN commnad up to kernel
-v5.4 where explicit switch(cmd) has been introduced which takes into
-account all SNDRV_PCM_TRIGGER_xxx but SNDRV_PCM_TRIGGER_DRAIN. Update
-switch statement to reactive support for it.
+It has been observed that once per 300-1300 port openings the first
+transmitted byte is being corrupted on AM3352 ("v" written to FIFO appeared
+as "e" on the wire). It only happened if single byte has been transmitted
+right after port open, which means, DMA is not used for this transfer and
+the corruption never happened afterwards.
 
-As DRAIN is somewhat unique by lacking negative/stop counterpart, bring
-behaviour of dpcm_fe_dai_do_trigger() for said command back to its
-pre-v5.4 state by adding it to START/RESUME/PAUSE_RELEASE group.
+Therefore I've carefully re-read the MDR1 errata (link below), which says
+"when accessing the MDR1 registers that causes a dummy under-run condition
+that will freeze the UART in IrDA transmission. In UART mode, this may
+corrupt the transferred data". Strictly speaking,
+omap_8250_mdr1_errataset() performs a read access and if the value is the
+same as should be written, exits without errata-recommended FIFO reset.
 
-Fixes: acbf27746ecf ("ASoC: pcm: update FE/BE trigger order based on the command")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20201026100129.8216-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A brief check of the serial_omap_mdr1_errataset() from the competing
+omap-serial driver showed it has no read access of MDR1. After removing the
+read access from omap_8250_mdr1_errataset() the data corruption never
+happened any more.
+
+Link: https://www.ti.com/lit/er/sprz360i/sprz360i.pdf
+Fixes: 61929cf0169d ("tty: serial: Add 8250-core based omap driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+Link: https://lore.kernel.org/r/20201210055257.1053028-1-alexander.sverdlin@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/soc-pcm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/8250/8250_omap.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index a0d1ce0edaf9a..af14304645ce8 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2390,6 +2390,7 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
- 		case SNDRV_PCM_TRIGGER_START:
- 		case SNDRV_PCM_TRIGGER_RESUME:
- 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
-+		case SNDRV_PCM_TRIGGER_DRAIN:
- 			ret = dpcm_dai_trigger_fe_be(substream, cmd, true);
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
-@@ -2407,6 +2408,7 @@ static int dpcm_fe_dai_do_trigger(struct snd_pcm_substream *substream, int cmd)
- 		case SNDRV_PCM_TRIGGER_START:
- 		case SNDRV_PCM_TRIGGER_RESUME:
- 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
-+		case SNDRV_PCM_TRIGGER_DRAIN:
- 			ret = dpcm_dai_trigger_fe_be(substream, cmd, false);
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
--- 
-2.27.0
-
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -161,11 +161,6 @@ static void omap_8250_mdr1_errataset(str
+ 				     struct omap8250_priv *priv)
+ {
+ 	u8 timeout = 255;
+-	u8 old_mdr1;
+-
+-	old_mdr1 = serial_in(up, UART_OMAP_MDR1);
+-	if (old_mdr1 == priv->mdr1)
+-		return;
+ 
+ 	serial_out(up, UART_OMAP_MDR1, priv->mdr1);
+ 	udelay(2);
 
 
