@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 233572E39B7
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B12DF2E3DD7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389041AbgL1N1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55016 "EHLO mail.kernel.org"
+        id S2392059AbgL1OUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:20:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389292AbgL1N0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:26:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2926B208D5;
-        Mon, 28 Dec 2020 13:25:31 +0000 (UTC)
+        id S2437756AbgL1OU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:20:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1901422573;
+        Mon, 28 Dec 2020 14:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161932;
-        bh=lKUKgVhGoxoF78/HQuY7Nq7q2AACJYLhri4h8N3WYHg=;
+        s=korg; t=1609165213;
+        bh=rKV0l2xULBjUrg/Gg+dr5a6PsKtl/a8O48oMgT0Uwhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WA0za1rOTdrW5MrNKfw5WB/+vA7KgHrWVJqmkHpF1csQiNm5r7rekfZWt2LbasfL
-         iXGCSu1bnJI8eErFI8oOm7NordqnupiIKGSdbCd3QuLcZtU68JsyCzs+yWaABgflZE
-         MkrcprgmbLmPqzvczLvV6eMdN5gKiyon6mPfsbOk=
+        b=BqoK8EUm9MxnTE0ibFG9ZyDqRZiVzoNHVR8v0SBFPx3HBHbxCYt+K2MIyujHkQ5rv
+         EzdiOEUzY2DL/VaK9grQhpuv8CHoyHaVHpKCZ21oAUvWV1WiuisSdFY+O0uCMSZfWP
+         VeO/FauYORnoPmc9CNld4jb0+qdQMC1y4BMCxbis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/346] net: evaluate net.ipvX.conf.all.ignore_routes_with_linkdown
+Subject: [PATCH 5.10 453/717] mm/vmalloc: Fix unlock order in s_stop()
 Date:   Mon, 28 Dec 2020 13:47:31 +0100
-Message-Id: <20201228124926.168774822@linuxfoundation.org>
+Message-Id: <20201228125042.672572617@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,109 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Bernat <vincent@bernat.ch>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit c0c5a60f0f1311bcf08bbe735122096d6326fb5b ]
+[ Upstream commit 0a7dd4e901b8a4ee040ba953900d1d7120b34ee5 ]
 
-Introduced in 0eeb075fad73, the "ignore_routes_with_linkdown" sysctl
-ignores a route whose interface is down. It is provided as a
-per-interface sysctl. However, while a "all" variant is exposed, it
-was a noop since it was never evaluated. We use the usual "or" logic
-for this kind of sysctls.
+When multiple locks are acquired, they should be released in reverse
+order. For s_start() and s_stop() in mm/vmalloc.c, that is not the
+case.
 
-Tested with:
+  s_start: mutex_lock(&vmap_purge_lock); spin_lock(&vmap_area_lock);
+  s_stop : mutex_unlock(&vmap_purge_lock); spin_unlock(&vmap_area_lock);
 
-    ip link add type veth # veth0 + veth1
-    ip link add type veth # veth1 + veth2
-    ip link set up dev veth0
-    ip link set up dev veth1 # link-status paired with veth0
-    ip link set up dev veth2
-    ip link set up dev veth3 # link-status paired with veth2
+This unlock sequence, though allowed, is not optimal. If a waiter is
+present, mutex_unlock() will need to go through the slowpath of waking
+up the waiter with preemption disabled. Fix that by releasing the
+spinlock first before the mutex.
 
-    # First available path
-    ip -4 addr add 203.0.113.${uts#H}/24 dev veth0
-    ip -6 addr add 2001:db8:1::${uts#H}/64 dev veth0
-
-    # Second available path
-    ip -4 addr add 192.0.2.${uts#H}/24 dev veth2
-    ip -6 addr add 2001:db8:2::${uts#H}/64 dev veth2
-
-    # More specific route through first path
-    ip -4 route add 198.51.100.0/25 via 203.0.113.254 # via veth0
-    ip -6 route add 2001:db8:3::/56 via 2001:db8:1::ff # via veth0
-
-    # Less specific route through second path
-    ip -4 route add 198.51.100.0/24 via 192.0.2.254 # via veth2
-    ip -6 route add 2001:db8:3::/48 via 2001:db8:2::ff # via veth2
-
-    # H1: enable on "all"
-    # H2: enable on "veth0"
-    for v in ipv4 ipv6; do
-      case $uts in
-        H1)
-          sysctl -qw net.${v}.conf.all.ignore_routes_with_linkdown=1
-          ;;
-        H2)
-          sysctl -qw net.${v}.conf.veth0.ignore_routes_with_linkdown=1
-          ;;
-      esac
-    done
-
-    set -xe
-    # When veth0 is up, best route is through veth0
-    ip -o route get 198.51.100.1 | grep -Fw veth0
-    ip -o route get 2001:db8:3::1 | grep -Fw veth0
-
-    # When veth0 is down, best route should be through veth2 on H1/H2,
-    # but on veth0 on H2
-    ip link set down dev veth1 # down veth0
-    ip route show
-    [ $uts != H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth0
-    [ $uts != H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth0
-    [ $uts = H3 ] || ip -o route get 198.51.100.1 | grep -Fw veth2
-    [ $uts = H3 ] || ip -o route get 2001:db8:3::1 | grep -Fw veth2
-
-Without this patch, the two last lines would fail on H1 (the one using
-the "all" sysctl). With the patch, everything succeeds as expected.
-
-Also document the sysctl in `ip-sysctl.rst`.
-
-Fixes: 0eeb075fad73 ("net: ipv4 sysctl option to ignore routes when nexthop link is down")
-Signed-off-by: Vincent Bernat <vincent@bernat.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lkml.kernel.org/r/20201213180843.16938-1-longman@redhat.com
+Fixes: e36176be1c39 ("mm/vmalloc: rework vmap_area_lock")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ip-sysctl.txt | 3 +++
- include/linux/inetdevice.h             | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ mm/vmalloc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index 3c617d620b6f8..94d42eb83588b 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -1300,6 +1300,9 @@ igmpv3_unsolicited_report_interval - INTEGER
- 	IGMPv3 report retransmit will take place.
- 	Default: 1000 (1 seconds)
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 6ae491a8b210f..75913f685c71e 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -3448,11 +3448,11 @@ static void *s_next(struct seq_file *m, void *p, loff_t *pos)
+ }
  
-+ignore_routes_with_linkdown - BOOLEAN
-+        Ignore routes whose link is down when performing a FIB lookup.
-+
- promote_secondaries - BOOLEAN
- 	When a primary IP address is removed from this interface
- 	promote a corresponding secondary IP address instead of
-diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
-index a64f21a97369a..11adf828edf58 100644
---- a/include/linux/inetdevice.h
-+++ b/include/linux/inetdevice.h
-@@ -126,7 +126,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
- 	  IN_DEV_ORCONF((in_dev), ACCEPT_REDIRECTS)))
+ static void s_stop(struct seq_file *m, void *p)
+-	__releases(&vmap_purge_lock)
+ 	__releases(&vmap_area_lock)
++	__releases(&vmap_purge_lock)
+ {
+-	mutex_unlock(&vmap_purge_lock);
+ 	spin_unlock(&vmap_area_lock);
++	mutex_unlock(&vmap_purge_lock);
+ }
  
- #define IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) \
--	IN_DEV_CONF_GET((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
-+	IN_DEV_ORCONF((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
- 
- #define IN_DEV_ARPFILTER(in_dev)	IN_DEV_ORCONF((in_dev), ARPFILTER)
- #define IN_DEV_ARP_ACCEPT(in_dev)	IN_DEV_ORCONF((in_dev), ARP_ACCEPT)
+ static void show_numa_info(struct seq_file *m, struct vm_struct *v)
 -- 
 2.27.0
 
