@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8642E6658
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 518172E662F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388095AbgL1NW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:22:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50700 "EHLO mail.kernel.org"
+        id S2388273AbgL1NWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:22:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726650AbgL1NW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:22:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9820A207CF;
-        Mon, 28 Dec 2020 13:21:44 +0000 (UTC)
+        id S2388259AbgL1NW3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:22:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 901EB207F7;
+        Mon, 28 Dec 2020 13:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161705;
-        bh=hkOGyiel6DQQsHN0zdExQmw97p7GybAFPgwUZOCrP7I=;
+        s=korg; t=1609161708;
+        bh=WZ5ejJazqMwziMvrVQobP8XfW5cRgG4yrWee5XpHQ2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUrZxYsP/YS6lgBhQ+RP4mCqd7BX+u3ojWUY/7qPzpsE/nPEfM/vOqLhEPl7MuJRf
-         e1c1g9DHMehT7oGRrDmR1c+5tA3FRmZMFSSmWNsMxzoRzOrUHOIraRSmx+2gCbpvu4
-         Ulhst5Os6Bi6Uu/6UXeS8x/b8ZJ4VWrl9VceF1bI=
+        b=HKVGfy2Fnhq1wUOKxTxbz5oe4BW/I/ZCDawFqvaW7H87+ga/wak6qPWmQiGtk3MFS
+         BYcbM0Bq2bjBwiCRuKl6MIMwoEvjhA3DdX4VT2eR1tY8TIE2d2naejwfZIhg9/SeVv
+         kqdsZdDtgp18kWIyr2Qv2U+hGjmne3y7EqCM4UCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: [PATCH 4.19 023/346] x86/mm/mem_encrypt: Fix definition of PMD_FLAGS_DEC_WP
-Date:   Mon, 28 Dec 2020 13:45:42 +0100
-Message-Id: <20201228124920.894651104@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: [PATCH 4.19 024/346] x86/membarrier: Get rid of a dubious optimization
+Date:   Mon, 28 Dec 2020 13:45:43 +0100
+Message-Id: <20201228124920.943092613@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -40,53 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 29ac40cbed2bc06fa218ca25d7f5e280d3d08a25 upstream.
+commit a493d1ca1a03b532871f1da27f8dbda2b28b04c4 upstream.
 
-The PAT bit is in different locations for 4k and 2M/1G page table
-entries.
+sync_core_before_usermode() had an incorrect optimization.  If the kernel
+returns from an interrupt, it can get to usermode without IRET. It just has
+to schedule to a different task in the same mm and do SYSRET.  Fortunately,
+there were no callers of sync_core_before_usermode() that could have had
+in_irq() or in_nmi() equal to true, because it's only ever called from the
+scheduler.
 
-Add a definition for _PAGE_LARGE_CACHE_MASK to represent the three
-caching bits (PWT, PCD, PAT), similar to _PAGE_CACHE_MASK for 4k pages,
-and use it in the definition of PMD_FLAGS_DEC_WP to get the correct PAT
-index for write-protected pages.
+While at it, clarify a related comment.
 
-Fixes: 6ebcb060713f ("x86/mm: Add support to encrypt the kernel in-place")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYNC_CORE")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20201111160946.147341-1-nivedita@alum.mit.edu
+Link: https://lore.kernel.org/r/5afc7632be1422f91eaf7611aaaa1b5b8580a086.1607058304.git.luto@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/pgtable_types.h |    1 +
- arch/x86/mm/mem_encrypt_identity.c   |    4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/sync_core.h |    9 +++++----
+ arch/x86/mm/tlb.c                |   10 ++++++++--
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -148,6 +148,7 @@ enum page_cache_mode {
- #endif
+--- a/arch/x86/include/asm/sync_core.h
++++ b/arch/x86/include/asm/sync_core.h
+@@ -16,12 +16,13 @@ static inline void sync_core_before_user
+ 	/* With PTI, we unconditionally serialize before running user code. */
+ 	if (static_cpu_has(X86_FEATURE_PTI))
+ 		return;
++
+ 	/*
+-	 * Return from interrupt and NMI is done through iret, which is core
+-	 * serializing.
++	 * Even if we're in an interrupt, we might reschedule before returning,
++	 * in which case we could switch to a different thread in the same mm
++	 * and return using SYSRET or SYSEXIT.  Instead of trying to keep
++	 * track of our need to sync the core, just sync right away.
+ 	 */
+-	if (in_irq() || in_nmi())
+-		return;
+ 	sync_core();
+ }
  
- #define _PAGE_CACHE_MASK	(_PAGE_PAT | _PAGE_PCD | _PAGE_PWT)
-+#define _PAGE_LARGE_CACHE_MASK	(_PAGE_PWT | _PAGE_PCD | _PAGE_PAT_LARGE)
- #define _PAGE_NOCACHE		(cachemode2protval(_PAGE_CACHE_MODE_UC))
- #define _PAGE_CACHE_WP		(cachemode2protval(_PAGE_CACHE_MODE_WP))
- 
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -47,8 +47,8 @@
- #define PMD_FLAGS_LARGE		(__PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL)
- 
- #define PMD_FLAGS_DEC		PMD_FLAGS_LARGE
--#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_CACHE_MASK) | \
--				 (_PAGE_PAT | _PAGE_PWT))
-+#define PMD_FLAGS_DEC_WP	((PMD_FLAGS_DEC & ~_PAGE_LARGE_CACHE_MASK) | \
-+				 (_PAGE_PAT_LARGE | _PAGE_PWT))
- 
- #define PMD_FLAGS_ENC		(PMD_FLAGS_LARGE | _PAGE_ENC)
- 
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -321,8 +321,14 @@ void switch_mm_irqs_off(struct mm_struct
+ 	/*
+ 	 * The membarrier system call requires a full memory barrier and
+ 	 * core serialization before returning to user-space, after
+-	 * storing to rq->curr. Writing to CR3 provides that full
+-	 * memory barrier and core serializing instruction.
++	 * storing to rq->curr, when changing mm.  This is because
++	 * membarrier() sends IPIs to all CPUs that are in the target mm
++	 * to make them issue memory barriers.  However, if another CPU
++	 * switches to/from the target mm concurrently with
++	 * membarrier(), it can cause that CPU not to receive an IPI
++	 * when it really should issue a memory barrier.  Writing to CR3
++	 * provides that full memory barrier and core serializing
++	 * instruction.
+ 	 */
+ 	if (real_prev == next) {
+ 		VM_WARN_ON(this_cpu_read(cpu_tlbstate.ctxs[prev_asid].ctx_id) !=
 
 
