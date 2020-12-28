@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0070A2E667B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7382E668A
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394227AbgL1QNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:13:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
+        id S1732962AbgL1QOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:14:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733122AbgL1NUR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:20:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64FBF206ED;
-        Mon, 28 Dec 2020 13:20:01 +0000 (UTC)
+        id S1732888AbgL1NTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:19:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954B5229EF;
+        Mon, 28 Dec 2020 13:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161602;
-        bh=v7HWiYDlfNHmpuEUJsjGKYeYfXHQock60CVtbU65HT0=;
+        s=korg; t=1609161555;
+        bh=ci1MjAVcgwcF2qCORpOQ/On47tm2ofvYsfTkVdFquWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACD30OerPIa7EtOGs/1J56Mdu6aMJDbNy/hk1XnQVWCf/s+QyXgn3Z6XwlCJcVRJu
-         edFfmNMfgJ/bibStmF3VHqq5c1p3c40wbcBUqCqL2mesNSP3auSWjYVK2uykhMThfz
-         DubbrPgwg3i+P/YdJgOTJ/dFuJx9jwvZ1WpuB2Ds=
+        b=xaNNyVl9uoHzH23BrXxRYodBflR9OZRWRYUvUQIFTTKFx1VD7tKiKEhp17uacxqvH
+         ES78xYNfeIoD1MucFn7+rit8Zy0odOEeIjZKvJZ+rRFKP6VJrAWcskqcVi2jQehkWN
+         lI1e2ZzuFvNHwYZwwNzJCILnloXhpCRXimX9FvpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 009/346] ARC: stack unwinding: dont assume non-current task is sleeping
-Date:   Mon, 28 Dec 2020 13:45:28 +0100
-Message-Id: <20201228124920.211875933@linuxfoundation.org>
+Subject: [PATCH 4.19 010/346] scsi: ufs: Make sure clk scaling happens only when HBA is runtime ACTIVE
+Date:   Mon, 28 Dec 2020 13:45:29 +0100
+Message-Id: <20201228124920.260848214@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
 References: <20201228124919.745526410@linuxfoundation.org>
@@ -39,94 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit e42404fa10fd11fe72d0a0e149a321d10e577715 ]
+[ Upstream commit 73cc291c270248567245f084dcdf5078069af6b5 ]
 
-To start stack unwinding (SP, PC and BLINK) are needed. When the
-explicit execution context (pt_regs etc) is not available, unwinder
-assumes the task is sleeping (in __switch_to()) and fetches SP and BLINK
-from kernel mode stack.
+If someone plays with the UFS clk scaling devfreq governor through sysfs,
+ufshcd_devfreq_scale may be called even when HBA is not runtime ACTIVE.
+This can lead to unexpected error. We cannot just protect it by calling
+pm_runtime_get_sync() because that may cause a race condition since HBA
+runtime suspend ops need to suspend clk scaling. To fix this call
+pm_runtime_get_noresume() and check HBA's runtime status. Only proceed if
+HBA is runtime ACTIVE, otherwise just bail.
 
-But this assumption is not true, specially in a SMP system, when top
-runs on 1 core, there may be active running processes on all cores.
+governor_store
+ devfreq_performance_handler
+  update_devfreq
+   devfreq_set_target
+    ufshcd_devfreq_target
+     ufshcd_devfreq_scale
 
-So when unwinding non courrent tasks, ensure they are NOT running.
-
-And while at it, handle the self unwinding case explicitly.
-
-This came out of investigation of a customer reported hang with
-rcutorture+top
-
-Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/31
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lore.kernel.org/r/1600758548-28576-1-git-send-email-cang@codeaurora.org
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/stacktrace.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arc/kernel/stacktrace.c b/arch/arc/kernel/stacktrace.c
-index 0fed32b959232..a211e87aa6d93 100644
---- a/arch/arc/kernel/stacktrace.c
-+++ b/arch/arc/kernel/stacktrace.c
-@@ -41,15 +41,15 @@
- 
- #ifdef CONFIG_ARC_DW2_UNWIND
- 
--static void seed_unwind_frame_info(struct task_struct *tsk,
--				   struct pt_regs *regs,
--				   struct unwind_frame_info *frame_info)
-+static int
-+seed_unwind_frame_info(struct task_struct *tsk, struct pt_regs *regs,
-+		       struct unwind_frame_info *frame_info)
- {
- 	/*
- 	 * synchronous unwinding (e.g. dump_stack)
- 	 *  - uses current values of SP and friends
- 	 */
--	if (tsk == NULL && regs == NULL) {
-+	if (regs == NULL && (tsk == NULL || tsk == current)) {
- 		unsigned long fp, sp, blink, ret;
- 		frame_info->task = current;
- 
-@@ -68,11 +68,15 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
- 		frame_info->call_frame = 0;
- 	} else if (regs == NULL) {
- 		/*
--		 * Asynchronous unwinding of sleeping task
--		 *  - Gets SP etc from task's pt_regs (saved bottom of kernel
--		 *    mode stack of task)
-+		 * Asynchronous unwinding of a likely sleeping task
-+		 *  - first ensure it is actually sleeping
-+		 *  - if so, it will be in __switch_to, kernel mode SP of task
-+		 *    is safe-kept and BLINK at a well known location in there
- 		 */
- 
-+		if (tsk->state == TASK_RUNNING)
-+			return -1;
-+
- 		frame_info->task = tsk;
- 
- 		frame_info->regs.r27 = TSK_K_FP(tsk);
-@@ -106,6 +110,8 @@ static void seed_unwind_frame_info(struct task_struct *tsk,
- 		frame_info->regs.r63 = regs->ret;
- 		frame_info->call_frame = 0;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 7e4e6e982055e..61b1eae42ea85 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1281,8 +1281,15 @@ static int ufshcd_devfreq_target(struct device *dev,
  	}
-+
-+	return 0;
- }
+ 	spin_unlock_irqrestore(hba->host->host_lock, irq_flags);
  
- #endif
-@@ -119,7 +125,8 @@ arc_unwind_core(struct task_struct *tsk, struct pt_regs *regs,
- 	unsigned int address;
- 	struct unwind_frame_info frame_info;
++	pm_runtime_get_noresume(hba->dev);
++	if (!pm_runtime_active(hba->dev)) {
++		pm_runtime_put_noidle(hba->dev);
++		ret = -EAGAIN;
++		goto out;
++	}
+ 	start = ktime_get();
+ 	ret = ufshcd_devfreq_scale(hba, scale_up);
++	pm_runtime_put(hba->dev);
  
--	seed_unwind_frame_info(tsk, regs, &frame_info);
-+	if (seed_unwind_frame_info(tsk, regs, &frame_info))
-+		return 0;
- 
- 	while (1) {
- 		address = UNW_PC(&frame_info);
+ 	trace_ufshcd_profile_clk_scaling(dev_name(hba->dev),
+ 		(scale_up ? "up" : "down"),
 -- 
 2.27.0
 
