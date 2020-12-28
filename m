@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167312E42AC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5CC92E3EB7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388303AbgL1PZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:25:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
+        id S2504058AbgL1Ob5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:31:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407528AbgL1N6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:58:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1533320782;
-        Mon, 28 Dec 2020 13:58:06 +0000 (UTC)
+        id S2504446AbgL1Ob1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:31:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63CEB2063A;
+        Mon, 28 Dec 2020 14:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163887;
-        bh=6l9gsAUeFPeCrhTBAE+tEnPkGlC4lPtbVjResm4VQyo=;
+        s=korg; t=1609165847;
+        bh=NwdPxoTRoLXPx4dbmmiENSNTu1eNUofaQufCluooSOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8ajCSwLeRD/DYheTb0WetKCtYSKoeRKSM+ZxUVtLk1Rkgh2aNMWvAIeNM84GF2Vc
-         NzJXm2Vb1SsNuMKiFWBn47BgPMpCbS4M2AVyN8/VxmRyYlTUjafQr3C8J0+UCBQOQK
-         vCXmETBzzvBaZE2IbHoKGihzDJeiKdPB3dPBGQac=
+        b=RtxuTnf+aypw9Y1MzpyVWLm7M0DKSBIHgJh0gkvjoAo4wAX+oaEIV6OwTJR0PDl+c
+         hA7NWQfD7QIO/9OXk//bcZkW3wWNbozZ35i20gzQakH9vGkL8QSuIBviHE8A+4dIA2
+         DA2mIKDW/Zd8VGfU1U0JBj3ETDX9FPJ6maDx876M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangtao Li <frank@allwinnertech.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 436/453] pinctrl: sunxi: Always call chained_irq_{enter, exit} in sunxi_pinctrl_irq_handler
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 674/717] iio: buffer: Fix demux update
 Date:   Mon, 28 Dec 2020 13:51:12 +0100
-Message-Id: <20201228124958.202366564@linuxfoundation.org>
+Message-Id: <20201228125053.271255302@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangtao Li <frank@allwinnertech.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit a1158e36f876f6269978a4176e3a1d48d27fe7a1 upstream.
+commit 19ef7b70ca9487773c29b449adf0c70f540a0aab upstream.
 
-It is found on many allwinner soc that there is a low probability that
-the interrupt status cannot be read in sunxi_pinctrl_irq_handler. This
-will cause the interrupt status of a gpio bank to always be active on
-gic, preventing gic from responding to other spi interrupts correctly.
+When updating the buffer demux, we will skip a scan element from the
+device in the case `in_ind != out_ind` and we enter the while loop.
+in_ind should only be refreshed with `find_next_bit()` in the end of the
+loop.
 
-So we should call the chained_irq_* each time enter sunxi_pinctrl_irq_handler().
+Note, to cause problems we need a situation where we are skippig over
+an element (channel not enabled) that happens to not have the same size
+as the next element.   Whilst this is a possible situation we haven't
+actually identified any cases in mainline where it happens as most drivers
+have consistent channel storage sizes with the exception of the timestamp
+which is the last element and hence never skipped over.
 
-Signed-off-by: Yangtao Li <frank@allwinnertech.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/85263ce8b058e80cea25c6ad6383eb256ce96cc8.1604988979.git.frank@allwinnertech.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 5ada4ea9be16 ("staging:iio: add demux optionally to path from device to buffer")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20201112144323.28887-1-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/sunxi/pinctrl-sunxi.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/industrialio-buffer.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
-@@ -1130,20 +1130,22 @@ static void sunxi_pinctrl_irq_handler(st
- 	if (bank == pctl->desc->irq_banks)
- 		return;
- 
-+	chained_irq_enter(chip, desc);
-+
- 	reg = sunxi_irq_status_reg_from_bank(pctl->desc, bank);
- 	val = readl(pctl->membase + reg);
- 
- 	if (val) {
- 		int irqoffset;
- 
--		chained_irq_enter(chip, desc);
- 		for_each_set_bit(irqoffset, &val, IRQ_PER_BANK) {
- 			int pin_irq = irq_find_mapping(pctl->domain,
- 						       bank * IRQ_PER_BANK + irqoffset);
- 			generic_handle_irq(pin_irq);
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -865,12 +865,12 @@ static int iio_buffer_update_demux(struc
+ 				       indio_dev->masklength,
+ 				       in_ind + 1);
+ 		while (in_ind != out_ind) {
+-			in_ind = find_next_bit(indio_dev->active_scan_mask,
+-					       indio_dev->masklength,
+-					       in_ind + 1);
+ 			length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 			/* Make sure we are aligned */
+ 			in_loc = roundup(in_loc, length) + length;
++			in_ind = find_next_bit(indio_dev->active_scan_mask,
++					       indio_dev->masklength,
++					       in_ind + 1);
  		}
--		chained_irq_exit(chip, desc);
- 	}
-+
-+	chained_irq_exit(chip, desc);
- }
- 
- static int sunxi_pinctrl_add_function(struct sunxi_pinctrl *pctl,
+ 		length = iio_storage_bytes_for_si(indio_dev, in_ind);
+ 		out_loc = roundup(out_loc, length);
 
 
