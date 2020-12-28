@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0DC2E3F11
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F021C2E3EF5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504915AbgL1OdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:33:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
+        id S2505180AbgL1Oem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:34:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504793AbgL1OdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:33:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9828220715;
-        Mon, 28 Dec 2020 14:32:54 +0000 (UTC)
+        id S2505060AbgL1Odj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:33:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8A97223E8;
+        Mon, 28 Dec 2020 14:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165975;
-        bh=fa32XThH0eE/2W4UsWH8fzYbgtHNcVvwX2R7eX4u694=;
+        s=korg; t=1609165978;
+        bh=JCCIwnAkYZl/TItTolxMNXFepOdChg6HaYymP+PFLrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUIHucE6GgPYwKmSMRLntEOL4YM6L4Mz7R2bnjcqARuQM9WOMNHtPI2ylCNYRkTY1
-         GTpz7rUpfQeKABXx1yoITfHaO6/Dr1LT6jR4+Ik/wMYA/m/RUVDvg7i2U6F2QXDirF
-         6eYrBvbEMQA1I6L0VFV3Ui9ydnksX4MpFP4cDUSg=
+        b=xCsKGuTZf0E9zUIFMgmShzbp1ooIkcWeb7NHy4lxU0Rg9hYRpArz7+3Ay95BOhOsH
+         aQZMf3NvR4WxZ5wGXU8yKPDi/Ftzu9Cn9N/Vi8Rkc7nZBeFxzwOvEjO/Ne/MiUa/6A
+         14+aMze8zXWLBHDJlT4afJSvOt5/rR0eIey+7rIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Shubin <nikita.shubin@maquefel.me>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.10 714/717] rtc: ep93xx: Fix NULL pointer dereference in ep93xx_rtc_read_time
-Date:   Mon, 28 Dec 2020 13:51:52 +0100
-Message-Id: <20201228125055.212099724@linuxfoundation.org>
+        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 715/717] Revert: "ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS"
+Date:   Mon, 28 Dec 2020 13:51:53 +0100
+Message-Id: <20201228125055.261009257@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -39,91 +39,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Shubin <nikita.shubin@maquefel.me>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 00c33482bb6110bce8110daa351f9b3baf4df7dc upstream.
+commit adab66b71abfe206a020f11e561f4df41f0b2aba upstream.
 
-Mismatch in probe platform_set_drvdata set's and method's that call
-dev_get_platdata will result in "Unable to handle kernel NULL pointer
-dereference", let's use according method for getting driver data after
-platform_set_drvdata.
+It was believed that metag was the only architecture that required the ring
+buffer to keep 8 byte words aligned on 8 byte architectures, and with its
+removal, it was assumed that the ring buffer code did not need to handle
+this case. It appears that sparc64 also requires this.
 
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-pgd = (ptrval)
-[00000000] *pgd=00000000
-Internal error: Oops: 5 [#1] ARM
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.9.10-00003-g723e101e0037-dirty #4
-Hardware name: Technologic Systems TS-72xx SBC
-PC is at ep93xx_rtc_read_time+0xc/0x2c
-LR is at __rtc_read_time+0x4c/0x8c
-[...]
-[<c02b01c8>] (ep93xx_rtc_read_time) from [<c02ac38c>] (__rtc_read_time+0x4c/0x8c)
-[<c02ac38c>] (__rtc_read_time) from [<c02ac3f8>] (rtc_read_time+0x2c/0x4c)
-[<c02ac3f8>] (rtc_read_time) from [<c02acc54>] (__rtc_read_alarm+0x28/0x358)
-[<c02acc54>] (__rtc_read_alarm) from [<c02abd80>] (__rtc_register_device+0x124/0x2ec)
-[<c02abd80>] (__rtc_register_device) from [<c02b028c>] (ep93xx_rtc_probe+0xa4/0xac)
-[<c02b028c>] (ep93xx_rtc_probe) from [<c026424c>] (platform_drv_probe+0x24/0x5c)
-[<c026424c>] (platform_drv_probe) from [<c0262918>] (really_probe+0x218/0x374)
-[<c0262918>] (really_probe) from [<c0262da0>] (device_driver_attach+0x44/0x60)
-[<c0262da0>] (device_driver_attach) from [<c0262e70>] (__driver_attach+0xb4/0xc0)
-[<c0262e70>] (__driver_attach) from [<c0260d44>] (bus_for_each_dev+0x68/0xac)
-[<c0260d44>] (bus_for_each_dev) from [<c026223c>] (driver_attach+0x18/0x24)
-[<c026223c>] (driver_attach) from [<c0261dd8>] (bus_add_driver+0x150/0x1b4)
-[<c0261dd8>] (bus_add_driver) from [<c026342c>] (driver_register+0xb0/0xf4)
-[<c026342c>] (driver_register) from [<c0264210>] (__platform_driver_register+0x30/0x48)
-[<c0264210>] (__platform_driver_register) from [<c04cb9ac>] (ep93xx_rtc_driver_init+0x10/0x1c)
-[<c04cb9ac>] (ep93xx_rtc_driver_init) from [<c000973c>] (do_one_initcall+0x7c/0x1c0)
-[<c000973c>] (do_one_initcall) from [<c04b9ecc>] (kernel_init_freeable+0x168/0x1ac)
-[<c04b9ecc>] (kernel_init_freeable) from [<c03b2228>] (kernel_init+0x8/0xf4)
-[<c03b2228>] (kernel_init) from [<c00082c0>] (ret_from_fork+0x14/0x34)
-Exception stack(0xc441dfb0 to 0xc441dff8)
-dfa0:                                     00000000 00000000 00000000 00000000
-dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
-Code: e12fff1e e92d4010 e590303c e1a02001 (e5933000)
----[ end trace c914d6030eaa95c8 ]---
+The following was reported on a sparc64 boot up:
 
-Fixes: b809d192eb98 ("rtc: ep93xx: stop setting platform_data")
-Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+   kernel: futex hash table entries: 65536 (order: 9, 4194304 bytes, linear)
+   kernel: Running postponed tracer tests:
+   kernel: Testing tracer function:
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: Kernel unaligned access at TPC[552a24] trace_function+0x44/0x140
+   kernel: Kernel unaligned access at TPC[552a20] trace_function+0x40/0x140
+   kernel: PASSED
+
+Need to put back the 64BIT aligned code for the ring buffer.
+
+Link: https://lore.kernel.org/r/CADxRZqzXQRYgKc=y-KV=S_yHL+Y8Ay2mh5ezeZUnpRvg+syWKw@mail.gmail.com
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201201095507.10317-1-nikita.shubin@maquefel.me
+Fixes: 86b3de60a0b6 ("ring-buffer: Remove HAVE_64BIT_ALIGNED_ACCESS")
+Reported-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-ep93xx.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/Kconfig               |   16 ++++++++++++++++
+ kernel/trace/ring_buffer.c |   17 +++++++++++++----
+ 2 files changed, 29 insertions(+), 4 deletions(-)
 
---- a/drivers/rtc/rtc-ep93xx.c
-+++ b/drivers/rtc/rtc-ep93xx.c
-@@ -33,7 +33,7 @@ struct ep93xx_rtc {
- static int ep93xx_rtc_get_swcomp(struct device *dev, unsigned short *preload,
- 				 unsigned short *delete)
- {
--	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
-+	struct ep93xx_rtc *ep93xx_rtc = dev_get_drvdata(dev);
- 	unsigned long comp;
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -143,6 +143,22 @@ config UPROBES
+ 	    managed by the kernel and kept transparent to the probed
+ 	    application. )
  
- 	comp = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_SWCOMP);
-@@ -51,7 +51,7 @@ static int ep93xx_rtc_get_swcomp(struct
++config HAVE_64BIT_ALIGNED_ACCESS
++	def_bool 64BIT && !HAVE_EFFICIENT_UNALIGNED_ACCESS
++	help
++	  Some architectures require 64 bit accesses to be 64 bit
++	  aligned, which also requires structs containing 64 bit values
++	  to be 64 bit aligned too. This includes some 32 bit
++	  architectures which can do 64 bit accesses, as well as 64 bit
++	  architectures without unaligned access.
++
++	  This symbol should be selected by an architecture if 64 bit
++	  accesses are required to be 64 bit aligned in this way even
++	  though it is not a 64 bit architecture.
++
++	  See Documentation/unaligned-memory-access.txt for more
++	  information on the topic of unaligned memory accesses.
++
+ config HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	bool
+ 	help
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -129,7 +129,16 @@ int ring_buffer_print_entry_header(struc
+ #define RB_ALIGNMENT		4U
+ #define RB_MAX_SMALL_DATA	(RB_ALIGNMENT * RINGBUF_TYPE_DATA_TYPE_LEN_MAX)
+ #define RB_EVNT_MIN_SIZE	8U	/* two 32bit words */
+-#define RB_ALIGN_DATA		__aligned(RB_ALIGNMENT)
++
++#ifndef CONFIG_HAVE_64BIT_ALIGNED_ACCESS
++# define RB_FORCE_8BYTE_ALIGNMENT	0
++# define RB_ARCH_ALIGNMENT		RB_ALIGNMENT
++#else
++# define RB_FORCE_8BYTE_ALIGNMENT	1
++# define RB_ARCH_ALIGNMENT		8U
++#endif
++
++#define RB_ALIGN_DATA		__aligned(RB_ARCH_ALIGNMENT)
  
- static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
--	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
-+	struct ep93xx_rtc *ep93xx_rtc = dev_get_drvdata(dev);
- 	unsigned long time;
+ /* define RINGBUF_TYPE_DATA for 'case RINGBUF_TYPE_DATA:' */
+ #define RINGBUF_TYPE_DATA 0 ... RINGBUF_TYPE_DATA_TYPE_LEN_MAX
+@@ -2719,7 +2728,7 @@ rb_update_event(struct ring_buffer_per_c
  
- 	time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
-@@ -62,7 +62,7 @@ static int ep93xx_rtc_read_time(struct d
+ 	event->time_delta = delta;
+ 	length -= RB_EVNT_HDR_SIZE;
+-	if (length > RB_MAX_SMALL_DATA) {
++	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT) {
+ 		event->type_len = 0;
+ 		event->array[0] = length;
+ 	} else
+@@ -2734,11 +2743,11 @@ static unsigned rb_calculate_event_lengt
+ 	if (!length)
+ 		length++;
  
- static int ep93xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
--	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
-+	struct ep93xx_rtc *ep93xx_rtc = dev_get_drvdata(dev);
- 	unsigned long secs = rtc_tm_to_time64(tm);
+-	if (length > RB_MAX_SMALL_DATA)
++	if (length > RB_MAX_SMALL_DATA || RB_FORCE_8BYTE_ALIGNMENT)
+ 		length += sizeof(event.array[0]);
  
- 	writel(secs + 1, ep93xx_rtc->mmio_base + EP93XX_RTC_LOAD);
+ 	length += RB_EVNT_HDR_SIZE;
+-	length = ALIGN(length, RB_ALIGNMENT);
++	length = ALIGN(length, RB_ARCH_ALIGNMENT);
+ 
+ 	/*
+ 	 * In case the time delta is larger than the 27 bits for it
 
 
