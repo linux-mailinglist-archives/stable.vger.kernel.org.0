@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517CC2E34E4
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1A82E34EE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726282AbgL1ICL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 03:02:11 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:47823 "EHLO
+        id S1726292AbgL1II0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 03:08:26 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:44331 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726242AbgL1ICH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:02:07 -0500
+        by vger.kernel.org with ESMTP id S1726361AbgL1II0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:08:26 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 75F5E2FF;
-        Mon, 28 Dec 2020 03:01:00 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:01:00 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 0A4556BF;
+        Mon, 28 Dec 2020 03:07:39 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:07:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BO+LZY
-        6YvVXdWrXqgVvmF3MlwJ4bdN84FScrCVCNQwE=; b=iLBueVrfwdkb67AZYtkIM+
-        /jnEtQGUfsb7LihDeDyEzvTIHqlmwphIqWHDYKSlS++ucfiJOC4/q/YKG5p0JlfH
-        DHsRbLfATAGVhBXJiMbdylz36c8da1zct7p3t/ZPL9CtyKHGmC6txHj5hKWdk7jq
-        vvb3jV0OnARYj3CTOV865AVyQcjSso44ypvm+LuaHzRmQOidaRkTLumGCSElihTG
-        lOjBKRCRfgn17NwVDeBkF/xT+EAN+5ZnzJlHlXCCMPCtSDHweGkBm7gyroL0g8IY
-        AqE3TlHJAk8GkUJsKan0N/aG7VNAFchqa8YIagORsAhCC3H5HmDus1SVaG2bkxRA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7jDx7n
+        um0qo8ODoyuo6YfMm5e9WObCi99hbUbLYlJ/w=; b=n/HNv1KZV5lFXttzesHy0F
+        izowMzRHV1FPOL81wPuG/t2vvv8KbM++BNJUxajegRBAS06Wrt9JyK9sLIkjaBfY
+        RlXCMx697YffyAy/dDi46CYqhmJoqh2kKDp7n7JU61U+b5Jd0Sr0ZhgQpqhNprTr
+        h3qSw4CFAYiy+dOL69CpvQC4m1wxSjF7tj7E4ariiHdkFgdyrc7noopVgLiTUrwm
+        u/FECVJcl0sbWHS+05258xxjuvGQvT4T3gcR2dqoK0tasY89ErrOA5V5xHNlJecE
+        7O2NigDZCLduIsBitcVxnoE6zaQrkeeSeTlDqdg8UC7hmR6J6kqn9fI56aO+vQXg
         ==
-X-ME-Sender: <xms:u5DpX5Ner2DSi3SfebxB4srjJci5qG6ID6jRuI1KpjpywvXVpI1EXQ>
-    <xme:u5DpX79yHasqAJJ57DjBXi6k2WMGtVNIm4DJm0ZcnxrXoWPpH5wleeRNUnqPZ6sJJ
-    etVacg2aOOuaQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedguddufecutefuodetggdotefrod
+X-ME-Sender: <xms:S5LpX_avdMuVEvL6W0ebHh5mcWHV-vLRxvAuVOEJQWXK8YsT5cg1-A>
+    <xme:S5LpX-YLhEn_X_h4XiLEPYrW97obdSpa2u-TM9jmTfHXiZuk-F7z5H_k7YKvZTQ4S
+    HkyBKeFLeNKqA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedgudduhecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:u5DpX4TNFbK87wLbBrb0Lb9nDzubm0CQB4FG8LfMQP1KN_Na6VrpBg>
-    <xmx:u5DpX1uFgJw2bYk-96huqfoAqWMCAWh7L75lHGeA_5NjoexgbFQHwQ>
-    <xmx:u5DpXxdOsDDuzGCz3-nb87LOrw5K1ljzPrMAat5RdLvssWQd3SKKQQ>
-    <xmx:vJDpXxmX1Vd6Gunt6TH3Bfp1xhuL4fNyjLG6Tb4UTDsUDa-f59qgR4eON-A>
+X-ME-Proxy: <xmx:S5LpXx8NUlMX-UaPbK3T9fHvVh8LQS5WwKC2TC4ugN7vMN7q-VDhiw>
+    <xmx:S5LpX1rcMHG2GMoDCKNZDMoDnMDmRdPxsZBhvHIjPtI4fUKjlenjrA>
+    <xmx:S5LpX6pyAoMzaY-KCVJ9NFDUU2OjliADAJ5HXW6tDR1M_XdZeAlr_w>
+    <xmx:S5LpX9WypTzIQq9mhHYwNT5NFDEUrl4jLeSUlUMMZUsNO-6Z-3tCz3UHoNk>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 578C224005A;
-        Mon, 28 Dec 2020 03:00:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: close a small race gap for files cancel" failed to apply to 5.10-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 201A0108005C;
+        Mon, 28 Dec 2020 03:07:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] media: ipu3-cio2: Make the field on subdev format" failed to apply to 5.4-stable tree
+To:     sakari.ailus@linux.intel.com, andy.shevchenko@gmail.com,
+        bingbu.cao@intel.com, laurent.pinchart@ideasonboard.com,
+        mchehab+huawei@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 09:02:23 +0100
-Message-ID: <160914254340200@kroah.com>
+Date:   Mon, 28 Dec 2020 09:08:54 +0100
+Message-ID: <160914293461125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,48 +72,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dfea9fce29fda6f2f91161677e0e0d9b671bc099 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 18 Dec 2020 13:12:21 +0000
-Subject: [PATCH] io_uring: close a small race gap for files cancel
+From 219a8b9c04e54872f9a4d566633fb42f08bcbe2a Mon Sep 17 00:00:00 2001
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Date: Fri, 9 Oct 2020 15:56:05 +0200
+Subject: [PATCH] media: ipu3-cio2: Make the field on subdev format
+ V4L2_FIELD_NONE
 
-The purpose of io_uring_cancel_files() is to wait for all requests
-matching ->files to go/be cancelled. We should first drop files of a
-request in io_req_drop_files() and only then make it undiscoverable for
-io_uring_cancel_files.
+The ipu3-cio2 doesn't make use of the field and this is reflected in V4L2
+buffers as well as the try format. Do this in active format, too.
 
-First drop, then delete from list. It's ok to leave req->id->files
-dangling, because it's not dereferenced by cancellation code, only
-compared against. It would potentially go to sleep and be awaken by
-following in io_req_drop_files() wake_up().
+Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: stable@vger.kernel.org # v4.16 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8cf6f22afc5e..b74957856e68 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6098,15 +6098,15 @@ static void io_req_drop_files(struct io_kiocb *req)
- 	struct io_uring_task *tctx = req->task->io_uring;
- 	unsigned long flags;
+diff --git a/drivers/media/pci/intel/ipu3/ipu3-cio2.c b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
+index 72095f8a4d46..87d040e176f7 100644
+--- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
++++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
+@@ -1285,6 +1285,7 @@ static int cio2_subdev_set_fmt(struct v4l2_subdev *sd,
+ 	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
+ 	fmt->format.height = min_t(u32, fmt->format.height,
+ 				   CIO2_IMAGE_MAX_LENGTH);
++	fmt->format.field = V4L2_FIELD_NONE;
  
-+	put_files_struct(req->work.identity->files);
-+	put_nsproxy(req->work.identity->nsproxy);
- 	spin_lock_irqsave(&ctx->inflight_lock, flags);
- 	list_del(&req->inflight_entry);
--	if (atomic_read(&tctx->in_idle))
--		wake_up(&tctx->wait);
- 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
- 	req->flags &= ~REQ_F_INFLIGHT;
--	put_files_struct(req->work.identity->files);
--	put_nsproxy(req->work.identity->nsproxy);
- 	req->work.flags &= ~IO_WQ_WORK_FILES;
-+	if (atomic_read(&tctx->in_idle))
-+		wake_up(&tctx->wait);
- }
- 
- static void __io_clean_op(struct io_kiocb *req)
+ 	mutex_lock(&q->subdev_lock);
+ 	*mbus = fmt->format;
 
