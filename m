@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A30F2E352D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29802E352F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 09:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbgL1ImM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 03:42:12 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:56795 "EHLO
+        id S1726429AbgL1Imk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 03:42:40 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:58711 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726391AbgL1ImL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:42:11 -0500
+        by vger.kernel.org with ESMTP id S1726427AbgL1Imj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 03:42:39 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B48F06F3;
-        Mon, 28 Dec 2020 03:41:25 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:41:25 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id DE5B271B;
+        Mon, 28 Dec 2020 03:41:33 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 03:41:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=8qP9bV
-        GDd8jZhvUFmHRkpS7FrGd5OmlD+0ERScPoSyY=; b=kBi1Sy1NYc1lEwnfJvcOif
-        9AW8eI2WViUcujkSldUVxD+PCuC8Tz0BXy9hrTXUeOCrAfR6lSCBsr7vSVmhaDOE
-        R7SxV4Eaml4UrNXqP20N+FuF0fu3eorNOj9ULaP9tf94O12zgANcF2lEyoh8qoOY
-        qy2kT9lvoRfaplC57yZaO3CeUTyjGIUvfvfnZnSzIDbWcTvi8P3QBsPVZ3LKuf5w
-        PPH9snIQ0yidi3aCX4/2W5YI+dNUxsZPul3BrU9jpeH1TqrYUjfChVwI2SO+QIBM
-        GUjXPbajzzRoLI0BTo+c716d31PTzR/F4IxLsy7bwPrh9SGJWJ6UhLBm/GkENg5w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/mOiaD
+        vpZgGPzv3JxN8hPp6r0gZqFL+1AKL0Yq4c8H0=; b=PmsQWChXCZ1cVLUkFUqUQk
+        PrP0CDX9g2A5dfR3YJhP8pwY60pY15il35i8C5hUEap8PZ6xQyCOkY0E6yhpzv1P
+        Q6xxc1Xdf/AiSWZSsE0fPWqe/3DjgOgH57j2wQGSehbWOAXCeeSntS5Ql/0aLRfX
+        fLE0/XzaaTxx9bJjTIiGpABvlrQLZFqZ3BGrdI5fLhgcDRZ7Liwes7K5TJTi+ozT
+        2mtA2b6itDj315/jApTxGvaeTTVuZ6nGxa/XNpWOTgJZ7zbDBZv3WjH0SovHuFjf
+        FWEOFpfNPiCZ7ezkEMTaugs6uZNyocMDJR3cK2xqstZtwd6noEwKr+3Kec642/cg
         ==
-X-ME-Sender: <xms:NZrpX55BwLv8c9Y8Rba1baPxtw1UlbsfT6YfD-OTvzJknIab-_wrCw>
-    <xme:NZrpX24AbnUWCw8dLg-q8_b5gXj2z2YSZiR0mCEOkwMzUOpEaeO1lfKTrnEaQZJcP
-    a5zvnVXPv4uNg>
+X-ME-Sender: <xms:PZrpX0Zk8vG_ldq0XgNRRYwTwEYFp20DfiJORoemD9v0XDdmuief1Q>
+    <xme:PZrpX_axyTaj624S4gxzrsi6H12i-FnqcDNDDm4KVlWpm7J1dI_uEnIuFYyvYmk2r
+    YlazC6sOsVzGQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:NZrpXwdbAZUOvtRopEnYAB6wULIsDFCsXwYpMPr7ppG7eB2-58pnGA>
-    <xmx:NZrpXyJ4s-qz8pygsWK037TEWJckZnrCwrQDZEtRvBcpfDZW6FKHNQ>
-    <xmx:NZrpX9J29KMA4F6cjCLyz_b1x21t0GOHBcCUuxTc_u_vqvpdDOQKYQ>
-    <xmx:NZrpX_wxBrYbVtmWGkRWPGpZLyouvamzRpZXP59-yTsffQ-ohOxudVQLZ84>
+X-ME-Proxy: <xmx:PZrpX-8h7OMHnB_yse58LBsaHisXZDmp8r_7IVGdmNxH083Yggcpmg>
+    <xmx:PZrpX-qYPgH6B2VifB4nICqYOhRAb9dwENorVDCdJkiBHCljyFLAjw>
+    <xmx:PZrpX_obBeXfCW4USjUwkks2rm9D0e8TEZKbJYVgRx1pKwX7z41SnQ>
+    <xmx:PZrpX-TtW4typ1gn5xL3pVVx0gLjJ2d3H1C2ubNibTAx8m-6Ot5WbK6vMmo>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E007C1080057;
-        Mon, 28 Dec 2020 03:41:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] USB: serial: digi_acceleport: fix write-wakeup deadlocks" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1AAE924005C;
+        Mon, 28 Dec 2020 03:41:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] USB: serial: digi_acceleport: fix write-wakeup deadlocks" failed to apply to 4.4-stable tree
 To:     johan@kernel.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 09:42:48 +0100
-Message-ID: <160914496811751@kroah.com>
+Date:   Mon, 28 Dec 2020 09:42:49 +0100
+Message-ID: <1609144969143238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
