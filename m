@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8931F2E6943
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:48:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD562E6944
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:48:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728404AbgL1My7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:54:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
+        id S1728433AbgL1MzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728423AbgL1Myz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:54:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E358C207C9;
-        Mon, 28 Dec 2020 12:54:13 +0000 (UTC)
+        id S1728064AbgL1My6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:54:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66201208BA;
+        Mon, 28 Dec 2020 12:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160054;
-        bh=8cqWjn7rvYBt6GZXn1QyfgUE3nJWmJF3UBRnCgoucr8=;
+        s=korg; t=1609160058;
+        bh=nZBP5cnI8bEjDbd9B4b4iJzMT36/HOi4uySoS/y2+qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZZWRq+O2ME6Ri5XfpZRNBF3USvdebACMwW4Jy1LWo0v59iZsdJFvnTAQ4pdzOvTA
-         3f8fPXFYNSNJn/CA+EKUpTqS6vSHJoDpkh/wabQr4S+86L4w4IL2JDXB1duT/BxJuO
-         0peheLBiLrSCpdzdqtxdV6k9kXyUrM6XeAc7AOmU=
+        b=DHQKMB00uveGSEecRA/y7U6Xb6lJYdCmzbRJSi/XE1BjSY54Ff+2kNDCXVTrvzHNC
+         KAI0QY+iHbYh/zyuirA24ZTJ1VtRgXRLQrG8qha8P+0ZUWZCFMxC3eKfOorj1d4a6v
+         VYzN09j+BnUKjHKuLWA8KhJG1vQac8KouyCrPo7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 053/132] drivers: soc: ti: knav_qmss_queue: Fix error return code in knav_queue_probe
-Date:   Mon, 28 Dec 2020 13:48:57 +0100
-Message-Id: <20201228124849.003392443@linuxfoundation.org>
+Subject: [PATCH 4.4 054/132] memstick: fix a double-free bug in memstick_check
+Date:   Mon, 28 Dec 2020 13:48:58 +0100
+Message-Id: <20201228124849.052287416@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
 References: <20201228124846.409999325@linuxfoundation.org>
@@ -41,38 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 4cba398f37f868f515ff12868418dc28574853a1 ]
+[ Upstream commit e3e9ced5c93803d5b2ea1942c4bf0192622531d6 ]
 
-Fix to return the error code from of_get_child_by_name() instaed of 0
-in knav_queue_probe().
+kfree(host->card) has been called in put_device so that
+another kfree would raise cause a double-free bug.
 
-Fixes: 41f93af900a20d1a0a ("soc: ti: add Keystone Navigator QMSS driver")
+Fixes: 0193383a5833 ("memstick: core: fix device_register() error handling")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/20201120074846.31322-1-miaoqinglang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/knav_qmss_queue.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/memstick/core/memstick.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
-index 3a3bc8ef532a7..1aff6659655e3 100644
---- a/drivers/soc/ti/knav_qmss_queue.c
-+++ b/drivers/soc/ti/knav_qmss_queue.c
-@@ -1785,9 +1785,10 @@ static int knav_queue_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err;
- 
--	regions =  of_get_child_by_name(node, "descriptor-regions");
-+	regions = of_get_child_by_name(node, "descriptor-regions");
- 	if (!regions) {
- 		dev_err(dev, "descriptor-regions not specified\n");
-+		ret = -ENODEV;
- 		goto err;
- 	}
- 	ret = knav_queue_setup_regions(kdev, regions);
+diff --git a/drivers/memstick/core/memstick.c b/drivers/memstick/core/memstick.c
+index 1041eb7a61672..2cae85a7ca6de 100644
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -469,7 +469,6 @@ static void memstick_check(struct work_struct *work)
+ 			host->card = card;
+ 			if (device_register(&card->dev)) {
+ 				put_device(&card->dev);
+-				kfree(host->card);
+ 				host->card = NULL;
+ 			}
+ 		} else
 -- 
 2.27.0
 
