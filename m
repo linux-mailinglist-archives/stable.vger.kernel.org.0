@@ -2,110 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5242E3460
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 06:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A8D2E34D5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 08:50:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727988AbgL1FmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 00:42:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36838 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727858AbgL1FmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 00:42:14 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E95C061796
-        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 21:41:34 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id q22so5734942pfk.12
-        for <stable@vger.kernel.org>; Sun, 27 Dec 2020 21:41:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KdC1UTvK3n3P54mNUc/2MJ7F1GE6qXAssfNlwctQq5A=;
-        b=VgitC5bh7LY0I34mSYBnKJCn+g46m7lfhWc+52EAtE4Jtpn1zF5sEmiOiHFhniymQu
-         75MVFKMKs2DbndOSgVA22lLlgtsoO+s8idjhSQU0xCV0oAzbeoMRXt68n0RAtd9hFkFV
-         TKkOVCLHYeXHo3OJaDiiHCJpKpos4gOwZSSh4g0eeAdNHb2wU7CBUTdJfv38wDQqlWo4
-         b5gpSyPsRZ4xY+KUA4FLZryRruATzIIMSVW6aWoFBnS/G/Bws41pXp3vetiEl78tNJiD
-         +5GyYwHlJPG5buRTpVXncrX6sgDfBBj6k77xNvtNdNfDdAIIFMI8uhol7rByABB7Irvp
-         7FIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KdC1UTvK3n3P54mNUc/2MJ7F1GE6qXAssfNlwctQq5A=;
-        b=knJLh21jLWfUXsiWFWD3kmJhTAvv/BFK1ebfFRqV96OTWgKZRttrfquj+VNwIlBYfG
-         pFlJCBkUGGy+KhL7Lv8dzPhiTg3AIeUGJ/70YeS7xiywvhElMCmyiawe4RtlewGgyl03
-         Ht5EN+O5xvNCb1pHTNPDAZL8Vh0Q1cb2a2xtYAn+xRvJBayYUJiAY8dfvizl8TqSN6Kz
-         vyAQt7ZX3wCAZKkH9BqANqNFFvJAR+8wu84009CCXC9Ybu9JQXMkDShmgjWhyLdhVtaF
-         0V9/ibIWzDQ/L1y4C4fb1AJEPxfLSKRykpa2z92juKA6wtzqNWCIMYG73Z0duniax+yO
-         aC6w==
-X-Gm-Message-State: AOAM533mUb/01yu6D37GtXYWy5N59RqtKPr1GVYB/C1jOANupznBxSRR
-        52n3yD02J+bWJH3z6uiO6vteAq+gfQvn5dTMB7afqhGPtjjYboeOLY8=
-X-Google-Smtp-Source: ABdhPJwXVa9em2MWeoou1jv+F1kF93xbWKqRqnIRiQYiWDC7Q/2z2DBySCmNGhGBDwiw46Gn2gDqglDyT7Aw6y+4gWs=
-X-Received: by 2002:a63:480f:: with SMTP id v15mr28753074pga.341.1609134093727;
- Sun, 27 Dec 2020 21:41:33 -0800 (PST)
+        id S1726300AbgL1HuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 02:50:20 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44005 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726242AbgL1HuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 02:50:20 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 66E34731;
+        Mon, 28 Dec 2020 02:49:34 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 02:49:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PCZiLr
+        93eb4hvJ3ewX7Bvl/iF3LYZ1zDChZL64VKcY4=; b=A/pF/DoPLp06XrfHY7mVVe
+        aLp+K3v1jgADEP+e3Ym7WfvXXWgv8Oikaj6HBRx9qfgGr2juuEsNPLFXMQxiLaoa
+        xWFNbEjp1w6caZfACQMBvDWj51xjux2CWwN3Y4jOsZVPbTG4niRDGmi2pzTXHDJy
+        oDzTE+G9F+6SmpnDab5uZAaaYG1+fsiYAcYy5lFmQKnzSSV2Zheznaa2ruCuFRjP
+        aI7Gf2/EyPmhCZhLUaR3TkisiqrhjyfMR0/yZQZOYZHygPQkDudOyFegFph5OCwP
+        LVAJ/hzts2pvqh7tR8/wnfAp0xzS4DjkoIkScr0Ddv4TdE4iHgQQeJqi2QV+UF8g
+        ==
+X-ME-Sender: <xms:DY7pX-0Ksjn-3XKa1e3rsvECdmRQGvgyWd-_WVWMNY-rExKElNSxoA>
+    <xme:DY7pXxGxEWef-ChyAlPDbfmcnw1THknE6ojo1EaNHKwaE8ISqcIKWDy79IwqsdYHY
+    2wJrd84w-7fXQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddukedgudduudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:DY7pX24Cqrg_2oleRtOF-T_YM__-uEi9LUHo7VToNIQeWoyh6mC4Tg>
+    <xmx:DY7pX_1I3UQisZit-T9CXLkxwmsmzqfFL2jMMWhoGM3wk5k9nVyjgw>
+    <xmx:DY7pXxEmSw2EWaT_cK9dN-QzjhjfemPDqeOmlglK_Fw3QSxQTVtBjQ>
+    <xmx:Do7pX0O_nzlGGWxUtZInB5HLm_TxeXEYEGvnoQHFHBPEUbU6_acdKhHkTUY>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A87C2108005B;
+        Mon, 28 Dec 2020 02:49:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()" failed to apply to 4.19-stable tree
+To:     eric.auger@redhat.com, alex.williamson@redhat.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 28 Dec 2020 08:50:48 +0100
+Message-ID: <1609141848167167@kroah.com>
 MIME-Version: 1.0
-References: <20201227181310.3235210-1-shakeelb@google.com>
-In-Reply-To: <20201227181310.3235210-1-shakeelb@google.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Mon, 28 Dec 2020 13:40:54 +0800
-Message-ID: <CAMZfGtWqDLJkP1zk_W16F+ssiW5NujRF-LFoV2GJ-+gXvBswMQ@mail.gmail.com>
-Subject: Re: [External] [PATCH 1/2] mm: memcg: fix memcg file_dirty numa stat
-To:     Shakeel Butt <shakeelb@google.com>
-Cc:     Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Roman Gushchin <guro@fb.com>,
-        Cgroups <cgroups@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 28, 2020 at 2:13 AM Shakeel Butt <shakeelb@google.com> wrote:
->
-> The kernel updates the per-node NR_FILE_DIRTY stats on page migration
-> but not the memcg numa stats. That was not an issue until recently the
-> commit 5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface
-> for cgroup v2") exposed numa stats for the memcg. So fixing the
-> file_dirty per-memcg numa stat.
->
-> Fixes: 5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface for cgroup v2")
 
-Thanks for catching this problem.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+thanks,
 
-> Signed-off-by: Shakeel Butt <shakeelb@google.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->  mm/migrate.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> index ee5e612b4cd8..613794f6a433 100644
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -500,9 +500,9 @@ int migrate_page_move_mapping(struct address_space *mapping,
->                         __inc_lruvec_state(new_lruvec, NR_SHMEM);
->                 }
->                 if (dirty && mapping_can_writeback(mapping)) {
-> -                       __dec_node_state(oldzone->zone_pgdat, NR_FILE_DIRTY);
-> +                       __dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
->                         __dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
-> -                       __inc_node_state(newzone->zone_pgdat, NR_FILE_DIRTY);
-> +                       __inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
->                         __inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
->                 }
->         }
-> --
-> 2.29.2.729.g45daf8777d-goog
->
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
---
-Yours,
-Muchun
+From 16b8fe4caf499ae8e12d2ab1b1324497e36a7b83 Mon Sep 17 00:00:00 2001
+From: Eric Auger <eric.auger@redhat.com>
+Date: Fri, 13 Nov 2020 18:52:02 +0100
+Subject: [PATCH] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
+
+In case an error occurs in vfio_pci_enable() before the call to
+vfio_pci_probe_mmaps(), vfio_pci_disable() will  try to iterate
+on an uninitialized list and cause a kernel panic.
+
+Lets move to the initialization to vfio_pci_probe() to fix the
+issue.
+
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Fixes: 05f0c03fbac1 ("vfio-pci: Allow to mmap sub-page MMIO BARs if the mmio page is exclusive")
+CC: Stable <stable@vger.kernel.org> # v4.7+
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index e6190173482c..47ebc5c49ca4 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -161,8 +161,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
+ 	int i;
+ 	struct vfio_pci_dummy_resource *dummy_res;
+ 
+-	INIT_LIST_HEAD(&vdev->dummy_resources_list);
+-
+ 	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+ 		int bar = i + PCI_STD_RESOURCES;
+ 
+@@ -1966,6 +1964,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mutex_init(&vdev->igate);
+ 	spin_lock_init(&vdev->irqlock);
+ 	mutex_init(&vdev->ioeventfds_lock);
++	INIT_LIST_HEAD(&vdev->dummy_resources_list);
+ 	INIT_LIST_HEAD(&vdev->ioeventfds_list);
+ 	mutex_init(&vdev->vma_lock);
+ 	INIT_LIST_HEAD(&vdev->vma_list);
+
