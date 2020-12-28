@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE28C2E6544
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ABCD2E3832
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387907AbgL1P7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:59:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33562 "EHLO mail.kernel.org"
+        id S1729594AbgL1NG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:06:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387880AbgL1NdT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:33:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF4DD20728;
-        Mon, 28 Dec 2020 13:33:03 +0000 (UTC)
+        id S1730841AbgL1NGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:06:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7FB208BA;
+        Mon, 28 Dec 2020 13:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162384;
-        bh=emIa0BVJ+NWa0e0Klak/IepkNYYZCQVFt8R+pSxYSdY=;
+        s=korg; t=1609160734;
+        bh=eptr1VOMUZ/Sxd/aF0suxtNHdsUVfmGFUTJTc3GzE6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6d41OQVEKJZwFNOMBxnNLMYyzqh3IUWxPOTfd/NZ3f19wYr1wma42+ANEsTIxOWQ
-         2z5FFGuSIAAREIBwwYvKdeCB+ZIxCn6ymVy2cw6BeojBRQ8yyrJACHuaQOzvqkY6A5
-         EXTF0X1AWlGmoyr0G6eH3oAZy2D9jz1WgkO2tjVM=
+        b=M/uYxL2/1UHVwn+Gj9Eo+spsZwzSQKAmh1JLxLngkQSH0fxrTXTmD/yPu/16mdap3
+         +yPjdlGufpsJVF6/B8I7VTWYYGMWYn+Xx2qGupjUXNpexNoVXxFDD0c/izu79kCfoq
+         +UyqrM1XlvqT9HsyGx7mTdSRAL5tes5Uy1v88DBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 256/346] Input: cros_ec_keyb - send scancodes in addition to key events
+Subject: [PATCH 4.9 122/175] net: korina: fix return value
 Date:   Mon, 28 Dec 2020 13:49:35 +0100
-Message-Id: <20201228124932.160991526@linuxfoundation.org>
+Message-Id: <20201228124859.170110953@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Vincent Stehlé <vincent.stehle@laposte.net>
 
-[ Upstream commit 80db2a087f425b63f0163bc95217abd01c637cb5 ]
+[ Upstream commit 7eb000bdbe7c7da811ef51942b356f6e819b13ba ]
 
-To let userspace know what 'scancodes' should be used in EVIOCGKEYCODE
-and EVIOCSKEYCODE ioctls, we should send EV_MSC/MSC_SCAN events in
-addition to EV_KEY/KEY_* events. The driver already declared MSC_SCAN
-capability, so it is only matter of actually sending the events.
+The ndo_start_xmit() method must not attempt to free the skb to transmit
+when returning NETDEV_TX_BUSY. Therefore, make sure the
+korina_send_packet() function returns NETDEV_TX_OK when it frees a packet.
 
-Link: https://lore.kernel.org/r/X87aOaSptPTvZ3nZ@google.com
-Acked-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: ef11291bcd5f ("Add support the Korina (IDT RC32434) Ethernet MAC")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20201214220952.19935-1-vincent.stehle@laposte.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/cros_ec_keyb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/korina.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index d560011815983..1edf0e8322ccc 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -183,6 +183,7 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
- 					"changed: [r%d c%d]: byte %02x\n",
- 					row, col, new_state);
+diff --git a/drivers/net/ethernet/korina.c b/drivers/net/ethernet/korina.c
+index cd8895838a04c..4cf1fc89df3c6 100644
+--- a/drivers/net/ethernet/korina.c
++++ b/drivers/net/ethernet/korina.c
+@@ -216,7 +216,7 @@ static int korina_send_packet(struct sk_buff *skb, struct net_device *dev)
+ 			dev_kfree_skb_any(skb);
+ 			spin_unlock_irqrestore(&lp->lock, flags);
  
-+				input_event(idev, EV_MSC, MSC_SCAN, pos);
- 				input_report_key(idev, keycodes[pos],
- 						 new_state);
- 			}
+-			return NETDEV_TX_BUSY;
++			return NETDEV_TX_OK;
+ 		}
+ 	}
+ 
 -- 
 2.27.0
 
