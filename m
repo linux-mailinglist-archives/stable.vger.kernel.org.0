@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB6E2E3967
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABCC2E63E9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388468AbgL1NXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:23:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S2391581AbgL1Pow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:44:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388463AbgL1NXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:23:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C587822B3A;
-        Mon, 28 Dec 2020 13:22:34 +0000 (UTC)
+        id S2404710AbgL1Noz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D7B922A84;
+        Mon, 28 Dec 2020 13:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161755;
-        bh=8eqCS1fATQKmxKzkQpZAO4+h0NCwVw0ZGv2G/2XWjkI=;
+        s=korg; t=1609163054;
+        bh=GK4D9Zt3HYoy7+nr9I5SdxhzyTWVZp4VXuz7JlcY7Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJKBcxHe65QYxwV/nrrbIwT40fQfC4g3PzxQPh8X05vHFXGEKezxBr/Scd5stZZrP
-         0pUYd5EmrjicUYVqD8y1ukwtiCHgz/Kc3FJeMS983aMQziWQlF1ZVV5Po7sEJFhicB
-         jL9Mgd/+HFH+k6VzU7J2FoIyVHWUTLIFX45/NNZQ=
+        b=QBu3EcToP3E0Zr3d7sIUVoaKn32r3dA/s7OctlVjpmeu/4ZV+3BQJBsI5/5nokyrl
+         Y4Eqv4hgGw+ZyeMJMwgIA0Exw3BceR0CTXCK1tF2w32nUF4rzgJ44OmnCzoS+ia1yO
+         3iXPEYbfshAgqKIlWPqwFiOZHQZDETVkDtMdxrbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 071/346] drm/tegra: sor: Disable clocks on error in tegra_sor_init()
+Subject: [PATCH 5.4 154/453] soc: ti: knav_qmss: fix reference leak in knav_queue_probe
 Date:   Mon, 28 Dec 2020 13:46:30 +0100
-Message-Id: <20201228124923.227970399@linuxfoundation.org>
+Message-Id: <20201228124944.615913975@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit bf3a3cdcad40e5928a22ea0fd200d17fd6d6308d ]
+[ Upstream commit ec8684847d8062496c4619bc3fcff31c19d56847 ]
 
-Fix the missing clk_disable_unprepare() before return from
-tegra_sor_init() in the error handling case.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in knav_queue_probe, so we should fix it.
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 41f93af900a20 ("soc: ti: add Keystone Navigator QMSS driver")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/sor.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/soc/ti/knav_qmss_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/tegra/sor.c b/drivers/gpu/drm/tegra/sor.c
-index 89cb70da2bfe6..83108e2430501 100644
---- a/drivers/gpu/drm/tegra/sor.c
-+++ b/drivers/gpu/drm/tegra/sor.c
-@@ -2668,17 +2668,23 @@ static int tegra_sor_init(struct host1x_client *client)
- 		if (err < 0) {
- 			dev_err(sor->dev, "failed to deassert SOR reset: %d\n",
- 				err);
-+			clk_disable_unprepare(sor->clk);
- 			return err;
- 		}
+diff --git a/drivers/soc/ti/knav_qmss_queue.c b/drivers/soc/ti/knav_qmss_queue.c
+index 1ccc9064e1eb5..dbbf15e7ef6e1 100644
+--- a/drivers/soc/ti/knav_qmss_queue.c
++++ b/drivers/soc/ti/knav_qmss_queue.c
+@@ -1791,6 +1791,7 @@ static int knav_queue_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(&pdev->dev);
+ 		dev_err(dev, "Failed to enable QMSS\n");
+ 		return ret;
  	}
- 
- 	err = clk_prepare_enable(sor->clk_safe);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	err = clk_prepare_enable(sor->clk_dp);
--	if (err < 0)
-+	if (err < 0) {
-+		clk_disable_unprepare(sor->clk_safe);
-+		clk_disable_unprepare(sor->clk);
- 		return err;
-+	}
- 
- 	return 0;
- }
 -- 
 2.27.0
 
