@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA0E02E3ED3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE092E64F6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503629AbgL1Oc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:32:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38586 "EHLO mail.kernel.org"
+        id S2390665AbgL1Nga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:36:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503707AbgL1Oad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 595A92245C;
-        Mon, 28 Dec 2020 14:29:52 +0000 (UTC)
+        id S2390523AbgL1Ng3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:36:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D3620719;
+        Mon, 28 Dec 2020 13:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165792;
-        bh=ypPykkwJtP8ZsDxyT0CKLagTG6mLj2WNPGAqoi8gbjM=;
+        s=korg; t=1609162549;
+        bh=2zswwcbAHBiiyXxKUukt8I2higsivO73El+lvUDkKBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfJYcZlqUeA3cmGrY0+WeCOUXzfY6kTgJPjYGsRq8BLpzSFtGanp2d299l1CN2j9D
-         Jkt29RmfdYoqKar5sCf8IacWwFuRB8cTmd0GIWSn7K9ORygbuczh6FBKwHLMblkjdE
-         wFwxrygH6tIeEXWWJ9+5R75Cb7VQlJY4mn+9Jxb0=
+        b=uDgRUg7RlnrvK8kswsPPwCzGVhvr0Eewvm2LWAEgpDmURTns4tC7a53ZUo2LhTfDp
+         CZ6Igab0FEMyW2JAJjZnqkj8D2A1qxRygHJGbXklyyaNEK8ZVkpIECXSZ1z/fAj61F
+         Oc+IGhJ9GF8PbSGyhXiqnk+FY/H8a3Pys2TzEZLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 657/717] spi: st-ssc4: Fix unbalanced pm_runtime_disable() in probe error path
-Date:   Mon, 28 Dec 2020 13:50:55 +0100
-Message-Id: <20201228125052.431078975@linuxfoundation.org>
+        stable@vger.kernel.org, Terry Zhou <bjzhou@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 337/346] clk: mvebu: a3700: fix the XTAL MODE pin to MPP1_9
+Date:   Mon, 28 Dec 2020 13:50:56 +0100
+Message-Id: <20201228124936.050125892@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Terry Zhou <bjzhou@marvell.com>
 
-commit 5ef76dac0f2c26aeae4ee79eb830280f16d5aceb upstream.
+commit 6f37689cf6b38fff96de52e7f0d3e78f22803ba0 upstream.
 
-If the calls to devm_platform_ioremap_resource(), irq_of_parse_and_map()
-or devm_request_irq() fail on probe of the ST SSC4 SPI driver, the
-runtime PM disable depth is incremented even though it was not
-decremented before.  Fix it.
+There is an error in the current code that the XTAL MODE
+pin was set to NB MPP1_31 which should be NB MPP1_9.
+The latch register of NB MPP1_9 has different offset of 0x8.
 
-Fixes: cd050abeba2a ("spi: st-ssc4: add missed pm_runtime_disable")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v5.5+
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Link: https://lore.kernel.org/r/fbe8768c30dc829e2d77eabe7be062ca22f84024.1604874488.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Terry Zhou <bjzhou@marvell.com>
+[pali: Fix pin name in commit message]
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 7ea8250406a6 ("clk: mvebu: Add the xtal clock for Armada 3700 SoC")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201106100039.11385-1-pali@kernel.org
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-st-ssc4.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/clk/mvebu/armada-37xx-xtal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/spi/spi-st-ssc4.c
-+++ b/drivers/spi/spi-st-ssc4.c
-@@ -375,13 +375,14 @@ static int spi_st_probe(struct platform_
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register master\n");
--		goto clk_disable;
-+		goto rpm_disable;
- 	}
+--- a/drivers/clk/mvebu/armada-37xx-xtal.c
++++ b/drivers/clk/mvebu/armada-37xx-xtal.c
+@@ -15,8 +15,8 @@
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
  
- 	return 0;
+-#define NB_GPIO1_LATCH	0xC
+-#define XTAL_MODE	    BIT(31)
++#define NB_GPIO1_LATCH	0x8
++#define XTAL_MODE	    BIT(9)
  
--clk_disable:
-+rpm_disable:
- 	pm_runtime_disable(&pdev->dev);
-+clk_disable:
- 	clk_disable_unprepare(spi_st->clk);
- put_master:
- 	spi_master_put(master);
+ static int armada_3700_xtal_clock_probe(struct platform_device *pdev)
+ {
 
 
