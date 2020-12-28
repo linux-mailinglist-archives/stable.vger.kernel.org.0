@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0B62E3EC0
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F682E3C09
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503684AbgL1Oa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:30:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
+        id S2405092AbgL1N5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:57:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504035AbgL1OaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A75E320731;
-        Mon, 28 Dec 2020 14:30:06 +0000 (UTC)
+        id S2407413AbgL1N5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:57:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8514420782;
+        Mon, 28 Dec 2020 13:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165807;
-        bh=+hN4M+no+Ki+hCMeeLsUCeOLOTSqIYfsmJH3+f51i1s=;
+        s=korg; t=1609163832;
+        bh=moODPkrfC++ildKLR07t2aUiMPnatOOn4vrPfX9GpZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAA5XhKTeGwqvWUqx4Gt3aDylszmN6OSpDpOEUhyo+lH3AbB6VjL6ByZmD5ZSGjbV
-         4JwJ0lm1OknzIdPE0PJrL8149w3DKRu8mWCweSZTDxtD/93kKAukyZrWJSbKn9Lg7p
-         evjawXkSQVNslWmY96RHO3aIe7lI/7fI0PZeg7dg=
+        b=P9LvWyJnyaDmcGVIV2rWMwNQ2fF7RP0U9hJuM3j+aKV1eneh5BTTUvfjev6S25tSm
+         teJCHFAJZPlG57HP2YZ06r1VZNokyxgHyLcTUT/zzGIB4A6aENhGfK8P0Zvxh6Vol/
+         Z4hNMLDa5R3v1TzIlkRLE4Dtwlkmkz5YDpzZRwO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 661/717] spi: atmel-quadspi: Disable clock in probe error path
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 423/453] scsi: lpfc: Fix invalid sleeping context in lpfc_sli4_nvmet_alloc()
 Date:   Mon, 28 Dec 2020 13:50:59 +0100
-Message-Id: <20201228125052.634491775@linuxfoundation.org>
+Message-Id: <20201228124957.575665697@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: James Smart <james.smart@broadcom.com>
 
-commit 0e685017c7ba1a2fe9f6f1e7a9302890747d934c upstream.
+commit 62e3a931db60daf94fdb3159d685a5bc6ad4d0cf upstream.
 
-If the call to of_device_get_match_data() fails on probe of the Atmel
-QuadSPI driver, the clock "aq->pclk" is erroneously not unprepared and
-disabled.  Fix it.
+The following calltrace was seen:
 
-Fixes: 2e5c88887358 ("spi: atmel-quadspi: add support for sam9x60 qspi controller")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v5.1+
-Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/8f8dc2815aa97b2378528f08f923bf81e19611f0.1604874488.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BUG: sleeping function called from invalid context at mm/slab.h:494
+...
+Call Trace:
+ dump_stack+0x9a/0xf0
+ ___might_sleep.cold.63+0x13d/0x178
+ slab_pre_alloc_hook+0x6a/0x90
+ kmem_cache_alloc_trace+0x3a/0x2d0
+ lpfc_sli4_nvmet_alloc+0x4c/0x280 [lpfc]
+ lpfc_post_rq_buffer+0x2e7/0xa60 [lpfc]
+ lpfc_sli4_hba_setup+0x6b4c/0xa4b0 [lpfc]
+ lpfc_pci_probe_one_s4.isra.15+0x14f8/0x2280 [lpfc]
+ lpfc_pci_probe_one+0x260/0x2880 [lpfc]
+ local_pci_probe+0xd4/0x180
+ work_for_cpu_fn+0x51/0xa0
+ process_one_work+0x8f0/0x17b0
+ worker_thread+0x536/0xb50
+ kthread+0x30c/0x3d0
+ ret_from_fork+0x3a/0x50
+
+A prior patch introduced a spin_lock_irqsave(hbalock) in the
+lpfc_post_rq_buffer() routine. Call trace is seen as the hbalock is held
+with interrupts disabled during a GFP_KERNEL allocation in
+lpfc_sli4_nvmet_alloc().
+
+Fix by reordering locking so that hbalock not held when calling
+sli4_nvmet_alloc() (aka rqb_buf_list()).
+
+Link: https://lore.kernel.org/r/20201020202719.54726-2-james.smart@broadcom.com
+Fixes: 411de511c694 ("scsi: lpfc: Fix RQ empty firmware trap")
+Cc: <stable@vger.kernel.org> # v4.17+
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/atmel-quadspi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_mem.c |    4 +---
+ drivers/scsi/lpfc/lpfc_sli.c |   10 ++++++++--
+ 2 files changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -591,7 +591,7 @@ static int atmel_qspi_probe(struct platf
- 	if (!aq->caps) {
- 		dev_err(&pdev->dev, "Could not retrieve QSPI caps\n");
- 		err = -EINVAL;
--		goto exit;
-+		goto disable_pclk;
- 	}
+--- a/drivers/scsi/lpfc/lpfc_mem.c
++++ b/drivers/scsi/lpfc/lpfc_mem.c
+@@ -593,8 +593,6 @@ lpfc_sli4_rb_free(struct lpfc_hba *phba,
+  * Description: Allocates a DMA-mapped receive buffer from the lpfc_hrb_pool PCI
+  * pool along a non-DMA-mapped container for it.
+  *
+- * Notes: Not interrupt-safe.  Must be called with no locks held.
+- *
+  * Returns:
+  *   pointer to HBQ on success
+  *   NULL on failure
+@@ -604,7 +602,7 @@ lpfc_sli4_nvmet_alloc(struct lpfc_hba *p
+ {
+ 	struct rqb_dmabuf *dma_buf;
  
- 	if (aq->caps->has_qspick) {
+-	dma_buf = kzalloc(sizeof(struct rqb_dmabuf), GFP_KERNEL);
++	dma_buf = kzalloc(sizeof(*dma_buf), GFP_KERNEL);
+ 	if (!dma_buf)
+ 		return NULL;
+ 
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -7102,12 +7102,16 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
+ 	struct rqb_dmabuf *rqb_buffer;
+ 	LIST_HEAD(rqb_buf_list);
+ 
+-	spin_lock_irqsave(&phba->hbalock, flags);
+ 	rqbp = hrq->rqbp;
+ 	for (i = 0; i < count; i++) {
++		spin_lock_irqsave(&phba->hbalock, flags);
+ 		/* IF RQ is already full, don't bother */
+-		if (rqbp->buffer_count + i >= rqbp->entry_count - 1)
++		if (rqbp->buffer_count + i >= rqbp->entry_count - 1) {
++			spin_unlock_irqrestore(&phba->hbalock, flags);
+ 			break;
++		}
++		spin_unlock_irqrestore(&phba->hbalock, flags);
++
+ 		rqb_buffer = rqbp->rqb_alloc_buffer(phba);
+ 		if (!rqb_buffer)
+ 			break;
+@@ -7116,6 +7120,8 @@ lpfc_post_rq_buffer(struct lpfc_hba *phb
+ 		rqb_buffer->idx = idx;
+ 		list_add_tail(&rqb_buffer->hbuf.list, &rqb_buf_list);
+ 	}
++
++	spin_lock_irqsave(&phba->hbalock, flags);
+ 	while (!list_empty(&rqb_buf_list)) {
+ 		list_remove_head(&rqb_buf_list, rqb_buffer, struct rqb_dmabuf,
+ 				 hbuf.list);
 
 
