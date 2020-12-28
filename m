@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224EC2E65C3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF652E6794
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389560AbgL1N1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:27:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
+        id S1730998AbgL1Q0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:26:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389035AbgL1NZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C59207C9;
-        Mon, 28 Dec 2020 13:25:11 +0000 (UTC)
+        id S1730978AbgL1NIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33175207C9;
+        Mon, 28 Dec 2020 13:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161911;
-        bh=x7wPcdaHSJvPn+6YXf9F4WM7LGOJSdklufUles/136E=;
+        s=korg; t=1609160910;
+        bh=KyTdHlhqvA3ADKEJ/GXypxElvwVqUxk7Lv+osuPptec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZKzMbgLT2bsqgl+Rtqoh2cgSVzAP6VFWj9DKM8MNbMgnHz43oZWehN32gogYSgb/
-         vkos5f29VUURrHSwQga01BRpLWbDB76NjTLBUQIk11aWCrd4YtFKArFiBFBrz1cpO/
-         yBPtGVRS1qFn18tKuQXCVCKtpWaLr+5dz3WFRGls=
+        b=Cm7KnQyOFcQSiw1vUG5ILQbJ3ohlwo9VNNzDKSO+bZ0PSdu12WKKb1ZQt/JEUu5Zy
+         eYl+tPUoLASaj2DGA41buocqLGO9q8Iabbz2kpYF7YfNT8xbQ2OEWHE09Ify8Gg0op
+         DsyUjYM9YXMPRCz+LJtfsq/Bch/NolKpEgPRRx20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 094/346] crypto: af_alg - avoid undefined behavior accessing salg_name
-Date:   Mon, 28 Dec 2020 13:46:53 +0100
-Message-Id: <20201228124924.343770006@linuxfoundation.org>
+        stable@vger.kernel.org, Timo Witte <timo.witte@gmail.com>,
+        "Lee, Chun-Yi" <jlee@suse.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 009/242] platform/x86: acer-wmi: add automatic keyboard background light toggle key as KEY_LIGHTS_TOGGLE
+Date:   Mon, 28 Dec 2020 13:46:54 +0100
+Message-Id: <20201228124905.116676832@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Timo Witte <timo.witte@gmail.com>
 
-commit 92eb6c3060ebe3adf381fd9899451c5b047bb14d upstream.
+[ Upstream commit 9e7a005ad56aa7d6ea5830c5ffcc60bf35de380b ]
 
-Commit 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm
-names") made the kernel start accepting arbitrarily long algorithm names
-in sockaddr_alg.  However, the actual length of the salg_name field
-stayed at the original 64 bytes.
+Got a dmesg message on my AMD Renoir based Acer laptop:
+"acer_wmi: Unknown key number - 0x84" when toggling keyboard
+background light
 
-This is broken because the kernel can access indices >= 64 in salg_name,
-which is undefined behavior -- even though the memory that is accessed
-is still located within the sockaddr structure.  It would only be
-defined behavior if the array were properly marked as arbitrary-length
-(either by making it a flexible array, which is the recommended way
-these days, or by making it an array of length 0 or 1).
-
-We can't simply change salg_name into a flexible array, since that would
-break source compatibility with userspace programs that embed
-sockaddr_alg into another struct, or (more commonly) declare a
-sockaddr_alg like 'struct sockaddr_alg sa = { .salg_name = "foo" };'.
-
-One solution would be to change salg_name into a flexible array only
-when '#ifdef __KERNEL__'.  However, that would keep userspace without an
-easy way to actually use the longer algorithm names.
-
-Instead, add a new structure 'sockaddr_alg_new' that has the flexible
-array field, and expose it to both userspace and the kernel.
-Make the kernel use it correctly in alg_bind().
-
-This addresses the syzbot report
-"UBSAN: array-index-out-of-bounds in alg_bind"
-(https://syzkaller.appspot.com/bug?extid=92ead4eb8e26a26d465e).
-
-Reported-by: syzbot+92ead4eb8e26a26d465e@syzkaller.appspotmail.com
-Fixes: 3f69cc60768b ("crypto: af_alg - Allow arbitrarily long algorithm names")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Timo Witte <timo.witte@gmail.com>
+Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+Link: https://lore.kernel.org/r/20200804001423.36778-1-timo.witte@gmail.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c             |   10 +++++++---
- include/uapi/linux/if_alg.h |   16 ++++++++++++++++
- 2 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -151,7 +151,7 @@ static int alg_bind(struct socket *sock,
- 	const u32 allowed = CRYPTO_ALG_KERN_DRIVER_ONLY;
- 	struct sock *sk = sock->sk;
- 	struct alg_sock *ask = alg_sk(sk);
--	struct sockaddr_alg *sa = (void *)uaddr;
-+	struct sockaddr_alg_new *sa = (void *)uaddr;
- 	const struct af_alg_type *type;
- 	void *private;
- 	int err;
-@@ -159,7 +159,11 @@ static int alg_bind(struct socket *sock,
- 	if (sock->state == SS_CONNECTED)
- 		return -EINVAL;
- 
--	if (addr_len < sizeof(*sa))
-+	BUILD_BUG_ON(offsetof(struct sockaddr_alg_new, salg_name) !=
-+		     offsetof(struct sockaddr_alg, salg_name));
-+	BUILD_BUG_ON(offsetof(struct sockaddr_alg, salg_name) != sizeof(*sa));
-+
-+	if (addr_len < sizeof(*sa) + 1)
- 		return -EINVAL;
- 
- 	/* If caller uses non-allowed flag, return error. */
-@@ -167,7 +171,7 @@ static int alg_bind(struct socket *sock,
- 		return -EINVAL;
- 
- 	sa->salg_type[sizeof(sa->salg_type) - 1] = 0;
--	sa->salg_name[sizeof(sa->salg_name) + addr_len - sizeof(*sa) - 1] = 0;
-+	sa->salg_name[addr_len - sizeof(*sa) - 1] = 0;
- 
- 	type = alg_get_type(sa->salg_type);
- 	if (IS_ERR(type) && PTR_ERR(type) == -ENOENT) {
---- a/include/uapi/linux/if_alg.h
-+++ b/include/uapi/linux/if_alg.h
-@@ -24,6 +24,22 @@ struct sockaddr_alg {
- 	__u8	salg_name[64];
- };
- 
-+/*
-+ * Linux v4.12 and later removed the 64-byte limit on salg_name[]; it's now an
-+ * arbitrary-length field.  We had to keep the original struct above for source
-+ * compatibility with existing userspace programs, though.  Use the new struct
-+ * below if support for very long algorithm names is needed.  To do this,
-+ * allocate 'sizeof(struct sockaddr_alg_new) + strlen(algname) + 1' bytes, and
-+ * copy algname (including the null terminator) into salg_name.
-+ */
-+struct sockaddr_alg_new {
-+	__u16	salg_family;
-+	__u8	salg_type[14];
-+	__u32	salg_feat;
-+	__u32	salg_mask;
-+	__u8	salg_name[];
-+};
-+
- struct af_alg_iv {
- 	__u32	ivlen;
- 	__u8	iv[0];
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 1be71f956d5c2..29f6f2bbb5fff 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -124,6 +124,7 @@ static const struct key_entry acer_wmi_keymap[] __initconst = {
+ 	{KE_KEY, 0x64, {KEY_SWITCHVIDEOMODE} },	/* Display Switch */
+ 	{KE_IGNORE, 0x81, {KEY_SLEEP} },
+ 	{KE_KEY, 0x82, {KEY_TOUCHPAD_TOGGLE} },	/* Touch Pad Toggle */
++	{KE_IGNORE, 0x84, {KEY_KBDILLUMTOGGLE} }, /* Automatic Keyboard background light toggle */
+ 	{KE_KEY, KEY_TOUCHPAD_ON, {KEY_TOUCHPAD_ON} },
+ 	{KE_KEY, KEY_TOUCHPAD_OFF, {KEY_TOUCHPAD_OFF} },
+ 	{KE_IGNORE, 0x83, {KEY_TOUCHPAD_TOGGLE} },
+-- 
+2.27.0
+
 
 
