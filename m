@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613872E6527
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:58:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB77F2E4313
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389313AbgL1P47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:56:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36004 "EHLO mail.kernel.org"
+        id S2404403AbgL1N4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:56:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389350AbgL1Nf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:35:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DAFA207B2;
-        Mon, 28 Dec 2020 13:34:46 +0000 (UTC)
+        id S2407724AbgL1N4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:56:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0635A20791;
+        Mon, 28 Dec 2020 13:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162488;
-        bh=80ZIhablfgFDhoCd8GItsk7AQeVOjS7EoAnZDFIjXmI=;
+        s=korg; t=1609163731;
+        bh=ATe23Rm/TKgb1NJsGRPJI5SJrqxqys9GsDW0OyV0fIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1a2KSM1JrVMTEq31I53tNfq4ekXrqUpAPE4sSlMNu0mjW27LYlek4fGG7LYUTxU7Y
-         jd4mg1zk2u04GSUiSyVmkBi0+hBTGUVSXNuaDkSQhO4cF2006JjgvCnFF483ZSfcZW
-         Lvc4LQkhMbev35i+ALHAHZQ3boCw+2wLnbU3KurI=
+        b=TTMkIxZfgn33gmmCQs+HFDyM7f7z6UkAt122y47vpHDjz0SFD9kB9CFWgZ8Le+kum
+         sZ4+VL86q5fbzHzv0qEUgDyOcU/lInpyFUfENFi/LAxOAJxWFe/8a6SuTNuGlkQHTX
+         ZWioCv2KIKmDv7W+5pvWI/0wK7Grp0NxQpENnWew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 288/346] EDAC/amd64: Fix PCI component registration
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 371/453] USB: serial: keyspan_pda: fix write unthrottling
 Date:   Mon, 28 Dec 2020 13:50:07 +0100
-Message-Id: <20201228124933.696729318@linuxfoundation.org>
+Message-Id: <20201228124955.065305171@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,114 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit 706657b1febf446a9ba37dc51b89f46604f57ee9 upstream.
+commit 320f9028c7873c3c7710e8e93e5c979f4c857490 upstream.
 
-In order to setup its PCI component, the driver needs any node private
-instance in order to get a reference to the PCI device and hand that
-into edac_pci_create_generic_ctl(). For convenience, it uses the 0th
-memory controller descriptor under the assumption that if any, the 0th
-will be always present.
+The driver did not update its view of the available device buffer space
+until write() was called in task context. This meant that write_room()
+would return 0 even after the device had sent a write-unthrottle
+notification, something which could lead to blocked writers not being
+woken up (e.g. when using OPOST).
 
-However, this assumption goes wrong when the 0th node doesn't have
-memory and the driver doesn't initialize an instance for it:
+Note that we must also request an unthrottle notification is case a
+write() request fills the device buffer exactly.
 
-  EDAC amd64: F17h detected (node 0).
-  ...
-  EDAC amd64: Node 0: No DIMMs detected.
-
-But looking up node instances is not really needed - all one needs is
-the pointer to the proper device which gets discovered during instance
-init.
-
-So stash that pointer into a variable and use it when setting up the
-EDAC PCI component.
-
-Clear that variable when the driver needs to unwind due to some
-instances failing init to avoid any registration imbalance.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201122150815.13808-1-bp@alien8.de
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/edac/amd64_edac.c |   26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/usb/serial/keyspan_pda.c |   29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -18,6 +18,9 @@ static struct msr __percpu *msrs;
- /* Per-node stuff */
- static struct ecc_settings **ecc_stngs;
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -40,6 +40,8 @@
+ #define DRIVER_AUTHOR "Brian Warner <warner@lothar.com>"
+ #define DRIVER_DESC "USB Keyspan PDA Converter driver"
  
-+/* Device for the PCI component */
-+static struct device *pci_ctl_dev;
++#define KEYSPAN_TX_THRESHOLD	16
 +
- /*
-  * Valid scrub rates for the K8 hardware memory scrubber. We map the scrubbing
-  * bandwidth to a valid bit pattern. The 'set' operation finds the 'matching-
-@@ -2563,6 +2566,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
- 			return -ENODEV;
+ struct keyspan_pda_private {
+ 	int			tx_room;
+ 	int			tx_throttled;
+@@ -110,7 +112,7 @@ static void keyspan_pda_request_unthrott
+ 				 7, /* request_unthrottle */
+ 				 USB_TYPE_VENDOR | USB_RECIP_INTERFACE
+ 				 | USB_DIR_OUT,
+-				 16, /* value: threshold */
++				 KEYSPAN_TX_THRESHOLD,
+ 				 0, /* index */
+ 				 NULL,
+ 				 0,
+@@ -129,6 +131,8 @@ static void keyspan_pda_rx_interrupt(str
+ 	int retval;
+ 	int status = urb->status;
+ 	struct keyspan_pda_private *priv;
++	unsigned long flags;
++
+ 	priv = usb_get_serial_port_data(port);
+ 
+ 	switch (status) {
+@@ -171,7 +175,10 @@ static void keyspan_pda_rx_interrupt(str
+ 		case 1: /* modemline change */
+ 			break;
+ 		case 2: /* tx unthrottle interrupt */
++			spin_lock_irqsave(&port->lock, flags);
+ 			priv->tx_throttled = 0;
++			priv->tx_room = max(priv->tx_room, KEYSPAN_TX_THRESHOLD);
++			spin_unlock_irqrestore(&port->lock, flags);
+ 			/* queue up a wakeup at scheduler time */
+ 			usb_serial_port_softint(port);
+ 			break;
+@@ -505,7 +512,8 @@ static int keyspan_pda_write(struct tty_
+ 			goto exit;
  		}
- 
-+		if (!pci_ctl_dev)
-+			pci_ctl_dev = &pvt->F0->dev;
-+
- 		edac_dbg(1, "F0: %s\n", pci_name(pvt->F0));
- 		edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
- 		edac_dbg(1, "F6: %s\n", pci_name(pvt->F6));
-@@ -2587,6 +2593,9 @@ reserve_mc_sibling_devs(struct amd64_pvt
- 		return -ENODEV;
  	}
- 
-+	if (!pci_ctl_dev)
-+		pci_ctl_dev = &pvt->F2->dev;
+-	if (count > priv->tx_room) {
 +
- 	edac_dbg(1, "F1: %s\n", pci_name(pvt->F1));
- 	edac_dbg(1, "F2: %s\n", pci_name(pvt->F2));
- 	edac_dbg(1, "F3: %s\n", pci_name(pvt->F3));
-@@ -3441,21 +3450,10 @@ static void remove_one_instance(unsigned
- 
- static void setup_pci_device(void)
++	if (count >= priv->tx_room) {
+ 		/* we're about to completely fill the Tx buffer, so
+ 		   we'll be throttled afterwards. */
+ 		count = priv->tx_room;
+@@ -560,14 +568,17 @@ static void keyspan_pda_write_bulk_callb
+ static int keyspan_pda_write_room(struct tty_struct *tty)
  {
--	struct mem_ctl_info *mci;
--	struct amd64_pvt *pvt;
--
- 	if (pci_ctl)
- 		return;
- 
--	mci = edac_mc_find(0);
--	if (!mci)
--		return;
--
--	pvt = mci->pvt_info;
--	if (pvt->umc)
--		pci_ctl = edac_pci_create_generic_ctl(&pvt->F0->dev, EDAC_MOD_STR);
--	else
--		pci_ctl = edac_pci_create_generic_ctl(&pvt->F2->dev, EDAC_MOD_STR);
-+	pci_ctl = edac_pci_create_generic_ctl(pci_ctl_dev, EDAC_MOD_STR);
- 	if (!pci_ctl) {
- 		pr_warn("%s(): Unable to create PCI control\n", __func__);
- 		pr_warn("%s(): PCI error report via EDAC not set\n", __func__);
-@@ -3535,6 +3533,8 @@ static int __init amd64_edac_init(void)
- 	return 0;
- 
- err_pci:
-+	pci_ctl_dev = NULL;
+ 	struct usb_serial_port *port = tty->driver_data;
+-	struct keyspan_pda_private *priv;
+-	priv = usb_get_serial_port_data(port);
+-	/* used by n_tty.c for processing of tabs and such. Giving it our
+-	   conservative guess is probably good enough, but needs testing by
+-	   running a console through the device. */
+-	return priv->tx_room;
+-}
++	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
++	unsigned long flags;
++	int room = 0;
 +
- 	msrs_free(msrs);
- 	msrs = NULL;
++	spin_lock_irqsave(&port->lock, flags);
++	if (test_bit(0, &port->write_urbs_free) && !priv->tx_throttled)
++		room = priv->tx_room;
++	spin_unlock_irqrestore(&port->lock, flags);
  
-@@ -3566,6 +3566,8 @@ static void __exit amd64_edac_exit(void)
- 	kfree(ecc_stngs);
- 	ecc_stngs = NULL;
++	return room;
++}
  
-+	pci_ctl_dev = NULL;
-+
- 	msrs_free(msrs);
- 	msrs = NULL;
- }
+ static int keyspan_pda_chars_in_buffer(struct tty_struct *tty)
+ {
 
 
