@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B5662E678C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B217C2E67A5
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730953AbgL1NIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:08:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
+        id S1730893AbgL1Q1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730739AbgL1NId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0463B22A84;
-        Mon, 28 Dec 2020 13:07:51 +0000 (UTC)
+        id S1730880AbgL1NIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACE1E2076D;
+        Mon, 28 Dec 2020 13:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160872;
-        bh=fQqazPkhD6w5XJvwLy00MnE9WRUkfTxU0eBOYBpP7Jc=;
+        s=korg; t=1609160881;
+        bh=WaveH1Q9AVRFJF+yNl25odc0yleqi42jKABjuKowRTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvT17zdsKZTTZuwS4X20XocmhrCJ4MHCAqbrJl4+3l3A02AgknOTsmqDHuYw15q2g
-         sGDAoI7ks/YXrsa9Eub8zxeW3o1GW55sTxvBSwfHhgyvPQIgWrFXOjQKgBFR+TOJ1D
-         RvRvETl+KgkAup7PvYteFltLjKCvm8eGeVHbcKvo=
+        b=zfaaEfGbXNkI+T3SAxCylmLcBM/zKYK1UhKPKglxxGdG1Lhmfi9jcpY5ouuVg6cng
+         88ZjvZvynN2C3sEckyLwI3x4Ep2VS1YpAcFY42C7v3I/ssS4Z+cCONIKtxJW4lpVFS
+         8rnbqxMF8K9wGx+AIOf5VdRv7PPLz+VukCPxUtMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 024/242] mac80211: mesh: fix mesh_pathtbl_init() error path
-Date:   Mon, 28 Dec 2020 13:47:09 +0100
-Message-Id: <20201228124905.855508096@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.14 026/242] USB: add RESET_RESUME quirk for Snapscan 1212
+Date:   Mon, 28 Dec 2020 13:47:11 +0100
+Message-Id: <20201228124905.953836204@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,91 +38,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 905b2032fa424f253d9126271439cc1db2b01130 ]
+commit 08a02f954b0def3ada8ed6d4b2c7bcb67e885e9c upstream.
 
-If tbl_mpp can not be allocated, we call mesh_table_free(tbl_path)
-while tbl_path rhashtable has not yet been initialized, which causes
-panics.
+I got reports that some models of this old scanner need
+this when using runtime PM.
 
-Simply factorize the rhashtable_init() call into mesh_table_alloc()
-
-WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __flush_work kernel/workqueue.c:3040 [inline]
-WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
-Modules linked in:
-CPU: 1 PID: 8474 Comm: syz-executor663 Not tainted 5.10.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__flush_work kernel/workqueue.c:3040 [inline]
-RIP: 0010:__cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
-Code: 5d c3 e8 bf ae 29 00 0f 0b e9 f0 fd ff ff e8 b3 ae 29 00 0f 0b 43 80 3c 3e 00 0f 85 31 ff ff ff e9 34 ff ff ff e8 9c ae 29 00 <0f> 0b e9 dc fe ff ff 89 e9 80 e1 07 80 c1 03 38 c1 0f 8c 7d fd ff
-RSP: 0018:ffffc9000165f5a0 EFLAGS: 00010293
-RAX: ffffffff814b7064 RBX: 0000000000000001 RCX: ffff888021c80000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: ffff888024039ca0 R08: dffffc0000000000 R09: fffffbfff1dd3e64
-R10: fffffbfff1dd3e64 R11: 0000000000000000 R12: 1ffff920002cbebd
-R13: ffff888024039c88 R14: 1ffff11004807391 R15: dffffc0000000000
-FS:  0000000001347880(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000140 CR3: 000000002cc0a000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- rhashtable_free_and_destroy+0x25/0x9c0 lib/rhashtable.c:1137
- mesh_table_free net/mac80211/mesh_pathtbl.c:69 [inline]
- mesh_pathtbl_init+0x287/0x2e0 net/mac80211/mesh_pathtbl.c:785
- ieee80211_mesh_init_sdata+0x2ee/0x530 net/mac80211/mesh.c:1591
- ieee80211_setup_sdata+0x733/0xc40 net/mac80211/iface.c:1569
- ieee80211_if_add+0xd5c/0x1cd0 net/mac80211/iface.c:1987
- ieee80211_add_iface+0x59/0x130 net/mac80211/cfg.c:125
- rdev_add_virtual_intf net/wireless/rdev-ops.h:45 [inline]
- nl80211_new_interface+0x563/0xb40 net/wireless/nl80211.c:3855
- genl_family_rcv_msg_doit net/netlink/genetlink.c:739 [inline]
- genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
- genl_rcv_msg+0xe4e/0x1280 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x190/0x3a0 net/netlink/af_netlink.c:2494
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x780/0x930 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x9a8/0xd40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg net/socket.c:671 [inline]
- ____sys_sendmsg+0x519/0x800 net/socket.c:2353
- ___sys_sendmsg net/socket.c:2407 [inline]
- __sys_sendmsg+0x2b1/0x360 net/socket.c:2440
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-Link: https://lore.kernel.org/r/20201204162428.2583119-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201207130323.23857-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mac80211/mesh_pathtbl.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -61,6 +61,7 @@ static struct mesh_table *mesh_table_all
- 	INIT_HLIST_HEAD(&newtbl->known_gates);
- 	atomic_set(&newtbl->entries,  0);
- 	spin_lock_init(&newtbl->gates_lock);
-+	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
+---
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -189,6 +189,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x06a3, 0x0006), .driver_info =
+ 			USB_QUIRK_CONFIG_INTF_STRINGS },
  
- 	return newtbl;
- }
-@@ -851,9 +852,6 @@ int mesh_pathtbl_init(struct ieee80211_s
- 		goto free_path;
- 	}
- 
--	rhashtable_init(&tbl_path->rhead, &mesh_rht_params);
--	rhashtable_init(&tbl_mpp->rhead, &mesh_rht_params);
--
- 	sdata->u.mesh.mesh_paths = tbl_path;
- 	sdata->u.mesh.mpp_paths = tbl_mpp;
++	/* Agfa SNAPSCAN 1212U */
++	{ USB_DEVICE(0x06bd, 0x0001), .driver_info = USB_QUIRK_RESET_RESUME },
++
+ 	/* Guillemot Webcam Hercules Dualpix Exchange (2nd ID) */
+ 	{ USB_DEVICE(0x06f8, 0x0804), .driver_info = USB_QUIRK_RESET_RESUME },
  
 
 
