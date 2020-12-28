@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D502E3CBD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C982E41EC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438162AbgL1OGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:06:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S2437969AbgL1OGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:06:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437717AbgL1OF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:05:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFEA20731;
-        Mon, 28 Dec 2020 14:05:18 +0000 (UTC)
+        id S2437873AbgL1OGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:06:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21E2B207B6;
+        Mon, 28 Dec 2020 14:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164319;
-        bh=SphIqvcA8vL/GUhRmsg360xJp3qg5hhIj+MOA7yMioE=;
+        s=korg; t=1609164333;
+        bh=TEdnqWdjjDu9DHd2eze2o2SrxM0uyzuNi3qi3D26uHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6kH6pMqzupmIkvcMX7vvlc9DX+A7yFVhXIk5CegpAF5MZOQIG3K/83VURghQRJ2H
-         THAI9U+Ni9kwEFpl83iV8FjXZWamvYppf6vV5r9855X4ks40R0Q8SuBc1L2i3JGwuB
-         58+IuBmccfHvFS8UKcfl0ErlTl3zVV2ZRFYjD6v4=
+        b=kOYje4hlQqAGcEhFYuzyoLbGnufCXYM20MXRSkhDbH2VJeeNd58OMno6wwkX/sfBd
+         qolS3ASo6tQqdcHxSg5UIPKHeYmzhclPqypE9mjkkBzjHIVFJv2BiRSpyfCGDtDLkS
+         JUC6Lc3izLvLyKZEo8lAdSO1STrLvX3DCN2q/lAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 111/717] staging: greybus: codecs: Fix reference counter leak in error handling
-Date:   Mon, 28 Dec 2020 13:41:49 +0100
-Message-Id: <20201228125026.275928708@linuxfoundation.org>
+Subject: [PATCH 5.10 112/717] staging: gasket: interrupt: fix the missed eventfd_ctx_put() in gasket_interrupt.c
+Date:   Mon, 28 Dec 2020 13:41:50 +0100
+Message-Id: <20201228125026.324107976@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -39,44 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 3952659a6108f77a0d062d8e8487bdbdaf52a66c ]
+[ Upstream commit ab5b769a23af12a675b9f3d7dd529250c527f5ac ]
 
-gb_pm_runtime_get_sync has increased the usage counter of the device here.
-Forgetting to call gb_pm_runtime_put_noidle will result in usage counter
-leak in the error branch of (gbcodec_hw_params and gbcodec_prepare). We
-fixed it by adding it.
+gasket_interrupt_set_eventfd() misses to call eventfd_ctx_put() in an
+error path. We check interrupt is valid before calling
+eventfd_ctx_fdget() to fix it.
 
-Fixes: c388ae7696992 ("greybus: audio: Update pm runtime support in dai_ops callback")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20201109131347.1725288-2-zhangqilong3@huawei.com
+There is the same issue in gasket_interrupt_clear_eventfd(), Add the
+missed function call to fix it.
+
+Fixes: 9a69f5087ccc ("drivers/staging: Gasket driver framework + Apex driver")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Link: https://lore.kernel.org/r/20201112064924.99680-1-jingxiangfeng@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/audio_codec.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/gasket/gasket_interrupt.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
-index 494aa823e9984..42ce6c88ea753 100644
---- a/drivers/staging/greybus/audio_codec.c
-+++ b/drivers/staging/greybus/audio_codec.c
-@@ -490,6 +490,7 @@ static int gbcodec_hw_params(struct snd_pcm_substream *substream,
- 	if (ret) {
- 		dev_err_ratelimited(dai->dev, "%d: Error during set_config\n",
- 				    ret);
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
- 		return ret;
- 	}
-@@ -566,6 +567,7 @@ static int gbcodec_prepare(struct snd_pcm_substream *substream,
- 		break;
- 	}
- 	if (ret) {
-+		gb_pm_runtime_put_noidle(bundle);
- 		mutex_unlock(&codec->lock);
- 		dev_err_ratelimited(dai->dev, "set_data_size failed:%d\n",
- 				    ret);
+diff --git a/drivers/staging/gasket/gasket_interrupt.c b/drivers/staging/gasket/gasket_interrupt.c
+index 2d6195f7300e9..864342acfd86e 100644
+--- a/drivers/staging/gasket/gasket_interrupt.c
++++ b/drivers/staging/gasket/gasket_interrupt.c
+@@ -487,14 +487,16 @@ int gasket_interrupt_system_status(struct gasket_dev *gasket_dev)
+ int gasket_interrupt_set_eventfd(struct gasket_interrupt_data *interrupt_data,
+ 				 int interrupt, int event_fd)
+ {
+-	struct eventfd_ctx *ctx = eventfd_ctx_fdget(event_fd);
+-
+-	if (IS_ERR(ctx))
+-		return PTR_ERR(ctx);
++	struct eventfd_ctx *ctx;
+ 
+ 	if (interrupt < 0 || interrupt >= interrupt_data->num_interrupts)
+ 		return -EINVAL;
+ 
++	ctx = eventfd_ctx_fdget(event_fd);
++
++	if (IS_ERR(ctx))
++		return PTR_ERR(ctx);
++
+ 	interrupt_data->eventfd_ctxs[interrupt] = ctx;
+ 	return 0;
+ }
+@@ -505,6 +507,9 @@ int gasket_interrupt_clear_eventfd(struct gasket_interrupt_data *interrupt_data,
+ 	if (interrupt < 0 || interrupt >= interrupt_data->num_interrupts)
+ 		return -EINVAL;
+ 
+-	interrupt_data->eventfd_ctxs[interrupt] = NULL;
++	if (interrupt_data->eventfd_ctxs[interrupt]) {
++		eventfd_ctx_put(interrupt_data->eventfd_ctxs[interrupt]);
++		interrupt_data->eventfd_ctxs[interrupt] = NULL;
++	}
+ 	return 0;
+ }
 -- 
 2.27.0
 
