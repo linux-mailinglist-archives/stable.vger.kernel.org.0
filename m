@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 785C42E436C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8FF2E3778
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:57:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407045AbgL1Pdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:33:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55244 "EHLO mail.kernel.org"
+        id S1728638AbgL1Mzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:55:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407295AbgL1NxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:53:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B6622B37;
-        Mon, 28 Dec 2020 13:52:40 +0000 (UTC)
+        id S1727744AbgL1Mzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:55:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03E03229C6;
+        Mon, 28 Dec 2020 12:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163560;
-        bh=hi5aIWuUTk/lV2HCHbNEAoPGuYjf9GREJYAYDau+TLo=;
+        s=korg; t=1609160134;
+        bh=QqLnu4EI7L+TPQImoyt9LuFY3DbX6COmrtlP5YR/69c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qnh4uReCNbgUMQAIb+B4ziKFwh3hBocHByvbwEm7Q7uvT/Ruf/OQ8aD2WcmLRkoti
-         jcgR/lpQDdX2t+LDRyT2EKqTHL8uUsmaXWw860WAoPc25DELLF0yygdsVcCQFg2Us3
-         fFke3z1chfvfpVfBcXO6t7eJQ2osVpiWwyet41hw=
+        b=oKb3a8CYVW+qyeQol2nQ5S7tS0YKB0z1FqfAwYoIpGysQ4UxNYtAvXy4PDjPNHca8
+         StemhdxBwHgEMjPsohshFsrHZ8oxDyG96JjFzhO0XFTneg+uawYigsvKwH1T31tn0g
+         BAlG6mS1ff4NQ/GNWFO199pQu8pKxUg5QpFpLULw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 328/453] media: ipu3-cio2: Make the field on subdev format V4L2_FIELD_NONE
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 080/132] x86/kprobes: Restore BTF if the single-stepping is cancelled
 Date:   Mon, 28 Dec 2020 13:49:24 +0100
-Message-Id: <20201228124952.996379688@linuxfoundation.org>
+Message-Id: <20201228124850.308205244@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 219a8b9c04e54872f9a4d566633fb42f08bcbe2a upstream.
+[ Upstream commit 78ff2733ff352175eb7f4418a34654346e1b6cd2 ]
 
-The ipu3-cio2 doesn't make use of the field and this is reflected in V4L2
-buffers as well as the try format. Do this in active format, too.
+Fix to restore BTF if single-stepping causes a page fault and
+it is cancelled.
 
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Usually the BTF flag was restored when the single stepping is done
+(in resume_execution()). However, if a page fault happens on the
+single stepping instruction, the fault handler is invoked and
+the single stepping is cancelled. Thus, the BTF flag is not
+restored.
 
+Fixes: 1ecc798c6764 ("x86: debugctlmsr kprobes")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/160389546985.106936.12727996109376240993.stgit@devnote2
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/kprobes/core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1297,6 +1297,7 @@ static int cio2_subdev_set_fmt(struct v4
- 	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
- 	fmt->format.height = min_t(u32, fmt->format.height,
- 				   CIO2_IMAGE_MAX_LENGTH);
-+	fmt->format.field = V4L2_FIELD_NONE;
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index 5a6cb30b1c621..ebd4da00a56ea 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -1014,6 +1014,11 @@ int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
+ 		 * So clear it by resetting the current kprobe:
+ 		 */
+ 		regs->flags &= ~X86_EFLAGS_TF;
++		/*
++		 * Since the single step (trap) has been cancelled,
++		 * we need to restore BTF here.
++		 */
++		restore_btf();
  
- 	mutex_lock(&q->subdev_lock);
- 	*mbus = fmt->format;
+ 		/*
+ 		 * If the TF flag was set before the kprobe hit,
+-- 
+2.27.0
+
 
 
