@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8F02E4042
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A7442E4048
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392053AbgL1OUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:20:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54492 "EHLO mail.kernel.org"
+        id S2437761AbgL1OUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:20:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392050AbgL1OT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:19:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 504362063A;
-        Mon, 28 Dec 2020 14:19:37 +0000 (UTC)
+        id S2437736AbgL1OUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:20:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 169E5206D4;
+        Mon, 28 Dec 2020 14:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165177;
-        bh=fvN/XZ2n5D6gRpYIFYl/cHckEs4tpp9ZV7jkXmARuy8=;
+        s=korg; t=1609165180;
+        bh=jRqT8nYudhOBYdVE/1rRl62axBpiHWvNo7/32kcQivQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWyxHz7FmKoS2kblyZAy+Dy6dFlp3bCeM22iyQeafv9X3DeAlQywYQVBcRIVOuSLo
-         YEESVDPJJyPy126+lolrm3pWaJvPqOKNfIITwtWYdTNIoHP2dV1V3A1WatNXrsGU0g
-         GEmI69IXLYwXdYhLypdOPWTjVpu48srr41M0htXA=
+        b=Q/7TPF4SQEDIylkZZdcUpLbsgVKseJS3xJdUnZJA7aRxixJRej9Xw5GdkEMXE1sTI
+         o/LqWadVZsJoJvyIMcoOhpQYcJrYSVCQ++IwRZUz7uKYFAwH8GOogwnSgyLDFNCOdm
+         M476UHX57gQwYJ6092Qdg9jej2ulFoBREn7gwMfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 438/717] RDMA/mlx5: Fix MR cache memory leak
-Date:   Mon, 28 Dec 2020 13:47:16 +0100
-Message-Id: <20201228125041.953875660@linuxfoundation.org>
+Subject: [PATCH 5.10 439/717] RDMA/cma: Dont overwrite sgid_attr after device is released
+Date:   Mon, 28 Dec 2020 13:47:17 +0100
+Message-Id: <20201228125042.003164929@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,49 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit e89938902927a54abebccc9537991aca5237dfaf ]
+[ Upstream commit e246b7c035d74abfb3507fa10082d0c42cc016c3 ]
 
-If the MR cache entry invalidation failed, then we detach this entry from
-the cache, therefore we must to free the memory as well.
+As part of the cma_dev release, that pointer will be set to NULL.  In case
+it happens in rdma_bind_addr() (part of an error flow), the next call to
+addr_handler() will have a call to cma_acquire_dev_by_src_ip() which will
+overwrite sgid_attr without releasing it.
 
-Allcation backtrace for the leaker:
+  WARNING: CPU: 2 PID: 108 at drivers/infiniband/core/cma.c:606 cma_bind_sgid_attr drivers/infiniband/core/cma.c:606 [inline]
+  WARNING: CPU: 2 PID: 108 at drivers/infiniband/core/cma.c:606 cma_acquire_dev_by_src_ip+0x470/0x4b0 drivers/infiniband/core/cma.c:649
+  CPU: 2 PID: 108 Comm: kworker/u8:1 Not tainted 5.10.0-rc6+ #257
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  Workqueue: ib_addr process_one_req
+  RIP: 0010:cma_bind_sgid_attr drivers/infiniband/core/cma.c:606 [inline]
+  RIP: 0010:cma_acquire_dev_by_src_ip+0x470/0x4b0 drivers/infiniband/core/cma.c:649
+  Code: 66 d9 4a ff 4d 8b 6e 10 49 8d bd 1c 08 00 00 e8 b6 d6 4a ff 45 0f b6 bd 1c 08 00 00 41 83 e7 01 e9 49 fd ff ff e8 90 c5 29 ff <0f> 0b e9 80 fe ff ff e8 84 c5 29 ff 4c 89 f7 e8 2c d9 4a ff 4d 8b
+  RSP: 0018:ffff8881047c7b40 EFLAGS: 00010293
+  RAX: ffff888104789c80 RBX: 0000000000000001 RCX: ffffffff820b8ef8
+  RDX: 0000000000000000 RSI: ffffffff820b9080 RDI: ffff88810cd4c998
+  RBP: ffff8881047c7c08 R08: ffff888104789c80 R09: ffffed10209f4036
+  R10: ffff888104fa01ab R11: ffffed10209f4035 R12: ffff88810cd4c800
+  R13: ffff888105750e28 R14: ffff888108f0a100 R15: ffff88810cd4c998
+  FS:  0000000000000000(0000) GS:ffff888119c00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000000 CR3: 0000000104e60005 CR4: 0000000000370ea0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   addr_handler+0x266/0x350 drivers/infiniband/core/cma.c:3190
+   process_one_req+0xa3/0x300 drivers/infiniband/core/addr.c:645
+   process_one_work+0x54c/0x930 kernel/workqueue.c:2272
+   worker_thread+0x82/0x830 kernel/workqueue.c:2418
+   kthread+0x1ca/0x220 kernel/kthread.c:292
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
 
-    [<00000000d8e423b0>] alloc_cache_mr+0x23/0xc0 [mlx5_ib]
-    [<000000001f21304c>] create_cache_mr+0x3f/0xf0 [mlx5_ib]
-    [<000000009d6b45dc>] mlx5_ib_alloc_implicit_mr+0x41/0×210 [mlx5_ib]
-    [<00000000879d0d68>] mlx5_ib_reg_user_mr+0x9e/0×6e0 [mlx5_ib]
-    [<00000000be74bf89>] create_qp+0x2fc/0xf00 [ib_uverbs]
-    [<000000001a532d22>] ib_uverbs_handler_UVERBS_METHOD_COUNTERS_READ+0x1d9/0×230 [ib_uverbs]
-    [<0000000070f46001>] rdma_alloc_commit_uobject+0xb5/0×120 [ib_uverbs]
-    [<000000006d8a0b38>] uverbs_alloc+0x2b/0xf0 [ib_uverbs]
-    [<00000000075217c9>] ksysioctl+0x234/0×7d0
-    [<00000000eb5c120b>] __x64_sys_ioctl+0x16/0×20
-    [<00000000db135b48>] do_syscall_64+0x59/0×2e0
-
-Fixes: 1769c4c57548 ("RDMA/mlx5: Always remove MRs from the cache before destroying them")
-Link: https://lore.kernel.org/r/20201213132940.345554-2-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Fixes: ff11c6cd521f ("RDMA/cma: Introduce and use cma_acquire_dev_by_src_ip()")
+Link: https://lore.kernel.org/r/20201213132940.345554-5-leon@kernel.org
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/cma.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index 3468ae804eaee..971694e781b65 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -642,6 +642,7 @@ void mlx5_mr_cache_free(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr)
- 	if (mlx5_mr_cache_invalidate(mr)) {
- 		detach_mr_from_cache(mr);
- 		destroy_mkey(dev, mr);
-+		kfree(mr);
- 		return;
- 	}
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index c06c87a4dc5e7..c51b84b2d2f37 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -477,6 +477,10 @@ static void cma_release_dev(struct rdma_id_private *id_priv)
+ 	list_del(&id_priv->list);
+ 	cma_dev_put(id_priv->cma_dev);
+ 	id_priv->cma_dev = NULL;
++	if (id_priv->id.route.addr.dev_addr.sgid_attr) {
++		rdma_put_gid_attr(id_priv->id.route.addr.dev_addr.sgid_attr);
++		id_priv->id.route.addr.dev_addr.sgid_attr = NULL;
++	}
+ 	mutex_unlock(&lock);
+ }
  
+@@ -1861,9 +1865,6 @@ static void _destroy_id(struct rdma_id_private *id_priv,
+ 
+ 	kfree(id_priv->id.route.path_rec);
+ 
+-	if (id_priv->id.route.addr.dev_addr.sgid_attr)
+-		rdma_put_gid_attr(id_priv->id.route.addr.dev_addr.sgid_attr);
+-
+ 	put_net(id_priv->id.route.addr.dev_addr.net);
+ 	rdma_restrack_del(&id_priv->res);
+ 	kfree(id_priv);
 -- 
 2.27.0
 
