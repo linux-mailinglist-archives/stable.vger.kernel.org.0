@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4922E3D63
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEC12E3ACE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:43:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440562AbgL1OPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:15:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
+        id S2404065AbgL1Nlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:41:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2440560AbgL1OPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:15:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B74C20731;
-        Mon, 28 Dec 2020 14:14:21 +0000 (UTC)
+        id S2404060AbgL1Nlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:41:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C7C20719;
+        Mon, 28 Dec 2020 13:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164862;
-        bh=7uDYTVtXnM1WvFOoz4TG/EcHoYyud/ONQRl0prtLKrU=;
+        s=korg; t=1609162870;
+        bh=n7rfappW7oWifF3CAQFWAjlT9yzb30DGpKhwAeCeXHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p7i0+eb4Z7Y19kvSUYeAfMFevNgxGGktzLNMe7JpX5eIn2Y5PgrAsXSFQUA8SNgI+
-         K6DV5Vito1wK2f0pbKHtJyUqCgbTh+O1denug4dSd1bsUjn4eSF0BDY7/4f7t/EO9q
-         p+COpFu8MJS7p/fQUqVRVsrl0t/F0ZTNEnah89ao=
+        b=vxqkOqCUg5j5drYYtmUerzTO2sFV9EmRAF6Q9zjmqBsrNJXA3o/t82SQgpVoaX2tl
+         tPl6fMX7XjS7EU5yenESteqYjY1zBAVBvP6Tra779Qfyy2uAUbPDwIX0Unok81zm1x
+         BpoerqShNyOzUyZxIYJKt1BKg8jvFqT7y+kOyy2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 326/717] cpufreq: qcom: Add missing MODULE_DEVICE_TABLE
-Date:   Mon, 28 Dec 2020 13:45:24 +0100
-Message-Id: <20201228125036.638181993@linuxfoundation.org>
+Subject: [PATCH 5.4 089/453] ARM: p2v: fix handling of LPAE translation in BE mode
+Date:   Mon, 28 Dec 2020 13:45:25 +0100
+Message-Id: <20201228124941.514883045@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit a5a6031663bc1dd0a10babd49d1bcb3153a8327f ]
+[ Upstream commit 4e79f0211b473f8e1eab8211a9fd50cc41a3a061 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this cpufreq driver when it is
-compiled as an external module.
+When running in BE mode on LPAE hardware with a PA-to-VA translation
+that exceeds 4 GB, we patch bits 39:32 of the offset into the wrong
+byte of the opcode. So fix that, by rotating the offset in r0 to the
+right by 8 bits, which will put the 8-bit immediate in bits 31:24.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 46e2856b8e188 ("cpufreq: Add Kryo CPU scaling driver")
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Note that this will also move bit #22 in its correct place when
+applying the rotation to the constant #0x400000.
+
+Fixes: d9a790df8e984 ("ARM: 7883/1: fix mov to mvn conversion in case of 64 bit phys_addr_t and BE")
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-nvmem.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/kernel/head.S | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-index d06b37822c3df..fba9937a406b3 100644
---- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
-@@ -464,6 +464,7 @@ static const struct of_device_id qcom_cpufreq_match_list[] __initconst = {
- 	{ .compatible = "qcom,msm8960", .data = &match_data_krait },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, qcom_cpufreq_match_list);
- 
- /*
-  * Since the driver depends on smem and nvmem drivers, which may
+diff --git a/arch/arm/kernel/head.S b/arch/arm/kernel/head.S
+index c49b39340ddbd..f1cdc1f369575 100644
+--- a/arch/arm/kernel/head.S
++++ b/arch/arm/kernel/head.S
+@@ -671,12 +671,8 @@ ARM_BE8(rev16	ip, ip)
+ 	ldrcc	r7, [r4], #4	@ use branch for delay slot
+ 	bcc	1b
+ 	bx	lr
+-#else
+-#ifdef CONFIG_CPU_ENDIAN_BE8
+-	moveq	r0, #0x00004000	@ set bit 22, mov to mvn instruction
+ #else
+ 	moveq	r0, #0x400000	@ set bit 22, mov to mvn instruction
+-#endif
+ 	b	2f
+ 1:	ldr	ip, [r7, r3]
+ #ifdef CONFIG_CPU_ENDIAN_BE8
+@@ -685,7 +681,7 @@ ARM_BE8(rev16	ip, ip)
+ 	tst	ip, #0x000f0000	@ check the rotation field
+ 	orrne	ip, ip, r6, lsl #24 @ mask in offset bits 31-24
+ 	biceq	ip, ip, #0x00004000 @ clear bit 22
+-	orreq	ip, ip, r0      @ mask in offset bits 7-0
++	orreq	ip, ip, r0, ror #8  @ mask in offset bits 7-0
+ #else
+ 	bic	ip, ip, #0x000000ff
+ 	tst	ip, #0xf00	@ check the rotation field
 -- 
 2.27.0
 
