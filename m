@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FFA2E3811
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 669012E38EF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728335AbgL1NEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:04:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S1732795AbgL1NPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730517AbgL1NEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C25FE22A84;
-        Mon, 28 Dec 2020 13:04:09 +0000 (UTC)
+        id S1732794AbgL1NPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:15:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9C5420728;
+        Mon, 28 Dec 2020 13:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160650;
-        bh=GF3KQyN3rtuUpoa7lKZkvuJXX0pYjjNIGaempjK5EbM=;
+        s=korg; t=1609161312;
+        bh=sDx9sZ+7jBEinEnY8Rl+lvF5nYliEIwOHV9qA5blvpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hb1oX+oWeUxTBGvAJ46WSEhoJooUqxLUudItOYni5LY8ulNO5tUTgCWRiucMT4+Bg
-         LhsZD6cZQ1YBVitUfFAv5+I8PVRKNARZi8ktbei8ZwYAya5zISAo21AZghtwFlC4iP
-         nm51ajn2oyL1YjNnY2bh1FpU94HjrNdAlxESoRNc=
+        b=I8r1b6PJZv9GPP9gbxLKOfhS+v4svJWCjdr3LEI2piFk7apmM6rB/5YdLb5Jy/eDh
+         MiBMvRN5sr7mGJWN6TwA831WmwsDzl7BSqlxb0DJUIJ5P+nbDZ0ENvFSU7cS2eh/vz
+         8j3UonGsPnsbgyRcP/fDi3wtzU5XORGx5Yw5va6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/175] pinctrl: falcon: add missing put_device() call in pinctrl_falcon_probe()
-Date:   Mon, 28 Dec 2020 13:49:06 +0100
-Message-Id: <20201228124857.754597996@linuxfoundation.org>
+Subject: [PATCH 4.14 142/242] cpufreq: loongson1: Add missing MODULE_ALIAS
+Date:   Mon, 28 Dec 2020 13:49:07 +0100
+Message-Id: <20201228124911.694418961@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 89cce2b3f247a434ee174ab6803698041df98014 ]
+[ Upstream commit b9acab091842ca8b288882798bb809f7abf5408a ]
 
-if of_find_device_by_node() succeed, pinctrl_falcon_probe() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
+driver when it is compiled as an external module.
 
-Fixes: e316cb2b16bb ("OF: pinctrl: MIPS: lantiq: adds support for FALCON SoC")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20201119011219.2248232-1-yukuai3@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: a0a22cf14472f ("cpufreq: Loongson1: Add cpufreq driver for Loongson1B")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-falcon.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/cpufreq/loongson1-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/pinctrl-falcon.c b/drivers/pinctrl/pinctrl-falcon.c
-index 0b0fc2eb48e0b..adcdb0585d398 100644
---- a/drivers/pinctrl/pinctrl-falcon.c
-+++ b/drivers/pinctrl/pinctrl-falcon.c
-@@ -438,24 +438,28 @@ static int pinctrl_falcon_probe(struct platform_device *pdev)
+diff --git a/drivers/cpufreq/loongson1-cpufreq.c b/drivers/cpufreq/loongson1-cpufreq.c
+index be89416e2358f..9d902f67f8716 100644
+--- a/drivers/cpufreq/loongson1-cpufreq.c
++++ b/drivers/cpufreq/loongson1-cpufreq.c
+@@ -217,6 +217,7 @@ static struct platform_driver ls1x_cpufreq_platdrv = {
  
- 	/* load and remap the pad resources of the different banks */
- 	for_each_compatible_node(np, NULL, "lantiq,pad-falcon") {
--		struct platform_device *ppdev = of_find_device_by_node(np);
- 		const __be32 *bank = of_get_property(np, "lantiq,bank", NULL);
- 		struct resource res;
-+		struct platform_device *ppdev;
- 		u32 avail;
- 		int pins;
+ module_platform_driver(ls1x_cpufreq_platdrv);
  
- 		if (!of_device_is_available(np))
- 			continue;
- 
--		if (!ppdev) {
--			dev_err(&pdev->dev, "failed to find pad pdev\n");
--			continue;
--		}
- 		if (!bank || *bank >= PORTS)
- 			continue;
- 		if (of_address_to_resource(np, 0, &res))
- 			continue;
-+
-+		ppdev = of_find_device_by_node(np);
-+		if (!ppdev) {
-+			dev_err(&pdev->dev, "failed to find pad pdev\n");
-+			continue;
-+		}
-+
- 		falcon_info.clk[*bank] = clk_get(&ppdev->dev, NULL);
-+		put_device(&ppdev->dev);
- 		if (IS_ERR(falcon_info.clk[*bank])) {
- 			dev_err(&ppdev->dev, "failed to get clock\n");
- 			return PTR_ERR(falcon_info.clk[*bank]);
++MODULE_ALIAS("platform:ls1x-cpufreq");
+ MODULE_AUTHOR("Kelvin Cheung <keguang.zhang@gmail.com>");
+ MODULE_DESCRIPTION("Loongson1 CPUFreq driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.27.0
 
