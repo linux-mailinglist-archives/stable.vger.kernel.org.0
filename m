@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D852E3AFF
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A262E63FC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387397AbgL1No2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:44:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45162 "EHLO mail.kernel.org"
+        id S2392002AbgL1Nod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:44:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404587AbgL1No1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:44:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3A7C205CB;
-        Mon, 28 Dec 2020 13:43:45 +0000 (UTC)
+        id S2391994AbgL1Nod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:44:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10EF2206D4;
+        Mon, 28 Dec 2020 13:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163026;
-        bh=718uaZjV8dNsrR/+hDI8u+6rEXV3EMRdfLq49M2Okx8=;
+        s=korg; t=1609163057;
+        bh=7ZHXY9GvIdgV9UtZpoUr77Rfjkpt79bSQK93shU30A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjsXhlnwiTT4GDmTo59vZzmxie+yN/m+JgWAur7o81CIp8pgVxKdbT4Y7BaTnaGwa
-         FoG9ZFcXnXl8eA38aQFwaeKU9uckqWHupbw6ed7OUqn5qy1dWf1uST5kpslcMPJ0LB
-         Zh3RLU5fzspwtd5D6ZGBqPn8hHhvn2LqSnVingKc=
+        b=XgctZQ1RZLNodW6DvTCVjfzAWZsThywLQiQ3XScvRS1B6SIdpECZPe8Fff0/0oD/S
+         5P2bd5js2r0ERWxsqubS3nz+OFhz5wIWB+N0j5In07BuiMt+ItnOAAGPehasiKPcax
+         19WIWB1N+vCQLokSDAjtpKBHi/oiebnHWDBrfssc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 136/453] media: v4l2-fwnode: Return -EINVAL for invalid bus-type
-Date:   Mon, 28 Dec 2020 13:46:12 +0100
-Message-Id: <20201228124943.747974418@linuxfoundation.org>
+Subject: [PATCH 5.4 137/453] ASoC: meson: fix COMPILE_TEST error
+Date:   Mon, 28 Dec 2020 13:46:13 +0100
+Message-Id: <20201228124943.798416608@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
 References: <20201228124937.240114599@linuxfoundation.org>
@@ -42,66 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 69baf338fc16a4d55c78da8874ce3f06feb38c78 ]
+[ Upstream commit 299fe9937dbd1a4d9a1da6a2b6f222298534ca57 ]
 
-Return -EINVAL if invalid bus-type is detected while parsing endpoints.
+When compiled with CONFIG_HAVE_CLK, the kernel need to get provider for the
+clock API. This is usually selected by the platform and the sound drivers
+should not really care about this. However COMPILE_TEST is special and the
+platform required may not have been selected, leading to this type of
+error:
 
-Fixes: 26c1126c9b56 ("media: v4l: fwnode: Use media bus type for bus parser selection")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+> aiu-encoder-spdif.c:(.text+0x3a0): undefined reference to `clk_set_parent'
+
+Since we need a sane provider of the API with COMPILE_TEST, depends on
+COMMON_CLK.
+
+Fixes: 6dc4fa179fb8 ("ASoC: meson: add axg fifo base driver")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20201116172423.546855-1-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-fwnode.c | 6 +++++-
- include/media/v4l2-mediabus.h         | 2 ++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/meson/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-fwnode.c b/drivers/media/v4l2-core/v4l2-fwnode.c
-index 3bd1888787eb3..48c3b9f72722a 100644
---- a/drivers/media/v4l2-core/v4l2-fwnode.c
-+++ b/drivers/media/v4l2-core/v4l2-fwnode.c
-@@ -93,7 +93,7 @@ v4l2_fwnode_bus_type_to_mbus(enum v4l2_fwnode_bus_type type)
- 	const struct v4l2_fwnode_bus_conv *conv =
- 		get_v4l2_fwnode_bus_conv_by_fwnode_bus(type);
+diff --git a/sound/soc/meson/Kconfig b/sound/soc/meson/Kconfig
+index 2e3676147ceaf..e0d24592ebd70 100644
+--- a/sound/soc/meson/Kconfig
++++ b/sound/soc/meson/Kconfig
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ menu "ASoC support for Amlogic platforms"
+-	depends on ARCH_MESON || COMPILE_TEST
++	depends on ARCH_MESON || (COMPILE_TEST && COMMON_CLK)
  
--	return conv ? conv->mbus_type : V4L2_MBUS_UNKNOWN;
-+	return conv ? conv->mbus_type : V4L2_MBUS_INVALID;
- }
- 
- static const char *
-@@ -436,6 +436,10 @@ static int __v4l2_fwnode_endpoint_parse(struct fwnode_handle *fwnode,
- 		 v4l2_fwnode_mbus_type_to_string(vep->bus_type),
- 		 vep->bus_type);
- 	mbus_type = v4l2_fwnode_bus_type_to_mbus(bus_type);
-+	if (mbus_type == V4L2_MBUS_INVALID) {
-+		pr_debug("unsupported bus type %u\n", bus_type);
-+		return -EINVAL;
-+	}
- 
- 	if (vep->bus_type != V4L2_MBUS_UNKNOWN) {
- 		if (mbus_type != V4L2_MBUS_UNKNOWN &&
-diff --git a/include/media/v4l2-mediabus.h b/include/media/v4l2-mediabus.h
-index 45f88f0248c4e..c072ed1418113 100644
---- a/include/media/v4l2-mediabus.h
-+++ b/include/media/v4l2-mediabus.h
-@@ -78,6 +78,7 @@
-  * @V4L2_MBUS_CCP2:	CCP2 (Compact Camera Port 2)
-  * @V4L2_MBUS_CSI2_DPHY: MIPI CSI-2 serial interface, with D-PHY
-  * @V4L2_MBUS_CSI2_CPHY: MIPI CSI-2 serial interface, with C-PHY
-+ * @V4L2_MBUS_INVALID:	invalid bus type (keep as last)
-  */
- enum v4l2_mbus_type {
- 	V4L2_MBUS_UNKNOWN,
-@@ -87,6 +88,7 @@ enum v4l2_mbus_type {
- 	V4L2_MBUS_CCP2,
- 	V4L2_MBUS_CSI2_DPHY,
- 	V4L2_MBUS_CSI2_CPHY,
-+	V4L2_MBUS_INVALID,
- };
- 
- /**
+ config SND_MESON_AXG_FIFO
+ 	tristate
 -- 
 2.27.0
 
