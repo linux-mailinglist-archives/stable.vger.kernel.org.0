@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F0D2E3E4F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:27:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F8B2E4323
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503875AbgL1O0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:26:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
+        id S2404268AbgL1Pdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:33:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503871AbgL1O0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:26:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7F7B22C9E;
-        Mon, 28 Dec 2020 14:26:27 +0000 (UTC)
+        id S2407412AbgL1NyM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:54:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1E1322583;
+        Mon, 28 Dec 2020 13:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165588;
-        bh=ZVH6mPmmfFa3nYou8QGvUJ84cqwMDtba7EMR8XuKack=;
+        s=korg; t=1609163612;
+        bh=aVvIsjuDZmxifQFP46s5EK43q5qX4+WDyA4yYa8Vkyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqfDRoE6gF0R44zcwM289BhlBZyLmHWZdvgyptEHUn7VIGF2SapXpMhjJCVOS4/aw
-         n5FcJzsUMw30NO7NPoA8tor0TaGiAUthjFOYWtr6jQ69MDBcnXV/Queh1H7sNhVqhp
-         3mYJJHt4kltq8nASNrspmjJpo+MVcFPYsqqFQYxI=
+        b=T2vzVeUS5zfpzGYdt6MPkxy11dapcRfboOFbyvATeBYRQgUm4tPFileLDUtIKzxCH
+         mLOlBf8iL/phg/EWnJQWOPA4niOm4d38/QI5GzU4ApetZFqwhlKVD8kXU4aXE1X8iO
+         TLYxH1J0iqdAiNI1FUUeVX/EAwJtgvp7aJTq5tPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 585/717] USB: serial: keyspan_pda: fix tx-unthrottle use-after-free
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, stable@kernel.org
+Subject: [PATCH 5.4 347/453] s390/smp: perform initial CPU reset also for SMT siblings
 Date:   Mon, 28 Dec 2020 13:49:43 +0100
-Message-Id: <20201228125048.942385623@linuxfoundation.org>
+Message-Id: <20201228124953.910228293@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 49fbb8e37a961396a5b6c82937c70df91de45e9d upstream.
+commit b5e438ebd7e808d1d2435159ac4742e01a94b8da upstream.
 
-The driver's transmit-unthrottle work was never flushed on disconnect,
-something which could lead to the driver port data being freed while the
-unthrottle work is still scheduled.
+Not resetting the SMT siblings might leave them in unpredictable
+state. One of the observed problems was that the CPU timer wasn't
+reset and therefore large system time values where accounted during
+CPU bringup.
 
-Fix this by cancelling the unthrottle work when shutting down the port.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: <stable@kernel.org> # 4.0
+Fixes: 10ad34bc76dfb ("s390: add SMT support")
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/keyspan_pda.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kernel/smp.c |   18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -647,8 +647,12 @@ error:
- }
- static void keyspan_pda_close(struct usb_serial_port *port)
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -885,24 +885,12 @@ static void __no_sanitize_address smp_st
+ /* Upping and downing of CPUs */
+ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
  {
-+	struct keyspan_pda_private *priv = usb_get_serial_port_data(port);
-+
- 	usb_kill_urb(port->write_urb);
- 	usb_kill_urb(port->interrupt_in_urb);
-+
-+	cancel_work_sync(&priv->unthrottle_work);
- }
+-	struct pcpu *pcpu;
+-	int base, i, rc;
++	struct pcpu *pcpu = pcpu_devices + cpu;
++	int rc;
  
+-	pcpu = pcpu_devices + cpu;
+ 	if (pcpu->state != CPU_STATE_CONFIGURED)
+ 		return -EIO;
+-	base = smp_get_base_cpu(cpu);
+-	for (i = 0; i <= smp_cpu_mtid; i++) {
+-		if (base + i < nr_cpu_ids)
+-			if (cpu_online(base + i))
+-				break;
+-	}
+-	/*
+-	 * If this is the first CPU of the core to get online
+-	 * do an initial CPU reset.
+-	 */
+-	if (i > smp_cpu_mtid &&
+-	    pcpu_sigp_retry(pcpu_devices + base, SIGP_INITIAL_CPU_RESET, 0) !=
++	if (pcpu_sigp_retry(pcpu, SIGP_INITIAL_CPU_RESET, 0) !=
+ 	    SIGP_CC_ORDER_CODE_ACCEPTED)
+ 		return -EIO;
  
 
 
