@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 414632E3C96
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 088B62E3CA4
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437385AbgL1OEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:04:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38432 "EHLO mail.kernel.org"
+        id S2437552AbgL1OFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:05:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437371AbgL1OEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:04:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07B5222583;
-        Mon, 28 Dec 2020 14:04:15 +0000 (UTC)
+        id S2437541AbgL1OFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:05:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A0A5205CB;
+        Mon, 28 Dec 2020 14:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164256;
-        bh=/CsNkTnhqTfltXlyCMYHPm/LxeE5LFUmI7fNs9s0wek=;
+        s=korg; t=1609164287;
+        bh=Q6ZCDaGj87pPJkIhVCl1IhNw+CYWZe+1Srtr4DHkC2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdfT1cMQpuGSkjYOiNGR+GHN/7dMV9oPkN3PGQK753zMfzwDOofVysP1JH7bRUuS/
-         3AaMz8XI7VgAhJjvjrghRYK16mxqk7fUGqK0goTWdiOeF0TMQgyRXxiET6O9NRO0yn
-         BBFFlRBHaviOzhZEXx/0C/0ls6stUjbhEPVmo1HE=
+        b=iHuB1cr2m/Xo+n2XKgC4WLmC4nE/GB3zNzYSN/CNlCdXaqk7u4g7y9B3iSPcYZKfm
+         KVVaUwmfizxvqYK3UJmx5l4fIWqCLE6gr+L7be4UEJft9pl15LS7yRTNylCXkvpu8v
+         q09wIJqzCCBmV9rHhvfWOtYnzPxmTTYUZvXtUs14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/717] firmware: arm_scmi: Fix missing destroy_workqueue()
-Date:   Mon, 28 Dec 2020 13:41:47 +0100
-Message-Id: <20201228125026.178079162@linuxfoundation.org>
+Subject: [PATCH 5.10 110/717] drm/udl: Fix missing error code in udl_handle_damage()
+Date:   Mon, 28 Dec 2020 13:41:48 +0100
+Message-Id: <20201228125026.226024488@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,52 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 6bbdb46c4b1bd57839c9c0a110bd81b0be0a4046 ]
+[ Upstream commit a7319c8f50c5e93a12997e2d0821a2f7946fb734 ]
 
-destroy_workqueue is required before the return from scmi_notification_init
-in case devm_kcalloc fails to allocate registered_protocols. Fix this by
-simply moving registered_protocols allocation before alloc_workqueue.
+If udl_get_urb() fails then this should return a negative error code
+but currently it returns success.
 
-Link: https://lore.kernel.org/r/20201110074221.41235-1-miaoqinglang@huawei.com
-Fixes: bd31b249692e ("firmware: arm_scmi: Add notification dispatch and delivery")
-Suggested-by: Cristian Marussi <cristian.marussi@arm.com>
-Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: 798ce3fe1c3a ("drm/udl: Begin/end access to imported buffers in damage-handler")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201113101502.GD168908@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/notify.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/udl/udl_modeset.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/notify.c b/drivers/firmware/arm_scmi/notify.c
-index ce336899d6366..66196b293b6c2 100644
---- a/drivers/firmware/arm_scmi/notify.c
-+++ b/drivers/firmware/arm_scmi/notify.c
-@@ -1474,17 +1474,17 @@ int scmi_notification_init(struct scmi_handle *handle)
- 	ni->gid = gid;
- 	ni->handle = handle;
+diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
+index fef43f4e3bac4..edcfd8c120c44 100644
+--- a/drivers/gpu/drm/udl/udl_modeset.c
++++ b/drivers/gpu/drm/udl/udl_modeset.c
+@@ -303,8 +303,10 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
+ 	}
  
-+	ni->registered_protocols = devm_kcalloc(handle->dev, SCMI_MAX_PROTO,
-+						sizeof(char *), GFP_KERNEL);
-+	if (!ni->registered_protocols)
-+		goto err;
-+
- 	ni->notify_wq = alloc_workqueue(dev_name(handle->dev),
- 					WQ_UNBOUND | WQ_FREEZABLE | WQ_SYSFS,
- 					0);
- 	if (!ni->notify_wq)
- 		goto err;
+ 	urb = udl_get_urb(dev);
+-	if (!urb)
++	if (!urb) {
++		ret = -ENOMEM;
+ 		goto out_drm_gem_shmem_vunmap;
++	}
+ 	cmd = urb->transfer_buffer;
  
--	ni->registered_protocols = devm_kcalloc(handle->dev, SCMI_MAX_PROTO,
--						sizeof(char *), GFP_KERNEL);
--	if (!ni->registered_protocols)
--		goto err;
--
- 	mutex_init(&ni->pending_mtx);
- 	hash_init(ni->pending_events_handlers);
- 
+ 	for (i = clip.y1; i < clip.y2; i++) {
 -- 
 2.27.0
 
