@@ -2,218 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2F72E6BF2
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:15:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498432E6BEE
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729372AbgL1Wzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 17:55:49 -0500
-Received: from mail.efficios.com ([167.114.26.124]:55130 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729432AbgL1Uku (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 15:40:50 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 292AF276205;
-        Mon, 28 Dec 2020 15:40:09 -0500 (EST)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id d0T0fMId4ntj; Mon, 28 Dec 2020 15:40:08 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 69EA2276204;
-        Mon, 28 Dec 2020 15:40:08 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 69EA2276204
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1609188008;
-        bh=UgWmbg2EX8zTOBr1CwHnUnmu/w1dT3XRq5U7SJqAVeA=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=ES/62h0wCyG1JfiEAbAzGiR73TCRhhXns6cV1Q6DDaaehwrJf9Hl9RikiqFhW1/dp
-         d/X0Yb6JScC4Q0van6sPkU+vGrA0E+Qa8uL37o+Lsz0YwsONkYyKdupR3+rEonw4Bm
-         EdVubWkJF/dhgVf7zkr4tDk0dpbqQETpCIxDiQ0dISFbWDvxbiieK29kHxsqMaPba5
-         14Iz4mGfmywqGNIhWiW4kyWvEsG11qYlFT9gayoxE8yywcq5fIxNNdgbRgcAimEC/l
-         Q4rcT+qEN3bG3cpc0qNuHGlE5A51HfqS7Nxa4ibmQQ++M0ty/9eutIuL7J2wozeHCr
-         K+XCqQP+yCmgA==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 0iOmawGnLXnC; Mon, 28 Dec 2020 15:40:08 -0500 (EST)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
-        by mail.efficios.com (Postfix) with ESMTP id 4C97327609C;
-        Mon, 28 Dec 2020 15:40:08 -0500 (EST)
-Date:   Mon, 28 Dec 2020 15:40:08 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     "Russell King, ARM Linux" <linux@armlinux.org.uk>
-Cc:     Andy Lutomirski <luto@kernel.org>, Jann Horn <jannh@google.com>,
-        Will Deacon <will@kernel.org>, x86 <x86@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <1353323563.3624.1609188008201.JavaMail.zimbra@efficios.com>
-In-Reply-To: <20201228202451.GJ1551@shell.armlinux.org.uk>
-References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org> <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com> <20201228102537.GG1551@shell.armlinux.org.uk> <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com> <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com> <20201228190852.GI1551@shell.armlinux.org.uk> <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com> <20201228202451.GJ1551@shell.armlinux.org.uk>
-Subject: Re: [RFC please help] membarrier: Rewrite
- sync_core_before_usermode()
+        id S1730558AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 17:55:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729438AbgL1UmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 15:42:12 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48BDC061793;
+        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id d203so12670657oia.0;
+        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to;
+        bh=8TtPh3kxQMMdTUXv5QBSr4ZIMcMzV+MdW+h+TpWT5gs=;
+        b=lx9GOWEZ0gOpcdB82/K+qzRqIGfjX81DW7I1TVTD8R2OcvYn8nERibmCucvS8i7/U4
+         t8PUW5EQt0Qppu+CGMWkoJIWDC7YDQGqoTuy4D5e9omR1pPqfH/7CPqMXiPodFyGcH4a
+         3+GsRD0PhS3XZQLkfIK9GwDt5WDZOyy9SqqvsD1nbkCMhHdDGKZVEI+mjeDIN2VDsrl5
+         3mxjfCkCGtMkxwTTjWAp2MLJqfQngVoyAx0XZyhkK9fCpiO3IOWMMkR8GgJON7EUTdQg
+         llP0w8mddsc0U2UySebOwPGnIb8QniLE/PQeJ+sJSMWxPXw2SiHR4qxzzhaE76eS+4Nf
+         kYgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to;
+        bh=8TtPh3kxQMMdTUXv5QBSr4ZIMcMzV+MdW+h+TpWT5gs=;
+        b=TSfBpZcdkc4qiKH3YTIvlDDL1xTrg9KpbAe+rRB1jCE985P3puBmTY6dy2jjTcvvrH
+         riDUQRLadvoNBMlP5VpCNCpsFBkHG4AVaeH15bYJA9UJ5KYy4OZVHk0HxUzxlYABlpXO
+         +RRkHG2M8ruBGWHGMS+hi5Lr+IpYWWPJS7b/Q7R4Z8jQVYUL5WSxs545ImyJwpCukrNs
+         DYSM59hfDqNdhsyoVq2DDYXlsObSXObf+jX0YaaLqptw2pbvbG5xvlVaIy41Ca5imUKm
+         1WL8FolSjVCwUZGZxaziCpsKl6IbIECI1dsVTJxZPFouMsGJ9+qj7xmn9eh9BXURXqsm
+         dRfg==
+X-Gm-Message-State: AOAM5308m8cIho3xZChh3iqKYMMdsfGvxz2H2iORc/LgHpOTDON5iEZk
+        nrRqfvqyppJ0wjtxbfdrIVe4/tppf6k=
+X-Google-Smtp-Source: ABdhPJzFttKtxsaYBe0Ecy0txuAtgl8tTWgsgWOepEiUobWs7SGtsB4ULTfyyJapxCgjvDNdd0+m7w==
+X-Received: by 2002:aca:ac82:: with SMTP id v124mr479168oie.56.1609188091110;
+        Mon, 28 Dec 2020 12:41:31 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c18sm9200182oib.31.2020.12.28.12.41.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Dec 2020 12:41:30 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 5.10 00/40] 5.10.3-rc1 review
+To:     Pavel Machek <pavel@denx.de>,
+        Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+References: <20201223150515.553836647@linuxfoundation.org>
+ <1b12b1311e5f0ff7e96d444bf258facc6b0c6ae4.camel@rajagiritech.edu.in>
+ <X+dRkTq+T+A6nWPz@kroah.com>
+ <58d01e9ee69b4fe51d75bcecdf12db219d261ff1.camel@rajagiritech.edu.in>
+ <X+iwvG2d0QfPl+mc@kroah.com>
+ <c7688d9a00a510975f115305a9e8d245a4403773.camel@rajagiritech.edu.in>
+ <20201228095040.GA11960@amd>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <356ddc03-038e-71b6-8134-5b41f090d448@roeck-us.net>
+Date:   Mon, 28 Dec 2020 12:41:27 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_3991 (ZimbraWebClient - FF84 (Linux)/8.8.15_GA_3980)
-Thread-Topic: membarrier: Rewrite sync_core_before_usermode()
-Thread-Index: s76Adj09DxnFzilBjlT7pOTaN9zYpQ==
+In-Reply-To: <20201228095040.GA11960@amd>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Dec 28, 2020, at 3:24 PM, Russell King, ARM Linux linux@armlinux.o=
-rg.uk wrote:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y
+Content-Type: multipart/mixed; boundary="IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj"
 
-> On Mon, Dec 28, 2020 at 11:44:33AM -0800, Andy Lutomirski wrote:
->> On Mon, Dec 28, 2020 at 11:09 AM Russell King - ARM Linux admin
->> <linux@armlinux.org.uk> wrote:
->> >
->> > On Mon, Dec 28, 2020 at 07:29:34PM +0100, Jann Horn wrote:
->> > > After chatting with rmk about this (but without claiming that any of
->> > > this is his opinion), based on the manpage, I think membarrier()
->> > > currently doesn't really claim to be synchronizing caches? It just
->> > > serializes cores. So arguably if userspace wants to use membarrier()
->> > > to synchronize code changes, userspace should first do the code
->> > > change, then flush icache as appropriate for the architecture, and
->> > > then do the membarrier() to ensure that the old code is unused?
->> > >
->> > > For 32-bit arm, rmk pointed out that that would be the cacheflush()
->> > > syscall. That might cause you to end up with two IPIs instead of one
->> > > in total, but we probably don't care _that_ much about extra IPIs on
->> > > 32-bit arm?
->> > >
->> > > For arm64, I believe userspace can flush icache across the entire
->> > > system with some instructions from userspace - "DC CVAU" followed by
->> > > "DSB ISH", or something like that, I think? (See e.g.
->> > > compat_arm_syscall(), the arm64 compat code that implements the 32-b=
-it
->> > > arm cacheflush() syscall.)
->> >
->> > Note that the ARM cacheflush syscall calls flush_icache_user_range()
->> > over the range of addresses that userspace has passed - it's intention
->> > since day one is to support cases where userspace wants to change
->> > executable code.
->> >
->> > It will issue the appropriate write-backs to the data cache (DCCMVAU),
->> > the invalidates to the instruction cache (ICIMVAU), invalidate the
->> > branch target buffer (BPIALLIS or BPIALL as appropriate), and issue
->> > the appropriate barriers (DSB ISHST, ISB).
->> >
->> > Note that neither flush_icache_user_range() nor flush_icache_range()
->> > result in IPIs; cache operations are broadcast across all CPUs (which
->> > is one of the minimums we require for SMP systems.)
->> >
->> > Now, that all said, I think the question that has to be asked is...
->> >
->> >         What is the basic purpose of membarrier?
->> >
->> > Is the purpose of it to provide memory barriers, or is it to provide
->> > memory coherence?
->> >
->> > If it's the former and not the latter, then cache flushes are out of
->> > scope, and expecting memory written to be visible to the instruction
->> > stream is totally out of scope of the membarrier interface, whether
->> > or not the writes happen on the same or a different CPU to the one
->> > executing the rewritten code.
->> >
->> > The documentation in the kernel does not seem to describe what it's
->> > supposed to be doing - the only thing I could find is this:
->> > Documentation/features/sched/membarrier-sync-core/arch-support.txt
->> > which describes it as "arch supports core serializing membarrier"
->> > whatever that means.
->> >
->> > Seems to be the standard and usual case of utterly poor to non-existen=
-t
->> > documentation within the kernel tree, or even a pointer to where any
->> > useful documentation can be found.
->> >
->> > Reading the membarrier(2) man page, I find nothing in there that talks
->> > about any kind of cache coherency for self-modifying code - it only
->> > seems to be about _barriers_ and nothing more, and barriers alone do
->> > precisely nothing to save you from non-coherent Harvard caches.
->> >
->> > So, either Andy has a misunderstanding, or the man page is wrong, or
->> > my rudimentary understanding of what membarrier is supposed to be
->> > doing is wrong...
->>=20
->> Look at the latest man page:
->>=20
->> https://man7.org/linux/man-pages/man2/membarrier.2.html
->>=20
->> for MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE.  The result may not be
->> all that enlightening.
+--IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+On 12/28/20 1:50 AM, Pavel Machek wrote:
+> Hi!
 >=20
->       MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE (since Linux 4.16)
->              In  addition  to  providing  the  memory ordering guarantees=
- de=E2=96=A0
->              scribed in MEMBARRIER_CMD_PRIVATE_EXPEDITED,  upon  return  =
-from
->              system call the calling thread has a guarantee that all its =
-run=E2=96=A0
->              ning thread siblings have executed a core  serializing  inst=
-ruc=E2=96=A0
->              tion.   This  guarantee is provided only for threads in the =
-same
->              process as the calling thread.
+>>>>>>> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.3-rc1.gz
+>>>>>>> or in the git tree and branch at:
+>>>>>>> =A0=A0=A0=A0=A0=A0=A0=A0git://git.kernel.org/pub/scm/linux/kernel=
+/git/stable/
+>>>>>>> linu
+>>>>>>> x-
+>>>>>>> stable-rc.git linux-5.10.y
+>>>>>>> and the diffstat can be found below.
+>>>>>>>
+>>>>>>> thanks,
+>>>>>>>
+>>>>>>> greg k-h
+>>>>>>
+>>>>>> hello ,
+>>>>>> Compiled and booted 5.10.3-rc1+.
+>>>>>>
+>>>>>> dmesg -l err gives...
+>>>>>> --------------x-------------x------------------->
+>>>>>> =A0=A0 43.190922] Bluetooth: hci0: don't support firmware rome
+>>>>>> 0x31010100
+>>>>>> --------------x---------------x----------------->
+>>>>>>
+>>>>>> My Bluetooth is Off.
+>>>>>
+>>>>> Is this a new warning?=A0 Does it show up on 5.10.2?
+>>>>>
+>>>>>> Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+>>>>>
+>>>>> thanks for testing?
+>>>>>
+>>>>> greg k-h
+>>>>
+>>>> this does not show up in 5.10.2-rc1+
+>>>
+>>> Odd.=A0 Can you run 'git bisect' to find the offending commit?
+>>>
+>>> Does this same error message show up in Linus's git tree?
 >=20
->              The "expedited" commands complete faster than the  non-exped=
-ited
->              ones,  they  never block, but have the downside of causing e=
-xtra
->              overhead.
+>> i will try to do "git bisect" .  i saw this error in linus's  tree.
 >=20
->              A process must register its intent to use the private  exped=
-ited
->              sync core command prior to using it.
+> The bug is in -stable, too, so it is probably easiest to do bisect on
+> -stable tree. IIRC there's less then few hundred commits, so it should
+> be feasible to do bisection by hand if you are not familiar with git
+> bisect.
 >=20
-> This just says that the siblings have executed a serialising
-> instruction, in other words a barrier. It makes no claims concerning
-> cache coherency - and without some form of cache maintenance, there
-> can be no expectation that the I and D streams to be coherent with
-> each other.
 
-Right, membarrier is not doing anything wrt I/D caches. On architectures
-without coherent caches, users should use other system calls or instruction=
-s
-provided by the architecture to synchronize the appropriate address ranges.=
-=20
+My wild guess would be commit b260e4a68853 ("Bluetooth: Fix slab-out-of-b=
+ounds
+read in hci_le_direct_adv_report_evt()"), but I don't see what might be w=
+rong
+with it unless some BT device sends a bad report which used to be accepte=
+d
+but is now silently ignored.
 
-> This description is also weird in another respect. "guarantee that
-> all its running thread siblings have executed a core serializing
-> instruction" ... "The expedited commands ... never block".
->=20
-> So, the core executing this call is not allowed to block, but the
-> other part indicates that the other CPUs _have_ executed a serialising
-> instruction before this call returns... one wonders how that happens
-> without blocking. Maybe the CPU spins waiting for completion instead?
-
-Membarrier expedited sync-core issues IPIs to all CPUs running sibling
-threads. AFAIR the IPI mechanism uses the "csd lock" which is basically
-busy waiting. So it does not "block", it busy-waits.
-
-For completeness of the explanation, other (non-running) threads acting
-on the same mm will eventually issue the context synchronizing instruction
-before returning to user-space whenever they are scheduled back.
-
-Thanks,
-
-Mathieu
+Guenter
 
 
->=20
-> --
-> RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-> FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
+--IpdvjqVHbDNaN2gfvoZ6ivWT94zUZOBuj--
 
---=20
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+--PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEiHPvMQj9QTOCiqgVyx8mb86fmYEFAl/qQvcACgkQyx8mb86f
+mYEWrw//c7B1i+fj8/qiO4hoSdF0nCU8Q9/w/6b9hzk6MSAHusOsaiOWlALQ2yP7
+e3+6eu/CeM8jwUBArzfVc3t4tra+02jkYEjao3PGOrzNeHoVflZV9faXUuv9d/8q
+oE8gKb2wOMtPJWiFf14R4nias4kgbxGH+J05ebClIx2UB6+2HYAkdR6qQPluWiwv
+V9cMANG3IkrEHlt7msuzm4waEPAKvvJ9kcv+H6/9CFhoH3ZOZfcT9B4o/I8bDmpu
+F72Asrxq82Q5cQDDbwzU6HIDZko2ct8gtCQiKQyX9qYA9yxTVg3FxPloHpr9AocX
+3z0VmPyWB+9grXu3a5K1ZPms6msDhlnK1bIbF8vh181T7ReobTWRErIS7pfyKW3B
+NaV0OJ7G2wY8s93XZV322hVoihAGLX3Wby2FjoAOTZRnknj0oQw3X59/GsH4e9WE
+ZyGfUYS7scMR7WqNOE1ADJDGS41Kk9kGk62ANYFcrkC8CNyzx39Bc0kYE6ifqFHe
+Bva3Ti9KcOf1XYklnbS80YRU9kd4mtt2ddeAib/C+EgJq3DQXuFryTu9yyAYkUH9
+Gc4MGPCa9q9uAe2pQ9M4MtIuEGb7JozqcuWMR/VKB9ZBkhCzkxLmxzjMGHY8llRU
+IvRaiKpninjCvhB83XnkZoXz3E8CVP8Pa2mAAcusHttySVPMeTM=
+=MqLb
+-----END PGP SIGNATURE-----
+
+--PeR3P71jsL3DqMYXWZJ7g053PQGUGgV0Y--
