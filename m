@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA34C2E643B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFEF12E3D70
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404172AbgL1NmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:42:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42692 "EHLO mail.kernel.org"
+        id S2439162AbgL1OPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404165AbgL1NmX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E7A82064B;
-        Mon, 28 Dec 2020 13:41:41 +0000 (UTC)
+        id S2440700AbgL1OPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:15:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BEB3205CB;
+        Mon, 28 Dec 2020 14:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162902;
-        bh=9TQ4wAfsTVm3x0u1dNI8FaIpIokiiOq6tpPP4Ai0wx4=;
+        s=korg; t=1609164895;
+        bh=sWakMOXdwCC/ypmEv8UgTB3TrosXYNhtfgw1bY55Dms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ygLJUaxRwD2e8gCDe0LAIoQSRZKFmPAoVJcG0+QSd1eD5n2s9K2o8bg1/Kw/3Br/K
-         5+tgceRzFwQ9wEziRwovVMpOUrW2alLBsnAWfefR/RWoThcTy+7+B4HTNN+xTe1wMa
-         X44AeWj/drKWTVlu1FyTCs0wvmPpa4VLgrlsDM8c=
+        b=u3RANovK0sRnnJEAtYz7sLQ0NJH5bioyzrR7bgjzDNw4K1E2c3CZnmaTwCdh0Wo0v
+         EqYh+MsM5bEnNP34c0QFo4EKhGSk3mTEyP7nCXDza3HT/60inbwthV3Gvy+03ycfsH
+         S58jiX4xgZVr7j21uR1cuKs6OXr/qU4mPSm4dy7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/453] drm/amdgpu: fix build_coefficients() argument
+Subject: [PATCH 5.10 337/717] spi: dw: Fix error return code in dw_spi_bt1_probe()
 Date:   Mon, 28 Dec 2020 13:45:35 +0100
-Message-Id: <20201228124941.984955049@linuxfoundation.org>
+Message-Id: <20201228125037.167602366@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit dbb60031dd0c2b85f10ce4c12ae604c28d3aaca4 ]
+[ Upstream commit e748edd9841306908b4e02dddd0afd1aa1f8b973 ]
 
-gcc -Wextra warns about a function taking an enum argument
-being called with a bool:
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c: In function 'apply_degamma_for_user_regamma':
-drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c:1617:29: warning: implicit conversion from 'enum <anonymous>' to 'enum dc_transfer_func_predefined' [-Wenum-conversion]
- 1617 |  build_coefficients(&coeff, true);
-
-It appears that a patch was added using the old calling conventions
-after the type was changed, and the value should actually be 0
-(TRANSFER_FUNCTION_SRGB) here instead of 1 (true).
-
-Fixes: 55a01d4023ce ("drm/amd/display: Add user_regamma to color module")
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: abf00907538e ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/1607071357-33378-1-git-send-email-zhangchangzhong@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-dw-bt1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index 51d07a4561ce9..e042d8ce05b4a 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1576,7 +1576,7 @@ static void apply_degamma_for_user_regamma(struct pwl_float_data_ex *rgb_regamma
- 	struct pwl_float_data_ex *rgb = rgb_regamma;
- 	const struct hw_x_point *coord_x = coordinates_x;
+diff --git a/drivers/spi/spi-dw-bt1.c b/drivers/spi/spi-dw-bt1.c
+index f382dfad78421..c279b7891e3ac 100644
+--- a/drivers/spi/spi-dw-bt1.c
++++ b/drivers/spi/spi-dw-bt1.c
+@@ -280,8 +280,10 @@ static int dw_spi_bt1_probe(struct platform_device *pdev)
+ 	dws->bus_num = pdev->id;
+ 	dws->reg_io_width = 4;
+ 	dws->max_freq = clk_get_rate(dwsbt1->clk);
+-	if (!dws->max_freq)
++	if (!dws->max_freq) {
++		ret = -EINVAL;
+ 		goto err_disable_clk;
++	}
  
--	build_coefficients(&coeff, true);
-+	build_coefficients(&coeff, TRANSFER_FUNCTION_SRGB);
- 
- 	i = 0;
- 	while (i != hw_points_num + 1) {
+ 	init_func = device_get_match_data(&pdev->dev);
+ 	ret = init_func(pdev, dwsbt1);
 -- 
 2.27.0
 
