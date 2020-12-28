@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5658A2E3FED
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4335C2E3BA7
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:53:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732223AbgL1OqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:46:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60164 "EHLO mail.kernel.org"
+        id S2407191AbgL1Nw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502963AbgL1OYB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72EB720715;
-        Mon, 28 Dec 2020 14:23:20 +0000 (UTC)
+        id S2406509AbgL1NvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAD5F21D94;
+        Mon, 28 Dec 2020 13:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165401;
-        bh=bTQkqp/PABeLeaAi/Wx0IXUkq0ZhYGPMbxJITZfMGUM=;
+        s=korg; t=1609163421;
+        bh=dsO4pAir/3Nd1Q/udkQLs/3ftxCvTKnhFW5oc9/Dqu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtrjKUKawmtuZnfyk/rEgGxbMDxM29FqxiO4K7BlvixPtDrMI0adcY4ySmvgky/g6
-         rqDHReoq4UsxxjX4MRA1o67+Tzu0QNPdFzMk6KY5y8JcLE9f4sqxkoOLUOZd+4Ax7p
-         vC2J+u61KhrzTTMl58oxIGJeOCETqtT3nFGNa9yc=
+        b=pPwbzTauPvCImFDZhzxET1Ac4nW3Xe8gDl13KodlBWdpzxYaTxv6LKKmS4y6SHn/y
+         bui2I3dLS3wLZkI024hViQ2R3SZ0JFJ0effZkU/oDIpvKjuN/QwDv5jCseX9EIu8dM
+         Eq4sdMe6Lg6rDVP/d2DozKziRpZ6528rXjAhWLIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 519/717] io_uring: fix ignoring xa_store errors
+        stable@vger.kernel.org,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 281/453] um: Monitor error events in IRQ controller
 Date:   Mon, 28 Dec 2020 13:48:37 +0100
-Message-Id: <20201228125045.824895237@linuxfoundation.org>
+Message-Id: <20201228124950.733728937@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-commit a528b04ea40690ff40501f50d618a62a02b19620 upstream.
+[ Upstream commit e3a01cbee9c5f2c6fc813dd6af007716e60257e7 ]
 
-xa_store() may fail, check the result.
+Ensure that file closes, connection closes, etc are propagated
+as interrupts in the interrupt controller.
 
-Cc: stable@vger.kernel.org # 5.10
-Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ff6a17989c08 ("Epoll based IRQ controller")
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/um/os-Linux/irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8708,10 +8708,9 @@ static void io_uring_cancel_task_request
- static int io_uring_add_task_file(struct io_ring_ctx *ctx, struct file *file)
+diff --git a/arch/um/os-Linux/irq.c b/arch/um/os-Linux/irq.c
+index d508310ee5e1e..f1732c308c615 100644
+--- a/arch/um/os-Linux/irq.c
++++ b/arch/um/os-Linux/irq.c
+@@ -48,7 +48,7 @@ int os_epoll_triggered(int index, int events)
+ int os_event_mask(int irq_type)
  {
- 	struct io_uring_task *tctx = current->io_uring;
-+	int ret;
- 
- 	if (unlikely(!tctx)) {
--		int ret;
--
- 		ret = io_uring_alloc_task_context(current);
- 		if (unlikely(ret))
- 			return ret;
-@@ -8722,7 +8721,12 @@ static int io_uring_add_task_file(struct
- 
- 		if (!old) {
- 			get_file(file);
--			xa_store(&tctx->xa, (unsigned long)file, file, GFP_KERNEL);
-+			ret = xa_err(xa_store(&tctx->xa, (unsigned long)file,
-+						file, GFP_KERNEL));
-+			if (ret) {
-+				fput(file);
-+				return ret;
-+			}
- 		}
- 		tctx->last = file;
- 	}
+ 	if (irq_type == IRQ_READ)
+-		return EPOLLIN | EPOLLPRI;
++		return EPOLLIN | EPOLLPRI | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+ 	if (irq_type == IRQ_WRITE)
+ 		return EPOLLOUT;
+ 	return 0;
+-- 
+2.27.0
+
 
 
