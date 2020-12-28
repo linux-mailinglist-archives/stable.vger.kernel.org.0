@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 533132E683F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:35:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9BA2E656F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441986AbgL1QeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:34:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58372 "EHLO mail.kernel.org"
+        id S2390950AbgL1Nb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:31:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730078AbgL1NC1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:02:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8142521D94;
-        Mon, 28 Dec 2020 13:02:11 +0000 (UTC)
+        id S2390948AbgL1Nb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:31:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A6EB22582;
+        Mon, 28 Dec 2020 13:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160532;
-        bh=ZijW0fd6+XeeCoA6v6xCG6PygtIcTmm7hOp34t7rj+0=;
+        s=korg; t=1609162301;
+        bh=Y6Ayr8WtJZPMpItiKT91BoUhaxMLEnpZO1OIGCZvovI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeEoW3OtllEcF+ZUXhLURT86ToqeVjhOJEcRgo9oQlKDKS3SHvarqazBfhYn/N6m1
-         omS1rtGhNPDesKDnw39bZZi5TC0H1oxUjMy5EBUUK9JByTEpXm3Q6k4I6YQAxMJ3w2
-         nOeEcSlnE0pVii7sWosoqhDkPT5j2yMVLwawNuX8=
+        b=C2gBEtuR3SQuk/zwXU/D18nQRLYvSAnF/D0fAA05VogvQYfkujwm99zIBgpp2QRiW
+         gKuyCdZZ8bjjAuN1L519p9/mlEKASMt+GgI2x0ffMLEpIOQ5wWK/wT8ijhsTrmC9GH
+         wAVeondmn9o7kuYUvS3o/Pb6pI05EsFzcwQWFwL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Zhang Qilong <zhangqilong3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 082/175] media: siano: fix memory leak of debugfs members in smsdvb_hotplug
+Subject: [PATCH 4.19 216/346] usb: ehci-omap: Fix PM disable depth umbalance in ehci_hcd_omap_probe
 Date:   Mon, 28 Dec 2020 13:48:55 +0100
-Message-Id: <20201228124857.212997058@linuxfoundation.org>
+Message-Id: <20201228124930.220787211@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit abf287eeff4c6da6aa804bbd429dfd9d0dfb6ea7 ]
+[ Upstream commit d6ff32478d7e95d6ca199b5c852710d6964d5811 ]
 
-When dvb_create_media_graph fails, the debugfs kept inside client should
-be released. However, the current implementation does not release them.
+The pm_runtime_enable will decrement the power disable depth. Imbalance
+depth will resulted in enabling runtime PM of device fails later.  Thus
+a pairing decrement must be needed on the error handling path to keep it
+balanced.
 
-Fix this by adding a new goto label to call smsdvb_debugfs_release.
-
-Fixes: 0d3ab8410dcb ("[media] dvb core: must check dvb_create_media_graph()")
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 6c984b066d84b ("ARM: OMAP: USBHOST: Replace usbhs core driver APIs by Runtime pm APIs")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201123145719.1455849-1-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/siano/smsdvb-main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-omap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/common/siano/smsdvb-main.c b/drivers/media/common/siano/smsdvb-main.c
-index 9148e14c9d077..9d5eb8b6aede9 100644
---- a/drivers/media/common/siano/smsdvb-main.c
-+++ b/drivers/media/common/siano/smsdvb-main.c
-@@ -1180,12 +1180,15 @@ static int smsdvb_hotplug(struct smscore_device_t *coredev,
- 	rc = dvb_create_media_graph(&client->adapter, true);
- 	if (rc < 0) {
- 		pr_err("dvb_create_media_graph failed %d\n", rc);
--		goto client_error;
-+		goto media_graph_error;
- 	}
+diff --git a/drivers/usb/host/ehci-omap.c b/drivers/usb/host/ehci-omap.c
+index 7d20296cbe9f9..d31c425d61675 100644
+--- a/drivers/usb/host/ehci-omap.c
++++ b/drivers/usb/host/ehci-omap.c
+@@ -222,6 +222,7 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
  
- 	pr_info("DVB interface registered.\n");
- 	return 0;
+ err_pm_runtime:
+ 	pm_runtime_put_sync(dev);
++	pm_runtime_disable(dev);
  
-+media_graph_error:
-+	smsdvb_debugfs_release(client);
-+
- client_error:
- 	dvb_unregister_frontend(&client->frontend);
- 
+ err_phy:
+ 	for (i = 0; i < omap->nports; i++) {
 -- 
 2.27.0
 
