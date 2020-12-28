@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92612E646C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3DAB2E40D9
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:59:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404026AbgL1Nll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:41:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
+        id S2389051AbgL1OOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:14:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391880AbgL1Nld (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:41:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD4EB205CB;
-        Mon, 28 Dec 2020 13:41:17 +0000 (UTC)
+        id S2440507AbgL1OOv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:14:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E36421D94;
+        Mon, 28 Dec 2020 14:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162878;
-        bh=Asm2uZYv0sn/TvZFIlfXU6kLfWFGx1whlTI1b2fsVYM=;
+        s=korg; t=1609164876;
+        bh=b1+cBGNsZ51x6f2eXAEG1Ogy2nHxuahy+N8cmeJWdyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODym8fZ3W+9iSemNMMB919mrNmhhNqjmEBLkFanmw/Nf/mQr5gU/kRAwFXvIY2yP9
-         0CGnJfIUbFlpzeiCXSpn9U5V32Bw3hCVataxGrdxkfDBKCVkmTp2IVhc8xU7tzwpdw
-         CWsl3ffZGQKRWf+ZQC0+G4luKNg5fSPh8rUpVMkw=
+        b=HdDGttPV2u7AIbmf0NhhKOrfTxME1ndo0EOYVXUj5S5PguCrnZt8XqCN6f0TBBnw7
+         UfMcB/py4rGJdh4b1XoN2EvDhry7Nl1EO7sXJ0fYj0WszZ7RwYfkYCKnhy402jOMrU
+         bUk/zZRkOPHFqpJA3ViAIYzTyT1i4C5rePVfFrD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/453] sched: Reenable interrupts in do_sched_yield()
+Subject: [PATCH 5.10 330/717] cpufreq: scpi: Add missing MODULE_ALIAS
 Date:   Mon, 28 Dec 2020 13:45:28 +0100
-Message-Id: <20201228124941.661642273@linuxfoundation.org>
+Message-Id: <20201228125036.831424340@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 345a957fcc95630bf5535d7668a59ed983eb49a7 ]
+[ Upstream commit c0382d049d2def37b81e907a8b22661a4a4a6eb5 ]
 
-do_sched_yield() invokes schedule() with interrupts disabled which is
-not allowed. This goes back to the pre git era to commit a6efb709806c
-("[PATCH] irqlock patch 2.5.27-H6") in the history tree.
+This patch adds missing MODULE_ALIAS for automatic loading of this cpufreq
+driver when it is compiled as an external module.
 
-Reenable interrupts and remove the misleading comment which "explains" it.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/87r1pt7y5c.fsf@nanos.tec.linutronix.de
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 8def31034d033 ("cpufreq: arm_big_little: add SCPI interface driver")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/cpufreq/scpi-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4511532b08b84..7841e738e38f0 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5679,12 +5679,8 @@ static void do_sched_yield(void)
- 	schedstat_inc(rq->yld_count);
- 	current->sched_class->yield_task(rq);
+diff --git a/drivers/cpufreq/scpi-cpufreq.c b/drivers/cpufreq/scpi-cpufreq.c
+index 43db05b949d95..e5140ad63db83 100644
+--- a/drivers/cpufreq/scpi-cpufreq.c
++++ b/drivers/cpufreq/scpi-cpufreq.c
+@@ -233,6 +233,7 @@ static struct platform_driver scpi_cpufreq_platdrv = {
+ };
+ module_platform_driver(scpi_cpufreq_platdrv);
  
--	/*
--	 * Since we are going to call schedule() anyway, there's
--	 * no need to preempt or enable interrupts:
--	 */
- 	preempt_disable();
--	rq_unlock(rq, &rf);
-+	rq_unlock_irq(rq, &rf);
- 	sched_preempt_enable_no_resched();
- 
- 	schedule();
++MODULE_ALIAS("platform:scpi-cpufreq");
+ MODULE_AUTHOR("Sudeep Holla <sudeep.holla@arm.com>");
+ MODULE_DESCRIPTION("ARM SCPI CPUFreq interface driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.27.0
 
