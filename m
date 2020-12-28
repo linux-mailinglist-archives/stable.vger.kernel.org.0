@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB8C2E6562
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E52052E6923
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727839AbgL1QAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:00:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60788 "EHLO mail.kernel.org"
+        id S1728825AbgL1QpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:45:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391016AbgL1NcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24260207C9;
-        Mon, 28 Dec 2020 13:32:03 +0000 (UTC)
+        id S1728831AbgL1M4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:56:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FEFC208D5;
+        Mon, 28 Dec 2020 12:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162324;
-        bh=FUw9zRbBhFLwZVZhqrKNQZ//AZffMSkPIBgSTm2eN4Q=;
+        s=korg; t=1609160193;
+        bh=fI4JeCBIOMgmJEBljdtZVIXUtoKF/x3OGmUcqh+eO+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yz+0xn2kfQu2LVS7QV3RX6vqQfaEbLZk89enOufGbQulQipA44s3amLLdbeyfsi1a
-         9fDWDCoJ53pz4R+107V7xJTIqV0G65UXboTYH27+9GHfTIL8xjlOFeqb6i7AijxddJ
-         2uS2634SYWoX3BCp3nXGXCWL0VlZ0rGo0a8o7vPs=
+        b=gFM/99Rd+cGU7KNzdUU0oIPc0r434DlpilqSEQJa3MakKbHroGAPYxN55Ne6ATPyi
+         JgPsQX6KaEtob+PzGILbeCvhyNNGtPmGJiiZfJCOWgIzJ+f6Nq5H8DE9dFl1/3N7nm
+         NHGAB9OcWOAkntbHodgYcWH+IbPtSdZU11JcdsaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 265/346] media: ipu3-cio2: Make the field on subdev format V4L2_FIELD_NONE
-Date:   Mon, 28 Dec 2020 13:49:44 +0100
-Message-Id: <20201228124932.579921295@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Scally <djrscally@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 101/132] Revert "ACPI / resources: Use AE_CTRL_TERMINATE to terminate resources walks"
+Date:   Mon, 28 Dec 2020 13:49:45 +0100
+Message-Id: <20201228124851.300725133@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Daniel Scally <djrscally@gmail.com>
 
-commit 219a8b9c04e54872f9a4d566633fb42f08bcbe2a upstream.
+commit 12fc4dad94dfac25599f31257aac181c691ca96f upstream.
 
-The ipu3-cio2 doesn't make use of the field and this is reflected in V4L2
-buffers as well as the try format. Do this in active format, too.
+This reverts commit 8a66790b7850a6669129af078768a1d42076a0ef.
 
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Switching this function to AE_CTRL_TERMINATE broke the documented
+behaviour of acpi_dev_get_resources() - AE_CTRL_TERMINATE does not, in
+fact, terminate the resource walk because acpi_walk_resource_buffer()
+ignores it (specifically converting it to AE_OK), referring to that
+value as "an OK termination by the user function". This means that
+acpi_dev_get_resources() does not abort processing when the preproc
+function returns a negative value.
+
+Signed-off-by: Daniel Scally <djrscally@gmail.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/resource.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1299,6 +1299,7 @@ static int cio2_subdev_set_fmt(struct v4
- 	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
- 	fmt->format.height = min_t(u32, fmt->format.height,
- 				   CIO2_IMAGE_MAX_LENGTH);
-+	fmt->format.field = V4L2_FIELD_NONE;
- 
- 	mutex_lock(&q->subdev_lock);
- 	*mbus = fmt->format;
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -506,7 +506,7 @@ static acpi_status acpi_dev_process_reso
+ 		ret = c->preproc(ares, c->preproc_data);
+ 		if (ret < 0) {
+ 			c->error = ret;
+-			return AE_CTRL_TERMINATE;
++			return AE_ABORT_METHOD;
+ 		} else if (ret > 0) {
+ 			return AE_OK;
+ 		}
 
 
