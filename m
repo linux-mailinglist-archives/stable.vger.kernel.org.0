@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 771A22E3B1D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:47:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E995B2E385E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:11:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404944AbgL1Npv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:45:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
+        id S1731143AbgL1NJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:09:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404941AbgL1Npv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:45:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 583C122AAA;
-        Mon, 28 Dec 2020 13:45:35 +0000 (UTC)
+        id S1731160AbgL1NJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:09:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DFF222582;
+        Mon, 28 Dec 2020 13:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163136;
-        bh=+OeI2MeOOdSPbMPqfOX5Tf6VczmeQmyz4whiJee9RU8=;
+        s=korg; t=1609160935;
+        bh=fShka0oswP6q+oPjMziHDeTMWXTj5YhmY3JA6kuv8N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMAf81yj7pdvBqDFXusC75roycJv3BU2zm8H/gH4dO373PT1QPXp+fOJmgXQth1R/
-         ai+WGAamzlEBN1jAoRqobZ+zc4owPk8xk65mnidYCUX5ybO7VMRCZLKWsNRWWyBADu
-         v0kGruLXZsp+aSCac4tGUDBI688H80hnZu5q5kLI=
+        b=NUzW5WfKSMtEkFcl6R2PoQFpcotPdtZRjGFhNHiX/8sXpshfpK5XqytJbT5RUQr6a
+         AhoLzjq2xL5xJ7mC0URZVRRa75q1zrms8RSQqUSVFM6ezu6dC4pzbqX29kJG6KUdkq
+         7JVgK2171oL85Zu7u/nGU6RVXSaxjE/3lUd7NyxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/453] power: supply: axp288_charger: Fix HP Pavilion x2 10 DMI matching
+        stable@vger.kernel.org, Thomas Lamprecht <t.lamprecht@proxmox.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 014/242] scsi: be2iscsi: Revert "Fix a theoretical leak in beiscsi_create_eqs()"
 Date:   Mon, 28 Dec 2020 13:46:59 +0100
-Message-Id: <20201228124946.013531767@linuxfoundation.org>
+Message-Id: <20201228124905.365452340@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a0f1ccd96c7049377d892a4299b6d5e47ec9179d ]
+commit eeaf06af6f87e1dba371fbe42674e6f963220b9c upstream.
 
-Commit 9c80662a74cd ("power: supply: axp288_charger: Add special handling
-for HP Pavilion x2 10") added special handling for HP Pavilion x2 10
-models which use the weird combination of a Type-C connector and the
-non Type-C aware AXP288 PMIC.
+My patch caused kernel Oopses and delays in boot.  Revert it.
 
-This special handling was activated by a DMI match a the product-name
-of "HP Pavilion x2 Detachable". Recently I've learned that there are
-also older "HP Pavilion x2 Detachable" models with an AXP288 PMIC +
-a micro-usb connector where we should not activate the special handling
-for the Type-C connectors.
+The problem was that I moved the "mem->dma = paddr;" before the call to
+be_fill_queue().  But the first thing that the be_fill_queue() function
+does is memset the whole struct to zero which overwrites the assignment.
 
-Extend the matching to also match on the DMI board-name and match on the
-2 boards (one Bay Trail based one Cherry Trail based) of which we are
-certain that they use the AXP288 + Type-C connector combination.
+Link: https://lore.kernel.org/r/X8jXkt6eThjyVP1v@mwanda
+Fixes: 38b2db564d9a ("scsi: be2iscsi: Fix a theoretical leak in beiscsi_create_eqs()")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Note the DSDT code from these older (AXP288 + micro-USB) models contains
-some AML code (which never runs under Linux) which reads the micro-USB
-connector id-pin and if it is pulled to ground, which would normally mean
-the port is in host mode!, then it sets the input-current-limit to 3A,
-it seems HP is using the micro-USB port as a charging only connector
-and identifies their own 3A capable charger though this hack which is a
-major violation of the USB specs. Note HP also hardcodes a 2A limit
-when the id-pin is not pulled to ground, which is also in violation
-of the specs.
-
-I've no intention to add support for HP's hack to support 3A charging
-on these older models. By making the DMI matches for the Type-C equipped
-models workaround more tighter, these older models will be treated just
-like any other AXP288 + micro-USB equipped device and the input-current
-limit will follow the BC 1.2 spec (using the defacto standard values
-there where the BC 1.2 spec defines a range).
-
-Fixes: 9c80662a74cd ("power: supply: axp288_charger: Add special handling for HP Pavilion x2 10")
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1896924
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_charger.c | 28 ++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/scsi/be2iscsi/be_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/axp288_charger.c b/drivers/power/supply/axp288_charger.c
-index cf4c67b2d2359..7d09e49f04d3b 100644
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -548,14 +548,15 @@ out:
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -3013,7 +3013,6 @@ static int beiscsi_create_eqs(struct bei
+ 			goto create_eq_error;
+ 		}
  
- /*
-  * The HP Pavilion x2 10 series comes in a number of variants:
-- * Bay Trail SoC    + AXP288 PMIC, DMI_BOARD_NAME: "815D"
-- * Cherry Trail SoC + AXP288 PMIC, DMI_BOARD_NAME: "813E"
-- * Cherry Trail SoC + TI PMIC,     DMI_BOARD_NAME: "827C" or "82F4"
-+ * Bay Trail SoC    + AXP288 PMIC, Micro-USB, DMI_BOARD_NAME: "8021"
-+ * Bay Trail SoC    + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "815D"
-+ * Cherry Trail SoC + AXP288 PMIC, Type-C,    DMI_BOARD_NAME: "813E"
-+ * Cherry Trail SoC + TI PMIC,     Type-C,    DMI_BOARD_NAME: "827C" or "82F4"
-  *
-- * The variants with the AXP288 PMIC are all kinds of special:
-+ * The variants with the AXP288 + Type-C connector are all kinds of special:
-  *
-- * 1. All variants use a Type-C connector which the AXP288 does not support, so
-- * when using a Type-C charger it is not recognized. Unlike most AXP288 devices,
-+ * 1. They use a Type-C connector which the AXP288 does not support, so when
-+ * using a Type-C charger it is not recognized. Unlike most AXP288 devices,
-  * this model actually has mostly working ACPI AC / Battery code, the ACPI code
-  * "solves" this by simply setting the input_current_limit to 3A.
-  * There are still some issues with the ACPI code, so we use this native driver,
-@@ -578,12 +579,17 @@ out:
-  */
- static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
- 	{
--		/*
--		 * Bay Trail model has "Hewlett-Packard" as sys_vendor, Cherry
--		 * Trail model has "HP", so we only match on product_name.
--		 */
- 		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "815D"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_EXACT_MATCH(DMI_BOARD_NAME, "813E"),
- 		},
- 	},
- 	{} /* Terminating entry */
--- 
-2.27.0
-
+-		mem->dma = paddr;
+ 		mem->va = eq_vaddress;
+ 		ret = be_fill_queue(eq, phba->params.num_eq_entries,
+ 				    sizeof(struct be_eq_entry), eq_vaddress);
+@@ -3023,6 +3022,7 @@ static int beiscsi_create_eqs(struct bei
+ 			goto create_eq_error;
+ 		}
+ 
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_eq_create(&phba->ctrl, eq,
+ 					    phwi_context->cur_eqd);
+ 		if (ret) {
+@@ -3079,7 +3079,6 @@ static int beiscsi_create_cqs(struct bei
+ 			goto create_cq_error;
+ 		}
+ 
+-		mem->dma = paddr;
+ 		ret = be_fill_queue(cq, phba->params.num_cq_entries,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+@@ -3089,6 +3088,7 @@ static int beiscsi_create_cqs(struct bei
+ 			goto create_cq_error;
+ 		}
+ 
++		mem->dma = paddr;
+ 		ret = beiscsi_cmd_cq_create(&phba->ctrl, cq, eq, false,
+ 					    false, 0);
+ 		if (ret) {
 
 
