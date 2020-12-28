@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B9C2E6444
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 617682E40CC
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408256AbgL1Ptj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:49:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42516 "EHLO mail.kernel.org"
+        id S2440658AbgL1OPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404134AbgL1NmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:42:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC4321D94;
-        Mon, 28 Dec 2020 13:41:32 +0000 (UTC)
+        id S2440678AbgL1OPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:15:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE2B207B2;
+        Mon, 28 Dec 2020 14:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162893;
-        bh=/tBF4wLTT/bWMpAG6Ixir2YRrjI8wrg63knwE7ip8/I=;
+        s=korg; t=1609164890;
+        bh=ru7VfCUzhDwXPSmUE9w67o+EJFfnR3QxtyIwwT1hSDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IYUQvQULwfc6Y6jxwlxMe7pPy8H2TNi8Z4I98ise20s7vYy8w0vncp7lbnzvWjQTH
-         54QmxOvKXioF1k86MW5AdD3iAn26SWkeIDmAh2DEkTl4WYMcqjrnzdzkbY5jD7PPyL
-         EJH91O9ThSJVh6r2PBMZJziZO3+79T0DhkmR5uko=
+        b=0VJrPquQ1MMmTgYbpmqbNylFku/8hnt/s/zvGsCcWe9H1wZerFfjirkhqHyhexBFH
+         Flsj+v2uxpk2cis0tAu5V4Kp2yzOMj1Lc9iO0J1xs8IiohxXdVXgSaOEcPsdCiMrOD
+         2yCwz/1T5qmk7T1AEy5DoUVp2+vvqXAFzxjlZMG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20P=C3=A9ron?= <peron.clem@gmail.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/453] ASoC: sun4i-i2s: Fix lrck_period computation for I2S justified mode
+        stable@vger.kernel.org, Jacopo Mondi <jacopo@jmondi.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 335/717] staging: bcm2835: fix vchiq_mmal dependencies
 Date:   Mon, 28 Dec 2020 13:45:33 +0100
-Message-Id: <20201228124941.896113299@linuxfoundation.org>
+Message-Id: <20201228125037.070890072@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Péron <peron.clem@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 93c0210671d8f3ec2262da703fab93a1497158a8 ]
+[ Upstream commit 6c91799f59ed491a2b5bf5ef7c6d60306cda4e09 ]
 
-Left and Right justified mode are computed using the same formula
-as DSP_A and DSP_B mode.
-Which is wrong and the user manual explicitly says:
+When the MMAL code is built-in but the vchiq core config is
+set to =m, the mmal code never gets built, which in turn can
+lead to link errors:
 
-LRCK_PERDIOD:
-PCM Mode: Number of BCLKs within (Left + Right) channel width.
-I2S/Left-Justified/Right-Justified Mode: Number of BCLKs within each
-individual channel width(Left or Right)
+ERROR: modpost: "vchiq_mmal_port_set_format" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_port_disable" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_port_parameter_set" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_component_finalise" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_port_connect_tunnel" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_component_enable" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_finalise" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_component_init" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_component_disable" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "mmal_vchi_buffer_init" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_port_enable" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_version" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_submit_buffer" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_init" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "mmal_vchi_buffer_cleanup" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
+ERROR: modpost: "vchiq_mmal_port_parameter_get" [drivers/staging/vc04_services/bcm2835-camera/bcm2835-v4l2.ko] undefined!
 
-Fix this by using the same formula as the I2S mode.
+Change the Kconfig to depend on BCM2835_VCHIQ like the other drivers,
+and remove the now redundant dependencies.
 
-Fixes: 7ae7834ec446 ("ASoC: sun4i-i2s: Add support for DSP formats")
-Signed-off-by: Clément Péron <peron.clem@gmail.com>
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Link: https://lore.kernel.org/r/20201030144648.397824-2-peron.clem@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b18ee53ad297 ("staging: bcm2835: Break MMAL support out from camera")
+Acked-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201203223836.1362313-1-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-i2s.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/vc04_services/vchiq-mmal/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
-index d0a8d5810c0a5..9655dec4166b6 100644
---- a/sound/soc/sunxi/sun4i-i2s.c
-+++ b/sound/soc/sunxi/sun4i-i2s.c
-@@ -442,11 +442,11 @@ static int sun8i_i2s_set_chan_cfg(const struct sun4i_i2s *i2s,
- 	switch (i2s->format & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_DSP_A:
- 	case SND_SOC_DAIFMT_DSP_B:
--	case SND_SOC_DAIFMT_LEFT_J:
--	case SND_SOC_DAIFMT_RIGHT_J:
- 		lrck_period = params_physical_width(params) * slots;
- 		break;
- 
-+	case SND_SOC_DAIFMT_LEFT_J:
-+	case SND_SOC_DAIFMT_RIGHT_J:
- 	case SND_SOC_DAIFMT_I2S:
- 		lrck_period = params_physical_width(params);
- 		break;
+diff --git a/drivers/staging/vc04_services/vchiq-mmal/Kconfig b/drivers/staging/vc04_services/vchiq-mmal/Kconfig
+index 500c0d12e4ff2..c99525a0bb452 100644
+--- a/drivers/staging/vc04_services/vchiq-mmal/Kconfig
++++ b/drivers/staging/vc04_services/vchiq-mmal/Kconfig
+@@ -1,6 +1,6 @@
+ config BCM2835_VCHIQ_MMAL
+ 	tristate "BCM2835 MMAL VCHIQ service"
+-	depends on (ARCH_BCM2835 || COMPILE_TEST)
++	depends on BCM2835_VCHIQ
+ 	help
+ 	  Enables the MMAL API over VCHIQ interface as used for the
+ 	  majority of the multimedia services on VideoCore.
 -- 
 2.27.0
 
