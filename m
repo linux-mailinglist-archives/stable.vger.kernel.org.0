@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D50A2E6773
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C53752E68BA
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730496AbgL1QYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:24:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37570 "EHLO mail.kernel.org"
+        id S1729318AbgL1Qkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:40:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731268AbgL1NKH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:10:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC221206ED;
-        Mon, 28 Dec 2020 13:09:50 +0000 (UTC)
+        id S1728035AbgL1M7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA6522B3B;
+        Mon, 28 Dec 2020 12:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160991;
-        bh=1DaF/85+Whecx+sQMqbF/Fotl1ecWKjQJQYQl9Jn2ZI=;
+        s=korg; t=1609160336;
+        bh=Mz+qnzZbX/0kdmm2zW1A8sH+DRTk7o7kVx2xh4J0xDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpCbKWyYRt8NYqaTf3a7dwfDVjj0SQMYl+hoZ66z6gdTlwdmcdU62hhFJ6Zy8W92a
-         iMoTirkC4aBWY4YYMQGwtOSusqjBFvO4aAs8Kdd3Y53atLqF/QiRZtfEyDG9RYP49g
-         lLuwP4b93Dv//0jPgpTAaZ+EC7ZGkfpvNzHYnkSw=
+        b=K3qQsCYi+ZxefcdZ5pQYEWojXQzvzzGsJbjeRrXINE96WOSGEV9qGzz+62GjBZTGT
+         b24ACaTAPohygD3HCVobe3JbL2b3Jbo3MCdLF/e6REf+9qap8316EZ40VcEJtZ/T6V
+         cNCJzMBd6dRIJVoKF2xPz8mU3CmJdz21BO5nAPtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com,
-        "Dae R. Jeong" <dae.r.jeong@kaist.ac.kr>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.14 063/242] md: fix a warning caused by a race between concurrent md_ioctl()s
-Date:   Mon, 28 Dec 2020 13:47:48 +0100
-Message-Id: <20201228124907.785123170@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 017/175] mac80211: mesh: fix mesh_pathtbl_init() error path
+Date:   Mon, 28 Dec 2020 13:47:50 +0100
+Message-Id: <20201228124854.097155104@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
+From: Eric Dumazet <edumazet@google.com>
 
-commit c731b84b51bf7fe83448bea8f56a6d55006b0615 upstream.
+[ Upstream commit 905b2032fa424f253d9126271439cc1db2b01130 ]
 
-Syzkaller reports a warning as belows.
-WARNING: CPU: 0 PID: 9647 at drivers/md/md.c:7169
-...
+If tbl_mpp can not be allocated, we call mesh_table_free(tbl_path)
+while tbl_path rhashtable has not yet been initialized, which causes
+panics.
+
+Simply factorize the rhashtable_init() call into mesh_table_alloc()
+
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __flush_work kernel/workqueue.c:3040 [inline]
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Modules linked in:
+CPU: 1 PID: 8474 Comm: syz-executor663 Not tainted 5.10.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__flush_work kernel/workqueue.c:3040 [inline]
+RIP: 0010:__cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Code: 5d c3 e8 bf ae 29 00 0f 0b e9 f0 fd ff ff e8 b3 ae 29 00 0f 0b 43 80 3c 3e 00 0f 85 31 ff ff ff e9 34 ff ff ff e8 9c ae 29 00 <0f> 0b e9 dc fe ff ff 89 e9 80 e1 07 80 c1 03 38 c1 0f 8c 7d fd ff
+RSP: 0018:ffffc9000165f5a0 EFLAGS: 00010293
+RAX: ffffffff814b7064 RBX: 0000000000000001 RCX: ffff888021c80000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffff888024039ca0 R08: dffffc0000000000 R09: fffffbfff1dd3e64
+R10: fffffbfff1dd3e64 R11: 0000000000000000 R12: 1ffff920002cbebd
+R13: ffff888024039c88 R14: 1ffff11004807391 R15: dffffc0000000000
+FS:  0000000001347880(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000140 CR3: 000000002cc0a000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
-...
-RIP: 0010:md_ioctl+0x4017/0x5980 drivers/md/md.c:7169
-RSP: 0018:ffff888096027950 EFLAGS: 00010293
-RAX: ffff88809322c380 RBX: 0000000000000932 RCX: ffffffff84e266f2
-RDX: 0000000000000000 RSI: ffffffff84e299f7 RDI: 0000000000000007
-RBP: ffff888096027bc0 R08: ffff88809322c380 R09: ffffed101341a482
-R10: ffff888096027940 R11: ffff88809a0d240f R12: 0000000000000932
-R13: ffff8880a2c14100 R14: ffff88809a0d2268 R15: ffff88809a0d2408
- __blkdev_driver_ioctl block/ioctl.c:304 [inline]
- blkdev_ioctl+0xece/0x1c10 block/ioctl.c:606
- block_ioctl+0xee/0x130 fs/block_dev.c:1930
- vfs_ioctl fs/ioctl.c:46 [inline]
- file_ioctl fs/ioctl.c:509 [inline]
- do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
- ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
- __do_sys_ioctl fs/ioctl.c:720 [inline]
- __se_sys_ioctl fs/ioctl.c:718 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
- do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ rhashtable_free_and_destroy+0x25/0x9c0 lib/rhashtable.c:1137
+ mesh_table_free net/mac80211/mesh_pathtbl.c:69 [inline]
+ mesh_pathtbl_init+0x287/0x2e0 net/mac80211/mesh_pathtbl.c:785
+ ieee80211_mesh_init_sdata+0x2ee/0x530 net/mac80211/mesh.c:1591
+ ieee80211_setup_sdata+0x733/0xc40 net/mac80211/iface.c:1569
+ ieee80211_if_add+0xd5c/0x1cd0 net/mac80211/iface.c:1987
+ ieee80211_add_iface+0x59/0x130 net/mac80211/cfg.c:125
+ rdev_add_virtual_intf net/wireless/rdev-ops.h:45 [inline]
+ nl80211_new_interface+0x563/0xb40 net/wireless/nl80211.c:3855
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:739 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0xe4e/0x1280 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x190/0x3a0 net/netlink/af_netlink.c:2494
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+ netlink_unicast+0x780/0x930 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0x9a8/0xd40 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ ____sys_sendmsg+0x519/0x800 net/socket.c:2353
+ ___sys_sendmsg net/socket.c:2407 [inline]
+ __sys_sendmsg+0x2b1/0x360 net/socket.c:2440
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-This is caused by a race between two concurrenct md_ioctl()s closing
-the array.
-CPU1 (md_ioctl())                   CPU2 (md_ioctl())
-------                              ------
-set_bit(MD_CLOSING, &mddev->flags);
-did_set_md_closing = true;
-                                    WARN_ON_ONCE(test_bit(MD_CLOSING,
-                                            &mddev->flags));
-if(did_set_md_closing)
-    clear_bit(MD_CLOSING, &mddev->flags);
-
-Fix the warning by returning immediately if the MD_CLOSING bit is set
-in &mddev->flags which indicates that the array is being closed.
-
-Fixes: 065e519e71b2 ("md: MD_CLOSING needs to be cleared after called md_set_readonly or do_md_stop")
-Reported-by: syzbot+1e46a0864c1a6e9bd3d8@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dae R. Jeong <dae.r.jeong@kaist.ac.kr>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
+Link: https://lore.kernel.org/r/20201204162428.2583119-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/md/md.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/mac80211/mesh_pathtbl.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7187,8 +7187,11 @@ static int md_ioctl(struct block_device
- 			err = -EBUSY;
- 			goto out;
- 		}
--		WARN_ON_ONCE(test_bit(MD_CLOSING, &mddev->flags));
--		set_bit(MD_CLOSING, &mddev->flags);
-+		if (test_and_set_bit(MD_CLOSING, &mddev->flags)) {
-+			mutex_unlock(&mddev->open_mutex);
-+			err = -EBUSY;
-+			goto out;
-+		}
- 		did_set_md_closing = true;
- 		mutex_unlock(&mddev->open_mutex);
- 		sync_blockdev(bdev);
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -61,6 +61,7 @@ static struct mesh_table *mesh_table_all
+ 	INIT_HLIST_HEAD(&newtbl->known_gates);
+ 	atomic_set(&newtbl->entries,  0);
+ 	spin_lock_init(&newtbl->gates_lock);
++	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
+ 
+ 	return newtbl;
+ }
+@@ -849,9 +850,6 @@ int mesh_pathtbl_init(struct ieee80211_s
+ 		goto free_path;
+ 	}
+ 
+-	rhashtable_init(&tbl_path->rhead, &mesh_rht_params);
+-	rhashtable_init(&tbl_mpp->rhead, &mesh_rht_params);
+-
+ 	sdata->u.mesh.mesh_paths = tbl_path;
+ 	sdata->u.mesh.mpp_paths = tbl_mpp;
+ 
 
 
