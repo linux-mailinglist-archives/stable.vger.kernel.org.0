@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD94B2E3574
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:27:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D772E3575
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:27:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726631AbgL1J1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:27:20 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39181 "EHLO
+        id S1726655AbgL1J12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:27:28 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39393 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1J1T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:27:19 -0500
+        by vger.kernel.org with ESMTP id S1726509AbgL1J12 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:27:28 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id C35AC63C;
-        Mon, 28 Dec 2020 04:26:33 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:26:34 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id ADABE6F3;
+        Mon, 28 Dec 2020 04:26:42 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:26:43 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=DK7ChN
-        aP4NBne4V616AD9rISAOzIUHSf5ipHMKbIBso=; b=RYKcyB8lX+Zp8E7U+QUj1p
-        fwM1M2JSInGRCgR0OXbJh/stOA5hm+mgH3uMhYwce7rAfejcNeEs4KLi+LjJzdDC
-        4t8IB79QMYx36CgLNJsrzIYzJXK7DIRlC8PlKNBM9Aqu+hIsHfSJbvXU45qEAX7P
-        Qlq7CGu8OxUr8QnfXKguWplBGSnl45rYfg64NSxg1yDwUowZ3O7sbQQG+zHj/F0s
-        LkU1U8zV1r3/9cnepMh+9EJqd9GgWQ111Bu7z/LSkefM8PzrQcNqhnHYSKeVFAFX
-        iokm3gJfJPRGx/yl0DIFVqA8Zkjy90rvWN+41kZ2pbjKmkk82S4qMyukmWt+IiAw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ToRaMy
+        B16iQtA6qDmK9c02YyOMpzAbm/IGVT+QktujM=; b=LnI9yu0UGZZYqt0G3JwS/I
+        QzF/uE657q7qkpZt+DY/Nop5YPS8s1emeef29WfToUaiVdPzUYzYR//yE0qKX++q
+        XZxqWRei8wo2LmlR+cLBuyDbSBZL0aUw7GgAxSvhu6cfRl+J8/TdBCA8wiLgII1P
+        sP6vEsPhTwZRNjyk59VNRgF5nAuLcdVtJvTB1LoxATW+y5eGlsHUl7ffZ4oRhZug
+        gy3qDMkJHne7QAaPM4IivsuAwuXiGkBFMANmGiel2Pquk5idPohQXUFwgDXM6lyP
+        6OzO/qvLbFPIlfYYA8uMnSeoM8Zqyx8eMm6zzmYq3L0cnHumD0SQIdm9zffOaQZA
         ==
-X-ME-Sender: <xms:yaTpX7gMhs2iKVXWY6z9uXWXWzBg9wecqbBDp7ktjBzRfLf472vL2g>
-    <xme:yaTpX4DWFoMvAZwz6x2mVDUvO3AimHBiunlPfm8_YYLWyR5krUOFTUGFn_V4aM-gM
-    tqDno2wV5lc_g>
+X-ME-Sender: <xms:0qTpX_KFR6nbsyiyfPApHK_yvAZ0S10wTPx1VTwxFwtXi7BneLB5lQ>
+    <xme:0qTpXzKQ2fRH4jfDjYTzKC3UlFeVycx4Wn-ki5br61Or5ihgIH1DxUlIofDoEgTTe
+    38hl3YFRLhMIw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:yaTpX7Gs0AqzYsgy8In7uRWZQJkS3DQYdYjQyvgi_LfNrdjB-iv49w>
-    <xmx:yaTpX4T5Dwy8IA8L2t5TcOHeqAE4QtZrqgmbEey6avPYDKuSgooMrg>
-    <xmx:yaTpX4yZ7TZ7cp86Cf7mXsqGtvWS52Bo_uMtdUlT-pQsGLKUnE_Fxg>
-    <xmx:yaTpX1oxc6Hl-rnkQFxzRMiTGnMPB8WjWaUE5Pg1myguo7uXOUp1oKz-LX0>
+X-ME-Proxy: <xmx:0qTpX3upp_nVIQKnq_5-1driOT-cp8eyl1EiTPGaVsp2lqosxi_WVw>
+    <xmx:0qTpX4YX7xqRJ25zefWqnwx1fWhW9sZN7F6_ElDus4YY59FrCQ1BNw>
+    <xmx:0qTpX2Ysu2bFcL4be5gCCzyYY7Scn6BTwmsmzUH7sAFL45sH5vcfUw>
+    <xmx:0qTpX5xNI7TyOLjtTgjb41Qo1qv0pvCHErHhdV-H-DizVNS0ZfdsYqbQAR8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 179C524005C;
-        Mon, 28 Dec 2020 04:26:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ovl: make ioctl() safe" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C5BFA1080063;
+        Mon, 28 Dec 2020 04:26:41 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ovl: make ioctl() safe" failed to apply to 5.4-stable tree
 To:     mszeredi@redhat.com, amir73il@gmail.com, dvyukov@google.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 10:27:56 +0100
-Message-ID: <16091476769227@kroah.com>
+Date:   Mon, 28 Dec 2020 10:27:57 +0100
+Message-ID: <16091476774546@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
