@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06AD2E6347
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 586AD2E3858
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392315AbgL1Pkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:40:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49548 "EHLO mail.kernel.org"
+        id S1730081AbgL1NJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405825AbgL1NsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:48:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9C6B2064B;
-        Mon, 28 Dec 2020 13:47:29 +0000 (UTC)
+        id S1731086AbgL1NJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:09:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44860208D5;
+        Mon, 28 Dec 2020 13:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163250;
-        bh=/yVJybPUxcZfmp1BDpv7TGumpdb7F+woyRIQ9MT0+48=;
+        s=korg; t=1609160913;
+        bh=c8LCfZSTGzbnWCzKYbG3MtKbBzqV/GpOM0o9lbsGoL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9Q5rEYK43PQawIv/zy6tuQX25T6xUQ48e9o7tHRIwSLTqWpgNYQZSaGfiGXAYDVG
-         z1oLvsIdpRwMI3liRRmadGqgNywKuOchifwWb3VliJiJN4sOcR51jvk4fuO4to9NGn
-         f0J8zv8o454pwj4bTEmHQbg2sU/hrNVMK/hVN/zw=
+        b=jaBsbBZcxfB+gSMe1ubopW3xE/+DO0ewviEiGo3vL9qsHeA9A3hOngvb8by+y10uJ
+         0ZFrmCc33khQWf5PunRpcO2iZKvu2qCTtrEyb6OkRSSjPgNr/mGTchoEqr6tRsUJxf
+         /trrtJXv1u8EILlhiof0eoCNPDjKxAoip3Dkjj6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Calum Mackay <calum.mackay@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/453] lockd: dont use interval-based rebinding over TCP
-Date:   Mon, 28 Dec 2020 13:47:20 +0100
-Message-Id: <20201228124947.032643030@linuxfoundation.org>
+Subject: [PATCH 4.14 036/242] pinctrl: baytrail: Avoid clearing debounce value when turning it off
+Date:   Mon, 28 Dec 2020 13:47:21 +0100
+Message-Id: <20201228124906.443930589@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Calum Mackay <calum.mackay@oracle.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 9b82d88d5976e5f2b8015d58913654856576ace5 ]
+[ Upstream commit 0b74e40a4e41f3cbad76dff4c50850d47b525b26 ]
 
-NLM uses an interval-based rebinding, i.e. it clears the transport's
-binding under certain conditions if more than 60 seconds have elapsed
-since the connection was last bound.
+Baytrail pin control has a common register to set up debounce timeout.
+When a pin configuration requested debounce to be disabled, the rest
+of the pins may still want to have debounce enabled and thus rely on
+the common timeout value. Avoid clearing debounce value when turning
+it off for one pin while others may still use it.
 
-This rebinding is not necessary for an autobind RPC client over a
-connection-oriented protocol like TCP.
-
-It can also cause problems: it is possible for nlm_bind_host() to clear
-XPRT_BOUND whilst a connection worker is in the middle of trying to
-reconnect, after it had already been checked in xprt_connect().
-
-When the connection worker notices that XPRT_BOUND has been cleared
-under it, in xs_tcp_finish_connecting(), that results in:
-
-	xs_tcp_setup_socket: connect returned unhandled error -107
-
-Worse, it's possible that the two can get into lockstep, resulting in
-the same behaviour repeated indefinitely, with the above error every
-300 seconds, without ever recovering, and the connection never being
-established. This has been seen in practice, with a large number of NLM
-client tasks, following a server restart.
-
-The existing callers of nlm_bind_host & nlm_rebind_host should not need
-to force the rebind, for TCP, so restrict the interval-based rebinding
-to UDP only.
-
-For TCP, we will still rebind when needed, e.g. on timeout, and connection
-error (including closure), since connection-related errors on an existing
-connection, ECONNREFUSED when trying to connect, and rpc_check_timeout(),
-already unconditionally clear XPRT_BOUND.
-
-To avoid having to add the fix, and explanation, to both nlm_bind_host()
-and nlm_rebind_host(), remove the duplicate code from the former, and
-have it call the latter.
-
-Drop the dprintk, which adds no value over a trace.
-
-Signed-off-by: Calum Mackay <calum.mackay@oracle.com>
-Fixes: 35f5a422ce1a ("SUNRPC: new interface to force an RPC rebind")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 658b476c742f ("pinctrl: baytrail: Add debounce configuration")
+Depends-on: 04ff5a095d66 ("pinctrl: baytrail: Rectify debounce support")
+Depends-on: 827e1579e1d5 ("pinctrl: baytrail: Rectify debounce support (part 2)")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/lockd/host.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/lockd/host.c b/fs/lockd/host.c
-index 7d46fafdbbe5a..584c03e11844e 100644
---- a/fs/lockd/host.c
-+++ b/fs/lockd/host.c
-@@ -439,12 +439,7 @@ nlm_bind_host(struct nlm_host *host)
- 	 * RPC rebind is required
- 	 */
- 	if ((clnt = host->h_rpcclnt) != NULL) {
--		if (time_after_eq(jiffies, host->h_nextrebind)) {
--			rpc_force_rebind(clnt);
--			host->h_nextrebind = jiffies + NLM_HOST_REBIND;
--			dprintk("lockd: next rebind in %lu jiffies\n",
--					host->h_nextrebind - jiffies);
--		}
-+		nlm_rebind_host(host);
- 	} else {
- 		unsigned long increment = nlmsvc_timeout;
- 		struct rpc_timeout timeparms = {
-@@ -493,13 +488,20 @@ nlm_bind_host(struct nlm_host *host)
- 	return clnt;
- }
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 62eac76be9f66..519758d4297ee 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -1266,7 +1266,6 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
+ 			break;
+ 		case PIN_CONFIG_INPUT_DEBOUNCE:
+ 			debounce = readl(db_reg);
+-			debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
  
--/*
-- * Force a portmap lookup of the remote lockd port
-+/**
-+ * nlm_rebind_host - If needed, force a portmap lookup of the peer's lockd port
-+ * @host: NLM host handle for peer
-+ *
-+ * This is not needed when using a connection-oriented protocol, such as TCP.
-+ * The existing autobind mechanism is sufficient to force a rebind when
-+ * required, e.g. on connection state transitions.
-  */
- void
- nlm_rebind_host(struct nlm_host *host)
- {
--	dprintk("lockd: rebind host %s\n", host->h_name);
-+	if (host->h_proto != IPPROTO_UDP)
-+		return;
-+
- 	if (host->h_rpcclnt && time_after_eq(jiffies, host->h_nextrebind)) {
- 		rpc_force_rebind(host->h_rpcclnt);
- 		host->h_nextrebind = jiffies + NLM_HOST_REBIND;
+ 			if (arg)
+ 				conf |= BYT_DEBOUNCE_EN;
+@@ -1275,24 +1274,31 @@ static int byt_pin_config_set(struct pinctrl_dev *pctl_dev,
+ 
+ 			switch (arg) {
+ 			case 375:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_375US;
+ 				break;
+ 			case 750:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_750US;
+ 				break;
+ 			case 1500:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_1500US;
+ 				break;
+ 			case 3000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_3MS;
+ 				break;
+ 			case 6000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_6MS;
+ 				break;
+ 			case 12000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_12MS;
+ 				break;
+ 			case 24000:
++				debounce &= ~BYT_DEBOUNCE_PULSE_MASK;
+ 				debounce |= BYT_DEBOUNCE_PULSE_24MS;
+ 				break;
+ 			default:
 -- 
 2.27.0
 
