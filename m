@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E53142E3C48
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3B02E3C61
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436532AbgL1OAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:00:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
+        id S2436540AbgL1OAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:00:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436517AbgL1OAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:00:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D73AD207A9;
-        Mon, 28 Dec 2020 13:59:51 +0000 (UTC)
+        id S2436533AbgL1OAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:00:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C752B207AB;
+        Mon, 28 Dec 2020 13:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163992;
-        bh=T1cwB131nMEUdgfIE5pWH1enmq/+5bJNUEAWm38jwsQ=;
+        s=korg; t=1609163995;
+        bh=16ofqNDOtTdD+Nbw3rTnBhytlvP13deUuWsiMlij8zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ysMIByW2XnBV2KyitDngKHZ41kllRPHN7PHdCeWf9U2w+jNRqR+54G4GVpDJOcTCJ
-         R9FceQWTLmgOIbKVz2+F2B1D5Y+tJkZUrQ3sYZ32M6oymZa8PzTERRXxfdl5uHy2h0
-         AqKWY0nKSs+zCKbuqiDWp4Qql9suDOZWsZcGay/o=
+        b=maB5Pon4rQFeqLklMvF/GH+N70Q2+qXiOM903gzb/XhUzb3iFFvn91jUsomnQATBd
+         gePVYvVxR4xTggBQsD09d0ydoETlQSeaB+il43NQxrWIgGIfj2UOKZfcyDodZtko7b
+         /apGkkuZAhCvlqxstUwJtJorE3bgyoeJ/IO/egFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>, Joerg Roedel <jroedel@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/717] RDMA/rxe: Compute PSN windows correctly
-Date:   Mon, 28 Dec 2020 13:40:21 +0100
-Message-Id: <20201228125022.092965027@linuxfoundation.org>
+Subject: [PATCH 5.10 024/717] x86/mm/ident_map: Check for errors from ident_pud_init()
+Date:   Mon, 28 Dec 2020 13:40:22 +0100
+Message-Id: <20201228125022.140943892@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,41 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit bb3ab2979fd69db23328691cb10067861df89037 ]
+[ Upstream commit 1fcd009102ee02e217f2e7635ab65517d785da8e ]
 
-The code which limited the number of unacknowledged PSNs was incorrect.
-The PSNs are limited to 24 bits and wrap back to zero from 0x00ffffff.
-The test was computing a 32 bit value which wraps at 32 bits so that
-qp->req.psn can appear smaller than the limit when it is actually larger.
+Commit
 
-Replace '>' test with psn_compare which is used for other PSN comparisons
-and correctly handles the 24 bit size.
+  ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20201013170741.3590-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+added ident_p4d_init() to support 5-level paging, but this function
+doesn't check and return errors from ident_pud_init().
+
+For example, the decompressor stub uses this code to create an identity
+mapping. If it runs out of pages while trying to allocate a PMD
+pagetable, the error will be currently ignored.
+
+Fix this to propagate errors.
+
+ [ bp: Space out statements for better readability. ]
+
+Fixes: ea3b5e60ce80 ("x86/mm/ident_map: Add 5-level paging support")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Link: https://lkml.kernel.org/r/20201027230648.1885111-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_req.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/mm/ident_map.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_req.c b/drivers/infiniband/sw/rxe/rxe_req.c
-index af3923bf0a36b..d4917646641aa 100644
---- a/drivers/infiniband/sw/rxe/rxe_req.c
-+++ b/drivers/infiniband/sw/rxe/rxe_req.c
-@@ -634,7 +634,8 @@ next_wqe:
+diff --git a/arch/x86/mm/ident_map.c b/arch/x86/mm/ident_map.c
+index fe7a12599d8eb..968d7005f4a72 100644
+--- a/arch/x86/mm/ident_map.c
++++ b/arch/x86/mm/ident_map.c
+@@ -62,6 +62,7 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
+ 			  unsigned long addr, unsigned long end)
+ {
+ 	unsigned long next;
++	int result;
+ 
+ 	for (; addr < end; addr = next) {
+ 		p4d_t *p4d = p4d_page + p4d_index(addr);
+@@ -73,13 +74,20 @@ static int ident_p4d_init(struct x86_mapping_info *info, p4d_t *p4d_page,
+ 
+ 		if (p4d_present(*p4d)) {
+ 			pud = pud_offset(p4d, 0);
+-			ident_pud_init(info, pud, addr, next);
++			result = ident_pud_init(info, pud, addr, next);
++			if (result)
++				return result;
++
+ 			continue;
+ 		}
+ 		pud = (pud_t *)info->alloc_pgt_page(info->context);
+ 		if (!pud)
+ 			return -ENOMEM;
+-		ident_pud_init(info, pud, addr, next);
++
++		result = ident_pud_init(info, pud, addr, next);
++		if (result)
++			return result;
++
+ 		set_p4d(p4d, __p4d(__pa(pud) | info->kernpg_flag));
  	}
  
- 	if (unlikely(qp_type(qp) == IB_QPT_RC &&
--		     qp->req.psn > (qp->comp.psn + RXE_MAX_UNACKED_PSNS))) {
-+		psn_compare(qp->req.psn, (qp->comp.psn +
-+				RXE_MAX_UNACKED_PSNS)) > 0)) {
- 		qp->req.wait_psn = 1;
- 		goto exit;
- 	}
 -- 
 2.27.0
 
