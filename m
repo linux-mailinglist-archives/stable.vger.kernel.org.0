@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D662E68C6
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 830492E68DE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728262AbgL1M7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:59:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
+        id S1729914AbgL1Qk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:40:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726606AbgL1M7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68D2422573;
-        Mon, 28 Dec 2020 12:58:38 +0000 (UTC)
+        id S1728326AbgL1M7W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:59:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30FE822AAA;
+        Mon, 28 Dec 2020 12:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160319;
-        bh=Qd6aj9x/qUTjM3GHQ853OvkN2U3bcXzD0Z2BxUwS9uY=;
+        s=korg; t=1609160321;
+        bh=UxDVjRKxcEiuNupP/13AuHRi/VUNkfhOcob9XU5/5EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RBWjr/fMjz60uE1JHvvow3Za7fPKWnM6kpsxt8NQ0dS9NlOy5zF0h0K+XVaYFui4
-         N8rUNOHVHd+yTKXkadSzZnCTSCo8VYSJqfkB74hpq/kZQU1bzYdLDtkE6RtISCPqjr
-         GKjUJL2Vvr4cV+ZN/8iiDqvdkFdEcOnhrwQFv/lY=
+        b=Iy+B6dQDtkvGWzwjCz181zmvQaVaNFJk1nsAHhT5xmynSrc3q5jQaWIz8s4JTfaCu
+         Of2GL0yEdtrryGsmAD8XD/KEui60sOTlQjHHmwbo6xyqw/qua9mD2GiVBp94H1zHzx
+         qW0vuOA9wH3w0pOwGwmYzobyTz22eM/RkEilmIh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 011/175] spi: Prevent adding devices below an unregistering controller
-Date:   Mon, 28 Dec 2020 13:47:44 +0100
-Message-Id: <20201228124853.801123776@linuxfoundation.org>
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 012/175] net/mlx4_en: Avoid scheduling restart task if it is already running
+Date:   Mon, 28 Dec 2020 13:47:45 +0100
+Message-Id: <20201228124853.851160561@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
 References: <20201228124853.216621466@linuxfoundation.org>
@@ -43,110 +40,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-commit ddf75be47ca748f8b12d28ac64d624354fddf189 upstream
+[ Upstream commit fed91613c9dd455dd154b22fa8e11b8526466082 ]
 
-CONFIG_OF_DYNAMIC and CONFIG_ACPI allow adding SPI devices at runtime
-using a DeviceTree overlay or DSDT patch.  CONFIG_SPI_SLAVE allows the
-same via sysfs.
+Add restarting state flag to avoid scheduling another restart task while
+such task is already running. Change task name from watchdog_task to
+restart_task to better fit the task role.
 
-But there are no precautions to prevent adding a device below a
-controller that's being removed.  Such a device is unusable and may not
-even be able to unbind cleanly as it becomes inaccessible once the
-controller has been torn down.  E.g. it is then impossible to quiesce
-the device's interrupt.
-
-of_spi_notify() and acpi_spi_notify() do hold a ref on the controller,
-but otherwise run lockless against spi_unregister_controller().
-
-Fix by holding the spi_add_lock in spi_unregister_controller() and
-bailing out of spi_add_device() if the controller has been unregistered
-concurrently.
-
-Fixes: ce79d54ae447 ("spi/of: Add OF notifier handler")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.19+
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-Link: https://lore.kernel.org/r/a8c3205088a969dc8410eec1eba9aface60f36af.1596451035.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Fixes: 1e338db56e5a ("mlx4_en: Fix a race at restart task")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/Kconfig |    3 +++
- drivers/spi/spi.c   |   21 ++++++++++++++++++++-
- 2 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c |   20 +++++++++++++-------
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    7 ++++++-
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -763,4 +763,7 @@ endif # SPI_MASTER
- 
- # (slave support would go here)
- 
-+config SPI_DYNAMIC
-+	def_bool ACPI || OF_DYNAMIC || SPI_SLAVE
-+
- endif # SPI
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -422,6 +422,12 @@ static LIST_HEAD(spi_master_list);
-  */
- static DEFINE_MUTEX(board_lock);
- 
-+/*
-+ * Prevents addition of devices with same chip select and
-+ * addition of devices below an unregistering controller.
-+ */
-+static DEFINE_MUTEX(spi_add_lock);
-+
- /**
-  * spi_alloc_device - Allocate a new SPI device
-  * @master: Controller to which device is connected
-@@ -500,7 +506,6 @@ static int spi_dev_check(struct device *
-  */
- int spi_add_device(struct spi_device *spi)
- {
--	static DEFINE_MUTEX(spi_add_lock);
- 	struct spi_master *master = spi->master;
- 	struct device *dev = master->dev.parent;
- 	int status;
-@@ -529,6 +534,13 @@ int spi_add_device(struct spi_device *sp
- 		goto done;
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1311,8 +1311,10 @@ static void mlx4_en_tx_timeout(struct ne
  	}
  
-+	/* Controller may unregister concurrently */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC) &&
-+	    !device_is_registered(&master->dev)) {
-+		status = -ENODEV;
-+		goto done;
+ 	priv->port_stats.tx_timeout++;
+-	en_dbg(DRV, priv, "Scheduling watchdog\n");
+-	queue_work(mdev->workqueue, &priv->watchdog_task);
++	if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state)) {
++		en_dbg(DRV, priv, "Scheduling port restart\n");
++		queue_work(mdev->workqueue, &priv->restart_task);
 +	}
-+
- 	if (master->cs_gpios)
- 		spi->cs_gpio = master->cs_gpios[spi->chip_select];
- 
-@@ -2070,6 +2082,10 @@ static int __unregister(struct device *d
-  */
- void spi_unregister_master(struct spi_master *master)
- {
-+	/* Prevent addition of new devices, unregister existing ones */
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_lock(&spi_add_lock);
-+
- 	device_for_each_child(&master->dev, NULL, __unregister);
- 
- 	if (master->queued) {
-@@ -2089,6 +2105,9 @@ void spi_unregister_master(struct spi_ma
- 	if (!devres_find(master->dev.parent, devm_spi_release_master,
- 			 devm_spi_match_master, master))
- 		put_device(&master->dev);
-+
-+	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
-+		mutex_unlock(&spi_add_lock);
  }
- EXPORT_SYMBOL_GPL(spi_unregister_master);
  
+ 
+@@ -1746,6 +1748,7 @@ int mlx4_en_start_port(struct net_device
+ 		local_bh_enable();
+ 	}
+ 
++	clear_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state);
+ 	netif_tx_start_all_queues(dev);
+ 	netif_device_attach(dev);
+ 
+@@ -1900,7 +1903,7 @@ void mlx4_en_stop_port(struct net_device
+ static void mlx4_en_restart(struct work_struct *work)
+ {
+ 	struct mlx4_en_priv *priv = container_of(work, struct mlx4_en_priv,
+-						 watchdog_task);
++						 restart_task);
+ 	struct mlx4_en_dev *mdev = priv->mdev;
+ 	struct net_device *dev = priv->dev;
+ 
+@@ -2220,7 +2223,7 @@ static int mlx4_en_change_mtu(struct net
+ 	if (netif_running(dev)) {
+ 		mutex_lock(&mdev->state_lock);
+ 		if (!mdev->device_up) {
+-			/* NIC is probably restarting - let watchdog task reset
++			/* NIC is probably restarting - let restart task reset
+ 			 * the port */
+ 			en_dbg(DRV, priv, "Change MTU called with card down!?\n");
+ 		} else {
+@@ -2229,7 +2232,9 @@ static int mlx4_en_change_mtu(struct net
+ 			if (err) {
+ 				en_err(priv, "Failed restarting port:%d\n",
+ 					 priv->port);
+-				queue_work(mdev->workqueue, &priv->watchdog_task);
++				if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING,
++						      &priv->state))
++					queue_work(mdev->workqueue, &priv->restart_task);
+ 			}
+ 		}
+ 		mutex_unlock(&mdev->state_lock);
+@@ -2701,7 +2706,8 @@ static int mlx4_xdp_set(struct net_devic
+ 		if (err) {
+ 			en_err(priv, "Failed starting port %d for XDP change\n",
+ 			       priv->port);
+-			queue_work(mdev->workqueue, &priv->watchdog_task);
++			if (!test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
++				queue_work(mdev->workqueue, &priv->restart_task);
+ 		}
+ 	}
+ 
+@@ -3080,7 +3086,7 @@ int mlx4_en_init_netdev(struct mlx4_en_d
+ 	priv->counter_index = MLX4_SINK_COUNTER_INDEX(mdev->dev);
+ 	spin_lock_init(&priv->stats_lock);
+ 	INIT_WORK(&priv->rx_mode_task, mlx4_en_do_set_rx_mode);
+-	INIT_WORK(&priv->watchdog_task, mlx4_en_restart);
++	INIT_WORK(&priv->restart_task, mlx4_en_restart);
+ 	INIT_WORK(&priv->linkstate_task, mlx4_en_linkstate);
+ 	INIT_DELAYED_WORK(&priv->stats_task, mlx4_en_do_get_stats);
+ 	INIT_DELAYED_WORK(&priv->service_task, mlx4_en_service_task);
+--- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
++++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
+@@ -522,6 +522,10 @@ struct mlx4_en_stats_bitmap {
+ 	struct mutex mutex; /* for mutual access to stats bitmap */
+ };
+ 
++enum {
++	MLX4_EN_STATE_FLAG_RESTARTING,
++};
++
+ struct mlx4_en_priv {
+ 	struct mlx4_en_dev *mdev;
+ 	struct mlx4_en_port_profile *prof;
+@@ -586,7 +590,7 @@ struct mlx4_en_priv {
+ 	struct mlx4_en_cq *rx_cq[MAX_RX_RINGS];
+ 	struct mlx4_qp drop_qp;
+ 	struct work_struct rx_mode_task;
+-	struct work_struct watchdog_task;
++	struct work_struct restart_task;
+ 	struct work_struct linkstate_task;
+ 	struct delayed_work stats_task;
+ 	struct delayed_work service_task;
+@@ -632,6 +636,7 @@ struct mlx4_en_priv {
+ 	u32 pflags;
+ 	u8 rss_key[MLX4_EN_RSS_KEY_SIZE];
+ 	u8 rss_hash_fn;
++	unsigned long state;
+ };
+ 
+ enum mlx4_en_wol {
 
 
