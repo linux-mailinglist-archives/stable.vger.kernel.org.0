@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0094C2E3FEA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 849822E3FCB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502994AbgL1OYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59798 "EHLO mail.kernel.org"
+        id S2503088AbgL1OYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:24:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502985AbgL1OYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA95206D4;
-        Mon, 28 Dec 2020 14:23:48 +0000 (UTC)
+        id S2503084AbgL1OYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0B2207B2;
+        Mon, 28 Dec 2020 14:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165429;
-        bh=eVpHb/0Ha3yjUHnrzVdsEZklN0TL3XpxRz27BA1gRzc=;
+        s=korg; t=1609165432;
+        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YK/z1N46gtHbF3MIN0rIbb4ipHLNV1i0QMMV7Sea34dRpGKfvFBtTtUV+gmrrrxch
-         e9H2S+4pF4ECMvkIs+Ikf0PtkGHK9XGRzUM2t7EukhK8yVwQZHJPmyQgcGeNhjJ8Fh
-         KHDdjIL+mT+uM2iVZ5pqU6snxtRXSTeFIUNSedbc=
+        b=r33Qd8Jpxpfv7vEFanBDAl4+Mm7649uCA/WlhY6i/tQwRkbsMfdvqmHKeplnW15tY
+         fZefDBAD0fN1Fpig/8PYfcjeQh/4pw8lLdu7PmfgGDWLyly0uGxVt1qtsSL+Evj67b
+         td3QEI0lSRT9e4fQfBSp9RtGr9ADYJthEovvI8Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bingbu Cao <bingbu.cao@intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 528/717] media: ipu3-cio2: Make the field on subdev format V4L2_FIELD_NONE
-Date:   Mon, 28 Dec 2020 13:48:46 +0100
-Message-Id: <20201228125046.264417667@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.10 529/717] Input: cyapa_gen6 - fix out-of-bounds stack access
+Date:   Mon, 28 Dec 2020 13:48:47 +0100
+Message-Id: <20201228125046.313733217@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,35 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 219a8b9c04e54872f9a4d566633fb42f08bcbe2a upstream.
+commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
 
-The ipu3-cio2 doesn't make use of the field and this is reflected in V4L2
-buffers as well as the try format. Do this in active format, too.
+gcc -Warray-bounds warns about a serious bug in
+cyapa_pip_retrieve_data_structure:
 
-Fixes: c2a6a07afe4a ("media: intel-ipu3: cio2: add new MIPI-CSI2 driver")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
+include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
+   40 |  *((__le16 *)p) = cpu_to_le16(val);
+drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
+  569 |  } __packed cmd;
+      |             ^~~
+
+Apparently the '-2' was added to the pointer instead of the value,
+writing garbage into the stack next to this variable.
+
+Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/mouse/cyapa_gen6.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1286,6 +1286,7 @@ static int cio2_subdev_set_fmt(struct v4
- 	fmt->format.width = min_t(u32, fmt->format.width, CIO2_IMAGE_MAX_WIDTH);
- 	fmt->format.height = min_t(u32, fmt->format.height,
- 				   CIO2_IMAGE_MAX_LENGTH);
-+	fmt->format.field = V4L2_FIELD_NONE;
+--- a/drivers/input/mouse/cyapa_gen6.c
++++ b/drivers/input/mouse/cyapa_gen6.c
+@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
  
- 	mutex_lock(&q->subdev_lock);
- 	*mbus = fmt->format;
+ 	memset(&cmd, 0, sizeof(cmd));
+ 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
+-	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
++	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
+ 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
+ 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
+ 	put_unaligned_le16(read_offset, &cmd.read_offset);
 
 
