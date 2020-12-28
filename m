@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B372E422E
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:19:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 058B42E3C51
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408197AbgL1ODD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:03:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35112 "EHLO mail.kernel.org"
+        id S2406739AbgL1OBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:01:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408227AbgL1OBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:01:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6640B2063A;
-        Mon, 28 Dec 2020 14:00:29 +0000 (UTC)
+        id S2408291AbgL1OBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:01:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47BE32064B;
+        Mon, 28 Dec 2020 14:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164030;
-        bh=xXmUcyNx60P9UdWq+qAIX9MVbO02kG2WpvxFUgk9teo=;
+        s=korg; t=1609164032;
+        bh=+MoJYVZe/7K/7z+pOTd59dkBkRpq+LSdlmwDxaUq9go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUjT+OpBW22llVe1B9hepJNXZsquWMCTlKjm4qMy8iYovX71CyDLzGtpEFafBrKzx
-         IOvXOF2pJj/urbPzNRPuttl6Cq36CgimddwuzVB4Rc1CRhSNTbbHatsoNZxUl3pwsL
-         whgy6TMY0Vew6pCBuIKaoKgujefn7ldAAjZKAvUI=
+        b=sXRBj1+7MnIdngFGXf+0H3/p8X9KRfpeKmMS/50tstQlHWrg69EsczT+mJ9EYV96a
+         awVM8A11VLsDaGnG3HsGUQdAOGHvo/Gi1ZH9UVGf9RyLGs1TdOmzbbKXPvA3ItRjZ3
+         LAgJmrQT05HG0kp195ee7KLp81VuD/9RtMp+f7P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Antoine Tenart <atenart@kernel.org>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/717] crypto: talitos - Fix return type of current_desc_hdr()
-Date:   Mon, 28 Dec 2020 13:40:33 +0100
-Message-Id: <20201228125022.674149674@linuxfoundation.org>
+Subject: [PATCH 5.10 036/717] crypto: inside-secure - Fix sizeof() mismatch
+Date:   Mon, 28 Dec 2020 13:40:34 +0100
+Message-Id: <20201228125022.714514514@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -41,53 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 0237616173fd363a54bd272aa3bd376faa1d7caa ]
+[ Upstream commit c98e233062cd9d0e2f10e445a671f0799daaef67 ]
 
-current_desc_hdr() returns a u32 but in fact this is a __be32,
-leading to a lot of sparse warnings.
+An incorrect sizeof() is being used, sizeof(priv->ring[i].rdr_req) is
+not correct, it should be sizeof(*priv->ring[i].rdr_req). Note that
+since the size of ** is the same size as * this is not causing any
+issues.
 
-Change the return type to __be32 and ensure it is handled as
-sure by the caller.
-
-Fixes: 3e721aeb3df3 ("crypto: talitos - handle descriptor not found in error path")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Addresses-Coverity: ("Sizeof not portable (SIZEOF_MISMATCH)")
+Fixes: 9744fec95f06 ("crypto: inside-secure - remove request list to improve performance")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Antoine Tenart <atenart@kernel.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/inside-secure/safexcel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 1de6b01381268..a713a35dc5022 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -460,7 +460,7 @@ DEF_TALITOS2_DONE(ch1_3, TALITOS2_ISR_CH_1_3_DONE)
- /*
-  * locate current (offending) descriptor
-  */
--static u32 current_desc_hdr(struct device *dev, int ch)
-+static __be32 current_desc_hdr(struct device *dev, int ch)
- {
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	int tail, iter;
-@@ -501,13 +501,13 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- /*
-  * user diagnostics; report root cause of error based on execution unit status
-  */
--static void report_eu_error(struct device *dev, int ch, u32 desc_hdr)
-+static void report_eu_error(struct device *dev, int ch, __be32 desc_hdr)
- {
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	int i;
+diff --git a/drivers/crypto/inside-secure/safexcel.c b/drivers/crypto/inside-secure/safexcel.c
+index eb2418450f120..2e1562108a858 100644
+--- a/drivers/crypto/inside-secure/safexcel.c
++++ b/drivers/crypto/inside-secure/safexcel.c
+@@ -1639,7 +1639,7 @@ static int safexcel_probe_generic(void *pdev,
  
- 	if (!desc_hdr)
--		desc_hdr = in_be32(priv->chan[ch].reg + TALITOS_DESCBUF);
-+		desc_hdr = cpu_to_be32(in_be32(priv->chan[ch].reg + TALITOS_DESCBUF));
- 
- 	switch (desc_hdr & DESC_HDR_SEL0_MASK) {
- 	case DESC_HDR_SEL0_AFEU:
+ 		priv->ring[i].rdr_req = devm_kcalloc(dev,
+ 			EIP197_DEFAULT_RING_SIZE,
+-			sizeof(priv->ring[i].rdr_req),
++			sizeof(*priv->ring[i].rdr_req),
+ 			GFP_KERNEL);
+ 		if (!priv->ring[i].rdr_req)
+ 			return -ENOMEM;
 -- 
 2.27.0
 
