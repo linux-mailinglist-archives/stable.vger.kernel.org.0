@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D862E3E0F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 688612E37CB
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502767AbgL1OXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:23:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58854 "EHLO mail.kernel.org"
+        id S1729492AbgL1NAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:00:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439210AbgL1OXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:23:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8BE1229C4;
-        Mon, 28 Dec 2020 14:22:23 +0000 (UTC)
+        id S1729459AbgL1NA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:00:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B9022A84;
+        Mon, 28 Dec 2020 13:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165344;
-        bh=Lbfd0la89QEGWJh+oYHU8RUqaVQDyY7sMHwdW066inw=;
+        s=korg; t=1609160412;
+        bh=oWJXZo+0BclQizMraScsx3nBU4Nn0LYmt4uqg1UzAbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp3fuchjRxw4khFgvabISW/BHgevIcl1ffOTL4eycCLF3IxGSFjrPAQ83FYtiucvk
-         L1mEt3QfEty0hCvse84rg1969DqLeZKGR3l7c+aN1a3a7RDRdzTNJkHWRLUqPGdpcv
-         E70l88Ep7a2drbXQsNCyVBKRiE7dMCxuQxb6ZI38=
+        b=UNN0/IDU2vKaSSxoJy11uR8pFvGPUDV3SOl4zuRj5JVMFp+UkSiSqX5QxSbhSE94a
+         iG3psVVbuTnkihybkN8flmCudxraJ8aLwvVwIwNhN09IX2uJn3rKFb9ZVRC+rk2oTy
+         w+TbKnJXlugRekXhOvIJpf73i3xY2U8DVzk6toTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 497/717] clk: s2mps11: Fix a resource leak in error handling paths in the probe function
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Subject: [PATCH 4.9 042/175] ARM: dts: exynos: fix roles of USB 3.0 ports on Odroid XU
 Date:   Mon, 28 Dec 2020 13:48:15 +0100
-Message-Id: <20201228125044.776975691@linuxfoundation.org>
+Message-Id: <20201228124855.290195717@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit d2d94fc567624f96187e8b52083795620f93e69f ]
+commit ecc1ff532b499d20304a4f682247137025814c34 upstream.
 
-Some resource should be released in the error handling path of the probe
-function, as already done in the remove function.
+On Odroid XU board the USB3-0 port is a microUSB and USB3-1 port is USB
+type A (host).  The roles were copied from Odroid XU3 (Exynos5422)
+design which has it reversed.
 
-The remove function was fixed in commit bf416bd45738 ("clk: s2mps11: Add
-missing of_node_put and of_clk_del_provider")
+Fixes: 8149afe4dbf9 ("ARM: dts: exynos: Add initial support for Odroid XU board")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201015182044.480562-1-krzk@kernel.org
+Tested-by: Gabriel Ribba Esteva <gabriel.ribbae@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 7cc560dea415 ("clk: s2mps11: Add support for s2mps11")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212122818.86195-1-christophe.jaillet@wanadoo.fr
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-s2mps11.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5410-odroidxu.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-s2mps11.c b/drivers/clk/clk-s2mps11.c
-index aa21371f9104c..a3e883a9f4067 100644
---- a/drivers/clk/clk-s2mps11.c
-+++ b/drivers/clk/clk-s2mps11.c
-@@ -195,6 +195,7 @@ static int s2mps11_clk_probe(struct platform_device *pdev)
- 	return ret;
+--- a/arch/arm/boot/dts/exynos5410-odroidxu.dts
++++ b/arch/arm/boot/dts/exynos5410-odroidxu.dts
+@@ -560,11 +560,11 @@
+ };
  
- err_reg:
-+	of_node_put(s2mps11_clks[0].clk_np);
- 	while (--i >= 0)
- 		clkdev_drop(s2mps11_clks[i].lookup);
+ &usbdrd_dwc3_0 {
+-	dr_mode = "host";
++	dr_mode = "peripheral";
+ };
  
--- 
-2.27.0
-
+ &usbdrd_dwc3_1 {
+-	dr_mode = "peripheral";
++	dr_mode = "host";
+ };
+ 
+ &usbdrd3_0 {
 
 
