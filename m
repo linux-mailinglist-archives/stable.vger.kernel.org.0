@@ -2,124 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0628D2E6BAA
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:14:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C412E6BBA
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:14:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730579AbgL1Wzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 17:55:50 -0500
-Received: from mail.efficios.com ([167.114.26.124]:40400 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729494AbgL1VKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 16:10:21 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 063922761C7;
-        Mon, 28 Dec 2020 16:09:40 -0500 (EST)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Xl2HNlqr6BSs; Mon, 28 Dec 2020 16:09:39 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 8512E2761C5;
-        Mon, 28 Dec 2020 16:09:39 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 8512E2761C5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1609189779;
-        bh=A+A/Blx9QD1hoONN5Jxqqa59/BnSFAuRhzOnDZD8md8=;
-        h=Date:From:To:Message-ID:MIME-Version;
-        b=p/szlAxKXnb8sMCXgDpGdE6is/o1rjODbnzdRovA9owiEjuUPlM3+dte9oFxY/+Hd
-         pvcRHGvBLx8S5o5ANGCMKBwMqzBmFMfuacgLtZuDT1vBtUVUSIdSFMD3lwBW0Mm8Sq
-         XkulYMWharVGPEE76YIKlwesiZMP7dKhpXj/gToE1q4CiEAv+QDgP6f1MTue34+EDL
-         yC7abPFDn6sQU4EVRsjnLUgN48sbY+nRlQq9VYRasErERk2As+18wk5Q0JRbIc/lci
-         ltQp4+4byni+b6Qb7IBjB/By21MOffNXi7Ev/3OOnq+SzZHcRZHXttXzb3ZGlGI4S3
-         +WkZTiCC1H5Hw==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id BWu1pC_47JoY; Mon, 28 Dec 2020 16:09:39 -0500 (EST)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
-        by mail.efficios.com (Postfix) with ESMTP id 725FE27640E;
-        Mon, 28 Dec 2020 16:09:39 -0500 (EST)
-Date:   Mon, 28 Dec 2020 16:09:39 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Andy Lutomirski <luto@kernel.org>, paulmck <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     "Russell King, ARM Linux" <linux@armlinux.org.uk>,
-        x86 <x86@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
-Message-ID: <1670059472.3671.1609189779376.JavaMail.zimbra@efficios.com>
-In-Reply-To: <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
-References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org> <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com> <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
-Subject: Re: [RFC please help] membarrier: Rewrite
- sync_core_before_usermode()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_3991 (ZimbraWebClient - FF84 (Linux)/8.8.15_GA_3980)
-Thread-Topic: membarrier: Rewrite sync_core_before_usermode()
-Thread-Index: UfUbgHPNYlsGbr5X+VxS/QBaGieq4w==
+        id S1730601AbgL1Wzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 17:55:51 -0500
+Received: from lists.gateworks.com ([108.161.130.12]:47116 "EHLO
+        lists.gateworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729549AbgL1Vmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 16:42:43 -0500
+X-Greylist: delayed 1916 seconds by postgrey-1.27 at vger.kernel.org; Mon, 28 Dec 2020 16:42:43 EST
+Received: from 068-189-091-139.biz.spectrum.com ([68.189.91.139] helo=tharvey.pdc.gateworks.com)
+        by lists.gateworks.com with esmtp (Exim 4.82)
+        (envelope-from <tharvey@gateworks.com>)
+        id 1ktztW-0005XF-9V; Mon, 28 Dec 2020 21:17:34 +0000
+From:   Tim Harvey <tharvey@gateworks.com>
+To:     Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
+Cc:     Tim Harvey <tharvey@gateworks.com>, stable@vger.kernel.org
+Subject: [PATCH] mfd: gateworks-gsc: fix interrupt type
+Date:   Mon, 28 Dec 2020 13:10:04 -0800
+Message-Id: <1609189804-10039-1-git-send-email-tharvey@gateworks.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
------ On Dec 27, 2020, at 4:36 PM, Andy Lutomirski luto@kernel.org wrote:
+The Gateworks System Controller has an active-low interrupt.
+Fix the interrupt request type.
 
-[...]
+Fixes: d85234994b2f ("mfd: Add Gateworks System Controller core driver")
 
->> You seem to have noticed odd cases on arm64 where this guarantee does not
->> match reality. Where exactly can we find this in the code, and which part
->> of the architecture manual can you point us to which supports your concern ?
->>
->> Based on the notes I have, use of `eret` on aarch64 guarantees a context
->> synchronizing
->> instruction when returning to user-space.
-> 
-> Based on my reading of the manual, ERET on ARM doesn't synchronize
-> anything at all.  I can't find any evidence that it synchronizes data
-> or instructions, and I've seen reports that the CPU will happily
-> speculate right past it.
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+---
+ drivers/mfd/gateworks-gsc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Reading [1] there appears to be 3 kind of context synchronization events:
-
-- Taking an exception,
-- Returning from an exception,
-- ISB.
-
-This other source [2] adds (search for Context synchronization operation):
-
-- Exit from Debug state
-- Executing a DCPS instruction
-- Executing a DRPS instruction
-
-"ERET" falls into the second kind of events, and AFAIU should be context
-synchronizing. That was confirmed to me by Will Deacon when membarrier
-sync-core was implemented for aarch64. If the architecture reference manuals
-are wrong, is there an errata ?
-
-As for the algorithm to use on ARMv8 to update instructions, see [2]
-B2.3.4  Implication of caches for the application programmer
-"Synchronization and coherency issues between data and instruction accesses"
-
-Membarrier only takes care of making sure the "ISB" part of the algorithm can be
-done easily and efficiently on multiprocessor systems.
-
-Thanks,
-
-Mathieu
-
-[1] https://developer.arm.com/documentation/den0024/a/Memory-Ordering/Barriers/ISB-in-more-detail
-[2] https://montcs.bloomu.edu/Information/ARMv8/ARMv8-A_Architecture_Reference_Manual_(Issue_A.a).pdf
-
+diff --git a/drivers/mfd/gateworks-gsc.c b/drivers/mfd/gateworks-gsc.c
+index 576da62..d878767 100644
+--- a/drivers/mfd/gateworks-gsc.c
++++ b/drivers/mfd/gateworks-gsc.c
+@@ -234,7 +234,7 @@ static int gsc_probe(struct i2c_client *client)
+ 
+ 	ret = devm_regmap_add_irq_chip(dev, gsc->regmap, client->irq,
+ 				       IRQF_ONESHOT | IRQF_SHARED |
+-				       IRQF_TRIGGER_FALLING, 0,
++				       IRQF_TRIGGER_LOW, 0,
+ 				       &gsc_irq_chip, &irq_data);
+ 	if (ret)
+ 		return ret;
 -- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+2.7.4
+
