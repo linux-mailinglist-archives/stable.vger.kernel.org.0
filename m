@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A4A2E3D2F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA71D2E3A8B
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439862AbgL1OMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:12:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46888 "EHLO mail.kernel.org"
+        id S2391402AbgL1NiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:38:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439858AbgL1OMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:12:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EDA2206D8;
-        Mon, 28 Dec 2020 14:11:41 +0000 (UTC)
+        id S2391382AbgL1NiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:38:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38FEE22582;
+        Mon, 28 Dec 2020 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164702;
-        bh=rwLZ/14vIO+CpPUWx84R1z3HTF+QRpNkNdzOQDt8Bcg=;
+        s=korg; t=1609162660;
+        bh=ynx36DTi8e4MPAJDgsgvxiYFy4KrlLaotzgKvxXFXiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYYMr2h4GaL+5TVUy4MzULiI0Sfvh1XPCUL48CJY5Gc3Xr2ZghQgFRQfESYn/BVKy
-         MuWJWzImZGESNfU+y9BlM0EnPpdLPrvYrtwMZ6S35Zjg7SGZR7A7JpLd6Irj96p2ST
-         dHehe264sSU5CPG4OFuBq2tT3FYwqWvGLiDpvSa0=
+        b=jFZEGgsiSrLcjN9P1dU9jgw+zIlPU4ryT1vcsGc//O5GL/q1SXF79JD0kBWoqlkaE
+         h6AUzGklubEomkqt4H3CmdJdzbnewZfSRir2Bv1jJyQ5K7cmyqTebNVLonXSMo7pGx
+         DLdRfvdQCU9iOBUfw5T6rYIf0axxZJd5TymWwOOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 267/717] NFSv4.2: condition READDIRs mask for security label based on LSM state
+Subject: [PATCH 5.4 029/453] selftests/bpf/test_offload.py: Reset ethtool features after failed setting
 Date:   Mon, 28 Dec 2020 13:44:25 +0100
-Message-Id: <20201228125033.803342973@linuxfoundation.org>
+Message-Id: <20201228124938.661435433@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 05ad917561fca39a03338cb21fe9622f998b0f9c ]
+[ Upstream commit 766e62b7fcd2cf1d43e6594ba37c659dc48f7ddb ]
 
-Currently, the client will always ask for security_labels if the server
-returns that it supports that feature regardless of any LSM modules
-(such as Selinux) enforcing security policy. This adds performance
-penalty to the READDIR operation.
+When setting the ethtool feature flag fails (as expected for the test), the
+kernel now tracks that the feature was requested to be 'off' and refuses to
+subsequently disable it again. So reset it back to 'on' so a subsequent
+disable (that's not supposed to fail) can succeed.
 
-Client adjusts superblock's support of the security_label based on
-the server's support but also current client's configuration of the
-LSM modules. Thus, prior to using the default bitmask in READDIR,
-this patch checks the server's capabilities and then instructs
-READDIR to remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
-
-v5: fixing silly mistakes of the rushed v4
-v4: simplifying logic
-v3: changing label's initialization per Ondrej's comment
-v2: dropping selinux hook and using the sb cap.
-
-Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
-Suggested-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 417ec26477a5 ("selftests/bpf: add offload test based on netdevsim")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/bpf/160752226280.110217.10696241563705667871.stgit@toke.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/test_offload.py | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index e89468678ae16..6858b4bb556d5 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -4961,12 +4961,12 @@ static int _nfs4_proc_readdir(struct dentry *dentry, const struct cred *cred,
- 		u64 cookie, struct page **pages, unsigned int count, bool plus)
- {
- 	struct inode		*dir = d_inode(dentry);
-+	struct nfs_server	*server = NFS_SERVER(dir);
- 	struct nfs4_readdir_arg args = {
- 		.fh = NFS_FH(dir),
- 		.pages = pages,
- 		.pgbase = 0,
- 		.count = count,
--		.bitmask = NFS_SERVER(d_inode(dentry))->attr_bitmask,
- 		.plus = plus,
- 	};
- 	struct nfs4_readdir_res res;
-@@ -4981,9 +4981,15 @@ static int _nfs4_proc_readdir(struct dentry *dentry, const struct cred *cred,
- 	dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
- 			dentry,
- 			(unsigned long long)cookie);
-+	if (!(server->caps & NFS_CAP_SECURITY_LABEL))
-+		args.bitmask = server->attr_bitmask_nl;
-+	else
-+		args.bitmask = server->attr_bitmask;
-+
- 	nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
- 	res.pgbase = args.pgbase;
--	status = nfs4_call_sync(NFS_SERVER(dir)->client, NFS_SERVER(dir), &msg, &args.seq_args, &res.seq_res, 0);
-+	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args,
-+			&res.seq_res, 0);
- 	if (status >= 0) {
- 		memcpy(NFS_I(dir)->cookieverf, res.verifier.data, NFS4_VERIFIER_SIZE);
- 		status += args.pgbase;
+diff --git a/tools/testing/selftests/bpf/test_offload.py b/tools/testing/selftests/bpf/test_offload.py
+index 1afa22c88e42a..8f918847ddf89 100755
+--- a/tools/testing/selftests/bpf/test_offload.py
++++ b/tools/testing/selftests/bpf/test_offload.py
+@@ -930,6 +930,7 @@ try:
+     start_test("Test disabling TC offloads is rejected while filters installed...")
+     ret, _ = sim.set_ethtool_tc_offloads(False, fail=False)
+     fail(ret == 0, "Driver should refuse to disable TC offloads with filters installed...")
++    sim.set_ethtool_tc_offloads(True)
+ 
+     start_test("Test qdisc removal frees things...")
+     sim.tc_flush_filters()
 -- 
 2.27.0
 
