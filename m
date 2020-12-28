@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A742E695C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 434BC2E687E
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728174AbgL1Mxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:53:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50432 "EHLO mail.kernel.org"
+        id S2437378AbgL1QhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:37:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgL1Mxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 653F72245C;
-        Mon, 28 Dec 2020 12:52:26 +0000 (UTC)
+        id S1729851AbgL1NBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:01:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3947C22573;
+        Mon, 28 Dec 2020 13:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159947;
-        bh=pgLXocH2vJ9te5HZy5zwbwL6P1bRMwPOKZSh4VVgUUI=;
+        s=korg; t=1609160467;
+        bh=jxrjnqIMyw4tF0dbRn8yKHdCEljgt65L9YbVWa44q3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVShaxSCn1yw36t3USQNoqSl2GpIqmeWS2LgO+CsJut2EDL6P+/3XiS1MTeujU29m
-         fv4pFmzb1nimyLp5ifEFqV38afr3FbG1ILTURa6AKETk2aBreGFnLWiWQyJdYkvJ4Q
-         mZ4f43IYDVv2sH/eUPV/ocWMaX7vzswsLREDhih8=
+        b=11inM8qXW/iwVHi1fLCdaP8AKEZa4woZ/CQujPq/IQFTASohdDo96PsFcI1+x0ccP
+         kA6avLqL5/nH6SbHh7SoH88vIhgfYVLuB1EwVgJgzxuXgPfBt8+WOSZfejJ22vj9xL
+         Qz7Fsjvl5kvlsl97tO8C7tsats4pkR+lpeZZ/Rt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 023/132] can: softing: softing_netdev_open(): fix error handling
+Subject: [PATCH 4.9 054/175] spi: img-spfi: fix reference leak in img_spfi_resume
 Date:   Mon, 28 Dec 2020 13:48:27 +0100
-Message-Id: <20201228124847.531480524@linuxfoundation.org>
+Message-Id: <20201228124855.874677417@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 4d1be581ec6b92a338bb7ed23e1381f45ddf336f ]
+[ Upstream commit ee5558a9084584015c8754ffd029ce14a5827fa8 ]
 
-If softing_netdev_open() fails, we should call close_candev() to avoid
-reference leak.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in img_spfi_resume, so we should fix it.
 
-Fixes: 03fd3cf5a179d ("can: add driver for Softing card")
+Fixes: deba25800a12b ("spi: Add driver for IMG SPFI controller")
 Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Acked-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Link: https://lore.kernel.org/r/20201202151632.1343786-1-zhangqilong3@huawei.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/r/20201204133508.742120-2-mkl@pengutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20201102145651.3875-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/softing/softing_main.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/spi/spi-img-spfi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/softing/softing_main.c b/drivers/net/can/softing/softing_main.c
-index 7621f91a8a209..fd48770ba7920 100644
---- a/drivers/net/can/softing/softing_main.c
-+++ b/drivers/net/can/softing/softing_main.c
-@@ -393,8 +393,13 @@ static int softing_netdev_open(struct net_device *ndev)
+diff --git a/drivers/spi/spi-img-spfi.c b/drivers/spi/spi-img-spfi.c
+index 2e65b70c78792..2a340234c85c1 100644
+--- a/drivers/spi/spi-img-spfi.c
++++ b/drivers/spi/spi-img-spfi.c
+@@ -771,8 +771,10 @@ static int img_spfi_resume(struct device *dev)
+ 	int ret;
  
- 	/* check or determine and set bittime */
- 	ret = open_candev(ndev);
--	if (!ret)
--		ret = softing_startstop(ndev, 1);
-+	if (ret)
-+		return ret;
-+
-+	ret = softing_startstop(ndev, 1);
-+	if (ret < 0)
-+		close_candev(ndev);
-+
- 	return ret;
- }
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_noidle(dev);
+ 		return ret;
++	}
+ 	spfi_reset(spfi);
+ 	pm_runtime_put(dev);
  
 -- 
 2.27.0
