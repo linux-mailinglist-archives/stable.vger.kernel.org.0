@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C53752E68BA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 343A12E659C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729318AbgL1Qkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:40:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
+        id S2390054AbgL1N3L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:29:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728035AbgL1M7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:59:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA6522B3B;
-        Mon, 28 Dec 2020 12:58:55 +0000 (UTC)
+        id S2390048AbgL1N3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:29:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6556D206ED;
+        Mon, 28 Dec 2020 13:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160336;
-        bh=Mz+qnzZbX/0kdmm2zW1A8sH+DRTk7o7kVx2xh4J0xDg=;
+        s=korg; t=1609162110;
+        bh=mlTsnEcIZHlHnH1ZBt4xncgPjTJtWeF6V9bH9LIpUXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3qQsCYi+ZxefcdZ5pQYEWojXQzvzzGsJbjeRrXINE96WOSGEV9qGzz+62GjBZTGT
-         b24ACaTAPohygD3HCVobe3JbL2b3Jbo3MCdLF/e6REf+9qap8316EZ40VcEJtZ/T6V
-         cNCJzMBd6dRIJVoKF2xPz8mU3CmJdz21BO5nAPtg=
+        b=RTLEozTB35o/BZ5QrVjKfpwbC+sKXxiw9TC6o4UMmwEaJa0/e4tQfD8JYtSa2FfKk
+         YTuy6YBVks57bI50P+m5+u3iktNsc8bgq6hJTAIXOGeUupRqwSaLZr7+psukp7QGCX
+         Cxe+MMFDsS8vZ7enkY7R1KMs3qokUXA52HTun2dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 017/175] mac80211: mesh: fix mesh_pathtbl_init() error path
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 151/346] spi: mxs: fix reference leak in mxs_spi_probe
 Date:   Mon, 28 Dec 2020 13:47:50 +0100
-Message-Id: <20201228124854.097155104@linuxfoundation.org>
+Message-Id: <20201228124927.086950526@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 905b2032fa424f253d9126271439cc1db2b01130 ]
+[ Upstream commit 03fc41afaa6549baa2dab7a84e1afaf5cadb5b18 ]
 
-If tbl_mpp can not be allocated, we call mesh_table_free(tbl_path)
-while tbl_path rhashtable has not yet been initialized, which causes
-panics.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in mxs_spi_probe, so we should fix it.
 
-Simply factorize the rhashtable_init() call into mesh_table_alloc()
-
-WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __flush_work kernel/workqueue.c:3040 [inline]
-WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
-Modules linked in:
-CPU: 1 PID: 8474 Comm: syz-executor663 Not tainted 5.10.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__flush_work kernel/workqueue.c:3040 [inline]
-RIP: 0010:__cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
-Code: 5d c3 e8 bf ae 29 00 0f 0b e9 f0 fd ff ff e8 b3 ae 29 00 0f 0b 43 80 3c 3e 00 0f 85 31 ff ff ff e9 34 ff ff ff e8 9c ae 29 00 <0f> 0b e9 dc fe ff ff 89 e9 80 e1 07 80 c1 03 38 c1 0f 8c 7d fd ff
-RSP: 0018:ffffc9000165f5a0 EFLAGS: 00010293
-RAX: ffffffff814b7064 RBX: 0000000000000001 RCX: ffff888021c80000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-RBP: ffff888024039ca0 R08: dffffc0000000000 R09: fffffbfff1dd3e64
-R10: fffffbfff1dd3e64 R11: 0000000000000000 R12: 1ffff920002cbebd
-R13: ffff888024039c88 R14: 1ffff11004807391 R15: dffffc0000000000
-FS:  0000000001347880(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000140 CR3: 000000002cc0a000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- rhashtable_free_and_destroy+0x25/0x9c0 lib/rhashtable.c:1137
- mesh_table_free net/mac80211/mesh_pathtbl.c:69 [inline]
- mesh_pathtbl_init+0x287/0x2e0 net/mac80211/mesh_pathtbl.c:785
- ieee80211_mesh_init_sdata+0x2ee/0x530 net/mac80211/mesh.c:1591
- ieee80211_setup_sdata+0x733/0xc40 net/mac80211/iface.c:1569
- ieee80211_if_add+0xd5c/0x1cd0 net/mac80211/iface.c:1987
- ieee80211_add_iface+0x59/0x130 net/mac80211/cfg.c:125
- rdev_add_virtual_intf net/wireless/rdev-ops.h:45 [inline]
- nl80211_new_interface+0x563/0xb40 net/wireless/nl80211.c:3855
- genl_family_rcv_msg_doit net/netlink/genetlink.c:739 [inline]
- genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
- genl_rcv_msg+0xe4e/0x1280 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x190/0x3a0 net/netlink/af_netlink.c:2494
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x780/0x930 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x9a8/0xd40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg net/socket.c:671 [inline]
- ____sys_sendmsg+0x519/0x800 net/socket.c:2353
- ___sys_sendmsg net/socket.c:2407 [inline]
- __sys_sendmsg+0x2b1/0x360 net/socket.c:2440
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-Link: https://lore.kernel.org/r/20201204162428.2583119-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b7969caf41a1d ("spi: mxs: implement runtime pm")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201106012421.95420-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_pathtbl.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/spi/spi-mxs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -61,6 +61,7 @@ static struct mesh_table *mesh_table_all
- 	INIT_HLIST_HEAD(&newtbl->known_gates);
- 	atomic_set(&newtbl->entries,  0);
- 	spin_lock_init(&newtbl->gates_lock);
-+	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
+diff --git a/drivers/spi/spi-mxs.c b/drivers/spi/spi-mxs.c
+index 6ac95a2a21cef..4a7375ecb65ef 100644
+--- a/drivers/spi/spi-mxs.c
++++ b/drivers/spi/spi-mxs.c
+@@ -605,6 +605,7 @@ static int mxs_spi_probe(struct platform_device *pdev)
  
- 	return newtbl;
- }
-@@ -849,9 +850,6 @@ int mesh_pathtbl_init(struct ieee80211_s
- 		goto free_path;
+ 	ret = pm_runtime_get_sync(ssp->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(ssp->dev);
+ 		dev_err(ssp->dev, "runtime_get_sync failed\n");
+ 		goto out_pm_runtime_disable;
  	}
- 
--	rhashtable_init(&tbl_path->rhead, &mesh_rht_params);
--	rhashtable_init(&tbl_mpp->rhead, &mesh_rht_params);
--
- 	sdata->u.mesh.mesh_paths = tbl_path;
- 	sdata->u.mesh.mpp_paths = tbl_mpp;
- 
+-- 
+2.27.0
+
 
 
