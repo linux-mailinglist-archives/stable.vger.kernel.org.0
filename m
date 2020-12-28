@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5922E3E09
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE6F2E3E0A
 	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502761AbgL1OWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:22:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58226 "EHLO mail.kernel.org"
+        id S2439195AbgL1OW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:22:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502754AbgL1OWv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:22:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F59F22B2E;
-        Mon, 28 Dec 2020 14:22:34 +0000 (UTC)
+        id S2502762AbgL1OWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:22:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED4CC2245C;
+        Mon, 28 Dec 2020 14:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165355;
-        bh=H1s/L3kciEiAKJWchESFS71nSiRSVzk+S0omDjp9yas=;
+        s=korg; t=1609165358;
+        bh=5d7w9lovCIOz+fYs0nVFZDisyzEndXwaN1+vXq6RX2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aL27IInzPx4dBbfkOH2mVIVm9KJVqmSoGslBXGr+XyNLPi/XqVcFb0jU2kwlAzYLf
-         Izbiz1HJajnMMsHb2sEZD0HYQlCuax5yZtlEUMttSaJW8dQmNoVclb6ovgPJLPA8mv
-         jSgTBaqXBn8ckEGl6pIEOxlcVIlU31mC3gog3LU8=
+        b=qrtjyk6tj7UiLNCkWIm9tWcQuFxLQ8wG5tdA+UsVuzsW+QZIPfz3/+nPaWBIwAUx2
+         2XNzFywZ80bv13yYb0blUC7ysrAsCrt7UXA3gQXjp5k4wfCmQrI9z5CiubK2+MEcyR
+         Z5ilQN0AGnvIpBt5SkqjV1vWN7P78nrZHOKn2QGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 501/717] powerpc/boot: Fix build of dts/fsl
-Date:   Mon, 28 Dec 2020 13:48:19 +0100
-Message-Id: <20201228125044.966377281@linuxfoundation.org>
+Subject: [PATCH 5.10 502/717] powerpc/smp: Add __init to init_big_cores()
+Date:   Mon, 28 Dec 2020 13:48:20 +0100
+Message-Id: <20201228125045.008191962@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -40,46 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit b36f835b636908e4122f2e17310b1dbc380a3b19 ]
+[ Upstream commit 9014eab6a38c60fd185bc92ed60f46cf99a462ab ]
 
-The lkp robot reported that some configs fail to build, for example
-mpc85xx_smp_defconfig, with:
+It fixes this link warning:
 
-  cc1: fatal error: opening output file arch/powerpc/boot/dts/fsl/.mpc8540ads.dtb.dts.tmp: No such file or directory
+WARNING: modpost: vmlinux.o(.text.unlikely+0x2d98): Section mismatch in reference from the function init_big_cores.isra.0() to the function .init.text:init_thread_group_cache_map()
+The function init_big_cores.isra.0() references
+the function __init init_thread_group_cache_map().
+This is often because init_big_cores.isra.0 lacks a __init
+annotation or the annotation of init_thread_group_cache_map is wrong.
 
-This bisects to:
-  cc8a51ca6f05 ("kbuild: always create directories of targets")
-
-Although that commit claims to be about in-tree builds, it somehow
-breaks out-of-tree builds. But presumably it's just exposing a latent
-bug in our Makefiles.
-
-We can fix it by adding to targets for dts/fsl in the same way that we
-do for dts.
-
-Fixes: cc8a51ca6f05 ("kbuild: always create directories of targets")
-Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 425752c63b6f ("powerpc: Detect the presence of big-cores via "ibm, thread-groups"")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201215032906.473460-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20201221074154.403779-1-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
-index f8ce6d2dde7b1..e4b364b5da9e7 100644
---- a/arch/powerpc/boot/Makefile
-+++ b/arch/powerpc/boot/Makefile
-@@ -368,6 +368,8 @@ initrd-y := $(filter-out $(image-y), $(initrd-y))
- targets	+= $(image-y) $(initrd-y)
- targets += $(foreach x, dtbImage uImage cuImage simpleImage treeImage, \
- 		$(patsubst $(x).%, dts/%.dtb, $(filter $(x).%, $(image-y))))
-+targets += $(foreach x, dtbImage uImage cuImage simpleImage treeImage, \
-+		$(patsubst $(x).%, dts/fsl/%.dtb, $(filter $(x).%, $(image-y))))
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 8c2857cbd9609..7d6cf75a7fd80 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -919,7 +919,7 @@ static struct sched_domain_topology_level powerpc_topology[] = {
+ 	{ NULL, },
+ };
  
- $(addprefix $(obj)/, $(initrd-y)): $(obj)/ramdisk.image.gz
+-static int init_big_cores(void)
++static int __init init_big_cores(void)
+ {
+ 	int cpu;
  
 -- 
 2.27.0
