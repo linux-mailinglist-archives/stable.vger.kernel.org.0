@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0292E671F
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:22:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBAE2E6829
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731658AbgL1QU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:20:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42132 "EHLO mail.kernel.org"
+        id S1730185AbgL1NDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:03:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732350AbgL1NN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:13:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1310822AAA;
-        Mon, 28 Dec 2020 13:13:16 +0000 (UTC)
+        id S1730181AbgL1NDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:03:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A10521D94;
+        Mon, 28 Dec 2020 13:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161197;
-        bh=Lwv8CmGye8bYWj3ELKJ9mQRHMfNUnWuYrQQaayD9kGw=;
+        s=korg; t=1609160549;
+        bh=1+WJhuqiIlTTxLU1mPqvf7iqnbTrIvjkKpOo/HKNRYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqMms2IsaANzOo2iQdQx43MqcooaAAZZG4J3YshtpSueaiiu28jFSPAn44IxMZ49Y
-         ddW9Uvs2qQJVcKpXsyT6+/9A9CdBBfNtASi5M+iRPPDw1+fuROBIM1BcS016fqTYz1
-         eKcr0g5pRoKnwcT7jKKQsANPh0nlyNxmHZuLDeuk=
+        b=BTJU+losxFXoo9liEB/gW+8LEvjfM+QqEemQdJr1EBYkTLNe+FwDatOLV9SlOykh8
+         k1ZSf9iu/mZj0eXO5Jjj1LPdnCF+aX35iAu9FpY4sjHd9r10fmNbdGZTMCjFEStZ/8
+         EA0Wr0JveXhn2n9TWpaHa4+9L9XDG6YfXzUgogf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 107/242] memstick: fix a double-free bug in memstick_check
+Subject: [PATCH 4.9 059/175] spi: tegra20-slink: fix reference leak in slink ops of tegra20
 Date:   Mon, 28 Dec 2020 13:48:32 +0100
-Message-Id: <20201228124909.959344678@linuxfoundation.org>
+Message-Id: <20201228124856.124831727@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit e3e9ced5c93803d5b2ea1942c4bf0192622531d6 ]
+[ Upstream commit 763eab7074f6e71babd85d796156f05a675f9510 ]
 
-kfree(host->card) has been called in put_device so that
-another kfree would raise cause a double-free bug.
+pm_runtime_get_sync will increment pm usage counter even it
+failed. Forgetting to pm_runtime_put_noidle will result in
+reference leak in two callers(tegra_slink_setup and
+tegra_slink_resume), so we should fix it.
 
-Fixes: 0193383a5833 ("memstick: core: fix device_register() error handling")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Link: https://lore.kernel.org/r/20201120074846.31322-1-miaoqinglang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: dc4dc36056392 ("spi: tegra: add spi driver for SLINK controller")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20201103141345.6188-1-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/core/memstick.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/spi/spi-tegra20-slink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/memstick/core/memstick.c b/drivers/memstick/core/memstick.c
-index b1564cacd19e1..20ae8652adf44 100644
---- a/drivers/memstick/core/memstick.c
-+++ b/drivers/memstick/core/memstick.c
-@@ -469,7 +469,6 @@ static void memstick_check(struct work_struct *work)
- 			host->card = card;
- 			if (device_register(&card->dev)) {
- 				put_device(&card->dev);
--				kfree(host->card);
- 				host->card = NULL;
- 			}
- 		} else
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index cf2a329fd8958..9f14560686b68 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -761,6 +761,7 @@ static int tegra_slink_setup(struct spi_device *spi)
+ 
+ 	ret = pm_runtime_get_sync(tspi->dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(tspi->dev);
+ 		dev_err(tspi->dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
+@@ -1197,6 +1198,7 @@ static int tegra_slink_resume(struct device *dev)
+ 
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
++		pm_runtime_put_noidle(dev);
+ 		dev_err(dev, "pm runtime failed, e = %d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.27.0
 
