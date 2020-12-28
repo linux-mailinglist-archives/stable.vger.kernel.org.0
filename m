@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2C02E384D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:09:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8F72E63C6
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:45:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730933AbgL1NI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:08:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
+        id S2405363AbgL1Pme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:42:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730929AbgL1NI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBD2F22583;
-        Mon, 28 Dec 2020 13:07:45 +0000 (UTC)
+        id S2405186AbgL1Nql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:46:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8655B2064B;
+        Mon, 28 Dec 2020 13:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160866;
-        bh=KKNjEgsjAPsXXaD40dGiwIChTwm9XZA9TZLAwvKoQcA=;
+        s=korg; t=1609163161;
+        bh=F8Ql1MnqnnF5nekGaStQ9wgNbbXsmQEjiQPj92dadQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJrrN3cPmyc77OvPIZ7a8IJJrvmOVPkAQOHBvOBXDl2vT0sanHt3zdyMStOnLohEd
-         YPJkYu+VV5KafkJYIY9lyq6jkPOlH2MVaX/lCcmbzn2mpspNCQ3RHsYlmYL3MseTnf
-         97tGMt49gZtwLr0Gtn+89Wcj0qoXDf89miGvoEwY=
+        b=WJsLQ6GVpBCGPHOMLc3PL5hACukYHEdIZdWGGI03oU54+C8Nq4OS1p+EEuWF9PBZJ
+         cB04z0WMZg2ZDBwSqZAY0HUWbTVcWrD1u8JOrow2JNQgIoex86a860p+H0uRPpl8vm
+         3wNpFMKsq+WnmR1MWFhLcW/KH3oVzh9GphIGC8XQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 022/242] net: stmmac: dwmac-meson8b: fix mask definition of the m250_sel mux
+        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 191/453] arm64: dts: meson: fix spi-max-frequency on Khadas VIM2
 Date:   Mon, 28 Dec 2020 13:47:07 +0100
-Message-Id: <20201228124905.764712265@linuxfoundation.org>
+Message-Id: <20201228124946.402955107@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Artem Lapkin <art@khadas.com>
 
-[ Upstream commit 82ca4c922b8992013a238d65cf4e60cc33e12f36 ]
+[ Upstream commit b6c605e00ce8910d7ec3d9a54725d78b14db49b9 ]
 
-The m250_sel mux clock uses bit 4 in the PRG_ETH0 register. Fix this by
-shifting the PRG_ETH0_CLK_M250_SEL_MASK accordingly as the "mask" in
-struct clk_mux expects the mask relative to the "shift" field in the
-same struct.
+The max frequency for the w25q32 (VIM v1.2) and w25q128 (VIM v1.4) spifc
+chip should be 104Mhz not 30MHz.
 
-While here, get rid of the PRG_ETH0_CLK_M250_SEL_SHIFT macro and use
-__ffs() to determine it from the existing PRG_ETH0_CLK_M250_SEL_MASK
-macro.
-
-Fixes: 566e8251625304 ("net: stmmac: add a glue driver for the Amlogic Meson 8b / GXBB DWMAC")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20201205213207.519341-1-martin.blumenstingl@googlemail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b8b74dda3908 ("ARM64: dts: meson-gxm: Add support for Khadas VIM2")
+Signed-off-by: Artem Lapkin <art@khadas.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Link: https://lore.kernel.org/r/20201125024001.19036-1-christianshewitt@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
-@@ -30,7 +30,6 @@
- #define PRG_ETH0_RGMII_MODE		BIT(0)
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+index 3f43716d5c453..fa8bd0690e89a 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+@@ -395,7 +395,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "winbond,w25q16", "jedec,spi-nor";
+ 		reg = <0>;
+-		spi-max-frequency = <3000000>;
++		spi-max-frequency = <104000000>;
+ 	};
+ };
  
- /* mux to choose between fclk_div2 (bit unset) and mpll2 (bit set) */
--#define PRG_ETH0_CLK_M250_SEL_SHIFT	4
- #define PRG_ETH0_CLK_M250_SEL_MASK	GENMASK(4, 4)
- 
- #define PRG_ETH0_TXDLY_SHIFT		5
-@@ -121,8 +120,9 @@ static int meson8b_init_clk(struct meson
- 	init.num_parents = MUX_CLK_NUM_PARENTS;
- 
- 	dwmac->m250_mux.reg = dwmac->regs + PRG_ETH0;
--	dwmac->m250_mux.shift = PRG_ETH0_CLK_M250_SEL_SHIFT;
--	dwmac->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK;
-+	dwmac->m250_mux.shift = __ffs(PRG_ETH0_CLK_M250_SEL_MASK);
-+	dwmac->m250_mux.mask = PRG_ETH0_CLK_M250_SEL_MASK >>
-+			       dwmac->m250_mux.shift;
- 	dwmac->m250_mux.flags = 0;
- 	dwmac->m250_mux.table = NULL;
- 	dwmac->m250_mux.hw.init = &init;
+-- 
+2.27.0
+
 
 
