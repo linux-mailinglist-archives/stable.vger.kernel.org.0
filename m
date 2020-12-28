@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF202E67FC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8AE2E66D2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730610AbgL1QbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:31:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
+        id S1731009AbgL1NRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:17:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730586AbgL1NFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:05:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D622245C;
-        Mon, 28 Dec 2020 13:04:35 +0000 (UTC)
+        id S1733148AbgL1NQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:16:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B41207F7;
+        Mon, 28 Dec 2020 13:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160676;
-        bh=rN1UhIVGmv1kbOBSZbu95fHxVkQe5md3+jf0hDU4j3c=;
+        s=korg; t=1609161337;
+        bh=Zk/fkRtIIpQdewPWSBL5BjP2GLGAsjF6KeSuKgOzpdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyheYx+9LRpvtrXlfHeP7XlcK3PPZO+EyEHtB39PzM7kFyrQvSefGL1QHZLUqCVP9
-         8qBH/KOHU1WiKUg1vOPZxhK8VlNuhFnk/73bURDPY71n8YVAfGXSHw+XhMjbatYyyU
-         Kfp+SkCLOqK2M3XzMVEnm4V07BRHqhgTk43H4vs8=
+        b=cXQ6EfSsz7sjKYqZruJt8Jyzz+uIZx1f0jgSW3qMcNPlQewAhcgpCJI++kyV3phGX
+         +6bL5D6RY47Gx7VsXj1GrMX0C/E3lTeDo6Nl5OKyoC+H0QPvdxR5rWUM/x2kdkyb2B
+         K+w+1QXUKmJ3Tqa/075FU+5TmFN/khn1PKffF07c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Kozlov Sergey <serjk@netup.ru>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 133/175] media: netup_unidvb: Dont leak SPI master in probe error path
+        syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 181/242] media: gspca: Fix memory leak in probe
 Date:   Mon, 28 Dec 2020 13:49:46 +0100
-Message-Id: <20201228124859.696786162@linuxfoundation.org>
+Message-Id: <20201228124913.593561819@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit e297ddf296de35037fa97f4302782def196d350a upstream.
+commit e469d0b09a19496e1972a20974bbf55b728151eb upstream.
 
-If the call to spi_register_master() fails on probe of the NetUP
-Universal DVB driver, the spi_master struct is erroneously not freed.
+The gspca driver leaks memory when a probe fails.  gspca_dev_probe2()
+calls v4l2_device_register(), which takes a reference to the
+underlying device node (in this case, a USB interface).  But the
+failure pathway neglects to call v4l2_device_unregister(), the routine
+responsible for dropping this reference.  Consequently the memory for
+the USB interface and its device never gets released.
 
-Likewise, if spi_new_device() fails, the spi_controller struct is
-not unregistered.  Plug the leaks.
+This patch adds the missing function call.
 
-While at it, fix an ordering issue in netup_spi_release() wherein
-spi_unregister_master() is called after fiddling with the IRQ control
-register.  The correct order is to call spi_unregister_master() *before*
-this teardown step because bus accesses may still be ongoing until that
-function returns.
+Reported-and-tested-by: syzbot+44e64397bd81d5e84cba@syzkaller.appspotmail.com
 
-Fixes: 52b1eaf4c59a ("[media] netup_unidvb: NetUP Universal DVB-S/S2/T/T2/C PCI-E card driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: <stable@vger.kernel.org> # v4.3+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.3+
-Cc: Kozlov Sergey <serjk@netup.ru>
-Link: https://lore.kernel.org/r/c4c24f333fc7840f4a3db24789e6e10dd660bede.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/pci/netup_unidvb/netup_unidvb_spi.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/gspca.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
-+++ b/drivers/media/pci/netup_unidvb/netup_unidvb_spi.c
-@@ -184,7 +184,7 @@ int netup_spi_init(struct netup_unidvb_d
- 	struct spi_master *master;
- 	struct netup_spi *nspi;
- 
--	master = spi_alloc_master(&ndev->pci_dev->dev,
-+	master = devm_spi_alloc_master(&ndev->pci_dev->dev,
- 		sizeof(struct netup_spi));
- 	if (!master) {
- 		dev_err(&ndev->pci_dev->dev,
-@@ -217,6 +217,7 @@ int netup_spi_init(struct netup_unidvb_d
- 		ndev->pci_slot,
- 		ndev->pci_func);
- 	if (!spi_new_device(master, &netup_spi_board)) {
-+		spi_unregister_master(master);
- 		ndev->spi = NULL;
- 		dev_err(&ndev->pci_dev->dev,
- 			"%s(): unable to create SPI device\n", __func__);
-@@ -235,13 +236,13 @@ void netup_spi_release(struct netup_unid
- 	if (!spi)
- 		return;
- 
-+	spi_unregister_master(spi->master);
- 	spin_lock_irqsave(&spi->lock, flags);
- 	reg = readw(&spi->regs->control_stat);
- 	writew(reg | NETUP_SPI_CTRL_IRQ, &spi->regs->control_stat);
- 	reg = readw(&spi->regs->control_stat);
- 	writew(reg & ~NETUP_SPI_CTRL_IMASK, &spi->regs->control_stat);
- 	spin_unlock_irqrestore(&spi->lock, flags);
--	spi_unregister_master(spi->master);
- 	ndev->spi = NULL;
- }
- 
+--- a/drivers/media/usb/gspca/gspca.c
++++ b/drivers/media/usb/gspca/gspca.c
+@@ -2140,6 +2140,7 @@ out:
+ 		input_unregister_device(gspca_dev->input_dev);
+ #endif
+ 	v4l2_ctrl_handler_free(gspca_dev->vdev.ctrl_handler);
++	v4l2_device_unregister(&gspca_dev->v4l2_dev);
+ 	kfree(gspca_dev->usb_buf);
+ 	kfree(gspca_dev);
+ 	return ret;
 
 
