@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6DD2E6617
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5662E678C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388855AbgL1QIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:08:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53842 "EHLO mail.kernel.org"
+        id S1730953AbgL1NIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388867AbgL1NZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:25:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6635E207CF;
-        Mon, 28 Dec 2020 13:24:30 +0000 (UTC)
+        id S1730739AbgL1NId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0463B22A84;
+        Mon, 28 Dec 2020 13:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161871;
-        bh=hnbIANBvFnDsoYqHpijpVuK87AxUj5SjnX6pB32gcv8=;
+        s=korg; t=1609160872;
+        bh=fQqazPkhD6w5XJvwLy00MnE9WRUkfTxU0eBOYBpP7Jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjqbA9E+sv7vXjJz2A9J6zMW+k7ygh/HB3tzBfdXuZJffEAFDaQG5twXrvOPu42Rs
-         v7isdK6AujXTZ21LOkpYgIIKj6kW/u5k9ZOvX80mvhDXoIo473+ZKRcY8jHA7OO46F
-         +8rwfH/3W3hKhbgb8wmbqXFhNDmLjgkfrmapkBHA=
+        b=uvT17zdsKZTTZuwS4X20XocmhrCJ4MHCAqbrJl4+3l3A02AgknOTsmqDHuYw15q2g
+         sGDAoI7ks/YXrsa9Eub8zxeW3o1GW55sTxvBSwfHhgyvPQIgWrFXOjQKgBFR+TOJ1D
+         RvRvETl+KgkAup7PvYteFltLjKCvm8eGeVHbcKvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Liu <iwtbavbm@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/346] sched/deadline: Fix sched_dl_global_validate()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 024/242] mac80211: mesh: fix mesh_pathtbl_init() error path
 Date:   Mon, 28 Dec 2020 13:47:09 +0100
-Message-Id: <20201228124925.104644630@linuxfoundation.org>
+Message-Id: <20201228124905.855508096@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,143 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Liu <iwtbavbm@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a57415f5d1e43c3a5c5d412cd85e2792d7ed9b11 ]
+[ Upstream commit 905b2032fa424f253d9126271439cc1db2b01130 ]
 
-When change sched_rt_{runtime, period}_us, we validate that the new
-settings should at least accommodate the currently allocated -dl
-bandwidth:
+If tbl_mpp can not be allocated, we call mesh_table_free(tbl_path)
+while tbl_path rhashtable has not yet been initialized, which causes
+panics.
 
-  sched_rt_handler()
-    -->	sched_dl_bandwidth_validate()
-	{
-		new_bw = global_rt_runtime()/global_rt_period();
+Simply factorize the rhashtable_init() call into mesh_table_alloc()
 
-		for_each_possible_cpu(cpu) {
-			dl_b = dl_bw_of(cpu);
-			if (new_bw < dl_b->total_bw)    <-------
-				ret = -EBUSY;
-		}
-	}
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __flush_work kernel/workqueue.c:3040 [inline]
+WARNING: CPU: 1 PID: 8474 at kernel/workqueue.c:3040 __cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Modules linked in:
+CPU: 1 PID: 8474 Comm: syz-executor663 Not tainted 5.10.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__flush_work kernel/workqueue.c:3040 [inline]
+RIP: 0010:__cancel_work_timer+0x514/0x540 kernel/workqueue.c:3136
+Code: 5d c3 e8 bf ae 29 00 0f 0b e9 f0 fd ff ff e8 b3 ae 29 00 0f 0b 43 80 3c 3e 00 0f 85 31 ff ff ff e9 34 ff ff ff e8 9c ae 29 00 <0f> 0b e9 dc fe ff ff 89 e9 80 e1 07 80 c1 03 38 c1 0f 8c 7d fd ff
+RSP: 0018:ffffc9000165f5a0 EFLAGS: 00010293
+RAX: ffffffff814b7064 RBX: 0000000000000001 RCX: ffff888021c80000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffff888024039ca0 R08: dffffc0000000000 R09: fffffbfff1dd3e64
+R10: fffffbfff1dd3e64 R11: 0000000000000000 R12: 1ffff920002cbebd
+R13: ffff888024039c88 R14: 1ffff11004807391 R15: dffffc0000000000
+FS:  0000000001347880(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000140 CR3: 000000002cc0a000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ rhashtable_free_and_destroy+0x25/0x9c0 lib/rhashtable.c:1137
+ mesh_table_free net/mac80211/mesh_pathtbl.c:69 [inline]
+ mesh_pathtbl_init+0x287/0x2e0 net/mac80211/mesh_pathtbl.c:785
+ ieee80211_mesh_init_sdata+0x2ee/0x530 net/mac80211/mesh.c:1591
+ ieee80211_setup_sdata+0x733/0xc40 net/mac80211/iface.c:1569
+ ieee80211_if_add+0xd5c/0x1cd0 net/mac80211/iface.c:1987
+ ieee80211_add_iface+0x59/0x130 net/mac80211/cfg.c:125
+ rdev_add_virtual_intf net/wireless/rdev-ops.h:45 [inline]
+ nl80211_new_interface+0x563/0xb40 net/wireless/nl80211.c:3855
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:739 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+ genl_rcv_msg+0xe4e/0x1280 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x190/0x3a0 net/netlink/af_netlink.c:2494
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+ netlink_unicast+0x780/0x930 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0x9a8/0xd40 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ ____sys_sendmsg+0x519/0x800 net/socket.c:2353
+ ___sys_sendmsg net/socket.c:2407 [inline]
+ __sys_sendmsg+0x2b1/0x360 net/socket.c:2440
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-But under CONFIG_SMP, dl_bw is per root domain , but not per CPU,
-dl_b->total_bw is the allocated bandwidth of the whole root domain.
-Instead, we should compare dl_b->total_bw against "cpus*new_bw",
-where 'cpus' is the number of CPUs of the root domain.
-
-Also, below annotation(in kernel/sched/sched.h) implied implementation
-only appeared in SCHED_DEADLINE v2[1], then deadline scheduler kept
-evolving till got merged(v9), but the annotation remains unchanged,
-meaningless and misleading, update it.
-
-* With respect to SMP, the bandwidth is given on a per-CPU basis,
-* meaning that:
-*  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
-*  - dl_total_bw array contains, in the i-eth element, the currently
-*    allocated bandwidth on the i-eth CPU.
-
-[1]: https://lore.kernel.org/lkml/1267385230.13676.101.camel@Palantir/
-
-Fixes: 332ac17ef5bf ("sched/deadline: Add bandwidth management for SCHED_DEADLINE tasks")
-Signed-off-by: Peng Liu <iwtbavbm@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Acked-by: Juri Lelli <juri.lelli@redhat.com>
-Link: https://lkml.kernel.org/r/db6bbda316048cda7a1bbc9571defde193a8d67e.1602171061.git.iwtbavbm@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
+Link: https://lore.kernel.org/r/20201204162428.2583119-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/deadline.c |  5 +++--
- kernel/sched/sched.h    | 42 ++++++++++++++++++-----------------------
- 2 files changed, 21 insertions(+), 26 deletions(-)
+ net/mac80211/mesh_pathtbl.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 8aecfb143859d..aa592dc3cb401 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -2464,7 +2464,7 @@ int sched_dl_global_validate(void)
- 	u64 period = global_rt_period();
- 	u64 new_bw = to_ratio(period, runtime);
- 	struct dl_bw *dl_b;
--	int cpu, ret = 0;
-+	int cpu, cpus, ret = 0;
- 	unsigned long flags;
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -61,6 +61,7 @@ static struct mesh_table *mesh_table_all
+ 	INIT_HLIST_HEAD(&newtbl->known_gates);
+ 	atomic_set(&newtbl->entries,  0);
+ 	spin_lock_init(&newtbl->gates_lock);
++	rhashtable_init(&newtbl->rhead, &mesh_rht_params);
  
- 	/*
-@@ -2479,9 +2479,10 @@ int sched_dl_global_validate(void)
- 	for_each_possible_cpu(cpu) {
- 		rcu_read_lock_sched();
- 		dl_b = dl_bw_of(cpu);
-+		cpus = dl_bw_cpus(cpu);
- 
- 		raw_spin_lock_irqsave(&dl_b->lock, flags);
--		if (new_bw < dl_b->total_bw)
-+		if (new_bw * cpus < dl_b->total_bw)
- 			ret = -EBUSY;
- 		raw_spin_unlock_irqrestore(&dl_b->lock, flags);
- 
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 41b7954be68b7..7b7ba91e319bb 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -247,30 +247,6 @@ struct rt_bandwidth {
- 
- void __dl_clear_params(struct task_struct *p);
- 
--/*
-- * To keep the bandwidth of -deadline tasks and groups under control
-- * we need some place where:
-- *  - store the maximum -deadline bandwidth of the system (the group);
-- *  - cache the fraction of that bandwidth that is currently allocated.
-- *
-- * This is all done in the data structure below. It is similar to the
-- * one used for RT-throttling (rt_bandwidth), with the main difference
-- * that, since here we are only interested in admission control, we
-- * do not decrease any runtime while the group "executes", neither we
-- * need a timer to replenish it.
-- *
-- * With respect to SMP, the bandwidth is given on a per-CPU basis,
-- * meaning that:
-- *  - dl_bw (< 100%) is the bandwidth of the system (group) on each CPU;
-- *  - dl_total_bw array contains, in the i-eth element, the currently
-- *    allocated bandwidth on the i-eth CPU.
-- * Moreover, groups consume bandwidth on each CPU, while tasks only
-- * consume bandwidth on the CPU they're running on.
-- * Finally, dl_total_bw_cpu is used to cache the index of dl_total_bw
-- * that will be shown the next time the proc or cgroup controls will
-- * be red. It on its turn can be changed by writing on its own
-- * control.
-- */
- struct dl_bandwidth {
- 	raw_spinlock_t		dl_runtime_lock;
- 	u64			dl_runtime;
-@@ -282,6 +258,24 @@ static inline int dl_bandwidth_enabled(void)
- 	return sysctl_sched_rt_runtime >= 0;
+ 	return newtbl;
  }
+@@ -851,9 +852,6 @@ int mesh_pathtbl_init(struct ieee80211_s
+ 		goto free_path;
+ 	}
  
-+/*
-+ * To keep the bandwidth of -deadline tasks under control
-+ * we need some place where:
-+ *  - store the maximum -deadline bandwidth of each cpu;
-+ *  - cache the fraction of bandwidth that is currently allocated in
-+ *    each root domain;
-+ *
-+ * This is all done in the data structure below. It is similar to the
-+ * one used for RT-throttling (rt_bandwidth), with the main difference
-+ * that, since here we are only interested in admission control, we
-+ * do not decrease any runtime while the group "executes", neither we
-+ * need a timer to replenish it.
-+ *
-+ * With respect to SMP, bandwidth is given on a per root domain basis,
-+ * meaning that:
-+ *  - bw (< 100%) is the deadline bandwidth of each CPU;
-+ *  - total_bw is the currently allocated bandwidth in each root domain;
-+ */
- struct dl_bw {
- 	raw_spinlock_t		lock;
- 	u64			bw;
--- 
-2.27.0
-
+-	rhashtable_init(&tbl_path->rhead, &mesh_rht_params);
+-	rhashtable_init(&tbl_mpp->rhead, &mesh_rht_params);
+-
+ 	sdata->u.mesh.mesh_paths = tbl_path;
+ 	sdata->u.mesh.mpp_paths = tbl_mpp;
+ 
 
 
