@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F07972E35FD
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 089C62E35FE
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 11:45:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbgL1Kog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 05:44:36 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:35869 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726958AbgL1Kog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:44:36 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 777E72D0;
-        Mon, 28 Dec 2020 05:43:50 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 28 Dec 2020 05:43:50 -0500
+        id S1727032AbgL1Kph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 05:45:37 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53977 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726958AbgL1Kph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 05:45:37 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CEAB41942808;
+        Mon, 28 Dec 2020 05:44:30 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 05:44:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Zbx+zl
-        hyqhjZi3G0MsVXvtHAQx8LPlRdhEGnadPpuxE=; b=LDwP8mJeR1OiiqRkbY2kd+
-        b+z49IZSYb5uJXT3Tess+xo5cNh5Wj4J5oQnk5DJa2p+ZnL75uOnHOCp3ehO+yvW
-        OY9GzxucaxSaMxZOHjP+enP4ivVGuQQUUwRqCl/0bBY9kv5BoVmtWgzV+I3XgtjQ
-        rdcs1zCYPiUs0MVNB6J+h3Bf4HkiOnKXVe/JsX481yFzYY0Rw9tM0RD5YkmPaaux
-        dZI0to/dKma47xpWz/x7r5Ro9quU0LaUKtlHtEkx2Tw19d0uMO9OGolW1s06up41
-        lEmRbIypaLcGd45Y5KbH1ssr4BZcwZBAPXwdxZYAafycBijADj9s/eKVD+Yn1T6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jd3WLw
+        1uXdwArI34mcS27HAzLtGdjexoFO8tKh3H5/M=; b=LeaHZLIZmfylf2tUOXrFcv
+        jZJiOwBRxl4DvqDdAShyib94Gue/0kJtedBAKXXBJAhONSgBLu6W5xR5pYVfBbRO
+        PEjPXEcYljAj1GXXwPJXJryAnhBcSHL4dlZIx5+XWCHW48VY6fnqA7ec67T9iyzE
+        nBN4uU82GLAna79w0mJArXPjYbybII3UGYAhtUahFr4MyWIkuvigQs8kUEf4ZLBI
+        XeN51dVRPosXBCnHRIQpqve8TyMrqFP9gq/eym7a9M1hXPHEGnMZiO/mcErp3jho
+        pgqcbSfbhJ8yimSwLeJwKUzHQUguEcS0faH33FTEWNmWuTVB1tqLoUNoWOgo/ejQ
         ==
-X-ME-Sender: <xms:5bbpXyxyc7bd_nB2DVD0OgICXV6kGhwhGt_MnOGrhDLrkQcFNa196A>
-    <xme:5bbpX-OlwDhq3EV2IRqXv03GFiZMeweh5BA0b9ItHH4Ehqw63CeGRqkRUddoQBnvM
-    mGJCbpUF42ifA>
+X-ME-Sender: <xms:DrfpX8twLlGDXiP9vSkYEFqIRwJVGjpQ_JUORi_X4kyBqnYXN2mnIw>
+    <xme:DrfpX5eENpf1OVGub2zbliL60kIw3DwYY5c1H_ls34WGIYwqaQEy9BYr8vp2J9Jh9
+    iu2NP4Z18FrRw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnheptdevtefhjeffvdefuedvgfefueektddthffhtdegie
-    ffvedvtdekffehueejfefhnecuffhomhgrihhnpehophgvnhhsuhhsvgdrohhrghenucfk
-    phepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:5bbpXxOJeafJO10rvPw1trjX__lW2_EqE_Qxff50Wy_y2Y362BJx2w>
-    <xmx:5bbpXwRcFRngQSV8-O1NC3XXiTHl7RAZdRNwXTK3TPz8kNhracFn_g>
-    <xmx:5bbpXzDPcjl56mXJoF-Oipdj-4p-mCMedadNm_PKpVQa0mAsCD_VUg>
-    <xmx:5rbpXz-KI9CE457Aqo4X05Ua7wr-Qw2JtP-fMd7MJdxA5Td3PM4jRdRBjo0>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:DrfpX3x26oGXJDaQ20fK-oa3lYgWjMpuA5JhwRaO5hkO9AHmZBB6hQ>
+    <xmx:DrfpX_NGe_5PxIo9MGEWw9bdh9R6tOE1sLGVkkobAePS1jRPkQ0ZRw>
+    <xmx:DrfpX89Lg3pwaG82vvzvoQCv_MmYZ2t0S-5xE0trIgf3s8-nMCctuw>
+    <xmx:DrfpX7l1_YWQUtN-JD55JC4ZT_IKJ0hMHSbUpJHSXLlN7Crj2Kz9uQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F31BF1080064;
-        Mon, 28 Dec 2020 05:43:48 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Don't invoke kgdb_breakpoint()" failed to apply to 5.10-stable tree
-To:     tiwai@suse.de, alexander.deucher@amd.com,
-        nicholas.kazlauskas@amd.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 20BC6240057;
+        Mon, 28 Dec 2020 05:44:30 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Add get_dig_frontend implementation for DCEx" failed to apply to 5.10-stable tree
+To:     Rodrigo.Siqueira@amd.com, Harry.Wentland@amd.com,
+        Nicholas.Kazlauskas@amd.com, alexander.deucher@amd.com,
+        bp@alien8.de, bp@suse.de, chiawen.huang@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 11:45:11 +0100
-Message-ID: <16091523111154@kroah.com>
+Date:   Mon, 28 Dec 2020 11:45:53 +0100
+Message-ID: <16091523531566@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,39 +72,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0ca3418272a230a16d87d3302839d0ca1255f378 Mon Sep 17 00:00:00 2001
-From: Takashi Iwai <tiwai@suse.de>
-Date: Fri, 23 Oct 2020 09:46:55 +0200
-Subject: [PATCH] drm/amd/display: Don't invoke kgdb_breakpoint()
- unconditionally
+From 6bdeff12a96c9a5da95c8d11fefd145eb165e32a Mon Sep 17 00:00:00 2001
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Date: Tue, 15 Dec 2020 10:33:34 -0500
+Subject: [PATCH] drm/amd/display: Add get_dig_frontend implementation for DCEx
 
-ASSERT_CRITICAL() invokes kgdb_breakpoint() whenever either
-CONFIG_KGDB or CONFIG_HAVE_KGDB is set.  This, however, may lead to a
-kernel panic when no kdb stuff is attached, since the
-kgdb_breakpoint() call issues INT3.  It's nothing but a surprise for
-normal end-users.
+Some old ASICs might not implement/require get_dig_frontend helper; in
+this scenario, we can have a NULL pointer exception when we try to call
+it inside vbios disable operation. For example, this situation might
+happen when using Polaris12 with an eDP panel. This commit avoids this
+situation by adding a specific get_dig_frontend implementation for DCEx.
 
-For avoiding the pitfall, make the kgdb_breakpoint() call only when
-CONFIG_DEBUG_KERNEL_DC is set.
-
-https://bugzilla.opensuse.org/show_bug.cgi?id=1177973
-Cc: <stable@vger.kernel.org>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Harry Wentland <Harry.Wentland@amd.com>
+Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Cc: Chiawen Huang <chiawen.huang@amd.com>
+Reported-and-tested-by: Borislav Petkov <bp@suse.de>
 Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-diff --git a/drivers/gpu/drm/amd/display/dc/os_types.h b/drivers/gpu/drm/amd/display/dc/os_types.h
-index 330acaaed79a..32758b245754 100644
---- a/drivers/gpu/drm/amd/display/dc/os_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/os_types.h
-@@ -94,7 +94,7 @@
-  * general debug capabilities
-  *
-  */
--#if defined(CONFIG_HAVE_KGDB) || defined(CONFIG_KGDB)
-+#if defined(CONFIG_DEBUG_KERNEL_DC) && (defined(CONFIG_HAVE_KGDB) || defined(CONFIG_KGDB))
- #define ASSERT_CRITICAL(expr) do {	\
- 	if (WARN_ON(!(expr))) { \
- 		kgdb_breakpoint(); \
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
+index 4592ccdfa9b0..210466b2d863 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.c
+@@ -120,6 +120,7 @@ static const struct link_encoder_funcs dce110_lnk_enc_funcs = {
+ 	.is_dig_enabled = dce110_is_dig_enabled,
+ 	.destroy = dce110_link_encoder_destroy,
+ 	.get_max_link_cap = dce110_link_encoder_get_max_link_cap,
++	.get_dig_frontend = dce110_get_dig_frontend,
+ };
+ 
+ static enum bp_result link_transmitter_control(
+@@ -235,6 +236,44 @@ static void set_link_training_complete(
+ 
+ }
+ 
++unsigned int dce110_get_dig_frontend(struct link_encoder *enc)
++{
++	struct dce110_link_encoder *enc110 = TO_DCE110_LINK_ENC(enc);
++	u32 value;
++	enum engine_id result;
++
++	REG_GET(DIG_BE_CNTL, DIG_FE_SOURCE_SELECT, &value);
++
++	switch (value) {
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGA:
++		result = ENGINE_ID_DIGA;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGB:
++		result = ENGINE_ID_DIGB;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGC:
++		result = ENGINE_ID_DIGC;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGD:
++		result = ENGINE_ID_DIGD;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGE:
++		result = ENGINE_ID_DIGE;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGF:
++		result = ENGINE_ID_DIGF;
++		break;
++	case DCE110_DIG_FE_SOURCE_SELECT_DIGG:
++		result = ENGINE_ID_DIGG;
++		break;
++	default:
++		// invalid source select DIG
++		result = ENGINE_ID_UNKNOWN;
++	}
++
++	return result;
++}
++
+ void dce110_link_encoder_set_dp_phy_pattern_training_pattern(
+ 	struct link_encoder *enc,
+ 	uint32_t index)
+@@ -1665,7 +1704,8 @@ static const struct link_encoder_funcs dce60_lnk_enc_funcs = {
+ 	.disable_hpd = dce110_link_encoder_disable_hpd,
+ 	.is_dig_enabled = dce110_is_dig_enabled,
+ 	.destroy = dce110_link_encoder_destroy,
+-	.get_max_link_cap = dce110_link_encoder_get_max_link_cap
++	.get_max_link_cap = dce110_link_encoder_get_max_link_cap,
++	.get_dig_frontend = dce110_get_dig_frontend
+ };
+ 
+ void dce60_link_encoder_construct(
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
+index cb714a48b171..fc6ade824c23 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_link_encoder.h
+@@ -295,6 +295,8 @@ void dce110_link_encoder_connect_dig_be_to_fe(
+ 	enum engine_id engine,
+ 	bool connect);
+ 
++unsigned int dce110_get_dig_frontend(struct link_encoder *enc);
++
+ void dce110_link_encoder_set_dp_phy_pattern_training_pattern(
+ 	struct link_encoder *enc,
+ 	uint32_t index);
 
