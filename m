@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7182E661D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E08A52E67A1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390223AbgL1QJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:09:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S1730903AbgL1Q1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:27:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388814AbgL1NY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:24:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC39E206ED;
-        Mon, 28 Dec 2020 13:24:15 +0000 (UTC)
+        id S1730907AbgL1NIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F13422573;
+        Mon, 28 Dec 2020 13:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161856;
-        bh=a3VtAI9EWvHTMsREjZvzqzchoZk68QqwDXfiu3G1nnQ=;
+        s=korg; t=1609160860;
+        bh=zOS/wJlBAKwxJZzU8vaJBwWqhAtOBTE00YXtTSluFy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7CrZSSu6JJLdySqmTVZ/1i1lSBh2WlTQkZ5+ZucOljE58Y6Lz5wZacmRNRmvKP3o
-         SlvD/wEyG/qc/R9NvaXI2HUh7MdZkQJmS+3TrklbN4a4I3nnFS/6DLIOFFHddRd2mc
-         UbesMTC1UbRo9fa/jQKHaiNEmqzWhOAve0gKANMM=
+        b=GiGKzu3bRCFDppVMaOpsF7mqUK3z31mzWmiUJ2WVODrbQeSasGu0pSBRAwC9LpNxr
+         UY/Sf6++oemy6VTmNvCWlggvlbqCIaRwvCK7tA0v1A+XrFygiEHWONIHhkV73L9TdR
+         lS9HgifJpHAX3oTmyTbUB7F9vaxHZ1cLqOEIRENo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/346] ARM: dts: aspeed: s2600wf: Fix VGA memory region location
-Date:   Mon, 28 Dec 2020 13:47:04 +0100
-Message-Id: <20201228124924.859898132@linuxfoundation.org>
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 020/242] net/mlx4_en: Handle TX error CQE
+Date:   Mon, 28 Dec 2020 13:47:05 +0100
+Message-Id: <20201228124905.665889474@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 9e1cc9679776f5b9e42481d392b1550753ebd084 ]
+[ Upstream commit ba603d9d7b1215c72513d7c7aa02b6775fd4891b ]
 
-The VGA memory region is always from the top of RAM. On this board, that
-is 0x80000000 + 0x20000000 - 0x01000000 = 0x9f000000.
+In case error CQE was found while polling TX CQ, the QP is in error
+state and all posted WQEs will generate error CQEs without any data
+transmitted. Fix it by reopening the channels, via same method used for
+TX timeout handling.
 
-This was not an issue in practice as the region is "reserved" by the
-vendor's u-boot reducing the amount of available RAM, and the only user
-is the host VGA device poking at RAM over PCIe. That is, nothing from
-the ARM touches it.
+In addition add some more info on error CQE and WQE for debug.
 
-It is worth fixing as developers copy existing device trees when
-building their machines, and the XDMA driver does use the memory region
-from the ARM side.
-
-Fixes: c4043ecac34a ("ARM: dts: aspeed: Add S2600WF BMC Machine")
-Reported-by: John Wang <wangzhiqiang.bj@bytedance.com>
-Link: https://lore.kernel.org/r/20200922064234.163799-1-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: bd2f631d7c60 ("net/mlx4_en: Notify user when TX ring in error state")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    1 
+ drivers/net/ethernet/mellanox/mlx4/en_tx.c     |   40 ++++++++++++++++++++-----
+ drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    5 +++
+ 3 files changed, 39 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-index 22dade6393d06..d1dbe3b6ad5a7 100644
---- a/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-intel-s2600wf.dts
-@@ -22,9 +22,9 @@
- 		#size-cells = <1>;
- 		ranges;
+--- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
+@@ -1746,6 +1746,7 @@ int mlx4_en_start_port(struct net_device
+ 				mlx4_en_deactivate_cq(priv, cq);
+ 				goto tx_err;
+ 			}
++			clear_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &tx_ring->state);
+ 			if (t != TX_XDP) {
+ 				tx_ring->tx_queue = netdev_get_tx_queue(dev, i);
+ 				tx_ring->recycle_ring = NULL;
+--- a/drivers/net/ethernet/mellanox/mlx4/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
+@@ -385,6 +385,35 @@ int mlx4_en_free_tx_buf(struct net_devic
+ 	return cnt;
+ }
  
--		vga_memory: framebuffer@7f000000 {
-+		vga_memory: framebuffer@9f000000 {
- 			no-map;
--			reg = <0x7f000000 0x01000000>;
-+			reg = <0x9f000000 0x01000000>; /* 16M */
- 		};
- 	};
++static void mlx4_en_handle_err_cqe(struct mlx4_en_priv *priv, struct mlx4_err_cqe *err_cqe,
++				   u16 cqe_index, struct mlx4_en_tx_ring *ring)
++{
++	struct mlx4_en_dev *mdev = priv->mdev;
++	struct mlx4_en_tx_info *tx_info;
++	struct mlx4_en_tx_desc *tx_desc;
++	u16 wqe_index;
++	int desc_size;
++
++	en_err(priv, "CQE error - cqn 0x%x, ci 0x%x, vendor syndrome: 0x%x syndrome: 0x%x\n",
++	       ring->sp_cqn, cqe_index, err_cqe->vendor_err_syndrome, err_cqe->syndrome);
++	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, err_cqe, sizeof(*err_cqe),
++		       false);
++
++	wqe_index = be16_to_cpu(err_cqe->wqe_index) & ring->size_mask;
++	tx_info = &ring->tx_info[wqe_index];
++	desc_size = tx_info->nr_txbb << LOG_TXBB_SIZE;
++	en_err(priv, "Related WQE - qpn 0x%x, wqe index 0x%x, wqe size 0x%x\n", ring->qpn,
++	       wqe_index, desc_size);
++	tx_desc = ring->buf + (wqe_index << LOG_TXBB_SIZE);
++	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, tx_desc, desc_size, false);
++
++	if (test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
++		return;
++
++	en_err(priv, "Scheduling port restart\n");
++	queue_work(mdev->workqueue, &priv->restart_task);
++}
++
+ bool mlx4_en_process_tx_cq(struct net_device *dev,
+ 			   struct mlx4_en_cq *cq, int napi_budget)
+ {
+@@ -431,13 +460,10 @@ bool mlx4_en_process_tx_cq(struct net_de
+ 		dma_rmb();
  
--- 
-2.27.0
-
+ 		if (unlikely((cqe->owner_sr_opcode & MLX4_CQE_OPCODE_MASK) ==
+-			     MLX4_CQE_OPCODE_ERROR)) {
+-			struct mlx4_err_cqe *cqe_err = (struct mlx4_err_cqe *)cqe;
+-
+-			en_err(priv, "CQE error - vendor syndrome: 0x%x syndrome: 0x%x\n",
+-			       cqe_err->vendor_err_syndrome,
+-			       cqe_err->syndrome);
+-		}
++			     MLX4_CQE_OPCODE_ERROR))
++			if (!test_and_set_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &ring->state))
++				mlx4_en_handle_err_cqe(priv, (struct mlx4_err_cqe *)cqe, index,
++						       ring);
+ 
+ 		/* Skip over last polled CQE */
+ 		new_index = be16_to_cpu(cqe->wqe_index) & size_mask;
+--- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
++++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
+@@ -267,6 +267,10 @@ struct mlx4_en_page_cache {
+ 	} buf[MLX4_EN_CACHE_SIZE];
+ };
+ 
++enum {
++	MLX4_EN_TX_RING_STATE_RECOVERING,
++};
++
+ struct mlx4_en_priv;
+ 
+ struct mlx4_en_tx_ring {
+@@ -313,6 +317,7 @@ struct mlx4_en_tx_ring {
+ 	 * Only queue_stopped might be used if BQL is not properly working.
+ 	 */
+ 	unsigned long		queue_stopped;
++	unsigned long		state;
+ 	struct mlx4_hwq_resources sp_wqres;
+ 	struct mlx4_qp		sp_qp;
+ 	struct mlx4_qp_context	sp_context;
 
 
