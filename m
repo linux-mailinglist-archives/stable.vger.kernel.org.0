@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DFF2E64BA
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0B82E411C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403848AbgL1PwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:52:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S2408125AbgL1PCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:02:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731899AbgL1NjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:39:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DADA21D94;
-        Mon, 28 Dec 2020 13:38:35 +0000 (UTC)
+        id S2439960AbgL1OMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:12:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46F7A22AAA;
+        Mon, 28 Dec 2020 14:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162716;
-        bh=gd7jMHjPSILuY19NaiApgrXuSU0MdMGERpGIQSWs66M=;
+        s=korg; t=1609164753;
+        bh=dV46qeBfPLQJJtP+a2mxDy22q/gjmHpFLrDFTHvHiS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKO7j8KSKZKubTtIa+LdqkpUWAVXhtqpnzQiA//EZkd5U9GzsAvozXN0YGiYpUhmg
-         AdxWmtrVge/iptfp4gq+00MBoA55BQdUeAesqbbkAJ5EiwZwPErhhgqsInZRQyUQI/
-         qSYEas055LBSItYtDrVkLCb4PO4qDfKTyUHumJBE=
+        b=GLFsseufUZdrgfUTEKMCwaYPhBNvad8gBO2t4t3aiwR1uDWeR/U8a1iTRaDmawP0C
+         NqcYYGA6iEmPd6+yjmhMZK6Wsezuj8DUGGa7PAK08H1BJf1ahR7SjGTrvshUmEkwu9
+         qMJgmcK4urWKpYzPtyWv3Zhc3MIDb5clUZXkIR+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/453] kbuild: avoid split lines in .mod files
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Paul Cercueil <paul@crapouillou.net>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 287/717] clocksource/drivers/ingenic: Fix section mismatch
 Date:   Mon, 28 Dec 2020 13:44:45 +0100
-Message-Id: <20201228124939.617001423@linuxfoundation.org>
+Message-Id: <20201228125034.780980192@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Daniel Lezcano <daniel.lezcano@linaro.org>
 
-[ Upstream commit 7d32358be8acb119dcfe39b6cf67ec6d94bf1fe7 ]
+[ Upstream commit 5bd7cb29eceb52e4b108917786fdbf2a2c2048ef ]
 
-"xargs echo" is not a safe way to remove line breaks because the input
-may exceed the command line limit and xargs may break it up into
-multiple invocations of echo. This should never happen because
-scripts/gen_autoksyms.sh expects all undefined symbols are placed in
-the second line of .mod files.
+The function ingenic_tcu_get_clock() is annotated for the __init
+section but it is actually called from the online cpu callback.
 
-One possible way is to replace "xargs echo" with
-"sed ':x;N;$!bx;s/\n/ /g'" or something, but I rewrote the code by
-using awk because it is more readable.
+That will lead to a crash if a CPU is hotplugged after boot time.
 
-This issue was reported by Sami Tolvanen; in his Clang LTO patch set,
-$(multi-used-m) is no longer an ELF object, but a thin archive that
-contains LLVM bitcode files. llvm-nm prints out symbols for each
-archive member separately, which results a lot of dupications, in some
-places, beyond the system-defined limit.
+Remove the __init annotation for the ingenic_tcu_get_clock()
+function.
 
-This problem must be fixed irrespective of LTO, and we must ensure
-zero possibility of having this issue.
-
-Link: https://lkml.org/lkml/2020/12/1/1658
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Fixes: f19d838d08fc (clocksource/drivers/ingenic: Add high resolution timer support for SMP/SMT)
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Link: https://lore.kernel.org/r/20201125102346.1816310-1-daniel.lezcano@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.build | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/clocksource/ingenic-timer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 24a33c01bbf7c..9c689d011bced 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -234,6 +234,9 @@ objtool_dep = $(objtool_obj)					\
- ifdef CONFIG_TRIM_UNUSED_KSYMS
- cmd_gen_ksymdeps = \
- 	$(CONFIG_SHELL) $(srctree)/scripts/gen_ksymdeps.sh $@ >> $(dot-target).cmd
-+
-+# List module undefined symbols
-+undefined_syms = $(NM) $< | $(AWK) '$$1 == "U" { printf("%s%s", x++ ? " " : "", $$2) }';
- endif
+diff --git a/drivers/clocksource/ingenic-timer.c b/drivers/clocksource/ingenic-timer.c
+index 58fd9189fab7f..905fd6b163a81 100644
+--- a/drivers/clocksource/ingenic-timer.c
++++ b/drivers/clocksource/ingenic-timer.c
+@@ -127,7 +127,7 @@ static irqreturn_t ingenic_tcu_cevt_cb(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- define rule_cc_o_c
-@@ -253,13 +256,6 @@ define rule_as_o_S
- 	$(call cmd,modversions_S)
- endef
+-static struct clk * __init ingenic_tcu_get_clock(struct device_node *np, int id)
++static struct clk *ingenic_tcu_get_clock(struct device_node *np, int id)
+ {
+ 	struct of_phandle_args args;
  
--# List module undefined symbols (or empty line if not enabled)
--ifdef CONFIG_TRIM_UNUSED_KSYMS
--cmd_undef_syms = $(NM) $< | sed -n 's/^  *U //p' | xargs echo
--else
--cmd_undef_syms = echo
--endif
--
- # Built-in and composite module parts
- $(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
- 	$(call cmd,force_checksrc)
-@@ -267,7 +263,7 @@ $(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
- 
- cmd_mod = { \
- 	echo $(if $($*-objs)$($*-y)$($*-m), $(addprefix $(obj)/, $($*-objs) $($*-y) $($*-m)), $(@:.mod=.o)); \
--	$(cmd_undef_syms); \
-+	$(undefined_syms) echo; \
- 	} > $@
- 
- $(obj)/%.mod: $(obj)/%.o FORCE
 -- 
 2.27.0
 
