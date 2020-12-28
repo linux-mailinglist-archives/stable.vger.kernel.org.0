@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CBA2E6307
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:40:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FBB02E3736
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 13:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406855AbgL1Pio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 10:38:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
+        id S1727692AbgL1MwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:52:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406249AbgL1NuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:50:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91533205CB;
-        Mon, 28 Dec 2020 13:49:18 +0000 (UTC)
+        id S1726420AbgL1MwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:52:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 321A0208BA;
+        Mon, 28 Dec 2020 12:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163359;
-        bh=3GDsBp3B0FRcQoI2cx6UJifOCMMLXE1DKASdl12KdH0=;
+        s=korg; t=1609159891;
+        bh=9WgRmwC+svNSSGYZKUedHSeApEsX6D8kE4E5qIdSyD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=thDOOAmHQKzYIt43MVTOQ6ZNjx9GWVJyhb2++6YarPXx4O4C1WdvViTPKuqngMc5N
-         upgMFf2zgGV7UMGwxzpyPbMN7oGgLek0I39tYoQgvqCxP8lM7w2Bb02IIE9xxUb/2G
-         yoz6ErR2QlgWemFAfck9hKLibCaQGUdCrLns3oJ4=
+        b=AfQeZa+F49kCN+oiwgu+wEZ/o34U16HliH+8ni9l6rC3s2O9y0DfmCI5JRHIn5NKu
+         n96vtJivZLmNfNuAgNsTkYWtKpHnwredQu13XGpRkzL41X5jJWON0+c5EbiLA8o49p
+         BMjm/APtaALFnSa6aPRsXecG2oAdBiebwyopWAkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 258/453] s390/cio: fix use-after-free in ccw_device_destroy_console
-Date:   Mon, 28 Dec 2020 13:48:14 +0100
-Message-Id: <20201228124949.642068078@linuxfoundation.org>
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 011/132] net: stmmac: delete the eee_ctrl_timer after napi disabled
+Date:   Mon, 28 Dec 2020 13:48:15 +0100
+Message-Id: <20201228124846.949676719@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 14d4c4fa46eeaa3922e8e1c4aa727eb0a1412804 ]
+[ Upstream commit 5f58591323bf3f342920179f24515935c4b5fd60 ]
 
-Use of sch->dev reference after the put_device() call could trigger
-the use-after-free bugs.
+There have chance to re-enable the eee_ctrl_timer and fire the timer
+in napi callback after delete the timer in .stmmac_release(), which
+introduces to access eee registers in the timer function after clocks
+are disabled then causes system hang. Found this issue when do
+suspend/resume and reboot stress test.
 
-Fix this by simply adjusting the position of put_device.
+It is safe to delete the timer after napi disabled and disable lpi mode.
 
-Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-[vneethv@linux.ibm.com: Slight modification in the commit-message]
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d765955d2ae0b ("stmmac: add the Energy Efficient Ethernet support")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 983f9c9e08deb..23e9227e60fd7 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1664,10 +1664,10 @@ void __init ccw_device_destroy_console(struct ccw_device *cdev)
- 	struct io_subchannel_private *io_priv = to_io_private(sch);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1897,9 +1897,6 @@ static int stmmac_release(struct net_dev
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
  
- 	set_io_private(sch, NULL);
--	put_device(&sch->dev);
--	put_device(&cdev->dev);
- 	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
- 			  io_priv->dma_area, io_priv->dma_area_dma);
-+	put_device(&sch->dev);
-+	put_device(&cdev->dev);
- 	kfree(io_priv);
- }
+-	if (priv->eee_enabled)
+-		del_timer_sync(&priv->eee_ctrl_timer);
+-
+ 	/* Stop and disconnect the PHY */
+ 	if (priv->phydev) {
+ 		phy_stop(priv->phydev);
+@@ -1920,6 +1917,11 @@ static int stmmac_release(struct net_dev
+ 	if (priv->lpi_irq > 0)
+ 		free_irq(priv->lpi_irq, dev);
  
--- 
-2.27.0
-
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
++
+ 	/* Stop TX/RX DMA and clear the descriptors */
+ 	priv->hw->dma->stop_tx(priv->ioaddr);
+ 	priv->hw->dma->stop_rx(priv->ioaddr);
+@@ -3068,6 +3070,11 @@ int stmmac_suspend(struct net_device *nd
+ 
+ 	napi_disable(&priv->napi);
+ 
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
++
+ 	/* Stop TX/RX DMA */
+ 	priv->hw->dma->stop_tx(priv->ioaddr);
+ 	priv->hw->dma->stop_rx(priv->ioaddr);
 
 
