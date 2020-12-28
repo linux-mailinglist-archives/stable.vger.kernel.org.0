@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 621102E3F4C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1012E3A61
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:36:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503551AbgL1OaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:30:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
+        id S2390302AbgL1Nfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503517AbgL1OaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:30:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 567692063A;
-        Mon, 28 Dec 2020 14:29:44 +0000 (UTC)
+        id S2390265AbgL1Nfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:35:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C347E2063A;
+        Mon, 28 Dec 2020 13:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165784;
-        bh=4QNrSvkhcb45febz3gyZQuCw5TBarU7vQw7vc9eJhyw=;
+        s=korg; t=1609162537;
+        bh=L/E+7J6dGfw5xTQiGkp8ecsc9W6Ce2KLtFxFlBvbHqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyCx2D5WrpeRMe4gsHbI6h12aJTnqcvojko217CQ9eM9IZfKZYBxEgm6bTZRVHf/Q
-         kFKhD6WYl+WXDvI3SZ1aR3Kh92HpkRi9trrfFawatnyOfB5CMJoN1gBWnjxishYAT3
-         +W28n9OTv+BIJdzkyRF5tJZkzHlW/jGBbiIz8yc0=
+        b=nekKmobkUG0cX2a5jdEU1qYp91b+Q9yAIu1iQBtKzmJr0BX/lQSPC4BWSP6sIkGIM
+         h/5e5ksF+9jXq1SRqZHjjK0xcQycBglvtfvyOtus6yeSFR8OAgXS8NgkKXN+qRqUCJ
+         6qQqbZ8crEpnPvA/ZOYEAVO5vZD64MI8/eNzRSy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Phil Reid <preid@electromag.com.au>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 654/717] spi: sc18is602: Dont leak SPI master in probe error path
-Date:   Mon, 28 Dec 2020 13:50:52 +0100
-Message-Id: <20201228125052.279810463@linuxfoundation.org>
+        stable@vger.kernel.org, Zhao Heming <heming.zhao@suse.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.19 334/346] md/cluster: block reshape with remote resync job
+Date:   Mon, 28 Dec 2020 13:50:53 +0100
+Message-Id: <20201228124935.917152773@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Zhao Heming <heming.zhao@suse.com>
 
-commit 5b8c88462d83331dacb48aeaec8388117fef82e0 upstream.
+commit a8da01f79c89755fad55ed0ea96e8d2103242a72 upstream.
 
-If the call to devm_gpiod_get_optional() fails on probe of the NXP
-SC18IS602/603 SPI driver, the spi_master struct is erroneously not freed.
+Reshape request should be blocked with ongoing resync job. In cluster
+env, a node can start resync job even if the resync cmd isn't executed
+on it, e.g., user executes "mdadm --grow" on node A, sometimes node B
+will start resync job. However, current update_raid_disks() only check
+local recovery status, which is incomplete. As a result, we see user will
+execute "mdadm --grow" successfully on local, while the remote node deny
+to do reshape job when it doing resync job. The inconsistent handling
+cause array enter unexpected status. If user doesn't observe this issue
+and continue executing mdadm cmd, the array doesn't work at last.
 
-Fix by switching over to the new devm_spi_alloc_master() helper.
+Fix this issue by blocking reshape request. When node executes "--grow"
+and detects ongoing resync, it should stop and report error to user.
 
-Fixes: f99008013e19 ("spi: sc18is602: Add reset control via gpio pin.")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v4.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Phil Reid <preid@electromag.com.au>
-Link: https://lore.kernel.org/r/d5f715527b894b91d530fe11a86f51b3184a4e1a.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The following script reproduces the issue with ~100% probability.
+(two nodes share 3 iSCSI luns: sdg/sdh/sdi. Each lun size is 1GB)
+```
+ # on node1, node2 is the remote node.
+ssh root@node2 "mdadm -S --scan"
+mdadm -S --scan
+for i in {g,h,i};do dd if=/dev/zero of=/dev/sd$i oflag=direct bs=1M \
+count=20; done
+
+mdadm -C /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sdg /dev/sdh
+ssh root@node2 "mdadm -A /dev/md0 /dev/sdg /dev/sdh"
+
+sleep 5
+
+mdadm --manage --add /dev/md0 /dev/sdi
+mdadm --wait /dev/md0
+mdadm --grow --raid-devices=3 /dev/md0
+
+mdadm /dev/md0 --fail /dev/sdg
+mdadm /dev/md0 --remove /dev/sdg
+mdadm --grow --raid-devices=2 /dev/md0
+```
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhao Heming <heming.zhao@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-sc18is602.c |   13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/md/md.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/spi/spi-sc18is602.c
-+++ b/drivers/spi/spi-sc18is602.c
-@@ -238,13 +238,12 @@ static int sc18is602_probe(struct i2c_cl
- 	struct sc18is602_platform_data *pdata = dev_get_platdata(dev);
- 	struct sc18is602 *hw;
- 	struct spi_master *master;
--	int error;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
- 				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6895,6 +6895,7 @@ static int update_raid_disks(struct mdde
  		return -EINVAL;
+ 	if (mddev->sync_thread ||
+ 	    test_bit(MD_RECOVERY_RUNNING, &mddev->recovery) ||
++	    test_bit(MD_RESYNCING_REMOTE, &mddev->recovery) ||
+ 	    mddev->reshape_position != MaxSector)
+ 		return -EBUSY;
  
--	master = spi_alloc_master(dev, sizeof(struct sc18is602));
-+	master = devm_spi_alloc_master(dev, sizeof(struct sc18is602));
- 	if (!master)
- 		return -ENOMEM;
+@@ -9241,8 +9242,11 @@ static void check_sb_changes(struct mdde
+ 		}
+ 	}
  
-@@ -298,15 +297,7 @@ static int sc18is602_probe(struct i2c_cl
- 	master->min_speed_hz = hw->freq / 128;
- 	master->max_speed_hz = hw->freq / 4;
+-	if (mddev->raid_disks != le32_to_cpu(sb->raid_disks))
+-		update_raid_disks(mddev, le32_to_cpu(sb->raid_disks));
++	if (mddev->raid_disks != le32_to_cpu(sb->raid_disks)) {
++		ret = update_raid_disks(mddev, le32_to_cpu(sb->raid_disks));
++		if (ret)
++			pr_warn("md: updating array disks failed. %d\n", ret);
++	}
  
--	error = devm_spi_register_master(dev, master);
--	if (error)
--		goto error_reg;
--
--	return 0;
--
--error_reg:
--	spi_master_put(master);
--	return error;
-+	return devm_spi_register_master(dev, master);
- }
- 
- static const struct i2c_device_id sc18is602_id[] = {
+ 	/* Finally set the event to be up to date */
+ 	mddev->events = le64_to_cpu(sb->events);
 
 
