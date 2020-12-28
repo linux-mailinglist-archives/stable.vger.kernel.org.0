@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7AD2E6804
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D2E2E6907
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:46:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441850AbgL1Qbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:31:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60790 "EHLO mail.kernel.org"
+        id S1728751AbgL1M4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 07:56:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730489AbgL1NEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:04:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B44322582;
-        Mon, 28 Dec 2020 13:03:58 +0000 (UTC)
+        id S1728749AbgL1M43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:56:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78645208D5;
+        Mon, 28 Dec 2020 12:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160639;
-        bh=dk4t7gfGTMw5YQaATINpxtv/8lOtwfdQJeyfNPjtTl4=;
+        s=korg; t=1609160149;
+        bh=lvwYvNFIDi+G0NRwNUnwGYk3ODaC4aPA09ja4I6Lbzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuTukr2UQrqgDZn8lobX1S0U1J4vMTsN1VSj/XqIzfkvoIZpZZ6glTIQeL1LTDLs9
-         Cb3eqGyl8CTjM8zlZ4m02BCZmvuIkKtCnIC+6iovxH3xeIk6B/Z+2rP2NnUt6obuZq
-         Zr5COOFVFHGKgeQhIWV4WIuovFaSAPg6a9sxEp2g=
+        b=A9WyNbpDCDuU99AB1XLT6j3Uq62jg+6D6SIuEnc6w2Lk3tcdweEolpcE63zvbjZr7
+         peSzda4h/t2sDjWkk2dIgBG+lkXTa3kzULSySbGGgI1dbS1cr6DTQXE4ShD8kEODFF
+         a866MjxpVG3xVNAw8a1zsTlNdwfRDqyHTovLq5bA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 089/175] NFS: switch nfsiod to be an UNBOUND workqueue.
+Subject: [PATCH 4.4 058/132] cw1200: fix missing destroy_workqueue() on error in cw1200_init_common
 Date:   Mon, 28 Dec 2020 13:49:02 +0100
-Message-Id: <20201228124857.561327172@linuxfoundation.org>
+Message-Id: <20201228124849.250003856@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
+References: <20201228124846.409999325@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit bf701b765eaa82dd164d65edc5747ec7288bb5c3 ]
+[ Upstream commit 7ec8a926188eb8e7a3cbaca43ec44f2d7146d71b ]
 
-nfsiod is currently a concurrency-managed workqueue (CMWQ).
-This means that workitems scheduled to nfsiod on a given CPU are queued
-behind all other work items queued on any CMWQ on the same CPU.  This
-can introduce unexpected latency.
+Add the missing destroy_workqueue() before return from
+cw1200_init_common in the error handling case.
 
-Occaionally nfsiod can even cause excessive latency.  If the work item
-to complete a CLOSE request calls the final iput() on an inode, the
-address_space of that inode will be dismantled.  This takes time
-proportional to the number of in-memory pages, which on a large host
-working on large files (e.g..  5TB), can be a large number of pages
-resulting in a noticable number of seconds.
-
-We can avoid these latency problems by switching nfsiod to WQ_UNBOUND.
-This causes each concurrent work item to gets a dedicated thread which
-can be scheduled to an idle CPU.
-
-There is precedent for this as several other filesystems use WQ_UNBOUND
-workqueue for handling various async events.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-Fixes: ada609ee2ac2 ("workqueue: use WQ_MEM_RECLAIM instead of WQ_RESCUER")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: a910e4a94f69 ("cw1200: add driver for the ST-E CW1100 & CW1200 WLAN chipsets")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201119070842.1011-1-miaoqinglang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/cw1200/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 851274b25d394..6c0035761d170 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1995,7 +1995,7 @@ static int nfsiod_start(void)
- {
- 	struct workqueue_struct *wq;
- 	dprintk("RPC:       creating workqueue nfsiod\n");
--	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM, 0);
-+	wq = alloc_workqueue("nfsiod", WQ_MEM_RECLAIM | WQ_UNBOUND, 0);
- 	if (wq == NULL)
- 		return -ENOMEM;
- 	nfsiod_workqueue = wq;
+diff --git a/drivers/net/wireless/cw1200/main.c b/drivers/net/wireless/cw1200/main.c
+index 317daa968e037..057725b06f640 100644
+--- a/drivers/net/wireless/cw1200/main.c
++++ b/drivers/net/wireless/cw1200/main.c
+@@ -385,6 +385,7 @@ static struct ieee80211_hw *cw1200_init_common(const u8 *macaddr,
+ 				    CW1200_LINK_ID_MAX,
+ 				    cw1200_skb_dtor,
+ 				    priv)) {
++		destroy_workqueue(priv->workqueue);
+ 		ieee80211_free_hw(hw);
+ 		return NULL;
+ 	}
+@@ -396,6 +397,7 @@ static struct ieee80211_hw *cw1200_init_common(const u8 *macaddr,
+ 			for (; i > 0; i--)
+ 				cw1200_queue_deinit(&priv->tx_queue[i - 1]);
+ 			cw1200_queue_stats_deinit(&priv->tx_queue_stats);
++			destroy_workqueue(priv->workqueue);
+ 			ieee80211_free_hw(hw);
+ 			return NULL;
+ 		}
 -- 
 2.27.0
 
