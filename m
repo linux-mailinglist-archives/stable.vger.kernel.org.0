@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08A52E67A1
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5822E678F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbgL1Q1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36046 "EHLO mail.kernel.org"
+        id S1730905AbgL1NIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:08:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730907AbgL1NIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F13422573;
-        Mon, 28 Dec 2020 13:07:39 +0000 (UTC)
+        id S1730926AbgL1NIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:08:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C6D22582;
+        Mon, 28 Dec 2020 13:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160860;
-        bh=zOS/wJlBAKwxJZzU8vaJBwWqhAtOBTE00YXtTSluFy0=;
+        s=korg; t=1609160863;
+        bh=xjtL+iv3DcMyV6dkej0drfYg8VG96FI18LRjD0Omnlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiGKzu3bRCFDppVMaOpsF7mqUK3z31mzWmiUJ2WVODrbQeSasGu0pSBRAwC9LpNxr
-         UY/Sf6++oemy6VTmNvCWlggvlbqCIaRwvCK7tA0v1A+XrFygiEHWONIHhkV73L9TdR
-         lS9HgifJpHAX3oTmyTbUB7F9vaxHZ1cLqOEIRENo=
+        b=GADUdhdxwhaR9uRhzJjpkNoQDA/qo1t9sJA6oEff4oxevrNSfbTgS4/fOedczgb/G
+         z9xtItyWcKBreFq+PIGd4/TFGnTdTPfPbsc4nRfcf6cET57QHTyxy2f4lsL11txQWQ
+         jBiUJS7by3Q9DWbI/kKe6H0VjNywN7+IzI6mwUgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 020/242] net/mlx4_en: Handle TX error CQE
-Date:   Mon, 28 Dec 2020 13:47:05 +0100
-Message-Id: <20201228124905.665889474@linuxfoundation.org>
+Subject: [PATCH 4.14 021/242] net: stmmac: delete the eee_ctrl_timer after napi disabled
+Date:   Mon, 28 Dec 2020 13:47:06 +0100
+Message-Id: <20201228124905.714771477@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -40,114 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit ba603d9d7b1215c72513d7c7aa02b6775fd4891b ]
+[ Upstream commit 5f58591323bf3f342920179f24515935c4b5fd60 ]
 
-In case error CQE was found while polling TX CQ, the QP is in error
-state and all posted WQEs will generate error CQEs without any data
-transmitted. Fix it by reopening the channels, via same method used for
-TX timeout handling.
+There have chance to re-enable the eee_ctrl_timer and fire the timer
+in napi callback after delete the timer in .stmmac_release(), which
+introduces to access eee registers in the timer function after clocks
+are disabled then causes system hang. Found this issue when do
+suspend/resume and reboot stress test.
 
-In addition add some more info on error CQE and WQE for debug.
+It is safe to delete the timer after napi disabled and disable lpi mode.
 
-Fixes: bd2f631d7c60 ("net/mlx4_en: Notify user when TX ring in error state")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Fixes: d765955d2ae0b ("stmmac: add the Energy Efficient Ethernet support")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    1 
- drivers/net/ethernet/mellanox/mlx4/en_tx.c     |   40 ++++++++++++++++++++-----
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h   |    5 +++
- 3 files changed, 39 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -1746,6 +1746,7 @@ int mlx4_en_start_port(struct net_device
- 				mlx4_en_deactivate_cq(priv, cq);
- 				goto tx_err;
- 			}
-+			clear_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &tx_ring->state);
- 			if (t != TX_XDP) {
- 				tx_ring->tx_queue = netdev_get_tx_queue(dev, i);
- 				tx_ring->recycle_ring = NULL;
---- a/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_tx.c
-@@ -385,6 +385,35 @@ int mlx4_en_free_tx_buf(struct net_devic
- 	return cnt;
- }
- 
-+static void mlx4_en_handle_err_cqe(struct mlx4_en_priv *priv, struct mlx4_err_cqe *err_cqe,
-+				   u16 cqe_index, struct mlx4_en_tx_ring *ring)
-+{
-+	struct mlx4_en_dev *mdev = priv->mdev;
-+	struct mlx4_en_tx_info *tx_info;
-+	struct mlx4_en_tx_desc *tx_desc;
-+	u16 wqe_index;
-+	int desc_size;
-+
-+	en_err(priv, "CQE error - cqn 0x%x, ci 0x%x, vendor syndrome: 0x%x syndrome: 0x%x\n",
-+	       ring->sp_cqn, cqe_index, err_cqe->vendor_err_syndrome, err_cqe->syndrome);
-+	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, err_cqe, sizeof(*err_cqe),
-+		       false);
-+
-+	wqe_index = be16_to_cpu(err_cqe->wqe_index) & ring->size_mask;
-+	tx_info = &ring->tx_info[wqe_index];
-+	desc_size = tx_info->nr_txbb << LOG_TXBB_SIZE;
-+	en_err(priv, "Related WQE - qpn 0x%x, wqe index 0x%x, wqe size 0x%x\n", ring->qpn,
-+	       wqe_index, desc_size);
-+	tx_desc = ring->buf + (wqe_index << LOG_TXBB_SIZE);
-+	print_hex_dump(KERN_WARNING, "", DUMP_PREFIX_OFFSET, 16, 1, tx_desc, desc_size, false);
-+
-+	if (test_and_set_bit(MLX4_EN_STATE_FLAG_RESTARTING, &priv->state))
-+		return;
-+
-+	en_err(priv, "Scheduling port restart\n");
-+	queue_work(mdev->workqueue, &priv->restart_task);
-+}
-+
- bool mlx4_en_process_tx_cq(struct net_device *dev,
- 			   struct mlx4_en_cq *cq, int napi_budget)
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2705,9 +2705,6 @@ static int stmmac_release(struct net_dev
  {
-@@ -431,13 +460,10 @@ bool mlx4_en_process_tx_cq(struct net_de
- 		dma_rmb();
+ 	struct stmmac_priv *priv = netdev_priv(dev);
  
- 		if (unlikely((cqe->owner_sr_opcode & MLX4_CQE_OPCODE_MASK) ==
--			     MLX4_CQE_OPCODE_ERROR)) {
--			struct mlx4_err_cqe *cqe_err = (struct mlx4_err_cqe *)cqe;
+-	if (priv->eee_enabled)
+-		del_timer_sync(&priv->eee_ctrl_timer);
 -
--			en_err(priv, "CQE error - vendor syndrome: 0x%x syndrome: 0x%x\n",
--			       cqe_err->vendor_err_syndrome,
--			       cqe_err->syndrome);
--		}
-+			     MLX4_CQE_OPCODE_ERROR))
-+			if (!test_and_set_bit(MLX4_EN_TX_RING_STATE_RECOVERING, &ring->state))
-+				mlx4_en_handle_err_cqe(priv, (struct mlx4_err_cqe *)cqe, index,
-+						       ring);
+ 	/* Stop and disconnect the PHY */
+ 	if (dev->phydev) {
+ 		phy_stop(dev->phydev);
+@@ -2727,6 +2724,11 @@ static int stmmac_release(struct net_dev
+ 	if (priv->lpi_irq > 0)
+ 		free_irq(priv->lpi_irq, dev);
  
- 		/* Skip over last polled CQE */
- 		new_index = be16_to_cpu(cqe->wqe_index) & size_mask;
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -267,6 +267,10 @@ struct mlx4_en_page_cache {
- 	} buf[MLX4_EN_CACHE_SIZE];
- };
- 
-+enum {
-+	MLX4_EN_TX_RING_STATE_RECOVERING,
-+};
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
 +
- struct mlx4_en_priv;
+ 	/* Stop TX/RX DMA and clear the descriptors */
+ 	stmmac_stop_all_dma(priv);
  
- struct mlx4_en_tx_ring {
-@@ -313,6 +317,7 @@ struct mlx4_en_tx_ring {
- 	 * Only queue_stopped might be used if BQL is not properly working.
- 	 */
- 	unsigned long		queue_stopped;
-+	unsigned long		state;
- 	struct mlx4_hwq_resources sp_wqres;
- 	struct mlx4_qp		sp_qp;
- 	struct mlx4_qp_context	sp_context;
+@@ -4418,6 +4420,11 @@ int stmmac_suspend(struct device *dev)
+ 
+ 	stmmac_disable_all_queues(priv);
+ 
++	if (priv->eee_enabled) {
++		priv->tx_path_in_lpi_mode = false;
++		del_timer_sync(&priv->eee_ctrl_timer);
++	}
++
+ 	/* Stop TX/RX DMA */
+ 	stmmac_stop_all_dma(priv);
+ 
 
 
