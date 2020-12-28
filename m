@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182C22E41BC
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996372E41B1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438311AbgL1OHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:07:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40542 "EHLO mail.kernel.org"
+        id S2440245AbgL1PKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 10:10:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438303AbgL1OHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:07:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3711420731;
-        Mon, 28 Dec 2020 14:06:49 +0000 (UTC)
+        id S2438462AbgL1OHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:07:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1602920715;
+        Mon, 28 Dec 2020 14:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164409;
-        bh=Av0ZvDdXrYRO7Vxeh2s11XeTZ2iC8pXcflEjAgmHgKI=;
+        s=korg; t=1609164412;
+        bh=j5V2gvgXdfzE2voLcVnf7hxbYBvEsyTexWFxe1T/87Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL1y8jniVfFuXI6KZ8XsMXmfCEQBOxHljcm7u+tJHGp5uOfBdj79/MnjZS+iIJBa1
-         Yjo9OtFs//D0dG3vYzRZrEVHY3fV++eTMfvanL74w0qoUU7J0N3HQPsrEOkTrlhZzG
-         vdAvn5bcKfsRdhXz/5CyqaCidm4nR0gU3KqzDhKo=
+        b=qWhX0VFeX2HliF0d3qg1QhE5TBVmzxb0T+tkO5ZM+7h3vHKXNUWbyjYw2XJ1BVoB3
+         4O//6k0s/mvBEQDuYSBuj0IwdzuvgyLfCZuSFgq78JuCDnCe8R0gZEOOz21/ovqu1D
+         oiIJXyNeeuEzZkU7G0sUNq4XBmpLQcrLn+bjKJvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 170/717] crypto: crypto4xx - Replace bitwise OR with logical OR in crypto4xx_build_pd
-Date:   Mon, 28 Dec 2020 13:42:48 +0100
-Message-Id: <20201228125029.103657776@linuxfoundation.org>
+Subject: [PATCH 5.10 171/717] crypto: omap-aes - Fix PM disable depth imbalance in omap_aes_probe
+Date:   Mon, 28 Dec 2020 13:42:49 +0100
+Message-Id: <20201228125029.152352456@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -42,57 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 5bdad829c31a09069fd508534f03c2ea1576ac75 ]
+[ Upstream commit ff8107200367f4abe0e5bce66a245e8d0f2d229e ]
 
-Clang warns:
+The pm_runtime_enable will increase power disable depth.
+Thus a pairing decrement is needed on the error handling
+path to keep it balanced according to context.
 
-drivers/crypto/amcc/crypto4xx_core.c:921:60: warning: operator '?:' has
-lower precedence than '|'; '|' will be evaluated first
-[-Wbitwise-conditional-parentheses]
-                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
-                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-drivers/crypto/amcc/crypto4xx_core.c:921:60: note: place parentheses
-around the '|' expression to silence this warning
-                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
-                                                                         ^
-                                                                        )
-drivers/crypto/amcc/crypto4xx_core.c:921:60: note: place parentheses
-around the '?:' expression to evaluate it first
-                 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
-                                                                         ^
-                 (
-1 warning generated.
-
-It looks like this should have been a logical OR so that
-PD_CTL_HASH_FINAL gets added to the w bitmask if crypto_tfm_alg_type
-is either CRYPTO_ALG_TYPE_AHASH or CRYPTO_ALG_TYPE_AEAD. Change the
-operator so that everything works properly.
-
-Fixes: 4b5b79998af6 ("crypto: crypto4xx - fix stalls under heavy load")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1198
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Christian Lamparter <chunkeey@gmail.com>
+Fixes: f7b2b5dd6a62a ("crypto: omap-aes - add error check for pm_runtime_get_sync")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/amcc/crypto4xx_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/omap-aes.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/amcc/crypto4xx_core.c b/drivers/crypto/amcc/crypto4xx_core.c
-index 981de43ea5e24..2e3690f65786d 100644
---- a/drivers/crypto/amcc/crypto4xx_core.c
-+++ b/drivers/crypto/amcc/crypto4xx_core.c
-@@ -917,7 +917,7 @@ int crypto4xx_build_pd(struct crypto_async_request *req,
+diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
+index 4fd14d90cc409..1b1e0ab0a831a 100644
+--- a/drivers/crypto/omap-aes.c
++++ b/drivers/crypto/omap-aes.c
+@@ -1137,7 +1137,7 @@ static int omap_aes_probe(struct platform_device *pdev)
+ 	if (err < 0) {
+ 		dev_err(dev, "%s: failed to get_sync(%d)\n",
+ 			__func__, err);
+-		goto err_res;
++		goto err_pm_disable;
  	}
  
- 	pd->pd_ctl.w = PD_CTL_HOST_READY |
--		((crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AHASH) |
-+		((crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AHASH) ||
- 		 (crypto_tfm_alg_type(req->tfm) == CRYPTO_ALG_TYPE_AEAD) ?
- 			PD_CTL_HASH_FINAL : 0);
- 	pd->pd_ctl_len.w = 0x00400000 | (assoclen + datalen);
+ 	omap_aes_dma_stop(dd);
+@@ -1246,6 +1246,7 @@ err_engine:
+ 	omap_aes_dma_cleanup(dd);
+ err_irq:
+ 	tasklet_kill(&dd->done_task);
++err_pm_disable:
+ 	pm_runtime_disable(dev);
+ err_res:
+ 	dd = NULL;
 -- 
 2.27.0
 
