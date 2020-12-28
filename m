@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268D02E3F44
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FB42E3C14
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504591AbgL1Ob7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:31:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39888 "EHLO mail.kernel.org"
+        id S2391605AbgL1N6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:58:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504570AbgL1Obi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:31:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62F1D221F0;
-        Mon, 28 Dec 2020 14:30:57 +0000 (UTC)
+        id S2391579AbgL1N6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:58:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76578207B2;
+        Mon, 28 Dec 2020 13:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165857;
-        bh=GRGnv1kv8/gEUPXoQjFlI3y8IkFzSXCvc5nt/zfAd+k=;
+        s=korg; t=1609163879;
+        bh=rOx0zv4PClnfji+d6QeAD2mvY5IM4oStEk6fOIU/We0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KhGGxLIuKK+Ac+pNH/SiowpnpEGSd0I5g4rXfvgTqYF8VRaVi0J2k4aqXCNAU/b+
-         Z2mY5w81HrYKG0zIcIDey3QJXqgTjtheXO2AtfUoe2BEhSu8F80Xlsa2FizVKtdHjM
-         S7vtHAsJLGbqtAMi2nEKjk1kFPy/WoK+WU/hgw7k=
+        b=OaHRaZXujfyxfA3if9XnZt/K0kF89KIFI73vIQwQJdlrIoHJ1JPRfFFamSZ5z8mFu
+         Z41u1OcwuVaYZo5vRzXOliTqb54hNmKDj2X0tu7q8IqHbcPVBD+aqjNmNdtevOEr2x
+         1vIm6dblzj+BQISqYiHjTpi7R2Ek8TmoOaK/1AL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Phil Reid <preid@electromag.com.au>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 648/717] spi: gpio: Dont leak SPI master in probe error path
+Subject: [PATCH 5.4 410/453] spi: sc18is602: Dont leak SPI master in probe error path
 Date:   Mon, 28 Dec 2020 13:50:46 +0100
-Message-Id: <20201228125051.992756403@linuxfoundation.org>
+Message-Id: <20201228124956.939750481@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Wunner <lukas@wunner.de>
 
-commit 7174dc655ef0578877b0b4598e69619d2be28b4d upstream.
+commit 5b8c88462d83331dacb48aeaec8388117fef82e0 upstream.
 
-If the call to devm_spi_register_master() fails on probe of the GPIO SPI
-driver, the spi_master struct is erroneously not freed:
-
-After allocating the spi_master, its reference count is 1.  The driver
-unconditionally decrements the reference count on unbind using a devm
-action.  Before calling devm_spi_register_master(), the driver
-unconditionally increments the reference count because on success,
-that function will decrement the reference count on unbind.  However on
-failure, devm_spi_register_master() does *not* decrement the reference
-count, so the spi_master is leaked.
-
-The issue was introduced by commits 8b797490b4db ("spi: gpio: Make sure
-spi_master_put() is called in every error path") and 79567c1a321e ("spi:
-gpio: Use devm_spi_register_master()"), which sought to plug leaks
-introduced by 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO
-descriptors") but missed this remaining leak.
-
-The situation was later aggravated by commit d3b0ffa1d75d ("spi: gpio:
-prevent memory leak in spi_gpio_probe"), which introduced a
-use-after-free because it releases a reference on the spi_master if
-devm_add_action_or_reset() fails even though the function already
-does that.
+If the call to devm_gpiod_get_optional() fails on probe of the NXP
+SC18IS602/603 SPI driver, the spi_master struct is erroneously not freed.
 
 Fix by switching over to the new devm_spi_alloc_master() helper.
 
-Fixes: 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO descriptors")
+Fixes: f99008013e19 ("spi: sc18is602: Add reset control via gpio pin.")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v5.1-: 8b797490b4db: spi: gpio: Make sure spi_master_put() is called in every error path
-Cc: <stable@vger.kernel.org> # v5.1-: 45beec351998: spi: bitbang: Introduce spi_bitbang_init()
-Cc: <stable@vger.kernel.org> # v5.1-: 79567c1a321e: spi: gpio: Use devm_spi_register_master()
-Cc: <stable@vger.kernel.org> # v5.4-: d3b0ffa1d75d: spi: gpio: prevent memory leak in spi_gpio_probe
-Cc: <stable@vger.kernel.org> # v4.17+
-Cc: Navid Emamdoost <navid.emamdoost@gmail.com>
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>
-Link: https://lore.kernel.org/r/86eaed27431c3d709e3748eb76ceecbfc790dd37.1607286887.git.lukas@wunner.de
+Cc: <stable@vger.kernel.org> # v4.9+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Phil Reid <preid@electromag.com.au>
+Link: https://lore.kernel.org/r/d5f715527b894b91d530fe11a86f51b3184a4e1a.1607286887.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-gpio.c |   15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+ drivers/spi/spi-sc18is602.c |   13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/spi/spi-gpio.c
-+++ b/drivers/spi/spi-gpio.c
-@@ -350,11 +350,6 @@ static int spi_gpio_probe_pdata(struct p
- 	return 0;
- }
+--- a/drivers/spi/spi-sc18is602.c
++++ b/drivers/spi/spi-sc18is602.c
+@@ -239,13 +239,12 @@ static int sc18is602_probe(struct i2c_cl
+ 	struct sc18is602_platform_data *pdata = dev_get_platdata(dev);
+ 	struct sc18is602 *hw;
+ 	struct spi_master *master;
+-	int error;
  
--static void spi_gpio_put(void *data)
--{
--	spi_master_put(data);
--}
--
- static int spi_gpio_probe(struct platform_device *pdev)
- {
- 	int				status;
-@@ -363,16 +358,10 @@ static int spi_gpio_probe(struct platfor
- 	struct device			*dev = &pdev->dev;
- 	struct spi_bitbang		*bb;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
+ 				     I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+ 		return -EINVAL;
  
--	master = spi_alloc_master(dev, sizeof(*spi_gpio));
-+	master = devm_spi_alloc_master(dev, sizeof(*spi_gpio));
+-	master = spi_alloc_master(dev, sizeof(struct sc18is602));
++	master = devm_spi_alloc_master(dev, sizeof(struct sc18is602));
  	if (!master)
  		return -ENOMEM;
  
--	status = devm_add_action_or_reset(&pdev->dev, spi_gpio_put, master);
--	if (status) {
--		spi_master_put(master);
--		return status;
--	}
--
- 	if (pdev->dev.of_node)
- 		status = spi_gpio_probe_dt(pdev, master);
- 	else
-@@ -432,7 +421,7 @@ static int spi_gpio_probe(struct platfor
- 	if (status)
- 		return status;
+@@ -299,15 +298,7 @@ static int sc18is602_probe(struct i2c_cl
+ 	master->min_speed_hz = hw->freq / 128;
+ 	master->max_speed_hz = hw->freq / 4;
  
--	return devm_spi_register_master(&pdev->dev, spi_master_get(master));
-+	return devm_spi_register_master(&pdev->dev, master);
+-	error = devm_spi_register_master(dev, master);
+-	if (error)
+-		goto error_reg;
+-
+-	return 0;
+-
+-error_reg:
+-	spi_master_put(master);
+-	return error;
++	return devm_spi_register_master(dev, master);
  }
  
- MODULE_ALIAS("platform:" DRIVER_NAME);
+ static const struct i2c_device_id sc18is602_id[] = {
 
 
