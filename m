@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 810192E67A9
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D612E6625
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730876AbgL1Q16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:27:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
+        id S2388712AbgL1NY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:24:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730852AbgL1NIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:08:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBF12208D5;
-        Mon, 28 Dec 2020 13:07:28 +0000 (UTC)
+        id S2388710AbgL1NYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:24:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32912208BA;
+        Mon, 28 Dec 2020 13:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160849;
-        bh=n0o6RzYqTERzxrjp6qPUpmSwczJeTeWEnJv7cBdq1Ug=;
+        s=korg; t=1609161847;
+        bh=RoUZ9kKXFxKG8Fqtw0YjNDsguWd6fxBG9IAQ6XZfCkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vb4fBGGomwVZNbIk0vzG57xlWF3WVDxGr9zrWT6DASObwJGVgoGjfHPbirFrUWnEv
-         AbQEiCB9fUz5fCsOViTnY05LogQyHMNeSbnyEFNa237ExqQ0UiuMcev5z+a0Yjf/ZZ
-         Snhr/vVFb0V/lOfkzTtW11xPWaiOWMP82ZQsSdSo=
+        b=Y/PvDIeKDKMErZZh+KrfYDJKMg3B6DMr6Q3di7Ieuyp4I8tjThDQ9Qla7VmpqeFg3
+         e6HbUoB9GH8fOFQHPc+2uD6n9rmGTrxro41sRSPS8GYbONdtEYIDtah6vburStR5JY
+         AlNEgneIXC9LOoEFwnNVB9nhAjIGxpIPznZFYOIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sham Muthayyan <smuthayy@codeaurora.org>,
-        Ansuel Smith <ansuelsmth@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 016/242] PCI: qcom: Add missing reset for ipq806x
-Date:   Mon, 28 Dec 2020 13:47:01 +0100
-Message-Id: <20201228124905.467239437@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 103/346] RDMA/bnxt_re: Set queue pair state when being queried
+Date:   Mon, 28 Dec 2020 13:47:02 +0100
+Message-Id: <20201228124924.762685545@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
-References: <20201228124904.654293249@linuxfoundation.org>
+In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
+References: <20201228124919.745526410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ansuel Smith <ansuelsmth@gmail.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit ee367e2cdd2202b5714982739e684543cd2cee0e upstream
+[ Upstream commit 53839b51a7671eeb3fb44d479d541cf3a0f2dd45 ]
 
-Add missing ext reset used by ipq8064 SoC in PCIe qcom driver.
+The API for ib_query_qp requires the driver to set cur_qp_state on return,
+add the missing set.
 
-Link: https://lore.kernel.org/r/20200615210608.21469-5-ansuelsmth@gmail.com
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
-Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org # v4.5+
-[sudip: manual backport]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/20201021114952.38876-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Acked-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/dwc/pcie-qcom.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/dwc/pcie-qcom.c
-+++ b/drivers/pci/dwc/pcie-qcom.c
-@@ -96,6 +96,7 @@ struct qcom_pcie_resources_2_1_0 {
- 	struct reset_control *ahb_reset;
- 	struct reset_control *por_reset;
- 	struct reset_control *phy_reset;
-+	struct reset_control *ext_reset;
- 	struct regulator *vdda;
- 	struct regulator *vdda_phy;
- 	struct regulator *vdda_refclk;
-@@ -265,6 +266,10 @@ static int qcom_pcie_get_resources_2_1_0
- 	if (IS_ERR(res->por_reset))
- 		return PTR_ERR(res->por_reset);
- 
-+	res->ext_reset = devm_reset_control_get_optional_exclusive(dev, "ext");
-+	if (IS_ERR(res->ext_reset))
-+		return PTR_ERR(res->ext_reset);
-+
- 	res->phy_reset = devm_reset_control_get_exclusive(dev, "phy");
- 	return PTR_ERR_OR_ZERO(res->phy_reset);
- }
-@@ -277,6 +282,7 @@ static void qcom_pcie_deinit_2_1_0(struc
- 	reset_control_assert(res->axi_reset);
- 	reset_control_assert(res->ahb_reset);
- 	reset_control_assert(res->por_reset);
-+	reset_control_assert(res->ext_reset);
- 	reset_control_assert(res->pci_reset);
- 	clk_disable_unprepare(res->iface_clk);
- 	clk_disable_unprepare(res->core_clk);
-@@ -342,6 +348,12 @@ static int qcom_pcie_init_2_1_0(struct q
- 		goto err_deassert_ahb;
+diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+index 957da3ffe593c..f8c9caa8aad6d 100644
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -1838,6 +1838,7 @@ int bnxt_re_query_qp(struct ib_qp *ib_qp, struct ib_qp_attr *qp_attr,
+ 		goto out;
  	}
- 
-+	ret = reset_control_deassert(res->ext_reset);
-+	if (ret) {
-+		dev_err(dev, "cannot deassert ext reset\n");
-+		goto err_deassert_ahb;
-+	}
-+
- 	/* enable PCIe clocks and resets */
- 	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
- 	val &= ~BIT(0);
+ 	qp_attr->qp_state = __to_ib_qp_state(qplib_qp->state);
++	qp_attr->cur_qp_state = __to_ib_qp_state(qplib_qp->cur_qp_state);
+ 	qp_attr->en_sqd_async_notify = qplib_qp->en_sqd_async_notify ? 1 : 0;
+ 	qp_attr->qp_access_flags = __to_ib_access_flags(qplib_qp->access);
+ 	qp_attr->pkey_index = qplib_qp->pkey_index;
+-- 
+2.27.0
+
 
 
