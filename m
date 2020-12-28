@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84EAE2E66B5
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C85B2E66A1
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394295AbgL1QP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:15:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46634 "EHLO mail.kernel.org"
+        id S1732481AbgL1NS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:18:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731742AbgL1NSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:18:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 212BC207CF;
-        Mon, 28 Dec 2020 13:18:06 +0000 (UTC)
+        id S2387499AbgL1NS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:18:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F17392076D;
+        Mon, 28 Dec 2020 13:18:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609161487;
-        bh=lQ+XnkTz1NGcvhlhOZ7UngoAKjw3s+BCoubpAbXoywA=;
+        s=korg; t=1609161490;
+        bh=A62BzNAEG3QD8Ns32oFi/Og+zphtgr6XcCjfSz6IDV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5phAPZ2nNqBFOF2+A0FXEGuHJ0rcZ8AgfwJPQQ5ylq3XPvQ1L77jmAauv/poMsvp
-         SnmiMLWuCruNRwJJL3xLEuBOSuDBXAraHm7VygH75ZT6GDVhjqmNSX/Wb08HTzML3U
-         yePlIhAIfmNdmoESUf/UI6ywDozsPrB5yAmI3Vso=
+        b=kUGbRhVrY5tgtpuPbBuFmkAqi04TOEcbGzXLXZVBXVjNqCu+MsYlm8aGUSeRdP6jU
+         kzs+RD/jzc7jfPLPqV1OBa6FZ9OMKW9iuwA1nln1Or6aeZNmGbZe7WE4Uh9M7QLPOu
+         AAWnlj/kTLxL9g4jT1Ao/3wgWdBHiYxyNTzn5mnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 229/242] iio: adc: rockchip_saradc: fix missing clk_disable_unprepare() on error in rockchip_saradc_resume
-Date:   Mon, 28 Dec 2020 13:50:34 +0100
-Message-Id: <20201228124915.952387894@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.14 230/242] iio:light:rpr0521: Fix timestamp alignment and prevent data leak.
+Date:   Mon, 28 Dec 2020 13:50:35 +0100
+Message-Id: <20201228124916.000319871@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -41,36 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 560c6b914c6ec7d9d9a69fddbb5bf3bf71433e8b upstream.
+commit a61817216bcc755eabbcb1cf281d84ccad267ed1 upstream.
 
-Fix the missing clk_disable_unprepare() of info->pclk
-before return from rockchip_saradc_resume in the error
-handling case when fails to prepare and enable info->clk.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv().
+This data is allocated with kzalloc() so no data can leak apart
+from previous readings and in this case the status byte from the device.
 
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Fixes: 44d6f2ef94f9 ("iio: adc: add driver for Rockchip saradc")
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201103120743.110662-1-miaoqinglang@huawei.com
+The forced alignment of ts is not necessary in this case but it
+potentially makes the code less fragile.
+
+>From personal communications with Mikko:
+
+We could probably split the reading of the int register, but it
+would mean a significant performance cost of 20 i2c clock cycles.
+
+Fixes: e12ffd241c00 ("iio: light: rpr0521 triggered buffer")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Mikko Koivunen <mikko.koivunen@fi.rohmeurope.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-2-jic23@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/rockchip_saradc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/light/rpr0521.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/adc/rockchip_saradc.c
-+++ b/drivers/iio/adc/rockchip_saradc.c
-@@ -384,7 +384,7 @@ static int rockchip_saradc_resume(struct
+--- a/drivers/iio/light/rpr0521.c
++++ b/drivers/iio/light/rpr0521.c
+@@ -197,6 +197,17 @@ struct rpr0521_data {
+ 	bool pxs_need_dis;
  
- 	ret = clk_prepare_enable(info->clk);
- 	if (ret)
--		return ret;
-+		clk_disable_unprepare(info->pclk);
+ 	struct regmap *regmap;
++
++	/*
++	 * Ensure correct naturally aligned timestamp.
++	 * Note that the read will put garbage data into
++	 * the padding but this should not be a problem
++	 */
++	struct {
++		__le16 channels[3];
++		u8 garbage;
++		s64 ts __aligned(8);
++	} scan;
+ };
  
- 	return ret;
- }
+ static IIO_CONST_ATTR(in_intensity_scale_available, RPR0521_ALS_SCALE_AVAIL);
+@@ -452,8 +463,6 @@ static irqreturn_t rpr0521_trigger_consu
+ 	struct rpr0521_data *data = iio_priv(indio_dev);
+ 	int err;
+ 
+-	u8 buffer[16]; /* 3 16-bit channels + padding + ts */
+-
+ 	/* Use irq timestamp when reasonable. */
+ 	if (iio_trigger_using_own(indio_dev) && data->irq_timestamp) {
+ 		pf->timestamp = data->irq_timestamp;
+@@ -464,11 +473,11 @@ static irqreturn_t rpr0521_trigger_consu
+ 		pf->timestamp = iio_get_time_ns(indio_dev);
+ 
+ 	err = regmap_bulk_read(data->regmap, RPR0521_REG_PXS_DATA,
+-		&buffer,
++		data->scan.channels,
+ 		(3 * 2) + 1);	/* 3 * 16-bit + (discarded) int clear reg. */
+ 	if (!err)
+ 		iio_push_to_buffers_with_timestamp(indio_dev,
+-						   buffer, pf->timestamp);
++						   &data->scan, pf->timestamp);
+ 	else
+ 		dev_err(&data->client->dev,
+ 			"Trigger consumer can't read from sensor.\n");
 
 
