@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18C72E3A6B
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A0B62E3EC0
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:33:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390734AbgL1Ngm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:36:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
+        id S2503684AbgL1Oa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:30:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390729AbgL1Ngk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:36:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E921C207B2;
-        Mon, 28 Dec 2020 13:35:58 +0000 (UTC)
+        id S2504035AbgL1OaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:30:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A75E320731;
+        Mon, 28 Dec 2020 14:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162559;
-        bh=ejInYQiC9+qx6a6yOmfNaA8wSO9yuYHhrweeKsPrnm0=;
+        s=korg; t=1609165807;
+        bh=+hN4M+no+Ki+hCMeeLsUCeOLOTSqIYfsmJH3+f51i1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IroeK/EhnHYZoYBGuZ4d6BLnuikskSxmp9x+ea9GqRPJsl9ggsh0Tdnhnyrf35pPJ
-         dVWyy1Paz7KFDqlEp7zBQgpFzRtaVAaTvRQjFmwMMN723Rk+VlBBuvKo6whbWcqU48
-         Gmpms0eEUmC2jBDm3DEcewGP2CHm8AVx6CERBxvk=
+        b=JAA5XhKTeGwqvWUqx4Gt3aDylszmN6OSpDpOEUhyo+lH3AbB6VjL6ByZmD5ZSGjbV
+         4JwJ0lm1OknzIdPE0PJrL8149w3DKRu8mWCweSZTDxtD/93kKAukyZrWJSbKn9Lg7p
+         evjawXkSQVNslWmY96RHO3aIe7lI/7fI0PZeg7dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        Michael Kurth <mku@amazon.de>,
-        Pawel Wieczorkiewicz <wipawel@amazon.de>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 340/346] xen/xenbus: Add will_handle callback support in xenbus_watch_path()
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 661/717] spi: atmel-quadspi: Disable clock in probe error path
 Date:   Mon, 28 Dec 2020 13:50:59 +0100
-Message-Id: <20201228124936.187813936@linuxfoundation.org>
+Message-Id: <20201228125052.634491775@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,140 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sjpark@amazon.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 2e85d32b1c865bec703ce0c962221a5e955c52c2 upstream.
+commit 0e685017c7ba1a2fe9f6f1e7a9302890747d934c upstream.
 
-Some code does not directly make 'xenbus_watch' object and call
-'register_xenbus_watch()' but use 'xenbus_watch_path()' instead.  This
-commit adds support of 'will_handle' callback in the
-'xenbus_watch_path()' and it's wrapper, 'xenbus_watch_pathfmt()'.
+If the call to of_device_get_match_data() fails on probe of the Atmel
+QuadSPI driver, the clock "aq->pclk" is erroneously not unprepared and
+disabled.  Fix it.
 
-This is part of XSA-349
-
-Cc: stable@vger.kernel.org
-Signed-off-by: SeongJae Park <sjpark@amazon.de>
-Reported-by: Michael Kurth <mku@amazon.de>
-Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Fixes: 2e5c88887358 ("spi: atmel-quadspi: add support for sam9x60 qspi controller")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v5.1+
+Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/8f8dc2815aa97b2378528f08f923bf81e19611f0.1604874488.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkback/xenbus.c |    3 ++-
- drivers/net/xen-netback/xenbus.c   |    2 +-
- drivers/xen/xen-pciback/xenbus.c   |    2 +-
- drivers/xen/xenbus/xenbus_client.c |    9 +++++++--
- drivers/xen/xenbus/xenbus_probe.c  |    2 +-
- include/xen/xenbus.h               |    6 +++++-
- 6 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/spi/atmel-quadspi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkback/xenbus.c
-+++ b/drivers/block/xen-blkback/xenbus.c
-@@ -652,7 +652,8 @@ static int xen_blkbk_probe(struct xenbus
- 	/* setup back pointer */
- 	be->blkif->be = be;
- 
--	err = xenbus_watch_pathfmt(dev, &be->backend_watch, backend_changed,
-+	err = xenbus_watch_pathfmt(dev, &be->backend_watch, NULL,
-+				   backend_changed,
- 				   "%s/%s", dev->nodename, "physical-device");
- 	if (err)
- 		goto fail;
---- a/drivers/net/xen-netback/xenbus.c
-+++ b/drivers/net/xen-netback/xenbus.c
-@@ -1043,7 +1043,7 @@ static void connect(struct backend_info
- 	xenvif_carrier_on(be->vif);
- 
- 	unregister_hotplug_status_watch(be);
--	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch,
-+	err = xenbus_watch_pathfmt(dev, &be->hotplug_status_watch, NULL,
- 				   hotplug_status_changed,
- 				   "%s/%s", dev->nodename, "hotplug-status");
- 	if (!err)
---- a/drivers/xen/xen-pciback/xenbus.c
-+++ b/drivers/xen/xen-pciback/xenbus.c
-@@ -688,7 +688,7 @@ static int xen_pcibk_xenbus_probe(struct
- 
- 	/* watch the backend node for backend configuration information */
- 	err = xenbus_watch_path(dev, dev->nodename, &pdev->be_watch,
--				xen_pcibk_be_watch);
-+				NULL, xen_pcibk_be_watch);
- 	if (err)
- 		goto out;
- 
---- a/drivers/xen/xenbus/xenbus_client.c
-+++ b/drivers/xen/xenbus/xenbus_client.c
-@@ -114,19 +114,22 @@ EXPORT_SYMBOL_GPL(xenbus_strstate);
-  */
- int xenbus_watch_path(struct xenbus_device *dev, const char *path,
- 		      struct xenbus_watch *watch,
-+		      bool (*will_handle)(struct xenbus_watch *,
-+					  const char *, const char *),
- 		      void (*callback)(struct xenbus_watch *,
- 				       const char *, const char *))
- {
- 	int err;
- 
- 	watch->node = path;
--	watch->will_handle = NULL;
-+	watch->will_handle = will_handle;
- 	watch->callback = callback;
- 
- 	err = register_xenbus_watch(watch);
- 
- 	if (err) {
- 		watch->node = NULL;
-+		watch->will_handle = NULL;
- 		watch->callback = NULL;
- 		xenbus_dev_fatal(dev, err, "adding watch on %s", path);
+--- a/drivers/spi/atmel-quadspi.c
++++ b/drivers/spi/atmel-quadspi.c
+@@ -591,7 +591,7 @@ static int atmel_qspi_probe(struct platf
+ 	if (!aq->caps) {
+ 		dev_err(&pdev->dev, "Could not retrieve QSPI caps\n");
+ 		err = -EINVAL;
+-		goto exit;
++		goto disable_pclk;
  	}
-@@ -153,6 +156,8 @@ EXPORT_SYMBOL_GPL(xenbus_watch_path);
-  */
- int xenbus_watch_pathfmt(struct xenbus_device *dev,
- 			 struct xenbus_watch *watch,
-+			 bool (*will_handle)(struct xenbus_watch *,
-+					const char *, const char *),
- 			 void (*callback)(struct xenbus_watch *,
- 					  const char *, const char *),
- 			 const char *pathfmt, ...)
-@@ -169,7 +174,7 @@ int xenbus_watch_pathfmt(struct xenbus_d
- 		xenbus_dev_fatal(dev, -ENOMEM, "allocating path for watch");
- 		return -ENOMEM;
- 	}
--	err = xenbus_watch_path(dev, path, watch, callback);
-+	err = xenbus_watch_path(dev, path, watch, will_handle, callback);
  
- 	if (err)
- 		kfree(path);
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -136,7 +136,7 @@ static int watch_otherend(struct xenbus_
- 		container_of(dev->dev.bus, struct xen_bus_type, bus);
- 
- 	return xenbus_watch_pathfmt(dev, &dev->otherend_watch,
--				    bus->otherend_changed,
-+				    NULL, bus->otherend_changed,
- 				    "%s/%s", dev->otherend, "state");
- }
- 
---- a/include/xen/xenbus.h
-+++ b/include/xen/xenbus.h
-@@ -199,10 +199,14 @@ void xenbus_probe(struct work_struct *);
- 
- int xenbus_watch_path(struct xenbus_device *dev, const char *path,
- 		      struct xenbus_watch *watch,
-+		      bool (*will_handle)(struct xenbus_watch *,
-+					  const char *, const char *),
- 		      void (*callback)(struct xenbus_watch *,
- 				       const char *, const char *));
--__printf(4, 5)
-+__printf(5, 6)
- int xenbus_watch_pathfmt(struct xenbus_device *dev, struct xenbus_watch *watch,
-+			 bool (*will_handle)(struct xenbus_watch *,
-+					     const char *, const char *),
- 			 void (*callback)(struct xenbus_watch *,
- 					  const char *, const char *),
- 			 const char *pathfmt, ...);
+ 	if (aq->caps->has_qspick) {
 
 
