@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC81E2E6914
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 343192E6915
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:47:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728964AbgL1M52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 07:57:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53784 "EHLO mail.kernel.org"
+        id S2634588AbgL1QoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:44:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728953AbgL1M51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:57:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCDE6208BA;
-        Mon, 28 Dec 2020 12:56:45 +0000 (UTC)
+        id S1728991AbgL1M5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 07:57:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A738622582;
+        Mon, 28 Dec 2020 12:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160206;
-        bh=qA4XfFoJXSk7xNjMcRZKS/oFgOclCgHcjJNDgC90tY0=;
+        s=korg; t=1609160215;
+        bh=gS9o2AoaNCjEFiJpg/F1l5nbXH7zCZVWd831SI7tX9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMfGYHLlAUJZvDHAuF5E27xYLVsH+miRGuoN7ITCTvDATJWM6DEV+ZQBdvCy9ClGK
-         bEi0aDiI7kTKFj8zAKAREIwSABzNCCv7/9r6bWDZ97fA6Kl/r/+BRUaPKJYj11MR7t
-         9fXcy+tZ8P2OAG9OgxfroETY41btSvGBsilXlQhk=
+        b=or3Uz24n07dtH9XxVYsw6JV+GkNEPhHkQ6KQNGFb724v07ocpCx92a5qJSE2Sy68b
+         Z5cdLrxzkmFHddpSpMTb4bS9gsMOk9DJa73G+EEVF7kIt9LScrxXHAMASsAIGx6Csy
+         nzDgLwD+cINMhvgCM+P/z4AYCotXncc4T9KIe+70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 105/132] s390/dasd: fix list corruption of lcu list
-Date:   Mon, 28 Dec 2020 13:49:49 +0100
-Message-Id: <20201228124851.484831378@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 107/132] powerpc/perf: Exclude kernel samples while counting events in user space.
+Date:   Mon, 28 Dec 2020 13:49:51 +0100
+Message-Id: <20201228124851.584450371@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
 References: <20201228124846.409999325@linuxfoundation.org>
@@ -40,53 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit 53a7f655834c7c335bf683f248208d4fbe4b47bc upstream.
+commit aa8e21c053d72b6639ea5a7f1d3a1d0209534c94 upstream.
 
-In dasd_alias_disconnect_device_from_lcu the device is removed from any
-list on the LCU. Afterwards the LCU is removed from the lcu list if it
-does not contain devices any longer.
+Perf event attritube supports exclude_kernel flag to avoid
+sampling/profiling in supervisor state (kernel). Based on this event
+attr flag, Monitor Mode Control Register bit is set to freeze on
+supervisor state. But sometimes (due to hardware limitation), Sampled
+Instruction Address Register (SIAR) locks on to kernel address even
+when freeze on supervisor is set. Patch here adds a check to drop
+those samples.
 
-The lcu->lock protects the lcu from parallel updates. But to cancel all
-workers and wait for completion the lcu->lock has to be unlocked.
-
-If two devices are removed in parallel and both are removed from the LCU
-the first device that takes the lcu->lock again will delete the LCU because
-it is already empty but the second device also tries to free the LCU which
-leads to a list corruption of the lcu list.
-
-Fix by removing the device right before the lcu is checked without
-unlocking the lcu->lock in between.
-
-Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
 Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1606289215-1433-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/block/dasd_alias.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/core-book3s.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -258,7 +258,6 @@ void dasd_alias_disconnect_device_from_l
- 		return;
- 	device->discipline->get_uid(device, &uid);
- 	spin_lock_irqsave(&lcu->lock, flags);
--	list_del_init(&device->alias_list);
- 	/* make sure that the workers don't use this device */
- 	if (device == lcu->suc_data.device) {
- 		spin_unlock_irqrestore(&lcu->lock, flags);
-@@ -285,6 +284,7 @@ void dasd_alias_disconnect_device_from_l
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2021,6 +2021,16 @@ static void record_and_restart(struct pe
+ 	perf_event_update_userpage(event);
  
- 	spin_lock_irqsave(&aliastree.lock, flags);
- 	spin_lock(&lcu->lock);
-+	list_del_init(&device->alias_list);
- 	if (list_empty(&lcu->grouplist) &&
- 	    list_empty(&lcu->active_devices) &&
- 	    list_empty(&lcu->inactive_devices)) {
+ 	/*
++	 * Due to hardware limitation, sometimes SIAR could sample a kernel
++	 * address even when freeze on supervisor state (kernel) is set in
++	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
++	 * these cases.
++	 */
++	if (event->attr.exclude_kernel && record)
++		if (is_kernel_addr(mfspr(SPRN_SIAR)))
++			record = 0;
++
++	/*
+ 	 * Finally record data if requested.
+ 	 */
+ 	if (record) {
 
 
