@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B67612E3C7D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 839BC2E421F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 16:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408227AbgL1ODO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:03:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35908 "EHLO mail.kernel.org"
+        id S2391667AbgL1ODm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:03:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437101AbgL1ODN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:03:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B81206E5;
-        Mon, 28 Dec 2020 14:02:57 +0000 (UTC)
+        id S2437185AbgL1ODl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:03:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD3420715;
+        Mon, 28 Dec 2020 14:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609164177;
-        bh=YMi6WXVbxDbWHpzfwMiymrbNowyh1xpo2nZlu2M3WXQ=;
+        s=korg; t=1609164180;
+        bh=dWc5ccNpzefKV+J38cPC8zorQ5GdHydGLEwL75yVjwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcYhUpcnClcz/yzJf3h/y88aG4GIajmNV5tHT9fYXPUZ0K6A/AIrvK97IKfqjHneD
-         X2cNsbO2H9+j0l1559XSpnW0BJykVACCE89nlhrHq7CJ3H7zEzlVXGYst/y5Dk/ZnA
-         Iom6RX986oXWrdhgDOVkgDLk8Qzfo8YH7wcZdKMY=
+        b=rqyFtw4rq8G/vbg1VVE+TeuBYohfx4tW6vPyTUJZk2/L509SpWZYBYmKZtSBzdJlc
+         4Qez+HBN3LhQ+bLJcYrar3V2avC97KDv1oBa0TwQKU8iUTXLaad303L4Qf3vToN3UP
+         RWmpxoww+n22cH35BxkTqh5F2TrXXtxdefLsdLiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Kuogee Hsieh <khsieh@codeaurora.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/717] drm/msm/dp: return correct connection status after suspend
-Date:   Mon, 28 Dec 2020 13:41:27 +0100
-Message-Id: <20201228125025.241228629@linuxfoundation.org>
+Subject: [PATCH 5.10 090/717] drm/msm/dp: skip checking LINK_STATUS_UPDATED bit
+Date:   Mon, 28 Dec 2020 13:41:28 +0100
+Message-Id: <20201228125025.289196875@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
 References: <20201228125020.963311703@linuxfoundation.org>
@@ -43,436 +42,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit 19e52bcb27c2ba140699d2230d722366d7d048a1 ]
+[ Upstream commit ea530388e64bd584645f2d89e40ca7dffade8eff ]
 
-During suspend, dp host controller and hpd block are disabled due to
-both ahb and aux clock are disabled. Therefore hpd plug/unplug interrupts
-will not be generated. At dp_pm_resume(), reinitialize both dp host
-controller and hpd block so that hpd plug/unplug interrupts will be
-generated and handled by driver so that hpd connection state is updated
-correctly. This patch will fix link training flaky issues.
+Some dongle will not clear LINK_STATUS_UPDATED bit after
+DPCD read which cause link training failed. This patch
+just read 6 bytes of DPCD link status from sink and return
+without checking LINK_STATUS_UPDATED bit.
+Only 8 bits are used to represent link rate at sinker DPCD.
+The really link rate is 2.7Mb times the 8 bits value.
+For example, 0x0A at DPCD is equal to 2.7Gb (10 * 2.7Mb).
+This patch also convert 8 bits value of DPCD to really link
+rate to fix worng link rate error during phy compliance test.
 
-Changes in v2:
--- use container_of to cast correct dp_display_private pointer
-   at both dp_pm_suspend() and dp_pm_resume().
-
-Changes in v3:
--- replace hpd_state atomic_t  with u32
-
-Changes in v4
--- call dp_display_host_deinit() at dp_pm_suspend()
--- call dp_display_host_init() at msm_dp_display_enable()
--- fix phy->init_count unbalance which causes link training failed
-
-Changes in v5
---  add Fixes tag
-
-Fixes:  8ede2ecc3e5e (drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets)
-Tested-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 6625e2637d93 ("drm/msm/dp: DisplayPort PHY compliance tests fixup")
 Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_catalog.c |  13 +++
- drivers/gpu/drm/msm/dp/dp_catalog.h |   1 +
- drivers/gpu/drm/msm/dp/dp_ctrl.c    |   5 +
- drivers/gpu/drm/msm/dp/dp_display.c | 144 +++++++++++++++-------------
- drivers/gpu/drm/msm/dp/dp_reg.h     |   2 +
- 5 files changed, 97 insertions(+), 68 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 20 ++++++--------------
+ drivers/gpu/drm/msm/dp/dp_link.c | 29 ++++++++++++++---------------
+ 2 files changed, 20 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_catalog.c b/drivers/gpu/drm/msm/dp/dp_catalog.c
-index b15b4ce4ba35a..4963bfe6a4726 100644
---- a/drivers/gpu/drm/msm/dp/dp_catalog.c
-+++ b/drivers/gpu/drm/msm/dp/dp_catalog.c
-@@ -572,6 +572,19 @@ void dp_catalog_ctrl_hpd_config(struct dp_catalog *dp_catalog)
- 	dp_write_aux(catalog, REG_DP_DP_HPD_CTRL, DP_DP_HPD_CTRL_HPD_EN);
- }
- 
-+u32 dp_catalog_hpd_get_state_status(struct dp_catalog *dp_catalog)
-+{
-+	struct dp_catalog_private *catalog = container_of(dp_catalog,
-+				struct dp_catalog_private, dp_catalog);
-+	u32 status;
-+
-+	status = dp_read_aux(catalog, REG_DP_DP_HPD_INT_STATUS);
-+	status >>= DP_DP_HPD_STATE_STATUS_BITS_SHIFT;
-+	status &= DP_DP_HPD_STATE_STATUS_BITS_MASK;
-+
-+	return status;
-+}
-+
- u32 dp_catalog_hpd_get_intr_status(struct dp_catalog *dp_catalog)
- {
- 	struct dp_catalog_private *catalog = container_of(dp_catalog,
-diff --git a/drivers/gpu/drm/msm/dp/dp_catalog.h b/drivers/gpu/drm/msm/dp/dp_catalog.h
-index 4b7666f1fe6fe..6d257dbebf294 100644
---- a/drivers/gpu/drm/msm/dp/dp_catalog.h
-+++ b/drivers/gpu/drm/msm/dp/dp_catalog.h
-@@ -97,6 +97,7 @@ void dp_catalog_ctrl_enable_irq(struct dp_catalog *dp_catalog, bool enable);
- void dp_catalog_hpd_config_intr(struct dp_catalog *dp_catalog,
- 			u32 intr_mask, bool en);
- void dp_catalog_ctrl_hpd_config(struct dp_catalog *dp_catalog);
-+u32 dp_catalog_hpd_get_state_status(struct dp_catalog *dp_catalog);
- u32 dp_catalog_hpd_get_intr_status(struct dp_catalog *dp_catalog);
- void dp_catalog_ctrl_phy_reset(struct dp_catalog *dp_catalog);
- int dp_catalog_ctrl_update_vx_px(struct dp_catalog *dp_catalog, u8 v_level,
 diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index 872b12689e317..cee161c8ecc67 100644
+index cee161c8ecc67..c83a1650437da 100644
 --- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
 +++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1400,6 +1400,8 @@ int dp_ctrl_host_init(struct dp_ctrl *dp_ctrl, bool flip)
- void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl)
+@@ -1061,23 +1061,15 @@ static bool dp_ctrl_train_pattern_set(struct dp_ctrl_private *ctrl,
+ static int dp_ctrl_read_link_status(struct dp_ctrl_private *ctrl,
+ 				    u8 *link_status)
  {
- 	struct dp_ctrl_private *ctrl;
-+	struct dp_io *dp_io;
-+	struct phy *phy;
+-	int len = 0;
+-	u32 const offset = DP_LANE_ALIGN_STATUS_UPDATED - DP_LANE0_1_STATUS;
+-	u32 link_status_read_max_retries = 100;
+-
+-	while (--link_status_read_max_retries) {
+-		len = drm_dp_dpcd_read_link_status(ctrl->aux,
+-			link_status);
+-		if (len != DP_LINK_STATUS_SIZE) {
+-			DRM_ERROR("DP link status read failed, err: %d\n", len);
+-			return len;
+-		}
++	int ret = 0, len;
  
- 	if (!dp_ctrl) {
- 		DRM_ERROR("Invalid input data\n");
-@@ -1407,8 +1409,11 @@ void dp_ctrl_host_deinit(struct dp_ctrl *dp_ctrl)
+-		if (!(link_status[offset] & DP_LINK_STATUS_UPDATED))
+-			return 0;
++	len = drm_dp_dpcd_read_link_status(ctrl->aux, link_status);
++	if (len != DP_LINK_STATUS_SIZE) {
++		DRM_ERROR("DP link status read failed, err: %d\n", len);
++		ret = -EINVAL;
  	}
  
- 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
-+	dp_io = &ctrl->parser->io;
-+	phy = dp_io->phy;
- 
- 	dp_catalog_ctrl_enable_irq(ctrl->catalog, false);
-+	phy_exit(phy);
- 
- 	DRM_DEBUG_DP("Host deinitialized successfully\n");
- }
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index ae9989ece73f4..8703c63d85c87 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -108,14 +108,12 @@ struct dp_display_private {
- 	/* event related only access by event thread */
- 	struct mutex event_mutex;
- 	wait_queue_head_t event_q;
--	atomic_t hpd_state;
-+	u32 hpd_state;
- 	u32 event_pndx;
- 	u32 event_gndx;
- 	struct dp_event event_list[DP_EVENT_Q_MAX];
- 	spinlock_t event_lock;
- 
--	struct completion resume_comp;
--
- 	struct dp_audio *audio;
- };
- 
-@@ -367,6 +365,20 @@ static void dp_display_host_init(struct dp_display_private *dp)
- 	dp->core_initialized = true;
+-	return -ETIMEDOUT;
++	return ret;
  }
  
-+static void dp_display_host_deinit(struct dp_display_private *dp)
-+{
-+	if (!dp->core_initialized) {
-+		DRM_DEBUG_DP("DP core not initialized\n");
-+		return;
-+	}
-+
-+	dp_ctrl_host_deinit(dp->ctrl);
-+	dp_aux_deinit(dp->aux);
-+	dp_power_deinit(dp->power);
-+
-+	dp->core_initialized = false;
-+}
-+
- static int dp_display_usbpd_configure_cb(struct device *dev)
+ static int dp_ctrl_link_train_1(struct dp_ctrl_private *ctrl,
+diff --git a/drivers/gpu/drm/msm/dp/dp_link.c b/drivers/gpu/drm/msm/dp/dp_link.c
+index 49d7fad36fc4e..be986da78c4a5 100644
+--- a/drivers/gpu/drm/msm/dp/dp_link.c
++++ b/drivers/gpu/drm/msm/dp/dp_link.c
+@@ -773,7 +773,8 @@ static int dp_link_process_link_training_request(struct dp_link_private *link)
+ 			link->request.test_lane_count);
+ 
+ 	link->dp_link.link_params.num_lanes = link->request.test_lane_count;
+-	link->dp_link.link_params.rate = link->request.test_link_rate;
++	link->dp_link.link_params.rate = 
++		drm_dp_bw_code_to_link_rate(link->request.test_link_rate);
+ 
+ 	return 0;
+ }
+@@ -943,22 +944,20 @@ static u8 get_link_status(const u8 link_status[DP_LINK_STATUS_SIZE], int r)
+  */
+ static int dp_link_process_link_status_update(struct dp_link_private *link)
  {
- 	int rc = 0;
-@@ -491,7 +503,7 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
- 
- 	mutex_lock(&dp->event_mutex);
- 
--	state =  atomic_read(&dp->hpd_state);
-+	state =  dp->hpd_state;
- 	if (state == ST_SUSPEND_PENDING) {
- 		mutex_unlock(&dp->event_mutex);
- 		return 0;
-@@ -509,17 +521,14 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
- 		return 0;
- 	}
- 
--	if (state == ST_SUSPENDED)
--		tout = DP_TIMEOUT_NONE;
--
--	atomic_set(&dp->hpd_state, ST_CONNECT_PENDING);
-+	dp->hpd_state = ST_CONNECT_PENDING;
- 
- 	hpd->hpd_high = 1;
- 
- 	ret = dp_display_usbpd_configure_cb(&dp->pdev->dev);
- 	if (ret) {	/* failed */
- 		hpd->hpd_high = 0;
--		atomic_set(&dp->hpd_state, ST_DISCONNECTED);
-+		dp->hpd_state = ST_DISCONNECTED;
- 	}
- 
- 	/* start sanity checking */
-@@ -540,10 +549,10 @@ static int dp_connect_pending_timeout(struct dp_display_private *dp, u32 data)
- 
- 	mutex_lock(&dp->event_mutex);
- 
--	state =  atomic_read(&dp->hpd_state);
-+	state = dp->hpd_state;
- 	if (state == ST_CONNECT_PENDING) {
- 		dp_display_enable(dp, 0);
--		atomic_set(&dp->hpd_state, ST_CONNECTED);
-+		dp->hpd_state = ST_CONNECTED;
- 	}
- 
- 	mutex_unlock(&dp->event_mutex);
-@@ -568,7 +577,7 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
- 
- 	mutex_lock(&dp->event_mutex);
- 
--	state = atomic_read(&dp->hpd_state);
-+	state = dp->hpd_state;
- 	if (state == ST_SUSPEND_PENDING) {
- 		mutex_unlock(&dp->event_mutex);
- 		return 0;
-@@ -586,7 +595,7 @@ static int dp_hpd_unplug_handle(struct dp_display_private *dp, u32 data)
- 		return 0;
- 	}
- 
--	atomic_set(&dp->hpd_state, ST_DISCONNECT_PENDING);
-+	dp->hpd_state = ST_DISCONNECT_PENDING;
- 
- 	/* disable HPD plug interrupt until disconnect is done */
- 	dp_catalog_hpd_config_intr(dp->catalog, DP_DP_HPD_PLUG_INT_MASK
-@@ -621,10 +630,10 @@ static int dp_disconnect_pending_timeout(struct dp_display_private *dp, u32 data
- 
- 	mutex_lock(&dp->event_mutex);
- 
--	state =  atomic_read(&dp->hpd_state);
-+	state =  dp->hpd_state;
- 	if (state == ST_DISCONNECT_PENDING) {
- 		dp_display_disable(dp, 0);
--		atomic_set(&dp->hpd_state, ST_DISCONNECTED);
-+		dp->hpd_state = ST_DISCONNECTED;
- 	}
- 
- 	mutex_unlock(&dp->event_mutex);
-@@ -639,7 +648,7 @@ static int dp_irq_hpd_handle(struct dp_display_private *dp, u32 data)
- 	mutex_lock(&dp->event_mutex);
- 
- 	/* irq_hpd can happen at either connected or disconnected state */
--	state =  atomic_read(&dp->hpd_state);
-+	state =  dp->hpd_state;
- 	if (state == ST_SUSPEND_PENDING) {
- 		mutex_unlock(&dp->event_mutex);
- 		return 0;
-@@ -790,17 +799,10 @@ static int dp_display_enable(struct dp_display_private *dp, u32 data)
- 
- 	dp_display = g_dp_display;
- 
--	if (dp_display->power_on) {
--		DRM_DEBUG_DP("Link already setup, return\n");
--		return 0;
--	}
--
- 	rc = dp_ctrl_on_stream(dp->ctrl);
- 	if (!rc)
- 		dp_display->power_on = true;
- 
--	/* complete resume_comp regardless it is armed or not */
--	complete(&dp->resume_comp);
- 	return rc;
- }
- 
-@@ -829,9 +831,6 @@ static int dp_display_disable(struct dp_display_private *dp, u32 data)
- 
- 	dp_display = g_dp_display;
- 
--	if (!dp_display->power_on)
+-	if (!(get_link_status(link->link_status,
+-				DP_LANE_ALIGN_STATUS_UPDATED) &
+-				DP_LINK_STATUS_UPDATED) ||
+-			(drm_dp_clock_recovery_ok(link->link_status,
+-					link->dp_link.link_params.num_lanes) &&
+-			drm_dp_channel_eq_ok(link->link_status,
+-					link->dp_link.link_params.num_lanes)))
 -		return -EINVAL;
--
- 	/* wait only if audio was enabled */
- 	if (dp_display->audio_enabled) {
- 		if (!wait_for_completion_timeout(&dp->audio_comp,
-@@ -1152,9 +1151,6 @@ static int dp_display_probe(struct platform_device *pdev)
- 	}
++       bool channel_eq_done = drm_dp_channel_eq_ok(link->link_status,
++                       link->dp_link.link_params.num_lanes);
  
- 	mutex_init(&dp->event_mutex);
--
--	init_completion(&dp->resume_comp);
--
- 	g_dp_display = &dp->dp_display;
+-	DRM_DEBUG_DP("channel_eq_done = %d, clock_recovery_done = %d\n",
+-			drm_dp_clock_recovery_ok(link->link_status,
+-			link->dp_link.link_params.num_lanes),
+-			drm_dp_clock_recovery_ok(link->link_status,
+-			link->dp_link.link_params.num_lanes));
++       bool clock_recovery_done = drm_dp_clock_recovery_ok(link->link_status,
++                       link->dp_link.link_params.num_lanes);
  
- 	/* Store DP audio handle inside DP display */
-@@ -1190,20 +1186,54 @@ static int dp_display_remove(struct platform_device *pdev)
- 
- static int dp_pm_resume(struct device *dev)
- {
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct msm_dp *dp_display = platform_get_drvdata(pdev);
-+	struct dp_display_private *dp;
-+	u32 status;
+-	return 0;
++       DRM_DEBUG_DP("channel_eq_done = %d, clock_recovery_done = %d\n",
++                        channel_eq_done, clock_recovery_done);
 +
-+	dp = container_of(dp_display, struct dp_display_private, dp_display);
++       if (channel_eq_done && clock_recovery_done)
++               return -EINVAL;
 +
-+	mutex_lock(&dp->event_mutex);
 +
-+	/* start from disconnected state */
-+	dp->hpd_state = ST_DISCONNECTED;
-+
-+	/* turn on dp ctrl/phy */
-+	dp_display_host_init(dp);
-+
-+	dp_catalog_ctrl_hpd_config(dp->catalog);
-+
-+	status = dp_catalog_hpd_get_state_status(dp->catalog);
-+
-+	if (status) {
-+		dp->dp_display.is_connected = true;
-+	} else {
-+		dp->dp_display.is_connected = false;
-+		/* make sure next resume host_init be called */
-+		dp->core_initialized = false;
-+	}
-+
-+	mutex_unlock(&dp->event_mutex);
-+
- 	return 0;
++       return 0;
  }
  
- static int dp_pm_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
--	struct dp_display_private *dp = platform_get_drvdata(pdev);
-+	struct msm_dp *dp_display = platform_get_drvdata(pdev);
-+	struct dp_display_private *dp;
- 
--	if (!dp) {
--		DRM_ERROR("DP driver bind failed. Invalid driver data\n");
--		return -EINVAL;
--	}
-+	dp = container_of(dp_display, struct dp_display_private, dp_display);
- 
--	atomic_set(&dp->hpd_state, ST_SUSPENDED);
-+	mutex_lock(&dp->event_mutex);
-+
-+	if (dp->core_initialized == true)
-+		dp_display_host_deinit(dp);
-+
-+	dp->hpd_state = ST_SUSPENDED;
-+
-+	mutex_unlock(&dp->event_mutex);
- 
- 	return 0;
- }
-@@ -1318,19 +1348,6 @@ int msm_dp_modeset_init(struct msm_dp *dp_display, struct drm_device *dev,
- 	return 0;
- }
- 
--static int dp_display_wait4resume_done(struct dp_display_private *dp)
--{
--	int ret = 0;
--
--	reinit_completion(&dp->resume_comp);
--	if (!wait_for_completion_timeout(&dp->resume_comp,
--				WAIT_FOR_RESUME_TIMEOUT_JIFFIES)) {
--		DRM_ERROR("wait4resume_done timedout\n");
--		ret = -ETIMEDOUT;
--	}
--	return ret;
--}
--
- int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
- {
- 	int rc = 0;
-@@ -1345,6 +1362,8 @@ int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
- 
- 	mutex_lock(&dp_display->event_mutex);
- 
-+	dp_del_event(dp_display, EV_CONNECT_PENDING_TIMEOUT);
-+
- 	rc = dp_display_set_mode(dp, &dp_display->dp_mode);
- 	if (rc) {
- 		DRM_ERROR("Failed to perform a mode set, rc=%d\n", rc);
-@@ -1359,15 +1378,10 @@ int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
- 		return rc;
- 	}
- 
--	state =  atomic_read(&dp_display->hpd_state);
--	if (state == ST_SUSPENDED) {
--		/* start link training */
--		dp_add_event(dp_display, EV_HPD_PLUG_INT, 0, 0);
--		mutex_unlock(&dp_display->event_mutex);
-+	state =  dp_display->hpd_state;
- 
--		/* wait until dp interface is up */
--		goto resume_done;
--	}
-+	if (state == ST_SUSPEND_PENDING)
-+		dp_display_host_init(dp_display);
- 
- 	dp_display_enable(dp_display, 0);
- 
-@@ -1378,21 +1392,15 @@ int msm_dp_display_enable(struct msm_dp *dp, struct drm_encoder *encoder)
- 		dp_display_unprepare(dp);
- 	}
- 
--	dp_del_event(dp_display, EV_CONNECT_PENDING_TIMEOUT);
--
- 	if (state == ST_SUSPEND_PENDING)
- 		dp_add_event(dp_display, EV_IRQ_HPD_INT, 0, 0);
- 
- 	/* completed connection */
--	atomic_set(&dp_display->hpd_state, ST_CONNECTED);
-+	dp_display->hpd_state = ST_CONNECTED;
- 
- 	mutex_unlock(&dp_display->event_mutex);
- 
- 	return rc;
--
--resume_done:
--	dp_display_wait4resume_done(dp_display);
--	return rc;
- }
- 
- int msm_dp_display_pre_disable(struct msm_dp *dp, struct drm_encoder *encoder)
-@@ -1416,20 +1424,20 @@ int msm_dp_display_disable(struct msm_dp *dp, struct drm_encoder *encoder)
- 
- 	mutex_lock(&dp_display->event_mutex);
- 
-+	dp_del_event(dp_display, EV_DISCONNECT_PENDING_TIMEOUT);
-+
- 	dp_display_disable(dp_display, 0);
- 
- 	rc = dp_display_unprepare(dp);
- 	if (rc)
- 		DRM_ERROR("DP display unprepare failed, rc=%d\n", rc);
- 
--	dp_del_event(dp_display, EV_DISCONNECT_PENDING_TIMEOUT);
--
--	state =  atomic_read(&dp_display->hpd_state);
-+	state =  dp_display->hpd_state;
- 	if (state == ST_DISCONNECT_PENDING) {
- 		/* completed disconnection */
--		atomic_set(&dp_display->hpd_state, ST_DISCONNECTED);
-+		dp_display->hpd_state = ST_DISCONNECTED;
- 	} else {
--		atomic_set(&dp_display->hpd_state, ST_SUSPEND_PENDING);
-+		dp_display->hpd_state = ST_SUSPEND_PENDING;
- 	}
- 
- 	mutex_unlock(&dp_display->event_mutex);
-diff --git a/drivers/gpu/drm/msm/dp/dp_reg.h b/drivers/gpu/drm/msm/dp/dp_reg.h
-index 43042ff90a199..268602803d9a3 100644
---- a/drivers/gpu/drm/msm/dp/dp_reg.h
-+++ b/drivers/gpu/drm/msm/dp/dp_reg.h
-@@ -32,6 +32,8 @@
- #define DP_DP_IRQ_HPD_INT_ACK			(0x00000002)
- #define DP_DP_HPD_REPLUG_INT_ACK		(0x00000004)
- #define DP_DP_HPD_UNPLUG_INT_ACK		(0x00000008)
-+#define DP_DP_HPD_STATE_STATUS_BITS_MASK	(0x0000000F)
-+#define DP_DP_HPD_STATE_STATUS_BITS_SHIFT	(0x1C)
- 
- #define REG_DP_DP_HPD_INT_MASK			(0x0000000C)
- #define DP_DP_HPD_PLUG_INT_MASK			(0x00000001)
+ /**
 -- 
 2.27.0
 
