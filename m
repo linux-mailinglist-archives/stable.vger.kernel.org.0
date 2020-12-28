@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 903F32E688D
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B828D2E675D
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729750AbgL1NBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:01:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57076 "EHLO mail.kernel.org"
+        id S1730023AbgL1NLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:11:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729528AbgL1NAr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:00:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1552A22583;
-        Mon, 28 Dec 2020 13:00:05 +0000 (UTC)
+        id S1731657AbgL1NLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:11:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22C8C20776;
+        Mon, 28 Dec 2020 13:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160406;
-        bh=lLyxgcPt9F8rPa/YebkBCTauAUTHPvX84Z7WFjxvB/Q=;
+        s=korg; t=1609161061;
+        bh=KEl7a0v7/VsWcOnw1uYWHi/NQyARYMBIfAdhmwLWU78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4ipM92qRtA7dTcvnIfj+JEAVnfm7SqmFXT98c4ECz83nZnDJ+7bUyd0s3S1kC71q
-         sWpe3UZ8ADmYF2+B4sCKbO1T7dBz1cen5IYJelI/h4ocu3yFgJM7uqE/04cGruMuDJ
-         4nh5LL63wBoprNfCno0eQAHLMGHUwS5mceVeN79o=
+        b=cOtF0a/974/1t8hN3YxCRv0WJDtUeYTUts4ftM47UFBNPRuN/yC4+OCQkmrSNSA71
+         ZHZ3+Mm4QS7RNAu7T4eaI0QaHKZUetJZbLffmfW5guouhYFpUzqpo3ysq5GyA7nBI9
+         Mp/tJgbDnXMOk/2cG/F4vAmYyMODFo1bOGBV9904=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 4.9 040/175] usb: gadget: f_fs: Re-use SS descriptors for SuperSpeedPlus
+        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 088/242] net: evaluate net.ipv4.conf.all.proxy_arp_pvlan
 Date:   Mon, 28 Dec 2020 13:48:13 +0100
-Message-Id: <20201228124855.191101535@linuxfoundation.org>
+Message-Id: <20201228124909.029415053@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
-References: <20201228124853.216621466@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,69 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Vincent Bernat <vincent@bernat.ch>
 
-commit a353397b0d5dfa3c99b372505db3378fc919c6c6 upstream.
+[ Upstream commit 1af5318c00a8acc33a90537af49b3f23f72a2c4b ]
 
-In many cases a function that supports SuperSpeed can very well
-operate in SuperSpeedPlus, if a gadget controller supports it,
-as the endpoint descriptors (and companion descriptors) are
-generally identical and can be re-used. This is true for two
-commonly used functions: Android's ADB and MTP. So we can simply
-assign the usb_function's ssp_descriptors array to point to its
-ss_descriptors, if available. Similarly, we need to allow an
-epfile's ioctl for FUNCTIONFS_ENDPOINT_DESC to correctly
-return the corresponding SuperSpeed endpoint descriptor in case
-the connected speed is SuperSpeedPlus as well.
+Introduced in 65324144b50b, the "proxy_arp_vlan" sysctl is a
+per-interface sysctl to tune proxy ARP support for private VLANs.
+While the "all" variant is exposed, it was a noop and never evaluated.
+We use the usual "or" logic for this kind of sysctls.
 
-The only exception is if a function wants to implement an
-Isochronous endpoint capable of transferring more than 48KB per
-service interval when operating at greater than USB 3.1 Gen1
-speed, in which case it would require an additional SuperSpeedPlus
-Isochronous Endpoint Companion descriptor to be returned as part
-of the Configuration Descriptor. Support for that would need
-to be separately added to the userspace-facing FunctionFS API
-which may not be a trivial task--likely a new descriptor format
-(v3?) may need to be devised to allow for separate SS and SSP
-descriptors to be supplied.
-
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201027230731.9073-1-jackp@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 65324144b50b ("net: RFC3069, private VLAN proxy arp support")
+Signed-off-by: Vincent Bernat <vincent@bernat.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/inetdevice.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1228,6 +1228,7 @@ static long ffs_epfile_ioctl(struct file
+diff --git a/include/linux/inetdevice.h b/include/linux/inetdevice.h
+index ff876bf66cf25..52e1230cfe1b4 100644
+--- a/include/linux/inetdevice.h
++++ b/include/linux/inetdevice.h
+@@ -102,7 +102,7 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
  
- 			switch (epfile->ffs->gadget->speed) {
- 			case USB_SPEED_SUPER:
-+			case USB_SPEED_SUPER_PLUS:
- 				desc_idx = 2;
- 				break;
- 			case USB_SPEED_HIGH:
-@@ -3067,7 +3068,8 @@ static int _ffs_func_bind(struct usb_con
- 	}
- 
- 	if (likely(super)) {
--		func->function.ss_descriptors = vla_ptr(vlabuf, d, ss_descs);
-+		func->function.ss_descriptors = func->function.ssp_descriptors =
-+			vla_ptr(vlabuf, d, ss_descs);
- 		ss_len = ffs_do_descs(ffs->ss_descs_count,
- 				vla_ptr(vlabuf, d, raw_descs) + fs_len + hs_len,
- 				d_raw_descs__sz - fs_len - hs_len,
-@@ -3507,6 +3509,7 @@ static void ffs_func_unbind(struct usb_c
- 	func->function.fs_descriptors = NULL;
- 	func->function.hs_descriptors = NULL;
- 	func->function.ss_descriptors = NULL;
-+	func->function.ssp_descriptors = NULL;
- 	func->interfaces_nums = NULL;
- 
- 	ffs_event_add(ffs, FUNCTIONFS_UNBIND);
+ #define IN_DEV_LOG_MARTIANS(in_dev)	IN_DEV_ORCONF((in_dev), LOG_MARTIANS)
+ #define IN_DEV_PROXY_ARP(in_dev)	IN_DEV_ORCONF((in_dev), PROXY_ARP)
+-#define IN_DEV_PROXY_ARP_PVLAN(in_dev)	IN_DEV_CONF_GET(in_dev, PROXY_ARP_PVLAN)
++#define IN_DEV_PROXY_ARP_PVLAN(in_dev)	IN_DEV_ORCONF((in_dev), PROXY_ARP_PVLAN)
+ #define IN_DEV_SHARED_MEDIA(in_dev)	IN_DEV_ORCONF((in_dev), SHARED_MEDIA)
+ #define IN_DEV_TX_REDIRECTS(in_dev)	IN_DEV_ORCONF((in_dev), SEND_REDIRECTS)
+ #define IN_DEV_SEC_REDIRECTS(in_dev)	IN_DEV_ORCONF((in_dev), \
+-- 
+2.27.0
+
 
 
