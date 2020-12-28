@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 682342E6962
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4FD2E675C
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbgL1Qsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 11:48:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
+        id S2389547AbgL1QXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:23:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728154AbgL1Mx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 07:53:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11AC0208D5;
-        Mon, 28 Dec 2020 12:52:11 +0000 (UTC)
+        id S1730117AbgL1NLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:11:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93C58208BA;
+        Mon, 28 Dec 2020 13:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609159932;
-        bh=CAZpmqYhFcjlsXXL+wvpPr150+FymCry+J9YQd151xE=;
+        s=korg; t=1609161056;
+        bh=dXkCDmG6F/mAODuZ3uIxXPadXIBMnnqmj+jRl1Z/38E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IErPoC5f4Qm/sQnY3hcrBLT3mWEoLgllGHJvc34ultODFevKaic1uAgzD1Ckra5kd
-         GvymsOjvBjS4eodwmnItbEUoHijhTIKxVv2Utmi9PrgFdBKAMiz40pKrV9+95FGwuC
-         /GbgtmJVG2VKHrNmhIAgrVEHPY95cyFxmCD3DtVg=
+        b=iEYkk4iwC59VFKZKp/c5SYy3qyB6iTbpSXi6yKBlVOtTC7DG/1mI7kj73BSu1z3di
+         YcKO7qF8580ME+gTQ+fwDgAiaQarcGe+nlusJQmEO0uV57rCPU3hWJG3PeB6hYWKSM
+         l/St3lFA/5SY67Wm/HUoRG+IOKTWkuf5RVL7FKhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 006/132] Input: i8042 - add Acer laptops to the i8042 reset list
-Date:   Mon, 28 Dec 2020 13:48:10 +0100
-Message-Id: <20201228124846.724160341@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 086/242] ASoC: wm8998: Fix PM disable depth imbalance on error
+Date:   Mon, 28 Dec 2020 13:48:11 +0100
+Message-Id: <20201228124908.929096754@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124846.409999325@linuxfoundation.org>
-References: <20201228124846.409999325@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,74 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessos.org>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-commit ce6520b0eafad5962ffc21dc47cd7bd3250e9045 upstream.
+[ Upstream commit 193aa0a043645220d2a2f783ba06ae13d4601078 ]
 
-The touchpad operates in Basic Mode by default in the Acer BIOS
-setup, but some Aspire/TravelMate models require the i8042 to be
-reset in order to be correctly detected.
+The pm_runtime_enable will increase power disable depth. Thus
+a pairing decrement is needed on the error handling path to
+keep it balanced according to context.
 
-Signed-off-by: Chris Chiu <chiu@endlessos.org>
-Link: https://lore.kernel.org/r/20201207071250.15021-1-chiu@endlessos.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 31833ead95c2c ("ASoC: arizona: Move request of speaker IRQs into bus probe")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20201111041326.1257558-4-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |   42 ++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ sound/soc/codecs/wm8998.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -688,6 +688,48 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A114-31"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A314-31"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-31"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-132"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-332"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-432"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate Spin B118-RN"),
-+		},
-+	},
-+	{
- 		/* Advent 4211 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "DIXONSXP"),
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 44f447136e224..a94e0aeb2e198 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -1425,7 +1425,7 @@ static int wm8998_probe(struct platform_device *pdev)
+ 
+ 	ret = arizona_init_spk_irqs(arizona);
+ 	if (ret < 0)
+-		return ret;
++		goto err_pm_disable;
+ 
+ 	ret = snd_soc_register_codec(&pdev->dev, &soc_codec_dev_wm8998,
+ 				     wm8998_dai, ARRAY_SIZE(wm8998_dai));
+@@ -1438,6 +1438,8 @@ static int wm8998_probe(struct platform_device *pdev)
+ 
+ err_spk_irqs:
+ 	arizona_free_spk_irqs(arizona);
++err_pm_disable:
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	return ret;
+ }
+-- 
+2.27.0
+
 
 
