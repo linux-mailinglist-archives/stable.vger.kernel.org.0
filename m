@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFB62E3581
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A75EF2E3582
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:31:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726596AbgL1Jbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:31:32 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:48941 "EHLO
+        id S1726603AbgL1Jbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:31:34 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:46329 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1Jbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:31:32 -0500
+        by vger.kernel.org with ESMTP id S1726509AbgL1Jbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:31:33 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 4B80F715;
-        Mon, 28 Dec 2020 04:30:26 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:30:26 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id B3D38608;
+        Mon, 28 Dec 2020 04:30:27 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:30:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=anoHLc
-        dvq3wZyvm1TfoF3FTypSPRc/tp1+ZiFi8yCHs=; b=NcH0gtwjnJYhixV7hx0Kwg
-        OYvYm3Fm+gJ2/zZIh0MogLM3bMiFBxewX/JcB7J7fJNSMqNFpwzwHl/odTa6F6nM
-        er0JBkuVO+GyV9R1Zq8lBRfCYrpbRcK+SrVctdHfMveIEZx8ODFLiXvUvRjNZS1E
-        8xUB0bAtXVtUMrq/GpHsrceNOWh0pYHyXXnQT3ZKObA1HeYif8GmXgfLt9mp2Qr0
-        MnQl9Qu77kAmtDpQBn1lMgphOYNZvP+rHJJHGMieR2OXPCGCcEnt8k8ZlxeRp3G2
-        gCddJXo15pPkhQ5m6lmfMu7gBTJ1k6w5A3W3R3WJcLfUYulZugyx0+GnRNljAZFQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3rFIpC
+        rk6KNv8Aiuy7ggRDwVlOn51HreqIPHFXjwm40=; b=fGd9cPcvCEgPmmPzxbIfK3
+        1OaUEaOTbLrWG315ciM3dTDHOiz2avLcNYvHGgOg1vK119yGrt51V07C8VMR2yH3
+        klL+wj7NSufOaBJfAIY0ZXPLtVaEmjxuVKRC+0MJbAbE5sIk71gnOn+9Cqt4alFj
+        umM10kMkqHJIOxOX+g9AKaXnjcq5pObrfKrC4IS6PDWGcZNDyaUUYfHStEbSBzaa
+        SIScPCzLUp/wdj3XvtpoH47JIDcJCY2lC5KvNaPHmatXbrFA1lrMS9DZEeQKlamU
+        IGIl+NPIw1kHKSu88teQAiyxbvXiU+FrEspqk/aZyAf8HdnwyxnoFU3DVVcTe6WQ
         ==
-X-ME-Sender: <xms:saXpX_IFqNAiLeTN-ID3AbTWYsP78Qouu7ceapfoSr71Zw3uVOTy4A>
-    <xme:saXpXzIQ8GuOh_-1TtsRlb6KiaYiXsyDBzSnCBrjMUc77MJBa5qG3R9kTL21unZHL
-    ThMmDaVFHPZyQ>
+X-ME-Sender: <xms:s6XpXzIqM21pEQSTa6l7OhHAEuuDmBE4iGlfgfAk0iQyQ5FcCTYMdg>
+    <xme:s6XpX3L_vwAbG788Y7J8TZg61Hz8V8tKx9repDumDOPnTW-tXANI4w_yGIoD5pmwv
+    RwfbC1lqAzWEA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:saXpX3spPOVmJTaO-qY4CxLw3Y0NBuB6lSB7HldvOTImsr1lkbSYaA>
-    <xmx:saXpX4aXKdQirxuT5EDPNBij3pm0N3SoawZmhNsEkMt5TKsuuVfGSg>
-    <xmx:saXpX2aso9O53aWi5rxs13pll-Ef4QHYvQSnPDlQDdog6wrXBTPmjQ>
-    <xmx:saXpX5zNLWocW-QPS5cpj3K4p0CHu9XXcdQhHVrQ_Wt09KxJupqVbuYQLFw>
+X-ME-Proxy: <xmx:s6XpX7uHuCHNLhlr6_BiZ_4fdwyflfNfSoNNSn6-nY3kwA2gjVS_yA>
+    <xmx:s6XpX8Y4y7SUmbAH4yZNc9_BsGDxW0PgxGVG8poMxeCf-HKBDMgtzw>
+    <xmx:s6XpX6bUVNYoCQNTM5IgL6abiyvm5Qy4d4sA-vJH20RT33mY4US-cA>
+    <xmx:s6XpX9xWatDJrJjrZAeGf4QG3bX7g_7NiJfAWAtTwMCuEUHTzUO2ua0XhR0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 876E0108005C;
-        Mon, 28 Dec 2020 04:30:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] jffs2: Fix NULL pointer dereference in rp_size fs option" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E658B24005D;
+        Mon, 28 Dec 2020 04:30:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] jffs2: Fix NULL pointer dereference in rp_size fs option" failed to apply to 5.10-stable tree
 To:     jamie@nuviainc.com, dhowells@redhat.com, richard@nod.at,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 10:31:49 +0100
-Message-ID: <16091479096513@kroah.com>
+Date:   Mon, 28 Dec 2020 10:31:50 +0100
+Message-ID: <1609147910109123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
