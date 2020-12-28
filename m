@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B707E2E36C3
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:49:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B91BF2E36C2
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 12:49:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbgL1LtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 06:49:20 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51471 "EHLO
+        id S1726530AbgL1LtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 06:49:08 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:54625 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726263AbgL1LtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:49:20 -0500
+        by vger.kernel.org with ESMTP id S1726263AbgL1LtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 06:49:08 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 3678F77B;
-        Mon, 28 Dec 2020 06:48:14 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:48:14 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id E87297EC;
+        Mon, 28 Dec 2020 06:48:21 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 06:48:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WGzopA
-        QTDFrLPHNIbUg+NWKVFuLHtjWUsanNFx8PJys=; b=mob20YeHS07THY4xGOR+B5
-        s6Owhu4EJaFZzYiWisHi/SY9CRONIptnqIeG+5PY1973uM5jRfosInYLyV3GHFTm
-        s7oQhylh3k75Uozo0xh9CZ52oa7E0t56FFjglfRjt//iaccS2FLvEt4xb3vzG3+s
-        OkuomTjUKqMKnUd8iwRPMTVmLb/mgLOt2rP3MZRfHriF2yv+/PByYvcUXttowX6R
-        TpvkFnQHp6H01CY9obKcesLgxuZz+guXgmzzf8ndbiBTUM8EchxN6cvORNjajXt6
-        odpTmFxXjTTQ3Y4EozqplglLHcd9mgwnYRAVan7/bwjTHX0LaQoMdYqmXz3HAWeQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jqO7Hc
+        IEe3pB3owWGd8bo98HetVOD/0DHgpy0TachNQ=; b=KZNjXLxYGg6lcuZSei56pH
+        Hswtxxj/JOMoDGDEeVqCrT/qhSIPfwDomfKCVwb1Tz4ezjzcC2zyHebfBcI+j2kt
+        JpMNUfAvjAzvRvK5O+F4BfCn7Q3jO1iG4a08dNqM522pa+XBTC1Og7BYVbKZ5sGm
+        NdZQMAXvW6D5sBETfvMxhwFO1nwSBHtp19zDDjToZLRGWwpeALvVEFxzl0iRNHUK
+        r/YBW5yCCOCb7Mwo93XFGMQHVw4gqZ49af7vs+vBoztu7JqQF4tfOhgMpvYXUiTl
+        Nn1yAnLQqGUxe4lC92j5MynWqf5XR/BG1svB+9bcMEGYiZ/jXJRNWEICcaoC4s1w
         ==
-X-ME-Sender: <xms:_MXpXwpNUgYYbezj-tR9-BAVQjmmYm8FMsSVzJPae28CcQP6yz9tTw>
-    <xme:_MXpX2rlb5tdmuf5s9IHsXe67xMhzdpuk7xVEofMQS4IxmlvXUhFFhyROUGMRKsvJ
-    sRa9bcmj9vTxA>
+X-ME-Sender: <xms:BcbpX8eYKt6KI69t597VdHlxrdFnMe5QEqTNkA3FGXsLsInFA_AxCg>
+    <xme:BcbpX-Pyz440a4JmH94CLBPpes-V-3Db8x9POQwaXaU__b9DciyBsdwRdIJlpi2aC
+    m4xmLKOJNIAgw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:_MXpX1NC2hfJ4NLr5zLatoozNvuh4MPKx6P3ZaojSDLAzPEY1l04qQ>
-    <xmx:_MXpX3477KJQfE_V0_vbP8Aa0hBMY8FmLT1Io-MMmQqpHtBp60XCHA>
-    <xmx:_MXpX_5MdPS6efsRqlOwYvPODpnQuAWWKtVdD1qFvY37PUH8rJj7dQ>
-    <xmx:_cXpXxmVZQD6I9GeQIxarGQUL8IsjKgQp8APxDk11vmiFtAkZ13xrg76PWc>
+X-ME-Proxy: <xmx:BcbpX9i0Zl0NEoCjK6GAOLTiJE00PdbgwCBH_is9lz7vJKT0IvJ_4Q>
+    <xmx:BcbpXx98OFeZUpDk3cNGT1toi6pvDfw7qPdrLvXs8SSD2DQPWqp1Pw>
+    <xmx:BcbpX4t3aG19ziUeaD1KPT_QDQnVOcUVAj1AIVA4WJNDO6rsLALJ5g>
+    <xmx:BcbpX0J5Mgs4zVGNW-q7campveFGSZ0ecvl2eEBQtcsI7tKqgDk4OIbwgNY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1E9261080064;
-        Mon, 28 Dec 2020 06:48:12 -0500 (EST)
-Subject: FAILED: patch "[PATCH] null_blk: Fix zone size initialization" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 08DFC240057;
+        Mon, 28 Dec 2020 06:48:20 -0500 (EST)
+Subject: FAILED: patch "[PATCH] null_blk: Fix zone size initialization" failed to apply to 5.4-stable tree
 To:     damien.lemoal@wdc.com, axboe@kernel.dk, hch@lst.de,
         johannes.thumshirn@wdc.com, naohiro.aota@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 12:49:35 +0100
-Message-ID: <160915617556175@kroah.com>
+Date:   Mon, 28 Dec 2020 12:49:36 +0100
+Message-ID: <160915617623242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
