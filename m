@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD432E3580
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFB62E3581
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 10:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbgL1Jal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 04:30:41 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55791 "EHLO
+        id S1726596AbgL1Jbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 04:31:32 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:48941 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726509AbgL1Jal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:30:41 -0500
+        by vger.kernel.org with ESMTP id S1726509AbgL1Jbc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 04:31:32 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 90D636F4;
-        Mon, 28 Dec 2020 04:29:35 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:29:35 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 4B80F715;
+        Mon, 28 Dec 2020 04:30:26 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 28 Dec 2020 04:30:26 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=/YJXlO
-        TJKMgOhHo8oI6Kagb2APnWKlCmB/7T4J1JS4c=; b=TIbeOOyX1Ag9NFnUrGOjFU
-        zi6j2L/bipnH6qcDdG16Ntq5gNEIqVDO4T0Rrm+PPmj+uMqXtkZrORWrUuiZF68Q
-        3haZDBCMguKlBih7bX3eoDfjuCKdrf68D+wZB/9qZGAHTJmz46dPOso06omp3zNt
-        2GkAiJ57S6rU1pdjq8nGSgQbH+Q0MXH8l9KDgMeJrfHTLK7zmF1ZfgQ+jozCqTca
-        PfEQf1Nas7FN2hBGVOdeO4SEVH+rIqP6iz2N0B3hAJvd33+Xs089WEQ6EKKqbPxi
-        KtW4RoawK3yG9VxK4C/NRMdO9RJhbr5jiwKX5TW0bra8HIvhLo6D6ye8BtXBhFsw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=anoHLc
+        dvq3wZyvm1TfoF3FTypSPRc/tp1+ZiFi8yCHs=; b=NcH0gtwjnJYhixV7hx0Kwg
+        OYvYm3Fm+gJ2/zZIh0MogLM3bMiFBxewX/JcB7J7fJNSMqNFpwzwHl/odTa6F6nM
+        er0JBkuVO+GyV9R1Zq8lBRfCYrpbRcK+SrVctdHfMveIEZx8ODFLiXvUvRjNZS1E
+        8xUB0bAtXVtUMrq/GpHsrceNOWh0pYHyXXnQT3ZKObA1HeYif8GmXgfLt9mp2Qr0
+        MnQl9Qu77kAmtDpQBn1lMgphOYNZvP+rHJJHGMieR2OXPCGCcEnt8k8ZlxeRp3G2
+        gCddJXo15pPkhQ5m6lmfMu7gBTJ1k6w5A3W3R3WJcLfUYulZugyx0+GnRNljAZFQ
         ==
-X-ME-Sender: <xms:f6XpXzH8HJ5ygcomFkJ66W7YG5_c7853T4tv1tqNo7IP0wAZXy8V7A>
-    <xme:f6XpXwWDDaDIHBiWBG4us1cK2dKxkVmHU0CWw7IE0TyevTrQeUJXCZ3tAhYerzlLn
-    DkVPtu_z0cLyQ>
+X-ME-Sender: <xms:saXpX_IFqNAiLeTN-ID3AbTWYsP78Qouu7ceapfoSr71Zw3uVOTy4A>
+    <xme:saXpXzIQ8GuOh_-1TtsRlb6KiaYiXsyDBzSnCBrjMUc77MJBa5qG3R9kTL21unZHL
+    ThMmDaVFHPZyQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdduledgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:f6XpX1Kfc18iBnlmh0aWIMRWQQOQvPQrYV_APHp_0mwLOXeeEfZieg>
-    <xmx:f6XpXxHu2cWQSIIw312MMTgt2rONCjXWlSQQaOr5Q5nGJY11EJWPSQ>
-    <xmx:f6XpX5VnnXtFpWz4iAX_m3MM5X2VTZkhMeDxYjJQqHRa8_e0P9bT8g>
-    <xmx:f6XpX6eUAjt4Th-Jw-3-BL2uJkqswMJuYC5vUO0wY0m6Zn8RKM1UzUclRQU>
+X-ME-Proxy: <xmx:saXpX3spPOVmJTaO-qY4CxLw3Y0NBuB6lSB7HldvOTImsr1lkbSYaA>
+    <xmx:saXpX4aXKdQirxuT5EDPNBij3pm0N3SoawZmhNsEkMt5TKsuuVfGSg>
+    <xmx:saXpX2aso9O53aWi5rxs13pll-Ef4QHYvQSnPDlQDdog6wrXBTPmjQ>
+    <xmx:saXpX5zNLWocW-QPS5cpj3K4p0CHu9XXcdQhHVrQ_Wt09KxJupqVbuYQLFw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ED673240057;
-        Mon, 28 Dec 2020 04:29:34 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ubifs: wbuf: Don't leak kernel memory to flash" failed to apply to 4.14-stable tree
-To:     richard@nod.at, chengzhihao1@huawei.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 876E0108005C;
+        Mon, 28 Dec 2020 04:30:25 -0500 (EST)
+Subject: FAILED: patch "[PATCH] jffs2: Fix NULL pointer dereference in rp_size fs option" failed to apply to 5.4-stable tree
+To:     jamie@nuviainc.com, dhowells@redhat.com, richard@nod.at,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Dec 2020 10:30:49 +0100
-Message-ID: <16091478492463@kroah.com>
+Date:   Mon, 28 Dec 2020 10:31:49 +0100
+Message-ID: <16091479096513@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,66 +71,108 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 20f1431160c6b590cdc269a846fc5a448abf5b98 Mon Sep 17 00:00:00 2001
-From: Richard Weinberger <richard@nod.at>
-Date: Mon, 16 Nov 2020 22:05:30 +0100
-Subject: [PATCH] ubifs: wbuf: Don't leak kernel memory to flash
+From a61df3c413e49b0042f9caf774c58512d1cc71b7 Mon Sep 17 00:00:00 2001
+From: Jamie Iles <jamie@nuviainc.com>
+Date: Mon, 12 Oct 2020 14:12:04 +0100
+Subject: [PATCH] jffs2: Fix NULL pointer dereference in rp_size fs option
+ parsing
 
-Write buffers use a kmalloc()'ed buffer, they can leak
-up to seven bytes of kernel memory to flash if writes are not
-aligned.
-So use ubifs_pad() to fill these gaps with padding bytes.
-This was never a problem while scanning because the scanner logic
-manually aligns node lengths and skips over these gaps.
+syzkaller found the following JFFS2 splat:
 
+  Unable to handle kernel paging request at virtual address dfffa00000000001
+  Mem abort info:
+    ESR = 0x96000004
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  [dfffa00000000001] address between user and kernel address ranges
+  Internal error: Oops: 96000004 [#1] SMP
+  Dumping ftrace buffer:
+     (ftrace buffer empty)
+  Modules linked in:
+  CPU: 0 PID: 12745 Comm: syz-executor.5 Tainted: G S                5.9.0-rc8+ #98
+  Hardware name: linux,dummy-virt (DT)
+  pstate: 20400005 (nzCv daif +PAN -UAO BTYPE=--)
+  pc : jffs2_parse_param+0x138/0x308 fs/jffs2/super.c:206
+  lr : jffs2_parse_param+0x108/0x308 fs/jffs2/super.c:205
+  sp : ffff000022a57910
+  x29: ffff000022a57910 x28: 0000000000000000
+  x27: ffff000057634008 x26: 000000000000d800
+  x25: 000000000000d800 x24: ffff0000271a9000
+  x23: ffffa0001adb5dc0 x22: ffff000023fdcf00
+  x21: 1fffe0000454af2c x20: ffff000024cc9400
+  x19: 0000000000000000 x18: 0000000000000000
+  x17: 0000000000000000 x16: ffffa000102dbdd0
+  x15: 0000000000000000 x14: ffffa000109e44bc
+  x13: ffffa00010a3a26c x12: ffff80000476e0b3
+  x11: 1fffe0000476e0b2 x10: ffff80000476e0b2
+  x9 : ffffa00010a3ad60 x8 : ffff000023b70593
+  x7 : 0000000000000003 x6 : 00000000f1f1f1f1
+  x5 : ffff000023fdcf00 x4 : 0000000000000002
+  x3 : ffffa00010000000 x2 : 0000000000000001
+  x1 : dfffa00000000000 x0 : 0000000000000008
+  Call trace:
+   jffs2_parse_param+0x138/0x308 fs/jffs2/super.c:206
+   vfs_parse_fs_param+0x234/0x4e8 fs/fs_context.c:117
+   vfs_parse_fs_string+0xe8/0x148 fs/fs_context.c:161
+   generic_parse_monolithic+0x17c/0x208 fs/fs_context.c:201
+   parse_monolithic_mount_data+0x7c/0xa8 fs/fs_context.c:649
+   do_new_mount fs/namespace.c:2871 [inline]
+   path_mount+0x548/0x1da8 fs/namespace.c:3192
+   do_mount+0x124/0x138 fs/namespace.c:3205
+   __do_sys_mount fs/namespace.c:3413 [inline]
+   __se_sys_mount fs/namespace.c:3390 [inline]
+   __arm64_sys_mount+0x164/0x238 fs/namespace.c:3390
+   __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+   invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+   el0_svc_common.constprop.0+0x15c/0x598 arch/arm64/kernel/syscall.c:149
+   do_el0_svc+0x60/0x150 arch/arm64/kernel/syscall.c:195
+   el0_svc+0x34/0xb0 arch/arm64/kernel/entry-common.c:226
+   el0_sync_handler+0xc8/0x5b4 arch/arm64/kernel/entry-common.c:236
+   el0_sync+0x15c/0x180 arch/arm64/kernel/entry.S:663
+  Code: d2d40001 f2fbffe1 91002260 d343fc02 (38e16841)
+  ---[ end trace 4edf690313deda44 ]---
+
+This is because since ec10a24f10c8, the option parsing happens before
+fill_super and so the MTD device isn't associated with the filesystem.
+Defer the size check until there is a valid association.
+
+Fixes: ec10a24f10c8 ("vfs: Convert jffs2 to use the new mount API")
 Cc: <stable@vger.kernel.org>
-Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Cc: David Howells <dhowells@redhat.com>
+Signed-off-by: Jamie Iles <jamie@nuviainc.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 
-diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
-index 2dc933f73165..a9cabb3fa64c 100644
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -319,7 +319,7 @@ void ubifs_pad(const struct ubifs_info *c, void *buf, int pad)
- {
- 	uint32_t crc;
+diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
+index c523adaca79f..81ca58c10b72 100644
+--- a/fs/jffs2/super.c
++++ b/fs/jffs2/super.c
+@@ -202,12 +202,8 @@ static int jffs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
+ 	case Opt_rp_size:
+ 		if (result.uint_32 > UINT_MAX / 1024)
+ 			return invalf(fc, "jffs2: rp_size unrepresentable");
+-		opt = result.uint_32 * 1024;
+-		if (opt > c->mtd->size)
+-			return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
+-				      c->mtd->size / 1024);
++		c->mount_opts.rp_size = result.uint_32 * 1024;
+ 		c->mount_opts.set_rp_size = true;
+-		c->mount_opts.rp_size = opt;
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -269,6 +265,10 @@ static int jffs2_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	c->mtd = sb->s_mtd;
+ 	c->os_priv = sb;
  
--	ubifs_assert(c, pad >= 0 && !(pad & 7));
-+	ubifs_assert(c, pad >= 0);
- 
- 	if (pad >= UBIFS_PAD_NODE_SZ) {
- 		struct ubifs_ch *ch = buf;
-@@ -764,6 +764,10 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
- 		 * write-buffer.
- 		 */
- 		memcpy(wbuf->buf + wbuf->used, buf, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(c, aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
-+		}
- 
- 		if (aligned_len == wbuf->avail) {
- 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
-@@ -856,13 +860,18 @@ int ubifs_wbuf_write_nolock(struct ubifs_wbuf *wbuf, void *buf, int len)
- 	}
- 
- 	spin_lock(&wbuf->lock);
--	if (aligned_len)
-+	if (aligned_len) {
- 		/*
- 		 * And now we have what's left and what does not take whole
- 		 * max. write unit, so write it to the write-buffer and we are
- 		 * done.
- 		 */
- 		memcpy(wbuf->buf, buf + written, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(c, aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
-+		}
-+	}
- 
- 	if (c->leb_size - wbuf->offs >= c->max_write_size)
- 		wbuf->size = c->max_write_size;
++	if (c->mount_opts.rp_size > c->mtd->size)
++		return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
++			      c->mtd->size / 1024);
++
+ 	/* Initialize JFFS2 superblock locks, the further initialization will
+ 	 * be done later */
+ 	mutex_init(&c->alloc_sem);
 
