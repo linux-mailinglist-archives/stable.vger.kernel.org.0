@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E212E3BEB
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:57:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45C372E3F7F
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403909AbgL1N4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:56:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
+        id S2503361AbgL1O3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 09:29:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407551AbgL1N4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:56:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BB452078D;
-        Mon, 28 Dec 2020 13:55:24 +0000 (UTC)
+        id S2390307AbgL1O3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 09:29:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E03206D4;
+        Mon, 28 Dec 2020 14:28:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609163725;
-        bh=5+jCPEnxzT88Ufbndc9xXHUd4Qjz0Lq7q5hDSn+glGI=;
+        s=korg; t=1609165702;
+        bh=GCRSd7zD/TEBVbBx3Dw7+c2VxWwOYBBPm5G7HSOutqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ba59qZBdMeGjFGPD5QHOEH1rFe+9SpV5gKmDhlgPK+Y7+ToVVaH5XDyQwqXodGyet
-         iJfQ5ndBN9IutUjhOs7Y2/R7e4W4x6BrLVX227GvI6G6UwXdStRZPCXNaUbkaHVWeQ
-         2fMzUMJrR+nyzjsT2Ui3s6O+KNTl7orBCksJGbgM=
+        b=a3xp4viMJBy6UldbOWEWZzLqHuTfxeiw6jRskudFfE1XXTVVm6JgWXxfb6bHgvDFM
+         ifYpbj7upCQKkCibG8Pk6acKK7V3bs0IRxEF6H8uA20nnhurEt1QhCg2XyoCOEhoY2
+         evh60yiYaxqT72XmrZ1QpduREhGCZHHZxo2OjZI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>
-Subject: [PATCH 5.4 387/453] powerpc/powernv/memtrace: Dont leak kernel memory to user space
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 625/717] SMB3.1.1: do not log warning message if server doesnt populate salt
 Date:   Mon, 28 Dec 2020 13:50:23 +0100
-Message-Id: <20201228124955.825161991@linuxfoundation.org>
+Message-Id: <20201228125050.864074925@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
-References: <20201228124937.240114599@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+References: <20201228125020.963311703@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit c74cf7a3d59a21b290fe0468f5b470d0b8ee37df upstream.
+commit 7955f105afb6034af344038d663bc98809483cdd upstream.
 
-We currently leak kernel memory to user space, because memory
-offlining doesn't do any implicit clearing of memory and we are
-missing explicit clearing of memory.
+In the negotiate protocol preauth context, the server is not required
+to populate the salt (although it is done by most servers) so do
+not warn on mount.
 
-Let's keep it simple and clear pages before removing the linear
-mapping.
+We retain the checks (warn) that the preauth context is the minimum
+size and that the salt does not exceed DataLength of the SMB response.
+Although we use the defaults in the case that the preauth context
+response is invalid, these checks may be useful in the future
+as servers add support for additional mechanisms.
 
-Reproduced in QEMU/TCG with 10 GiB of main memory:
-  [root@localhost ~]# dd obs=9G if=/dev/urandom of=/dev/null
-  [... wait until "free -m" used counter no longer changes and cancel]
-  19665802+0 records in
-  1+0 records out
-  9663676416 bytes (9.7 GB, 9.0 GiB) copied, 135.548 s, 71.3 MB/s
-  [root@localhost ~]# cat /sys/devices/system/memory/block_size_bytes
-  40000000
-  [root@localhost ~]# echo 0x40000000 > /sys/kernel/debug/powerpc/memtrace/enable
-  [  402.978663][ T1086] page:000000001bc4bc74 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x24900
-  [  402.980063][ T1086] flags: 0x7ffff000001000(reserved)
-  [  402.980415][ T1086] raw: 007ffff000001000 c00c000000924008 c00c000000924008 0000000000000000
-  [  402.980627][ T1086] raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
-  [  402.980845][ T1086] page dumped because: unmovable page
-  [  402.989608][ T1086] Offlined Pages 16384
-  [  403.324155][ T1086] memtrace: Allocated trace memory on node 0 at 0x0000000200000000
-
-Before this patch:
-  [root@localhost ~]# hexdump -C /sys/kernel/debug/powerpc/memtrace/00000000/trace  | head
-  00000000  c8 25 72 51 4d 26 36 c5  5c c2 56 15 d5 1a cd 10  |.%rQM&6.\.V.....|
-  00000010  19 b9 50 b2 cb e3 60 b8  ec 0a f3 ec 4b 3c 39 f0  |..P...`.....K<9.|$
-  00000020  4e 5a 4c cf bd 26 19 ff  37 79 13 67 24 b7 b8 57  |NZL..&..7y.g$..W|$
-  00000030  98 3e f5 be 6f 14 6a bd  a4 52 bc 6e e9 e0 c1 5d  |.>..o.j..R.n...]|$
-  00000040  76 b3 ae b5 88 d7 da e3  64 23 85 2c 10 88 07 b6  |v.......d#.,....|$
-  00000050  9a d8 91 de f7 50 27 69  2e 64 9c 6f d3 19 45 79  |.....P'i.d.o..Ey|$
-  00000060  6a 6f 8a 61 71 19 1f c7  f1 df 28 26 ca 0f 84 55  |jo.aq.....(&...U|$
-  00000070  01 3f be e4 e2 e1 da ff  7b 8c 8e 32 37 b4 24 53  |.?......{..27.$S|$
-  00000080  1b 70 30 45 56 e6 8c c4  0e b5 4c fb 9f dd 88 06  |.p0EV.....L.....|$
-  00000090  ef c4 18 79 f1 60 b1 5c  79 59 4d f4 36 d7 4a 5c  |...y.`.\yYM.6.J\|$
-
-After this patch:
-  [root@localhost ~]# hexdump -C /sys/kernel/debug/powerpc/memtrace/00000000/trace  | head
-  00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-  *
-  40000000
-
-Fixes: 9d5171a8f248 ("powerpc/powernv: Enable removal of memory for in memory tracing")
-Cc: stable@vger.kernel.org # v4.14+
-Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201111145322.15793-2-david@redhat.com
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/memtrace.c |   22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ fs/cifs/smb2pdu.c |    7 +++++--
+ fs/cifs/smb2pdu.h |   14 +++++++++++---
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/platforms/powernv/memtrace.c
-+++ b/arch/powerpc/platforms/powernv/memtrace.c
-@@ -67,6 +67,23 @@ static int change_memblock_state(struct
- 	return 0;
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -427,8 +427,8 @@ build_preauth_ctxt(struct smb2_preauth_n
+ 	pneg_ctxt->ContextType = SMB2_PREAUTH_INTEGRITY_CAPABILITIES;
+ 	pneg_ctxt->DataLength = cpu_to_le16(38);
+ 	pneg_ctxt->HashAlgorithmCount = cpu_to_le16(1);
+-	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_SALT_SIZE);
+-	get_random_bytes(pneg_ctxt->Salt, SMB311_SALT_SIZE);
++	pneg_ctxt->SaltLength = cpu_to_le16(SMB311_LINUX_CLIENT_SALT_SIZE);
++	get_random_bytes(pneg_ctxt->Salt, SMB311_LINUX_CLIENT_SALT_SIZE);
+ 	pneg_ctxt->HashAlgorithms = SMB2_PREAUTH_INTEGRITY_SHA512;
  }
  
-+static void memtrace_clear_range(unsigned long start_pfn,
-+				 unsigned long nr_pages)
-+{
-+	unsigned long pfn;
+@@ -566,6 +566,9 @@ static void decode_preauth_context(struc
+ 	if (len < MIN_PREAUTH_CTXT_DATA_LEN) {
+ 		pr_warn_once("server sent bad preauth context\n");
+ 		return;
++	} else if (len < MIN_PREAUTH_CTXT_DATA_LEN + le16_to_cpu(ctxt->SaltLength)) {
++		pr_warn_once("server sent invalid SaltLength\n");
++		return;
+ 	}
+ 	if (le16_to_cpu(ctxt->HashAlgorithmCount) != 1)
+ 		pr_warn_once("Invalid SMB3 hash algorithm count\n");
+--- a/fs/cifs/smb2pdu.h
++++ b/fs/cifs/smb2pdu.h
+@@ -333,12 +333,20 @@ struct smb2_neg_context {
+ 	/* Followed by array of data */
+ } __packed;
+ 
+-#define SMB311_SALT_SIZE			32
++#define SMB311_LINUX_CLIENT_SALT_SIZE			32
+ /* Hash Algorithm Types */
+ #define SMB2_PREAUTH_INTEGRITY_SHA512	cpu_to_le16(0x0001)
+ #define SMB2_PREAUTH_HASH_SIZE 64
+ 
+-#define MIN_PREAUTH_CTXT_DATA_LEN	(SMB311_SALT_SIZE + 6)
++/*
++ * SaltLength that the server send can be zero, so the only three required
++ * fields (all __le16) end up six bytes total, so the minimum context data len
++ * in the response is six bytes which accounts for
++ *
++ *      HashAlgorithmCount, SaltLength, and 1 HashAlgorithm.
++ */
++#define MIN_PREAUTH_CTXT_DATA_LEN 6
 +
-+	/*
-+	 * As pages are offline, we cannot trust the memmap anymore. As HIGHMEM
-+	 * does not apply, avoid passing around "struct page" and use
-+	 * clear_page() instead directly.
-+	 */
-+	for (pfn = start_pfn; pfn < start_pfn + nr_pages; pfn++) {
-+		if (IS_ALIGNED(pfn, PAGES_PER_SECTION))
-+			cond_resched();
-+		clear_page(__va(PFN_PHYS(pfn)));
-+	}
-+}
-+
- /* called with device_hotplug_lock held */
- static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
- {
-@@ -112,6 +129,11 @@ static u64 memtrace_alloc_node(u32 nid,
- 	for (base_pfn = end_pfn; base_pfn > start_pfn; base_pfn -= nr_pages) {
- 		if (memtrace_offline_pages(nid, base_pfn, nr_pages) == true) {
- 			/*
-+			 * Clear the range while we still have a linear
-+			 * mapping.
-+			 */
-+			memtrace_clear_range(base_pfn, nr_pages);
-+			/*
- 			 * Remove memory in memory block size chunks so that
- 			 * iomem resources are always split to the same size and
- 			 * we never try to remove memory that spans two iomem
+ struct smb2_preauth_neg_context {
+ 	__le16	ContextType; /* 1 */
+ 	__le16	DataLength;
+@@ -346,7 +354,7 @@ struct smb2_preauth_neg_context {
+ 	__le16	HashAlgorithmCount; /* 1 */
+ 	__le16	SaltLength;
+ 	__le16	HashAlgorithms; /* HashAlgorithms[0] since only one defined */
+-	__u8	Salt[SMB311_SALT_SIZE];
++	__u8	Salt[SMB311_LINUX_CLIENT_SALT_SIZE];
+ } __packed;
+ 
+ /* Encryption Algorithms Ciphers */
 
 
