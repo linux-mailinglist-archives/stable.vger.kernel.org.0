@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 845B12E3E25
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:25:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F68B2E38AF
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503119AbgL1OYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:24:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60706 "EHLO mail.kernel.org"
+        id S1732245AbgL1NNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:13:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503114AbgL1OYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:24:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FFA0229C5;
-        Mon, 28 Dec 2020 14:23:57 +0000 (UTC)
+        id S1732227AbgL1NN3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:13:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9062120728;
+        Mon, 28 Dec 2020 13:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165438;
-        bh=3EEhOlEurmIC09uDV5qvb5mP6poKmMSiplCtiTjKOdY=;
+        s=korg; t=1609161169;
+        bh=to4sIerXwMYJ2477U9/vkaK71bkbQN/73hAhCf5gOUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ga+xZGWjuAOPxtxGaTaPXm46X15wI+iNGIgmAwi5WMqb/Mc9atyviwCLQT1adsykm
-         +m7q6kSvv5JtodJtfPnSnvLbzJIXtOlpJ+0hCQwE0wFzadQm2MohKzePSCBv2bvYNh
-         12q9s4w6igIstYjnh/f13KXIPkjXyQfjkW1cnhHM=
+        b=Leb8ohIaaaZy2bjq/ojdX6f5e3cgzYxlMZQIxUl1lTeix+MB5CLsC/gMsKyM1UuxV
+         OPAyyJ8hE28HRpUwy1tEbj7YkeY1xW5uifGxgAToPiXy8g6Gr+BW+VLZPewGULI/HG
+         6fO2XST4E2VuB+DfJ69eVJtGcd7+fRMn1FDEDnjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 531/717] ACPI: NFIT: Fix input validation of bus-family
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 124/242] NFSv4.2: condition READDIRs mask for security label based on LSM state
 Date:   Mon, 28 Dec 2020 13:48:49 +0100
-Message-Id: <20201228125046.408298346@linuxfoundation.org>
+Message-Id: <20201228124910.801548563@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
+References: <20201228124904.654293249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 9a7e3d7f056831a6193d6d737fb7a26dfdceb04b upstream.
+[ Upstream commit 05ad917561fca39a03338cb21fe9622f998b0f9c ]
 
-Dan reports that smatch thinks userspace can craft an out-of-bound bus
-family number. However, nd_cmd_clear_to_send() blocks all non-zero
-values of bus-family since only the kernel can initiate these commands.
-However, in the speculation path, family is a user controlled array
-index value so mask it for speculation safety. Also, since the
-nd_cmd_clear_to_send() safety is non-obvious and possibly may change in
-the future include input validation as if userspace could get past the
-nd_cmd_clear_to_send() gatekeeper.
+Currently, the client will always ask for security_labels if the server
+returns that it supports that feature regardless of any LSM modules
+(such as Selinux) enforcing security policy. This adds performance
+penalty to the READDIR operation.
 
-Link: http://lore.kernel.org/r/20201111113000.GA1237157@mwanda
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 6450ddbd5d8e ("ACPI: NFIT: Define runtime firmware activation commands")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Client adjusts superblock's support of the security_label based on
+the server's support but also current client's configuration of the
+LSM modules. Thus, prior to using the default bitmask in READDIR,
+this patch checks the server's capabilities and then instructs
+READDIR to remove FATTR4_WORD2_SECURITY_LABEL from the bitmask.
 
+v5: fixing silly mistakes of the rushed v4
+v4: simplifying logic
+v3: changing label's initialization per Ondrej's comment
+v2: dropping selinux hook and using the sb cap.
+
+Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Suggested-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 2b0143b5c986 ("VFS: normal filesystems (and lustre): d_inode() annotations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -5,6 +5,7 @@
- #include <linux/list_sort.h>
- #include <linux/libnvdimm.h>
- #include <linux/module.h>
-+#include <linux/nospec.h>
- #include <linux/mutex.h>
- #include <linux/ndctl.h>
- #include <linux/sysfs.h>
-@@ -478,8 +479,11 @@ int acpi_nfit_ctl(struct nvdimm_bus_desc
- 		cmd_mask = nd_desc->cmd_mask;
- 		if (cmd == ND_CMD_CALL && call_pkg->nd_family) {
- 			family = call_pkg->nd_family;
--			if (!test_bit(family, &nd_desc->bus_family_mask))
-+			if (family > NVDIMM_BUS_FAMILY_MAX ||
-+			    !test_bit(family, &nd_desc->bus_family_mask))
- 				return -EINVAL;
-+			family = array_index_nospec(family,
-+						    NVDIMM_BUS_FAMILY_MAX + 1);
- 			dsm_mask = acpi_desc->family_dsm_mask[family];
- 			guid = to_nfit_bus_uuid(family);
- 		} else {
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index bb899a6fe8ac0..9f2ba4874f10f 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -4445,12 +4445,12 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
+ 		u64 cookie, struct page **pages, unsigned int count, bool plus)
+ {
+ 	struct inode		*dir = d_inode(dentry);
++	struct nfs_server	*server = NFS_SERVER(dir);
+ 	struct nfs4_readdir_arg args = {
+ 		.fh = NFS_FH(dir),
+ 		.pages = pages,
+ 		.pgbase = 0,
+ 		.count = count,
+-		.bitmask = NFS_SERVER(d_inode(dentry))->attr_bitmask,
+ 		.plus = plus,
+ 	};
+ 	struct nfs4_readdir_res res;
+@@ -4465,9 +4465,15 @@ static int _nfs4_proc_readdir(struct dentry *dentry, struct rpc_cred *cred,
+ 	dprintk("%s: dentry = %pd2, cookie = %Lu\n", __func__,
+ 			dentry,
+ 			(unsigned long long)cookie);
++	if (!(server->caps & NFS_CAP_SECURITY_LABEL))
++		args.bitmask = server->attr_bitmask_nl;
++	else
++		args.bitmask = server->attr_bitmask;
++
+ 	nfs4_setup_readdir(cookie, NFS_I(dir)->cookieverf, dentry, &args);
+ 	res.pgbase = args.pgbase;
+-	status = nfs4_call_sync(NFS_SERVER(dir)->client, NFS_SERVER(dir), &msg, &args.seq_args, &res.seq_res, 0);
++	status = nfs4_call_sync(server->client, server, &msg, &args.seq_args,
++			&res.seq_res, 0);
+ 	if (status >= 0) {
+ 		memcpy(NFS_I(dir)->cookieverf, res.verifier.data, NFS4_VERIFIER_SIZE);
+ 		status += args.pgbase;
+-- 
+2.27.0
+
 
 
