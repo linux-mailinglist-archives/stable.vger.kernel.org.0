@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED0B2E677C
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03EE92E6785
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731126AbgL1NJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:09:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
+        id S1731014AbgL1NJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:09:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731120AbgL1NJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:09:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C650F22583;
-        Mon, 28 Dec 2020 13:08:42 +0000 (UTC)
+        id S1730002AbgL1NJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:09:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D48C6206ED;
+        Mon, 28 Dec 2020 13:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609160923;
-        bh=V5XK7HyuAyfcsA7ABswim+1ASd/M/u1TgwpVCaBgVqE=;
+        s=korg; t=1609160926;
+        bh=ro9uDqoENnND9sZN3HRgrjd+oZ5Q6SBCXI2tgvvnXQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXgXfQtnIgSelK82ak0SppdsuwMIq+WdLGqVIxK2tLBWpxfNFRu57eKWQQMa11z61
-         W6YmY6hgd9dIBuBuCiZIFbf2l3jwHnNIsLenlCeO/BMJpVk8WpuNLa4eCLWkvv2uCH
-         FpcdbkEUvVrVLGVcSZx4bWATQA8XTxPegM0JHlhs=
+        b=1U1NslD2fTOPPByLM5TmCYa2aq/4SKwS8UIGoiqVc28NJIHMwNM0nlwindxjbPnd2
+         XA3ckEWaUMyqoIgKATqLizKMCqMWwRx/pVEQHprQP2WLqjg329D6thQjbbBmy+ibiK
+         XDPlfg+5ks6qhTS2ltH/SqKY+HGpFhv4Ja9CEeJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        syzbot+150f793ac5bc18eee150@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 010/242] Input: cm109 - do not stomp on control URB
-Date:   Mon, 28 Dec 2020 13:46:55 +0100
-Message-Id: <20201228124905.166508922@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 011/242] Input: i8042 - add Acer laptops to the i8042 reset list
+Date:   Mon, 28 Dec 2020 13:46:56 +0100
+Message-Id: <20201228124905.212124600@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201228124904.654293249@linuxfoundation.org>
 References: <20201228124904.654293249@linuxfoundation.org>
@@ -40,42 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Chris Chiu <chiu@endlessos.org>
 
-commit 82e06090473289ce63e23fdeb8737aad59b10645 upstream.
+commit ce6520b0eafad5962ffc21dc47cd7bd3250e9045 upstream.
 
-We need to make sure we are not stomping on the control URB that was
-issued when opening the device when attempting to toggle buzzer.
-To do that we need to mark it as pending in cm109_open().
+The touchpad operates in Basic Mode by default in the Acer BIOS
+setup, but some Aspire/TravelMate models require the i8042 to be
+reset in order to be correctly detected.
 
-Reported-and-tested-by: syzbot+150f793ac5bc18eee150@syzkaller.appspotmail.com
+Signed-off-by: Chris Chiu <chiu@endlessos.org>
+Link: https://lore.kernel.org/r/20201207071250.15021-1-chiu@endlessos.org
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/misc/cm109.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |   42 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
---- a/drivers/input/misc/cm109.c
-+++ b/drivers/input/misc/cm109.c
-@@ -571,12 +571,15 @@ static int cm109_input_open(struct input
- 	dev->ctl_data->byte[HID_OR2] = dev->keybit;
- 	dev->ctl_data->byte[HID_OR3] = 0x00;
- 
-+	dev->ctl_urb_pending = 1;
- 	error = usb_submit_urb(dev->urb_ctl, GFP_KERNEL);
--	if (error)
-+	if (error) {
-+		dev->ctl_urb_pending = 0;
- 		dev_err(&dev->intf->dev, "%s: usb_submit_urb (urb_ctl) failed %d\n",
- 			__func__, error);
--	else
-+	} else {
- 		dev->open = 1;
-+	}
- 
- 	mutex_unlock(&dev->pm_mutex);
- 
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -616,6 +616,48 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A114-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A314-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-31"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-132"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-332"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire ES1-432"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate Spin B118-RN"),
++		},
++	},
++	{
+ 		/* Advent 4211 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "DIXONSXP"),
 
 
