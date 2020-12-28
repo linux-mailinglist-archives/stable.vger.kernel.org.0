@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF38E2E6554
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:01:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 348D52E6820
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 17:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387813AbgL1Ncx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 08:32:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33448 "EHLO mail.kernel.org"
+        id S1730595AbgL1Qc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 11:32:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387803AbgL1Ncv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 08:32:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D80C5207FF;
-        Mon, 28 Dec 2020 13:32:09 +0000 (UTC)
+        id S1730598AbgL1NFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:05:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5377206ED;
+        Mon, 28 Dec 2020 13:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609162330;
-        bh=co3h0qVbIuFKE+EuKrGqSgROryZB+YoKAmSMnw4lkDQ=;
+        s=korg; t=1609160679;
+        bh=JevaJKgB0OQZVfFrtoZeKjvd2DOI6bStpsdjPtf2Kkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XW2mNB7mIBMsXBRDTZ4uNfKom9/DzZF4kxi3Cqt86gjoORc62/JmZ3eFE90uytMu8
-         uXXYRdG/wxgm8LrGOqHd0UCiQ8vimgytHZpdTO/1aIgxHykRVzLwrL6769dVfH5eLX
-         iDyoam9W+8wwtyUm3jmbs6cDol7k/7TTLqEWYLgk=
+        b=JCbjg/EO7VQufzqFYh3aSVnq//pV0rwPYwxRazJ8lvHYspSh6EQl5KUbYMDTHTmtD
+         IeiEfzALl/4766AOi5b3+88vrffbjwBCMdLlGv0/YvvRz468xX25WpLPbLrKLeh9jZ
+         iCRX+TxZwWQd6QbcwUwJehrEpzkXGzosHcVygqf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Connor McAdams <conmanx360@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 267/346] ALSA: hda/ca0132 - Change Input Source enum strings.
-Date:   Mon, 28 Dec 2020 13:49:46 +0100
-Message-Id: <20201228124932.680293903@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 134/175] Input: cyapa_gen6 - fix out-of-bounds stack access
+Date:   Mon, 28 Dec 2020 13:49:47 +0100
+Message-Id: <20201228124859.746842375@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228124919.745526410@linuxfoundation.org>
-References: <20201228124919.745526410@linuxfoundation.org>
+In-Reply-To: <20201228124853.216621466@linuxfoundation.org>
+References: <20201228124853.216621466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor McAdams <conmanx360@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 7079f785b50055a32b72eddcb7d9ba5688db24d0 upstream.
+commit f051ae4f6c732c231046945b36234e977f8467c6 upstream.
 
-Change the Input Source enumerated control's strings to make it play
-nice with pulseaudio.
+gcc -Warray-bounds warns about a serious bug in
+cyapa_pip_retrieve_data_structure:
 
-Fixes: 7cb9d94c05de9 ("ALSA: hda/ca0132: add alt_select_in/out for R3Di + SBZ")
-Cc: <stable@kernel.org>
-Signed-off-by: Connor McAdams <conmanx360@gmail.com>
-Link: https://lore.kernel.org/r/20201208195223.424753-2-conmanx360@gmail.com
-Link: https://lore.kernel.org/r/20201210173550.2968-2-conmanx360@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+drivers/input/mouse/cyapa_gen6.c: In function 'cyapa_pip_retrieve_data_structure.constprop':
+include/linux/unaligned/access_ok.h:40:17: warning: array subscript -1 is outside array bounds of 'struct retrieve_data_struct_cmd[1]' [-Warray-bounds]
+   40 |  *((__le16 *)p) = cpu_to_le16(val);
+drivers/input/mouse/cyapa_gen6.c:569:13: note: while referencing 'cmd'
+  569 |  } __packed cmd;
+      |             ^~~
+
+Apparently the '-2' was added to the pointer instead of the value,
+writing garbage into the stack next to this variable.
+
+Fixes: c2c06c41f700 ("Input: cyapa - add gen6 device module support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20201026161332.3708389-1-arnd@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    2 +-
+ drivers/input/mouse/cyapa_gen6.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -106,7 +106,7 @@ enum {
- };
+--- a/drivers/input/mouse/cyapa_gen6.c
++++ b/drivers/input/mouse/cyapa_gen6.c
+@@ -573,7 +573,7 @@ static int cyapa_pip_retrieve_data_struc
  
- /* Strings for Input Source Enum Control */
--static const char *const in_src_str[3] = {"Rear Mic", "Line", "Front Mic" };
-+static const char *const in_src_str[3] = { "Microphone", "Line In", "Front Microphone" };
- #define IN_SRC_NUM_OF_INPUTS 3
- enum {
- 	REAR_MIC,
+ 	memset(&cmd, 0, sizeof(cmd));
+ 	put_unaligned_le16(PIP_OUTPUT_REPORT_ADDR, &cmd.head.addr);
+-	put_unaligned_le16(sizeof(cmd), &cmd.head.length - 2);
++	put_unaligned_le16(sizeof(cmd) - 2, &cmd.head.length);
+ 	cmd.head.report_id = PIP_APP_CMD_REPORT_ID;
+ 	cmd.head.cmd_code = PIP_RETRIEVE_DATA_STRUCTURE;
+ 	put_unaligned_le16(read_offset, &cmd.read_offset);
 
 
