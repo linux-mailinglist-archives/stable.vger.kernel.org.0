@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86B1C2E4000
-	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 15:48:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C192E3B87
+	for <lists+stable@lfdr.de>; Mon, 28 Dec 2020 14:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439246AbgL1OX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 09:23:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60020 "EHLO mail.kernel.org"
+        id S2406822AbgL1NvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 08:51:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439240AbgL1OX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 09:23:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA75C22CAF;
-        Mon, 28 Dec 2020 14:23:14 +0000 (UTC)
+        id S2406497AbgL1NvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Dec 2020 08:51:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 952AA206D4;
+        Mon, 28 Dec 2020 13:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609165395;
-        bh=hBUNVKBil8CIRkRX0SEmR023sBelO4cWLfyYWBPcvaQ=;
+        s=korg; t=1609163445;
+        bh=oVlP5CyOAGEWwhdM0Le/ucp8yLDKWgmdt2WsICQTp7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+3WToUo9iynsFjTa2YRf/hXI1EJ9rhY/DioDNdQ7XnlG4p6LzO2tYt7r/sAJthmK
-         HWYAI/lSuSS53tLvkRmw0OHu5mryRm4tkpwpzcJ3lFnn/eKqhSwpbhlN1VU3r9cynL
-         Ul55ks6hvNYlQW3Q9hP6iDx+1IY6EOhexiauTO4g=
+        b=aS7FBtNjot7bbqii5kcd3eFYUx7G8MXcxMXqumqHg/7g3yfR4DCW94MMgy8hA3oJg
+         guhX/bF2IWSmwkCO0DBXDVpAdEdauRzAqSGzPTaCLPdG7ugVNThZNBVJY2DN2tpSQv
+         xz6IBcv5b78dxxBX2JrKMhP44ohGh7IiUjjy0Zto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Joan=20Bruguera=20Mic=C3=B3?= <joanbrugueram@gmail.com>,
-        Jussi Kivilinna <jussi.kivilinna@iki.fi>,
-        Christoph Hellwig <hch@lst.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 509/717] proc mountinfo: make splice available again
+Subject: [PATCH 5.4 271/453] crypto: atmel-i2c - select CONFIG_BITREVERSE
 Date:   Mon, 28 Dec 2020 13:48:27 +0100
-Message-Id: <20201228125045.347625595@linuxfoundation.org>
+Message-Id: <20201228124950.270839133@linuxfoundation.org>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
-References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228124937.240114599@linuxfoundation.org>
+References: <20201228124937.240114599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 14e3e989f6a5d9646b6cf60690499cc8bdc11f7d ]
+[ Upstream commit d33a23b0532d5d1b5b700e8641661261e7dbef61 ]
 
-Since commit 36e2c7421f02 ("fs: don't allow splice read/write without
-explicit ops") we've required that file operation structures explicitly
-enable splice support, rather than falling back to the default handlers.
+The bitreverse helper is almost always built into the kernel,
+but in a rare randconfig build it is possible to hit a case
+in which it is a loadable module while the atmel-i2c driver
+is built-in:
 
-Most /proc files use the indirect 'struct proc_ops' to describe their
-file operations, and were fixed up to support splice earlier in commits
-40be821d627c..b24c30c67863, but the mountinfo files interact with the
-VFS directly using their own 'struct file_operations' and got missed as
-a result.
+arm-linux-gnueabi-ld: drivers/crypto/atmel-i2c.o: in function `atmel_i2c_checksum':
+atmel-i2c.c:(.text+0xa0): undefined reference to `byte_rev_table'
 
-This adds the necessary support for splice to work for /proc/*/mountinfo
-and friends.
+Add one more 'select' statement to prevent this.
 
-Reported-by: Joan Bruguera Micó <joanbrugueram@gmail.com>
-Reported-by: Jussi Kivilinna <jussi.kivilinna@iki.fi>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209971
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 11105693fa05 ("crypto: atmel-ecc - introduce Microchip / Atmel ECC driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc_namespace.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/crypto/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/proc_namespace.c
-+++ b/fs/proc_namespace.c
-@@ -320,7 +320,8 @@ static int mountstats_open(struct inode
+diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
+index 0952f059d967c..1f6308cdf79a2 100644
+--- a/drivers/crypto/Kconfig
++++ b/drivers/crypto/Kconfig
+@@ -544,6 +544,7 @@ config CRYPTO_DEV_ATMEL_SHA
  
- const struct file_operations proc_mounts_operations = {
- 	.open		= mounts_open,
--	.read		= seq_read,
-+	.read_iter	= seq_read_iter,
-+	.splice_read	= generic_file_splice_read,
- 	.llseek		= seq_lseek,
- 	.release	= mounts_release,
- 	.poll		= mounts_poll,
-@@ -328,7 +329,8 @@ const struct file_operations proc_mounts
+ config CRYPTO_DEV_ATMEL_I2C
+ 	tristate
++	select BITREVERSE
  
- const struct file_operations proc_mountinfo_operations = {
- 	.open		= mountinfo_open,
--	.read		= seq_read,
-+	.read_iter	= seq_read_iter,
-+	.splice_read	= generic_file_splice_read,
- 	.llseek		= seq_lseek,
- 	.release	= mounts_release,
- 	.poll		= mounts_poll,
-@@ -336,7 +338,8 @@ const struct file_operations proc_mounti
- 
- const struct file_operations proc_mountstats_operations = {
- 	.open		= mountstats_open,
--	.read		= seq_read,
-+	.read_iter	= seq_read_iter,
-+	.splice_read	= generic_file_splice_read,
- 	.llseek		= seq_lseek,
- 	.release	= mounts_release,
- };
+ config CRYPTO_DEV_ATMEL_ECC
+ 	tristate "Support for Microchip / Atmel ECC hw accelerator"
+-- 
+2.27.0
+
 
 
