@@ -2,503 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F69A2E6D5A
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 03:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BD32E6D7B
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 04:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbgL2CjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 21:39:08 -0500
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:38343 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727085AbgL2CjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 21:39:08 -0500
+        id S1726015AbgL2DKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 22:10:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726014AbgL2DJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 22:09:59 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD461C0613D6;
+        Mon, 28 Dec 2020 19:09:19 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id v1so757823pjr.2;
+        Mon, 28 Dec 2020 19:09:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1609209546; x=1640745546;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=J0ajIxLp9ejO6wgtAVuHjS5qKdg6QEYP6XA58WTRcQw=;
-  b=UYDKQcOpVZ61wC2KPDPT+o/AZVvmO7Q8N8TE7ix1PP701OqeQlFM3DE6
-   fKUj9FG/w4aEG7/KgD7/Q5hLrs5eFTCflUWrf3YcwG2mDjj/OoPM9O3DS
-   qmCfjdBmIUWAclD5U9iIgWClUdHQAJBHvWV6MezqC9x9kf6OU4/OpIKB1
-   c=;
-X-IronPort-AV: E=Sophos;i="5.78,456,1599523200"; 
-   d="scan'208";a="107942062"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1e-c7c08562.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 29 Dec 2020 02:38:25 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1e-c7c08562.us-east-1.amazon.com (Postfix) with ESMTPS id A768D240B18
-        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 02:38:24 +0000 (UTC)
-Received: from EX13D46UWB004.ant.amazon.com (10.43.161.204) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 29 Dec 2020 02:38:24 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (10.43.61.77) by
- EX13D46UWB004.ant.amazon.com (10.43.161.204) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 29 Dec 2020 02:38:23 +0000
-Received: from dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (172.22.152.76)
- by mail-relay.amazon.com (10.43.61.169) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Tue, 29 Dec 2020 02:38:22 +0000
-Received: by dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (Postfix, from userid 13116433)
-        id A3E58452F4; Tue, 29 Dec 2020 02:38:22 +0000 (UTC)
-Date:   Tue, 29 Dec 2020 02:38:22 +0000
-From:   Shaoying Xu <shaoyi@amazon.com>
-To:     <stable@vger.kernel.org>
-CC:     <shaoyi@amazon.com>, <surajjs@amazon.com>
-Subject: [PATCH 4.14 3/3] mm: memcontrol: fix excessive complexity in
- memory.stat reporting
-Message-ID: <20201229023822.GA25663@amazon.com>
+        d=gmail.com; s=20161025;
+        h=date:from:subject:to:cc:references:in-reply-to:mime-version
+         :message-id:content-transfer-encoding;
+        bh=HFGaJTE22Gpn3DcxiKrTMqBFFyZf1EzPU/aFKmc9vk4=;
+        b=EqKPukiHlrZ+yEPAbVVHOlCWIHXbhJ90cIcuw7vXjETKCP19iLwGx/nXV3YbmqeHg/
+         tLBdS5Y61yJwAD7YyPJl6a+ZwvVpk0odYj6Ch8fK/r1jV4V7GAjUtGPbI/8QnaQdh8x4
+         jERK3Jj2WCyBLu0ZvafqrHE0DEGUNWyu9xietjw6CCNEZHoOi3v49bKMAhFCYe8GdcuD
+         nWuiA0XHEAGcu5vw/uANNtnlUpDo2GkmbQTf1Kt5wD4Oarb8nlT4n9X51TqyPodxDLrU
+         9VbxFIl2QviFvoM/C3RPuC9O0holXVUq4JQrQRcgVGDJeZv7IXwNmrKZTyhs+lgfBLIS
+         56KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
+         :mime-version:message-id:content-transfer-encoding;
+        bh=HFGaJTE22Gpn3DcxiKrTMqBFFyZf1EzPU/aFKmc9vk4=;
+        b=ESv64FXGZb9lHfVJibmvYy1xwssow4J0UWxaNgXLAJk8ZUJoDfQ/7vo/2bmM10sLYR
+         jo1q7t68Yl09rpCfgmucNwp5cAcHagwJT0K6W3oQx/A8DGEYvKQqo4rYyThdCwhyKHbR
+         hw3hHr1HfyQLn6thuWifs3KVMpUVaoqSvxwyFim7XaUxotkEBn0IJCW8xVzlxBTUaX1F
+         RoE1HILxbCbZEtLtopdxMfKd0sSu0S/Gy2cH+ZllHSmCTwM0s2JUC3eh150zI/M31iiI
+         WuU5YEie5MWg62siAd35YGBd9SfBOMxP1gQXuG/019OXQOCNS2RAMZlSGsk7KI1sgtHr
+         eSIw==
+X-Gm-Message-State: AOAM5301s7Idy4VK/fW7Xb0bjTH34FHZYb0s07UKITic7pnTNA499tGd
+        Lht/KRckrbTHGrWxdVfnb9c=
+X-Google-Smtp-Source: ABdhPJwMRA/X8wkBlvKJOB2qGxT8DL7lnVlIZ66Zvzbt+yLaAcb1DenG2dB65ez7zAPdfQJ0PvVfFQ==
+X-Received: by 2002:a17:90a:5501:: with SMTP id b1mr1895272pji.7.1609211358983;
+        Mon, 28 Dec 2020 19:09:18 -0800 (PST)
+Received: from localhost (193-116-97-30.tpgi.com.au. [193.116.97.30])
+        by smtp.gmail.com with ESMTPSA id u25sm35667410pfn.101.2020.12.28.19.09.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Dec 2020 19:09:18 -0800 (PST)
+Date:   Tue, 29 Dec 2020 13:09:12 +1000
+From:   Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Jann Horn <jannh@google.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "Russell King, ARM Linux" <linux@armlinux.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        paulmck <paulmck@kernel.org>, Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>, Will Deacon <will@kernel.org>,
+        x86 <x86@kernel.org>
+References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
+        <1836294649.3345.1609100294833.JavaMail.zimbra@efficios.com>
+        <CALCETrVdcn2r2Jvd1=-bM=FQ8KbX4aH-v4ytdojL7r7Nb6k8YQ@mail.gmail.com>
+        <20201228102537.GG1551@shell.armlinux.org.uk>
+        <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
+        <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com>
+        <20201228190852.GI1551@shell.armlinux.org.uk>
+        <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
+        <1086654515.3607.1609187556216.JavaMail.zimbra@efficios.com>
+        <CALCETrXx3Xe+4Y6WM-mp0cTUU=r3bW6PV2b25yA8bm1Gvak6wQ@mail.gmail.com>
+        <1609200902.me5niwm2t6.astroid@bobo.none>
+        <CALCETrX6MOqmN5_jhyO1jJB7M3_T+hbomjxPYZLJmLVNmXAVzA@mail.gmail.com>
+In-Reply-To: <CALCETrX6MOqmN5_jhyO1jJB7M3_T+hbomjxPYZLJmLVNmXAVzA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Message-Id: <1609210162.4d8dqilke6.astroid@bobo.none>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Weiner <hannes@cmpxchg.org>
+Excerpts from Andy Lutomirski's message of December 29, 2020 10:56 am:
+> On Mon, Dec 28, 2020 at 4:36 PM Nicholas Piggin <npiggin@gmail.com> wrote=
+:
+>>
+>> Excerpts from Andy Lutomirski's message of December 29, 2020 7:06 am:
+>> > On Mon, Dec 28, 2020 at 12:32 PM Mathieu Desnoyers
+>> > <mathieu.desnoyers@efficios.com> wrote:
+>> >>
+>> >> ----- On Dec 28, 2020, at 2:44 PM, Andy Lutomirski luto@kernel.org wr=
+ote:
+>> >>
+>> >> > On Mon, Dec 28, 2020 at 11:09 AM Russell King - ARM Linux admin
+>> >> > <linux@armlinux.org.uk> wrote:
+>> >> >>
+>> >> >> On Mon, Dec 28, 2020 at 07:29:34PM +0100, Jann Horn wrote:
+>> >> >> > After chatting with rmk about this (but without claiming that an=
+y of
+>> >> >> > this is his opinion), based on the manpage, I think membarrier()
+>> >> >> > currently doesn't really claim to be synchronizing caches? It ju=
+st
+>> >> >> > serializes cores. So arguably if userspace wants to use membarri=
+er()
+>> >> >> > to synchronize code changes, userspace should first do the code
+>> >> >> > change, then flush icache as appropriate for the architecture, a=
+nd
+>> >> >> > then do the membarrier() to ensure that the old code is unused?
+>> >>
+>> >> ^ exactly, yes.
+>> >>
+>> >> >> >
+>> >> >> > For 32-bit arm, rmk pointed out that that would be the cacheflus=
+h()
+>> >> >> > syscall. That might cause you to end up with two IPIs instead of=
+ one
+>> >> >> > in total, but we probably don't care _that_ much about extra IPI=
+s on
+>> >> >> > 32-bit arm?
+>> >>
+>> >> This was the original thinking, yes. The cacheflush IPI will flush sp=
+ecific
+>> >> regions of code, and the membarrier IPI issues context synchronizing
+>> >> instructions.
+>>
+>> APIs should be written in terms of the service they provide to
+>> userspace, and in highest level terms as possible, rather than directing
+>> hardware to do some low level operation. Unfortunately we're stuck with
+>> this for now. We could deprecate it and replace it though.
+>>
+>> If userspace wants to modify code and ensure that after the system call
+>> returns then no other thread will be executing the previous code, then
+>> there should be an API for that. It could actually combine the two IPIs
+>> into one for architectures that require both too.
+>=20
+> I agree.  The membarrier API for SYNC_CORE is pretty nasty.  I would
+> much prefer a real API for JITs to use.
+>=20
+>>
+>> >>
+>> >> Architectures with coherent i/d caches don't need the cacheflush step=
+.
+>> >
+>> > There are different levels of coherency -- VIVT architectures may have
+>> > differing requirements compared to PIPT, etc.
+>> >
+>> > In any case, I feel like the approach taken by the documentation is
+>> > fundamentally confusing.  Architectures don't all speak the same
+>> > language  How about something like:
+>> >
+>> > The SYNC_CORE operation causes all threads in the caller's address
+>> > space (including the caller) to execute an architecture-defined
+>> > barrier operation.  membarrier() will ensure that this barrier is
+>> > executed at a time such that all data writes done by the calling
+>> > thread before membarrier() are made visible by the barrier.
+>> > Additional architecture-dependent cache management operations may be
+>> > required to use this for JIT code.
+>>
+>> As said this isn't what SYNC_CORE does, and it's not what powerpc
+>> context synchronizing instructions do either, it will very much
+>> re-order visibility of stores around such an instruction.
+>=20
+> Perhaps the docs should be entirely arch-specific.  It may well be
+> impossible to state what it does in an arch-neutral way.
 
-commit a983b5ebee57209c99f68c8327072f25e0e6e3da upstream
+I think what I wrote above -- after the call returns, none of the
+threads in the process will be executing instructions overwritten
+previously by the caller (provided their i-caches are made coherent
+with the caller's modifications).
 
-We've seen memory.stat reads in top-level cgroups take up to fourteen
-seconds during a userspace bug that created tens of thousands of ghost
-cgroups pinned by lingering page cache.
+>> A thread completes store instructions into a store queue, which is
+>> as far as a context synchronizing event goes. Visibility comes at
+>> some indeterminite time later.
+>=20
+> As currently implemented, it has the same visibility semantics as
+> regular membarrier, too.
 
-Even with a more reasonable number of cgroups, aggregating memory.stat
-is unnecessarily heavy.  The complexity is this:
+Ah I actually missed that SYNC_CORE is in _addition_ to the memory
+barriers, and that's documented API too, not just implementation
+sorry.
 
-	nr_cgroups * nr_stat_items * nr_possible_cpus
+> So if I do:
+>=20
+> a =3D 1;
+> membarrier(SYNC_CORE);
+> b =3D 1;
+>=20
+> and another thread does:
+>=20
+> while (READ_ONCE(b) !=3D 1)
+>   ;
+> barrier();
+> assert(a =3D=3D 1);
 
-where the stat items are ~70 at this point.  With 128 cgroups and 128
-CPUs - decent, not enormous setups - reading the top-level memory.stat
-has to aggregate over a million per-cpu counters.  This doesn't scale.
+Right that's true, due to the MEMBARRIER_CMD_PRIVATE_EXPEDITED. Neither
+that barrier or the added SYNC_CORE behaviour imply visibility though.
 
-Instead of spreading the source of truth across all CPUs, use the
-per-cpu counters merely to batch updates to shared atomic counters.
+>=20
+> then the assertion will pass.  Similarly, one can do this, I hope:
+>=20
+> memcpy(codeptr, [some new instructions], len);
+> arch_dependent_cache_flush(codeptr, len);
+> membarrier(SYNC_CORE);
+> ready =3D 1;
+>=20
+> and another thread does:
+>=20
+> while (READ_ONCE(ready) !=3D 1)
+>   ;
+> barrier();
+> (*codeptr)();
+>=20
+> arch_dependent_cache_flush is a nop on x86.  On arm and arm64, it
+> appears to be a syscall, although maybe arm64 can do it from
+> userspace.  I still don't know what it is on powerpc.
+>=20
+> Even using the term "cache" here is misleading.  x86 chips have all
+> kinds of barely-documented instruction caches, and they have varying
+> degrees of coherency.  The architecture actually promises that, if you
+> do a certain incantation, then you get the desired result.
+> membarrier() allows a user to do this incantation.  But trying to
+> replicate the incantation verbatim on an architecture like ARM is
+> insufficient, and trying to flush the things that are documented as
+> being caches on x86 is expensive and a complete waste of time on x86.
+> When you write some JIT code, you do *not* want to flush it all the
+> way to main memory, especially on CPUs don't have the ability to write
+> back invalidating.  (That's most CPUs.)
+>=20
+> Even on x86, I suspect that the various decoded insn caches are rather
+> more coherent than documented, and I have questions in to Intel about
+> this.  No answers yet.
+>=20
+> So perhaps the right approach is to say that membarrier() helps you
+> perform the architecture-specific sequence of steps needed to safely
+> modify code.  On x86, you use it like this.  On arm64, you do this
+> other thing.  On powerpc, you do something else.
 
-This is the same as the per-cpu stocks we use for charging memory to the
-shared atomic page_counters, and also the way the global vmstat counters
-are implemented.
+I think it should certainly be documented in terms of what guarantees
+it provides to application, _not_ the kinds of instructions it may or
+may not induce the core to execute. And if existing API can't be
+re-documented sanely, then deprecatd and new ones added that DTRT.
+Possibly under a new system call, if arch's like ARM want a range
+flush and we don't want to expand the multiplexing behaviour of
+membarrier even more (sigh).
 
-Vmstat has elaborate spilling thresholds that depend on the number of
-CPUs, amount of memory, and memory pressure - carefully balancing the
-cost of counter updates with the amount of per-cpu error.  That's
-because the vmstat counters are system-wide, but also used for decisions
-inside the kernel (e.g.  NR_FREE_PAGES in the allocator).  Neither is
-true for the memory controller.
+>=20
+>>
+>> I would be surprised if x86's serializing instructions were different
+>> than powerpc. rdtsc ordering or flushing stores to cache would be
+>> surprising.
+>>
+>=20
+> At the very least, x86 has several levels of what ARM might call
+> "context synchronization" AFAICT.  STAC, CLAC, and POPF do a form of
+> context synchronization in that the changes they cause to the MMU take
+> effect immediately, but they are not documented as synchronizing the
+> instruction stream.  "Serializing" instructions do all kinds of
+> things, not all of which may be architecturally visible at all.
+> MFENCE and LFENCE do various complicated things, and LFENCE has magic
+> retroactive capabilities on old CPUs that were not documented when
+> those CPUs were released.  SFENCE does a different form of
+> synchronization entirely.  LOCK does something else.  (The
+> relationship between LOCK and MFENCE is confusing at best.)  RDTSC
+> doesn't serialize anything at all, but RDTSCP does provide a form of
+> serialization that's kind of ilke LFENCE.  It's a mess.  Even the
+> manuals are inconsistent about what "serialize" means.  JMP has its
+> own magic on x86, but only on very very old CPUs.
+>=20
+> The specific instruction that flushes everything into the coherency
+> domain is SFENCE, and SFENCE is not, for normal purposes, needed for
+> self- or cross-modifying code.
+>=20
 
-Use the same static batch size we already use for page_counter updates
-during charging.  The per-cpu error in the stats will be 128k, which is
-an acceptable ratio of cores to memory accounting granularity.
+Good reason to avoid such language in the system call interface!
 
-[hannes@cmpxchg.org: fix warning in __this_cpu_xchg() calls]
-  Link: http://lkml.kernel.org/r/20171201135750.GB8097@cmpxchg.org
-Link: http://lkml.kernel.org/r/20171103153336.24044-3-hannes@cmpxchg.org
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: stable@vger.kernel.org
-[shaoyi@amazon.com: resolved the conflict brought by commit 17ffa29c355658c8e9b19f56cbf0388500ca7905 in mm/memcontrol.c by contextual fix]
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
----
-The excessive complexity in memory.stat reporting was fixed in v4.16 but didn't appear to make it to 4.14 stable. When backporting this patch, there is a small conflict brought by commit 17ffa29c355658c8e9b19f56cbf0388500ca7905 within free_mem_cgroup_per_node_info() of mm/memcontrol.c and can be resolved by contextual fix.
-
- include/linux/memcontrol.h |  96 +++++++++++++++++++++++++++---------------
- mm/memcontrol.c            | 101 +++++++++++++++++++++++----------------------
- 2 files changed, 113 insertions(+), 84 deletions(-)
-
-diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index 1ffc54ac4cc9..882046863581 100644
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -108,7 +108,10 @@ struct lruvec_stat {
-  */
- struct mem_cgroup_per_node {
- 	struct lruvec		lruvec;
--	struct lruvec_stat __percpu *lruvec_stat;
-+
-+	struct lruvec_stat __percpu *lruvec_stat_cpu;
-+	atomic_long_t		lruvec_stat[NR_VM_NODE_STAT_ITEMS];
-+
- 	unsigned long		lru_zone_size[MAX_NR_ZONES][NR_LRU_LISTS];
- 
- 	struct mem_cgroup_reclaim_iter	iter[DEF_PRIORITY + 1];
-@@ -227,10 +230,10 @@ struct mem_cgroup {
- 	spinlock_t		move_lock;
- 	struct task_struct	*move_lock_task;
- 	unsigned long		move_lock_flags;
--	/*
--	 * percpu counter.
--	 */
--	struct mem_cgroup_stat_cpu __percpu *stat;
-+
-+	struct mem_cgroup_stat_cpu __percpu *stat_cpu;
-+	atomic_long_t		stat[MEMCG_NR_STAT];
-+	atomic_long_t		events[MEMCG_NR_EVENTS];
- 
- 	unsigned long		socket_pressure;
- 
-@@ -265,6 +268,12 @@ struct mem_cgroup {
- 	/* WARNING: nodeinfo must be the last member here */
- };
- 
-+/*
-+ * size of first charge trial. "32" comes from vmscan.c's magic value.
-+ * TODO: maybe necessary to use big numbers in big irons.
-+ */
-+#define MEMCG_CHARGE_BATCH 32U
-+
- extern struct mem_cgroup *root_mem_cgroup;
- 
- static inline bool mem_cgroup_disabled(void)
-@@ -485,32 +494,38 @@ void unlock_page_memcg(struct page *page);
- static inline unsigned long memcg_page_state(struct mem_cgroup *memcg,
- 					     int idx)
- {
--	long val = 0;
--	int cpu;
--
--	for_each_possible_cpu(cpu)
--		val += per_cpu(memcg->stat->count[idx], cpu);
--
--	if (val < 0)
--		val = 0;
--
--	return val;
-+	long x = atomic_long_read(&memcg->stat[idx]);
-+#ifdef CONFIG_SMP
-+	if (x < 0)
-+		x = 0;
-+#endif
-+	return x;
- }
- 
- /* idx can be of type enum memcg_stat_item or node_stat_item */
- static inline void __mod_memcg_state(struct mem_cgroup *memcg,
- 				     int idx, int val)
- {
--	if (!mem_cgroup_disabled())
--		__this_cpu_add(memcg->stat->count[idx], val);
-+	long x;
-+
-+	if (mem_cgroup_disabled())
-+		return;
-+
-+	x = val + __this_cpu_read(memcg->stat_cpu->count[idx]);
-+	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
-+		atomic_long_add(x, &memcg->stat[idx]);
-+		x = 0;
-+	}
-+	__this_cpu_write(memcg->stat_cpu->count[idx], x);
- }
- 
- /* idx can be of type enum memcg_stat_item or node_stat_item */
- static inline void mod_memcg_state(struct mem_cgroup *memcg,
- 				   int idx, int val)
- {
--	if (!mem_cgroup_disabled())
--		this_cpu_add(memcg->stat->count[idx], val);
-+	preempt_disable();
-+	__mod_memcg_state(memcg, idx, val);
-+	preempt_enable();
- }
- 
- /**
-@@ -548,26 +563,25 @@ static inline unsigned long lruvec_page_state(struct lruvec *lruvec,
- 					      enum node_stat_item idx)
- {
- 	struct mem_cgroup_per_node *pn;
--	long val = 0;
--	int cpu;
-+	long x;
- 
- 	if (mem_cgroup_disabled())
- 		return node_page_state(lruvec_pgdat(lruvec), idx);
- 
- 	pn = container_of(lruvec, struct mem_cgroup_per_node, lruvec);
--	for_each_possible_cpu(cpu)
--		val += per_cpu(pn->lruvec_stat->count[idx], cpu);
--
--	if (val < 0)
--		val = 0;
--
--	return val;
-+	x = atomic_long_read(&pn->lruvec_stat[idx]);
-+#ifdef CONFIG_SMP
-+	if (x < 0)
-+		x = 0;
-+#endif
-+	return x;
- }
- 
- static inline void __mod_lruvec_state(struct lruvec *lruvec,
- 				      enum node_stat_item idx, int val)
- {
- 	struct mem_cgroup_per_node *pn;
-+	long x;
- 
- 	/* Update node */
- 	__mod_node_page_state(lruvec_pgdat(lruvec), idx, val);
-@@ -581,7 +595,12 @@ static inline void __mod_lruvec_state(struct lruvec *lruvec,
- 	__mod_memcg_state(pn->memcg, idx, val);
- 
- 	/* Update lruvec */
--	__this_cpu_add(pn->lruvec_stat->count[idx], val);
-+	x = val + __this_cpu_read(pn->lruvec_stat_cpu->count[idx]);
-+	if (unlikely(abs(x) > MEMCG_CHARGE_BATCH)) {
-+		atomic_long_add(x, &pn->lruvec_stat[idx]);
-+		x = 0;
-+	}
-+	__this_cpu_write(pn->lruvec_stat_cpu->count[idx], x);
- }
- 
- static inline void mod_lruvec_state(struct lruvec *lruvec,
-@@ -624,16 +643,25 @@ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
- static inline void __count_memcg_events(struct mem_cgroup *memcg,
- 					int idx, unsigned long count)
- {
--	if (!mem_cgroup_disabled())
--		__this_cpu_add(memcg->stat->events[idx], count);
-+	unsigned long x;
-+
-+	if (mem_cgroup_disabled())
-+		return;
-+
-+	x = count + __this_cpu_read(memcg->stat_cpu->events[idx]);
-+	if (unlikely(x > MEMCG_CHARGE_BATCH)) {
-+		atomic_long_add(x, &memcg->events[idx]);
-+		x = 0;
-+	}
-+	__this_cpu_write(memcg->stat_cpu->events[idx], x);
- }
- 
--/* idx can be of type enum memcg_event_item or vm_event_item */
- static inline void count_memcg_events(struct mem_cgroup *memcg,
- 				      int idx, unsigned long count)
- {
--	if (!mem_cgroup_disabled())
--		this_cpu_add(memcg->stat->events[idx], count);
-+	preempt_disable();
-+	__count_memcg_events(memcg, idx, count);
-+	preempt_enable();
- }
- 
- /* idx can be of type enum memcg_event_item or vm_event_item */
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index eba9dc4795b5..4e763cdccb33 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -542,39 +542,10 @@ mem_cgroup_largest_soft_limit_node(struct mem_cgroup_tree_per_node *mctz)
- 	return mz;
- }
- 
--/*
-- * Return page count for single (non recursive) @memcg.
-- *
-- * Implementation Note: reading percpu statistics for memcg.
-- *
-- * Both of vmstat[] and percpu_counter has threshold and do periodic
-- * synchronization to implement "quick" read. There are trade-off between
-- * reading cost and precision of value. Then, we may have a chance to implement
-- * a periodic synchronization of counter in memcg's counter.
-- *
-- * But this _read() function is used for user interface now. The user accounts
-- * memory usage by memory cgroup and he _always_ requires exact value because
-- * he accounts memory. Even if we provide quick-and-fuzzy read, we always
-- * have to visit all online cpus and make sum. So, for now, unnecessary
-- * synchronization is not implemented. (just implemented for cpu hotplug)
-- *
-- * If there are kernel internal actions which can make use of some not-exact
-- * value, and reading all cpu value can be performance bottleneck in some
-- * common workload, threshold and synchronization as vmstat[] should be
-- * implemented.
-- *
-- * The parameter idx can be of type enum memcg_event_item or vm_event_item.
-- */
--
- static unsigned long memcg_sum_events(struct mem_cgroup *memcg,
- 				      int event)
- {
--	unsigned long val = 0;
--	int cpu;
--
--	for_each_possible_cpu(cpu)
--		val += per_cpu(memcg->stat->events[event], cpu);
--	return val;
-+	return atomic_long_read(&memcg->events[event]);
- }
- 
- static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
-@@ -606,7 +577,7 @@ static void mem_cgroup_charge_statistics(struct mem_cgroup *memcg,
- 		nr_pages = -nr_pages; /* for event */
- 	}
- 
--	__this_cpu_add(memcg->stat->nr_page_events, nr_pages);
-+	__this_cpu_add(memcg->stat_cpu->nr_page_events, nr_pages);
- }
- 
- unsigned long mem_cgroup_node_nr_lru_pages(struct mem_cgroup *memcg,
-@@ -642,8 +613,8 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
- {
- 	unsigned long val, next;
- 
--	val = __this_cpu_read(memcg->stat->nr_page_events);
--	next = __this_cpu_read(memcg->stat->targets[target]);
-+	val = __this_cpu_read(memcg->stat_cpu->nr_page_events);
-+	next = __this_cpu_read(memcg->stat_cpu->targets[target]);
- 	/* from time_after() in jiffies.h */
- 	if ((long)(next - val) < 0) {
- 		switch (target) {
-@@ -659,7 +630,7 @@ static bool mem_cgroup_event_ratelimit(struct mem_cgroup *memcg,
- 		default:
- 			break;
- 		}
--		__this_cpu_write(memcg->stat->targets[target], next);
-+		__this_cpu_write(memcg->stat_cpu->targets[target], next);
- 		return true;
- 	}
- 	return false;
-@@ -1726,11 +1697,6 @@ void unlock_page_memcg(struct page *page)
- }
- EXPORT_SYMBOL(unlock_page_memcg);
- 
--/*
-- * size of first charge trial. "32" comes from vmscan.c's magic value.
-- * TODO: maybe necessary to use big numbers in big irons.
-- */
--#define CHARGE_BATCH	32U
- struct memcg_stock_pcp {
- 	struct mem_cgroup *cached; /* this never be root cgroup */
- 	unsigned int nr_pages;
-@@ -1758,7 +1724,7 @@ static bool consume_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
- 	unsigned long flags;
- 	bool ret = false;
- 
--	if (nr_pages > CHARGE_BATCH)
-+	if (nr_pages > MEMCG_CHARGE_BATCH)
- 		return ret;
- 
- 	local_irq_save(flags);
-@@ -1827,7 +1793,7 @@ static void refill_stock(struct mem_cgroup *memcg, unsigned int nr_pages)
- 	}
- 	stock->nr_pages += nr_pages;
- 
--	if (stock->nr_pages > CHARGE_BATCH)
-+	if (stock->nr_pages > MEMCG_CHARGE_BATCH)
- 		drain_stock(stock);
- 
- 	local_irq_restore(flags);
-@@ -1877,9 +1843,44 @@ static void drain_all_stock(struct mem_cgroup *root_memcg)
- static int memcg_hotplug_cpu_dead(unsigned int cpu)
- {
- 	struct memcg_stock_pcp *stock;
-+	struct mem_cgroup *memcg;
- 
- 	stock = &per_cpu(memcg_stock, cpu);
- 	drain_stock(stock);
-+
-+	for_each_mem_cgroup(memcg) {
-+		int i;
-+
-+		for (i = 0; i < MEMCG_NR_STAT; i++) {
-+			int nid;
-+			long x;
-+
-+			x = this_cpu_xchg(memcg->stat_cpu->count[i], 0);
-+			if (x)
-+				atomic_long_add(x, &memcg->stat[i]);
-+
-+			if (i >= NR_VM_NODE_STAT_ITEMS)
-+				continue;
-+
-+			for_each_node(nid) {
-+				struct mem_cgroup_per_node *pn;
-+
-+				pn = mem_cgroup_nodeinfo(memcg, nid);
-+				x = this_cpu_xchg(pn->lruvec_stat_cpu->count[i], 0);
-+				if (x)
-+					atomic_long_add(x, &pn->lruvec_stat[i]);
-+			}
-+		}
-+
-+		for (i = 0; i < MEMCG_NR_EVENTS; i++) {
-+			long x;
-+
-+			x = this_cpu_xchg(memcg->stat_cpu->events[i], 0);
-+			if (x)
-+				atomic_long_add(x, &memcg->events[i]);
-+		}
-+	}
-+
- 	return 0;
- }
- 
-@@ -1900,7 +1901,7 @@ static void high_work_func(struct work_struct *work)
- 	struct mem_cgroup *memcg;
- 
- 	memcg = container_of(work, struct mem_cgroup, high_work);
--	reclaim_high(memcg, CHARGE_BATCH, GFP_KERNEL);
-+	reclaim_high(memcg, MEMCG_CHARGE_BATCH, GFP_KERNEL);
- }
- 
- /*
-@@ -1924,7 +1925,7 @@ void mem_cgroup_handle_over_high(void)
- static int try_charge(struct mem_cgroup *memcg, gfp_t gfp_mask,
- 		      unsigned int nr_pages)
- {
--	unsigned int batch = max(CHARGE_BATCH, nr_pages);
-+	unsigned int batch = max(MEMCG_CHARGE_BATCH, nr_pages);
- 	int nr_retries = MEM_CGROUP_RECLAIM_RETRIES;
- 	struct mem_cgroup *mem_over_limit;
- 	struct page_counter *counter;
-@@ -4203,8 +4204,8 @@ static int alloc_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
- 	if (!pn)
- 		return 1;
- 
--	pn->lruvec_stat = alloc_percpu(struct lruvec_stat);
--	if (!pn->lruvec_stat) {
-+	pn->lruvec_stat_cpu = alloc_percpu(struct lruvec_stat);
-+	if (!pn->lruvec_stat_cpu) {
- 		kfree(pn);
- 		return 1;
- 	}
-@@ -4225,7 +4226,7 @@ static void free_mem_cgroup_per_node_info(struct mem_cgroup *memcg, int node)
- 	if (!pn)
- 		return;
- 
--	free_percpu(pn->lruvec_stat);
-+	free_percpu(pn->lruvec_stat_cpu);
- 	kfree(pn);
- }
- 
-@@ -4235,7 +4236,7 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
- 
- 	for_each_node(node)
- 		free_mem_cgroup_per_node_info(memcg, node);
--	free_percpu(memcg->stat);
-+	free_percpu(memcg->stat_cpu);
- 	kfree(memcg);
- }
- 
-@@ -4264,8 +4265,8 @@ static struct mem_cgroup *mem_cgroup_alloc(void)
- 	if (memcg->id.id < 0)
- 		goto fail;
- 
--	memcg->stat = alloc_percpu(struct mem_cgroup_stat_cpu);
--	if (!memcg->stat)
-+	memcg->stat_cpu = alloc_percpu(struct mem_cgroup_stat_cpu);
-+	if (!memcg->stat_cpu)
- 		goto fail;
- 
- 	for_each_node(node)
-@@ -5686,7 +5687,7 @@ static void uncharge_batch(const struct uncharge_gather *ug)
- 	__mod_memcg_state(ug->memcg, MEMCG_RSS_HUGE, -ug->nr_huge);
- 	__mod_memcg_state(ug->memcg, NR_SHMEM, -ug->nr_shmem);
- 	__count_memcg_events(ug->memcg, PGPGOUT, ug->pgpgout);
--	__this_cpu_add(ug->memcg->stat->nr_page_events, nr_pages);
-+	__this_cpu_add(ug->memcg->stat_cpu->nr_page_events, nr_pages);
- 	memcg_check_events(ug->memcg, ug->dummy_page);
- 	local_irq_restore(flags);
- 
--- 
-2.16.6
-
+Thanks,
+Nick
