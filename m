@@ -2,71 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473892E71D1
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 16:27:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A6AF2E721A
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 17:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726488AbgL2P0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 10:26:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726400AbgL2P0Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 10:26:24 -0500
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85D73C0613D6;
-        Tue, 29 Dec 2020 07:25:27 -0800 (PST)
-Received: by mail-ot1-x333.google.com with SMTP id q25so12051740otn.10;
-        Tue, 29 Dec 2020 07:25:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Wp95xn6bWLWiQPeFhAiO4UPvYEASlop/01yQ3VCyGaM=;
-        b=OD0uLxYHR6cqU93uITUGE5yrtKu97pDd8waH8uFPe4HaQ1BrchyuwwgbxiCAa44Bxt
-         x5Rmc3oURt6SNeQ1WRSjvg6w1E/GDi1rfNq4QJjKTdEa9rb0yNHBMSABI7fIdi5668AF
-         sW3QUy+utuhe9jYZ3+A93YmnBIqLk6hNd+pXh2h8Ic5Ye0jX08KV4xu1pkqMixvA/LNh
-         nZ4IK+DDt2TmyeYLvrtpikxzKNz4k0dWk804N3DMc8a3TNFH5UHk+ldZNmVc67AXlW0t
-         xNIHeij+MyuLd33NwpBOcThyr54dVd6GWFGUZL9tqeJDXzuqU5+SuT6/aeWA+Ajv+z94
-         GyJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Wp95xn6bWLWiQPeFhAiO4UPvYEASlop/01yQ3VCyGaM=;
-        b=Cs/mGws0a04QeXPPXAeF1V0PVWHDm18sbOuRJMN6EPf/xsb3jiSN3EwjdyOH7vR3Lg
-         KurRskdoq7Jw1LUmvDvFoLYTLOmNYYa5nTfJYhWPoxhNVfI9/cvd8Hh1vmKtTSj9Ew4u
-         dKAt0zX4YzEUrqtg+kqAMc7YagV49Pbk+iXBavQDKbsl9veyNC8PvGUJwfKTb8N+yXiE
-         oibrCgreVt+aGbqoI55X2vfsD40rfiIx6nxNl9wQ45VKpmW0sxK4mKRVTshyPzxgLqe5
-         MMyzPHLfKEm5IhIDg5euTfEy02hXaNZtL9rFKCU7zTOB0nHxeOvgx96ibv4ncOWYHP/r
-         y5lQ==
-X-Gm-Message-State: AOAM530z7NWAbhSbKKqZILzZnFzYXEf8G6Pu/a0Qeo/SpyF0FXPDva5B
-        coq3D0JuUnycI4XZzORYyu0=
-X-Google-Smtp-Source: ABdhPJwiu0Oy9zNX7tgghYHN8XIUgnmneBhFkURdp1nM0KBPPhnXGwiVUrfrlUqBDW/LWs7U5Z6Tfg==
-X-Received: by 2002:a9d:6642:: with SMTP id q2mr36320198otm.172.1609255527001;
-        Tue, 29 Dec 2020 07:25:27 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t186sm9753877oif.1.2020.12.29.07.25.25
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 29 Dec 2020 07:25:26 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 29 Dec 2020 07:25:25 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
+        id S1726168AbgL2QIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Dec 2020 11:08:06 -0500
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:8258 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726158AbgL2QIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 11:08:04 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5feb543c0000>; Tue, 29 Dec 2020 08:07:24 -0800
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 29 Dec
+ 2020 16:07:24 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Tue, 29 Dec 2020 16:07:24 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
 Subject: Re: [PATCH 5.10 000/716] 5.10.4-rc2 review
-Message-ID: <20201229152525.GB49720@roeck-us.net>
-References: <20201229103832.108495696@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20201229103832.108495696@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20201229103832.108495696@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <b3f2179f84e84ceca97ddc8126e716e2@HQMAIL105.nvidia.com>
+Date:   Tue, 29 Dec 2020 16:07:24 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1609258044; bh=g+abxLh0NmsY4VrvRwBYHmxWAiCC0wyx19Mbxi7I9C0=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=cyHyv4YpLktShKLHji5W/Edn3bzQ/RUdt23urq7ZWWSeUuQIG/Z2DLWNoUjvDAehH
+         a1S6fJ/QjpzFB5yZMuK6+CNMZX7okKtSbtOX52t7FV5h47qSUKA02M8JphYoImCDA0
+         rAq7B5ugUVDgpTczzY6GMYqos7H/18t78/Ybg6JwIg9Sq5u/tB96WXYz6Ujong7cuB
+         JduH2+CPKjNGWMXs1eQMDlohSRXcZ0uka37EGM5LIyxMDS4mHOvA8N1R1NaHD1yBbU
+         4Kq3iVHb6grexwc59CDCChzQG00SbDnVJ+n/vaiht4iSkLg3K2vHmLG8wW36rX27Nb
+         99L9fjkXxHQkw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 29, 2020 at 11:52:58AM +0100, Greg Kroah-Hartman wrote:
+On Tue, 29 Dec 2020 11:52:58 +0100, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.10.4 release.
 > There are 716 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -75,12 +59,29 @@ On Tue, Dec 29, 2020 at 11:52:58AM +0100, Greg Kroah-Hartman wrote:
 > Responses should be made by Thu, 31 Dec 2020 10:36:33 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.4-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 427 pass: 427 fail: 0
+All tests passing for Tegra ...
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Test results for stable-v5.10:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    64 tests:	64 pass, 0 fail
 
-Guenter
+Linux version:	5.10.4-rc2-g5069132d06b7
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
