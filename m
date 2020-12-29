@@ -2,116 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB9D2E6EA6
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 07:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDE22E6F0F
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 09:43:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725979AbgL2G5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 01:57:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
+        id S1726156AbgL2ImC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Dec 2020 03:42:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725767AbgL2G5g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 01:57:36 -0500
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6744C0613D6
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 22:56:55 -0800 (PST)
-Received: by mail-pg1-x52e.google.com with SMTP id n25so8733645pgb.0
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 22:56:55 -0800 (PST)
+        with ESMTP id S1726002AbgL2ImB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 03:42:01 -0500
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F044AC0613D6
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 00:41:20 -0800 (PST)
+Received: by mail-ej1-x629.google.com with SMTP id qw4so17199443ejb.12
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 00:41:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=JHlmOol5A/vir/D6u6sUABjAlF23eH6ZeuWW5/0eeyQ=;
-        b=vUWfoY3hE/HRUocSYTxrD2N/+puKflVDGYhFmJlrFI6DXqtTWgUMKVF85CAvrzp4U+
-         LMx39YnsO2u8INPkwMDH7FldLYY27wzUSLcO0e8KlJ1t8YGElS3ptbo4j6muaDdtIv0z
-         whoZgKEu7tKoGrawQg2ZcRRhAvnQIr8yu1x2+bfKP1cPnrO8oyxy5fcw/ynLxuStgyZ+
-         A3rUowerfeIh6nEkFqib8E1p+jY+LgmbcvlQ5uuQTwafhZ8/2p/KXvJE0i/RkfEKY1vD
-         6b9BbxAXFSd3WLtiC919PswvE09x5J9qjkyT4msEfBNEpvzFXFfibJt1VDiFPuWgOppc
-         X3Hg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=tn21V+pCRMg2easgZyrnpT+BudBtPuEemdCDqgnAeq0=;
+        b=k6mMnyGjWRW0LWx+WWYDpZtjaci5zL2iRFpP4bJ/C8b/Yrq6T2Hios2uSQWDOAryVm
+         e4cC31AxgDAxIkBTeyonOKNSurtb/pqm2bpnWGfMQCEBM6aOX9K1xUTZJ9q9+wzCId9/
+         VOprhaJCRCgfiv+9DbS+OOFm43QQPyfByD+BhbUcVeK5SG4pvw40+yXyr5cBPY+XAQfc
+         7pEVYXwPDsOqdrZNv7afa5jJp1PTM0hDVrkGHJ6l1+uO7vKWx5r6wBwymlDaqx96j8mE
+         PRMDvr0RttPWmGfu3zY6y3PP0Nhj0MjYevXDHROWHjOTIii+biUzHefNXv0zagoU2AMw
+         WhPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=JHlmOol5A/vir/D6u6sUABjAlF23eH6ZeuWW5/0eeyQ=;
-        b=F+US2MBvQZBCoSxnsATWXA76phy6tE8mYtlBPAJGyQMHtlwbxYDS9QAQZ+e1RQNl0C
-         LvT03uZhLijYHsppro4C8oc4KKHyijdeD1wINrEjzFs8W9lp3v0e5nn1BG7x1+ymUGz5
-         0VvvzECy/lYuuLFDPkez9qAmeL1FI8uoB4yx2UNFUc7+vHUSFUDLTfyk58i8AlhrHE2U
-         fg+C7z6fmLeUns2yVbSoLoOFZmt3nqG7wysiCvjV/hVikR/XwEu5wGMTywkzqgjFrYfV
-         pyO94RRDoB2FP59CU05hvq5dNfFt4my1CP7ofzabkdDrOiSMjUtwSJJCgxJjJ9dvJBQA
-         nWHA==
-X-Gm-Message-State: AOAM530momL3cYzQtJbeUyIhBZo3zbNgNCKUr8SSfldpog3QZ1R1VvNA
-        PBVJMu8fubY2o5sovlTceaELI3B1jVRzwQ==
-X-Google-Smtp-Source: ABdhPJxOo9TV42RBlSoDs8WQR+OVRwSQVEEVGgwTFm+DdVFHCMoemY8IY9w9yxyA2QsvDcP5odQrjg==
-X-Received: by 2002:aa7:82cc:0:b029:19e:1328:d039 with SMTP id f12-20020aa782cc0000b029019e1328d039mr44700866pfn.70.1609225014889;
-        Mon, 28 Dec 2020 22:56:54 -0800 (PST)
-Received: from localhost ([122.172.20.109])
-        by smtp.gmail.com with ESMTPSA id i25sm34823229pfo.137.2020.12.28.22.56.53
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 28 Dec 2020 22:56:54 -0800 (PST)
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     Viresh Kumar <viresh.kumar@linaro.org>, gregkh@linuxfoundation.org,
-        zhuguangqing@xiaomi.com, daniel.lezcano@linaro.org
-Subject: [PATCH for 5.4 stable] thermal/drivers/cpu_cooling: Update cpufreq_state only if state has changed
-Date:   Tue, 29 Dec 2020 12:26:39 +0530
-Message-Id: <7c80add4a09e3b1f24f4de322d3d4b4bda0db5ba.1609224933.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.25.0.rc1.19.g042ed3e048af
-In-Reply-To: <1609156118189209@kroah.com>
-References: <1609156118189209@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tn21V+pCRMg2easgZyrnpT+BudBtPuEemdCDqgnAeq0=;
+        b=RFrCGC8QY53d6C80TtzRsXsjYtr1e2jf247IvOznYadRr3WtuoSa9ihLmDlDnqJYpH
+         HZ/Qrks6n4CvxIRMkLE+N6czQewey0WPuHSsXZD9WE8jwHRphb48XmDoK3rAvDgqtmAu
+         XvWFbVLjOqIROr46hoPhm9JsRZK3a9JPd9qaInJ60AP1jPikonC0rdt8wC38LzAT8het
+         HRfvXFCcbVmeZETMW3WB7iIgMEbwEJ8ucL+jiFXmlSw11JoraKrPqaKZtRKcEWnGf6oy
+         h6b9vXvbSDvmWSPFgof13S2u4VOYX7OFVp58sLNCmDthwChoYGK8OkDp6E/E9Tge8CO+
+         /C3w==
+X-Gm-Message-State: AOAM532gN2xSZtDFYgHnh3GqlNfAfLpvCNOUyOMTBSzRxOPLBVeK8S49
+        H/UfzdwmgFxX3vUpen3kP0t16yAPu+QHEVasp0/PEY7clIYs1tNq
+X-Google-Smtp-Source: ABdhPJwteaHaGE8Vak5ItpDw14mQxo6AeonSQK3gs4+dgOji9mM1NEFSQH5ztI+7u/huXG5MZntUfVwyxd+NvDQrvms=
+X-Received: by 2002:a17:906:4c85:: with SMTP id q5mr44551331eju.375.1609231279592;
+ Tue, 29 Dec 2020 00:41:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201228125020.963311703@linuxfoundation.org>
+In-Reply-To: <20201228125020.963311703@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 29 Dec 2020 14:11:08 +0530
+Message-ID: <CA+G9fYsPkLkdp8Bk553Ws+ch5PoCcDDa_dmCaUvTYL=S-OtQiw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/717] 5.10.4-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhuguangqing <zhuguangqing@xiaomi.com>
+On Mon, 28 Dec 2020 at 19:31, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.4 release.
+> There are 717 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 30 Dec 2020 12:48:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.4-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-[ Upstream commit 236761f19a4f373354f1dcf399b57753f1f4b871 ]
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-If state has not changed successfully and we updated cpufreq_state,
-next time when the new state is equal to cpufreq_state (not changed
-successfully last time), we will return directly and miss a
-freq_qos_update_request() that should have been.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
-Cc: v5.4+ <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Zhuguangqing <zhuguangqing@xiaomi.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201106092243.15574-1-zhuguangqing83@gmail.com
-[ Viresh: Redo the patch for 5.4 stable kernel ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/thermal/cpu_cooling.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Summary
+------------------------------------------------------------------------
 
-diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
-index c37886a26712..9d24bc05df0d 100644
---- a/drivers/thermal/cpu_cooling.c
-+++ b/drivers/thermal/cpu_cooling.c
-@@ -320,6 +320,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 				 unsigned long state)
- {
- 	struct cpufreq_cooling_device *cpufreq_cdev = cdev->devdata;
-+	int ret;
- 
- 	/* Request state should be less than max_level */
- 	if (WARN_ON(state > cpufreq_cdev->max_level))
-@@ -329,10 +330,12 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 	if (cpufreq_cdev->cpufreq_state == state)
- 		return 0;
- 
--	cpufreq_cdev->cpufreq_state = state;
-+	ret = freq_qos_update_request(&cpufreq_cdev->qos_req,
-+			cpufreq_cdev->freq_table[state].frequency);
-+	if (ret > 0)
-+		cpufreq_cdev->cpufreq_state = state;
- 
--	return freq_qos_update_request(&cpufreq_cdev->qos_req,
--				cpufreq_cdev->freq_table[state].frequency);
-+	return ret;
- }
- 
- /**
--- 
-2.25.0.rc1.19.g042ed3e048af
+kernel: 5.10.4-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.10.y
+git commit: 404b2e8f23fd9530a213b3eb2b10868346c18c1f
+git describe: v5.10.3-718-g404b2e8f23fd
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
+.y/build/v5.10.3-718-g404b2e8f23fd
 
+No regressions (compared to build v5.10.3)
+
+No fixes (compared to build v5.10.3)
+
+Ran 52627 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* ltp-commands-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* fwts
+* kselftest
+* kvm-unit-tests
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* network-basic-tests
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* perf
+* v4l2-compliance
+* kunit
+* rcutorture
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
