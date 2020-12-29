@@ -2,110 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F00992E6DC8
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 05:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB9D2E6EA6
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 07:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726276AbgL2EkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 23:40:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52516 "EHLO
+        id S1725979AbgL2G5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Dec 2020 01:57:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726227AbgL2EkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 23:40:13 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F68C0613D6
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 20:39:32 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id a12so13232930wrv.8
-        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 20:39:32 -0800 (PST)
+        with ESMTP id S1725767AbgL2G5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 01:57:36 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6744C0613D6
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 22:56:55 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id n25so8733645pgb.0
+        for <stable@vger.kernel.org>; Mon, 28 Dec 2020 22:56:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=BRJiEQFsTd/ezqp0rquLnDdonIJ9ED76KpS6ntg/hq4=;
-        b=UuQqaJXk5ZjT3HaFXwCMsGDO31qqmdVgZZ9zh4ci2jxTmSFOH2mbUlANVhLnUVkfBH
-         d2yHg66rJZstWuOkEawlarH4+IU8/7cIQM0as7k4Rwzbt25slBYHRNFRSYuO3kqd3IUg
-         iILYOZE9b6yyHLSpS47TQSnyuSEVo18GBbFJ/UcVQfXgTryELwGOLo/1dYWiSoA0krS2
-         iiGO56Snx7hVrKj+xWsueaZWV5X7kudxxzG3H1JBTpNbIisC4UPYCbDQ9TRvKaQvPdcv
-         RN6dpjJkMxs6WyK4VmzS6z/Rjh9/rcdu6Djgd5+FXbZOXf9kA6sU2HBAaVnS18jReatk
-         7ybg==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=JHlmOol5A/vir/D6u6sUABjAlF23eH6ZeuWW5/0eeyQ=;
+        b=vUWfoY3hE/HRUocSYTxrD2N/+puKflVDGYhFmJlrFI6DXqtTWgUMKVF85CAvrzp4U+
+         LMx39YnsO2u8INPkwMDH7FldLYY27wzUSLcO0e8KlJ1t8YGElS3ptbo4j6muaDdtIv0z
+         whoZgKEu7tKoGrawQg2ZcRRhAvnQIr8yu1x2+bfKP1cPnrO8oyxy5fcw/ynLxuStgyZ+
+         A3rUowerfeIh6nEkFqib8E1p+jY+LgmbcvlQ5uuQTwafhZ8/2p/KXvJE0i/RkfEKY1vD
+         6b9BbxAXFSd3WLtiC919PswvE09x5J9qjkyT4msEfBNEpvzFXFfibJt1VDiFPuWgOppc
+         X3Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=BRJiEQFsTd/ezqp0rquLnDdonIJ9ED76KpS6ntg/hq4=;
-        b=GEVYCkQHROy+cLpyMwUOerCHpCi9yIP2h+GrqrfZNJyf/Ffh35bqai0ERzB7q3mNm8
-         sxz1ZmWgq/9eqLiKwRKYlN4FK5u7f96dNXKiiVToS/c0P08V11A2Qo6YmAyG1a07I6qC
-         GdI5Ja68EMNAoCUKqS610A0TNmvAYV3BydrZPJgAROKv/zmTFN6fwQtrBejoFMvDE4yb
-         j2mGUy5IrJ7YUbF2S9p93njaO1gAP6aS1sBFU9Ly5xK+Oo1yh/9RQWoLBGXTIa5C+8O+
-         +YAv+/zRrSUVV/gGQhCEzw7SHWKLauRVeEi7YdjufsifRByXweoepsZ7tAq5B8JZ4yGG
-         NQgw==
-X-Gm-Message-State: AOAM532EG/S+WrPoZ9xQUal2KMQc3PGr/wjteQJXhW5yG/wVaUafUdba
-        xb7lKl4YPj7at1E8SABkDTBGle+nl8o=
-X-Google-Smtp-Source: ABdhPJyQ+dlFc2XcCjiFjPTyE/rlAukHwi1xapka4QWEeaUOYpW1yN7jucidrDM3DrSV+u2dz+2azQ==
-X-Received: by 2002:adf:8503:: with SMTP id 3mr54277684wrh.56.1609216771443;
-        Mon, 28 Dec 2020 20:39:31 -0800 (PST)
-Received: from localhost.localdomain ([148.252.128.61])
-        by smtp.gmail.com with ESMTPSA id o8sm57751885wrm.17.2020.12.28.20.39.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Dec 2020 20:39:30 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Subject: [PATCH backport 5.10] io_uring: close a small race gap for files cancel
-Date:   Tue, 29 Dec 2020 04:35:49 +0000
-Message-Id: <c47ff9d5a4dadaaa47fa2f2ad2f6cae8c39a9b98.1609215832.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1609215832.git.asml.silence@gmail.com>
-References: <cover.1609215832.git.asml.silence@gmail.com>
+        bh=JHlmOol5A/vir/D6u6sUABjAlF23eH6ZeuWW5/0eeyQ=;
+        b=F+US2MBvQZBCoSxnsATWXA76phy6tE8mYtlBPAJGyQMHtlwbxYDS9QAQZ+e1RQNl0C
+         LvT03uZhLijYHsppro4C8oc4KKHyijdeD1wINrEjzFs8W9lp3v0e5nn1BG7x1+ymUGz5
+         0VvvzECy/lYuuLFDPkez9qAmeL1FI8uoB4yx2UNFUc7+vHUSFUDLTfyk58i8AlhrHE2U
+         fg+C7z6fmLeUns2yVbSoLoOFZmt3nqG7wysiCvjV/hVikR/XwEu5wGMTywkzqgjFrYfV
+         pyO94RRDoB2FP59CU05hvq5dNfFt4my1CP7ofzabkdDrOiSMjUtwSJJCgxJjJ9dvJBQA
+         nWHA==
+X-Gm-Message-State: AOAM530momL3cYzQtJbeUyIhBZo3zbNgNCKUr8SSfldpog3QZ1R1VvNA
+        PBVJMu8fubY2o5sovlTceaELI3B1jVRzwQ==
+X-Google-Smtp-Source: ABdhPJxOo9TV42RBlSoDs8WQR+OVRwSQVEEVGgwTFm+DdVFHCMoemY8IY9w9yxyA2QsvDcP5odQrjg==
+X-Received: by 2002:aa7:82cc:0:b029:19e:1328:d039 with SMTP id f12-20020aa782cc0000b029019e1328d039mr44700866pfn.70.1609225014889;
+        Mon, 28 Dec 2020 22:56:54 -0800 (PST)
+Received: from localhost ([122.172.20.109])
+        by smtp.gmail.com with ESMTPSA id i25sm34823229pfo.137.2020.12.28.22.56.53
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 28 Dec 2020 22:56:54 -0800 (PST)
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>, gregkh@linuxfoundation.org,
+        zhuguangqing@xiaomi.com, daniel.lezcano@linaro.org
+Subject: [PATCH for 5.4 stable] thermal/drivers/cpu_cooling: Update cpufreq_state only if state has changed
+Date:   Tue, 29 Dec 2020 12:26:39 +0530
+Message-Id: <7c80add4a09e3b1f24f4de322d3d4b4bda0db5ba.1609224933.git.viresh.kumar@linaro.org>
+X-Mailer: git-send-email 2.25.0.rc1.19.g042ed3e048af
+In-Reply-To: <1609156118189209@kroah.com>
+References: <1609156118189209@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit dfea9fce29fda6f2f91161677e0e0d9b671bc099 upstream.
+From: Zhuguangqing <zhuguangqing@xiaomi.com>
 
-The purpose of io_uring_cancel_files() is to wait for all requests
-matching ->files to go/be cancelled. We should first drop files of a
-request in io_req_drop_files() and only then make it undiscoverable for
-io_uring_cancel_files.
+[ Upstream commit 236761f19a4f373354f1dcf399b57753f1f4b871 ]
 
-First drop, then delete from list. It's ok to leave req->id->files
-dangling, because it's not dereferenced by cancellation code, only
-compared against. It would potentially go to sleep and be awaken by
-following in io_req_drop_files() wake_up().
+If state has not changed successfully and we updated cpufreq_state,
+next time when the new state is equal to cpufreq_state (not changed
+successfully last time), we will return directly and miss a
+freq_qos_update_request() that should have been.
 
-Fixes: 0f2122045b946 ("io_uring: don't rely on weak ->files references")
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
+Cc: v5.4+ <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Zhuguangqing <zhuguangqing@xiaomi.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20201106092243.15574-1-zhuguangqing83@gmail.com
+[ Viresh: Redo the patch for 5.4 stable kernel ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/thermal/cpu_cooling.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 86dac2b2e276..dfe33b0b148f 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5854,15 +5854,15 @@ static void io_req_drop_files(struct io_kiocb *req)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	unsigned long flags;
+diff --git a/drivers/thermal/cpu_cooling.c b/drivers/thermal/cpu_cooling.c
+index c37886a26712..9d24bc05df0d 100644
+--- a/drivers/thermal/cpu_cooling.c
++++ b/drivers/thermal/cpu_cooling.c
+@@ -320,6 +320,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 				 unsigned long state)
+ {
+ 	struct cpufreq_cooling_device *cpufreq_cdev = cdev->devdata;
++	int ret;
  
-+	put_files_struct(req->work.identity->files);
-+	put_nsproxy(req->work.identity->nsproxy);
- 	spin_lock_irqsave(&ctx->inflight_lock, flags);
- 	list_del(&req->inflight_entry);
--	if (waitqueue_active(&ctx->inflight_wait))
--		wake_up(&ctx->inflight_wait);
- 	spin_unlock_irqrestore(&ctx->inflight_lock, flags);
- 	req->flags &= ~REQ_F_INFLIGHT;
--	put_files_struct(req->work.identity->files);
--	put_nsproxy(req->work.identity->nsproxy);
- 	req->work.flags &= ~IO_WQ_WORK_FILES;
-+	if (waitqueue_active(&ctx->inflight_wait))
-+		wake_up(&ctx->inflight_wait);
+ 	/* Request state should be less than max_level */
+ 	if (WARN_ON(state > cpufreq_cdev->max_level))
+@@ -329,10 +330,12 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	if (cpufreq_cdev->cpufreq_state == state)
+ 		return 0;
+ 
+-	cpufreq_cdev->cpufreq_state = state;
++	ret = freq_qos_update_request(&cpufreq_cdev->qos_req,
++			cpufreq_cdev->freq_table[state].frequency);
++	if (ret > 0)
++		cpufreq_cdev->cpufreq_state = state;
+ 
+-	return freq_qos_update_request(&cpufreq_cdev->qos_req,
+-				cpufreq_cdev->freq_table[state].frequency);
++	return ret;
  }
  
- static void __io_clean_op(struct io_kiocb *req)
+ /**
 -- 
-2.24.0
+2.25.0.rc1.19.g042ed3e048af
 
