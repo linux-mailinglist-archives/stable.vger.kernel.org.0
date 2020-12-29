@@ -2,98 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 615172E72D9
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 18:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4363F2E72FB
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 19:21:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726126AbgL2R7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 12:59:01 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:60106 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726111AbgL2R7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 12:59:01 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 79E721C0B7C; Tue, 29 Dec 2020 18:58:19 +0100 (CET)
-Date:   Tue, 29 Dec 2020 18:58:19 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Harry Wentland <harry.wentland@amd.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4 099/453] drm/amdgpu: fix build_coefficients() argument
-Message-ID: <20201229175819.GA15548@duo.ucw.cz>
-References: <20201228124937.240114599@linuxfoundation.org>
- <20201228124941.984955049@linuxfoundation.org>
+        id S1726138AbgL2SU6 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 29 Dec 2020 13:20:58 -0500
+Received: from aposti.net ([89.234.176.197]:58822 "EHLO aposti.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726114AbgL2SU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Dec 2020 13:20:57 -0500
+Date:   Tue, 29 Dec 2020 18:20:04 +0000
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] MIPS: boot: Fix unaligned access
+ =?UTF-8?Q?with=3F=3F=0D=0A?= CONFIG_MIPS_RAW_APPENDED_DTB
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>, od@zcrc.me,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com, stable@vger.kernel.org
+Message-Id: <GL54MQ.XG61RLIPAFCV@crapouillou.net>
+In-Reply-To: <20201229150810.GA7832@alpha.franken.de>
+References: <20201216233956.280068-1-paul@crapouillou.net>
+        <20201228222532.GA24926@alpha.franken.de>
+        <0JM2MQ.PMKIEAOX7SCZ@crapouillou.net>
+        <20201229150810.GA7832@alpha.franken.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Content-Disposition: inline
-In-Reply-To: <20201228124941.984955049@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Thomas,
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Le mar. 29 déc. 2020 à 16:08, Thomas Bogendoerfer 
+<tsbogend@alpha.franken.de> a écrit :
+> On Mon, Dec 28, 2020 at 10:30:36PM +0000, Paul Cercueil wrote:
+>>  Le lun. 28 déc. 2020 à 23:25, Thomas Bogendoerfer
+>>  <tsbogend@alpha.franken.de> a écrit :
+>>  > On Wed, Dec 16, 2020 at 11:39:56PM +0000, Paul Cercueil wrote:
+>>  > >  The compressed payload is not necesarily 4-byte aligned, at 
+>> least
+>>  > > when
+>>  > >  compiling with Clang. In that case, the 4-byte value appended 
+>> to the
+>>  > >  compressed payload that corresponds to the uncompressed kernel 
+>> image
+>>  > >  size must be read using get_unaligned_le().
+>>  > >
+>>  > >  This fixes Clang-built kernels not booting on MIPS (tested on a
+>>  > > Ingenic
+>>  > >  JZ4770 board).
+>>  > >
+>>  > >  Fixes: b8f54f2cde78 ("MIPS: ZBOOT: copy appended dtb to the 
+>> end of
+>>  > > the kernel")
+>>  > >  Cc: <stable@vger.kernel.org> # v4.7
+>>  > >  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  > >  ---
+>>  > >   arch/mips/boot/compressed/decompress.c | 2 +-
+>>  > >   1 file changed, 1 insertion(+), 1 deletion(-)
+>>  > >
+>>  > >  diff --git a/arch/mips/boot/compressed/decompress.c
+>>  > > b/arch/mips/boot/compressed/decompress.c
+>>  > >  index c61c641674e6..47c07990432b 100644
+>>  > >  --- a/arch/mips/boot/compressed/decompress.c
+>>  > >  +++ b/arch/mips/boot/compressed/decompress.c
+>>  > >  @@ -117,7 +117,7 @@ void decompress_kernel(unsigned long
+>>  > > boot_heap_start)
+>>  > >   		dtb_size = fdt_totalsize((void *)&__appended_dtb);
+>>  > >
+>>  > >   		/* last four bytes is always image size in little endian */
+>>  > >  -		image_size = le32_to_cpup((void *)&__image_end - 4);
+>>  > >  +		image_size = get_unaligned_le32((void *)&__image_end - 4);
+>>  >
+>>  > gives me following error
+>>  >
+>>  > arch/mips/boot/compressed/decompress.c:120:16: error: implicit
+>>  > declaration of function ‘get_unaligned_le32’
+>>  > [-Werror=implicit-function-declaration]
+>>  >    image_size = get_unaligned_le32((void *)&__image_end - 4);
+>>  >
+>>  > I've added
+>>  >
+>>  > #include <asm/unaligned.h>
+>>  >
+>>  > which fixes the compile error, but I'm wondering why the patch 
+>> compiled
+>>  > for you ?
+>> 
+>>  No idea - but it does compile fine without the include here. 
+>> Probably a
+>>  defconfig difference.
+> 
+> # CONFIG_KERNEL_LZO is not set
+> # CONFIG_KERNEL_LZ4 is not set
+> 
+> this makes the difference. Both decompress.c files include 
+> asm/unaligned.h.
+> 
+> I've added the #include, fixed the get_unaligned_le32 in the 
+> description
+> and applied it to mips-fixes.
 
-Hi!
+Alright, great! Thanks!
 
-> From: Arnd Bergmann <arnd@arndb.de>
->=20
-> [ Upstream commit dbb60031dd0c2b85f10ce4c12ae604c28d3aaca4 ]
->=20
-> gcc -Wextra warns about a function taking an enum argument
-> being called with a bool:
->=20
-> drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c: In fun=
-ction 'apply_degamma_for_user_regamma':
-> drivers/gpu/drm/amd/amdgpu/../display/modules/color/color_gamma.c:1617:29=
-: warning: implicit conversion from 'enum <anonymous>' to 'enum dc_transfer=
-_func_predefined' [-Wenum-conversion]
->  1617 |  build_coefficients(&coeff, true);
->=20
-> It appears that a patch was added using the old calling conventions
-> after the type was changed, and the value should actually be 0
-> (TRANSFER_FUNCTION_SRGB) here instead of 1 (true).
+Cheers,
+-Paul
 
-Yeah, but 4.19 still uses bool there, so this actually introduces a
-bug.
 
-Please drop.
-								Pavel
-							=09
-> +++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-> @@ -1576,7 +1576,7 @@ static void apply_degamma_for_user_regamma(struct p=
-wl_float_data_ex *rgb_regamma
->  	struct pwl_float_data_ex *rgb =3D rgb_regamma;
->  	const struct hw_x_point *coord_x =3D coordinates_x;
-> =20
-> -	build_coefficients(&coeff, true);
-> +	build_coefficients(&coeff, TRANSFER_FUNCTION_SRGB);
-> =20
->  	i =3D 0;
->  	while (i !=3D hw_points_num + 1) {
-> --=20
-> 2.27.0
->=20
->=20
-
---=20
-http://www.livejournal.com/~pavelmachek
-
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX+tuOwAKCRAw5/Bqldv6
-8uulAJwIUoSsl2ZwsrxZA8ubSs7l0Z7JdACgjlh6B59mSECfllRDvBIPP06zPcs=
-=Mqgm
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--
