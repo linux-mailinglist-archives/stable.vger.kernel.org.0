@@ -2,291 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4981A2E750E
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 23:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EDB2E752C
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 00:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726209AbgL2W6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 17:58:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51726 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726138AbgL2W6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 17:58:43 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60635C061798
-        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 14:57:57 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id d26so15965054wrb.12
-        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 14:57:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=6LOVRIN+dHLlkldBNCaLmuLD7ORcE6+GLQF/833fwkU=;
-        b=zEqf4KE0zng7uJSq9TLccKBz6yioDvPjkB4ufL+6FTK0P2BwBm2fjTTCmbWNo3UwZ8
-         7pZD+oSCiYmvU6DsBTcmSar6ErEC0zY6qp6Ma/04rJoHZT6wsHZLYuEh8iyus+m1fAxw
-         7HZYPpOJMHPNQqIvGEcvWAetjreQes3kRmEcM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=6LOVRIN+dHLlkldBNCaLmuLD7ORcE6+GLQF/833fwkU=;
-        b=DvSKYE8QxNkAe8V5jxFzx5QJWHVKBCNvXADmgas/vqsMHBCZ0IHUEK0al6NIE0KNPu
-         mjVLWwC0YiZXSXskXo2BeGQBbmwqUOarbvf8uKe3KV/psmvN0Nkk+1vTCHj2e7Z6QnZ6
-         3tDVP3Bk/Zyc5xHA4GujUFQQDFM8YX5ii5D/0HMT6cNUfLKAvKC4lE8J5XY7P4O0BhMD
-         FCMwLYL3esqbvzEaBJW8FpFL4emrHigiftQeeB5DhUiDid+a7XI/bFiXS6Q18sjez3c0
-         lQGeSIi9/KQ1b/D0zR9SGGDdDgqZZKknt8Z6jaSMrDO4UgPbpJq/EK2Z641No85bfMJM
-         0YSA==
-X-Gm-Message-State: AOAM531JOWM1j5UamAEWAdZyl7I/yyRjdOgjhD44mvy8MglFFuNmvboG
-        bZ639/3C86BxZt8qDlzF6xawpQ==
-X-Google-Smtp-Source: ABdhPJx6mbQ7eliHuiWL9TcrMD6Lvzqs8brXQIJLd4Fk6RPORgP9+Q/9lIupEaZX7+yhDOqKyN7Y4w==
-X-Received: by 2002:adf:f605:: with SMTP id t5mr56673240wrp.39.1609282676001;
-        Tue, 29 Dec 2020 14:57:56 -0800 (PST)
-Received: from dev.cfops.net (165.176.200.146.dyn.plus.net. [146.200.176.165])
-        by smtp.gmail.com with ESMTPSA id u205sm5182840wme.42.2020.12.29.14.57.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Dec 2020 14:57:55 -0800 (PST)
-From:   Ignat Korchagin <ignat@cloudflare.com>
-To:     agk@redhat.com, snitzer@redhat.com, dm-devel@redhat.com,
-        dm-crypt@saout.de, linux-kernel@vger.kernel.org
-Cc:     Ignat Korchagin <ignat@cloudflare.com>, ebiggers@kernel.org,
-        Damien.LeMoal@wdc.com, mpatocka@redhat.com,
-        herbert@gondor.apana.org.au, kernel-team@cloudflare.com,
-        nobuto.murata@canonical.com, clm@fb.com, josef@toxicpanda.com,
-        dsterba@suse.com, linux-btrfs@vger.kernel.org,
-        mail@maciej.szmigiero.name, stable@vger.kernel.org
-Subject: [PATCH 2/2] dm crypt: do not wait for backlogged crypto request completion in softirq
-Date:   Tue, 29 Dec 2020 22:57:14 +0000
-Message-Id: <20201229225714.1580-2-ignat@cloudflare.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20201229225714.1580-1-ignat@cloudflare.com>
-References: <20201229225714.1580-1-ignat@cloudflare.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726178AbgL2XPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Dec 2020 18:15:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726156AbgL2XPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Dec 2020 18:15:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E5422209;
+        Tue, 29 Dec 2020 23:14:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1609283666;
+        bh=TPefhq1IQ6Ydg9RmnRnQ0UdzaerzCpneCtncq1JZszM=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=JQTVI6zliLvtXuA2AT2UwToYPSXqLwBrVYG3SEuQnMkF9C4l9GHtsntuSnr5B30LI
+         2ndO/bJhH5s/bWRAdHk6JmPBnWd5mzsRV/UbI+bcCvrAUsPxIhGF7UwHEW8Ojw/EXl
+         kVqYA5fT9uS3yA7Zy/oUdxEhMQPnGOE2R51W5uv8=
+Date:   Tue, 29 Dec 2020 15:14:25 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.vnet.ibm.com,
+        dave@stgolabs.net, hughd@google.com, linux-mm@kvack.org,
+        mhocko@kernel.org, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 02/16] mm/hugetlb: fix deadlock in hugetlb_cow
+ error path
+Message-ID: <20201229231425.rmDpurdQ4%akpm@linux-foundation.org>
+In-Reply-To: <20201229151349.3285926ec0d1f65a27ac8534@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 39d42fa96ba1b7d2544db3f8ed5da8fb0d5cb877 made it possible for some code
-paths in dm-crypt to be executed in softirq context, when the underlying driver
-processes IO requests in interrupt/softirq context.
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: mm/hugetlb: fix deadlock in hugetlb_cow error path
 
-When Crypto API backlogs a crypto request, dm-crypt uses wait_for_completion to
-avoid sending further requests to an already overloaded crypto driver. However,
-if the code is executing in softirq context, we might get the following
-stacktrace:
+syzbot reported the deadlock here [1].  The issue is in hugetlb cow error
+handling when there are not enough huge pages for the faulting task which
+took the original reservation.  It is possible that other (child) tasks
+could have consumed pages associated with the reservation.  In this case,
+we want the task which took the original reservation to succeed.  So, we
+unmap any associated pages in children so that they can be used by the
+faulting task that owns the reservation.
 
-[  210.235213][    C0] BUG: scheduling while atomic: fio/2602/0x00000102
-[  210.236701][    C0] Modules linked in:
-[  210.237566][    C0] CPU: 0 PID: 2602 Comm: fio Tainted: G        W         5.10.0+ #50
-[  210.239292][    C0] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-[  210.241233][    C0] Call Trace:
-[  210.241946][    C0]  <IRQ>
-[  210.242561][    C0]  dump_stack+0x7d/0xa3
-[  210.243466][    C0]  __schedule_bug.cold+0xb3/0xc2
-[  210.244539][    C0]  __schedule+0x156f/0x20d0
-[  210.245518][    C0]  ? io_schedule_timeout+0x140/0x140
-[  210.246660][    C0]  schedule+0xd0/0x270
-[  210.247541][    C0]  schedule_timeout+0x1fb/0x280
-[  210.248586][    C0]  ? usleep_range+0x150/0x150
-[  210.249624][    C0]  ? unpoison_range+0x3a/0x60
-[  210.250632][    C0]  ? ____kasan_kmalloc.constprop.0+0x82/0xa0
-[  210.251949][    C0]  ? unpoison_range+0x3a/0x60
-[  210.252958][    C0]  ? __prepare_to_swait+0xa7/0x190
-[  210.254067][    C0]  do_wait_for_common+0x2ab/0x370
-[  210.255158][    C0]  ? usleep_range+0x150/0x150
-[  210.256192][    C0]  ? bit_wait_io_timeout+0x160/0x160
-[  210.257358][    C0]  ? blk_update_request+0x757/0x1150
-[  210.258582][    C0]  ? _raw_spin_lock_irq+0x82/0xd0
-[  210.259674][    C0]  ? _raw_read_unlock_irqrestore+0x30/0x30
-[  210.260917][    C0]  wait_for_completion+0x4c/0x90
-[  210.261971][    C0]  crypt_convert+0x19a6/0x4c00
-[  210.263033][    C0]  ? _raw_spin_lock_irqsave+0x87/0xe0
-[  210.264193][    C0]  ? kasan_set_track+0x1c/0x30
-[  210.265191][    C0]  ? crypt_iv_tcw_ctr+0x4a0/0x4a0
-[  210.266283][    C0]  ? kmem_cache_free+0x104/0x470
-[  210.267363][    C0]  ? crypt_endio+0x91/0x180
-[  210.268327][    C0]  kcryptd_crypt_read_convert+0x30e/0x420
-[  210.269565][    C0]  blk_update_request+0x757/0x1150
-[  210.270563][    C0]  blk_mq_end_request+0x4b/0x480
-[  210.271680][    C0]  blk_done_softirq+0x21d/0x340
-[  210.272775][    C0]  ? _raw_spin_lock+0x81/0xd0
-[  210.273847][    C0]  ? blk_mq_stop_hw_queue+0x30/0x30
-[  210.275031][    C0]  ? _raw_read_lock_irq+0x40/0x40
-[  210.276182][    C0]  __do_softirq+0x190/0x611
-[  210.277203][    C0]  ? handle_edge_irq+0x221/0xb60
-[  210.278340][    C0]  asm_call_irq_on_stack+0x12/0x20
-[  210.279514][    C0]  </IRQ>
-[  210.280164][    C0]  do_softirq_own_stack+0x37/0x40
-[  210.281281][    C0]  irq_exit_rcu+0x110/0x1b0
-[  210.282286][    C0]  common_interrupt+0x74/0x120
-[  210.283376][    C0]  asm_common_interrupt+0x1e/0x40
-[  210.284496][    C0] RIP: 0010:_aesni_enc1+0x65/0xb0
+The unmapping code needs to hold i_mmap_rwsem in write mode.  However, due
+to commit c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing
+synchronization") we are already holding i_mmap_rwsem in read mode when
+hugetlb_cow is called.  Technically, i_mmap_rwsem does not need to be held
+in read mode for COW mappings as they can not share pmd's.  Modifying the
+fault code to not take i_mmap_rwsem in read mode for COW (and other
+non-sharable) mappings is too involved for a stable fix.  Instead, we
+simply drop the hugetlb_fault_mutex and i_mmap_rwsem before unmapping. 
+This is OK as it is technically not needed.  They are reacquired after
+unmapping as expected by calling code.  Since this is done in an uncommon
+error path, the overhead of dropping and reacquiring mutexes is
+acceptable.
 
-Fix this by making crypt_convert function reentrant from the point of a single
-bio and make dm-crypt defer further bio processing to a workqueue, if Crypto API
-backlogs a request in interrupt context.
+While making changes, remove redundant BUG_ON after unmap_ref_private.
 
-Fixes: 39d42fa96ba1 ("dm crypt: add flags to optionally bypass kcryptd workq
-ueues")
-Cc: <stable@vger.kernel.org> # v5.9+
+[1] https://lkml.kernel.org/r/000000000000b73ccc05b5cf8558@google.com
 
-Signed-off-by: Ignat Korchagin <ignat@cloudflare.com>
+Link: https://lkml.kernel.org/r/4c5781b8-3b00-761e-c0c7-c5edebb6ec1a@oracle.com
+Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: syzbot+5eee4145df3c15e96625@syzkaller.appspotmail.com
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/md/dm-crypt.c | 102 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 97 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-index 777b5c71a2f7..6df907bd6c7c 100644
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -1529,13 +1529,19 @@ static void crypt_free_req(struct crypt_config *cc, void *req, struct bio *base_
-  * Encrypt / decrypt data from one bio to another one (can be the same one)
-  */
- static blk_status_t crypt_convert(struct crypt_config *cc,
--			 struct convert_context *ctx, bool atomic)
-+			 struct convert_context *ctx, bool atomic, bool reset_pending)
- {
- 	unsigned int tag_offset = 0;
- 	unsigned int sector_step = cc->sector_size >> SECTOR_SHIFT;
- 	int r;
- 
--	atomic_set(&ctx->cc_pending, 1);
-+	/*
-+	 * if reset_pending is set we are dealing with the bio for the first time,
-+	 * else we're continuing to work on the previous bio, so don't mess with
-+	 * the cc_pending counter
-+	 */
-+	if (reset_pending)
-+		atomic_set(&ctx->cc_pending, 1);
- 
- 	while (ctx->iter_in.bi_size && ctx->iter_out.bi_size) {
- 
-@@ -1553,7 +1559,24 @@ static blk_status_t crypt_convert(struct crypt_config *cc,
- 		 * but the driver request queue is full, let's wait.
+ mm/hugetlb.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-deadlock-in-hugetlb_cow-error-path
++++ a/mm/hugetlb.c
+@@ -4105,10 +4105,30 @@ retry_avoidcopy:
+ 		 * may get SIGKILLed if it later faults.
  		 */
- 		case -EBUSY:
--			wait_for_completion(&ctx->restart);
-+			if (in_interrupt()) {
-+				if (try_wait_for_completion(&ctx->restart)) {
-+					/*
-+					 * we don't have to block to wait for completion,
-+					 * so proceed
-+					 */
-+				} else {
-+					/*
-+					 * we can't wait for completion without blocking
-+					 * exit and continue processing in a workqueue
-+					 */
-+					ctx->r.req = NULL;
-+					ctx->cc_sector += sector_step;
-+					tag_offset++;
-+					return BLK_STS_DEV_RESOURCE;
-+				}
-+			} else
-+				wait_for_completion(&ctx->restart);
- 			reinit_completion(&ctx->restart);
- 			fallthrough;
- 		/*
-@@ -1945,6 +1968,37 @@ static bool kcryptd_crypt_write_inline(struct crypt_config *cc,
- 	}
- }
- 
-+static void kcryptd_crypt_write_continue(struct work_struct *work)
-+{
-+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
-+	struct crypt_config *cc = io->cc;
-+	struct convert_context *ctx = &io->ctx;
-+	int crypt_finished;
-+	sector_t sector = io->sector;
-+	blk_status_t r;
+ 		if (outside_reserve) {
++			struct address_space *mapping = vma->vm_file->f_mapping;
++			pgoff_t idx;
++			u32 hash;
 +
-+	wait_for_completion(&ctx->restart);
-+	reinit_completion(&ctx->restart);
+ 			put_page(old_page);
+ 			BUG_ON(huge_pte_none(pte));
++			/*
++			 * Drop hugetlb_fault_mutex and i_mmap_rwsem before
++			 * unmapping.  unmapping needs to hold i_mmap_rwsem
++			 * in write mode.  Dropping i_mmap_rwsem in read mode
++			 * here is OK as COW mappings do not interact with
++			 * PMD sharing.
++			 *
++			 * Reacquire both after unmap operation.
++			 */
++			idx = vma_hugecache_offset(h, vma, haddr);
++			hash = hugetlb_fault_mutex_hash(mapping, idx);
++			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
++			i_mmap_unlock_read(mapping);
 +
-+	r = crypt_convert(cc, &io->ctx, true, false);
-+	if (r)
-+		io->error = r;
-+	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
-+	if (!crypt_finished && kcryptd_crypt_write_inline(cc, ctx)) {
-+		/* Wait for completion signaled by kcryptd_async_done() */
-+		wait_for_completion(&ctx->restart);
-+		crypt_finished = 1;
-+	}
+ 			unmap_ref_private(mm, vma, old_page, haddr);
+-			BUG_ON(huge_pte_none(pte));
 +
-+	/* Encryption was already finished, submit io now */
-+	if (crypt_finished) {
-+		kcryptd_crypt_write_io_submit(io, 0);
-+		io->sector = sector;
-+	}
-+
-+	crypt_dec_pending(io);
-+}
-+
- static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
- {
- 	struct crypt_config *cc = io->cc;
-@@ -1973,7 +2027,17 @@ static void kcryptd_crypt_write_convert(struct dm_crypt_io *io)
- 
- 	crypt_inc_pending(io);
- 	r = crypt_convert(cc, ctx,
--			  test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags));
-+			  test_bit(DM_CRYPT_NO_WRITE_WORKQUEUE, &cc->flags), true);
-+	/*
-+	 * Crypto API backlogged the request, because its queue was full
-+	 * and we're in softirq context, so continue from a workqueue
-+	 * (TODO: is it actually possible to be in softirq in the write path?)
-+	 */
-+	if (r == BLK_STS_DEV_RESOURCE) {
-+		INIT_WORK(&io->work, kcryptd_crypt_write_continue);
-+		queue_work(cc->crypt_queue, &io->work);
-+		return;
-+	}
- 	if (r)
- 		io->error = r;
- 	crypt_finished = atomic_dec_and_test(&ctx->cc_pending);
-@@ -1998,6 +2062,25 @@ static void kcryptd_crypt_read_done(struct dm_crypt_io *io)
- 	crypt_dec_pending(io);
- }
- 
-+static void kcryptd_crypt_read_continue(struct work_struct *work)
-+{
-+	struct dm_crypt_io *io = container_of(work, struct dm_crypt_io, work);
-+	struct crypt_config *cc = io->cc;
-+	blk_status_t r;
-+
-+	wait_for_completion(&io->ctx.restart);
-+	reinit_completion(&io->ctx.restart);
-+
-+	r = crypt_convert(cc, &io->ctx, true, false);
-+	if (r)
-+		io->error = r;
-+
-+	if (atomic_dec_and_test(&io->ctx.cc_pending))
-+		kcryptd_crypt_read_done(io);
-+
-+	crypt_dec_pending(io);
-+}
-+
- static void kcryptd_crypt_read_convert(struct dm_crypt_io *io)
- {
- 	struct crypt_config *cc = io->cc;
-@@ -2009,7 +2092,16 @@ static void kcryptd_crypt_read_convert(struct dm_crypt_io *io)
- 			   io->sector);
- 
- 	r = crypt_convert(cc, &io->ctx,
--			  test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags));
-+			  test_bit(DM_CRYPT_NO_READ_WORKQUEUE, &cc->flags), true);
-+	/*
-+	 * Crypto API backlogged the request, because its queue was full
-+	 * and we're in softirq context, so continue from a workqueue
-+	 */
-+	if (r == BLK_STS_DEV_RESOURCE) {
-+		INIT_WORK(&io->work, kcryptd_crypt_read_continue);
-+		queue_work(cc->crypt_queue, &io->work);
-+		return;
-+	}
- 	if (r)
- 		io->error = r;
- 
--- 
-2.20.1
-
++			i_mmap_lock_read(mapping);
++			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 			spin_lock(ptl);
+ 			ptep = huge_pte_offset(mm, haddr, huge_page_size(h));
+ 			if (likely(ptep &&
+_
