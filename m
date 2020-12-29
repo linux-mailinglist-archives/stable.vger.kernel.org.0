@@ -2,126 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE172E6C92
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 00:45:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 206AE2E6CC0
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 01:12:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728019AbgL1XoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Dec 2020 18:44:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39252 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727731AbgL1XoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Dec 2020 18:44:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D6C522262;
-        Mon, 28 Dec 2020 23:43:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609199017;
-        bh=t77kNlBpInzvZYtgRIIy/JotvFIIX1nj7qSIgAFhZOk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SlrvRjS/QFPLpOukZniwphVeo2KyejJTky7S5tg/5lJ5YjKKVguWrw2ILyudLFyXj
-         5rQM9P9dsWtdkyA8cHomI0AWIz4GswDtAAe5gdc8X7Ot/UbCwNRPL8WUa/w/A70gR3
-         uMvjGKSlZfqI9qvnW0oCVMsmkJB5H7+bF9be8vyGf9mDbTx6VrnK9IevdM/qvrVV7u
-         YAWAC3fwHiNznzKt7PGDDDZN41r3TQSruUuPj31ehqPAnRaoL5WIQeIVY8xfTsSxxY
-         2CgwCULAumeKLbePX9gPWUMcccQ2aO2AggK1kqcOKYo0lRW8LSUDGcJifGy5dwskBj
-         bm7iCpd7JHt7A==
-Date:   Mon, 28 Dec 2020 18:43:36 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn.topel@intel.com>
-Subject: Re: [PATCH 5.10 462/717] ice, xsk: clear the status bits for the
- next_to_use descriptor
-Message-ID: <20201228234336.GK2790422@sasha-vm>
-References: <20201228125020.963311703@linuxfoundation.org>
- <20201228125043.105740628@linuxfoundation.org>
- <20201228105423.46e77460@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20201228222907.GG2790422@sasha-vm>
- <20201228145105.4eb4a14f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        id S1726308AbgL2AMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Dec 2020 19:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727527AbgL2AME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Dec 2020 19:12:04 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30ACAC0613D6;
+        Mon, 28 Dec 2020 16:11:24 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id d2so7120517pfq.5;
+        Mon, 28 Dec 2020 16:11:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:subject:to:cc:references:in-reply-to:mime-version
+         :message-id:content-transfer-encoding;
+        bh=+x0jg3kgtAnVsZSiLJVqeiqq/kBhePK5zrv50jFdLuw=;
+        b=IRcovKNGSDtnXPhGzyqD7eyJ8xFOY06mgqPAH+dIQcl1Q2qBdd1KfvZaTUAaCWSouR
+         OF7dcFcaTAAMkiQ4Hc9JLvPgOFnEetNx9BpimyxpCVgv5ifpx10XC+yZKl/JOtC2OMn5
+         M7kgyvd1BUR1+0S8aDjsWCCD6Jk6pPEHO9a3j4oayoVYcGXLLAEd/4eyc0h/83/pqHG4
+         j55aC4Z20m1D1cMPUX8l+BkAtcB7XVS5+AAW/HS7DDlCE+UJYC6/HCTjzt0dkdDs7Qql
+         j4eXnCP8ybnbZ0qK8O+2WMlivBPVkLMSTzR3m+dS3hyeR5ZLkae8RJawpTHjti7+jC68
+         zytg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
+         :mime-version:message-id:content-transfer-encoding;
+        bh=+x0jg3kgtAnVsZSiLJVqeiqq/kBhePK5zrv50jFdLuw=;
+        b=IaykZzuJpx/3kpfPLaLAwB6esqo3Sr/2x0uH3abmRagU+PQv5WF/qSDYjgRKAg/W2b
+         8Rq5iXZoW3QXTn1gOL7FPVWOtY/fUL/MGnAaTJeVJU5h+7xAhDX1wrmtaNnD5t9/2Gbi
+         YWBGsICKTpx9K8Z9W08aHM9umXLSdaFxyOJNhVcnLStBHredDmjjDhNOsI134vg0Keo9
+         eDCVlX0Rl1s/oXLQv0n4CTtGopXOadswsC/myf6pd0uERamj59rdryb65ZG7tzDsjuJb
+         DOezVaTeLuXm8O0CbPoFIsm2C8ygK9ecrCPRHBEh2g5VhH5gh3xpSe5A1helLEi6UphJ
+         KJEQ==
+X-Gm-Message-State: AOAM5336z05zchd1EinDGZDjdAHQ43SJ6KpTGpNFXIJu9SkEPSi/RaUN
+        IMsmDZr1Cx0AD71hQgysor5vZodKvkE=
+X-Google-Smtp-Source: ABdhPJziWQaDuQ55fGtxjE6fQbAeK72BPSalCM5Tcc9+bonmCukOTiRZskRtE1A/1ZjpqIusBtl70w==
+X-Received: by 2002:a62:63c5:0:b029:1a9:3a46:7d32 with SMTP id x188-20020a6263c50000b02901a93a467d32mr43109410pfb.39.1609200683417;
+        Mon, 28 Dec 2020 16:11:23 -0800 (PST)
+Received: from localhost (193-116-97-30.tpgi.com.au. [193.116.97.30])
+        by smtp.gmail.com with ESMTPSA id 92sm589278pjv.15.2020.12.28.16.11.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Dec 2020 16:11:22 -0800 (PST)
+Date:   Tue, 29 Dec 2020 10:11:16 +1000
+From:   Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+To:     Andy Lutomirski <luto@kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        x86@kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>
+References: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
+In-Reply-To: <bf59ecb5487171a852bcc8cdd553ec797aedc485.1609093476.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20201228145105.4eb4a14f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Message-Id: <1609199804.yrsu9vagzk.astroid@bobo.none>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 28, 2020 at 02:51:05PM -0800, Jakub Kicinski wrote:
->On Mon, 28 Dec 2020 17:29:07 -0500 Sasha Levin wrote:
->> On Mon, Dec 28, 2020 at 10:54:23AM -0800, Jakub Kicinski wrote:
->> >On Mon, 28 Dec 2020 13:47:40 +0100 Greg Kroah-Hartman wrote:
->> >> From: Björn Töpel <bjorn.topel@intel.com>
->> >>
->> >> [ Upstream commit 8d14768a7972b92c73259f0c9c45b969d85e3a60 ]
->> >>
->> >> On the Rx side, the next_to_use index points to the next item in the
->> >> HW ring to be refilled/allocated, and next_to_clean points to the next
->> >> item to potentially be processed.
->> >>
->> >> When the HW Rx ring is fully refilled, i.e. no packets has been
->> >> processed, the next_to_use will be next_to_clean - 1. When the ring is
->> >> fully processed next_to_clean will be equal to next_to_use. The latter
->> >> case is where a bug is triggered.
->> >>
->> >> If the next_to_use bits are not cleared, and the "fully processed"
->> >> state is entered, a stale descriptor can be processed.
->> >>
->> >> The skb-path correctly clear the status bit for the next_to_use
->> >> descriptor, but the AF_XDP zero-copy path did not do that.
->> >>
->> >> This change adds the status bits clearing of the next_to_use
->> >> descriptor.
->> >>
->> >> Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
->> >> Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
->> >> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
->> >> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> >
->> >Oh wow, so much for Sasha waiting longer for code to get tested before
->> >auto-pulling things into stable :/
->>
->> The timeline is usually for a commit to appear in a release, and it did.
->> Was it too early?
->
->Hm, I'm not sure of exact semantics but I meant a final release,
->not an -rc.
->
->Plus I thought the point of things being part of a release is that
->people actually get a chance to test that release. -rc1 was cut 24
->hours ago. I guess a "release" is used as a yardstick here, to
->measure time, not for practical reasons?
+Excerpts from Andy Lutomirski's message of December 28, 2020 4:28 am:
+> The old sync_core_before_usermode() comments said that a non-icache-synci=
+ng
+> return-to-usermode instruction is x86-specific and that all other
+> architectures automatically notice cross-modified code on return to
+> userspace.  Based on my general understanding of how CPUs work and based =
+on
+> my atttempt to read the ARM manual, this is not true at all.  In fact, x8=
+6
+> seems to be a bit of an anomaly in the other direction: x86's IRET is
+> unusually heavyweight for a return-to-usermode instruction.
 
-Note that it wasn't actually released yet, at this point folks are
-supposed to be testing 5.10.4-rc1 to make sure that those patches are
-okay.
+"sync_core_before_usermode" as I've said says nothing to arch, or to the=20
+scheduler, or to membarrier. It's badly named to start with so if=20
+renaming it it should be something else. exit_lazy_tlb() at least says
+something quite precise to scheudler and arch code that implements
+the membarrier.
 
-I still think that there are no significant users of Linus's tree, so
-the idea of having a patch "in a release" doesn't mean as much as folks
-think it does. Sure, we have a lot of folks who test -rc releases, but
-are you aware of anyone who runs -rc on real world workloads to test it?
+But I don't mind the idea of just making it x86 specific if as you say the
+arch code can detect lazy mm switches more precisely than generic and=20
+you want to do that.
 
->> >I have this change and other changes here queued, but haven't sent the
->> >submission yet.
->>
->> What do you mean with "queued"? Its in Linus's tree for about two weeks
->> now.
->
->Networking maintainers have their own queue for patches that will go to
->stable:
->
->https://patchwork.kernel.org/bundle/netdev/stable/?state=*
+> So let's drop any pretense that we can have a generic way implementation
+> behind membarrier's SYNC_CORE flush and require all architectures that op=
+t
+> in to supply their own.  This means x86, arm64, and powerpc for now.  Let=
+'s
+> also rename the function from sync_core_before_usermode() to
+> membarrier_sync_core_before_usermode() because the precise flushing detai=
+ls
+> may very well be specific to membarrier, and even the concept of
+> "sync_core" in the kernel is mostly an x86-ism.
 
-This part has always been tricky to me: some parts of net/ and
-drivers/net/ don't go through netdev, and some do. I have a filter to
-ignore net/ completely, but I found that quite a lot of drivers/net/
-wasn't covered by this process.
+The concept of "sync_core" (x86: serializing instruction, powerpc: context
+synchronizing instruction, etc) is not an x86-ism at all. x86 just wanted
+to add a serializing instruction to generic code so it grew this nasty API,
+but the concept applies broadly.
 
-How could I blacklist/ignore the parts of the tree you're looking at?
+>=20
+> I admit that I'm rather surprised that the code worked at all on arm64,
+> and I'm suspicious that it has never been very well tested.  My apologies
+> for not reviewing this more carefully in the first place.
 
-Also, is drivers/net/ stuff covered as well as net/? I found in the past
-that it's not the case when I was looking at missing patches for the
-hyper-v driver.
 
--- 
+>=20
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: x86@kernel.org
+> Cc: stable@vger.kernel.org
+> Fixes: 70216e18e519 ("membarrier: Provide core serializing command, *_SYN=
+C_CORE")
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> ---
+>=20
+> Hi arm64 and powerpc people-
+>=20
+> This is part of a series here:
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/luto/linux.git/log/?h=3Dx=
+86/fixes
+>=20
+> Before I send out the whole series, I'm hoping that some arm64 and powerp=
+c
+> people can help me verify that I did this patch right.  Once I get
+> some feedback on this patch, I'll send out the whole pile.  And once
+> *that's* done, I'll start giving the mm lazy stuff some serious thought.
+>=20
+> The x86 part is already fixed in Linus' tree.
+>=20
+> Thanks,
+> Andy
+>=20
+>  arch/arm64/include/asm/sync_core.h   | 21 +++++++++++++++++++++
+>  arch/powerpc/include/asm/sync_core.h | 20 ++++++++++++++++++++
+>  arch/x86/Kconfig                     |  1 -
+>  arch/x86/include/asm/sync_core.h     |  7 +++----
+>  include/linux/sched/mm.h             |  1 -
+>  include/linux/sync_core.h            | 21 ---------------------
+>  init/Kconfig                         |  3 ---
+>  kernel/sched/membarrier.c            | 15 +++++++++++----
+>  8 files changed, 55 insertions(+), 34 deletions(-)
+>  create mode 100644 arch/arm64/include/asm/sync_core.h
+>  create mode 100644 arch/powerpc/include/asm/sync_core.h
+>  delete mode 100644 include/linux/sync_core.h
+>=20
+> diff --git a/arch/arm64/include/asm/sync_core.h b/arch/arm64/include/asm/=
+sync_core.h
+> new file mode 100644
+> index 000000000000..5be4531caabd
+> --- /dev/null
+> +++ b/arch/arm64/include/asm/sync_core.h
+> @@ -0,0 +1,21 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_ARM64_SYNC_CORE_H
+> +#define _ASM_ARM64_SYNC_CORE_H
+> +
+> +#include <asm/barrier.h>
+> +
+> +/*
+> + * Ensure that the CPU notices any instruction changes before the next t=
+ime
+> + * it returns to usermode.
+> + */
+> +static inline void membarrier_sync_core_before_usermode(void)
+> +{
+> +	/*
+> +	 * XXX: is this enough or do we need a DMB first to make sure that
+> +	 * writes from other CPUs become visible to this CPU?  We have an
+> +	 * smp_mb() already, but that's not quite the same thing.
+> +	 */
+> +	isb();
+> +}
+> +
+> +#endif /* _ASM_ARM64_SYNC_CORE_H */
+> diff --git a/arch/powerpc/include/asm/sync_core.h b/arch/powerpc/include/=
+asm/sync_core.h
+> new file mode 100644
+> index 000000000000..71dfbe7794e5
+> --- /dev/null
+> +++ b/arch/powerpc/include/asm/sync_core.h
+> @@ -0,0 +1,20 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _ASM_POWERPC_SYNC_CORE_H
+> +#define _ASM_POWERPC_SYNC_CORE_H
+> +
+> +#include <asm/barrier.h>
+> +
+> +/*
+> + * Ensure that the CPU notices any instruction changes before the next t=
+ime
+> + * it returns to usermode.
+> + */
+> +static inline void membarrier_sync_core_before_usermode(void)
+> +{
+> +	/*
+> +	 * XXX: I know basically nothing about powerpc cache management.
+> +	 * Is this correct?
+> +	 */
+> +	isync();
+
+This is not about memory ordering or cache management, it's about=20
+pipeline management. Powerpc's return to user mode serializes the
+CPU (aka the hardware thread, _not_ the core; another wrongness of
+the name, but AFAIKS the HW thread is what is required for
+membarrier). So this is wrong, powerpc needs nothing here.
+
 Thanks,
-Sasha
+Nick
+
