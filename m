@@ -2,148 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D71EF2E7340
-	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 20:45:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DB02E735E
+	for <lists+stable@lfdr.de>; Tue, 29 Dec 2020 21:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726240AbgL2TnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 14:43:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S1726197AbgL2UQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Dec 2020 15:16:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726185AbgL2TnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 14:43:24 -0500
-Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF430C0613D6
-        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 11:42:43 -0800 (PST)
-Received: by mail-il1-x12a.google.com with SMTP id n9so13070793ili.0
-        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 11:42:43 -0800 (PST)
+        with ESMTP id S1726178AbgL2UQO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 15:16:14 -0500
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83B9C0613D6
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 12:15:34 -0800 (PST)
+Received: by mail-ot1-x336.google.com with SMTP id j20so12889748otq.5
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 12:15:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=basnieuwenhuizen.nl; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Oekv1J5QG7HQ3jpbahBJYVPd5uN5IoF/8wAYXXEPdeY=;
-        b=CA5qAg67Nub4Grsajvru4ROzGio57N4pcnmkQtFTyXsMiUXWKIWxKpPs1d9O3wLv3l
-         WjzzPnSKAMWF1w06/8YA2KfhhgOn1k4gAoZWpa7GIdB/9++2cdXjs7tAeBWySlsX8uYR
-         yNPlKs0f9DGDABxVTPD2t633C7tHnloPNgQoFvUBqty43qLmWHoL45kF8jVSyOTYeiSB
-         VSaJtXwxgoOEf9dJtoP+5szcRjPrM8sEMUH9jpB00mGEGq3XMTAl7odRhTHrq9bLPXny
-         IWJvYFrIC7ni+hNT6TuU3SUHO2MpTZny0vttTvgDrTUOi8r7FxcXUcwDKhjRjXPzHml5
-         o6pw==
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ljLGN++nr9P9/bQ/nEsRNU9kLfyULM9FGdJ8j8vmjz4=;
+        b=nyOQgQgtyM/NmkH1slyWIpS1mI1dss6DdNq28TcVD3M7gPRaN93rOkiO3omRB992Ez
+         gXhHZ3pgZ9J4bs2u9LJ+JSuWzmeh3b9Zc1LdsZt3/+5+RHLQ0A8OCInG8rUQ/yYFeh16
+         llsulkGWEa2AzLeVquE8VSa6wAqq6xvegC9bVyh8C0DdgZmfzzB6YVQEIPmVL4gXnGLg
+         wgahq0Ib0mXmnzSFTNUVh15DCcgygACP/SAz6Jd/i2jw2DjSOpPMcdp6fysDLDrJ7nBR
+         en4QvgMx8AqEIVmwEbyNcl8ROlZ2jcpuFInwORUFSjMkn5jgzuWYfP/PyQbhIECLoiMS
+         FRBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Oekv1J5QG7HQ3jpbahBJYVPd5uN5IoF/8wAYXXEPdeY=;
-        b=lJ68iwBah/PmV3dX8lUox94DnVXNwzHs5gg719ghQ3r79WNtFGMIk6rMVri5jD/Exn
-         MFqEe3WEc/gtz77feqRVsw32VozdZx/0O5676LBPBb4hXAI/UDylhr9GVwmyFphPB/t/
-         yKkc2+kT9LhEJZEkOat5HZdD8pX7op63hecPZMeu+UAuD/vEPrVp+fJ394I1MY1g3fdq
-         m+IxURu1HpctHb1Ei4od8PRftkh0+7U+wk5Q6LUP2MLK41QYPktL33cY9W3aKvL0G+Zv
-         ndfv6uoBV3zquXUoMEbGhOR+ewW3AJfQZJWaFXSMMnZdOYQu6cpOfKNMt/aPkntyB3QK
-         tJEg==
-X-Gm-Message-State: AOAM533MQAtyCkk2u9Qumg0GToQ1aagWnPQBObEyFJPQ2W/o/yLARza2
-        C6rV6sJynLIcp3XmqI2aKRf2M49dVGkmmFuJ/E5+ug==
-X-Google-Smtp-Source: ABdhPJwWKk7L64dGy4mygYGkE3P97A14wHEdlYb5ivlJ8kyjewfcZc4ukTADMzFr5n6PwHgYQVbJUhcIylAumw3zc6s=
-X-Received: by 2002:a05:6e02:ca5:: with SMTP id 5mr48244379ilg.40.1609270962974;
- Tue, 29 Dec 2020 11:42:42 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ljLGN++nr9P9/bQ/nEsRNU9kLfyULM9FGdJ8j8vmjz4=;
+        b=ShJgC7U2fRn4ws4UU8OR4DLmcyHICbUFrBHX/YmEEl1MIXPFkUmqNTqoVB+bcJyhQc
+         qCeEETKI/ukXzl6nurtodV+XJnBP5+oUBBOVc09vCw118QlyvS4tWBekIOOTIC5eQzzA
+         NzbQ8+uP5GA57iPK0oYTxPKf3bzdui6xandMgbLf6Ni8TxMN9GZjpk2MCld94FS7eYpq
+         KOtAZOm5vpTm1Jaa+Hc7D0Tq15sXNBc8Be7VcqqeFt6XAIv+ohpcPAF+3hkMo28kknJ2
+         jsLv99klnDzLAmaCNvWDFFifsQxs2spOCALbFDAM+qotB1fEaH/a14ltbciiUBg0v5M/
+         vxww==
+X-Gm-Message-State: AOAM532fEJu3Q61THKp2ejs+F8px3l1vJtEprFHYPXNmIkwSYuRc6eKK
+        cWF6xq5qavgJx+hZGuR/tOX3Lg==
+X-Google-Smtp-Source: ABdhPJwwf5g2IRHJdyVgYBWU+m4p9dkM1+VgwSurV65XB/sbHSiNS6DfmuKG8dLyZcFQsopeKk/pJg==
+X-Received: by 2002:a9d:6185:: with SMTP id g5mr36614241otk.273.1609272933921;
+        Tue, 29 Dec 2020 12:15:33 -0800 (PST)
+Received: from [192.168.17.50] (CableLink-189-219-75-19.Hosts.InterCable.net. [189.219.75.19])
+        by smtp.gmail.com with ESMTPSA id e12sm10137695otp.25.2020.12.29.12.15.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 29 Dec 2020 12:15:33 -0800 (PST)
+Subject: Re: [PATCH 5.10 000/716] 5.10.4-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+References: <20201229103832.108495696@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <923e3123-7247-f8e5-8bbb-67f5e43c3b7d@linaro.org>
+Date:   Tue, 29 Dec 2020 14:15:32 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20201228125020.963311703@linuxfoundation.org> <20201228125051.345050198@linuxfoundation.org>
-In-Reply-To: <20201228125051.345050198@linuxfoundation.org>
-From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Date:   Tue, 29 Dec 2020 20:42:50 +0100
-Message-ID: <CAP+8YyF+SeTpMDc_c4tFpBmmabwFJLymW7CByZwoYZD8UXGVVQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 635/717] drm/amd/display: Honor the offset for plane 0.
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20201229103832.108495696@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hello!
 
-Someone bisected a non-booting computer with 5.10.4-rc1 to this
-commit. Would it be possible to back out of backporting this commit
-(was backported to 5.4 and 5.10)? I suspect we may need
-53f4cb8b5580a20d01449a7d8e1cbfdaed9ff6b6 to be picked too to avoid
-regressing, but I'm not sure about process (e.g. timeline to confirm
-things) here and a not booting computer is really bad.
+On 12/29/20 4:52 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.4 release.
+> There are 716 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 31 Dec 2020 10:36:33 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.4-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Thanks,
-Bas
+Results from Linaro’s test farm.
+No regressions detected.
 
-On Mon, Dec 28, 2020 at 3:28 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
->
-> commit be7b9b327e79cd2db07b659af599867b629b2f66 upstream.
->
-> With modifiers I'd like to support non-dedicated buffers for
-> images.
->
-> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-> Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-> Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-> Cc: stable@vger.kernel.org # 5.1.0
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> ---
->  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
->
-> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> @@ -3746,6 +3746,7 @@ fill_plane_dcc_attributes(struct amdgpu_
->         struct dc *dc = adev->dm.dc;
->         struct dc_dcc_surface_param input;
->         struct dc_surface_dcc_cap output;
-> +       uint64_t plane_address = afb->address + afb->base.offsets[0];
->         uint32_t offset = AMDGPU_TILING_GET(info, DCC_OFFSET_256B);
->         uint32_t i64b = AMDGPU_TILING_GET(info, DCC_INDEPENDENT_64B) != 0;
->         uint64_t dcc_address;
-> @@ -3789,7 +3790,7 @@ fill_plane_dcc_attributes(struct amdgpu_
->                 AMDGPU_TILING_GET(info, DCC_PITCH_MAX) + 1;
->         dcc->independent_64b_blks = i64b;
->
-> -       dcc_address = get_dcc_address(afb->address, info);
-> +       dcc_address = get_dcc_address(plane_address, info);
->         address->grph.meta_addr.low_part = lower_32_bits(dcc_address);
->         address->grph.meta_addr.high_part = upper_32_bits(dcc_address);
->
-> @@ -3820,6 +3821,8 @@ fill_plane_buffer_attributes(struct amdg
->         address->tmz_surface = tmz_surface;
->
->         if (format < SURFACE_PIXEL_FORMAT_VIDEO_BEGIN) {
-> +               uint64_t addr = afb->address + fb->offsets[0];
-> +
->                 plane_size->surface_size.x = 0;
->                 plane_size->surface_size.y = 0;
->                 plane_size->surface_size.width = fb->width;
-> @@ -3828,9 +3831,10 @@ fill_plane_buffer_attributes(struct amdg
->                         fb->pitches[0] / fb->format->cpp[0];
->
->                 address->type = PLN_ADDR_TYPE_GRAPHICS;
-> -               address->grph.addr.low_part = lower_32_bits(afb->address);
-> -               address->grph.addr.high_part = upper_32_bits(afb->address);
-> +               address->grph.addr.low_part = lower_32_bits(addr);
-> +               address->grph.addr.high_part = upper_32_bits(addr);
->         } else if (format < SURFACE_PIXEL_FORMAT_INVALID) {
-> +               uint64_t luma_addr = afb->address + fb->offsets[0];
->                 uint64_t chroma_addr = afb->address + fb->offsets[1];
->
->                 plane_size->surface_size.x = 0;
-> @@ -3851,9 +3855,9 @@ fill_plane_buffer_attributes(struct amdg
->
->                 address->type = PLN_ADDR_TYPE_VIDEO_PROGRESSIVE;
->                 address->video_progressive.luma_addr.low_part =
-> -                       lower_32_bits(afb->address);
-> +                       lower_32_bits(luma_addr);
->                 address->video_progressive.luma_addr.high_part =
-> -                       upper_32_bits(afb->address);
-> +                       upper_32_bits(luma_addr);
->                 address->video_progressive.chroma_addr.low_part =
->                         lower_32_bits(chroma_addr);
->                 address->video_progressive.chroma_addr.high_part =
->
->
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.10.4-rc2
+git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
+git branch: linux-5.10.y
+git commit: 5069132d06b7c5d706b4ef9147aba5f6de422a9b
+git describe: v5.10.3-717-g5069132d06b7
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.3-717-g5069132d06b7
+
+No regressions (compared to build v5.10.3)
+
+No fixes (compared to build v5.10.3)
+
+Ran 53358 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* fwts
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fs-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* rcutorture
+* v4l2-compliance
+
+
+Happy new year, greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
