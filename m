@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2F52E796E
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D492E7965
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727530AbgL3NJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:09:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53386 "EHLO mail.kernel.org"
+        id S1727156AbgL3NI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:08:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727363AbgL3NFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727360AbgL3NFN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C972253D;
-        Wed, 30 Dec 2020 13:04:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D779522525;
+        Wed, 30 Dec 2020 13:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333453;
-        bh=hKRn4ED/TiLHl/kgb1eYLrZm8YBG7cvDrbp+MRtWJdg=;
+        s=k20201202; t=1609333454;
+        bh=WYb2duQZGWjW6kkmZ84OmBHeYyl/2vXnfQl+M/s2Ksw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfFmmr2a8oNaADQ4BDU0BHSCkQMzdj3s0Al8FpLExzv+Uggz/0Aldy0RYaHEAvZ0j
-         3zf8V7XcRSTPF+fcvuWWlHjW2Q/PlVwT47xJTAm7kTgsg+VGiZSZZNQ3k0VhNW8s1w
-         dVt1JhLJNGaPdopS2SOY/wC+JxbwNtlFAhmTuPUefuYN7qH73fGQ56z8Qc0omkYoel
-         zUGTTtL+56y3Yoe8LLDxFnwORWd5vkMEdXCCqCoSRcoT2AqwbpZWjrv974mBzlLNWg
-         kMyowmIOXn8eKjMYtsOs52SVJ9dWDtocm9ABb7IjCJZ0PeifEVLfh7Ive4bdS21k7J
-         zeASSMJILcVHA==
+        b=MXmcl1wmdlaGqrz1tPVEkKNMHrtDueCEHTgTwDXqDaYROR+uvaJ6pMRyEP94yDQXX
+         dCTRRAsYu4Ez9SY025TFhGR5GqHQFYWGgbUkxmEago5HPyYdR4ATO5wbV++eZorQs8
+         h3VMiqgBkP/7PDSOLNw9fYlZSq7BXxAo++8Yp3mdXC1ltu4w9F4O+ENfoQTFdocpXr
+         EuvH5fqX9FSW6jbUSJvt6Feb0hCId6G+EIQkbip+lzUQWCUZJeq7brCkkl0bM8YkvS
+         gGP5vGG5nfI9KBHwP8KQ6xYdoGNFPqFxG0fHrtWExFAlgz6JgeLQLLlnup31EwjBHL
+         oO1MCyP4wAFCA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jessica Yu <jeyu@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 11/17] module: delay kobject uevent until after module init call
-Date:   Wed, 30 Dec 2020 08:03:51 -0500
-Message-Id: <20201230130357.3637261-11-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>,
+        syzbot+ca9a785f8ac472085994@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 12/17] f2fs: fix shift-out-of-bounds in sanity_check_raw_super()
+Date:   Wed, 30 Dec 2020 08:03:52 -0500
+Message-Id: <20201230130357.3637261-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
 References: <20201230130357.3637261-1-sashal@kernel.org>
@@ -43,70 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
+[ Upstream commit e584bbe821229a3e7cc409eecd51df66f9268c21 ]
 
-Apparently there has been a longstanding race between udev/systemd and
-the module loader. Currently, the module loader sends a uevent right
-after sysfs initialization, but before the module calls its init
-function. However, some udev rules expect that the module has
-initialized already upon receiving the uevent.
+syzbot reported a bug which could cause shift-out-of-bounds issue,
+fix it.
 
-This race has been triggered recently (see link in references) in some
-systemd mount unit files. For instance, the configfs module creates the
-/sys/kernel/config mount point in its init function, however the module
-loader issues the uevent before this happens. sys-kernel-config.mount
-expects to be able to mount /sys/kernel/config upon receipt of the
-module loading uevent, but if the configfs module has not called its
-init function yet, then this directory will not exist and the mount unit
-fails. A similar situation exists for sys-fs-fuse-connections.mount, as
-the fuse sysfs mount point is created during the fuse module's init
-function. If udev is faster than module initialization then the mount
-unit would fail in a similar fashion.
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
+ sanity_check_raw_super fs/f2fs/super.c:2812 [inline]
+ read_raw_super_block fs/f2fs/super.c:3267 [inline]
+ f2fs_fill_super.cold+0x16c9/0x16f6 fs/f2fs/super.c:3519
+ mount_bdev+0x34d/0x410 fs/super.c:1366
+ legacy_get_tree+0x105/0x220 fs/fs_context.c:592
+ vfs_get_tree+0x89/0x2f0 fs/super.c:1496
+ do_new_mount fs/namespace.c:2896 [inline]
+ path_mount+0x12ae/0x1e70 fs/namespace.c:3227
+ do_mount fs/namespace.c:3240 [inline]
+ __do_sys_mount fs/namespace.c:3448 [inline]
+ __se_sys_mount fs/namespace.c:3425 [inline]
+ __x64_sys_mount+0x27f/0x300 fs/namespace.c:3425
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-To fix this race, delay the module KOBJ_ADD uevent until after the
-module has finished calling its init routine.
-
-References: https://github.com/systemd/systemd/issues/17586
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Reported-by: syzbot+ca9a785f8ac472085994@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/f2fs/super.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 806a7196754a7..9e9af40698ffe 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1863,7 +1863,6 @@ static int mod_sysfs_init(struct module *mod)
- 	if (err)
- 		mod_kobject_put(mod);
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index fa461db696e79..a9a083232bcfc 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2523,7 +2523,6 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 	block_t total_sections, blocks_per_seg;
+ 	struct f2fs_super_block *raw_super = (struct f2fs_super_block *)
+ 					(bh->b_data + F2FS_SUPER_OFFSET);
+-	unsigned int blocksize;
+ 	size_t crc_offset = 0;
+ 	__u32 crc = 0;
  
--	/* delay uevent until full sysfs population */
- out:
- 	return err;
- }
-@@ -1900,7 +1899,6 @@ static int mod_sysfs_setup(struct module *mod,
- 	add_sect_attrs(mod, info);
- 	add_notes_attrs(mod, info);
+@@ -2557,10 +2556,10 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 	}
  
--	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
- 	return 0;
+ 	/* Currently, support only 4KB block size */
+-	blocksize = 1 << le32_to_cpu(raw_super->log_blocksize);
+-	if (blocksize != F2FS_BLKSIZE) {
+-		f2fs_info(sbi, "Invalid blocksize (%u), supports only 4KB",
+-			  blocksize);
++	if (le32_to_cpu(raw_super->log_blocksize) != F2FS_BLKSIZE_BITS) {
++		f2fs_info(sbi, "Invalid log_blocksize (%u), supports only %u",
++			  le32_to_cpu(raw_super->log_blocksize),
++			  F2FS_BLKSIZE_BITS);
+ 		return -EFSCORRUPTED;
+ 	}
  
- out_unreg_modinfo_attrs:
-@@ -3608,6 +3606,9 @@ static noinline int do_init_module(struct module *mod)
- 	blocking_notifier_call_chain(&module_notify_list,
- 				     MODULE_STATE_LIVE, mod);
- 
-+	/* Delay uevent until module has finished its init routine */
-+	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
-+
- 	/*
- 	 * We need to finish all async code before the module init sequence
- 	 * is done.  This has potential to deadlock.  For example, a newly
 -- 
 2.27.0
 
