@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DD12E7953
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D232E7936
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727232AbgL3NE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:04:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+        id S1727423AbgL3NF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:05:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727217AbgL3NE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B214224F4;
-        Wed, 30 Dec 2020 13:03:52 +0000 (UTC)
+        id S1727414AbgL3NFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:05:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1F02224DF;
+        Wed, 30 Dec 2020 13:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333433;
-        bh=KWk5pWbTEHZ6TTGGZbFPEBpBo6ewhVXlMbkXg2F/BRQ=;
+        s=k20201202; t=1609333434;
+        bh=I16to6iu+1TDHyS0PAeAkx90hzR16tyVAzOrcwTgfac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdcS4yMZgEAsq+eYaaXm6EKfDxJMjR1RVm/Y5QScZpQqLHsRyyMyFyE4NzLMi7e6M
-         JYA3pwhOSm5MXNz3YYGZ7//LOGQU4wwW1fI0rr4RbT1RwWK45N3SegiIlcFmYyQSuL
-         CxqYJCaIflmX0tSGI97p4ovtL9cYRG4+pEO1EPT6RL3sGOcuObbvapI6jeKFw7YDUW
-         J4vhsAfpT0jTfLJB5EDq5sfc64+V7F87/EM4g8xY5qvTOq6eJpNBDgQ7RkBaRdKoV9
-         6mu6jEb3i1x17Jk/NaaI+SIyZS0tqPA18MiOHryn8wnFyUDYzhmNELxCpMqqNXaBLB
-         BJicUOQyMV2nA==
+        b=LM5KD454lzwMqAng5Rt4bGhAFxyY4JL3EXth4P8QmvNeBYST4FfHUZRy2sVPQ8dSV
+         ewHGhBgiDJKGpugYkKN3YS8UK0T0CZXM9AkkfVewhXJtGxMIUVN8BzAs/aihc74RHP
+         aqGyRmOXU5z/s7IMmliLRWBfE4HCAE8HyopjnDZtATSD+fON+vqv7Sj5YFR+B/kM3J
+         yDbSUsqJmqK4GkpaRJEKPYQr0blQDf5uF2oVYVeGUegRV/Jl3c6XfQ0u+nhrwTIvnH
+         RsqiaeYMBFKgvdfH0Ibkp+q5apt0O/ZLD6FF773KZkUlWDBdGAU1CrD6vlv8d0sHCr
+         4GbMhVEMl4k9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyeongseok Kim <hyeongseok@gmail.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.10 29/31] dm verity: skip verity work if I/O error when system is shutting down
-Date:   Wed, 30 Dec 2020 08:03:11 -0500
-Message-Id: <20201230130314.3636961-29-sashal@kernel.org>
+Cc:     Chunguang Xu <brookxu@tencent.com>,
+        Tosk Robot <tencent_os_robot@tencent.com>,
+        Samuel Liao <samuelliao@tencent.com>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 30/31] ext4: avoid s_mb_prefetch to be zero in individual scenarios
+Date:   Wed, 30 Dec 2020 08:03:12 -0500
+Message-Id: <20201230130314.3636961-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -43,57 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyeongseok Kim <hyeongseok@gmail.com>
+From: Chunguang Xu <brookxu@tencent.com>
 
-[ Upstream commit 252bd1256396cebc6fc3526127fdb0b317601318 ]
+[ Upstream commit 82ef1370b0c1757ab4ce29f34c52b4e93839b0aa ]
 
-If emergency system shutdown is called, like by thermal shutdown,
-a dm device could be alive when the block device couldn't process
-I/O requests anymore. In this state, the handling of I/O errors
-by new dm I/O requests or by those already in-flight can lead to
-a verity corruption state, which is a misjudgment.
+Commit cfd732377221 ("ext4: add prefetching for block allocation
+bitmaps") introduced block bitmap prefetch, and expects to read block
+bitmaps of flex_bg through an IO.  However, it seems to ignore the
+value range of s_log_groups_per_flex.  In the scenario where the value
+of s_log_groups_per_flex is greater than 27, s_mb_prefetch or
+s_mb_prefetch_limit will overflow, cause a divide zero exception.
 
-So, skip verity work in response to I/O error when system is shutting
-down.
+In addition, the logic of calculating nr is also flawed, because the
+size of flexbg is fixed during a single mount, but s_mb_prefetch can
+be modified, which causes nr to fail to meet the value condition of
+[1, flexbg_size].
 
-Signed-off-by: Hyeongseok Kim <hyeongseok@gmail.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+To solve this problem, we need to set the upper limit of
+s_mb_prefetch.  Since we expect to load block bitmaps of a flex_bg
+through an IO, we can consider determining a reasonable upper limit
+among the IO limit parameters.  After consideration, we chose
+BLK_MAX_SEGMENT_SIZE.  This is a good choice to solve divide zero
+problem and avoiding performance degradation.
+
+[ Some minor code simplifications to make the changes easy to follow -- TYT ]
+
+Reported-by: Tosk Robot <tencent_os_robot@tencent.com>
+Signed-off-by: Chunguang Xu <brookxu@tencent.com>
+Reviewed-by: Samuel Liao <samuelliao@tencent.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/1607051143-24508-1-git-send-email-brookxu@tencent.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-verity-target.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/ext4/mballoc.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
-index f74982dcbea0d..6b8e5bdd8526d 100644
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -537,6 +537,15 @@ static int verity_verify_io(struct dm_verity_io *io)
- 	return 0;
- }
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 24af9ed5c3e52..ca57c6bfee224 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -2395,9 +2395,9 @@ ext4_mb_regular_allocator(struct ext4_allocation_context *ac)
  
-+/*
-+ * Skip verity work in response to I/O error when system is shutting down.
-+ */
-+static inline bool verity_is_system_shutting_down(void)
-+{
-+	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
-+		|| system_state == SYSTEM_RESTART;
-+}
-+
- /*
-  * End one "io" structure with a given error.
-  */
-@@ -564,7 +573,8 @@ static void verity_end_io(struct bio *bio)
- {
- 	struct dm_verity_io *io = bio->bi_private;
+ 				nr = sbi->s_mb_prefetch;
+ 				if (ext4_has_feature_flex_bg(sb)) {
+-					nr = (group / sbi->s_mb_prefetch) *
+-						sbi->s_mb_prefetch;
+-					nr = nr + sbi->s_mb_prefetch - group;
++					nr = 1 << sbi->s_log_groups_per_flex;
++					nr -= group & (nr - 1);
++					nr = min(nr, sbi->s_mb_prefetch);
+ 				}
+ 				prefetch_grp = ext4_mb_prefetch(sb, group,
+ 							nr, &prefetch_ios);
+@@ -2733,7 +2733,8 @@ static int ext4_mb_init_backend(struct super_block *sb)
  
--	if (bio->bi_status && !verity_fec_is_enabled(io->v)) {
-+	if (bio->bi_status &&
-+	    (!verity_fec_is_enabled(io->v) || verity_is_system_shutting_down())) {
- 		verity_finish_io(io, bio->bi_status);
- 		return;
- 	}
+ 	if (ext4_has_feature_flex_bg(sb)) {
+ 		/* a single flex group is supposed to be read by a single IO */
+-		sbi->s_mb_prefetch = 1 << sbi->s_es->s_log_groups_per_flex;
++		sbi->s_mb_prefetch = min(1 << sbi->s_es->s_log_groups_per_flex,
++			BLK_MAX_SEGMENT_SIZE >> (sb->s_blocksize_bits - 9));
+ 		sbi->s_mb_prefetch *= 8; /* 8 prefetch IOs in flight at most */
+ 	} else {
+ 		sbi->s_mb_prefetch = 32;
 -- 
 2.27.0
 
