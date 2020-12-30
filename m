@@ -2,301 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B0A2E79EC
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 15:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C0A2E7A0C
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 15:49:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726168AbgL3OT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 09:19:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51816 "EHLO
+        id S1726305AbgL3Otm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 09:49:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725814AbgL3OT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 09:19:26 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7C8C061799
-        for <stable@vger.kernel.org>; Wed, 30 Dec 2020 06:18:45 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=[IPv6:::1])
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <a.fatoum@pengutronix.de>)
-        id 1kucIt-0005xZ-9o; Wed, 30 Dec 2020 15:18:19 +0100
-Subject: Re: [PATCH AUTOSEL 5.10 01/31] ARM: 9014/2: Replace string mem*
- functions for KASan
+        with ESMTP id S1725853AbgL3Otl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 09:49:41 -0500
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 758A8C061799;
+        Wed, 30 Dec 2020 06:49:01 -0800 (PST)
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1kucmY-001hOo-30; Wed, 30 Dec 2020 15:48:58 +0100
+Message-ID: <d17899cc72a31f12da166de6223338b844ee2428.camel@sipsolutions.net>
+Subject: Re: [PATCH AUTOSEL 5.10 20/31] um: allocate a guard page to helper
+ threads
+From:   Johannes Berg <johannes@sipsolutions.net>
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>,
-        Abbott Liu <liuwenliang@huawei.com>,
-        linux-arm-kernel@lists.infradead.org
+Cc:     Richard Weinberger <richard@nod.at>, linux-um@lists.infradead.org
+Date:   Wed, 30 Dec 2020 15:48:57 +0100
+In-Reply-To: <20201230130314.3636961-20-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-Message-ID: <25b25571-41d6-9482-4c65-09fe88b200d5@pengutronix.de>
-Date:   Wed, 30 Dec 2020 15:18:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.1
+         <20201230130314.3636961-20-sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: a.fatoum@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+X-malware-bazaar: not-scanned
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Sasha,
+On Wed, 2020-12-30 at 08:03 -0500, Sasha Levin wrote:
+> 
+> We've been running into stack overflows in helper threads
+> corrupting memory
 
-On 30.12.20 14:02, Sasha Levin wrote:
-> From: Linus Walleij <linus.walleij@linaro.org>
-> 
-> [ Upstream commit d6d51a96c7d63b7450860a3037f2d62388286a52 ]
-> 
-> Functions like memset()/memmove()/memcpy() do a lot of memory
-> accesses.
-> 
-> If a bad pointer is passed to one of these functions it is important
-> to catch this. Compiler instrumentation cannot do this since these
-> functions are written in assembly.
-> 
-> KASan replaces these memory functions with instrumented variants.
+For the record, that was mostly referring to "while development", so
+while this change makes a few things a bit safer, I don't think there's
+all that much point in backporting to stable; presumably things are
+working OK there for people, and developers will (hopefully) be working
+on mainline anyway.
 
-Unless someone actually wants this, I suggest dropping it.
+johannes
 
-It's a prerequisite patch for KASan support on ARM32, which is new in
-v5.11-rc1. Backporting it on its own doesn't add any value IMO.
-
-Cheers
-Ahmad
-
-> 
-> The original functions are declared as weak symbols so that
-> the strong definitions in mm/kasan/kasan.c can replace them.
-> 
-> The original functions have aliases with a '__' prefix in their
-> name, so we can call the non-instrumented variant if needed.
-> 
-> We must use __memcpy()/__memset() in place of memcpy()/memset()
-> when we copy .data to RAM and when we clear .bss, because
-> kasan_early_init cannot be called before the initialization of
-> .data and .bss.
-> 
-> For the kernel compression and EFI libstub's custom string
-> libraries we need a special quirk: even if these are built
-> without KASan enabled, they rely on the global headers for their
-> custom string libraries, which means that e.g. memcpy()
-> will be defined to __memcpy() and we get link failures.
-> Since these implementations are written i C rather than
-> assembly we use e.g. __alias(memcpy) to redirected any
-> users back to the local implementation.
-> 
-> Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> Cc: Alexander Potapenko <glider@google.com>
-> Cc: Dmitry Vyukov <dvyukov@google.com>
-> Cc: kasan-dev@googlegroups.com
-> Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-> Tested-by: Ard Biesheuvel <ardb@kernel.org> # QEMU/KVM/mach-virt/LPAE/8G
-> Tested-by: Florian Fainelli <f.fainelli@gmail.com> # Brahma SoCs
-> Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # i.MX6Q
-> Reported-by: Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>
-> Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-> Signed-off-by: Abbott Liu <liuwenliang@huawei.com>
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/arm/boot/compressed/string.c | 19 +++++++++++++++++++
->  arch/arm/include/asm/string.h     | 26 ++++++++++++++++++++++++++
->  arch/arm/kernel/head-common.S     |  4 ++--
->  arch/arm/lib/memcpy.S             |  3 +++
->  arch/arm/lib/memmove.S            |  5 ++++-
->  arch/arm/lib/memset.S             |  3 +++
->  6 files changed, 57 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/arm/boot/compressed/string.c b/arch/arm/boot/compressed/string.c
-> index ade5079bebbf9..8c0fa276d9946 100644
-> --- a/arch/arm/boot/compressed/string.c
-> +++ b/arch/arm/boot/compressed/string.c
-> @@ -7,6 +7,25 @@
->  
->  #include <linux/string.h>
->  
-> +/*
-> + * The decompressor is built without KASan but uses the same redirects as the
-> + * rest of the kernel when CONFIG_KASAN is enabled, defining e.g. memcpy()
-> + * to __memcpy() but since we are not linking with the main kernel string
-> + * library in the decompressor, that will lead to link failures.
-> + *
-> + * Undefine KASan's versions, define the wrapped functions and alias them to
-> + * the right names so that when e.g. __memcpy() appear in the code, it will
-> + * still be linked to this local version of memcpy().
-> + */
-> +#ifdef CONFIG_KASAN
-> +#undef memcpy
-> +#undef memmove
-> +#undef memset
-> +void *__memcpy(void *__dest, __const void *__src, size_t __n) __alias(memcpy);
-> +void *__memmove(void *__dest, __const void *__src, size_t count) __alias(memmove);
-> +void *__memset(void *s, int c, size_t count) __alias(memset);
-> +#endif
-> +
->  void *memcpy(void *__dest, __const void *__src, size_t __n)
->  {
->  	int i = 0;
-> diff --git a/arch/arm/include/asm/string.h b/arch/arm/include/asm/string.h
-> index 111a1d8a41ddf..6c607c68f3ad7 100644
-> --- a/arch/arm/include/asm/string.h
-> +++ b/arch/arm/include/asm/string.h
-> @@ -5,6 +5,9 @@
->  /*
->   * We don't do inline string functions, since the
->   * optimised inline asm versions are not small.
-> + *
-> + * The __underscore versions of some functions are for KASan to be able
-> + * to replace them with instrumented versions.
->   */
->  
->  #define __HAVE_ARCH_STRRCHR
-> @@ -15,15 +18,18 @@ extern char * strchr(const char * s, int c);
->  
->  #define __HAVE_ARCH_MEMCPY
->  extern void * memcpy(void *, const void *, __kernel_size_t);
-> +extern void *__memcpy(void *dest, const void *src, __kernel_size_t n);
->  
->  #define __HAVE_ARCH_MEMMOVE
->  extern void * memmove(void *, const void *, __kernel_size_t);
-> +extern void *__memmove(void *dest, const void *src, __kernel_size_t n);
->  
->  #define __HAVE_ARCH_MEMCHR
->  extern void * memchr(const void *, int, __kernel_size_t);
->  
->  #define __HAVE_ARCH_MEMSET
->  extern void * memset(void *, int, __kernel_size_t);
-> +extern void *__memset(void *s, int c, __kernel_size_t n);
->  
->  #define __HAVE_ARCH_MEMSET32
->  extern void *__memset32(uint32_t *, uint32_t v, __kernel_size_t);
-> @@ -39,4 +45,24 @@ static inline void *memset64(uint64_t *p, uint64_t v, __kernel_size_t n)
->  	return __memset64(p, v, n * 8, v >> 32);
->  }
->  
-> +/*
-> + * For files that are not instrumented (e.g. mm/slub.c) we
-> + * must use non-instrumented versions of the mem*
-> + * functions named __memcpy() etc. All such kernel code has
-> + * been tagged with KASAN_SANITIZE_file.o = n, which means
-> + * that the address sanitization argument isn't passed to the
-> + * compiler, and __SANITIZE_ADDRESS__ is not set. As a result
-> + * these defines kick in.
-> + */
-> +#if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
-> +#define memcpy(dst, src, len) __memcpy(dst, src, len)
-> +#define memmove(dst, src, len) __memmove(dst, src, len)
-> +#define memset(s, c, n) __memset(s, c, n)
-> +
-> +#ifndef __NO_FORTIFY
-> +#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
-> +#endif
-> +
-> +#endif
-> +
->  #endif
-> diff --git a/arch/arm/kernel/head-common.S b/arch/arm/kernel/head-common.S
-> index 4a3982812a401..6840c7c60a858 100644
-> --- a/arch/arm/kernel/head-common.S
-> +++ b/arch/arm/kernel/head-common.S
-> @@ -95,7 +95,7 @@ __mmap_switched:
->   THUMB(	ldmia	r4!, {r0, r1, r2, r3} )
->   THUMB(	mov	sp, r3 )
->  	sub	r2, r2, r1
-> -	bl	memcpy				@ copy .data to RAM
-> +	bl	__memcpy			@ copy .data to RAM
->  #endif
->  
->     ARM(	ldmia	r4!, {r0, r1, sp} )
-> @@ -103,7 +103,7 @@ __mmap_switched:
->   THUMB(	mov	sp, r3 )
->  	sub	r2, r1, r0
->  	mov	r1, #0
-> -	bl	memset				@ clear .bss
-> +	bl	__memset			@ clear .bss
->  
->  	ldmia	r4, {r0, r1, r2, r3}
->  	str	r9, [r0]			@ Save processor ID
-> diff --git a/arch/arm/lib/memcpy.S b/arch/arm/lib/memcpy.S
-> index 09a333153dc66..ad4625d16e117 100644
-> --- a/arch/arm/lib/memcpy.S
-> +++ b/arch/arm/lib/memcpy.S
-> @@ -58,6 +58,8 @@
->  
->  /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
->  
-> +.weak memcpy
-> +ENTRY(__memcpy)
->  ENTRY(mmiocpy)
->  ENTRY(memcpy)
->  
-> @@ -65,3 +67,4 @@ ENTRY(memcpy)
->  
->  ENDPROC(memcpy)
->  ENDPROC(mmiocpy)
-> +ENDPROC(__memcpy)
-> diff --git a/arch/arm/lib/memmove.S b/arch/arm/lib/memmove.S
-> index b50e5770fb44d..fd123ea5a5a4a 100644
-> --- a/arch/arm/lib/memmove.S
-> +++ b/arch/arm/lib/memmove.S
-> @@ -24,12 +24,14 @@
->   * occurring in the opposite direction.
->   */
->  
-> +.weak memmove
-> +ENTRY(__memmove)
->  ENTRY(memmove)
->  	UNWIND(	.fnstart			)
->  
->  		subs	ip, r0, r1
->  		cmphi	r2, ip
-> -		bls	memcpy
-> +		bls	__memcpy
->  
->  		stmfd	sp!, {r0, r4, lr}
->  	UNWIND(	.fnend				)
-> @@ -222,3 +224,4 @@ ENTRY(memmove)
->  18:		backward_copy_shift	push=24	pull=8
->  
->  ENDPROC(memmove)
-> +ENDPROC(__memmove)
-> diff --git a/arch/arm/lib/memset.S b/arch/arm/lib/memset.S
-> index 6ca4535c47fb6..0e7ff0423f50b 100644
-> --- a/arch/arm/lib/memset.S
-> +++ b/arch/arm/lib/memset.S
-> @@ -13,6 +13,8 @@
->  	.text
->  	.align	5
->  
-> +.weak memset
-> +ENTRY(__memset)
->  ENTRY(mmioset)
->  ENTRY(memset)
->  UNWIND( .fnstart         )
-> @@ -132,6 +134,7 @@ UNWIND( .fnstart            )
->  UNWIND( .fnend   )
->  ENDPROC(memset)
->  ENDPROC(mmioset)
-> +ENDPROC(__memset)
->  
->  ENTRY(__memset32)
->  UNWIND( .fnstart         )
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
