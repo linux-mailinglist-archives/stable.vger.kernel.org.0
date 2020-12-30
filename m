@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5232E797C
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E0F2E797B
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbgL3NKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:10:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
+        id S1727634AbgL3NKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:10:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727225AbgL3NE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727234AbgL3NE6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:04:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC2F22519;
-        Wed, 30 Dec 2020 13:04:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BE452222A;
+        Wed, 30 Dec 2020 13:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333446;
-        bh=xCZw4h1gUVy5W+RXm5Qkfjq27sAVjQQ4+42yUPxqyMY=;
+        s=k20201202; t=1609333448;
+        bh=RfDIi+ld6PVLeo0NMQXjKVHQtzypeNuRJnbtIICYHuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohpJFGJjskNCC2UBwgCIVciuZRNbP5j05JSBa15N8io9xAbi6nPGJZrkBnTl2ss8H
-         4xHvpZXC8bmxW9MDhFP5Hv++WoP6THxF+2RJjwxOS7jgnK2l0fRFPrIRSKRbYSPb1V
-         jNMAYc/xo/lGZaaMJj0ETXdnzC9bSgIlTJI6uhu58nMR4ccyuYTQ91yaDRPfDDZGTU
-         nbsIaqoWyvQEzo2Y4DRFYqmMxU9MubrWxDQuHXUXxpvcIfKJdPxg9VhshyK4aGOq7c
-         AkUu+C5dOAySGuolYYJ93RDAdUMm2XSHYUZzgSco0sXJg+yyvtGpWWJxpmfR/82Er6
-         OW5vW3ZoNmwnA==
+        b=n/g1K0/7tHIrBFTFA3+hB44D/5NYSzIQrka/vuFmgyRtlwXEV/osOJFyjF0K89Z4W
+         tk+dPGGa2Kd1qBiAkiXnK+6DEUJPSbtO3ESs61kswFq91XuRCnU+yddGNS2WRIk51X
+         IiG9xSQXdr43iES14StBJsySpyjZ8a/tDCWMfkU3JfgDxq1P0mDclNehwXcqkuGirH
+         Kb79Bfgb5qeFPjSTXO67hKmjG/Wm/YIBNKw9c2kuHbd1lecWzgzcbMfhQ12PnER8NI
+         mDsx+ndk8H3MyRPHnfR3KPEj7dcViiNXGO38vHZgTMoJEt9sdNS4vmoKPT8YnFwUDS
+         eTcG3H1WVefEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 06/17] powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
-Date:   Wed, 30 Dec 2020 08:03:46 -0500
-Message-Id: <20201230130357.3637261-6-sashal@kernel.org>
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-i3c@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 07/17] i3c master: fix missing destroy_workqueue() on error in i3c_master_register
+Date:   Wed, 30 Dec 2020 08:03:47 -0500
+Message-Id: <20201230130357.3637261-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
 References: <20201230130357.3637261-1-sashal@kernel.org>
@@ -44,35 +44,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit ffa1797040c5da391859a9556be7b735acbe1242 ]
+[ Upstream commit 59165d16c699182b86b5c65181013f1fd88feb62 ]
 
-I noticed that iounmap() of msgr_block_addr before return from
-mpic_msgr_probe() in the error handling case is missing. So use
-devm_ioremap() instead of just ioremap() when remapping the message
-register block, so the mapping will be automatically released on
-probe failure.
+Add the missing destroy_workqueue() before return from
+i3c_master_register in the error handling case.
 
 Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201028091551.136400-1-miaoqinglang@huawei.com
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://lore.kernel.org/linux-i3c/20201028091543.136167-1-miaoqinglang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/mpic_msgr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i3c/master.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/mpic_msgr.c b/arch/powerpc/sysdev/mpic_msgr.c
-index f6b253e2be409..36ec0bdd8b63c 100644
---- a/arch/powerpc/sysdev/mpic_msgr.c
-+++ b/arch/powerpc/sysdev/mpic_msgr.c
-@@ -191,7 +191,7 @@ static int mpic_msgr_probe(struct platform_device *dev)
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index 6cc71c90f85ea..19337aed9f235 100644
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -2492,7 +2492,7 @@ int i3c_master_register(struct i3c_master_controller *master,
  
- 	/* IO map the message register block. */
- 	of_address_to_resource(np, 0, &rsrc);
--	msgr_block_addr = ioremap(rsrc.start, resource_size(&rsrc));
-+	msgr_block_addr = devm_ioremap(&dev->dev, rsrc.start, resource_size(&rsrc));
- 	if (!msgr_block_addr) {
- 		dev_err(&dev->dev, "Failed to iomap MPIC message registers");
- 		return -EFAULT;
+ 	ret = i3c_master_bus_init(master);
+ 	if (ret)
+-		goto err_put_dev;
++		goto err_destroy_wq;
+ 
+ 	ret = device_add(&master->dev);
+ 	if (ret)
+@@ -2523,6 +2523,9 @@ int i3c_master_register(struct i3c_master_controller *master,
+ err_cleanup_bus:
+ 	i3c_master_bus_cleanup(master);
+ 
++err_destroy_wq:
++	destroy_workqueue(master->wq);
++
+ err_put_dev:
+ 	put_device(&master->dev);
+ 
 -- 
 2.27.0
 
