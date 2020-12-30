@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BAA92E794A
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3ED42E7988
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727124AbgL3NEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:04:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S1727852AbgL3NKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:10:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727074AbgL3NEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E93C222BB;
-        Wed, 30 Dec 2020 13:03:27 +0000 (UTC)
+        id S1727085AbgL3NEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:04:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9009221FA;
+        Wed, 30 Dec 2020 13:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333408;
-        bh=s4+HcfuJ0V6J9Gc0VBqOVwHwVBoApg00wkamisQWoPE=;
+        s=k20201202; t=1609333409;
+        bh=0SjBP3+GzRFxEt358YyMBe3kVIQvi+Ph4Y2ZXuQyn2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XksYigQIoY8Qa/uNxF7nozxNlrEGMkXcuzXJ1SJEWKZ2QBM/JhlQYgRdZOIK+W0fg
-         eMy8xpyYXu3ndR2H012hOTape9LiJYmMT8EISAZ9VmZ56xijIDxRvnyKFM3hT9viPK
-         NZhQkBWvcnBdcGiT3PgC4kJhpqniN25DviyYgORKj7l5EGf5AzZi6+T04cfOLxpuF6
-         s0ukkW3a/UuMU6aLbLO8mIRYOtIFq5bUVliwD9zlMArp/p4JkFCDHekujPi/WEmFZB
-         1Lkqe+47p0/tg52uFsEJ8BuNvmffe8VlzuuFSPue663Nkfn/zMXDiyL6H4saicJKbd
-         vJRAldDehf3bA==
+        b=ANKUXEx30gnW/JCByd68AxCv9TWocv5zyBNgq47KGiTIQEqoHVwxkdobuPmo6eCw9
+         TF76U5jBHYTn4WvD+WivMqdfEc0E70uC+Xz77qpJ4OrztCaI+754ybet6JlDcQ6GiE
+         21kIit2XSDZnLFgid0s4TnEyPqqPYOL3dP3p97XezmS0gSuc3gcKl1Smknt5SLdfrU
+         0+mq+SZxqd3odo/t8B5VYiP/l3YE5LwHnECKrfsiPlrtvfrAAtfKvGcCYA8p0ZFkgh
+         d/0/9M5JtpyYL+H/DCSSwvAhDRWLKTm2s7ph8M/6vcFbO2nEILhZoTSWSpbp2/vFdM
+         oBqSIfiaqq38Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Rosenberg <drosen@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 10/31] f2fs: Handle casefolding with Encryption
-Date:   Wed, 30 Dec 2020 08:02:52 -0500
-Message-Id: <20201230130314.3636961-10-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
+        Light Hsieh <Light.Hsieh@mediatek.com>,
+        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 11/31] f2fs: avoid race condition for shrinker count
+Date:   Wed, 30 Dec 2020 08:02:53 -0500
+Message-Id: <20201230130314.3636961-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -44,323 +45,234 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Rosenberg <drosen@google.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 7ad08a58bf67594057362e45cbddd3e27e53e557 ]
+[ Upstream commit a95ba66ac1457b76fe472c8e092ab1006271f16c ]
 
-Expand f2fs's casefolding support to include encrypted directories.  To
-index casefolded+encrypted directories, we use the SipHash of the
-casefolded name, keyed by a key derived from the directory's fscrypt
-master key.  This ensures that the dirhash doesn't leak information
-about the plaintext filenames.
+Light reported sometimes shinker gets nat_cnt < dirty_nat_cnt resulting in
+wrong do_shinker work. Let's avoid to return insane overflowed value by adding
+single tracking value.
 
-Encryption keys are unavailable during roll-forward recovery, so we
-can't compute the dirhash when recovering a new dentry in an encrypted +
-casefolded directory.  To avoid having to force a checkpoint when a new
-file is fsync'ed, store the dirhash on-disk appended to i_name.
-
-This patch incorporates work by Eric Biggers <ebiggers@google.com>
-and Jaegeuk Kim <jaegeuk@kernel.org>.
-
-Co-developed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Daniel Rosenberg <drosen@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reported-by: Light Hsieh <Light.Hsieh@mediatek.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/dir.c      | 98 +++++++++++++++++++++++++++++++++++-----------
- fs/f2fs/f2fs.h     |  8 ++--
- fs/f2fs/hash.c     | 11 +++++-
- fs/f2fs/inline.c   |  4 ++
- fs/f2fs/recovery.c | 12 +++++-
- fs/f2fs/super.c    |  6 ---
- 6 files changed, 106 insertions(+), 33 deletions(-)
+ fs/f2fs/checkpoint.c |  2 +-
+ fs/f2fs/debug.c      | 11 ++++++-----
+ fs/f2fs/f2fs.h       | 10 ++++++++--
+ fs/f2fs/node.c       | 29 ++++++++++++++++++-----------
+ fs/f2fs/node.h       |  4 ++--
+ fs/f2fs/shrinker.c   |  4 +---
+ 6 files changed, 36 insertions(+), 24 deletions(-)
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 4b9ef8bbfa4a9..4ee0b7070c157 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
-  *             http://www.samsung.com/
-  */
-+#include <asm/unaligned.h>
- #include <linux/fs.h>
- #include <linux/f2fs_fs.h>
- #include <linux/sched/signal.h>
-@@ -206,30 +207,55 @@ static struct f2fs_dir_entry *find_in_block(struct inode *dir,
- /*
-  * Test whether a case-insensitive directory entry matches the filename
-  * being searched for.
-+ *
-+ * Returns 1 for a match, 0 for no match, and -errno on an error.
-  */
--static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
-+static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
- 			       const u8 *de_name, u32 de_name_len)
- {
- 	const struct super_block *sb = dir->i_sb;
- 	const struct unicode_map *um = sb->s_encoding;
-+	struct fscrypt_str decrypted_name = FSTR_INIT(NULL, de_name_len);
- 	struct qstr entry = QSTR_INIT(de_name, de_name_len);
- 	int res;
- 
-+	if (IS_ENCRYPTED(dir)) {
-+		const struct fscrypt_str encrypted_name =
-+			FSTR_INIT((u8 *)de_name, de_name_len);
-+
-+		if (WARN_ON_ONCE(!fscrypt_has_encryption_key(dir)))
-+			return -EINVAL;
-+
-+		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
-+		if (!decrypted_name.name)
-+			return -ENOMEM;
-+		res = fscrypt_fname_disk_to_usr(dir, 0, 0, &encrypted_name,
-+						&decrypted_name);
-+		if (res < 0)
-+			goto out;
-+		entry.name = decrypted_name.name;
-+		entry.len = decrypted_name.len;
-+	}
-+
- 	res = utf8_strncasecmp_folded(um, name, &entry);
--	if (res < 0) {
--		/*
--		 * In strict mode, ignore invalid names.  In non-strict mode,
--		 * fall back to treating them as opaque byte sequences.
--		 */
--		if (sb_has_strict_encoding(sb) || name->len != entry.len)
--			return false;
--		return !memcmp(name->name, entry.name, name->len);
-+	/*
-+	 * In strict mode, ignore invalid names.  In non-strict mode,
-+	 * fall back to treating them as opaque byte sequences.
-+	 */
-+	if (res < 0 && !sb_has_strict_encoding(sb)) {
-+		res = name->len == entry.len &&
-+				memcmp(name->name, entry.name, name->len) == 0;
-+	} else {
-+		/* utf8_strncasecmp_folded returns 0 on match */
-+		res = (res == 0);
- 	}
--	return res == 0;
-+out:
-+	kfree(decrypted_name.name);
-+	return res;
- }
- #endif /* CONFIG_UNICODE */
- 
--static inline bool f2fs_match_name(const struct inode *dir,
-+static inline int f2fs_match_name(const struct inode *dir,
- 				   const struct f2fs_filename *fname,
- 				   const u8 *de_name, u32 de_name_len)
- {
-@@ -256,6 +282,7 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
- 	struct f2fs_dir_entry *de;
- 	unsigned long bit_pos = 0;
- 	int max_len = 0;
-+	int res = 0;
- 
- 	if (max_slots)
- 		*max_slots = 0;
-@@ -273,10 +300,15 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
- 			continue;
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index 023462e80e58d..b39bf416d5114 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -1600,7 +1600,7 @@ int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
+ 			goto out;
  		}
  
--		if (de->hash_code == fname->hash &&
--		    f2fs_match_name(d->inode, fname, d->filename[bit_pos],
--				    le16_to_cpu(de->name_len)))
--			goto found;
-+		if (de->hash_code == fname->hash) {
-+			res = f2fs_match_name(d->inode, fname,
-+					      d->filename[bit_pos],
-+					      le16_to_cpu(de->name_len));
-+			if (res < 0)
-+				return ERR_PTR(res);
-+			if (res)
-+				goto found;
-+		}
- 
- 		if (max_slots && max_len > *max_slots)
- 			*max_slots = max_len;
-@@ -326,7 +358,11 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
- 		}
- 
- 		de = find_in_block(dir, dentry_page, fname, &max_slots);
--		if (de) {
-+		if (IS_ERR(de)) {
-+			*res_page = ERR_CAST(de);
-+			de = NULL;
-+			break;
-+		} else if (de) {
- 			*res_page = dentry_page;
- 			break;
- 		}
-@@ -448,17 +484,39 @@ void f2fs_set_link(struct inode *dir, struct f2fs_dir_entry *de,
- 	f2fs_put_page(page, 1);
- }
- 
--static void init_dent_inode(const struct f2fs_filename *fname,
-+static void init_dent_inode(struct inode *dir, struct inode *inode,
-+			    const struct f2fs_filename *fname,
- 			    struct page *ipage)
- {
- 	struct f2fs_inode *ri;
- 
-+	if (!fname) /* tmpfile case? */
-+		return;
-+
- 	f2fs_wait_on_page_writeback(ipage, NODE, true, true);
- 
- 	/* copy name info. to this inode page */
- 	ri = F2FS_INODE(ipage);
- 	ri->i_namelen = cpu_to_le32(fname->disk_name.len);
- 	memcpy(ri->i_name, fname->disk_name.name, fname->disk_name.len);
-+	if (IS_ENCRYPTED(dir)) {
-+		file_set_enc_name(inode);
-+		/*
-+		 * Roll-forward recovery doesn't have encryption keys available,
-+		 * so it can't compute the dirhash for encrypted+casefolded
-+		 * filenames.  Append it to i_name if possible.  Else, disable
-+		 * roll-forward recovery of the dentry (i.e., make fsync'ing the
-+		 * file force a checkpoint) by setting LOST_PINO.
-+		 */
-+		if (IS_CASEFOLDED(dir)) {
-+			if (fname->disk_name.len + sizeof(f2fs_hash_t) <=
-+			    F2FS_NAME_LEN)
-+				put_unaligned(fname->hash, (f2fs_hash_t *)
-+					&ri->i_name[fname->disk_name.len]);
-+			else
-+				file_lost_pino(inode);
-+		}
-+	}
- 	set_page_dirty(ipage);
- }
- 
-@@ -541,11 +599,7 @@ struct page *f2fs_init_inode_metadata(struct inode *inode, struct inode *dir,
- 			return page;
- 	}
- 
--	if (fname) {
--		init_dent_inode(fname, page);
--		if (IS_ENCRYPTED(dir))
--			file_set_enc_name(inode);
--	}
-+	init_dent_inode(dir, inode, fname, page);
- 
- 	/*
- 	 * This file should be checkpointed during fsync.
+-		if (NM_I(sbi)->dirty_nat_cnt == 0 &&
++		if (NM_I(sbi)->nat_cnt[DIRTY_NAT] == 0 &&
+ 				SIT_I(sbi)->dirty_sentries == 0 &&
+ 				prefree_segments(sbi) == 0) {
+ 			f2fs_flush_sit_entries(sbi, cpc);
+diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
+index a8357fd4f5fab..197c914119da8 100644
+--- a/fs/f2fs/debug.c
++++ b/fs/f2fs/debug.c
+@@ -145,8 +145,8 @@ static void update_general_status(struct f2fs_sb_info *sbi)
+ 		si->node_pages = NODE_MAPPING(sbi)->nrpages;
+ 	if (sbi->meta_inode)
+ 		si->meta_pages = META_MAPPING(sbi)->nrpages;
+-	si->nats = NM_I(sbi)->nat_cnt;
+-	si->dirty_nats = NM_I(sbi)->dirty_nat_cnt;
++	si->nats = NM_I(sbi)->nat_cnt[TOTAL_NAT];
++	si->dirty_nats = NM_I(sbi)->nat_cnt[DIRTY_NAT];
+ 	si->sits = MAIN_SEGS(sbi);
+ 	si->dirty_sits = SIT_I(sbi)->dirty_sentries;
+ 	si->free_nids = NM_I(sbi)->nid_cnt[FREE_NID];
+@@ -278,9 +278,10 @@ static void update_mem_info(struct f2fs_sb_info *sbi)
+ 	si->cache_mem += (NM_I(sbi)->nid_cnt[FREE_NID] +
+ 				NM_I(sbi)->nid_cnt[PREALLOC_NID]) *
+ 				sizeof(struct free_nid);
+-	si->cache_mem += NM_I(sbi)->nat_cnt * sizeof(struct nat_entry);
+-	si->cache_mem += NM_I(sbi)->dirty_nat_cnt *
+-					sizeof(struct nat_entry_set);
++	si->cache_mem += NM_I(sbi)->nat_cnt[TOTAL_NAT] *
++				sizeof(struct nat_entry);
++	si->cache_mem += NM_I(sbi)->nat_cnt[DIRTY_NAT] *
++				sizeof(struct nat_entry_set);
+ 	si->cache_mem += si->inmem_pages * sizeof(struct inmem_pages);
+ 	for (i = 0; i < MAX_INO_ENTRY; i++)
+ 		si->cache_mem += sbi->im[i].ino_num * sizeof(struct ino_entry);
 diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 9a321c52facec..8cba43eb0b24a 100644
+index 8cba43eb0b24a..14ace0e21d389 100644
 --- a/fs/f2fs/f2fs.h
 +++ b/fs/f2fs/f2fs.h
-@@ -533,9 +533,11 @@ struct f2fs_filename {
- #ifdef CONFIG_UNICODE
- 	/*
- 	 * For casefolded directories: the casefolded name, but it's left NULL
--	 * if the original name is not valid Unicode or if the filesystem is
--	 * doing an internal operation where usr_fname is also NULL.  In these
--	 * cases we fall back to treating the name as an opaque byte sequence.
-+	 * if the original name is not valid Unicode, if the directory is both
-+	 * casefolded and encrypted and its encryption key is unavailable, or if
-+	 * the filesystem is doing an internal operation where usr_fname is also
-+	 * NULL.  In all these cases we fall back to treating the name as an
-+	 * opaque byte sequence.
- 	 */
- 	struct fscrypt_str cf_name;
- #endif
-diff --git a/fs/f2fs/hash.c b/fs/f2fs/hash.c
-index de841aaf3c439..e3beac546c63a 100644
---- a/fs/f2fs/hash.c
-+++ b/fs/f2fs/hash.c
-@@ -111,7 +111,9 @@ void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
- 		 * If the casefolded name is provided, hash it instead of the
- 		 * on-disk name.  If the casefolded name is *not* provided, that
- 		 * should only be because the name wasn't valid Unicode, so fall
--		 * back to treating the name as an opaque byte sequence.
-+		 * back to treating the name as an opaque byte sequence.  Note
-+		 * that to handle encrypted directories, the fallback must use
-+		 * usr_fname (plaintext) rather than disk_name (ciphertext).
- 		 */
- 		WARN_ON_ONCE(!fname->usr_fname->name);
- 		if (fname->cf_name.name) {
-@@ -121,6 +123,13 @@ void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
- 			name = fname->usr_fname->name;
- 			len = fname->usr_fname->len;
- 		}
-+		if (IS_ENCRYPTED(dir)) {
-+			struct qstr tmp = QSTR_INIT(name, len);
+@@ -896,6 +896,13 @@ enum nid_state {
+ 	MAX_NID_STATE,
+ };
+ 
++enum nat_state {
++	TOTAL_NAT,
++	DIRTY_NAT,
++	RECLAIMABLE_NAT,
++	MAX_NAT_STATE,
++};
 +
-+			fname->hash =
-+				cpu_to_le32(fscrypt_fname_siphash(dir, &tmp));
-+			return;
-+		}
- 	}
- #endif
- 	fname->hash = cpu_to_le32(TEA_hash_name(name, len));
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 70384e31788db..92e9852d316ad 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -332,6 +332,10 @@ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
- 	make_dentry_ptr_inline(dir, &d, inline_dentry);
- 	de = f2fs_find_target_dentry(&d, fname, NULL);
- 	unlock_page(ipage);
-+	if (IS_ERR(de)) {
-+		*res_page = ERR_CAST(de);
-+		de = NULL;
-+	}
- 	if (de)
- 		*res_page = ipage;
- 	else
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index 4f12ade6410a1..0947d36af1a8e 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
-  *             http://www.samsung.com/
-  */
-+#include <asm/unaligned.h>
- #include <linux/fs.h>
- #include <linux/f2fs_fs.h>
- #include "f2fs.h"
-@@ -128,7 +129,16 @@ static int init_recovered_filename(const struct inode *dir,
+ struct f2fs_nm_info {
+ 	block_t nat_blkaddr;		/* base disk address of NAT */
+ 	nid_t max_nid;			/* maximum possible node ids */
+@@ -911,8 +918,7 @@ struct f2fs_nm_info {
+ 	struct rw_semaphore nat_tree_lock;	/* protect nat_tree_lock */
+ 	struct list_head nat_entries;	/* cached nat entry list (clean) */
+ 	spinlock_t nat_list_lock;	/* protect clean nat entry list */
+-	unsigned int nat_cnt;		/* the # of cached nat entries */
+-	unsigned int dirty_nat_cnt;	/* total num of nat entries in set */
++	unsigned int nat_cnt[MAX_NAT_STATE]; /* the # of cached nat entries */
+ 	unsigned int nat_blocks;	/* # of nat blocks */
+ 
+ 	/* free node ids management */
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index d5d8ce077f295..56505b8e2b8d3 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -62,8 +62,8 @@ bool f2fs_available_free_memory(struct f2fs_sb_info *sbi, int type)
+ 				sizeof(struct free_nid)) >> PAGE_SHIFT;
+ 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
+ 	} else if (type == NAT_ENTRIES) {
+-		mem_size = (nm_i->nat_cnt * sizeof(struct nat_entry)) >>
+-							PAGE_SHIFT;
++		mem_size = (nm_i->nat_cnt[TOTAL_NAT] *
++				sizeof(struct nat_entry)) >> PAGE_SHIFT;
+ 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
+ 		if (excess_cached_nats(sbi))
+ 			res = false;
+@@ -177,7 +177,8 @@ static struct nat_entry *__init_nat_entry(struct f2fs_nm_info *nm_i,
+ 	list_add_tail(&ne->list, &nm_i->nat_entries);
+ 	spin_unlock(&nm_i->nat_list_lock);
+ 
+-	nm_i->nat_cnt++;
++	nm_i->nat_cnt[TOTAL_NAT]++;
++	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
+ 	return ne;
+ }
+ 
+@@ -207,7 +208,8 @@ static unsigned int __gang_lookup_nat_cache(struct f2fs_nm_info *nm_i,
+ static void __del_from_nat_cache(struct f2fs_nm_info *nm_i, struct nat_entry *e)
+ {
+ 	radix_tree_delete(&nm_i->nat_root, nat_get_nid(e));
+-	nm_i->nat_cnt--;
++	nm_i->nat_cnt[TOTAL_NAT]--;
++	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
+ 	__free_nat_entry(e);
+ }
+ 
+@@ -253,7 +255,8 @@ static void __set_nat_cache_dirty(struct f2fs_nm_info *nm_i,
+ 	if (get_nat_flag(ne, IS_DIRTY))
+ 		goto refresh_list;
+ 
+-	nm_i->dirty_nat_cnt++;
++	nm_i->nat_cnt[DIRTY_NAT]++;
++	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
+ 	set_nat_flag(ne, IS_DIRTY, true);
+ refresh_list:
+ 	spin_lock(&nm_i->nat_list_lock);
+@@ -273,7 +276,8 @@ static void __clear_nat_cache_dirty(struct f2fs_nm_info *nm_i,
+ 
+ 	set_nat_flag(ne, IS_DIRTY, false);
+ 	set->entry_cnt--;
+-	nm_i->dirty_nat_cnt--;
++	nm_i->nat_cnt[DIRTY_NAT]--;
++	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
+ }
+ 
+ static unsigned int __gang_lookup_nat_set(struct f2fs_nm_info *nm_i,
+@@ -2944,14 +2948,17 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
+ 	LIST_HEAD(sets);
+ 	int err = 0;
+ 
+-	/* during unmount, let's flush nat_bits before checking dirty_nat_cnt */
++	/*
++	 * during unmount, let's flush nat_bits before checking
++	 * nat_cnt[DIRTY_NAT].
++	 */
+ 	if (enabled_nat_bits(sbi, cpc)) {
+ 		down_write(&nm_i->nat_tree_lock);
+ 		remove_nats_in_journal(sbi);
+ 		up_write(&nm_i->nat_tree_lock);
  	}
  
- 	/* Compute the hash of the filename */
--	if (IS_CASEFOLDED(dir)) {
-+	if (IS_ENCRYPTED(dir) && IS_CASEFOLDED(dir)) {
-+		/*
-+		 * In this case the hash isn't computable without the key, so it
-+		 * was saved on-disk.
-+		 */
-+		if (fname->disk_name.len + sizeof(f2fs_hash_t) > F2FS_NAME_LEN)
-+			return -EINVAL;
-+		fname->hash = get_unaligned((f2fs_hash_t *)
-+				&raw_inode->i_name[fname->disk_name.len]);
-+	} else if (IS_CASEFOLDED(dir)) {
- 		err = f2fs_init_casefolded_name(dir, fname);
- 		if (err)
- 			return err;
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 00eff2f518079..ba859eeca69a3 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -3399,12 +3399,6 @@ static int f2fs_setup_casefold(struct f2fs_sb_info *sbi)
- 		struct unicode_map *encoding;
- 		__u16 encoding_flags;
+-	if (!nm_i->dirty_nat_cnt)
++	if (!nm_i->nat_cnt[DIRTY_NAT])
+ 		return 0;
  
--		if (f2fs_sb_has_encrypt(sbi)) {
--			f2fs_err(sbi,
--				"Can't mount with encoding and encryption");
--			return -EINVAL;
--		}
+ 	down_write(&nm_i->nat_tree_lock);
+@@ -2962,7 +2969,8 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
+ 	 * into nat entry set.
+ 	 */
+ 	if (enabled_nat_bits(sbi, cpc) ||
+-		!__has_cursum_space(journal, nm_i->dirty_nat_cnt, NAT_JOURNAL))
++		!__has_cursum_space(journal,
++			nm_i->nat_cnt[DIRTY_NAT], NAT_JOURNAL))
+ 		remove_nats_in_journal(sbi);
+ 
+ 	while ((found = __gang_lookup_nat_set(nm_i,
+@@ -3086,7 +3094,6 @@ static int init_node_manager(struct f2fs_sb_info *sbi)
+ 						F2FS_RESERVED_NODE_NUM;
+ 	nm_i->nid_cnt[FREE_NID] = 0;
+ 	nm_i->nid_cnt[PREALLOC_NID] = 0;
+-	nm_i->nat_cnt = 0;
+ 	nm_i->ram_thresh = DEF_RAM_THRESHOLD;
+ 	nm_i->ra_nid_pages = DEF_RA_NID_PAGES;
+ 	nm_i->dirty_nats_ratio = DEF_DIRTY_NAT_RATIO_THRESHOLD;
+@@ -3220,7 +3227,7 @@ void f2fs_destroy_node_manager(struct f2fs_sb_info *sbi)
+ 			__del_from_nat_cache(nm_i, natvec[idx]);
+ 		}
+ 	}
+-	f2fs_bug_on(sbi, nm_i->nat_cnt);
++	f2fs_bug_on(sbi, nm_i->nat_cnt[TOTAL_NAT]);
+ 
+ 	/* destroy nat set cache */
+ 	nid = 0;
+diff --git a/fs/f2fs/node.h b/fs/f2fs/node.h
+index 69e5859e993cf..f84541b57acbb 100644
+--- a/fs/f2fs/node.h
++++ b/fs/f2fs/node.h
+@@ -126,13 +126,13 @@ static inline void raw_nat_from_node_info(struct f2fs_nat_entry *raw_ne,
+ 
+ static inline bool excess_dirty_nats(struct f2fs_sb_info *sbi)
+ {
+-	return NM_I(sbi)->dirty_nat_cnt >= NM_I(sbi)->max_nid *
++	return NM_I(sbi)->nat_cnt[DIRTY_NAT] >= NM_I(sbi)->max_nid *
+ 					NM_I(sbi)->dirty_nats_ratio / 100;
+ }
+ 
+ static inline bool excess_cached_nats(struct f2fs_sb_info *sbi)
+ {
+-	return NM_I(sbi)->nat_cnt >= DEF_NAT_CACHE_THRESHOLD;
++	return NM_I(sbi)->nat_cnt[TOTAL_NAT] >= DEF_NAT_CACHE_THRESHOLD;
+ }
+ 
+ static inline bool excess_dirty_nodes(struct f2fs_sb_info *sbi)
+diff --git a/fs/f2fs/shrinker.c b/fs/f2fs/shrinker.c
+index d66de5999a26d..dd3c3c7a90ec8 100644
+--- a/fs/f2fs/shrinker.c
++++ b/fs/f2fs/shrinker.c
+@@ -18,9 +18,7 @@ static unsigned int shrinker_run_no;
+ 
+ static unsigned long __count_nat_entries(struct f2fs_sb_info *sbi)
+ {
+-	long count = NM_I(sbi)->nat_cnt - NM_I(sbi)->dirty_nat_cnt;
 -
- 		if (f2fs_sb_read_encoding(sbi->raw_super, &encoding_info,
- 					  &encoding_flags)) {
- 			f2fs_err(sbi,
+-	return count > 0 ? count : 0;
++	return NM_I(sbi)->nat_cnt[RECLAIMABLE_NAT];
+ }
+ 
+ static unsigned long __count_free_nids(struct f2fs_sb_info *sbi)
 -- 
 2.27.0
 
