@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6802E7940
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8000C2E78F7
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:07:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727013AbgL3NHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:07:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54534 "EHLO mail.kernel.org"
+        id S1727226AbgL3NE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:04:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727415AbgL3NFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:05:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CA092220B;
-        Wed, 30 Dec 2020 13:03:59 +0000 (UTC)
+        id S1727219AbgL3NE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:04:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1793922510;
+        Wed, 30 Dec 2020 13:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333440;
-        bh=ix426raeWTqA7MToH3waGaefsbxRQ0ibSFf9qQRVlNU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XVE+Tzt/Li7gL+1WVnYuDyGSd3isN3W3z6y2N9YSZmNL3uLguyrGTsHewyE64A43F
-         +dPsaovvjuPgNCTus7IJR2f5ElalmeC4GXj8m54FNz+EdO2v/UYrabGkus88DHpKt5
-         u6l+RB1DxhBEY1hH2edCDPy6jI4H3lUhQjRlhbn/sTl2xMRBY6LcMz6xhaFlUHp49c
-         QtA/QK8lvzkAxzqt8D0ND08JxZWVZy2/+G6o4Ykm/ObBac/+sJDE5a2u7MpGcfeVQI
-         I9VscCXeC/yaFBFdm+DvwajvSaJtX0/ZEXUEpJbhb9D7jTpnAyDXGcR4oNxALqKbwv
-         8ud3dZ4sCW/hA==
+        s=k20201202; t=1609333441;
+        bh=QMig4D2jPBkUluzd4M+6Fs134IaQzEEL6Jg+SoE6CxU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SdHE8yyFlBzyLblMUHcEp+DTf57aVFnC9FDtyGs0aaVsfjuQkt0fVML0qn5/4QNas
+         1eq/8RSMVqheLXdfCs0DXd+V9hls6dWEzOwF8krx7AtjZeRbDr/v1jIHA360TiMyMc
+         QxgZWrKeClpVAQxVtmLOAIIL7XF/p5aIw8y0UWU7ojwbpZiPnrWAK1hrjAWMkwmaCz
+         PVBWrXiVsv4o3togth9EdZEVO7TDBWgZk1VNZjYmb+Y7M8DbT3EmCu6G3JZzbIEEvu
+         IWqcfuL+gAv4P6AI671aYfrK97utpC9ih7UARFgq2GoXkc7sfI1E21Gqzh8mayDFrP
+         eXN6K1gJynBfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>,
-        Abbott Liu <liuwenliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 01/17] ARM: 9014/2: Replace string mem* functions for KASan
-Date:   Wed, 30 Dec 2020 08:03:41 -0500
-Message-Id: <20201230130357.3637261-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/17] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+Date:   Wed, 30 Dec 2020 08:03:42 -0500
+Message-Id: <20201230130357.3637261-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
+References: <20201230130357.3637261-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,237 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit d6d51a96c7d63b7450860a3037f2d62388286a52 ]
+[ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
 
-Functions like memset()/memmove()/memcpy() do a lot of memory
-accesses.
+When clk_hw_register_fixed_rate_with_accuracy() fails,
+clk_data should be freed. It's the same for the subsequent
+two error paths, but we should also unregister the already
+registered clocks in them.
 
-If a bad pointer is passed to one of these functions it is important
-to catch this. Compiler instrumentation cannot do this since these
-functions are written in assembly.
-
-KASan replaces these memory functions with instrumented variants.
-
-The original functions are declared as weak symbols so that
-the strong definitions in mm/kasan/kasan.c can replace them.
-
-The original functions have aliases with a '__' prefix in their
-name, so we can call the non-instrumented variant if needed.
-
-We must use __memcpy()/__memset() in place of memcpy()/memset()
-when we copy .data to RAM and when we clear .bss, because
-kasan_early_init cannot be called before the initialization of
-.data and .bss.
-
-For the kernel compression and EFI libstub's custom string
-libraries we need a special quirk: even if these are built
-without KASan enabled, they rely on the global headers for their
-custom string libraries, which means that e.g. memcpy()
-will be defined to __memcpy() and we get link failures.
-Since these implementations are written i C rather than
-assembly we use e.g. __alias(memcpy) to redirected any
-users back to the local implementation.
-
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: kasan-dev@googlegroups.com
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Ard Biesheuvel <ardb@kernel.org> # QEMU/KVM/mach-virt/LPAE/8G
-Tested-by: Florian Fainelli <f.fainelli@gmail.com> # Brahma SoCs
-Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # i.MX6Q
-Reported-by: Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Abbott Liu <liuwenliang@huawei.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201020061226.6572-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/string.c | 19 +++++++++++++++++++
- arch/arm/include/asm/string.h     | 26 ++++++++++++++++++++++++++
- arch/arm/kernel/head-common.S     |  4 ++--
- arch/arm/lib/memcpy.S             |  3 +++
- arch/arm/lib/memmove.S            |  5 ++++-
- arch/arm/lib/memset.S             |  3 +++
- 6 files changed, 57 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-sun6i.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/compressed/string.c b/arch/arm/boot/compressed/string.c
-index ade5079bebbf9..8c0fa276d9946 100644
---- a/arch/arm/boot/compressed/string.c
-+++ b/arch/arm/boot/compressed/string.c
-@@ -7,6 +7,25 @@
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index fc32be687606c..c41bc8084d7cc 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -276,7 +276,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+ 								300000000);
+ 	if (IS_ERR(rtc->int_osc)) {
+ 		pr_crit("Couldn't register the internal oscillator\n");
+-		return;
++		goto err;
+ 	}
  
- #include <linux/string.h>
+ 	parents[0] = clk_hw_get_name(rtc->int_osc);
+@@ -292,7 +292,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+ 	rtc->losc = clk_register(NULL, &rtc->hw);
+ 	if (IS_ERR(rtc->losc)) {
+ 		pr_crit("Couldn't register the LOSC clock\n");
+-		return;
++		goto err_register;
+ 	}
  
-+/*
-+ * The decompressor is built without KASan but uses the same redirects as the
-+ * rest of the kernel when CONFIG_KASAN is enabled, defining e.g. memcpy()
-+ * to __memcpy() but since we are not linking with the main kernel string
-+ * library in the decompressor, that will lead to link failures.
-+ *
-+ * Undefine KASan's versions, define the wrapped functions and alias them to
-+ * the right names so that when e.g. __memcpy() appear in the code, it will
-+ * still be linked to this local version of memcpy().
-+ */
-+#ifdef CONFIG_KASAN
-+#undef memcpy
-+#undef memmove
-+#undef memset
-+void *__memcpy(void *__dest, __const void *__src, size_t __n) __alias(memcpy);
-+void *__memmove(void *__dest, __const void *__src, size_t count) __alias(memmove);
-+void *__memset(void *s, int c, size_t count) __alias(memset);
-+#endif
-+
- void *memcpy(void *__dest, __const void *__src, size_t __n)
- {
- 	int i = 0;
-diff --git a/arch/arm/include/asm/string.h b/arch/arm/include/asm/string.h
-index 111a1d8a41ddf..6c607c68f3ad7 100644
---- a/arch/arm/include/asm/string.h
-+++ b/arch/arm/include/asm/string.h
-@@ -5,6 +5,9 @@
- /*
-  * We don't do inline string functions, since the
-  * optimised inline asm versions are not small.
-+ *
-+ * The __underscore versions of some functions are for KASan to be able
-+ * to replace them with instrumented versions.
-  */
+ 	of_property_read_string_index(node, "clock-output-names", 1,
+@@ -303,7 +303,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+ 					  &rtc->lock);
+ 	if (IS_ERR(rtc->ext_losc)) {
+ 		pr_crit("Couldn't register the LOSC external gate\n");
+-		return;
++		goto err_register;
+ 	}
  
- #define __HAVE_ARCH_STRRCHR
-@@ -15,15 +18,18 @@ extern char * strchr(const char * s, int c);
+ 	clk_data->num = 2;
+@@ -316,6 +316,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+ 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+ 	return;
  
- #define __HAVE_ARCH_MEMCPY
- extern void * memcpy(void *, const void *, __kernel_size_t);
-+extern void *__memcpy(void *dest, const void *src, __kernel_size_t n);
- 
- #define __HAVE_ARCH_MEMMOVE
- extern void * memmove(void *, const void *, __kernel_size_t);
-+extern void *__memmove(void *dest, const void *src, __kernel_size_t n);
- 
- #define __HAVE_ARCH_MEMCHR
- extern void * memchr(const void *, int, __kernel_size_t);
- 
- #define __HAVE_ARCH_MEMSET
- extern void * memset(void *, int, __kernel_size_t);
-+extern void *__memset(void *s, int c, __kernel_size_t n);
- 
- #define __HAVE_ARCH_MEMSET32
- extern void *__memset32(uint32_t *, uint32_t v, __kernel_size_t);
-@@ -39,4 +45,24 @@ static inline void *memset64(uint64_t *p, uint64_t v, __kernel_size_t n)
- 	return __memset64(p, v, n * 8, v >> 32);
++err_register:
++	clk_hw_unregister_fixed_rate(rtc->int_osc);
+ err:
+ 	kfree(clk_data);
  }
- 
-+/*
-+ * For files that are not instrumented (e.g. mm/slub.c) we
-+ * must use non-instrumented versions of the mem*
-+ * functions named __memcpy() etc. All such kernel code has
-+ * been tagged with KASAN_SANITIZE_file.o = n, which means
-+ * that the address sanitization argument isn't passed to the
-+ * compiler, and __SANITIZE_ADDRESS__ is not set. As a result
-+ * these defines kick in.
-+ */
-+#if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
-+#define memcpy(dst, src, len) __memcpy(dst, src, len)
-+#define memmove(dst, src, len) __memmove(dst, src, len)
-+#define memset(s, c, n) __memset(s, c, n)
-+
-+#ifndef __NO_FORTIFY
-+#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
-+#endif
-+
-+#endif
-+
- #endif
-diff --git a/arch/arm/kernel/head-common.S b/arch/arm/kernel/head-common.S
-index 4a3982812a401..6840c7c60a858 100644
---- a/arch/arm/kernel/head-common.S
-+++ b/arch/arm/kernel/head-common.S
-@@ -95,7 +95,7 @@ __mmap_switched:
-  THUMB(	ldmia	r4!, {r0, r1, r2, r3} )
-  THUMB(	mov	sp, r3 )
- 	sub	r2, r2, r1
--	bl	memcpy				@ copy .data to RAM
-+	bl	__memcpy			@ copy .data to RAM
- #endif
- 
-    ARM(	ldmia	r4!, {r0, r1, sp} )
-@@ -103,7 +103,7 @@ __mmap_switched:
-  THUMB(	mov	sp, r3 )
- 	sub	r2, r1, r0
- 	mov	r1, #0
--	bl	memset				@ clear .bss
-+	bl	__memset			@ clear .bss
- 
- 	ldmia	r4, {r0, r1, r2, r3}
- 	str	r9, [r0]			@ Save processor ID
-diff --git a/arch/arm/lib/memcpy.S b/arch/arm/lib/memcpy.S
-index 09a333153dc66..ad4625d16e117 100644
---- a/arch/arm/lib/memcpy.S
-+++ b/arch/arm/lib/memcpy.S
-@@ -58,6 +58,8 @@
- 
- /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
- 
-+.weak memcpy
-+ENTRY(__memcpy)
- ENTRY(mmiocpy)
- ENTRY(memcpy)
- 
-@@ -65,3 +67,4 @@ ENTRY(memcpy)
- 
- ENDPROC(memcpy)
- ENDPROC(mmiocpy)
-+ENDPROC(__memcpy)
-diff --git a/arch/arm/lib/memmove.S b/arch/arm/lib/memmove.S
-index b50e5770fb44d..fd123ea5a5a4a 100644
---- a/arch/arm/lib/memmove.S
-+++ b/arch/arm/lib/memmove.S
-@@ -24,12 +24,14 @@
-  * occurring in the opposite direction.
-  */
- 
-+.weak memmove
-+ENTRY(__memmove)
- ENTRY(memmove)
- 	UNWIND(	.fnstart			)
- 
- 		subs	ip, r0, r1
- 		cmphi	r2, ip
--		bls	memcpy
-+		bls	__memcpy
- 
- 		stmfd	sp!, {r0, r4, lr}
- 	UNWIND(	.fnend				)
-@@ -222,3 +224,4 @@ ENTRY(memmove)
- 18:		backward_copy_shift	push=24	pull=8
- 
- ENDPROC(memmove)
-+ENDPROC(__memmove)
-diff --git a/arch/arm/lib/memset.S b/arch/arm/lib/memset.S
-index 6ca4535c47fb6..0e7ff0423f50b 100644
---- a/arch/arm/lib/memset.S
-+++ b/arch/arm/lib/memset.S
-@@ -13,6 +13,8 @@
- 	.text
- 	.align	5
- 
-+.weak memset
-+ENTRY(__memset)
- ENTRY(mmioset)
- ENTRY(memset)
- UNWIND( .fnstart         )
-@@ -132,6 +134,7 @@ UNWIND( .fnstart            )
- UNWIND( .fnend   )
- ENDPROC(memset)
- ENDPROC(mmioset)
-+ENDPROC(__memset)
- 
- ENTRY(__memset32)
- UNWIND( .fnstart         )
 -- 
 2.27.0
 
