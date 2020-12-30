@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BDA2E7924
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608632E7925
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726846AbgL3NG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726935AbgL3NG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Dec 2020 08:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727459AbgL3NF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727460AbgL3NF3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:05:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 200CB229CA;
-        Wed, 30 Dec 2020 13:04:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25A942226A;
+        Wed, 30 Dec 2020 13:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333480;
-        bh=3tqmlEopHF5693Gx9TDEZtslMfY3JJfYKPA1NqRF2r0=;
+        s=k20201202; t=1609333481;
+        bh=bDaH0qxvKMZ3wwj/g24R05lfirUzzJc70cmssiyJNZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9gh57r445T3bx2vWrkSiwrJIVHhzG6KwOe5LnYpCQ52z6vuQN5+1bMfzU5oeItir
-         DKZqI9UphV+vRP9ikjK7zAnucbHKnqXfxYnzfyMvFmLllqgmphTjFhYGT/dnsDV3mh
-         UFwVdWpvUPkthN1Y1bABwYeA3rZqHiFqQX1U6IymNAM3zXayUvU8Nklr/WI+XrWnMs
-         8q8u7+q9nwx/je8bth/HyfqhX5xnQ/S5YjB+RBjoh+GrFLz7rBEPlNqrm5kfC76g0o
-         B+GpNP0pxhqniWrR5ATA4nGGpm6MXmr5sKnZ6pEMYWE5twJhuJv+qSHntl1+HZftGg
-         nqeFIUe78pHXg==
+        b=tsjOpU4v4dmECqh/bBAgVpcYCrLT7NgzavDoGvMsVBLeDeFqlx0Aw7oigvk6BlQEK
+         tYVVDUFrAYiN+LAgDgFpANQY82y4m1X61Nacs34qv+gCA6oE42/9sMF3Eh3x4laJ3f
+         UoKYTRHjdzpUbRJpsoUgg6wtCHiooXE+0dKCXHGW4STRPsb9QdLeTat6O8szAipuYQ
+         h5jBZxwVkLcK/ZJNZ74QLn2nOLtIOJB280D1Wo7/Gucgq7ExcbBuGOrO97/g0xNkB2
+         eWjzjOb7a7IG+QnEDZplXD62yGOVFjT74FrdmFwAvrVM+RG9v3qOdySUUJSE80Xd1N
+         VYktHQ/aAReYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Andreas Dilger <adilger@dilger.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 3/8] quota: Don't overflow quota file offsets
-Date:   Wed, 30 Dec 2020 08:04:31 -0500
-Message-Id: <20201230130436.3637579-3-sashal@kernel.org>
+Cc:     Qinglang Miao <miaoqinglang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 4/8] powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
+Date:   Wed, 30 Dec 2020 08:04:32 -0500
+Message-Id: <20201230130436.3637579-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130436.3637579-1-sashal@kernel.org>
 References: <20201230130436.3637579-1-sashal@kernel.org>
@@ -41,64 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 10f04d40a9fa29785206c619f80d8beedb778837 ]
+[ Upstream commit ffa1797040c5da391859a9556be7b735acbe1242 ]
 
-The on-disk quota format supports quota files with upto 2^32 blocks. Be
-careful when computing quota file offsets in the quota files from block
-numbers as they can overflow 32-bit types. Since quota files larger than
-4GB would require ~26 millions of quota users, this is mostly a
-theoretical concern now but better be careful, fuzzers would find the
-problem sooner or later anyway...
+I noticed that iounmap() of msgr_block_addr before return from
+mpic_msgr_probe() in the error handling case is missing. So use
+devm_ioremap() instead of just ioremap() when remapping the message
+register block, so the mapping will be automatically released on
+probe failure.
 
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201028091551.136400-1-miaoqinglang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_tree.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/sysdev/mpic_msgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/quota/quota_tree.c b/fs/quota/quota_tree.c
-index bb3f59bcfcf5b..656f9ff63edda 100644
---- a/fs/quota/quota_tree.c
-+++ b/fs/quota/quota_tree.c
-@@ -61,7 +61,7 @@ static ssize_t read_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+diff --git a/arch/powerpc/sysdev/mpic_msgr.c b/arch/powerpc/sysdev/mpic_msgr.c
+index 280e964e1aa88..497e86cfb12e0 100644
+--- a/arch/powerpc/sysdev/mpic_msgr.c
++++ b/arch/powerpc/sysdev/mpic_msgr.c
+@@ -196,7 +196,7 @@ static int mpic_msgr_probe(struct platform_device *dev)
  
- 	memset(buf, 0, info->dqi_usable_bs);
- 	return sb->s_op->quota_read(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- }
- 
- static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
-@@ -70,7 +70,7 @@ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
- 	ssize_t ret;
- 
- 	ret = sb->s_op->quota_write(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- 	if (ret != info->dqi_usable_bs) {
- 		quota_error(sb, "dquota write failed");
- 		if (ret >= 0)
-@@ -283,7 +283,7 @@ static uint find_free_dqentry(struct qtree_mem_dqinfo *info,
- 			    blk);
- 		goto out_buf;
- 	}
--	dquot->dq_off = (blk << info->dqi_blocksize_bits) +
-+	dquot->dq_off = ((loff_t)blk << info->dqi_blocksize_bits) +
- 			sizeof(struct qt_disk_dqdbheader) +
- 			i * info->dqi_entry_size;
- 	kfree(buf);
-@@ -558,7 +558,7 @@ static loff_t find_block_dqentry(struct qtree_mem_dqinfo *info,
- 		ret = -EIO;
- 		goto out_buf;
- 	} else {
--		ret = (blk << info->dqi_blocksize_bits) + sizeof(struct
-+		ret = ((loff_t)blk << info->dqi_blocksize_bits) + sizeof(struct
- 		  qt_disk_dqdbheader) + i * info->dqi_entry_size;
- 	}
- out_buf:
+ 	/* IO map the message register block. */
+ 	of_address_to_resource(np, 0, &rsrc);
+-	msgr_block_addr = ioremap(rsrc.start, resource_size(&rsrc));
++	msgr_block_addr = devm_ioremap(&dev->dev, rsrc.start, resource_size(&rsrc));
+ 	if (!msgr_block_addr) {
+ 		dev_err(&dev->dev, "Failed to iomap MPIC message registers");
+ 		return -EFAULT;
 -- 
 2.27.0
 
