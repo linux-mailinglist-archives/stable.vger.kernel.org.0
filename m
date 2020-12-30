@@ -2,165 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB222E75B0
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 03:34:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FEC62E76E3
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 08:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbgL3Cdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Dec 2020 21:33:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726325AbgL3Cdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Dec 2020 21:33:50 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D53C06179C;
-        Tue, 29 Dec 2020 18:33:10 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id c12so8966254pfo.10;
-        Tue, 29 Dec 2020 18:33:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:subject:to:cc:references:in-reply-to:mime-version
-         :message-id:content-transfer-encoding;
-        bh=PfIl0EjmWMxnSF+EOk80ZAbjAPzwaEf3qyLecMl/XRc=;
-        b=nDaFL5lxYCUZxEPCVotfMjioI5BLNIhicG92GYRl+bW9o7TrWxGxPe0PqDXDUdvxGL
-         ovvYBF0bISGn/Zpzf1pyHYOdLFAxrz3UfAR1lXz51N/K03KuWE71VFegfMD1DDIP/drp
-         KUhqJ9Fn3WcSfrmIuDfPZ/QOnNSC22L/Z/ORAmWhZN1D2xASIe52OucM/qXVfSayaGAT
-         57fbAo1T7kYgyhJGZ9Evd5nqFiAIc1edFYHuzkkIxctQBFyOJMPSHfXVdoKBjZA9clIV
-         kEZ8gdlTRJigmHZJrUOZzCZPE80ijU9zMl4P4nZYuEkJlMxEzvQaP8bXxzoxR5aFvcz5
-         +Drg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
-         :mime-version:message-id:content-transfer-encoding;
-        bh=PfIl0EjmWMxnSF+EOk80ZAbjAPzwaEf3qyLecMl/XRc=;
-        b=R6NiuCYK4Ut9dRe3OD4qgs8HrMmZEUHke/1bbzKnnsGMJ20knc4qNRR4hPm5K/Wsad
-         2zc2F16BJ533Q0I4JJr/xLNLAAnjlrmWYOqA3kZcwQ4wdKLKY99WVUilz8XOZAgAWt8I
-         P04aQ6HaTkn/i686C/eHr977CKP2EqUXveXjXa6MNkzgdfrLaCQxKJ8yY3X7s8r5zx+i
-         m5Oirx2CQD7Rr48DOCH7705mJs0C/PsY1loSHUyjTWJBEL6yv1XKqNVuo+FBMfR6wshM
-         Q5C4vsHM4bzRG5pEamm7dPwEBqWoPlWKRly71qY5qzkAsTiJi1HV+jz/tmIJKZb3jcxB
-         wWbQ==
-X-Gm-Message-State: AOAM532bt8w44ndQjX0cW6qCfB8jp3FwC+PXlkTaHlfhlYuF8Jp0cj9I
-        a6zdbSEuYn8rN4buCSpDLbs=
-X-Google-Smtp-Source: ABdhPJxrOi9/gzDcjAgCtPx6FdiSP/JyedYlzSeHtVs/umobQsm2fE2URPOa8A0aW0Z8ZJFEkl2N/w==
-X-Received: by 2002:a63:c04b:: with SMTP id z11mr50606521pgi.74.1609295589813;
-        Tue, 29 Dec 2020 18:33:09 -0800 (PST)
-Received: from localhost (193-116-97-30.tpgi.com.au. [193.116.97.30])
-        by smtp.gmail.com with ESMTPSA id 6sm39988438pfj.216.2020.12.29.18.33.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Dec 2020 18:33:08 -0800 (PST)
-Date:   Wed, 30 Dec 2020 12:33:02 +1000
-From:   Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
-To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Jann Horn <jannh@google.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        paulmck <paulmck@kernel.org>, Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        stable <stable@vger.kernel.org>, Will Deacon <will@kernel.org>,
-        x86 <x86@kernel.org>
-References: <20201228102537.GG1551@shell.armlinux.org.uk>
-        <CALCETrWQx0qwthBc5pJBxs2PWAQo-roAz-6g=7HOs+dsiokVsg@mail.gmail.com>
-        <CAG48ez0YZ_iy6qZpdGUj38wqeg_NzLHHhU-mBCBf5hcopYGVPg@mail.gmail.com>
-        <20201228190852.GI1551@shell.armlinux.org.uk>
-        <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
-        <1086654515.3607.1609187556216.JavaMail.zimbra@efficios.com>
-        <CALCETrXx3Xe+4Y6WM-mp0cTUU=r3bW6PV2b25yA8bm1Gvak6wQ@mail.gmail.com>
-        <1609200902.me5niwm2t6.astroid@bobo.none>
-        <CALCETrX6MOqmN5_jhyO1jJB7M3_T+hbomjxPYZLJmLVNmXAVzA@mail.gmail.com>
-        <1609210162.4d8dqilke6.astroid@bobo.none>
-        <20201229104456.GK1551@shell.armlinux.org.uk>
-In-Reply-To: <20201229104456.GK1551@shell.armlinux.org.uk>
+        id S1725814AbgL3Hlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 02:41:51 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:52158 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726337AbgL3Hlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 02:41:51 -0500
+Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0BU7ewjt020072
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 23:41:10 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=facebook; bh=b8OgOCHph3GYWcoIeb3dNgwSY+JbvBn0A6TbTZD06qI=;
+ b=GQhHLHqaBKzn0UVMWZCB2+3dERCvVV5uPFgHoowpmtvhz+VhpQPtyJoD6xpaiGnHNsf/
+ 2wl5Qy2gxkaCigzO4kqfODm66w3V9NN8USyZ3MnJxkDJ3IL5Vw6LC6NvL2K61tvBg3/D
+ oAz8teplNaM1RY+Yb9WqkgI9CwP+yoFfq3s= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 35pp3vtjdn-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 29 Dec 2020 23:41:10 -0800
+Received: from intmgw002.03.ash8.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::4) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Tue, 29 Dec 2020 23:41:05 -0800
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id 18D9262E567F; Tue, 29 Dec 2020 23:41:03 -0800 (PST)
+From:   Song Liu <songliubraving@fb.com>
+To:     <stable@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>, Kevin Vigor <kvigor@gmail.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH] md/raid10: initialize r10_bio->read_slot before use.
+Date:   Tue, 29 Dec 2020 23:40:39 -0800
+Message-ID: <20201230074039.1732760-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Message-Id: <1609290821.wrfh89v23a.astroid@bobo.none>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2020-12-30_04:2020-12-28,2020-12-30 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 malwarescore=0
+ spamscore=0 priorityscore=1501 clxscore=1011 impostorscore=0
+ suspectscore=0 mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=724
+ lowpriorityscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2009150000 definitions=main-2012300045
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Excerpts from Russell King - ARM Linux admin's message of December 29, 2020=
- 8:44 pm:
-> On Tue, Dec 29, 2020 at 01:09:12PM +1000, Nicholas Piggin wrote:
->> I think it should certainly be documented in terms of what guarantees
->> it provides to application, _not_ the kinds of instructions it may or
->> may not induce the core to execute. And if existing API can't be
->> re-documented sanely, then deprecatd and new ones added that DTRT.
->> Possibly under a new system call, if arch's like ARM want a range
->> flush and we don't want to expand the multiplexing behaviour of
->> membarrier even more (sigh).
->=20
-> The 32-bit ARM sys_cacheflush() is there only to support self-modifying
-> code, and takes whatever actions are necessary to support that.
-> Exactly what actions it takes are cache implementation specific, and
-> should be of no concern to the caller, but the underlying thing is...
-> it's to support self-modifying code.
+From: Kevin Vigor <kvigor@gmail.com>
 
-   Caveat
-       cacheflush()  should  not  be used in programs intended to be portab=
-le.
-       On Linux, this call first appeared on the MIPS architecture, but  no=
-wa=E2=80=90
-       days, Linux provides a cacheflush() system call on some other archit=
-ec=E2=80=90
-       tures, but with different arguments.
+In __make_request() a new r10bio is allocated and passed to
+raid10_read_request(). The read_slot member of the bio is not
+initialized, and the raid10_read_request() uses it to index an
+array. This leads to occasional panics.
 
-What a disaster. Another badly designed interface, although it didn't=20
-originate in Linux it sounds like we weren't to be outdone so
-we messed it up even worse.
+Fix by initializing the field to invalid value and checking for
+valid value in raid10_read_request().
 
-flushing caches is neither necessary nor sufficient for code modification
-on many processors. Maybe some old MIPS specific private thing was fine,
-but certainly before it grew to other architectures, somebody should=20
-have thought for more than 2 minutes about it. Sigh.
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Kevin Vigor <kvigor@gmail.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+(cherry picked from commit 93decc563637c4288380912eac0eb42fb246cc04)
+---
+ drivers/md/raid10.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
->=20
-> Sadly, because it's existed for 20+ years, and it has historically been
-> sufficient for other purposes too, it has seen quite a bit of abuse
-> despite its design purpose not changing - it's been used by graphics
-> drivers for example. They quickly learnt the error of their ways with
-> ARMv6+, since it does not do sufficient for their purposes given the
-> cache architectures found there.
->=20
-> Let's not go around redesigning this after twenty odd years, requiring
-> a hell of a lot of pain to users. This interface is called by code
-> generated by GCC, so to change it you're looking at patching GCC as
-> well as the kernel, and you basically will make new programs
-> incompatible with older kernels - very bad news for users.
+diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
+index d08d77b9674ff..419ecdd914f4c 100644
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -1120,7 +1120,7 @@ static void raid10_read_request(struct mddev *mddev=
+, struct bio *bio,
+ 	struct md_rdev *err_rdev =3D NULL;
+ 	gfp_t gfp =3D GFP_NOIO;
+=20
+-	if (r10_bio->devs[slot].rdev) {
++	if (slot >=3D 0 && r10_bio->devs[slot].rdev) {
+ 		/*
+ 		 * This is an error retry, but we cannot
+ 		 * safely dereference the rdev in the r10_bio,
+@@ -1513,6 +1513,7 @@ static void __make_request(struct mddev *mddev, str=
+uct bio *bio, int sectors)
+ 	r10_bio->mddev =3D mddev;
+ 	r10_bio->sector =3D bio->bi_iter.bi_sector;
+ 	r10_bio->state =3D 0;
++	r10_bio->read_slot =3D -1;
+ 	memset(r10_bio->devs, 0, sizeof(r10_bio->devs[0]) * conf->copies);
+=20
+ 	if (bio_data_dir(bio) =3D=3D READ)
+--=20
+2.24.1
 
-For something to be redesigned it had to have been designed in the first=20
-place, so there is no danger of that don't worry... But no I never=20
-suggested making incompatible changes to any existing system call, I=20
-said "re-documented". And yes I said deprecated but in Linux that really=20
-means kept indefinitely.
-
-If ARM, MIPS, 68k etc programs and toolchains keep using what they are=20
-using it'll keep working no problem.
-
-The point is we're growing new interfaces, and making the same mistakes.=20
-It's not portable (ARCH_HAS_MEMBARRIER_SYNC_CORE), it's also specified=20
-in terms of low level processor operations rather than higher level=20
-intent, and also is not sufficient for self-modifying code (without=20
-additional cache flush on some processors).
-
-The application wants a call that says something like "memory modified=20
-before the call will be visible as instructions (including illegal=20
-instructions) by all threads in the program after the system call=20
-returns, and no threads will be subject to any effects of executing the=20
-previous contents of that memory.
-
-So I think the basics are simple (although should confirm with some JIT=20
-and debugger etc developers, and not just Android mind you). There are=20
-some complications in details, address ranges, virtual/physical, thread=20
-local vs process vs different process or system-wide, memory ordering=20
-and propagation of i and d sides, etc. But that can be worked through,=20
-erring on the side of sanity rather than pointless micro-optmisations.
-
-Thanks,
-Nick
