@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7647C2E792E
+	by mail.lfdr.de (Postfix) with ESMTP id E34062E792F
 	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727841AbgL3NHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727838AbgL3NHO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Dec 2020 08:07:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727446AbgL3NF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727443AbgL3NF2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:05:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FA44225AC;
-        Wed, 30 Dec 2020 13:04:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2D3D229C6;
+        Wed, 30 Dec 2020 13:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333472;
-        bh=3kuHzY4yx1SVEHMeOsRR8JLpQJFo33DMO4NBlvtdluo=;
+        s=k20201202; t=1609333473;
+        bh=rfhFH6eg7o5FHaqFrhkBY1jIrNltm1Nk4Zj9m+m+6Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qoewPFnTQfcjh1tRTvO9X/FjCig4YkkfaW3WUcN/UHhSoGLGEe2W2mIROdVTL4esS
-         R4YzDPfB2HHMMGpW1hPNfjHpFpIc4YkV5xhk6L3GZzFTFHydI1VwTeQnaMks8FCf3C
-         /0CZYxjPEeqm+Vj4+PeJexgnoE0+Hq4fgrP9vMwe4xOGjV//PlO2K3MrpD+/qyAo64
-         VcD+weSDaizEl3LF598FKs9qOOMbmcqwAzUvQz8hQhl/mJR3lRn8Rq7CQgZ8O6Qviv
-         96ReA+drgYbET0XUpAey0wRkthy0NMpg9ZsXM+6tAoUd58ft1v0gQ6xsi9lAuY65zM
-         6RJsewIBts5MA==
+        b=lMvOxHCdU9uxrZNAgFe/MG+bH65nApiCDFtN9VTPujj8x5f/O57E4wI8Tp/KYv18X
+         XZzqk9izjO0iOIXacBgUXQ6Z9XHZE0W1Q89M9+NtLH9147wxq+VcbKO4CMb4SaWW6H
+         SkJsJCu5nxSqz9bz/PmgIhU8vlioyLa0BZKzxO3W+LEIUtLYxMADy8FDCGNbdVFC6Z
+         nYEh0UsHUAvYX2mzQu2dUUBXK0BeN3bUk6LnVigETZYcxRko9+/Jj9y5yg/R5Xy7lp
+         9J5+YOgmKs6LsuOUXLZAks8vgB7TxbbwpH3ptQBICydIocnunV8lbmq/DFr2U25Cp1
+         feEEI3gGaBvaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/10] NFSv4: Fix a pNFS layout related use-after-free race when freeing the inode
-Date:   Wed, 30 Dec 2020 08:04:19 -0500
-Message-Id: <20201230130422.3637448-7-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/10] module: delay kobject uevent until after module init call
+Date:   Wed, 30 Dec 2020 08:04:20 -0500
+Message-Id: <20201230130422.3637448-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130422.3637448-1-sashal@kernel.org>
 References: <20201230130422.3637448-1-sashal@kernel.org>
@@ -41,128 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit b6d49ecd1081740b6e632366428b960461f8158b ]
+[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
 
-When returning the layout in nfs4_evict_inode(), we need to ensure that
-the layout is actually done being freed before we can proceed to free the
-inode itself.
+Apparently there has been a longstanding race between udev/systemd and
+the module loader. Currently, the module loader sends a uevent right
+after sysfs initialization, but before the module calls its init
+function. However, some udev rules expect that the module has
+initialized already upon receiving the uevent.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This race has been triggered recently (see link in references) in some
+systemd mount unit files. For instance, the configfs module creates the
+/sys/kernel/config mount point in its init function, however the module
+loader issues the uevent before this happens. sys-kernel-config.mount
+expects to be able to mount /sys/kernel/config upon receipt of the
+module loading uevent, but if the configfs module has not called its
+init function yet, then this directory will not exist and the mount unit
+fails. A similar situation exists for sys-fs-fuse-connections.mount, as
+the fuse sysfs mount point is created during the fuse module's init
+function. If udev is faster than module initialization then the mount
+unit would fail in a similar fashion.
+
+To fix this race, delay the module KOBJ_ADD uevent until after the
+module has finished calling its init routine.
+
+References: https://github.com/systemd/systemd/issues/17586
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4super.c |  2 +-
- fs/nfs/pnfs.c      | 33 +++++++++++++++++++++++++++++++--
- fs/nfs/pnfs.h      |  5 +++++
- 3 files changed, 37 insertions(+), 3 deletions(-)
+ kernel/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
-index 6fb7cb6b3f4b0..e7a10f5f54057 100644
---- a/fs/nfs/nfs4super.c
-+++ b/fs/nfs/nfs4super.c
-@@ -95,7 +95,7 @@ static void nfs4_evict_inode(struct inode *inode)
- 	nfs_inode_return_delegation_noreclaim(inode);
- 	/* Note that above delegreturn would trigger pnfs return-on-close */
- 	pnfs_return_layout(inode);
--	pnfs_destroy_layout(NFS_I(inode));
-+	pnfs_destroy_layout_final(NFS_I(inode));
- 	/* First call standard NFS clear_inode() code */
- 	nfs_clear_inode(inode);
- }
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 2b9e139a29975..a253384a4710b 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -294,6 +294,7 @@ void
- pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
- {
- 	struct inode *inode;
-+	unsigned long i_state;
+diff --git a/kernel/module.c b/kernel/module.c
+index 8dbe0ff22134e..429769605871d 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1806,7 +1806,6 @@ static int mod_sysfs_init(struct module *mod)
+ 	if (err)
+ 		mod_kobject_put(mod);
  
- 	if (!lo)
- 		return;
-@@ -304,8 +305,12 @@ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
- 		if (!list_empty(&lo->plh_segs))
- 			WARN_ONCE(1, "NFS: BUG unfreed layout segments.\n");
- 		pnfs_detach_layout_hdr(lo);
-+		i_state = inode->i_state;
- 		spin_unlock(&inode->i_lock);
- 		pnfs_free_layout_hdr(lo);
-+		/* Notify pnfs_destroy_layout_final() that we're done */
-+		if (i_state & (I_FREEING | I_CLEAR))
-+			wake_up_var(lo);
- 	}
+-	/* delay uevent until full sysfs population */
+ out:
+ 	return err;
  }
+@@ -1843,7 +1842,6 @@ static int mod_sysfs_setup(struct module *mod,
+ 	add_sect_attrs(mod, info);
+ 	add_notes_attrs(mod, info);
  
-@@ -713,8 +718,7 @@ pnfs_free_lseg_list(struct list_head *free_me)
- 	}
- }
+-	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
+ 	return 0;
  
--void
--pnfs_destroy_layout(struct nfs_inode *nfsi)
-+static struct pnfs_layout_hdr *__pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- 	struct pnfs_layout_hdr *lo;
- 	LIST_HEAD(tmp_list);
-@@ -732,9 +736,34 @@ pnfs_destroy_layout(struct nfs_inode *nfsi)
- 		pnfs_put_layout_hdr(lo);
- 	} else
- 		spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return lo;
-+}
-+
-+void pnfs_destroy_layout(struct nfs_inode *nfsi)
-+{
-+	__pnfs_destroy_layout(nfsi);
- }
- EXPORT_SYMBOL_GPL(pnfs_destroy_layout);
+ out_unreg_modinfo_attrs:
+@@ -3499,6 +3497,9 @@ static noinline int do_init_module(struct module *mod)
+ 	blocking_notifier_call_chain(&module_notify_list,
+ 				     MODULE_STATE_LIVE, mod);
  
-+static bool pnfs_layout_removed(struct nfs_inode *nfsi,
-+				struct pnfs_layout_hdr *lo)
-+{
-+	bool ret;
++	/* Delay uevent until module has finished its init routine */
++	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
 +
-+	spin_lock(&nfsi->vfs_inode.i_lock);
-+	ret = nfsi->layout != lo;
-+	spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return ret;
-+}
-+
-+void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+	struct pnfs_layout_hdr *lo = __pnfs_destroy_layout(nfsi);
-+
-+	if (lo)
-+		wait_var_event(lo, pnfs_layout_removed(nfsi, lo));
-+}
-+
- static bool
- pnfs_layout_add_bulk_destroy_list(struct inode *inode,
- 		struct list_head *layout_list)
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 3ba44819a88ae..80fafa29e567a 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -254,6 +254,7 @@ struct pnfs_layout_segment *pnfs_layout_process(struct nfs4_layoutget *lgp);
- void pnfs_layoutget_free(struct nfs4_layoutget *lgp);
- void pnfs_free_lseg_list(struct list_head *tmp_list);
- void pnfs_destroy_layout(struct nfs_inode *);
-+void pnfs_destroy_layout_final(struct nfs_inode *);
- void pnfs_destroy_all_layouts(struct nfs_client *);
- int pnfs_destroy_layouts_byfsid(struct nfs_client *clp,
- 		struct nfs_fsid *fsid,
-@@ -645,6 +646,10 @@ static inline void pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- }
- 
-+static inline void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+}
-+
- static inline struct pnfs_layout_segment *
- pnfs_get_lseg(struct pnfs_layout_segment *lseg)
- {
+ 	/*
+ 	 * We need to finish all async code before the module init sequence
+ 	 * is done.  This has potential to deadlock.  For example, a newly
 -- 
 2.27.0
 
