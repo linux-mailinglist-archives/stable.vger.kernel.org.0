@@ -2,100 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5F22E7A9A
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 16:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 837532E7B0D
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 17:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbgL3Pqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 10:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726290AbgL3Pqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 10:46:32 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC496C061799;
-        Wed, 30 Dec 2020 07:45:51 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id m5so17737748wrx.9;
-        Wed, 30 Dec 2020 07:45:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=FoKA7gVAfReH3oyk3YoEvuOTjtVbOK3KIM2V0Ji6XEk=;
-        b=RDdkntD1m3pjC6LFyHLO+tU0HHLXnhnvue52AeZYn6AhgGMiwhyx82e4sXY6kDcwzX
-         TziQXa/3VhRqVkmqo8n+BIwRRX4qa6bj39675UpJ0IOdhF5noeyaHfgCP8tNrMfV3Fui
-         9LeGxRzHvj92/s3CaGlFbT8MMqC7Yr7QP/wHg5f7+uWT3D6ksyn1AgVOXauvsdSaROsh
-         pfupXoQs8E4FTCwWzFireKQqPriI/L5gphsioSZkKrRIx5xKM216ga5Hp/4GekWz++UB
-         dv6hCIu/NG2MazrmQ/281MOirK7PR9YGkSaKitlXDP6Oo7s0NBwfgHd2ULTlh9moYaf1
-         M5zw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=FoKA7gVAfReH3oyk3YoEvuOTjtVbOK3KIM2V0Ji6XEk=;
-        b=IhKxiv0PA9mx9CXG11Y4Nc3c0No3EyY6nJnyFBJvc2HnZLcrJA9FYCe3iUH3hGfguN
-         Iu3zLxhJHl6W7FOOsGw3ABcEbWssVdR6AKe7QIPAI9N656kLMq1jsE8YL1wVPtIF83aG
-         kyXIzY0+R6UgD6y51tBU++6ewgUipuxOTdmDg9630tqgjT6AVAQY8fd6qJiQY2ys6CAC
-         /jZqHXEzcsIvvf74iJSafPBdTbMv6j9gEcpKHidIqyiUF33cV6GUQXAcaFi8/t7dkTzg
-         5EWaYuDb6jIBjaI23KEG/S3VObw5nsT6FuU7Ddrqc9e3Xe3YWULDeLtcHDR2VUcLcKtb
-         bAhA==
-X-Gm-Message-State: AOAM532LiPnQqnniC42W4iu78ZJ0KIQ/GDe3rwtuaHYS+ta4W5OcuS75
-        njuZs+xcTQ+/hh7hFAGLYxim32x82ec=
-X-Google-Smtp-Source: ABdhPJzAzlRqQuQBd9dwMDQKlpFX82QEgmB4v5WWgC/2Eapj03Dx6oJcPfxmbMLvVAtYwk3qZqbjQA==
-X-Received: by 2002:a5d:4d4f:: with SMTP id a15mr60913349wru.315.1609343150422;
-        Wed, 30 Dec 2020 07:45:50 -0800 (PST)
-Received: from cl-fw-1.fritz.box (p200300d86714d50000b12fbf0e2de53d.dip0.t-ipconnect.de. [2003:d8:6714:d500:b1:2fbf:e2d:e53d])
-        by smtp.gmail.com with ESMTPSA id y68sm8285745wmc.0.2020.12.30.07.45.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Dec 2020 07:45:49 -0800 (PST)
-Message-ID: <2f0acfa1330ca6b40bff564fd317c8029eb23453.camel@gmail.com>
-Subject: Re: sound
-From:   Christian Labisch <clnetbox@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Wed, 30 Dec 2020 16:45:49 +0100
-In-Reply-To: <X+yedztHPUK4Qryc@kroah.com>
-References: <d1b1e6b0e3af13f3756a34131ffb84df6a209ee0.camel@gmail.com>
-         <X+yedztHPUK4Qryc@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
+        id S1726261AbgL3Q3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 11:29:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726247AbgL3Q3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 11:29:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BD4D20799;
+        Wed, 30 Dec 2020 16:28:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609345738;
+        bh=pYlCSA3yhrciY7Xu133EUj2SFuXUrQnBsT0Pi4NETiU=;
+        h=Subject:To:From:Date:From;
+        b=P935bMRbhHbP6HCykm/7I4xT85eYCQcww/NPLPRMJNmpZlYNKlf+8TcE/vDcs4vlZ
+         hmXAWeNxrXkyglFthfWVKc8kImTWb6SjDbiAnEse/GBsu+D+eh9k7DfrwV10+T05Ej
+         Zg9Uo/bT7D4UDHD7A3Qc5Js02yNIsbMQdmdJTFnc=
+Subject: patch "USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 30 Dec 2020 17:30:23 +0100
+Message-ID: <16093458235838@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thank you Greg,
 
-I am running Fedora 33 with kernel 5.9.16, which works correctly.
-All stable 5.10 versions up to 5.10.3 are having the sound issue.
-Once 5.10.4 will be available on koji I'm gonna test if it works.
+This is a note to let you know that I've just added the patch titled
 
-Thanks again !
+    USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
 
-Regards,
-Christian
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-On Wed, 2020-12-30 at 16:36 +0100, Greg KH wrote:
-> On Wed, Dec 30, 2020 at 04:26:00PM +0100, Christian Labisch wrote:
-> > Hello !
-> > 
-> > I could need your help ... I have tested the new kernel 5.10.3 and sound doesn't work with this
-> > version.
-> > Seems the new Intel audio drivers are the main reason. What can be done ? Do you have any ideas
-> > ?
-> > 
-> > Intel Catpt driver support is new ... This deprecates the previous Haswell SoC audio driver code
-> > previously providing the audio capabilities.
-> > And I am having a Haswell CPU -> Audio device: Intel Corporation Xeon E3-1200 v3/4th Gen Core
-> > Processor HD Audio Controller (rev 06)
-> 
-> Can you try 5.10.4?  I think a fix for this is in there as was reported
-> by another user yesterday.
-> 
-> If not, can you run 'git bisect' on the kernels between the last good
-> one that worked for you, and the one that doesn't?
-> 
-> thanks,
-> 
-> greg k-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From c318840fb2a42ce25febc95c4c19357acf1ae5ca Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Wed, 30 Dec 2020 11:20:44 -0500
+Subject: USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
+
+The dummy-hcd driver was written under the assumption that all the
+parameters in URBs sent to its root hub would be valid.  With URBs
+sent from userspace via usbfs, that assumption can be violated.
+
+In particular, the driver doesn't fully check the port-feature values
+stored in the wValue entry of Clear-Port-Feature and Set-Port-Feature
+requests.  Values that are too large can cause the driver to perform
+an invalid left shift of more than 32 bits.  Ironically, two of those
+left shifts are unnecessary, because they implement Set-Port-Feature
+requests that hubs are not required to support, according to section
+11.24.2.13 of the USB-2.0 spec.
+
+This patch adds the appropriate checks for the port feature selector
+values and removes the unnecessary feature settings.  It also rejects
+requests to set the TEST feature or to set or clear the INDICATOR and
+C_OVERCURRENT features, as none of these are relevant to dummy-hcd's
+root-hub emulation.
+
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+5925509f78293baa7331@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201230162044.GA727759@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/udc/dummy_hcd.c | 35 ++++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index ab5e978b5052..1a953f44183a 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2118,9 +2118,21 @@ static int dummy_hub_control(
+ 				dum_hcd->port_status &= ~USB_PORT_STAT_POWER;
+ 			set_link_state(dum_hcd);
+ 			break;
+-		default:
++		case USB_PORT_FEAT_ENABLE:
++		case USB_PORT_FEAT_C_ENABLE:
++		case USB_PORT_FEAT_C_SUSPEND:
++			/* Not allowed for USB-3 */
++			if (hcd->speed == HCD_USB3)
++				goto error;
++			fallthrough;
++		case USB_PORT_FEAT_C_CONNECTION:
++		case USB_PORT_FEAT_C_RESET:
+ 			dum_hcd->port_status &= ~(1 << wValue);
+ 			set_link_state(dum_hcd);
++			break;
++		default:
++		/* Disallow INDICATOR and C_OVER_CURRENT */
++			goto error;
+ 		}
+ 		break;
+ 	case GetHubDescriptor:
+@@ -2281,18 +2293,17 @@ static int dummy_hub_control(
+ 			 */
+ 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
+ 			fallthrough;
++		case USB_PORT_FEAT_C_CONNECTION:
++		case USB_PORT_FEAT_C_RESET:
++		case USB_PORT_FEAT_C_ENABLE:
++		case USB_PORT_FEAT_C_SUSPEND:
++			/* Not allowed for USB-3, and ignored for USB-2 */
++			if (hcd->speed == HCD_USB3)
++				goto error;
++			break;
+ 		default:
+-			if (hcd->speed == HCD_USB3) {
+-				if ((dum_hcd->port_status &
+-				     USB_SS_PORT_STAT_POWER) != 0) {
+-					dum_hcd->port_status |= (1 << wValue);
+-				}
+-			} else
+-				if ((dum_hcd->port_status &
+-				     USB_PORT_STAT_POWER) != 0) {
+-					dum_hcd->port_status |= (1 << wValue);
+-				}
+-			set_link_state(dum_hcd);
++		/* Disallow TEST, INDICATOR, and C_OVER_CURRENT */
++			goto error;
+ 		}
+ 		break;
+ 	case GetPortErrorCount:
+-- 
+2.30.0
+
 
