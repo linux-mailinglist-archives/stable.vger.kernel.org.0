@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 890802E7983
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CFA2E795B
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727816AbgL3NKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+        id S1727176AbgL3NIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:08:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726710AbgL3NEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DF1E224B0;
-        Wed, 30 Dec 2020 13:03:44 +0000 (UTC)
+        id S1727410AbgL3NFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:05:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B36224D2;
+        Wed, 30 Dec 2020 13:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333426;
-        bh=7ig1rKJIVwtSJ8LzofyjMuBDe2lGk1Ll4z/G22TAaMI=;
+        s=k20201202; t=1609333427;
+        bh=q6UJkQe1QYTsHOKpnSjLhccTAAYGFuhj1I2qM0dN3ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rS2GMLPbFWUTp7Bzs9cVEJMAox7ew/QZ7fIKyue6V8VNbpRRefNWmLE4ouSkAhOWp
-         gxdFU6h68h8+SD7nddDyefI5E7167+eX8DsDPOeAez6Mfd8ehD3rB9eRLY/WUNGVef
-         yD74xeVeFlol6Ert/rQMRwiXirztoWZMmuCsjrVbrgP7WUS5rkat/N3l6DruKOdHA0
-         33Mxd0kxLuuFRsFXi2/DOWcxDi118kpnf+s2VHmCvJV7R+90VDp7eMEseIsCUnXimF
-         tQ+ac3uab2loGTfTfO1Hky2ryxBT6bVFRcIlysZSMxRR14/x+xdmBeXs0HZuvwThBT
-         DUB0PrCuoA67A==
+        b=bmJf87kJvwPuAGYbXV0fSdd0AVSpSizRkd3o8DzN6nfgwkvsjvcpESH4yT15BLlE3
+         IxuXAv+xs6D4AkRR6nS6mt69xIT8cjM+est5ncVTlUsSI81tV+TfL+Z+G1eVy341ci
+         2RPWyGszdfOxVN0vxl9sMlnyghaJ7kSk9llm56Q9bYi0a2oir7dB69/fWnOJtydQ8d
+         PtCYKFwsPgZ4QWNCepEYh7EobFIhcf81lDmAiJ9A9P4qHTgS/NRR6xyF5bncg/RpHF
+         ri7k9tL9aRi8Um1T5qjeOlniVTEulF4B1Zh9QrqywNt91BNDunMVX87vZuarbRpDW/
+         d7ewlfMSAg79A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jake Wang <haonan.wang2@amd.com>,
-        Yongqiang Sun <yongqiang.sun@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 23/31] drm/amd/display: updated wm table for Renoir
-Date:   Wed, 30 Dec 2020 08:03:05 -0500
-Message-Id: <20201230130314.3636961-23-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 24/31] tick/sched: Remove bogus boot "safety" check
+Date:   Wed, 30 Dec 2020 08:03:06 -0500
+Message-Id: <20201230130314.3636961-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -45,61 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jake Wang <haonan.wang2@amd.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 410066d24cfc1071be25e402510367aca9db5cb6 ]
+[ Upstream commit ba8ea8e7dd6e1662e34e730eadfc52aa6816f9dd ]
 
-[Why]
-For certain timings, Renoir may underflow due to sr exit
-latency being too slow.
+can_stop_idle_tick() checks whether the do_timer() duty has been taken over
+by a CPU on boot. That's silly because the boot CPU always takes over with
+the initial clockevent device.
 
-[How]
-Updated wm table for renoir.
+But even if no CPU would have installed a clockevent and taken over the
+duty then the question whether the tick on the current CPU can be stopped
+or not is moot. In that case the current CPU would have no clockevent
+either, so there would be nothing to keep ticking.
 
-Signed-off-by: Jake Wang <haonan.wang2@amd.com>
-Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Remove it.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lore.kernel.org/r/20201206212002.725238293@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c    | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ kernel/time/tick-sched.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-index 6b431db146cd9..1c6e401dd4cce 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-@@ -704,24 +704,24 @@ static struct wm_table ddr4_wm_table_rn = {
- 			.wm_inst = WM_B,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 11.12,
-+			.sr_enter_plus_exit_time_us = 12.48,
- 			.valid = true,
- 		},
- 		{
- 			.wm_inst = WM_C,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 11.12,
-+			.sr_enter_plus_exit_time_us = 12.48,
- 			.valid = true,
- 		},
- 		{
- 			.wm_inst = WM_D,
- 			.wm_type = WM_TYPE_PSTATE_CHG,
- 			.pstate_latency_us = 11.72,
--			.sr_exit_time_us = 10.12,
--			.sr_enter_plus_exit_time_us = 11.48,
-+			.sr_exit_time_us = 11.12,
-+			.sr_enter_plus_exit_time_us = 12.48,
- 			.valid = true,
- 		},
- 	}
+diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
+index 81632cd5e3b72..e8d351b7f9b03 100644
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -941,13 +941,6 @@ static bool can_stop_idle_tick(int cpu, struct tick_sched *ts)
+ 		 */
+ 		if (tick_do_timer_cpu == cpu)
+ 			return false;
+-		/*
+-		 * Boot safety: make sure the timekeeping duty has been
+-		 * assigned before entering dyntick-idle mode,
+-		 * tick_do_timer_cpu is TICK_DO_TIMER_BOOT
+-		 */
+-		if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_BOOT))
+-			return false;
+ 
+ 		/* Should not happen for nohz-full */
+ 		if (WARN_ON_ONCE(tick_do_timer_cpu == TICK_DO_TIMER_NONE))
 -- 
 2.27.0
 
