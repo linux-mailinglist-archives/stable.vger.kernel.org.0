@@ -2,98 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76CCA2E7A7F
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 16:42:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5F22E7A9A
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 16:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbgL3Plk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 10:41:40 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:41133 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726533AbgL3Plk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 10:41:40 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id DDA835C0050;
-        Wed, 30 Dec 2020 10:40:53 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 30 Dec 2020 10:40:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=TUh6I4m1JvbyJsLFtp/BvpmkKzt
-        UH2S21H/iXrSq0fM=; b=fC2b8kuGxkYN25j38l4T1hM7YfsaWsYYnMdSd3YzAxh
-        E+oK9iXfq7gSmAr0jUL9mXRC7ifw/CTSpgvS4ezzfuXC8B0W2kie/oF+Zpz5j2LC
-        8fPuWEKibQWRTGIDU8FCJwbZa3erXonHicXVqU87mn3t3powtNWag+OG4KH7CmaS
-        1Agl2p/ncBC7u4zOmvTsbse6j3vjaNSZpoOQf1txMc/az9zZGvIvpwmMPeef3ygz
-        6mSa2pdf4cvAMMiLjwtH4SMZnsIj0GA0AUWL8qFaXKMRWLlE8cNVImC/iJC/j9S+
-        Ht6Ed2l+m2mlxx7lHzcLA2oyin7xwkSFblLYPviypAg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TUh6I4
-        m1JvbyJsLFtp/BvpmkKztUH2S21H/iXrSq0fM=; b=HDUL2fOmiQDsI4ICwphH0r
-        DuJBTY23LWvMzlF5ovC+UXhajqxYu4Z2FrS3t0BPOCa+/6FcUX3T8zZdFdoknMZ6
-        ZeY0HRMsHAnYVbOCIhs/DrisKleu7Jg4jVilcgYYDs5IwevNLCXgzg6MgXfQV3aY
-        OFRn4nmiYav9USHAn6yYl9uv5IRHl+QqY1WHUXi4urzVodcBYJ87hp7AZPm41ZvD
-        rZOpA2tVKSX3tnSqrYsrm2SvLOHzvQssJGokWyUP3jpm+LYLRJxG7vmc6N086c5u
-        r2FFwLYGC5ZnR2N5e4XeLE5eFZ4XBapQd7Qs6LBkW7NW5bEPPKDdTrJNteJbhTwA
-        ==
-X-ME-Sender: <xms:hZ_sXwHJUNPS0i4kHsH_QK8k8dgXc3pLL1vaMxUXpp2s82YD9luk_w>
-    <xme:hZ_sX5WX3gDMQll5DiZPlFwVNLWpqS7IMzzU9uXKxQ_JFchrNjAzqFc_KkvN1QKm1
-    NonB2jU2s3ALw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddvfedgjeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:hZ_sX6LAskXaoKj4_vWCT_zBHoHsqIVU9VuHXVjL3p8DruujsfiIEA>
-    <xmx:hZ_sXyH9aJw6NwnByZ266ILSTOuNylj6hEioPI-tJ_M__RuydFP9zQ>
-    <xmx:hZ_sX2UxzyBJ03q7cqxEpEqYIHQhZLCIAPWhepxWG-T4GIS2R-kXuA>
-    <xmx:hZ_sX1SfwLxtUsOueKFlLfxpnBexUpfVVeCxIrRkMMn5OSmMOaD37Q>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EF6AE24005B;
-        Wed, 30 Dec 2020 10:40:52 -0500 (EST)
-Date:   Wed, 30 Dec 2020 16:42:15 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-fscrypt@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        linux-mtd@lists.infradead.org
-Subject: Re: [PATCH 4.19 0/4] fscrypt: prevent creating duplicate encrypted
- filenames
-Message-ID: <X+yf12YbaUciBwwf@kroah.com>
-References: <20201228191211.138300-1-ebiggers@kernel.org>
+        id S1726485AbgL3Pqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 10:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726290AbgL3Pqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 10:46:32 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC496C061799;
+        Wed, 30 Dec 2020 07:45:51 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id m5so17737748wrx.9;
+        Wed, 30 Dec 2020 07:45:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=FoKA7gVAfReH3oyk3YoEvuOTjtVbOK3KIM2V0Ji6XEk=;
+        b=RDdkntD1m3pjC6LFyHLO+tU0HHLXnhnvue52AeZYn6AhgGMiwhyx82e4sXY6kDcwzX
+         TziQXa/3VhRqVkmqo8n+BIwRRX4qa6bj39675UpJ0IOdhF5noeyaHfgCP8tNrMfV3Fui
+         9LeGxRzHvj92/s3CaGlFbT8MMqC7Yr7QP/wHg5f7+uWT3D6ksyn1AgVOXauvsdSaROsh
+         pfupXoQs8E4FTCwWzFireKQqPriI/L5gphsioSZkKrRIx5xKM216ga5Hp/4GekWz++UB
+         dv6hCIu/NG2MazrmQ/281MOirK7PR9YGkSaKitlXDP6Oo7s0NBwfgHd2ULTlh9moYaf1
+         M5zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=FoKA7gVAfReH3oyk3YoEvuOTjtVbOK3KIM2V0Ji6XEk=;
+        b=IhKxiv0PA9mx9CXG11Y4Nc3c0No3EyY6nJnyFBJvc2HnZLcrJA9FYCe3iUH3hGfguN
+         Iu3zLxhJHl6W7FOOsGw3ABcEbWssVdR6AKe7QIPAI9N656kLMq1jsE8YL1wVPtIF83aG
+         kyXIzY0+R6UgD6y51tBU++6ewgUipuxOTdmDg9630tqgjT6AVAQY8fd6qJiQY2ys6CAC
+         /jZqHXEzcsIvvf74iJSafPBdTbMv6j9gEcpKHidIqyiUF33cV6GUQXAcaFi8/t7dkTzg
+         5EWaYuDb6jIBjaI23KEG/S3VObw5nsT6FuU7Ddrqc9e3Xe3YWULDeLtcHDR2VUcLcKtb
+         bAhA==
+X-Gm-Message-State: AOAM532LiPnQqnniC42W4iu78ZJ0KIQ/GDe3rwtuaHYS+ta4W5OcuS75
+        njuZs+xcTQ+/hh7hFAGLYxim32x82ec=
+X-Google-Smtp-Source: ABdhPJzAzlRqQuQBd9dwMDQKlpFX82QEgmB4v5WWgC/2Eapj03Dx6oJcPfxmbMLvVAtYwk3qZqbjQA==
+X-Received: by 2002:a5d:4d4f:: with SMTP id a15mr60913349wru.315.1609343150422;
+        Wed, 30 Dec 2020 07:45:50 -0800 (PST)
+Received: from cl-fw-1.fritz.box (p200300d86714d50000b12fbf0e2de53d.dip0.t-ipconnect.de. [2003:d8:6714:d500:b1:2fbf:e2d:e53d])
+        by smtp.gmail.com with ESMTPSA id y68sm8285745wmc.0.2020.12.30.07.45.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Dec 2020 07:45:49 -0800 (PST)
+Message-ID: <2f0acfa1330ca6b40bff564fd317c8029eb23453.camel@gmail.com>
+Subject: Re: sound
+From:   Christian Labisch <clnetbox@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Wed, 30 Dec 2020 16:45:49 +0100
+In-Reply-To: <X+yedztHPUK4Qryc@kroah.com>
+References: <d1b1e6b0e3af13f3756a34131ffb84df6a209ee0.camel@gmail.com>
+         <X+yedztHPUK4Qryc@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201228191211.138300-1-ebiggers@kernel.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 28, 2020 at 11:12:07AM -0800, Eric Biggers wrote:
-> Backport four commits from v5.11-rc1.  I resolved conflicts in the first
-> two.
-> 
-> Eric Biggers (4):
->   fscrypt: add fscrypt_is_nokey_name()
->   ext4: prevent creating duplicate encrypted filenames
->   f2fs: prevent creating duplicate encrypted filenames
->   ubifs: prevent creating duplicate encrypted filenames
-> 
->  fs/crypto/hooks.c               | 10 +++++-----
->  fs/ext4/namei.c                 |  3 +++
->  fs/f2fs/f2fs.h                  |  2 ++
->  fs/ubifs/dir.c                  | 17 +++++++++++++----
->  include/linux/fscrypt_notsupp.h |  5 +++++
->  include/linux/fscrypt_supp.h    | 29 +++++++++++++++++++++++++++++
->  6 files changed, 57 insertions(+), 9 deletions(-)
-> 
-> -- 
-> 2.29.2
-> 
+Thank you Greg,
 
-All now queued up, thanks.
+I am running Fedora 33 with kernel 5.9.16, which works correctly.
+All stable 5.10 versions up to 5.10.3 are having the sound issue.
+Once 5.10.4 will be available on koji I'm gonna test if it works.
 
-greg k-h
+Thanks again !
+
+Regards,
+Christian
+
+On Wed, 2020-12-30 at 16:36 +0100, Greg KH wrote:
+> On Wed, Dec 30, 2020 at 04:26:00PM +0100, Christian Labisch wrote:
+> > Hello !
+> > 
+> > I could need your help ... I have tested the new kernel 5.10.3 and sound doesn't work with this
+> > version.
+> > Seems the new Intel audio drivers are the main reason. What can be done ? Do you have any ideas
+> > ?
+> > 
+> > Intel Catpt driver support is new ... This deprecates the previous Haswell SoC audio driver code
+> > previously providing the audio capabilities.
+> > And I am having a Haswell CPU -> Audio device: Intel Corporation Xeon E3-1200 v3/4th Gen Core
+> > Processor HD Audio Controller (rev 06)
+> 
+> Can you try 5.10.4?  I think a fix for this is in there as was reported
+> by another user yesterday.
+> 
+> If not, can you run 'git bisect' on the kernels between the last good
+> one that worked for you, and the one that doesn't?
+> 
+> thanks,
+> 
+> greg k-h
+
