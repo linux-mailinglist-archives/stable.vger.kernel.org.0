@@ -2,111 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE42A2E7909
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:07:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2242E799B
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727617AbgL3NFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:05:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727599AbgL3NFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:05:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03EA722475;
-        Wed, 30 Dec 2020 13:04:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333500;
-        bh=WR7hUBwMacnTaiAjrNtBAehlzFo9ES5p+iOWVDWTonA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Py0bG8NUFPxIkv01KFhEzj47EhqMqZNt5RZwL/zAJ3dAz/y+AmujZaIYK08lWK/1q
-         JIIGH8ly3eKHzFd0xIkdHG3m21wi4eMwRqJmPacmg5mgooFmgFNJNsKe+e89EyRv/t
-         bjQ5xnGFDJV3IfXLt0T805rZWQwHKDsHe2JGiyP8+CinX1tW5QbsczvL6d7DtjXGMl
-         B/uCZDafsnDCq22/llQM8pBZWexdqhXkdyXzz50+YgiheTAPndz3FK4LLTnoZFFTNE
-         5xWoExcTu9znQ8IPGwR7GkaJIX/PCBygSvN+mxP/+0e5iBPNqEwJND4BoutB7Tja6p
-         w96pT+fHeVzew==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jessica Yu <jeyu@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        id S1726861AbgL3NRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:17:20 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:35782 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726810AbgL3NRU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 08:17:20 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E062B1C0B85; Wed, 30 Dec 2020 14:16:35 +0100 (CET)
+Date:   Wed, 30 Dec 2020 14:16:35 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Zhang Qilong <zhangqilong3@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 5/5] module: delay kobject uevent until after module init call
-Date:   Wed, 30 Dec 2020 08:04:54 -0500
-Message-Id: <20201230130454.3637785-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201230130454.3637785-1-sashal@kernel.org>
-References: <20201230130454.3637785-1-sashal@kernel.org>
+Subject: Re: [PATCH 4.19 154/346] crypto: omap-aes - Fix PM disable depth
+ imbalance in omap_aes_probe
+Message-ID: <20201230131635.GA15217@duo.ucw.cz>
+References: <20201228124919.745526410@linuxfoundation.org>
+ <20201228124927.229346776@linuxfoundation.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+In-Reply-To: <20201228124927.229346776@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Apparently there has been a longstanding race between udev/systemd and
-the module loader. Currently, the module loader sends a uevent right
-after sysfs initialization, but before the module calls its init
-function. However, some udev rules expect that the module has
-initialized already upon receiving the uevent.
+Hi!
 
-This race has been triggered recently (see link in references) in some
-systemd mount unit files. For instance, the configfs module creates the
-/sys/kernel/config mount point in its init function, however the module
-loader issues the uevent before this happens. sys-kernel-config.mount
-expects to be able to mount /sys/kernel/config upon receipt of the
-module loading uevent, but if the configfs module has not called its
-init function yet, then this directory will not exist and the mount unit
-fails. A similar situation exists for sys-fs-fuse-connections.mount, as
-the fuse sysfs mount point is created during the fuse module's init
-function. If udev is faster than module initialization then the mount
-unit would fail in a similar fashion.
+> From: Zhang Qilong <zhangqilong3@huawei.com>
+>=20
+> [ Upstream commit ff8107200367f4abe0e5bce66a245e8d0f2d229e ]
+>=20
+> The pm_runtime_enable will increase power disable depth.
+> Thus a pairing decrement is needed on the error handling
+> path to keep it balanced according to context.
 
-To fix this race, delay the module KOBJ_ADD uevent until after the
-module has finished calling its init routine.
+Oops, this is complex.
 
-References: https://github.com/systemd/systemd/issues/17586
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- kernel/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+First, same bug exist in 4.4, but is not fixed there, and there is
+missing pm_runtime_put() there and elsewhere.
 
-diff --git a/kernel/module.c b/kernel/module.c
-index dcfc811d9ae2d..e6afc950357a5 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1779,7 +1779,6 @@ static int mod_sysfs_init(struct module *mod)
- 	if (err)
- 		mod_kobject_put(mod);
- 
--	/* delay uevent until full sysfs population */
- out:
- 	return err;
- }
-@@ -1813,7 +1812,6 @@ static int mod_sysfs_setup(struct module *mod,
- 	add_sect_attrs(mod, info);
- 	add_notes_attrs(mod, info);
- 
--	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
- 	return 0;
- 
- out_unreg_param:
-@@ -3301,6 +3299,9 @@ static noinline int do_init_module(struct module *mod)
- 	blocking_notifier_call_chain(&module_notify_list,
- 				     MODULE_STATE_LIVE, mod);
- 
-+	/* Delay uevent until module has finished its init routine */
-+	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
-+
- 	/*
- 	 * We need to finish all async code before the module init sequence
- 	 * is done.  This has potential to deadlock.  For example, a newly
--- 
-2.27.0
+4.4 needs these two fixes + backport of ff81072003.
 
+4.19 needs fixes similar to these, at three places.
+
+mainline is okay, afaict.
+
+Best regards,
+								Pavel
+
+diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
+index eba23147c0ee..48370711c794 100644
+--- a/drivers/crypto/omap-aes.c
++++ b/drivers/crypto/omap-aes.c
+@@ -801,6 +801,7 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
+=20
+ 	err =3D pm_runtime_get_sync(dd->dev);
+ 	if (err < 0) {
++		pm_runtime_put_sync(dd->dev);
+ 		dev_err(dd->dev, "%s: failed to get_sync(%d)\n",
+ 			__func__, err);
+ 		return err;
+@@ -1195,6 +1196,7 @@ static int omap_aes_probe(struct platform_device *pde=
+v)
+ 	pm_runtime_enable(dev);
+ 	err =3D pm_runtime_get_sync(dev);
+ 	if (err < 0) {
++		pm_runtime_put_sync(dev);	 =20
+ 		dev_err(dev, "%s: failed to get_sync(%d)\n",
+ 			__func__, err);
+ 		goto err_res;
+
+
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX+x9swAKCRAw5/Bqldv6
+8scpAJ9emRTflGff3LWkeo863xBUxdeqHgCfaTTdjzeMb4e7fsxY/GZcS424FHU=
+=DHbF
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--
