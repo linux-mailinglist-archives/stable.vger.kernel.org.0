@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 301232E78F2
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:07:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 095102E794B
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbgL3NEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:04:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
+        id S1727125AbgL3NEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:04:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727088AbgL3NEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726710AbgL3NEm (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:04:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58914223C8;
-        Wed, 30 Dec 2020 13:03:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F862223E0;
+        Wed, 30 Dec 2020 13:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333411;
-        bh=OYgoxwaQo+Hv7D5mPmTO4XJqWeAnsjRU3BLSa0axZcY=;
+        s=k20201202; t=1609333412;
+        bh=TNOhhCUplLqQ1T9dL2MpnNHoQB5BNL8WETJBWhzPHGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jurUJduDwiNbGPvAc8p8lTImOXJLbO8BCKnawyqW8d/y02C7jMpzqUpp4Oxtg1OKQ
-         4cdIE5LcQWo2PdHj+1f5OCW3wEFg/b6f+baqQmhzdXuyqf58kgSCDzEtPPANufZcmV
-         EMggk+4CVpivup0U4z37oBiP7Hn9W7neeLP08gXaJuomHLNb5mydDdCLLm4nQUKcxA
-         Rd6Ktxd4br/0OMeAo6FOdy5khHOX1XCarhKbYt2WCJDvDb/O8T6beWVCU+0G0dKDlx
-         qracPdCf3obExFbctqhA55PWTFbMcCXWqvcObN5tOZiAmllU/NDm4Czv9eOLeWefKx
-         YntiqKHS1pUhw==
+        b=Ye3sz5AAPUIfI5pWxJfNVFEnIoSmpzvLt6oVExZc+qHh4z/W7/BSWkVE3EDzSjE0y
+         G9wUUKSVBd10syRdkv9ZHeVhDqrxoJwI6qrIJuKmpNLDHjRJUEWb1FeUfm5doJbdfC
+         cTGrS69rwYN96gv8Nc0ZUzYe6MHAFfHAhRKD9bTG7eDkv/AR+b3EMK3kRktW+AC2qC
+         NNXnRRoFtBdgFT+oQplArDXEHSrIcuBtWchNbzHCiMQ2p8pjrDlfrnUn5w5NE7QgWZ
+         qeaKSQgxZB4zpkXu339jX2qB6ARACdaJCT5UDtSMOfgZTjbIv7FZpeEt9JFlp7ku87
+         xScN+mee0ce0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daeho Jeong <daehojeong@google.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 12/31] f2fs: fix race of pending_pages in decompression
-Date:   Wed, 30 Dec 2020 08:02:54 -0500
-Message-Id: <20201230130314.3636961-12-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 13/31] module: delay kobject uevent until after module init call
+Date:   Wed, 30 Dec 2020 08:02:55 -0500
+Message-Id: <20201230130314.3636961-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -43,238 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daeho Jeong <daehojeong@google.com>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit 6422a71ef40e4751d59b8c9412e7e2dafe085878 ]
+[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
 
-I found out f2fs_free_dic() is invoked in a wrong timing, but
-f2fs_verify_bio() still needed the dic info and it triggered the
-below kernel panic. It has been caused by the race condition of
-pending_pages value between decompression and verity logic, when
-the same compression cluster had been split in different bios.
-By split bios, f2fs_verify_bio() ended up with decreasing
-pending_pages value before it is reset to nr_cpages by
-f2fs_decompress_pages() and caused the kernel panic.
+Apparently there has been a longstanding race between udev/systemd and
+the module loader. Currently, the module loader sends a uevent right
+after sysfs initialization, but before the module calls its init
+function. However, some udev rules expect that the module has
+initialized already upon receiving the uevent.
 
-[ 4416.564763] Unable to handle kernel NULL pointer dereference
-               at virtual address 0000000000000000
-...
-[ 4416.896016] Workqueue: fsverity_read_queue f2fs_verity_work
-[ 4416.908515] pc : fsverity_verify_page+0x20/0x78
-[ 4416.913721] lr : f2fs_verify_bio+0x11c/0x29c
-[ 4416.913722] sp : ffffffc019533cd0
-[ 4416.913723] x29: ffffffc019533cd0 x28: 0000000000000402
-[ 4416.913724] x27: 0000000000000001 x26: 0000000000000100
-[ 4416.913726] x25: 0000000000000001 x24: 0000000000000004
-[ 4416.913727] x23: 0000000000001000 x22: 0000000000000000
-[ 4416.913728] x21: 0000000000000000 x20: ffffffff2076f9c0
-[ 4416.913729] x19: ffffffff2076f9c0 x18: ffffff8a32380c30
-[ 4416.913731] x17: ffffffc01f966d97 x16: 0000000000000298
-[ 4416.913732] x15: 0000000000000000 x14: 0000000000000000
-[ 4416.913733] x13: f074faec89ffffff x12: 0000000000000000
-[ 4416.913734] x11: 0000000000001000 x10: 0000000000001000
-[ 4416.929176] x9 : ffffffff20d1f5c7 x8 : 0000000000000000
-[ 4416.929178] x7 : 626d7464ff286b6b x6 : ffffffc019533ade
-[ 4416.929179] x5 : 000000008049000e x4 : ffffffff2793e9e0
-[ 4416.929180] x3 : 000000008049000e x2 : ffffff89ecfa74d0
-[ 4416.929181] x1 : 0000000000000c40 x0 : ffffffff2076f9c0
-[ 4416.929184] Call trace:
-[ 4416.929187]  fsverity_verify_page+0x20/0x78
-[ 4416.929189]  f2fs_verify_bio+0x11c/0x29c
-[ 4416.929192]  f2fs_verity_work+0x58/0x84
-[ 4417.050667]  process_one_work+0x270/0x47c
-[ 4417.055354]  worker_thread+0x27c/0x4d8
-[ 4417.059784]  kthread+0x13c/0x320
-[ 4417.063693]  ret_from_fork+0x10/0x18
+This race has been triggered recently (see link in references) in some
+systemd mount unit files. For instance, the configfs module creates the
+/sys/kernel/config mount point in its init function, however the module
+loader issues the uevent before this happens. sys-kernel-config.mount
+expects to be able to mount /sys/kernel/config upon receipt of the
+module loading uevent, but if the configfs module has not called its
+init function yet, then this directory will not exist and the mount unit
+fails. A similar situation exists for sys-fs-fuse-connections.mount, as
+the fuse sysfs mount point is created during the fuse module's init
+function. If udev is faster than module initialization then the mount
+unit would fail in a similar fashion.
 
-Chao pointed this can happen by the below race condition.
+To fix this race, delay the module KOBJ_ADD uevent until after the
+module has finished calling its init routine.
 
-Thread A        f2fs_post_read_wq          fsverity_wq
-- f2fs_read_multi_pages()
-  - f2fs_alloc_dic
-   - dic->pending_pages = 2
-   - submit_bio()
-   - submit_bio()
-               - f2fs_post_read_work() handle first bio
-                - f2fs_decompress_work()
-                 - __read_end_io()
-                  - f2fs_decompress_pages()
-                   - dic->pending_pages--
-                - enqueue f2fs_verity_work()
-                                           - f2fs_verity_work() handle first bio
-                                            - f2fs_verify_bio()
-                                             - dic->pending_pages--
-               - f2fs_post_read_work() handle second bio
-                - f2fs_decompress_work()
-                - enqueue f2fs_verity_work()
-                                            - f2fs_verify_pages()
-                                            - f2fs_free_dic()
-
-                                          - f2fs_verity_work() handle second bio
-                                           - f2fs_verfy_bio()
-                                                 - use-after-free on dic
-
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+References: https://github.com/systemd/systemd/issues/17586
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c |  2 --
- fs/f2fs/data.c     | 58 +++++++++++++++++++++++++++++++++++++---------
- fs/f2fs/f2fs.h     |  1 +
- 3 files changed, 48 insertions(+), 13 deletions(-)
+ kernel/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 14262e0f1cd60..c5fee4d7ea72f 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -798,8 +798,6 @@ void f2fs_decompress_pages(struct bio *bio, struct page *page, bool verity)
- 	if (cops->destroy_decompress_ctx)
- 		cops->destroy_decompress_ctx(dic);
- out_free_dic:
--	if (verity)
--		atomic_set(&dic->pending_pages, dic->nr_cpages);
- 	if (!verity)
- 		f2fs_decompress_end_io(dic->rpages, dic->cluster_size,
- 								ret, false);
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index be4da52604edc..b29243ee1c3e5 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -202,7 +202,7 @@ static void f2fs_verify_bio(struct bio *bio)
- 		dic = (struct decompress_io_ctx *)page_private(page);
+diff --git a/kernel/module.c b/kernel/module.c
+index b34235082394b..e20499309b2af 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1895,7 +1895,6 @@ static int mod_sysfs_init(struct module *mod)
+ 	if (err)
+ 		mod_kobject_put(mod);
  
- 		if (dic) {
--			if (atomic_dec_return(&dic->pending_pages))
-+			if (atomic_dec_return(&dic->verity_pages))
- 				continue;
- 			f2fs_verify_pages(dic->rpages,
- 						dic->cluster_size);
-@@ -1027,7 +1027,8 @@ static inline bool f2fs_need_verity(const struct inode *inode, pgoff_t idx)
+-	/* delay uevent until full sysfs population */
+ out:
+ 	return err;
+ }
+@@ -1932,7 +1931,6 @@ static int mod_sysfs_setup(struct module *mod,
+ 	add_sect_attrs(mod, info);
+ 	add_notes_attrs(mod, info);
  
- static struct bio *f2fs_grab_read_bio(struct inode *inode, block_t blkaddr,
- 				      unsigned nr_pages, unsigned op_flag,
--				      pgoff_t first_idx, bool for_write)
-+				      pgoff_t first_idx, bool for_write,
-+				      bool for_verity)
- {
- 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	struct bio *bio;
-@@ -1049,7 +1050,7 @@ static struct bio *f2fs_grab_read_bio(struct inode *inode, block_t blkaddr,
- 		post_read_steps |= 1 << STEP_DECRYPT;
- 	if (f2fs_compressed_file(inode))
- 		post_read_steps |= 1 << STEP_DECOMPRESS_NOWQ;
--	if (f2fs_need_verity(inode, first_idx))
-+	if (for_verity && f2fs_need_verity(inode, first_idx))
- 		post_read_steps |= 1 << STEP_VERITY;
+-	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
+ 	return 0;
  
- 	if (post_read_steps) {
-@@ -1079,7 +1080,7 @@ static int f2fs_submit_page_read(struct inode *inode, struct page *page,
- 	struct bio *bio;
+ out_unreg_modinfo_attrs:
+@@ -3639,6 +3637,9 @@ static noinline int do_init_module(struct module *mod)
+ 	blocking_notifier_call_chain(&module_notify_list,
+ 				     MODULE_STATE_LIVE, mod);
  
- 	bio = f2fs_grab_read_bio(inode, blkaddr, 1, op_flags,
--					page->index, for_write);
-+					page->index, for_write, true);
- 	if (IS_ERR(bio))
- 		return PTR_ERR(bio);
- 
-@@ -2133,7 +2134,7 @@ static int f2fs_read_single_page(struct inode *inode, struct page *page,
- 	if (bio == NULL) {
- 		bio = f2fs_grab_read_bio(inode, block_nr, nr_pages,
- 				is_readahead ? REQ_RAHEAD : 0, page->index,
--				false);
-+				false, true);
- 		if (IS_ERR(bio)) {
- 			ret = PTR_ERR(bio);
- 			bio = NULL;
-@@ -2180,6 +2181,8 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
- 	const unsigned blkbits = inode->i_blkbits;
- 	const unsigned blocksize = 1 << blkbits;
- 	struct decompress_io_ctx *dic = NULL;
-+	struct bio_post_read_ctx *ctx;
-+	bool for_verity = false;
- 	int i;
- 	int ret = 0;
- 
-@@ -2245,10 +2248,29 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
- 		goto out_put_dnode;
- 	}
- 
-+	/*
-+	 * It's possible to enable fsverity on the fly when handling a cluster,
-+	 * which requires complicated error handling. Instead of adding more
-+	 * complexity, let's give a rule where end_io post-processes fsverity
-+	 * per cluster. In order to do that, we need to submit bio, if previous
-+	 * bio sets a different post-process policy.
-+	 */
-+	if (fsverity_active(cc->inode)) {
-+		atomic_set(&dic->verity_pages, cc->nr_cpages);
-+		for_verity = true;
++	/* Delay uevent until module has finished its init routine */
++	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
 +
-+		if (bio) {
-+			ctx = bio->bi_private;
-+			if (!(ctx->enabled_steps & (1 << STEP_VERITY))) {
-+				__submit_bio(sbi, bio, DATA);
-+				bio = NULL;
-+			}
-+		}
-+	}
-+
- 	for (i = 0; i < dic->nr_cpages; i++) {
- 		struct page *page = dic->cpages[i];
- 		block_t blkaddr;
--		struct bio_post_read_ctx *ctx;
- 
- 		blkaddr = data_blkaddr(dn.inode, dn.node_page,
- 						dn.ofs_in_node + i + 1);
-@@ -2264,17 +2286,31 @@ int f2fs_read_multi_pages(struct compress_ctx *cc, struct bio **bio_ret,
- 		if (!bio) {
- 			bio = f2fs_grab_read_bio(inode, blkaddr, nr_pages,
- 					is_readahead ? REQ_RAHEAD : 0,
--					page->index, for_write);
-+					page->index, for_write, for_verity);
- 			if (IS_ERR(bio)) {
-+				unsigned int remained = dic->nr_cpages - i;
-+				bool release = false;
-+
- 				ret = PTR_ERR(bio);
- 				dic->failed = true;
--				if (!atomic_sub_return(dic->nr_cpages - i,
--							&dic->pending_pages)) {
-+
-+				if (for_verity) {
-+					if (!atomic_sub_return(remained,
-+						&dic->verity_pages))
-+						release = true;
-+				} else {
-+					if (!atomic_sub_return(remained,
-+						&dic->pending_pages))
-+						release = true;
-+				}
-+
-+				if (release) {
- 					f2fs_decompress_end_io(dic->rpages,
--							cc->cluster_size, true,
--							false);
-+						cc->cluster_size, true,
-+						false);
- 					f2fs_free_dic(dic);
- 				}
-+
- 				f2fs_put_dnode(&dn);
- 				*bio_ret = NULL;
- 				return ret;
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 14ace0e21d389..72a25387f49bc 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1412,6 +1412,7 @@ struct decompress_io_ctx {
- 	size_t rlen;			/* valid data length in rbuf */
- 	size_t clen;			/* valid data length in cbuf */
- 	atomic_t pending_pages;		/* in-flight compressed page count */
-+	atomic_t verity_pages;		/* in-flight page count for verity */
- 	bool failed;			/* indicate IO error during decompression */
- 	void *private;			/* payload buffer for specified decompression algorithm */
- 	void *private2;			/* extra payload buffer */
+ 	/*
+ 	 * We need to finish all async code before the module init sequence
+ 	 * is done.  This has potential to deadlock.  For example, a newly
 -- 
 2.27.0
 
