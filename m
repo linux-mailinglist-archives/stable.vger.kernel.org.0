@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C0D2E796C
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5152E7966
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbgL3NJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:09:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+        id S1727102AbgL3NI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:08:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727359AbgL3NFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:05:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18C6E2256F;
-        Wed, 30 Dec 2020 13:04:18 +0000 (UTC)
+        id S1727354AbgL3NFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:05:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1911222227;
+        Wed, 30 Dec 2020 13:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333458;
-        bh=lnVSXdFmehZrpQWUW6F5loKkRCcy5WSEoMPQzN5Nx7w=;
+        s=k20201202; t=1609333459;
+        bh=DzPD7MUYEs37ZsR4J4eFe2J1AKJMrumiPDtaWLyiu60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffZjZQtkxSzEvA9U7gRV53i4oDx+KNuKwwFQaw4Uy7z9csu8dJFRQhivPtLYEUFDf
-         NTBsmLIv4VbVe21ntommMnEf6//lwHsTOOtUVfrPuqc93YosPmxW+3YLXnELMHaOu/
-         J6tlMTpok6hXHrjuek5dED7kUHk9Ziwc1w5HwvYNYCgE/JvNwoybClMDbTMQbySqcV
-         9Y2YJv5hhj2uTYboOdd6jX+92AJ52Nvd83yjbJ9yd8IDntBTGgO0a468eMaGRd7iAJ
-         TKCYDPNnUD9EiFCdIEwO1eHYxA2f4a11fLPB73TJ1SantawNh/6Dmwe21194t0U6s7
-         tc6NFGopZMv2w==
+        b=pSu2EdUWYYHJ9JkXcEGMTxAZSry/dD2QfIlIDodJ8di3Yy0P3wwPLKl1pxf4VR6qf
+         Yk0QQPjTyBCLt/1rBTS68vujqJLJ6yF96FXBLtuhrz7UNOchUi8ufgzA+lIWfEDgjj
+         FpFz12WcQkZ/L2qCrWMjFo5pAJhHfi3O0D4riw0nzgYYQS+1t8iAD1bzMxd1V6gQgD
+         YzK7np65z4wZYwVsLwxEMxUdyidpNN1BpMxoDs0oVotejPoc9IIZePcyoiRvtbO35A
+         OHOne8UkmKT7YpBoB1+dcQWjFOtJdbed5+yiBnnCFaDDKpViRM+3i9xxNb3gMR0Aco
+         IpTrBuSsnYfRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 15/17] tick/sched: Remove bogus boot "safety" check
-Date:   Wed, 30 Dec 2020 08:03:55 -0500
-Message-Id: <20201230130357.3637261-15-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Lars-Peter Clausen <lars@metafoo.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 16/17] ALSA: pcm: Clear the full allocated memory at hw_params
+Date:   Wed, 30 Dec 2020 08:03:56 -0500
+Message-Id: <20201230130357.3637261-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
 References: <20201230130357.3637261-1-sashal@kernel.org>
@@ -42,47 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ba8ea8e7dd6e1662e34e730eadfc52aa6816f9dd ]
+[ Upstream commit 618de0f4ef11acd8cf26902e65493d46cc20cc89 ]
 
-can_stop_idle_tick() checks whether the do_timer() duty has been taken over
-by a CPU on boot. That's silly because the boot CPU always takes over with
-the initial clockevent device.
+The PCM hw_params core function tries to clear up the PCM buffer
+before actually using for avoiding the information leak from the
+previous usages or the usage before a new allocation.  It performs the
+memset() with runtime->dma_bytes, but this might still leave some
+remaining bytes untouched; namely, the PCM buffer size is aligned in
+page size for mmap, hence runtime->dma_bytes doesn't necessarily cover
+all PCM buffer pages, and the remaining bytes are exposed via mmap.
 
-But even if no CPU would have installed a clockevent and taken over the
-duty then the question whether the tick on the current CPU can be stopped
-or not is moot. In that case the current CPU would have no clockevent
-either, so there would be nothing to keep ticking.
+This patch changes the memory clearance to cover the all buffer pages
+if the stream is supposed to be mmap-ready (that guarantees that the
+buffer size is aligned in page size).
 
-Remove it.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lore.kernel.org/r/20201206212002.725238293@linutronix.de
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/tick-sched.c | 7 -------
- 1 file changed, 7 deletions(-)
+ sound/core/pcm_native.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
-index 5c9fcc72460df..4419486d7413c 100644
---- a/kernel/time/tick-sched.c
-+++ b/kernel/time/tick-sched.c
-@@ -916,13 +916,6 @@ static bool can_stop_idle_tick(int cpu, struct tick_sched *ts)
- 		 */
- 		if (tick_do_timer_cpu == cpu)
- 			return false;
--		/*
--		 * Boot safety: make sure the timekeeping duty has been
--		 * assigned before entering dyntick-idle mode,
--		 * tick_do_timer_cpu is TICK_DO_TIMER_BOOT
--		 */
--		if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_BOOT))
--			return false;
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index ec501fbaabe49..0c5b7a54ca81c 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -717,8 +717,13 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 		runtime->boundary *= 2;
  
- 		/* Should not happen for nohz-full */
- 		if (WARN_ON_ONCE(tick_do_timer_cpu == TICK_DO_TIMER_NONE))
+ 	/* clear the buffer for avoiding possible kernel info leaks */
+-	if (runtime->dma_area && !substream->ops->copy_user)
+-		memset(runtime->dma_area, 0, runtime->dma_bytes);
++	if (runtime->dma_area && !substream->ops->copy_user) {
++		size_t size = runtime->dma_bytes;
++
++		if (runtime->info & SNDRV_PCM_INFO_MMAP)
++			size = PAGE_ALIGN(size);
++		memset(runtime->dma_area, 0, size);
++	}
+ 
+ 	snd_pcm_timer_resolution_change(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
 -- 
 2.27.0
 
