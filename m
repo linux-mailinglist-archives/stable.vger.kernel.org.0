@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 941182E798C
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAA92E794A
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728096AbgL3NLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:11:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
+        id S1727124AbgL3NEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:04:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727071AbgL3NEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCF722262;
-        Wed, 30 Dec 2020 13:03:26 +0000 (UTC)
+        id S1727074AbgL3NEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:04:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E93C222BB;
+        Wed, 30 Dec 2020 13:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333406;
-        bh=CzRYXEk9ZbdYqqv0mBK0IJg95yy1SokTxylsOXRqXIw=;
+        s=k20201202; t=1609333408;
+        bh=s4+HcfuJ0V6J9Gc0VBqOVwHwVBoApg00wkamisQWoPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHJOsXHBSVIB10tsFgtImLiQw9Ng9BrQXM9JgiiNkbnAZzqFs4edoOzYYEDNWkTfM
-         rxBcMkCvozDZkoQEbMW5leBHERqb3IZCa5GVSJ05OBVPUlp0wNvX8EpUCXZc0/yu+y
-         nHHAidP4+fk3PrJOonqbp5uQHYpyFE3j9XEjMVswnuGDSxMfhRIZbQzUy2F8MaJ7Wc
-         a2SDp9HDsT6DlYQE43xBOGnNZfURXtvK2GHLbh5iPevXua+d9f5eOvxGdTb5eXBpi2
-         mdRXP8XT3lWaaekdzPshfixZosS++rG1TWk3kBs57CkX9T14V2wKV3JFkgfu16czji
-         4OkQQfnbxKU/Q==
+        b=XksYigQIoY8Qa/uNxF7nozxNlrEGMkXcuzXJ1SJEWKZ2QBM/JhlQYgRdZOIK+W0fg
+         eMy8xpyYXu3ndR2H012hOTape9LiJYmMT8EISAZ9VmZ56xijIDxRvnyKFM3hT9viPK
+         NZhQkBWvcnBdcGiT3PgC4kJhpqniN25DviyYgORKj7l5EGf5AzZi6+T04cfOLxpuF6
+         s0ukkW3a/UuMU6aLbLO8mIRYOtIFq5bUVliwD9zlMArp/p4JkFCDHekujPi/WEmFZB
+         1Lkqe+47p0/tg52uFsEJ8BuNvmffe8VlzuuFSPue663Nkfn/zMXDiyL6H4saicJKbd
+         vJRAldDehf3bA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 09/31] NFSv4: Fix a pNFS layout related use-after-free race when freeing the inode
-Date:   Wed, 30 Dec 2020 08:02:51 -0500
-Message-Id: <20201230130314.3636961-9-sashal@kernel.org>
+Cc:     Daniel Rosenberg <drosen@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.10 10/31] f2fs: Handle casefolding with Encryption
+Date:   Wed, 30 Dec 2020 08:02:52 -0500
+Message-Id: <20201230130314.3636961-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -41,128 +44,323 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Daniel Rosenberg <drosen@google.com>
 
-[ Upstream commit b6d49ecd1081740b6e632366428b960461f8158b ]
+[ Upstream commit 7ad08a58bf67594057362e45cbddd3e27e53e557 ]
 
-When returning the layout in nfs4_evict_inode(), we need to ensure that
-the layout is actually done being freed before we can proceed to free the
-inode itself.
+Expand f2fs's casefolding support to include encrypted directories.  To
+index casefolded+encrypted directories, we use the SipHash of the
+casefolded name, keyed by a key derived from the directory's fscrypt
+master key.  This ensures that the dirhash doesn't leak information
+about the plaintext filenames.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Encryption keys are unavailable during roll-forward recovery, so we
+can't compute the dirhash when recovering a new dentry in an encrypted +
+casefolded directory.  To avoid having to force a checkpoint when a new
+file is fsync'ed, store the dirhash on-disk appended to i_name.
+
+This patch incorporates work by Eric Biggers <ebiggers@google.com>
+and Jaegeuk Kim <jaegeuk@kernel.org>.
+
+Co-developed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Daniel Rosenberg <drosen@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4super.c |  2 +-
- fs/nfs/pnfs.c      | 33 +++++++++++++++++++++++++++++++--
- fs/nfs/pnfs.h      |  5 +++++
- 3 files changed, 37 insertions(+), 3 deletions(-)
+ fs/f2fs/dir.c      | 98 +++++++++++++++++++++++++++++++++++-----------
+ fs/f2fs/f2fs.h     |  8 ++--
+ fs/f2fs/hash.c     | 11 +++++-
+ fs/f2fs/inline.c   |  4 ++
+ fs/f2fs/recovery.c | 12 +++++-
+ fs/f2fs/super.c    |  6 ---
+ 6 files changed, 106 insertions(+), 33 deletions(-)
 
-diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
-index 93f5c1678ec29..984cc42ee54d8 100644
---- a/fs/nfs/nfs4super.c
-+++ b/fs/nfs/nfs4super.c
-@@ -67,7 +67,7 @@ static void nfs4_evict_inode(struct inode *inode)
- 	nfs_inode_evict_delegation(inode);
- 	/* Note that above delegreturn would trigger pnfs return-on-close */
- 	pnfs_return_layout(inode);
--	pnfs_destroy_layout(NFS_I(inode));
-+	pnfs_destroy_layout_final(NFS_I(inode));
- 	/* First call standard NFS clear_inode() code */
- 	nfs_clear_inode(inode);
- 	nfs4_xattr_cache_zap(inode);
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 0e50b9d45c320..07f59dc8cb2e7 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -294,6 +294,7 @@ void
- pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index 4b9ef8bbfa4a9..4ee0b7070c157 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+  *             http://www.samsung.com/
+  */
++#include <asm/unaligned.h>
+ #include <linux/fs.h>
+ #include <linux/f2fs_fs.h>
+ #include <linux/sched/signal.h>
+@@ -206,30 +207,55 @@ static struct f2fs_dir_entry *find_in_block(struct inode *dir,
+ /*
+  * Test whether a case-insensitive directory entry matches the filename
+  * being searched for.
++ *
++ * Returns 1 for a match, 0 for no match, and -errno on an error.
+  */
+-static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
++static int f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
+ 			       const u8 *de_name, u32 de_name_len)
  {
- 	struct inode *inode;
-+	unsigned long i_state;
+ 	const struct super_block *sb = dir->i_sb;
+ 	const struct unicode_map *um = sb->s_encoding;
++	struct fscrypt_str decrypted_name = FSTR_INIT(NULL, de_name_len);
+ 	struct qstr entry = QSTR_INIT(de_name, de_name_len);
+ 	int res;
  
- 	if (!lo)
- 		return;
-@@ -304,8 +305,12 @@ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
- 		if (!list_empty(&lo->plh_segs))
- 			WARN_ONCE(1, "NFS: BUG unfreed layout segments.\n");
- 		pnfs_detach_layout_hdr(lo);
-+		i_state = inode->i_state;
- 		spin_unlock(&inode->i_lock);
- 		pnfs_free_layout_hdr(lo);
-+		/* Notify pnfs_destroy_layout_final() that we're done */
-+		if (i_state & (I_FREEING | I_CLEAR))
-+			wake_up_var(lo);
++	if (IS_ENCRYPTED(dir)) {
++		const struct fscrypt_str encrypted_name =
++			FSTR_INIT((u8 *)de_name, de_name_len);
++
++		if (WARN_ON_ONCE(!fscrypt_has_encryption_key(dir)))
++			return -EINVAL;
++
++		decrypted_name.name = kmalloc(de_name_len, GFP_KERNEL);
++		if (!decrypted_name.name)
++			return -ENOMEM;
++		res = fscrypt_fname_disk_to_usr(dir, 0, 0, &encrypted_name,
++						&decrypted_name);
++		if (res < 0)
++			goto out;
++		entry.name = decrypted_name.name;
++		entry.len = decrypted_name.len;
++	}
++
+ 	res = utf8_strncasecmp_folded(um, name, &entry);
+-	if (res < 0) {
+-		/*
+-		 * In strict mode, ignore invalid names.  In non-strict mode,
+-		 * fall back to treating them as opaque byte sequences.
+-		 */
+-		if (sb_has_strict_encoding(sb) || name->len != entry.len)
+-			return false;
+-		return !memcmp(name->name, entry.name, name->len);
++	/*
++	 * In strict mode, ignore invalid names.  In non-strict mode,
++	 * fall back to treating them as opaque byte sequences.
++	 */
++	if (res < 0 && !sb_has_strict_encoding(sb)) {
++		res = name->len == entry.len &&
++				memcmp(name->name, entry.name, name->len) == 0;
++	} else {
++		/* utf8_strncasecmp_folded returns 0 on match */
++		res = (res == 0);
  	}
+-	return res == 0;
++out:
++	kfree(decrypted_name.name);
++	return res;
+ }
+ #endif /* CONFIG_UNICODE */
+ 
+-static inline bool f2fs_match_name(const struct inode *dir,
++static inline int f2fs_match_name(const struct inode *dir,
+ 				   const struct f2fs_filename *fname,
+ 				   const u8 *de_name, u32 de_name_len)
+ {
+@@ -256,6 +282,7 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
+ 	struct f2fs_dir_entry *de;
+ 	unsigned long bit_pos = 0;
+ 	int max_len = 0;
++	int res = 0;
+ 
+ 	if (max_slots)
+ 		*max_slots = 0;
+@@ -273,10 +300,15 @@ struct f2fs_dir_entry *f2fs_find_target_dentry(const struct f2fs_dentry_ptr *d,
+ 			continue;
+ 		}
+ 
+-		if (de->hash_code == fname->hash &&
+-		    f2fs_match_name(d->inode, fname, d->filename[bit_pos],
+-				    le16_to_cpu(de->name_len)))
+-			goto found;
++		if (de->hash_code == fname->hash) {
++			res = f2fs_match_name(d->inode, fname,
++					      d->filename[bit_pos],
++					      le16_to_cpu(de->name_len));
++			if (res < 0)
++				return ERR_PTR(res);
++			if (res)
++				goto found;
++		}
+ 
+ 		if (max_slots && max_len > *max_slots)
+ 			*max_slots = max_len;
+@@ -326,7 +358,11 @@ static struct f2fs_dir_entry *find_in_level(struct inode *dir,
+ 		}
+ 
+ 		de = find_in_block(dir, dentry_page, fname, &max_slots);
+-		if (de) {
++		if (IS_ERR(de)) {
++			*res_page = ERR_CAST(de);
++			de = NULL;
++			break;
++		} else if (de) {
+ 			*res_page = dentry_page;
+ 			break;
+ 		}
+@@ -448,17 +484,39 @@ void f2fs_set_link(struct inode *dir, struct f2fs_dir_entry *de,
+ 	f2fs_put_page(page, 1);
  }
  
-@@ -734,8 +739,7 @@ pnfs_free_lseg_list(struct list_head *free_me)
+-static void init_dent_inode(const struct f2fs_filename *fname,
++static void init_dent_inode(struct inode *dir, struct inode *inode,
++			    const struct f2fs_filename *fname,
+ 			    struct page *ipage)
+ {
+ 	struct f2fs_inode *ri;
+ 
++	if (!fname) /* tmpfile case? */
++		return;
++
+ 	f2fs_wait_on_page_writeback(ipage, NODE, true, true);
+ 
+ 	/* copy name info. to this inode page */
+ 	ri = F2FS_INODE(ipage);
+ 	ri->i_namelen = cpu_to_le32(fname->disk_name.len);
+ 	memcpy(ri->i_name, fname->disk_name.name, fname->disk_name.len);
++	if (IS_ENCRYPTED(dir)) {
++		file_set_enc_name(inode);
++		/*
++		 * Roll-forward recovery doesn't have encryption keys available,
++		 * so it can't compute the dirhash for encrypted+casefolded
++		 * filenames.  Append it to i_name if possible.  Else, disable
++		 * roll-forward recovery of the dentry (i.e., make fsync'ing the
++		 * file force a checkpoint) by setting LOST_PINO.
++		 */
++		if (IS_CASEFOLDED(dir)) {
++			if (fname->disk_name.len + sizeof(f2fs_hash_t) <=
++			    F2FS_NAME_LEN)
++				put_unaligned(fname->hash, (f2fs_hash_t *)
++					&ri->i_name[fname->disk_name.len]);
++			else
++				file_lost_pino(inode);
++		}
++	}
+ 	set_page_dirty(ipage);
+ }
+ 
+@@ -541,11 +599,7 @@ struct page *f2fs_init_inode_metadata(struct inode *inode, struct inode *dir,
+ 			return page;
  	}
- }
  
--void
--pnfs_destroy_layout(struct nfs_inode *nfsi)
-+static struct pnfs_layout_hdr *__pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- 	struct pnfs_layout_hdr *lo;
- 	LIST_HEAD(tmp_list);
-@@ -753,9 +757,34 @@ pnfs_destroy_layout(struct nfs_inode *nfsi)
- 		pnfs_put_layout_hdr(lo);
- 	} else
- 		spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return lo;
-+}
-+
-+void pnfs_destroy_layout(struct nfs_inode *nfsi)
-+{
-+	__pnfs_destroy_layout(nfsi);
- }
- EXPORT_SYMBOL_GPL(pnfs_destroy_layout);
+-	if (fname) {
+-		init_dent_inode(fname, page);
+-		if (IS_ENCRYPTED(dir))
+-			file_set_enc_name(inode);
+-	}
++	init_dent_inode(dir, inode, fname, page);
  
-+static bool pnfs_layout_removed(struct nfs_inode *nfsi,
-+				struct pnfs_layout_hdr *lo)
-+{
-+	bool ret;
+ 	/*
+ 	 * This file should be checkpointed during fsync.
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 9a321c52facec..8cba43eb0b24a 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -533,9 +533,11 @@ struct f2fs_filename {
+ #ifdef CONFIG_UNICODE
+ 	/*
+ 	 * For casefolded directories: the casefolded name, but it's left NULL
+-	 * if the original name is not valid Unicode or if the filesystem is
+-	 * doing an internal operation where usr_fname is also NULL.  In these
+-	 * cases we fall back to treating the name as an opaque byte sequence.
++	 * if the original name is not valid Unicode, if the directory is both
++	 * casefolded and encrypted and its encryption key is unavailable, or if
++	 * the filesystem is doing an internal operation where usr_fname is also
++	 * NULL.  In all these cases we fall back to treating the name as an
++	 * opaque byte sequence.
+ 	 */
+ 	struct fscrypt_str cf_name;
+ #endif
+diff --git a/fs/f2fs/hash.c b/fs/f2fs/hash.c
+index de841aaf3c439..e3beac546c63a 100644
+--- a/fs/f2fs/hash.c
++++ b/fs/f2fs/hash.c
+@@ -111,7 +111,9 @@ void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
+ 		 * If the casefolded name is provided, hash it instead of the
+ 		 * on-disk name.  If the casefolded name is *not* provided, that
+ 		 * should only be because the name wasn't valid Unicode, so fall
+-		 * back to treating the name as an opaque byte sequence.
++		 * back to treating the name as an opaque byte sequence.  Note
++		 * that to handle encrypted directories, the fallback must use
++		 * usr_fname (plaintext) rather than disk_name (ciphertext).
+ 		 */
+ 		WARN_ON_ONCE(!fname->usr_fname->name);
+ 		if (fname->cf_name.name) {
+@@ -121,6 +123,13 @@ void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
+ 			name = fname->usr_fname->name;
+ 			len = fname->usr_fname->len;
+ 		}
++		if (IS_ENCRYPTED(dir)) {
++			struct qstr tmp = QSTR_INIT(name, len);
 +
-+	spin_lock(&nfsi->vfs_inode.i_lock);
-+	ret = nfsi->layout != lo;
-+	spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return ret;
-+}
-+
-+void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+	struct pnfs_layout_hdr *lo = __pnfs_destroy_layout(nfsi);
-+
-+	if (lo)
-+		wait_var_event(lo, pnfs_layout_removed(nfsi, lo));
-+}
-+
- static bool
- pnfs_layout_add_bulk_destroy_list(struct inode *inode,
- 		struct list_head *layout_list)
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 2661c44c62db4..78c3893918486 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -266,6 +266,7 @@ struct pnfs_layout_segment *pnfs_layout_process(struct nfs4_layoutget *lgp);
- void pnfs_layoutget_free(struct nfs4_layoutget *lgp);
- void pnfs_free_lseg_list(struct list_head *tmp_list);
- void pnfs_destroy_layout(struct nfs_inode *);
-+void pnfs_destroy_layout_final(struct nfs_inode *);
- void pnfs_destroy_all_layouts(struct nfs_client *);
- int pnfs_destroy_layouts_byfsid(struct nfs_client *clp,
- 		struct nfs_fsid *fsid,
-@@ -710,6 +711,10 @@ static inline void pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- }
++			fname->hash =
++				cpu_to_le32(fscrypt_fname_siphash(dir, &tmp));
++			return;
++		}
+ 	}
+ #endif
+ 	fname->hash = cpu_to_le32(TEA_hash_name(name, len));
+diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
+index 70384e31788db..92e9852d316ad 100644
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -332,6 +332,10 @@ struct f2fs_dir_entry *f2fs_find_in_inline_dir(struct inode *dir,
+ 	make_dentry_ptr_inline(dir, &d, inline_dentry);
+ 	de = f2fs_find_target_dentry(&d, fname, NULL);
+ 	unlock_page(ipage);
++	if (IS_ERR(de)) {
++		*res_page = ERR_CAST(de);
++		de = NULL;
++	}
+ 	if (de)
+ 		*res_page = ipage;
+ 	else
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 4f12ade6410a1..0947d36af1a8e 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+  *             http://www.samsung.com/
+  */
++#include <asm/unaligned.h>
+ #include <linux/fs.h>
+ #include <linux/f2fs_fs.h>
+ #include "f2fs.h"
+@@ -128,7 +129,16 @@ static int init_recovered_filename(const struct inode *dir,
+ 	}
  
-+static inline void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+}
-+
- static inline struct pnfs_layout_segment *
- pnfs_get_lseg(struct pnfs_layout_segment *lseg)
- {
+ 	/* Compute the hash of the filename */
+-	if (IS_CASEFOLDED(dir)) {
++	if (IS_ENCRYPTED(dir) && IS_CASEFOLDED(dir)) {
++		/*
++		 * In this case the hash isn't computable without the key, so it
++		 * was saved on-disk.
++		 */
++		if (fname->disk_name.len + sizeof(f2fs_hash_t) > F2FS_NAME_LEN)
++			return -EINVAL;
++		fname->hash = get_unaligned((f2fs_hash_t *)
++				&raw_inode->i_name[fname->disk_name.len]);
++	} else if (IS_CASEFOLDED(dir)) {
+ 		err = f2fs_init_casefolded_name(dir, fname);
+ 		if (err)
+ 			return err;
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 00eff2f518079..ba859eeca69a3 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -3399,12 +3399,6 @@ static int f2fs_setup_casefold(struct f2fs_sb_info *sbi)
+ 		struct unicode_map *encoding;
+ 		__u16 encoding_flags;
+ 
+-		if (f2fs_sb_has_encrypt(sbi)) {
+-			f2fs_err(sbi,
+-				"Can't mount with encoding and encryption");
+-			return -EINVAL;
+-		}
+-
+ 		if (f2fs_sb_read_encoding(sbi->raw_super, &encoding_info,
+ 					  &encoding_flags)) {
+ 			f2fs_err(sbi,
 -- 
 2.27.0
 
