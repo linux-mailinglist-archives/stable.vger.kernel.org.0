@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C032E77E2
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 11:56:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5874E2E77E4
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 11:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726400AbgL3K4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 05:56:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57790 "EHLO mail.kernel.org"
+        id S1726429AbgL3K4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 05:56:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbgL3K4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 05:56:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA5FF2220B;
-        Wed, 30 Dec 2020 10:56:04 +0000 (UTC)
+        id S1726203AbgL3K4z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 05:56:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9656922225;
+        Wed, 30 Dec 2020 10:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609325765;
-        bh=7w+KeWwxr+D3vekgLkJEw4EReupFrhV2WCVfLW/RQ6s=;
+        s=korg; t=1609325775;
+        bh=Gw8mIJ4Tki858u/BW/Nw3TSwmCq5UMaSYZks4bmp2as=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qWjGRDkI4L3KYycf4XFWGUZAOuU6ODyNmXdVVtw5uEr0dZrxar/7oKTi5UOvL6VZl
-         71hqOuFaPvGgWmYhEj8HjkvpOWQirUzMZpKrR5aCLOjDo8c4XgX6YJS3LxaKaMhoeg
-         aTzAGp+aZwRCWpuymmqKa1VDOIUwlqd+4GVcbDd4=
-Date:   Wed, 30 Dec 2020 11:57:32 +0100
+        b=BVDdvNhDKbAu2EiDL0EcBA67LemNoXTIxXePSdN1Ll33dsQCJlzbeLFevhjHf7b0s
+         LCWte45sjhmhe7a87gGxnoNwpsIbfXzRGgtK+gurQ8o1qWjx7uwLpQi7ERxmNEZ3bi
+         YSKJtP6/u5gqkzFH12UDegwwQuXNcGZZ9MmU6LnE=
+Date:   Wed, 30 Dec 2020 11:57:42 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
 Subject: Re: [PATCH 5.10 000/716] 5.10.4-rc2 review
-Message-ID: <X+xdHOqcm8x8T6cx@kroah.com>
+Message-ID: <X+xdJkfpzsrn5fuk@kroah.com>
 References: <20201229103832.108495696@linuxfoundation.org>
- <b3f2179f84e84ceca97ddc8126e716e2@HQMAIL105.nvidia.com>
+ <923e3123-7247-f8e5-8bbb-67f5e43c3b7d@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <b3f2179f84e84ceca97ddc8126e716e2@HQMAIL105.nvidia.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <923e3123-7247-f8e5-8bbb-67f5e43c3b7d@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 29, 2020 at 04:07:24PM +0000, Jon Hunter wrote:
-> On Tue, 29 Dec 2020 11:52:58 +0100, Greg Kroah-Hartman wrote:
+On Tue, Dec 29, 2020 at 02:15:32PM -0600, Daniel Díaz wrote:
+> Hello!
+> 
+> On 12/29/20 4:52 AM, Greg Kroah-Hartman wrote:
 > > This is the start of the stable review cycle for the 5.10.4 release.
 > > There are 716 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
@@ -59,21 +62,11 @@ On Tue, Dec 29, 2020 at 04:07:24PM +0000, Jon Hunter wrote:
 > > 
 > > greg k-h
 > 
-> All tests passing for Tegra ...
+> Results from Linaro’s test farm.
+> No regressions detected.
 > 
-> Test results for stable-v5.10:
->     12 builds:	12 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     64 tests:	64 pass, 0 fail
-> 
-> Linux version:	5.10.4-rc2-g5069132d06b7
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Thanks for testing and letting me know.
+Thanksf or testing and letting me know.
 
 greg k-h
