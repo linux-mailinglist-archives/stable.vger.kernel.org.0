@@ -2,103 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E2242E799B
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5AE2E79D3
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:54:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726861AbgL3NRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:17:20 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:35782 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726810AbgL3NRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 08:17:20 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E062B1C0B85; Wed, 30 Dec 2020 14:16:35 +0100 (CET)
-Date:   Wed, 30 Dec 2020 14:16:35 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1726963AbgL3Nxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:53:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34560 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726656AbgL3Nxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:53:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D97AB2220B;
+        Wed, 30 Dec 2020 13:52:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609336368;
+        bh=30jsp5BVA2f3TpS9tI7rc6XDWizumbT6G0NirNSQCM0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z0X4u5NxQXa/UWDGn5WU0vLZb3yjh//GXGo1yr1804TRXWhr9FEmvWo5KmzMikYi3
+         c79KVsuzTGNFPQUDhpBIYRmIRqXCHp3Kyz4uwV8Y3dgCilDbJKVAWo8GI3HZRZdE3B
+         9Hf8ighHKx0dxL77RpzXUlp+GQZFa+t0nFOvoa20=
+Date:   Wed, 30 Dec 2020 14:54:14 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@ucw.cz>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Zhang Qilong <zhangqilong3@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
 Subject: Re: [PATCH 4.19 154/346] crypto: omap-aes - Fix PM disable depth
  imbalance in omap_aes_probe
-Message-ID: <20201230131635.GA15217@duo.ucw.cz>
+Message-ID: <X+yGhmU3xW/fXgmz@kroah.com>
 References: <20201228124919.745526410@linuxfoundation.org>
  <20201228124927.229346776@linuxfoundation.org>
+ <20201230131635.GA15217@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201228124927.229346776@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20201230131635.GA15217@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Dec 30, 2020 at 02:16:35PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Zhang Qilong <zhangqilong3@huawei.com>
+> > 
+> > [ Upstream commit ff8107200367f4abe0e5bce66a245e8d0f2d229e ]
+> > 
+> > The pm_runtime_enable will increase power disable depth.
+> > Thus a pairing decrement is needed on the error handling
+> > path to keep it balanced according to context.
+> 
+> Oops, this is complex.
+> 
+> First, same bug exist in 4.4, but is not fixed there, and there is
+> missing pm_runtime_put() there and elsewhere.
+> 
+> 4.4 needs these two fixes + backport of ff81072003.
+> 
+> 4.19 needs fixes similar to these, at three places.
+> 
+> mainline is okay, afaict.
+> 
+> Best regards,
+> 								Pavel
+> 
+> diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
+> index eba23147c0ee..48370711c794 100644
+> --- a/drivers/crypto/omap-aes.c
+> +++ b/drivers/crypto/omap-aes.c
+> @@ -801,6 +801,7 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
+>  
+>  	err = pm_runtime_get_sync(dd->dev);
+>  	if (err < 0) {
+> +		pm_runtime_put_sync(dd->dev);
+>  		dev_err(dd->dev, "%s: failed to get_sync(%d)\n",
+>  			__func__, err);
+>  		return err;
+> @@ -1195,6 +1196,7 @@ static int omap_aes_probe(struct platform_device *pdev)
+>  	pm_runtime_enable(dev);
+>  	err = pm_runtime_get_sync(dev);
+>  	if (err < 0) {
+> +		pm_runtime_put_sync(dev);	  
+>  		dev_err(dev, "%s: failed to get_sync(%d)\n",
+>  			__func__, err);
+>  		goto err_res;
+> 
+> 
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can you submit all of this in a format that I can apply it in?
 
-Hi!
+thanks,
 
-> From: Zhang Qilong <zhangqilong3@huawei.com>
->=20
-> [ Upstream commit ff8107200367f4abe0e5bce66a245e8d0f2d229e ]
->=20
-> The pm_runtime_enable will increase power disable depth.
-> Thus a pairing decrement is needed on the error handling
-> path to keep it balanced according to context.
-
-Oops, this is complex.
-
-First, same bug exist in 4.4, but is not fixed there, and there is
-missing pm_runtime_put() there and elsewhere.
-
-4.4 needs these two fixes + backport of ff81072003.
-
-4.19 needs fixes similar to these, at three places.
-
-mainline is okay, afaict.
-
-Best regards,
-								Pavel
-
-diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
-index eba23147c0ee..48370711c794 100644
---- a/drivers/crypto/omap-aes.c
-+++ b/drivers/crypto/omap-aes.c
-@@ -801,6 +801,7 @@ static int omap_aes_cra_init(struct crypto_tfm *tfm)
-=20
- 	err =3D pm_runtime_get_sync(dd->dev);
- 	if (err < 0) {
-+		pm_runtime_put_sync(dd->dev);
- 		dev_err(dd->dev, "%s: failed to get_sync(%d)\n",
- 			__func__, err);
- 		return err;
-@@ -1195,6 +1196,7 @@ static int omap_aes_probe(struct platform_device *pde=
-v)
- 	pm_runtime_enable(dev);
- 	err =3D pm_runtime_get_sync(dev);
- 	if (err < 0) {
-+		pm_runtime_put_sync(dev);	 =20
- 		dev_err(dev, "%s: failed to get_sync(%d)\n",
- 			__func__, err);
- 		goto err_res;
-
-
---=20
-http://www.livejournal.com/~pavelmachek
-
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX+x9swAKCRAw5/Bqldv6
-8scpAJ9emRTflGff3LWkeo863xBUxdeqHgCfaTTdjzeMb4e7fsxY/GZcS424FHU=
-=DHbF
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--
+greg k-h
