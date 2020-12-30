@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91EC72E796D
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B2F52E796E
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727535AbgL3NJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727530AbgL3NJP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Dec 2020 08:09:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727355AbgL3NFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:05:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 411A52251E;
-        Wed, 30 Dec 2020 13:04:11 +0000 (UTC)
+        id S1727363AbgL3NFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:05:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C972253D;
+        Wed, 30 Dec 2020 13:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333452;
-        bh=W+Vc45MUrKdrvxQ64QJS/mCrmgrrq1KOiiAdgNhRAcI=;
+        s=k20201202; t=1609333453;
+        bh=hKRn4ED/TiLHl/kgb1eYLrZm8YBG7cvDrbp+MRtWJdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPqqq1WFf/qF18zLCVdiBVl7iIdw8qAMcUqwZHqBAiHqjnsaat33W9YHb4PHHuNIU
-         jgArdsb4GHgerWDBftT7UcL4bLjjWDTC5NvPEJoA62zFqrkWAL5dlwXvHFrlOVac7z
-         KAhyKiHaTWOMCWjMp68KDgpbMJqDte6pyObtN7dMSiS4Qk8cJqhlC99YM3ktBDzaNf
-         wEaaNVa4SmVXJWaARPbXWuKwPx0aa2+P/RFnMHO5un7c/jkOuGNEp2YY6qw/w15C/T
-         27injA5OdfgUYBMCptJV4JoNLGupafHx1snmFWacpFXByMWJGs6kDInMrZcBz3ruy4
-         MZEeycs5pzNiQ==
+        b=jfFmmr2a8oNaADQ4BDU0BHSCkQMzdj3s0Al8FpLExzv+Uggz/0Aldy0RYaHEAvZ0j
+         3zf8V7XcRSTPF+fcvuWWlHjW2Q/PlVwT47xJTAm7kTgsg+VGiZSZZNQ3k0VhNW8s1w
+         dVt1JhLJNGaPdopS2SOY/wC+JxbwNtlFAhmTuPUefuYN7qH73fGQ56z8Qc0omkYoel
+         zUGTTtL+56y3Yoe8LLDxFnwORWd5vkMEdXCCqCoSRcoT2AqwbpZWjrv974mBzlLNWg
+         kMyowmIOXn8eKjMYtsOs52SVJ9dWDtocm9ABb7IjCJZ0PeifEVLfh7Ive4bdS21k7J
+         zeASSMJILcVHA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
-        Light Hsieh <Light.Hsieh@mediatek.com>,
-        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 10/17] f2fs: avoid race condition for shrinker count
-Date:   Wed, 30 Dec 2020 08:03:50 -0500
-Message-Id: <20201230130357.3637261-10-sashal@kernel.org>
+Cc:     Jessica Yu <jeyu@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 11/17] module: delay kobject uevent until after module init call
+Date:   Wed, 30 Dec 2020 08:03:51 -0500
+Message-Id: <20201230130357.3637261-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
 References: <20201230130357.3637261-1-sashal@kernel.org>
@@ -45,234 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Jessica Yu <jeyu@kernel.org>
 
-[ Upstream commit a95ba66ac1457b76fe472c8e092ab1006271f16c ]
+[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
 
-Light reported sometimes shinker gets nat_cnt < dirty_nat_cnt resulting in
-wrong do_shinker work. Let's avoid to return insane overflowed value by adding
-single tracking value.
+Apparently there has been a longstanding race between udev/systemd and
+the module loader. Currently, the module loader sends a uevent right
+after sysfs initialization, but before the module calls its init
+function. However, some udev rules expect that the module has
+initialized already upon receiving the uevent.
 
-Reported-by: Light Hsieh <Light.Hsieh@mediatek.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+This race has been triggered recently (see link in references) in some
+systemd mount unit files. For instance, the configfs module creates the
+/sys/kernel/config mount point in its init function, however the module
+loader issues the uevent before this happens. sys-kernel-config.mount
+expects to be able to mount /sys/kernel/config upon receipt of the
+module loading uevent, but if the configfs module has not called its
+init function yet, then this directory will not exist and the mount unit
+fails. A similar situation exists for sys-fs-fuse-connections.mount, as
+the fuse sysfs mount point is created during the fuse module's init
+function. If udev is faster than module initialization then the mount
+unit would fail in a similar fashion.
+
+To fix this race, delay the module KOBJ_ADD uevent until after the
+module has finished calling its init routine.
+
+References: https://github.com/systemd/systemd/issues/17586
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |  2 +-
- fs/f2fs/debug.c      | 11 ++++++-----
- fs/f2fs/f2fs.h       | 10 ++++++++--
- fs/f2fs/node.c       | 29 ++++++++++++++++++-----------
- fs/f2fs/node.h       |  4 ++--
- fs/f2fs/shrinker.c   |  4 +---
- 6 files changed, 36 insertions(+), 24 deletions(-)
+ kernel/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index c966ccc44c157..a57219c51c01a 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1596,7 +1596,7 @@ int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 			goto out;
- 		}
+diff --git a/kernel/module.c b/kernel/module.c
+index 806a7196754a7..9e9af40698ffe 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -1863,7 +1863,6 @@ static int mod_sysfs_init(struct module *mod)
+ 	if (err)
+ 		mod_kobject_put(mod);
  
--		if (NM_I(sbi)->dirty_nat_cnt == 0 &&
-+		if (NM_I(sbi)->nat_cnt[DIRTY_NAT] == 0 &&
- 				SIT_I(sbi)->dirty_sentries == 0 &&
- 				prefree_segments(sbi) == 0) {
- 			f2fs_flush_sit_entries(sbi, cpc);
-diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
-index 9b0bedd82581b..d8d64447bc947 100644
---- a/fs/f2fs/debug.c
-+++ b/fs/f2fs/debug.c
-@@ -107,8 +107,8 @@ static void update_general_status(struct f2fs_sb_info *sbi)
- 		si->node_pages = NODE_MAPPING(sbi)->nrpages;
- 	if (sbi->meta_inode)
- 		si->meta_pages = META_MAPPING(sbi)->nrpages;
--	si->nats = NM_I(sbi)->nat_cnt;
--	si->dirty_nats = NM_I(sbi)->dirty_nat_cnt;
-+	si->nats = NM_I(sbi)->nat_cnt[TOTAL_NAT];
-+	si->dirty_nats = NM_I(sbi)->nat_cnt[DIRTY_NAT];
- 	si->sits = MAIN_SEGS(sbi);
- 	si->dirty_sits = SIT_I(sbi)->dirty_sentries;
- 	si->free_nids = NM_I(sbi)->nid_cnt[FREE_NID];
-@@ -254,9 +254,10 @@ static void update_mem_info(struct f2fs_sb_info *sbi)
- 	si->cache_mem += (NM_I(sbi)->nid_cnt[FREE_NID] +
- 				NM_I(sbi)->nid_cnt[PREALLOC_NID]) *
- 				sizeof(struct free_nid);
--	si->cache_mem += NM_I(sbi)->nat_cnt * sizeof(struct nat_entry);
--	si->cache_mem += NM_I(sbi)->dirty_nat_cnt *
--					sizeof(struct nat_entry_set);
-+	si->cache_mem += NM_I(sbi)->nat_cnt[TOTAL_NAT] *
-+				sizeof(struct nat_entry);
-+	si->cache_mem += NM_I(sbi)->nat_cnt[DIRTY_NAT] *
-+				sizeof(struct nat_entry_set);
- 	si->cache_mem += si->inmem_pages * sizeof(struct inmem_pages);
- 	for (i = 0; i < MAX_INO_ENTRY; i++)
- 		si->cache_mem += sbi->im[i].ino_num * sizeof(struct ino_entry);
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 63440abe58c42..604fc2391f9f2 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -797,6 +797,13 @@ enum nid_state {
- 	MAX_NID_STATE,
- };
+-	/* delay uevent until full sysfs population */
+ out:
+ 	return err;
+ }
+@@ -1900,7 +1899,6 @@ static int mod_sysfs_setup(struct module *mod,
+ 	add_sect_attrs(mod, info);
+ 	add_notes_attrs(mod, info);
  
-+enum nat_state {
-+	TOTAL_NAT,
-+	DIRTY_NAT,
-+	RECLAIMABLE_NAT,
-+	MAX_NAT_STATE,
-+};
+-	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
+ 	return 0;
+ 
+ out_unreg_modinfo_attrs:
+@@ -3608,6 +3606,9 @@ static noinline int do_init_module(struct module *mod)
+ 	blocking_notifier_call_chain(&module_notify_list,
+ 				     MODULE_STATE_LIVE, mod);
+ 
++	/* Delay uevent until module has finished its init routine */
++	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
 +
- struct f2fs_nm_info {
- 	block_t nat_blkaddr;		/* base disk address of NAT */
- 	nid_t max_nid;			/* maximum possible node ids */
-@@ -812,8 +819,7 @@ struct f2fs_nm_info {
- 	struct rw_semaphore nat_tree_lock;	/* protect nat_tree_lock */
- 	struct list_head nat_entries;	/* cached nat entry list (clean) */
- 	spinlock_t nat_list_lock;	/* protect clean nat entry list */
--	unsigned int nat_cnt;		/* the # of cached nat entries */
--	unsigned int dirty_nat_cnt;	/* total num of nat entries in set */
-+	unsigned int nat_cnt[MAX_NAT_STATE]; /* the # of cached nat entries */
- 	unsigned int nat_blocks;	/* # of nat blocks */
- 
- 	/* free node ids management */
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 2a4a382f28fed..7c34e49363f40 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -62,8 +62,8 @@ bool f2fs_available_free_memory(struct f2fs_sb_info *sbi, int type)
- 				sizeof(struct free_nid)) >> PAGE_SHIFT;
- 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
- 	} else if (type == NAT_ENTRIES) {
--		mem_size = (nm_i->nat_cnt * sizeof(struct nat_entry)) >>
--							PAGE_SHIFT;
-+		mem_size = (nm_i->nat_cnt[TOTAL_NAT] *
-+				sizeof(struct nat_entry)) >> PAGE_SHIFT;
- 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
- 		if (excess_cached_nats(sbi))
- 			res = false;
-@@ -177,7 +177,8 @@ static struct nat_entry *__init_nat_entry(struct f2fs_nm_info *nm_i,
- 	list_add_tail(&ne->list, &nm_i->nat_entries);
- 	spin_unlock(&nm_i->nat_list_lock);
- 
--	nm_i->nat_cnt++;
-+	nm_i->nat_cnt[TOTAL_NAT]++;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
- 	return ne;
- }
- 
-@@ -207,7 +208,8 @@ static unsigned int __gang_lookup_nat_cache(struct f2fs_nm_info *nm_i,
- static void __del_from_nat_cache(struct f2fs_nm_info *nm_i, struct nat_entry *e)
- {
- 	radix_tree_delete(&nm_i->nat_root, nat_get_nid(e));
--	nm_i->nat_cnt--;
-+	nm_i->nat_cnt[TOTAL_NAT]--;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
- 	__free_nat_entry(e);
- }
- 
-@@ -253,7 +255,8 @@ static void __set_nat_cache_dirty(struct f2fs_nm_info *nm_i,
- 	if (get_nat_flag(ne, IS_DIRTY))
- 		goto refresh_list;
- 
--	nm_i->dirty_nat_cnt++;
-+	nm_i->nat_cnt[DIRTY_NAT]++;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
- 	set_nat_flag(ne, IS_DIRTY, true);
- refresh_list:
- 	spin_lock(&nm_i->nat_list_lock);
-@@ -273,7 +276,8 @@ static void __clear_nat_cache_dirty(struct f2fs_nm_info *nm_i,
- 
- 	set_nat_flag(ne, IS_DIRTY, false);
- 	set->entry_cnt--;
--	nm_i->dirty_nat_cnt--;
-+	nm_i->nat_cnt[DIRTY_NAT]--;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
- }
- 
- static unsigned int __gang_lookup_nat_set(struct f2fs_nm_info *nm_i,
-@@ -2881,14 +2885,17 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 	LIST_HEAD(sets);
- 	int err = 0;
- 
--	/* during unmount, let's flush nat_bits before checking dirty_nat_cnt */
-+	/*
-+	 * during unmount, let's flush nat_bits before checking
-+	 * nat_cnt[DIRTY_NAT].
-+	 */
- 	if (enabled_nat_bits(sbi, cpc)) {
- 		down_write(&nm_i->nat_tree_lock);
- 		remove_nats_in_journal(sbi);
- 		up_write(&nm_i->nat_tree_lock);
- 	}
- 
--	if (!nm_i->dirty_nat_cnt)
-+	if (!nm_i->nat_cnt[DIRTY_NAT])
- 		return 0;
- 
- 	down_write(&nm_i->nat_tree_lock);
-@@ -2899,7 +2906,8 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 	 * into nat entry set.
- 	 */
- 	if (enabled_nat_bits(sbi, cpc) ||
--		!__has_cursum_space(journal, nm_i->dirty_nat_cnt, NAT_JOURNAL))
-+		!__has_cursum_space(journal,
-+			nm_i->nat_cnt[DIRTY_NAT], NAT_JOURNAL))
- 		remove_nats_in_journal(sbi);
- 
- 	while ((found = __gang_lookup_nat_set(nm_i,
-@@ -3023,7 +3031,6 @@ static int init_node_manager(struct f2fs_sb_info *sbi)
- 						F2FS_RESERVED_NODE_NUM;
- 	nm_i->nid_cnt[FREE_NID] = 0;
- 	nm_i->nid_cnt[PREALLOC_NID] = 0;
--	nm_i->nat_cnt = 0;
- 	nm_i->ram_thresh = DEF_RAM_THRESHOLD;
- 	nm_i->ra_nid_pages = DEF_RA_NID_PAGES;
- 	nm_i->dirty_nats_ratio = DEF_DIRTY_NAT_RATIO_THRESHOLD;
-@@ -3160,7 +3167,7 @@ void f2fs_destroy_node_manager(struct f2fs_sb_info *sbi)
- 			__del_from_nat_cache(nm_i, natvec[idx]);
- 		}
- 	}
--	f2fs_bug_on(sbi, nm_i->nat_cnt);
-+	f2fs_bug_on(sbi, nm_i->nat_cnt[TOTAL_NAT]);
- 
- 	/* destroy nat set cache */
- 	nid = 0;
-diff --git a/fs/f2fs/node.h b/fs/f2fs/node.h
-index e05af5df56485..4a2e7eaf2b028 100644
---- a/fs/f2fs/node.h
-+++ b/fs/f2fs/node.h
-@@ -123,13 +123,13 @@ static inline void raw_nat_from_node_info(struct f2fs_nat_entry *raw_ne,
- 
- static inline bool excess_dirty_nats(struct f2fs_sb_info *sbi)
- {
--	return NM_I(sbi)->dirty_nat_cnt >= NM_I(sbi)->max_nid *
-+	return NM_I(sbi)->nat_cnt[DIRTY_NAT] >= NM_I(sbi)->max_nid *
- 					NM_I(sbi)->dirty_nats_ratio / 100;
- }
- 
- static inline bool excess_cached_nats(struct f2fs_sb_info *sbi)
- {
--	return NM_I(sbi)->nat_cnt >= DEF_NAT_CACHE_THRESHOLD;
-+	return NM_I(sbi)->nat_cnt[TOTAL_NAT] >= DEF_NAT_CACHE_THRESHOLD;
- }
- 
- static inline bool excess_dirty_nodes(struct f2fs_sb_info *sbi)
-diff --git a/fs/f2fs/shrinker.c b/fs/f2fs/shrinker.c
-index a467aca29cfef..3ceebaaee3840 100644
---- a/fs/f2fs/shrinker.c
-+++ b/fs/f2fs/shrinker.c
-@@ -18,9 +18,7 @@ static unsigned int shrinker_run_no;
- 
- static unsigned long __count_nat_entries(struct f2fs_sb_info *sbi)
- {
--	long count = NM_I(sbi)->nat_cnt - NM_I(sbi)->dirty_nat_cnt;
--
--	return count > 0 ? count : 0;
-+	return NM_I(sbi)->nat_cnt[RECLAIMABLE_NAT];
- }
- 
- static unsigned long __count_free_nids(struct f2fs_sb_info *sbi)
+ 	/*
+ 	 * We need to finish all async code before the module init sequence
+ 	 * is done.  This has potential to deadlock.  For example, a newly
 -- 
 2.27.0
 
