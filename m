@@ -2,99 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E1E2E7A49
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 16:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C232E7A4B
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 16:26:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726371AbgL3P0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 10:26:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33878 "EHLO
+        id S1726488AbgL3P0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 10:26:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726391AbgL3P0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 10:26:33 -0500
-Received: from canardo.mork.no (canardo.mork.no [IPv6:2001:4641::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742E2C061799;
-        Wed, 30 Dec 2020 07:25:52 -0800 (PST)
-Received: from miraculix.mork.no (miraculix.mork.no [IPv6:2001:4641:0:2:7627:374e:db74:e353])
-        (authenticated bits=0)
-        by canardo.mork.no (8.15.2/8.15.2) with ESMTPSA id 0BUFPjdo017835
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Wed, 30 Dec 2020 16:25:46 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mork.no; s=b;
-        t=1609341946; bh=nt+Z5djtOLKaeLiTOQrT03jk+NB9rbFS2dBh39MH3uI=;
-        h=From:To:Cc:Subject:Date:Message-Id:From;
-        b=oQU5Ng2xUmqvk6IIxHEdqqUMzl5ZFO3adJZsDXC1He+OkzDJ7p/Wx8taw8HZXVbsn
-         cDhWXdxDcnb48xnBaMq1p679pc42FZgoIFANaCz2swEleAlCp2rolkO/xDQka87+Na
-         ZFPC8fV5bSoI08PdImeg8jvFJ2k0/lw5gJmR4Ve8=
-Received: from bjorn by miraculix.mork.no with local (Exim 4.94)
-        (envelope-from <bjorn@miraculix.mork.no>)
-        id 1kudM9-0011po-C2; Wed, 30 Dec 2020 16:25:45 +0100
-From:   =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        stable@vger.kernel.org
-Subject: [PATCH] USB: serial: option: add Quectel EM160R-GL
-Date:   Wed, 30 Dec 2020 16:25:34 +0100
-Message-Id: <20201230152534.245337-1-bjorn@mork.no>
-X-Mailer: git-send-email 2.29.2
+        with ESMTP id S1726391AbgL3P0n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 10:26:43 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49919C06179B;
+        Wed, 30 Dec 2020 07:26:03 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id q22so22342416eja.2;
+        Wed, 30 Dec 2020 07:26:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:subject:from:to:cc:date:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=6qSxpmMSH03FsmOJk6lrCHZxc7Tqo9FbYKTPYty80Wk=;
+        b=aRoZmdLbDUKt5dk4sF0j87yGfpnLlW9y8bxpxebQceppT2/G2cDsTcvN9jdx+3vHaj
+         Cd9d/F5R5L8TABJmBS15V6fk53yO+5YrenC3OtyjECiTfoqLX77+cCmSH2Q48GCpjgH5
+         /GWGocQ0T1GyiEqMg9imbB1i+6yVQ0LPUhQ2XWC9TeiGDJpcovsZIGBFT925gRzoz3Ye
+         JvfaVeT/sXsIMGar+ghTME/QqRhE+qtHi/JtC4lOMucD11tprnwGIE8Kwep+H9+EduP9
+         jI98YlkEF2lyWyj6wmViJw8EHtTm+9wyXy6Tc7eDzhwmAgD6peW2NW5dRvyAUBkNwew0
+         D4hA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=6qSxpmMSH03FsmOJk6lrCHZxc7Tqo9FbYKTPYty80Wk=;
+        b=FUo/hzwAANuLwS7UJLdKA/JB/WtTDEIxUL/U78M6fFbuyb7VELoK5R8EjF6LfZ2pzC
+         YyXNs1XWBAiM8O9MbHwaSABRloAzB41kka4f7tWfAHxRnRKryt7wLnckxLj6iqrNjQEO
+         0HayuWPLujApeAEJKkdEMUfZpheiCLQhTidqE1S+IRKTf8teLHE2qUH1Hygymraa+im3
+         dH+eEmtyNBAiE4pe0+JJ5sb8IEm7xyyTnKvHX0BUhLQXRhoMOMGf0juE/0sN83DZpcjV
+         BbHPvKDHnBQ8GHACczqKjbi8CIeLaqNg3VKUUsPred2R9n1OXXfzPy11lU4bF8lfOqma
+         20mw==
+X-Gm-Message-State: AOAM530F1UpAwUDr3XlWa7NCUTWbMfGoTpEqKGkCgGbBaCe1sC/QK/w3
+        aq164wGPyBlc8K9UVhGbc+QJ/0Ux8/k=
+X-Google-Smtp-Source: ABdhPJzHWXzPSPXMQCHYDaYJWhv03p/5vBZH3dAvdjym7a1xc9YAHKK359F2qASsFpOOhgvIWqBIdw==
+X-Received: by 2002:a17:906:2695:: with SMTP id t21mr45700546ejc.287.1609341961692;
+        Wed, 30 Dec 2020 07:26:01 -0800 (PST)
+Received: from cl-fw-1.fritz.box (p200300d86714d50000b12fbf0e2de53d.dip0.t-ipconnect.de. [2003:d8:6714:d500:b1:2fbf:e2d:e53d])
+        by smtp.gmail.com with ESMTPSA id e11sm19196464ejz.94.2020.12.30.07.26.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Dec 2020 07:26:01 -0800 (PST)
+Message-ID: <d1b1e6b0e3af13f3756a34131ffb84df6a209ee0.camel@gmail.com>
+Subject: sound
+From:   Christian Labisch <clnetbox@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org
+Date:   Wed, 30 Dec 2020 16:26:00 +0100
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.38.2 (3.38.2-1.fc33) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.102.4 at canardo
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-New modem using ff/ff/30 for QCDM, ff/00/00 for  AT and NMEA,
-and ff/ff/ff for RMNET/QMI.
+Hello !
 
-T: Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=5000 MxCh= 0
-D: Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs= 1
-P: Vendor=2c7c ProdID=0620 Rev= 4.09
-S: Manufacturer=Quectel
-S: Product=EM160R-GL
-S: SerialNumber=e31cedc1
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-E: Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=82(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
-E: Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I could need your help ... I have tested the new kernel 5.10.3 and sound doesn't work with this
+version.
+Seems the new Intel audio drivers are the main reason. What can be done ? Do you have any ideas ?
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
----
- drivers/usb/serial/option.c | 2 ++
- 1 file changed, 2 insertions(+)
+Intel Catpt driver support is new ... This deprecates the previous Haswell SoC audio driver code
+previously providing the audio capabilities.
+And I am having a Haswell CPU -> Audio device: Intel Corporation Xeon E3-1200 v3/4th Gen Core
+Processor HD Audio Controller (rev 06)
 
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index 2c21e34235bb..7c9cd921a738 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1117,6 +1117,8 @@ static const struct usb_device_id option_ids[] = {
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0xff, 0x30) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
--- 
-2.29.2
+Regards,
+Christian
 
