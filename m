@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8062B2E7959
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1877A2E7963
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727371AbgL3NFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:05:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
+        id S1726960AbgL3NIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:08:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727368AbgL3NFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3702F22573;
-        Wed, 30 Dec 2020 13:04:20 +0000 (UTC)
+        id S1727367AbgL3NFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:05:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C849122582;
+        Wed, 30 Dec 2020 13:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333461;
-        bh=61+iNcBDie/n0PCMCDmOO2PTfNTL/z08B+iuTNZh3GY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfHuT8694daaJlepzn9o6xSbhRTws276RhGAaoNg+F6JPWeP9G2MSVXQrQZqzrQSF
-         2FokDsDC/Dao5p3qQ1eV9ib120Ji2yGo6oBp2cuBWTHwLXWvDmjTRsDSKp+odsM7SA
-         O6oiO9vLRa+WfLtvg1IWZwUHfaQgNA+P8i+Et9b1kjjxJ5s5gSjPnmO0f6bru7oPSP
-         STlavt9xONhsveWRMWOZPDoypDxJEk71gCZh9IwZJ3K2onoEdw8D9OD5chRAOTeaii
-         +ebkBVQ1ejIc9raiq1SSz/ikcHViw5BlVAzUWi5bZyT8oPTVDiv/ArGIV1pOH3XnQg
-         8cqnqnvuIbUbg==
+        s=k20201202; t=1609333465;
+        bh=9ucBP0dLAY36jiQiG5IzmNygSsRRZl/n55a0BnR6/Zo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=AnKUXHtcOLn7ukEzXKUXDsnoVXg8bbJmaFuYkYLc9Dx4Fr52YOuGShCGSnNbGBtzt
+         Wpx52Vv0DBUaginhYV+nwaWZHFLEUBTTI87PBJMTadvIng2+dpDZMmKveD22zIOsd3
+         v7xboaW0pf9dvQrOlpx4YV/J6KMTZe8UltPf3zjQhJysCrGWfyxnMNykt2mkmBpAnj
+         zgLo8i+ONee5fmaYX157dqU8uiVeziyQxlJJgYdImxyTaDGhg5ylAVf2Io9tMNYl9I
+         V8nw1/2s7s8+ze6Amy/qO8d7glEfG1sdN+cyKyZpaA/ZtGHSqLacSw3fJJbNbSWP9j
+         RiorjMAdvcvrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyeongseok Kim <hyeongseok@gmail.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 17/17] dm verity: skip verity work if I/O error when system is shutting down
-Date:   Wed, 30 Dec 2020 08:03:57 -0500
-Message-Id: <20201230130357.3637261-17-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>,
+        Abbott Liu <liuwenliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 01/10] ARM: 9014/2: Replace string mem* functions for KASan
+Date:   Wed, 30 Dec 2020 08:04:13 -0500
+Message-Id: <20201230130422.3637448-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
-References: <20201230130357.3637261-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,57 +48,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyeongseok Kim <hyeongseok@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 252bd1256396cebc6fc3526127fdb0b317601318 ]
+[ Upstream commit d6d51a96c7d63b7450860a3037f2d62388286a52 ]
 
-If emergency system shutdown is called, like by thermal shutdown,
-a dm device could be alive when the block device couldn't process
-I/O requests anymore. In this state, the handling of I/O errors
-by new dm I/O requests or by those already in-flight can lead to
-a verity corruption state, which is a misjudgment.
+Functions like memset()/memmove()/memcpy() do a lot of memory
+accesses.
 
-So, skip verity work in response to I/O error when system is shutting
-down.
+If a bad pointer is passed to one of these functions it is important
+to catch this. Compiler instrumentation cannot do this since these
+functions are written in assembly.
 
-Signed-off-by: Hyeongseok Kim <hyeongseok@gmail.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+KASan replaces these memory functions with instrumented variants.
+
+The original functions are declared as weak symbols so that
+the strong definitions in mm/kasan/kasan.c can replace them.
+
+The original functions have aliases with a '__' prefix in their
+name, so we can call the non-instrumented variant if needed.
+
+We must use __memcpy()/__memset() in place of memcpy()/memset()
+when we copy .data to RAM and when we clear .bss, because
+kasan_early_init cannot be called before the initialization of
+.data and .bss.
+
+For the kernel compression and EFI libstub's custom string
+libraries we need a special quirk: even if these are built
+without KASan enabled, they rely on the global headers for their
+custom string libraries, which means that e.g. memcpy()
+will be defined to __memcpy() and we get link failures.
+Since these implementations are written i C rather than
+assembly we use e.g. __alias(memcpy) to redirected any
+users back to the local implementation.
+
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: kasan-dev@googlegroups.com
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Ard Biesheuvel <ardb@kernel.org> # QEMU/KVM/mach-virt/LPAE/8G
+Tested-by: Florian Fainelli <f.fainelli@gmail.com> # Brahma SoCs
+Tested-by: Ahmad Fatoum <a.fatoum@pengutronix.de> # i.MX6Q
+Reported-by: Russell King - ARM Linux <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Abbott Liu <liuwenliang@huawei.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-verity-target.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/arm/boot/compressed/string.c | 19 +++++++++++++++++++
+ arch/arm/include/asm/string.h     | 26 ++++++++++++++++++++++++++
+ arch/arm/kernel/head-common.S     |  4 ++--
+ arch/arm/lib/memcpy.S             |  3 +++
+ arch/arm/lib/memmove.S            |  5 ++++-
+ arch/arm/lib/memset.S             |  3 +++
+ 6 files changed, 57 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
-index 4fb33e7562c52..2aeb922e2365c 100644
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -533,6 +533,15 @@ static int verity_verify_io(struct dm_verity_io *io)
- 	return 0;
+diff --git a/arch/arm/boot/compressed/string.c b/arch/arm/boot/compressed/string.c
+index ade5079bebbf9..8c0fa276d9946 100644
+--- a/arch/arm/boot/compressed/string.c
++++ b/arch/arm/boot/compressed/string.c
+@@ -7,6 +7,25 @@
+ 
+ #include <linux/string.h>
+ 
++/*
++ * The decompressor is built without KASan but uses the same redirects as the
++ * rest of the kernel when CONFIG_KASAN is enabled, defining e.g. memcpy()
++ * to __memcpy() but since we are not linking with the main kernel string
++ * library in the decompressor, that will lead to link failures.
++ *
++ * Undefine KASan's versions, define the wrapped functions and alias them to
++ * the right names so that when e.g. __memcpy() appear in the code, it will
++ * still be linked to this local version of memcpy().
++ */
++#ifdef CONFIG_KASAN
++#undef memcpy
++#undef memmove
++#undef memset
++void *__memcpy(void *__dest, __const void *__src, size_t __n) __alias(memcpy);
++void *__memmove(void *__dest, __const void *__src, size_t count) __alias(memmove);
++void *__memset(void *s, int c, size_t count) __alias(memset);
++#endif
++
+ void *memcpy(void *__dest, __const void *__src, size_t __n)
+ {
+ 	int i = 0;
+diff --git a/arch/arm/include/asm/string.h b/arch/arm/include/asm/string.h
+index 111a1d8a41ddf..6c607c68f3ad7 100644
+--- a/arch/arm/include/asm/string.h
++++ b/arch/arm/include/asm/string.h
+@@ -5,6 +5,9 @@
+ /*
+  * We don't do inline string functions, since the
+  * optimised inline asm versions are not small.
++ *
++ * The __underscore versions of some functions are for KASan to be able
++ * to replace them with instrumented versions.
+  */
+ 
+ #define __HAVE_ARCH_STRRCHR
+@@ -15,15 +18,18 @@ extern char * strchr(const char * s, int c);
+ 
+ #define __HAVE_ARCH_MEMCPY
+ extern void * memcpy(void *, const void *, __kernel_size_t);
++extern void *__memcpy(void *dest, const void *src, __kernel_size_t n);
+ 
+ #define __HAVE_ARCH_MEMMOVE
+ extern void * memmove(void *, const void *, __kernel_size_t);
++extern void *__memmove(void *dest, const void *src, __kernel_size_t n);
+ 
+ #define __HAVE_ARCH_MEMCHR
+ extern void * memchr(const void *, int, __kernel_size_t);
+ 
+ #define __HAVE_ARCH_MEMSET
+ extern void * memset(void *, int, __kernel_size_t);
++extern void *__memset(void *s, int c, __kernel_size_t n);
+ 
+ #define __HAVE_ARCH_MEMSET32
+ extern void *__memset32(uint32_t *, uint32_t v, __kernel_size_t);
+@@ -39,4 +45,24 @@ static inline void *memset64(uint64_t *p, uint64_t v, __kernel_size_t n)
+ 	return __memset64(p, v, n * 8, v >> 32);
  }
  
 +/*
-+ * Skip verity work in response to I/O error when system is shutting down.
++ * For files that are not instrumented (e.g. mm/slub.c) we
++ * must use non-instrumented versions of the mem*
++ * functions named __memcpy() etc. All such kernel code has
++ * been tagged with KASAN_SANITIZE_file.o = n, which means
++ * that the address sanitization argument isn't passed to the
++ * compiler, and __SANITIZE_ADDRESS__ is not set. As a result
++ * these defines kick in.
 + */
-+static inline bool verity_is_system_shutting_down(void)
-+{
-+	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
-+		|| system_state == SYSTEM_RESTART;
-+}
++#if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
++#define memcpy(dst, src, len) __memcpy(dst, src, len)
++#define memmove(dst, src, len) __memmove(dst, src, len)
++#define memset(s, c, n) __memset(s, c, n)
 +
- /*
-  * End one "io" structure with a given error.
-  */
-@@ -560,7 +569,8 @@ static void verity_end_io(struct bio *bio)
- {
- 	struct dm_verity_io *io = bio->bi_private;
++#ifndef __NO_FORTIFY
++#define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
++#endif
++
++#endif
++
+ #endif
+diff --git a/arch/arm/kernel/head-common.S b/arch/arm/kernel/head-common.S
+index 9328f2010bc19..053e59f81aaba 100644
+--- a/arch/arm/kernel/head-common.S
++++ b/arch/arm/kernel/head-common.S
+@@ -99,7 +99,7 @@ __mmap_switched:
+  THUMB(	ldmia	r4!, {r0, r1, r2, r3} )
+  THUMB(	mov	sp, r3 )
+ 	sub	r2, r2, r1
+-	bl	memcpy				@ copy .data to RAM
++	bl	__memcpy			@ copy .data to RAM
+ #endif
  
--	if (bio->bi_status && !verity_fec_is_enabled(io->v)) {
-+	if (bio->bi_status &&
-+	    (!verity_fec_is_enabled(io->v) || verity_is_system_shutting_down())) {
- 		verity_finish_io(io, bio->bi_status);
- 		return;
- 	}
+    ARM(	ldmia	r4!, {r0, r1, sp} )
+@@ -107,7 +107,7 @@ __mmap_switched:
+  THUMB(	mov	sp, r3 )
+ 	sub	r2, r1, r0
+ 	mov	r1, #0
+-	bl	memset				@ clear .bss
++	bl	__memset			@ clear .bss
+ 
+ 	ldmia	r4, {r0, r1, r2, r3}
+ 	str	r9, [r0]			@ Save processor ID
+diff --git a/arch/arm/lib/memcpy.S b/arch/arm/lib/memcpy.S
+index 64111bd4440b1..79a83f82e1742 100644
+--- a/arch/arm/lib/memcpy.S
++++ b/arch/arm/lib/memcpy.S
+@@ -61,6 +61,8 @@
+ 
+ /* Prototype: void *memcpy(void *dest, const void *src, size_t n); */
+ 
++.weak memcpy
++ENTRY(__memcpy)
+ ENTRY(mmiocpy)
+ ENTRY(memcpy)
+ 
+@@ -68,3 +70,4 @@ ENTRY(memcpy)
+ 
+ ENDPROC(memcpy)
+ ENDPROC(mmiocpy)
++ENDPROC(__memcpy)
+diff --git a/arch/arm/lib/memmove.S b/arch/arm/lib/memmove.S
+index 69a9d47fc5abd..313db6c6d37f1 100644
+--- a/arch/arm/lib/memmove.S
++++ b/arch/arm/lib/memmove.S
+@@ -27,12 +27,14 @@
+  * occurring in the opposite direction.
+  */
+ 
++.weak memmove
++ENTRY(__memmove)
+ ENTRY(memmove)
+ 	UNWIND(	.fnstart			)
+ 
+ 		subs	ip, r0, r1
+ 		cmphi	r2, ip
+-		bls	memcpy
++		bls	__memcpy
+ 
+ 		stmfd	sp!, {r0, r4, lr}
+ 	UNWIND(	.fnend				)
+@@ -225,3 +227,4 @@ ENTRY(memmove)
+ 18:		backward_copy_shift	push=24	pull=8
+ 
+ ENDPROC(memmove)
++ENDPROC(__memmove)
+diff --git a/arch/arm/lib/memset.S b/arch/arm/lib/memset.S
+index ed6d35d9cdb5a..64aa06af76be2 100644
+--- a/arch/arm/lib/memset.S
++++ b/arch/arm/lib/memset.S
+@@ -16,6 +16,8 @@
+ 	.text
+ 	.align	5
+ 
++.weak memset
++ENTRY(__memset)
+ ENTRY(mmioset)
+ ENTRY(memset)
+ UNWIND( .fnstart         )
+@@ -135,6 +137,7 @@ UNWIND( .fnstart            )
+ UNWIND( .fnend   )
+ ENDPROC(memset)
+ ENDPROC(mmioset)
++ENDPROC(__memset)
+ 
+ ENTRY(__memset32)
+ UNWIND( .fnstart         )
 -- 
 2.27.0
 
