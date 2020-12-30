@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9362E78ED
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8DA2E78EB
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgL3NEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726847AbgL3NEY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 30 Dec 2020 08:04:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726749AbgL3NEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C045223E8;
-        Wed, 30 Dec 2020 13:03:35 +0000 (UTC)
+        id S1726802AbgL3NEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:04:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC3B02242A;
+        Wed, 30 Dec 2020 13:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333416;
-        bh=NqEGqp1novZlMhQPthLuK9lzcA9lKdPOjw64y0wArsg=;
+        s=k20201202; t=1609333417;
+        bh=TYS9CyxV609M0wdg5tRs0/P/rV4X+CfCd2orivUlb5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+ptVpuEIKHpA85YGvJHshuFy4UrIxls5unzpq22404LLdCOh5ngVNAz5sgNUzkB7
-         jFEGKFUw9/evMXKenMZ1FhLJ2WUoE89TjAf8lXbU8yhD9tkDjRbcvEXsaEyY5cTni0
-         rdb3sVhgz1ob66rALqA+FvPElqvBBBvUYHSzyGj5nF4tg/BnqktAq0vLd0sIWQPAKL
-         Y5gJEVyhNqS0WRJYO/8ZfzXA++7UL/drXhMtPEyaH01qDpkeArWXUaiIjx3jolebeV
-         etiSzMRT91dWtJioxjRM4HRb3VzH4blcIAimMBPPmWpAUsEIFy/mV3/Fl49UJ3rx5+
-         imaLVC1bf7a7A==
+        b=m25d6LVtF9i+6WuO0wbyZo9bRtII8CkWVlvQxDjn36qfBQ9HIMNaabN4o5z4n5mDO
+         40DpdX21wqbHJzEfww8uJs4FLgsz4lrfPCYXAUB+AgWjK8GzE56Uefj0YDWiFj+Dgz
+         XXpBoXA2imwiCOkD7aA/CIq7cDaTnPgyN2J9ntCfhTZOhxcJ3/nLFQSPtZoblX5SsE
+         B1nZF/pnjqA8TJKqcy9dyE2ShiAsT9DsiyX1G3lBF7FzbH5v76NDmRvBvGJlR6wSd4
+         q+kwj2I/XwiltL87R2C69lKS1yJORbpDTc745fZ9c2+G/W+SdqE+bWnHXpgaSW/RKe
+         LMoB3CD5DVWlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 16/31] fs/namespace.c: WARN if mnt_count has become negative
-Date:   Wed, 30 Dec 2020 08:02:58 -0500
-Message-Id: <20201230130314.3636961-16-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 17/31] watchdog: rti-wdt: fix reference leak in rti_wdt_probe
+Date:   Wed, 30 Dec 2020 08:02:59 -0500
+Message-Id: <20201230130314.3636961-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
 References: <20201230130314.3636961-1-sashal@kernel.org>
@@ -43,85 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit edf7ddbf1c5eb98b720b063b73e20e8a4a1ce673 ]
+[ Upstream commit 8711071e9700b67045fe5518161d63f7a03e3c9e ]
 
-Missing calls to mntget() (or equivalently, too many calls to mntput())
-are hard to detect because mntput() delays freeing mounts using
-task_work_add(), then again using call_rcu().  As a result, mnt_count
-can often be decremented to -1 without getting a KASAN use-after-free
-report.  Such cases are still bugs though, and they point to real
-use-after-frees being possible.
+pm_runtime_get_sync() will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put_noidle will result
+in reference leak in rti_wdt_probe, so we should fix it.
 
-For an example of this, see the bug fixed by commit 1b0b9cc8d379
-("vfs: fsmount: add missing mntget()"), discussed at
-https://lkml.kernel.org/linux-fsdevel/20190605135401.GB30925@xxxxxxxxxxxxxxxxxxxxxxxxx/T/#u.
-This bug *should* have been trivial to find.  But actually, it wasn't
-found until syzkaller happened to use fchdir() to manipulate the
-reference count just right for the bug to be noticeable.
-
-Address this by making mntput_no_expire() issue a WARN if mnt_count has
-become negative.
-
-Suggested-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20201030154909.100023-1-zhangqilong3@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namespace.c | 9 ++++++---
- fs/pnode.h     | 2 +-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/watchdog/rti_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index cebaa3e817940..93006abe7946a 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -156,10 +156,10 @@ static inline void mnt_add_count(struct mount *mnt, int n)
- /*
-  * vfsmount lock must be held for write
-  */
--unsigned int mnt_get_count(struct mount *mnt)
-+int mnt_get_count(struct mount *mnt)
- {
- #ifdef CONFIG_SMP
--	unsigned int count = 0;
-+	int count = 0;
- 	int cpu;
+diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
+index 836319cbaca9d..359302f71f7ef 100644
+--- a/drivers/watchdog/rti_wdt.c
++++ b/drivers/watchdog/rti_wdt.c
+@@ -227,8 +227,10 @@ static int rti_wdt_probe(struct platform_device *pdev)
  
- 	for_each_possible_cpu(cpu) {
-@@ -1139,6 +1139,7 @@ static DECLARE_DELAYED_WORK(delayed_mntput_work, delayed_mntput);
- static void mntput_no_expire(struct mount *mnt)
- {
- 	LIST_HEAD(list);
-+	int count;
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_noidle(dev);
+ 		return dev_err_probe(dev, ret, "runtime pm failed\n");
++	}
  
- 	rcu_read_lock();
- 	if (likely(READ_ONCE(mnt->mnt_ns))) {
-@@ -1162,7 +1163,9 @@ static void mntput_no_expire(struct mount *mnt)
- 	 */
- 	smp_mb();
- 	mnt_add_count(mnt, -1);
--	if (mnt_get_count(mnt)) {
-+	count = mnt_get_count(mnt);
-+	if (count != 0) {
-+		WARN_ON(count < 0);
- 		rcu_read_unlock();
- 		unlock_mount_hash();
- 		return;
-diff --git a/fs/pnode.h b/fs/pnode.h
-index 49a058c73e4c7..26f74e092bd98 100644
---- a/fs/pnode.h
-+++ b/fs/pnode.h
-@@ -44,7 +44,7 @@ int propagate_mount_busy(struct mount *, int);
- void propagate_mount_unlock(struct mount *);
- void mnt_release_group_id(struct mount *);
- int get_dominating_id(struct mount *mnt, const struct path *root);
--unsigned int mnt_get_count(struct mount *mnt);
-+int mnt_get_count(struct mount *mnt);
- void mnt_set_mountpoint(struct mount *, struct mountpoint *,
- 			struct mount *);
- void mnt_change_mountpoint(struct mount *parent, struct mountpoint *mp,
+ 	platform_set_drvdata(pdev, wdt);
+ 
 -- 
 2.27.0
 
