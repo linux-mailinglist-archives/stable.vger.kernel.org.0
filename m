@@ -2,71 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5874E2E77E4
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 11:57:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C11E82E77EB
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 12:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726429AbgL3K4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 05:56:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbgL3K4z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Dec 2020 05:56:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9656922225;
-        Wed, 30 Dec 2020 10:56:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609325775;
-        bh=Gw8mIJ4Tki858u/BW/Nw3TSwmCq5UMaSYZks4bmp2as=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BVDdvNhDKbAu2EiDL0EcBA67LemNoXTIxXePSdN1Ll33dsQCJlzbeLFevhjHf7b0s
-         LCWte45sjhmhe7a87gGxnoNwpsIbfXzRGgtK+gurQ8o1qWjx7uwLpQi7ERxmNEZ3bi
-         YSKJtP6/u5gqkzFH12UDegwwQuXNcGZZ9MmU6LnE=
-Date:   Wed, 30 Dec 2020 11:57:42 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Subject: Re: [PATCH 5.10 000/716] 5.10.4-rc2 review
-Message-ID: <X+xdJkfpzsrn5fuk@kroah.com>
-References: <20201229103832.108495696@linuxfoundation.org>
- <923e3123-7247-f8e5-8bbb-67f5e43c3b7d@linaro.org>
+        id S1726348AbgL3LAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 06:00:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726318AbgL3LAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 06:00:04 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0197C061799;
+        Wed, 30 Dec 2020 02:59:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
+        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=hT6meR7oLJ3QCZauwMdEleF46LZvd7h7X5Tjnd6x4Qw=; b=Hykl2u0iY2soETjdsm8W1fkAT
+        t1VW8LTnQe9fnmia93AoHZA8QuMrh0DEZmxjhj3gaa9mGnMbw6Lk5hoE8+k5mvta5w7BUoy3nJelO
+        7K0/cfgmQE4kGhWwcdp0Qva9Ckjsio9BfWpTnTHJ/zGNyBIpldEu/TtCrQShCcuqX6DCFASfZWYnS
+        0pwJtkDIOd4tSCPOE70uPvCOqwwNmKTVx4Judpkml4jQSMBiKFQaq7ws0zitiXiKsxB04/tSn6iKu
+        wsTEyhYWff7TyaoR2/kpxMPSPaCXaB42Ebv+YcP2JyrmxjW3eveajDG8qnndOmc+0mRsbE3vytQMy
+        j1mpPJKxA==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:44904)
+        by pandora.armlinux.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1kuZBq-0005e6-5q; Wed, 30 Dec 2020 10:58:50 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1kuZBn-00028I-Qn; Wed, 30 Dec 2020 10:58:47 +0000
+Date:   Wed, 30 Dec 2020 10:58:47 +0000
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Nicholas Piggin <npiggin@gmail.com>
+Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        paulmck <paulmck@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        x86 <x86@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+Message-ID: <20201230105847.GQ1551@shell.armlinux.org.uk>
+References: <20201228190852.GI1551@shell.armlinux.org.uk>
+ <CALCETrVpvrBufrJgXNY=ogtZQLo7zgxQmD7k9eVCFjcdcvarmA@mail.gmail.com>
+ <1086654515.3607.1609187556216.JavaMail.zimbra@efficios.com>
+ <CALCETrXx3Xe+4Y6WM-mp0cTUU=r3bW6PV2b25yA8bm1Gvak6wQ@mail.gmail.com>
+ <1609200902.me5niwm2t6.astroid@bobo.none>
+ <CALCETrX6MOqmN5_jhyO1jJB7M3_T+hbomjxPYZLJmLVNmXAVzA@mail.gmail.com>
+ <1609210162.4d8dqilke6.astroid@bobo.none>
+ <20201229104456.GK1551@shell.armlinux.org.uk>
+ <1609290821.wrfh89v23a.astroid@bobo.none>
+ <20201230100028.GP1551@shell.armlinux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <923e3123-7247-f8e5-8bbb-67f5e43c3b7d@linaro.org>
+In-Reply-To: <20201230100028.GP1551@shell.armlinux.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Sender: Russell King - ARM Linux admin <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 29, 2020 at 02:15:32PM -0600, Daniel Díaz wrote:
-> Hello!
+On Wed, Dec 30, 2020 at 10:00:28AM +0000, Russell King - ARM Linux admin wrote:
+> On Wed, Dec 30, 2020 at 12:33:02PM +1000, Nicholas Piggin wrote:
+> > Excerpts from Russell King - ARM Linux admin's message of December 29, 2020 8:44 pm:
+> > > On Tue, Dec 29, 2020 at 01:09:12PM +1000, Nicholas Piggin wrote:
+> > >> I think it should certainly be documented in terms of what guarantees
+> > >> it provides to application, _not_ the kinds of instructions it may or
+> > >> may not induce the core to execute. And if existing API can't be
+> > >> re-documented sanely, then deprecatd and new ones added that DTRT.
+> > >> Possibly under a new system call, if arch's like ARM want a range
+> > >> flush and we don't want to expand the multiplexing behaviour of
+> > >> membarrier even more (sigh).
+> > > 
+> > > The 32-bit ARM sys_cacheflush() is there only to support self-modifying
+> > > code, and takes whatever actions are necessary to support that.
+> > > Exactly what actions it takes are cache implementation specific, and
+> > > should be of no concern to the caller, but the underlying thing is...
+> > > it's to support self-modifying code.
+> > 
+> >    Caveat
+> >        cacheflush()  should  not  be used in programs intended to be portable.
+> >        On Linux, this call first appeared on the MIPS architecture, but  nowa‐
+> >        days, Linux provides a cacheflush() system call on some other architec‐
+> >        tures, but with different arguments.
+> > 
+> > What a disaster. Another badly designed interface, although it didn't 
+> > originate in Linux it sounds like we weren't to be outdone so
+> > we messed it up even worse.
+> > 
+> > flushing caches is neither necessary nor sufficient for code modification
+> > on many processors. Maybe some old MIPS specific private thing was fine,
+> > but certainly before it grew to other architectures, somebody should 
+> > have thought for more than 2 minutes about it. Sigh.
 > 
-> On 12/29/20 4:52 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.4 release.
-> > There are 716 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 31 Dec 2020 10:36:33 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.4-rc2.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+> WARNING: You are bordering on being objectionable and offensive with
+> that comment.
 > 
-> Results from Linaro’s test farm.
-> No regressions detected.
-> 
-> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> The ARM interface was designed by me back in the very early days of
+> Linux, probably while you were still in dypers, based on what was
+> known at the time.  Back in the early 2000s, ideas such as relaxed
+> memory ordering were not known.  All there was was one level of
+> harvard cache.
 
-Thanksf or testing and letting me know.
+Sorry, I got that slightly wrong. Its origins on ARM were from 12 Dec
+1998:
 
-greg k-h
+http://www.armlinux.org.uk/developer/patches/viewpatch.php?id=88/1
+
+by Philip Blundell, and first appeared in the ARM
+pre-patch-2.1.131-19981214-1.gz. It was subsequently documented in the
+kernel sources by me in July 2001 in ARM patch-2.4.6-rmk2.gz. It has
+a slightly different signature: the third argument on ARM is a flags
+argument, whereas the MIPS code, it is some undocumented "cache"
+parameter.
+
+Whether the ARM version pre or post dates the MIPS code, I couldn't say.
+Whether it was ultimately taken from the MIPS implementation, again, I
+couldn't say.
+
+However, please stop insulting your fellow developers ability to think.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
