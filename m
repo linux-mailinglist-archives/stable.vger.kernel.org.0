@@ -2,141 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 363982E7C4B
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 21:45:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAEF62E7CBA
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 22:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726285AbgL3Uos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 15:44:48 -0500
-Received: from relay-us1.mymailcheap.com ([51.81.35.219]:56180 "EHLO
-        relay-us1.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726277AbgL3Uor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 15:44:47 -0500
-Received: from relay5.mymailcheap.com (relay5.mymailcheap.com [159.100.248.207])
-        by relay-us1.mymailcheap.com (Postfix) with ESMTPS id A360120159
-        for <stable@vger.kernel.org>; Wed, 30 Dec 2020 20:44:06 +0000 (UTC)
-Received: from relay2.mymailcheap.com (relay2.mymailcheap.com [217.182.113.132])
-        by relay5.mymailcheap.com (Postfix) with ESMTPS id 9D4A1260EB;
-        Wed, 30 Dec 2020 20:43:12 +0000 (UTC)
-Received: from filter2.mymailcheap.com (filter2.mymailcheap.com [91.134.140.82])
-        by relay2.mymailcheap.com (Postfix) with ESMTPS id 93EC93EDFC;
-        Wed, 30 Dec 2020 21:41:39 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by filter2.mymailcheap.com (Postfix) with ESMTP id 711A92A524;
-        Wed, 30 Dec 2020 21:41:39 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
-        s=default; t=1609360899;
-        bh=FRGW8gu58lGpw7gwIy7zr0D1bR8uZrCGzxkRxv0pFb4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hdOH/nL163C+MJWV37q702UBmnSpoPxINNoYM/yqN/OnYdO1UhNhcbv4CSWTen7te
-         R7REtL21tc9yeDEKvvAAk9i1H4EhwPqHJvBQqk6EtPlq18NXJZQEPo+7ZJPXBFs0qe
-         crcjdAwotB0V2jTBC4sQvWJzWRYQbFhYlP6NZHTM=
-X-Virus-Scanned: Debian amavisd-new at filter2.mymailcheap.com
-Received: from filter2.mymailcheap.com ([127.0.0.1])
-        by localhost (filter2.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 54ouhL5P2Orm; Wed, 30 Dec 2020 21:41:38 +0100 (CET)
-Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by filter2.mymailcheap.com (Postfix) with ESMTPS;
-        Wed, 30 Dec 2020 21:41:38 +0100 (CET)
-Received: from [213.133.102.83] (ml.mymailcheap.com [213.133.102.83])
-        by mail20.mymailcheap.com (Postfix) with ESMTP id 88D5241FB0;
-        Wed, 30 Dec 2020 20:41:37 +0000 (UTC)
-Authentication-Results: mail20.mymailcheap.com;
-        dkim=pass (1024-bit key; unprotected) header.d=aosc.io header.i=@aosc.io header.b="ZAE1txoD";
-        dkim-atps=neutral
-AI-Spam-Status: Not processed
-Received: from ice-e5v2.lan (unknown [59.41.160.237])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail20.mymailcheap.com (Postfix) with ESMTPSA id 18AAF41E18;
-        Wed, 30 Dec 2020 20:41:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=aosc.io; s=default;
-        t=1609360887; bh=FRGW8gu58lGpw7gwIy7zr0D1bR8uZrCGzxkRxv0pFb4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZAE1txoDvI/Sr6IEXZfrYbhDo2Wi1V0ZRYetZqSy440m3QtHX3Mz2zOiXm3JbSnLf
-         lQGVZRPHjqJ5YPD61luGKabNDG+YJR4SU51Vtvfy0G1tqSK44anQ/wVaMCokMYCvxO
-         T4hJ9edY6aIB6etTkExDb3jbjaSCvqpqFOQ4+hVU=
-From:   Icenowy Zheng <icenowy@aosc.io>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Maxime Ripard <mripard@kernel.org>
-Cc:     dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        Icenowy Zheng <icenowy@aosc.io>, stable@vger.kernel.org
-Subject: [PATCH] drm/panel: ilitek-ili9881c: fix attach failure cleanup
-Date:   Thu, 31 Dec 2020 04:41:10 +0800
-Message-Id: <20201230204110.52053-1-icenowy@aosc.io>
-X-Mailer: git-send-email 2.28.0
+        id S1726317AbgL3Vif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 16:38:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34422 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726197AbgL3Vie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 16:38:34 -0500
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B08C061575;
+        Wed, 30 Dec 2020 13:37:54 -0800 (PST)
+Received: by mail-wm1-x330.google.com with SMTP id g185so5872167wmf.3;
+        Wed, 30 Dec 2020 13:37:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=7+SMm2iKQGITJSuVgJmlWHkODg8DnWAlieYuuZCnEEw=;
+        b=A4DU6IU+SW2/8+RRLgJ9GzfI2VDqCbRF1AmKMedgt4MWMSsKQAX8HHhzWcWPxHL5kk
+         nGMEW+AowP37h/ePP9CTbjm82ii7ZjyTkTLiCHUtd7IKZdVSAVjLQHRX+Cj91xpE7zAZ
+         FNiGQyOrpIhNm06EuLmsDGIFRzn/8xhyz97C6mMg4HiHjAJk5ITk1tq5SgNgfWs1uNld
+         g8hHZfBRSMQKDv27xKmIRw0A4qaeQA9dBjF6QwEL+aP+IP7cf9Y3GtM2qa3niJyDNJQA
+         OeNVGl2o6bM/ezMtUtwHl6mj2d1l0poNmD4SC+CGWtzw8Bbm/3jqUujrM6SJ/9Z5Uq9+
+         22nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=7+SMm2iKQGITJSuVgJmlWHkODg8DnWAlieYuuZCnEEw=;
+        b=J0/rNTQP1pkh30zQKNrXNcj2YoOdYU/KS3/Vvwnq3HxEi0UO5UvCLlWSX7/VKwsiUo
+         XhISa/O7+vod7IKK/lsChmXK7kzeIimpBlNpTgDPxmdf7Di+2By529abZmhPVBnerTqS
+         kCS+ipSjq41WfoUAHP/3Zm3nhc2lONHzr3axtXf3oN4JQmWU4f1TyYDQt4rV4jyDZmvu
+         It9t0gdfAMpeUcqNWlezcGMBk5Q22CkgYKy6N8jDRonr+9fxUzLfwnIo7E8tv2PawiI4
+         FM11Q5AhCmHUU8PVwGb439o/iOvrSEkcNyBzzfn4wary/LzFmMjpGNujnuC8yh9mILBf
+         J66w==
+X-Gm-Message-State: AOAM533SbyPZBv28/5Ve8/fPAqhcqhn/CtL5+wPnVfRLaTXkglErpgf6
+        YMD+MRKunZCtkzG1ga3vbpoWw9teUQw=
+X-Google-Smtp-Source: ABdhPJxOqBwH4sNBfZxX3rp6+qbg0rqynhrm7ze6FaFmdXlKdyA8MfIELKwiwYNTXAp3VT7lZhcFeg==
+X-Received: by 2002:a1c:61c3:: with SMTP id v186mr9115093wmb.146.1609364272314;
+        Wed, 30 Dec 2020 13:37:52 -0800 (PST)
+Received: from localhost.localdomain ([148.252.128.61])
+        by smtp.gmail.com with ESMTPSA id 125sm8823626wmc.27.2020.12.30.13.37.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Dec 2020 13:37:51 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/4] io_uring: add a helper for setting a ref node
+Date:   Wed, 30 Dec 2020 21:34:14 +0000
+Message-Id: <2fecebc9ab028ca5ea52198b615c30fab6151114.1609361865.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1609361865.git.asml.silence@gmail.com>
+References: <cover.1609361865.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Server: mail20.mymailcheap.com
-X-Spamd-Result: default: False [6.40 / 20.00];
-         RCVD_VIA_SMTP_AUTH(0.00)[];
-         TO_DN_SOME(0.00)[];
-         R_MISSING_CHARSET(2.50)[];
-         BROKEN_CONTENT_TYPE(1.50)[];
-         R_SPF_SOFTFAIL(0.00)[~all];
-         ML_SERVERS(-3.10)[213.133.102.83];
-         DKIM_TRACE(0.00)[aosc.io:+];
-         RCPT_COUNT_SEVEN(0.00)[9];
-         FREEMAIL_TO(0.00)[gmail.com,ravnborg.org,linux.ie,ffwll.ch,kernel.org];
-         RCVD_NO_TLS_LAST(0.10)[];
-         RECEIVED_SPAMHAUS_PBL(0.00)[59.41.160.237:received];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         ASN(0.00)[asn:24940, ipnet:213.133.96.0/19, country:DE];
-         ARC_NA(0.00)[];
-         R_DKIM_ALLOW(0.00)[aosc.io:s=default];
-         FROM_HAS_DN(0.00)[];
-         FREEMAIL_ENVRCPT(0.00)[gmail.com];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         TAGGED_RCPT(0.00)[];
-         MIME_GOOD(-0.10)[text/plain];
-         DMARC_NA(0.00)[aosc.io];
-         MID_CONTAINS_FROM(1.00)[];
-         HFILTER_HELO_BAREIP(3.00)[213.133.102.83,1];
-         RCVD_COUNT_TWO(0.00)[2];
-         SUSPICIOUS_RECIPS(1.50)[]
-X-Rspamd-Queue-Id: 88D5241FB0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When mipi_dsi_attach() fails (e.g. got a -EPROBE_DEFER), the panel should
-be removed, otherwise a pointer to it will be kept and then lead to
-use-after-free when DRM panel codes are called (e.g. the panel is probed
-again).
+Setting a new reference node to a file data is not trivial, don't repeat
+it, add and use a helper.
 
-Fix this by adding cleanup code after mipi_dsi_attach() failure.
-
-Fixes: 26aec25593c2 ("drm/panel: Add Ilitek ILI9881c panel driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Cc: stable@vger.kernel.org # 5.6+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- drivers/gpu/drm/panel/panel-ilitek-ili9881c.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-ilitek-ili9881c.c b/drivers/gpu/drm/panel/panel-ilitek-ili9881c.c
-index 0145129d7c66..22f2268f00f7 100644
---- a/drivers/gpu/drm/panel/panel-ilitek-ili9881c.c
-+++ b/drivers/gpu/drm/panel/panel-ilitek-ili9881c.c
-@@ -674,7 +674,13 @@ static int ili9881c_dsi_probe(struct mipi_dsi_device *dsi)
- 	dsi->format = MIPI_DSI_FMT_RGB888;
- 	dsi->lanes = 4;
- 
--	return mipi_dsi_attach(dsi);
-+	ret = mipi_dsi_attach(dsi);
-+	if (ret < 0) {
-+		drm_panel_remove(&ctx->panel);
-+		return ret;
-+	}
-+
-+	return 0;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index eb4620ff638e..6372aba8d0c2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7231,6 +7231,16 @@ static void io_file_ref_kill(struct percpu_ref *ref)
+ 	complete(&data->done);
  }
  
- static int ili9881c_dsi_remove(struct mipi_dsi_device *dsi)
++static void io_sqe_files_set_node(struct fixed_file_data *file_data,
++				  struct fixed_file_ref_node *ref_node)
++{
++	spin_lock_bh(&file_data->lock);
++	file_data->node = ref_node;
++	list_add_tail(&ref_node->node, &file_data->ref_list);
++	spin_unlock_bh(&file_data->lock);
++	percpu_ref_get(&file_data->refs);
++}
++
+ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ {
+ 	struct fixed_file_data *data = ctx->file_data;
+@@ -7758,11 +7768,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return PTR_ERR(ref_node);
+ 	}
+ 
+-	file_data->node = ref_node;
+-	spin_lock_bh(&file_data->lock);
+-	list_add_tail(&ref_node->node, &file_data->ref_list);
+-	spin_unlock_bh(&file_data->lock);
+-	percpu_ref_get(&file_data->refs);
++	io_sqe_files_set_node(file_data, ref_node);
+ 	return ret;
+ out_fput:
+ 	for (i = 0; i < ctx->nr_user_files; i++) {
+@@ -7918,11 +7924,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 
+ 	if (needs_switch) {
+ 		percpu_ref_kill(&data->node->refs);
+-		spin_lock_bh(&data->lock);
+-		list_add_tail(&ref_node->node, &data->ref_list);
+-		data->node = ref_node;
+-		spin_unlock_bh(&data->lock);
+-		percpu_ref_get(&ctx->file_data->refs);
++		io_sqe_files_set_node(data, ref_node);
+ 	} else
+ 		destroy_fixed_file_ref_node(ref_node);
+ 
 -- 
-2.28.0
+2.24.0
+
