@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4032E7921
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF4AC2E7926
+	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 14:08:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727775AbgL3NGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 08:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
+        id S1727454AbgL3NG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 08:06:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727454AbgL3NF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727458AbgL3NF3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 30 Dec 2020 08:05:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBFF4225AB;
-        Wed, 30 Dec 2020 13:04:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18F8922A84;
+        Wed, 30 Dec 2020 13:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333478;
-        bh=pzRhHs59aiMH3Yt9MNi2DX7MUHYsbgwMmFKqAuHKQ34=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Fu/f2YlI9K87nEAHK6rTUrGsp813jIlzGz8uf/2guzzncWOZzMrvnmDTZ1I3y0Lv+
-         kqO8VAMGwyuBGb2Ynrsw8V7Wt5qsRgmwChODcwpknSfEnNBXmZuRuSSfRaOEcmIYRK
-         1ntM6KkvITyYsZJ7Sh/E+lZjBA34Qnh3gs7esQJGl1ZUzhsFbPaQf8XtQjKrBXNokS
-         xIo9tnvd+eYs9EQgoVb+syiq+cLikokA6J3nDZO9AD84F9mTXLN+GiSW0LzWaNP0cj
-         m+18YEBIIHly2aHPApUYSaPVJtAMwA7xluJKt2Oo1J2p5PpeE54D/kl0JfxyEV+Vii
-         xJu/gKCWSy/XA==
+        s=k20201202; t=1609333479;
+        bh=APu/jXmOcUT+ePEqtPNGTJWpAn5vwcWurH2AbSLSO68=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=N4huVitka3gKsCA+2v752DIn9nKvYk+IDwWMhoLeK0fROFQ7uLHPrdfx9tqJ05UY2
+         mxyi7VMhhKGU/N55tEYgKX7FcBh2Tggso2Mt/hoSt493hM/c7wXGKWsZ7PUjYVwbHK
+         KhfvW1+ycuh2frvuY7B76zIT9inqYpIp+ADtr4uMZGnQNRZmdHV4mf1ICGvnN60vU6
+         P3ne1bQunXHdcbKpilGDi1zHcrIeXZbxvbylXfPUX8uVAopzNnU5naTTjYIRffNPp1
+         k5qfJVzq5MzZ1TvNDzeLZBAdq+cMAEg92dC4VkBO6UnIMTRJYh8JxeaKR7COQ+SrJf
+         4jNBSeAQXacGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 1/8] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
-Date:   Wed, 30 Dec 2020 08:04:29 -0500
-Message-Id: <20201230130436.3637579-1-sashal@kernel.org>
+Cc:     Miroslav Benes <mbenes@suse.cz>, Jessica Yu <jeyu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 2/8] module: set MODULE_STATE_GOING state when a module fails to load
+Date:   Wed, 30 Dec 2020 08:04:30 -0500
+Message-Id: <20201230130436.3637579-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20201230130436.3637579-1-sashal@kernel.org>
+References: <20201230130436.3637579-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,63 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Miroslav Benes <mbenes@suse.cz>
 
-[ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
+[ Upstream commit 5e8ed280dab9eeabc1ba0b2db5dbe9fe6debb6b5 ]
 
-When clk_hw_register_fixed_rate_with_accuracy() fails,
-clk_data should be freed. It's the same for the subsequent
-two error paths, but we should also unregister the already
-registered clocks in them.
+If a module fails to load due to an error in prepare_coming_module(),
+the following error handling in load_module() runs with
+MODULE_STATE_COMING in module's state. Fix it by correctly setting
+MODULE_STATE_GOING under "bug_cleanup" label.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20201020061226.6572-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sun6i.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/module.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 8eb2b6dd36fea..1d0d9c8d0085d 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -230,7 +230,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 								300000000);
- 	if (IS_ERR(rtc->int_osc)) {
- 		pr_crit("Couldn't register the internal oscillator\n");
--		return;
-+		goto err;
- 	}
- 
- 	parents[0] = clk_hw_get_name(rtc->int_osc);
-@@ -246,7 +246,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
- 		pr_crit("Couldn't register the LOSC clock\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	of_property_read_string_index(node, "clock-output-names", 1,
-@@ -257,7 +257,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 					  &rtc->lock);
- 	if (IS_ERR(rtc->ext_losc)) {
- 		pr_crit("Couldn't register the LOSC external gate\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	clk_data->num = 2;
-@@ -266,6 +266,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	return;
- 
-+err_register:
-+	clk_hw_unregister_fixed_rate(rtc->int_osc);
- err:
- 	kfree(clk_data);
- }
+diff --git a/kernel/module.c b/kernel/module.c
+index 2806c9b6577c1..c4f0a8fe144e1 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3801,6 +3801,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
+ 				     MODULE_STATE_GOING, mod);
+ 	klp_module_going(mod);
+  bug_cleanup:
++	mod->state = MODULE_STATE_GOING;
+ 	/* module_bug_cleanup needs module_mutex protection */
+ 	mutex_lock(&module_mutex);
+ 	module_bug_cleanup(mod);
 -- 
 2.27.0
 
