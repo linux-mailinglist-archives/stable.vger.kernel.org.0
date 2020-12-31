@@ -2,52 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A472E7EB8
-	for <lists+stable@lfdr.de>; Thu, 31 Dec 2020 09:34:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 631F02E7EC2
+	for <lists+stable@lfdr.de>; Thu, 31 Dec 2020 09:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726130AbgLaIeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Dec 2020 03:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58484 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726037AbgLaIeB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Dec 2020 03:34:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08CFE20799;
-        Thu, 31 Dec 2020 08:33:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609403600;
-        bh=wX/RsiFeUVeSh0tHWgPKKXjTLLEPPei2KROl3gzR2zs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=d0S+xgYzt/vo2uIJ+7LYC4Q7AnrWE3nS3cs9TZ5ZEOFMaxZ50JsU/F7WxxvTmwrAX
-         2rAdTU560HfCRP88aNpkPCJR7h+0VMJmNWebhkU2Y4UjAH6IbDIs1NhTX6FjpL53z7
-         cd7gHKi8DCD6IeoZYeZ32s/C1aI7dpGARrn7i7pI=
-Date:   Thu, 31 Dec 2020 09:33:16 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Christian Labisch <clnetbox@gmail.com>
-Cc:     Greg Kroah-Hartman <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <linux-kernel@vger.kernel.org>,
-        Akemi Yagi <toracat@elrepo.org>,
-        Justin Forbes <jforbes@redhat.com>
-Subject: Re: sound
-Message-ID: <X+2MzJ7bKCQTRCd/@kroah.com>
-References: <2f0acfa1330ca6b40bff564fd317c8029eb23453.camel@gmail.com>
- <efc6d5e8abc1da3cac754cb760fff08a1887013b.camel@gmail.com>
+        id S1726037AbgLaIut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Dec 2020 03:50:49 -0500
+Received: from mail.baikalelectronics.com ([87.245.175.226]:35304 "EHLO
+        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726130AbgLaIut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Dec 2020 03:50:49 -0500
+Date:   Thu, 31 Dec 2020 11:49:56 +0300
+From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Mark Brown <broonie@kernel.org>, <linux-spi@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 134/717] spi: dw: fix build error by selecting
+ MULTIPLEXER
+Message-ID: <20201231084956.ckobqvr5mdpcdxkc@mobilestation>
+References: <20201228125020.963311703@linuxfoundation.org>
+ <20201228125027.369952724@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <efc6d5e8abc1da3cac754cb760fff08a1887013b.camel@gmail.com>
+In-Reply-To: <20201228125027.369952724@linuxfoundation.org>
+X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Dec 30, 2020 at 07:10:16PM +0100, Christian Labisch wrote:
-> Update :
+Hello Greg,
+The next patch has been created to supersede the one you've applied:
+https://lore.kernel.org/linux-spi/20201127144612.4204-1-Sergey.Semin@baikalelectronics.ru/
+Mark has already merged it in his repo.
+
+-Sergey
+
+On Mon, Dec 28, 2020 at 01:42:12PM +0100, Greg Kroah-Hartman wrote:
+> From: Randy Dunlap <rdunlap@infradead.org>
 > 
-> I've just tested the kernel 5.10.4 from ELRepo.
-> Unfortunately nothing changed - still no sound.
-
-Ah, sad.  Can you run 'git bisect' between 5.9 and 5.10 to determine the
-commit that caused the problem?
-
-thanks,
-
-greg k-h
+> [ Upstream commit 1241f0787578136ab58f49adc52f2dcd2bbc4bf2 ]
+> 
+> Fix build error for spi-dw-bt1.o by selecting MULTIPLEXER.
+> 
+> hppa-linux-ld: drivers/spi/spi-dw-bt1.o: in function `dw_spi_bt1_sys_init':
+> (.text+0x1ac): undefined reference to `devm_mux_control_get'
+> 
+> Fixes: abf00907538e ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: linux-spi@vger.kernel.org
+> Acked-by: Serge Semin <fancer.lancer@gmail.com>
+> Link: https://lore.kernel.org/r/20201116040721.8001-1-rdunlap@infradead.org
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/spi/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+> index 5cff60de8e834..3fd16b7f61507 100644
+> --- a/drivers/spi/Kconfig
+> +++ b/drivers/spi/Kconfig
+> @@ -255,6 +255,7 @@ config SPI_DW_MMIO
+>  config SPI_DW_BT1
+>  	tristate "Baikal-T1 SPI driver for DW SPI core"
+>  	depends on MIPS_BAIKAL_T1 || COMPILE_TEST
+> +	select MULTIPLEXER
+>  	help
+>  	  Baikal-T1 SoC is equipped with three DW APB SSI-based MMIO SPI
+>  	  controllers. Two of them are pretty much normal: with IRQ, DMA,
+> -- 
+> 2.27.0
+> 
+> 
+> 
