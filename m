@@ -2,85 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6952E7D07
-	for <lists+stable@lfdr.de>; Wed, 30 Dec 2020 23:55:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D16C2E7D57
+	for <lists+stable@lfdr.de>; Thu, 31 Dec 2020 01:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726276AbgL3WzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Dec 2020 17:55:11 -0500
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:61540 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726261AbgL3WzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 17:55:11 -0500
+        id S1726539AbgLaAQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Dec 2020 19:16:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726492AbgLaAQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Dec 2020 19:16:37 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A27BC061575
+        for <stable@vger.kernel.org>; Wed, 30 Dec 2020 16:15:57 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id i5so12235803pgo.1
+        for <stable@vger.kernel.org>; Wed, 30 Dec 2020 16:15:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1609368911; x=1640904911;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=fkonjLjYRFDw/u76n7t+moOaX+PjH/39tyxGd/FyqBA=;
-  b=VXhD8BCrC+tGlmzzURCVOQZvTYKz5PToh4UgYZdzAqldhf2VluPz6O3r
-   ThmUcLXNqNwRAbVAO6+IAqV6mZ+4LWJjoZR1pAJPWdHYO+aQPas2EfRuX
-   ydgTMAFcsfATisQDodX+OXXmuA0m6065SYCLQyjJSU/UXYWNr89acUWkG
-   Y=;
-X-IronPort-AV: E=Sophos;i="5.78,462,1599523200"; 
-   d="scan'208";a="107163853"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-2a-22cc717f.us-west-2.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 30 Dec 2020 22:54:30 +0000
-Received: from EX13MTAUEE001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-2a-22cc717f.us-west-2.amazon.com (Postfix) with ESMTPS id 5FF5FA06FD;
-        Wed, 30 Dec 2020 22:54:29 +0000 (UTC)
-Received: from EX13D06UEA002.ant.amazon.com (10.43.61.198) by
- EX13MTAUEE001.ant.amazon.com (10.43.62.200) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 30 Dec 2020 22:54:28 +0000
-Received: from ucf43ac461c9a53.ant.amazon.com (10.43.160.48) by
- EX13D06UEA002.ant.amazon.com (10.43.61.198) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 30 Dec 2020 22:54:27 +0000
-Date:   Wed, 30 Dec 2020 17:54:23 -0500
-From:   Tong Zhu <zhutong@amazon.com>
-To:     <davem@davemloft.net>, <sashal@kernel.org>, <edumazet@google.com>,
-        <zhutong@amazon.com>, <vvs@virtuozzo.com>
-CC:     <netdev@vger.kernel.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] neighbour: Disregard DEAD dst in neigh_update
-Message-ID: <20201230225415.GA490@ucf43ac461c9a53.ant.amazon.com>
+        d=linuxace-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=au5deversDUhjJZ37Ftd3WtVvchDXjoeRWjmb+KgOHU=;
+        b=MhWOQFZsHAE0uuFnYbB/Jc8/42rNUcbi/V4UxJV83oD22AQ+STPyLsxxBUt9LSBWuM
+         FiiC6HSt0I3g688dwrqFrS9xKAS1mKVlI6cgloEQg4yCBCQLm6ui3hqiLfXYOZDQjN/c
+         yTGw1jWAMEKEVCQNRT0ZsV4ES9Gxz2o6MX03p4k0xdRw88kqJLS5RVQuaVrp2cUQjavc
+         IqcpA3rfmXAVgK2akbcJ+3xDoJPULOv/4EtSlbJ9NkqCFgPO1OACDhkN+azVbi3QkVw+
+         1EJUqE//dWefJfE996DoJfPls6PQUy2Ym3Ic6dSPDorr/9f/pG5KIBhHH2x75WAtLWyo
+         ttEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=au5deversDUhjJZ37Ftd3WtVvchDXjoeRWjmb+KgOHU=;
+        b=HiHYmMDSZYW6CmWo5g5UtkyFaZ0vavH7YKmA+t3Xyfl3tp5Nd+A6XcXPT1ENw/7rW6
+         mQHH6sr4B+n9nHcH82phdhO3dRFgVfWv/oPq6EjO/FUNPlhi9FY+sme3bR7xkSmhc0l1
+         5Uequ3PhJKbJKe9H6h5u+W652wc+vSGyTusEpyg7odKmfM0RymQ3ScsjutQMNGi5Duf1
+         0l+F0lGyAluhgMs7uXpfOaufzop71cmDgysvh6PMHZA8QhQqG3bfCJDFDVwtAjsrpk4x
+         XXccEr7T1Fx0CXKmzQz2WH7xemBpfC/dBduVuGo07vgt09tfhIcEJTnlD5QfwRjeuEP5
+         kqAA==
+X-Gm-Message-State: AOAM530INNvyzqRHf5KtzJnrpeI2evb+SmEfBzTcdR+VtWpsGTnV6L9G
+        uvVUZH9myxjj2OWBlYyFnHIwuA==
+X-Google-Smtp-Source: ABdhPJwcB47Au0SCL2bya0Ek9wpMqDiNDQIFM8LUop6tXifOpwCBlrKfIqN2Er69MYwJ7KdsZOMWEw==
+X-Received: by 2002:a63:da50:: with SMTP id l16mr38832354pgj.447.1609373757086;
+        Wed, 30 Dec 2020 16:15:57 -0800 (PST)
+Received: from home.linuxace.com (cpe-23-243-7-246.socal.res.rr.com. [23.243.7.246])
+        by smtp.gmail.com with ESMTPSA id h18sm44326353pfo.172.2020.12.30.16.15.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Dec 2020 16:15:56 -0800 (PST)
+Date:   Wed, 30 Dec 2020 16:15:53 -0800
+From:   Phil Oester <kernel@linuxace.com>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Kashyap Desai <kashyap.desai@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        hch@infradead.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Anand Lodnoor <anand.lodnoor@broadcom.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Hannes Reinecke <hare@suse.de>, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] scsi: megaraid_sas: check user-provided offsets
+Message-ID: <20201231001553.GB16945@home.linuxace.com>
+References: <20200908213715.3553098-1-arnd@arndb.de>
+ <20200908213715.3553098-2-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.43.160.48]
-X-ClientProxiedBy: EX13D46UWC001.ant.amazon.com (10.43.162.126) To
- EX13D06UEA002.ant.amazon.com (10.43.61.198)
+In-Reply-To: <20200908213715.3553098-2-arnd@arndb.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In 4.x kernel a dst in DST_OBSOLETE_DEAD state is associated
-with loopback net_device and leads to loopback neighbour. It
-leads to an ethernet header with all zero addresses.
+On Tue, Sep 08, 2020 at 11:36:22PM +0200, Arnd Bergmann wrote:
+> It sounds unwise to let user space pass an unchecked 32-bit
+> offset into a kernel structure in an ioctl. This is an unsigned
+> variable, so checking the upper bound for the size of the structure
+> it points into is sufficient to avoid data corruption, but as
+> the pointer might also be unaligned, it has to be written carefully
+> as well.
+> 
+> While I stumbled over this problem by reading the code, I did not
+> continue checking the function for further problems like it.
 
-A very troubling case is working with mac80211 and ath9k.
-A packet with all zero source MAC address to mac80211 will
-eventually fail ieee80211_find_sta_by_ifaddr in ath9k (xmit.c).
-As result, ath9k flushes tx queue (ath_tx_complete_aggr) without
-updating baw (block ack window), damages baw logic and disables
-transmission.
+Sorry for replying to an ancient thread, but this patch just recently
+made it into 5.10.3 and has caused unintended consequences.  On Dell
+servers with PERC RAID controllers, booting 5.10.3+ with this patch
+causes a PCI parity error.  Specifically:
 
-Signed-off-by: Tong Zhu <zhutong@amazon.com>
----
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Event Message: A PCI parity error was detected on a component at bus 0 device 5 function 0.
+Severity: Critical
+Message ID: PCI1308
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 6e890f51b7d8..e471c32e448f 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1271,7 +1271,7 @@ int neigh_update(struct neighbour *neigh, const u8 *lladdr, u8 new,
- 			 * we can reinject the packet there.
- 			 */
- 			n2 = NULL;
--			if (dst) {
-+			if (dst && dst->obsolete != DST_OBSOLETE_DEAD) {
- 				n2 = dst_neigh_lookup_skb(dst, skb);
- 				if (n2)
- 					n1 = n2;
--- 
-2.17.1
+I reverted this single patch and the errors went away.
 
+Thoughts?
+
+Phil Oester
