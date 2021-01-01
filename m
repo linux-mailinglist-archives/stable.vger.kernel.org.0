@@ -2,121 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B6B2E8377
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 11:29:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE672E83F2
+	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 15:21:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbhAAK1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jan 2021 05:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32952 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726974AbhAAK1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 05:27:53 -0500
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D46C061575
-        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 02:26:58 -0800 (PST)
-Received: by mail-il1-x131.google.com with SMTP id q1so19148554ilt.6
-        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 02:26:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=k2vQ6iqC4CndNBeiIFLrfo2PMRh+mcqERP0ZLSMI0UU=;
-        b=S2e0UyON57vBfV4TYhF3yPrS2nbggdWhKASDKkJyyZhZZrjDkAVKHQZ26oCiBGwSFX
-         UDzTX28rWXZcodt0np0keMnUqzYQ17/DQTLTwwfR+nqTnbOIeJKrun6JulieBxrFKNb6
-         sijYwADkpBgOOo7LwIp5zStNDZK3l0kIytvlw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=k2vQ6iqC4CndNBeiIFLrfo2PMRh+mcqERP0ZLSMI0UU=;
-        b=WTeZJh4Q5H4sjMwujuGvkMR3/4at7wzA+JoEvDqv6AHduKV706koHgNapTIRQGYcFg
-         R2xb1VyFO5BIo8GmYG4k7pYVFuAonBqt4u74Sley77qjV0xWVMh/de5kyCRCZVGuF5l4
-         8ca8kHh/vXbTmSPJJKYBpMi/A/jfGJd2LUazDTXrVG9kD5Zpt4DqyLMfedZ9opWYX0rC
-         mgyYRkIGm+JUUzF2hHDR5Dqw2u6s1Ex7KjbOkVonxCwMsaqBG+raqkZ+AJyml06Pvc65
-         8ehrD+PYbRIWctxvHewtbhBwCqDE1v+AysgRo1gKZrEeSZqUdZVH6uLpVXIPHjV27s+0
-         KouA==
-X-Gm-Message-State: AOAM530XZpK4oNMQNLkQ43AhDb/S5LK8YVbGnbUUr5+pUHHSTY54UAMw
-        gmfH32GXRImZ3sDHYWycgicMHyt4+0kLnlA2AybLJQ==
-X-Google-Smtp-Source: ABdhPJz1USMv6E2KC8ZVmIWBjUJhlS5f9B0ew9hFe2xL6yHufIj3i5Q+DJrMQoaeY+K+o+6kwBrDtzQTcfz8CCZkwqA=
-X-Received: by 2002:a92:c990:: with SMTP id y16mr60036119iln.35.1609496817666;
- Fri, 01 Jan 2021 02:26:57 -0800 (PST)
+        id S1727134AbhAAOVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jan 2021 09:21:06 -0500
+Received: from mail-40136.protonmail.ch ([185.70.40.136]:52981 "EHLO
+        mail-40136.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727133AbhAAOVF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 09:21:05 -0500
+Date:   Fri, 01 Jan 2021 14:20:15 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1609510821;
+        bh=9IlciDeE4Mu3twWzeiCd2YETcAlvXlh3tCEyG5790LI=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=UKlEtp1Db4Yg2xNY5Szd4Cw3GyCiUpXPUTLt/Y4On4yjy69Njs82wKN//q8RlbZz8
+         zZM3aAgbzsbCDfVQyOMbXg5lYf76Aqtmhv5ZjMQejwMlv0ZZ5lVg1QVTWCXAzRFXxp
+         UOi6a5lCu0vmBC+AZ4QaaG/bIfEBE/x/3+80S5DA=
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Ike Panhc <ike.pan@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH] platform/x86: ideapad-laptop: Add has_touchpad_switch
+Message-ID: <_kQDaYPt7vh_mQfPr1tLJV2IP-p40OBPcU5zk-1xHhF9XJsm8Y-efANBgiRdWU-J2QTtOjmrfE0Tw6UrZpm6uG-zZGlfpaVOp9FuoKAbjzA=@protonmail.com>
+In-Reply-To: <20210101061140.27547-1-jiaxun.yang@flygoat.com>
+References: <20210101061140.27547-1-jiaxun.yang@flygoat.com>
 MIME-Version: 1.0
-References: <20201230214520.154793-1-ignat@cloudflare.com> <20201230214520.154793-2-ignat@cloudflare.com>
- <alpine.LRH.2.02.2101010450460.31009@file01.intranet.prod.int.rdu2.redhat.com>
-In-Reply-To: <alpine.LRH.2.02.2101010450460.31009@file01.intranet.prod.int.rdu2.redhat.com>
-From:   Ignat Korchagin <ignat@cloudflare.com>
-Date:   Fri, 1 Jan 2021 10:26:46 +0000
-Message-ID: <CALrw=nFFt4aUaJMc0OkKJfFfyv+A3oPuJxKMceOVGzrzwtP3Cw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] dm crypt: use GFP_ATOMIC when allocating crypto
- requests from softirq
-To:     Mikulas Patocka <mpatocka@redhat.com>
-Cc:     Alasdair G Kergon <agk@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        device-mapper development <dm-devel@redhat.com>,
-        dm-crypt@saout.de, linux-kernel <linux-kernel@vger.kernel.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        kernel-team <kernel-team@cloudflare.com>,
-        Nobuto Murata <nobuto.murata@canonical.com>,
-        Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
-        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 1, 2021 at 10:00 AM Mikulas Patocka <mpatocka@redhat.com> wrote:
->
->
->
-> On Wed, 30 Dec 2020, Ignat Korchagin wrote:
->
-> > diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
-> > index 53791138d78b..e4fd690c70e1 100644
-> > --- a/drivers/md/dm-crypt.c
-> > +++ b/drivers/md/dm-crypt.c
-> > @@ -1539,7 +1549,10 @@ static blk_status_t crypt_convert(struct crypt_config *cc,
-> >
-> >       while (ctx->iter_in.bi_size && ctx->iter_out.bi_size) {
-> >
-> > -             crypt_alloc_req(cc, ctx);
-> > +             r = crypt_alloc_req(cc, ctx);
-> > +             if (r)
-> > +                     return BLK_STS_RESOURCE;
-> > +
-> >               atomic_inc(&ctx->cc_pending);
-> >
-> >               if (crypt_integrity_aead(cc))
-> > --
-> > 2.20.1
->
-> I'm not quite convinced that returning BLK_STS_RESOURCE will help. The
-> block layer will convert this value back to -ENOMEM and return it to the
-> caller, resulting in an I/O error.
->
-> Note that GFP_ATOMIC allocations may fail anytime and you must handle
-> allocation failure gracefully - i.e. process the request without any
-> error.
->
-> An acceptable solution would be to punt the request to a workqueue and do
-> GFP_NOIO allocation from the workqueue. Or add the request to some list
-> and process the list when some other request completes.
+Hi
 
-We can do the workqueue, if that's the desired behaviour. The second patch
-from this patchset already adds the code for the request to be retried from the
-workqueue if crypt_convert returns BLK_STS_DEV_RESOURCE, so all is needed
-is to change returning BLK_STS_RESOURCE to BLK_STS_DEV_RESOURCE
-here. Does that sound reasonable?
 
-> You should write a test that simulates allocation failure and verify that
-> the kernel handles it gracefully without any I/O error.
+2021. janu=C3=A1r 1., p=C3=A9ntek 7:11 keltez=C3=A9ssel, Jiaxun Yang =C3=
+=ADrta:
 
-I already have the test for the second patch in the set, but will
-adapt it to make sure the
-allocation failure codepath is covered as well.
-
-> Mikulas
+> Newer ideapads (e.g.: Yoga 14s, 720S 14) comes with I2C HID
+> Touchpad and do not use EC to switch touchpad. Reading VPCCMD_R_TOUCHPAD
+> will return zero thus touchpad may be blocked. Writing VPCCMD_W_TOUCHPAD
+> may cause a spurious key press.
 >
+> Add has_touchpad_switch to workaround these machines.
+>
+> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Cc: stable@vger.kernel.org # 5.4+
+
+Interestingly, the Lenovo Yoga 540-14IKB 80X8 has an HID-over-I2C touchpad,
+and yet it can be controlled by reading/writing the appropriate EC register=
+s.
+
+
+> ---
+>  drivers/platform/x86/ideapad-laptop.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86=
+/ideapad-laptop.c
+> index 7598cd46cf60..b6a4db37d0fc 100644
+> --- a/drivers/platform/x86/ideapad-laptop.c
+> +++ b/drivers/platform/x86/ideapad-laptop.c
+> @@ -92,6 +92,7 @@ struct ideapad_private {
+>  =09struct dentry *debug;
+>  =09unsigned long cfg;
+>  =09bool has_hw_rfkill_switch;
+> +=09bool has_touchpad_switch;
+>  =09const char *fnesc_guid;
+>  };
+>
+> @@ -535,7 +536,9 @@ static umode_t ideapad_is_visible(struct kobject *kob=
+j,
+>  =09} else if (attr =3D=3D &dev_attr_fn_lock.attr) {
+>  =09=09supported =3D acpi_has_method(priv->adev->handle, "HALS") &&
+>  =09=09=09acpi_has_method(priv->adev->handle, "SALS");
+> -=09} else
+> +=09} else if (attr =3D=3D &dev_attr_touchpad.attr)
+> +=09=09supported =3D priv->has_touchpad_switch;
+> +=09else
+>  =09=09supported =3D true;
+>
+>  =09return supported ? attr->mode : 0;
+> @@ -867,6 +870,9 @@ static void ideapad_sync_touchpad_state(struct ideapa=
+d_private *priv)
+>  {
+>  =09unsigned long value;
+>
+> +=09if (!priv->has_touchpad_switch)
+> +=09=09return;
+> +
+>  =09/* Without reading from EC touchpad LED doesn't switch state */
+>  =09if (!read_ec_data(priv->adev->handle, VPCCMD_R_TOUCHPAD, &value)) {
+>  =09=09/* Some IdeaPads don't really turn off touchpad - they only
+> @@ -989,6 +995,12 @@ static int ideapad_acpi_add(struct platform_device *=
+pdev)
+>  =09priv->platform_device =3D pdev;
+>  =09priv->has_hw_rfkill_switch =3D dmi_check_system(hw_rfkill_list);
+>
+> +=09/* Most ideapads with I2C HID don't use EC touchpad switch */
+> +=09if (acpi_dev_present("PNP0C50", NULL, -1))
+> +=09=09priv->has_touchpad_switch =3D false;
+> +=09else
+> +=09=09priv->has_touchpad_switch =3D true;
+> +
+
+`priv->has_touchpad_switch =3D !acpi_dev_present(...)`
+?
+
+
+>  =09ret =3D ideapad_sysfs_init(priv);
+>  =09if (ret)
+>  =09=09return ret;
+> @@ -1006,6 +1018,10 @@ static int ideapad_acpi_add(struct platform_device=
+ *pdev)
+>  =09if (!priv->has_hw_rfkill_switch)
+>  =09=09write_ec_cmd(priv->adev->handle, VPCCMD_W_RF, 1);
+>
+> +=09/* The same for Touchpad */
+> +=09if (!priv->has_touchpad_switch)
+> +=09=09write_ec_cmd(priv->adev->handle, VPCCMD_W_TOUCHPAD, 1);
+> +
+
+Shouldn't it be the other way around: `if (priv->has_touchpad_switch)`?
+
+
+
+>  =09for (i =3D 0; i < IDEAPAD_RFKILL_DEV_NUM; i++)
+>  =09=09if (test_bit(ideapad_rfk_data[i].cfgbit, &priv->cfg))
+>  =09=09=09ideapad_register_rfkill(priv, i);
+> --
+> 2.30.0
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze
