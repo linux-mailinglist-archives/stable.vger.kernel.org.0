@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 781522E8583
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:17:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A8F2E8586
+	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbhAAUQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jan 2021 15:16:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
+        id S1727310AbhAAUXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jan 2021 15:23:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727310AbhAAUQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:16:44 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44912C0613ED
-        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:16:04 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id qw4so28828173ejb.12
-        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:16:04 -0800 (PST)
+        with ESMTP id S1727306AbhAAUXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:23:34 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A955C061573
+        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:22:53 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id n26so28859705eju.6
+        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:22:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Wgh/KvfKSZjeRUtxd+dOmCmXYFa+MDjIZZQPZGTlssw=;
-        b=EG1SutFrGLwgBBfE6c+ld/hvt8Let+Kv3og5FiY6dNwJChcH6UZAIa3JnAsYo8Br1Q
-         3QOn8gRMl7RIFOxuSnSEEwjH45uwcBekro7HOtxVjrMz1rB16yuBZaWALYiCxKI9uncm
-         vXn98CK+UJwsm5/HrPu86f37fwA9XWbWJ/2cVt7qWJe/R7gm6L3Dd7f0EEt26eeJPv8S
-         mHKlse2mAj2NWKpi1C8Y2BnPNS04L9C8BUoSVJLmsJWVtVW/HymLVl0D/hJspSqxqotV
-         5Si1Ki/FM3Nn8ZvFfkwkm7wE5OvSbshWVEJKqF5WCs1fPSbrKUeZdzdfPNzen4mHSH39
-         YlnA==
+        bh=XFRO8dWkqZuNx2+BqBM7nkOyVcjRycuuFLB3OQd4b5s=;
+        b=tR23Gmq7X4rzYqjBoQlyqiDcJ0i3QGeYVRejZG9ZnGfeHxhZz6M6mZo7/8OK6qF+Vw
+         cLuvHbBwZfWnrPSqtOeHMj+/o7YUQE43bWu/+mTNFY1kq9RxZZjZEJN08vHpxct/jN2c
+         LDyAFW46lLrH1hahOkLTRnRjxI1QCv/o7oaD6EHHcfQzBB9bDN5ZZvAENpoGbiyvMq+N
+         l7P6UdF1dX+rjTxuT8XUkMQSUVjrnqpcXn06Gbwb3c+62LWHA8YmnyvmLt5CYDu1izSY
+         SIXvnnamrWatQQqjQZ3qwsf6IzvbRqzxJ4kA8F0OiSwkWSK2/F9XybNDqpHWTtLuMckB
+         5BuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Wgh/KvfKSZjeRUtxd+dOmCmXYFa+MDjIZZQPZGTlssw=;
-        b=GhFqYy6T2VisK3Qs1r6sIALGZqRFglrfSHNgh/nFO8bFg7wCtj81/b0uza84cbiIjC
-         qyU0NkCXX+3sGkoGrZ6pwNGru6w0fGF2LdXp4FPxzlGeP4IzkOTYDUZhIrc/9pOm29qw
-         mwvIsTvNxMhIuO35lL8dZBTCTPFqW8sihPpZ7OovMOtPwnOsWo4ZK/XnbYtEr4g56j+A
-         Q7rOVrekpAkiGUK5DKiaZB+9np7HvdKYh+OLxoEoUrjCl3MzRTh6QxzoK5XmQiKw4/Ly
-         +W2qniEtLlESquuVDi5+WwGS6hE8WPUxpUV7fDiN93t5RaCpEFxygFc1bLAjRtxrWv1y
-         ndHw==
-X-Gm-Message-State: AOAM531vZtmwRe0SjjM8U2TlbLMWDqhLXeGFPt7zq45S3Br19OPkhV+A
-        Vo0ujUeC/Ngkc/LMTs3ZNwZMoyVogmwnag==
-X-Google-Smtp-Source: ABdhPJz6jqsHHxovieETkJnNmf2LrCsPCiGGo3t+tuYYelMQ3bDJ69Qld+7JD6i4yCZoY2mc6a8VOA==
-X-Received: by 2002:a17:906:aacd:: with SMTP id kt13mr57430808ejb.527.1609532163008;
-        Fri, 01 Jan 2021 12:16:03 -0800 (PST)
+        bh=XFRO8dWkqZuNx2+BqBM7nkOyVcjRycuuFLB3OQd4b5s=;
+        b=gFYsmdiOw6GzyaPRA6leEYAuMojSFNnmkFtUZMhgsugNJpnaVwqJoRcOHPco8gDTUT
+         /sy7EApZ2Rtkyqrs95gM5IjcuXHubU7LW1dLFWr7B792iXCcF8MBexZfxEg7TPzNslFq
+         yLjHyUgDjnFS59s3Ydz1hXT3csjf5rYAh9a+gPqeEX2L2mNABoxQ06OtVWKdG1+F0LlU
+         AcXAzvtGmSR8twvkHw3obAZHeY5+1KG4I70CmajXhWup7V/j1PYEzcLC/dntALv7xAZT
+         8HyYeFdTIJEbSw82yNcT1FgPkkzY7b00Ev+n0NaEb2VrlcObNWhf2KXHj2jloEbFhWQu
+         eUvQ==
+X-Gm-Message-State: AOAM5319zy5Ou8+iMudPqrbU+uPwkyxl5TKWE8r4+eTN3x28jE9G7G7E
+        +hS7bBNfnUJlfZeBKZQI8Yei0Qdc9BspyA==
+X-Google-Smtp-Source: ABdhPJxo/NUA5Ho1tEOZOCg7Q6G6Npp+a9JjZKenJ/wLisTBc4JCzHNg1xJnCca0Ouhg6uSE8qu1Cg==
+X-Received: by 2002:a17:906:478a:: with SMTP id cw10mr5256999ejc.462.1609532572266;
+        Fri, 01 Jan 2021 12:22:52 -0800 (PST)
 Received: from localhost.localdomain ([62.201.25.198])
-        by smtp.gmail.com with ESMTPSA id g18sm40079146edt.2.2021.01.01.12.16.01
+        by smtp.gmail.com with ESMTPSA id e27sm21214898ejm.60.2021.01.01.12.22.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jan 2021 12:16:02 -0800 (PST)
+        Fri, 01 Jan 2021 12:22:51 -0800 (PST)
 From:   Petr Vorel <petr.vorel@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Petr Vorel <petr.vorel@gmail.com>,
@@ -56,9 +56,9 @@ Cc:     Petr Vorel <petr.vorel@gmail.com>,
         Baruch Siach <baruch@tkos.co.il>,
         Florian Weimer <fweimer@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 1/1] uapi: move constants from <linux/kernel.h> to <linux/const.h>
-Date:   Fri,  1 Jan 2021 21:15:57 +0100
-Message-Id: <20210101201557.25686-1-petr.vorel@gmail.com>
+Subject: [PATCH 1/2] uapi: move constants from <linux/kernel.h> to <linux/const.h>
+Date:   Fri,  1 Jan 2021 21:22:44 +0100
+Message-Id: <20210101202245.27409-1-petr.vorel@gmail.com>
 X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -104,10 +104,11 @@ Hi,
 could this fix be backported to stable releases?
 Maybe safer to wait till v5.11 release.
 
-Adjusted for stable/linux-4.19.y.
+Adjusted for stable/linux-5.4.y.
 
 Kind regards,
 Petr
+
 
  include/uapi/linux/const.h              | 5 +++++
  include/uapi/linux/ethtool.h            | 2 +-
@@ -134,7 +135,7 @@ index 5ed721ad5b19..af2a44c08683 100644
 +
  #endif /* _UAPI_LINUX_CONST_H */
 diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
-index dc69391d2bba..fc21d3726b59 100644
+index 8938b76c4ee3..7857aa413627 100644
 --- a/include/uapi/linux/ethtool.h
 +++ b/include/uapi/linux/ethtool.h
 @@ -14,7 +14,7 @@
@@ -179,7 +180,7 @@ index f9a1be7fc696..ead2e72e5c88 100644
  #else /* __KERNEL__ */
  #include <stdio.h>
 diff --git a/include/uapi/linux/mroute6.h b/include/uapi/linux/mroute6.h
-index 9999cc006390..1617eb9949a5 100644
+index c36177a86516..a1fd6173e2db 100644
 --- a/include/uapi/linux/mroute6.h
 +++ b/include/uapi/linux/mroute6.h
 @@ -2,7 +2,7 @@
@@ -205,7 +206,7 @@ index a8283f7dbc51..b8c6bb233ac1 100644
  
  #define XT_FUNCTION_MAXNAMELEN 30
 diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
-index 776bc92e9118..3481cde43a84 100644
+index 0a4d73317759..622c78c821aa 100644
 --- a/include/uapi/linux/netlink.h
 +++ b/include/uapi/linux/netlink.h
 @@ -2,7 +2,7 @@
@@ -218,7 +219,7 @@ index 776bc92e9118..3481cde43a84 100644
  #include <linux/types.h>
  
 diff --git a/include/uapi/linux/sysctl.h b/include/uapi/linux/sysctl.h
-index d71013fffaf6..d3393a6571ba 100644
+index 87aa2a6d9125..cc453ed0e65e 100644
 --- a/include/uapi/linux/sysctl.h
 +++ b/include/uapi/linux/sysctl.h
 @@ -23,7 +23,7 @@
