@@ -2,158 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0EC22E8580
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781522E8583
+	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727199AbhAAUPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jan 2021 15:15:20 -0500
-Received: from relay5.mymailcheap.com ([159.100.248.207]:42273 "EHLO
-        relay5.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727155AbhAAUPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:15:20 -0500
-X-Greylist: delayed 171075 seconds by postgrey-1.27 at vger.kernel.org; Fri, 01 Jan 2021 15:15:19 EST
-Received: from relay4.mymailcheap.com (relay4.mymailcheap.com [137.74.199.117])
-        by relay5.mymailcheap.com (Postfix) with ESMTPS id A5D7F260EB;
-        Fri,  1 Jan 2021 20:14:27 +0000 (UTC)
-Received: from filter1.mymailcheap.com (filter1.mymailcheap.com [149.56.130.247])
-        by relay4.mymailcheap.com (Postfix) with ESMTPS id 675303F1CF;
-        Fri,  1 Jan 2021 21:12:52 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by filter1.mymailcheap.com (Postfix) with ESMTP id 9991D2A3E1;
-        Fri,  1 Jan 2021 15:12:51 -0500 (EST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mymailcheap.com;
-        s=default; t=1609531971;
-        bh=mup4tYDJ06aF1cMf8ZNg00/qBTcpyfhMXsMxbVvsLmQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wATXthZJAkEDH6eFX/XRbbNPAAf/O+3FncTdnZDsMlaEVjxxDuSEcx78U5iuBh2cj
-         qRTQF/HOn5Y8iCIMojsFYKgdW83i3WZHQ1ycz6pF5pGLkkood2IrR1N7bIa1esJgBx
-         qAnAcGkQMCRrUr+ZU4Y1HaG60HIzjqZ1C5xfM/to=
-X-Virus-Scanned: Debian amavisd-new at filter1.mymailcheap.com
-Received: from filter1.mymailcheap.com ([127.0.0.1])
-        by localhost (filter1.mymailcheap.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id JGkaTNTsVahz; Fri,  1 Jan 2021 15:12:50 -0500 (EST)
-Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by filter1.mymailcheap.com (Postfix) with ESMTPS;
-        Fri,  1 Jan 2021 15:12:50 -0500 (EST)
-Received: from [148.251.23.173] (ml.mymailcheap.com [148.251.23.173])
-        by mail20.mymailcheap.com (Postfix) with ESMTP id C3F6B423F0;
-        Fri,  1 Jan 2021 20:12:48 +0000 (UTC)
-Authentication-Results: mail20.mymailcheap.com;
-        dkim=pass (1024-bit key; unprotected) header.d=aosc.io header.i=@aosc.io header.b="fb/Qkf8G";
-        dkim-atps=neutral
-AI-Spam-Status: Not processed
-Received: from ice-e5v2.lan (unknown [59.41.162.48])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail20.mymailcheap.com (Postfix) with ESMTPSA id CD82E422E7;
-        Fri,  1 Jan 2021 20:12:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=aosc.io; s=default;
-        t=1609531967; bh=mup4tYDJ06aF1cMf8ZNg00/qBTcpyfhMXsMxbVvsLmQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fb/Qkf8GEbxBXwcXuwgZG2SbDyoBMFhlrqxtK2uniTcqeVZ+oXGFWOr4X6Hzbu0jY
-         fEgQ2sLAJjdKQtcx8QL4TugQGQ3GLUL3mn7hfOe6dOWanqiaILdh6UgK+lNg9HBtvG
-         Y5jNuZysmKgmPIBi6pQMVORDjUfpB81PjFC8pepQ=
-From:   Icenowy Zheng <icenowy@aosc.io>
-To:     Miklos Szeredi <miklos@szeredi.hu>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Xiao Yang <yangx.jy@cn.fujitsu.com>
-Cc:     linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Icenowy Zheng <icenowy@aosc.io>, stable@vger.kernel.org
-Subject: [PATCH] ovl: use a dedicated semaphore for dir upperfile caching
-Date:   Sat,  2 Jan 2021 04:12:30 +0800
-Message-Id: <20210101201230.768653-1-icenowy@aosc.io>
-X-Mailer: git-send-email 2.28.0
+        id S1727323AbhAAUQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jan 2021 15:16:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727310AbhAAUQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:16:44 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44912C0613ED
+        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:16:04 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id qw4so28828173ejb.12
+        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:16:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Wgh/KvfKSZjeRUtxd+dOmCmXYFa+MDjIZZQPZGTlssw=;
+        b=EG1SutFrGLwgBBfE6c+ld/hvt8Let+Kv3og5FiY6dNwJChcH6UZAIa3JnAsYo8Br1Q
+         3QOn8gRMl7RIFOxuSnSEEwjH45uwcBekro7HOtxVjrMz1rB16yuBZaWALYiCxKI9uncm
+         vXn98CK+UJwsm5/HrPu86f37fwA9XWbWJ/2cVt7qWJe/R7gm6L3Dd7f0EEt26eeJPv8S
+         mHKlse2mAj2NWKpi1C8Y2BnPNS04L9C8BUoSVJLmsJWVtVW/HymLVl0D/hJspSqxqotV
+         5Si1Ki/FM3Nn8ZvFfkwkm7wE5OvSbshWVEJKqF5WCs1fPSbrKUeZdzdfPNzen4mHSH39
+         YlnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Wgh/KvfKSZjeRUtxd+dOmCmXYFa+MDjIZZQPZGTlssw=;
+        b=GhFqYy6T2VisK3Qs1r6sIALGZqRFglrfSHNgh/nFO8bFg7wCtj81/b0uza84cbiIjC
+         qyU0NkCXX+3sGkoGrZ6pwNGru6w0fGF2LdXp4FPxzlGeP4IzkOTYDUZhIrc/9pOm29qw
+         mwvIsTvNxMhIuO35lL8dZBTCTPFqW8sihPpZ7OovMOtPwnOsWo4ZK/XnbYtEr4g56j+A
+         Q7rOVrekpAkiGUK5DKiaZB+9np7HvdKYh+OLxoEoUrjCl3MzRTh6QxzoK5XmQiKw4/Ly
+         +W2qniEtLlESquuVDi5+WwGS6hE8WPUxpUV7fDiN93t5RaCpEFxygFc1bLAjRtxrWv1y
+         ndHw==
+X-Gm-Message-State: AOAM531vZtmwRe0SjjM8U2TlbLMWDqhLXeGFPt7zq45S3Br19OPkhV+A
+        Vo0ujUeC/Ngkc/LMTs3ZNwZMoyVogmwnag==
+X-Google-Smtp-Source: ABdhPJz6jqsHHxovieETkJnNmf2LrCsPCiGGo3t+tuYYelMQ3bDJ69Qld+7JD6i4yCZoY2mc6a8VOA==
+X-Received: by 2002:a17:906:aacd:: with SMTP id kt13mr57430808ejb.527.1609532163008;
+        Fri, 01 Jan 2021 12:16:03 -0800 (PST)
+Received: from localhost.localdomain ([62.201.25.198])
+        by smtp.gmail.com with ESMTPSA id g18sm40079146edt.2.2021.01.01.12.16.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Jan 2021 12:16:02 -0800 (PST)
+From:   Petr Vorel <petr.vorel@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Petr Vorel <petr.vorel@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Rich Felker <dalias@libc.org>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Florian Weimer <fweimer@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 1/1] uapi: move constants from <linux/kernel.h> to <linux/const.h>
+Date:   Fri,  1 Jan 2021 21:15:57 +0100
+Message-Id: <20210101201557.25686-1-petr.vorel@gmail.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [4.90 / 20.00];
-         RCVD_VIA_SMTP_AUTH(0.00)[];
-         ARC_NA(0.00)[];
-         R_DKIM_ALLOW(0.00)[aosc.io:s=default];
-         RECEIVED_SPAMHAUS_PBL(0.00)[59.41.162.48:received];
-         FROM_HAS_DN(0.00)[];
-         TO_DN_SOME(0.00)[];
-         FREEMAIL_ENVRCPT(0.00)[gmail.com];
-         R_MISSING_CHARSET(2.50)[];
-         MIME_GOOD(-0.10)[text/plain];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         BROKEN_CONTENT_TYPE(1.50)[];
-         R_SPF_SOFTFAIL(0.00)[~all];
-         DMARC_NA(0.00)[aosc.io];
-         ML_SERVERS(-3.10)[148.251.23.173];
-         DKIM_TRACE(0.00)[aosc.io:+];
-         RCPT_COUNT_SEVEN(0.00)[7];
-         MID_CONTAINS_FROM(1.00)[];
-         FREEMAIL_TO(0.00)[szeredi.hu,gmail.com,cn.fujitsu.com];
-         RCVD_NO_TLS_LAST(0.10)[];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         ASN(0.00)[asn:24940, ipnet:148.251.0.0/16, country:DE];
-         RCVD_COUNT_TWO(0.00)[2];
-         HFILTER_HELO_BAREIP(3.00)[148.251.23.173,1]
-X-Rspamd-Queue-Id: C3F6B423F0
-X-Rspamd-Server: mail20.mymailcheap.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function ovl_dir_real_file() currently uses the semaphore of the
-inode to synchronize write to the upperfile cache field.
+and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
 
-However, this function will get called by ovl_ioctl_set_flags(), which
-utilizes the inode semaphore too. In this case ovl_dir_real_file() will
-try to claim a lock that is owned by a function in its call stack, which
-won't get released before ovl_dir_real_file() returns.
+commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
 
-Define a dedicated semaphore for the upperfile cache, so that the
-deadlock won't happen.
+The reason is to avoid indirect <linux/sysinfo.h> include when using
+some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
+-> <linux/sysinfo.h>.
 
-Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and FS[S|G]ETXATTR ioctls for directories")
-Cc: stable@vger.kernel.org # v5.10
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+This indirect include causes on MUSL redefinition of struct sysinfo when
+included both <sys/sysinfo.h> and some of UAPI headers:
+
+    In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
+                     from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
+                     from ../include/tst_netlink.h:14,
+                     from tst_crypto.c:13:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
+     struct sysinfo {
+            ^~~~~~~
+    In file included from ../include/tst_safe_macros.h:15,
+                     from ../include/tst_test.h:93,
+                     from tst_crypto.c:11:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
+
+Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Suggested-by: Rich Felker <dalias@aerifal.cx>
+Acked-by: Rich Felker <dalias@libc.org>
+Cc: Peter Korsgaard <peter@korsgaard.com>
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Florian Weimer <fweimer@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- fs/overlayfs/readdir.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Hi,
 
-diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
-index 01620ebae1bd..f10701aabb71 100644
---- a/fs/overlayfs/readdir.c
-+++ b/fs/overlayfs/readdir.c
-@@ -56,6 +56,7 @@ struct ovl_dir_file {
- 	struct list_head *cursor;
- 	struct file *realfile;
- 	struct file *upperfile;
-+	struct semaphore upperfile_sem;
- };
+could this fix be backported to stable releases?
+Maybe safer to wait till v5.11 release.
+
+Adjusted for stable/linux-4.19.y.
+
+Kind regards,
+Petr
+
+ include/uapi/linux/const.h              | 5 +++++
+ include/uapi/linux/ethtool.h            | 2 +-
+ include/uapi/linux/kernel.h             | 9 +--------
+ include/uapi/linux/lightnvm.h           | 2 +-
+ include/uapi/linux/mroute6.h            | 2 +-
+ include/uapi/linux/netfilter/x_tables.h | 2 +-
+ include/uapi/linux/netlink.h            | 2 +-
+ include/uapi/linux/sysctl.h             | 2 +-
+ 8 files changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/include/uapi/linux/const.h b/include/uapi/linux/const.h
+index 5ed721ad5b19..af2a44c08683 100644
+--- a/include/uapi/linux/const.h
++++ b/include/uapi/linux/const.h
+@@ -28,4 +28,9 @@
+ #define _BITUL(x)	(_UL(1) << (x))
+ #define _BITULL(x)	(_ULL(1) << (x))
  
- static struct ovl_cache_entry *ovl_cache_entry_from_node(struct rb_node *n)
-@@ -883,7 +884,7 @@ struct file *ovl_dir_real_file(const struct file *file, bool want_upper)
- 			ovl_path_upper(dentry, &upperpath);
- 			realfile = ovl_dir_open_realfile(file, &upperpath);
++#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
++#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
++
++#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
++
+ #endif /* _UAPI_LINUX_CONST_H */
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index dc69391d2bba..fc21d3726b59 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -14,7 +14,7 @@
+ #ifndef _UAPI_LINUX_ETHTOOL_H
+ #define _UAPI_LINUX_ETHTOOL_H
  
--			inode_lock(inode);
-+			down(&od->upperfile_sem);
- 			if (!od->upperfile) {
- 				if (IS_ERR(realfile)) {
- 					inode_unlock(inode);
-@@ -896,7 +897,7 @@ struct file *ovl_dir_real_file(const struct file *file, bool want_upper)
- 					fput(realfile);
- 				realfile = od->upperfile;
- 			}
--			inode_unlock(inode);
-+			up(&od->upperfile_sem);
- 		}
- 	}
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/if_ether.h>
  
-@@ -959,6 +960,7 @@ static int ovl_dir_open(struct inode *inode, struct file *file)
- 	od->realfile = realfile;
- 	od->is_real = ovl_dir_is_real(file->f_path.dentry);
- 	od->is_upper = OVL_TYPE_UPPER(type);
-+	sema_init(&od->upperfile_sem, 1);
- 	file->private_data = od;
+diff --git a/include/uapi/linux/kernel.h b/include/uapi/linux/kernel.h
+index 0ff8f7477847..fadf2db71fe8 100644
+--- a/include/uapi/linux/kernel.h
++++ b/include/uapi/linux/kernel.h
+@@ -3,13 +3,6 @@
+ #define _UAPI_LINUX_KERNEL_H
  
- 	return 0;
+ #include <linux/sysinfo.h>
+-
+-/*
+- * 'kernel.h' contains some often-used function prototypes etc
+- */
+-#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+-#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+-
+-#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
++#include <linux/const.h>
+ 
+ #endif /* _UAPI_LINUX_KERNEL_H */
+diff --git a/include/uapi/linux/lightnvm.h b/include/uapi/linux/lightnvm.h
+index f9a1be7fc696..ead2e72e5c88 100644
+--- a/include/uapi/linux/lightnvm.h
++++ b/include/uapi/linux/lightnvm.h
+@@ -21,7 +21,7 @@
+ #define _UAPI_LINUX_LIGHTNVM_H
+ 
+ #ifdef __KERNEL__
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/ioctl.h>
+ #else /* __KERNEL__ */
+ #include <stdio.h>
+diff --git a/include/uapi/linux/mroute6.h b/include/uapi/linux/mroute6.h
+index 9999cc006390..1617eb9949a5 100644
+--- a/include/uapi/linux/mroute6.h
++++ b/include/uapi/linux/mroute6.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_MROUTE6_H
+ #define _UAPI__LINUX_MROUTE6_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/sockios.h>
+ #include <linux/in6.h>		/* For struct sockaddr_in6. */
+diff --git a/include/uapi/linux/netfilter/x_tables.h b/include/uapi/linux/netfilter/x_tables.h
+index a8283f7dbc51..b8c6bb233ac1 100644
+--- a/include/uapi/linux/netfilter/x_tables.h
++++ b/include/uapi/linux/netfilter/x_tables.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+ #ifndef _UAPI_X_TABLES_H
+ #define _UAPI_X_TABLES_H
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ 
+ #define XT_FUNCTION_MAXNAMELEN 30
+diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
+index 776bc92e9118..3481cde43a84 100644
+--- a/include/uapi/linux/netlink.h
++++ b/include/uapi/linux/netlink.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_NETLINK_H
+ #define _UAPI__LINUX_NETLINK_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/socket.h> /* for __kernel_sa_family_t */
+ #include <linux/types.h>
+ 
+diff --git a/include/uapi/linux/sysctl.h b/include/uapi/linux/sysctl.h
+index d71013fffaf6..d3393a6571ba 100644
+--- a/include/uapi/linux/sysctl.h
++++ b/include/uapi/linux/sysctl.h
+@@ -23,7 +23,7 @@
+ #ifndef _UAPI_LINUX_SYSCTL_H
+ #define _UAPI_LINUX_SYSCTL_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+ 
 -- 
-2.28.0
+2.29.2
+
