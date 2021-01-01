@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1132E857C
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:07:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5922E857E
+	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727333AbhAAUHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jan 2021 15:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
+        id S1727155AbhAAULI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jan 2021 15:11:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727213AbhAAUHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:07:34 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC34C061757
-        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:06:53 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id y24so20851339edt.10
-        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:06:53 -0800 (PST)
+        with ESMTP id S1727088AbhAAULI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:11:08 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F404DC061573
+        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:10:27 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id g20so28885862ejb.1
+        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:10:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=oM0vVQLrhSB0K7nJ3VEUzVcJjdbN6oxKjUTC3pQ/Gsc=;
-        b=r72WZFIuyPTdGJB2+tM+6UP3RB18Fw3RYJ3XHhmPld1Ry0603hPInJ17AMGpIQUXnw
-         sEEAXGbD/thIv3Ub9kWwozoRYWnWKANUCLUwj+vZrhmuNEXqF1v9vyJcUwdSLnQKuZIg
-         3bvfiMLms0OORUDtEoyh8dipSTjuitDzAPTVhlCT0SKqvhoMoy9ty/MtsZPzYmUagsDr
-         E+4Qx18xo51IHdOoIBYdBlx5h4DLRB70vqoem8U/GTvejQkbqbBHUFGVkN4G11+YinJ3
-         vTGbZCCHisZuTV1TwgImi9u+dMVrvDtlXFHTRFDar22CeKnfMKR3qpv+pxtSmh6zrpO0
-         70Zw==
+        bh=F1P8mbB705ykxmF6spFqbhcvWM3TKxUZa1C4TjIJzcs=;
+        b=nyv/RclcnsUivaYH/lNAsLGKPhuThAthlMSsnEYrjuBkaty1oH8dLuIyxcu6QpccZi
+         HJ/uD0/dRRH7NJLWz1+UyUXMhjxl/jJ0PzyptxbSTZzWcDnHe4wYlAoxcerKPHlTA8xF
+         mAkCJCIDdZlbvyAGo7LLe2JkWuzwv2KeTvZHlCyhZLGzVaKGz+r6JeAjxIA6dyu5XSuO
+         /70ARczDLPtxfDsWELzx80BfUq3lcj+TMDG/vnzTzKsAEZrw8yL71wq9rNR50lwAt7Zs
+         Jb3U6rbnvATJa1LIM2acsHrElOO3s2tl2C7UE6yrTKsv59nVyM62Y2kgQobBYqHxaKR0
+         eR6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=oM0vVQLrhSB0K7nJ3VEUzVcJjdbN6oxKjUTC3pQ/Gsc=;
-        b=cWsV5RzlHfTVPmPIbPKGqHiR0DMxICEETNuHvC8h53vbQLDuJBwkyUlqG55kzgarj7
-         JGjZFBabjkBgk/if/JZAnFyA+JLh3oDqv3w836N2hRsgl8472pG93jXkP/d2pyUEdqyY
-         o1R7zc2Eixu55M1utV26gMV1UQohFctOttt5HXeoVM/4yBPBCCtSIYPuDVerVCk3psTz
-         fAlBnbb+PwJCt2kIYkpsYurWhsu7G/T0Gxui+6S4Qxi0ytMoYnRRnLX5iZeHHLw9DH/S
-         xxNMRLQnotDWqNqP1cx3/g6ECPtL0gnuYiZt2rr1G5P6R7WJxvJ75KqngRELHEEWHhIF
-         XBNA==
-X-Gm-Message-State: AOAM533x4B9ejE9fG0JdeGOpUlnh5zMnpfwuhWm9eYPDN98+mU9+eef3
-        LIvSz8TedPiA2wX5cfUzy6pA2QYf4ZuP+A==
-X-Google-Smtp-Source: ABdhPJxb4WIDxitQZBBCTgLdZeYqFUgl4GMNHHJFDWX9GNeYMRsVjk0P+qUZ98SnHRYo+YPpMQic6g==
-X-Received: by 2002:aa7:d74d:: with SMTP id a13mr61485094eds.78.1609531612336;
-        Fri, 01 Jan 2021 12:06:52 -0800 (PST)
+        bh=F1P8mbB705ykxmF6spFqbhcvWM3TKxUZa1C4TjIJzcs=;
+        b=h1FmkYCtdfKdCCOo2IUa7i2nGGCqbKfKBj28Q2GIarQnvpaoiINPRBZpLvUbsfD2Rf
+         EJjW+v65gY7k4YRNpM0eWI9DMDek+f5ZzUrLdzo1xtWYPzdyeJm7xCoKBnB4Oo2oKNJT
+         ZDQhkg4LYIzhTDqFGiYTllfkWNYaZ5ZY9BTY67P0tIJ8ZFYTgRgqT8oyoL4fLt/V9Cbr
+         lPIEekFCldHuYsiFuoJ7eNbjF8+cZlPKFGeOpCgksaBeVNc+Ncdv7mIkBfGLiCp2Bl3i
+         kTiJ4ZErSMJ2KWiv7cHZBPt/fFPB/VZC4Kc0DRfQ5IehMOipwDxxVeRibOkZltNmaLr7
+         LsHA==
+X-Gm-Message-State: AOAM5316ylWJDhvly+E/iX1ol6R1jFAaIaBCxiwVwFD0ON/cCtlkrHy7
+        rpMhwWvQsmqGuwoJc9DHWuovLYxoiuzNHw==
+X-Google-Smtp-Source: ABdhPJx1qkVFhjNQPriaQMypLgFqCT8jhdzlwNvi2MKVsgjzS98fm2h5lQ7LKXY5V9ICacNivSD1Ag==
+X-Received: by 2002:a17:906:f153:: with SMTP id gw19mr59475481ejb.272.1609531826610;
+        Fri, 01 Jan 2021 12:10:26 -0800 (PST)
 Received: from localhost.localdomain ([62.201.25.198])
-        by smtp.gmail.com with ESMTPSA id w10sm21051408ejq.121.2021.01.01.12.06.51
+        by smtp.gmail.com with ESMTPSA id d3sm37221605edt.32.2021.01.01.12.10.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jan 2021 12:06:51 -0800 (PST)
+        Fri, 01 Jan 2021 12:10:26 -0800 (PST)
 From:   Petr Vorel <petr.vorel@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Petr Vorel <petr.vorel@gmail.com>,
@@ -57,8 +57,8 @@ Cc:     Petr Vorel <petr.vorel@gmail.com>,
         Florian Weimer <fweimer@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>
 Subject: [PATCH 1/1] uapi: move constants from <linux/kernel.h> to <linux/const.h>
-Date:   Fri,  1 Jan 2021 21:06:44 +0100
-Message-Id: <20210101200644.23404-1-petr.vorel@gmail.com>
+Date:   Fri,  1 Jan 2021 21:10:00 +0100
+Message-Id: <20210101201000.24353-1-petr.vorel@gmail.com>
 X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -104,7 +104,7 @@ Hi,
 could this fix be backported to stable releases?
 Maybe safer to wait till v5.11 release.
 
-Adjusted for stable/linux-4.9.y.
+Adjusted for stable/linux-4.14.y.
 
 Kind regards,
 Petr
@@ -120,10 +120,10 @@ Petr
  8 files changed, 12 insertions(+), 14 deletions(-)
 
 diff --git a/include/uapi/linux/const.h b/include/uapi/linux/const.h
-index c872bfd25e13..03c3e1869be7 100644
+index 92537757590a..dab9f34383e5 100644
 --- a/include/uapi/linux/const.h
 +++ b/include/uapi/linux/const.h
-@@ -24,4 +24,9 @@
+@@ -25,4 +25,9 @@
  #define _BITUL(x)	(_AC(1,UL) << (x))
  #define _BITULL(x)	(_AC(1,ULL) << (x))
  
@@ -134,10 +134,10 @@ index c872bfd25e13..03c3e1869be7 100644
 +
  #endif /* !(_LINUX_CONST_H) */
 diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
-index 5dd3332ebc66..e7e4e672d9a8 100644
+index 9eae13eefc49..1e3f1a43bf1d 100644
 --- a/include/uapi/linux/ethtool.h
 +++ b/include/uapi/linux/ethtool.h
-@@ -13,7 +13,7 @@
+@@ -14,7 +14,7 @@
  #ifndef _UAPI_LINUX_ETHTOOL_H
  #define _UAPI_LINUX_ETHTOOL_H
  
@@ -147,10 +147,10 @@ index 5dd3332ebc66..e7e4e672d9a8 100644
  #include <linux/if_ether.h>
  
 diff --git a/include/uapi/linux/kernel.h b/include/uapi/linux/kernel.h
-index 466073f0ce46..6e8db547fbd0 100644
+index 0ff8f7477847..fadf2db71fe8 100644
 --- a/include/uapi/linux/kernel.h
 +++ b/include/uapi/linux/kernel.h
-@@ -2,13 +2,6 @@
+@@ -3,13 +3,6 @@
  #define _UAPI_LINUX_KERNEL_H
  
  #include <linux/sysinfo.h>
@@ -166,10 +166,10 @@ index 466073f0ce46..6e8db547fbd0 100644
  
  #endif /* _UAPI_LINUX_KERNEL_H */
 diff --git a/include/uapi/linux/lightnvm.h b/include/uapi/linux/lightnvm.h
-index 774a43128a7a..fd18dcf76ec6 100644
+index 42d1a434af29..0d44ebba0093 100644
 --- a/include/uapi/linux/lightnvm.h
 +++ b/include/uapi/linux/lightnvm.h
-@@ -20,7 +20,7 @@
+@@ -21,7 +21,7 @@
  #define _UAPI_LINUX_LIGHTNVM_H
  
  #ifdef __KERNEL__
@@ -179,10 +179,10 @@ index 774a43128a7a..fd18dcf76ec6 100644
  #else /* __KERNEL__ */
  #include <stdio.h>
 diff --git a/include/uapi/linux/mroute6.h b/include/uapi/linux/mroute6.h
-index ed5721148768..54543bca1b79 100644
+index 9999cc006390..1617eb9949a5 100644
 --- a/include/uapi/linux/mroute6.h
 +++ b/include/uapi/linux/mroute6.h
-@@ -1,7 +1,7 @@
+@@ -2,7 +2,7 @@
  #ifndef _UAPI__LINUX_MROUTE6_H
  #define _UAPI__LINUX_MROUTE6_H
  
@@ -192,10 +192,11 @@ index ed5721148768..54543bca1b79 100644
  #include <linux/sockios.h>
  #include <linux/in6.h>		/* For struct sockaddr_in6. */
 diff --git a/include/uapi/linux/netfilter/x_tables.h b/include/uapi/linux/netfilter/x_tables.h
-index c36969b91533..8f40c2fe0ed4 100644
+index a8283f7dbc51..b8c6bb233ac1 100644
 --- a/include/uapi/linux/netfilter/x_tables.h
 +++ b/include/uapi/linux/netfilter/x_tables.h
-@@ -1,6 +1,6 @@
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
  #ifndef _UAPI_X_TABLES_H
  #define _UAPI_X_TABLES_H
 -#include <linux/kernel.h>
@@ -204,10 +205,10 @@ index c36969b91533..8f40c2fe0ed4 100644
  
  #define XT_FUNCTION_MAXNAMELEN 30
 diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
-index 0dba4e4ed2be..b5b4fd791fc8 100644
+index 776bc92e9118..3481cde43a84 100644
 --- a/include/uapi/linux/netlink.h
 +++ b/include/uapi/linux/netlink.h
-@@ -1,7 +1,7 @@
+@@ -2,7 +2,7 @@
  #ifndef _UAPI__LINUX_NETLINK_H
  #define _UAPI__LINUX_NETLINK_H
  
@@ -217,10 +218,10 @@ index 0dba4e4ed2be..b5b4fd791fc8 100644
  #include <linux/types.h>
  
 diff --git a/include/uapi/linux/sysctl.h b/include/uapi/linux/sysctl.h
-index d2b12152e358..954bd77326df 100644
+index 0f272818a4d2..5fc0b7fd0847 100644
 --- a/include/uapi/linux/sysctl.h
 +++ b/include/uapi/linux/sysctl.h
-@@ -22,7 +22,7 @@
+@@ -23,7 +23,7 @@
  #ifndef _UAPI_LINUX_SYSCTL_H
  #define _UAPI_LINUX_SYSCTL_H
  
