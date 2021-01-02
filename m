@@ -2,115 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE87E2E858B
-	for <lists+stable@lfdr.de>; Fri,  1 Jan 2021 21:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 706BF2E862A
+	for <lists+stable@lfdr.de>; Sat,  2 Jan 2021 03:37:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbhAAUaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Jan 2021 15:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40372 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727088AbhAAUaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 15:30:24 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8654FC061573
-        for <stable@vger.kernel.org>; Fri,  1 Jan 2021 12:29:43 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id i24so20903266edj.8
-        for <stable@vger.kernel.org>; Fri, 01 Jan 2021 12:29:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=erGuQwA96UNi+KloOUaqVfQUiHRql8hnOXPAAjHszhI=;
-        b=iV/LPDNK4M/WjkR7M3eIkbW9w6lnRmyTXLjHfD6wQuZyh0rgbVE2p2GFvj9uEfj9IG
-         ZSfTmKZfm3wlANcTrD9My8UlY0cBAYD2lclgiue0AYwyFSO38Nr2UWXpTITDTCF40qLU
-         A2tffMfFu4NjlAGae9Ljj8HEu/JrrKZ/2rXLqP7XzWJa38xcIaLf43iASuggY6bxlhI7
-         OsQObpC/fot0en2gPL50bo2w9+rAN9ErNU3KFDPBGy4D1J8D5UKqPKYI6BEKDzGk+LjF
-         N4BmjowMbv/fzzGryv0fnObpKRgAz6fa8P68JPeAn7LHHr/YcSSDvcNIyFqCpyxlLZlM
-         +IJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=erGuQwA96UNi+KloOUaqVfQUiHRql8hnOXPAAjHszhI=;
-        b=M9sR+c8FSbQy46WRm0rGPhdCtreH/H197iyRFKlwoJ+dEpxOejCg8qRlKu+zjZJ1nE
-         eBeemeADVc6f9zjzMS83R+Cykmtrt3Lz2R2bVaNo8OJOucAXwMCc5op2NscTnWmK1lfA
-         apDz+9J7S1N2DAnNpezvALlJ1RQcokFYFsjO5webanVnotct/WzQx9i2sDSauGkTHIrj
-         k6SLGE2LBR9s0M3nLdW+e1vq2bhsuGQeHg6N1mDkkGwEkq2xhvX4mQ4oINCZcDMvZNDk
-         wuLXDPDz1VbonqosLgQnc523RAub4sNlQ65NIAMXOr0ekeaMjtXpjN00gNkOX3WdqUvM
-         /BJA==
-X-Gm-Message-State: AOAM5333qP2UiZgdvM4GeNSMdSoyW8VOksvj+UEcq62H6Dkjj758ZABB
-        iRhyxqJh00qtsgJsxAGtCXHoEVxqFI0kPQ==
-X-Google-Smtp-Source: ABdhPJxttdEDsNr5EcUksflYEJVry3XlBAdPFPUcU+zc6Rj84/uCYri/7Z8alWYC3uw3teLYFeqYtw==
-X-Received: by 2002:aa7:db59:: with SMTP id n25mr58568463edt.203.1609532982283;
-        Fri, 01 Jan 2021 12:29:42 -0800 (PST)
-Received: from pevik ([62.201.25.198])
-        by smtp.gmail.com with ESMTPSA id u24sm6751028eje.71.2021.01.01.12.29.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Jan 2021 12:29:41 -0800 (PST)
-Date:   Fri, 1 Jan 2021 21:29:39 +0100
-From:   Petr Vorel <petr.vorel@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Rich Felker <dalias@libc.org>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Florian Weimer <fweimer@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/2] uapi: move constants from <linux/kernel.h> to
- <linux/const.h>
-Message-ID: <X++GM/DQGoDfGVuQ@pevik>
-Reply-To: Petr Vorel <petr.vorel@gmail.com>
-References: <20210101202758.28291-1-petr.vorel@gmail.com>
+        id S1727038AbhABChR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Jan 2021 21:37:17 -0500
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:39259 "EHLO
+        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726424AbhABChQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Jan 2021 21:37:16 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 4F70D580396;
+        Fri,  1 Jan 2021 21:36:10 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Fri, 01 Jan 2021 21:36:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; h=
+        subject:to:cc:references:from:message-id:date:mime-version
+        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=x
+        yRrbT8lXGFkiDEUfbBEaK2NaqFc77PXiY9PLLIADYI=; b=gCcYRkSO36qASJ8hG
+        NRjHzojE1vA9uy3ZSzEkOUAUL0sn+g3rAvKind+h8p44JJu33Cqsep1z/4zNGTBp
+        4mRH0CtbvgVhiSdD4a12E4xVUYU6bAt0azY0jv0BVUTZYJqb2P9FJyjvrg2S/CdP
+        HTxF2D0faCg/SA8I84H/d5Ld6soKQ72+eNDIO6DTnsKWRtFuxFSCWawKm9dQFS0N
+        NrbvS0aB7iFZOzZknkWI/ATk096PI0LDxIt2oZTZvi9lz/Fm2LVbgwo8DnwS5ra9
+        /EqBjeBoBmMJsjpJwVyvfFiKlYPTYwZ/+tMjG8mwVNMSYHMObaT9oQxSrlKfCwm3
+        GTGVA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=xyRrbT8lXGFkiDEUfbBEaK2NaqFc77PXiY9PLLIAD
+        YI=; b=raAj0+vsSZQWz6rq2fgzYHTjCigp0ytuPhEaZnzKIe335a8vAzEzISiht
+        fmHzzwmzKGL5U7UqSt14Xv/yjFckHl1a1Y1+sSYe0bu85UC9seOsJVrx1IgVAvxl
+        WbbP6/OZn4gEf8oSCVYxB4XNhkzfi0nDc5Q/KK72P7iC9BTLxYyfhZjqjdWXlFbo
+        n+tyTGS2c4bv/FpSxKbiQZgVEbMFVUoa0essHziKQL2rn0JnfyeVkK+gDQivgjSz
+        n0MlLXAtqmRhIpQaQ70AM7hjbpTJCgwjNNMPOiZR0ln0YUzTSpbidraWlkb445s2
+        q37AsQSvalyl5jf3jHzYc0A/h+e3g==
+X-ME-Sender: <xms:GNzvXxIO8iVRz9kUCfG8_qFXOO5IqMjjfEWdFSGbTbTC2AyxtX8zHw>
+    <xme:GNzvX9JFQn1yH3AuuBQWPa0pGs6kMCF3EshbEj84PxEh2VJ7LO8b8tgdDnGXR_Gip
+    lPmdrAmcBFSau5pI9Y>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvddvkedggeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepuffvfhfhkffffgggjggtgfesthekredttdefjeenucfhrhhomheplfhirgig
+    uhhnucgjrghnghcuoehjihgrgihunhdrhigrnhhgsehflhihghhorghtrdgtohhmqeenuc
+    ggtffrrghtthgvrhhnpeeihffghfeikedugeejvefgffevgeevgeehfffhudeiieffffev
+    ffeugeevfefgfeenucfkphepgeehrdeffedrhedtrddvheegnecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhhirgiguhhnrdihrghnghesfhhl
+    hihgohgrthdrtghomh
+X-ME-Proxy: <xmx:GNzvX5u-6lA0nFN4mCw4MddHNHBCt9yo-0_mHyVAOyNB8o9wPayoxg>
+    <xmx:GNzvXybW-cCZl7_m43NV5sCxwNirsyxEA2u_b8XQNGkUJ-LKHK-zgw>
+    <xmx:GNzvX4YWEjzf_ZZ-ayQGP511zCox2fk57M0rN7s6cJ03HdHJowZbJw>
+    <xmx:GtzvXwGJvv7RchG-AkPG4E9x4Uy9_4GeJ1GgNAhQJZjAUPOXyDz2Tg>
+Received: from [0.0.0.0] (li1000-254.members.linode.com [45.33.50.254])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0EC3E24005A;
+        Fri,  1 Jan 2021 21:36:05 -0500 (EST)
+Subject: Re: [PATCH] platform/x86: ideapad-laptop: Add has_touchpad_switch
+To:     =?UTF-8?Q?Barnab=c3=a1s_P=c5=91cze?= <pobrn@protonmail.com>
+Cc:     "platform-driver-x86@vger.kernel.org" 
+        <platform-driver-x86@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Ike Panhc <ike.pan@canonical.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20210101061140.27547-1-jiaxun.yang@flygoat.com>
+ <_kQDaYPt7vh_mQfPr1tLJV2IP-p40OBPcU5zk-1xHhF9XJsm8Y-efANBgiRdWU-J2QTtOjmrfE0Tw6UrZpm6uG-zZGlfpaVOp9FuoKAbjzA=@protonmail.com>
+ <bcb3bc76-da83-4ee1-8c2d-0453d359ae37@www.fastmail.com>
+ <XVSpzJf9TdCi-rg53vfxB7yLg8VJQsQVbqoC1Fu1L7tL5mPKCpMABkedQNatITMiUy7pvBC7g0Cqd30-zqc0bCsSSoy5YXp_gJLTLM0odTg=@protonmail.com>
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+Message-ID: <063eb02d-a699-3f6c-fd1b-721e9d195e82@flygoat.com>
+Date:   Sat, 2 Jan 2021 10:36:02 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210101202758.28291-1-petr.vorel@gmail.com>
+In-Reply-To: <XVSpzJf9TdCi-rg53vfxB7yLg8VJQsQVbqoC1Fu1L7tL5mPKCpMABkedQNatITMiUy7pvBC7g0Cqd30-zqc0bCsSSoy5YXp_gJLTLM0odTg=@protonmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+在 2021/1/2 上午1:09, Barnabás Pőcze 写道:
+> Hi
+>
+>
+> 2021. január 1., péntek 17:08 keltezéssel, Jiaxun Yang írta:
+>
+>> [...]
+>>>> @@ -1006,6 +1018,10 @@ static int ideapad_acpi_add(struct platform_device *pdev)
+>>>>   	if (!priv->has_hw_rfkill_switch)
+>>>>   		write_ec_cmd(priv->adev->handle, VPCCMD_W_RF, 1);
+>>>>
+>>>> +	/* The same for Touchpad */
+>>>> +	if (!priv->has_touchpad_switch)
+>>>> +		write_ec_cmd(priv->adev->handle, VPCCMD_W_TOUCHPAD, 1);
+>>>> +
+>>> Shouldn't it be the other way around: `if (priv->has_touchpad_switch)`?
+>> It is to prevent accidentally disable touchpad on machines that do have EC switch,
+>> so it's intentional.
+>> [...]
+> Sorry, but the explanation not fully clear to me. The commit message seems to
+> indicate that some models "do not use EC to switch touchpad", and I take that
+> means that reading from VPCCMD_R_TOUCHPAD will not reflect the actual state of the
+> touchpad and writing to VPCCMD_W_TOUCHPAD will not change the state of the touchpad.
 
-> and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
+I'm just trying to prevent removing functionality on machines that 
+touchpad can be controlled
+by EC but also equipped I2C HID touchpad. At least users will have a 
+functional touchpad
+after that.
 
-> commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
+>
+> But then why do you still write to VPCCMD_W_TOUCHPAD on devices where supposedly
+> this does not have any effect (at least not the desired one)? And the part of the
+> code I made my comment about only runs on machines on which the touchpad supposedly
+> cannot be controlled by the EC. What am I missing?
+>
+> And there is the other problem: on some machines, this patch removes working
+> functionality.
+Yeah that's a problem. I just don't want to repeat the story of rfkill 
+whitelist, it ends up with
+countless machine to be added.
 
-> The reason is to avoid indirect <linux/sysinfo.h> include when using
-> some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
-> -> <linux/sysinfo.h>.
+Maybe I should specify HID of touchpad as well. Two machines that known 
+to be problematic
+all have ELAN0634 touchpad.
 
-> This indirect include causes on MUSL redefinition of struct sysinfo when
-> included both <sys/sysinfo.h> and some of UAPI headers:
+Thanks.
 
->     In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
->                      from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
->                      from ../include/tst_netlink.h:14,
->                      from tst_crypto.c:13:
->     x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
->      struct sysinfo {
->             ^~~~~~~
->     In file included from ../include/tst_safe_macros.h:15,
->                      from ../include/tst_test.h:93,
->                      from tst_crypto.c:11:
->     x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
+- Jiaxun
 
-> Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
-> Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-> Suggested-by: Rich Felker <dalias@aerifal.cx>
-> Acked-by: Rich Felker <dalias@libc.org>
-> Cc: Peter Korsgaard <peter@korsgaard.com>
-> Cc: Baruch Siach <baruch@tkos.co.il>
-> Cc: Florian Weimer <fweimer@redhat.com>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> ---
-> Hi,
+>
+>
+> Regards,
+> Barnabás Pőcze
 
-> could this fix be backported to stable releases?
-> Maybe safer to wait till v5.11 release.
-
-> Adjusted for stable/linux-5.10.y.
-FYI: Actually no modification was needed for stable/linux-5.10.y.
-
-Kind regards,
-Petr
