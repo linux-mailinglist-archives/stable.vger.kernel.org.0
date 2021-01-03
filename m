@@ -2,124 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C19A2E8C88
-	for <lists+stable@lfdr.de>; Sun,  3 Jan 2021 15:12:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 844B42E8D05
+	for <lists+stable@lfdr.de>; Sun,  3 Jan 2021 17:11:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbhACOLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Jan 2021 09:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726246AbhACOLr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Jan 2021 09:11:47 -0500
-Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F39C061573;
-        Sun,  3 Jan 2021 06:11:07 -0800 (PST)
-Received: by mail-il1-x132.google.com with SMTP id e7so19231306ile.7;
-        Sun, 03 Jan 2021 06:11:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SsNZGoLzdSXQyiIM63lxMbZN+jRAOh5izEIZB+klgno=;
-        b=gPMeLdqvvFCCbqJmtqgg/ggFc8rnNDCg0G8Et1H2P9nlP8xic8yl21ZRqfw1dg3w8V
-         +qJe5A+CAVLxbJ9pBB7WBaXWXXoohfY5AiAn5DVffNOekn2Oyp/iAFF/frt5uNRsrxYN
-         +4OWcVANKVsH7eQ2956o7mu+QtMzbYLzpL6B7/e8UvNdaDEAdRsLtWEq0mgvCZf0udoT
-         4HKc9qibtt4TeNCRu3d9WF6m2yhHDsto2lsYP6KIuRJPZtOrbE9sFFOmeEBwmqpg3c4i
-         AipKhNiPIH/rkyEIob9D5LOkLZOGKH5rTbTFM5aE3yJ58TcG3MnwTFH5MK7ACzmMABNg
-         3oSQ==
+        id S1726505AbhACQLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Jan 2021 11:11:17 -0500
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:35517 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726008AbhACQLR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Jan 2021 11:11:17 -0500
+Received: by mail-wm1-f51.google.com with SMTP id e25so15625082wme.0;
+        Sun, 03 Jan 2021 08:11:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SsNZGoLzdSXQyiIM63lxMbZN+jRAOh5izEIZB+klgno=;
-        b=KYgjuF3FNKfCBIv73daFXJ8bCZMvmOScIyOx/lOy482qwr/ghKKlgz6dUwdLQssMc/
-         rJdWK2DQuOTt0W4XHB5qttvflUG3DTRvJRrBMMAqahM8mbACd6i03U1ySl2SUlJbyXGG
-         rg513lXBoH3y8vQd9707iCYoKRkEpQa9RI6vLZWOuKi8fecDWA6qa7UoIoZPa3Hoe/YH
-         Ei+yVNXovnz7XcpJkgose/GfAKrLUOrdHGD/FbJFFpogm6N04DiwFLsi1ppZCjQl/fV0
-         4l084TZn4LxROtoFvSV65Q/ON6JWS5O3PfJqFhXDh9wWWVl5l97s9Qy2vGikUTWmp5UP
-         kOMw==
-X-Gm-Message-State: AOAM532sGpLriFUue+WOvMlsDK5t+a5073hjGZre/hbhLQhuM5SzoMs9
-        gebE9VCbwjgQKl6kFlDHuWIbUr6yUXiLlZaOFR2FLIv22XE=
-X-Google-Smtp-Source: ABdhPJw8YvhDG3S7Xh3RhCVPYKg4UEzcZQeWn5mfpUbTRyqouWRWKXZEBMPh/4FD45AqO9aJXU2wBIk4p+zAI8fnfY8=
-X-Received: by 2002:a92:6403:: with SMTP id y3mr65359341ilb.72.1609683066480;
- Sun, 03 Jan 2021 06:11:06 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=L/ciLi8sFKw3kDB1t38D/+A3+H6/u8IDPE39NSlBYpI=;
+        b=ADM46zbgMx4p1rWMyQG08DhDtY+yxJib7Doar+FFKLo175OIS6drAIbvk0oRvxOwH/
+         vEPNAyv7T/fc4GCA8o4oYGxVATn/k+2A3PHmDl458S7JlSZjVyLnd7LcU1xj6XXmm9hp
+         jYaBX1Bf9s3I6mOp0ZrkzV1nAvSKKglXGGFB9b9n/7946TJGxQsC5Tb+fGh0U0GLeON/
+         rU07GaM/vxwPVDsxLY8gEiTZXj74E7L6dINX8dTjRAGzF2guJPL+IV+c4X3q8OG2oSJC
+         /SQwiv3EtSvTWUyWRoV6IcAKI/euuk/7LPigIm5t0v6u0rf+F3M3RF0Trur/96xaRJ8u
+         mkgA==
+X-Gm-Message-State: AOAM53208pphRTCtp5b2p5MDThRl5dBpBIIIrK7SXkGRtvkGgmzCwnxt
+        MRuW6UjX8pG/IlI5T7WlI04=
+X-Google-Smtp-Source: ABdhPJzc41yNQwH32ukm4bbyuQMc9Fj8WDh5NhtQItcsvZZNTBiwYSmi5iJAVgaXezDzVkN1gS2NcQ==
+X-Received: by 2002:a1c:a9cc:: with SMTP id s195mr23495854wme.97.1609690234844;
+        Sun, 03 Jan 2021 08:10:34 -0800 (PST)
+Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
+        by smtp.googlemail.com with ESMTPSA id e17sm84923543wrw.84.2021.01.03.08.10.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Jan 2021 08:10:33 -0800 (PST)
+Date:   Sun, 3 Jan 2021 17:10:32 +0100
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Sylwester Nawrocki <snawrocki@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Pankaj Dubey <pankaj.dubey@samsung.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] soc: samsung: exynos-asv: don't defer early on
+ not-supported SoCs
+Message-ID: <20210103161032.GA7799@kozik-lap>
+References: <20201207190517.262051-1-krzk@kernel.org>
+ <20201207190517.262051-2-krzk@kernel.org>
 MIME-Version: 1.0
-References: <20210101201230.768653-1-icenowy@aosc.io>
-In-Reply-To: <20210101201230.768653-1-icenowy@aosc.io>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Sun, 3 Jan 2021 16:10:55 +0200
-Message-ID: <CAOQ4uxgNWkzVphdB7cAkwdUXagM_NsCUYDRT1f-=X1rn1-KpUQ@mail.gmail.com>
-Subject: Re: [PATCH] ovl: use a dedicated semaphore for dir upperfile caching
-To:     Icenowy Zheng <icenowy@aosc.io>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201207190517.262051-2-krzk@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 1, 2021 at 10:12 PM Icenowy Zheng <icenowy@aosc.io> wrote:
->
-> The function ovl_dir_real_file() currently uses the semaphore of the
-> inode to synchronize write to the upperfile cache field.
->
-> However, this function will get called by ovl_ioctl_set_flags(), which
-> utilizes the inode semaphore too. In this case ovl_dir_real_file() will
-> try to claim a lock that is owned by a function in its call stack, which
-> won't get released before ovl_dir_real_file() returns.
-
-oops. I wondered why I didn't see any warnings on this from lockdep.
-Ah! because the xfstest that exercises ovl_ioctl_set_flags() on directory,
-generic/079, starts with an already upper dir.
-
-And the xfstest that checks chattr+i on lower/upper files, overlay/040,
-does not check chattr on dirs (ioctl on overlay dirs wasn't supported at
-the time the test was written).
-
-Would you be able to create a variant of test overlay/040 that also tests
-chattr +i on lower/upper dirs to test your patch and confirm that the test
-fails on master with the appropriate Kconfig debug options.
-
->
-> Define a dedicated semaphore for the upperfile cache, so that the
-> deadlock won't happen.
->
-> Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and FS[S|G]ETXATTR ioctls for directories")
-> Cc: stable@vger.kernel.org # v5.10
-> Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+On Mon, Dec 07, 2020 at 08:05:14PM +0100, Krzysztof Kozlowski wrote:
+> From: Marek Szyprowski <m.szyprowski@samsung.com>
+> 
+> Check if the SoC is really supported before gathering the needed
+> resources. This fixes endless deferred probe on some SoCs other than
+> Exynos5422 (like Exynos5410).
+> 
+> Fixes: 5ea428595cc5 ("soc: samsung: Add Exynos Adaptive Supply Voltage driver")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 > ---
->  fs/overlayfs/readdir.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
-> index 01620ebae1bd..f10701aabb71 100644
-> --- a/fs/overlayfs/readdir.c
-> +++ b/fs/overlayfs/readdir.c
-> @@ -56,6 +56,7 @@ struct ovl_dir_file {
->         struct list_head *cursor;
->         struct file *realfile;
->         struct file *upperfile;
-> +       struct semaphore upperfile_sem;
+>  drivers/soc/samsung/exynos-asv.c | 10 +++++-----
 
-mutex please
+Thanks, applied.
 
->  };
->
->  static struct ovl_cache_entry *ovl_cache_entry_from_node(struct rb_node *n)
-> @@ -883,7 +884,7 @@ struct file *ovl_dir_real_file(const struct file *file, bool want_upper)
->                         ovl_path_upper(dentry, &upperpath);
->                         realfile = ovl_dir_open_realfile(file, &upperpath);
->
-> -                       inode_lock(inode);
-> +                       down(&od->upperfile_sem);
->                         if (!od->upperfile) {
->                                 if (IS_ERR(realfile)) {
->                                         inode_unlock(inode);
+Best regards,
+Krzysztof
 
-You missed this unlock
-
-Thanks,
-Amir.
