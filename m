@@ -2,70 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B752E8962
-	for <lists+stable@lfdr.de>; Sun,  3 Jan 2021 00:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D8B2E89CF
+	for <lists+stable@lfdr.de>; Sun,  3 Jan 2021 02:27:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726802AbhABXyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Jan 2021 18:54:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43538 "EHLO
+        id S1727150AbhACB0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Jan 2021 20:26:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726687AbhABXyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Jan 2021 18:54:44 -0500
-Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2BBC061573
-        for <stable@vger.kernel.org>; Sat,  2 Jan 2021 15:54:04 -0800 (PST)
-Received: by mail-oo1-xc2c.google.com with SMTP id x23so5488562oop.1
-        for <stable@vger.kernel.org>; Sat, 02 Jan 2021 15:54:04 -0800 (PST)
+        with ESMTP id S1727019AbhACB0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Jan 2021 20:26:41 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4B0C0613C1;
+        Sat,  2 Jan 2021 17:26:01 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id jx16so32166037ejb.10;
+        Sat, 02 Jan 2021 17:26:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=NKu5UUw2Pv98dYpJg0rLUhu47eI4d+hGegsR19QlrIU=;
-        b=Qvm9rydexOsNWqUJ6AKRoBumMYmg+FYY9ysEaGiHsw1Q4l3btjKCiPHc7MoWEpj80I
-         Z1DxLbF6KCQvZAcKkYcK0qZSwMxts7/MMMUBBGjqX4eaiv00hb3e0e3pUILT7wLoLlCO
-         8sZx7WEAI5OqsT8y17HFNGq3mO7DmzMH+tIFzNC91pdLcOBsGuAIi2T4PCcptT/jD+Rx
-         bmgR8IdMzOX9YPM6a6GoIX8OSq9Ts9bXJ4ODSIWyxhggOkiUzsE3ebaerzWQdr0tsbSc
-         DcrR2S11ojeeov0AT+B8Lcp3olqhS/ZgMFn+aidt2VjYCiR+g/4UnNK54ZwcNN1STTHM
-         437w==
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=2UOqQ4to22i0EnrVVvZCa3Uq60RXDtYLcZVnEvKV1nc=;
+        b=Ul/q7EhmQw5F7xPOlh4+bpVyAiHAA9k6aBe2SfUtrGzaJI+UwEOkteSJatPFs4+4ia
+         dxgCQhinwakP1k6FunaUSTgVn6zOzr25haFLsAsqy4wmDiZvrzTiMLdfoD0KfJLpSmCV
+         KwFOMwWaANw9LYmD1sUeRisdO+P/+d5cigCtcYr4JaEEqMrtNehRgAXw4FWSuNXuLz4k
+         4sNcHbZstjyPqAoG9NxIPEz1s6EEp5vEyObECxhelZRIzZ9T5jeq41H/OT4a7yHfC5c5
+         04eb4CrulIorSzWKUo8EUmT9Z31dixB/Yfm4N+Xerlhn7a8+/olVnrPrT8OoIocuGSqB
+         l6BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=NKu5UUw2Pv98dYpJg0rLUhu47eI4d+hGegsR19QlrIU=;
-        b=tryw3HdfxIpZOl1p3HvPTdQtimT8eLXR6sVh0G72jQSpuLbroKroagkySEFxyqXjxO
-         zTUX92PU8v1KOsFdfsbu5wX3Xg6ChW12Mlaojd08zmmsVpX3755/pfgNlE2mpGVE93dg
-         pQiuSL9TSz5v7uo+tOovJ7gxsv4Zw7I96YQj7S0cVer8XcznjNSoDrWOYSP4XTKkZP+r
-         DwwibxGzLRKt7u5HV1m39gU/W5pRRI3EFJ1nT1MMxvjisdgJgoVDX9Uz6C7Ub4ZOyP7h
-         Gdx8y9Ej/AFZVHFxkN/bRFHHNxFmhrcmg0PB0u/AAKZ5m+pnpHHFQ+iZKaYEuZIRz55R
-         Yilg==
-X-Gm-Message-State: AOAM5314rjoNEYK3+BBONh4lzWYiRAA3TL0PgA/+Ezg6yp4QyINW53qb
-        /qnLWzO2nbHRBKUQaHp28KpbFPGI8ZFa6mnSqfs=
-X-Google-Smtp-Source: ABdhPJxJTVNZ90XXTVqeLL6egEW9VDZzfAtCdWwyd7U+aT09ShwdAjxLP7VloSUA3q9Ooew01xVfySi9d5oIfVOQiiw=
-X-Received: by 2002:a4a:81:: with SMTP id 123mr45620863ooh.46.1609631643726;
- Sat, 02 Jan 2021 15:54:03 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=2UOqQ4to22i0EnrVVvZCa3Uq60RXDtYLcZVnEvKV1nc=;
+        b=Ov69dWrgHHW3g/ZgNlbQ3YY/g01EM8/R9xJUWfOcD2jHSFaRXuSaQuSwY20JmJc/ma
+         HIcWi3R5Zj2EfFKOsUlhxeLkRU6mT+fxtPHEPVn2kBVVGLv4Y4IEiVCmPy8dROgfdGhD
+         PxCMYeta5qqaG9MEzp7uKIGLMyud6lIRKG8LhZ1jPw+wZ1x+cZ5BNL0XzboC/5Hsv7o6
+         eKcVS0zThps5BR7VeS1FydjK+Kqzwc1TxA2rYiA/Vlet/1qme3KzntD0/Ko+rzBDoYBY
+         Vib9Miguja050zvNauCFyjEoB8m/gyGAv+o3AaPD8mqdPvTPFSnW9Q2cyqn2Z7CNsRhL
+         52YQ==
+X-Gm-Message-State: AOAM5333Vgj7sXkzCM16BKzXjnQ7nFTyb94YGkWYVY0Hde1o5aXfxqp7
+        Y3Y6+1wCey7XxnGeddLqB3I=
+X-Google-Smtp-Source: ABdhPJzmIjLwUagL7GdNwIkMmm4RgvvqFjyAPHnkfDtkIG1Bcw2gYF2+vWeTPMlaVpsR4n+mYGPr7w==
+X-Received: by 2002:a17:906:4d17:: with SMTP id r23mr64843341eju.87.1609637159855;
+        Sat, 02 Jan 2021 17:25:59 -0800 (PST)
+Received: from localhost.localdomain (p200300f13724fd00428d5cfffeb99db8.dip0.t-ipconnect.de. [2003:f1:3724:fd00:428d:5cff:feb9:9db8])
+        by smtp.googlemail.com with ESMTPSA id op5sm22118006ejb.43.2021.01.02.17.25.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 02 Jan 2021 17:25:59 -0800 (PST)
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+To:     hauke@hauke-m.de, netdev@vger.kernel.org
+Cc:     andrew@lunn.ch, vivien.didelot@gmail.com, f.fainelli@gmail.com,
+        olteanv@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-kernel@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] net: dsa: lantiq_gswip: Enable GSWIP_MII_CFG_EN also for internal PHYs
+Date:   Sun,  3 Jan 2021 02:25:43 +0100
+Message-Id: <20210103012544.3259029-2-martin.blumenstingl@googlemail.com>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210103012544.3259029-1-martin.blumenstingl@googlemail.com>
+References: <20210103012544.3259029-1-martin.blumenstingl@googlemail.com>
 MIME-Version: 1.0
-Received: by 2002:a9d:6e6:0:0:0:0:0 with HTTP; Sat, 2 Jan 2021 15:54:02 -0800 (PST)
-Reply-To: hs8qfc11@gmail.com
-From:   "Dr. Jesse Omar" <jesseomar11@gmail.com>
-Date:   Sun, 3 Jan 2021 00:54:02 +0100
-Message-ID: <CAJs48TBw0vAMvcUh8ccTJYBt3ab_XVxMx458OJpcY4CBwT80Zw@mail.gmail.com>
-Subject: Good Morning,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Enable GSWIP_MII_CFG_EN also for internal PHYs to make traffic flow.
+Without this the PHY link is detected properly and ethtool statistics
+for TX are increasing but there's no RX traffic coming in.
+
+Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Cc: stable@vger.kernel.org
+Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+ drivers/net/dsa/lantiq_gswip.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 09701c17f3f6..5d378c8026f0 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1541,9 +1541,7 @@ static void gswip_phylink_mac_link_up(struct dsa_switch *ds, int port,
+ {
+ 	struct gswip_priv *priv = ds->priv;
+ 
+-	/* Enable the xMII interface only for the external PHY */
+-	if (interface != PHY_INTERFACE_MODE_INTERNAL)
+-		gswip_mii_mask_cfg(priv, 0, GSWIP_MII_CFG_EN, port);
++	gswip_mii_mask_cfg(priv, 0, GSWIP_MII_CFG_EN, port);
+ }
+ 
+ static void gswip_get_strings(struct dsa_switch *ds, int port, u32 stringset,
 -- 
-I'm Dr. Jesse Omar, did you Receive the (FUND), that was paid to you?
-please, do not hesitate to Let me know with your full name:.. for
-immediate verification notice,
+2.30.0
 
-Thanks,
-
-Dr. Jesse Omar,
-Foreign Remittance Director
-
-Sincerely Yours, Respectfully,
-
-Mr Bill T Winters,
-Group Chief Executive Officer & Executive Director,
