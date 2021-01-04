@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6102E9A7E
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1142C2E99BD
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728430AbhADQK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:10:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
+        id S1728992AbhADQDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:03:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728324AbhADQAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4249224DF;
-        Mon,  4 Jan 2021 16:00:08 +0000 (UTC)
+        id S1728175AbhADQDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:03:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6C7C22507;
+        Mon,  4 Jan 2021 16:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776009;
-        bh=AKkNC5q/jAs62BW+60Z1IRvF09A1w+UnMmEbaouPr50=;
+        s=korg; t=1609776169;
+        bh=bgM8K8mfIxwMypr9yt9d+vSr1q/tvc+VRvHeeSHqAYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ix45OOme0k8g82co2vYbx9L9tT0pSF52cE4Psowb4p+g8jMyrIqjqS4TtdAKIN7Ds
-         tYQkwUDcJ4xFCV8ZULdbM583Xf9EWc+HX68lZ3MUBkx53DOfO1Ze3Xfnq4V2mJI5pJ
-         fW554z9S28fISri2uv2KUZr1Rik1GdlhAdsxCqLk=
+        b=utMVXjaw055rXC1wVi+CHkvDsXdVYwcPSVO1RF6j/3fLn/0sJlORC+hcL+0l314q+
+         Ny4tkWUwDDxi9dORSWKHaQZ6gQyvdkP38xnKQpsSZoZeXBXAjoAGyiwMCijZZXp41p
+         3ywum51xntoRSiH70zCIzr/1ZG3EX6fyCLQLndVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ca9a785f8ac472085994@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 29/47] f2fs: fix shift-out-of-bounds in sanity_check_raw_super()
+        syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Al Viro <viro@ZenIV.linux.org.uk>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 35/63] bfs: dont use WARNING: string when its just info.
 Date:   Mon,  4 Jan 2021 16:57:28 +0100
-Message-Id: <20210104155707.153228321@linuxfoundation.org>
+Message-Id: <20210104155710.524201550@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit e584bbe821229a3e7cc409eecd51df66f9268c21 upstream.
+commit dc889b8d4a8122549feabe99eead04e6b23b6513 upstream.
 
-syzbot reported a bug which could cause shift-out-of-bounds issue,
-fix it.
+Make the printk() [bfs "printf" macro] seem less severe by changing
+"WARNING:" to "NOTE:".
 
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
- sanity_check_raw_super fs/f2fs/super.c:2812 [inline]
- read_raw_super_block fs/f2fs/super.c:3267 [inline]
- f2fs_fill_super.cold+0x16c9/0x16f6 fs/f2fs/super.c:3519
- mount_bdev+0x34d/0x410 fs/super.c:1366
- legacy_get_tree+0x105/0x220 fs/fs_context.c:592
- vfs_get_tree+0x89/0x2f0 fs/super.c:1496
- do_new_mount fs/namespace.c:2896 [inline]
- path_mount+0x12ae/0x1e70 fs/namespace.c:3227
- do_mount fs/namespace.c:3240 [inline]
- __do_sys_mount fs/namespace.c:3448 [inline]
- __se_sys_mount fs/namespace.c:3425 [inline]
- __x64_sys_mount+0x27f/0x300 fs/namespace.c:3425
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+<asm-generic/bug.h> warns us about using WARNING or BUG in a format string
+other than in WARN() or BUG() family macros.  bfs/inode.c is doing just
+that in a normal printk() call, so change the "WARNING" string to be
+"NOTE".
 
-Reported-by: syzbot+ca9a785f8ac472085994@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lkml.kernel.org/r/20201203212634.17278-1-rdunlap@infradead.org
+Reported-by: syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: "Tigran A. Aivazian" <aivazian.tigran@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/f2fs/super.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ fs/bfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2523,7 +2523,6 @@ static int sanity_check_raw_super(struct
- 	block_t total_sections, blocks_per_seg;
- 	struct f2fs_super_block *raw_super = (struct f2fs_super_block *)
- 					(bh->b_data + F2FS_SUPER_OFFSET);
--	unsigned int blocksize;
- 	size_t crc_offset = 0;
- 	__u32 crc = 0;
+--- a/fs/bfs/inode.c
++++ b/fs/bfs/inode.c
+@@ -350,7 +350,7 @@ static int bfs_fill_super(struct super_b
  
-@@ -2557,10 +2556,10 @@ static int sanity_check_raw_super(struct
- 	}
- 
- 	/* Currently, support only 4KB block size */
--	blocksize = 1 << le32_to_cpu(raw_super->log_blocksize);
--	if (blocksize != F2FS_BLKSIZE) {
--		f2fs_info(sbi, "Invalid blocksize (%u), supports only 4KB",
--			  blocksize);
-+	if (le32_to_cpu(raw_super->log_blocksize) != F2FS_BLKSIZE_BITS) {
-+		f2fs_info(sbi, "Invalid log_blocksize (%u), supports only %u",
-+			  le32_to_cpu(raw_super->log_blocksize),
-+			  F2FS_BLKSIZE_BITS);
- 		return -EFSCORRUPTED;
- 	}
- 
+ 	info->si_lasti = (le32_to_cpu(bfs_sb->s_start) - BFS_BSIZE) / sizeof(struct bfs_inode) + BFS_ROOT_INO - 1;
+ 	if (info->si_lasti == BFS_MAX_LASTI)
+-		printf("WARNING: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
++		printf("NOTE: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
+ 	else if (info->si_lasti > BFS_MAX_LASTI) {
+ 		printf("Impossible last inode number %lu > %d on %s\n", info->si_lasti, BFS_MAX_LASTI, s->s_id);
+ 		goto out1;
 
 
