@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D19E2E9A38
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 269392E99FA
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727803AbhADQBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:01:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38422 "EHLO mail.kernel.org"
+        id S1728447AbhADQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:05:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728523AbhADQBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67118224D4;
-        Mon,  4 Jan 2021 16:00:33 +0000 (UTC)
+        id S1729047AbhADQDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:03:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 234BB22517;
+        Mon,  4 Jan 2021 16:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776033;
-        bh=RfDIi+ld6PVLeo0NMQXjKVHQtzypeNuRJnbtIICYHuI=;
+        s=korg; t=1609776151;
+        bh=CzRYXEk9ZbdYqqv0mBK0IJg95yy1SokTxylsOXRqXIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPgUPyNmVf91RRCxOW0wwHI43tfURk4egiPLGugA6tcU/D0Wx4gkyWZsRVWwJ+pE4
-         y+QsbM/1y1R/NJwB97Ya700hkyz10F9rrPU3NIQUhxk2nrqf+hygTC8FboBlRNqNwY
-         AlTS8qLlnsEVvPzygeLkG7uGTaj+F1rhaW5aIziM=
+        b=NfMCvvvt1yIKXkVHh2XsTSbVJTvPAH6vbjIvG63LfjVNfGMPuSzd4wrp8o8awjxbP
+         NY4fxI9O9JBIpu3ydlAR0ncYgELLqGcE8ii0UXDWbSriQo5EtO6mD4MuF6y8JQG7P4
+         UI/i2jzzYJREh2L1C9t6txBRgWikqRYve5PWUX38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 39/47] i3c master: fix missing destroy_workqueue() on error in i3c_master_register
+Subject: [PATCH 5.10 45/63] NFSv4: Fix a pNFS layout related use-after-free race when freeing the inode
 Date:   Mon,  4 Jan 2021 16:57:38 +0100
-Message-Id: <20210104155707.622173155@linuxfoundation.org>
+Message-Id: <20210104155711.007242412@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 59165d16c699182b86b5c65181013f1fd88feb62 ]
+[ Upstream commit b6d49ecd1081740b6e632366428b960461f8158b ]
 
-Add the missing destroy_workqueue() before return from
-i3c_master_register in the error handling case.
+When returning the layout in nfs4_evict_inode(), we need to ensure that
+the layout is actually done being freed before we can proceed to free the
+inode itself.
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://lore.kernel.org/linux-i3c/20201028091543.136167-1-miaoqinglang@huawei.com
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i3c/master.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4super.c |  2 +-
+ fs/nfs/pnfs.c      | 33 +++++++++++++++++++++++++++++++--
+ fs/nfs/pnfs.h      |  5 +++++
+ 3 files changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-index 6cc71c90f85ea..19337aed9f235 100644
---- a/drivers/i3c/master.c
-+++ b/drivers/i3c/master.c
-@@ -2492,7 +2492,7 @@ int i3c_master_register(struct i3c_master_controller *master,
+diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
+index 93f5c1678ec29..984cc42ee54d8 100644
+--- a/fs/nfs/nfs4super.c
++++ b/fs/nfs/nfs4super.c
+@@ -67,7 +67,7 @@ static void nfs4_evict_inode(struct inode *inode)
+ 	nfs_inode_evict_delegation(inode);
+ 	/* Note that above delegreturn would trigger pnfs return-on-close */
+ 	pnfs_return_layout(inode);
+-	pnfs_destroy_layout(NFS_I(inode));
++	pnfs_destroy_layout_final(NFS_I(inode));
+ 	/* First call standard NFS clear_inode() code */
+ 	nfs_clear_inode(inode);
+ 	nfs4_xattr_cache_zap(inode);
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 0e50b9d45c320..07f59dc8cb2e7 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -294,6 +294,7 @@ void
+ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
+ {
+ 	struct inode *inode;
++	unsigned long i_state;
  
- 	ret = i3c_master_bus_init(master);
- 	if (ret)
--		goto err_put_dev;
-+		goto err_destroy_wq;
+ 	if (!lo)
+ 		return;
+@@ -304,8 +305,12 @@ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
+ 		if (!list_empty(&lo->plh_segs))
+ 			WARN_ONCE(1, "NFS: BUG unfreed layout segments.\n");
+ 		pnfs_detach_layout_hdr(lo);
++		i_state = inode->i_state;
+ 		spin_unlock(&inode->i_lock);
+ 		pnfs_free_layout_hdr(lo);
++		/* Notify pnfs_destroy_layout_final() that we're done */
++		if (i_state & (I_FREEING | I_CLEAR))
++			wake_up_var(lo);
+ 	}
+ }
  
- 	ret = device_add(&master->dev);
- 	if (ret)
-@@ -2523,6 +2523,9 @@ int i3c_master_register(struct i3c_master_controller *master,
- err_cleanup_bus:
- 	i3c_master_bus_cleanup(master);
+@@ -734,8 +739,7 @@ pnfs_free_lseg_list(struct list_head *free_me)
+ 	}
+ }
  
-+err_destroy_wq:
-+	destroy_workqueue(master->wq);
+-void
+-pnfs_destroy_layout(struct nfs_inode *nfsi)
++static struct pnfs_layout_hdr *__pnfs_destroy_layout(struct nfs_inode *nfsi)
+ {
+ 	struct pnfs_layout_hdr *lo;
+ 	LIST_HEAD(tmp_list);
+@@ -753,9 +757,34 @@ pnfs_destroy_layout(struct nfs_inode *nfsi)
+ 		pnfs_put_layout_hdr(lo);
+ 	} else
+ 		spin_unlock(&nfsi->vfs_inode.i_lock);
++	return lo;
++}
 +
- err_put_dev:
- 	put_device(&master->dev);
++void pnfs_destroy_layout(struct nfs_inode *nfsi)
++{
++	__pnfs_destroy_layout(nfsi);
+ }
+ EXPORT_SYMBOL_GPL(pnfs_destroy_layout);
  
++static bool pnfs_layout_removed(struct nfs_inode *nfsi,
++				struct pnfs_layout_hdr *lo)
++{
++	bool ret;
++
++	spin_lock(&nfsi->vfs_inode.i_lock);
++	ret = nfsi->layout != lo;
++	spin_unlock(&nfsi->vfs_inode.i_lock);
++	return ret;
++}
++
++void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
++{
++	struct pnfs_layout_hdr *lo = __pnfs_destroy_layout(nfsi);
++
++	if (lo)
++		wait_var_event(lo, pnfs_layout_removed(nfsi, lo));
++}
++
+ static bool
+ pnfs_layout_add_bulk_destroy_list(struct inode *inode,
+ 		struct list_head *layout_list)
+diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
+index 2661c44c62db4..78c3893918486 100644
+--- a/fs/nfs/pnfs.h
++++ b/fs/nfs/pnfs.h
+@@ -266,6 +266,7 @@ struct pnfs_layout_segment *pnfs_layout_process(struct nfs4_layoutget *lgp);
+ void pnfs_layoutget_free(struct nfs4_layoutget *lgp);
+ void pnfs_free_lseg_list(struct list_head *tmp_list);
+ void pnfs_destroy_layout(struct nfs_inode *);
++void pnfs_destroy_layout_final(struct nfs_inode *);
+ void pnfs_destroy_all_layouts(struct nfs_client *);
+ int pnfs_destroy_layouts_byfsid(struct nfs_client *clp,
+ 		struct nfs_fsid *fsid,
+@@ -710,6 +711,10 @@ static inline void pnfs_destroy_layout(struct nfs_inode *nfsi)
+ {
+ }
+ 
++static inline void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
++{
++}
++
+ static inline struct pnfs_layout_segment *
+ pnfs_get_lseg(struct pnfs_layout_segment *lseg)
+ {
 -- 
 2.27.0
 
