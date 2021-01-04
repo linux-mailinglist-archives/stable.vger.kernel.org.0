@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F1C82EA0BC
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 00:26:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA7622EA08E
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 00:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726643AbhADXYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 18:24:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57642 "EHLO
+        id S1727396AbhADXNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 18:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726289AbhADXYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 18:24:32 -0500
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DFEC061793
-        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 15:23:51 -0800 (PST)
-Received: by mail-oi1-x236.google.com with SMTP id q205so34019730oig.13
-        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 15:23:51 -0800 (PST)
+        with ESMTP id S1727394AbhADXNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 18:13:21 -0500
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E11C6C061574
+        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 15:12:40 -0800 (PST)
+Received: by mail-oi1-x231.google.com with SMTP id q205so33993179oig.13
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 15:12:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=cteEHR8uaDejKHijxtGhuXL0D7Hm+jul8Eac+zL0Jes=;
-        b=uTpAMWH/CrR8iCIcW2SZudWhdYotVg9MlEr6lRv3+/7tLjo1M0MbOiEtKnx0NVgUSi
-         o6foDbj86ZsMX0pS3eZCTk1wEHSa0Oz0ezaLQ/fglj7LIcMMvtaAhm/89lC/PWfKWi2r
-         YOn/7QilYXNBff5NktGd0I5qhKB41IN3tnw/qXTG5rkhAJqs6M+jjyB6/zjZy13QRqlx
-         Jdviecqkrryafq+Spcst2mmCLFC+xFUhmVnPD5Bi0e5lTxGKsGp3qQwV5JcvyMxgoYHE
-         6fGdNsF2z79eoZaUcAxR0bo3bwJYxLvy1S5RomWc8Aodu9T4K75iAWBEVbCj9icJJd+Z
-         ZTCQ==
+        bh=GScb+BAZVVPcP92PmVfmF3c3uXTrsUplXdYw2Yuovto=;
+        b=sRiugTimQT7RJ/cm78g5kEEQOBrx0nsniNb2jnAQWDqNevkpiXXRQIluJZhDhiG1cr
+         oCgTv5fLO9UwHT60QaONKYGUv/3IOdVoMz9HrVnv+qB3hoNverw8E8H2eMkMuPynt9on
+         RCIfyYo8PcNqNNxXW3m0LC5+dI0/UoznbGFtz4cva+d1F61Ioi0GI8vgRES9cGDyttH9
+         JG/oCw+Q3z3Xyqt9F2CAKxCj+5CWLCWsLQyW40Se+Io2MNkNlIjyRFztSQPiTMMyrwr0
+         BpATiCFnwN5xEB6EU6t5/1MJyt0JSOFx0UTljvbmuLR7ILpvfJu6fj5q+nuSapX+L5IS
+         TnHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=cteEHR8uaDejKHijxtGhuXL0D7Hm+jul8Eac+zL0Jes=;
-        b=d+nytrp+f5OuHQllxCgRaTual2m9c4VCz/ndtNUwxM3R/IGh9/zLzIav5OCucksbKJ
-         7E9N35WMOFx3cqtZky04TzFp07gFnK0g58Yg6t2dGgcEzFvxS85UUYXFnTnA2DtykGsK
-         bH0n1SBgUjPImqKCERJIgEcXshPOgsxriDATm42+OCibWZlE4XYMJoibAzH8mkPsQToM
-         Gv9VL/VSS1NdGrMekIIEiAaF60L9AiNGWmHj6vZdX4gBLI1nBwQpfNapjzBZFgNuPoZo
-         GAdpUYtOo9jHGQaKcyQ9CxhzGTB4H/dLG5xLoeH0iXPzGO/7crD9p94d0kSznpqJ6oCh
-         hSQQ==
-X-Gm-Message-State: AOAM532VnshdmUgqFtvqxT85s2VTe+cxcRpHqal7++xyIsIsBnbs1IBv
-        QOZ+STMaC18IYjwHBwKiCKJYpvoaSrb6Ng==
-X-Google-Smtp-Source: ABdhPJzFMW1XZdMhUOEyXCCEigKAvA7qsK4/n7JohWosgcRiZi42T6afSTP709sOGSLEFmpz1Twr3A==
-X-Received: by 2002:a17:90a:5509:: with SMTP id b9mr830662pji.53.1609796367669;
-        Mon, 04 Jan 2021 13:39:27 -0800 (PST)
+        bh=GScb+BAZVVPcP92PmVfmF3c3uXTrsUplXdYw2Yuovto=;
+        b=QHAP1ndwfSu5eTXZ/xZ8poKUq+LH4SfcJX9jCxtZbH5WthRCkVlIhdeFYDO4rbl/lo
+         WaWi8w5O0195qdLntX+UEGYi3SWIFXffHn6vXnRJ4x6CQDdrJqMOSRjw577jQSde12Td
+         zXAvzAuTRPVY1NwrUtqQPm+ocy4aG5FfefHb2L3LaKq5AKMTDEwzirfwB1HmDwkUsZHY
+         UIi8/Ps2IYJu4X3oTWAX3c/vS9voZ1UPAgtC0/nrYo9quQXbuW7hfqrVwaDnGNiC+hHf
+         FuV27F5O317tGRKydwUkihlzWEoxd0IznrKVsF8lcleJGguBKqyCmEHUy2g38CxOF6SV
+         ynJw==
+X-Gm-Message-State: AOAM5331cBmiNVmuoh333SdanIEH1g1JYKygFuR9I/wUkPcD9cNFQMif
+        2D4ROenQZoJB02UPJwRKZIwQzbHhu75fqA==
+X-Google-Smtp-Source: ABdhPJyXf9dcxICmuLjurAvz1iG78AE3TEKFYJ461b4zy92RRLDHtfuFXdipYJ4Mna91BZ2ZsXlwew==
+X-Received: by 2002:a17:90a:7e88:: with SMTP id j8mr931224pjl.217.1609798680661;
+        Mon, 04 Jan 2021 14:18:00 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c23sm47460196pgc.72.2021.01.04.13.39.26
+        by smtp.gmail.com with ESMTPSA id 17sm30402216pgy.53.2021.01.04.14.17.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 13:39:26 -0800 (PST)
-Message-ID: <5ff38b0e.1c69fb81.75db8.0bff@mx.google.com>
-Date:   Mon, 04 Jan 2021 13:39:26 -0800 (PST)
+        Mon, 04 Jan 2021 14:17:59 -0800 (PST)
+Message-ID: <5ff39417.1c69fb81.fbcf3.49f3@mx.google.com>
+Date:   Mon, 04 Jan 2021 14:17:59 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.86-47-g55b6e606277b
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v5.4.86
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 200 builds: 0 failed, 200 passed,
- 109 warnings (v5.4.86-47-g55b6e606277b)
+Subject: stable/linux-5.4.y build: 200 builds: 0 failed, 200 passed,
+ 109 warnings (v5.4.86)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,18 +65,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 200 builds: 0 failed, 200 passed, 109 warnings (=
-v5.4.86-47-g55b6e606277b)
+stable/linux-5.4.y build: 200 builds: 0 failed, 200 passed, 109 warnings (v=
+5.4.86)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.86-47-g55b6e606277b/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.86/
 
-Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.86-47-g55b6e606277b
-Git Commit: 55b6e606277b74c24df274b3c5074cfc201ebf69
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.86
+Git Commit: dfce803cd87dc139cfe4da1a68a5b3585e9e47e7
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
+e.git
 Built: 7 unique architectures
 
 Warnings Detected:
@@ -250,6 +250,11 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -260,8 +265,8 @@ mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -270,11 +275,6 @@ matches
 
 Warnings:
     <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -511,6 +511,11 @@ dd_memory_region()
 
 ---------------------------------------------------------------------------=
 -----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 section m=
 ismatches
 
@@ -546,11 +551,6 @@ s_num): Failed prerequisite 'reg_format'
  Failed prerequisite 'reg_format'
     arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
  Failed prerequisite 'reg_format'
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1386,11 +1386,29 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
 Warnings:
     <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1404,26 +1422,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1156:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
 tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
