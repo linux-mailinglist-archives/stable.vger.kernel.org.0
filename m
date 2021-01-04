@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6F82E99CC
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0610F2E9999
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728326AbhADQDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:03:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
+        id S1728680AbhADQBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:01:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728320AbhADQDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:03:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4688C2250E;
-        Mon,  4 Jan 2021 16:02:44 +0000 (UTC)
+        id S1728670AbhADQBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:01:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA11222518;
+        Mon,  4 Jan 2021 16:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776164;
-        bh=TYS9CyxV609M0wdg5tRs0/P/rV4X+CfCd2orivUlb5Y=;
+        s=korg; t=1609776069;
+        bh=DzPD7MUYEs37ZsR4J4eFe2J1AKJMrumiPDtaWLyiu60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjngF34IKOpbM9R7ifqKX7/ZvroE1fM2eO9hJK6J0CpZxZuljy9Bgs5/AnFvYiVdP
-         Fgc5LTm5iWLtoSlG3rBw5sxpPn+RVg+bmFU6O+0J/UWreJI4V41+wprbySMUv6fbNb
-         jwpwp/OpQZNMItjcRGfVJLOEW0aqfaccx9BLTyq0=
+        b=m8Qd1AD24PAsSiXLwwZDlI009EqYH/b2Pa7B24df9T5tqCHufrIcp3dcfc2dXyjMl
+         hOtMSGNz+dZmD4vY6Qc96+LewtkQV6QuGN6tgj+UubhrL04FgtwDq4Zx/Dmu7eyera
+         gUV2LEH1XIKSq/msyiqYlh9fVsGc80cyezWpLUIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 51/63] watchdog: rti-wdt: fix reference leak in rti_wdt_probe
-Date:   Mon,  4 Jan 2021 16:57:44 +0100
-Message-Id: <20210104155711.287734172@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 46/47] ALSA: pcm: Clear the full allocated memory at hw_params
+Date:   Mon,  4 Jan 2021 16:57:45 +0100
+Message-Id: <20210104155707.956747898@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
-References: <20210104155708.800470590@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8711071e9700b67045fe5518161d63f7a03e3c9e ]
+[ Upstream commit 618de0f4ef11acd8cf26902e65493d46cc20cc89 ]
 
-pm_runtime_get_sync() will increment pm usage counter even it
-failed. Forgetting to call pm_runtime_put_noidle will result
-in reference leak in rti_wdt_probe, so we should fix it.
+The PCM hw_params core function tries to clear up the PCM buffer
+before actually using for avoiding the information leak from the
+previous usages or the usage before a new allocation.  It performs the
+memset() with runtime->dma_bytes, but this might still leave some
+remaining bytes untouched; namely, the PCM buffer size is aligned in
+page size for mmap, hence runtime->dma_bytes doesn't necessarily cover
+all PCM buffer pages, and the remaining bytes are exposed via mmap.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20201030154909.100023-1-zhangqilong3@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+This patch changes the memory clearance to cover the all buffer pages
+if the stream is supposed to be mmap-ready (that guarantees that the
+buffer size is aligned in page size).
+
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/rti_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/core/pcm_native.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/rti_wdt.c b/drivers/watchdog/rti_wdt.c
-index 836319cbaca9d..359302f71f7ef 100644
---- a/drivers/watchdog/rti_wdt.c
-+++ b/drivers/watchdog/rti_wdt.c
-@@ -227,8 +227,10 @@ static int rti_wdt_probe(struct platform_device *pdev)
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index ec501fbaabe49..0c5b7a54ca81c 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -717,8 +717,13 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 		runtime->boundary *= 2;
  
- 	pm_runtime_enable(dev);
- 	ret = pm_runtime_get_sync(dev);
--	if (ret)
-+	if (ret) {
-+		pm_runtime_put_noidle(dev);
- 		return dev_err_probe(dev, ret, "runtime pm failed\n");
+ 	/* clear the buffer for avoiding possible kernel info leaks */
+-	if (runtime->dma_area && !substream->ops->copy_user)
+-		memset(runtime->dma_area, 0, runtime->dma_bytes);
++	if (runtime->dma_area && !substream->ops->copy_user) {
++		size_t size = runtime->dma_bytes;
++
++		if (runtime->info & SNDRV_PCM_INFO_MMAP)
++			size = PAGE_ALIGN(size);
++		memset(runtime->dma_area, 0, size);
 +	}
  
- 	platform_set_drvdata(pdev, wdt);
- 
+ 	snd_pcm_timer_resolution_change(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
 -- 
 2.27.0
 
