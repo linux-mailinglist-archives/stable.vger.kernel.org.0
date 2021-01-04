@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583862E9975
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C24792E9A9E
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728152AbhADQAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
+        id S1729710AbhADQMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:12:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728164AbhADQAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7309322507;
-        Mon,  4 Jan 2021 15:59:34 +0000 (UTC)
+        id S1728185AbhADQAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0DF222509;
+        Mon,  4 Jan 2021 15:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775974;
-        bh=wnUQKLxohvRGyTmXR07pj6xB9AmiF50wiB7wPUNxG6A=;
+        s=korg; t=1609775977;
+        bh=hYv88ZhcQDYxxkPWVVQs8IfCZIWBUefAj4Juajj6/HY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsXpqkeck7BGTAX1dXbGS0vcthLAs227xdVf/Lh3XGM0X434vpmlKyL4+V8hho0vr
-         EE2ILUJ0FIsiWgFnV3bEQ3JcD+dAaKBmLhBrykMB+wHCqDUd3zVsN2EUnsgUhZ4ZWn
-         J/k/6QOl+2AYuvLF2yhUK1BMxsu+jAB78RTrOTJk=
+        b=SPS6jW7pLES0Z3b5A1J9tTdjwIn6blPEetZb1OWdxGCWso99VDCCN/9qr4SDc65RE
+         Fqg4fvEEcG7Bq8898/Rl7ITjOVza5fdYyZkh8gQw4UjuNq1mocMCHcCY1Z+WccKuif
+         to48GPwiRQi3zF2VTzHfe0LA0M59ZCVoctk8ahNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhuguangqing <zhuguangqing@xiaomi.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.4 03/47] thermal/drivers/cpufreq_cooling: Update cpufreq_state only if state has changed
-Date:   Mon,  4 Jan 2021 16:57:02 +0100
-Message-Id: <20210104155705.912483575@linuxfoundation.org>
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.4 04/47] ext4: prevent creating duplicate encrypted filenames
+Date:   Mon,  4 Jan 2021 16:57:03 +0100
+Message-Id: <20210104155705.961484814@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
 References: <20210104155705.740576914@linuxfoundation.org>
@@ -40,51 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhuguangqing <zhuguangqing@xiaomi.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 236761f19a4f373354f1dcf399b57753f1f4b871 upstream.
+commit 75d18cd1868c2aee43553723872c35d7908f240f upstream.
 
-If state has not changed successfully and we updated cpufreq_state,
-next time when the new state is equal to cpufreq_state (not changed
-successfully last time), we will return directly and miss a
-freq_qos_update_request() that should have been.
+As described in "fscrypt: add fscrypt_is_nokey_name()", it's possible to
+create a duplicate filename in an encrypted directory by creating a file
+concurrently with adding the directory's encryption key.
 
-Fixes: 5130802ddbb1 ("thermal: cpu_cooling: Switch to QoS requests for freq limits")
-Cc: v5.4+ <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Zhuguangqing <zhuguangqing@xiaomi.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20201106092243.15574-1-zhuguangqing83@gmail.com
+Fix this bug on ext4 by rejecting no-key dentries in ext4_add_entry().
+
+Note that the duplicate check in ext4_find_dest_de() sometimes prevented
+this bug.  However in many cases it didn't, since ext4_find_dest_de()
+doesn't examine every dentry.
+
+Fixes: 4461471107b7 ("ext4 crypto: enable filename encryption")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201118075609.120337-3-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/cpu_cooling.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/ext4/namei.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/thermal/cpu_cooling.c
-+++ b/drivers/thermal/cpu_cooling.c
-@@ -320,6 +320,7 @@ static int cpufreq_set_cur_state(struct
- 				 unsigned long state)
- {
- 	struct cpufreq_cooling_device *cpufreq_cdev = cdev->devdata;
-+	int ret;
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -2192,6 +2192,9 @@ static int ext4_add_entry(handle_t *hand
+ 	if (!dentry->d_name.len)
+ 		return -EINVAL;
  
- 	/* Request state should be less than max_level */
- 	if (WARN_ON(state > cpufreq_cdev->max_level))
-@@ -329,10 +330,12 @@ static int cpufreq_set_cur_state(struct
- 	if (cpufreq_cdev->cpufreq_state == state)
- 		return 0;
- 
--	cpufreq_cdev->cpufreq_state = state;
-+	ret = freq_qos_update_request(&cpufreq_cdev->qos_req,
-+			cpufreq_cdev->freq_table[state].frequency);
-+	if (ret > 0)
-+		cpufreq_cdev->cpufreq_state = state;
- 
--	return freq_qos_update_request(&cpufreq_cdev->qos_req,
--				cpufreq_cdev->freq_table[state].frequency);
-+	return ret;
- }
- 
- /**
++	if (fscrypt_is_nokey_name(dentry))
++		return -ENOKEY;
++
+ #ifdef CONFIG_UNICODE
+ 	if (ext4_has_strict_mode(sbi) && IS_CASEFOLDED(dir) &&
+ 	    sbi->s_encoding && utf8_validate(sbi->s_encoding, &dentry->d_name))
 
 
