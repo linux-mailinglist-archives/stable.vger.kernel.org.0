@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C63792E9AC4
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DF32E9A90
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727916AbhADP7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36552 "EHLO mail.kernel.org"
+        id S1728273AbhADQLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727747AbhADP73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B13E422507;
-        Mon,  4 Jan 2021 15:58:23 +0000 (UTC)
+        id S1728150AbhADQAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2C422515;
+        Mon,  4 Jan 2021 15:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775904;
-        bh=3BxlnZ3kTqvMMXA8AMUdXLKpvLjsfwvWm11qjPs+6P0=;
+        s=korg; t=1609775988;
+        bh=aBD8XTv1hrjbZueewUSzSmIkCGjr/4aUcV3aQVFCMyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQjksqZgpC7xFkqibW51RTC7Rz/U6VlNy4eDbcZVtik0hmJSiLgAIA7gNWuGYNwHc
-         xfR3wpmJJY/OZ4CXlmzVY2XUT4rd+dPOPfeY2ZG4Bg2AtkBsC60SKBNVNe5yRMIg+h
-         stmvvSuahZNhlWJl3DFRuQ+dEedYVajVUvUIMyXE=
+        b=de3sv+ntnHaggEJkZyKPm4LWxKT2UgfGdaEUjc1tWl1DmRWMhuH8Zop07fZGzpg7P
+         GcVpxVFrxK3Jn1wL/2GrrAVQLsBhQeOnovIIx2lgqjJ5WpKc+tJd8m1dcHrZBmOIdy
+         HB8RSKnYX6rIuRElLKqoSkDzSo1KnvofM0umqjfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 05/35] ubifs: prevent creating duplicate encrypted filenames
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/47] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
 Date:   Mon,  4 Jan 2021 16:57:08 +0100
-Message-Id: <20210104155703.649826444@linuxfoundation.org>
+Message-Id: <20210104155706.203265366@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,86 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-commit 76786a0f083473de31678bdb259a3d4167cf756d upstream.
+[ Upstream commit 16b8fe4caf499ae8e12d2ab1b1324497e36a7b83 ]
 
-As described in "fscrypt: add fscrypt_is_nokey_name()", it's possible to
-create a duplicate filename in an encrypted directory by creating a file
-concurrently with adding the directory's encryption key.
+In case an error occurs in vfio_pci_enable() before the call to
+vfio_pci_probe_mmaps(), vfio_pci_disable() will  try to iterate
+on an uninitialized list and cause a kernel panic.
 
-Fix this bug on ubifs by rejecting no-key dentries in ubifs_create(),
-ubifs_mkdir(), ubifs_mknod(), and ubifs_symlink().
+Lets move to the initialization to vfio_pci_probe() to fix the
+issue.
 
-Note that ubifs doesn't actually report the duplicate filenames from
-readdir, but rather it seems to replace the original dentry with a new
-one (which is still wrong, just a different effect from ext4).
-
-On ubifs, this fixes xfstest generic/595 as well as the new xfstest I
-wrote specifically for this bug.
-
-Fixes: f4f61d2cc6d8 ("ubifs: Implement encrypted filenames")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201118075609.120337-5-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Fixes: 05f0c03fbac1 ("vfio-pci: Allow to mmap sub-page MMIO BARs if the mmio page is exclusive")
+CC: Stable <stable@vger.kernel.org> # v4.7+
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -290,6 +290,15 @@ done:
- 	return d_splice_alias(inode, dentry);
- }
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 632653cd70e3b..2372e161cd5e8 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -114,8 +114,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
+ 	int bar;
+ 	struct vfio_pci_dummy_resource *dummy_res;
  
-+static int ubifs_prepare_create(struct inode *dir, struct dentry *dentry,
-+				struct fscrypt_name *nm)
-+{
-+	if (fscrypt_is_nokey_name(dentry))
-+		return -ENOKEY;
-+
-+	return fscrypt_setup_filename(dir, &dentry->d_name, 0, nm);
-+}
-+
- static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
- 			bool excl)
- {
-@@ -313,7 +322,7 @@ static int ubifs_create(struct inode *di
- 	if (err)
- 		return err;
+-	INIT_LIST_HEAD(&vdev->dummy_resources_list);
+-
+ 	for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
+ 		res = vdev->pdev->resource + bar;
  
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
-@@ -977,7 +986,7 @@ static int ubifs_mkdir(struct inode *dir
- 	if (err)
- 		return err;
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
-@@ -1062,7 +1071,7 @@ static int ubifs_mknod(struct inode *dir
- 		return err;
- 	}
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err) {
- 		kfree(dev);
- 		goto out_budg;
-@@ -1146,7 +1155,7 @@ static int ubifs_symlink(struct inode *d
- 	if (err)
- 		return err;
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
+@@ -1606,6 +1604,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mutex_init(&vdev->igate);
+ 	spin_lock_init(&vdev->irqlock);
+ 	mutex_init(&vdev->ioeventfds_lock);
++	INIT_LIST_HEAD(&vdev->dummy_resources_list);
+ 	INIT_LIST_HEAD(&vdev->ioeventfds_list);
+ 	mutex_init(&vdev->vma_lock);
+ 	INIT_LIST_HEAD(&vdev->vma_list);
+-- 
+2.27.0
+
 
 
