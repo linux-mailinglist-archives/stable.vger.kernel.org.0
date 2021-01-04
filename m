@@ -2,91 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D32F02E995C
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8192E99EB
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727535AbhADP6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:58:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727293AbhADP6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 10:58:41 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871EBC061574;
-        Mon,  4 Jan 2021 07:58:00 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id x20so65411885lfe.12;
-        Mon, 04 Jan 2021 07:58:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3EGmnRyr5X4ekn3lhgCJIAOH3HIZX6HuJoFIgiIne5A=;
-        b=ETEh1F2gbphfLcdW3xIPLalLRA3f5vupSOfICX0vhGXhXx00INyaR528/FggcVmyPx
-         dmj/mkQHOYzBdAZ8gfj7DqRDU3qb3NPK6qDPR/VOqmwBqAYbHEqn4IGRnbxCYlxhQJmw
-         7rDoT/FcbzCTJViD3o7yKHU7Ce+ZStMfhg/DYi57qBmJK5GCBySqL1uZgBZ+a6WVKIII
-         V/o76swGGpcBXbWx92V6+Fs9BADjn7XQp7F69dxYCky6EAKAYqH+RdKMFhiV6FQw019A
-         I8gLq3HboLV9JAN2g4yKk+8YmqpJJoFuOqmJH3raM/xclo6tkk5n5Ep5x+4m/1D6Ivul
-         eA8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3EGmnRyr5X4ekn3lhgCJIAOH3HIZX6HuJoFIgiIne5A=;
-        b=XpoQ/3+le1k58rDovS0r3FePZTTND1QXOVGnzO94BqT878zCQTAR2aSGXfGnlk7YpJ
-         2ivh5rtee3MtxiEHJJvMjIEPdYOQ00SKaleeQ87TrIQ7edZYRH85zH6RL7cgL2zQm6Pg
-         7AooaIGkLOTWJQgMc+pIHCxjJwN5flH4R6yy5LHuiWVjWcMgWbc7af2Cf2mk+YfqtDdG
-         ea4y2FJMeHaX1MsNCJnyLC2WpQbKhfXlMDLeJ2pFmHNKhwXGISfvozXtMOiZTe4cqmP0
-         P/TxT2XBXuDlExxBRofQAhi4TXs4NAQXaW0wjFPmBmLMpS8jL3hcDC5weAs0YQdOU1SO
-         Zo1A==
-X-Gm-Message-State: AOAM532kKvXOT2L7PZ/A4VBeF8SFWwYeKqBTk6T4l1RNVTvL2pc+qUVN
-        41BD/nii/FAwsM9IWVk912YTiy4j4txCGBDP3es=
-X-Google-Smtp-Source: ABdhPJymAII9319mW2lvf9Ihhj6dyeGy8xw7TY6lLt+hZw8BDX/IaP2UuHc/of7JD4rVDvLjCHsHXbJzS1DV8usg33E=
-X-Received: by 2002:a05:6512:3288:: with SMTP id p8mr30124378lfe.443.1609775879070;
- Mon, 04 Jan 2021 07:57:59 -0800 (PST)
+        id S1728176AbhADQE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40970 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728095AbhADQDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:03:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B86122516;
+        Mon,  4 Jan 2021 16:02:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609776173;
+        bh=TBFURPubX4lJg4Bp/uUQfXFe64zJLuJrE0DcFxmIhis=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ULQIIaa2watUVEbDzaf1+BE70vlxwGOTKPULJG2ghpIduIxdloeHjdE68CHBEytSY
+         jyaqVyd1tPDN34yB2sjusNIMsvoENeiLfZ9Ds1WRVAPAA6DzmuKjQVoLbaok6d9q3e
+         ZKm71xeIIaSOKc7MTQFYV8iCPuHUPs4/Kg+3wu1c=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 54/63] NFSv4.2: Dont error when exiting early on a READ_PLUS buffer overflow
+Date:   Mon,  4 Jan 2021 16:57:47 +0100
+Message-Id: <20210104155711.434974524@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-References: <20210104152058.36642-1-frederic@kernel.org> <20210104152058.36642-4-frederic@kernel.org>
-In-Reply-To: <20210104152058.36642-4-frederic@kernel.org>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Mon, 4 Jan 2021 12:57:47 -0300
-Message-ID: <CAOMZO5ChFtTj0O0RVxmq-pX8acuvvGhL4ON4bu9fvwBqj_fyrQ@mail.gmail.com>
-Subject: Re: [PATCH 3/4] ARM: imx6q: Fix missing need_resched() check after rcu_idle_enter()
-To:     Frederic Weisbecker <frederic@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Frederic,
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-On Mon, Jan 4, 2021 at 12:21 PM Frederic Weisbecker <frederic@kernel.org> wrote:
->
-> Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
-> kthread (rcuog) to be serviced.
->
-> Usually a wake up happening while running the idle task is spotted in
-> one of the need_resched() checks carefully placed within the idle loop
-> that can break to the scheduler.
->
-> Unfortunately imx6q_enter_wait() is beyond the last generic
-> need_resched() check and it performs a wfi right away after the call to
-> rcu_idle_enter(). We may halt the CPU with a resched request unhandled,
-> leaving the task hanging.
->
-> Fix this with performing a last minute need_resched() check after
-> calling rcu_idle_enter().
+[ Upstream commit 503b934a752f7e789a5f33217520e0a79f3096ac ]
 
-Shouldn't tif_need_resched() be used instead of need_resched() in the
-commit log?
+Expanding the READ_PLUS extents can cause the read buffer to overflow.
+If it does, then don't error, but just exit early.
+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/nfs/nfs42xdr.c | 36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
+
+diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
+index 8432bd6b95f08..c078f88552695 100644
+--- a/fs/nfs/nfs42xdr.c
++++ b/fs/nfs/nfs42xdr.c
+@@ -1019,29 +1019,24 @@ static int decode_deallocate(struct xdr_stream *xdr, struct nfs42_falloc_res *re
+ 	return decode_op_hdr(xdr, OP_DEALLOCATE);
+ }
+ 
+-static int decode_read_plus_data(struct xdr_stream *xdr, struct nfs_pgio_res *res,
+-				 uint32_t *eof)
++static int decode_read_plus_data(struct xdr_stream *xdr,
++				 struct nfs_pgio_res *res)
+ {
+ 	uint32_t count, recvd;
+ 	uint64_t offset;
+ 	__be32 *p;
+ 
+ 	p = xdr_inline_decode(xdr, 8 + 4);
+-	if (unlikely(!p))
+-		return -EIO;
++	if (!p)
++		return 1;
+ 
+ 	p = xdr_decode_hyper(p, &offset);
+ 	count = be32_to_cpup(p);
+ 	recvd = xdr_align_data(xdr, res->count, count);
+ 	res->count += recvd;
+ 
+-	if (count > recvd) {
+-		dprintk("NFS: server cheating in read reply: "
+-				"count %u > recvd %u\n", count, recvd);
+-		*eof = 0;
++	if (count > recvd)
+ 		return 1;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -1052,18 +1047,16 @@ static int decode_read_plus_hole(struct xdr_stream *xdr, struct nfs_pgio_res *re
+ 	__be32 *p;
+ 
+ 	p = xdr_inline_decode(xdr, 8 + 8);
+-	if (unlikely(!p))
+-		return -EIO;
++	if (!p)
++		return 1;
+ 
+ 	p = xdr_decode_hyper(p, &offset);
+ 	p = xdr_decode_hyper(p, &length);
+ 	recvd = xdr_expand_hole(xdr, res->count, length);
+ 	res->count += recvd;
+ 
+-	if (recvd < length) {
+-		*eof = 0;
++	if (recvd < length)
+ 		return 1;
+-	}
+ 	return 0;
+ }
+ 
+@@ -1088,12 +1081,12 @@ static int decode_read_plus(struct xdr_stream *xdr, struct nfs_pgio_res *res)
+ 
+ 	for (i = 0; i < segments; i++) {
+ 		p = xdr_inline_decode(xdr, 4);
+-		if (unlikely(!p))
+-			return -EIO;
++		if (!p)
++			goto early_out;
+ 
+ 		type = be32_to_cpup(p++);
+ 		if (type == NFS4_CONTENT_DATA)
+-			status = decode_read_plus_data(xdr, res, &eof);
++			status = decode_read_plus_data(xdr, res);
+ 		else if (type == NFS4_CONTENT_HOLE)
+ 			status = decode_read_plus_hole(xdr, res, &eof);
+ 		else
+@@ -1102,12 +1095,17 @@ static int decode_read_plus(struct xdr_stream *xdr, struct nfs_pgio_res *res)
+ 		if (status < 0)
+ 			return status;
+ 		if (status > 0)
+-			break;
++			goto early_out;
+ 	}
+ 
+ out:
+ 	res->eof = eof;
+ 	return 0;
++early_out:
++	if (unlikely(!i))
++		return -EIO;
++	res->eof = 0;
++	return 0;
+ }
+ 
+ static int decode_seek(struct xdr_stream *xdr, struct nfs42_seek_res *res)
+-- 
+2.27.0
+
+
+
