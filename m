@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3DB2E99C5
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C512E9A39
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729074AbhADQDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:03:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40716 "EHLO mail.kernel.org"
+        id S1728543AbhADQBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:01:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729060AbhADQDP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:03:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54DD322525;
-        Mon,  4 Jan 2021 16:02:33 +0000 (UTC)
+        id S1728531AbhADQBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:01:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99E26224DF;
+        Mon,  4 Jan 2021 16:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776153;
-        bh=WfuIME2z6Gp2ljOyk9vHEyeNlTivkrOPmfy+3WR/rwM=;
+        s=korg; t=1609776036;
+        bh=sMyrdGaSkUI7HSmRU9MW0autRFm3hR4EuYecnD49Y8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hOlgx+3iCGiOnOBa11bWF/mrfURRrCPBWvre5xOT2TaX3L1dOx4qUZpUb8/iOFNMX
-         FRCtuC6t+g6/q0bEvWi56PvYRuudCKSzW66vj3sYuLpHaE3NqOUzDcQLo6ZIpdMmNv
-         09DscFNI4l5HJN/FUL5YX0by/TDS+412/x5YWCWw=
+        b=BoJp6xozDJbbOcvAMBVfO7aeQydLyigcbUM5I721t70mUAwB47fUWezCp+i2vH4Hc
+         eSVHErjflDNlfv2cFMuiv1X4ItsYPr9MuFEZppYK0N5mdqr6BYwC1K3+6YkZrQFK61
+         pGon30ew9Xr1ARla2uJbA9+Jv+O4sYxZaXm3bsos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Light Hsieh <Light.Hsieh@mediatek.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 46/63] f2fs: avoid race condition for shrinker count
+Subject: [PATCH 5.4 40/47] NFSv4: Fix a pNFS layout related use-after-free race when freeing the inode
 Date:   Mon,  4 Jan 2021 16:57:39 +0100
-Message-Id: <20210104155711.049210727@linuxfoundation.org>
+Message-Id: <20210104155707.667059998@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
-References: <20210104155708.800470590@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,234 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit a95ba66ac1457b76fe472c8e092ab1006271f16c ]
+[ Upstream commit b6d49ecd1081740b6e632366428b960461f8158b ]
 
-Light reported sometimes shinker gets nat_cnt < dirty_nat_cnt resulting in
-wrong do_shinker work. Let's avoid to return insane overflowed value by adding
-single tracking value.
+When returning the layout in nfs4_evict_inode(), we need to ensure that
+the layout is actually done being freed before we can proceed to free the
+inode itself.
 
-Reported-by: Light Hsieh <Light.Hsieh@mediatek.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c |  2 +-
- fs/f2fs/debug.c      | 11 ++++++-----
- fs/f2fs/f2fs.h       | 10 ++++++++--
- fs/f2fs/node.c       | 29 ++++++++++++++++++-----------
- fs/f2fs/node.h       |  4 ++--
- fs/f2fs/shrinker.c   |  4 +---
- 6 files changed, 36 insertions(+), 24 deletions(-)
+ fs/nfs/nfs4super.c |  2 +-
+ fs/nfs/pnfs.c      | 33 +++++++++++++++++++++++++++++++--
+ fs/nfs/pnfs.h      |  5 +++++
+ 3 files changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 023462e80e58d..b39bf416d5114 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1600,7 +1600,7 @@ int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 			goto out;
- 		}
+diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
+index 04c57066a11af..b90642b022eb9 100644
+--- a/fs/nfs/nfs4super.c
++++ b/fs/nfs/nfs4super.c
+@@ -96,7 +96,7 @@ static void nfs4_evict_inode(struct inode *inode)
+ 	nfs_inode_return_delegation_noreclaim(inode);
+ 	/* Note that above delegreturn would trigger pnfs return-on-close */
+ 	pnfs_return_layout(inode);
+-	pnfs_destroy_layout(NFS_I(inode));
++	pnfs_destroy_layout_final(NFS_I(inode));
+ 	/* First call standard NFS clear_inode() code */
+ 	nfs_clear_inode(inode);
+ }
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 9c2b07ce57b27..9fd115c4d0a2f 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -294,6 +294,7 @@ void
+ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
+ {
+ 	struct inode *inode;
++	unsigned long i_state;
  
--		if (NM_I(sbi)->dirty_nat_cnt == 0 &&
-+		if (NM_I(sbi)->nat_cnt[DIRTY_NAT] == 0 &&
- 				SIT_I(sbi)->dirty_sentries == 0 &&
- 				prefree_segments(sbi) == 0) {
- 			f2fs_flush_sit_entries(sbi, cpc);
-diff --git a/fs/f2fs/debug.c b/fs/f2fs/debug.c
-index a8357fd4f5fab..197c914119da8 100644
---- a/fs/f2fs/debug.c
-+++ b/fs/f2fs/debug.c
-@@ -145,8 +145,8 @@ static void update_general_status(struct f2fs_sb_info *sbi)
- 		si->node_pages = NODE_MAPPING(sbi)->nrpages;
- 	if (sbi->meta_inode)
- 		si->meta_pages = META_MAPPING(sbi)->nrpages;
--	si->nats = NM_I(sbi)->nat_cnt;
--	si->dirty_nats = NM_I(sbi)->dirty_nat_cnt;
-+	si->nats = NM_I(sbi)->nat_cnt[TOTAL_NAT];
-+	si->dirty_nats = NM_I(sbi)->nat_cnt[DIRTY_NAT];
- 	si->sits = MAIN_SEGS(sbi);
- 	si->dirty_sits = SIT_I(sbi)->dirty_sentries;
- 	si->free_nids = NM_I(sbi)->nid_cnt[FREE_NID];
-@@ -278,9 +278,10 @@ static void update_mem_info(struct f2fs_sb_info *sbi)
- 	si->cache_mem += (NM_I(sbi)->nid_cnt[FREE_NID] +
- 				NM_I(sbi)->nid_cnt[PREALLOC_NID]) *
- 				sizeof(struct free_nid);
--	si->cache_mem += NM_I(sbi)->nat_cnt * sizeof(struct nat_entry);
--	si->cache_mem += NM_I(sbi)->dirty_nat_cnt *
--					sizeof(struct nat_entry_set);
-+	si->cache_mem += NM_I(sbi)->nat_cnt[TOTAL_NAT] *
-+				sizeof(struct nat_entry);
-+	si->cache_mem += NM_I(sbi)->nat_cnt[DIRTY_NAT] *
-+				sizeof(struct nat_entry_set);
- 	si->cache_mem += si->inmem_pages * sizeof(struct inmem_pages);
- 	for (i = 0; i < MAX_INO_ENTRY; i++)
- 		si->cache_mem += sbi->im[i].ino_num * sizeof(struct ino_entry);
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 9a321c52facec..e4344d98a780c 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -894,6 +894,13 @@ enum nid_state {
- 	MAX_NID_STATE,
- };
+ 	if (!lo)
+ 		return;
+@@ -304,8 +305,12 @@ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
+ 		if (!list_empty(&lo->plh_segs))
+ 			WARN_ONCE(1, "NFS: BUG unfreed layout segments.\n");
+ 		pnfs_detach_layout_hdr(lo);
++		i_state = inode->i_state;
+ 		spin_unlock(&inode->i_lock);
+ 		pnfs_free_layout_hdr(lo);
++		/* Notify pnfs_destroy_layout_final() that we're done */
++		if (i_state & (I_FREEING | I_CLEAR))
++			wake_up_var(lo);
+ 	}
+ }
  
-+enum nat_state {
-+	TOTAL_NAT,
-+	DIRTY_NAT,
-+	RECLAIMABLE_NAT,
-+	MAX_NAT_STATE,
-+};
+@@ -723,8 +728,7 @@ pnfs_free_lseg_list(struct list_head *free_me)
+ 	}
+ }
+ 
+-void
+-pnfs_destroy_layout(struct nfs_inode *nfsi)
++static struct pnfs_layout_hdr *__pnfs_destroy_layout(struct nfs_inode *nfsi)
+ {
+ 	struct pnfs_layout_hdr *lo;
+ 	LIST_HEAD(tmp_list);
+@@ -742,9 +746,34 @@ pnfs_destroy_layout(struct nfs_inode *nfsi)
+ 		pnfs_put_layout_hdr(lo);
+ 	} else
+ 		spin_unlock(&nfsi->vfs_inode.i_lock);
++	return lo;
++}
 +
- struct f2fs_nm_info {
- 	block_t nat_blkaddr;		/* base disk address of NAT */
- 	nid_t max_nid;			/* maximum possible node ids */
-@@ -909,8 +916,7 @@ struct f2fs_nm_info {
- 	struct rw_semaphore nat_tree_lock;	/* protect nat_tree_lock */
- 	struct list_head nat_entries;	/* cached nat entry list (clean) */
- 	spinlock_t nat_list_lock;	/* protect clean nat entry list */
--	unsigned int nat_cnt;		/* the # of cached nat entries */
--	unsigned int dirty_nat_cnt;	/* total num of nat entries in set */
-+	unsigned int nat_cnt[MAX_NAT_STATE]; /* the # of cached nat entries */
- 	unsigned int nat_blocks;	/* # of nat blocks */
- 
- 	/* free node ids management */
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 42394de6c7eb1..e65d73293a3f6 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -62,8 +62,8 @@ bool f2fs_available_free_memory(struct f2fs_sb_info *sbi, int type)
- 				sizeof(struct free_nid)) >> PAGE_SHIFT;
- 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
- 	} else if (type == NAT_ENTRIES) {
--		mem_size = (nm_i->nat_cnt * sizeof(struct nat_entry)) >>
--							PAGE_SHIFT;
-+		mem_size = (nm_i->nat_cnt[TOTAL_NAT] *
-+				sizeof(struct nat_entry)) >> PAGE_SHIFT;
- 		res = mem_size < ((avail_ram * nm_i->ram_thresh / 100) >> 2);
- 		if (excess_cached_nats(sbi))
- 			res = false;
-@@ -177,7 +177,8 @@ static struct nat_entry *__init_nat_entry(struct f2fs_nm_info *nm_i,
- 	list_add_tail(&ne->list, &nm_i->nat_entries);
- 	spin_unlock(&nm_i->nat_list_lock);
- 
--	nm_i->nat_cnt++;
-+	nm_i->nat_cnt[TOTAL_NAT]++;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
- 	return ne;
++void pnfs_destroy_layout(struct nfs_inode *nfsi)
++{
++	__pnfs_destroy_layout(nfsi);
  }
+ EXPORT_SYMBOL_GPL(pnfs_destroy_layout);
  
-@@ -207,7 +208,8 @@ static unsigned int __gang_lookup_nat_cache(struct f2fs_nm_info *nm_i,
- static void __del_from_nat_cache(struct f2fs_nm_info *nm_i, struct nat_entry *e)
++static bool pnfs_layout_removed(struct nfs_inode *nfsi,
++				struct pnfs_layout_hdr *lo)
++{
++	bool ret;
++
++	spin_lock(&nfsi->vfs_inode.i_lock);
++	ret = nfsi->layout != lo;
++	spin_unlock(&nfsi->vfs_inode.i_lock);
++	return ret;
++}
++
++void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
++{
++	struct pnfs_layout_hdr *lo = __pnfs_destroy_layout(nfsi);
++
++	if (lo)
++		wait_var_event(lo, pnfs_layout_removed(nfsi, lo));
++}
++
+ static bool
+ pnfs_layout_add_bulk_destroy_list(struct inode *inode,
+ 		struct list_head *layout_list)
+diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
+index f8a38065c7e47..63da33a92d831 100644
+--- a/fs/nfs/pnfs.h
++++ b/fs/nfs/pnfs.h
+@@ -255,6 +255,7 @@ struct pnfs_layout_segment *pnfs_layout_process(struct nfs4_layoutget *lgp);
+ void pnfs_layoutget_free(struct nfs4_layoutget *lgp);
+ void pnfs_free_lseg_list(struct list_head *tmp_list);
+ void pnfs_destroy_layout(struct nfs_inode *);
++void pnfs_destroy_layout_final(struct nfs_inode *);
+ void pnfs_destroy_all_layouts(struct nfs_client *);
+ int pnfs_destroy_layouts_byfsid(struct nfs_client *clp,
+ 		struct nfs_fsid *fsid,
+@@ -651,6 +652,10 @@ static inline void pnfs_destroy_layout(struct nfs_inode *nfsi)
  {
- 	radix_tree_delete(&nm_i->nat_root, nat_get_nid(e));
--	nm_i->nat_cnt--;
-+	nm_i->nat_cnt[TOTAL_NAT]--;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
- 	__free_nat_entry(e);
  }
  
-@@ -253,7 +255,8 @@ static void __set_nat_cache_dirty(struct f2fs_nm_info *nm_i,
- 	if (get_nat_flag(ne, IS_DIRTY))
- 		goto refresh_list;
- 
--	nm_i->dirty_nat_cnt++;
-+	nm_i->nat_cnt[DIRTY_NAT]++;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]--;
- 	set_nat_flag(ne, IS_DIRTY, true);
- refresh_list:
- 	spin_lock(&nm_i->nat_list_lock);
-@@ -273,7 +276,8 @@ static void __clear_nat_cache_dirty(struct f2fs_nm_info *nm_i,
- 
- 	set_nat_flag(ne, IS_DIRTY, false);
- 	set->entry_cnt--;
--	nm_i->dirty_nat_cnt--;
-+	nm_i->nat_cnt[DIRTY_NAT]--;
-+	nm_i->nat_cnt[RECLAIMABLE_NAT]++;
- }
- 
- static unsigned int __gang_lookup_nat_set(struct f2fs_nm_info *nm_i,
-@@ -2944,14 +2948,17 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 	LIST_HEAD(sets);
- 	int err = 0;
- 
--	/* during unmount, let's flush nat_bits before checking dirty_nat_cnt */
-+	/*
-+	 * during unmount, let's flush nat_bits before checking
-+	 * nat_cnt[DIRTY_NAT].
-+	 */
- 	if (enabled_nat_bits(sbi, cpc)) {
- 		down_write(&nm_i->nat_tree_lock);
- 		remove_nats_in_journal(sbi);
- 		up_write(&nm_i->nat_tree_lock);
- 	}
- 
--	if (!nm_i->dirty_nat_cnt)
-+	if (!nm_i->nat_cnt[DIRTY_NAT])
- 		return 0;
- 
- 	down_write(&nm_i->nat_tree_lock);
-@@ -2962,7 +2969,8 @@ int f2fs_flush_nat_entries(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 	 * into nat entry set.
- 	 */
- 	if (enabled_nat_bits(sbi, cpc) ||
--		!__has_cursum_space(journal, nm_i->dirty_nat_cnt, NAT_JOURNAL))
-+		!__has_cursum_space(journal,
-+			nm_i->nat_cnt[DIRTY_NAT], NAT_JOURNAL))
- 		remove_nats_in_journal(sbi);
- 
- 	while ((found = __gang_lookup_nat_set(nm_i,
-@@ -3086,7 +3094,6 @@ static int init_node_manager(struct f2fs_sb_info *sbi)
- 						F2FS_RESERVED_NODE_NUM;
- 	nm_i->nid_cnt[FREE_NID] = 0;
- 	nm_i->nid_cnt[PREALLOC_NID] = 0;
--	nm_i->nat_cnt = 0;
- 	nm_i->ram_thresh = DEF_RAM_THRESHOLD;
- 	nm_i->ra_nid_pages = DEF_RA_NID_PAGES;
- 	nm_i->dirty_nats_ratio = DEF_DIRTY_NAT_RATIO_THRESHOLD;
-@@ -3220,7 +3227,7 @@ void f2fs_destroy_node_manager(struct f2fs_sb_info *sbi)
- 			__del_from_nat_cache(nm_i, natvec[idx]);
- 		}
- 	}
--	f2fs_bug_on(sbi, nm_i->nat_cnt);
-+	f2fs_bug_on(sbi, nm_i->nat_cnt[TOTAL_NAT]);
- 
- 	/* destroy nat set cache */
- 	nid = 0;
-diff --git a/fs/f2fs/node.h b/fs/f2fs/node.h
-index 69e5859e993cf..f84541b57acbb 100644
---- a/fs/f2fs/node.h
-+++ b/fs/f2fs/node.h
-@@ -126,13 +126,13 @@ static inline void raw_nat_from_node_info(struct f2fs_nat_entry *raw_ne,
- 
- static inline bool excess_dirty_nats(struct f2fs_sb_info *sbi)
++static inline void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
++{
++}
++
+ static inline struct pnfs_layout_segment *
+ pnfs_get_lseg(struct pnfs_layout_segment *lseg)
  {
--	return NM_I(sbi)->dirty_nat_cnt >= NM_I(sbi)->max_nid *
-+	return NM_I(sbi)->nat_cnt[DIRTY_NAT] >= NM_I(sbi)->max_nid *
- 					NM_I(sbi)->dirty_nats_ratio / 100;
- }
- 
- static inline bool excess_cached_nats(struct f2fs_sb_info *sbi)
- {
--	return NM_I(sbi)->nat_cnt >= DEF_NAT_CACHE_THRESHOLD;
-+	return NM_I(sbi)->nat_cnt[TOTAL_NAT] >= DEF_NAT_CACHE_THRESHOLD;
- }
- 
- static inline bool excess_dirty_nodes(struct f2fs_sb_info *sbi)
-diff --git a/fs/f2fs/shrinker.c b/fs/f2fs/shrinker.c
-index d66de5999a26d..dd3c3c7a90ec8 100644
---- a/fs/f2fs/shrinker.c
-+++ b/fs/f2fs/shrinker.c
-@@ -18,9 +18,7 @@ static unsigned int shrinker_run_no;
- 
- static unsigned long __count_nat_entries(struct f2fs_sb_info *sbi)
- {
--	long count = NM_I(sbi)->nat_cnt - NM_I(sbi)->dirty_nat_cnt;
--
--	return count > 0 ? count : 0;
-+	return NM_I(sbi)->nat_cnt[RECLAIMABLE_NAT];
- }
- 
- static unsigned long __count_free_nids(struct f2fs_sb_info *sbi)
 -- 
 2.27.0
 
