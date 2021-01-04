@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6ABD2E94B4
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 13:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2E52E94AF
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 13:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725889AbhADMVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 07:21:52 -0500
-Received: from mail-40133.protonmail.ch ([185.70.40.133]:31058 "EHLO
-        mail-40133.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbhADMVg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 07:21:36 -0500
-Date:   Mon, 04 Jan 2021 12:20:40 +0000
+        id S1726628AbhADMVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 07:21:40 -0500
+Received: from mail-40131.protonmail.ch ([185.70.40.131]:56319 "EHLO
+        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726380AbhADMVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 07:21:40 -0500
+Date:   Mon, 04 Jan 2021 12:20:47 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1609762851; bh=hjIccLTNrNOzUNrqAIbTw81FXVcf6wB+LAQsEABOGxY=;
+        t=1609762858; bh=qSKUMkjU5GlKT1yGdK7US3YKLfx4lwIL2x207qkS1m4=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=RQmaKRugTD/OeHYkAjO46QoqnmWf4vDA/hVurOPWLM43feFjotxLEqLXf4SIdbdY0
-         GM0Jwqw3IuoKAmy8SPIi1f0sIA4ErhYws50NCN9yDJMeMAcGZwgyiODtDsVS1YDmVs
-         uFPIxJoU0niqPvOVZJQS84du1doJ9mYeFrwoKTVXk8PIk85flTUYliB03ITyCuQm0f
-         gSN00ogvn1rI7qWL1Ysru2P0GnpUAIboZt8Mm7TyhMmTke1erjEuujESu0p+1AfWy6
-         7Bg61m3T1YxJdawcNIyh3QZSCJmDSDmZVnWN8TjJ9Q0bvaCxDN1/rlVFI3PEfcwK2R
-         Ikszf/9yWBGVQ==
+        b=ZRS6F78XW6uvtedI4xk4g1iJ+rUb3117NOO/m3AJHy/9CxFxWNLx5gdwDKjyFWgI5
+         MFCi/uk6pbz7c2TcxFopT9A4g2JobpjzcC2aHktcVT7/lV8qrhCNB5XI4IGqNdWMck
+         X7nrz2ykcuQVR9gS8Uu1aUkShicCzBrDuFX3v7Mv3FKPnkYMd9ns5pxJOI2kRzYpbx
+         yaiwJj1m8b5yPTNVQAKiS8ZP13dBr5DHEqmrJFm6ypmI1rnHjsK/LrsGH+5v0EMaHz
+         O9v36XKIZmmD50PRH6fW4L1Y6JSdTIupjuazO0kN8AQepMLj+97mbm703b1mVIODO5
+         kLVSIkBU9OQMQ==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Alexander Lobakin <alobakin@pm.me>,
@@ -34,10 +34,10 @@ Cc:     Alexander Lobakin <alobakin@pm.me>,
         linux-mips@vger.kernel.org, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH mips-next 1/4] MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
-Message-ID: <20210104122016.47308-1-alobakin@pm.me>
-In-Reply-To: <20210104121729.46981-1-alobakin@pm.me>
-References: <20210104121729.46981-1-alobakin@pm.me>
+Subject: [PATCH mips-next 2/4] MIPS: vmlinux.lds.S: add ".rel.dyn" to DISCARDS
+Message-ID: <20210104122016.47308-2-alobakin@pm.me>
+In-Reply-To: <20210104122016.47308-1-alobakin@pm.me>
+References: <20210104121729.46981-1-alobakin@pm.me> <20210104122016.47308-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -50,62 +50,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MIPS uses its own declaration of rwdata, and thus it should be kept
-in sync with the asm-generic one. Currently PAGE_ALIGNED_DATA() is
-missing from the linker script, which emits the following ld
-warnings:
+GCC somehow manages to place some of the symbols from main.c into
+.rel.dyn section:
 
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/kernel/vdso.o' being placed
-in section `.data..page_aligned'
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/vdso/vdso-image.o' being placed
-in section `.data..page_aligned'
+mips-alpine-linux-musl-ld: warning: orphan section `.rel.dyn'
+from `init/main.o' being placed in section `.rel.dyn'
 
-Add the necessary declaration, so the mentioned structures will be
-placed in vmlinux as intended:
+I couldn't catch up the exact symbol, but seems like it's harmless
+to discard it from the final vmlinux as kernel doesn't use or
+support dynamic relocations.
 
-ffffffff80630580 D __end_once
-ffffffff80630580 D __start___dyndbg
-ffffffff80630580 D __start_once
-ffffffff80630580 D __stop___dyndbg
-ffffffff80634000 d mips_vdso_data
-ffffffff80638000 d vdso_data
-ffffffff80638580 D _gp
-ffffffff8063c000 T __init_begin
-ffffffff8063c000 D _edata
-ffffffff8063c000 T _sinittext
+Misc: sort DISCARDS section entries alphabetically.
 
-->
-
-ffffffff805a4000 D __end_init_task
-ffffffff805a4000 D __nosave_begin
-ffffffff805a4000 D __nosave_end
-ffffffff805a4000 d mips_vdso_data
-ffffffff805a8000 d vdso_data
-ffffffff805ac000 D mmlist_lock
-ffffffff805ac080 D tasklist_lock
-
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Cc: stable@vger.kernel.org # 4.4+
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/kernel/vmlinux.lds.S | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/kernel/vmlinux.lds.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
 S
-index 5e97e9d02f98..83e27a181206 100644
+index 83e27a181206..1c3c2e903062 100644
 --- a/arch/mips/kernel/vmlinux.lds.S
 +++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -90,6 +90,7 @@ SECTIONS
-=20
- =09=09INIT_TASK_DATA(THREAD_SIZE)
- =09=09NOSAVE_DATA
-+=09=09PAGE_ALIGNED_DATA(PAGE_SIZE)
- =09=09CACHELINE_ALIGNED_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- =09=09READ_MOSTLY_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- =09=09DATA_DATA
+@@ -221,9 +221,10 @@ SECTIONS
+ =09=09/* ABI crap starts here */
+ =09=09*(.MIPS.abiflags)
+ =09=09*(.MIPS.options)
++=09=09*(.eh_frame)
+ =09=09*(.options)
+ =09=09*(.pdr)
+ =09=09*(.reginfo)
+-=09=09*(.eh_frame)
++=09=09*(.rel.dyn)
+ =09}
+ }
 --=20
 2.30.0
 
