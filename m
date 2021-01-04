@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5541B2E9E5B
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 20:54:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A12612E9E6C
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 21:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbhADTyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 14:54:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53758 "EHLO
+        id S1726074AbhADT6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 14:58:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726253AbhADTyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 14:54:06 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 832A6C061574;
-        Mon,  4 Jan 2021 11:53:26 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id t8so17039023pfg.8;
-        Mon, 04 Jan 2021 11:53:26 -0800 (PST)
+        with ESMTP id S1726026AbhADT6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 14:58:55 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045BBC061796;
+        Mon,  4 Jan 2021 11:58:15 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id e2so19762450pgi.5;
+        Mon, 04 Jan 2021 11:58:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=HEB26ZuDR1OsXDfZtGVXbixSB+UcGwt3oGX0iGMB+Ec=;
-        b=SP4nrpwa4P2fs5bOA12WT06Q0n4MnUM4DqGyrCMHiGhWN1TjB6If7TnEOfssRY1oVb
-         YoFmoyavBfFh3xvBQ0AgI4yAIuRAW5nJt72IUnClxaZkOgse5xvi2+fHr8r9kgl3rpN8
-         CZFroAW+sl3UFmLQBronoaG8yVTfuIgb4zDp/ZdBvf21KUImQdwm3vwTC5D880uCUTfz
-         SbWaaFCM/JV5S3/HT79msSQZ6aEJQ67irOZ8UXJenXY06D8gTerTwClho0Uw06UbPAGI
-         wV1kC3ZHYI6PY/sQ/Kn9fpcS52yn3aMM2bXhYlD9amIBgxIsxIa1+qoM/npwsXW3UwEn
-         BLTg==
+        bh=0/gU3Gays2AOZSg4NOGtjLAjgq1YQdDpSGfnHt26+wA=;
+        b=HQmM+7iDZ6EeD3CAr+MWD/le9Y3qOcO1a4/P/q8TDXY63PCOKQZ2sqSAgnLCZevaVe
+         7T1bjopmfq6rkAIM8QKp5xdzUK5D11EPKZUTa69a0x4XRjsFnZOqlf54v1LDVIUqTGiE
+         dhx0Enmwo/cUwSXAwXGPpvSqpXV+qvpLs6bZrf1QVxzuHX1wW7ldUPagaKHdPuwD3FLT
+         Z7l9Il1pSZzpARrIxZk/1x1y74kVpM+ApWaqatTmoDnmFLTvUAzkizxG6yuSj3AVBbjL
+         nWEck2GToRweuDQJ6ICYg8gHIdP65+iLrPSNOr+LyliJGtTzYhdnQmAvpdVu+8qAcuXl
+         neQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=HEB26ZuDR1OsXDfZtGVXbixSB+UcGwt3oGX0iGMB+Ec=;
-        b=Qb+1yYW0NdiKLAMYUwOShFq+krdCvbXhMn821rO7/T8mA293+P05S71oFPE4fb7mM0
-         n8lbaCih9JCG5vCfixZ7HlPqlsbUs5wDmqE4YQfYMzLqHUERjJbpksqynk2hOqyQ8Roa
-         CD6duUEqir5vu58BrYJEZ8qaIHcOH0ZazdsuKmysDixD8bQoC7u9aTEhi75Bn7LyPqGu
-         76RobFLLfSiC4CqtSEuYoFi8kW9srXBqxjHyMhe4SfbBGrc6aI5AYYhiyNwO0o8WXEQX
-         woQ7qTMZJNT8N4Wc1SR11H+j/b09vhZCL/mA/JCLxN88QzZouj2aiylFreGco3f0vdCh
-         lkjA==
-X-Gm-Message-State: AOAM532W11EfpcwE6nY2YJc7ao3qUY+BzzGo9/2LwMiwEEKXHbcQQLRe
-        x+vLBVELQi5wQPfN9nicQyryckKtDa4=
-X-Google-Smtp-Source: ABdhPJyakq7WbMWcqKHELathMmwhNLHlgF0dGMqrOZ5PFyvzwxoAohXhnDgKJwDA1xb/nGgEt0V+Hw==
-X-Received: by 2002:a63:b05:: with SMTP id 5mr73495198pgl.163.1609790005677;
-        Mon, 04 Jan 2021 11:53:25 -0800 (PST)
+        bh=0/gU3Gays2AOZSg4NOGtjLAjgq1YQdDpSGfnHt26+wA=;
+        b=Q55Luxbq+kfsh0PEsmhqWqhIyhX2XWDKbRCnXYHrQXhDoOxqpZLqr8Qokk9xdhHEdL
+         WmXguXNYIZQLHDHk94NZhlhChVOhHn5jojUYLWk1SbxlzH1Ud51zuWvdSdifE5AfGOsT
+         deFlttiIHbz5IDXc0q6UYbOpiGxNHRFveorQftlWQGB+XbW/4YYsUbdZOJRn8/Dwn60h
+         6f2sb2HPlSBmp6LsaRIoh2x+zB+XIDMHh3GugWEkC+NyDTklR61benpRQ/uQsHVmTiMC
+         6qnCoXOPuo9FQWwdWnCTpotML18JIQpWhFON/OULd8ZFHpkjl79hJTQjuTQSq8VCk1+/
+         NUEQ==
+X-Gm-Message-State: AOAM533m/tl5TzHAoXueGA8O8O9CssGQySR6bqcSeiv0IAiEfY9QDovC
+        ZU/fxT5nrCsqthq+IRKP5XLCyiD9x1E=
+X-Google-Smtp-Source: ABdhPJzN04ExqfTeVxZNAhA//0fsH62e0ubr7umko3Eu4oupEjxlFRmCjRI+mO46guc4J45kFs9eZQ==
+X-Received: by 2002:a63:8c15:: with SMTP id m21mr58285016pgd.396.1609790292977;
+        Mon, 04 Jan 2021 11:58:12 -0800 (PST)
 Received: from [10.67.48.230] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id 19sm55269863pfn.133.2021.01.04.11.53.24
+        by smtp.googlemail.com with ESMTPSA id d133sm52033844pfd.6.2021.01.04.11.58.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Jan 2021 11:53:24 -0800 (PST)
-Subject: Re: [PATCH 1/2] net: dsa: lantiq_gswip: Enable GSWIP_MII_CFG_EN also
- for internal PHYs
+        Mon, 04 Jan 2021 11:58:12 -0800 (PST)
+Subject: Re: [PATCH 2/2] net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register
+ access
 To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         hauke@hauke-m.de, netdev@vger.kernel.org
 Cc:     andrew@lunn.ch, vivien.didelot@gmail.com, olteanv@gmail.com,
         davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
 References: <20210103012544.3259029-1-martin.blumenstingl@googlemail.com>
- <20210103012544.3259029-2-martin.blumenstingl@googlemail.com>
+ <20210103012544.3259029-3-martin.blumenstingl@googlemail.com>
 From:   Florian Fainelli <f.fainelli@gmail.com>
 Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
  mQGiBEjPuBIRBACW9MxSJU9fvEOCTnRNqG/13rAGsj+vJqontvoDSNxRgmafP8d3nesnqPyR
@@ -112,12 +112,12 @@ Autocrypt: addr=f.fainelli@gmail.com; prefer-encrypt=mutual; keydata=
  caxTGgc5zzQHeX67eMzrGomG3ZnIxmd1sAbgvJUDaD2GrYlulfwGWwWyTNbWRvMighVdPkSF
  6XFgQaosWxkV0OELLy2N485YrTr2Uq64VKyxpncLh50e2RnyAJ9Za0Dx0yyp44iD1OvHtkEI
  M5kY0ACeNhCZJvZ5g4C2Lc9fcTHu8jxmEkI=
-Message-ID: <9aac4f4a-4355-ea64-9c82-33e57e93e6a7@gmail.com>
-Date:   Mon, 4 Jan 2021 11:53:23 -0800
+Message-ID: <d1a79b89-4a85-49c7-b1f1-dc3c7b8a77eb@gmail.com>
+Date:   Mon, 4 Jan 2021 11:58:10 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210103012544.3259029-2-martin.blumenstingl@googlemail.com>
+In-Reply-To: <20210103012544.3259029-3-martin.blumenstingl@googlemail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -126,13 +126,21 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 1/2/21 5:25 PM, Martin Blumenstingl wrote:
-> Enable GSWIP_MII_CFG_EN also for internal PHYs to make traffic flow.
-> Without this the PHY link is detected properly and ethtool statistics
-> for TX are increasing but there's no RX traffic coming in.
+> There is one GSWIP_MII_CFG register for each switch-port except the CPU
+> port. The register offset for the first port is 0x0, 0x02 for the
+> second, 0x04 for the third and so on.
+> 
+> Update the driver to not only restrict the GSWIP_MII_CFG registers to
+> ports 0, 1 and 5. Handle ports 0..5 instead but skip the CPU port. This
+> means we are not overwriting the configuration for the third port (port
+> two since we start counting from zero) with the settings for the sixth
+> port (with number five) anymore.
+> 
+> The GSWIP_MII_PCDU(p) registers are not updated because there's really
+> only three (one for each of the following ports: 0, 1, 5).
 > 
 > Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
 > Cc: stable@vger.kernel.org
-> Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
 > Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
