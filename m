@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C11072E9A48
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 386FA2E9961
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728693AbhADQIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:08:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38872 "EHLO mail.kernel.org"
+        id S1727693AbhADP6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbhADQBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB05F224D2;
-        Mon,  4 Jan 2021 16:01:37 +0000 (UTC)
+        id S1727739AbhADP6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:58:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E678421D93;
+        Mon,  4 Jan 2021 15:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776098;
-        bh=dM5Mv6sIRfVrmAb6P2xDAxq9iPE1eI4jm2Z3Kndta5E=;
+        s=korg; t=1609775886;
+        bh=OT6Z8qD8NE1bhrN0wZ7QV8xGM5jKc/cIm7SYjE8KTos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUY6OkQ8r2MY7SdAGnCWCVgh8EdA4hArLNZUabPRG/WtmaPPL5z8d+apRxfcVUMqD
-         U4Ehdjm1GEuiB+MMyDtWXqnoH7Ogi+Uue8pUjukP9qwfa2RQDEQV5I9+U3M5+gLnmA
-         n660Cck6WNs2IMuXzBLBC6y2QGdtYCqmQOv0NLX0=
+        b=c0AB8YPQtiknO2zGlMQq0uTqkLueL7af03DlmlEojPCp764BEXQ6Ld3zR2vOs4GbG
+         qdjXlAQCGXR0dMLlb4mjRxQ2fiFS/ga/0otHXBVzgpLqiDTL2edjHYTMA2aUYl7v7U
+         LHrJMgUj5AyVc0HDu/N1fj3/DbqoQugbmYnOqM4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 20/63] io_uring: fix io_sqe_files_unregister() hangs
+        stable@vger.kernel.org, "Denis V. Lunev" <den@openvz.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 10/35] KVM: x86: reinstate vendor-agnostic check on SPEC_CTRL cpuid bits
 Date:   Mon,  4 Jan 2021 16:57:13 +0100
-Message-Id: <20210104155709.797363028@linuxfoundation.org>
+Message-Id: <20210104155703.901508760@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
-References: <20210104155708.800470590@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +40,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 1ffc54220c444774b7f09e6d2121e732f8e19b94 upstream.
+[ Upstream commit 39485ed95d6b83b62fa75c06c2c4d33992e0d971 ]
 
-io_sqe_files_unregister() uninterruptibly waits for enqueued ref nodes,
-however requests keeping them may never complete, e.g. because of some
-userspace dependency. Make sure it's interruptible otherwise it would
-hang forever.
+Until commit e7c587da1252 ("x86/speculation: Use synthetic bits for
+IBRS/IBPB/STIBP"), KVM was testing both Intel and AMD CPUID bits before
+allowing the guest to write MSR_IA32_SPEC_CTRL and MSR_IA32_PRED_CMD.
+Testing only Intel bits on VMX processors, or only AMD bits on SVM
+processors, fails if the guests are created with the "opposite" vendor
+as the host.
 
-Cc: stable@vger.kernel.org # 5.6+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While at it, also tweak the host CPU check to use the vendor-agnostic
+feature bit X86_FEATURE_IBPB, since we only care about the availability
+of the MSR on the host here and not about specific CPUID bits.
 
+Fixes: e7c587da1252 ("x86/speculation: Use synthetic bits for IBRS/IBPB/STIBP")
+Cc: stable@vger.kernel.org
+Reported-by: Denis V. Lunev <den@openvz.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ arch/x86/kvm/cpuid.h | 14 ++++++++++++++
+ arch/x86/kvm/svm.c   | 13 +++----------
+ arch/x86/kvm/vmx.c   |  6 +++---
+ 3 files changed, 20 insertions(+), 13 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -941,6 +941,10 @@ enum io_mem_account {
- 	ACCT_PINNED,
- };
- 
-+static void destroy_fixed_file_ref_node(struct fixed_file_ref_node *ref_node);
-+static struct fixed_file_ref_node *alloc_fixed_file_ref_node(
-+			struct io_ring_ctx *ctx);
-+
- static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
- 			     struct io_comp_state *cs);
- static void io_cqring_fill_event(struct io_kiocb *req, long res);
-@@ -7004,11 +7008,15 @@ static void io_sqe_files_set_node(struct
- static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- {
- 	struct fixed_file_data *data = ctx->file_data;
--	struct fixed_file_ref_node *ref_node = NULL;
-+	struct fixed_file_ref_node *backup_node, *ref_node = NULL;
- 	unsigned nr_tables, i;
-+	int ret;
- 
- 	if (!data)
- 		return -ENXIO;
-+	backup_node = alloc_fixed_file_ref_node(ctx);
-+	if (!backup_node)
-+		return -ENOMEM;
- 
- 	spin_lock_bh(&data->lock);
- 	ref_node = data->node;
-@@ -7020,7 +7028,18 @@ static int io_sqe_files_unregister(struc
- 
- 	/* wait for all refs nodes to complete */
- 	flush_delayed_work(&ctx->file_put_work);
--	wait_for_completion(&data->done);
-+	do {
-+		ret = wait_for_completion_interruptible(&data->done);
-+		if (!ret)
-+			break;
-+		ret = io_run_task_work_sig();
-+		if (ret < 0) {
-+			percpu_ref_resurrect(&data->refs);
-+			reinit_completion(&data->done);
-+			io_sqe_files_set_node(data, backup_node);
-+			return ret;
-+		}
-+	} while (1);
- 
- 	__io_sqe_files_unregister(ctx);
- 	nr_tables = DIV_ROUND_UP(ctx->nr_user_files, IORING_MAX_FILES_TABLE);
-@@ -7031,6 +7050,7 @@ static int io_sqe_files_unregister(struc
- 	kfree(data);
- 	ctx->file_data = NULL;
- 	ctx->nr_user_files = 0;
-+	destroy_fixed_file_ref_node(backup_node);
- 	return 0;
+diff --git a/arch/x86/kvm/cpuid.h b/arch/x86/kvm/cpuid.h
+index d78a61408243f..7dec43b2c4205 100644
+--- a/arch/x86/kvm/cpuid.h
++++ b/arch/x86/kvm/cpuid.h
+@@ -154,6 +154,20 @@ static inline int guest_cpuid_stepping(struct kvm_vcpu *vcpu)
+ 	return x86_stepping(best->eax);
  }
  
++static inline bool guest_has_spec_ctrl_msr(struct kvm_vcpu *vcpu)
++{
++	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
++		guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) ||
++		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) ||
++		guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD));
++}
++
++static inline bool guest_has_pred_cmd_msr(struct kvm_vcpu *vcpu)
++{
++	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
++		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB));
++}
++
+ static inline bool supports_cpuid_fault(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->arch.msr_platform_info & MSR_PLATFORM_INFO_CPUID_FAULT;
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index f513110983d4c..d2dc734f5bd0d 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -4209,10 +4209,7 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		break;
+ 	case MSR_IA32_SPEC_CTRL:
+ 		if (!msr_info->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
++		    !guest_has_spec_ctrl_msr(vcpu))
+ 			return 1;
+ 
+ 		msr_info->data = svm->spec_ctrl;
+@@ -4314,10 +4311,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		break;
+ 	case MSR_IA32_SPEC_CTRL:
+ 		if (!msr->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
++		    !guest_has_spec_ctrl_msr(vcpu))
+ 			return 1;
+ 
+ 		/* The STIBP bit doesn't fault even if it's not advertised */
+@@ -4344,12 +4338,11 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		break;
+ 	case MSR_IA32_PRED_CMD:
+ 		if (!msr->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB))
++		    !guest_has_pred_cmd_msr(vcpu))
+ 			return 1;
+ 
+ 		if (data & ~PRED_CMD_IBPB)
+ 			return 1;
+-
+ 		if (!data)
+ 			break;
+ 
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index d6bcbce6c15cb..77b9ed5223f37 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -4066,7 +4066,7 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		return kvm_get_msr_common(vcpu, msr_info);
+ 	case MSR_IA32_SPEC_CTRL:
+ 		if (!msr_info->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
++		    !guest_has_spec_ctrl_msr(vcpu))
+ 			return 1;
+ 
+ 		msr_info->data = to_vmx(vcpu)->spec_ctrl;
+@@ -4180,7 +4180,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		break;
+ 	case MSR_IA32_SPEC_CTRL:
+ 		if (!msr_info->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
++		    !guest_has_spec_ctrl_msr(vcpu))
+ 			return 1;
+ 
+ 		/* The STIBP bit doesn't fault even if it's not advertised */
+@@ -4210,7 +4210,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		break;
+ 	case MSR_IA32_PRED_CMD:
+ 		if (!msr_info->host_initiated &&
+-		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
++		    !guest_has_pred_cmd_msr(vcpu))
+ 			return 1;
+ 
+ 		if (data & ~PRED_CMD_IBPB)
+-- 
+2.27.0
+
 
 
