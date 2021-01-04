@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC4A2E9A57
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8A92E9A3F
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729592AbhADQIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:08:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38872 "EHLO mail.kernel.org"
+        id S1728670AbhADQHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:07:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728613AbhADQBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8AA52250F;
-        Mon,  4 Jan 2021 16:00:55 +0000 (UTC)
+        id S1728747AbhADQCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:02:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F65921D93;
+        Mon,  4 Jan 2021 16:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776056;
-        bh=hwUyeNb9NGkxfnDkBWhFxs4Fh1afjms4BVH6fV3Jk0I=;
+        s=korg; t=1609776111;
+        bh=w9ADJ7ntWksPmduVRPlLqtVyPk6nB5N/EXcp17a0jlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRPHAbh0qcF/QmXrh68mRfOzO24txObziQDszhcHrfoC+5WZz6uPcc8C7NDp8onsC
-         qJA42t2hYyCLecnnFxcrV8eCnSQiXpnvCjiy79g8b3Mtmbw+XDnS/S0I0wGe2/QeA0
-         PmQky31o8SSFa5eRen0a2lOlcbYkLZ63UwMYtjpU=
+        b=tqyhTrvYqd/ukAsVzCHllcRsf49Jm3RaITJCa/dI16Twg6k4hMnNJSxTTtR6crsJS
+         8LNK0TSoT/naLHYct8LYlul7GaATcPuz3VAUvYWIcItppzzN+AcZ/I4b3crXhnfqf/
+         uvPB/U+x5lyth7IbikYGshZo3UXWMY4m1SQjh5y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
-        Rich Felker <dalias@aerifal.cx>, Rich Felker <dalias@libc.org>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Florian Weimer <fweimer@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 19/47] uapi: move constants from <linux/kernel.h> to <linux/const.h>
-Date:   Mon,  4 Jan 2021 16:57:18 +0100
-Message-Id: <20210104155706.669474034@linuxfoundation.org>
+        stable@vger.kernel.org, Karen Xie <kxie@chelsio.com>,
+        linux-scsi@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH 5.10 26/63] scsi: cxgb4i: Fix TLS dependency
+Date:   Mon,  4 Jan 2021 16:57:19 +0100
+Message-Id: <20210104155710.091363687@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,147 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <petr.vorel@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
+commit cb5253198f10a4cd79b7523c581e6173c7d49ddb upstream.
 
-and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
+SCSI_CXGB4_ISCSI selects CHELSIO_T4. The latter depends on TLS || TLS=n, so
+since 'select' does not check dependencies of the selected symbol,
+SCSI_CXGB4_ISCSI should also depend on TLS || TLS=n.
 
-The reason is to avoid indirect <linux/sysinfo.h> include when using
-some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
--> <linux/sysinfo.h>.
+This prevents the following kconfig warning and restricts SCSI_CXGB4_ISCSI
+to 'm' whenever TLS=m.
 
-This indirect include causes on MUSL redefinition of struct sysinfo when
-included both <sys/sysinfo.h> and some of UAPI headers:
+WARNING: unmet direct dependencies detected for CHELSIO_T4
+  Depends on [m]: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_CHELSIO [=y] && PCI [=y] && (IPV6 [=y] || IPV6 [=y]=n) && (TLS [=m] || TLS [=m]=n)
+  Selected by [y]:
+  - SCSI_CXGB4_ISCSI [=y] && SCSI_LOWLEVEL [=y] && SCSI [=y] && PCI [=y] && INET [=y] && (IPV6 [=y] || IPV6 [=y]=n) && ETHERNET [=y]
 
-    In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
-                     from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
-                     from ../include/tst_netlink.h:14,
-                     from tst_crypto.c:13:
-    x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
-     struct sysinfo {
-            ^~~~~~~
-    In file included from ../include/tst_safe_macros.h:15,
-                     from ../include/tst_test.h:93,
-                     from tst_crypto.c:11:
-    x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
-
-Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
-Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-Suggested-by: Rich Felker <dalias@aerifal.cx>
-Acked-by: Rich Felker <dalias@libc.org>
-Cc: Peter Korsgaard <peter@korsgaard.com>
-Cc: Baruch Siach <baruch@tkos.co.il>
-Cc: Florian Weimer <fweimer@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20201208220505.24488-1-rdunlap@infradead.org
+Fixes: 7b36b6e03b0d ("[SCSI] cxgb4i v5: iscsi driver")
+Cc: Karen Xie <kxie@chelsio.com>
+Cc: linux-scsi@vger.kernel.org
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/const.h              |    5 +++++
- include/uapi/linux/ethtool.h            |    2 +-
- include/uapi/linux/kernel.h             |    9 +--------
- include/uapi/linux/lightnvm.h           |    2 +-
- include/uapi/linux/mroute6.h            |    2 +-
- include/uapi/linux/netfilter/x_tables.h |    2 +-
- include/uapi/linux/netlink.h            |    2 +-
- include/uapi/linux/sysctl.h             |    2 +-
- 8 files changed, 12 insertions(+), 14 deletions(-)
+ drivers/scsi/cxgbi/cxgb4i/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/uapi/linux/const.h
-+++ b/include/uapi/linux/const.h
-@@ -28,4 +28,9 @@
- #define _BITUL(x)	(_UL(1) << (x))
- #define _BITULL(x)	(_ULL(1) << (x))
- 
-+#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
-+#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
-+
-+#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
-+
- #endif /* _UAPI_LINUX_CONST_H */
---- a/include/uapi/linux/ethtool.h
-+++ b/include/uapi/linux/ethtool.h
-@@ -14,7 +14,7 @@
- #ifndef _UAPI_LINUX_ETHTOOL_H
- #define _UAPI_LINUX_ETHTOOL_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/if_ether.h>
- 
---- a/include/uapi/linux/kernel.h
-+++ b/include/uapi/linux/kernel.h
-@@ -3,13 +3,6 @@
- #define _UAPI_LINUX_KERNEL_H
- 
- #include <linux/sysinfo.h>
--
--/*
-- * 'kernel.h' contains some often-used function prototypes etc
-- */
--#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
--#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
--
--#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
-+#include <linux/const.h>
- 
- #endif /* _UAPI_LINUX_KERNEL_H */
---- a/include/uapi/linux/lightnvm.h
-+++ b/include/uapi/linux/lightnvm.h
-@@ -21,7 +21,7 @@
- #define _UAPI_LINUX_LIGHTNVM_H
- 
- #ifdef __KERNEL__
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/ioctl.h>
- #else /* __KERNEL__ */
- #include <stdio.h>
---- a/include/uapi/linux/mroute6.h
-+++ b/include/uapi/linux/mroute6.h
-@@ -2,7 +2,7 @@
- #ifndef _UAPI__LINUX_MROUTE6_H
- #define _UAPI__LINUX_MROUTE6_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/sockios.h>
- #include <linux/in6.h>		/* For struct sockaddr_in6. */
---- a/include/uapi/linux/netfilter/x_tables.h
-+++ b/include/uapi/linux/netfilter/x_tables.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- #ifndef _UAPI_X_TABLES_H
- #define _UAPI_X_TABLES_H
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- 
- #define XT_FUNCTION_MAXNAMELEN 30
---- a/include/uapi/linux/netlink.h
-+++ b/include/uapi/linux/netlink.h
-@@ -2,7 +2,7 @@
- #ifndef _UAPI__LINUX_NETLINK_H
- #define _UAPI__LINUX_NETLINK_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/socket.h> /* for __kernel_sa_family_t */
- #include <linux/types.h>
- 
---- a/include/uapi/linux/sysctl.h
-+++ b/include/uapi/linux/sysctl.h
-@@ -23,7 +23,7 @@
- #ifndef _UAPI_LINUX_SYSCTL_H
- #define _UAPI_LINUX_SYSCTL_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/compiler.h>
- 
+--- a/drivers/scsi/cxgbi/cxgb4i/Kconfig
++++ b/drivers/scsi/cxgbi/cxgb4i/Kconfig
+@@ -4,6 +4,7 @@ config SCSI_CXGB4_ISCSI
+ 	depends on PCI && INET && (IPV6 || IPV6=n)
+ 	depends on THERMAL || !THERMAL
+ 	depends on ETHERNET
++	depends on TLS || TLS=n
+ 	select NET_VENDOR_CHELSIO
+ 	select CHELSIO_T4
+ 	select CHELSIO_LIB
 
 
