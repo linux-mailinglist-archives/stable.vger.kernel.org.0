@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 232732E9AB5
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3A12E9986
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbhADP7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
+        id S1727718AbhADQA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:00:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727973AbhADP7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8920822517;
-        Mon,  4 Jan 2021 15:58:43 +0000 (UTC)
+        id S1728461AbhADQA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2D922512;
+        Mon,  4 Jan 2021 16:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775924;
-        bh=mtQPt8Uzwmc/6ANODzPvsmDmtJPeyUPnzbZaKro9OuM=;
+        s=korg; t=1609776015;
+        bh=XG1sYVOBq0ov/YU6XesQbxeE0/DNtw3YrRR3+Q8Le90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRhOuRCMhGu/gth+E9TGyhJtjA6p+TUjPcyuYZibRHxtSLhvtZWJKpIplY0u4oxuM
-         TiQk+uyC0EpQE5WvB7ImmmeqN82Hau0pa87cazCpjkAglDKhboEBKOPdFZ0hykT3Fj
-         An+K4a+4diHpOR8eDoiYXbtJrbqPshp/BVFTFukY=
+        b=J82aRpt7F8IP7bnqTGv7mfaou5Wx6DHdomRrkYbA+8cL6Ooxm0q/6uKCruMYwmeCC
+         Qb82yPXai3TgO6IhgCcpjY59h3x2yRcSzohZqiyWTfxb0PGtQKY2m02IDchBw5eClG
+         PFg/IitJavG59DsVFHSMNloLyeyDhxlCKNw4n6tI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com,
-        syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>
-Subject: [PATCH 4.19 27/35] fcntl: Fix potential deadlock in send_sig{io, urg}()
-Date:   Mon,  4 Jan 2021 16:57:30 +0100
-Message-Id: <20210104155704.715121174@linuxfoundation.org>
+        syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Al Viro <viro@ZenIV.linux.org.uk>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 32/47] bfs: dont use WARNING: string when its just info.
+Date:   Mon,  4 Jan 2021 16:57:31 +0100
+Message-Id: <20210104155707.286492040@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,127 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 8d1ddb5e79374fb277985a6b3faa2ed8631c5b4c upstream.
+commit dc889b8d4a8122549feabe99eead04e6b23b6513 upstream.
 
-Syzbot reports a potential deadlock found by the newly added recursive
-read deadlock detection in lockdep:
+Make the printk() [bfs "printf" macro] seem less severe by changing
+"WARNING:" to "NOTE:".
 
-[...] ========================================================
-[...] WARNING: possible irq lock inversion dependency detected
-[...] 5.9.0-rc2-syzkaller #0 Not tainted
-[...] --------------------------------------------------------
-[...] syz-executor.1/10214 just changed the state of lock:
-[...] ffff88811f506338 (&f->f_owner.lock){.+..}-{2:2}, at: send_sigurg+0x1d/0x200
-[...] but this lock was taken by another, HARDIRQ-safe lock in the past:
-[...]  (&dev->event_lock){-...}-{2:2}
-[...]
-[...]
-[...] and interrupts could create inverse lock ordering between them.
-[...]
-[...]
-[...] other info that might help us debug this:
-[...] Chain exists of:
-[...]   &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
-[...]
-[...]  Possible interrupt unsafe locking scenario:
-[...]
-[...]        CPU0                    CPU1
-[...]        ----                    ----
-[...]   lock(&f->f_owner.lock);
-[...]                                local_irq_disable();
-[...]                                lock(&dev->event_lock);
-[...]                                lock(&new->fa_lock);
-[...]   <Interrupt>
-[...]     lock(&dev->event_lock);
-[...]
-[...]  *** DEADLOCK ***
+<asm-generic/bug.h> warns us about using WARNING or BUG in a format string
+other than in WARN() or BUG() family macros.  bfs/inode.c is doing just
+that in a normal printk() call, so change the "WARNING" string to be
+"NOTE".
 
-The corresponding deadlock case is as followed:
-
-	CPU 0		CPU 1		CPU 2
-	read_lock(&fown->lock);
-			spin_lock_irqsave(&dev->event_lock, ...)
-					write_lock_irq(&filp->f_owner.lock); // wait for the lock
-			read_lock(&fown-lock); // have to wait until the writer release
-					       // due to the fairness
-	<interrupted>
-	spin_lock_irqsave(&dev->event_lock); // wait for the lock
-
-The lock dependency on CPU 1 happens if there exists a call sequence:
-
-	input_inject_event():
-	  spin_lock_irqsave(&dev->event_lock,...);
-	  input_handle_event():
-	    input_pass_values():
-	      input_to_handler():
-	        handler->event(): // evdev_event()
-	          evdev_pass_values():
-	            spin_lock(&client->buffer_lock);
-	            __pass_event():
-	              kill_fasync():
-	                kill_fasync_rcu():
-	                  read_lock(&fa->fa_lock);
-	                  send_sigio():
-	                    read_lock(&fown->lock);
-
-To fix this, make the reader in send_sigurg() and send_sigio() use
-read_lock_irqsave() and read_lock_irqrestore().
-
-Reported-by: syzbot+22e87cdf94021b984aa6@syzkaller.appspotmail.com
-Reported-by: syzbot+c5e32344981ad9f33750@syzkaller.appspotmail.com
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Link: https://lkml.kernel.org/r/20201203212634.17278-1-rdunlap@infradead.org
+Reported-by: syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: "Tigran A. Aivazian" <aivazian.tigran@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fcntl.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/bfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -779,9 +779,10 @@ void send_sigio(struct fown_struct *fown
- {
- 	struct task_struct *p;
- 	enum pid_type type;
-+	unsigned long flags;
- 	struct pid *pid;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
+--- a/fs/bfs/inode.c
++++ b/fs/bfs/inode.c
+@@ -351,7 +351,7 @@ static int bfs_fill_super(struct super_b
  
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -802,7 +803,7 @@ void send_sigio(struct fown_struct *fown
- 		read_unlock(&tasklist_lock);
- 	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- }
- 
- static void send_sigurg_to_task(struct task_struct *p,
-@@ -817,9 +818,10 @@ int send_sigurg(struct fown_struct *fown
- 	struct task_struct *p;
- 	enum pid_type type;
- 	struct pid *pid;
-+	unsigned long flags;
- 	int ret = 0;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
- 
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -842,7 +844,7 @@ int send_sigurg(struct fown_struct *fown
- 		read_unlock(&tasklist_lock);
- 	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- 	return ret;
- }
- 
+ 	info->si_lasti = (le32_to_cpu(bfs_sb->s_start) - BFS_BSIZE) / sizeof(struct bfs_inode) + BFS_ROOT_INO - 1;
+ 	if (info->si_lasti == BFS_MAX_LASTI)
+-		printf("WARNING: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
++		printf("NOTE: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
+ 	else if (info->si_lasti > BFS_MAX_LASTI) {
+ 		printf("Impossible last inode number %lu > %d on %s\n", info->si_lasti, BFS_MAX_LASTI, s->s_id);
+ 		goto out1;
 
 
