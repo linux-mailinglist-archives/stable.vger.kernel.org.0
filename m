@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846692E99D5
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7320A2E9AAF
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728133AbhADQDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:03:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
+        id S1728074AbhADP7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728560AbhADQDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:03:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A36222509;
-        Mon,  4 Jan 2021 16:03:25 +0000 (UTC)
+        id S1728068AbhADP7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 688682245C;
+        Mon,  4 Jan 2021 15:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776206;
-        bh=Rpl5XNX4S2+Z7AcpERuwFeSEjczuuFk6ejVvwNWPCVI=;
+        s=korg; t=1609775932;
+        bh=bDaH0qxvKMZ3wwj/g24R05lfirUzzJc70cmssiyJNZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RA6sM0WukEYlj1tONRQ5lnPw5/4GP23Ny8wkXbsD2TeT/66q6GnnNzUNJ6szmpSAa
-         dIrdlSAXByg3xIEWWXgRu5wi1HYjfU/mVKIJEX5NBZkvzgy2IGOADfEUWX68Nktrep
-         7cQP44cRLiALIQTp/aw19bSlUvBLT8ng3llP/o3I=
+        b=L6hfPscQmEiW1QEx9mMhYDfm+DUXpTdLT8VcswgYHXfIuqbOgfzKsk8mz3ceer56W
+         0QAK44M5d5ja+LCvrDhUOqyqLEL2024rp995VHSmc22d5d8POFxI6a5vhnXiVUaw7e
+         GAANOPegoiw2bYWqn8ZH6fjWdi+XXERK8TFlbhM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 41/63] quota: Dont overflow quota file offsets
+        stable@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/35] powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
 Date:   Mon,  4 Jan 2021 16:57:34 +0100
-Message-Id: <20210104155710.813536202@linuxfoundation.org>
+Message-Id: <20210104155704.896838352@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
-References: <20210104155708.800470590@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-[ Upstream commit 10f04d40a9fa29785206c619f80d8beedb778837 ]
+[ Upstream commit ffa1797040c5da391859a9556be7b735acbe1242 ]
 
-The on-disk quota format supports quota files with upto 2^32 blocks. Be
-careful when computing quota file offsets in the quota files from block
-numbers as they can overflow 32-bit types. Since quota files larger than
-4GB would require ~26 millions of quota users, this is mostly a
-theoretical concern now but better be careful, fuzzers would find the
-problem sooner or later anyway...
+I noticed that iounmap() of msgr_block_addr before return from
+mpic_msgr_probe() in the error handling case is missing. So use
+devm_ioremap() instead of just ioremap() when remapping the message
+register block, so the mapping will be automatically released on
+probe failure.
 
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201028091551.136400-1-miaoqinglang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_tree.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/sysdev/mpic_msgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/quota/quota_tree.c b/fs/quota/quota_tree.c
-index a6f856f341dc7..c5562c871c8be 100644
---- a/fs/quota/quota_tree.c
-+++ b/fs/quota/quota_tree.c
-@@ -62,7 +62,7 @@ static ssize_t read_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+diff --git a/arch/powerpc/sysdev/mpic_msgr.c b/arch/powerpc/sysdev/mpic_msgr.c
+index 280e964e1aa88..497e86cfb12e0 100644
+--- a/arch/powerpc/sysdev/mpic_msgr.c
++++ b/arch/powerpc/sysdev/mpic_msgr.c
+@@ -196,7 +196,7 @@ static int mpic_msgr_probe(struct platform_device *dev)
  
- 	memset(buf, 0, info->dqi_usable_bs);
- 	return sb->s_op->quota_read(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- }
- 
- static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
-@@ -71,7 +71,7 @@ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
- 	ssize_t ret;
- 
- 	ret = sb->s_op->quota_write(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- 	if (ret != info->dqi_usable_bs) {
- 		quota_error(sb, "dquota write failed");
- 		if (ret >= 0)
-@@ -284,7 +284,7 @@ static uint find_free_dqentry(struct qtree_mem_dqinfo *info,
- 			    blk);
- 		goto out_buf;
- 	}
--	dquot->dq_off = (blk << info->dqi_blocksize_bits) +
-+	dquot->dq_off = ((loff_t)blk << info->dqi_blocksize_bits) +
- 			sizeof(struct qt_disk_dqdbheader) +
- 			i * info->dqi_entry_size;
- 	kfree(buf);
-@@ -559,7 +559,7 @@ static loff_t find_block_dqentry(struct qtree_mem_dqinfo *info,
- 		ret = -EIO;
- 		goto out_buf;
- 	} else {
--		ret = (blk << info->dqi_blocksize_bits) + sizeof(struct
-+		ret = ((loff_t)blk << info->dqi_blocksize_bits) + sizeof(struct
- 		  qt_disk_dqdbheader) + i * info->dqi_entry_size;
- 	}
- out_buf:
+ 	/* IO map the message register block. */
+ 	of_address_to_resource(np, 0, &rsrc);
+-	msgr_block_addr = ioremap(rsrc.start, resource_size(&rsrc));
++	msgr_block_addr = devm_ioremap(&dev->dev, rsrc.start, resource_size(&rsrc));
+ 	if (!msgr_block_addr) {
+ 		dev_err(&dev->dev, "Failed to iomap MPIC message registers");
+ 		return -EFAULT;
 -- 
 2.27.0
 
