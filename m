@@ -2,182 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 423FD2E95C1
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 14:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 131672E966B
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 14:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbhADNUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 08:20:23 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:47027 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726258AbhADNUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 08:20:20 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1kwPll-0002zL-8G; Mon, 04 Jan 2021 13:19:33 +0000
-Date:   Mon, 4 Jan 2021 14:19:28 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Wen Yang <wenyang@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org,
-        Christian Brauner <christian@brauner.io>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        David Howells <dhowells@redhat.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>,
-        Andy Lutomirsky <luto@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-Subject: Re: [PATCH 01/10] clone: add CLONE_PIDFD
-Message-ID: <20210104131928.idjsewjzobnqkvwc@wittgenstein>
-References: <20201203183204.63759-1-wenyang@linux.alibaba.com>
- <20201203183204.63759-2-wenyang@linux.alibaba.com>
- <X/MSEjmCeWHR65gL@kroah.com>
- <20210104131342.avhphyfxthtrj6vj@wittgenstein>
- <X/MVdE394m7CUQl9@kroah.com>
+        id S1726472AbhADNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 08:53:49 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39945 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725840AbhADNxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 08:53:49 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 35D01E11;
+        Mon,  4 Jan 2021 08:53:03 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 04 Jan 2021 08:53:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gXVdhV
+        Q4dgbv7quKI8tTu/j6gv8gEZd2IPDDiN/Zy/0=; b=POwaeJz3hNOehtyhk9KTwK
+        MfwUMsxtyKH5rYTD6TL2mKcvb0/egewZTKQxpZ7Gyum016jrEITi6R10lWdrK7ds
+        xqtDz1nYWxXtNKV3kY8ym1GQXpbmWhgG67WGXlJkYcEyF/EyZeLdmMZFiTC0dHLa
+        j+3uGspKBxeOhVQ2J2sO/68B74gTQDoRgpgcq9IkKxm4ReKcNlANHlbiI32L3VNH
+        pX4vPnIVHEKW5x0mLEcq1nFT1VXWVORiwQuvFHEsA1sh5hKrjvcCkfvFP7M4eg2X
+        pTt02Nx/zYso+0FpM2c0PpOwgFvD6gJ0nt47+BSWNuRuoZr1vq+lUdZ4SeeCwbpw
+        ==
+X-ME-Sender: <xms:vh3zX_A8Dp2B4bA--lQFhpYEYTqTggyLhFnB4v6EiHudX4PhDxsagg>
+    <xme:vh3zX1iuBT9AfWjj-hXYNVSq4LjrOyXvt0sAJdSPsRPuy7PIqWfc0G7gLfjX50qhV
+    l-z2HjD1zRqhg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeffedgiedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:vh3zX6mjjvAP2Tf21YKr1SztS31ZSW0A_0h2TBEy_S2kj3UFur8j0A>
+    <xmx:vh3zXxzxdEah6fO3XY-Iu0HkfW0GK89Z3HwIeE0_blt_u1zqQq8giA>
+    <xmx:vh3zX0SVfdqw0H1OpAJDuHd76FAvMLhV-CewhlPmsi0s-TpVkmbd4w>
+    <xmx:vh3zX_KDNg9g6MZwmoefWXMiHVpm8Ci6kymFKPHWaUssraiNb8HQzPUt8HE>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E2F81240057;
+        Mon,  4 Jan 2021 08:53:01 -0500 (EST)
+Subject: FAILED: patch "[PATCH] scsi: ufs: Re-enable WriteBooster after device reset" failed to apply to 5.10-stable tree
+To:     stanley.chu@mediatek.com, beanhuo@micron.com,
+        martin.petersen@oracle.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jan 2021 14:54:28 +0100
+Message-ID: <1609768468110187@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <X/MVdE394m7CUQl9@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 02:17:40PM +0100, Greg Kroah-Hartman wrote:
-> On Mon, Jan 04, 2021 at 02:13:42PM +0100, Christian Brauner wrote:
-> > On Mon, Jan 04, 2021 at 02:03:14PM +0100, Greg Kroah-Hartman wrote:
-> > > On Fri, Dec 04, 2020 at 02:31:55AM +0800, Wen Yang wrote:
-> > > > From: Christian Brauner <christian@brauner.io>
-> > > > 
-> > > > [ Upstream commit b3e5838252665ee4cfa76b82bdf1198dca81e5be ]
-> > > > 
-> > > > This patchset makes it possible to retrieve pid file descriptors at
-> > > > process creation time by introducing the new flag CLONE_PIDFD to the
-> > > > clone() system call.  Linus originally suggested to implement this as a
-> > > > new flag to clone() instead of making it a separate system call.  As
-> > > > spotted by Linus, there is exactly one bit for clone() left.
-> > > > 
-> > > > CLONE_PIDFD creates file descriptors based on the anonymous inode
-> > > > implementation in the kernel that will also be used to implement the new
-> > > > mount api.  They serve as a simple opaque handle on pids.  Logically,
-> > > > this makes it possible to interpret a pidfd differently, narrowing or
-> > > > widening the scope of various operations (e.g. signal sending).  Thus, a
-> > > > pidfd cannot just refer to a tgid, but also a tid, or in theory - given
-> > > > appropriate flag arguments in relevant syscalls - a process group or
-> > > > session. A pidfd does not represent a privilege.  This does not imply it
-> > > > cannot ever be that way but for now this is not the case.
-> > > > 
-> > > > A pidfd comes with additional information in fdinfo if the kernel supports
-> > > > procfs.  The fdinfo file contains the pid of the process in the callers
-> > > > pid namespace in the same format as the procfs status file, i.e. "Pid:\t%d".
-> > > > 
-> > > > As suggested by Oleg, with CLONE_PIDFD the pidfd is returned in the
-> > > > parent_tidptr argument of clone.  This has the advantage that we can
-> > > > give back the associated pid and the pidfd at the same time.
-> > > > 
-> > > > To remove worries about missing metadata access this patchset comes with
-> > > > a sample program that illustrates how a combination of CLONE_PIDFD, and
-> > > > pidfd_send_signal() can be used to gain race-free access to process
-> > > > metadata through /proc/<pid>.  The sample program can easily be
-> > > > translated into a helper that would be suitable for inclusion in libc so
-> > > > that users don't have to worry about writing it themselves.
-> > > > 
-> > > > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > Signed-off-by: Christian Brauner <christian@brauner.io>
-> > > > Co-developed-by: Jann Horn <jannh@google.com>
-> > > > Signed-off-by: Jann Horn <jannh@google.com>
-> > > > Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-> > > > Cc: Arnd Bergmann <arnd@arndb.de>
-> > > > Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> > > > Cc: Kees Cook <keescook@chromium.org>
-> > > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > > Cc: David Howells <dhowells@redhat.com>
-> > > > Cc: "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-> > > > Cc: Andy Lutomirsky <luto@kernel.org>
-> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > > > Cc: Aleksa Sarai <cyphar@cyphar.com>
-> > > > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > Cc: Al Viro <viro@zeniv.linux.org.uk>
-> > > > Cc: <stable@vger.kernel.org> # 4.9.x
-> > > > (clone: fix up cherry-pick conflicts for b3e583825266)
-> > > > Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-> > > > ---
-> > > >  include/linux/pid.h        |   1 +
-> > > >  include/uapi/linux/sched.h |   1 +
-> > > >  kernel/fork.c              | 119 +++++++++++++++++++++++++++++++++++++++++++--
-> > > >  3 files changed, 117 insertions(+), 4 deletions(-)
-> > > > 
-> > > > diff --git a/include/linux/pid.h b/include/linux/pid.h
-> > > > index 97b745d..7599a78 100644
-> > > > --- a/include/linux/pid.h
-> > > > +++ b/include/linux/pid.h
-> > > > @@ -73,6 +73,7 @@ struct pid_link
-> > > >  	struct hlist_node node;
-> > > >  	struct pid *pid;
-> > > >  };
-> > > > +extern const struct file_operations pidfd_fops;
-> > > >  
-> > > >  static inline struct pid *get_pid(struct pid *pid)
-> > > >  {
-> > > > diff --git a/include/uapi/linux/sched.h b/include/uapi/linux/sched.h
-> > > > index 5f0fe01..ed6e31d 100644
-> > > > --- a/include/uapi/linux/sched.h
-> > > > +++ b/include/uapi/linux/sched.h
-> > > > @@ -9,6 +9,7 @@
-> > > >  #define CLONE_FS	0x00000200	/* set if fs info shared between processes */
-> > > >  #define CLONE_FILES	0x00000400	/* set if open files shared between processes */
-> > > >  #define CLONE_SIGHAND	0x00000800	/* set if signal handlers and blocked signals shared */
-> > > > +#define CLONE_PIDFD	0x00001000	/* set if a pidfd should be placed in parent */
-> > > >  #define CLONE_PTRACE	0x00002000	/* set if we want to let tracing continue on the child too */
-> > > >  #define CLONE_VFORK	0x00004000	/* set if the parent wants the child to wake it up on mm_release */
-> > > >  #define CLONE_PARENT	0x00008000	/* set if we want to have the same parent as the cloner */
-> > > > diff --git a/kernel/fork.c b/kernel/fork.c
-> > > > index b64efec..076297a 100644
-> > > > --- a/kernel/fork.c
-> > > > +++ b/kernel/fork.c
-> > > > @@ -11,7 +11,22 @@
-> > > >   * management can be a bitch. See 'mm/memory.c': 'copy_page_range()'
-> > > >   */
-> > > >  
-> > > > +#include <linux/anon_inodes.h>
-> > > >  #include <linux/slab.h>
-> > > > +#if 0
-> > > > +#include <linux/sched/autogroup.h>
-> > > > +#include <linux/sched/mm.h>
-> > > > +#include <linux/sched/coredump.h>
-> > > > +#include <linux/sched/user.h>
-> > > > +#include <linux/sched/numa_balancing.h>
-> > > > +#include <linux/sched/stat.h>
-> > > > +#include <linux/sched/task.h>
-> > > > +#include <linux/sched/task_stack.h>
-> > > > +#include <linux/sched/cputime.h>
-> > > > +#include <linux/seq_file.h>
-> > > > +#include <linux/rtmutex.h>
-> > > > +>>>>>>> b3e58382... clone: add CLONE_PIDFD
-> > > > +#endif
-> > > 
-> > > That looks odd :(
-> > > 
-> > > Can you please refresh this patch series, and make sure it is correct
-> > > and resend it?
-> > 
-> > Uhm, this patch series has been merged at least a year ago so this looks
-> > like an accidental send.
-> > This probably isn't meant for upstream but for some alibaba specific
-> > kernel I'd reckon.
-> 
-> This was ment for the 4.19.y kernel to solve a problem reported in patch
-> 00/XX of the series.
 
-Ah, ok. Then just as an fyi: the Cc line seems to indicate 4.9 and not
-4.19.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Christian
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From bd14bf0e4a084514aa62d24d2109e0f09a93822f Mon Sep 17 00:00:00 2001
+From: Stanley Chu <stanley.chu@mediatek.com>
+Date: Tue, 8 Dec 2020 21:56:34 +0800
+Subject: [PATCH] scsi: ufs: Re-enable WriteBooster after device reset
+
+UFS 3.1 specification mentions that the WriteBooster flags listed below
+will be set to their default values, i.e. disabled, after power cycle or
+any type of reset event. Thus we need to reset the flag variables kept in
+struct hba to align with the device status and ensure that
+WriteBooster-related functions are configured properly after device reset.
+
+Without this fix, WriteBooster will not be enabled successfully after by
+ufshcd_wb_ctrl() after device reset because hba->wb_enabled remains true.
+
+Flags required to be reset to default values:
+
+ - fWriteBoosterEn: hba->wb_enabled
+
+ - fWriteBoosterBufferFlushEn: hba->wb_buf_flush_enabled
+
+ - fWriteBoosterBufferFlushDuringHibernate: No variable mapped
+
+Link: https://lore.kernel.org/r/20201208135635.15326-2-stanley.chu@mediatek.com
+Fixes: 3d17b9b5ab11 ("scsi: ufs: Add write booster feature support")
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 08c8a591e6b0..36d367eb8139 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -1221,8 +1221,13 @@ static inline void ufshcd_vops_device_reset(struct ufs_hba *hba)
+ 	if (hba->vops && hba->vops->device_reset) {
+ 		int err = hba->vops->device_reset(hba);
+ 
+-		if (!err)
++		if (!err) {
+ 			ufshcd_set_ufs_dev_active(hba);
++			if (ufshcd_is_wb_allowed(hba)) {
++				hba->wb_enabled = false;
++				hba->wb_buf_flush_enabled = false;
++			}
++		}
+ 		if (err != -EOPNOTSUPP)
+ 			ufshcd_update_evt_hist(hba, UFS_EVT_DEV_RESET, err);
+ 	}
+
