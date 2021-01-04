@@ -2,89 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6E12E96D0
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:10:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436E12E96DD
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726628AbhADOJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 09:09:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbhADOJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 09:09:22 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5ABEC061795;
-        Mon,  4 Jan 2021 06:08:41 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id l23so10935487pjg.1;
-        Mon, 04 Jan 2021 06:08:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vk8C9HoW2pvmUdV2sr6e7zZzLcVm9WJ4tIscz6SlA1k=;
-        b=cD4XfqnRq1Ej9DBPW1so9hBX3Lx8ekvxk+tj1w7tvqIyuhg8mqCs3VFQ2zVsK0LysM
-         HLGhaeGn3kXSV7443KGWOAXqkc7m2vm3r5RywkG8pEjdkS0Ui2udOiQt8n+dFVjq8FPW
-         LeHe6nltRTjlNwe3lwgDZdNaXvIT/KuzR1yAZJTTif9NgcBypFyLXqHjka+0dlFHwo6V
-         ui3vS6uiBCoBROOKf7gvS6GzbcN251aeQJxeopuzhQpSmkfIDY7wyP9A6s1b3dXTTEIP
-         AZi+1D1hKEJodkks3esE+JYg/gYWN4PuU+oE/bkbTMemRGw++HELkLttbd/q5xJktIWQ
-         gZHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vk8C9HoW2pvmUdV2sr6e7zZzLcVm9WJ4tIscz6SlA1k=;
-        b=g7kakHf+IJKPFgC6WfYHcDwpOtbt7o0CnYUQ6IFG2YyGfeyukpaSAsLfG+OhYF1AGi
-         pC9IV2X9b72YSqA0budiNqsja289/zPXPEDnenYm43HzkdVbw+xtTh0L4BAess3+8Cga
-         MPO3wiskOEIypsn9q9f6EozNPbGy4rnDrQeiY5Ek5NJjNTbYDvf65XAMmOYm4bV/Ef34
-         aFHGU3Dp90TAc546GVw9bO8Wz0qc3fZPUvKZxS64L4Z/IxSeEqRtR/tfBBO/QPFXLION
-         /QQQPDDTdXiAwDwst1jpkjmSNnPn6ChkIbDNTDZrxrORufUKXd7dS1+1IsLXAOatu0SN
-         8Uig==
-X-Gm-Message-State: AOAM530Hnhau0MJpNx8Sj+U3CRlOOqpoR/4P7JpsQ50Ca4mqDCtXQ2GA
-        6FCZ+OaQSaDiSlXBaiLW2a3e7CYhH84s2WN4gYM=
-X-Google-Smtp-Source: ABdhPJz3sGR57cWmWPiqGMfehlV2pOUP4d8PEdBjHsYs+Sw1WTYBKvQCVUFrnv+X+lyX1XQGHlmq562Fbl8zDHnMfc4=
-X-Received: by 2002:a17:902:b7c3:b029:da:76bc:2aa9 with SMTP id
- v3-20020a170902b7c3b02900da76bc2aa9mr72963723plz.21.1609769321325; Mon, 04
- Jan 2021 06:08:41 -0800 (PST)
+        id S1727207AbhADOKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 09:10:37 -0500
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:34525 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726616AbhADOKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 09:10:36 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id DE5751C67;
+        Mon,  4 Jan 2021 09:09:30 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 04 Jan 2021 09:09:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dFx6lA
+        h9bhRRo5YmYyzpwfYIGSR/BCCcCXfMcrIrlTU=; b=f4dffG98WPKTrSbQaqOh0v
+        2TNcmvpL8YElWAAFbhT2AodEguPXB/uGdRWNP/6RQFVPKjcehCptqWREOdTbmITb
+        ERSd7wSnF/VP80+onmt5L2lM9jpuiA5wDyQwTGD+AKuGeOZvTh5ALAzghJAcDJ+p
+        w6lzIkjt7tFwPs6a5FXyhixKJikq5xUi86F1O5V+KFWGWVN9VkGXh/v9HISOtvDg
+        fHRudjgytkpY34aZLFqXngrSqTbbMUqimjci1KVy/ZkW/6tzzUqV3izXDD/LHenx
+        7r9PyMNirpV/LEZZEFqrCvTv39rdWWUuuBzaOerx7XIii7HcD3VK95Xkcd4Hj3iA
+        ==
+X-ME-Sender: <xms:miHzX6ylpCQww8FRu-QotAicU6RqFmGE52lfnNq8jqZ4LMr6QT16jA>
+    <xme:miHzX4R9peU1E-1F_CWJ6Iz6338mDbImOyy15p2E6KJLndMOwnM2QpYjVDn59wWLP
+    dmDA3EU1uO3zg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeffedgieegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:miHzX1uKYAwkVD7JZZjAjg9yBF2aQDW7KRJ4xcz68-lk49jPGGdLvg>
+    <xmx:miHzXyugcRgr6hfW98_S4pzKHeyUphrIR-1I37AqqdY840O_kNJPWA>
+    <xmx:miHzXzzBljHbetL8Hp9LUcNcGQCaxXcBq3BqlBQuNDtcakkjJb5oEA>
+    <xmx:miHzXwUhQNOzFTQaX9W4nyKCG0ge0vTVfQMqZQfHF7CV5EFmKbE5ZrIzyUI>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D4FD4108005C;
+        Mon,  4 Jan 2021 09:09:29 -0500 (EST)
+Subject: FAILED: patch "[PATCH] perf: Break deadlock involving exec_update_mutex" failed to apply to 5.10-stable tree
+To:     peterz@infradead.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jan 2021 15:10:56 +0100
+Message-ID: <160976945620871@kroah.com>
 MIME-Version: 1.0
-References: <20201223143644.33341-1-heikki.krogerus@linux.intel.com>
- <ae94a191-4273-0000-deda-4859034343b8@redhat.com> <20210104122343.GT4077@smile.fi.intel.com>
- <c59bb4a0-62bc-3390-dd29-758d415c59fa@redhat.com>
-In-Reply-To: <c59bb4a0-62bc-3390-dd29-758d415c59fa@redhat.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Mon, 4 Jan 2021 16:09:30 +0200
-Message-ID: <CAHp75VerY2PyBeRvv0kkDhthyko1V3di3EBALK6i-G29HYZgeg@mail.gmail.com>
-Subject: Re: [PATCH] ACPI / scan: Don't create platform device for INT3515
- ACPI nodes
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Moody Salem <moody@uniswap.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 4, 2021 at 4:01 PM Hans de Goede <hdegoede@redhat.com> wrote:
-> On 1/4/21 1:23 PM, Andy Shevchenko wrote:
 
-...
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> > I'm wondering if my reply has been seen...
-> >
-> > https://lore.kernel.org/platform-driver-x86/ae94a191-4273-0000-deda-4859034343b8@redhat.com/T/#m30308ca22cd0ce266aa6913ab7ef1fc56b3279de
->
-> Yes I've done the s/Link/BugLink/ in the commit msg and fixed up the
-> typo-s in the comment block locally. I should have mentioned that in
-> my reply instead of just blindly using the template-reply which I have for
-> this, sorry; and thank you for the review.
+thanks,
 
-Ah, thanks!
-No problem.
+greg k-h
 
--- 
-With Best Regards,
-Andy Shevchenko
+------------------ original commit in Linus's tree ------------------
+
+From 78af4dc949daaa37b3fcd5f348f373085b4e858f Mon Sep 17 00:00:00 2001
+From: "peterz@infradead.org" <peterz@infradead.org>
+Date: Fri, 28 Aug 2020 14:37:20 +0200
+Subject: [PATCH] perf: Break deadlock involving exec_update_mutex
+
+Syzbot reported a lock inversion involving perf. The sore point being
+perf holding exec_update_mutex() for a very long time, specifically
+across a whole bunch of filesystem ops in pmu::event_init() (uprobes)
+and anon_inode_getfile().
+
+This then inverts against procfs code trying to take
+exec_update_mutex.
+
+Move the permission checks later, such that we need to hold the mutex
+over less code.
+
+Reported-by: syzbot+db9cdf3dd1f64252c6ef@syzkaller.appspotmail.com
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index a21b0be2f22c..19ae6c931c52 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -11832,24 +11832,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		goto err_task;
+ 	}
+ 
+-	if (task) {
+-		err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
+-		if (err)
+-			goto err_task;
+-
+-		/*
+-		 * Preserve ptrace permission check for backwards compatibility.
+-		 *
+-		 * We must hold exec_update_mutex across this and any potential
+-		 * perf_install_in_context() call for this new event to
+-		 * serialize against exec() altering our credentials (and the
+-		 * perf_event_exit_task() that could imply).
+-		 */
+-		err = -EACCES;
+-		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
+-			goto err_cred;
+-	}
+-
+ 	if (flags & PERF_FLAG_PID_CGROUP)
+ 		cgroup_fd = pid;
+ 
+@@ -11857,7 +11839,7 @@ SYSCALL_DEFINE5(perf_event_open,
+ 				 NULL, NULL, cgroup_fd);
+ 	if (IS_ERR(event)) {
+ 		err = PTR_ERR(event);
+-		goto err_cred;
++		goto err_task;
+ 	}
+ 
+ 	if (is_sampling_event(event)) {
+@@ -11976,6 +11958,24 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		goto err_context;
+ 	}
+ 
++	if (task) {
++		err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
++		if (err)
++			goto err_file;
++
++		/*
++		 * Preserve ptrace permission check for backwards compatibility.
++		 *
++		 * We must hold exec_update_mutex across this and any potential
++		 * perf_install_in_context() call for this new event to
++		 * serialize against exec() altering our credentials (and the
++		 * perf_event_exit_task() that could imply).
++		 */
++		err = -EACCES;
++		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
++			goto err_cred;
++	}
++
+ 	if (move_group) {
+ 		gctx = __perf_event_ctx_lock_double(group_leader, ctx);
+ 
+@@ -12151,7 +12151,10 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	if (move_group)
+ 		perf_event_ctx_unlock(group_leader, gctx);
+ 	mutex_unlock(&ctx->mutex);
+-/* err_file: */
++err_cred:
++	if (task)
++		mutex_unlock(&task->signal->exec_update_mutex);
++err_file:
+ 	fput(event_file);
+ err_context:
+ 	perf_unpin_context(ctx);
+@@ -12163,9 +12166,6 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	 */
+ 	if (!event_file)
+ 		free_event(event);
+-err_cred:
+-	if (task)
+-		mutex_unlock(&task->signal->exec_update_mutex);
+ err_task:
+ 	if (task)
+ 		put_task_struct(task);
+
