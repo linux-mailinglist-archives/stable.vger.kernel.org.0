@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4E62E9992
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBA92E9ABD
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbhADQBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:01:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38806 "EHLO mail.kernel.org"
+        id S1727767AbhADP7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728599AbhADQBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3480A22473;
-        Mon,  4 Jan 2021 16:00:51 +0000 (UTC)
+        id S1727698AbhADP7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB722224D4;
+        Mon,  4 Jan 2021 15:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776051;
-        bh=ii7id98pONZGgFYKjTPx+BnAxnP6uQmzICQHKYE1HW0=;
+        s=korg; t=1609775895;
+        bh=UOn/Io+TVSfmSAA3PKPPcakLs9XQZNQgh1scWALYtxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LURN2o2s4KP4/P/qA4G+x9SradRAw9h1Q+uCFHolPRMEPHfq/MoQ6+4tJ4RZq9eXj
-         gVWhLxaDcsgclWS+1HksT08MJS8vbPHt0NAoldF075WAEQvSGSdWVkNfwxSKc1caQe
-         91TzHZCPoD24brkPGhWKbRGyX6Hj6jrl/KlcPRb0=
+        b=VXWKLkUD7GbngwWSLEFlTrTUy3H2utoGrKNnImlWJ5xBEd/DqX1/ksFJ0ZgM5xMi3
+         hK6ubCAhIhNmpr5h5cf/dZXxzNkKDmsLhgBM/OITjWOdgQAmTs+tcKHaoIhJgYTxcz
+         Mehp/mepWMiY4+OaJtkC4yqSjB8R8EyflPeRSWEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jamie Iles <jamie@nuviainc.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/47] jffs2: Fix NULL pointer dereference in rp_size fs option parsing
-Date:   Mon,  4 Jan 2021 16:57:16 +0100
-Message-Id: <20210104155706.569044750@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 14/35] of: fix linker-section match-table corruption
+Date:   Mon,  4 Jan 2021 16:57:17 +0100
+Message-Id: <20210104155704.098933120@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,114 +38,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Iles <jamie@nuviainc.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit a61df3c413e49b0042f9caf774c58512d1cc71b7 ]
+commit 5812b32e01c6d86ba7a84110702b46d8a8531fe9 upstream.
 
-syzkaller found the following JFFS2 splat:
+Specify type alignment when declaring linker-section match-table entries
+to prevent gcc from increasing alignment and corrupting the various
+tables with padding (e.g. timers, irqchips, clocks, reserved memory).
 
-  Unable to handle kernel paging request at virtual address dfffa00000000001
-  Mem abort info:
-    ESR = 0x96000004
-    EC = 0x25: DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-  Data abort info:
-    ISV = 0, ISS = 0x00000004
-    CM = 0, WnR = 0
-  [dfffa00000000001] address between user and kernel address ranges
-  Internal error: Oops: 96000004 [#1] SMP
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  Modules linked in:
-  CPU: 0 PID: 12745 Comm: syz-executor.5 Tainted: G S                5.9.0-rc8+ #98
-  Hardware name: linux,dummy-virt (DT)
-  pstate: 20400005 (nzCv daif +PAN -UAO BTYPE=--)
-  pc : jffs2_parse_param+0x138/0x308 fs/jffs2/super.c:206
-  lr : jffs2_parse_param+0x108/0x308 fs/jffs2/super.c:205
-  sp : ffff000022a57910
-  x29: ffff000022a57910 x28: 0000000000000000
-  x27: ffff000057634008 x26: 000000000000d800
-  x25: 000000000000d800 x24: ffff0000271a9000
-  x23: ffffa0001adb5dc0 x22: ffff000023fdcf00
-  x21: 1fffe0000454af2c x20: ffff000024cc9400
-  x19: 0000000000000000 x18: 0000000000000000
-  x17: 0000000000000000 x16: ffffa000102dbdd0
-  x15: 0000000000000000 x14: ffffa000109e44bc
-  x13: ffffa00010a3a26c x12: ffff80000476e0b3
-  x11: 1fffe0000476e0b2 x10: ffff80000476e0b2
-  x9 : ffffa00010a3ad60 x8 : ffff000023b70593
-  x7 : 0000000000000003 x6 : 00000000f1f1f1f1
-  x5 : ffff000023fdcf00 x4 : 0000000000000002
-  x3 : ffffa00010000000 x2 : 0000000000000001
-  x1 : dfffa00000000000 x0 : 0000000000000008
-  Call trace:
-   jffs2_parse_param+0x138/0x308 fs/jffs2/super.c:206
-   vfs_parse_fs_param+0x234/0x4e8 fs/fs_context.c:117
-   vfs_parse_fs_string+0xe8/0x148 fs/fs_context.c:161
-   generic_parse_monolithic+0x17c/0x208 fs/fs_context.c:201
-   parse_monolithic_mount_data+0x7c/0xa8 fs/fs_context.c:649
-   do_new_mount fs/namespace.c:2871 [inline]
-   path_mount+0x548/0x1da8 fs/namespace.c:3192
-   do_mount+0x124/0x138 fs/namespace.c:3205
-   __do_sys_mount fs/namespace.c:3413 [inline]
-   __se_sys_mount fs/namespace.c:3390 [inline]
-   __arm64_sys_mount+0x164/0x238 fs/namespace.c:3390
-   __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
-   invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
-   el0_svc_common.constprop.0+0x15c/0x598 arch/arm64/kernel/syscall.c:149
-   do_el0_svc+0x60/0x150 arch/arm64/kernel/syscall.c:195
-   el0_svc+0x34/0xb0 arch/arm64/kernel/entry-common.c:226
-   el0_sync_handler+0xc8/0x5b4 arch/arm64/kernel/entry-common.c:236
-   el0_sync+0x15c/0x180 arch/arm64/kernel/entry.S:663
-  Code: d2d40001 f2fbffe1 91002260 d343fc02 (38e16841)
-  ---[ end trace 4edf690313deda44 ]---
+This is specifically needed on x86 where gcc (typically) aligns larger
+objects like struct of_device_id with static extent on 32-byte
+boundaries which at best prevents matching on anything but the first
+entry. Specifying alignment when declaring variables suppresses this
+optimisation.
 
-This is because since ec10a24f10c8, the option parsing happens before
-fill_super and so the MTD device isn't associated with the filesystem.
-Defer the size check until there is a valid association.
+Here's a 64-bit example where all entries are corrupt as 16 bytes of
+padding has been inserted before the first entry:
 
-Fixes: ec10a24f10c8 ("vfs: Convert jffs2 to use the new mount API")
-Cc: <stable@vger.kernel.org>
-Cc: David Howells <dhowells@redhat.com>
-Signed-off-by: Jamie Iles <jamie@nuviainc.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	ffffffff8266b4b0 D __clk_of_table
+	ffffffff8266b4c0 d __of_table_fixed_factor_clk
+	ffffffff8266b5a0 d __of_table_fixed_clk
+	ffffffff8266b680 d __clk_of_table_sentinel
+
+And here's a 32-bit example where the 8-byte-aligned table happens to be
+placed on a 32-byte boundary so that all but the first entry are corrupt
+due to the 28 bytes of padding inserted between entries:
+
+	812b3ec0 D __irqchip_of_table
+	812b3ec0 d __of_table_irqchip1
+	812b3fa0 d __of_table_irqchip2
+	812b4080 d __of_table_irqchip3
+	812b4160 d irqchip_of_match_end
+
+Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
+alignment), and on arm using gcc-7.2.
+
+Note that there are no in-tree users of these tables on x86 currently
+(even if they are included in the image).
+
+Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
+Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
+Cc: stable <stable@vger.kernel.org>     # 3.9
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
+[ johan: adjust context to 5.4 ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/jffs2/super.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/of.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
-index 68ce77cbeed3b..6839a61e8ff1e 100644
---- a/fs/jffs2/super.c
-+++ b/fs/jffs2/super.c
-@@ -208,12 +208,8 @@ static int jffs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 	case Opt_rp_size:
- 		if (result.uint_32 > UINT_MAX / 1024)
- 			return invalf(fc, "jffs2: rp_size unrepresentable");
--		opt = result.uint_32 * 1024;
--		if (opt > c->mtd->size)
--			return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
--				      c->mtd->size / 1024);
-+		c->mount_opts.rp_size = result.uint_32 * 1024;
- 		c->mount_opts.set_rp_size = true;
--		c->mount_opts.rp_size = opt;
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -275,6 +271,10 @@ static int jffs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 	c->mtd = sb->s_mtd;
- 	c->os_priv = sb;
- 
-+	if (c->mount_opts.rp_size > c->mtd->size)
-+		return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
-+			      c->mtd->size / 1024);
-+
- 	/* Initialize JFFS2 superblock locks, the further initialization will
- 	 * be done later */
- 	mutex_init(&c->alloc_sem);
--- 
-2.27.0
-
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -1258,6 +1258,7 @@ static inline int of_get_available_child
+ #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
+ 	static const struct of_device_id __of_table_##name		\
+ 		__used __section(__##table##_of_table)			\
++		__aligned(__alignof__(struct of_device_id))		\
+ 		 = { .compatible = compat,				\
+ 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
+ #else
 
 
