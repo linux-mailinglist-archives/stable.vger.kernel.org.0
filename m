@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C68BB2E9AA7
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E55732E99FE
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728142AbhADP74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36514 "EHLO mail.kernel.org"
+        id S1726707AbhADQGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:06:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727434AbhADP74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 603FB22597;
-        Mon,  4 Jan 2021 15:59:23 +0000 (UTC)
+        id S1728958AbhADQC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:02:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD0B52245C;
+        Mon,  4 Jan 2021 16:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775963;
-        bh=QxzuUY0e0Cy6wxab/lpuSiUOCkFGDvGcK/xhVfGXaw4=;
+        s=korg; t=1609776138;
+        bh=3Cv24Vu//k+9LqcI5Km3zQxhoyl+adOYlUF9njqT6t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/iPaK60SMwRX8Lyqd5yFq6Rusd4IAGfwo2sEyu+s12qXzuBKJlwS3BEaSsm2TKeF
-         QfA9rP2341guwY1ezqEh8HXgXh44F91HbR/P+/gAoTcR64obpgTdrGomkTVBRQ5uFe
-         wVl9o+9/iYBWfKgg4xy9I7MPCWPlxVNFLsQXaDmo=
+        b=wb3DrWAJKnHF3aZatQ+CFfriKhIWyskfxtL9Hf0NySLdkK2VyruXionv5uUaruimC
+         61mo9ELsLyhgS7k6mD7N6U1GtXNVLALD8i9KNDnNa1s3n7O+C7d6R0eMtcSG3CWC5Y
+         9jjsukpywN2pXNcoTk5kcmMTTiFEWquY+f/axvMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8971da381fb5a31f542d@syzkaller.appspotmail.com,
-        Davide Caratti <dcaratti@redhat.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 01/47] net/sched: sch_taprio: reset child qdiscs before freeing them
-Date:   Mon,  4 Jan 2021 16:57:00 +0100
-Message-Id: <20210104155705.815222259@linuxfoundation.org>
+        stable@vger.kernel.org, Jubin Zhong <zhongjubin@huawei.com>,
+        lizhe <lizhe67@huawei.com>, Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 08/63] jffs2: Allow setting rp_size to zero during remounting
+Date:   Mon,  4 Jan 2021 16:57:01 +0100
+Message-Id: <20210104155709.212682044@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,65 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: lizhe <lizhe67@huawei.com>
 
-[ Upstream commit 44d4775ca51805b376a8db5b34f650434a08e556 ]
+[ Upstream commit cd3ed3c73ac671ff6b0230ccb72b8300292d3643 ]
 
-syzkaller shows that packets can still be dequeued while taprio_destroy()
-is running. Let sch_taprio use the reset() function to cancel the advance
-timer and drop all skbs from the child qdiscs.
+Set rp_size to zero will be ignore during remounting.
 
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Link: https://syzkaller.appspot.com/bug?id=f362872379bf8f0017fb667c1ab158f2d1e764ae
-Reported-by: syzbot+8971da381fb5a31f542d@syzkaller.appspotmail.com
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/63b6d79b0e830ebb0283e020db4df3cdfdfb2b94.1608142843.git.dcaratti@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The method to identify whether we input a remounting option of
+rp_size is to check if the rp_size input is zero. It can not work
+well if we pass "rp_size=0".
+
+This patch add a bool variable "set_rp_size" to fix this problem.
+
+Reported-by: Jubin Zhong <zhongjubin@huawei.com>
+Signed-off-by: lizhe <lizhe67@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ fs/jffs2/jffs2_fs_sb.h | 1 +
+ fs/jffs2/super.c       | 7 +++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1597,6 +1597,21 @@ free_sched:
- 	return err;
+diff --git a/fs/jffs2/jffs2_fs_sb.h b/fs/jffs2/jffs2_fs_sb.h
+index 778275f48a879..5a7091746f68b 100644
+--- a/fs/jffs2/jffs2_fs_sb.h
++++ b/fs/jffs2/jffs2_fs_sb.h
+@@ -38,6 +38,7 @@ struct jffs2_mount_opts {
+ 	 * users. This is implemented simply by means of not allowing the
+ 	 * latter users to write to the file system if the amount if the
+ 	 * available space is less then 'rp_size'. */
++	bool set_rp_size;
+ 	unsigned int rp_size;
+ };
+ 
+diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
+index 4fd297bdf0f3f..c523adaca79f3 100644
+--- a/fs/jffs2/super.c
++++ b/fs/jffs2/super.c
+@@ -88,7 +88,7 @@ static int jffs2_show_options(struct seq_file *s, struct dentry *root)
+ 
+ 	if (opts->override_compr)
+ 		seq_printf(s, ",compr=%s", jffs2_compr_name(opts->compr));
+-	if (opts->rp_size)
++	if (opts->set_rp_size)
+ 		seq_printf(s, ",rp_size=%u", opts->rp_size / 1024);
+ 
+ 	return 0;
+@@ -206,6 +206,7 @@ static int jffs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
+ 		if (opt > c->mtd->size)
+ 			return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
+ 				      c->mtd->size / 1024);
++		c->mount_opts.set_rp_size = true;
+ 		c->mount_opts.rp_size = opt;
+ 		break;
+ 	default:
+@@ -225,8 +226,10 @@ static inline void jffs2_update_mount_opts(struct fs_context *fc)
+ 		c->mount_opts.override_compr = new_c->mount_opts.override_compr;
+ 		c->mount_opts.compr = new_c->mount_opts.compr;
+ 	}
+-	if (new_c->mount_opts.rp_size)
++	if (new_c->mount_opts.set_rp_size) {
++		c->mount_opts.set_rp_size = new_c->mount_opts.set_rp_size;
+ 		c->mount_opts.rp_size = new_c->mount_opts.rp_size;
++	}
+ 	mutex_unlock(&c->alloc_sem);
  }
  
-+static void taprio_reset(struct Qdisc *sch)
-+{
-+	struct taprio_sched *q = qdisc_priv(sch);
-+	struct net_device *dev = qdisc_dev(sch);
-+	int i;
-+
-+	hrtimer_cancel(&q->advance_timer);
-+	if (q->qdiscs) {
-+		for (i = 0; i < dev->num_tx_queues && q->qdiscs[i]; i++)
-+			qdisc_reset(q->qdiscs[i]);
-+	}
-+	sch->qstats.backlog = 0;
-+	sch->q.qlen = 0;
-+}
-+
- static void taprio_destroy(struct Qdisc *sch)
- {
- 	struct taprio_sched *q = qdisc_priv(sch);
-@@ -1607,7 +1622,6 @@ static void taprio_destroy(struct Qdisc
- 	list_del(&q->taprio_list);
- 	spin_unlock(&taprio_list_lock);
- 
--	hrtimer_cancel(&q->advance_timer);
- 
- 	taprio_disable_offload(dev, q, NULL);
- 
-@@ -1954,6 +1968,7 @@ static struct Qdisc_ops taprio_qdisc_ops
- 	.init		= taprio_init,
- 	.change		= taprio_change,
- 	.destroy	= taprio_destroy,
-+	.reset		= taprio_reset,
- 	.peek		= taprio_peek,
- 	.dequeue	= taprio_dequeue,
- 	.enqueue	= taprio_enqueue,
+-- 
+2.27.0
+
 
 
