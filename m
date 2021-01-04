@@ -2,60 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B929B2E9926
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88EFB2E9934
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727418AbhADPth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:49:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S1726707AbhADPwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:52:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727407AbhADPth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:49:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E11020735;
-        Mon,  4 Jan 2021 15:48:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609775336;
-        bh=2UPFSSz01mtLFHkWSgmkhwscDXomVQpB0Wr7wPaP8JQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ttuFyWwnxa+CcJ6bXXG+xlt/jc0S7SfkftB4QHj10I+JSFjV0zwYxtc/PelfeYQUM
-         HcCG/87RGbkI17QjoNE26eg5osSJr+gesl5LMdlbBmGUum3tCEWm8LHtR+iHndEiyW
-         8aSyGq0De/vwh17dW0LRwUZJfSydeBaK5m44gXDsyrl0tVeP3vIXcgDtW3yYCiNEDX
-         JnX3eRydr62yxls8uBtjzOo8zP1GAe27cgPqVwVD9N+PbU/wrV/yjLuLjioOCRuHg6
-         g5rK0kJz7VNUiW3P3FVwLmdS4sRfpN5K9yDdCbA4xxgt6UOHjlBmXV2gI7aH9yGqIV
-         fZUfZ5aFroVHQ==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kwS6H-0002Z5-Qa; Mon, 04 Jan 2021 16:48:53 +0100
-Date:   Mon, 4 Jan 2021 16:48:53 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Michael Sweet <msweet@msweet.org>
-Cc:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pete Zaitcev <zaitcev@redhat.com>, linux-usb@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] USB: usblp: fix DMA to stack
-Message-ID: <X/M45d6Cc3cEurQt@hovoldconsulting.com>
-References: <20210104145302.2087-1-johan@kernel.org>
- <X/MtNtTd96S39HQL@kroah.com>
- <X/MwBCt0Z/B1D7vw@hovoldconsulting.com>
- <15AB8EFA-A534-40D8-95D2-7DCE1E46D431@msweet.org>
+        id S1726616AbhADPwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:52:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF4A82242A;
+        Mon,  4 Jan 2021 15:51:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609775517;
+        bh=h+3eE+mfkNx7Le0Yi3rklopasESOZEXGaMVpGYYTFKE=;
+        h=Subject:To:From:Date:From;
+        b=zHS8qCDxAzesSAx6A17cE0e4QJc0s8GNGtAFIrpDHv9iWvD0lRZqa0dHiXQaI/HMm
+         4tfl3GMGUX43fGbaKGpBkkGDqwFaMM8vt9O/oTsuyo3GqXTul17jFNsCRroHBtvBTJ
+         fXKNy2wSmrrLm9bfpxmZvt2cY+F5vuoPlQJ4Rbcc=
+Subject: patch "usb: usbip: vhci_hcd: protect shift size" added to usb-linus
+To:     rdunlap@infradead.org, gregkh@linuxfoundation.org,
+        shuahkh@osg.samsung.com, stable@vger.kernel.org,
+        yuyang.du@intel.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jan 2021 16:53:15 +0100
+Message-ID: <1609775595900@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15AB8EFA-A534-40D8-95D2-7DCE1E46D431@msweet.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 10:33:34AM -0500, Michael Sweet wrote:
-> Johan/Greg,
-> 
-> Since CUPS uses libusb to communicate with printers these days (well,
-> for over a decade now) so that printing and scanning can coexist, the
-> usblp driver really doesn't get any usage anymore.
 
-Ah, ok. I still seem to be using usblp.ko for my printer with CUPS,
-though.
+This is a note to let you know that I've just added the patch titled
 
-Johan
+    usb: usbip: vhci_hcd: protect shift size
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 718bf42b119de652ebcc93655a1f33a9c0d04b3c Mon Sep 17 00:00:00 2001
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Mon, 28 Dec 2020 23:13:09 -0800
+Subject: usb: usbip: vhci_hcd: protect shift size
+
+Fix shift out-of-bounds in vhci_hcd.c:
+
+  UBSAN: shift-out-of-bounds in ../drivers/usb/usbip/vhci_hcd.c:399:41
+  shift exponent 768 is too large for 32-bit type 'int'
+
+Fixes: 03cd00d538a6 ("usbip: vhci-hcd: Set the vhci structure up to work")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com
+Cc: Yuyang Du <yuyang.du@intel.com>
+Cc: Shuah Khan <shuahkh@osg.samsung.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201229071309.18418-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/usbip/vhci_hcd.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 66cde5e5f796..3209b5ddd30c 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -396,6 +396,8 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 		default:
+ 			usbip_dbg_vhci_rh(" ClearPortFeature: default %x\n",
+ 					  wValue);
++			if (wValue >= 32)
++				goto error;
+ 			vhci_hcd->port_status[rhport] &= ~(1 << wValue);
+ 			break;
+ 		}
+-- 
+2.30.0
+
+
