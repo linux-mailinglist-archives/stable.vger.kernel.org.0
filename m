@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610EC2E9A64
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C9D2E999F
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:02:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728490AbhADQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:09:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38834 "EHLO mail.kernel.org"
+        id S1728740AbhADQCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:02:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727707AbhADQBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46CFF22507;
-        Mon,  4 Jan 2021 16:00:53 +0000 (UTC)
+        id S1728731AbhADQCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:02:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C320722507;
+        Mon,  4 Jan 2021 16:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776053;
-        bh=5Gfu3L59rdjO9CtMPxwCNS4CHfJnT5MFmlDci/a6xLE=;
+        s=korg; t=1609776107;
+        bh=6mnFiwIiKvqBurv8MOmnq9HzW+/bMiarWiH2R3iQ5zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfCIgcHTpJ4wSGixuzPFMWMYR99CbGulGpAi0RtXE2P5vf7ab4GADcqWEnKDGI49T
-         Oc+w976iItxxmtHwjr+nBo2DwP4oKSNpISHD4fD6dOr0DL8Aeo/MQTdD8XLj9JkwuH
-         bAmBEqn3M5EcXVykufFd0enP/0Ri3vmxtMEsO82Y=
+        b=xqiz9GFhwz3tFPL0Pdvj70u+hb85EeiSLqOpbGMWzwjEvODweTRvhgOJgambfvKsr
+         3rVuFUWfxXAXD+oq+xm3LHCVZAiobj5NozyD6l1lcv4+bS25uSDnIOIJ1ii8zsLlj/
+         Mw2zAPjxi4mO0ZISWEvpITy4l8dOL7iuDZlcGzKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 18/47] scsi: block: Fix a race in the runtime power management code
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        Zefan Li <lizefan@huawei.com>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.10 24/63] cgroup: Fix memory leak when parsing multiple source parameters
 Date:   Mon,  4 Jan 2021 16:57:17 +0100
-Message-Id: <20210104155706.618488635@linuxfoundation.org>
+Message-Id: <20210104155709.994677471@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,80 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit fa4d0f1992a96f6d7c988ef423e3127e613f6ac9 upstream.
+commit 2d18e54dd8662442ef5898c6bdadeaf90b3cebbc upstream.
 
-With the current implementation the following race can happen:
+A memory leak is found in cgroup1_parse_param() when multiple source
+parameters overwrite fc->source in the fs_context struct without free.
 
- * blk_pre_runtime_suspend() calls blk_freeze_queue_start() and
-   blk_mq_unfreeze_queue().
+unreferenced object 0xffff888100d930e0 (size 16):
+  comm "mount", pid 520, jiffies 4303326831 (age 152.783s)
+  hex dump (first 16 bytes):
+    74 65 73 74 6c 65 61 6b 00 00 00 00 00 00 00 00  testleak........
+  backtrace:
+    [<000000003e5023ec>] kmemdup_nul+0x2d/0xa0
+    [<00000000377dbdaa>] vfs_parse_fs_string+0xc0/0x150
+    [<00000000cb2b4882>] generic_parse_monolithic+0x15a/0x1d0
+    [<000000000f750198>] path_mount+0xee1/0x1820
+    [<0000000004756de2>] do_mount+0xea/0x100
+    [<0000000094cafb0a>] __x64_sys_mount+0x14b/0x1f0
 
- * blk_queue_enter() calls blk_queue_pm_only() and that function returns
-   true.
+Fix this bug by permitting a single source parameter and rejecting with
+an error all subsequent ones.
 
- * blk_queue_enter() calls blk_pm_request_resume() and that function does
-   not call pm_request_resume() because the queue runtime status is
-   RPM_ACTIVE.
-
- * blk_pre_runtime_suspend() changes the queue status into RPM_SUSPENDING.
-
-Fix this race by changing the queue runtime status into RPM_SUSPENDING
-before switching q_usage_counter to atomic mode.
-
-Link: https://lore.kernel.org/r/20201209052951.16136-2-bvanassche@acm.org
-Fixes: 986d413b7c15 ("blk-mq: Enable support for runtime power management")
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Acked-by: Stanley Chu <stanley.chu@mediatek.com>
-Co-developed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8d2451f4994f ("cgroup1: switch to option-by-option parsing")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Reviewed-by: Zefan Li <lizefan@huawei.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-pm.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ kernel/cgroup/cgroup-v1.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/block/blk-pm.c
-+++ b/block/blk-pm.c
-@@ -67,6 +67,10 @@ int blk_pre_runtime_suspend(struct reque
- 
- 	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
- 
-+	spin_lock_irq(&q->queue_lock);
-+	q->rpm_status = RPM_SUSPENDING;
-+	spin_unlock_irq(&q->queue_lock);
-+
- 	/*
- 	 * Increase the pm_only counter before checking whether any
- 	 * non-PM blk_queue_enter() calls are in progress to avoid that any
-@@ -89,15 +93,14 @@ int blk_pre_runtime_suspend(struct reque
- 	/* Switch q_usage_counter back to per-cpu mode. */
- 	blk_mq_unfreeze_queue(q);
- 
--	spin_lock_irq(&q->queue_lock);
--	if (ret < 0)
-+	if (ret < 0) {
-+		spin_lock_irq(&q->queue_lock);
-+		q->rpm_status = RPM_ACTIVE;
- 		pm_runtime_mark_last_busy(q->dev);
--	else
--		q->rpm_status = RPM_SUSPENDING;
--	spin_unlock_irq(&q->queue_lock);
-+		spin_unlock_irq(&q->queue_lock);
- 
--	if (ret)
- 		blk_clear_pm_only(q);
-+	}
- 
- 	return ret;
- }
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -908,6 +908,8 @@ int cgroup1_parse_param(struct fs_contex
+ 	opt = fs_parse(fc, cgroup1_fs_parameters, param, &result);
+ 	if (opt == -ENOPARAM) {
+ 		if (strcmp(param->key, "source") == 0) {
++			if (fc->source)
++				return invalf(fc, "Multiple sources not supported");
+ 			fc->source = param->string;
+ 			param->string = NULL;
+ 			return 0;
 
 
