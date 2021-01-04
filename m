@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3A12E9986
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:02:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAEE82E9A9C
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727718AbhADQA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+        id S1729668AbhADQML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:12:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728461AbhADQA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2D922512;
-        Mon,  4 Jan 2021 16:00:15 +0000 (UTC)
+        id S1728197AbhADQAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2EED207AE;
+        Mon,  4 Jan 2021 15:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776015;
-        bh=XG1sYVOBq0ov/YU6XesQbxeE0/DNtw3YrRR3+Q8Le90=;
+        s=korg; t=1609775926;
+        bh=HStfKwrmpAr5P2MqB/ZHorfFw3JQjsPXE9k4Orej4Mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J82aRpt7F8IP7bnqTGv7mfaou5Wx6DHdomRrkYbA+8cL6Ooxm0q/6uKCruMYwmeCC
-         Qb82yPXai3TgO6IhgCcpjY59h3x2yRcSzohZqiyWTfxb0PGtQKY2m02IDchBw5eClG
-         PFg/IitJavG59DsVFHSMNloLyeyDhxlCKNw4n6tI=
+        b=a6y9j4Ij6haYN0/Td3HiEFdn/TBd2L7Wc6pN3PyUY+SBP2hgeIjnJWK7z6JGg1KzP
+         R8VD6iyRCZ0BN5SIQB964421k4G0OUKScMXPHYCin6k62pUtbpm4t3gH1T49r3zE8h
+         BgvmFwUlZmMJ1BoFC6+b64bl5Bu/3md2/3SBrrGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Al Viro <viro@ZenIV.linux.org.uk>,
-        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 32/47] bfs: dont use WARNING: string when its just info.
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/35] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
 Date:   Mon,  4 Jan 2021 16:57:31 +0100
-Message-Id: <20210104155707.286492040@linuxfoundation.org>
+Message-Id: <20210104155704.766192222@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit dc889b8d4a8122549feabe99eead04e6b23b6513 upstream.
+[ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
 
-Make the printk() [bfs "printf" macro] seem less severe by changing
-"WARNING:" to "NOTE:".
+When clk_hw_register_fixed_rate_with_accuracy() fails,
+clk_data should be freed. It's the same for the subsequent
+two error paths, but we should also unregister the already
+registered clocks in them.
 
-<asm-generic/bug.h> warns us about using WARNING or BUG in a format string
-other than in WARN() or BUG() family macros.  bfs/inode.c is doing just
-that in a normal printk() call, so change the "WARNING" string to be
-"NOTE".
-
-Link: https://lkml.kernel.org/r/20201203212634.17278-1-rdunlap@infradead.org
-Reported-by: syzbot+3fd34060f26e766536ff@syzkaller.appspotmail.com
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: "Tigran A. Aivazian" <aivazian.tigran@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201020061226.6572-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/bfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/bfs/inode.c
-+++ b/fs/bfs/inode.c
-@@ -351,7 +351,7 @@ static int bfs_fill_super(struct super_b
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 2cd5a7b1a2e30..e85abe8056064 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -232,7 +232,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 								300000000);
+ 	if (IS_ERR(rtc->int_osc)) {
+ 		pr_crit("Couldn't register the internal oscillator\n");
+-		return;
++		goto err;
+ 	}
  
- 	info->si_lasti = (le32_to_cpu(bfs_sb->s_start) - BFS_BSIZE) / sizeof(struct bfs_inode) + BFS_ROOT_INO - 1;
- 	if (info->si_lasti == BFS_MAX_LASTI)
--		printf("WARNING: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
-+		printf("NOTE: filesystem %s was created with 512 inodes, the real maximum is 511, mounting anyway\n", s->s_id);
- 	else if (info->si_lasti > BFS_MAX_LASTI) {
- 		printf("Impossible last inode number %lu > %d on %s\n", info->si_lasti, BFS_MAX_LASTI, s->s_id);
- 		goto out1;
+ 	parents[0] = clk_hw_get_name(rtc->int_osc);
+@@ -248,7 +248,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	rtc->losc = clk_register(NULL, &rtc->hw);
+ 	if (IS_ERR(rtc->losc)) {
+ 		pr_crit("Couldn't register the LOSC clock\n");
+-		return;
++		goto err_register;
+ 	}
+ 
+ 	of_property_read_string_index(node, "clock-output-names", 1,
+@@ -259,7 +259,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 					  &rtc->lock);
+ 	if (IS_ERR(rtc->ext_losc)) {
+ 		pr_crit("Couldn't register the LOSC external gate\n");
+-		return;
++		goto err_register;
+ 	}
+ 
+ 	clk_data->num = 2;
+@@ -268,6 +268,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+ 	return;
+ 
++err_register:
++	clk_hw_unregister_fixed_rate(rtc->int_osc);
+ err:
+ 	kfree(clk_data);
+ }
+-- 
+2.27.0
+
 
 
