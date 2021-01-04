@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE722E905B
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 07:12:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D35202E905C
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 07:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbhADGLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 01:11:52 -0500
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:22803 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725830AbhADGLw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 01:11:52 -0500
+        id S1727005AbhADGMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 01:12:45 -0500
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:34021 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725830AbhADGMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 01:12:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1609740711; x=1641276711;
+  t=1609740764; x=1641276764;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
   bh=Ckx/H2KwqS9qvZo0XEOVN0N6iAMu2trO/IVWPqvsM7A=;
-  b=S/Z/BPHv8e2JwbQnRp9eS2Htydz4Vj8CRTe3KErD8HqwwPA63v+1olSX
-   uk8W0Il17/5NocWY5to2vMfDijRm2A44VKAt+AajITPIJ+vovgf+EQve1
-   zEB1RC2EUrZVIzfNJUGp21rouNyu5SJcYE0N9RILc5vwjsD6STGwDimx2
-   PkMQjt120X8IfBT0Or4ummEJWfgGw5+5tCWUhscrXuX+sBZyARj2oREz9
-   8SIhc6qhvFvkTIf+dXGZZvxjPgQGNBw12Fb2Xz9de91nIIiOMOHMY+Lur
-   nHx9vjHPfPdjPCT07EUt/vlLiwYnbxTX+Y2s1IDF9pp9bYjJ7aNRDMG39
+  b=GAvbYp839APJHhsPg8WLeJpapAaRhD0pIyB7amT/xfZTTT1iYT1K8gqG
+   ww7HCl85gGF3Npu4ropOatgvBUDHipZoKXbhnKnL4/c7bD9kWLzDdh9jL
+   mBoWCBH56PItZPGCmIDiCnUVUttLSQjuJlwJMMYQyhoO5iMH5uWTqJFTy
+   CufylrgogUk7hR9Gv7DfBxkBxyCwDQb7OIMFbCUj4ce5V/pvgPMeJEd0D
+   QZKyFNDmfriWihXjl9OSLmAKJhu8yTxE6k/SwjeURpstW7gVHKYjqmB+D
+   34MLMygMRLS7E5e3nqU+4AEhvyZ0cx1yvdKe+Aq7/rjVsGKFx6KOe8EEP
    g==;
-IronPort-SDR: mQ+XqGdW9gwNEGkLMMLiPCx1T6IbH2A3f2VoK/7I5Wz51AYb6POkFf5eVqL+mbRTj8AESq91yQ
- ndN+UFo1Wq5pZGfXli6+tcjETo0DnpjGsczYsjG3IE3GmAOlW9yDiEUq2IDIMfhj/XrMJSpMyP
- IePKA6v2oLvo53Bj89F+x9xiGs/baqrN6XXwocUV4pF7O7GxuMrL2nQ25xrr7cQ2mDf8tLQcpN
- 4ktMfrdYaB5rLKHux0MoeYNvLt/SREwuTZYRj/uyX1jH/y5+c4+0l7g7ub81VY7lQVrzCM47n7
- kzs=
+IronPort-SDR: xqoal+QvNyuYNK/s8nEOyGa7lDL2x6d7PTp8CBUBW8ziZ8s2nBg5gWhCFmMHR8I4AL5g/1pMiU
+ KqPhri+vOTVDm15hrCgWsak0YA238ubvBvSG2QXUatdtauyrjySfea7DKgejyVy6DlnNTITOfu
+ /0RvqoMdXWXO4Edkflk1TxaeNW9zTsUaSBVW/5UlDUmiTwjAFuLZQGYANh3V6OIqx5IJIHQLiZ
+ H7RuXkmriJiqi5xQGALDgg/ABp+IEGdvF5hxgmA8ls2DUG5bYZ046zbxijLEMHoMUuLz3g3xfV
+ nBI=
 X-IronPort-AV: E=Sophos;i="5.78,473,1599494400"; 
-   d="scan'208";a="156438089"
+   d="scan'208";a="160881170"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 04 Jan 2021 14:10:45 +0800
-IronPort-SDR: 4M+qKabh6Mf4wgmDMDFBKukbjDWV+maEvqIX6Wsc5kzZJs8NmapKuume2KPKlOpv9/9lpbQBk7
- KeSwYG1FtY2VTWORKUxf0lJdnbIgXs2SdJ5q6myopezCk/MhdttMYBNL6c26q6K02V4R9r4g3k
- /5xKH1avkxmR4N4J/Ft50qY44hETVB1tZjsqx9ZlS9dNKZAsLpHGSO8FACnwrCqG810h3CDeaL
- 65BBIYhRf2BrRAqCOcSFaY88KczKtm1ftbVtUFEQ1DVkciPm9jz1i0BGWd9psaXEJv0wp5XMb6
- Lpmr7uegsigWPnJd0xEqRC0h
+  by ob1.hgst.iphmx.com with ESMTP; 04 Jan 2021 14:11:39 +0800
+IronPort-SDR: zlJfdcKWxraypUk8oe4jWHLniDfiIqbGTQqO+NDtbJj09Xd9O0oiUn4fPv2/3lLVswi1oHsgf0
+ H87VVvAahSxy341YZGBB5lw7OfOE2fZjqeKO6l6qiiPIvVa3F1C6gvG15PwvwpOPAgz8JirwOS
+ LfsLgFvvsD9wx+5mhUXuoXc7Ec3ggNZaDs1ZExO7CJGnAFbnkuOVxq95sC/Qc5wbZnCZv21EqC
+ +hT4+YvQXAXdplsFmcslaCgJrf7bQAyLrCNq0f0rRua3Cb4gLIqe2708A9sK6qtluhF8HDxCYT
+ ImXjFZqpVsP5l2eyYHlVC+h5
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jan 2021 21:55:40 -0800
-IronPort-SDR: dLULgnkDoEfPpcGIu/1UAKB08AXk6w+fimAnH+hguFlGZY8sFk4UGNh+rTAqqyR5jgLvy/jDnG
- LKCuMjTpCEIu4k0Ld0KAaZEQQQ54kujuQXfyY7zGBsqY8mPk0u5BrWbjr0ks3ZpjEf77geJx/z
- rOSyA/JDCcYxEpJi2qzLjYFRzJm36tXZ3SI4JJF8fEyV/ke0MMggCnuiKG3yTPtts3liszCn9o
- GSf8ge6dfCp0p8dlkfLseWnjuolrlJGPQNrMZdVRRwtPShUuOX5hNoioemUVxb7BcIPeiExw2o
- BP4=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jan 2021 21:56:34 -0800
+IronPort-SDR: UibZOxb/eqzfeXl39pcwPqmMINrRaopBzpvYSi/xNb2bXrxV1Bc0m+7H+ATlSlozcr2ufHR/dC
+ vldntPFM0NrD83QBNrVtgbFkwCu9FwJNtaKydgPol/+hylrh8Pf8LkXXXrXHyi4F+GpzPawKgK
+ u6/yEw5Y8Mu3corw7g5H4k2vtyWDHEEJipnuvRdvOTsOG1wemQgTVxT2PRp5v/qm0swhnuf1yY
+ OgBr/RQrxoHhqmMdB13DXoYIADIF4Dfp409ZZn8ZyQw87m8wylF2owFXmhGN3n5UrttdrX2F50
+ VrQ=
 WDCIronportException: Internal
 Received: from washi.fujisawa.hgst.com ([10.149.53.254])
-  by uls-op-cesaip02.wdc.com with ESMTP; 03 Jan 2021 22:10:46 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 03 Jan 2021 22:11:39 -0800
 From:   Damien Le Moal <damien.lemoal@wdc.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
 Subject: [PATCH] null_blk: Fix zone size initialization
-Date:   Mon,  4 Jan 2021 15:10:44 +0900
-Message-Id: <20210104061044.664481-1-damien.lemoal@wdc.com>
+Date:   Mon,  4 Jan 2021 15:11:37 +0900
+Message-Id: <20210104061137.664543-1-damien.lemoal@wdc.com>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <160915617623242@kroah.com>
-References: <160915617623242@kroah.com>
+In-Reply-To: <160915617556175@kroah.com>
+References: <160915617556175@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
