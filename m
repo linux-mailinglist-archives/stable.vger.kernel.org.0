@@ -2,118 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E61752E9C4F
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 18:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF13F2E9C5A
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 18:49:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727720AbhADRoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 12:44:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33640 "EHLO
+        id S1727406AbhADRto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 12:49:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727695AbhADRoU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 12:44:20 -0500
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 466EBC061574
-        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 09:43:40 -0800 (PST)
-Received: by mail-oi1-x236.google.com with SMTP id x13so33015640oic.5
-        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 09:43:40 -0800 (PST)
+        with ESMTP id S1727415AbhADRtn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 12:49:43 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1507C061795
+        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 09:48:30 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id v19so19487446pgj.12
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 09:48:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=+LCXKPEB/hewuwkhbTWHVXw737PfQlWdNOWuhiAqpDA=;
-        b=l7y12RonbWR2q1Qs7ztSpcP5LZZ0x8UwDulHQLiRTc3az219ExEDau/Mn2zaVha/Iw
-         AOVDK1pU1/jAC1AKLZmjK2wI55qTltQ2F4N6+VytBa3a8EjO6WReDNKnujaOUBIJGlkl
-         uS0/DgSQC0U+uQdHmGa1LPwKU79xkvKeWzLMr91CZxI4Hg0f28GMocag7MlKCM2VLB03
-         UwhzzbpsCxzZSlE9IyR0YZNZTi7lKRouQOFAUGwuISSACnfSFpXl+/0jOit5pZXV02+M
-         7HgwBcJ8u4qjzXDr+gvdDbNOof5gWfn72IIPSoto4z7XmOS6e2pEWctcN8ve3FD2ZpPZ
-         PdjA==
+        d=linuxace-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=65owITg5bptvn1j++cmPjkA/zjpHPF/EDZomkuXKGqY=;
+        b=uY/UlD7z90jZJguSr4Qov6hTFwNsacX2P0geVNecyR5ZH7ZJamw0DXTNljsbMPh9PS
+         MFtO+9k1uqqfJPP4oxrzK1VHY59gJeN3JZOQsggZWLYox/RAcbwzjbXHZTbFVt/p2hXc
+         5PsPpT843IKgWkVa89xYlfbHBCRM9SdJW1eLo4vZRudTVCbP03yEes6Of/ssVlo1bwwD
+         lPisb7pbEW5ixCwrXhMykOxku5XX94zl1lW46mkndO08IyIeRjTZFa0pUxIpRkCFgRPq
+         ug5zNvBVQsrv3jFZjiOXLHjS9S5H7+LP8pFgaUWXRdyTsJ7CT9WbL3iRXfIFRSKMSDCy
+         Sh6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=+LCXKPEB/hewuwkhbTWHVXw737PfQlWdNOWuhiAqpDA=;
-        b=tTdXe9OnMg0PR9YAV41hEpnZKi29ya4BADFHZgXHUthfo9OvgPUNg8f8qW6nIYyU5x
-         7HFQoru18qvxUFq8eJfVIRD6ltIRIe0dldLJhk9JIW7EsxDA93ClunquOEvu+2lFYubr
-         Ek+Wqe/Aer7m8J0flENk5SIU5ObsNYb3OepVaXsClmrP34RboIeKSFdl3QYhSTfb3elW
-         WhJyDfvJqh7WVOHZXPZlPVILUk5en9HflW+tmPdHigFimjc7Gg/jiNOXW2ZWhECcC7V/
-         D8enWx8uTa9QBb1eeDT0BU/8FVIrSLdlq3XFvkcRo6nJY00+h0i4LFcKscVJq965y9iI
-         KnAw==
-X-Gm-Message-State: AOAM533ziApkR0mOFhMKjzU8YaOtcPUV0CjRjRyyu46VEyrCHxXmnyy/
-        pepqvr4DY8jtLIyN7OUd3Ct5Lin1hvql6IRwKtmXiQ==
-X-Google-Smtp-Source: ABdhPJyZLPuzv5+r2HCT/0oWYyWV8Mp1n63c6IXTVAQEU/o1FUrnjCI6zAJLPn5xLIcW+OWcM+L2m0mnmlmy9H5FYj4=
-X-Received: by 2002:aca:a9c8:: with SMTP id s191mr12129oie.11.1609782219730;
- Mon, 04 Jan 2021 09:43:39 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=65owITg5bptvn1j++cmPjkA/zjpHPF/EDZomkuXKGqY=;
+        b=dxD69LO2qm5zTECkx2HDd+vbNm/vGvFAtMibgrA3yxuln/BmcnBjADxmnEKACVO7t2
+         +3aJWDUSIVBvaKCJC10FUsqVFbTEExZLXRhayCmtnkFKuX19J0+rWKkV7nlmWpVxFu2H
+         E7dvxIzAzMSw67Z9hGTA2v2ne0auYzbbVu6YVf3PxGDuB3taG9aUSUcwjVALd3EvZTAz
+         WXAZhrzQiUiUsjZKm7ujrkRhfCgCDKSPlslX77jhQiRd4ct95me7cI3EvlUpqXRAUwiS
+         d8D/wYEdOyNMh7OMS9pKu5MOxTUAo17Ho8ROVNMeLQnPc1+w12ADt1kUdter2RQeEQLH
+         MIsQ==
+X-Gm-Message-State: AOAM533t+mJreZCyL4Dk/rNfMA2VpNebuwo8Ybo3s3KG5FoffXdEV9z3
+        g4DGNTj8n8za9Ud8qIPfiGbYsg==
+X-Google-Smtp-Source: ABdhPJzyl3JwJlJhdPc5Jfiknw7ZF3oAzN30Yms3O1ELx9wLiAGjFS0agKxHvleXTZGJgkZVtJCRqw==
+X-Received: by 2002:a63:520e:: with SMTP id g14mr24089127pgb.378.1609782510541;
+        Mon, 04 Jan 2021 09:48:30 -0800 (PST)
+Received: from home.linuxace.com (cpe-23-243-7-246.socal.res.rr.com. [23.243.7.246])
+        by smtp.gmail.com with ESMTPSA id p9sm34954pjb.3.2021.01.04.09.48.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Jan 2021 09:48:29 -0800 (PST)
+Date:   Mon, 4 Jan 2021 09:48:26 -0800
+From:   Phil Oester <kernel@linuxace.com>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Kashyap Desai <kashyap.desai@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Anand Lodnoor <anand.lodnoor@broadcom.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Hannes Reinecke <hare@suse.de>, megaraidlinux.pdl@broadcom.com,
+        linux-scsi <linux-scsi@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] scsi: megaraid_sas: check user-provided offsets
+Message-ID: <20210104174826.GA76610@home.linuxace.com>
+References: <20200908213715.3553098-1-arnd@arndb.de>
+ <20200908213715.3553098-2-arnd@arndb.de>
+ <20201231001553.GB16945@home.linuxace.com>
+ <CAK8P3a0_WORgd4Wvd3n+59oR=-rrESwg_MgpDJN4xPo_e6ir5Q@mail.gmail.com>
 MIME-Version: 1.0
-References: <20210104155703.375788488@linuxfoundation.org>
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Date:   Mon, 4 Jan 2021 11:43:28 -0600
-Message-ID: <CAEUSe78+F1Q9LFjpf8SQzQa6+Ak4wcPiiNcUVxEcv+KPdrYvBw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/35] 4.19.165-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a0_WORgd4Wvd3n+59oR=-rrESwg_MgpDJN4xPo_e6ir5Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Sun, Jan 03, 2021 at 05:26:29PM +0100, Arnd Bergmann wrote:
+> Thank you for the report and bisecting the issue, and sorry this broke
+> your system!
+> 
+> Fortunately, the patch is fairly small, so there are only a limited number
+> of things that could go wrong. I haven't tried to analyze that message,
+> but I have two ideas:
+> 
+> a) The added ioc->sense_off check gets triggered and the code relies
+>   on the data being written outside of the structure
+> 
+> b) the address actually needs to always be written as a 64-bit value
+>     regardless of the instance->consistent_mask_64bit flag, as the
+>    driver did before. This looked like it was done in error.
+> 
+> Can you try the patch below instead of the revert and see if that
+> resolves the regression, and if it triggers the warning message I
+> add?
 
-On Mon, 4 Jan 2021 at 09:58, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 4.19.165 release.
-> There are 35 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 06 Jan 2021 15:56:52 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.165-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-> Pseudo-Shortlog of commits:
->
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->     Linux 4.19.165-rc1
-[...]
-> Peter Zijlstra <peterz@infradead.org>
->     mm/mmu_gather: invalidate TLB correctly on batch allocation failure a=
-nd flush
-[...]
+Thanks Arnd, I tried your patch and it resolves the regression.  It does not
+trigger the warning message you added.
 
-This one fails to compile on the X15 (arm 32-bits) with:
-| /srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/mm/memo=
-ry.c:
-In function 'tlb_table_invalidate':
-| /srv/oe/build/tmp-lkft-glibc/work-shared/am57xx-evm/kernel-source/mm/memo=
-ry.c:342:6:
-error: implicit declaration of function 'tlb_needs_table_invalidate';
-did you mean 'tlb_table_invalidate'?
-[-Werror=3Dimplicit-function-declaration]
-|   if (tlb_needs_table_invalidate()) {
-|       ^~~~~~~~~~~~~~~~~~~~~~~~~~
-|       tlb_table_invalidate
-
-Greetings!
-
-Daniel D=C3=ADaz
-daniel.diaz@linaro.org
+Phil
