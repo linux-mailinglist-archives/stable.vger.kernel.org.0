@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C712E914D
+	by mail.lfdr.de (Postfix) with ESMTP id CFB1F2E914E
 	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 08:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726502AbhADHmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 02:42:15 -0500
-Received: from mx2.suse.de ([195.135.220.15]:41098 "EHLO mx2.suse.de"
+        id S1726505AbhADHmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 02:42:18 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41220 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726434AbhADHmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 02:42:15 -0500
+        id S1726434AbhADHmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 02:42:18 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 11456B285;
-        Mon,  4 Jan 2021 07:41:34 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 6FE28B7B1;
+        Mon,  4 Jan 2021 07:41:36 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
         Coly Li <colyli@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 3/5] bcache: check unsupported feature sets for bcache register
-Date:   Mon,  4 Jan 2021 15:41:20 +0800
-Message-Id: <20210104074122.19759-4-colyli@suse.de>
+Subject: [PATCH 4/5] bcache: introduce BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE for large bucket
+Date:   Mon,  4 Jan 2021 15:41:21 +0800
+Message-Id: <20210104074122.19759-5-colyli@suse.de>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210104074122.19759-1-colyli@suse.de>
 References: <20210104074122.19759-1-colyli@suse.de>
@@ -31,75 +31,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch adds the check for features which is incompatible for
-current supported feature sets.
+When large bucket feature was added, BCH_FEATURE_INCOMPAT_LARGE_BUCKET
+was introduced into the incompat feature set. It used bucket_size_hi
+(which was added at the tail of struct cache_sb_disk) to extend current
+16bit bucket size to 32bit with existing bucket_size in struct
+cache_sb_disk.
 
-Now if the bcache device created by bcache-tools has features that
-current kernel doesn't support, read_super() will fail with error
-messoage. E.g. if an unsupported incompatible feature detected,
-bcache register will fail with dmesg "bcache: register_bcache() error :
-Unsupported incompatible feature found".
+This is not a good idea, there are two obvious problems,
+- Bucket size is always value power of 2, if store log2(bucket size) in
+  existing bucket_size of struct cache_sb_disk, it is unnecessary to add
+  bucket_size_hi.
+- Macro csum_set() assumes d[SB_JOURNAL_BUCKETS] is the last member in
+  struct cache_sb_disk, bucket_size_hi was added after d[] which makes
+  csum_set calculate an unexpected super block checksum.
 
-Fixes: d721a43ff69c ("bcache: increase super block version for cache device and backing device")
+To fix the above problems, this patch introduces a new incompat feature
+bit BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE, when this bit is set, it
+means bucket_size in struct cache_sb_disk stores the order of power-of-2
+bucket size value. When user specifies a bucket size larger than 32768
+sectors, BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE will be set to
+incompat feature set, and bucket_size stores log2(bucket size) more
+than store the real bucket size value.
+
+The obsoleted BCH_FEATURE_INCOMPAT_LARGE_BUCKET won't be used anymore,
+it is renamed to BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET and still only
+recognized by kernel driver for legacy compatible purpose. The previous
+bucket_size_hi is renmaed to obso_bucket_size_hi in struct cache_sb_disk
+and not used in bcache-tools anymore.
+
+For cache device created with BCH_FEATURE_INCOMPAT_LARGE_BUCKET feature,
+bcache-tools and kernel driver still recognize the feature string and
+display it as "obso_large_bucket".
+
+With this change, the unnecessary extra space extend of bcache on-disk
+super block can be avoided, and csum_set() may generate expected check
+sum as well.
+
 Fixes: ffa470327572 ("bcache: add bucket_size_hi into struct cache_sb_disk for large bucket")
 Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org # 5.9+
 ---
- drivers/md/bcache/features.h | 15 +++++++++++++++
- drivers/md/bcache/super.c    | 14 ++++++++++++++
- 2 files changed, 29 insertions(+)
+ drivers/md/bcache/features.c |  2 +-
+ drivers/md/bcache/features.h | 11 ++++++++---
+ drivers/md/bcache/super.c    | 22 +++++++++++++++++++---
+ include/uapi/linux/bcache.h  |  2 +-
+ 4 files changed, 29 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/md/bcache/features.c b/drivers/md/bcache/features.c
+index 6469223f0b77..d636b7b2d070 100644
+--- a/drivers/md/bcache/features.c
++++ b/drivers/md/bcache/features.c
+@@ -17,7 +17,7 @@ struct feature {
+ };
+ 
+ static struct feature feature_list[] = {
+-	{BCH_FEATURE_INCOMPAT, BCH_FEATURE_INCOMPAT_LARGE_BUCKET,
++	{BCH_FEATURE_INCOMPAT, BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE,
+ 		"large_bucket"},
+ 	{0, 0, 0 },
+ };
 diff --git a/drivers/md/bcache/features.h b/drivers/md/bcache/features.h
-index 32c5bbda2f0d..e73724c2b49b 100644
+index e73724c2b49b..84fc2c0f0101 100644
 --- a/drivers/md/bcache/features.h
 +++ b/drivers/md/bcache/features.h
-@@ -79,6 +79,21 @@ static inline void bch_clear_feature_##name(struct cache_sb *sb) \
+@@ -13,11 +13,15 @@
  
- BCH_FEATURE_INCOMPAT_FUNCS(large_bucket, LARGE_BUCKET);
+ /* Feature set definition */
+ /* Incompat feature set */
+-#define BCH_FEATURE_INCOMPAT_LARGE_BUCKET	0x0001 /* 32bit bucket size */
++/* 32bit bucket size, obsoleted */
++#define BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET		0x0001
++/* real bucket size is (1 << bucket_size) */
++#define BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE	0x0002
  
-+static inline bool bch_has_unknown_compat_features(struct cache_sb *sb)
-+{
-+	return ((sb->feature_compat & ~BCH_FEATURE_COMPAT_SUPP) != 0);
-+}
-+
-+static inline bool bch_has_unknown_ro_compat_features(struct cache_sb *sb)
-+{
-+	return ((sb->feature_ro_compat & ~BCH_FEATURE_RO_COMPAT_SUPP) != 0);
-+}
-+
-+static inline bool bch_has_unknown_incompat_features(struct cache_sb *sb)
-+{
-+	return ((sb->feature_incompat & ~BCH_FEATURE_INCOMPAT_SUPP) != 0);
-+}
-+
- int bch_print_cache_set_feature_compat(struct cache_set *c, char *buf, int size);
- int bch_print_cache_set_feature_ro_compat(struct cache_set *c, char *buf, int size);
- int bch_print_cache_set_feature_incompat(struct cache_set *c, char *buf, int size);
+ #define BCH_FEATURE_COMPAT_SUPP		0
+ #define BCH_FEATURE_RO_COMPAT_SUPP	0
+-#define BCH_FEATURE_INCOMPAT_SUPP	BCH_FEATURE_INCOMPAT_LARGE_BUCKET
++#define BCH_FEATURE_INCOMPAT_SUPP	(BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET| \
++					 BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE)
+ 
+ #define BCH_HAS_COMPAT_FEATURE(sb, mask) \
+ 		((sb)->feature_compat & (mask))
+@@ -77,7 +81,8 @@ static inline void bch_clear_feature_##name(struct cache_sb *sb) \
+ 		~BCH##_FEATURE_INCOMPAT_##flagname; \
+ }
+ 
+-BCH_FEATURE_INCOMPAT_FUNCS(large_bucket, LARGE_BUCKET);
++BCH_FEATURE_INCOMPAT_FUNCS(obso_large_bucket, OBSO_LARGE_BUCKET);
++BCH_FEATURE_INCOMPAT_FUNCS(large_bucket, LOG_LARGE_BUCKET_SIZE);
+ 
+ static inline bool bch_has_unknown_compat_features(struct cache_sb *sb)
+ {
 diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 6aa23a6fb394..f4674a3298af 100644
+index f4674a3298af..3999641f1775 100644
 --- a/drivers/md/bcache/super.c
 +++ b/drivers/md/bcache/super.c
-@@ -228,6 +228,20 @@ static const char *read_super(struct cache_sb *sb, struct block_device *bdev,
- 		sb->feature_compat = le64_to_cpu(s->feature_compat);
- 		sb->feature_incompat = le64_to_cpu(s->feature_incompat);
- 		sb->feature_ro_compat = le64_to_cpu(s->feature_ro_compat);
+@@ -64,9 +64,25 @@ static unsigned int get_bucket_size(struct cache_sb *sb, struct cache_sb_disk *s
+ {
+ 	unsigned int bucket_size = le16_to_cpu(s->bucket_size);
+ 
+-	if (sb->version >= BCACHE_SB_VERSION_CDEV_WITH_FEATURES &&
+-	     bch_has_feature_large_bucket(sb))
+-		bucket_size |= le16_to_cpu(s->bucket_size_hi) << 16;
++	if (sb->version >= BCACHE_SB_VERSION_CDEV_WITH_FEATURES) {
++		if (bch_has_feature_large_bucket(sb)) {
++			unsigned int max, order;
 +
-+		/* Check incompatible features */
-+		err = "Unsupported compatible feature found";
-+		if (bch_has_unknown_compat_features(sb))
-+			goto err;
-+
-+		err = "Unsupported read-only compatible feature found";
-+		if (bch_has_unknown_ro_compat_features(sb))
-+			goto err;
-+
-+		err = "Unsupported incompatible feature found";
-+		if (bch_has_unknown_incompat_features(sb))
-+			goto err;
-+
- 		err = read_super_common(sb, bdev, s);
- 		if (err)
- 			goto err;
++			max = sizeof(unsigned int) * BITS_PER_BYTE - 1;
++			order = le16_to_cpu(s->bucket_size);
++			/*
++			 * bcache tool will make sure the overflow won't
++			 * happen, an error message here is enough.
++			 */
++			if (order > max)
++				pr_err("Bucket size (1 << %u) overflows\n",
++					order);
++			bucket_size = 1 << order;
++		} else if (bch_has_feature_obso_large_bucket(sb)) {
++			bucket_size +=
++				le16_to_cpu(s->obso_bucket_size_hi) << 16;
++		}
++	}
+ 
+ 	return bucket_size;
+ }
+diff --git a/include/uapi/linux/bcache.h b/include/uapi/linux/bcache.h
+index 52e8bcb33981..cf7399f03b71 100644
+--- a/include/uapi/linux/bcache.h
++++ b/include/uapi/linux/bcache.h
+@@ -213,7 +213,7 @@ struct cache_sb_disk {
+ 		__le16		keys;
+ 	};
+ 	__le64			d[SB_JOURNAL_BUCKETS];	/* journal buckets */
+-	__le16			bucket_size_hi;
++	__le16			obso_bucket_size_hi;	/* obsoleted */
+ };
+ 
+ /*
 -- 
 2.26.2
 
