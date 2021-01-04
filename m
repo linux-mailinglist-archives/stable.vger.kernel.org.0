@@ -2,90 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0872E934F
+	by mail.lfdr.de (Postfix) with ESMTP id AB4602E9350
 	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 11:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726240AbhADK2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 05:28:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52182 "EHLO mail.kernel.org"
+        id S1726236AbhADK27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 05:28:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726236AbhADK2S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 05:28:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C6F21D93;
-        Mon,  4 Jan 2021 10:27:36 +0000 (UTC)
+        id S1725468AbhADK27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 05:28:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD6920715;
+        Mon,  4 Jan 2021 10:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609756057;
-        bh=xqhQj6CEMvYWLzotRmaHILISOHVzRJ5T63FrHnlRq+s=;
+        s=korg; t=1609756098;
+        bh=lMbzWsCGz1pxuG8mmCtrSboYxEaIhZkzmhKoTVrYfR4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J6mjw8NMsUVn3NyZj4a9V0iiEWC+Ehmfa8xwP3UhZxos83I11yxblT/tgBY4IJetN
-         Irz6agsYsrDWxtU+04GLG6E9ZtowW5FXOY8+hDRu7CUDFeqclMNlG4auHLnDfo0yqT
-         U318d0snFvVOm5s/hLcJk4AbzMNQ9ENam3nwIh8E=
-Date:   Mon, 4 Jan 2021 11:29:03 +0100
+        b=o7mcGI0gA4na/7UcKZ8w1Q5jaKagSZHgMAljBDlaz+kqop/x1V9LdUlDCjfF6RzZ3
+         UEbVe7hNuhYr7rlhr/35yH8ZEu4SqaQ6szKbKVQy2pRehGgov0Y7WgEQ3oFBH+XSCQ
+         KRLinNFt6osXDFFpYK6Ncy1ZoMRgeYYTzGlC0DSs=
+Date:   Mon, 4 Jan 2021 11:29:40 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Petr Vorel <petr.vorel@gmail.com>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Rich Felker <dalias@libc.org>,
+Cc:     stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Rich Felker <dalias@libc.org>,
         Peter Korsgaard <peter@korsgaard.com>,
         Baruch Siach <baruch@tkos.co.il>,
         Florian Weimer <fweimer@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/1] uapi: move constants from <linux/kernel.h> to
- <linux/const.h>
-Message-ID: <X/Lt7/LdYYoU8rRL@kroah.com>
-References: <20210101200308.22770-1-petr.vorel@gmail.com>
- <X++AviN6Zb75Yziv@pevik>
+Subject: Re: [PATCH 2/2] tools headers UAPI: Sync linux/const.h with the
+ kernel headers
+Message-ID: <X/LuFMU3iVGuH82R@kroah.com>
+References: <20210101202245.27409-1-petr.vorel@gmail.com>
+ <20210101202245.27409-2-petr.vorel@gmail.com>
+ <X++Fw3tSmvOOA1V2@pevik>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <X++AviN6Zb75Yziv@pevik>
+In-Reply-To: <X++Fw3tSmvOOA1V2@pevik>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 01, 2021 at 09:06:22PM +0100, Petr Vorel wrote:
-> Hi,
+On Fri, Jan 01, 2021 at 09:27:47PM +0100, Petr Vorel wrote:
+> > From: Arnaldo Carvalho de Melo <acme@redhat.com>
 > 
-> > and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
+> > commit 7ddcdea5b54492f54700f427f58690cf1e187e5e upstream.
 > 
-> > commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
+> > To pick up the changes in:
 > 
-> > The reason is to avoid indirect <linux/sysinfo.h> include when using
-> > some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
-> > -> <linux/sysinfo.h>.
+> >   a85cbe6159ffc973 ("uapi: move constants from <linux/kernel.h> to <linux/const.h>")
 > 
-> > This indirect include causes on MUSL redefinition of struct sysinfo when
-> > included both <sys/sysinfo.h> and some of UAPI headers:
+> > That causes no changes in tooling, just addresses this perf build
+> > warning:
 > 
-> >     In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
-> >                      from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
-> >                      from ../include/tst_netlink.h:14,
-> >                      from tst_crypto.c:13:
-> >     x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
-> >      struct sysinfo {
-> >             ^~~~~~~
-> >     In file included from ../include/tst_safe_macros.h:15,
-> >                      from ../include/tst_test.h:93,
-> >                      from tst_crypto.c:11:
-> >     x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
+> >   Warning: Kernel ABI header at 'tools/include/uapi/linux/const.h' differs from latest version at 'include/uapi/linux/const.h'
+> >   diff -u tools/include/uapi/linux/const.h include/uapi/linux/const.h
 > 
-> > Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
+> > Cc: Adrian Hunter <adrian.hunter@intel.com>
+> > Cc: Ian Rogers <irogers@google.com>
+> > Cc: Jiri Olsa <jolsa@kernel.org>
+> > Cc: Namhyung Kim <namhyung@kernel.org>
+> > Cc: Petr Vorel <petr.vorel@gmail.com>
+> > Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 > > Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-> > Suggested-by: Rich Felker <dalias@aerifal.cx>
-> > Acked-by: Rich Felker <dalias@libc.org>
-> > Cc: Peter Korsgaard <peter@korsgaard.com>
-> > Cc: Baruch Siach <baruch@tkos.co.il>
-> > Cc: Florian Weimer <fweimer@redhat.com>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 > > ---
-> > Hi,
-> 
-> > could this fix be backported to stable releases?
-> > Maybe safer to wait till v5.11 release.
-> 
-> > Adjusted for stable/linux-4.9.y.
-> I'm sorry, this one is for stable/linux-4.4.y
+> > Fix for previous commit.
+> For stable/linux-5.4.y.
 
-No worries, queued up everywhere now, thanks!
+Both now queued up, thanks.
 
 greg k-h
