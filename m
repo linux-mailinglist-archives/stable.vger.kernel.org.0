@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4DBE2E995E
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F2B2E9A66
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727711AbhADP6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:58:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36144 "EHLO mail.kernel.org"
+        id S1728309AbhADQJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:09:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727694AbhADP6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:58:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4A3D207AE;
-        Mon,  4 Jan 2021 15:58:03 +0000 (UTC)
+        id S1728603AbhADQBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:01:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C80F8224D4;
+        Mon,  4 Jan 2021 16:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775884;
-        bh=iVFB+GZCwJ/BkBhCbVB1SZVFE5aUB1+vU0lDPw6bRIE=;
+        s=korg; t=1609776078;
+        bh=Qsw7kkjV4wurJiVt+Wqj5QaGaotP5tCVGEJj8RzI4A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWLk9ctpTTCIZOC3XNiaBd2p4mHyj/a0h27P+bAohiqAGBo8pPikIp9JsTpfTWNA/
-         E+wPpilFDld7xVQzuENcS6xRklIElWR5t8ZrO8D/WSZAKHHtXctz/2KWo/XugIoSJt
-         3o24OA5ScO+O/ONTcSWjdE/e0CiPwOj0XvEE7pwc=
+        b=1rxRiBObT60iOmrGdiit3ZJQHxzR39S38rYgQmf1bPh5vHWlkd1ORwhP4VMKj8FaB
+         GaZE4fhuWcCKJUV/879Zhy2RVC+AOBAzp8Gkqmyr/lHeV9/QrmBtbocoHKinOOMdgY
+         dGYBnBxsAaElbuRX1p4n37qnjSxOMC4DgcSgGNcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Vigor <kvigor@gmail.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.19 01/35] md/raid10: initialize r10_bio->read_slot before use.
-Date:   Mon,  4 Jan 2021 16:57:04 +0100
-Message-Id: <20210104155703.451071310@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.10 12/63] opp: Call the missing clk_put() on error
+Date:   Mon,  4 Jan 2021 16:57:05 +0100
+Message-Id: <20210104155709.406778571@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,44 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Vigor <kvigor@gmail.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit 93decc563637c4288380912eac0eb42fb246cc04 upstream.
+commit 0e1d9ca1766f5d95fb881f57b6c4a1ffa63d4648 upstream.
 
-In __make_request() a new r10bio is allocated and passed to
-raid10_read_request(). The read_slot member of the bio is not
-initialized, and the raid10_read_request() uses it to index an
-array. This leads to occasional panics.
+Fix the clock reference counting by calling the missing clk_put() in the
+error path.
 
-Fix by initializing the field to invalid value and checking for
-valid value in raid10_read_request().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Kevin Vigor <kvigor@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Cc: v5.10 <stable@vger.kernel.org> # v5.10
+Fixes: dd461cd9183f ("opp: Allow dev_pm_opp_get_opp_table() to return -EPROBE_DEFER")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/md/raid10.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1138,7 +1138,7 @@ static void raid10_read_request(struct m
- 	struct md_rdev *err_rdev = NULL;
- 	gfp_t gfp = GFP_NOIO;
+---
+ drivers/opp/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -1111,7 +1111,7 @@ static struct opp_table *_allocate_opp_t
+ 	ret = dev_pm_opp_of_find_icc_paths(dev, opp_table);
+ 	if (ret) {
+ 		if (ret == -EPROBE_DEFER)
+-			goto remove_opp_dev;
++			goto put_clk;
  
--	if (r10_bio->devs[slot].rdev) {
-+	if (slot >= 0 && r10_bio->devs[slot].rdev) {
- 		/*
- 		 * This is an error retry, but we cannot
- 		 * safely dereference the rdev in the r10_bio,
-@@ -1547,6 +1547,7 @@ static void __make_request(struct mddev
- 	r10_bio->mddev = mddev;
- 	r10_bio->sector = bio->bi_iter.bi_sector;
- 	r10_bio->state = 0;
-+	r10_bio->read_slot = -1;
- 	memset(r10_bio->devs, 0, sizeof(r10_bio->devs[0]) * conf->copies);
+ 		dev_warn(dev, "%s: Error finding interconnect paths: %d\n",
+ 			 __func__, ret);
+@@ -1125,6 +1125,9 @@ static struct opp_table *_allocate_opp_t
+ 	list_add(&opp_table->node, &opp_tables);
+ 	return opp_table;
  
- 	if (bio_data_dir(bio) == READ)
++put_clk:
++	if (!IS_ERR(opp_table->clk))
++		clk_put(opp_table->clk);
+ remove_opp_dev:
+ 	_remove_opp_dev(opp_dev, opp_table);
+ err:
 
 
