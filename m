@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4122E9A8E
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A93952E9A80
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729488AbhADQLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:11:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37218 "EHLO mail.kernel.org"
+        id S1727960AbhADQKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:10:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728253AbhADQAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7CFF22573;
-        Mon,  4 Jan 2021 15:59:16 +0000 (UTC)
+        id S1728314AbhADQAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E3BC207AE;
+        Mon,  4 Jan 2021 16:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775957;
-        bh=mf2OZCsr1hT4C44vU3RJEfQi0oH2d53fQjELBwfXQUE=;
+        s=korg; t=1609776006;
+        bh=6klDzbX4FQiuaswtnqPILcKm00O72X6oRw8pRkFUjYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWyJNUgrLGYUqGGKsnv0DsZeEKmYudJq6Q9Jx5Ce9qjJX41Fr0TxszBKgyH8fwlvi
-         5ta9i+vUiIXl2F5hqxWEXVBhgezuAAtORflw+eDdDZaRoiHXqKXJYYxsakGd0yrfBQ
-         ePpBaYo9iatFrdFtK7dh+Z8cTcWPEWNo6d9meWxw=
+        b=viDajjYepEJeeNESUh+zK8z/vlseBbwZ1wjSGf5lnNQqrkrCA3+GSmGq1ASxTpY8s
+         yEiY/JaMf3SloRGWpV0gCpjj8NBQQ+UGh8Gr5jw6V3mFUy/nj5NjhMTZbpkLvncnFZ
+         7gLKHs9S/B+saAIZyuYx8a9WcaTW7j0KUggavmfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Subject: [PATCH 4.19 23/35] misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
-Date:   Mon,  4 Jan 2021 16:57:26 +0100
-Message-Id: <20210104155704.537226842@linuxfoundation.org>
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 28/47] media: gp8psk: initialize stats at power control logic
+Date:   Mon,  4 Jan 2021 16:57:27 +0100
+Message-Id: <20210104155707.104533461@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-commit 31dcb6c30a26d32650ce134820f27de3c675a45a upstream.
+commit d0ac1a26ed5943127cb0156148735f5f52a07075 upstream.
 
-A kernel-infoleak was reported by syzbot, which was caused because
-dbells was left uninitialized.
-Using kzalloc() instead of kmalloc() fixes this issue.
+As reported on:
+	https://lore.kernel.org/linux-media/20190627222020.45909-1-willemdebruijn.kernel@gmail.com/
 
-Reported-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Tested-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Link: https://lore.kernel.org/r/20201122224534.333471-1-anant.thazhemadam@gmail.com
+if gp8psk_usb_in_op() returns an error, the status var is not
+initialized. Yet, this var is used later on, in order to
+identify:
+	- if the device was already started;
+	- if firmware has loaded;
+	- if the LNBf was powered on.
+
+Using status = 0 seems to ensure that everything will be
+properly powered up.
+
+So, instead of the proposed solution, let's just set
+status = 0.
+
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/vmw_vmci/vmci_context.c |    2 +-
+ drivers/media/usb/dvb-usb/gp8psk.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -751,7 +751,7 @@ static int vmci_ctx_get_chkpt_doorbells(
- 			return VMCI_ERROR_MORE_DATA;
- 		}
+--- a/drivers/media/usb/dvb-usb/gp8psk.c
++++ b/drivers/media/usb/dvb-usb/gp8psk.c
+@@ -182,7 +182,7 @@ out_rel_fw:
  
--		dbells = kmalloc(data_size, GFP_ATOMIC);
-+		dbells = kzalloc(data_size, GFP_ATOMIC);
- 		if (!dbells)
- 			return VMCI_ERROR_NO_MEM;
+ static int gp8psk_power_ctrl(struct dvb_usb_device *d, int onoff)
+ {
+-	u8 status, buf;
++	u8 status = 0, buf;
+ 	int gp_product_id = le16_to_cpu(d->udev->descriptor.idProduct);
  
+ 	if (onoff) {
 
 
