@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222002E9AAC
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7A22E9A15
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbhADP7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
+        id S1728742AbhADQCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:02:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727679AbhADP7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27E3B225A9;
-        Mon,  4 Jan 2021 15:59:21 +0000 (UTC)
+        id S1727897AbhADQCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:02:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3813207AE;
+        Mon,  4 Jan 2021 16:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775961;
-        bh=0u/2AcnhmUltOpsdX2/8tyhxMNkbVKW3Q79Iurb2J6E=;
+        s=korg; t=1609776109;
+        bh=q9Q+DvzxGEMeJy831KMmzBCzYUFwM4Mf+Q89Q/DnXnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOwD8L72lzBn6YAVjHnSdxtLQS5BUSvTfXZnbVXvBES6YAlRPCSozC6yyRKOibtsX
-         gww2jpZotHmL0DXWYekio/01WclRQJ9r0/SAHXre4tAM5LDeHdtJ/iBptp+xcqBqN6
-         yVxXEmYX1Bi6T0GT4Z7rfY600o1i9H66vJzXJd/8=
+        b=z3O6TGq3LF1HvVLR9oVeKzWEP5AQH6MO+knnBeX0Q8xkwJFuOYF6cMP6Tqe3JqvTK
+         miaIxuPhz0NqlAB8rBolRnywsa3u3ya/SqhRcAnCRIH1/sHX67877k2xtWZjzmJfGx
+         ag4+/nbmkk5LMNk0A3+16aCGSEp1WAEoWYrCrUNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Santosh Sivaraj <santosh@fossix.org>
-Subject: [PATCH 4.19 15/35] asm-generic/tlb: Track freeing of page-table directories in struct mmu_gather
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Acked-by: Ilya Leoshkevich" <iii@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Zaslonko Mikhail <zaslonko@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 25/63] zlib: move EXPORT_SYMBOL() and MODULE_LICENSE() out of dfltcc_syms.c
 Date:   Mon,  4 Jan 2021 16:57:18 +0100
-Message-Id: <20210104155704.147719067@linuxfoundation.org>
+Message-Id: <20210104155710.042752544@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 22a61c3c4f1379ef8b0ce0d5cb78baf3178950e2 upstream
+commit 605cc30dea249edf1b659e7d0146a2cf13cbbf71 upstream.
 
-Some architectures require different TLB invalidation instructions
-depending on whether it is only the last-level of page table being
-changed, or whether there are also changes to the intermediate
-(directory) entries higher up the tree.
+In commit 11fb479ff5d9 ("zlib: export S390 symbols for zlib modules"), I
+added EXPORT_SYMBOL()s to dfltcc_inflate.c but then Mikhail said that
+these should probably be in dfltcc_syms.c with the other
+EXPORT_SYMBOL()s.
 
-Add a new bit to the flags bitfield in struct mmu_gather so that the
-architecture code can operate accordingly if it's the intermediate
-levels being invalidated.
+However, that is contrary to the current kernel style, which places
+EXPORT_SYMBOL() immediately after the function that it applies to, so
+move all EXPORT_SYMBOL()s to their respective function locations and
+drop the dfltcc_syms.c file.  Also move MODULE_LICENSE() from the
+deleted file to dfltcc.c.
 
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org> # 4.19
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
-[santosh: prerequisite for tlbflush backports]
+[rdunlap@infradead.org: remove dfltcc_syms.o from Makefile]
+  Link: https://lkml.kernel.org/r/20201227171837.15492-1-rdunlap@infradead.org
+
+Link: https://lkml.kernel.org/r/20201219052530.28461-1-rdunlap@infradead.org
+Fixes: 11fb479ff5d9 ("zlib: export S390 symbols for zlib modules")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/asm-generic/tlb.h |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -97,12 +97,22 @@ struct mmu_gather {
- #endif
- 	unsigned long		start;
- 	unsigned long		end;
--	/* we are in the middle of an operation to clear
--	 * a full mm and can make some optimizations */
--	unsigned int		fullmm : 1,
--	/* we have performed an operation which
--	 * requires a complete flush of the tlb */
--				need_flush_all : 1;
-+	/*
-+	 * we are in the middle of an operation to clear
-+	 * a full mm and can make some optimizations
-+	 */
-+	unsigned int		fullmm : 1;
-+
-+	/*
-+	 * we have performed an operation which
-+	 * requires a complete flush of the tlb
-+	 */
-+	unsigned int		need_flush_all : 1;
-+
-+	/*
-+	 * we have removed page directories
-+	 */
-+	unsigned int		freed_tables : 1;
+---
+ lib/zlib_dfltcc/Makefile         |    2 +-
+ lib/zlib_dfltcc/dfltcc.c         |    6 +++++-
+ lib/zlib_dfltcc/dfltcc_deflate.c |    3 +++
+ lib/zlib_dfltcc/dfltcc_syms.c    |   17 -----------------
+ 4 files changed, 9 insertions(+), 19 deletions(-)
+
+--- a/lib/zlib_dfltcc/Makefile
++++ b/lib/zlib_dfltcc/Makefile
+@@ -8,4 +8,4 @@
  
- 	struct mmu_gather_batch *active;
- 	struct mmu_gather_batch	local;
-@@ -137,6 +147,7 @@ static inline void __tlb_reset_range(str
- 		tlb->start = TASK_SIZE;
- 		tlb->end = 0;
- 	}
-+	tlb->freed_tables = 0;
+ obj-$(CONFIG_ZLIB_DFLTCC) += zlib_dfltcc.o
+ 
+-zlib_dfltcc-objs := dfltcc.o dfltcc_deflate.o dfltcc_inflate.o dfltcc_syms.o
++zlib_dfltcc-objs := dfltcc.o dfltcc_deflate.o dfltcc_inflate.o
+--- a/lib/zlib_dfltcc/dfltcc.c
++++ b/lib/zlib_dfltcc/dfltcc.c
+@@ -1,7 +1,8 @@
+ // SPDX-License-Identifier: Zlib
+ /* dfltcc.c - SystemZ DEFLATE CONVERSION CALL support. */
+ 
+-#include <linux/zutil.h>
++#include <linux/export.h>
++#include <linux/module.h>
+ #include "dfltcc_util.h"
+ #include "dfltcc.h"
+ 
+@@ -53,3 +54,6 @@ void dfltcc_reset(
+     dfltcc_state->dht_threshold = DFLTCC_DHT_MIN_SAMPLE_SIZE;
+     dfltcc_state->param.ribm = DFLTCC_RIBM;
  }
++EXPORT_SYMBOL(dfltcc_reset);
++
++MODULE_LICENSE("GPL");
+--- a/lib/zlib_dfltcc/dfltcc_deflate.c
++++ b/lib/zlib_dfltcc/dfltcc_deflate.c
+@@ -4,6 +4,7 @@
+ #include "dfltcc_util.h"
+ #include "dfltcc.h"
+ #include <asm/setup.h>
++#include <linux/export.h>
+ #include <linux/zutil.h>
  
- static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
-@@ -278,6 +289,7 @@ static inline void tlb_remove_check_page
- #define pte_free_tlb(tlb, ptep, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
-+		tlb->freed_tables = 1;			\
- 		__pte_free_tlb(tlb, ptep, address);		\
- 	} while (0)
- #endif
-@@ -285,7 +297,8 @@ static inline void tlb_remove_check_page
- #ifndef pmd_free_tlb
- #define pmd_free_tlb(tlb, pmdp, address)			\
- 	do {							\
--		__tlb_adjust_range(tlb, address, PAGE_SIZE);		\
-+		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
-+		tlb->freed_tables = 1;			\
- 		__pmd_free_tlb(tlb, pmdp, address);		\
- 	} while (0)
- #endif
-@@ -295,6 +308,7 @@ static inline void tlb_remove_check_page
- #define pud_free_tlb(tlb, pudp, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
-+		tlb->freed_tables = 1;			\
- 		__pud_free_tlb(tlb, pudp, address);		\
- 	} while (0)
- #endif
-@@ -304,7 +318,8 @@ static inline void tlb_remove_check_page
- #ifndef p4d_free_tlb
- #define p4d_free_tlb(tlb, pudp, address)			\
- 	do {							\
--		__tlb_adjust_range(tlb, address, PAGE_SIZE);		\
-+		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
-+		tlb->freed_tables = 1;			\
- 		__p4d_free_tlb(tlb, pudp, address);		\
- 	} while (0)
- #endif
+ /*
+@@ -34,6 +35,7 @@ int dfltcc_can_deflate(
+ 
+     return 1;
+ }
++EXPORT_SYMBOL(dfltcc_can_deflate);
+ 
+ static void dfltcc_gdht(
+     z_streamp strm
+@@ -277,3 +279,4 @@ again:
+         goto again; /* deflate() must use all input or all output */
+     return 1;
+ }
++EXPORT_SYMBOL(dfltcc_deflate);
+--- a/lib/zlib_dfltcc/dfltcc_syms.c
++++ /dev/null
+@@ -1,17 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * linux/lib/zlib_dfltcc/dfltcc_syms.c
+- *
+- * Exported symbols for the s390 zlib dfltcc support.
+- *
+- */
+-
+-#include <linux/init.h>
+-#include <linux/module.h>
+-#include <linux/zlib.h>
+-#include "dfltcc.h"
+-
+-EXPORT_SYMBOL(dfltcc_can_deflate);
+-EXPORT_SYMBOL(dfltcc_deflate);
+-EXPORT_SYMBOL(dfltcc_reset);
+-MODULE_LICENSE("GPL");
 
 
