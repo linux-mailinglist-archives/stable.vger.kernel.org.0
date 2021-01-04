@@ -2,71 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D772E93B3
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 11:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D682E93B4
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 11:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbhADKuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 05:50:54 -0500
-Received: from first.geanix.com ([116.203.34.67]:36860 "EHLO first.geanix.com"
+        id S1726536AbhADKvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 05:51:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726536AbhADKux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 05:50:53 -0500
-Received: from [IPv6:2a06:4004:10df:1:da27:a6d2:5305:fd0a] (_gateway [172.21.0.1])
-        by first.geanix.com (Postfix) with ESMTPSA id 824154E083C;
-        Mon,  4 Jan 2021 10:50:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=geanix.com; s=first;
-        t=1609757410; bh=vzQBIiX2ZNmabReTeKi3DQ9XqK9ef5/p5TwmnrtLyjY=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=Oy0LrhR/kRG2/ccgCAqdunZl1RBGvyaB5W6RIiKu5yoZ+ayk+nVJDh5Olh4MC1meN
-         9MoX3u+2Vggt4S1GCIwtsKkF2H0X7ZEkITxKGi4V+BPWDWS2BDING6/4uzQCIxReSm
-         D6sIPWKtwZSbSuGvXlZn9DVmM62DYStkD95OPU0sXxM3GYfv1qa2y7DwnLxEiF9SMt
-         XYbRx1Jtd4XL357/DmHGUUr/N/vLK0elnhcTYjPIHW482MP585FyPJqWPEhjcxUl0N
-         +xbGFSsI/DZ6CqZE+Q5RA79Y7sUk4KnRSE3HzsFKBOdT7hS85I+eKTTDMCo6Picz5+
-         0L0p6vys4OMMQ==
-Subject: Re: [PATCH] mtd: rawnand: gpmi: fix dst bit offset when extracting
- raw payload
-To:     Miquel Raynal <miquel.raynal@bootlin.com>, Han Xu <han.xu@nxp.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Cc:     =?UTF-8?Q?Martin_Hundeb=c3=b8ll?= <martin@geanix.com>,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210104103558.9035-1-miquel.raynal@bootlin.com>
-From:   Sean Nyekjaer <sean@geanix.com>
-Message-ID: <7db4b36e-23a6-6075-132c-214d043e78bd@geanix.com>
-Date:   Mon, 4 Jan 2021 11:50:10 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S1726737AbhADKvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 05:51:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D12A22211;
+        Mon,  4 Jan 2021 10:50:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609757458;
+        bh=TcgRaa1ZLaRJ30cuhsBRpxP+My/U4/3cTwgOq33NOCY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=b9IZtiIAQAnhj+oHHZAznT+csvF1pd7+3kx+5b4Y7dfAc8auzQiotzymLbys2jKsZ
+         58f+R2xdIAzfVjDrfPORC3lBjSZea81/98FSA7pYRL9QCyj1KEaafxJDd/kfxYp5qm
+         YiEXGCYFvoc3vh8oIGOwcgRmsLZfaeGf4AZZvCFA=
+Date:   Mon, 4 Jan 2021 11:52:24 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc:     "hch@lst.de" <hch@lst.de>,
+        Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Naohiro Aota <Naohiro.Aota@wdc.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] null_blk: Fix zone size initialization"
+ failed to apply to 4.19-stable tree
+Message-ID: <X/LzaLYN3k0JFJw3@kroah.com>
+References: <160915617556175@kroah.com>
+ <02237e37253bfffdc9f88dd72a7eccaf301a5b02.camel@wdc.com>
 MIME-Version: 1.0
-In-Reply-To: <20210104103558.9035-1-miquel.raynal@bootlin.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Spam-Status: No, score=-3.4 required=4.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        URIBL_BLOCKED autolearn=disabled version=3.4.4
-X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on ff3d05386fc5
+In-Reply-To: <02237e37253bfffdc9f88dd72a7eccaf301a5b02.camel@wdc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 04, 2021 at 06:14:41AM +0000, Damien Le Moal wrote:
+> On Mon, 2020-12-28 at 12:49 +0100, gregkh@linuxfoundation.org wrote:
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> Hi Greg,
+> 
+> I sent a backported patch for 4.19-stable in reply to your email. The backport
+> is identical to the one I sent separately for the 5.4-stable tree.
 
+It breaks the build:
 
-On 04/01/2021 11.35, Miquel Raynal wrote:
-> On Mon, 2020-12-21 at 10:00:13 UTC, Sean Nyekjaer wrote:
->> Re-add the multiply by 8 to "step * eccsize" to correct the destination bit offset
->> when extracting the data payload in gpmi_ecc_read_page_raw().
->>
->> Fixes: e5e5631cc889 ("mtd: rawnand: gpmi: Use nand_extract_bits()")
->> Cc: stable@vger.kernel.org
->> Reported-by: Martin Hundebøll <martin@geanix.com>
->> Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-> Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git nand/next, thanks.
->
-> Miquel
-Hi Miquel
+drivers/block/null_blk_zoned.c: In function ‘null_zone_init’:
+drivers/block/null_blk_zoned.c:5:42: error: ‘SZ_1M’ undeclared (first use in this function)
+    5 | #define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
+      |                                          ^~~~~
+drivers/block/null_blk_zoned.c:27:23: note: in expansion of macro ‘MB_TO_SECTS’
+   27 |  dev_capacity_sects = MB_TO_SECTS(dev->size);
+      |                       ^~~~~~~~~~~
+drivers/block/null_blk_zoned.c:5:42: note: each undeclared identifier is reported only once for each function it appears in
+    5 | #define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
+      |                                          ^~~~~
+drivers/block/null_blk_zoned.c:27:23: note: in expansion of macro ‘MB_TO_SECTS’
+   27 |  dev_capacity_sects = MB_TO_SECTS(dev->size);
+      |                       ^~~~~~~~~~~
 
-Will you please queue this for fixes? It's quite relevant for 5.10 LTS :)
+:(
 
-Best regards
-Sean Nyekjaer
