@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFD62E9AA2
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC7B2E9AC8
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbhADQAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36552 "EHLO mail.kernel.org"
+        id S1727047AbhADP7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727434AbhADQAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 073D0224DE;
-        Mon,  4 Jan 2021 15:59:29 +0000 (UTC)
+        id S1727971AbhADP7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F2662250F;
+        Mon,  4 Jan 2021 15:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775970;
-        bh=ayMLEWLTO3ln5gCVi+N7vwffY2GRGQLWDRhp7COPZvE=;
+        s=korg; t=1609775910;
+        bh=hwUyeNb9NGkxfnDkBWhFxs4Fh1afjms4BVH6fV3Jk0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaplG1qk1so6dHIrpuyqPz6MKaPJZdq4x+pN76cyWbhK5MbB0GNY1qOmgbZa8Eo7u
-         fMW4cZYlM5cM7DjQUJqRzoWJ1SRBeVktlej7A5FS+/borNEhTareNUrEzITu7/mr3x
-         tbH0TVIIihLCMFm5ky0Fn8q0cwiQH61Z581tvl3A=
+        b=Yfj3YR/FCoVLitocwoucsCup9+3vcDFKXaZzFF+kQ5VOib18orfHRpdUqIdoRS6kM
+         qCiT/ejTKPzNByU1DSMCRqnGGeUOBcKzGx4B5PwlX8hc8tMDzFjFO3RlQPgz6ionYI
+         lgrTS7UY8bhEb+Mz+gX0sPoIK8DxIah5PTyvzyRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/47] KVM: x86: avoid incorrect writes to host MSR_IA32_SPEC_CTRL
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
+        Rich Felker <dalias@aerifal.cx>, Rich Felker <dalias@libc.org>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Florian Weimer <fweimer@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 08/35] uapi: move constants from <linux/kernel.h> to <linux/const.h>
 Date:   Mon,  4 Jan 2021 16:57:11 +0100
-Message-Id: <20210104155706.339275609@linuxfoundation.org>
+Message-Id: <20210104155703.796490875@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,141 +44,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 6441fa6178f5456d1d4b512c08798888f99db185 ]
+commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
 
-If the guest is configured to have SPEC_CTRL but the host does not
-(which is a nonsensical configuration but these are not explicitly
-forbidden) then a host-initiated MSR write can write vmx->spec_ctrl
-(respectively svm->spec_ctrl) and trigger a #GP when KVM tries to
-restore the host value of the MSR.  Add a more comprehensive check
-for valid bits of SPEC_CTRL, covering host CPUID flags and,
-since we are at it and it is more correct that way, guest CPUID
-flags too.
+and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
 
-For AMD, remove the unnecessary is_guest_mode check around setting
-the MSR interception bitmap, so that the code looks the same as
-for Intel.
+The reason is to avoid indirect <linux/sysinfo.h> include when using
+some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
+-> <linux/sysinfo.h>.
 
-Cc: Jim Mattson <jmattson@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This indirect include causes on MUSL redefinition of struct sysinfo when
+included both <sys/sysinfo.h> and some of UAPI headers:
+
+    In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
+                     from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
+                     from ../include/tst_netlink.h:14,
+                     from tst_crypto.c:13:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
+     struct sysinfo {
+            ^~~~~~~
+    In file included from ../include/tst_safe_macros.h:15,
+                     from ../include/tst_test.h:93,
+                     from tst_crypto.c:11:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
+
+Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Suggested-by: Rich Felker <dalias@aerifal.cx>
+Acked-by: Rich Felker <dalias@libc.org>
+Cc: Peter Korsgaard <peter@korsgaard.com>
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Florian Weimer <fweimer@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kvm/svm.c     |  9 +++------
- arch/x86/kvm/vmx/vmx.c |  7 +++----
- arch/x86/kvm/x86.c     | 22 ++++++++++++++++++++++
- arch/x86/kvm/x86.h     |  1 +
- 4 files changed, 29 insertions(+), 10 deletions(-)
+ include/uapi/linux/const.h              |    5 +++++
+ include/uapi/linux/ethtool.h            |    2 +-
+ include/uapi/linux/kernel.h             |    9 +--------
+ include/uapi/linux/lightnvm.h           |    2 +-
+ include/uapi/linux/mroute6.h            |    2 +-
+ include/uapi/linux/netfilter/x_tables.h |    2 +-
+ include/uapi/linux/netlink.h            |    2 +-
+ include/uapi/linux/sysctl.h             |    2 +-
+ 8 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index c79c1a07f44b9..72bf1d8175ac2 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -4322,12 +4322,10 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
- 			return 1;
+--- a/include/uapi/linux/const.h
++++ b/include/uapi/linux/const.h
+@@ -28,4 +28,9 @@
+ #define _BITUL(x)	(_UL(1) << (x))
+ #define _BITULL(x)	(_ULL(1) << (x))
  
--		/* The STIBP bit doesn't fault even if it's not advertised */
--		if (data & ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD))
-+		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
- 			return 1;
- 
- 		svm->spec_ctrl = data;
--
- 		if (!data)
- 			break;
- 
-@@ -4351,13 +4349,12 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 
- 		if (data & ~PRED_CMD_IBPB)
- 			return 1;
--
-+		if (!boot_cpu_has(X86_FEATURE_AMD_IBPB))
-+			return 1;
- 		if (!data)
- 			break;
- 
- 		wrmsrl(MSR_IA32_PRED_CMD, PRED_CMD_IBPB);
--		if (is_guest_mode(vcpu))
--			break;
- 		set_msr_interception(svm->msrpm, MSR_IA32_PRED_CMD, 0, 1);
- 		break;
- 	case MSR_AMD64_VIRT_SPEC_CTRL:
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 2a1ed3aae100e..8450fce70bd96 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1974,12 +1974,10 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
- 			return 1;
- 
--		/* The STIBP bit doesn't fault even if it's not advertised */
--		if (data & ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD))
-+		if (data & ~kvm_spec_ctrl_valid_bits(vcpu))
- 			return 1;
- 
- 		vmx->spec_ctrl = data;
--
- 		if (!data)
- 			break;
- 
-@@ -2006,7 +2004,8 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 
- 		if (data & ~PRED_CMD_IBPB)
- 			return 1;
--
-+		if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL))
-+			return 1;
- 		if (!data)
- 			break;
- 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b7f86acb8c911..72990c3c6faf7 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10369,6 +10369,28 @@ bool kvm_arch_no_poll(struct kvm_vcpu *vcpu)
- }
- EXPORT_SYMBOL_GPL(kvm_arch_no_poll);
- 
-+u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu)
-+{
-+	uint64_t bits = SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD;
++#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
++#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
 +
-+	/* The STIBP bit doesn't fault even if it's not advertised */
-+	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) &&
-+	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS))
-+		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
-+	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL) &&
-+	    !boot_cpu_has(X86_FEATURE_AMD_IBRS))
-+		bits &= ~(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP);
++#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 +
-+	if (!guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL_SSBD) &&
-+	    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
-+		bits &= ~SPEC_CTRL_SSBD;
-+	if (!boot_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) &&
-+	    !boot_cpu_has(X86_FEATURE_AMD_SSBD))
-+		bits &= ~SPEC_CTRL_SSBD;
-+
-+	return bits;
-+}
-+EXPORT_SYMBOL_GPL(kvm_spec_ctrl_valid_bits);
+ #endif /* _UAPI_LINUX_CONST_H */
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -14,7 +14,7 @@
+ #ifndef _UAPI_LINUX_ETHTOOL_H
+ #define _UAPI_LINUX_ETHTOOL_H
  
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_fast_mmio);
-diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
-index de6b55484876a..301286d924320 100644
---- a/arch/x86/kvm/x86.h
-+++ b/arch/x86/kvm/x86.h
-@@ -368,5 +368,6 @@ static inline bool kvm_pat_valid(u64 data)
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/if_ether.h>
  
- void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu);
- void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu);
-+u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu);
+--- a/include/uapi/linux/kernel.h
++++ b/include/uapi/linux/kernel.h
+@@ -3,13 +3,6 @@
+ #define _UAPI_LINUX_KERNEL_H
  
- #endif
--- 
-2.27.0
-
+ #include <linux/sysinfo.h>
+-
+-/*
+- * 'kernel.h' contains some often-used function prototypes etc
+- */
+-#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+-#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+-
+-#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
++#include <linux/const.h>
+ 
+ #endif /* _UAPI_LINUX_KERNEL_H */
+--- a/include/uapi/linux/lightnvm.h
++++ b/include/uapi/linux/lightnvm.h
+@@ -21,7 +21,7 @@
+ #define _UAPI_LINUX_LIGHTNVM_H
+ 
+ #ifdef __KERNEL__
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/ioctl.h>
+ #else /* __KERNEL__ */
+ #include <stdio.h>
+--- a/include/uapi/linux/mroute6.h
++++ b/include/uapi/linux/mroute6.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_MROUTE6_H
+ #define _UAPI__LINUX_MROUTE6_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/sockios.h>
+ #include <linux/in6.h>		/* For struct sockaddr_in6. */
+--- a/include/uapi/linux/netfilter/x_tables.h
++++ b/include/uapi/linux/netfilter/x_tables.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+ #ifndef _UAPI_X_TABLES_H
+ #define _UAPI_X_TABLES_H
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ 
+ #define XT_FUNCTION_MAXNAMELEN 30
+--- a/include/uapi/linux/netlink.h
++++ b/include/uapi/linux/netlink.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_NETLINK_H
+ #define _UAPI__LINUX_NETLINK_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/socket.h> /* for __kernel_sa_family_t */
+ #include <linux/types.h>
+ 
+--- a/include/uapi/linux/sysctl.h
++++ b/include/uapi/linux/sysctl.h
+@@ -23,7 +23,7 @@
+ #ifndef _UAPI_LINUX_SYSCTL_H
+ #define _UAPI_LINUX_SYSCTL_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+ 
 
 
