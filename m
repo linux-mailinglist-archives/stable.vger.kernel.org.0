@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484B42E9705
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C2D2E9713
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:20:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726029AbhADOTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 09:19:16 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:49125 "EHLO
+        id S1727083AbhADOTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 09:19:47 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:33859 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726258AbhADOTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 09:19:16 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 774F3194343B;
-        Mon,  4 Jan 2021 09:18:29 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 04 Jan 2021 09:18:29 -0500
+        by vger.kernel.org with ESMTP id S1726692AbhADOTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 09:19:46 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CF886194344D;
+        Mon,  4 Jan 2021 09:18:39 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 04 Jan 2021 09:18:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=8MUyvx
-        76AbdTtctxWOzKhWe8/ttDuq4RrJmOoATKmk0=; b=n7X5ISORnODAjY9//bYxKJ
-        Wbpfa6C71pcIQG3ddnQ1X9qL9+Garx2SRDouhaeRC8WHSG4DJHS9VZ08wJtfPTy8
-        7SamlWQAhM21/J/PLDaZEvOiCdowwXmJsHjgg8MJ3o2PEfcYONDjpN5k9mPlcw9p
-        /YEzN9DJfRdprrHKSfTl5FA8Mo9MV9/6mapEYG4NVsG/eABiMQJFIOoYhMl0SAZr
-        TnTuG559j9ggFmNOr67jPsmL5H2jZkTJtWVfQmF6iwIR0+e47U3s4rKEEkBkff4h
-        p6JgK6Km3i+2EXcMK/8x18K0i8XrLwxrpKYFDLYRefQvkEq/70ICfk5mjVXmnf0Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ptwt58
+        /uzeq/aBPP6uWchCUyqcjuhydqNRMqQUwXpx0=; b=kBIvYUuBz5nSx9n05/i6AQ
+        zK9LYJH5Z0DKdQAoR3B+6CBPCJk3f3OAtd8jTqIrUj7F9uTpmPJaGg0/grqK0Cow
+        YVUM2LDoXFU7C6rgOq0kbyIJVfPVMnuInqmG1QzLwjhLhM062iMwusTq4jrH9Ku8
+        hO0cAuO7PLWxZ6PqOHCGZj4lQUagBtyMQ8WxWJ1pfEBnu+s2lgQSgdd9cX5wieMs
+        8kp3Tf5IZ2XfwAJ9iprDuHZsREovSPzAsa1pjuEk26yeCn9yHy0mzbuN/UPc2LVB
+        FdwewS5WDZ2/oOgfD+1GCtnAW/Un7y567TKnA6wXa+FbMoax5MlFRbUzsHMredfg
         ==
-X-ME-Sender: <xms:syPzX-BGmQsUaAFcBCyqviyUC35eIU_AuMFogGPCWGc1Rq7kWIH7Ew>
-    <xme:syPzX4iJZoSGHuuIpb5UNue8opW4BtlgWN2ttF4x2F14bNtTJQhYZzFSpNXNatN6Q
-    01WY3f99HDsJg>
+X-ME-Sender: <xms:vCPzX6ZELkAsg9II7YgljjAgDEUg7rXwvwlQa04IY7E5DstqK3R9Ow>
+    <xme:vCPzX0RFlT0lhdNtLdgSeHOxEXZd8Fir4UaLFMVXoAHtPwT4exi20RLmayfQ_T6dW
+    629_C_RgUCWKw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeffedgieehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,14 +38,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeffedgieehucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:syPzXxkX-S9hzVal55uxq0mvfI_XIG7kiefqOjmfV56lvlvMemRMuA>
-    <xmx:syPzX8y3vnVmPLji4wDws-Sl65ZoSRRODma2IzFDr4OpsyChgd1mCg>
-    <xmx:syPzXzROqQ-pXzlEKhmWd3uKJc3rWI4HShI_Z6r8lOAmUsQG5GMwBw>
-    <xmx:tSPzXyJh3PhL651GD-gxXfSGbPV1WMk89D3nG6yCN7GDuhyANpWubCfzxZI>
+X-ME-Proxy: <xmx:vCPzX9QojMpGZinGQ7WyQ29Xakif7xovaAoDJyt0W826ucZI_Z8TIQ>
+    <xmx:vCPzX4QEbSujP-Go7h_-IeZXwfGgnM6mvv-OEBpLPNc17dJYLNoMYA>
+    <xmx:vCPzXy5BP0aMvwrRDVfRvWWpiBda9mFTKrDv8iO32jGKwk_541C8Fg>
+    <xmx:vyPzX0OUCPEJPk57Ecm8iWIzsp5SPF6GIlgynOzb5CFLXAQMA1EYnyY9AJA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 24DE0108005C;
-        Mon,  4 Jan 2021 09:18:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] exec: Transform exec_update_mutex into a rw_semaphore" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 191B1240057;
+        Mon,  4 Jan 2021 09:18:36 -0500 (EST)
+Subject: FAILED: patch "[PATCH] exec: Transform exec_update_mutex into a rw_semaphore" failed to apply to 5.4-stable tree
 To:     ebiederm@xmission.com, acme@kernel.org, arnd@arndb.de,
         bernd.edlinger@hotmail.de, christian.brauner@ubuntu.com,
         cyeoh@au1.ibm.com, gorcunov@gmail.com, jannh@google.com,
@@ -53,8 +53,8 @@ To:     ebiederm@xmission.com, acme@kernel.org, arnd@arndb.de,
         sargun@sargun.me, segoon@openwall.com, viro@zeniv.linux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jan 2021 15:19:53 +0100
-Message-ID: <1609769993250208@kroah.com>
+Date:   Mon, 04 Jan 2021 15:19:55 +0100
+Message-ID: <160976999586137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
