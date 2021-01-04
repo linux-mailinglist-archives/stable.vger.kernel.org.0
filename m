@@ -2,77 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D682E93B4
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 11:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 348442E93B8
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 11:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbhADKvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 05:51:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1726710AbhADKwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 05:52:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726737AbhADKvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 05:51:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D12A22211;
-        Mon,  4 Jan 2021 10:50:57 +0000 (UTC)
+        id S1726832AbhADKwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 05:52:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE38E21D93;
+        Mon,  4 Jan 2021 10:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609757458;
-        bh=TcgRaa1ZLaRJ30cuhsBRpxP+My/U4/3cTwgOq33NOCY=;
+        s=korg; t=1609757514;
+        bh=Qludl3mW9cikrzdwm6uafrBjf7B0gur26jtO6SGSl7Y=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b9IZtiIAQAnhj+oHHZAznT+csvF1pd7+3kx+5b4Y7dfAc8auzQiotzymLbys2jKsZ
-         58f+R2xdIAzfVjDrfPORC3lBjSZea81/98FSA7pYRL9QCyj1KEaafxJDd/kfxYp5qm
-         YiEXGCYFvoc3vh8oIGOwcgRmsLZfaeGf4AZZvCFA=
-Date:   Mon, 4 Jan 2021 11:52:24 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc:     "hch@lst.de" <hch@lst.de>,
-        Johannes Thumshirn <Johannes.Thumshirn@wdc.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        Naohiro Aota <Naohiro.Aota@wdc.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] null_blk: Fix zone size initialization"
- failed to apply to 4.19-stable tree
-Message-ID: <X/LzaLYN3k0JFJw3@kroah.com>
-References: <160915617556175@kroah.com>
- <02237e37253bfffdc9f88dd72a7eccaf301a5b02.camel@wdc.com>
+        b=Y9LY9u3rodCDdUSza/UxJltgPXg4tAhyYe3GAAwFGhU+Ue3KtH3Zi551NWIrVx+cs
+         iCMciq0tb6WjnNWLooweAZ9q70VvwDpSjluxQWkmO2uRLH7cmSLubZejN7eAnEkLfv
+         TjR1EWJ9+2M52GHDWUGlCYGfI5P83OSK8zKKx658=
+Date:   Mon, 4 Jan 2021 11:53:20 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <damien.lemoal@wdc.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] null_blk: Fix zone size initialization
+Message-ID: <X/LzoKkYXJMdfhlJ@kroah.com>
+References: <160915617623242@kroah.com>
+ <20210104061044.664481-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <02237e37253bfffdc9f88dd72a7eccaf301a5b02.camel@wdc.com>
+In-Reply-To: <20210104061044.664481-1-damien.lemoal@wdc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 06:14:41AM +0000, Damien Le Moal wrote:
-> On Mon, 2020-12-28 at 12:49 +0100, gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Mon, Jan 04, 2021 at 03:10:44PM +0900, Damien Le Moal wrote:
+> commit 0ebcdd702f49aeb0ad2e2d894f8c124a0acc6e23 upstream.
 > 
-> Hi Greg,
+> For a null_blk device with zoned mode enabled is currently initialized
+> with a number of zones equal to the device capacity divided by the zone
+> size, without considering if the device capacity is a multiple of the
+> zone size. If the zone size is not a divisor of the capacity, the zones
+> end up not covering the entire capacity, potentially resulting is out
+> of bounds accesses to the zone array.
 > 
-> I sent a backported patch for 4.19-stable in reply to your email. The backport
-> is identical to the one I sent separately for the 5.4-stable tree.
+> Fix this by adding one last smaller zone with a size equal to the
+> remainder of the disk capacity divided by the zone size if the capacity
+> is not a multiple of the zone size. For such smaller last zone, the zone
+> capacity is also checked so that it does not exceed the smaller zone
+> size.
 
-It breaks the build:
+Now queued up, thanks.
 
-drivers/block/null_blk_zoned.c: In function ‘null_zone_init’:
-drivers/block/null_blk_zoned.c:5:42: error: ‘SZ_1M’ undeclared (first use in this function)
-    5 | #define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
-      |                                          ^~~~~
-drivers/block/null_blk_zoned.c:27:23: note: in expansion of macro ‘MB_TO_SECTS’
-   27 |  dev_capacity_sects = MB_TO_SECTS(dev->size);
-      |                       ^~~~~~~~~~~
-drivers/block/null_blk_zoned.c:5:42: note: each undeclared identifier is reported only once for each function it appears in
-    5 | #define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
-      |                                          ^~~~~
-drivers/block/null_blk_zoned.c:27:23: note: in expansion of macro ‘MB_TO_SECTS’
-   27 |  dev_capacity_sects = MB_TO_SECTS(dev->size);
-      |                       ^~~~~~~~~~~
-
-:(
-
+greg k-h
