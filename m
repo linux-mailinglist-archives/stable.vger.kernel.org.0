@@ -2,120 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131672E966B
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 14:54:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F8332E9688
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726472AbhADNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 08:53:49 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39945 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725840AbhADNxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 08:53:49 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 35D01E11;
-        Mon,  4 Jan 2021 08:53:03 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 04 Jan 2021 08:53:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gXVdhV
-        Q4dgbv7quKI8tTu/j6gv8gEZd2IPDDiN/Zy/0=; b=POwaeJz3hNOehtyhk9KTwK
-        MfwUMsxtyKH5rYTD6TL2mKcvb0/egewZTKQxpZ7Gyum016jrEITi6R10lWdrK7ds
-        xqtDz1nYWxXtNKV3kY8ym1GQXpbmWhgG67WGXlJkYcEyF/EyZeLdmMZFiTC0dHLa
-        j+3uGspKBxeOhVQ2J2sO/68B74gTQDoRgpgcq9IkKxm4ReKcNlANHlbiI32L3VNH
-        pX4vPnIVHEKW5x0mLEcq1nFT1VXWVORiwQuvFHEsA1sh5hKrjvcCkfvFP7M4eg2X
-        pTt02Nx/zYso+0FpM2c0PpOwgFvD6gJ0nt47+BSWNuRuoZr1vq+lUdZ4SeeCwbpw
-        ==
-X-ME-Sender: <xms:vh3zX_A8Dp2B4bA--lQFhpYEYTqTggyLhFnB4v6EiHudX4PhDxsagg>
-    <xme:vh3zX1iuBT9AfWjj-hXYNVSq4LjrOyXvt0sAJdSPsRPuy7PIqWfc0G7gLfjX50qhV
-    l-z2HjD1zRqhg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeffedgiedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:vh3zX6mjjvAP2Tf21YKr1SztS31ZSW0A_0h2TBEy_S2kj3UFur8j0A>
-    <xmx:vh3zXxzxdEah6fO3XY-Iu0HkfW0GK89Z3HwIeE0_blt_u1zqQq8giA>
-    <xmx:vh3zX0SVfdqw0H1OpAJDuHd76FAvMLhV-CewhlPmsi0s-TpVkmbd4w>
-    <xmx:vh3zX_KDNg9g6MZwmoefWXMiHVpm8Ci6kymFKPHWaUssraiNb8HQzPUt8HE>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E2F81240057;
-        Mon,  4 Jan 2021 08:53:01 -0500 (EST)
-Subject: FAILED: patch "[PATCH] scsi: ufs: Re-enable WriteBooster after device reset" failed to apply to 5.10-stable tree
-To:     stanley.chu@mediatek.com, beanhuo@micron.com,
-        martin.petersen@oracle.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Jan 2021 14:54:28 +0100
-Message-ID: <1609768468110187@kroah.com>
+        id S1726949AbhADOBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 09:01:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:20752 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726419AbhADOBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 09:01:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1609768774;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qvSWlf3CRXHja/3mFFy4H6SjbY0WNebl5EBD9/NzC74=;
+        b=HjaHL5Val8zKhL7iqdzdgpggTMnIIbKlIIM7ecy77+lzdS3biyJYfFyTuK/bTumi/9PdJe
+        EtV4t1pgITnzbG9NEVeKKKogoK0Jkovsu94W81mZkTZzLR51EAb/3GAqGqMLClJP3HoECl
+        geJLue3XNjSw1cjAUW4/YfBSrdXpNNE=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-217-ilHF1xB1Pvur2QDJsrO1eg-1; Mon, 04 Jan 2021 08:59:31 -0500
+X-MC-Unique: ilHF1xB1Pvur2QDJsrO1eg-1
+Received: by mail-ed1-f70.google.com with SMTP id g25so12211059edu.4
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 05:59:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qvSWlf3CRXHja/3mFFy4H6SjbY0WNebl5EBD9/NzC74=;
+        b=bpC6cZskpzDs2iHiZkIFPaeK13Ho81uH4Af0dszzYKEnZ3nsACmPQAzAIQZP7fdGeo
+         h2XOu9eKYmnlq0KhC6EJYi/vAktl33wyPEAOnEpDEXH2CjUhxLP8LHHF541CwDWul3IP
+         QfXdTqAOUyXCqW3UnvpV0LGbZ7jhLbPcVYKJx+B2Bp2uFAy8pp+t29OxISKWkxf9TtYv
+         GuM85/0y2TynNanzBvI+9Bzv4cIP83jjw/1kYqyUu8p09JRhRjHJ18eKCccpcN5Ytn0v
+         s9au/qUatWgNlLgRsxO7FW0o7/YRRwcja7CsRB1TdCmCCsq0eMwv9ecMazyhhZKK5g99
+         T8eA==
+X-Gm-Message-State: AOAM531hKbKEW2zOCpTHbJ2c0To+DtSwERak/K7Bgc72vmnhdNHvYyvI
+        /+yPhIiCnNQusH+jZ6ONlT8jBH9VUmpusN3mUqyVD+mK7iiQRJve8Fadsg17cZdoVs6606goiYx
+        GSy1/ghtZBBVVEW9HDL+m0RfAcwA9RgJFKeMT+SRJe2vElvBvomrB1N/pq5cPBvKX8Ton
+X-Received: by 2002:a17:906:34c3:: with SMTP id h3mr66426497ejb.132.1609768769898;
+        Mon, 04 Jan 2021 05:59:29 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzy3gx62AOsi6TbAX7kHj7zLjr/a/AaJ0Hjw5vkps6VWRD8P7RIGMOMsHj1TtnSX64kVz+VYQ==
+X-Received: by 2002:a17:906:34c3:: with SMTP id h3mr66426469ejb.132.1609768769602;
+        Mon, 04 Jan 2021 05:59:29 -0800 (PST)
+Received: from x1.localdomain (2001-1c00-0c1e-bf00-37a3-353b-be90-1238.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:37a3:353b:be90:1238])
+        by smtp.gmail.com with ESMTPSA id u16sm44376631eds.10.2021.01.04.05.59.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Jan 2021 05:59:28 -0800 (PST)
+Subject: Re: [PATCH] ACPI / scan: Don't create platform device for INT3515
+ ACPI nodes
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Moody Salem <moody@uniswap.org>, stable@vger.kernel.org
+References: <20201223143644.33341-1-heikki.krogerus@linux.intel.com>
+ <ae94a191-4273-0000-deda-4859034343b8@redhat.com>
+ <20210104122343.GT4077@smile.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <c59bb4a0-62bc-3390-dd29-758d415c59fa@redhat.com>
+Date:   Mon, 4 Jan 2021 14:59:28 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210104122343.GT4077@smile.fi.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 1/4/21 1:23 PM, Andy Shevchenko wrote:
+> On Mon, Jan 04, 2021 at 12:59:39PM +0100, Hans de Goede wrote:
+>> On 12/23/20 3:36 PM, Heikki Krogerus wrote:
+>>> There are several reports about the tps6598x causing
+>>> interrupt flood on boards with the INT3515 ACPI node, which
+>>> then causes instability. There appears to be several
+>>> problems with the interrupt. One problem is that the
+>>> I2CSerialBus resources do not always map to the Interrupt
+>>> resource with the same index, but that is not the only
+>>> problem. We have not been able to come up with a solution
+>>> for all the issues, and because of that disabling the device
+>>> for now.
+>>>
+>>> The PD controller on these platforms is autonomous, and the
+>>> purpose for the driver is primarily to supply status to the
+>>> userspace, so this will not affect any functionality.
+>>>
+>>> Reported-by: Moody Salem <moody@uniswap.org>
+>>> Fixes: a3dd034a1707 ("ACPI / scan: Create platform device for INT3515 ACPI nodes")
+>>> Cc: stable@vger.kernel.org
+>>> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1883511
+>>> Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+>>
+>> Thank you for your patch, I've applied this patch to my review-hans 
+>> branch:
+>> https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=review-hans
+>>
+>> Note it will show up in my review-hans branch once I've pushed my
+>> local branch there, which might take a while.
+>>
+>> Once I've run some tests on this branch the patches there will be
+>> added to the platform-drivers-x86/for-next branch and eventually
+>> will be included in the pdx86 pull-request to Linus for the next
+>> merge-window.
+> 
+> I'm wondering if my reply has been seen...
+> 
+> https://lore.kernel.org/platform-driver-x86/ae94a191-4273-0000-deda-4859034343b8@redhat.com/T/#m30308ca22cd0ce266aa6913ab7ef1fc56b3279de
 
-thanks,
+Yes I've done the s/Link/BugLink/ in the commit msg and fixed up the
+typo-s in the comment block locally. I should have mentioned that in
+my reply instead of just blindly using the template-reply which I have for
+this, sorry; and thank you for the review.
 
-greg k-h
+Regards,
 
------------------- original commit in Linus's tree ------------------
-
-From bd14bf0e4a084514aa62d24d2109e0f09a93822f Mon Sep 17 00:00:00 2001
-From: Stanley Chu <stanley.chu@mediatek.com>
-Date: Tue, 8 Dec 2020 21:56:34 +0800
-Subject: [PATCH] scsi: ufs: Re-enable WriteBooster after device reset
-
-UFS 3.1 specification mentions that the WriteBooster flags listed below
-will be set to their default values, i.e. disabled, after power cycle or
-any type of reset event. Thus we need to reset the flag variables kept in
-struct hba to align with the device status and ensure that
-WriteBooster-related functions are configured properly after device reset.
-
-Without this fix, WriteBooster will not be enabled successfully after by
-ufshcd_wb_ctrl() after device reset because hba->wb_enabled remains true.
-
-Flags required to be reset to default values:
-
- - fWriteBoosterEn: hba->wb_enabled
-
- - fWriteBoosterBufferFlushEn: hba->wb_buf_flush_enabled
-
- - fWriteBoosterBufferFlushDuringHibernate: No variable mapped
-
-Link: https://lore.kernel.org/r/20201208135635.15326-2-stanley.chu@mediatek.com
-Fixes: 3d17b9b5ab11 ("scsi: ufs: Add write booster feature support")
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 08c8a591e6b0..36d367eb8139 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -1221,8 +1221,13 @@ static inline void ufshcd_vops_device_reset(struct ufs_hba *hba)
- 	if (hba->vops && hba->vops->device_reset) {
- 		int err = hba->vops->device_reset(hba);
- 
--		if (!err)
-+		if (!err) {
- 			ufshcd_set_ufs_dev_active(hba);
-+			if (ufshcd_is_wb_allowed(hba)) {
-+				hba->wb_enabled = false;
-+				hba->wb_buf_flush_enabled = false;
-+			}
-+		}
- 		if (err != -EOPNOTSUPP)
- 			ufshcd_update_evt_hist(hba, UFS_EVT_DEV_RESET, err);
- 	}
+Hans
 
