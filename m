@@ -2,270 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4EC2EA0D5
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 00:32:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B682EA10E
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 00:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727209AbhADXbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 18:31:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58708 "EHLO
+        id S1726098AbhADXp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 18:45:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726930AbhADXbO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 18:31:14 -0500
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E52DC061793;
-        Mon,  4 Jan 2021 15:30:34 -0800 (PST)
-Received: by mail-wm1-x32e.google.com with SMTP id a6so738602wmc.2;
-        Mon, 04 Jan 2021 15:30:34 -0800 (PST)
+        with ESMTP id S1726026AbhADXp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 18:45:59 -0500
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B64C061795;
+        Mon,  4 Jan 2021 15:45:18 -0800 (PST)
+Received: by mail-qt1-x82a.google.com with SMTP id g24so19747298qtq.12;
+        Mon, 04 Jan 2021 15:45:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=AT0KaanAHQpX/yi7u0zSE1SQN69yvyDd46YRWgQ6kQs=;
-        b=gsd0c/UlNljEANw7TjEIu4gwDWDenqLgI1VUVGfaDuJf5c2CW2TIJIlZAJy+1Hgzhg
-         h+ttPqZY8WdsZI2Iz9R3lA4AE7oytyLRXZF5t0lsb8j2UbXUMrWxt4nuq3gJtcdNohZc
-         lXI6mJ4wd7uxPkfoKXSYBODV9vuSgR+yAhLrTAjIdVnpKTEIkoHMW9YEWA7KHKoqAiEo
-         O+sAfPN/pu5UR1MctNSniPcu+0PWvQ7tcbjarCbC8btiWvahMCamiNz6IRX53VB5kR+D
-         4JvFl8C4hOhLJgQigeP0TSFWWvEmdFu/b6o0YUhEKjFJu4rq4TibaUyxjQMNUHBGXb/G
-         bEBA==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=JKcn5FmVjtdLgYOASDjA00unBiKKTt/1fSkBmrjqn/k=;
+        b=smDa0LCh0CtK3FPXBCvVYU5au0IgoTV9ZqbIsKji2U3SNxrn/aj0vutIcewQymx3Mb
+         W9v07PzwjXozdxnqRC/vzLotXbn7UpdWsAlqyVWaOsad7bTyrpZF6EaqaPtH13HQ/edC
+         zA3oqeTdKchms0BLPbxq3o16nenTLV1mtSUsTBMFfl/MCNyFz+UU5aIt2h4SFQfg0ngU
+         LULvahbuuDaEQcgSbcKa2nVE8iksNlze9whsRw0u8g5Wr1SVh4Uel31twcrB0Eeyis4r
+         x93YTs/JwUzelq1tFE1g/cGEkMJhaZU/K0p/J9qAbw6nVnznpJDLUk6n1SPnh6aYX9Rd
+         t7EQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=AT0KaanAHQpX/yi7u0zSE1SQN69yvyDd46YRWgQ6kQs=;
-        b=ggAVzX59LFG0+HuHY6hWqOLfisAev1nBHleFZjJ0sVF2WGiBy2DRUJPPaBOyQ/Hjdh
-         bU9Flg/xaZ3aHqewVV2lKf3q6SdoSSaYeobmFuNXwE1y1gBcT449Ces21WFfoNb19ZQI
-         aUJypx5SbwLaSrKyJhLvBKhupoy9Pf+vU9U8BPTR7U0scI7QqKIOwZb6UrcdO7PX5/E2
-         6Z6olxtbqMiDQtaF1+ktMDqB5qFY16du46LrL1H9cy+/sJRs1zM/hLbOP6iW0eqmo9fT
-         7YNtuuK7BWdk8Av9OmJ7W86Dl3QwwkKv0GfongqMqnGiSyBF1d5bjLnqRB/5cI+od0dF
-         icYA==
-X-Gm-Message-State: AOAM531xuro02XtWQMDhmzFHKCsM3/abULQAXGJKvs2HDtra1BmvusFT
-        nqMybBJHFsn7r7kcsSxV6WwxfSvn0kGFKQ==
-X-Google-Smtp-Source: ABdhPJw0Md6WprYfcBGMCMVJ86M0wOizibVI8Ao//VpdFaKAwgfDqvcqBbAkb6gMdqEPyo4fNq8m5g==
-X-Received: by 2002:a1c:5406:: with SMTP id i6mr527234wmb.137.1609792814179;
-        Mon, 04 Jan 2021 12:40:14 -0800 (PST)
-Received: from localhost.localdomain ([85.255.233.205])
-        by smtp.gmail.com with ESMTPSA id w21sm734483wmi.45.2021.01.04.12.40.13
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=JKcn5FmVjtdLgYOASDjA00unBiKKTt/1fSkBmrjqn/k=;
+        b=f80bnQD6za7usciREDRNQ8e58tDZQouLjwzzAeuvDfsU1ViftSG5uM+Nc9yxHVqm2o
+         gGtuKOyDAKO3NmgtB5/KZFa4WFp2Fs0c4jB5ZVLMHUhk52QB4Tzz0SrSKLBOTT/KdU0K
+         o/a9JNMOqbdFKMRIbJibqoZL9C8Wp4To5cw8P61y/Sm9eE61VHdVGlosvOhCr9lnm4Tq
+         9OUMhEP7q+D0Ds9WTg5IOVlQzJgdF6xsJ+QI4BQMImp23grAR8V0H3pCRpb8rhwR687/
+         W8Ci2rZXFIfaNVsWRg3XkMmmp8fBL7PrA1bif4dQDTHyPx1QL2/fNKgbT74ERsxYz4iT
+         T3Ww==
+X-Gm-Message-State: AOAM532wYsHQ4c+LfNMmMe7IZ2qXC3Ez7kKkwbHlar+Gm+s3MLZwUliK
+        pMIrUjyXPwUx8iAE6bawpDFPa6fpCpI=
+X-Google-Smtp-Source: ABdhPJxIId7YInUzi9s1MpexjtDdKWYEXgaBPVTOj1ys7xu3LTGaj1flIjv6myZeew4CJ1r0mdSuhA==
+X-Received: by 2002:a05:620a:4db:: with SMTP id 27mr74435319qks.431.1609793854321;
+        Mon, 04 Jan 2021 12:57:34 -0800 (PST)
+Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
+        by smtp.gmail.com with ESMTPSA id a22sm37490512qkl.121.2021.01.04.12.57.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 12:40:13 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v3 2/2] io_uring: patch up IOPOLL overflow_flush sync
-Date:   Mon,  4 Jan 2021 20:36:36 +0000
-Message-Id: <b11b0ab3920e4da79ce54e565cfb2b7f4ebbc0d3.1609789890.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1609789890.git.asml.silence@gmail.com>
-References: <cover.1609789890.git.asml.silence@gmail.com>
+        Mon, 04 Jan 2021 12:57:33 -0800 (PST)
+Date:   Mon, 4 Jan 2021 13:57:32 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Sedat Dilek <sedat.dilek@gmail.com>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        Clang-Built-Linux ML <clang-built-linux@googlegroups.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] powerpc: Handle .text.{hot,unlikely}.* in linker script
+Message-ID: <20210104205732.GA1398664@ubuntu-m3-large-x86>
+References: <20210104204850.990966-1-natechancellor@gmail.com>
+ <CA+icZUVe4AJoLWMqS3MEx700jcwDaJhw78tUgg8iD0dJvEmmYg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+icZUVe4AJoLWMqS3MEx700jcwDaJhw78tUgg8iD0dJvEmmYg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-IOPOLL skips completion locking but keeps it under uring_lock, thus
-io_cqring_overflow_flush() and so io_cqring_events() need additional
-locking with uring_lock in some cases for IOPOLL.
+On Mon, Jan 04, 2021 at 09:55:20PM +0100, Sedat Dilek wrote:
+> On Mon, Jan 4, 2021 at 9:49 PM Nathan Chancellor
+> <natechancellor@gmail.com> wrote:
+> >
+> > Commit eff8728fe698 ("vmlinux.lds.h: Add PGO and AutoFDO input
+> > sections") added ".text.unlikely.*" and ".text.hot.*" due to an LLVM
+> > change [1].
+> >
+> > After another LLVM change [2], these sections are seen in some PowerPC
+> > builds, where there is a orphan section warning then build failure:
+> >
+> 
+> Looks like you forgot to add your references/links to [1] and [2].
 
-Remove __io_cqring_overflow_flush() from io_cqring_events(), introduce a
-wrapper around flush doing needed synchronisation and call it by hand.
+Indeed, thank you for pointing that out! v2 coming shortly.
 
-Cc: stable@vger.kernel.org # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 78 +++++++++++++++++++++++++++------------------------
- 1 file changed, 41 insertions(+), 37 deletions(-)
+> Might be good to mention...?
+> 
+> With CONFIG_LD_ORPHAN_WARN=y is enabled
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5be33fd8b6bc..445035b24a50 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1713,9 +1713,9 @@ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
--static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
--				     struct task_struct *tsk,
--				     struct files_struct *files)
-+static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+				       struct task_struct *tsk,
-+				       struct files_struct *files)
- {
- 	struct io_rings *rings = ctx->rings;
- 	struct io_kiocb *req, *tmp;
-@@ -1768,6 +1768,20 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
- 	return all_flushed;
- }
- 
-+static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+				     struct task_struct *tsk,
-+				     struct files_struct *files)
-+{
-+	if (test_bit(0, &ctx->cq_check_overflow)) {
-+		/* iopoll syncs against uring_lock, not completion_lock */
-+		if (ctx->flags & IORING_SETUP_IOPOLL)
-+			mutex_lock(&ctx->uring_lock);
-+		__io_cqring_overflow_flush(ctx, force, tsk, files);
-+		if (ctx->flags & IORING_SETUP_IOPOLL)
-+			mutex_unlock(&ctx->uring_lock);
-+	}
-+}
-+
- static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -2314,20 +2328,8 @@ static void io_double_put_req(struct io_kiocb *req)
- 		io_free_req(req);
- }
- 
--static unsigned io_cqring_events(struct io_ring_ctx *ctx, bool noflush)
-+static unsigned io_cqring_events(struct io_ring_ctx *ctx)
- {
--	if (test_bit(0, &ctx->cq_check_overflow)) {
--		/*
--		 * noflush == true is from the waitqueue handler, just ensure
--		 * we wake up the task, and the next invocation will flush the
--		 * entries. We cannot safely to it from here.
--		 */
--		if (noflush)
--			return -1U;
--
--		io_cqring_overflow_flush(ctx, false, NULL, NULL);
--	}
--
- 	/* See comment at the top of this file */
- 	smp_rmb();
- 	return __io_cqring_events(ctx);
-@@ -2552,7 +2554,9 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
- 		 * If we do, we can potentially be spinning for commands that
- 		 * already triggered a CQE (eg in error).
- 		 */
--		if (io_cqring_events(ctx, false))
-+		if (test_bit(0, &ctx->cq_check_overflow))
-+			__io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+		if (io_cqring_events(ctx))
- 			break;
- 
- 		/*
-@@ -6827,7 +6831,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 
- 	/* if we have a backlog and couldn't flush it all, return BUSY */
- 	if (test_bit(0, &ctx->sq_check_overflow)) {
--		if (!io_cqring_overflow_flush(ctx, false, NULL, NULL))
-+		if (!__io_cqring_overflow_flush(ctx, false, NULL, NULL))
- 			return -EBUSY;
- 	}
- 
-@@ -7090,7 +7094,7 @@ struct io_wait_queue {
- 	unsigned nr_timeouts;
- };
- 
--static inline bool io_should_wake(struct io_wait_queue *iowq, bool noflush)
-+static inline bool io_should_wake(struct io_wait_queue *iowq)
- {
- 	struct io_ring_ctx *ctx = iowq->ctx;
- 
-@@ -7099,7 +7103,7 @@ static inline bool io_should_wake(struct io_wait_queue *iowq, bool noflush)
- 	 * started waiting. For timeouts, we always want to return to userspace,
- 	 * regardless of event count.
- 	 */
--	return io_cqring_events(ctx, noflush) >= iowq->to_wait ||
-+	return io_cqring_events(ctx) >= iowq->to_wait ||
- 			atomic_read(&ctx->cq_timeouts) != iowq->nr_timeouts;
- }
- 
-@@ -7109,11 +7113,13 @@ static int io_wake_function(struct wait_queue_entry *curr, unsigned int mode,
- 	struct io_wait_queue *iowq = container_of(curr, struct io_wait_queue,
- 							wq);
- 
--	/* use noflush == true, as we can't safely rely on locking context */
--	if (!io_should_wake(iowq, true))
--		return -1;
--
--	return autoremove_wake_function(curr, mode, wake_flags, key);
-+	/*
-+	 * Cannot safely flush overflowed CQEs from here, ensure we wake up
-+	 * the task, and the next invocation will do it.
-+	 */
-+	if (io_should_wake(iowq) || test_bit(0, &iowq->ctx->cq_check_overflow))
-+		return autoremove_wake_function(curr, mode, wake_flags, key);
-+	return -1;
- }
- 
- static int io_run_task_work_sig(void)
-@@ -7150,7 +7156,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	int ret = 0;
- 
- 	do {
--		if (io_cqring_events(ctx, false) >= min_events)
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+		if (io_cqring_events(ctx) >= min_events)
- 			return 0;
- 		if (!io_run_task_work())
- 			break;
-@@ -7178,6 +7185,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	iowq.nr_timeouts = atomic_read(&ctx->cq_timeouts);
- 	trace_io_uring_cqring_wait(ctx, min_events);
- 	do {
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
- 		/* make sure we run task_work before checking for signals */
-@@ -7186,8 +7194,10 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 			continue;
- 		else if (ret < 0)
- 			break;
--		if (io_should_wake(&iowq, false))
-+		if (io_should_wake(&iowq))
- 			break;
-+		if (test_bit(0, &ctx->cq_check_overflow))
-+			continue;
- 		if (uts) {
- 			timeout = schedule_timeout(timeout);
- 			if (timeout == 0) {
-@@ -8625,7 +8635,8 @@ static __poll_t io_uring_poll(struct file *file, poll_table *wait)
- 	smp_rmb();
- 	if (!io_sqring_full(ctx))
- 		mask |= EPOLLOUT | EPOLLWRNORM;
--	if (io_cqring_events(ctx, false))
-+	io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+	if (io_cqring_events(ctx))
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 
- 	return mask;
-@@ -8683,7 +8694,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 	/* if force is set, the ring is going away. always drop after that */
- 	ctx->cq_overflow_flushed = 1;
- 	if (ctx->rings)
--		io_cqring_overflow_flush(ctx, true, NULL, NULL);
-+		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 	mutex_unlock(&ctx->uring_lock);
- 
- 	io_kill_timeouts(ctx, NULL, NULL);
-@@ -8857,9 +8868,7 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 	}
- 
- 	io_cancel_defer_files(ctx, task, files);
--	io_ring_submit_lock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
- 	io_cqring_overflow_flush(ctx, true, task, files);
--	io_ring_submit_unlock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
- 
- 	if (!files)
- 		__io_uring_cancel_task_requests(ctx, task);
-@@ -9195,13 +9204,8 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 	 */
- 	ret = 0;
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
--		if (!list_empty_careful(&ctx->cq_overflow_list)) {
--			bool needs_lock = ctx->flags & IORING_SETUP_IOPOLL;
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 
--			io_ring_submit_lock(ctx, needs_lock);
--			io_cqring_overflow_flush(ctx, false, NULL, NULL);
--			io_ring_submit_unlock(ctx, needs_lock);
--		}
- 		if (flags & IORING_ENTER_SQ_WAKEUP)
- 			wake_up(&ctx->sq_data->wait);
- 		if (flags & IORING_ENTER_SQ_WAIT)
--- 
-2.24.0
+Since this symbol is not user selectable, I do not really think it is
+worth mentioning, plus PowerPC has had this enabled for a while :)
 
+Cheers,
+Nathan
