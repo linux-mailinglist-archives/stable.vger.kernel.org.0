@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B4D2E9A31
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0133B2E9A9A
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728411AbhADQAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
+        id S1728217AbhADQMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:12:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728402AbhADQAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5848D20769;
-        Mon,  4 Jan 2021 16:00:22 +0000 (UTC)
+        id S1728203AbhADQAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:00:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 302BE21D93;
+        Mon,  4 Jan 2021 15:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776022;
-        bh=QMig4D2jPBkUluzd4M+6Fs134IaQzEEL6Jg+SoE6CxU=;
+        s=korg; t=1609775930;
+        bh=3tqmlEopHF5693Gx9TDEZtslMfY3JJfYKPA1NqRF2r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YX0TEH0QhPl+fo5jpAilM9cgDHNnOast5c2tYvVTuWTPWGTpBMIsL7+eRlNl9+MNB
-         ZobBdEGZ1EV781Gso9mrPA1O1YENuapCFYjOn8dF/YLXUUUGr8ApK0EnunGdWZuWa1
-         Gf/q+P8yYKM/4IGssyAYYj/V7FsUFJnc7z1wltAA=
+        b=QFTQO7NATn63qq7qyy5vFRwL1mzKb0kiJyJPhKNNaW/XeBMsmxrbb+gYB61HZIjDf
+         leIs4jd1OBLCeashOIbzgJqIPYMx37Rue2ZW548LfFkDW6V52A7/A5egU9E/DCG4QA
+         BhsUJ2SENKEIbiCh59gzWTXokw8/ZXavb8JOAh80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/47] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/35] quota: Dont overflow quota file offsets
 Date:   Mon,  4 Jan 2021 16:57:33 +0100
-Message-Id: <20210104155707.382290687@linuxfoundation.org>
+Message-Id: <20210104155704.850131442@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
+[ Upstream commit 10f04d40a9fa29785206c619f80d8beedb778837 ]
 
-When clk_hw_register_fixed_rate_with_accuracy() fails,
-clk_data should be freed. It's the same for the subsequent
-two error paths, but we should also unregister the already
-registered clocks in them.
+The on-disk quota format supports quota files with upto 2^32 blocks. Be
+careful when computing quota file offsets in the quota files from block
+numbers as they can overflow 32-bit types. Since quota files larger than
+4GB would require ~26 millions of quota users, this is mostly a
+theoretical concern now but better be careful, fuzzers would find the
+problem sooner or later anyway...
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20201020061226.6572-1-dinghao.liu@zju.edu.cn
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sun6i.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/quota/quota_tree.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index fc32be687606c..c41bc8084d7cc 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -276,7 +276,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 								300000000);
- 	if (IS_ERR(rtc->int_osc)) {
- 		pr_crit("Couldn't register the internal oscillator\n");
--		return;
-+		goto err;
- 	}
+diff --git a/fs/quota/quota_tree.c b/fs/quota/quota_tree.c
+index bb3f59bcfcf5b..656f9ff63edda 100644
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -61,7 +61,7 @@ static ssize_t read_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
  
- 	parents[0] = clk_hw_get_name(rtc->int_osc);
-@@ -292,7 +292,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
- 		pr_crit("Couldn't register the LOSC clock\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	of_property_read_string_index(node, "clock-output-names", 1,
-@@ -303,7 +303,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 					  &rtc->lock);
- 	if (IS_ERR(rtc->ext_losc)) {
- 		pr_crit("Couldn't register the LOSC external gate\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	clk_data->num = 2;
-@@ -316,6 +316,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	return;
- 
-+err_register:
-+	clk_hw_unregister_fixed_rate(rtc->int_osc);
- err:
- 	kfree(clk_data);
+ 	memset(buf, 0, info->dqi_usable_bs);
+ 	return sb->s_op->quota_read(sb, info->dqi_type, buf,
+-	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
++	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
  }
+ 
+ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+@@ -70,7 +70,7 @@ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+ 	ssize_t ret;
+ 
+ 	ret = sb->s_op->quota_write(sb, info->dqi_type, buf,
+-	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
++	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
+ 	if (ret != info->dqi_usable_bs) {
+ 		quota_error(sb, "dquota write failed");
+ 		if (ret >= 0)
+@@ -283,7 +283,7 @@ static uint find_free_dqentry(struct qtree_mem_dqinfo *info,
+ 			    blk);
+ 		goto out_buf;
+ 	}
+-	dquot->dq_off = (blk << info->dqi_blocksize_bits) +
++	dquot->dq_off = ((loff_t)blk << info->dqi_blocksize_bits) +
+ 			sizeof(struct qt_disk_dqdbheader) +
+ 			i * info->dqi_entry_size;
+ 	kfree(buf);
+@@ -558,7 +558,7 @@ static loff_t find_block_dqentry(struct qtree_mem_dqinfo *info,
+ 		ret = -EIO;
+ 		goto out_buf;
+ 	} else {
+-		ret = (blk << info->dqi_blocksize_bits) + sizeof(struct
++		ret = ((loff_t)blk << info->dqi_blocksize_bits) + sizeof(struct
+ 		  qt_disk_dqdbheader) + i * info->dqi_entry_size;
+ 	}
+ out_buf:
 -- 
 2.27.0
 
