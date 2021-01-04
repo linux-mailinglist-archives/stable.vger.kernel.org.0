@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B1E2E9A34
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10FE82E9965
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727771AbhADQA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:58 -0500
+        id S1727745AbhADP7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:21 -0500
 Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728475AbhADQA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3236122509;
-        Mon,  4 Jan 2021 16:00:42 +0000 (UTC)
+        id S1727695AbhADP7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9302F224D2;
+        Mon,  4 Jan 2021 15:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776042;
-        bh=w6Hno2K9DY3O8fLTE90vo3WJp2IrIkb6EVherrkqf0Q=;
+        s=korg; t=1609775893;
+        bh=gntcKiKH6MKwyJ13aC9reLITQxIHhBnob8ZN6++dOwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPc5ZZgwDlGvFmpm/K9QmcXywQRrmC1NAFK+7idK4JDWAqgmVmz/DdRKnLrGctyz7
-         6EmSYAPEAO0K2brKubBrRGSOwuI9WH7LWwL+RuWD3YZ6FDVlKJO+kWRubFajBOXAmF
-         ofEJYoi6L4D/0VRM40fTJJd9AVv/jE6tGVwYaFwI=
+        b=W0nXoYcuMkgyyVtUWNOf0wZI3+Il4MmPVGwnV78EKVfeKovZDwQrTvA3itx5jgA87
+         m59Zyw5P7eUPAghHT/2cEAN5LUEYxMBhH3A4uFQ5xZBTnQBSajD2zlXqIpez8grbuV
+         bWd+m2hHbn/agO7/Dn8vo1yjJ+9JOwDGvWniwI14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jubin Zhong <zhongjubin@huawei.com>,
-        lizhe <lizhe67@huawei.com>, Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/47] jffs2: Allow setting rp_size to zero during remounting
-Date:   Mon,  4 Jan 2021 16:57:15 +0100
-Message-Id: <20210104155706.528322192@linuxfoundation.org>
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 13/35] null_blk: Fix zone size initialization
+Date:   Mon,  4 Jan 2021 16:57:16 +0100
+Message-Id: <20210104155704.049016882@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lizhe <lizhe67@huawei.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit cd3ed3c73ac671ff6b0230ccb72b8300292d3643 ]
+commit 0ebcdd702f49aeb0ad2e2d894f8c124a0acc6e23 upstream.
 
-Set rp_size to zero will be ignore during remounting.
+For a null_blk device with zoned mode enabled is currently initialized
+with a number of zones equal to the device capacity divided by the zone
+size, without considering if the device capacity is a multiple of the
+zone size. If the zone size is not a divisor of the capacity, the zones
+end up not covering the entire capacity, potentially resulting is out
+of bounds accesses to the zone array.
 
-The method to identify whether we input a remounting option of
-rp_size is to check if the rp_size input is zero. It can not work
-well if we pass "rp_size=0".
+Fix this by adding one last smaller zone with a size equal to the
+remainder of the disk capacity divided by the zone size if the capacity
+is not a multiple of the zone size. For such smaller last zone, the zone
+capacity is also checked so that it does not exceed the smaller zone
+size.
 
-This patch add a bool variable "set_rp_size" to fix this problem.
+Reported-by: Naohiro Aota <naohiro.aota@wdc.com>
+Fixes: ca4b2a011948 ("null_blk: add zone support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Jubin Zhong <zhongjubin@huawei.com>
-Signed-off-by: lizhe <lizhe67@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- fs/jffs2/jffs2_fs_sb.h | 1 +
- fs/jffs2/super.c       | 7 +++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/block/null_blk_zoned.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/fs/jffs2/jffs2_fs_sb.h b/fs/jffs2/jffs2_fs_sb.h
-index 778275f48a879..5a7091746f68b 100644
---- a/fs/jffs2/jffs2_fs_sb.h
-+++ b/fs/jffs2/jffs2_fs_sb.h
-@@ -38,6 +38,7 @@ struct jffs2_mount_opts {
- 	 * users. This is implemented simply by means of not allowing the
- 	 * latter users to write to the file system if the amount if the
- 	 * available space is less then 'rp_size'. */
-+	bool set_rp_size;
- 	unsigned int rp_size;
- };
+--- a/drivers/block/null_blk_zoned.c
++++ b/drivers/block/null_blk_zoned.c
+@@ -1,9 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/vmalloc.h>
++#include <linux/sizes.h>
+ #include "null_blk.h"
  
-diff --git a/fs/jffs2/super.c b/fs/jffs2/super.c
-index 60636b2e35ea4..68ce77cbeed3b 100644
---- a/fs/jffs2/super.c
-+++ b/fs/jffs2/super.c
-@@ -88,7 +88,7 @@ static int jffs2_show_options(struct seq_file *s, struct dentry *root)
+-/* zone_size in MBs to sectors. */
+-#define ZONE_SIZE_SHIFT		11
++#define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
  
- 	if (opts->override_compr)
- 		seq_printf(s, ",compr=%s", jffs2_compr_name(opts->compr));
--	if (opts->rp_size)
-+	if (opts->set_rp_size)
- 		seq_printf(s, ",rp_size=%u", opts->rp_size / 1024);
+ static inline unsigned int null_zone_no(struct nullb_device *dev, sector_t sect)
+ {
+@@ -12,7 +12,7 @@ static inline unsigned int null_zone_no(
  
- 	return 0;
-@@ -212,6 +212,7 @@ static int jffs2_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 		if (opt > c->mtd->size)
- 			return invalf(fc, "jffs2: Too large reserve pool specified, max is %llu KB",
- 				      c->mtd->size / 1024);
-+		c->mount_opts.set_rp_size = true;
- 		c->mount_opts.rp_size = opt;
- 		break;
- 	default:
-@@ -231,8 +232,10 @@ static inline void jffs2_update_mount_opts(struct fs_context *fc)
- 		c->mount_opts.override_compr = new_c->mount_opts.override_compr;
- 		c->mount_opts.compr = new_c->mount_opts.compr;
+ int null_zone_init(struct nullb_device *dev)
+ {
+-	sector_t dev_size = (sector_t)dev->size * 1024 * 1024;
++	sector_t dev_capacity_sects;
+ 	sector_t sector = 0;
+ 	unsigned int i;
+ 
+@@ -25,9 +25,12 @@ int null_zone_init(struct nullb_device *
+ 		return -EINVAL;
  	}
--	if (new_c->mount_opts.rp_size)
-+	if (new_c->mount_opts.set_rp_size) {
-+		c->mount_opts.set_rp_size = new_c->mount_opts.set_rp_size;
- 		c->mount_opts.rp_size = new_c->mount_opts.rp_size;
-+	}
- 	mutex_unlock(&c->alloc_sem);
- }
  
--- 
-2.27.0
-
+-	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
+-	dev->nr_zones = dev_size >>
+-				(SECTOR_SHIFT + ilog2(dev->zone_size_sects));
++	dev_capacity_sects = MB_TO_SECTS(dev->size);
++	dev->zone_size_sects = MB_TO_SECTS(dev->zone_size);
++	dev->nr_zones = dev_capacity_sects >> ilog2(dev->zone_size_sects);
++	if (dev_capacity_sects & (dev->zone_size_sects - 1))
++		dev->nr_zones++;
++
+ 	dev->zones = kvmalloc_array(dev->nr_zones, sizeof(struct blk_zone),
+ 			GFP_KERNEL | __GFP_ZERO);
+ 	if (!dev->zones)
+@@ -37,7 +40,10 @@ int null_zone_init(struct nullb_device *
+ 		struct blk_zone *zone = &dev->zones[i];
+ 
+ 		zone->start = zone->wp = sector;
+-		zone->len = dev->zone_size_sects;
++		if (zone->start + dev->zone_size_sects > dev_capacity_sects)
++			zone->len = dev_capacity_sects - zone->start;
++		else
++			zone->len = dev->zone_size_sects;
+ 		zone->type = BLK_ZONE_TYPE_SEQWRITE_REQ;
+ 		zone->cond = BLK_ZONE_COND_EMPTY;
+ 
 
 
