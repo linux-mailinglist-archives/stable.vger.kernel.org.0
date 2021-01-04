@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0558B2E9AA3
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E00C2E9AC3
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728174AbhADQAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36550 "EHLO mail.kernel.org"
+        id S1727921AbhADP7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728154AbhADQAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAFD4224D2;
-        Mon,  4 Jan 2021 15:59:27 +0000 (UTC)
+        id S1727910AbhADP7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B7182250E;
+        Mon,  4 Jan 2021 15:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775968;
-        bh=IoUTC2FqG8W9J9G5cgeLZDO+KDQz0TDFTuK2GSLsKqw=;
+        s=korg; t=1609775908;
+        bh=GexB/GbK1/PeJlEzVineB82tfs71ffHOwtKODHDPsU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkO5yBGO6N+rVERFI5oExpWibcpz72mY8pYLxS0LMikcpGPxu8jopGKGvKONu5GEO
-         4Sem9T7Rse7iJGE0XK9f4EcpPwtr1w7GnTfutAzh25jOa2GcoSq3mriFmsEvCOO8sY
-         /2n63tVVr8KIUnN/lQ29k0aZxqWVSSYxHlEx/FIU=
+        b=muxQJgOTNbd+UZ7RVGneiRzpFeO6mnVPXyXc/95NhRye98NraSwwqU0NYr+p2gPeI
+         9dq+5of8Dm+dBqV7bm2AYgyeUWZ/4W6lhADzoYFjwK9Nl+dtLeWY1uDWkXToGuDBk1
+         6+Dxs+A6gVa7ZE+xdm+WFDbs5E9kenhKaXimgEX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
         Andreas Dilger <adilger@dilger.ca>, stable@kernel.org,
         Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/47] ext4: dont remount read-only with errors=continue on reboot
+Subject: [PATCH 4.19 07/35] ext4: dont remount read-only with errors=continue on reboot
 Date:   Mon,  4 Jan 2021 16:57:10 +0100
-Message-Id: <20210104155706.299546196@linuxfoundation.org>
+Message-Id: <20210104155703.748866498@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 920658ca8777d..06568467b0c27 100644
+index ee96f504ed782..e9e9f09f5370d 100644
 --- a/fs/ext4/super.c
 +++ b/fs/ext4/super.c
-@@ -455,19 +455,17 @@ static bool system_going_down(void)
+@@ -454,19 +454,17 @@ static bool system_going_down(void)
  
  static void ext4_handle_error(struct super_block *sb)
  {
