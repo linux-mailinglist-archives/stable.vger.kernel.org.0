@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C1F2E9A30
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 846692E99D5
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbhADQAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36472 "EHLO mail.kernel.org"
+        id S1728133AbhADQDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:03:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728393AbhADQAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3C7207AE;
-        Mon,  4 Jan 2021 16:00:24 +0000 (UTC)
+        id S1728560AbhADQDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:03:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A36222509;
+        Mon,  4 Jan 2021 16:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776025;
-        bh=JUM8nMpLjp/EEDtOSscEib8xiF5oORjsfMnxzylP9tI=;
+        s=korg; t=1609776206;
+        bh=Rpl5XNX4S2+Z7AcpERuwFeSEjczuuFk6ejVvwNWPCVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uzin4uL2nH/KLOnwzP3TJhuft+Xe/x79hnMHvD3QFcfFN/SIgVJI4UdKdZgqXqY4N
-         /hNqYq4r0b/HWh9e8DE3/HvfdLOSnJskeFv5w5InblnMYGHkiXVDNeIKDtyzGzFwSz
-         w4eJYBUP0wrw1wwezeD/q+EdAYdTZ9Qv/H/v6Xj0=
+        b=RA6sM0WukEYlj1tONRQ5lnPw5/4GP23Ny8wkXbsD2TeT/66q6GnnNzUNJ6szmpSAa
+         dIrdlSAXByg3xIEWWXgRu5wi1HYjfU/mVKIJEX5NBZkvzgy2IGOADfEUWX68Nktrep
+         7cQP44cRLiALIQTp/aw19bSlUvBLT8ng3llP/o3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/47] module: set MODULE_STATE_GOING state when a module fails to load
+        stable@vger.kernel.org, Andreas Dilger <adilger@dilger.ca>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 41/63] quota: Dont overflow quota file offsets
 Date:   Mon,  4 Jan 2021 16:57:34 +0100
-Message-Id: <20210104155707.430825073@linuxfoundation.org>
+Message-Id: <20210104155710.813536202@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Benes <mbenes@suse.cz>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 5e8ed280dab9eeabc1ba0b2db5dbe9fe6debb6b5 ]
+[ Upstream commit 10f04d40a9fa29785206c619f80d8beedb778837 ]
 
-If a module fails to load due to an error in prepare_coming_module(),
-the following error handling in load_module() runs with
-MODULE_STATE_COMING in module's state. Fix it by correctly setting
-MODULE_STATE_GOING under "bug_cleanup" label.
+The on-disk quota format supports quota files with upto 2^32 blocks. Be
+careful when computing quota file offsets in the quota files from block
+numbers as they can overflow 32-bit types. Since quota files larger than
+4GB would require ~26 millions of quota users, this is mostly a
+theoretical concern now but better be careful, fuzzers would find the
+problem sooner or later anyway...
 
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/quota/quota_tree.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 45513909b01d5..806a7196754a7 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3953,6 +3953,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
- 				     MODULE_STATE_GOING, mod);
- 	klp_module_going(mod);
-  bug_cleanup:
-+	mod->state = MODULE_STATE_GOING;
- 	/* module_bug_cleanup needs module_mutex protection */
- 	mutex_lock(&module_mutex);
- 	module_bug_cleanup(mod);
+diff --git a/fs/quota/quota_tree.c b/fs/quota/quota_tree.c
+index a6f856f341dc7..c5562c871c8be 100644
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -62,7 +62,7 @@ static ssize_t read_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+ 
+ 	memset(buf, 0, info->dqi_usable_bs);
+ 	return sb->s_op->quota_read(sb, info->dqi_type, buf,
+-	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
++	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
+ }
+ 
+ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+@@ -71,7 +71,7 @@ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
+ 	ssize_t ret;
+ 
+ 	ret = sb->s_op->quota_write(sb, info->dqi_type, buf,
+-	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
++	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
+ 	if (ret != info->dqi_usable_bs) {
+ 		quota_error(sb, "dquota write failed");
+ 		if (ret >= 0)
+@@ -284,7 +284,7 @@ static uint find_free_dqentry(struct qtree_mem_dqinfo *info,
+ 			    blk);
+ 		goto out_buf;
+ 	}
+-	dquot->dq_off = (blk << info->dqi_blocksize_bits) +
++	dquot->dq_off = ((loff_t)blk << info->dqi_blocksize_bits) +
+ 			sizeof(struct qt_disk_dqdbheader) +
+ 			i * info->dqi_entry_size;
+ 	kfree(buf);
+@@ -559,7 +559,7 @@ static loff_t find_block_dqentry(struct qtree_mem_dqinfo *info,
+ 		ret = -EIO;
+ 		goto out_buf;
+ 	} else {
+-		ret = (blk << info->dqi_blocksize_bits) + sizeof(struct
++		ret = ((loff_t)blk << info->dqi_blocksize_bits) + sizeof(struct
+ 		  qt_disk_dqdbheader) + i * info->dqi_entry_size;
+ 	}
+ out_buf:
 -- 
 2.27.0
 
