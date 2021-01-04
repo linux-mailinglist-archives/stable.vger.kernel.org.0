@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74452E97A7
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF28C2E97B3
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 15:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726616AbhADOvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 09:51:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
+        id S1726258AbhADOxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 09:53:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726300AbhADOvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 09:51:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B2E207BC;
-        Mon,  4 Jan 2021 14:50:20 +0000 (UTC)
+        id S1726396AbhADOxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 09:53:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8893B2076D;
+        Mon,  4 Jan 2021 14:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609771820;
-        bh=ea0BSOIo3CcIaAqXFaqVnRfchTxse6NY+3N3MboDOXA=;
+        s=k20201202; t=1609771991;
+        bh=J+3vsxzw9vXTfriidHRxRTH6/fVGpXe4m4jfb5Ltbx4=;
         h=From:To:Cc:Subject:Date:From;
-        b=IVc8H97gqE5VQ70EaVOLGVq3dJFBIcom/Vp9NUcb6NHUQn4dTMbqX2BiuoybE9+eI
-         DuYsXtTu0KNVah9Xd1piJawAZRJmiTyc7H3abz/4GTx6tb370EVZxWhkDhzc0Tphv2
-         u7X4h4zkqS6/P3gXVMu4/FMPG0e6N2iM1jCz8wLcv8saz2cOvtzOI+hYflkKL/AZS7
-         30u1XZOaXUrAOamLJ8MMfB0g97LgguXqxtFyTRGX1L3QZc7EqMcef2JgEHRyHxNRVM
-         Vrf9286ALZYKoYlZt5p2Ab08y9iH0ER4XhfLa8aBAkHo1LHMNX38/0nK3wGu+F5xBe
-         WFE3FsR8VVRbQ==
+        b=MWpaEk6mFeku11oDrBQxQZJJtPsTRy0uGKqjRG14b1Nqc8TJ+FEtR80ofSIjS3UND
+         htXPNxIuZze2KGDFD4cSDzWaNt3ftnJRvuiP2yMHBBBiM6teiQovsIQaDAo2QTKCIh
+         q6cf2AwrCMS1+hc4t1cSjjRs/hDbUQr7yccFatF8TXmql6ozZ+1I4f/40dIFH+hgqe
+         UR3KtmrBk3iB02glQakhz/T88YIt4OCiHvHzA43ceKM1uBZ+78UqYTFWpDzU0uJdxW
+         udVNQH+xNDnOWnM/kfm4krbbkaNvu6JQD4fTFLCZA0wQF+jbT4LVaLtZg0K0F+dYVi
+         xZq6BnveTBWZw==
 Received: from johan by xi.lan with local (Exim 4.93.0.4)
         (envelope-from <johan@kernel.org>)
-        id 1kwRBa-0007Js-8t; Mon, 04 Jan 2021 15:50:18 +0100
+        id 1kwREL-0000YP-31; Mon, 04 Jan 2021 15:53:09 +0100
 From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org,
+To:     Pete Zaitcev <zaitcev@redhat.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
         Dan Carpenter <dan.carpenter@oracle.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] USB: serial: iuu_phoenix: fix DMA from stack
-Date:   Mon,  4 Jan 2021 15:50:07 +0100
-Message-Id: <20210104145007.28093-1-johan@kernel.org>
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] USB: usblp: fix DMA to stack
+Date:   Mon,  4 Jan 2021 15:53:02 +0100
+Message-Id: <20210104145302.2087-1-johan@kernel.org>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -41,72 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stack-allocated buffers cannot be used for DMA (on all architectures) so
-allocate the flush command buffer using kmalloc().
+Stack-allocated buffers cannot be used for DMA (on all architectures).
 
-Fixes: 60a8fc017103 ("USB: add iuu_phoenix driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.25
+Replace the HP-channel macro with a helper function that allocates a
+dedicated transfer buffer so that it can continue to be used with
+arguments from the stack.
+
+Note that the buffer is cleared on allocation as usblp_ctrl_msg()
+returns success also on short transfers (the buffer is only used for
+debugging).
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/iuu_phoenix.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/usb/class/usblp.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/serial/iuu_phoenix.c b/drivers/usb/serial/iuu_phoenix.c
-index f1201d4de297..e8f06b41a503 100644
---- a/drivers/usb/serial/iuu_phoenix.c
-+++ b/drivers/usb/serial/iuu_phoenix.c
-@@ -532,23 +532,29 @@ static int iuu_uart_flush(struct usb_serial_port *port)
- 	struct device *dev = &port->dev;
- 	int i;
- 	int status;
--	u8 rxcmd = IUU_UART_RX;
-+	u8 *rxcmd;
- 	struct iuu_private *priv = usb_get_serial_port_data(port);
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 67cbd42421be..134dc2005ce9 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -274,8 +274,25 @@ static int usblp_ctrl_msg(struct usblp *usblp, int request, int type, int dir, i
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
  
- 	if (iuu_led(port, 0xF000, 0, 0, 0xFF) < 0)
- 		return -EIO;
- 
-+	rxcmd = kmalloc(1, GFP_KERNEL);
-+	if (!rxcmd)
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
 +		return -ENOMEM;
 +
-+	rxcmd[0] = IUU_UART_RX;
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
 +
- 	for (i = 0; i < 2; i++) {
--		status = bulk_immediate(port, &rxcmd, 1);
-+		status = bulk_immediate(port, rxcmd, 1);
- 		if (status != IUU_OPERATION_OK) {
- 			dev_dbg(dev, "%s - uart_flush_write error\n", __func__);
--			return status;
-+			goto out_free;
- 		}
- 
- 		status = read_immediate(port, &priv->len, 1);
- 		if (status != IUU_OPERATION_OK) {
- 			dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
--			return status;
-+			goto out_free;
- 		}
- 
- 		if (priv->len > 0) {
-@@ -556,12 +562,16 @@ static int iuu_uart_flush(struct usb_serial_port *port)
- 			status = read_immediate(port, priv->buf, priv->len);
- 			if (status != IUU_OPERATION_OK) {
- 				dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
--				return status;
-+				goto out_free;
- 			}
- 		}
- 	}
- 	dev_dbg(dev, "%s - uart_flush_read OK!\n", __func__);
- 	iuu_led(port, 0, 0xF000, 0, 0xFF);
++	kfree(buf);
 +
-+out_free:
-+	kfree(rxcmd);
-+
- 	return status;
- }
++	return ret;
++}
  
+ /*
+  * See the description for usblp_select_alts() below for the usage
 -- 
 2.26.2
 
