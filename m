@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DF32E9A90
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2672E9968
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728273AbhADQLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:11:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36516 "EHLO mail.kernel.org"
+        id S1727925AbhADP7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728150AbhADQAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2C422515;
-        Mon,  4 Jan 2021 15:59:47 +0000 (UTC)
+        id S1727911AbhADP7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC4DA22509;
+        Mon,  4 Jan 2021 15:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775988;
-        bh=aBD8XTv1hrjbZueewUSzSmIkCGjr/4aUcV3aQVFCMyw=;
+        s=korg; t=1609775906;
+        bh=9uabOt3IJz6vfocy9/UKNGALFASkXfczEZd3cN3lQ6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=de3sv+ntnHaggEJkZyKPm4LWxKT2UgfGdaEUjc1tWl1DmRWMhuH8Zop07fZGzpg7P
-         GcVpxVFrxK3Jn1wL/2GrrAVQLsBhQeOnovIIx2lgqjJ5WpKc+tJd8m1dcHrZBmOIdy
-         HB8RSKnYX6rIuRElLKqoSkDzSo1KnvofM0umqjfM=
+        b=NM9KUqCNsMtswPHKDieDBBzg6Ky59g6Zxxbe3ia7w/px6jWSUvze0DgiTZngjCMna
+         vNp9RUTzlu0pyQ7vdqDUz6E3oyz2AFfzN/E+w9pS44noQoXGOs39RKI+pazMmnT400
+         poCgBcNggFMNazUbO/nyu3WY9qZErjdpEpvknQDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
         Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/47] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
-Date:   Mon,  4 Jan 2021 16:57:08 +0100
-Message-Id: <20210104155706.203265366@linuxfoundation.org>
+Subject: [PATCH 4.19 06/35] vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
+Date:   Mon,  4 Jan 2021 16:57:09 +0100
+Message-Id: <20210104155703.698976948@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 632653cd70e3b..2372e161cd5e8 100644
+index 5e23e4aa5b0a3..c48e1d84efb6b 100644
 --- a/drivers/vfio/pci/vfio_pci.c
 +++ b/drivers/vfio/pci/vfio_pci.c
-@@ -114,8 +114,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
+@@ -118,8 +118,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
  	int bar;
  	struct vfio_pci_dummy_resource *dummy_res;
  
@@ -73,7 +73,7 @@ index 632653cd70e3b..2372e161cd5e8 100644
  	for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
  		res = vdev->pdev->resource + bar;
  
-@@ -1606,6 +1604,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+@@ -1522,6 +1520,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	mutex_init(&vdev->igate);
  	spin_lock_init(&vdev->irqlock);
  	mutex_init(&vdev->ioeventfds_lock);
