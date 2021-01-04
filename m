@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784872E9A0E
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 286602E9AC9
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728857AbhADQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:02:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S1728079AbhADP7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:59:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728856AbhADQCe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:02:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 764BD2250F;
-        Mon,  4 Jan 2021 16:01:53 +0000 (UTC)
+        id S1728072AbhADP7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:59:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D2212251F;
+        Mon,  4 Jan 2021 15:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776113;
-        bh=aObhzQXyl4ClD4RR7jZU7S8yJ1Qko2cM27BCVnVDKy0=;
+        s=korg; t=1609775941;
+        bh=gpWCZX+4igenTVcIGpReUGaFNYABG1KpHhbf58Randw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGuOlL7TGEsfgRLRVHgD6S+3hLde/5PWQS08SP3n6Kk69MLgYQAq1NKab6X4m+A9p
-         RgbosT1c1u+8LtjA4aC+tV92aKeXnFxoD8TANXQlrZgfrHtVzuKc0r97hK8krq33AS
-         0Sk5h9UhbJrPyAj/Ox4R54LXk/wBnxZs9lrAAeQY=
+        b=Dej8MgKCoo0Hx3Z19dtdQSdJFxp+vIsQDVL0eFCu5W3wmFzzeyoWfuHrvW9JSEKsq
+         YKgRnYYmw2hYKM+uS6WWkFHbyUr8IZwsWkJemGPOMgPytxHtBj77ktqvMUFv1U+Rqj
+         1PwIcHnmbyUNnV92howLhmTL4pbFG/WVlUMBTI/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.10 27/63] Bluetooth: hci_h5: close serdev device and free hu in h5_close
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Santosh Sivaraj <santosh@fossix.org>
+Subject: [PATCH 4.19 17/35] asm-generic/tlb, arch: Invert CONFIG_HAVE_RCU_TABLE_INVALIDATE
 Date:   Mon,  4 Jan 2021 16:57:20 +0100
-Message-Id: <20210104155710.140204212@linuxfoundation.org>
+Message-Id: <20210104155704.244760900@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
-References: <20210104155708.800470590@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 70f259a3f4276b71db365b1d6ff1eab805ea6ec3 upstream.
+commit 96bc9567cbe112e9320250f01b9c060c882e8619 upstream.
 
-When h5_close() gets called, the memory allocated for the hu gets
-freed only if hu->serdev doesn't exist. This leads to a memory leak.
-So when h5_close() is requested, close the serdev device instance and
-free the memory allocated to the hu entirely instead.
+Make issuing a TLB invalidate for page-table pages the normal case.
 
-Fixes: https://syzkaller.appspot.com/bug?extid=6ce141c55b2f7aafd1c4
-Reported-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
-Tested-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+The reason is twofold:
+
+ - too many invalidates is safer than too few,
+ - most architectures use the linux page-tables natively
+   and would thus require this.
+
+Make it an opt-out, instead of an opt-in.
+
+No change in behavior intended.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org> # 4.19
+Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
+[santosh: prerequisite for upcoming tlbflush backports]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/bluetooth/hci_h5.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/Kconfig         |    2 +-
+ arch/powerpc/Kconfig |    1 +
+ arch/sparc/Kconfig   |    1 +
+ arch/x86/Kconfig     |    1 -
+ mm/memory.c          |    2 +-
+ 5 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -251,8 +251,12 @@ static int h5_close(struct hci_uart *hu)
- 	if (h5->vnd && h5->vnd->close)
- 		h5->vnd->close(h5);
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -363,7 +363,7 @@ config HAVE_ARCH_JUMP_LABEL
+ config HAVE_RCU_TABLE_FREE
+ 	bool
  
--	if (!hu->serdev)
--		kfree(h5);
-+	if (hu->serdev)
-+		serdev_device_close(hu->serdev);
-+
-+	kfree_skb(h5->rx_skb);
-+	kfree(h5);
-+	h5 = NULL;
+-config HAVE_RCU_TABLE_INVALIDATE
++config HAVE_RCU_TABLE_NO_INVALIDATE
+ 	bool
  
- 	return 0;
- }
+ config ARCH_WANT_IRQS_OFF_ACTIVATE_MM
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -217,6 +217,7 @@ config PPC
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_RCU_TABLE_FREE		if SMP
++	select HAVE_RCU_TABLE_NO_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_RELIABLE_STACKTRACE		if PPC64 && CPU_LITTLE_ENDIAN
+ 	select HAVE_SYSCALL_TRACEPOINTS
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -64,6 +64,7 @@ config SPARC64
+ 	select HAVE_KRETPROBES
+ 	select HAVE_KPROBES
+ 	select HAVE_RCU_TABLE_FREE if SMP
++	select HAVE_RCU_TABLE_NO_INVALIDATE if HAVE_RCU_TABLE_FREE
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
+ 	select HAVE_DYNAMIC_FTRACE
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -181,7 +181,6 @@ config X86
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_RCU_TABLE_FREE		if PARAVIRT
+-	select HAVE_RCU_TABLE_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_RELIABLE_STACKTRACE		if X86_64 && (UNWINDER_FRAME_POINTER || UNWINDER_ORC) && STACK_VALIDATION
+ 	select HAVE_STACKPROTECTOR		if CC_HAS_SANE_STACKPROTECTOR
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -339,7 +339,7 @@ bool __tlb_remove_page_size(struct mmu_g
+  */
+ static inline void tlb_table_invalidate(struct mmu_gather *tlb)
+ {
+-#ifdef CONFIG_HAVE_RCU_TABLE_INVALIDATE
++#ifndef CONFIG_HAVE_RCU_TABLE_NO_INVALIDATE
+ 	/*
+ 	 * Invalidate page-table caches used by hardware walkers. Then we still
+ 	 * need to RCU-sched wait while freeing the pages because software
 
 
