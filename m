@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5861E2E9A3C
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E49B12E99CA
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727713AbhADQB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:01:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
+        id S1729102AbhADQDW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:03:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbhADQBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:01:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 684C922522;
-        Mon,  4 Jan 2021 16:00:44 +0000 (UTC)
+        id S1729093AbhADQDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:03:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E19DE224D2;
+        Mon,  4 Jan 2021 16:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776044;
-        bh=zalySSx7DbzBGWtwr3ORW40jKfdlWX2z7z2fB+j1pO0=;
+        s=korg; t=1609776160;
+        bh=g2Fon07Qd3sTnPTV8LLOjNJ5NIrMxxWNxKGJRrGT4Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elVDUO9zRy+BCiO/2WEhLek4Th2sBr0MoYYxhGmjjEwSZ9/0H80V3PEZe/OORK4nL
-         bR63xLGMUzHtsQMfr3Zxo0FLGmpqFcn8yDL5yzH1E6+7170jQfcCjTSuCI4pkMyVPT
-         1xhsKMLOLDl9/Z+7jkP3SmCX5yoCOEcVFVTPdGDU=
+        b=g9Z4jDywOTIocZvRlht3vKolAV2BQXLKaT1petRYkRhdKJm7WdsVNKokwW0blY8uT
+         XlfYlydUDgEN017ABDYTaRjAKFyhtZWoWDajVOMcurgluz0yq//z7SQjcPx/SEvh3B
+         cQBg2uKmqDx7/SIadYfrALRhrKRFiaa5Ysf/beH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-        Eric Biggers <ebiggers@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 43/47] fs/namespace.c: WARN if mnt_count has become negative
+Subject: [PATCH 5.10 49/63] powerpc/64: irq replay remove decrementer overflow check
 Date:   Mon,  4 Jan 2021 16:57:42 +0100
-Message-Id: <20210104155707.809306684@linuxfoundation.org>
+Message-Id: <20210104155711.190888663@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155708.800470590@linuxfoundation.org>
+References: <20210104155708.800470590@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit edf7ddbf1c5eb98b720b063b73e20e8a4a1ce673 ]
+[ Upstream commit 59d512e4374b2d8a6ad341475dc94c4a4bdec7d3 ]
 
-Missing calls to mntget() (or equivalently, too many calls to mntput())
-are hard to detect because mntput() delays freeing mounts using
-task_work_add(), then again using call_rcu().  As a result, mnt_count
-can often be decremented to -1 without getting a KASAN use-after-free
-report.  Such cases are still bugs though, and they point to real
-use-after-frees being possible.
+This is way to catch some cases of decrementer overflow, when the
+decrementer has underflowed an odd number of times, while MSR[EE] was
+disabled.
 
-For an example of this, see the bug fixed by commit 1b0b9cc8d379
-("vfs: fsmount: add missing mntget()"), discussed at
-https://lkml.kernel.org/linux-fsdevel/20190605135401.GB30925@xxxxxxxxxxxxxxxxxxxxxxxxx/T/#u.
-This bug *should* have been trivial to find.  But actually, it wasn't
-found until syzkaller happened to use fchdir() to manipulate the
-reference count just right for the bug to be noticeable.
+With a typical small decrementer, a timer that fires when MSR[EE] is
+disabled will be "lost" if MSR[EE] remains disabled for between 4.3 and
+8.6 seconds after the timer expires. In any case, the decrementer
+interrupt would be taken at 8.6 seconds and the timer would be found at
+that point.
 
-Address this by making mntput_no_expire() issue a WARN if mnt_count has
-become negative.
+So this check is for catching extreme latency events, and it prevents
+those latencies from being a further few seconds long.  It's not obvious
+this is a good tradeoff. This is already a watchdog magnitude event and
+that situation is not improved a significantly with this check. For
+large decrementers, it's useless.
 
-Suggested-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Therefore remove this check, which avoids a mftb when enabling hard
+disabled interrupts (e.g., when enabling after coming from hardware
+interrupt handlers). Perhaps more importantly, it also removes the
+clunky MSR[EE] vs PACA_IRQ_HARD_DIS incoherency in soft-interrupt replay
+which simplifies the code.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201107014336.2337337-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namespace.c | 9 ++++++---
- fs/pnode.h     | 2 +-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/irq.c             | 53 ++-------------------------
+ arch/powerpc/kernel/time.c            |  9 ++---
+ arch/powerpc/platforms/powernv/opal.c |  2 +-
+ 3 files changed, 8 insertions(+), 56 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 2adfe7b166a3e..76ea92994d26d 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -156,10 +156,10 @@ static inline void mnt_add_count(struct mount *mnt, int n)
- /*
-  * vfsmount lock must be held for write
-  */
--unsigned int mnt_get_count(struct mount *mnt)
-+int mnt_get_count(struct mount *mnt)
- {
- #ifdef CONFIG_SMP
--	unsigned int count = 0;
-+	int count = 0;
- 	int cpu;
+diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
+index 7d0f7682d01df..6b1eca53e36cc 100644
+--- a/arch/powerpc/kernel/irq.c
++++ b/arch/powerpc/kernel/irq.c
+@@ -102,14 +102,6 @@ static inline notrace unsigned long get_irq_happened(void)
+ 	return happened;
+ }
  
- 	for_each_possible_cpu(cpu) {
-@@ -1123,6 +1123,7 @@ static DECLARE_DELAYED_WORK(delayed_mntput_work, delayed_mntput);
- static void mntput_no_expire(struct mount *mnt)
- {
- 	LIST_HEAD(list);
-+	int count;
+-static inline notrace int decrementer_check_overflow(void)
+-{
+-	u64 now = get_tb();
+-	u64 *next_tb = this_cpu_ptr(&decrementers_next_tb);
+- 
+-	return now >= *next_tb;
+-}
+-
+ #ifdef CONFIG_PPC_BOOK3E
  
- 	rcu_read_lock();
- 	if (likely(READ_ONCE(mnt->mnt_ns))) {
-@@ -1146,7 +1147,9 @@ static void mntput_no_expire(struct mount *mnt)
+ /* This is called whenever we are re-enabling interrupts
+@@ -142,35 +134,6 @@ notrace unsigned int __check_irq_replay(void)
+ 	trace_hardirqs_on();
+ 	trace_hardirqs_off();
+ 
+-	/*
+-	 * We are always hard disabled here, but PACA_IRQ_HARD_DIS may
+-	 * not be set, which means interrupts have only just been hard
+-	 * disabled as part of the local_irq_restore or interrupt return
+-	 * code. In that case, skip the decrementr check becaus it's
+-	 * expensive to read the TB.
+-	 *
+-	 * HARD_DIS then gets cleared here, but it's reconciled later.
+-	 * Either local_irq_disable will replay the interrupt and that
+-	 * will reconcile state like other hard interrupts. Or interrupt
+-	 * retur will replay the interrupt and in that case it sets
+-	 * PACA_IRQ_HARD_DIS by hand (see comments in entry_64.S).
+-	 */
+-	if (happened & PACA_IRQ_HARD_DIS) {
+-		local_paca->irq_happened &= ~PACA_IRQ_HARD_DIS;
+-
+-		/*
+-		 * We may have missed a decrementer interrupt if hard disabled.
+-		 * Check the decrementer register in case we had a rollover
+-		 * while hard disabled.
+-		 */
+-		if (!(happened & PACA_IRQ_DEC)) {
+-			if (decrementer_check_overflow()) {
+-				local_paca->irq_happened |= PACA_IRQ_DEC;
+-				happened |= PACA_IRQ_DEC;
+-			}
+-		}
+-	}
+-
+ 	if (happened & PACA_IRQ_DEC) {
+ 		local_paca->irq_happened &= ~PACA_IRQ_DEC;
+ 		return 0x900;
+@@ -186,6 +149,9 @@ notrace unsigned int __check_irq_replay(void)
+ 		return 0x280;
+ 	}
+ 
++	if (happened & PACA_IRQ_HARD_DIS)
++		local_paca->irq_happened &= ~PACA_IRQ_HARD_DIS;
++
+ 	/* There should be nothing left ! */
+ 	BUG_ON(local_paca->irq_happened != 0);
+ 
+@@ -229,18 +195,6 @@ void replay_soft_interrupts(void)
+ 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+ 		WARN_ON_ONCE(mfmsr() & MSR_EE);
+ 
+-	if (happened & PACA_IRQ_HARD_DIS) {
+-		/*
+-		 * We may have missed a decrementer interrupt if hard disabled.
+-		 * Check the decrementer register in case we had a rollover
+-		 * while hard disabled.
+-		 */
+-		if (!(happened & PACA_IRQ_DEC)) {
+-			if (decrementer_check_overflow())
+-				happened |= PACA_IRQ_DEC;
+-		}
+-	}
+-
+ 	/*
+ 	 * Force the delivery of pending soft-disabled interrupts on PS3.
+ 	 * Any HV call will have this side effect.
+@@ -345,6 +299,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 		if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
+ 			WARN_ON_ONCE(!(mfmsr() & MSR_EE));
+ 		__hard_irq_disable();
++		local_paca->irq_happened |= PACA_IRQ_HARD_DIS;
+ 	} else {
+ 		/*
+ 		 * We should already be hard disabled here. We had bugs
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 74efe46f55327..7d372ff3504b2 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -552,14 +552,11 @@ void timer_interrupt(struct pt_regs *regs)
+ 	struct pt_regs *old_regs;
+ 	u64 now;
+ 
+-	/* Some implementations of hotplug will get timer interrupts while
+-	 * offline, just ignore these and we also need to set
+-	 * decrementers_next_tb as MAX to make sure __check_irq_replay
+-	 * don't replay timer interrupt when return, otherwise we'll trap
+-	 * here infinitely :(
++	/*
++	 * Some implementations of hotplug will get timer interrupts while
++	 * offline, just ignore these.
  	 */
- 	smp_mb();
- 	mnt_add_count(mnt, -1);
--	if (mnt_get_count(mnt)) {
-+	count = mnt_get_count(mnt);
-+	if (count != 0) {
-+		WARN_ON(count < 0);
- 		rcu_read_unlock();
- 		unlock_mount_hash();
+ 	if (unlikely(!cpu_online(smp_processor_id()))) {
+-		*next_tb = ~(u64)0;
+ 		set_dec(decrementer_max);
  		return;
-diff --git a/fs/pnode.h b/fs/pnode.h
-index 49a058c73e4c7..26f74e092bd98 100644
---- a/fs/pnode.h
-+++ b/fs/pnode.h
-@@ -44,7 +44,7 @@ int propagate_mount_busy(struct mount *, int);
- void propagate_mount_unlock(struct mount *);
- void mnt_release_group_id(struct mount *);
- int get_dominating_id(struct mount *mnt, const struct path *root);
--unsigned int mnt_get_count(struct mount *mnt);
-+int mnt_get_count(struct mount *mnt);
- void mnt_set_mountpoint(struct mount *, struct mountpoint *,
- 			struct mount *);
- void mnt_change_mountpoint(struct mount *parent, struct mountpoint *mp,
+ 	}
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index d95954ad4c0af..c61c3b62c8c62 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -731,7 +731,7 @@ int opal_hmi_exception_early2(struct pt_regs *regs)
+ 	return 1;
+ }
+ 
+-/* HMI exception handler called in virtual mode during check_irq_replay. */
++/* HMI exception handler called in virtual mode when irqs are next enabled. */
+ int opal_handle_hmi_exception(struct pt_regs *regs)
+ {
+ 	/*
 -- 
 2.27.0
 
