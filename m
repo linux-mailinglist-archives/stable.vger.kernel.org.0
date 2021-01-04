@@ -2,101 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF13F2E9C5A
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 18:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 924652E9D05
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 19:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727406AbhADRto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 12:49:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
+        id S1726098AbhADS3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 13:29:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbhADRtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 12:49:43 -0500
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1507C061795
-        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 09:48:30 -0800 (PST)
-Received: by mail-pg1-x52c.google.com with SMTP id v19so19487446pgj.12
-        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 09:48:30 -0800 (PST)
+        with ESMTP id S1725889AbhADS3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 13:29:42 -0500
+Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A6B0C061574
+        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 10:29:01 -0800 (PST)
+Received: by mail-qt1-x829.google.com with SMTP id z3so19092611qtw.9
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 10:29:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxace-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=65owITg5bptvn1j++cmPjkA/zjpHPF/EDZomkuXKGqY=;
-        b=uY/UlD7z90jZJguSr4Qov6hTFwNsacX2P0geVNecyR5ZH7ZJamw0DXTNljsbMPh9PS
-         MFtO+9k1uqqfJPP4oxrzK1VHY59gJeN3JZOQsggZWLYox/RAcbwzjbXHZTbFVt/p2hXc
-         5PsPpT843IKgWkVa89xYlfbHBCRM9SdJW1eLo4vZRudTVCbP03yEes6Of/ssVlo1bwwD
-         lPisb7pbEW5ixCwrXhMykOxku5XX94zl1lW46mkndO08IyIeRjTZFa0pUxIpRkCFgRPq
-         ug5zNvBVQsrv3jFZjiOXLHjS9S5H7+LP8pFgaUWXRdyTsJ7CT9WbL3iRXfIFRSKMSDCy
-         Sh6w==
+        d=toxicpanda-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=O64pWj+RvIFAfFiH8tuZ7s1NGNc6FTJ4sG3Ieys6QrY=;
+        b=wRqj6SbS94Mj+/ajDacS4ibcd8nDAfYxcO6ARwoktN/jEmvDLC3RF+VKi981XBR3u0
+         MfXkeeTx4TQb3nmtnpUoCKbtl543Pl0aYGNsEY0kKR/FUxVW9MEElEdnf575ax1OpdCo
+         V5kdFEn5IWe2xNr27knYhP9u/mM8y6DzOVkiX7hvkkLy66ejfii/yJAZKf1/0Q8lUHEc
+         vaPHVcASr29v71Hdg88wJQKD2ppHGVE9g5/BJnqXCx6AYzR9QP3KeaHUX+ShBjfkIyXk
+         2dqrushw/5NcJFRA1xb/Iak/9LwPOMSF0cxzWKOqZnk9NaZMa4A+46KfTtc/ghljmo91
+         KH6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=65owITg5bptvn1j++cmPjkA/zjpHPF/EDZomkuXKGqY=;
-        b=dxD69LO2qm5zTECkx2HDd+vbNm/vGvFAtMibgrA3yxuln/BmcnBjADxmnEKACVO7t2
-         +3aJWDUSIVBvaKCJC10FUsqVFbTEExZLXRhayCmtnkFKuX19J0+rWKkV7nlmWpVxFu2H
-         E7dvxIzAzMSw67Z9hGTA2v2ne0auYzbbVu6YVf3PxGDuB3taG9aUSUcwjVALd3EvZTAz
-         WXAZhrzQiUiUsjZKm7ujrkRhfCgCDKSPlslX77jhQiRd4ct95me7cI3EvlUpqXRAUwiS
-         d8D/wYEdOyNMh7OMS9pKu5MOxTUAo17Ho8ROVNMeLQnPc1+w12ADt1kUdter2RQeEQLH
-         MIsQ==
-X-Gm-Message-State: AOAM533t+mJreZCyL4Dk/rNfMA2VpNebuwo8Ybo3s3KG5FoffXdEV9z3
-        g4DGNTj8n8za9Ud8qIPfiGbYsg==
-X-Google-Smtp-Source: ABdhPJzyl3JwJlJhdPc5Jfiknw7ZF3oAzN30Yms3O1ELx9wLiAGjFS0agKxHvleXTZGJgkZVtJCRqw==
-X-Received: by 2002:a63:520e:: with SMTP id g14mr24089127pgb.378.1609782510541;
-        Mon, 04 Jan 2021 09:48:30 -0800 (PST)
-Received: from home.linuxace.com (cpe-23-243-7-246.socal.res.rr.com. [23.243.7.246])
-        by smtp.gmail.com with ESMTPSA id p9sm34954pjb.3.2021.01.04.09.48.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 09:48:29 -0800 (PST)
-Date:   Mon, 4 Jan 2021 09:48:26 -0800
-From:   Phil Oester <kernel@linuxace.com>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Kashyap Desai <kashyap.desai@broadcom.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Anand Lodnoor <anand.lodnoor@broadcom.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        Hannes Reinecke <hare@suse.de>, megaraidlinux.pdl@broadcom.com,
-        linux-scsi <linux-scsi@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] scsi: megaraid_sas: check user-provided offsets
-Message-ID: <20210104174826.GA76610@home.linuxace.com>
-References: <20200908213715.3553098-1-arnd@arndb.de>
- <20200908213715.3553098-2-arnd@arndb.de>
- <20201231001553.GB16945@home.linuxace.com>
- <CAK8P3a0_WORgd4Wvd3n+59oR=-rrESwg_MgpDJN4xPo_e6ir5Q@mail.gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=O64pWj+RvIFAfFiH8tuZ7s1NGNc6FTJ4sG3Ieys6QrY=;
+        b=msbPVgN+3jmvucjMaObV2moMshUO1drq+V4y2sdNpJfc9eb7rWQzamRMqiJlxDPN/P
+         SsumySw9lKUKgjlklnxE7zWI5yKiWLe6V2KAHSYSpcAUQ94Z1WFDjC4R7dr10nb7fM71
+         PRNswhfl5tmsw589gOG1zjvJkNyhWxZBwrfdhFz/L2QMekvjXGP9XBl+ig48PBp0wB1j
+         HWKLzVv7SHYWoSNWlLOaj+3gLyhzZTfbRFLl/SYAtZH49lxNvmkC1tSsVSKGEIMhfMMI
+         5sMOHabQP1DjY3c4i+aQU2o7rRcvTz6BYWBYhbY+z5ZSSWCdhyhJ/OUZNIp6HdpvVg5o
+         gexA==
+X-Gm-Message-State: AOAM530NxxLwT1rjp9nbZVbKVMn2ji/vb5bkSWN/Uj2vNzLQGx3LGV0h
+        J95/H+iL5bRNr+y5KVoy1aNYSA==
+X-Google-Smtp-Source: ABdhPJyOqUlMmHAhtDTDmWvr6dZhJzmJ++gFs3tKBd5eBbDDWHSnoo1YN+VQtUFiKLcQuZ9eX8YU2Q==
+X-Received: by 2002:ac8:70c1:: with SMTP id g1mr71430704qtp.108.1609784940788;
+        Mon, 04 Jan 2021 10:29:00 -0800 (PST)
+Received: from [192.168.1.45] (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
+        by smtp.gmail.com with ESMTPSA id e10sm36838491qtr.92.2021.01.04.10.28.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Jan 2021 10:29:00 -0800 (PST)
+Subject: Re: [PATCH] btrfs: Use the normal writeback path for flushing
+ delalloc
+To:     fdmanana@gmail.com
+Cc:     linux-btrfs <linux-btrfs@vger.kernel.org>, kernel-team@fb.com,
+        stable@vger.kernel.org,
+        =?UTF-8?Q?Ren=c3=a9_Rebe?= <rene@exactcode.de>
+References: <7a1048dfbc8d2f5f3869f072146ec3e499bc0ac2.1609779712.git.josef@toxicpanda.com>
+ <CAL3q7H5-L7Qs1ecZXPNiQ58rOCMXbpRaPPVFaEEnL0Gcmmfyvw@mail.gmail.com>
+From:   Josef Bacik <josef@toxicpanda.com>
+Message-ID: <82aa5616-4d57-ddda-69f3-8bb6497583e3@toxicpanda.com>
+Date:   Mon, 4 Jan 2021 13:28:59 -0500
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a0_WORgd4Wvd3n+59oR=-rrESwg_MgpDJN4xPo_e6ir5Q@mail.gmail.com>
+In-Reply-To: <CAL3q7H5-L7Qs1ecZXPNiQ58rOCMXbpRaPPVFaEEnL0Gcmmfyvw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 03, 2021 at 05:26:29PM +0100, Arnd Bergmann wrote:
-> Thank you for the report and bisecting the issue, and sorry this broke
-> your system!
+On 1/4/21 12:23 PM, Filipe Manana wrote:
+> On Mon, Jan 4, 2021 at 5:06 PM Josef Bacik <josef@toxicpanda.com> wrote:
+>>
+>> This is a revert for 38d715f494f2 ("btrfs: use
+>> btrfs_start_delalloc_roots in shrink_delalloc").  A user reported a
+>> problem where performance was significantly worse with this patch
+>> applied.  The problem needs to be fixed with proper pre-flushing, and
+>> changes to how we deal with the work queues for the inodes.  However
+>> that work is much more complicated than is acceptable for stable, and
+>> simply reverting this patch fixes the problem.  The original patch was
+>> a cleanup of the code, so it's fine to revert it.  My numbers for the
+>> original reported test, which was untarring a copy of the firefox
+>> sources, are as follows
+>>
+>> 5.9     0m54.258s
+>> 5.10    1m26.212s
+>> Fix     0m35.038s
+>>
+>> cc: stable@vger.kernel.org # 5.10
+>> Reported-by: René Rebe <rene@exactcode.de>
+>> Fixes: 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in shrink_delalloc")
+>> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>> ---
+>> Dave, this is ontop of linus's branch, because we've changed the arguments for
+>> btrfs_start_delalloc_roots in misc-next, and this needs to go back to 5.10 ASAP.
+>> I can send a misc-next version if you want to have it there as well while we're
+>> waiting for it to go into linus's tree, just let me know.
 > 
-> Fortunately, the patch is fairly small, so there are only a limited number
-> of things that could go wrong. I haven't tried to analyze that message,
-> but I have two ideas:
+> Adding this to stable releases will also make the following fix not
+> work on stable releases:
 > 
-> a) The added ioc->sense_off check gets triggered and the code relies
->   on the data being written outside of the structure
+> https://lore.kernel.org/linux-btrfs/39c2a60aa682f69f9823f51aa119d37ef4b9f834.1606909923.git.fdmanana@suse.com/
 > 
-> b) the address actually needs to always be written as a 64-bit value
->     regardless of the instance->consistent_mask_64bit flag, as the
->    driver did before. This looked like it was done in error.
-> 
-> Can you try the patch below instead of the revert and see if that
-> resolves the regression, and if it triggers the warning message I
-> add?
+> Since now the async reclaim task can trigger writeback through
+> writeback_inodes_sb_nr() and not only through
+> btrfs_start_delalloc_roots().
+> Other than changing that patch to make extent_write_cache_pages() do
+> nothing when the inode has the bit BTRFS_INODE_NO_DELALLOC_FLUSH set,
+> I'm not seeing other simple ways to do it.
 
-Thanks Arnd, I tried your patch and it resolves the regression.  It does not
-trigger the warning message you added.
+Hmmm shit, ok let me see if I can make the perf regression go away while still 
+using btrfs_start_delalloc_roots().  Thanks,
 
-Phil
+Josef
