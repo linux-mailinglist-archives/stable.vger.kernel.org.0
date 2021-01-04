@@ -2,78 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F5B2E98F5
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B929B2E9926
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:50:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727428AbhADPiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:38:23 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34865 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727529AbhADPiW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 10:38:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609774616;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Wcrw+NpZAZ4cyYiYlRnmiZrkDJtugvQ8JiKGHsSokGg=;
-        b=STCbTgGK7KaTRa7jNH0iTo72wt4zLgYWo6krWAf8AdhHGfLo2RDXzT/YYAh6Nt9BZ853Na
-        qPYsNRjU3DLn/cfzkxFZl4qS1/5MDxhfvl8hFinIFWFSJfh9UZgtMnQhtx+wNtn5MNOpfg
-        KUdF+voe5RAQdD8iCbVGM0eDl6+sbEc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-567-aFEXv2VNOQ2AdcHHwmbh5g-1; Mon, 04 Jan 2021 10:36:54 -0500
-X-MC-Unique: aFEXv2VNOQ2AdcHHwmbh5g-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81D7EBBEE0;
-        Mon,  4 Jan 2021 15:36:52 +0000 (UTC)
-Received: from [10.36.114.59] (ovpn-114-59.ams2.redhat.com [10.36.114.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2C5E3271B0;
-        Mon,  4 Jan 2021 15:36:51 +0000 (UTC)
-Subject: Re: [PATCH v1 1/4] s390/kvm: VSIE: stop leaking host addresses
-To:     Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
- <20201218141811.310267-2-imbrenda@linux.ibm.com>
- <b1a31982-a967-7439-1a7c-3c948deeb79d@redhat.com>
- <20210104145802.7a2274a2@ibm-vm>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <4d7ea3de-61b7-af89-a3d4-5a4b5749f667@redhat.com>
-Date:   Mon, 4 Jan 2021 16:36:50 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        id S1727418AbhADPth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:49:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727407AbhADPth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:49:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E11020735;
+        Mon,  4 Jan 2021 15:48:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609775336;
+        bh=2UPFSSz01mtLFHkWSgmkhwscDXomVQpB0Wr7wPaP8JQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ttuFyWwnxa+CcJ6bXXG+xlt/jc0S7SfkftB4QHj10I+JSFjV0zwYxtc/PelfeYQUM
+         HcCG/87RGbkI17QjoNE26eg5osSJr+gesl5LMdlbBmGUum3tCEWm8LHtR+iHndEiyW
+         8aSyGq0De/vwh17dW0LRwUZJfSydeBaK5m44gXDsyrl0tVeP3vIXcgDtW3yYCiNEDX
+         JnX3eRydr62yxls8uBtjzOo8zP1GAe27cgPqVwVD9N+PbU/wrV/yjLuLjioOCRuHg6
+         g5rK0kJz7VNUiW3P3FVwLmdS4sRfpN5K9yDdCbA4xxgt6UOHjlBmXV2gI7aH9yGqIV
+         fZUfZ5aFroVHQ==
+Received: from johan by xi.lan with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kwS6H-0002Z5-Qa; Mon, 04 Jan 2021 16:48:53 +0100
+Date:   Mon, 4 Jan 2021 16:48:53 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Michael Sweet <msweet@msweet.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pete Zaitcev <zaitcev@redhat.com>, linux-usb@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] USB: usblp: fix DMA to stack
+Message-ID: <X/M45d6Cc3cEurQt@hovoldconsulting.com>
+References: <20210104145302.2087-1-johan@kernel.org>
+ <X/MtNtTd96S39HQL@kroah.com>
+ <X/MwBCt0Z/B1D7vw@hovoldconsulting.com>
+ <15AB8EFA-A534-40D8-95D2-7DCE1E46D431@msweet.org>
 MIME-Version: 1.0
-In-Reply-To: <20210104145802.7a2274a2@ibm-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15AB8EFA-A534-40D8-95D2-7DCE1E46D431@msweet.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->> In that case, it's pretty much a random number (of a random page used
->> as a leave page table) and does not let g1 identify locations of
->> symbols etc. If so, I don't think this is a "clear security issue"
->> and suggest squashing this into the actual fix (#p4 I assume).
+On Mon, Jan 04, 2021 at 10:33:34AM -0500, Michael Sweet wrote:
+> Johan/Greg,
 > 
-> yeah __maybe__ I overstated the importance ;)
-> 
-> But I would still like to keep it as a separate patch, looks more
-> straightforward to me
->  
+> Since CUPS uses libusb to communicate with printers these days (well,
+> for over a decade now) so that printing and scanning can coexist, the
+> usblp driver really doesn't get any usage anymore.
 
-I don't see a need to split this up. Just fix it right away.
+Ah, ok. I still seem to be using usblp.ko for my printer with CUPS,
+though.
 
-
--- 
-Thanks,
-
-David / dhildenb
-
+Johan
