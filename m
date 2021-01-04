@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E86CE2E9A2E
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FDA2E9960
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725889AbhADQAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:00:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36552 "EHLO mail.kernel.org"
+        id S1727514AbhADP6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:58:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728380AbhADQAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 11:00:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6A9822519;
-        Mon,  4 Jan 2021 16:00:17 +0000 (UTC)
+        id S1727745AbhADP6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:58:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A36D2245C;
+        Mon,  4 Jan 2021 15:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609776018;
-        bh=2ZOkTd456OM7SLNBptooNfNdw00cEIxAS6NzBICmrco=;
+        s=korg; t=1609775888;
+        bh=Td1I9RpMziDCkwfnLuS6v//9XgaDsMl180JA+UBQCWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CueIDDT2liF7oJwdjIAF4veotO2IzrCjNgMwn46kqrudHs/0XU4zPcTN4yTExZrYJ
-         SOZkbpG66tWowSO+7iJBqUasEqzNz0IhFQpVDFxeqzk7YScyv2Rg6HlIrY63UPR6tH
-         Eztfw3wfOB45JBvruGambYbjWDPhDZNlV5o4ucZk=
+        b=ZeIdnvHHPYukkM2h344J1wLKzvFx+QxSfXnenINyHYShstFC4ouZuL7AdeKHaa4Mb
+         UK/p0zlULAV5iGBAfiBW5LXdjuvGYkWc03Xmd+KQNu/h3IrF6rCqZ4VYTYuGagmJrp
+         DuTh8Lj0sFgOgKgwRavXbh4fjAOTb8fh+U0c409o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Segher Boessenkool <segher@kernel.crashing.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/47] powerpc/bitops: Fix possible undefined behaviour with fls() and fls64()
+Subject: [PATCH 4.19 11/35] powerpc/bitops: Fix possible undefined behaviour with fls() and fls64()
 Date:   Mon,  4 Jan 2021 16:57:14 +0100
-Message-Id: <20210104155706.486779511@linuxfoundation.org>
+Message-Id: <20210104155703.950803319@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
-References: <20210104155705.740576914@linuxfoundation.org>
+In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
+References: <20210104155703.375788488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -115,10 +115,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 21 insertions(+), 2 deletions(-)
 
 diff --git a/arch/powerpc/include/asm/bitops.h b/arch/powerpc/include/asm/bitops.h
-index 603aed229af78..46338f2360046 100644
+index ff71566dadee5..76db1c5000bd6 100644
 --- a/arch/powerpc/include/asm/bitops.h
 +++ b/arch/powerpc/include/asm/bitops.h
-@@ -217,15 +217,34 @@ static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
+@@ -221,15 +221,34 @@ static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
   */
  static __inline__ int fls(unsigned int x)
  {
