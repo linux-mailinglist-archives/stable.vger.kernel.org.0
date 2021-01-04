@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E992E9AC7
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD07F2E9A51
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727985AbhADP7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36582 "EHLO mail.kernel.org"
+        id S1729440AbhADQIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:08:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727973AbhADP7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8239922510;
-        Mon,  4 Jan 2021 15:58:32 +0000 (UTC)
+        id S1728620AbhADQBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:01:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71F3422515;
+        Mon,  4 Jan 2021 16:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775913;
-        bh=dasKtHTCYIrQxpY8qIuQBndCSh8AFrxZODHylccCWf8=;
+        s=korg; t=1609776064;
+        bh=krZ3AKzCCtzMuA9mGz3d3t2EqXtdL9ffVCFMkS0wWsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwZ70UOErw0t4HlQJsJH2BHNRWF32ty2puCBSlkonl7k+QcM6lO4T/ZZa9yQtAA/G
-         a/YdZX69NcbhM29aH626kgHtbPiaZTZuZ/YIOAXvax2qU75POJZbXNDbBS97wwKk9X
-         t7cjbynSTut2DnF2vPReh1iaR3IiFFyvpI7X7rIs=
+        b=U9aVQZM08Ml94gl6HUURbJRdiWYIkYuDMBmbe0CQg71AIBZoHg3/qWQD/7SNLeWSa
+         UVr5dR4bStBWJi8c2Jzw3MFv83RpaAj2Jz2++HZ7z37P74WomHvS34lAbhqoEMGzWL
+         yRBf78eLqHa+qxJcYm6luocPYMX8Za9XmxwCYAv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
         "Dr . David Alan Gilbert" <dgilbert@redhat.com>,
         Laszlo Ersek <lersek@redhat.com>
-Subject: [PATCH 4.19 09/35] KVM: SVM: relax conditions for allowing MSR_IA32_SPEC_CTRL accesses
+Subject: [PATCH 5.4 13/47] KVM: SVM: relax conditions for allowing MSR_IA32_SPEC_CTRL accesses
 Date:   Mon,  4 Jan 2021 16:57:12 +0100
-Message-Id: <20210104155703.850260579@linuxfoundation.org>
+Message-Id: <20210104155706.388304028@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index a0c3d1b4b295b..f513110983d4c 100644
+index 72bf1d8175ac2..ca746006ac040 100644
 --- a/arch/x86/kvm/svm.c
 +++ b/arch/x86/kvm/svm.c
-@@ -4209,6 +4209,8 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+@@ -4233,6 +4233,8 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
  		break;
  	case MSR_IA32_SPEC_CTRL:
  		if (!msr_info->host_initiated &&
@@ -76,7 +76,7 @@ index a0c3d1b4b295b..f513110983d4c 100644
  		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
  		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
  			return 1;
-@@ -4312,6 +4314,8 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+@@ -4318,6 +4320,8 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
  		break;
  	case MSR_IA32_SPEC_CTRL:
  		if (!msr->host_initiated &&
