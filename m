@@ -2,34 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BBA92E9ABD
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:18:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 610EC2E9A64
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbhADP7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:59:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36474 "EHLO mail.kernel.org"
+        id S1728490AbhADQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 11:09:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727698AbhADP7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:59:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB722224D4;
-        Mon,  4 Jan 2021 15:58:14 +0000 (UTC)
+        id S1727707AbhADQBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 11:01:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46CFF22507;
+        Mon,  4 Jan 2021 16:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609775895;
-        bh=UOn/Io+TVSfmSAA3PKPPcakLs9XQZNQgh1scWALYtxc=;
+        s=korg; t=1609776053;
+        bh=5Gfu3L59rdjO9CtMPxwCNS4CHfJnT5MFmlDci/a6xLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXWKLkUD7GbngwWSLEFlTrTUy3H2utoGrKNnImlWJ5xBEd/DqX1/ksFJ0ZgM5xMi3
-         hK6ubCAhIhNmpr5h5cf/dZXxzNkKDmsLhgBM/OITjWOdgQAmTs+tcKHaoIhJgYTxcz
-         Mehp/mepWMiY4+OaJtkC4yqSjB8R8EyflPeRSWEo=
+        b=UfCIgcHTpJ4wSGixuzPFMWMYR99CbGulGpAi0RtXE2P5vf7ab4GADcqWEnKDGI49T
+         Oc+w976iItxxmtHwjr+nBo2DwP4oKSNpISHD4fD6dOr0DL8Aeo/MQTdD8XLj9JkwuH
+         bAmBEqn3M5EcXVykufFd0enP/0Ri3vmxtMEsO82Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 14/35] of: fix linker-section match-table corruption
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Can Guo <cang@codeaurora.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 18/47] scsi: block: Fix a race in the runtime power management code
 Date:   Mon,  4 Jan 2021 16:57:17 +0100
-Message-Id: <20210104155704.098933120@linuxfoundation.org>
+Message-Id: <20210104155706.618488635@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210104155703.375788488@linuxfoundation.org>
-References: <20210104155703.375788488@linuxfoundation.org>
+In-Reply-To: <20210104155705.740576914@linuxfoundation.org>
+References: <20210104155705.740576914@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,66 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 5812b32e01c6d86ba7a84110702b46d8a8531fe9 upstream.
+commit fa4d0f1992a96f6d7c988ef423e3127e613f6ac9 upstream.
 
-Specify type alignment when declaring linker-section match-table entries
-to prevent gcc from increasing alignment and corrupting the various
-tables with padding (e.g. timers, irqchips, clocks, reserved memory).
+With the current implementation the following race can happen:
 
-This is specifically needed on x86 where gcc (typically) aligns larger
-objects like struct of_device_id with static extent on 32-byte
-boundaries which at best prevents matching on anything but the first
-entry. Specifying alignment when declaring variables suppresses this
-optimisation.
+ * blk_pre_runtime_suspend() calls blk_freeze_queue_start() and
+   blk_mq_unfreeze_queue().
 
-Here's a 64-bit example where all entries are corrupt as 16 bytes of
-padding has been inserted before the first entry:
+ * blk_queue_enter() calls blk_queue_pm_only() and that function returns
+   true.
 
-	ffffffff8266b4b0 D __clk_of_table
-	ffffffff8266b4c0 d __of_table_fixed_factor_clk
-	ffffffff8266b5a0 d __of_table_fixed_clk
-	ffffffff8266b680 d __clk_of_table_sentinel
+ * blk_queue_enter() calls blk_pm_request_resume() and that function does
+   not call pm_request_resume() because the queue runtime status is
+   RPM_ACTIVE.
 
-And here's a 32-bit example where the 8-byte-aligned table happens to be
-placed on a 32-byte boundary so that all but the first entry are corrupt
-due to the 28 bytes of padding inserted between entries:
+ * blk_pre_runtime_suspend() changes the queue status into RPM_SUSPENDING.
 
-	812b3ec0 D __irqchip_of_table
-	812b3ec0 d __of_table_irqchip1
-	812b3fa0 d __of_table_irqchip2
-	812b4080 d __of_table_irqchip3
-	812b4160 d irqchip_of_match_end
+Fix this race by changing the queue runtime status into RPM_SUSPENDING
+before switching q_usage_counter to atomic mode.
 
-Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
-alignment), and on arm using gcc-7.2.
-
-Note that there are no in-tree users of these tables on x86 currently
-(even if they are included in the image).
-
-Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
-Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
-Cc: stable <stable@vger.kernel.org>     # 3.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
-[ johan: adjust context to 5.4 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20201209052951.16136-2-bvanassche@acm.org
+Fixes: 986d413b7c15 ("blk-mq: Enable support for runtime power management")
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Stanley Chu <stanley.chu@mediatek.com>
+Co-developed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/of.h |    1 +
- 1 file changed, 1 insertion(+)
+ block/blk-pm.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1258,6 +1258,7 @@ static inline int of_get_available_child
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section(__##table##_of_table)			\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -67,6 +67,10 @@ int blk_pre_runtime_suspend(struct reque
+ 
+ 	WARN_ON_ONCE(q->rpm_status != RPM_ACTIVE);
+ 
++	spin_lock_irq(&q->queue_lock);
++	q->rpm_status = RPM_SUSPENDING;
++	spin_unlock_irq(&q->queue_lock);
++
+ 	/*
+ 	 * Increase the pm_only counter before checking whether any
+ 	 * non-PM blk_queue_enter() calls are in progress to avoid that any
+@@ -89,15 +93,14 @@ int blk_pre_runtime_suspend(struct reque
+ 	/* Switch q_usage_counter back to per-cpu mode. */
+ 	blk_mq_unfreeze_queue(q);
+ 
+-	spin_lock_irq(&q->queue_lock);
+-	if (ret < 0)
++	if (ret < 0) {
++		spin_lock_irq(&q->queue_lock);
++		q->rpm_status = RPM_ACTIVE;
+ 		pm_runtime_mark_last_busy(q->dev);
+-	else
+-		q->rpm_status = RPM_SUSPENDING;
+-	spin_unlock_irq(&q->queue_lock);
++		spin_unlock_irq(&q->queue_lock);
+ 
+-	if (ret)
+ 		blk_clear_pm_only(q);
++	}
+ 
+ 	return ret;
+ }
 
 
