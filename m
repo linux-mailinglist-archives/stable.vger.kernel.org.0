@@ -2,158 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCA52E9949
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:57:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D58FF2E9947
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 16:56:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727318AbhADP4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 10:56:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35892 "EHLO mail.kernel.org"
+        id S1727785AbhADPzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 10:55:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727317AbhADP4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 10:56:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB642207AE;
-        Mon,  4 Jan 2021 15:56:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609775765;
-        bh=BqzV9JTL3wGIjVIkuo1gP5ULP8ZTYghe03yZ0FtUJkA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHqHA7AKhjm54Lb+Oiy58DuY7f7++yCTTZzOsuQAM47MiPLKrLCVYO8XS7PTKGzip
-         3hAwK0zKBfbs+Tgpl+8G+SrSiiKCG3r+5efptEDBUYqgAv1YwbVEqsz+AEzg3tcN2i
-         Neo2ayzGu7DdzicF3H2qqXR0Kn+UVln8Eb79bIk44AC3hGfJpz0reVjwc10iXvmy46
-         rgsdz8wgj0yD9eMRswHsvkEGXhaBU1jv4AIT9WjugaCTJhL+v5i28NBd8mCBGVHwzD
-         +Cr6hW95vnY5WaoNKolyE5vY06deKW46Q9VQxaYgQSMlVZ6k4RO59yfjNs/WhXyqrX
-         zVUSTrQht2erQ==
-From:   Ard Biesheuvel <ardb@kernel.org>
-To:     linux-crypto@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>, Megha Dey <megha.dey@intel.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 1/5] crypto: x86/gcm-aes-ni - prevent misaligned buffers on the stack
-Date:   Mon,  4 Jan 2021 16:55:46 +0100
-Message-Id: <20210104155550.6359-2-ardb@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210104155550.6359-1-ardb@kernel.org>
-References: <20210104155550.6359-1-ardb@kernel.org>
+        id S1727784AbhADPzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 10:55:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E122250F;
+        Mon,  4 Jan 2021 15:55:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609775706;
+        bh=+TZQagKTU4XOSQaIPzlZSdVWhyUyrNZpBjYyPYgB22o=;
+        h=Subject:To:From:Date:From;
+        b=q0HWviywfG7Ko6aQGFCMABmPMr06i6yPtqNTys57odBIdCiQst9TbGEPNTzwhaeK5
+         TNoHa0KzXxCqNu7QbLa0UhPEasBxoDd6Z1mMdqQ/8UxuwGikVlckdlOZSZIxDVeypl
+         kwrN7EWZxCFjJIpGPc5f2JC5o6qnmzheUD0DOniE=
+Subject: patch "usb: gadget: configfs: Preserve function ordering after bind failure" added to usb-linus
+To:     cchiluve@codeaurora.org, gregkh@linuxfoundation.org,
+        jackp@codeaurora.org, peter.chen@nxp.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 04 Jan 2021 16:56:32 +0100
+Message-ID: <16097757925158@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The GCM mode driver uses 16 byte aligned buffers on the stack to pass
-the IV to the asm helpers, but unfortunately, the x86 port does not
-guarantee that the stack pointer is 16 byte aligned upon entry in the
-first place. Since the compiler is not aware of this, it will not emit
-the additional stack realignment sequence that is needed, and so the
-alignment is not guaranteed to be more than 8 bytes.
 
-So instead, allocate some padding on the stack, and realign the IV
-pointer by hand.
+This is a note to let you know that I've just added the patch titled
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+    usb: gadget: configfs: Preserve function ordering after bind failure
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 6cd0fe91387917be48e91385a572a69dfac2f3f7 Mon Sep 17 00:00:00 2001
+From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+Date: Tue, 29 Dec 2020 14:44:43 -0800
+Subject: usb: gadget: configfs: Preserve function ordering after bind failure
+
+When binding the ConfigFS gadget to a UDC, the functions in each
+configuration are added in list order. However, if usb_add_function()
+fails, the failed function is put back on its configuration's
+func_list and purge_configs_funcs() is called to further clean up.
+
+purge_configs_funcs() iterates over the configurations and functions
+in forward order, calling unbind() on each of the previously added
+functions. But after doing so, each function gets moved to the
+tail of the configuration's func_list. This results in reshuffling
+the original order of the functions within a configuration such
+that the failed function now appears first even though it may have
+originally appeared in the middle or even end of the list. At this
+point if the ConfigFS gadget is attempted to re-bind to the UDC,
+the functions will be added in a different order than intended,
+with the only recourse being to remove and relink the functions all
+over again.
+
+An example of this as follows:
+
+ln -s functions/mass_storage.0 configs/c.1
+ln -s functions/ncm.0 configs/c.1
+ln -s functions/ffs.adb configs/c.1	# oops, forgot to start adbd
+echo "<udc device>" > UDC		# fails
+start adbd
+echo "<udc device>" > UDC		# now succeeds, but...
+					# bind order is
+					# "ADB", mass_storage, ncm
+
+[30133.118289] configfs-gadget gadget: adding 'Mass Storage Function'/ffffff810af87200 to config 'c'/ffffff817d6a2520
+[30133.119875] configfs-gadget gadget: adding 'cdc_network'/ffffff80f48d1a00 to config 'c'/ffffff817d6a2520
+[30133.119974] using random self ethernet address
+[30133.120002] using random host ethernet address
+[30133.139604] usb0: HOST MAC 3e:27:46:ba:3e:26
+[30133.140015] usb0: MAC 6e:28:7e:42:66:6a
+[30133.140062] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 to config 'c'/ffffff817d6a2520
+[30133.140081] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 --> -19
+[30133.140098] configfs-gadget gadget: unbind function 'Mass Storage Function'/ffffff810af87200
+[30133.140119] configfs-gadget gadget: unbind function 'cdc_network'/ffffff80f48d1a00
+[30133.173201] configfs-gadget a600000.dwc3: failed to start g1: -19
+[30136.661933] init: starting service 'adbd'...
+[30136.700126] read descriptors
+[30136.700413] read strings
+[30138.574484] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 to config 'c'/ffffff817d6a2520
+[30138.575497] configfs-gadget gadget: adding 'Mass Storage Function'/ffffff810af87200 to config 'c'/ffffff817d6a2520
+[30138.575554] configfs-gadget gadget: adding 'cdc_network'/ffffff80f48d1a00 to config 'c'/ffffff817d6a2520
+[30138.575631] using random self ethernet address
+[30138.575660] using random host ethernet address
+[30138.595338] usb0: HOST MAC 2e:cf:43:cd:ca:c8
+[30138.597160] usb0: MAC 6a:f0:9f:ee:82:a0
+[30138.791490] configfs-gadget gadget: super-speed config #1: c
+
+Fix this by reversing the iteration order of the functions in
+purge_config_funcs() when unbinding them, and adding them back to
+the config's func_list at the head instead of the tail. This
+ensures that we unbind and unwind back to the original list order.
+
+Fixes: 88af8bbe4ef7 ("usb: gadget: the start of the configfs interface")
+Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20201229224443.31623-1-jackp@codeaurora.org
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/crypto/aesni-intel_glue.c | 28 +++++++++++---------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/usb/gadget/configfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index 2116bc2b9507..880f9f8b5153 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -710,7 +710,8 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	unsigned long auth_tag_len = crypto_aead_authsize(tfm);
- 	const struct aesni_gcm_tfm_s *gcm_tfm = aesni_gcm_tfm;
--	struct gcm_context_data data AESNI_ALIGN_ATTR;
-+	u8 databuf[sizeof(struct gcm_context_data) + (AESNI_ALIGN - 8)] __aligned(8);
-+	struct gcm_context_data *data = PTR_ALIGN((void *)databuf, AESNI_ALIGN);
- 	struct scatter_walk dst_sg_walk = {};
- 	unsigned long left = req->cryptlen;
- 	unsigned long len, srclen, dstlen;
-@@ -759,8 +760,7 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 	}
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index d9743f4b56c3..408a5332a975 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1255,9 +1255,9 @@ static void purge_configs_funcs(struct gadget_info *gi)
  
- 	kernel_fpu_begin();
--	gcm_tfm->init(aes_ctx, &data, iv,
--		hash_subkey, assoc, assoclen);
-+	gcm_tfm->init(aes_ctx, data, iv, hash_subkey, assoc, assoclen);
- 	if (req->src != req->dst) {
- 		while (left) {
- 			src = scatterwalk_map(&src_sg_walk);
-@@ -770,10 +770,10 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			len = min(srclen, dstlen);
- 			if (len) {
- 				if (enc)
--					gcm_tfm->enc_update(aes_ctx, &data,
-+					gcm_tfm->enc_update(aes_ctx, data,
- 							     dst, src, len);
- 				else
--					gcm_tfm->dec_update(aes_ctx, &data,
-+					gcm_tfm->dec_update(aes_ctx, data,
- 							     dst, src, len);
- 			}
- 			left -= len;
-@@ -791,10 +791,10 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			len = scatterwalk_clamp(&src_sg_walk, left);
- 			if (len) {
- 				if (enc)
--					gcm_tfm->enc_update(aes_ctx, &data,
-+					gcm_tfm->enc_update(aes_ctx, data,
- 							     src, src, len);
- 				else
--					gcm_tfm->dec_update(aes_ctx, &data,
-+					gcm_tfm->dec_update(aes_ctx, data,
- 							     src, src, len);
- 			}
- 			left -= len;
-@@ -803,7 +803,7 @@ static int gcmaes_crypt_by_sg(bool enc, struct aead_request *req,
- 			scatterwalk_done(&src_sg_walk, 1, left);
- 		}
- 	}
--	gcm_tfm->finalize(aes_ctx, &data, authTag, auth_tag_len);
-+	gcm_tfm->finalize(aes_ctx, data, authTag, auth_tag_len);
- 	kernel_fpu_end();
+ 		cfg = container_of(c, struct config_usb_cfg, c);
  
- 	if (!assocmem)
-@@ -852,7 +852,8 @@ static int helper_rfc4106_encrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct aesni_rfc4106_gcm_ctx *ctx = aesni_rfc4106_gcm_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	unsigned int i;
- 	__be32 counter = cpu_to_be32(1);
+-		list_for_each_entry_safe(f, tmp, &c->functions, list) {
++		list_for_each_entry_safe_reverse(f, tmp, &c->functions, list) {
  
-@@ -879,7 +880,8 @@ static int helper_rfc4106_decrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct aesni_rfc4106_gcm_ctx *ctx = aesni_rfc4106_gcm_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	unsigned int i;
- 
- 	if (unlikely(req->assoclen != 16 && req->assoclen != 20))
-@@ -1149,7 +1151,8 @@ static int generic_gcmaes_encrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct generic_gcmaes_ctx *ctx = generic_gcmaes_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 	__be32 counter = cpu_to_be32(1);
- 
- 	memcpy(iv, req->iv, 12);
-@@ -1165,7 +1168,8 @@ static int generic_gcmaes_decrypt(struct aead_request *req)
- 	struct crypto_aead *tfm = crypto_aead_reqtfm(req);
- 	struct generic_gcmaes_ctx *ctx = generic_gcmaes_ctx_get(tfm);
- 	void *aes_ctx = &(ctx->aes_key_expanded);
--	u8 iv[16] __attribute__ ((__aligned__(AESNI_ALIGN)));
-+	u8 ivbuf[16 + (AESNI_ALIGN - 8)] __aligned(8);
-+	u8 *iv = PTR_ALIGN(&ivbuf[0], AESNI_ALIGN);
- 
- 	memcpy(iv, req->iv, 12);
- 	*((__be32 *)(iv+12)) = counter;
+-			list_move_tail(&f->list, &cfg->func_list);
++			list_move(&f->list, &cfg->func_list);
+ 			if (f->unbind) {
+ 				dev_dbg(&gi->cdev.gadget->dev,
+ 					"unbind function '%s'/%p\n",
 -- 
-2.17.1
+2.30.0
+
 
