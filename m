@@ -2,172 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 498C22E9B25
-	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 17:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 824EC2E9BAB
+	for <lists+stable@lfdr.de>; Mon,  4 Jan 2021 18:05:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbhADQhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 11:37:33 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46074 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726098AbhADQhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 11:37:33 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 104GWbl1106944;
-        Mon, 4 Jan 2021 11:36:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=ZYz2tLgpgNEouiJcCAzBQncY9TnARviMIMG0lWR3eIA=;
- b=VPYVto0jP8mZjfycR2YSnR8SVc/d7SFzfWSC1kzRwhIl2U98p//g8GmhHAKm5IwPodUK
- t4guIW6TNOI3hwHfv/Y+nIXdnnAoa2x67rMhISbGJJkZ2RNUlpm6r/KLZDA6NdSDnvmt
- X1+KRkWL53PaI7EOknmxIpBiJQedtIZbvAIOI2USw62XygH+KOPV3TzpHWse5jSmYQ8y
- cNwK87NG0HkHtUoXp1iZOmpCmzVMCQ+XMPUiHa1k8+37yWVUne/k0DZTInqW6RSs3M4M
- K0mDtAR93dwcfpJNyrYzz2lCwlxNDk8XGpD17sVvB/2ctZ5yjbd13VJAslskwaDlvmZn ng== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35v4a14nkh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jan 2021 11:36:52 -0500
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 104GXcfq110464;
-        Mon, 4 Jan 2021 11:36:52 -0500
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 35v4a14nk2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jan 2021 11:36:52 -0500
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 104GWDKZ032124;
-        Mon, 4 Jan 2021 16:36:49 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma06fra.de.ibm.com with ESMTP id 35tg3hh25c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 04 Jan 2021 16:36:49 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 104GakeI43975082
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 4 Jan 2021 16:36:46 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8B249AE053;
-        Mon,  4 Jan 2021 16:36:46 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 26B66AE04D;
-        Mon,  4 Jan 2021 16:36:46 +0000 (GMT)
-Received: from ibm-vm (unknown [9.145.0.177])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  4 Jan 2021 16:36:46 +0000 (GMT)
-Date:   Mon, 4 Jan 2021 17:36:44 +0100
-From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1 4/4] s390/kvm: VSIE: correctly handle MVPG when in
- VSIE
-Message-ID: <20210104173644.2e6c8df4@ibm-vm>
-In-Reply-To: <3376268b-7fd7-9fbe-b483-fe7471038a18@redhat.com>
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
-        <20201218141811.310267-5-imbrenda@linux.ibm.com>
-        <6836573a-a49d-9d9f-49e0-96b5aa479c52@redhat.com>
-        <20210104162231.4e56ab47@ibm-vm>
-        <3376268b-7fd7-9fbe-b483-fe7471038a18@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1727318AbhADRE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 12:04:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726308AbhADRE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 12:04:28 -0500
+Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9558DC061794
+        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 09:03:47 -0800 (PST)
+Received: by mail-qt1-x829.google.com with SMTP id a6so18942675qtw.6
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 09:03:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=p3fstNFwpviS5MMSNrF6it3JOKHc3O5G6kSCnagCyGE=;
+        b=FUAuLUk9FSP5LcmkVbO8WmZfqhXrXhesRQBxqZXLPK7klyRVdOriUfsjBgOzNkWdrh
+         MNchdtgoGqYHaTMRk4C1ZORsXgYYeqTC6E9TBePWVvCQYDGkT6NJmvcvYMDrazjnmzN0
+         F4TCOdKvfupPmXiPKRddtks4Hd1gYRq+DLlsevAIabn4/23vQQ5Ndu2AR6VPi/TQoA8B
+         Kd8A5xION4t28yo7yI62uWiOL7XfXKf+yS+l0QJMlwD1A4u0s/VyVJp7bOxIao6OzPFL
+         +uVZPZZ06ND2EV2VP1CWijUq4REH6A6IyhiJ/QaUe/nVaSyOa9fw7QOXtNtU9mzaX8G7
+         NsfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=p3fstNFwpviS5MMSNrF6it3JOKHc3O5G6kSCnagCyGE=;
+        b=M1/6WDcYxguS+ExCrCVyrAhxdGlZKrZsRXItW7FDA4Ayeffh4sYZIziihrXAAmZp88
+         v2uspVZ4IrlgSvdNOGyQ4pv5rc3Y7VNDWCWjfgq6WtWIPYhsS0tvpVc7ssi5KQMgs6Cn
+         5rUe+7XCwQB4oF9NAfV7/szRsZ2gsnrbAASYbg4ZBPanequAxB99jqKFviLWiAXFgio1
+         +7pZig2RTjPBM60ogQG8XI/xFmsRV1NSsKvsCfUEFot157bNCY4fZRkJclaJMQl7LAOu
+         jJeDepPOYsp3ugZvlIsP/Rn1EycJrzA/vUEDInTcBNSi3S8wQL/Xa+SF+T1Co6izURA5
+         pKQQ==
+X-Gm-Message-State: AOAM5313QqXhHfIQpsbaDHkdLvjd5zeNW22nofhfjx8oSY4ws9IPvOKd
+        puQ7rIukxN9ieQO/bGDxoz6WLEcDaXT6gqd6
+X-Google-Smtp-Source: ABdhPJzsy0Q0qeHMC/6f8adb9c7LcOheaBaqi4ElBXSjkeujb0jeUhoTNT4/f00GHIpGt/zO9LA2lQ==
+X-Received: by 2002:ac8:5c95:: with SMTP id r21mr72469629qta.152.1609779826707;
+        Mon, 04 Jan 2021 09:03:46 -0800 (PST)
+Received: from localhost (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
+        by smtp.gmail.com with ESMTPSA id z30sm36935235qtc.15.2021.01.04.09.03.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Jan 2021 09:03:46 -0800 (PST)
+From:   Josef Bacik <josef@toxicpanda.com>
+To:     linux-btrfs@vger.kernel.org, kernel-team@fb.com
+Cc:     stable@vger.kernel.org,
+        =?UTF-8?q?Ren=C3=A9=20Rebe?= <rene@exactcode.de>
+Subject: [PATCH] btrfs: Use the normal writeback path for flushing delalloc
+Date:   Mon,  4 Jan 2021 12:03:45 -0500
+Message-Id: <7a1048dfbc8d2f5f3869f072146ec3e499bc0ac2.1609779712.git.josef@toxicpanda.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2021-01-04_10:2021-01-04,2021-01-04 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 mlxscore=0 mlxlogscore=737
- priorityscore=1501 adultscore=0 suspectscore=0 phishscore=0
- impostorscore=0 clxscore=1015 malwarescore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101040107
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 4 Jan 2021 17:08:15 +0100
-David Hildenbrand <david@redhat.com> wrote:
+This is a revert for 38d715f494f2 ("btrfs: use
+btrfs_start_delalloc_roots in shrink_delalloc").  A user reported a
+problem where performance was significantly worse with this patch
+applied.  The problem needs to be fixed with proper pre-flushing, and
+changes to how we deal with the work queues for the inodes.  However
+that work is much more complicated than is acceptable for stable, and
+simply reverting this patch fixes the problem.  The original patch was
+a cleanup of the code, so it's fine to revert it.  My numbers for the
+original reported test, which was untarring a copy of the firefox
+sources, are as follows
 
-> On 04.01.21 16:22, Claudio Imbrenda wrote:
-> > On Sun, 20 Dec 2020 11:13:57 +0100
-> > David Hildenbrand <david@redhat.com> wrote:
-> >   
-> >> On 18.12.20 15:18, Claudio Imbrenda wrote:  
-> >>> Correctly handle the MVPG instruction when issued by a VSIE guest.
-> >>>     
-> >>
-> >> I remember that MVPG SIE documentation was completely crazy and
-> >> full of corner cases. :)  
-> > 
-> > you remember correctly
-> >   
-> >> Looking at arch/s390/kvm/intercept.c:handle_mvpg_pei(), I can spot
-> >> that
-> >>
-> >> 1. "This interception can only happen for guests with DAT disabled
-> >> ..." 2. KVM does not make use of any mvpg state inside the SCB.
-> >>
-> >> Can this be observed with Linux guests?  
-> > 
-> > a Linux guest will typically not run with DAT disabled
-> >   
-> >> Can I get some information on what information is stored at [0xc0,
-> >> 0xd) inside the SCB? I assume it's:
-> >>
-> >> 0xc0: guest physical address of source PTE
-> >> 0xc8: guest physical address of target PTE  
-> > 
-> > yes (plus 3 flags in the lower bits of each)  
-> 
-> Thanks! Do the flags tell us what the deal with the PTE was? If yes,
-> what's the meaning of the separate flags?
-> 
-> I assume something like "invalid, proteced, ??"
+5.9	0m54.258s
+5.10	1m26.212s
+Fix	0m35.038s
 
-bit 61 indicates that the address is a region or segment table entry,
-when EDAT applies
-bit 62 is "protected" when the protected bit is set in the segment
-table entry (or region, if EDAT applies) 
-bit 63 is set when the operand was translated with a real-space ASCE
+cc: stable@vger.kernel.org # 5.10
+Reported-by: René Rebe <rene@exactcode.de>
+Fixes: 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in shrink_delalloc")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+---
+Dave, this is ontop of linus's branch, because we've changed the arguments for
+btrfs_start_delalloc_roots in misc-next, and this needs to go back to 5.10 ASAP.
+I can send a misc-next version if you want to have it there as well while we're
+waiting for it to go into linus's tree, just let me know.
 
-but you can check if the PTE is valid just by dereferencing the
-pointers...
+ fs/btrfs/space-info.c | 54 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 53 insertions(+), 1 deletion(-)
 
-> I'm asking because I think we can handle this a little easier.
-
-what is your idea?
-
-> >   
-> >> [...]  
-> >>>  /*
-> >>>   * Run the vsie on a shadow scb and a shadow gmap, without any
-> >>> further
-> >>>   * sanity checks, handling SIE faults.
-> >>> @@ -1063,6 +1132,10 @@ static int do_vsie_run(struct kvm_vcpu
-> >>> *vcpu, struct vsie_page *vsie_page) if ((scb_s->ipa & 0xf000) !=
-> >>> 0xf000) scb_s->ipa += 0x1000;
-> >>>  		break;
-> >>> +	case ICPT_PARTEXEC:
-> >>> +		if (scb_s->ipa == 0xb254)    
-> >>
-> >> Old code hat "/* MVPG only */" - why is this condition now
-> >> necessary?  
-> > 
-> > old code was wrong ;)  
-> 
-> 
-> arch/s390/kvm/intercept.c:handle_partial_execution() we only seem to
-> handle
-> 
-> 1. MVPG
-> 2. SIGP PEI
-> 
-> The latter is only relevant for external calls. IIRC, this is only
-> active with sigp interpretation - which is never active under vsie
-> (ECA_SIGPI).
-
-I think putting an explicit check is better than just a jump in the
-dark.
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 64099565ab8f..a2b322275b8d 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -465,6 +465,28 @@ void btrfs_dump_space_info(struct btrfs_fs_info *fs_info,
+ 	up_read(&info->groups_sem);
+ }
+ 
++static void btrfs_writeback_inodes_sb_nr(struct btrfs_fs_info *fs_info,
++					 unsigned long nr_pages, u64 nr_items)
++{
++	struct super_block *sb = fs_info->sb;
++
++	if (down_read_trylock(&sb->s_umount)) {
++		writeback_inodes_sb_nr(sb, nr_pages, WB_REASON_FS_FREE_SPACE);
++		up_read(&sb->s_umount);
++	} else {
++		/*
++		 * We needn't worry the filesystem going from r/w to r/o though
++		 * we don't acquire ->s_umount mutex, because the filesystem
++		 * should guarantee the delalloc inodes list be empty after
++		 * the filesystem is readonly(all dirty pages are written to
++		 * the disk).
++		 */
++		btrfs_start_delalloc_roots(fs_info, nr_items);
++		if (!current->journal_info)
++			btrfs_wait_ordered_roots(fs_info, nr_items, 0, (u64)-1);
++	}
++}
++
+ static inline u64 calc_reclaim_items_nr(struct btrfs_fs_info *fs_info,
+ 					u64 to_reclaim)
+ {
+@@ -490,8 +512,10 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ 	struct btrfs_trans_handle *trans;
+ 	u64 delalloc_bytes;
+ 	u64 dio_bytes;
++	u64 async_pages;
+ 	u64 items;
+ 	long time_left;
++	unsigned long nr_pages;
+ 	int loops;
+ 
+ 	/* Calc the number of the pages we need flush for space reservation */
+@@ -532,8 +556,36 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ 
+ 	loops = 0;
+ 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
+-		btrfs_start_delalloc_roots(fs_info, items);
++		nr_pages = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
++
++		/*
++		 * Triggers inode writeback for up to nr_pages. This will invoke
++		 * ->writepages callback and trigger delalloc filling
++		 *  (btrfs_run_delalloc_range()).
++		 */
++		btrfs_writeback_inodes_sb_nr(fs_info, nr_pages, items);
++		/*
++		 * We need to wait for the compressed pages to start before
++		 * we continue.
++		 */
++		async_pages = atomic_read(&fs_info->async_delalloc_pages);
++		if (!async_pages)
++			goto skip_async;
++
++		/*
++		 * Calculate how many compressed pages we want to be written
++		 * before we continue. I.e if there are more async pages than we
++		 * require wait_event will wait until nr_pages are written.
++		 */
++		if (async_pages <= nr_pages)
++			async_pages = 0;
++		else
++			async_pages -= nr_pages;
+ 
++		wait_event(fs_info->async_submit_wait,
++			   atomic_read(&fs_info->async_delalloc_pages) <=
++			   (int)async_pages);
++skip_async:
+ 		loops++;
+ 		if (wait_ordered && !trans) {
+ 			btrfs_wait_ordered_roots(fs_info, items, 0, (u64)-1);
+-- 
+2.26.2
 
