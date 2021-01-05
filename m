@@ -2,99 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A44B2EB35A
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:11:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFBB2EB35E
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729971AbhAETKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 14:10:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44588 "EHLO
+        id S1727718AbhAETOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 14:14:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726663AbhAETKN (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 5 Jan 2021 14:10:13 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDA6C061795
-        for <Stable@vger.kernel.org>; Tue,  5 Jan 2021 11:09:33 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id a12so250453wrv.8
-        for <Stable@vger.kernel.org>; Tue, 05 Jan 2021 11:09:32 -0800 (PST)
+        with ESMTP id S1726049AbhAETOV (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 5 Jan 2021 14:14:21 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85969C061793
+        for <Stable@vger.kernel.org>; Tue,  5 Jan 2021 11:13:40 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id w5so242625wrm.11
+        for <Stable@vger.kernel.org>; Tue, 05 Jan 2021 11:13:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=8vnl8pGccisfhn5MNb9HL7fTjUscaAZoX3q+t66uruw=;
-        b=Ps7tIm9p2zYbfrcmk+NxG1Ual0LkL/ZvSNm0e5fmwNuZLG3rOWVzE27ioReXJYvqN3
-         QpRIOim5+7TkXCiCSoxs2B32HnIFrFQYW4shIuBgnyWwKVQ1B+zqvhTPK/2tNP5LKq9S
-         YKLwxEB2rgj8/crOBA0cZ8N6qDH0SJbkLHr2FyMR59hjJJr1DsClO9N7HBa/fG5m353G
-         tDaYLq3EBHb5oA3oSRozZY4zntz6yvKwLhWqUku/hOa1Iet392WwtwM2FJ/eVPBlsIt3
-         zFunHdylblJyGlPuJUYvdt1IwG+v+cqPpD387NR8NIHtS9/y0bfIlm30TRqN+T7eA58i
-         8+rA==
+        bh=VRetRHUNghp1koouvBNUCrPuH8hLkB3TVhP5MPjY9PI=;
+        b=NgYwq5ERTccCG/2ek3Vr46DvhdwbM+CVkrqN36gUp2z4mIKqV/83OosfSkr9ER10zR
+         3CVKkdweDtK354ouTLJDk94KkMb8qULGFvweszNecXeflkL3lKMftsBN5g0jHxRTKySx
+         64entUjeA03AYhH92YMz/OFK+FXpFV5WQ3QJwnXTJvCoj7Mobh36z9EucYoLwy9A3T2S
+         akhc3APhna0DA697GjgEJnbTrn5FmCX+JNMJztKU/LneZAr4jEc/6+E1r+toNER+dDD3
+         yEGkiJ2giKyjpnWgXRvV74iz901w51jQu6NHfvJisxLMHbt83NVdTgS36vgHPagVoSPZ
+         xUKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=8vnl8pGccisfhn5MNb9HL7fTjUscaAZoX3q+t66uruw=;
-        b=N0mzhlo5H/JYRFqjMsQMWr+EuB9Y4bFxocyMPGj90eFdZAWoz+ij6dzXK7zqjWUxBy
-         WdVrz8k2x+gcNpzWhHkaOUk/e8QdlXxfvybS88RFUaVxe7QuTpvNRkRCMqu0I9WyWq6k
-         NoUmmw3IlunyQuNOL9zsgA190QDQFZk+LEZQBEDga7kfJU+g2jR5K/DaPtFB0r8mAKnn
-         GF8n6NfeoAMwweUiQaaLISHDICSz/pCCknHX25++wgyfyETsnfEb4HHyUJbz/O9Fqi9Z
-         U3kJxYOttr8Cdfv7+b6Mmt+nfs3bRMpw6yfsBv+WMxUz5UjPoGtAdWCLGH5WQ5eTySYf
-         FZCw==
-X-Gm-Message-State: AOAM5316DiHRAf+bXTp0i6z0f4c8jwQdjrosMspbgJKreR2WJ9OLH99o
-        cgGsEqnK88TFMuJ4fKLeTtQ=
-X-Google-Smtp-Source: ABdhPJzMj8+ttql3akWwUv7djRHRfgOWYv/XNd8yhxLXd+xRyxP1QOcaK7rBznsdtAi0exPRu7JzjQ==
-X-Received: by 2002:a5d:56c3:: with SMTP id m3mr911611wrw.419.1609873771866;
-        Tue, 05 Jan 2021 11:09:31 -0800 (PST)
+        bh=VRetRHUNghp1koouvBNUCrPuH8hLkB3TVhP5MPjY9PI=;
+        b=aJk5LICLTR6af6M4bdwEb/7GqSEevYcaDQX2lg+f4Dkz8acECn2OV7e1dZHznEEgQ9
+         GvRiOoTxyATXJGIAPR8RL4zLupagdDELQG3H+OI3a8d7+1ugtYl4/sHC0f7fAcx6Nkbm
+         jb+AURE93qFowRNhcDPsc5aIiLhRMMhX1AXSZ5Eiy/3dc8CwDmvdzxhAGm4tQX1oZLkw
+         ASpCEQoRMOY4RWt+YKN7DcgycvgUL2JRhOOc2vSHC1RTPooSrkRQoNq8U85dptjgw4HZ
+         VONMPf2f3FkxUIxFRSVsFqr56mG/yOBpSAoPLTfQALNsIUPFkmPRnvHdNWPr9MNCCw6b
+         CbhQ==
+X-Gm-Message-State: AOAM530j+psi1s9qgBePLIFnglPKsOZgd6/DZvySu9hEcXObmx4boWz4
+        x+37K4kf3UuCkqkQmBqrNXI=
+X-Google-Smtp-Source: ABdhPJw+W8m3rFtazxgt01lIaW0OsSyJUPFgUMNKIzfcORQi6VGn0pYQle3mnRvmdNp6S1t17zfOMQ==
+X-Received: by 2002:adf:90e3:: with SMTP id i90mr1017189wri.248.1609874019310;
+        Tue, 05 Jan 2021 11:13:39 -0800 (PST)
 Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
-        by smtp.gmail.com with ESMTPSA id w17sm146566wmk.12.2021.01.05.11.09.30
+        by smtp.gmail.com with ESMTPSA id a12sm61577wrh.71.2021.01.05.11.13.38
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jan 2021 11:09:31 -0800 (PST)
-Date:   Tue, 5 Jan 2021 19:09:29 +0000
+        Tue, 05 Jan 2021 11:13:38 -0800 (PST)
+Date:   Tue, 5 Jan 2021 19:13:37 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
         alexandru.ardelean@analog.com, daniel.baluta@gmail.com,
         daniel.baluta@oss.nxp.com, lars@metafoo.de
 Subject: Re: FAILED: patch "[PATCH] iio:imu:bmi160: Fix alignment and data
- leak issues" failed to apply to 4.14-stable tree
-Message-ID: <20210105190929.v7gyao2z23fhsy6u@debian>
-References: <160915406818112@kroah.com>
+ leak issues" failed to apply to 4.9-stable tree
+Message-ID: <20210105191337.7pxii235rrxbsa6b@debian>
+References: <1609154067196181@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="7qiujtoh6e5frubf"
+Content-Type: multipart/mixed; boundary="be4ebfdmi5d6zfk2"
 Content-Disposition: inline
-In-Reply-To: <160915406818112@kroah.com>
+In-Reply-To: <1609154067196181@kroah.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---7qiujtoh6e5frubf
+--be4ebfdmi5d6zfk2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Dec 28, 2020 at 12:14:28PM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Dec 28, 2020 at 12:14:27PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
-Here is the backport, same as the one for 4.19-stable but missed mentioning
-in that mail.
+Here is the backport along with:
+dd4ba3fb2223 ("iio: bmi160_core: Fix sparse warning due to incorrect type
+in assignment")
+dc7de42d6b50 ("iio:imu:bmi160: Fix too large a buffer.")
+which makes backporting easier. dc7de42d6b50 was already marked for stable
+but was missing in 4.9-stable.
+
 
 --
 Regards
 Sudip
 
---7qiujtoh6e5frubf
+--be4ebfdmi5d6zfk2
 Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-iio-imu-bmi160-Fix-alignment-and-data-leak-issues.patch"
+Content-Disposition: attachment; filename="0001-iio-bmi160_core-Fix-sparse-warning-due-to-incorrect-.patch"
 
-From a236af5a527a9aaeb3cbb99d0311d8a3b75e34cf Mon Sep 17 00:00:00 2001
+From f837e553556bd1b4ae7eb7513c7ef21b7c70ff01 Mon Sep 17 00:00:00 2001
+From: sayli karnik <karniksayli1995@gmail.com>
+Date: Tue, 11 Oct 2016 17:07:21 +0530
+Subject: [PATCH 1/3] iio: bmi160_core: Fix sparse warning due to incorrect type in assignment
+
+commit dd4ba3fb22233e69f06399ee0aa7ecb11d2b595c upstream
+
+There is a type mismatch between the buffer which is of type s16 and the
+samples stored, which are declared as __le16.
+
+Fix the following sparse warning:
+drivers/iio/imu/bmi160/bmi160_core.c:411:26: warning: incorrect type
+in assignment (different base types)
+
+drivers/iio/imu/bmi160/bmi160_core.c:411:26: expected signed short
+[signed] [short] [explicitly-signed] <noident>
+drivers/iio/imu/bmi160/bmi160_core.c:411:26: got restricted __le16
+[addressable] [usertype] sample
+
+This is a cosmetic-type patch since it does not alter code behaviour.
+The le16 is going into a 16bit buf element, and is labelled as IIO_LE in the
+channel buffer definition.
+
+Signed-off-by: sayli karnik <karniksayli1995@gmail.com>
+Signed-off-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/iio/imu/bmi160/bmi160_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
+index 5fb571d03153..c9e319bff58b 100644
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -385,7 +385,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct bmi160_data *data = iio_priv(indio_dev);
+-	s16 buf[16]; /* 3 sens x 3 axis x s16 + 3 x s16 pad + 4 x s16 tstamp */
++	__le16 buf[16];
++	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
+ 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
+ 	__le16 sample;
+ 
+-- 
+2.11.0
+
+
+--be4ebfdmi5d6zfk2
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0002-iio-imu-bmi160-Fix-too-large-a-buffer.patch"
+
+From c7b1ae8b75394066bc2883b8a86d85f3bab7821f Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sun, 20 Sep 2020 12:27:38 +0100
+Subject: [PATCH 2/3] iio:imu:bmi160: Fix too large a buffer.
+
+commit dc7de42d6b50a07b37feeba4c6b5136290fcee81 upstream.
+
+The comment implies this device has 3 sensor types, but it only
+has an accelerometer and a gyroscope (both 3D).  As such the
+buffer does not need to be as long as stated.
+
+Note I've separated this from the following patch which fixes
+the alignment for passing to iio_push_to_buffers_with_timestamp()
+as they are different issues even if they affect the same line
+of code.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200920112742.170751-5-jic23@kernel.org
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/iio/imu/bmi160/bmi160_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
+index c9e319bff58b..1e1788d70eac 100644
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -385,8 +385,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct bmi160_data *data = iio_priv(indio_dev);
+-	__le16 buf[16];
+-	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
++	__le16 buf[12];
++	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
+ 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
+ 	__le16 sample;
+ 
+-- 
+2.11.0
+
+
+--be4ebfdmi5d6zfk2
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0003-iio-imu-bmi160-Fix-alignment-and-data-leak-issues.patch"
+
+From 3b140121949b033460a6baf9152608e00aeeac72 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Date: Sun, 20 Sep 2020 12:27:39 +0100
-Subject: [PATCH] iio:imu:bmi160: Fix alignment and data leak issues
+Subject: [PATCH 3/3] iio:imu:bmi160: Fix alignment and data leak issues
 
 commit 7b6b51234df6cd8b04fe736b0b89c25612d896b8 upstream
 
@@ -127,7 +233,7 @@ Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
  1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
-index e95d817c8390..1e413bb233ae 100644
+index 1e1788d70eac..93c5040c6454 100644
 --- a/drivers/iio/imu/bmi160/bmi160_core.c
 +++ b/drivers/iio/imu/bmi160/bmi160_core.c
 @@ -110,6 +110,13 @@ enum bmi160_sensor_type {
@@ -154,7 +260,7 @@ index e95d817c8390..1e413bb233ae 100644
  	__le16 sample;
  
 @@ -396,10 +401,10 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
- 				       &sample, sizeof(sample));
+ 				       &sample, sizeof(__le16));
  		if (ret < 0)
  			goto done;
 -		buf[j++] = sample;
@@ -170,4 +276,4 @@ index e95d817c8390..1e413bb233ae 100644
 2.11.0
 
 
---7qiujtoh6e5frubf--
+--be4ebfdmi5d6zfk2--
