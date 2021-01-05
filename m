@@ -2,111 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C481C2EA594
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 07:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAB52EA59B
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 07:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725797AbhAEGsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 01:48:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41522 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725290AbhAEGsd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 01:48:33 -0500
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A34C061793;
-        Mon,  4 Jan 2021 22:47:53 -0800 (PST)
-Received: by mail-il1-x12d.google.com with SMTP id w17so27625888ilj.8;
-        Mon, 04 Jan 2021 22:47:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WEIUrnV7kwpRZdk2n4ViOS8PBMynqQODHepR4XVRnjk=;
-        b=cPtGkacRM9TDsxMA69xv6SLX5aOxuxGEIUHQAJVGf7GagmC2jPQrT5B37Ammol18iN
-         HwhGtLcp2If7zovIDMUIKPWphP80vQLCXTW9F4sT7aWSml+M2OSp9fbV70OsjzdS4Jnl
-         AbvXYfpEfmMEqePbuKlsuOydIaftuyD8/Lvjif/rNXuAeBB1f0uOSL231+zvvU+GV4Bk
-         WTvwHAaKlLW5TLVrieAEBxiTHFXomTITNs3bK4re0GyXLY2qZJ47/WK5NP+YODofOnTW
-         r7zzcnfdtRPg7tttz2w1uLJShrCyJuxCdFirf4pPG9mVaJT10ojS0QEWDlLwBHWKIbwX
-         qXvA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WEIUrnV7kwpRZdk2n4ViOS8PBMynqQODHepR4XVRnjk=;
-        b=JL8oSI2cCc3wgcqcy+zWrgtd1xHrRluYpdoB3rx5f368SUiZZy+xaUPPTqsXaaCNRc
-         lZgXvfKDKni6z431ujEmZ9oJGAqVaLXDcNYrw5qcT0C9fcs4wYhMunV4HFSN3TvaG4vv
-         GKQLoUmLTt9pP5lYrvPt6lh1ywOzdKdPjAYC7Av6qwHNnCp0NtXk3c8vix8xN82+SKLw
-         ejRS2g6IPJT4SuxB7ORIgY0bL1F1BWCqz90akaqcJnUMUzMqhs6L2cdcPSfYWnyIPpYZ
-         1ztXtG+qRicyM4HrzHQ3lSpbiHUrzv6B/1XUQqOlTlh8kU7ewRH0GULEvz3obsvxy4Xa
-         0Zqw==
-X-Gm-Message-State: AOAM532pCyGpF2IJeKW7t2RWS4vJctjX0UgRGKD9AdVBfwkgYehktt4s
-        tjN7lnYtAnjHYBF4fOjMP8MpqUNb8/LI3KYk6G9V9EiDFgI=
-X-Google-Smtp-Source: ABdhPJwKiwaQfeoCWzR0lPATVutk08oY9xuYHYL6tMf6GYLD46UDJggODg6tov1r5nlami5e3qeJemwtr7l7heUD0ko=
-X-Received: by 2002:a92:6403:: with SMTP id y3mr72656126ilb.72.1609829272565;
- Mon, 04 Jan 2021 22:47:52 -0800 (PST)
+        id S1725797AbhAEGyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 01:54:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725290AbhAEGyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 01:54:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9609622482;
+        Tue,  5 Jan 2021 06:54:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1609829646;
+        bh=3QGjJ+c7OISO2HWA6+TOFeLlK1G4pSZMoaTyNzDtunM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SOx4lAdwDB08JCW+czYwOp8LEBjBQrc0U0rbItCl0VpgfXqqG3G0bOu8XMUw1QDTq
+         PeOQyDHx+6sCF64wf5bsIgrmOtUJnefZ38mFJTmf+xzL1IozwNC57oUfuFQyZat1tj
+         z+2WVTmx8FS/W2WwTd9jamEEteP1c07GBddPzCGk=
+Date:   Tue, 5 Jan 2021 07:54:02 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Andre Tomt <andre@tomt.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>
+Subject: Re: [PATCH 5.10 637/717] drm/amd/display: Fix memory leaks in S3
+ resume
+Message-ID: <X/QNCtpIiU5qzRp+@kroah.com>
+References: <20201228125020.963311703@linuxfoundation.org>
+ <20201228125051.444911072@linuxfoundation.org>
+ <e5d9703f-42a4-f154-cf13-55a3eba10859@tomt.net>
 MIME-Version: 1.0
-References: <20210105003611.194511-1-icenowy@aosc.io>
-In-Reply-To: <20210105003611.194511-1-icenowy@aosc.io>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Tue, 5 Jan 2021 08:47:41 +0200
-Message-ID: <CAOQ4uxiFoQhrMbs91ZUNXqbJUXb5XRBgRrcq1rmChLKQGKg5xg@mail.gmail.com>
-Subject: Re: [PATCH v3] ovl: use a dedicated semaphore for dir upperfile caching
-To:     Icenowy Zheng <icenowy@aosc.io>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e5d9703f-42a4-f154-cf13-55a3eba10859@tomt.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 5, 2021 at 2:36 AM Icenowy Zheng <icenowy@aosc.io> wrote:
->
-> The function ovl_dir_real_file() currently uses the semaphore of the
-> inode to synchronize write to the upperfile cache field.
+On Mon, Jan 04, 2021 at 08:04:08PM +0100, Andre Tomt wrote:
+> On 28.12.2020 13:50, Greg Kroah-Hartman wrote:
+> > From: Stylon Wang <stylon.wang@amd.com>
+> > 
+> > commit a135a1b4c4db1f3b8cbed9676a40ede39feb3362 upstream.
+> > 
+> > EDID parsing in S3 resume pushes new display modes
+> > to probed_modes list but doesn't consolidate to actual
+> > mode list. This creates a race condition when
+> > amdgpu_dm_connector_ddc_get_modes() re-initializes the
+> > list head without walking the list and results in  memory leak.
+> 
+> This commit is causing me problems on 5.10.4: when I turn off the display (a
+> LG TV in this case), and turn it back on again later there is no video
+> output and I get the following in the kernel log:
+> 
+> [ 8245.259628] [drm:dm_restore_drm_connector_state [amdgpu]] *ERROR*
+> Restoring old state failed with -12
+> 
+> I've found another report on this commit as well:
+> https://bugzilla.kernel.org/show_bug.cgi?id=211033
+> 
+> And I suspect this is the same:
+> https://bugs.archlinux.org/task/69202
+> 
+> Reverting it from 5.10.4 makes things behave again.
+> 
+> Have not tested 5.4.86 or 5.11-rc.
+> 
+> I'm using a RX570 Polaris based card.
 
-Although the inode lock is a rw_sem it is referred to as the "inode lock"
-and you also left semaphore in the commit subject.
-No need to re-post. This can be fixed on commit.
+Can you test 5.11-rc to see if this issue is there as well?
 
->
-> However, this function will get called by ovl_ioctl_set_flags(), which
-> utilizes the inode semaphore too. In this case ovl_dir_real_file() will
-> try to claim a lock that is owned by a function in its call stack, which
-> won't get released before ovl_dir_real_file() returns.
->
-> Define a dedicated semaphore for the upperfile cache, so that the
-> deadlock won't happen.
->
-> Fixes: 61536bed2149 ("ovl: support [S|G]ETFLAGS and FS[S|G]ETXATTR ioctls for directories")
-> Cc: stable@vger.kernel.org # v5.10
-> Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-> ---
-> Changes in v2:
-> - Fixed missing replacement in error handling path.
-> Changes in v3:
-> - Use mutex instead of semaphore.
->
->  fs/overlayfs/readdir.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
-> index 01620ebae1bd..3980f9982f34 100644
-> --- a/fs/overlayfs/readdir.c
-> +++ b/fs/overlayfs/readdir.c
-> @@ -56,6 +56,7 @@ struct ovl_dir_file {
->         struct list_head *cursor;
->         struct file *realfile;
->         struct file *upperfile;
-> +       struct mutex upperfile_mutex;
+thanks,
 
-That's a very specific name.
-This mutex protects members of struct ovl_dir_file, which could evolve
-into struct ovl_file one day (because no reason to cache only dir upper file),
-so I would go with a more generic name, but let's leave it to Miklos to decide.
-
-He could have a different idea altogether for fixing this bug.
-
-Thanks,
-Amir.
+greg k-h
