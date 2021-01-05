@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D852EA252
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C690D2EA27D
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728405AbhAEBBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 20:01:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
+        id S1726589AbhAEBCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 20:02:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728403AbhAEBBQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 20:01:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AFBB22B49;
-        Tue,  5 Jan 2021 01:00:28 +0000 (UTC)
+        id S1728481AbhAEBB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 20:01:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5E222B4E;
+        Tue,  5 Jan 2021 01:00:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609808429;
-        bh=rwD9k7bQQnO3THoOxfPHyhYKcGlat+o94zX7/ZLDhFU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=c32UfNK63DyQNqn6UM3SjKiEVxMySeuJr9M4M0THSD4Cg3UVAR++RGzLgS1sFhALJ
-         HnM3xTz09r3mcjgiDUtQDKiLfgW/E57zm2CRkrO6f3k5tNKBwqdFKJ96YxqOWo0pyW
-         mVAyT5B2rjTgEIBERpJ0e8sjC6gjFSb2VjEQ7D7EVrlNiLz0q6vQ10vfL48K7GSP1j
-         xv7hxw2WYFv8hvkxwTfVx+8JrQTaDQYBUmUXxO43afkMawRiL77sdAt/oLdObgLUqU
-         qm/Lg+OBDSezqp/CXeLUmo9UfNaKpS637dGtYx+2Z0GBYvkIWv0wvwROGxC+eqr9Yt
-         pYxO4l60tgykA==
+        s=k20201202; t=1609808430;
+        bh=05k6J7XX5CcVVYVvhiru1G3Wgu1uuHvQuwTtm2y06l8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=EOot9OiBadT38iNXfp8e5XGaKpZM34HAkAR8BQhJVenZTq336HL4K5nwZnuXnONII
+         ehg+qI76egCUkZCN69W9yvXw9ipgRGfwquCaPM98Dw3rpvfPCc7xxg1S6TKhjdPBmY
+         dYVYR2AK9M9QaTAWzkKjOJxOxWxzPntlWncjXmyefarKGmoXpVjMbF0jp17TyTwEeS
+         R7Va4ZUOrOMAdi/A5dkbPPzlxuvaRPHA/ajWnzaxJvdDwM6ktFVURQxjE3dBsqkM1P
+         TPV+adPzEb8v2Rn24Pjv8hprycNSHinVTpAAlo4+J+r2FGogGghnT62j1ZsF2f+zgl
+         iYecSXl4T63Wg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 1/3] workqueue: Kick a worker based on the actual activation of delayed works
-Date:   Mon,  4 Jan 2021 20:00:25 -0500
-Message-Id: <20210105010027.3954808-1-sashal@kernel.org>
+Cc:     Huang Shijie <sjhuang@iluvatar.ai>,
+        Shi Jiasheng <jiasheng.shi@iluvatar.ai>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 2/3] lib/genalloc: fix the overflow when size is too big
+Date:   Mon,  4 Jan 2021 20:00:26 -0500
+Message-Id: <20210105010027.3954808-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210105010027.3954808-1-sashal@kernel.org>
+References: <20210105010027.3954808-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,66 +44,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Huang Shijie <sjhuang@iluvatar.ai>
 
-[ Upstream commit 01341fbd0d8d4e717fc1231cdffe00343088ce0b ]
+[ Upstream commit 36845663843fc59c5d794e3dc0641472e3e572da ]
 
-In realtime scenario, We do not want to have interference on the
-isolated cpu cores. but when invoking alloc_workqueue() for percpu wq
-on the housekeeping cpu, it kick a kworker on the isolated cpu.
+Some graphic card has very big memory on chip, such as 32G bytes.
 
-  alloc_workqueue
-    pwq_adjust_max_active
-      wake_up_worker
+In the following case, it will cause overflow:
 
-The comment in pwq_adjust_max_active() said:
-  "Need to kick a worker after thawed or an unbound wq's
-   max_active is bumped"
+    pool = gen_pool_create(PAGE_SHIFT, NUMA_NO_NODE);
+    ret = gen_pool_add(pool, 0x1000000, SZ_32G, NUMA_NO_NODE);
 
-So it is unnecessary to kick a kworker for percpu's wq when invoking
-alloc_workqueue(). this patch only kick a worker based on the actual
-activation of delayed works.
+    va = gen_pool_alloc(pool, SZ_4G);
 
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+The overflow occurs in gen_pool_alloc_algo_owner():
+
+		....
+		size = nbits << order;
+		....
+
+The @nbits is "int" type, so it will overflow.
+Then the gen_pool_avail() will return the wrong value.
+
+This patch converts some "int" to "unsigned long", and
+changes the compare code in while.
+
+Link: https://lkml.kernel.org/r/20201229060657.3389-1-sjhuang@iluvatar.ai
+Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
+Reported-by: Shi Jiasheng <jiasheng.shi@iluvatar.ai>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ lib/genalloc.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 3fb2d45c0b42f..6b293804cd734 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3361,17 +3361,24 @@ static void pwq_adjust_max_active(struct pool_workqueue *pwq)
- 	 * is updated and visible.
- 	 */
- 	if (!freezable || !workqueue_freezing) {
-+		bool kick = false;
-+
- 		pwq->max_active = wq->saved_max_active;
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+index e3a475b14e260..b8ac0450a2a68 100644
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -83,14 +83,14 @@ static int clear_bits_ll(unsigned long *addr, unsigned long mask_to_clear)
+  * users set the same bit, one user will return remain bits, otherwise
+  * return 0.
+  */
+-static int bitmap_set_ll(unsigned long *map, int start, int nr)
++static int bitmap_set_ll(unsigned long *map, unsigned long start, unsigned long nr)
+ {
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_set = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_set = BITMAP_FIRST_WORD_MASK(start);
  
- 		while (!list_empty(&pwq->delayed_works) &&
--		       pwq->nr_active < pwq->max_active)
-+		       pwq->nr_active < pwq->max_active) {
- 			pwq_activate_first_delayed(pwq);
-+			kick = true;
-+		}
+-	while (nr - bits_to_set >= 0) {
++	while (nr >= bits_to_set) {
+ 		if (set_bits_ll(p, mask_to_set))
+ 			return nr;
+ 		nr -= bits_to_set;
+@@ -118,14 +118,15 @@ static int bitmap_set_ll(unsigned long *map, int start, int nr)
+  * users clear the same bit, one user will return remain bits,
+  * otherwise return 0.
+  */
+-static int bitmap_clear_ll(unsigned long *map, int start, int nr)
++static unsigned long
++bitmap_clear_ll(unsigned long *map, unsigned long start, unsigned long nr)
+ {
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
  
- 		/*
- 		 * Need to kick a worker after thawed or an unbound wq's
--		 * max_active is bumped.  It's a slow path.  Do it always.
-+		 * max_active is bumped. In realtime scenarios, always kicking a
-+		 * worker will cause interference on the isolated cpu cores, so
-+		 * let's kick iff work items were activated.
- 		 */
--		wake_up_worker(pwq->pool);
-+		if (kick)
-+			wake_up_worker(pwq->pool);
- 	} else {
- 		pwq->max_active = 0;
- 	}
+-	while (nr - bits_to_clear >= 0) {
++	while (nr >= bits_to_clear) {
+ 		if (clear_bits_ll(p, mask_to_clear))
+ 			return nr;
+ 		nr -= bits_to_clear;
+@@ -184,8 +185,8 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
+ 		 size_t size, int nid)
+ {
+ 	struct gen_pool_chunk *chunk;
+-	int nbits = size >> pool->min_alloc_order;
+-	int nbytes = sizeof(struct gen_pool_chunk) +
++	unsigned long nbits = size >> pool->min_alloc_order;
++	unsigned long nbytes = sizeof(struct gen_pool_chunk) +
+ 				BITS_TO_LONGS(nbits) * sizeof(long);
+ 
+ 	chunk = vzalloc_node(nbytes, nid);
+@@ -242,7 +243,7 @@ void gen_pool_destroy(struct gen_pool *pool)
+ 	struct list_head *_chunk, *_next_chunk;
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int bit, end_bit;
++	unsigned long bit, end_bit;
+ 
+ 	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
+ 		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
+@@ -274,7 +275,7 @@ unsigned long gen_pool_alloc(struct gen_pool *pool, size_t size)
+ 	struct gen_pool_chunk *chunk;
+ 	unsigned long addr = 0;
+ 	int order = pool->min_alloc_order;
+-	int nbits, start_bit, end_bit, remain;
++	unsigned long nbits, start_bit, end_bit, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -357,7 +358,7 @@ void gen_pool_free(struct gen_pool *pool, unsigned long addr, size_t size)
+ {
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int start_bit, nbits, remain;
++	unsigned long start_bit, nbits, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -553,7 +554,7 @@ unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
+ 	index = bitmap_find_next_zero_area(map, size, start, nr, 0);
+ 
+ 	while (index < size) {
+-		int next_bit = find_next_bit(map, size, index + nr);
++		unsigned long next_bit = find_next_bit(map, size, index + nr);
+ 		if ((next_bit - index) < len) {
+ 			len = next_bit - index;
+ 			start_bit = index;
 -- 
 2.27.0
 
