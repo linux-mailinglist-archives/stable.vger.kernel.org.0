@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3FE2EA782
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5C92EA772
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728504AbhAEJaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 04:30:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49754 "EHLO mail.kernel.org"
+        id S1728355AbhAEJ3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 04:29:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728450AbhAEJaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 04:30:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 502C322AAE;
-        Tue,  5 Jan 2021 09:28:56 +0000 (UTC)
+        id S1728354AbhAEJ3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 04:29:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A730622AB0;
+        Tue,  5 Jan 2021 09:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609838936;
-        bh=zthw1NhuizEHCYhU2IOctle8765G9mkOpfrlpGzlwSg=;
+        s=korg; t=1609838939;
+        bh=lAXHsb70nJP+WYyBcH4Sr0dYyef1OZUZJDEgRu/5+Wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lc6pO7b7Y13JOsGCEqtBlkIZHwx7nERz2CcQu8IpkC4QQR1AUDu5M+TD2T0f2rYjU
-         GdX5EIkLtcgEIW8UmmgVDLVBfFUpdec/02BCpj2CDBuhRt7Uhad2UcgyEbsIonmCK/
-         GRPRGx/6Bk6QxgrOMIHBV2/byMQmD/5YE7w9RFfE=
+        b=nds2YlR4RIbUGw1EdK1Gz2eBRkaaSlRm7iUO15Ar9fxmzB6yRZrhV7iTJTXmfrhW7
+         hxGsCaJmFqzTB3os0MsRF0rQ0X54DG5FxyEV1FGUTre/ci6QF+GOu4E7zqWYT/TWuc
+         +7/OwiNQHEFAsxoyLPYuA4ZFE+PGyu6KRJ1t0rjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>,
-        Jessica Yu <jeyu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/29] module: delay kobject uevent until after module init call
-Date:   Tue,  5 Jan 2021 10:29:13 +0100
-Message-Id: <20210105090822.061871618@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/29] ALSA: pcm: Clear the full allocated memory at hw_params
+Date:   Tue,  5 Jan 2021 10:29:14 +0100
+Message-Id: <20210105090822.182761949@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210105090818.518271884@linuxfoundation.org>
 References: <20210105090818.518271884@linuxfoundation.org>
@@ -40,69 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 38dc717e97153e46375ee21797aa54777e5498f3 ]
+[ Upstream commit 618de0f4ef11acd8cf26902e65493d46cc20cc89 ]
 
-Apparently there has been a longstanding race between udev/systemd and
-the module loader. Currently, the module loader sends a uevent right
-after sysfs initialization, but before the module calls its init
-function. However, some udev rules expect that the module has
-initialized already upon receiving the uevent.
+The PCM hw_params core function tries to clear up the PCM buffer
+before actually using for avoiding the information leak from the
+previous usages or the usage before a new allocation.  It performs the
+memset() with runtime->dma_bytes, but this might still leave some
+remaining bytes untouched; namely, the PCM buffer size is aligned in
+page size for mmap, hence runtime->dma_bytes doesn't necessarily cover
+all PCM buffer pages, and the remaining bytes are exposed via mmap.
 
-This race has been triggered recently (see link in references) in some
-systemd mount unit files. For instance, the configfs module creates the
-/sys/kernel/config mount point in its init function, however the module
-loader issues the uevent before this happens. sys-kernel-config.mount
-expects to be able to mount /sys/kernel/config upon receipt of the
-module loading uevent, but if the configfs module has not called its
-init function yet, then this directory will not exist and the mount unit
-fails. A similar situation exists for sys-fs-fuse-connections.mount, as
-the fuse sysfs mount point is created during the fuse module's init
-function. If udev is faster than module initialization then the mount
-unit would fail in a similar fashion.
+This patch changes the memory clearance to cover the all buffer pages
+if the stream is supposed to be mmap-ready (that guarantees that the
+buffer size is aligned in page size).
 
-To fix this race, delay the module KOBJ_ADD uevent until after the
-module has finished calling its init routine.
-
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-By: Nicolas Morey-Chaisemartin <nmoreychaisemartin@suse.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20201218145625.2045-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/core/pcm_native.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index 8dbe0ff22134e..429769605871d 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1806,7 +1806,6 @@ static int mod_sysfs_init(struct module *mod)
- 	if (err)
- 		mod_kobject_put(mod);
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 7c12b0deb4eb5..db62dbe7eaa8a 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -753,8 +753,13 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 		runtime->boundary *= 2;
  
--	/* delay uevent until full sysfs population */
- out:
- 	return err;
- }
-@@ -1843,7 +1842,6 @@ static int mod_sysfs_setup(struct module *mod,
- 	add_sect_attrs(mod, info);
- 	add_notes_attrs(mod, info);
- 
--	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
- 	return 0;
- 
- out_unreg_modinfo_attrs:
-@@ -3499,6 +3497,9 @@ static noinline int do_init_module(struct module *mod)
- 	blocking_notifier_call_chain(&module_notify_list,
- 				     MODULE_STATE_LIVE, mod);
- 
-+	/* Delay uevent until module has finished its init routine */
-+	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
+ 	/* clear the buffer for avoiding possible kernel info leaks */
+-	if (runtime->dma_area && !substream->ops->copy_user)
+-		memset(runtime->dma_area, 0, runtime->dma_bytes);
++	if (runtime->dma_area && !substream->ops->copy_user) {
++		size_t size = runtime->dma_bytes;
 +
- 	/*
- 	 * We need to finish all async code before the module init sequence
- 	 * is done.  This has potential to deadlock.  For example, a newly
++		if (runtime->info & SNDRV_PCM_INFO_MMAP)
++			size = PAGE_ALIGN(size);
++		memset(runtime->dma_area, 0, size);
++	}
+ 
+ 	snd_pcm_timer_resolution_change(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
 -- 
 2.27.0
 
