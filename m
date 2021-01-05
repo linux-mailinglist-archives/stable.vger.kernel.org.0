@@ -2,107 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF5B2EA90B
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 11:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF622EA91F
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 11:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728175AbhAEKnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 05:43:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34310 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728135AbhAEKnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 05:43:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A0222515;
-        Tue,  5 Jan 2021 10:42:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609843338;
-        bh=/Mi0VdD4O0BEfDHJdVHbcXWwRKnTOoFWLcr740Ec+SE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z6AYQsMDPD/ThjUIoSXjd2kjv8vCnamvBIBgcyks/Q1D3RhburWQZT5CVoTxvaNwj
-         GrklL2FP3RLwXcNncAOB5fXFY06DYngp7o0OfnTkVzLqiVWjNAAXFDc5xxQILwY4/v
-         A4fgnqjzJuYFAbIBc9obq1iqgQqWT6cyAKE0oyFA=
-Date:   Tue, 5 Jan 2021 11:43:42 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     SeongJae Park <sjpark@amazon.com>
-Cc:     stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
-        doebel@amazon.de, aams@amazon.de, mku@amazon.de, jgross@suse.com,
-        julien@xen.org, wipawel@amazon.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/5] Backport of patch series for stable 4.4 branch
-Message-ID: <X/RC3ghc7u4uPIjT@kroah.com>
-References: <X+nBh/5nsI8QrWCg@kroah.com>
- <20210105103702.15804-1-sjpark@amazon.com>
+        id S1728663AbhAEKph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 05:45:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728557AbhAEKph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 05:45:37 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89354C061574;
+        Tue,  5 Jan 2021 02:44:56 -0800 (PST)
+Date:   Tue, 05 Jan 2021 10:44:54 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1609843494;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pcXBGR6ucWolwK6w6uG4mpnWtnKTn1MVtlPQkcCXSeU=;
+        b=jWISzYlnS3PfwvxtLFACSr/UHG5PrC7KRq8DuVNPJKF50g0VMP2Ihgdv3krRRMLVUc3mJG
+        HOUQMTUsZdH1sWwKbhhyqeW42r2nuS/5imQ9AG7xISL2M/UqGeEXXjXYTWmMTI3+VMlKOX
+        acBZYYO9svu5rx88mHH1cYkt/L5gcL40e1uZeRGEEsxL2CRCY357CFekwBsitix7/+fTIo
+        PBgPLM1Lx2ie5YXhTtu5gnseQTDyyJq0PXzkjmbhXh2RJi7Th0lai7fCtszLW31xzxgE08
+        tpVCzbJIwzYtSz/FHsa8OgkcXQC3/rV/rjensa5kNoXASkO4uLu+yLj1lhN/nw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1609843494;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pcXBGR6ucWolwK6w6uG4mpnWtnKTn1MVtlPQkcCXSeU=;
+        b=ax3rs1vTbrkWYfTfRH7iKxxLNJob7ng7sHe9ddYb9OTZBG3DMvbtUijPn5KW0KtwOuJNpH
+        w+9a88gpx2ttGxAQ==
+From:   "tip-bot2 for Dan Williams" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/mm: Fix leak of pmd ptlock
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3C160697689204=2E605323=2E17629854984697045602=2Es?=
+ =?utf-8?q?tgit=40dwillia2-desk3=2Eamr=2Ecorp=2Eintel=2Ecom=3E?=
+References: =?utf-8?q?=3C160697689204=2E605323=2E17629854984697045602=2Est?=
+ =?utf-8?q?git=40dwillia2-desk3=2Eamr=2Ecorp=2Eintel=2Ecom=3E?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210105103702.15804-1-sjpark@amazon.com>
+Message-ID: <160984349415.414.16783769604201998583.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 05, 2021 at 11:37:02AM +0100, SeongJae Park wrote:
-> Hi Greg,
-> 
-> On Mon, 28 Dec 2020 12:29:11 +0100 Greg KH <gregkh@linuxfoundation.org> wrote:
-> 
-> > On Thu, Dec 17, 2020 at 05:03:57PM +0100, SeongJae Park wrote:
-> > > From: SeongJae Park <sjpark@amazon.de>
-> > > 
-> > > Changes from v2
-> > > (https://lore.kernel.org/stable/20201217130501.12702-1-sjpark@amazon.com/)
-> > > - Move 'nr_pending' increase from 5th patch to 4th patch
-> > > 
-> > > Changes from v1
-> > > (https://lore.kernel.org/stable/20201217081727.8253-1-sjpark@amazon.com/)
-> > > - Remove wrong 'Signed-off-by' lines for 'Author Redacted'
-> > 
-> > All now queued up, but you also need a series of this for the 4.9.y tree
-> > as well.
-> 
-> Thank you for your efforts!
-> 
-> However, I was able to cherry-pick this series, which is already merged in
-> 4.4.y, to 4.9.y without conflicts.
-> 
->     $ git checkout stable/linux-4.9.y -b xsa349_4.9
->     $ git cherry-pick d8b0d52e408ca..3c71d2f637c8
->     warning: inexact rename detection was skipped due to too many files.
->     warning: you may want to set your merge.renamelimit variable to at least 6130 and retry the command.
->     [xsa349_4.9 51b4cb3db28a] xen/xenbus: Allow watches discard events before queueing
->      Date: Mon Dec 14 10:02:45 2020 +0100
->      4 files changed, 16 insertions(+), 1 deletion(-)
->     warning: inexact rename detection was skipped due to too many files.
->     warning: you may want to set your merge.renamelimit variable to at least 6130 and retry the command.
->     [xsa349_4.9 3242225d9645] xen/xenbus: Add 'will_handle' callback support in xenbus_watch_path()
->      Date: Mon Dec 14 10:04:18 2020 +0100
->      6 files changed, 17 insertions(+), 7 deletions(-)
->     warning: inexact rename detection was skipped due to too many files.
->     warning: you may want to set your merge.renamelimit variable to at least 6130 and retry the command.
->     [xsa349_4.9 10d6c1301412] xen/xenbus/xen_bus_type: Support will_handle watch callback
->      Date: Mon Dec 14 10:05:47 2020 +0100
->      2 files changed, 4 insertions(+), 1 deletion(-)
->     warning: inexact rename detection was skipped due to too many files.
->     warning: you may want to set your merge.renamelimit variable to at least 6130 and retry the command.
->     [xsa349_4.9 3875703f1e6b] xen/xenbus: Count pending messages for each watch
->      Date: Mon Dec 14 10:07:13 2020 +0100
->      2 files changed, 21 insertions(+), 12 deletions(-)
->     warning: inexact rename detection was skipped due to too many files.
->     warning: you may want to set your merge.renamelimit variable to at least 6130 and retry the command.
->     [xsa349_4.9 40e3b315cd18] xenbus/xenbus_backend: Disallow pending watch messages
->      Date: Mon Dec 14 10:08:40 2020 +0100
->      1 file changed, 7 insertions(+)
-> 
-> Seems you tried to merge the series for upstream in 4.9.y:
-> 
->     https://lore.kernel.org/stable/1609154834239118@kroah.com/
-> 
-> This must because I didn't test this series with v4.9 and mention it.  Sorry
-> for making a confusion.  Could you please check this again?
+The following commit has been merged into the x86/urgent branch of tip:
 
-I can't do anything with a set of git cherry-picks like above, can you
-please send the patches as a series so that I can apply them cleanly?
+Commit-ID:     d1c5246e08eb64991001d97a3bd119c93edbc79a
+Gitweb:        https://git.kernel.org/tip/d1c5246e08eb64991001d97a3bd119c93edbc79a
+Author:        Dan Williams <dan.j.williams@intel.com>
+AuthorDate:    Wed, 02 Dec 2020 22:28:12 -08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 05 Jan 2021 11:40:23 +01:00
 
-And I don't remember what happened with that failure, sorry, dealing
-with hundreds of patches a week makes them all blur together...
+x86/mm: Fix leak of pmd ptlock
 
-thanks,
+Commit
 
-greg k-h
+  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+
+introduced a new location where a pmd was released, but neglected to
+run the pmd page destructor. In fact, this happened previously for a
+different pmd release path and was fixed by commit:
+
+  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
+
+This issue was hidden until recently because the failure mode is silent,
+but commit:
+
+  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
+
+turns the failure mode into this signature:
+
+ BUG: Bad page state in process lt-pmem-ns  pfn:15943d
+ page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
+ flags: 0xaffff800000000()
+ raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
+ raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
+ page dumped because: nonzero mapcount
+ [..]
+  dump_stack+0x8b/0xb0
+  bad_page.cold+0x63/0x94
+  free_pcp_prepare+0x224/0x270
+  free_unref_page+0x18/0xd0
+  pud_free_pmd_page+0x146/0x160
+  ioremap_pud_range+0xe3/0x350
+  ioremap_page_range+0x108/0x160
+  __ioremap_caller.constprop.0+0x174/0x2b0
+  ? memremap+0x7a/0x110
+  memremap+0x7a/0x110
+  devm_memremap+0x53/0xa0
+  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
+  ? __devm_release_region+0x52/0x80
+  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
+
+Given this is a repeat occurrence it seemed prudent to look for other
+places where this destructor might be missing and whether a better
+helper is needed. try_to_free_pmd_page() looks like a candidate, but
+testing with setting up and tearing down pmd mappings via the dax unit
+tests is thus far not triggering the failure.
+
+As for a better helper pmd_free() is close, but it is a messy fit
+due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
+paravirt_tlb_remove_table() instead of free_page(), so open-coded
+pgtable_pmd_page_dtor() seems the best way forward for now.
+
+Debugged together with Matthew Wilcox <willy@infradead.org>.
+
+Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
+---
+ arch/x86/mm/pgtable.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index dfd82f5..f6a9e2e 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -829,6 +829,8 @@ int pud_free_pmd_page(pud_t *pud, unsigned long addr)
+ 	}
+ 
+ 	free_page((unsigned long)pmd_sv);
++
++	pgtable_pmd_page_dtor(virt_to_page(pmd));
+ 	free_page((unsigned long)pmd);
+ 
+ 	return 1;
