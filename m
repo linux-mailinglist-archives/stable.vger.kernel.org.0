@@ -2,110 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D282EB54C
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 23:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F332EB560
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 23:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728291AbhAEWSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 17:18:07 -0500
-Received: from mga14.intel.com ([192.55.52.115]:63856 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728228AbhAEWSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 17:18:06 -0500
-IronPort-SDR: zWEH3ZLwEAp2CA4Z74xbuND1Kcbznj/pT8Ifzphj9VZ1jv+I0SImy3dlDfulqkNCC3QDO6Aokh
- JnY8Yqo1nyYA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9855"; a="176406625"
-X-IronPort-AV: E=Sophos;i="5.78,478,1599548400"; 
-   d="scan'208";a="176406625"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jan 2021 14:17:25 -0800
-IronPort-SDR: q7peCkp/SdkLFC6uxgWZ1uDaVugFE3NQsHY+95gxj08JEcU+dAV6fDUAGt4vhKOm52QtPszQA7
- W+yv59DH6zYg==
-X-IronPort-AV: E=Sophos;i="5.78,478,1599548400"; 
-   d="scan'208";a="397996669"
-Received: from mishravi-mobl3.amr.corp.intel.com (HELO [10.209.147.102]) ([10.209.147.102])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jan 2021 14:17:25 -0800
-Subject: Re: [PATCH 2/2] x86/mm: Remove duplicate definition of
- _PAGE_PAT_LARGE
-To:     Arvind Sankar <nivedita@alum.mit.edu>
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <13073a85-24c1-6efa-578b-54218d21f49d@amd.com>
- <20201111160946.147341-1-nivedita@alum.mit.edu>
- <20201111160946.147341-2-nivedita@alum.mit.edu>
- <X/TaBK3AnKJCbI3n@rani.riverdale.lan>
-From:   Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
- z5cecg==
-Message-ID: <a990cea4-00ad-007e-68bc-ca0ad9422bcd@intel.com>
-Date:   Tue, 5 Jan 2021 14:17:25 -0800
+        id S1730495AbhAEWa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 17:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726386AbhAEWa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 17:30:26 -0500
+Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AA2C061574
+        for <stable@vger.kernel.org>; Tue,  5 Jan 2021 14:29:46 -0800 (PST)
+Received: by mail-oo1-xc32.google.com with SMTP id j8so334612oon.3
+        for <stable@vger.kernel.org>; Tue, 05 Jan 2021 14:29:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=tzwPnllRGpPq+JMC2/C6n5zcPtVFcgP7qaRdi2p0Kuk=;
+        b=bXzwDDt+YiVG4+6CrlSbMFPNRn4/7LFzmfI6N6qeitk6XcRWG6zQ66mre5UQ3oWP27
+         ikQltLzmfPJ1nlwTewgj3AhFZBtMqNq/PcRqp1YuY7pR0IJ+k49/av6fpjP8fzrnEYgd
+         ZPXDvvSAF/WW/HFRS44MEc3Zcc05akK8KZQWra3uvyukaQVWXmtrb1k3K8n+H+Gj0hkd
+         A0BJAN52m2StSC6g3yty0agYV6qriKn0uCsJxt0lg9LBB6I34SovG1uJg4Hur6LkI+YL
+         5Mhkwgv19AW9/LdaSEn+sAH+5OPMAtuP6hn53o3Z974wjMmTRpMLSMaMbbm+KZ9yiaqF
+         c77Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=tzwPnllRGpPq+JMC2/C6n5zcPtVFcgP7qaRdi2p0Kuk=;
+        b=hLUu6e+IQ+P7+kdM51K/gmLkRI4U79KWHfp3wsSP8rSoD9DHqz57q1WpPQqXZgmOWZ
+         TYvN2fzxUs2639nXwKa0/IMLKryE0CD25esIrpKzMOmw1w8Dflp2HznqifDsmeZ+lj3z
+         eLMdFdjLQU0/TufQy48G1SNqLEL6N2iZv5vIAW3fJ8mrRRg9yTUcqcNNBYr1rN/+taXc
+         kRBEWXjtzx2Mj475DXHCe+sH0otdLuLE6vZXrrI22t9+0+kXeT0J9I0NDco7LDyJ4Dhr
+         1rK+NpoeIr4k0SbGGLUfe+R5skjIts3fxipBr4K0ig9mTwIfJ1TEA2Fv2T8kEEYQW6cO
+         Dp4w==
+X-Gm-Message-State: AOAM530CKLau+pNCCrF4v3boOLR88CrUHRp0sSKRGwl3/I6U3y2vuwW5
+        OxiItlqKH471XQBzH8OcbxwpOQ==
+X-Google-Smtp-Source: ABdhPJwOnPtsiGBsasM2Z1tuNjYR9CIJKcySfhP2VdmczTkyNOAs7debEwchFzhJxqdqwwoa3bLCLQ==
+X-Received: by 2002:a4a:da44:: with SMTP id f4mr905753oou.84.1609885785615;
+        Tue, 05 Jan 2021 14:29:45 -0800 (PST)
+Received: from [192.168.17.50] (CableLink-189-219-73-83.Hosts.InterCable.net. [189.219.73.83])
+        by smtp.gmail.com with ESMTPSA id a26sm149973oos.46.2021.01.05.14.29.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Jan 2021 14:29:44 -0800 (PST)
+Subject: Re: [PATCH 4.19 00/29] 4.19.165-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+References: <20210105090818.518271884@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <6e2c8118-fa1a-1b56-a969-73501b002bcc@linaro.org>
+Date:   Tue, 5 Jan 2021 16:29:44 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <X/TaBK3AnKJCbI3n@rani.riverdale.lan>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20210105090818.518271884@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/5/21 1:28 PM, Arvind Sankar wrote:
-> diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-> index 394757ee030a..f24d7ef8fffa 100644
-> --- a/arch/x86/include/asm/pgtable_types.h
-> +++ b/arch/x86/include/asm/pgtable_types.h
-> @@ -177,8 +177,6 @@ enum page_cache_mode {
->  #define __pgprot(x)		((pgprot_t) { (x) } )
->  #define __pg(x)			__pgprot(x)
->  
-> -#define _PAGE_PAT_LARGE		(_AT(pteval_t, 1) << _PAGE_BIT_PAT_LARGE)
+Hello!
 
-Huh, I didn't realize that duplicate #defines were allowed.  Guess you
-learn something new every day.  This looks fine to me, it removes the
-exact dup that Ingo appears to have added.
+On 1/5/21 3:28 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.165 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 07 Jan 2021 09:08:03 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.165-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.165-rc2
+git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
+git branch: linux-4.19.y
+git commit: 40a2b34effd3cc1b96cad6ef78e18879d4145c09
+git describe: v4.19.164-30-g40a2b34effd3
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.164-30-g40a2b34effd3
+
+
+No regressions (compared to build v4.19.164)
+
+No fixes (compared to build v4.19.164)
+
+Ran 40433 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* fwts
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fs-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* rcutorture
+* v4l2-compliance
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
