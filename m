@@ -2,91 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 678902EB356
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A44B2EB35A
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbhAETIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 14:08:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44346 "EHLO
+        id S1729971AbhAETKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 14:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728230AbhAETIj (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 5 Jan 2021 14:08:39 -0500
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 516F3C061574
-        for <Stable@vger.kernel.org>; Tue,  5 Jan 2021 11:07:58 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id g185so542683wmf.3
-        for <Stable@vger.kernel.org>; Tue, 05 Jan 2021 11:07:58 -0800 (PST)
+        with ESMTP id S1726663AbhAETKN (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 5 Jan 2021 14:10:13 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CDA6C061795
+        for <Stable@vger.kernel.org>; Tue,  5 Jan 2021 11:09:33 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id a12so250453wrv.8
+        for <Stable@vger.kernel.org>; Tue, 05 Jan 2021 11:09:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=h85ycmZjhtyXcLkx36dA7aUtYJmI2dpa95biOrnCB/Y=;
-        b=Dohjmgt1XYieK4ZBKJVwsruQ95oqB2n1c25XQxTOu8ry51xQOO1ywrsVNbj52fAQrG
-         seVNxR0qUxojNnS3Lg6PeY4eKb5oF47NPFPoZ0vaf8gvZ5WKacDUNIIgNJJ6d+O22igY
-         tyFki+5YxvXQSAuyk1h0Ts4EztpSQHp2YE5i7BW4dC2qylABZh4YnTn29YaHfdikC5Tv
-         pc1q2u+UqRf4ATRBHVNNefYLuPpmVMIBzxUCevYEymORZeltGv4FpA+ZKP19ex+Ee/Ri
-         hVd9ol4xcvdSRUVUxxbRWUQF1z4tHb+uQoHhSLAc6kYKCfCc52Fl5XDZYQGXnRq/0rzY
-         LxkQ==
+        bh=8vnl8pGccisfhn5MNb9HL7fTjUscaAZoX3q+t66uruw=;
+        b=Ps7tIm9p2zYbfrcmk+NxG1Ual0LkL/ZvSNm0e5fmwNuZLG3rOWVzE27ioReXJYvqN3
+         QpRIOim5+7TkXCiCSoxs2B32HnIFrFQYW4shIuBgnyWwKVQ1B+zqvhTPK/2tNP5LKq9S
+         YKLwxEB2rgj8/crOBA0cZ8N6qDH0SJbkLHr2FyMR59hjJJr1DsClO9N7HBa/fG5m353G
+         tDaYLq3EBHb5oA3oSRozZY4zntz6yvKwLhWqUku/hOa1Iet392WwtwM2FJ/eVPBlsIt3
+         zFunHdylblJyGlPuJUYvdt1IwG+v+cqPpD387NR8NIHtS9/y0bfIlm30TRqN+T7eA58i
+         8+rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=h85ycmZjhtyXcLkx36dA7aUtYJmI2dpa95biOrnCB/Y=;
-        b=kYD1e0VrIfVyQXSV1Uja8hMmZYwt/hAxGH+KlFpOyvmstJKnjKZEHHNFdG8BAHtBdF
-         7eoCGTiRsoX5juoNx8ReE7U7mg9qYnhRQv+IZFyZh9xiUpJHaoRMVqKaIpigdzK1x/Si
-         33zavrAzEkrgklusMP2u63G1ReUQ9bLL9rkTppbbC8Hnjx0udg7VyMFb81lrDvqaudnC
-         BG4vbC8kxTPD8vr4yFYZiwUzD4vF9a4RSaVmI2C81u7Gr0WueNyx691XQwb7sQ7aSNLH
-         tDf2EP/RqaHl+QCJFQLviyM07gFxStbguLNMXgbrvu3O1O8w21fk9k63ZxFQnlP7S90i
-         jyIg==
-X-Gm-Message-State: AOAM533oCrESyOx3eX8kWSn/OYeJASr9v3Hb1NZQ4mk9QEYwpBNnFQHE
-        uESv1uZhMMbidU+6Uv4qcIs=
-X-Google-Smtp-Source: ABdhPJwGNWPQslMeOiz3zCGqT7FDamczIK8pxcm+kXwDd+WtG1aXH6zlcGFgbIdkFHs7SXe566pTvg==
-X-Received: by 2002:a1c:5f8a:: with SMTP id t132mr491276wmb.121.1609873677136;
-        Tue, 05 Jan 2021 11:07:57 -0800 (PST)
+        bh=8vnl8pGccisfhn5MNb9HL7fTjUscaAZoX3q+t66uruw=;
+        b=N0mzhlo5H/JYRFqjMsQMWr+EuB9Y4bFxocyMPGj90eFdZAWoz+ij6dzXK7zqjWUxBy
+         WdVrz8k2x+gcNpzWhHkaOUk/e8QdlXxfvybS88RFUaVxe7QuTpvNRkRCMqu0I9WyWq6k
+         NoUmmw3IlunyQuNOL9zsgA190QDQFZk+LEZQBEDga7kfJU+g2jR5K/DaPtFB0r8mAKnn
+         GF8n6NfeoAMwweUiQaaLISHDICSz/pCCknHX25++wgyfyETsnfEb4HHyUJbz/O9Fqi9Z
+         U3kJxYOttr8Cdfv7+b6Mmt+nfs3bRMpw6yfsBv+WMxUz5UjPoGtAdWCLGH5WQ5eTySYf
+         FZCw==
+X-Gm-Message-State: AOAM5316DiHRAf+bXTp0i6z0f4c8jwQdjrosMspbgJKreR2WJ9OLH99o
+        cgGsEqnK88TFMuJ4fKLeTtQ=
+X-Google-Smtp-Source: ABdhPJzMj8+ttql3akWwUv7djRHRfgOWYv/XNd8yhxLXd+xRyxP1QOcaK7rBznsdtAi0exPRu7JzjQ==
+X-Received: by 2002:a5d:56c3:: with SMTP id m3mr911611wrw.419.1609873771866;
+        Tue, 05 Jan 2021 11:09:31 -0800 (PST)
 Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
-        by smtp.gmail.com with ESMTPSA id m2sm113083wml.34.2021.01.05.11.07.56
+        by smtp.gmail.com with ESMTPSA id w17sm146566wmk.12.2021.01.05.11.09.30
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jan 2021 11:07:56 -0800 (PST)
-Date:   Tue, 5 Jan 2021 19:07:54 +0000
+        Tue, 05 Jan 2021 11:09:31 -0800 (PST)
+Date:   Tue, 5 Jan 2021 19:09:29 +0000
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
         alexandru.ardelean@analog.com, daniel.baluta@gmail.com,
         daniel.baluta@oss.nxp.com, lars@metafoo.de
 Subject: Re: FAILED: patch "[PATCH] iio:imu:bmi160: Fix alignment and data
- leak issues" failed to apply to 4.19-stable tree
-Message-ID: <20210105190754.zmnb2bl2ldl4mbmk@debian>
-References: <1609154069103184@kroah.com>
+ leak issues" failed to apply to 4.14-stable tree
+Message-ID: <20210105190929.v7gyao2z23fhsy6u@debian>
+References: <160915406818112@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="xqwvmh2yhp6z7zeb"
+Content-Type: multipart/mixed; boundary="7qiujtoh6e5frubf"
 Content-Disposition: inline
-In-Reply-To: <1609154069103184@kroah.com>
+In-Reply-To: <160915406818112@kroah.com>
 User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---xqwvmh2yhp6z7zeb
+--7qiujtoh6e5frubf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Greg,
 
-On Mon, Dec 28, 2020 at 12:14:29PM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Dec 28, 2020 at 12:14:28PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.19-stable tree.
+> The patch below does not apply to the 4.14-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
-Here is the backport.
+Here is the backport, same as the one for 4.19-stable but missed mentioning
+in that mail.
 
 --
 Regards
 Sudip
 
---xqwvmh2yhp6z7zeb
+--7qiujtoh6e5frubf
 Content-Type: text/x-diff; charset=us-ascii
 Content-Disposition: attachment; filename="0001-iio-imu-bmi160-Fix-alignment-and-data-leak-issues.patch"
 
@@ -169,4 +170,4 @@ index e95d817c8390..1e413bb233ae 100644
 2.11.0
 
 
---xqwvmh2yhp6z7zeb--
+--7qiujtoh6e5frubf--
