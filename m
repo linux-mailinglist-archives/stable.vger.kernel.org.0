@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76DF2EA2BF
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97B0B2EA2BC
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:11:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728749AbhAEBGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 20:06:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
+        id S1728816AbhAEBGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 20:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726026AbhAEBAm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728118AbhAEBAm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Jan 2021 20:00:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C80C225AC;
-        Tue,  5 Jan 2021 00:59:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3382F22795;
+        Tue,  5 Jan 2021 00:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609808369;
-        bh=+gGqkzy+8CQx9AUpsQyAbvAkoZxFMkzQtzuM3XQ1zLw=;
+        s=k20201202; t=1609808371;
+        bh=DOn/dF1JQSKk+Qo6oym2pLOpByqawptwcz/+AmpGngs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xxgdwm+9u5Q2i5kYiTKudV3tCivty9pNX46zuWULXzbfbhUmGfqDIgn22+1QBpLSk
-         /qY/MGuKlnfNQYObS98LyS5aQ+A76Kyz1QhgvuioHNJaNDt21xPaZZI7LUOzKcWgoM
-         ZYAacF2OO/TANDEAvZ7y+UaKuVLigkRsMwlFELdMkYO11HXl0aNgoZ5jsb5YXt27x3
-         fViCbilQ1FFP+P5Fy+5dc6RHNXe3RHlHRhLq1JgwT1Je/gfM9gUUqcgH3DljdIq4+H
-         lGUjaUrcS6z63p8izRK4VZgjJet8Jlow0T5TYthra63LCDLTfjYg8mBJU1UPLffhXY
-         059cx8OGCDjQA==
+        b=OnHDtJHlQWE7MKfL1ajDhd0bmAUKehYlbxUdY+nvy17RL0V4Dc3uUcn1+tgcFgfNZ
+         zYjED+f/uT7D5SP70WACFiF6yAH6JO3it8RrBfvrrcmpqC9zZzwiR94nDBLLBKBkeL
+         8AcaDNCrj/QDZyG7E9E7NoBh8KSVC9qqrQh6hpO281y7x3O2NZthqqV/Dn/zlOsPoD
+         qr03+X4+GI2rFoMyeFHLA3JRZbafDTNhyux+NIkzFE68I/PoWCpHSWBKyCVFs0Svfp
+         b1IzieVLMy2ZWR4UAh0/RCF5NoFWluyFZyaex6mLhWpMpyleYvjv/Pi+wZtCe1kzlN
+         bft+GHzHIbyvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bart Van Assche <bvanassche@acm.org>,
@@ -38,9 +38,9 @@ Cc:     Bart Van Assche <bvanassche@acm.org>,
         Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 09/17] scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
-Date:   Mon,  4 Jan 2021 19:59:07 -0500
-Message-Id: <20210105005915.3954208-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 10/17] scsi: ide: Mark power management requests with RQF_PM instead of RQF_PREEMPT
+Date:   Mon,  4 Jan 2021 19:59:08 -0500
+Message-Id: <20210105005915.3954208-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210105005915.3954208-1-sashal@kernel.org>
 References: <20210105005915.3954208-1-sashal@kernel.org>
@@ -54,39 +54,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 96d86e6a80a3ab9aff81d12f9f1f2a0da2917d38 ]
+[ Upstream commit 5ae65383fc7633e0247c31b0c8bf0e6ea63b95a3 ]
 
-RQF_PREEMPT is used for two different purposes in the legacy IDE code:
+This is another step that prepares for the removal of RQF_PREEMPT.
 
- 1. To mark power management requests.
-
- 2. To mark requests that should preempt another request. An (old)
-    explanation of that feature is as follows: "The IDE driver in the Linux
-    kernel normally uses a series of busywait delays during its
-    initialization. When the driver executes these busywaits, the kernel
-    does nothing for the duration of the wait. The time spent in these
-    waits could be used for other initialization activities, if they could
-    be run concurrently with these waits.
-
-    More specifically, busywait-style delays such as udelay() in module
-    init functions inhibit kernel preemption because the Big Kernel Lock is
-    held, while yielding APIs such as schedule_timeout() allow
-    preemption. This is true because the kernel handles the BKL specially
-    and releases and reacquires it across reschedules allowed by the
-    current thread.
-
-    This IDE-preempt specification requires that the driver eliminate these
-    busywaits and replace them with a mechanism that allows other work to
-    proceed while the IDE driver is initializing."
-
-Since I haven't found an implementation of (2), do not set the PREEMPT flag
-for sense requests. This patch causes sense requests to be postponed while
-a drive is suspended instead of being submitted to ide_queue_rq().
-
-If it would ever be necessary to restore the IDE PREEMPT functionality,
-that can be done by introducing a new flag in struct ide_request.
-
-Link: https://lore.kernel.org/r/20201209052951.16136-4-bvanassche@acm.org
+Link: https://lore.kernel.org/r/20201209052951.16136-5-bvanassche@acm.org
 Cc: David S. Miller <davem@davemloft.net>
 Cc: Alan Stern <stern@rowland.harvard.edu>
 Cc: Can Guo <cang@codeaurora.org>
@@ -100,38 +72,36 @@ Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ide/ide-atapi.c | 1 -
- drivers/ide/ide-io.c    | 5 -----
- 2 files changed, 6 deletions(-)
+ drivers/ide/ide-io.c | 2 +-
+ drivers/ide/ide-pm.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ide/ide-atapi.c b/drivers/ide/ide-atapi.c
-index 2162bc80f09e0..013ad33fbbc81 100644
---- a/drivers/ide/ide-atapi.c
-+++ b/drivers/ide/ide-atapi.c
-@@ -223,7 +223,6 @@ void ide_prep_sense(ide_drive_t *drive, struct request *rq)
- 	sense_rq->rq_disk = rq->rq_disk;
- 	sense_rq->cmd_flags = REQ_OP_DRV_IN;
- 	ide_req(sense_rq)->type = ATA_PRIV_SENSE;
--	sense_rq->rq_flags |= RQF_PREEMPT;
- 
- 	req->cmd[0] = GPCMD_REQUEST_SENSE;
- 	req->cmd[4] = cmd_len;
 diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
-index 1a53c7a752244..c210ea3bd02fa 100644
+index c210ea3bd02fa..4867b67b60d69 100644
 --- a/drivers/ide/ide-io.c
 +++ b/drivers/ide/ide-io.c
-@@ -515,11 +515,6 @@ blk_status_t ide_issue_rq(ide_drive_t *drive, struct request *rq,
- 		 * above to return us whatever is in the queue. Since we call
- 		 * ide_do_request() ourselves, we end up taking requests while
- 		 * the queue is blocked...
--		 * 
--		 * We let requests forced at head of queue with ide-preempt
--		 * though. I hope that doesn't happen too much, hopefully not
--		 * unless the subdriver triggers such a thing in its own PM
--		 * state machine.
+@@ -518,7 +518,7 @@ blk_status_t ide_issue_rq(ide_drive_t *drive, struct request *rq,
  		 */
  		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
  		    ata_pm_request(rq) == 0 &&
+-		    (rq->rq_flags & RQF_PREEMPT) == 0) {
++		    (rq->rq_flags & RQF_PM) == 0) {
+ 			/* there should be no pending command at this point */
+ 			ide_unlock_port(hwif);
+ 			goto plug_device;
+diff --git a/drivers/ide/ide-pm.c b/drivers/ide/ide-pm.c
+index 192e6c65d34e7..82ab308f1aafe 100644
+--- a/drivers/ide/ide-pm.c
++++ b/drivers/ide/ide-pm.c
+@@ -77,7 +77,7 @@ int generic_ide_resume(struct device *dev)
+ 	}
+ 
+ 	memset(&rqpm, 0, sizeof(rqpm));
+-	rq = blk_get_request(drive->queue, REQ_OP_DRV_IN, BLK_MQ_REQ_PREEMPT);
++	rq = blk_get_request(drive->queue, REQ_OP_DRV_IN, BLK_MQ_REQ_PM);
+ 	ide_req(rq)->type = ATA_PRIV_PM_RESUME;
+ 	ide_req(rq)->special = &rqpm;
+ 	rqpm.pm_step = IDE_PM_START_RESUME;
 -- 
 2.27.0
 
