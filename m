@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFFF2EA219
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E76DF2EA2BF
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728108AbhAEBAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 20:00:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39224 "EHLO mail.kernel.org"
+        id S1728749AbhAEBGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 20:06:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728080AbhAEBAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 20:00:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C35622597;
-        Tue,  5 Jan 2021 00:59:26 +0000 (UTC)
+        id S1726026AbhAEBAm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 20:00:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C80C225AC;
+        Tue,  5 Jan 2021 00:59:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609808367;
-        bh=0dOcWsGh9Z/V+w6PU/Ju3OjRV+n9m9dtFHHPjcms3l4=;
+        s=k20201202; t=1609808369;
+        bh=+gGqkzy+8CQx9AUpsQyAbvAkoZxFMkzQtzuM3XQ1zLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpvGE2Oom9D6rcDWbzDAqlIlyRHZcwDZRjYF5/eD2kS78z6kZUFRgjBn3D9WlvtV3
-         yTXGFLJI/Sd1vq+IYgH6AMR3ehOW9mZ+nwUVj5s4pp10srj7hGpnChtac7yiFBJo4o
-         ujZCofGLP+2Db2DAccq+uNaN0hyCpS8TyuKX+sSsj5ddZpq0BiRvNIzjseL0wUGAeK
-         17B9UQoFea6geE2q1QsjKljK7a8KXUQyr8KMnbRQsTNWXGBiYLySEFLaK29N5GoLuz
-         PBKY643BqmhVMuCY3x3bZx3pTNY0v7e/R0neVsgvR+OfeazKZYK2P7z22cM4zRNDmK
-         1PGZ8QEOmE8hA==
+        b=Xxgdwm+9u5Q2i5kYiTKudV3tCivty9pNX46zuWULXzbfbhUmGfqDIgn22+1QBpLSk
+         /qY/MGuKlnfNQYObS98LyS5aQ+A76Kyz1QhgvuioHNJaNDt21xPaZZI7LUOzKcWgoM
+         ZYAacF2OO/TANDEAvZ7y+UaKuVLigkRsMwlFELdMkYO11HXl0aNgoZ5jsb5YXt27x3
+         fViCbilQ1FFP+P5Fy+5dc6RHNXe3RHlHRhLq1JgwT1Je/gfM9gUUqcgH3DljdIq4+H
+         lGUjaUrcS6z63p8izRK4VZgjJet8Jlow0T5TYthra63LCDLTfjYg8mBJU1UPLffhXY
+         059cx8OGCDjQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bart Van Assche <bvanassche@acm.org>,
+        "David S . Miller" <davem@davemloft.net>,
         Alan Stern <stern@rowland.harvard.edu>,
+        Can Guo <cang@codeaurora.org>,
         Stanley Chu <stanley.chu@mediatek.com>,
         Ming Lei <ming.lei@redhat.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Can Guo <cang@codeaurora.org>, Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 08/17] scsi: block: Introduce BLK_MQ_REQ_PM
-Date:   Mon,  4 Jan 2021 19:59:06 -0500
-Message-Id: <20210105005915.3954208-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 09/17] scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
+Date:   Mon,  4 Jan 2021 19:59:07 -0500
+Message-Id: <20210105005915.3954208-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210105005915.3954208-1-sashal@kernel.org>
 References: <20210105005915.3954208-1-sashal@kernel.org>
@@ -52,85 +54,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 0854bcdcdec26aecdc92c303816f349ee1fba2bc ]
+[ Upstream commit 96d86e6a80a3ab9aff81d12f9f1f2a0da2917d38 ]
 
-Introduce the BLK_MQ_REQ_PM flag. This flag makes the request allocation
-functions set RQF_PM. This is the first step towards removing
-BLK_MQ_REQ_PREEMPT.
+RQF_PREEMPT is used for two different purposes in the legacy IDE code:
 
-Link: https://lore.kernel.org/r/20201209052951.16136-3-bvanassche@acm.org
+ 1. To mark power management requests.
+
+ 2. To mark requests that should preempt another request. An (old)
+    explanation of that feature is as follows: "The IDE driver in the Linux
+    kernel normally uses a series of busywait delays during its
+    initialization. When the driver executes these busywaits, the kernel
+    does nothing for the duration of the wait. The time spent in these
+    waits could be used for other initialization activities, if they could
+    be run concurrently with these waits.
+
+    More specifically, busywait-style delays such as udelay() in module
+    init functions inhibit kernel preemption because the Big Kernel Lock is
+    held, while yielding APIs such as schedule_timeout() allow
+    preemption. This is true because the kernel handles the BKL specially
+    and releases and reacquires it across reschedules allowed by the
+    current thread.
+
+    This IDE-preempt specification requires that the driver eliminate these
+    busywaits and replace them with a mechanism that allows other work to
+    proceed while the IDE driver is initializing."
+
+Since I haven't found an implementation of (2), do not set the PREEMPT flag
+for sense requests. This patch causes sense requests to be postponed while
+a drive is suspended instead of being submitted to ide_queue_rq().
+
+If it would ever be necessary to restore the IDE PREEMPT functionality,
+that can be done by introducing a new flag in struct ide_request.
+
+Link: https://lore.kernel.org/r/20201209052951.16136-4-bvanassche@acm.org
+Cc: David S. Miller <davem@davemloft.net>
 Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Can Guo <cang@codeaurora.org>
 Cc: Stanley Chu <stanley.chu@mediatek.com>
 Cc: Ming Lei <ming.lei@redhat.com>
 Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Can Guo <cang@codeaurora.org>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Hannes Reinecke <hare@suse.de>
 Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Reviewed-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c       | 7 ++++---
- block/blk-mq.c         | 2 ++
- include/linux/blk-mq.h | 2 ++
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/ide/ide-atapi.c | 1 -
+ drivers/ide/ide-io.c    | 5 -----
+ 2 files changed, 6 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 2db8bda43b6e6..10696f9fb6ac6 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -424,11 +424,11 @@ EXPORT_SYMBOL(blk_cleanup_queue);
- /**
-  * blk_queue_enter() - try to increase q->q_usage_counter
-  * @q: request queue pointer
-- * @flags: BLK_MQ_REQ_NOWAIT and/or BLK_MQ_REQ_PREEMPT
-+ * @flags: BLK_MQ_REQ_NOWAIT, BLK_MQ_REQ_PM and/or BLK_MQ_REQ_PREEMPT
-  */
- int blk_queue_enter(struct request_queue *q, blk_mq_req_flags_t flags)
- {
--	const bool pm = flags & BLK_MQ_REQ_PREEMPT;
-+	const bool pm = flags & (BLK_MQ_REQ_PM | BLK_MQ_REQ_PREEMPT);
+diff --git a/drivers/ide/ide-atapi.c b/drivers/ide/ide-atapi.c
+index 2162bc80f09e0..013ad33fbbc81 100644
+--- a/drivers/ide/ide-atapi.c
++++ b/drivers/ide/ide-atapi.c
+@@ -223,7 +223,6 @@ void ide_prep_sense(ide_drive_t *drive, struct request *rq)
+ 	sense_rq->rq_disk = rq->rq_disk;
+ 	sense_rq->cmd_flags = REQ_OP_DRV_IN;
+ 	ide_req(sense_rq)->type = ATA_PRIV_SENSE;
+-	sense_rq->rq_flags |= RQF_PREEMPT;
  
- 	while (true) {
- 		bool success = false;
-@@ -630,7 +630,8 @@ struct request *blk_get_request(struct request_queue *q, unsigned int op,
- 	struct request *req;
- 
- 	WARN_ON_ONCE(op & REQ_NOWAIT);
--	WARN_ON_ONCE(flags & ~(BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_PREEMPT));
-+	WARN_ON_ONCE(flags & ~(BLK_MQ_REQ_NOWAIT | BLK_MQ_REQ_PM |
-+			       BLK_MQ_REQ_PREEMPT));
- 
- 	req = blk_mq_alloc_request(q, op, flags);
- 	if (!IS_ERR(req) && q->mq_ops->initialize_rq_fn)
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 55bcee5dc0320..0072ffa50b46e 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -292,6 +292,8 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
- 	rq->mq_hctx = data->hctx;
- 	rq->rq_flags = 0;
- 	rq->cmd_flags = data->cmd_flags;
-+	if (data->flags & BLK_MQ_REQ_PM)
-+		rq->rq_flags |= RQF_PM;
- 	if (data->flags & BLK_MQ_REQ_PREEMPT)
- 		rq->rq_flags |= RQF_PREEMPT;
- 	if (blk_queue_io_stat(data->q))
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index 794b2a33a2c36..c9ecfd8b03381 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -446,6 +446,8 @@ enum {
- 	BLK_MQ_REQ_NOWAIT	= (__force blk_mq_req_flags_t)(1 << 0),
- 	/* allocate from reserved pool */
- 	BLK_MQ_REQ_RESERVED	= (__force blk_mq_req_flags_t)(1 << 1),
-+	/* set RQF_PM */
-+	BLK_MQ_REQ_PM		= (__force blk_mq_req_flags_t)(1 << 2),
- 	/* set RQF_PREEMPT */
- 	BLK_MQ_REQ_PREEMPT	= (__force blk_mq_req_flags_t)(1 << 3),
- };
+ 	req->cmd[0] = GPCMD_REQUEST_SENSE;
+ 	req->cmd[4] = cmd_len;
+diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+index 1a53c7a752244..c210ea3bd02fa 100644
+--- a/drivers/ide/ide-io.c
++++ b/drivers/ide/ide-io.c
+@@ -515,11 +515,6 @@ blk_status_t ide_issue_rq(ide_drive_t *drive, struct request *rq,
+ 		 * above to return us whatever is in the queue. Since we call
+ 		 * ide_do_request() ourselves, we end up taking requests while
+ 		 * the queue is blocked...
+-		 * 
+-		 * We let requests forced at head of queue with ide-preempt
+-		 * though. I hope that doesn't happen too much, hopefully not
+-		 * unless the subdriver triggers such a thing in its own PM
+-		 * state machine.
+ 		 */
+ 		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
+ 		    ata_pm_request(rq) == 0 &&
 -- 
 2.27.0
 
