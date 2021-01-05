@@ -2,278 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFBB2EB35E
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 819DA2EB364
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 20:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727718AbhAETOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 14:14:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45266 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbhAETOV (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 5 Jan 2021 14:14:21 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85969C061793
-        for <Stable@vger.kernel.org>; Tue,  5 Jan 2021 11:13:40 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id w5so242625wrm.11
-        for <Stable@vger.kernel.org>; Tue, 05 Jan 2021 11:13:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=VRetRHUNghp1koouvBNUCrPuH8hLkB3TVhP5MPjY9PI=;
-        b=NgYwq5ERTccCG/2ek3Vr46DvhdwbM+CVkrqN36gUp2z4mIKqV/83OosfSkr9ER10zR
-         3CVKkdweDtK354ouTLJDk94KkMb8qULGFvweszNecXeflkL3lKMftsBN5g0jHxRTKySx
-         64entUjeA03AYhH92YMz/OFK+FXpFV5WQ3QJwnXTJvCoj7Mobh36z9EucYoLwy9A3T2S
-         akhc3APhna0DA697GjgEJnbTrn5FmCX+JNMJztKU/LneZAr4jEc/6+E1r+toNER+dDD3
-         yEGkiJ2giKyjpnWgXRvV74iz901w51jQu6NHfvJisxLMHbt83NVdTgS36vgHPagVoSPZ
-         xUKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=VRetRHUNghp1koouvBNUCrPuH8hLkB3TVhP5MPjY9PI=;
-        b=aJk5LICLTR6af6M4bdwEb/7GqSEevYcaDQX2lg+f4Dkz8acECn2OV7e1dZHznEEgQ9
-         GvRiOoTxyATXJGIAPR8RL4zLupagdDELQG3H+OI3a8d7+1ugtYl4/sHC0f7fAcx6Nkbm
-         jb+AURE93qFowRNhcDPsc5aIiLhRMMhX1AXSZ5Eiy/3dc8CwDmvdzxhAGm4tQX1oZLkw
-         ASpCEQoRMOY4RWt+YKN7DcgycvgUL2JRhOOc2vSHC1RTPooSrkRQoNq8U85dptjgw4HZ
-         VONMPf2f3FkxUIxFRSVsFqr56mG/yOBpSAoPLTfQALNsIUPFkmPRnvHdNWPr9MNCCw6b
-         CbhQ==
-X-Gm-Message-State: AOAM530j+psi1s9qgBePLIFnglPKsOZgd6/DZvySu9hEcXObmx4boWz4
-        x+37K4kf3UuCkqkQmBqrNXI=
-X-Google-Smtp-Source: ABdhPJw+W8m3rFtazxgt01lIaW0OsSyJUPFgUMNKIzfcORQi6VGn0pYQle3mnRvmdNp6S1t17zfOMQ==
-X-Received: by 2002:adf:90e3:: with SMTP id i90mr1017189wri.248.1609874019310;
-        Tue, 05 Jan 2021 11:13:39 -0800 (PST)
-Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
-        by smtp.gmail.com with ESMTPSA id a12sm61577wrh.71.2021.01.05.11.13.38
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Jan 2021 11:13:38 -0800 (PST)
-Date:   Tue, 5 Jan 2021 19:13:37 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        alexandru.ardelean@analog.com, daniel.baluta@gmail.com,
-        daniel.baluta@oss.nxp.com, lars@metafoo.de
-Subject: Re: FAILED: patch "[PATCH] iio:imu:bmi160: Fix alignment and data
- leak issues" failed to apply to 4.9-stable tree
-Message-ID: <20210105191337.7pxii235rrxbsa6b@debian>
-References: <1609154067196181@kroah.com>
+        id S1728981AbhAETSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 14:18:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36612 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727718AbhAETSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 14:18:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3781222C7B;
+        Tue,  5 Jan 2021 19:17:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609874276;
+        bh=jize7m4/DZjYwfA/32qqlJW5+QRlsOgSyPCucBxn0NY=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=KWO6wPdq/k+euIe0Ss07T6qoGZSsFIh9J4QMR5fIirJvlUzPY7xlYQCVL3pCPrQF1
+         dfEfrDBbV8ujXrrIeMWu8/AOHghzIFDKwX7goWrGJVd7jLyUx8kY+JD1QKZx9Axigd
+         R6Cj4z1Z0F/EKRkA0zwHyvXyj0rLF7PozwesylTdiXPCp08qSqu0r2xcFY6scocZPP
+         6VbAoqGbmvO6NeAVb9A28xQhb0Oq8kRleh+XznazIauk4V+hweRGOfv7HNgavXz6Pc
+         lzr/CPs8WWkUqa6k5xa8A5FwxpYI9KzlVqxVNgyTf8qEiVhph4+AYmDlktmTj17Arp
+         Wl42R80gxZhdg==
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id DF1583522A62; Tue,  5 Jan 2021 11:17:55 -0800 (PST)
+Date:   Tue, 5 Jan 2021 11:17:55 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Len Brown <lenb@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 2/4] cpuidle: Fix missing need_resched() check after
+ rcu_idle_enter()
+Message-ID: <20210105191755.GH17086@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20201222013712.15056-1-frederic@kernel.org>
+ <20201222013712.15056-3-frederic@kernel.org>
+ <e882be10-548a-8e90-9bc6-acea453a5241@gmail.com>
+ <8e9f1c38-ca84-6f5b-afdb-e70c07120332@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="be4ebfdmi5d6zfk2"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1609154067196181@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8e9f1c38-ca84-6f5b-afdb-e70c07120332@gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---be4ebfdmi5d6zfk2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Greg,
-
-On Mon, Dec 28, 2020 at 12:14:27PM +0100, gregkh@linuxfoundation.org wrote:
+On Tue, Jan 05, 2021 at 09:10:30PM +0300, Dmitry Osipenko wrote:
+> 05.01.2021 20:25, Dmitry Osipenko пишет:
+> > 22.12.2020 04:37, Frederic Weisbecker пишет:
+> >> Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+> >> kthread (rcuog) to be serviced.
+> >>
+> >> Usually a wake up happening while running the idle task is spotted in
+> >> one of the need_resched() checks carefully placed within the idle loop
+> >> that can break to the scheduler.
+> >>
+> >> Unfortunately within cpuidle the call to rcu_idle_enter() is already
+> >> beyond the last generic need_resched() check. Some drivers may perform
+> >> their own checks like with mwait_idle_with_hints() but many others don't
+> >> and we may halt the CPU with a resched request unhandled, leaving the
+> >> task hanging.
+> >>
+> >> Fix this with performing a last minute need_resched() check after
+> >> calling rcu_idle_enter().
+> >>
+> >> Reported-by: Paul E. McKenney <paulmck@kernel.org>
+> >> Fixes: 1098582a0f6c (sched,idle,rcu: Push rcu_idle deeper into the idle path)
+> >> Cc: stable@vger.kernel.org
+> >> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+> >> Cc: Peter Zijlstra <peterz@infradead.org>
+> >> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >> Cc: Thomas Gleixner <tglx@linutronix.de>
+> >> Cc: Ingo Molnar <mingo@kernel.org>
+> >> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> >> ---
+> >>  drivers/cpuidle/cpuidle.c | 33 +++++++++++++++++++++++++--------
+> >>  1 file changed, 25 insertions(+), 8 deletions(-)
+> >>
+> >> diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
+> >> index ef2ea1b12cd8..4cc1ba49ce05 100644
+> >> --- a/drivers/cpuidle/cpuidle.c
+> >> +++ b/drivers/cpuidle/cpuidle.c
+> >> @@ -134,8 +134,8 @@ int cpuidle_find_deepest_state(struct cpuidle_driver *drv,
+> >>  }
+> >>  
+> >>  #ifdef CONFIG_SUSPEND
+> >> -static void enter_s2idle_proper(struct cpuidle_driver *drv,
+> >> -				struct cpuidle_device *dev, int index)
+> >> +static int enter_s2idle_proper(struct cpuidle_driver *drv,
+> >> +			       struct cpuidle_device *dev, int index)
+> >>  {
+> >>  	ktime_t time_start, time_end;
+> >>  	struct cpuidle_state *target_state = &drv->states[index];
+> >> @@ -151,7 +151,14 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
+> >>  	stop_critical_timings();
+> >>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+> >>  		rcu_idle_enter();
+> >> -	target_state->enter_s2idle(dev, drv, index);
+> >> +	/*
+> >> +	 * Last need_resched() check must come after rcu_idle_enter()
+> >> +	 * which may wake up RCU internal tasks.
+> >> +	 */
+> >> +	if (!need_resched())
+> >> +		target_state->enter_s2idle(dev, drv, index);
+> >> +	else
+> >> +		index = -EBUSY;
+> >>  	if (WARN_ON_ONCE(!irqs_disabled()))
+> >>  		local_irq_disable();
+> >>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+> >> @@ -159,10 +166,13 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
+> >>  	tick_unfreeze();
+> >>  	start_critical_timings();
+> >>  
+> >> -	time_end = ns_to_ktime(local_clock());
+> >> +	if (index > 0) {
+> > 
+> > index=0 is valid too
+> > 
+> >> +		time_end = ns_to_ktime(local_clock());
+> >> +		dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+> >> +		dev->states_usage[index].s2idle_usage++;
+> >> +	}
+> >>  
+> >> -	dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+> >> -	dev->states_usage[index].s2idle_usage++;
+> >> +	return index;
+> >>  }
+> >>  
+> >>  /**
+> >> @@ -184,7 +194,7 @@ int cpuidle_enter_s2idle(struct cpuidle_driver *drv, struct cpuidle_device *dev)
+> >>  	 */
+> >>  	index = find_deepest_state(drv, dev, U64_MAX, 0, true);
+> >>  	if (index > 0) {
+> >> -		enter_s2idle_proper(drv, dev, index);
+> >> +		index = enter_s2idle_proper(drv, dev, index);
+> >>  		local_irq_enable();
+> >>  	}
+> >>  	return index;
+> >> @@ -234,7 +244,14 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
+> >>  	stop_critical_timings();
+> >>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+> >>  		rcu_idle_enter();
+> >> -	entered_state = target_state->enter(dev, drv, index);
+> >> +	/*
+> >> +	 * Last need_resched() check must come after rcu_idle_enter()
+> >> +	 * which may wake up RCU internal tasks.
+> >> +	 */
+> >> +	if (!need_resched())
+> >> +		entered_state = target_state->enter(dev, drv, index);
+> >> +	else
+> >> +		entered_state = -EBUSY;
+> >>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+> >>  		rcu_idle_exit();
+> >>  	start_critical_timings();
+> >>
+> > 
+> > This patch causes a hardlock on NVIDIA Tegra using today's linux-next.
+> > Disabling coupled idling state helps. Please fix thanks in advance.
 > 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> This isn't a proper fix, but it works:
 
-Here is the backport along with:
-dd4ba3fb2223 ("iio: bmi160_core: Fix sparse warning due to incorrect type
-in assignment")
-dc7de42d6b50 ("iio:imu:bmi160: Fix too large a buffer.")
-which makes backporting easier. dc7de42d6b50 was already marked for stable
-but was missing in 4.9-stable.
+There is some ongoing discussion about what an overall proper fix might
+look like, so in the meantime I am folding you changes below into
+Frederic's original.  ;-)
 
+							Thanx, Paul
 
---
-Regards
-Sudip
-
---be4ebfdmi5d6zfk2
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-iio-bmi160_core-Fix-sparse-warning-due-to-incorrect-.patch"
-
-From f837e553556bd1b4ae7eb7513c7ef21b7c70ff01 Mon Sep 17 00:00:00 2001
-From: sayli karnik <karniksayli1995@gmail.com>
-Date: Tue, 11 Oct 2016 17:07:21 +0530
-Subject: [PATCH 1/3] iio: bmi160_core: Fix sparse warning due to incorrect type in assignment
-
-commit dd4ba3fb22233e69f06399ee0aa7ecb11d2b595c upstream
-
-There is a type mismatch between the buffer which is of type s16 and the
-samples stored, which are declared as __le16.
-
-Fix the following sparse warning:
-drivers/iio/imu/bmi160/bmi160_core.c:411:26: warning: incorrect type
-in assignment (different base types)
-
-drivers/iio/imu/bmi160/bmi160_core.c:411:26: expected signed short
-[signed] [short] [explicitly-signed] <noident>
-drivers/iio/imu/bmi160/bmi160_core.c:411:26: got restricted __le16
-[addressable] [usertype] sample
-
-This is a cosmetic-type patch since it does not alter code behaviour.
-The le16 is going into a 16bit buf element, and is labelled as IIO_LE in the
-channel buffer definition.
-
-Signed-off-by: sayli karnik <karniksayli1995@gmail.com>
-Signed-off-by: Jonathan Cameron <jic23@kernel.org>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/iio/imu/bmi160/bmi160_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
-index 5fb571d03153..c9e319bff58b 100644
---- a/drivers/iio/imu/bmi160/bmi160_core.c
-+++ b/drivers/iio/imu/bmi160/bmi160_core.c
-@@ -385,7 +385,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct bmi160_data *data = iio_priv(indio_dev);
--	s16 buf[16]; /* 3 sens x 3 axis x s16 + 3 x s16 pad + 4 x s16 tstamp */
-+	__le16 buf[16];
-+	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
- 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
- 	__le16 sample;
- 
--- 
-2.11.0
-
-
---be4ebfdmi5d6zfk2
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0002-iio-imu-bmi160-Fix-too-large-a-buffer.patch"
-
-From c7b1ae8b75394066bc2883b8a86d85f3bab7821f Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:38 +0100
-Subject: [PATCH 2/3] iio:imu:bmi160: Fix too large a buffer.
-
-commit dc7de42d6b50a07b37feeba4c6b5136290fcee81 upstream.
-
-The comment implies this device has 3 sensor types, but it only
-has an accelerometer and a gyroscope (both 3D).  As such the
-buffer does not need to be as long as stated.
-
-Note I've separated this from the following patch which fixes
-the alignment for passing to iio_push_to_buffers_with_timestamp()
-as they are different issues even if they affect the same line
-of code.
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-5-jic23@kernel.org
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/iio/imu/bmi160/bmi160_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
-index c9e319bff58b..1e1788d70eac 100644
---- a/drivers/iio/imu/bmi160/bmi160_core.c
-+++ b/drivers/iio/imu/bmi160/bmi160_core.c
-@@ -385,8 +385,8 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct bmi160_data *data = iio_priv(indio_dev);
--	__le16 buf[16];
--	/* 3 sens x 3 axis x __le16 + 3 x __le16 pad + 4 x __le16 tstamp */
-+	__le16 buf[12];
-+	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
- 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
- 	__le16 sample;
- 
--- 
-2.11.0
-
-
---be4ebfdmi5d6zfk2
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0003-iio-imu-bmi160-Fix-alignment-and-data-leak-issues.patch"
-
-From 3b140121949b033460a6baf9152608e00aeeac72 Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 20 Sep 2020 12:27:39 +0100
-Subject: [PATCH 3/3] iio:imu:bmi160: Fix alignment and data leak issues
-
-commit 7b6b51234df6cd8b04fe736b0b89c25612d896b8 upstream
-
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable array in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc() so no
-data can leak apart from previous readings.
-
-In this driver, depending on which channels are enabled, the timestamp
-can be in a number of locations.  Hence we cannot use a structure
-to specify the data layout without it being misleading.
-
-Fixes: 77c4ad2d6a9b ("iio: imu: Add initial support for Bosch BMI160")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: Daniel Baluta  <daniel.baluta@gmail.com>
-Cc: Daniel Baluta <daniel.baluta@oss.nxp.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-6-jic23@kernel.org
-[sudip: adjust context and use bmi160_data in old location]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/iio/imu/bmi160/bmi160_core.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
-index 1e1788d70eac..93c5040c6454 100644
---- a/drivers/iio/imu/bmi160/bmi160_core.c
-+++ b/drivers/iio/imu/bmi160/bmi160_core.c
-@@ -110,6 +110,13 @@ enum bmi160_sensor_type {
- 
- struct bmi160_data {
- 	struct regmap *regmap;
-+	/*
-+	 * Ensure natural alignment for timestamp if present.
-+	 * Max length needed: 2 * 3 channels + 4 bytes padding + 8 byte ts.
-+	 * If fewer channels are enabled, less space may be needed, as
-+	 * long as the timestamp is still aligned to 8 bytes.
-+	 */
-+	__le16 buf[12] __aligned(8);
- };
- 
- const struct regmap_config bmi160_regmap_config = {
-@@ -385,8 +392,6 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct bmi160_data *data = iio_priv(indio_dev);
--	__le16 buf[12];
--	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
- 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
- 	__le16 sample;
- 
-@@ -396,10 +401,10 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
- 				       &sample, sizeof(__le16));
- 		if (ret < 0)
- 			goto done;
--		buf[j++] = sample;
-+		data->buf[j++] = sample;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, data->buf,
- 					   iio_get_time_ns(indio_dev));
- done:
- 	iio_trigger_notify_done(indio_dev->trig);
--- 
-2.11.0
-
-
---be4ebfdmi5d6zfk2--
+> diff --git a/drivers/cpuidle/cpuidle-tegra.c
+> b/drivers/cpuidle/cpuidle-tegra.c
+> index 191966dc8d02..ecc5d9b31553 100644
+> --- a/drivers/cpuidle/cpuidle-tegra.c
+> +++ b/drivers/cpuidle/cpuidle-tegra.c
+> @@ -148,7 +148,7 @@ static int tegra_cpuidle_c7_enter(void)
+> 
+>  static int tegra_cpuidle_coupled_barrier(struct cpuidle_device *dev)
+>  {
+> -	if (tegra_pending_sgi()) {
+> +	if (tegra_pending_sgi() || need_resched()) {
+>  		/*
+>  		 * CPU got local interrupt that will be lost after GIC's
+>  		 * shutdown because GIC driver doesn't save/restore the
+> diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
+> index 4cc1ba49ce05..2bc52ccc339b 100644
+> --- a/drivers/cpuidle/cpuidle.c
+> +++ b/drivers/cpuidle/cpuidle.c
+> @@ -248,7 +248,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev,
+> struct cpuidle_driver *drv,
+>  	 * Last need_resched() check must come after rcu_idle_enter()
+>  	 * which may wake up RCU internal tasks.
+>  	 */
+> -	if (!need_resched())
+> +	if ((target_state->flags & CPUIDLE_FLAG_COUPLED) || !need_resched())
+>  		entered_state = target_state->enter(dev, drv, index);
+>  	else
+>  		entered_state = -EBUSY;
+> 
