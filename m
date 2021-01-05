@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33882EA776
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1098A2EA78B
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728407AbhAEJ3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 04:29:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49740 "EHLO mail.kernel.org"
+        id S1727907AbhAEJbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 04:31:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728398AbhAEJ3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 04:29:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6881F2255F;
-        Tue,  5 Jan 2021 09:28:37 +0000 (UTC)
+        id S1725803AbhAEJ3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 04:29:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E6122AAA;
+        Tue,  5 Jan 2021 09:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609838917;
-        bh=gMsNqKJZDuk4ZcuwnLe9zXaIYdpN/cXIbf4pPVDIPbU=;
+        s=korg; t=1609838920;
+        bh=rJIdyn+V37VsNc15Ud6KcMHR9dHN03RWxAoL3TdeyFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RElERCOmc1oUrG4QHr/+yNY7FVGe7Gw9CWUtRvjoxLVTcOlLsl12pN+4EIGPmzbdW
-         8OZfV7RWx1wQc+TT1rI4XuoZM/yTh5y/ouzsFsQPBWknxINb19SS55FnRNpLgfi+wD
-         lVWF7HCgmIqhGhynEhPVNambk7XMUr65MCDR4yao=
+        b=VGporJdbpBuqQGDwhHDSWiF0ZEwdESpPytWSkEfwBFVIjaHW6RRz4+rD583jmtk2P
+         k0fsQXw5fmB8cFpkQLfx8dbSIITC+PxN4VQ/6eEMlv4WitK24JPingYmFflc6Kkklj
+         8dJEm7WQqTcNEEvxpjukNItIhaam10Hsvs/zr5dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 03/29] ext4: prevent creating duplicate encrypted filenames
-Date:   Tue,  5 Jan 2021 10:28:49 +0100
-Message-Id: <20210105090818.962261088@linuxfoundation.org>
+Subject: [PATCH 4.19 04/29] f2fs: prevent creating duplicate encrypted filenames
+Date:   Tue,  5 Jan 2021 10:28:50 +0100
+Message-Id: <20210105090819.061975458@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210105090818.518271884@linuxfoundation.org>
 References: <20210105090818.518271884@linuxfoundation.org>
@@ -40,38 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 75d18cd1868c2aee43553723872c35d7908f240f upstream.
+commit bfc2b7e8518999003a61f91c1deb5e88ed77b07d upstream.
 
 As described in "fscrypt: add fscrypt_is_nokey_name()", it's possible to
 create a duplicate filename in an encrypted directory by creating a file
 concurrently with adding the directory's encryption key.
 
-Fix this bug on ext4 by rejecting no-key dentries in ext4_add_entry().
+Fix this bug on f2fs by rejecting no-key dentries in f2fs_add_link().
 
-Note that the duplicate check in ext4_find_dest_de() sometimes prevented
-this bug.  However in many cases it didn't, since ext4_find_dest_de()
-doesn't examine every dentry.
+Note that the weird check for the current task in f2fs_do_add_link()
+seems to make this bug difficult to reproduce on f2fs.
 
-Fixes: 4461471107b7 ("ext4 crypto: enable filename encryption")
+Fixes: 9ea97163c6da ("f2fs crypto: add filename encryption for f2fs_add_link")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201118075609.120337-3-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20201118075609.120337-4-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/namei.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/f2fs.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2106,6 +2106,9 @@ static int ext4_add_entry(handle_t *hand
- 	if (!dentry->d_name.len)
- 		return -EINVAL;
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -2857,6 +2857,8 @@ bool f2fs_empty_dir(struct inode *dir);
  
+ static inline int f2fs_add_link(struct dentry *dentry, struct inode *inode)
+ {
 +	if (fscrypt_is_nokey_name(dentry))
 +		return -ENOKEY;
-+
- 	retval = ext4_fname_setup_filename(dir, &dentry->d_name, 0, &fname);
- 	if (retval)
- 		return retval;
+ 	return f2fs_do_add_link(d_inode(dentry->d_parent), &dentry->d_name,
+ 				inode, inode->i_ino, inode->i_mode);
+ }
 
 
