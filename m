@@ -2,53 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E022EB6B1
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 01:06:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 504852EB8A5
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 04:50:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727233AbhAFAGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 19:06:03 -0500
-Received: from shards.monkeyblade.net ([23.128.96.9]:52452 "EHLO
-        mail.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727230AbhAFAGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 19:06:02 -0500
-Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
-        by mail.monkeyblade.net (Postfix) with ESMTPSA id F22AD4CE685B6;
-        Tue,  5 Jan 2021 16:05:21 -0800 (PST)
-Date:   Tue, 05 Jan 2021 16:05:21 -0800 (PST)
-Message-Id: <20210105.160521.1279064249478522010.davem@davemloft.net>
-To:     zhutong@amazon.com
-Cc:     sashal@kernel.org, edumazet@google.com, vvs@virtuozzo.com,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] neighbour: Disregard DEAD dst in neigh_update
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20201230225415.GA490@ucf43ac461c9a53.ant.amazon.com>
-References: <20201230225415.GA490@ucf43ac461c9a53.ant.amazon.com>
-X-Mailer: Mew version 6.8 on Emacs 27.1
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.6.2 (mail.monkeyblade.net [0.0.0.0]); Tue, 05 Jan 2021 16:05:22 -0800 (PST)
+        id S1726614AbhAFDuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 22:50:08 -0500
+Received: from 142-4-23-50.unifiedlayer.com ([142.4.23.50]:58630 "EHLO
+        142-4-23-50.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726371AbhAFDuH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 22:50:07 -0500
+X-Greylist: delayed 28125 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 Jan 2021 22:50:07 EST
+Received: from omoraka25 by 142-4-23-50.ipage.com with local (Exim 4.93)
+        (envelope-from <omoraka25@142-4-23-50.ipage.com>)
+        id 1kwsM0-0006mT-UY; Tue, 05 Jan 2021 12:50:53 -0700
+To:     stanasel@uoradea.ro
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: modernacademicedit.org/mail5/send.php for 105.112.100.25
+X-PHP-Originating-Script: 1001:send.php
+From:   scriptediting23@pub45.org
+Reply-To: modernacademicedit@gmail.com
+Message-Id: <E1kwsM0-0006mT-UY@142-4-23-50.ipage.com>
+Date:   Tue, 05 Jan 2021 12:50:52 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-23-50.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-23-50.ipage.com
+X-Get-Message-Sender-Via: 142-4-23-50.ipage.com: authenticated_id: omoraka25/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-23-50.ipage.com: omoraka25
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhu <zhutong@amazon.com>
-Date: Wed, 30 Dec 2020 17:54:23 -0500
+MODERN ACADEMIC EDITING 
+www.modernacademicedit.com
 
-> In 4.x kernel a dst in DST_OBSOLETE_DEAD state is associated
-> with loopback net_device and leads to loopback neighbour. It
-> leads to an ethernet header with all zero addresses.
-> 
-> A very troubling case is working with mac80211 and ath9k.
-> A packet with all zero source MAC address to mac80211 will
-> eventually fail ieee80211_find_sta_by_ifaddr in ath9k (xmit.c).
-> As result, ath9k flushes tx queue (ath_tx_complete_aggr) without
-> updating baw (block ack window), damages baw logic and disables
-> transmission.
-> 
-> Signed-off-by: Tong Zhu <zhutong@amazon.com>
 
-Please repost with an appropriate Fixes: tag.
+Don't allow poor spelling or poor formatting deny your manuscript’s chance of publication in high-quality journals.
+Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling, grammatical, typographical or punctuation errors.
+Hence, what Are You Waiting For?
+Modern Academic Editing is the most trusted academic proofreading and editing services for you.
 
-Thanks.
+Dear Colleague,
+MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking students, professionals, authors, and individuals from around the globe, for ensuring the highest-possible quality of editing and confirming that ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services now it’s your turn! Therefore, we call on writers and authors in all academic fields to submit their manuscripts for editing and proofreading. We have observed, over and over again, that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to manuscripts from reviewers. Using an online grammar correction service is not always sufficient to highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
+
+We invite you to submit your articles and theses (MS-Word document) as e-mail attachments to our Editorial Office at: articles@modernacademicedit.com or modernacademicedit@gmail.com. Manuscripts are expected to be in double line spacing (Still depends on the journal's format).Upon receipt of your manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
+
+Our charges are as follows:
+
+WORD COUNT	STANDARD
+3 days	EXPRESS
+2 days	URGENT**
+24 hrs
+Up to 1,000	$25	$35	$50
+1,001 to 2,000	$50	$70	$100
+2,001 to 3,000	$75	$105	$150
+3,001 to 4,000	$100	$140	$200
+4,001 to 5,000	$125	$175	$250
+5,001 to 6,000	$150	$210	$300
+6,001 to 7,000	$175	$240	$350
+7,001 to 8,000	$200	$275	$400
+8,001 to 9,000	$225	$310	$450
+9,001 to 10,000	$250	$345	$500
+10,001 to 11,000	$275	$380	$550
+11,001 to 12,000	$300	$415	$600
+Over 12,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
+
+Payments are made through bank wire transfer or via credit card online (instant payment).Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
+
+For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Chris Tom
+Editor
+Modern Academic Editing
+
+To unsubscribe, kindly send a mail tounsubscribe.modernacademicedit@gmail.com
+
+
