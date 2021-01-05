@@ -2,150 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 508B92EA9A1
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 12:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D17DA2EA955
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 12:01:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729038AbhAELOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 06:14:52 -0500
-Received: from se2l-iad1.servconfig.com ([199.250.216.126]:60693 "EHLO
-        se2l-iad1.servconfig.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728507AbhAELOv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 06:14:51 -0500
-X-Greylist: delayed 11084 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 Jan 2021 06:14:50 EST
-Received: from res167.servconfig.com ([192.145.239.22])
-        by se2-iad1.servconfig.com with esmtps (TLSv1.2:AES128-GCM-SHA256:128)
-        (Exim 4.92)
-        (envelope-from <amina@lituo.sh.cn>)
-        id 1kwhJv-000LVp-2A; Tue, 05 Jan 2021 03:04:16 -0500
-Received: from [::1] (port=46814 helo=res167.servconfig.com)
-        by res167.servconfig.com with esmtpa (Exim 4.93)
-        (envelope-from <amina@lituo.sh.cn>)
-        id 1kwhIw-00HF66-8K; Tue, 05 Jan 2021 00:02:58 -0800
-MIME-Version: 1.0
-Date:   Tue, 05 Jan 2021 00:02:57 -0800
-From:   Amina <amina@lituo.sh.cn>
-To:     undisclosed-recipients:;
-Subject: Need Product List
-Reply-To: amina1662zs.sms.com@gmail.com
-Mail-Reply-To: amina1662zs.sms.com@gmail.com
-In-Reply-To: <3185334d643010de880ed56449ac346d@lituo.sh.cn>
-References: <9c79759cf8f30a9e70b199ce32ff37cc@lituo.sh.cn>
- <0f9109285ac3211c76202c2140b00b7d@lituo.sh.cn>
- <5322b167e8b63801bd65b5483d945918@lituo.sh.cn>
- <d59c195857cd56fd5e7c4962ce38c9e0@lituo.sh.cn>
- <f24039206bd9121453e1febf132c72fa@lituo.sh.cn>
- <2a9cf6dab9c0fe11900258079b0d8d19@lituo.sh.cn>
- <d37f92081bf9edf481c10737aeee8646@lituo.sh.cn>
- <05223292cbacc2c869fdd171b417f53d@lituo.sh.cn>
- <985063f4d5bfd89c2d2a55b0509128f5@lituo.sh.cn>
- <fd21a57d1b5b96d1234f4c7f3f49e200@lituo.sh.cn>
- <8211475cba1de545cb0c8ef83cc5776a@lituo.sh.cn>
- <ac669bc1e1f1cb218e051d7387d55fe8@lituo.sh.cn>
- <0fe6bfc75c366c0afcb9c109f516f525@lituo.sh.cn>
- <955ba00e326e1f278af4864b656c6fda@lituo.sh.cn>
- <eb970a39be39ab6c200d295307261a83@lituo.sh.cn>
- <51011e69cab9de21ef7caf82ff52d471@lituo.sh.cn>
- <0782e0ef3344d565e2c6f3e3ba6446ed@lituo.sh.cn>
- <b5f5b329cdc85288abe555b9b3ce0c47@lituo.sh.cn>
- <acb42a0f96bf6a1c0e3c080db40b9e21@lituo.sh.cn>
- <8cd66c3830303bdf73766fc9ea0a1bc5@lituo.sh.cn>
- <25c6e8e94cf2711114ddb279072ac312@lituo.sh.cn>
- <36564ec4422c218f326552fe84966cb4@lituo.sh.cn>
- <7daa4a6ef6f37655d6e12e8af4ae9da2@lituo.sh.cn>
- <6673e134bf7e79f9c9a6b8b987328bb7@lituo.sh.cn>
- <4852ac97636a2af8033db8a7c3421ad5@lituo.sh.cn>
- <432643b8df71018959f867e0fdcd649d@lituo.sh.cn>
- <b974619af02ee98b2af66945254de56e@lituo.sh.cn>
- <3185334d643010de880ed56449ac346d@lituo.sh.cn>
-Message-ID: <cf66033d8f404a3675cf58399f9bb40a@lituo.sh.cn>
-X-Sender: amina@lituo.sh.cn
-User-Agent: Roundcube Webmail/1.3.15
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+        id S1729252AbhAELBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 06:01:06 -0500
+Received: from mail-am6eur05on2136.outbound.protection.outlook.com ([40.107.22.136]:1376
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728507AbhAELBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 06:01:05 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KsRMHZV4HiEfIS11gWcXN2iyrz+++LaRjGk9U02fIYR0B6sEdLvKeCHt1MD412zhrOl0QH7CM3/pE91hLTlHPxgs2cHOqzB5H5raTehSFFML6SSx1J8d4TOmN/u21nvJyiXBFBjmCkXmury5IwFJOJuMavcLOBoZdwM0iPr+rrHV3dPYs/AEtMC+jHx/6Ohbw/PDb3gB1Cdw3gIJwzUaZJKg44TVqIp1oAJRLsHOaXicTNmSzALILFSiff3grMUvtQrPvXVEGin6bTHTGObPbMfMKhzxagD0ujRLVRkHBhJUH6Us00LImE7CnQGnP0Qx2hCtPGpWXXuAmxisNfZxBA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ppjNOckObFFo53/KJrGbkpz1G22jsYWFiH2tYkG29vw=;
+ b=dv0JvXoaGhE44rfqDNxI34CCEjnni1yP0Chvz0HQxw5meO/duqRVb1QNte2DiKCnnjZlL0FSSY/uJ/SiveIXeTQ8xEt5AwfLcxRbuiOappPl1Cm64NsD2joKj08jq76i+4NUUYc/xjhVb6OGdzme8FDhxq5PD26zk+6TDYVWUGquQlZHbUOwbF1f2w/z2nh+uao00dFjs/1pJNjIUWz/2agz0Is9up6iB8+PFBmPxtxBI/XT7JjUpvdr2hC4vg1vxGicPs9ewXsD1CoRo6Ea6uwXOtlFy8OMRGjFQu5vkWnhnm1YOnBy49BDOF1gNQoWS4TxvlZh7eXPnLTK+4tPQQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=prevas.dk; dmarc=pass action=none header.from=prevas.dk;
+ dkim=pass header.d=prevas.dk; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ppjNOckObFFo53/KJrGbkpz1G22jsYWFiH2tYkG29vw=;
+ b=bGR7ri4Lctwy2ijGCL9xOOu+ajo/3mhy0XQssC+4CAbfEB+aTQ33ZE3VeZNtmzmcwS5v9kfsy96bEUeGv/QWdSPEzt06MhnDzSjNTKf4rK470psa0wCnQ8s9BuAux0vOKAjgCuK0QV5r9Vad4FzbhOOi4+XdD70Sjr6b/udmkX8=
+Authentication-Results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=prevas.dk;
+Received: from AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:3f::10)
+ by AM9PR10MB4183.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:1fd::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3721.20; Tue, 5 Jan
+ 2021 11:00:17 +0000
+Received: from AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::9068:c899:48f:a8e3]) by AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::9068:c899:48f:a8e3%6]) with mapi id 15.20.3721.024; Tue, 5 Jan 2021
+ 11:00:17 +0000
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Subject: RTC pcf2127 fix for 5.10-stable
+Message-ID: <92f8f995-cd97-e978-c8d5-2093cd1fe16a@prevas.dk>
+Date:   Tue, 5 Jan 2021 12:00:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Get-Message-Sender-Via: res167.servconfig.com: authenticated_id: evelyntan@agabtx.com
-X-Authenticated-Sender: res167.servconfig.com: evelyntan@agabtx.com
-X-Originating-IP: 192.145.239.22
-X-SpamExperts-Domain: res167.servconfig.com
-X-SpamExperts-Username: 192.145.239.22
-Authentication-Results: servconfig.com; auth=pass smtp.auth=192.145.239.22@res167.servconfig.com
-X-SpamExperts-Outgoing-Class: unsure
-X-SpamExperts-Outgoing-Evidence: Combined (0.75)
-X-Recommended-Action: accept
-X-Filter-ID: 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
- uwDUBpZSzso=
-X-Report-Abuse-To: spam@se1-lax1.servconfig.com
+X-Originating-IP: [5.186.115.188]
+X-ClientProxiedBy: AM6PR10CA0050.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:209:80::27) To AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM
+ (2603:10a6:208:3f::10)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.1.149] (5.186.115.188) by AM6PR10CA0050.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:209:80::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3721.20 via Frontend Transport; Tue, 5 Jan 2021 11:00:17 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 92f68b06-817b-4893-bd59-08d8b169162f
+X-MS-TrafficTypeDiagnostic: AM9PR10MB4183:
+X-Microsoft-Antispam-PRVS: <AM9PR10MB4183986B6E875BADBA0BA70E93D10@AM9PR10MB4183.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:792;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3rBvXsiQEvOh69zFkl+WEdrO9+jXA5QH77SPUGd0L/A639RdTxWLlqvGkDgbYAzMt2nKLfcA37W8UuWAWFkz8fuUu1gqL1CS1GVmuyrmBX7GXyBYZTVrIv3IIKzpAyHJstl7noKHGJpPsF2Z22eeTtTLboE4AKH7PloU34vazWqHfjkuI50l8U3ybgFYmX4RKYZeQASW34z0M4GnUaDK98C0n1M7ssx+t/RcBHU1knzbtfNDH8IJoIuZHlAhl/1nLTd1HcZwdGaZ7H6V9I66KQ8uE0OFIHwufYql0805QRqVWHlTKZ5AaTTqhDmVqDynebyDgrskNdYYNegaE1nu2bFoej07ooJbMe+B4uR+D6OLHRtBMIms6HLwaDV8Xmxr4EzRHENZYmKR1X/hvDEIgW705KBpBk6S3bbw6AlfwpJW1+BW/Oa0SFzfnX/MbKV6Kl1TS8TUVy2OV2q6Bw7iCINRsiLipBwHjS9u8aFj/bo=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(346002)(39840400004)(376002)(366004)(396003)(136003)(8976002)(31696002)(52116002)(86362001)(6486002)(26005)(478600001)(16576012)(4326008)(956004)(44832011)(66556008)(8936002)(66476007)(54906003)(316002)(2616005)(6916009)(66946007)(2906002)(16526019)(31686004)(186003)(4744005)(8676002)(5660300002)(36756003)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: =?Windows-1252?Q?3OeXl7GO1HDq3vI8dEUZkoJMgBy1AkA6QohY1sWCpnpDCiYcS6m9EyXZ?=
+ =?Windows-1252?Q?0g5/q8eERxxTewHPmHZH/WV5NH/slGpI/WGs5cvHAE1Z5KlZEwUQzB3v?=
+ =?Windows-1252?Q?MWMLx0+wAtLRm7LfyA0QOqtKxus3vuDlo82CVGiEE/Veydcb/xXaRIL0?=
+ =?Windows-1252?Q?bO1viXm+dRvJqAOhPuvfxTTeBpWa18ekrFwa6blwLMpUnEYnG4aXG7dR?=
+ =?Windows-1252?Q?albAH/+d6t0MoFx6J9S+tnrs1DB0I6hr1X8qOwbfur7ZbJpzEzn1DIYx?=
+ =?Windows-1252?Q?7KmfwZSppLjfWW0c52QUJFfmi4+P44O5WbVctRVRwMv1YYNu4Q91zCJZ?=
+ =?Windows-1252?Q?2PAMbykEaMjaSbPbbxCHjwKh2f/JZfdmvdngUGbFJCb9Uvnb7hGQtKwJ?=
+ =?Windows-1252?Q?kHjelMQaYPLsCxiyDNiNGo+Qcim1L8wJZh7NYLH8jnFZrbVhtErX3prh?=
+ =?Windows-1252?Q?2NU/ygUvoaJnGnj1Te3rl9eEvr7xNr0ShphOCqMweOQhXre7ezp5lPgA?=
+ =?Windows-1252?Q?o7PTuJKaa5wqhS1pNA1ecBfd6FpO9Ozy8mgAOfx8rPB61gzhdWj+zbYX?=
+ =?Windows-1252?Q?Gn/N9wA5g3AJd1D/CcTx4qelU6nAtLKlYFo0bC4lD/1AlcZSfUjOMzVN?=
+ =?Windows-1252?Q?cn8gmghNi6Q77iP2tLcpb+mOCanG7VMQAwxvtILtFjoDKXMb65AwpVuE?=
+ =?Windows-1252?Q?hTVusQQsnFqle+VJVHO+OzZVnyKeb+6b7ovaq1axL8tL4RD4izL6rYGQ?=
+ =?Windows-1252?Q?VJtYL39NiTgsNuKqYBD83qRzvPcqsajUlySq45FzCRQ98u2w4lkOZgSD?=
+ =?Windows-1252?Q?PIkEIPfL3hX70Nb429qc2DpuY0sCpEF+TcCay3uy3qri/EFOPoWNdb70?=
+ =?Windows-1252?Q?qvmK7RMpUsuWySDasY+Muk+bLlIFW/Ot8ZhYyujB5xEYnp0tPyqQAPDo?=
+ =?Windows-1252?Q?np9549vsMu1njEwf63pb5vNOJMj2pgtiyW6mP1yQeynboD77awMEI0bp?=
+ =?Windows-1252?Q?oCXkEQ3aqIuxsSyLAdGpfu5lhwOhmdYe6bKYIl0psc5+zjvgOCVkoL3C?=
+ =?Windows-1252?Q?q4fd8ySzny9R4nHd?=
+X-OriginatorOrg: prevas.dk
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR10MB1874.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Jan 2021 11:00:17.4465
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: d350cf71-778d-4780-88f5-071a4cb1ed61
+X-MS-Exchange-CrossTenant-Network-Message-Id: 92f68b06-817b-4893-bd59-08d8b169162f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: IZ7RyNieS8vqdXGCkScKv84lzdHx6jXraTPBJbp03/ts99tKYmvHC09i037y1rzxqqP7XUWI5i/z/1CZMaoNh/nO7gcqhqOkGHO5Fpo1OU0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR10MB4183
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir
-Good morning
-How are you?
-I required your products list
-Please send me with your best prices
-Iâ€™m waiting for your positive response
+Hi Greg
 
-Regards.
+Please consider adding
 
-Amina.
+commit 71ac13457d9d1007effde65b54818106b2c2b525
+Author: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Date:   Fri Dec 18 11:10:54 2020 +0100
 
-M/s. Werner Finley Private Limited.
-Unit-3, No. 14, 1st Main Road.
-Peenya 1st stage.
-Bangalore-58.
+    rtc: pcf2127: only use watchdog when explicitly available
+
+to the 5.10 stable queue. You will need the preparatory refactoring patch
+
+commit 5d78533a0c53af9659227c803df944ba27cd56e0
+Author: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Date:   Thu Sep 24 12:52:55 2020 +0200
+
+    rtc: pcf2127: move watchdog initialisation to a separate function
+
+And if documentation is supposed to be kept up-to-date in the -stable
+trees, you can pick
+
+commit 320d159e2d63a97a40f24cd6dfda5a57eec65b91
+Author: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Date:   Fri Dec 18 11:10:53 2020 +0100
+
+    dt-bindings: rtc: add reset-source property
+
+Thanks,
+Rasmus
