@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766362EA75E
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B97A62EA763
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbhAEJ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 04:29:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49192 "EHLO mail.kernel.org"
+        id S1728220AbhAEJ3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 04:29:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727891AbhAEJ3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 04:29:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A71E622838;
-        Tue,  5 Jan 2021 09:28:08 +0000 (UTC)
+        id S1728212AbhAEJ3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Jan 2021 04:29:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A09C6229C4;
+        Tue,  5 Jan 2021 09:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609838889;
-        bh=UOn/Io+TVSfmSAA3PKPPcakLs9XQZNQgh1scWALYtxc=;
+        s=korg; t=1609838892;
+        bh=Z5+aEPD2YmCXh7S722110kVIqhHKgKGlfjk88M+58vY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=feb4PM/+1zSFzchXvozbkI28Si2laCY/5NmrugYBtoAeuPt+MQXa5GKIfaaLW7lDd
-         WnrIzmebU8TbwcOt5Jvol+OV8rbeoWpx72RFW3HoEiHy7EU6qXRvgBQPPLd7M/feHn
-         rCt0hNx0RRjNRCMUB58gC1SK9WMyhO41+SvunSXo=
+        b=g0201ApwxDLfGNpzQXjF2dNavidfnj3GKQHGXKznqB+ndRVdDzDiEqXzdRsvt0Fzj
+         9dwCL3bB4oZlnMKJCeBZpaK0R2avXh2MnugmIzwo8YCvtFTR19P9n4KflY8F/3lhSK
+         9WwPs/2s8wzqrOXZGaLztCJk3XgaIXfeN64+y58A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 14/29] of: fix linker-section match-table corruption
-Date:   Tue,  5 Jan 2021 10:29:00 +0100
-Message-Id: <20210105090820.382003148@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.19 15/29] Bluetooth: hci_h5: close serdev device and free hu in h5_close
+Date:   Tue,  5 Jan 2021 10:29:01 +0100
+Message-Id: <20210105090820.508449624@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210105090818.518271884@linuxfoundation.org>
 References: <20210105090818.518271884@linuxfoundation.org>
@@ -38,66 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 5812b32e01c6d86ba7a84110702b46d8a8531fe9 upstream.
+commit 70f259a3f4276b71db365b1d6ff1eab805ea6ec3 upstream.
 
-Specify type alignment when declaring linker-section match-table entries
-to prevent gcc from increasing alignment and corrupting the various
-tables with padding (e.g. timers, irqchips, clocks, reserved memory).
+When h5_close() gets called, the memory allocated for the hu gets
+freed only if hu->serdev doesn't exist. This leads to a memory leak.
+So when h5_close() is requested, close the serdev device instance and
+free the memory allocated to the hu entirely instead.
 
-This is specifically needed on x86 where gcc (typically) aligns larger
-objects like struct of_device_id with static extent on 32-byte
-boundaries which at best prevents matching on anything but the first
-entry. Specifying alignment when declaring variables suppresses this
-optimisation.
-
-Here's a 64-bit example where all entries are corrupt as 16 bytes of
-padding has been inserted before the first entry:
-
-	ffffffff8266b4b0 D __clk_of_table
-	ffffffff8266b4c0 d __of_table_fixed_factor_clk
-	ffffffff8266b5a0 d __of_table_fixed_clk
-	ffffffff8266b680 d __clk_of_table_sentinel
-
-And here's a 32-bit example where the 8-byte-aligned table happens to be
-placed on a 32-byte boundary so that all but the first entry are corrupt
-due to the 28 bytes of padding inserted between entries:
-
-	812b3ec0 D __irqchip_of_table
-	812b3ec0 d __of_table_irqchip1
-	812b3fa0 d __of_table_irqchip2
-	812b4080 d __of_table_irqchip3
-	812b4160 d irqchip_of_match_end
-
-Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
-alignment), and on arm using gcc-7.2.
-
-Note that there are no in-tree users of these tables on x86 currently
-(even if they are included in the image).
-
-Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
-Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
-Cc: stable <stable@vger.kernel.org>     # 3.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
-[ johan: adjust context to 5.4 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: https://syzkaller.appspot.com/bug?extid=6ce141c55b2f7aafd1c4
+Reported-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
+Tested-by: syzbot+6ce141c55b2f7aafd1c4@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/of.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/bluetooth/hci_h5.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1258,6 +1258,7 @@ static inline int of_get_available_child
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section(__##table##_of_table)			\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -263,8 +263,12 @@ static int h5_close(struct hci_uart *hu)
+ 	if (h5->vnd && h5->vnd->close)
+ 		h5->vnd->close(h5);
+ 
+-	if (!hu->serdev)
+-		kfree(h5);
++	if (hu->serdev)
++		serdev_device_close(hu->serdev);
++
++	kfree_skb(h5->rx_skb);
++	kfree(h5);
++	h5 = NULL;
+ 
+ 	return 0;
+ }
 
 
