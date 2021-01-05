@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C690D2EA27D
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C016E2EA259
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbhAEBCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 20:02:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39214 "EHLO mail.kernel.org"
+        id S1728487AbhAEBB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 20:01:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728481AbhAEBB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728482AbhAEBB0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 4 Jan 2021 20:01:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF5E222B4E;
-        Tue,  5 Jan 2021 01:00:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E421F22B51;
+        Tue,  5 Jan 2021 01:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609808430;
-        bh=05k6J7XX5CcVVYVvhiru1G3Wgu1uuHvQuwTtm2y06l8=;
+        s=k20201202; t=1609808431;
+        bh=gWKgDk65pk4N3a3WPjK1gyEft3PaJi9n7dDh+HCNjlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOot9OiBadT38iNXfp8e5XGaKpZM34HAkAR8BQhJVenZTq336HL4K5nwZnuXnONII
-         ehg+qI76egCUkZCN69W9yvXw9ipgRGfwquCaPM98Dw3rpvfPCc7xxg1S6TKhjdPBmY
-         dYVYR2AK9M9QaTAWzkKjOJxOxWxzPntlWncjXmyefarKGmoXpVjMbF0jp17TyTwEeS
-         R7Va4ZUOrOMAdi/A5dkbPPzlxuvaRPHA/ajWnzaxJvdDwM6ktFVURQxjE3dBsqkM1P
-         TPV+adPzEb8v2Rn24Pjv8hprycNSHinVTpAAlo4+J+r2FGogGghnT62j1ZsF2f+zgl
-         iYecSXl4T63Wg==
+        b=iIZdvZSrJfFqnynzy9F7VChHBVKgcXOxNYmFGSt33yXib5xeBQJBwwlmO9xhk8GR8
+         4A3ctW19btSYurmeEimwmPHipb15BlsOkNKlMIJ32QrtEI3udZ3e/fuQvDmVpA6Ek3
+         osrfynGEqnA1+lQv8wqkxKQKehguYzRpCFNW54EByRaJjjUcJ0C0YPGNu50YWM6Uv3
+         93A4UV6vZtK4ylK2/iJeg5AhRd9sJnP0adaeSo5322tO9VEe41kbhUVXwQ7JM61hMF
+         w7A4UPXCyYsrCOLN+0YItcL6fSktqHXWyGrVF1XfuPS3jo4EPWkY80PspCMQB3AxA5
+         Dx7F3Wo0vZcGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Shijie <sjhuang@iluvatar.ai>,
-        Shi Jiasheng <jiasheng.shi@iluvatar.ai>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 2/3] lib/genalloc: fix the overflow when size is too big
-Date:   Mon,  4 Jan 2021 20:00:26 -0500
-Message-Id: <20210105010027.3954808-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 3/3] depmod: handle the case of /sbin/depmod without /sbin in PATH
+Date:   Mon,  4 Jan 2021 20:00:27 -0500
+Message-Id: <20210105010027.3954808-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210105010027.3954808-1-sashal@kernel.org>
 References: <20210105010027.3954808-1-sashal@kernel.org>
@@ -44,129 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Shijie <sjhuang@iluvatar.ai>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 36845663843fc59c5d794e3dc0641472e3e572da ]
+[ Upstream commit cedd1862be7e666be87ec824dabc6a2b05618f36 ]
 
-Some graphic card has very big memory on chip, such as 32G bytes.
+Commit 436e980e2ed5 ("kbuild: don't hardcode depmod path") stopped
+hard-coding the path of depmod, but in the process caused trouble for
+distributions that had that /sbin location, but didn't have it in the
+PATH (generally because /sbin is limited to the super-user path).
 
-In the following case, it will cause overflow:
+Work around it for now by just adding /sbin to the end of PATH in the
+depmod.sh script.
 
-    pool = gen_pool_create(PAGE_SHIFT, NUMA_NO_NODE);
-    ret = gen_pool_add(pool, 0x1000000, SZ_32G, NUMA_NO_NODE);
-
-    va = gen_pool_alloc(pool, SZ_4G);
-
-The overflow occurs in gen_pool_alloc_algo_owner():
-
-		....
-		size = nbits << order;
-		....
-
-The @nbits is "int" type, so it will overflow.
-Then the gen_pool_avail() will return the wrong value.
-
-This patch converts some "int" to "unsigned long", and
-changes the compare code in while.
-
-Link: https://lkml.kernel.org/r/20201229060657.3389-1-sjhuang@iluvatar.ai
-Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
-Reported-by: Shi Jiasheng <jiasheng.shi@iluvatar.ai>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-and-tested-by: Sedat Dilek <sedat.dilek@gmail.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/genalloc.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ scripts/depmod.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index e3a475b14e260..b8ac0450a2a68 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -83,14 +83,14 @@ static int clear_bits_ll(unsigned long *addr, unsigned long mask_to_clear)
-  * users set the same bit, one user will return remain bits, otherwise
-  * return 0.
-  */
--static int bitmap_set_ll(unsigned long *map, int start, int nr)
-+static int bitmap_set_ll(unsigned long *map, unsigned long start, unsigned long nr)
- {
- 	unsigned long *p = map + BIT_WORD(start);
--	const int size = start + nr;
-+	const unsigned long size = start + nr;
- 	int bits_to_set = BITS_PER_LONG - (start % BITS_PER_LONG);
- 	unsigned long mask_to_set = BITMAP_FIRST_WORD_MASK(start);
+diff --git a/scripts/depmod.sh b/scripts/depmod.sh
+index baedaef53ca05..b0cb89e73bc56 100755
+--- a/scripts/depmod.sh
++++ b/scripts/depmod.sh
+@@ -14,6 +14,8 @@ if ! test -r System.map ; then
+ 	exit 0
+ fi
  
--	while (nr - bits_to_set >= 0) {
-+	while (nr >= bits_to_set) {
- 		if (set_bits_ll(p, mask_to_set))
- 			return nr;
- 		nr -= bits_to_set;
-@@ -118,14 +118,15 @@ static int bitmap_set_ll(unsigned long *map, int start, int nr)
-  * users clear the same bit, one user will return remain bits,
-  * otherwise return 0.
-  */
--static int bitmap_clear_ll(unsigned long *map, int start, int nr)
-+static unsigned long
-+bitmap_clear_ll(unsigned long *map, unsigned long start, unsigned long nr)
- {
- 	unsigned long *p = map + BIT_WORD(start);
--	const int size = start + nr;
-+	const unsigned long size = start + nr;
- 	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
- 	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
- 
--	while (nr - bits_to_clear >= 0) {
-+	while (nr >= bits_to_clear) {
- 		if (clear_bits_ll(p, mask_to_clear))
- 			return nr;
- 		nr -= bits_to_clear;
-@@ -184,8 +185,8 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
- 		 size_t size, int nid)
- {
- 	struct gen_pool_chunk *chunk;
--	int nbits = size >> pool->min_alloc_order;
--	int nbytes = sizeof(struct gen_pool_chunk) +
-+	unsigned long nbits = size >> pool->min_alloc_order;
-+	unsigned long nbytes = sizeof(struct gen_pool_chunk) +
- 				BITS_TO_LONGS(nbits) * sizeof(long);
- 
- 	chunk = vzalloc_node(nbytes, nid);
-@@ -242,7 +243,7 @@ void gen_pool_destroy(struct gen_pool *pool)
- 	struct list_head *_chunk, *_next_chunk;
- 	struct gen_pool_chunk *chunk;
- 	int order = pool->min_alloc_order;
--	int bit, end_bit;
-+	unsigned long bit, end_bit;
- 
- 	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
- 		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
-@@ -274,7 +275,7 @@ unsigned long gen_pool_alloc(struct gen_pool *pool, size_t size)
- 	struct gen_pool_chunk *chunk;
- 	unsigned long addr = 0;
- 	int order = pool->min_alloc_order;
--	int nbits, start_bit, end_bit, remain;
-+	unsigned long nbits, start_bit, end_bit, remain;
- 
- #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	BUG_ON(in_nmi());
-@@ -357,7 +358,7 @@ void gen_pool_free(struct gen_pool *pool, unsigned long addr, size_t size)
- {
- 	struct gen_pool_chunk *chunk;
- 	int order = pool->min_alloc_order;
--	int start_bit, nbits, remain;
-+	unsigned long start_bit, nbits, remain;
- 
- #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	BUG_ON(in_nmi());
-@@ -553,7 +554,7 @@ unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
- 	index = bitmap_find_next_zero_area(map, size, start, nr, 0);
- 
- 	while (index < size) {
--		int next_bit = find_next_bit(map, size, index + nr);
-+		unsigned long next_bit = find_next_bit(map, size, index + nr);
- 		if ((next_bit - index) < len) {
- 			len = next_bit - index;
- 			start_bit = index;
++# legacy behavior: "depmod" in /sbin, no /sbin in PATH
++PATH="$PATH:/sbin"
+ if [ -z $(command -v $DEPMOD) ]; then
+ 	echo "Warning: 'make modules_install' requires $DEPMOD. Please install it." >&2
+ 	echo "This is probably in the kmod package." >&2
 -- 
 2.27.0
 
