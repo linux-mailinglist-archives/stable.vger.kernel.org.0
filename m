@@ -2,314 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A17CC2EAE40
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 16:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8952EAEDC
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 16:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbhAEP2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 10:28:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S1728217AbhAEPjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 10:39:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727924AbhAEP2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 10:28:22 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E775FC061574
-        for <stable@vger.kernel.org>; Tue,  5 Jan 2021 07:27:41 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id q22so18516953pfk.12
-        for <stable@vger.kernel.org>; Tue, 05 Jan 2021 07:27:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KEQdrwo9ATy14VRUm6tXbd38OS0m62CwERCjsJymR2M=;
-        b=HK553sx/Yeg86gSSX8Wz8keDoULNj37zuOIh6LyfdEQH7O0lvzrVoXB/3VZq4kxo3w
-         jW1hpj5d63py1qsHCSVrJ4ecLP5VrBCrEHTKAjvC0YJgIGKV3twqneG7JahQUQuF+PhP
-         xko4cyFdSmood6/OZrEumWVmw0nyj8iD+fNbRzueu6l5Rqn3omYSwswRR2Wv/GzgWhD2
-         DvRC9PPRS8dg/O/rsXuHEUyUDNOE+dwJMSA4FlLGNSJeY2pa3YQhoBd2Puyf80ATf0j/
-         E2bE3c+Yu/YTRMNioLrYqzWgjaousDiruHPf0cZUZFhQNEbk3P9M2dTbVYvuhnF0hxRu
-         2iPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KEQdrwo9ATy14VRUm6tXbd38OS0m62CwERCjsJymR2M=;
-        b=Qi6impf1hZZZWx8MyTlYsJIfuTU/31Q7ogCbMUo8vXcEDm6+K5aExCDPFzBG4Jh+8d
-         EYJq4qu76wgbM9/3z+5YlhIEA7XJVQfOy7V3J4LpGwArLIEBywnjrB40PPlHyEGmDSBv
-         UjXbTfTePTaahcqiIokcqdyCr8WOr4OHtkk4wxBo3AZ2v4w81YxBLbhtpI6SWp7wS8zy
-         U/LpHyrZJnBNJfQ4DSnhbukrOdxfXFq0fDXwDyaFhXefzgM+0A/7fcXSaA8plrLFiWuV
-         DogFCkuCdngvvd8EOdBxbTfE5cuQtMRre5k/Fp33KLy5GlxmZeC9lmsS3X3nIUkASGg0
-         ZzRg==
-X-Gm-Message-State: AOAM5316hTAI12O8NWIdFAidzCshdtCinAWXArzbKhND75FDznHlNq4a
-        J0P4LdayUAJCVRPbegAP/+xpndq+58Ba6A==
-X-Google-Smtp-Source: ABdhPJwFa2lB4ThCwGGTssy1alsr1/zHF/2DgUy9n7AcyZBrNt2Nx5WfyJAbhn3+oLgupyQiUCk8uw==
-X-Received: by 2002:a62:1749:0:b029:19d:960c:1bb8 with SMTP id 70-20020a6217490000b029019d960c1bb8mr71699907pfx.63.1609860461107;
-        Tue, 05 Jan 2021 07:27:41 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i13sm177025pgd.32.2021.01.05.07.27.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Jan 2021 07:27:40 -0800 (PST)
-Message-ID: <5ff4856c.1c69fb81.73aa8.0631@mx.google.com>
-Date:   Tue, 05 Jan 2021 07:27:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1728142AbhAEPjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 10:39:31 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C1E7C061574;
+        Tue,  5 Jan 2021 07:38:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=4gg5v8gYolfKEI/M5DZ6ILyDSGPGL00ihhXUV/cqmCI=; b=cOauWB3Xr42RBSMHO7PQU/Qyh1
+        /QNF1n5YXhHE7cyf9lPTvk7S8GVTlyJY+bYDID/AYz8XgqcAFcbA0eT2tmoaVdAQ0jgrzd+2JWI9g
+        uU5u/fBnPw50d7SVBgO+f0Z6fhZZQh5bWC+4QlSvSqHUQ72s0Y3U64m9FJ/KFrCYjJjzFKJ2hiM+F
+        rfi/+aQc7Xg4VUoC2BRDbKE9C7DEB+qZIXLt7BLi0XKXJ6E9gOQ1eGoqwGzCyvU1m5Vr1tKFERCBy
+        wXAtq1knz8fFQxQ7iU+7Wgqnvtq8B6GmTELgqMsYYf+0dJayBCOFk2gXiUhlIA+prgnK6qaeP8n61
+        9tCKnPQQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1kwoOm-001OSY-K1; Tue, 05 Jan 2021 15:37:47 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 4D3E230015A;
+        Tue,  5 Jan 2021 16:37:27 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 3ED9E201B8B84; Tue,  5 Jan 2021 16:37:27 +0100 (CET)
+Date:   Tue, 5 Jan 2021 16:37:27 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andy Lutomirski <luto@kernel.org>, Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>, Will Deacon <will@kernel.org>
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+References: <X+D0hTZCrWS3P5Pi@google.com>
+ <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+ <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
+ <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
+ <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.249-24-g85c1baf2e49aa
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 126 runs,
- 6 regressions (v4.9.249-24-g85c1baf2e49aa)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 126 runs, 6 regressions (v4.9.249-24-g85c1baf=
-2e49aa)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.249-24-g85c1baf2e49aa/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.249-24-g85c1baf2e49aa
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      85c1baf2e49aaf42f5cdcc0c4b0e712fcc31d8d1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff451dd6e13871e4ac94ce2
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ff451dd6e13871=
-e4ac94ce7
-        failing since 12 days (last pass: v4.9.248-48-g718e3a8728c0d, first=
- fail: v4.9.248-49-gb763f0168900)
-        2 lines
-
-    2021-01-05 11:47:36.969000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/127
-    2021-01-05 11:47:36.978000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff24c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff4528d3e2da9d027c94cd1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff4528d3e2da9d027c94=
-cd2
-        failing since 52 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff452aee46b3e0729c94ccb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff452aee46b3e0729c94=
-ccc
-        failing since 52 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff45295014f3b6788c94cd5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff45295014f3b6788c94=
-cd6
-        failing since 52 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff45784ea5aad7c5fc94ce8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff45784ea5aad7c5fc94=
-ce9
-        failing since 52 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff47131943d21ef55c94cd3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.249-2=
-4-g85c1baf2e49aa/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff47131943d21ef55c94=
-cd4
-        failing since 52 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
-fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+On Mon, Dec 21, 2020 at 08:16:11PM -0800, Linus Torvalds wrote:
+
+> So I think the basic rule is that "if you hold mmap_sem for writing,
+> you're always safe". And that really should be considered the
+> "default" locking.
+> 
+> ANY time you make a modification to the VM layer, you should basically
+> always treat it as a write operation, and get the mmap_sem for
+> writing.
+> 
+> Yeah, yeah, that's a bit simplified, and it ignores various special
+> cases (and the hardware page table walkers that obviously take no
+> locks at all), but if you hold the mmap_sem for writing you won't
+> really race with anything else - not page faults, and not other
+> "modify this VM".
+
+> To a first approximation, everybody that changes the VM should take
+> the mmap_sem for writing, and the readers should just be just about
+> page fault handling (and I count GUP as "page fault handling" too -
+> it's kind of the same "look up page" rather than "modify vm" kind of
+> operation).
+> 
+> And there are just a _lot_ more page faults than there are things that
+> modify the page tables and the vma's.
+> 
+> So having that mental model of "lookup of pages in a VM take mmap_semn
+> for reading, any modification of the VM uses it for writing" makes
+> sense both from a performance angle and a logical standpoint. It's the
+> correct model.
+
+> And it's worth noting that COW is still "lookup of pages", even though
+> it might modify the page tables in the process. The same way lookup
+> can modify the page tables to mark things accessed or dirty.
+> 
+> So COW is still a lookup operation, in ways that "change the
+> writabiility of this range" very much is not. COW is "lookup for
+> write", and the magic we do to copy to make that write valid is still
+> all about the lookup of the page.
+
+(your other email clarified this point; the COW needs to copy while
+holding the PTL and we need TLBI under PTL if we're to change this)
+
+> Which brings up another mental mistake I saw earlier in this thread:
+> you should not think "mmap_sem is for vma, and the page table lock is
+> for the page table changes".
+> 
+> mmap_sem is the primary lock for any modifications to the VM layout,
+> whether it be in the vma's or in the page tables.
+> 
+> Now, the page table lock does exist _in_addition_to_ the mmap_sem, but
+> it is partly because
+> 
+>  (a) we have things that historically walked the page tables _without_
+> walking the vma's (notably the virtual memory scanning)
+> 
+>  (b) we do allow concurrent page faults, so we then need a lower-level
+> lock to serialize the parallelism we _do_ have.
+
+And I'm thinking the speculative page fault series steps right into all
+this, it fundamentally avoids mmap_sem and entirely relies on the PTL.
+
+Which opens it up to exactly these races explored here.
+
+The range lock approach does not suffer this, but I'm still worried
+about the actual performance of that thing.
