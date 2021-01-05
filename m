@@ -2,78 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3E32EB2AE
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 19:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA592EB2C3
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 19:47:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726653AbhAESgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 13:36:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39238 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725838AbhAESgP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 13:36:15 -0500
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8495CC061795
-        for <stable@vger.kernel.org>; Tue,  5 Jan 2021 10:35:35 -0800 (PST)
-Received: by mail-il1-x134.google.com with SMTP id q1so620117ilt.6
-        for <stable@vger.kernel.org>; Tue, 05 Jan 2021 10:35:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=WfmCKsV1w0JUF2QRxfEJ48eLQ078CnWCUJqZyL3Kbng=;
-        b=rCa/G3QtmIf2y4BArqWZtVw8fuWX3ThfKx0r7WIxQNsSMHuVVuS85pLo2eJNPzq/G2
-         WU5DeOfKL/d+mdvfNzTDU1+x6asCM3ueBS/I6OSyOtfHyvdcqzPuMGQ2rkehRl47zsJy
-         y4d6EzgDNiw/Op0PMX5YHl/3t+SHZYaTgsrFGwRst7QkKBxjBQq17i7QmPuKS+r02ZYn
-         DhPA38BSi9YU3FLU+MPJ2AG6ND/6Z7RAERS63FEBuKbsm5h+gUF0g5O1gPVTobC0YH0D
-         RcuUl6cIjXNQpbiBTsu6NYh5tJQQ2EMKpnY2BhLib0BO1HFSeDg5Pt2Kh1L2zHHpQ/8S
-         b5Gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WfmCKsV1w0JUF2QRxfEJ48eLQ078CnWCUJqZyL3Kbng=;
-        b=Z1FBwEtFehyqU8Ci5YW85bTwduSnX+b4dIq/NY9SeaVGqcsVxEQ5h3rdhkKy+c0yq+
-         aPz2nP/F0OWyCLPqnPFFfz6XUyg1wD6YwSYemFBJFeVG19ALH+JkUE4sj6jTBK0lJLB5
-         hG4zXGvROXj7GWvYPjZgJVloNCDlURmupjB52SggHf9r4bHgpGPE6LOKsgPj4ZS3Ll0w
-         9qxdKEcZII5G36jOIv4TUd6l/A+6PLLrTsk0ZUhYvX+OvIQz8E1gtzlOG0RdiN08wyRx
-         E8tGiWqKZpaOh7mZcPfDWkdB4F9+Wig3/HUwJD/R3tLTxObf1B/QTKv8HmAKJADnu6n0
-         flvg==
-X-Gm-Message-State: AOAM533NnUPurllk2+G36UKH/rqyZPETNI+vhmEFJ0CDVUQPSxEe2Drl
-        81dclW7wHvFGxdqWdfZveKlCGw==
-X-Google-Smtp-Source: ABdhPJzsUG1CkQ0ckjLx1Hj7liQGqnIgWBDT2gTlQjk9E5MWh+DRFpuGKpf31r5ZtYxgqyfRJkoZAQ==
-X-Received: by 2002:a92:c986:: with SMTP id y6mr925153iln.57.1609871734975;
-        Tue, 05 Jan 2021 10:35:34 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id s1sm60843iot.0.2021.01.05.10.35.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Jan 2021 10:35:34 -0800 (PST)
-Subject: Re: [PATCH] block: fix use-after-free in disk_part_iter_next
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        stable@vger.kernel.org,
-        syzbot+825f0f9657d4e528046e@syzkaller.appspotmail.com
-References: <20201221043335.2831589-1-ming.lei@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <5ca75477-ca88-01a1-1581-ad2e8ecf3804@kernel.dk>
-Date:   Tue, 5 Jan 2021 11:35:33 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20201221043335.2831589-1-ming.lei@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+        id S1728799AbhAESrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 13:47:13 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49163 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726258AbhAESrM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 13:47:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1609872346;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=K1TAF9Fcst8dyNOllX1PJEA1E2V0hS7RDbI5Vu/KXE0=;
+        b=Y1O/dKD5WtWpvF3tf+ApJEndS+iZMxZJHIb9OaqhvBHVxqqJ3Ar5d4A60JnphJ/EXsIFp3
+        y8LEcA/X2lfTnJuvRc7Lfoc2KUL65QD1qUhJvDr8Zpb2B/T2WNgcIfjo7hq0P29CjBgmFK
+        LHsNThNfWg2CLzabfukdW4t0sIf0rzY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-340-UEURmLKoN4uLTga7Rrh3Gw-1; Tue, 05 Jan 2021 13:45:44 -0500
+X-MC-Unique: UEURmLKoN4uLTga7Rrh3Gw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 82D7F10054FF;
+        Tue,  5 Jan 2021 18:45:42 +0000 (UTC)
+Received: from ovpn-115-104.rdu2.redhat.com (ovpn-115-104.rdu2.redhat.com [10.10.115.104])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2B4AB60BE5;
+        Tue,  5 Jan 2021 18:45:38 +0000 (UTC)
+Message-ID: <67ef893f27551f80ecf49ef78c0ebc05d3e41b46.camel@redhat.com>
+Subject: Re: [PATCH v2 2/2] mm: fix initialization of struct page for holes
+ in memory layout
+From:   Qian Cai <qcai@redhat.com>
+To:     Mike Rapoport <rppt@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Baoquan He <bhe@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux Next Mailing List <linux-next@vger.kernel.org>
+Date:   Tue, 05 Jan 2021 13:45:37 -0500
+In-Reply-To: <20210105082403.GA1106298@kernel.org>
+References: <20201209214304.6812-1-rppt@kernel.org>
+         <20201209214304.6812-3-rppt@kernel.org>
+         <768cb57d6ef0989293b3f9fbe0af8e8851723ea1.camel@redhat.com>
+         <20210105082403.GA1106298@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/20/20 9:33 PM, Ming Lei wrote:
-> Make sure that bdgrab() is done on the 'block_device' instance before
-> referring to it for avoiding use-after-free.
+On Tue, 2021-01-05 at 10:24 +0200, Mike Rapoport wrote:
+> Hi,
+> 
+> On Mon, Jan 04, 2021 at 02:03:00PM -0500, Qian Cai wrote:
+> > On Wed, 2020-12-09 at 23:43 +0200, Mike Rapoport wrote:
+> > > From: Mike Rapoport <rppt@linux.ibm.com>
+> > > 
+> > > Interleave initialization of pages that correspond to holes with the
+> > > initialization of memory map, so that zone and node information will be
+> > > properly set on such pages.
+> > > 
+> > > Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions
+> > > rather
+> > > that check each PFN")
+> > > Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+> > > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > Reverting this commit on the top of today's linux-next fixed a crash while
+> > reading /proc/kpagecount on a NUMA server.
+> 
+> Can you please post the entire dmesg?
 
-Applied, thanks.
+http://people.redhat.com/qcai/dmesg.txt
 
--- 
-Jens Axboe
+> Is it possible to get the pfn that triggered the crash?
+
+Do you have any idea how to convert that fffffffffffffffe to pfn as it is always
+that address? I don't understand what that address is though. I tried to catch
+it from struct page pointer and page_address() without luck.
+
+>  
+> > [ 8858.006726][T99897] BUG: unable to handle page fault for address:
+> > fffffffffffffffe
+> > [ 8858.014814][T99897] #PF: supervisor read access in kernel mode
+> > [ 8858.020686][T99897] #PF: error_code(0x0000) - not-present page
+> > [ 8858.026557][T99897] PGD 1371417067 P4D 1371417067 PUD 1371419067 PMD 0 
+> > [ 8858.033224][T99897] Oops: 0000 [#1] SMP KASAN NOPTI
+> > [ 8858.038710][T99897] CPU: 28 PID: 99897 Comm: proc01 Tainted:
+> > G           O      5.11.0-rc1-next-20210104 #1
+> > [ 8858.048515][T99897] Hardware name: HPE ProLiant DL385 Gen10/ProLiant
+> > DL385 Gen10, BIOS A40 03/09/2018
+> > [ 8858.057794][T99897] RIP: 0010:kpagecount_read+0x1be/0x5e0
+> > PageSlab at include/linux/page-flags.h:342
+> > (inlined by) kpagecount_read at fs/proc/page.c:69
 
