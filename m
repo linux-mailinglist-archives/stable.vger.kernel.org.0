@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DFF2EA24B
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C39A92EA250
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 02:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbhAEBBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 20:01:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39242 "EHLO mail.kernel.org"
+        id S1728392AbhAEBBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 20:01:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728377AbhAEBBN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Jan 2021 20:01:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F2CA22B45;
-        Tue,  5 Jan 2021 01:00:22 +0000 (UTC)
+        id S1728382AbhAEBBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Jan 2021 20:01:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8BE122B2A;
+        Tue,  5 Jan 2021 01:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609808423;
-        bh=MYM37uODWsKeqUYiME2eaMnBLxDgO0Kqe4gjPegcPuQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=oS43iOEnYft88iZyt47ak3rbGoWVso2CaLzyxtPBoO82Ohq6So2UNUY2Tyw8q9YN0
-         3vZ4U/BWiOQblImE8AUlBh6vwYPOj2WZQuI8HQ9iYt0ZPUli140NxvKGnnC2Vcj8S1
-         bb/nNbE7jyhvOvVpMWHaB2e6+JNFP8szPoy73stFERqckuPDxY0mkKN66FE7cVaFN8
-         SZBDGHpNiaUwiEVZcovt+GCVYuyoW85kN0/aT8HNnOC89NDfmegWtys23RIDVYt7i3
-         /IwV6qNYlOIu5IaIV9enOvgdxGHOPMXs3Y9GWJz/FvvXo6vQ37iGVmlaG+Kh+MGJE3
-         KH8yyP1DekN2g==
+        s=k20201202; t=1609808424;
+        bh=bk13fLs1ymZhLdlnCKqJCsQVVqW2oHC+uiNcHZZ4kME=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oTmw5Tc67oDIFTem8X0PO97gRrBtiM2rW5YaFpd4O5G8cUKU6NGw882+3Lg+ekGfk
+         bwl28iyjG01fNKTn0YwHDR4kOYavg4olzys9sM40MDYTeLi/Xa5tjbH+56/RxxIcf/
+         mtMF2NAuBUGz03rzQ/jwP9eA0khzGAPLiy7iSmfujXZM28wJLrWYKnZqBZLYQPIUUA
+         ShP/LWAUtQx7GyQMvOeN43klnDdBatQxIG2/4V305uEzTBcCwsSQQt7LlQlU+NeG+h
+         QQGQg3zctyxOx4SvntETyInjOUX0IGnM4DIIyUfSyVgyJyzzk9/JT+JoB7cJgkeVUl
+         N/RKBW5DVkgLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 1/4] workqueue: Kick a worker based on the actual activation of delayed works
-Date:   Mon,  4 Jan 2021 20:00:18 -0500
-Message-Id: <20210105010021.3954725-1-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 2/4] kdev_t: always inline major/minor helper functions
+Date:   Mon,  4 Jan 2021 20:00:19 -0500
+Message-Id: <20210105010021.3954725-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210105010021.3954725-1-sashal@kernel.org>
+References: <20210105010021.3954725-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,66 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 01341fbd0d8d4e717fc1231cdffe00343088ce0b ]
+[ Upstream commit aa8c7db494d0a83ecae583aa193f1134ef25d506 ]
 
-In realtime scenario, We do not want to have interference on the
-isolated cpu cores. but when invoking alloc_workqueue() for percpu wq
-on the housekeeping cpu, it kick a kworker on the isolated cpu.
+Silly GCC doesn't always inline these trivial functions.
 
-  alloc_workqueue
-    pwq_adjust_max_active
-      wake_up_worker
+Fixes the following warning:
 
-The comment in pwq_adjust_max_active() said:
-  "Need to kick a worker after thawed or an unbound wq's
-   max_active is bumped"
+  arch/x86/kernel/sys_ia32.o: warning: objtool: cp_stat64()+0xd8: call to new_encode_dev() with UACCESS enabled
 
-So it is unnecessary to kick a kworker for percpu's wq when invoking
-alloc_workqueue(). this patch only kick a worker based on the actual
-activation of delayed works.
-
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Link: https://lkml.kernel.org/r/984353b44a4484d86ba9f73884b7306232e25e30.1608737428.git.jpoimboe@redhat.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>	[build-tested]
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ include/linux/kdev_t.h | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 00c295d3104bb..205c3131f8b05 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3448,17 +3448,24 @@ static void pwq_adjust_max_active(struct pool_workqueue *pwq)
- 	 * is updated and visible.
- 	 */
- 	if (!freezable || !workqueue_freezing) {
-+		bool kick = false;
-+
- 		pwq->max_active = wq->saved_max_active;
+diff --git a/include/linux/kdev_t.h b/include/linux/kdev_t.h
+index 8e9e288b08c13..05d86addeaf1e 100644
+--- a/include/linux/kdev_t.h
++++ b/include/linux/kdev_t.h
+@@ -20,61 +20,61 @@
+ 	})
  
- 		while (!list_empty(&pwq->delayed_works) &&
--		       pwq->nr_active < pwq->max_active)
-+		       pwq->nr_active < pwq->max_active) {
- 			pwq_activate_first_delayed(pwq);
-+			kick = true;
-+		}
+ /* acceptable for old filesystems */
+-static inline bool old_valid_dev(dev_t dev)
++static __always_inline bool old_valid_dev(dev_t dev)
+ {
+ 	return MAJOR(dev) < 256 && MINOR(dev) < 256;
+ }
  
- 		/*
- 		 * Need to kick a worker after thawed or an unbound wq's
--		 * max_active is bumped.  It's a slow path.  Do it always.
-+		 * max_active is bumped. In realtime scenarios, always kicking a
-+		 * worker will cause interference on the isolated cpu cores, so
-+		 * let's kick iff work items were activated.
- 		 */
--		wake_up_worker(pwq->pool);
-+		if (kick)
-+			wake_up_worker(pwq->pool);
- 	} else {
- 		pwq->max_active = 0;
- 	}
+-static inline u16 old_encode_dev(dev_t dev)
++static __always_inline u16 old_encode_dev(dev_t dev)
+ {
+ 	return (MAJOR(dev) << 8) | MINOR(dev);
+ }
+ 
+-static inline dev_t old_decode_dev(u16 val)
++static __always_inline dev_t old_decode_dev(u16 val)
+ {
+ 	return MKDEV((val >> 8) & 255, val & 255);
+ }
+ 
+-static inline u32 new_encode_dev(dev_t dev)
++static __always_inline u32 new_encode_dev(dev_t dev)
+ {
+ 	unsigned major = MAJOR(dev);
+ 	unsigned minor = MINOR(dev);
+ 	return (minor & 0xff) | (major << 8) | ((minor & ~0xff) << 12);
+ }
+ 
+-static inline dev_t new_decode_dev(u32 dev)
++static __always_inline dev_t new_decode_dev(u32 dev)
+ {
+ 	unsigned major = (dev & 0xfff00) >> 8;
+ 	unsigned minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
+ 	return MKDEV(major, minor);
+ }
+ 
+-static inline u64 huge_encode_dev(dev_t dev)
++static __always_inline u64 huge_encode_dev(dev_t dev)
+ {
+ 	return new_encode_dev(dev);
+ }
+ 
+-static inline dev_t huge_decode_dev(u64 dev)
++static __always_inline dev_t huge_decode_dev(u64 dev)
+ {
+ 	return new_decode_dev(dev);
+ }
+ 
+-static inline int sysv_valid_dev(dev_t dev)
++static __always_inline int sysv_valid_dev(dev_t dev)
+ {
+ 	return MAJOR(dev) < (1<<14) && MINOR(dev) < (1<<18);
+ }
+ 
+-static inline u32 sysv_encode_dev(dev_t dev)
++static __always_inline u32 sysv_encode_dev(dev_t dev)
+ {
+ 	return MINOR(dev) | (MAJOR(dev) << 18);
+ }
+ 
+-static inline unsigned sysv_major(u32 dev)
++static __always_inline unsigned sysv_major(u32 dev)
+ {
+ 	return (dev >> 18) & 0x3fff;
+ }
+ 
+-static inline unsigned sysv_minor(u32 dev)
++static __always_inline unsigned sysv_minor(u32 dev)
+ {
+ 	return dev & 0x3ffff;
+ }
 -- 
 2.27.0
 
