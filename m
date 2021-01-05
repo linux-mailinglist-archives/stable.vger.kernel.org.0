@@ -2,88 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FBD2EB01B
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 17:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 915422EB046
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 17:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725868AbhAEQdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 11:33:10 -0500
-Received: from mail1.ugh.no ([178.79.162.34]:58008 "EHLO mail1.ugh.no"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728752AbhAEQdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Jan 2021 11:33:10 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail1.ugh.no (Postfix) with ESMTP id EB58D253956;
-        Tue,  5 Jan 2021 17:32:28 +0100 (CET)
-Received: from mail1.ugh.no ([127.0.0.1])
-        by localhost (catastrophix.ugh.no [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id pfSrOnDksqq7; Tue,  5 Jan 2021 17:32:28 +0100 (CET)
-Received: from [IPv6:2a0a:2780:4d57:40:54fd:5612:86a2:2c2f] (unknown [IPv6:2a0a:2780:4d57:40:54fd:5612:86a2:2c2f])
+        id S1728034AbhAEQik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 11:38:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48482 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727791AbhAEQik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 11:38:40 -0500
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 027A9C061574;
+        Tue,  5 Jan 2021 08:37:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=Zn9Jeh+wfsmeZ8Kq39gSdD4WJohBEoNPA6/OyBxQvc4=; b=W9LdNbFyUJiYe4Igi7trBCh09W
+        dU5OhOWsJnmIDyHBzwHRZTyPMFx64HwIbTXQBh7gyCJzdWcUsEQ2WxRAJWskQiOuEhy0b6bE152NZ
+        sXE2x5ffBSo4RcnqYRHfCChmQppvv/t6u8aLkVQQAPVPDN/3F7w2A3MG887DP5WJmCrfftZi7Z+AC
+        Ri80MMCtdo/0Y81aJQ2iCoh1V8DMrZE0Qe1IG35yePUiR/oRYePfuyin4jUazSoBVFvIxhQ8Q2cWK
+        AaS7NqtK6UoLG1n0LbD4CSv2+MgQ2fyGiL1QFhAD5Wthi60eLUgVSQ6whG/nN2TWTZ2oWWXBahadX
+        I6zb6MgA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kwpKw-0004Bv-QX; Tue, 05 Jan 2021 16:37:35 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: andre@tomt.net)
-        by mail.ugh.no (Postfix) with ESMTPSA id 439CA253954;
-        Tue,  5 Jan 2021 17:32:28 +0100 (CET)
-Subject: Re: [PATCH 5.10 637/717] drm/amd/display: Fix memory leaks in S3
- resume
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>
-References: <20201228125020.963311703@linuxfoundation.org>
- <20201228125051.444911072@linuxfoundation.org>
- <e5d9703f-42a4-f154-cf13-55a3eba10859@tomt.net> <X/QNCtpIiU5qzRp+@kroah.com>
-From:   Andre Tomt <andre@tomt.net>
-Message-ID: <8db47895-e7e4-ed9a-e996-c071b5c6f750@tomt.net>
-Date:   Tue, 5 Jan 2021 17:32:27 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9CB9330377D;
+        Tue,  5 Jan 2021 17:37:31 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8408420D9B72E; Tue,  5 Jan 2021 17:37:31 +0100 (CET)
+Date:   Tue, 5 Jan 2021 17:37:31 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Will Deacon <will@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        X86 ML <x86@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [RFC please help] membarrier: Rewrite sync_core_before_usermode()
+Message-ID: <20210105163731.GM3040@hirez.programming.kicks-ass.net>
+References: <20210105132623.GB11108@willie-the-truck>
+ <7BFAB97C-1949-46A3-A1E2-DFE108DC7D5E@amacapital.net>
 MIME-Version: 1.0
-In-Reply-To: <X/QNCtpIiU5qzRp+@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7BFAB97C-1949-46A3-A1E2-DFE108DC7D5E@amacapital.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05.01.2021 07:54, Greg Kroah-Hartman wrote:
-> On Mon, Jan 04, 2021 at 08:04:08PM +0100, Andre Tomt wrote:
->> On 28.12.2020 13:50, Greg Kroah-Hartman wrote:
->>> From: Stylon Wang <stylon.wang@amd.com>
->>>
->>> commit a135a1b4c4db1f3b8cbed9676a40ede39feb3362 upstream.
->>>
->>> EDID parsing in S3 resume pushes new display modes
->>> to probed_modes list but doesn't consolidate to actual
->>> mode list. This creates a race condition when
->>> amdgpu_dm_connector_ddc_get_modes() re-initializes the
->>> list head without walking the list and results in  memory leak.
->>
->> This commit is causing me problems on 5.10.4: when I turn off the display (a
->> LG TV in this case), and turn it back on again later there is no video
->> output and I get the following in the kernel log:
->>
->> [ 8245.259628] [drm:dm_restore_drm_connector_state [amdgpu]] *ERROR*
->> Restoring old state failed with -12
->>
->> I've found another report on this commit as well:
->> https://bugzilla.kernel.org/show_bug.cgi?id=211033
->>
->> And I suspect this is the same:
->> https://bugs.archlinux.org/task/69202
->>
->> Reverting it from 5.10.4 makes things behave again.
->>
->> Have not tested 5.4.86 or 5.11-rc.
->>
->> I'm using a RX570 Polaris based card.
+On Tue, Jan 05, 2021 at 08:20:51AM -0800, Andy Lutomirski wrote:
+> >     Interestingly, the architecture recently added a control bit to remove
+> >     this synchronisation from exception return, so if we set that then we'd
+> >     have a problem with SYNC_CORE and adding an ISB would be necessary (and
+> >     we could probable then make kernel->kernel returns cheaper, but I
+> >     suspect we're relying on this implicit synchronisation in other places
+> >     too).
+> > 
 > 
-> Can you test 5.11-rc to see if this issue is there as well?
+> Is ISB just a context synchronization event or does it do more?
 
-Just did, and have the same issue on 5.11-rc2. Reverting it also solves 
-the problem on 5.11-rc2, as it does on 5.10.4
+IIRC it just the instruction sync (like power ISYNC).
 
-FWIW one easy way to reproduce seems to be unplugging and re-plugging 
-the HDMI.
+> On x86, it’s very hard to tell that MFENCE does any more than LOCK,
+> but it’s much slower.  And we have LFENCE, which, as documented,
+> doesn’t appear to have any semantics at all.  (Or at least it didn’t
+> before Spectre.)
+
+AFAIU MFENCE is a completion barrier, while LOCK prefix is not. A bit
+like ARM's DSB vs DMB.
+
+It is for this reason that mb() is still MFENCE, while our smp_mb() is a
+LOCK prefixed NO-OP.
+
+And yes, LFENCE used to be poorly defined and it was sometimes
+understood to be a completion barrier relative to prior LOADs, while it
+is now a completion barrier for any prior instruction, and really should
+be renamed to IFENCE.
+
+
