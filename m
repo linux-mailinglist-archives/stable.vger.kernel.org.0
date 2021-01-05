@@ -2,102 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A27F2EB202
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 19:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 420362EB22E
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 19:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729467AbhAESFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 13:05:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:44445 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727678AbhAESFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 13:05:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609869837;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tjij9xYMf6Y62hwh1O7GXaGMsMvqywzvQeHIvJ4Lc+s=;
-        b=SbEjl9w6eEmY+VCdEaVzFoyufe9vXicPhHXGdKGW23mX2iEwR8ouiYH9mJgle5X909JPoa
-        SJtINKopGqxvo2LP9UE65hRE080+p6rBqHIFxU1jkwQCmPJyF2QaWDWmj5XhmYhPpT4X8N
-        kccAuO7Xkk2flaIX+yudZBXxOlbTEuM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-156-Xh2GoTdcN1qQiXdJXLzRog-1; Tue, 05 Jan 2021 13:03:53 -0500
-X-MC-Unique: Xh2GoTdcN1qQiXdJXLzRog-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0B25DA0CA0;
-        Tue,  5 Jan 2021 18:03:52 +0000 (UTC)
-Received: from mail (ovpn-112-76.rdu2.redhat.com [10.10.112.76])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D6DBB5E1B5;
-        Tue,  5 Jan 2021 18:03:48 +0000 (UTC)
-Date:   Tue, 5 Jan 2021 13:03:48 -0500
-From:   Andrea Arcangeli <aarcange@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Xu <peterx@redhat.com>,
-        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
-        linux-mm <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pavel Emelyanov <xemul@openvz.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Minchan Kim <minchan@kernel.org>, Will Deacon <will@kernel.org>
-Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
-Message-ID: <X/SqBG7KDKZhSUHu@redhat.com>
-References: <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
- <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
- <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
- <X+ESkna2z3WjjniN@google.com>
- <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
- <20201221223041.GL6640@xz-x1>
- <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
- <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
- <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
- <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+        id S1728723AbhAESLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 13:11:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35336 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727830AbhAESLO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 13:11:14 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050B6C061574;
+        Tue,  5 Jan 2021 10:10:34 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id o17so584677lfg.4;
+        Tue, 05 Jan 2021 10:10:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=PVuT4njhMeaRTMbjqaPyRkMWi9XdHjI6gVBrQVbTMz4=;
+        b=rcDUAV4lu4M+f3TH0c8rV1aWi/VBMrzLzxc90aChur6L67D8bKfinZ/Vbo7kmihKdR
+         k499Zq6WypkjoIiQFnUX7wfrXOQzPZOKoS1Mrfs9BWZ14jaW3K7ZanWBh0yJi74Ey6q8
+         r85fShbYb4ZK6zgNKDQYFzPCvs2rDXCQr18X3mPkhEszejzuUIladcXfDYaDCTYxn3To
+         Fuhgc5kSFIsvVRsjjSzIT9hnGn/afjrvoMD9j8PnKYlrbjyp8D7qiIzTtsLXkbIYVDSG
+         pHpF8shBKS6e2EARr7QOWhMNQGKSoTsBmBpcdEOX6U1BtIrtu/dYynat4nwmgMi4TRCO
+         U9CA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PVuT4njhMeaRTMbjqaPyRkMWi9XdHjI6gVBrQVbTMz4=;
+        b=GvpNXqr38lX8QXAA4igcJ+cEHrGR96taKN1vjDcxe7uSAXRcCq7zl/OXsUBfFda7hs
+         iB1iRqXz/u6pKjbOQCFaonMLbt88UNdUBOlEXdGq5J7OuQohtg2kG1bSH+15ETbHg10O
+         yVFLybMVE7Ve6gOD1J0yG9AgJwQrjAWVFhW6yq9Px+msLSa1iQZJ/0MqG9+5FSdagu9U
+         97DzqtqNbhkCXjUU2Ay6EzetXZma3H1F+kE/bTktryayDQz/XM/YknKzm2zi4Qfl/rMk
+         yJyzfGD36G9e2TEbtnFoSIky/q9DaC6WWLn1CSPezwu2ZyCoEW27nkOu2aj/SDQ8HE/Z
+         QCAg==
+X-Gm-Message-State: AOAM531WGZHC+b2fw12c2JiIZMXX7gnQ59drDzq+5H7wQiuB4vCcEwcQ
+        bC0XYIKSbuXCMeGXV7bIURxpOKPNk+4=
+X-Google-Smtp-Source: ABdhPJx8cqdU2WRiMEbpSfhRzpGvYiCjbz/MwDS3LC27F8PoVz2cTyyTnzo18VIEWINCvPLj11dlAg==
+X-Received: by 2002:a2e:810c:: with SMTP id d12mr378046ljg.400.1609870232298;
+        Tue, 05 Jan 2021 10:10:32 -0800 (PST)
+Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.googlemail.com with ESMTPSA id y23sm51413ljc.119.2021.01.05.10.10.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Jan 2021 10:10:31 -0800 (PST)
+Subject: Re: [PATCH 2/4] cpuidle: Fix missing need_resched() check after
+ rcu_idle_enter()
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Frederic Weisbecker <frederic@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+References: <20201222013712.15056-1-frederic@kernel.org>
+ <20201222013712.15056-3-frederic@kernel.org>
+ <e882be10-548a-8e90-9bc6-acea453a5241@gmail.com>
+Message-ID: <8e9f1c38-ca84-6f5b-afdb-e70c07120332@gmail.com>
+Date:   Tue, 5 Jan 2021 21:10:30 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210105153727.GK3040@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/2.0.4 (2020-12-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+In-Reply-To: <e882be10-548a-8e90-9bc6-acea453a5241@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 05, 2021 at 04:37:27PM +0100, Peter Zijlstra wrote:
-> (your other email clarified this point; the COW needs to copy while
-> holding the PTL and we need TLBI under PTL if we're to change this)
+05.01.2021 20:25, Dmitry Osipenko пишет:
+> 22.12.2020 04:37, Frederic Weisbecker пишет:
+>> Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+>> kthread (rcuog) to be serviced.
+>>
+>> Usually a wake up happening while running the idle task is spotted in
+>> one of the need_resched() checks carefully placed within the idle loop
+>> that can break to the scheduler.
+>>
+>> Unfortunately within cpuidle the call to rcu_idle_enter() is already
+>> beyond the last generic need_resched() check. Some drivers may perform
+>> their own checks like with mwait_idle_with_hints() but many others don't
+>> and we may halt the CPU with a resched request unhandled, leaving the
+>> task hanging.
+>>
+>> Fix this with performing a last minute need_resched() check after
+>> calling rcu_idle_enter().
+>>
+>> Reported-by: Paul E. McKenney <paulmck@kernel.org>
+>> Fixes: 1098582a0f6c (sched,idle,rcu: Push rcu_idle deeper into the idle path)
+>> Cc: stable@vger.kernel.org
+>> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+>> Cc: Peter Zijlstra <peterz@infradead.org>
+>> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@kernel.org>
+>> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+>> ---
+>>  drivers/cpuidle/cpuidle.c | 33 +++++++++++++++++++++++++--------
+>>  1 file changed, 25 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
+>> index ef2ea1b12cd8..4cc1ba49ce05 100644
+>> --- a/drivers/cpuidle/cpuidle.c
+>> +++ b/drivers/cpuidle/cpuidle.c
+>> @@ -134,8 +134,8 @@ int cpuidle_find_deepest_state(struct cpuidle_driver *drv,
+>>  }
+>>  
+>>  #ifdef CONFIG_SUSPEND
+>> -static void enter_s2idle_proper(struct cpuidle_driver *drv,
+>> -				struct cpuidle_device *dev, int index)
+>> +static int enter_s2idle_proper(struct cpuidle_driver *drv,
+>> +			       struct cpuidle_device *dev, int index)
+>>  {
+>>  	ktime_t time_start, time_end;
+>>  	struct cpuidle_state *target_state = &drv->states[index];
+>> @@ -151,7 +151,14 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
+>>  	stop_critical_timings();
+>>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>>  		rcu_idle_enter();
+>> -	target_state->enter_s2idle(dev, drv, index);
+>> +	/*
+>> +	 * Last need_resched() check must come after rcu_idle_enter()
+>> +	 * which may wake up RCU internal tasks.
+>> +	 */
+>> +	if (!need_resched())
+>> +		target_state->enter_s2idle(dev, drv, index);
+>> +	else
+>> +		index = -EBUSY;
+>>  	if (WARN_ON_ONCE(!irqs_disabled()))
+>>  		local_irq_disable();
+>>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>> @@ -159,10 +166,13 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
+>>  	tick_unfreeze();
+>>  	start_critical_timings();
+>>  
+>> -	time_end = ns_to_ktime(local_clock());
+>> +	if (index > 0) {
+> 
+> index=0 is valid too
+> 
+>> +		time_end = ns_to_ktime(local_clock());
+>> +		dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+>> +		dev->states_usage[index].s2idle_usage++;
+>> +	}
+>>  
+>> -	dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
+>> -	dev->states_usage[index].s2idle_usage++;
+>> +	return index;
+>>  }
+>>  
+>>  /**
+>> @@ -184,7 +194,7 @@ int cpuidle_enter_s2idle(struct cpuidle_driver *drv, struct cpuidle_device *dev)
+>>  	 */
+>>  	index = find_deepest_state(drv, dev, U64_MAX, 0, true);
+>>  	if (index > 0) {
+>> -		enter_s2idle_proper(drv, dev, index);
+>> +		index = enter_s2idle_proper(drv, dev, index);
+>>  		local_irq_enable();
+>>  	}
+>>  	return index;
+>> @@ -234,7 +244,14 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
+>>  	stop_critical_timings();
+>>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>>  		rcu_idle_enter();
+>> -	entered_state = target_state->enter(dev, drv, index);
+>> +	/*
+>> +	 * Last need_resched() check must come after rcu_idle_enter()
+>> +	 * which may wake up RCU internal tasks.
+>> +	 */
+>> +	if (!need_resched())
+>> +		entered_state = target_state->enter(dev, drv, index);
+>> +	else
+>> +		entered_state = -EBUSY;
+>>  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
+>>  		rcu_idle_exit();
+>>  	start_critical_timings();
+>>
+> 
+> This patch causes a hardlock on NVIDIA Tegra using today's linux-next.
+> Disabling coupled idling state helps. Please fix thanks in advance.
+> 
 
-The COW doesn't need to hold the PT lock, the TLBI broadcast doesn't
-need to be delivered under PT lock either.
+This isn't a proper fix, but it works:
 
-Simply there need to be a TLBI broadcast before the copy. The patch I
-sent here https://lkml.kernel.org/r/X+QLr1WmGXMs33Ld@redhat.com that
-needs to be cleaned up with some abstraction and better commentary
-also misses a smp_mb() in the case flush_tlb_page is not called, but
-that's a small detail.
+diff --git a/drivers/cpuidle/cpuidle-tegra.c
+b/drivers/cpuidle/cpuidle-tegra.c
+index 191966dc8d02..ecc5d9b31553 100644
+--- a/drivers/cpuidle/cpuidle-tegra.c
++++ b/drivers/cpuidle/cpuidle-tegra.c
+@@ -148,7 +148,7 @@ static int tegra_cpuidle_c7_enter(void)
 
-> And I'm thinking the speculative page fault series steps right into all
-> this, it fundamentally avoids mmap_sem and entirely relies on the PTL.
-
-I thought about that but that only applies to some kind of "anon" page
-fault.
-
-Here the problem isn't just the page fault, the problem is not to
-regress clear_refs to block on page fault I/O, and all
-MAP_PRIVATE/MAP_SHARED filebacked faults bitting the disk to read
-/usr/ will still prevent clear_refs from running (and the other way
-around) if it has to take the mmap_sem for writing.
-
-I don't look at the speculative page fault for a while but last I
-checked there was nothing there that can tame the above major
-regression from CPU speed to disk I/O speed that would be inflicted on
-both clear_refs on huge mm and on uffd-wp.
-
-Thanks,
-Andrea
+ static int tegra_cpuidle_coupled_barrier(struct cpuidle_device *dev)
+ {
+-	if (tegra_pending_sgi()) {
++	if (tegra_pending_sgi() || need_resched()) {
+ 		/*
+ 		 * CPU got local interrupt that will be lost after GIC's
+ 		 * shutdown because GIC driver doesn't save/restore the
+diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
+index 4cc1ba49ce05..2bc52ccc339b 100644
+--- a/drivers/cpuidle/cpuidle.c
++++ b/drivers/cpuidle/cpuidle.c
+@@ -248,7 +248,7 @@ int cpuidle_enter_state(struct cpuidle_device *dev,
+struct cpuidle_driver *drv,
+ 	 * Last need_resched() check must come after rcu_idle_enter()
+ 	 * which may wake up RCU internal tasks.
+ 	 */
+-	if (!need_resched())
++	if ((target_state->flags & CPUIDLE_FLAG_COUPLED) || !need_resched())
+ 		entered_state = target_state->enter(dev, drv, index);
+ 	else
+ 		entered_state = -EBUSY;
 
