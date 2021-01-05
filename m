@@ -2,157 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD792EA6D3
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B382EA6DF
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 10:05:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727198AbhAEJAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 04:00:00 -0500
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:42237 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726982AbhAEI77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 03:59:59 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 29A5358049B;
-        Tue,  5 Jan 2021 03:59:13 -0500 (EST)
+        id S1725803AbhAEJFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 04:05:12 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:59259 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725768AbhAEJFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 04:05:12 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id BFE11666;
+        Tue,  5 Jan 2021 04:04:05 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 05 Jan 2021 03:59:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; h=
-        subject:to:cc:references:from:message-id:date:mime-version
-        :in-reply-to:content-type:content-transfer-encoding; s=fm1; bh=K
-        wHmlBlSYwHrDiz4lTbH37Kq075cZSKda6f/07inWNs=; b=lV928XRb5T4InzEV6
-        QI7e1C76AIKWbduwZ0Ar2S6JI5ucUPUuZDHyKvMEfnLkyyhGVKFz6FiSmddalZNh
-        t+AFrkWSdUJGxeOM7AodFLYeCpnyxg2N6hvlAGrq8htRBHJecgHAnzo87B5brL50
-        yxzJKRVM3A1cViiAP4/r5DzcmHnaEqoakikE2NNoKqkxCGsIwYXapQ9YW6AKAuxK
-        8QgBBkveKz2jxOd2/zlQ1gfSVlqn7Eb+Yo4zHbER5WZAavtUISCNLSPKJBBF4Ary
-        tmSnBLTN0yQy52sGxSBJYMGuVrOtrerw6iQSvOe8170WCM3qosRVZghyhK4SKowX
-        cM/jw==
+  by compute4.internal (MEProxy); Tue, 05 Jan 2021 04:04:06 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=TUtgNPoXuUOXJrOKmvGYB7SWZxy
+        RvgbHZr1AL8pLDcQ=; b=QUkfYFO0QyjEPrDpLPAEkcaL5ojVa+jsyZOfIV8wRVU
+        n799CYY6dGOf0YiWZEL8dgsZiAt/L9LteY8ZAsR232NaC/p1KGF1Q9bfJEQ4Q5u3
+        DUsqoxQpdq6+DQZBMQVomxvLUDUGzKcZ1sW3rCNd8HijJIgn8FqC/I/M2ms+opLO
+        dJKVmSs8R0EtGeA4dBt5g7neNlaqjS1wXNWOUskXxKIFdmFLeHL3Vt65OahcL2ao
+        giGLasN0AqlDRU0t5n5FrkuwXhdJDnyQxYaO3JfapURovMdkj8Xxg5SY/yvHw3JA
+        1E4KcPmxkZC/PnPCwKhAg/EZ+AaNRqkZlO1sc7sVLYg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=KwHmlBlSYwHrDiz4lTbH37Kq075cZSKda6f/07inW
-        Ns=; b=XOm/h1GnqHc3oSkjeXx1xkn2OqdXDdXKuR9O3/BLEXhRnh6i0yAHzabm/
-        7CeMoKY4BS7Ocfg2i3lOc+osz6sMHTSBgfLkrKtJqMULx/38BSClKq/u9racyJgL
-        AO6CgdVwNDkzqGDmTzuf9IgVmxOgBsX3phNHwSpxJEX1GWqEVFiyX8xB40eU+CbQ
-        3lTIkCjSkSfe6kiIuqfWnIOIJ9HNlsZo7fsDNdSFa2+pIyBEBPQVsfBzLQcIQrZp
-        IFZIaXDvqqshAII2R4wCLtUovmmpRD5BQ742omn28fg3VAuFdiBjoBsTIYzO+D7z
-        jlxbnlM2J8Nn/u692SrePewwK9XAQ==
-X-ME-Sender: <xms:YCr0X9IAHI6v1p99QOqApXFazPDtaTi46vR3u42wtozZM5dbo16Y1A>
-    <xme:YCr0X5IhN9DBM61Mwi6r8YYA9mNMKyiaa5EMPLLZr2f4tvAiNmWz7TZnCNcy4zUAb
-    2Noti03fBbZ3Zy1_Ts>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdefgedguddvgecutefuodetggdotefrod
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TUtgNP
+        oXuUOXJrOKmvGYB7SWZxyRvgbHZr1AL8pLDcQ=; b=GYVfhsTff/cHx0SG/Z3Rui
+        KQn97aw8kfYEb0LCegAGDZgIuy4I1PTTsc1sXGc48RreKGba2ua9KHRGAN4wz9HH
+        YugeF898+PKV19Mn8KAgqSyxiCCLauy+Eea/fBAmJKhtid1VIhViJ6ijWrGUF2+W
+        YPDnoIG1LBPln8QFK1D2+CTh6MfXieTlOX2dqc6kRx66H8gmPXFDb+buNihCKEnj
+        6ILwcG6mltnQ4bJczGMqkZF1n7MN5nDDmeYimd/UZ3X0UCOJcU1WO407x9bRShV2
+        7fdAbSRZfFA9SfiRDiRIEoB+VowU44D5dgVV4c0asF8CYLmYlPzuGuESHM3nCbuw
+        ==
+X-ME-Sender: <xms:gyv0X-S6jQbYrcGUCxJz51H6Q8rJrjlIDoQ-JTa_qpmdTeAetboGAg>
+    <xme:gyv0XzyHZ2oEQebqSKIKEEbQM43AEDksGPiX4Tc_pfjlLz9E9zarcPfGIiq3lLau6
+    A6K9ZqIaBLsBw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdefgedguddvhecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefuvfhfhffkffgfgggjtgfgsehtkeertddtfeejnecuhfhrohhmpeflihgr
-    gihunhcujggrnhhguceojhhirgiguhhnrdihrghnghesfhhlhihgohgrthdrtghomheqne
-    cuggftrfgrthhtvghrnhephffgteehteeuuddtvdeikeduvdeuiedukeeiuddtgeevledt
-    ueekteejfeevffdunecuffhomhgrihhnpehlughsrdhssgdpohhpthhiohhnshdrvghhne
-    cukfhppeeghedrfeefrdehtddrvdehgeenucevlhhushhtvghrufhiiigvpedtnecurfgr
-    rhgrmhepmhgrihhlfhhrohhmpehjihgrgihunhdrhigrnhhgsehflhihghhorghtrdgtoh
-    hm
-X-ME-Proxy: <xmx:YCr0X1vPmrUpd046QM50WwFKiSORi1m3tGPmDLOqlxyRbcwbFiB65w>
-    <xmx:YCr0X-Z3_b_uv_TlP-bMKBA78TFPI1qwyfpidNU9X2GEvSS9SwdUyQ>
-    <xmx:YCr0X0Z18LDcoTLppjyeUMuXoxRrz64ByO3iqnQpCQFYhzV-ovv-uA>
-    <xmx:YCr0X0401DTvDt2GD25Cp1uBzB283PTpc5kkz8yw-3VsxXWVCz9kVvDjIFg>
-Received: from [0.0.0.0] (li1000-254.members.linode.com [45.33.50.254])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 054A1108005B;
-        Tue,  5 Jan 2021 03:59:07 -0500 (EST)
-Subject: Re: [PATCH mips-next 2/4] MIPS: vmlinux.lds.S: add ".rel.dyn" to
- DISCARDS
-To:     =?UTF-8?B?RsSBbmctcnXDrCBTw7JuZw==?= <maskray@google.com>,
-        Alexander Lobakin <alobakin@pm.me>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alex Smith <alex.smith@imgtec.com>,
-        Markos Chandras <markos.chandras@imgtec.com>,
-        linux-mips <linux-mips@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-References: <20210104121729.46981-1-alobakin@pm.me>
- <20210104122016.47308-1-alobakin@pm.me>
- <20210104122016.47308-2-alobakin@pm.me>
- <CAFP8O3LA87zyi8f64Sk5g+aLFdYhnZqsEbLC_uTsQk3+6Qus3A@mail.gmail.com>
-From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
-Message-ID: <2add3f2d-ab2a-1ca3-5e04-d7b66738bfbe@flygoat.com>
-Date:   Tue, 5 Jan 2021 16:59:03 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelle
+    dtheekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhush
+    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
+    hhdrtghomh
+X-ME-Proxy: <xmx:gyv0X73URPx0fSGfQsHGvldZ-nzGtjBO7g96IPRBbwaI9bnFTbqABw>
+    <xmx:gyv0X6DOj4mf0AgB6EZ9JOwMMcuJ4EtZ3G0ZZAlZoXaSr9JuiMOZlA>
+    <xmx:gyv0X3h-oj2QrHqcqLmPazTriarzbXnTJSt8ueDl7cR94clwltN1Lg>
+    <xmx:hSv0X3e3YO9Xh4gu0bit7oTbL2fe0aKGtn98MVlOIcmvEdohzTfOig>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 037AC1080057;
+        Tue,  5 Jan 2021 04:04:02 -0500 (EST)
+Date:   Tue, 5 Jan 2021 10:05:28 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Santosh Sivaraj <santosh@fossix.org>
+Cc:     stable@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+Subject: Re: [PATCH v3 5/6] mm/mmu_gather: invalidate TLB correctly on batch
+ allocation failure and flush
+Message-ID: <X/Qr2Om3vW+4XdnI@kroah.com>
+References: <20200312132740.225241-1-santosh@fossix.org>
+ <20200312132740.225241-6-santosh@fossix.org>
 MIME-Version: 1.0
-In-Reply-To: <CAFP8O3LA87zyi8f64Sk5g+aLFdYhnZqsEbLC_uTsQk3+6Qus3A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200312132740.225241-6-santosh@fossix.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-在 2021/1/5 下午3:39, Fāng-ruì Sòng 写道:
-> On Mon, Jan 4, 2021 at 4:21 AM Alexander Lobakin <alobakin@pm.me> wrote:
->> GCC somehow manages to place some of the symbols from main.c into
->> .rel.dyn section:
->>
->> mips-alpine-linux-musl-ld: warning: orphan section `.rel.dyn'
->> from `init/main.o' being placed in section `.rel.dyn'
->>
->> I couldn't catch up the exact symbol, but seems like it's harmless
->> to discard it from the final vmlinux as kernel doesn't use or
->> support dynamic relocations.
->>
->> Misc: sort DISCARDS section entries alphabetically.
->>
->> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
->> ---
->>   arch/mips/kernel/vmlinux.lds.S | 3 ++-
->>   1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
->> index 83e27a181206..1c3c2e903062 100644
->> --- a/arch/mips/kernel/vmlinux.lds.S
->> +++ b/arch/mips/kernel/vmlinux.lds.S
->> @@ -221,9 +221,10 @@ SECTIONS
->>                  /* ABI crap starts here */
->>                  *(.MIPS.abiflags)
->>                  *(.MIPS.options)
->> +               *(.eh_frame)
->>                  *(.options)
->>                  *(.pdr)
->>                  *(.reginfo)
->> -               *(.eh_frame)
->> +               *(.rel.dyn)
->>          }
->>   }
->> --
->> 2.30.0
->>
->>
-> (I don't know why I am on the CC list since I know little about
-> mips... Anyway, I know the LLD linker's behavior in case that was the
-> intention... )
->
-> I think it'd be good to know the reason why these dynamic relocations
-> are produced and fix the root cause.
->
-> arch/x86/kernel/vmlinux.lds.S asserts no dynamic relocation:
-> ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations
-> (.rela) detected!")
-Hi all,
+On Thu, Mar 12, 2020 at 06:57:39PM +0530, Santosh Sivaraj wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
+> 
+> commit 0ed1325967ab5f7a4549a2641c6ebe115f76e228 upstream.
+> 
+> Architectures for which we have hardware walkers of Linux page table
+> should flush TLB on mmu gather batch allocation failures and batch flush.
+> Some architectures like POWER supports multiple translation modes (hash
+> and radix) and in the case of POWER only radix translation mode needs the
+> above TLBI.  This is because for hash translation mode kernel wants to
+> avoid this extra flush since there are no hardware walkers of linux page
+> table.  With radix translation, the hardware also walks linux page table
+> and with that, kernel needs to make sure to TLB invalidate page walk cache
+> before page table pages are freed.
+> 
+> More details in commit d86564a2f085 ("mm/tlb, x86/mm: Support invalidating
+> TLB caches for RCU_TABLE_FREE")
+> 
+> The changes to sparc are to make sure we keep the old behavior since we
+> are now removing HAVE_RCU_TABLE_NO_INVALIDATE.  The default value for
+> tlb_needs_table_invalidate is to always force an invalidate and sparc can
+> avoid the table invalidate.  Hence we define tlb_needs_table_invalidate to
+> false for sparc architecture.
+> 
+> Link: http://lkml.kernel.org/r/20200116064531.483522-3-aneesh.kumar@linux.ibm.com
+> Fixes: a46cc7a90fd8 ("powerpc/mm/radix: Improve TLB/PWC flushes")
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org
+> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> Cc: <stable@vger.kernel.org>  # 4.19
+> Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
+> [santosh: backported to 4.19 stable]
+> ---
+>  arch/Kconfig                    |  3 ---
+>  arch/powerpc/Kconfig            |  1 -
+>  arch/powerpc/include/asm/tlb.h  | 11 +++++++++++
+>  arch/sparc/Kconfig              |  1 -
+>  arch/sparc/include/asm/tlb_64.h |  9 +++++++++
+>  include/asm-generic/tlb.h       | 15 +++++++++++++++
+>  mm/memory.c                     | 16 ++++++++--------
+>  7 files changed, 43 insertions(+), 13 deletions(-)
 
-Runtime .rela can't be avoided as MIPS kernel can't be built with fPIC.
-Our relocatable kernel uses another approach, fixup dynamic relocations
-at boot time.
+As the testing pointed out, this breaks the build on lots of arches:
+	https://lore.kernel.org/r/CAEUSe78+F1Q9LFjpf8SQzQa6+Ak4wcPiiNcUVxEcv+KPdrYvBw@mail.gmail.com
+	https://lore.kernel.org/r/cff87cd2-8cd5-241e-3a05-a817b1a56b8c@roeck-us.net
 
-abicalls simply gave us too much overhead on PIC code, which is unacceptable
-for kernel.
+so I'm going to drop this whole series and do a -rc2.
 
-In my local tests, PIC kernel reduced unix bench results for around 30%.
+If you still want/need this series in 4.19, please make sure it really
+works for everyone :)
 
-For MIPS Release6 and afterwards, we may utilize new pcrel instructions to
-reduce overhead but for older ISA I don't have any idea.
+thanks,
 
-Thanks.
-
-- Jiaxun
-
-
+greg k-h
