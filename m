@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2962EA15D
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 01:13:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2762EA14B
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 01:10:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbhAEAM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Jan 2021 19:12:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37064 "EHLO
+        id S1726657AbhAEAKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Jan 2021 19:10:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726864AbhAEAM7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 19:12:59 -0500
-Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D9DC061793
-        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 16:12:18 -0800 (PST)
-Received: by mail-il1-x133.google.com with SMTP id x15so27054591ilq.1
-        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 16:12:18 -0800 (PST)
+        with ESMTP id S1726643AbhAEAKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Jan 2021 19:10:11 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA3C4C061795
+        for <stable@vger.kernel.org>; Mon,  4 Jan 2021 16:09:29 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id e2so15394452plt.12
+        for <stable@vger.kernel.org>; Mon, 04 Jan 2021 16:09:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=P+zplgdcF/O9QQYfFR5GtvuQRwJfDdItGHZOUEVFyhY=;
-        b=vH1vhnF2s7Q98uf2tpkBFDVUDCn/FX3btxsChgD9fyZ9Q4hZ77RXyUFhUL4FkrnoVQ
-         DwiR0RDh1s4IxWRqT7krTq0dqs6SUK9iBAIkC3o48UidY6itiHLNKqaOb9Qym5vvLPUU
-         mfNdcdP8HtWnykcWWoSZ03WgsFmv9mj4i/Ebjt2OEtv4BTpN1eTPUpLMSo3mIdV4XYiL
-         2IOP2G3W45h4m/Tj5f5lZIXqbWwm7C5mRUSj35M7REF52GqR6S2wBoj4K7iKFnvL3zVp
-         anqjD4McXxjBBXZJ+gGdS6DqHYHdDYkyAhF1Iv9mUsfUANhuIFY7odS7crCd4nhflgQY
-         821g==
+        bh=4g+KSeyoe8EUbn2h+UW+0rT0qDwF01/MUfgJy45H2yk=;
+        b=EMEIY1YVLQe4WEWKhNVDURV0eIHPipfA/DHekLe/9z1/8TZdBjGxV8uC8VI8Afj3MZ
+         d/2Fe4jLr48RWQWNPHF70vB068nZtbmGf0qG+0tuGQT/6j9hjXfXCRTYa3XRHYU5/LQ9
+         a6135pEGEX3i+zZlpEk1sgfdVCsIjmw8MSFFSDcOWgcuyHubM4k9InXl202B7nenkPho
+         8mGMsyLUIPTdFe4jENyblgfDKeGbKT0dXX/973G0FXp7J2hu125lh/uAZJcgb9SbpcLC
+         lHC5f2xpvFkrcZDf8bRtoJEgSibyvPo0iHzKmycaNNWUGuNR7r3wu4KalY64UdXMs709
+         YfHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=P+zplgdcF/O9QQYfFR5GtvuQRwJfDdItGHZOUEVFyhY=;
-        b=BFfYTXs6iB47rZbijfwXuS/NwtwGbLGz4s5cWYxtD61zayQDD0GwtBf31t+Emvi/F5
-         LqVk6GWBJ0uBqyOm8uaHhLHIxBExk3mS3S12bzyX8nSIKOFGljsHXfpC8kPdHDLlsFxi
-         XnQY0/nUhDul11uo21uM2AH3+BzfC8FpJDiWeidRaZ2zRYLK3q4X1ICMy8DZnoFGexMW
-         r+fwt+qebX4Xwwi9dG035mcsj55ggaLn4RVrQOBAuMEy1/7pRkm5SYmPV8flFAKbcu1a
-         1ROaIZunxV5ozXVQJexou59x5H8n9HNvQS1mZSxBs3IR3KIpa10m9UP91CI4banKstEI
-         7IKg==
-X-Gm-Message-State: AOAM532NF1TZsbxykhsQ8dNrfmgHnaW57qVpQEfCSsV+/xot5doezaTd
-        wPMwvmERSZ0SZFH8OqHWw2+yi1rF7nVEdQ==
-X-Google-Smtp-Source: ABdhPJz8dP4B3UxhtzANAJqB8SOFCTrbe88YUIHH9z8w8af8VBx0CyTms5s88dsno0zXe8KupbKJ7g==
-X-Received: by 2002:a63:1863:: with SMTP id 35mr33137831pgy.191.1609796069553;
-        Mon, 04 Jan 2021 13:34:29 -0800 (PST)
+        bh=4g+KSeyoe8EUbn2h+UW+0rT0qDwF01/MUfgJy45H2yk=;
+        b=LfGeo+Zq0VgW0klfMgiVrxXANWwpEZI9c0gVWZ5E5XRxIG5pyFvTFgUQ2GD4TqIEZ+
+         fEndWI3ZqZRGT0O5Mv6htoDsV4+wjLdCuFlR+IBSh7/kKtUJPAtkQh/+0bboeM8BgKyJ
+         fI4k444mexT41jIrcr36ExmKN9sfPIr2OMmcIV72eMIJ5VGiiT0qn4NG4jyK78KcF2Yf
+         nNYupRsq2jazHISAGDG3cPWBzB6FS0wLEMB1loHnsjEHKjIljN4wHTG/87d0W+UAl7JW
+         2fUFVIQySA3FxapJG9SUtgUeC+hi36QduEnNo66TO3obVUFOpOFNujzR9JQojCWiXc1m
+         FWSg==
+X-Gm-Message-State: AOAM53292RahcDK1Buy9qYeiTByhoc8N/FGywwZ7m4tazsM6xqpVggPg
+        lj9nhTyxn5b8N8jRgTyHPjIKnw6aIWlR4g==
+X-Google-Smtp-Source: ABdhPJyK0q01x7VW+41LCpiMmw5yhLNEkObwFbDT2csd9+2O7urYuyjtRchoI6ojppUKZglwgAiJPQ==
+X-Received: by 2002:a17:902:820a:b029:da:f380:8629 with SMTP id x10-20020a170902820ab02900daf3808629mr52467171pln.54.1609805368535;
+        Mon, 04 Jan 2021 16:09:28 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x6sm56176723pfq.57.2021.01.04.13.34.28
+        by smtp.gmail.com with ESMTPSA id t1sm30239615pfq.154.2021.01.04.16.09.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Jan 2021 13:34:28 -0800 (PST)
-Message-ID: <5ff389e4.1c69fb81.64a45.e30d@mx.google.com>
-Date:   Mon, 04 Jan 2021 13:34:28 -0800 (PST)
+        Mon, 04 Jan 2021 16:09:27 -0800 (PST)
+Message-ID: <5ff3ae37.1c69fb81.af480.91d7@mx.google.com>
+Date:   Mon, 04 Jan 2021 16:09:27 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.213
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.213-25-g3ae46324bf865
 X-Kernelci-Report-Type: build
-Subject: stable/linux-4.14.y build: 200 builds: 0 failed, 200 passed,
- 69 warnings (v4.14.213)
+Subject: stable-rc/queue/4.14 build: 200 builds: 0 failed, 200 passed,
+ 68 warnings (v4.14.213-25-g3ae46324bf865)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,18 +65,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y build: 200 builds: 0 failed, 200 passed, 69 warnings (v=
-4.14.213)
+stable-rc/queue/4.14 build: 200 builds: 0 failed, 200 passed, 68 warnings (=
+v4.14.213-25-g3ae46324bf865)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.213/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+4/kernel/v4.14.213-25-g3ae46324bf865/
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.213
-Git Commit: 1752938529c614a8ed4432ecce6ebc95d3b87207
+Tree: stable-rc
+Branch: queue/4.14
+Git Describe: v4.14.213-25-g3ae46324bf865
+Git Commit: 3ae46324bf86594e4d1c965024002247084f7d2b
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 6 unique architectures
 
 Warnings Detected:
@@ -98,7 +98,6 @@ arc:
 
 arm64:
     allnoconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
 
 arm:
     allnoconfig (gcc-8): 1 warning
@@ -163,7 +162,7 @@ x86_64:
 
 Warnings summary:
 
-    64   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
+    63   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
 fined but not used [-Wunused-variable]
     3    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
 ' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
@@ -199,12 +198,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
 
 Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
 
 ---------------------------------------------------------------------------=
 -----
@@ -217,16 +216,21 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
 
 Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
@@ -237,11 +241,6 @@ matches
 Warnings:
     drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
  but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -869,6 +868,11 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -1293,17 +1297,7 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
 Warnings:
@@ -1312,12 +1306,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1331,7 +1321,12 @@ fers from latest kernel version at 'arch/x86/include/asm/insn.h'
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
 atches
 
 Warnings:
