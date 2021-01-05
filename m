@@ -2,120 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A82992EA8B7
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 11:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B79EC2EA8D3
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 11:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbhAEKaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 05:30:24 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:41667 "EHLO
+        id S1728591AbhAEKco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 05:32:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24350 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729127AbhAEKaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 05:30:23 -0500
+        by vger.kernel.org with ESMTP id S1728239AbhAEKck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 05:32:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609842537;
+        s=mimecast20190719; t=1609842673;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=H30d+AlR8ieFQgPqpprypshZD37jO8PgTCkCJgLRnb0=;
-        b=Z+M1LLzQNuarqRIC7fJ/R/CZJ8r+f1BiGHdtNnS9OsGEXFwbjQ6X6IjxsGqeQSJL1hGDbv
-        E3fCk2FhRB2sbH2iQjy8BBrvaw5t9RbcJaQPkk3PJVAK/NVoizSBbm7r/8EOW3jeq7pU2W
-        YcQx3fB/uXepP0RxnuL3+rMI1AeJiCs=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-28-EQqhR4b9OvSkTP8SpWHaIg-1; Tue, 05 Jan 2021 05:28:56 -0500
-X-MC-Unique: EQqhR4b9OvSkTP8SpWHaIg-1
-Received: by mail-ed1-f71.google.com with SMTP id e11so13919628edn.11
-        for <stable@vger.kernel.org>; Tue, 05 Jan 2021 02:28:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=H30d+AlR8ieFQgPqpprypshZD37jO8PgTCkCJgLRnb0=;
-        b=DaAi8aEsSqfWv+SwZxPmZv8+3Olk+2HYP9i/Q5cynjfXqls+nOfTA1hKRG52cuTdTx
-         zFyKs9wC5lglzsaHOkOaFotrKs4WwGAcOk9L06bNQoeDekfX2+XfL+HUzZxP0uyz1Z6q
-         vXeUp71wEB+g7+U7vbH3VVpHIH/yCJ/AIPCFcx0lo/4gIknuMX9Vw3AHKWHjM02Dakdw
-         DX5vNqSuC67ZP8xC3tyQFObDNiR4CfaLVdCXGAlOz4wH0MhQVZ46PH/MzFYD1X53g90I
-         DmKKcAO94wMXnjmwZ7lUbHN2/tpEqMRFt88+kJEm+uUlvJy6NnOYzQB5RNJxvlEeUUFT
-         t+fA==
-X-Gm-Message-State: AOAM531APl0RikKMywtrwBGIcjmFv2KgzS14BVloYaFY+0fAKV3346oE
-        Wz5eMwDdH1muNyjIf/Fq2cnGNf/XP56p5v2DDWWTAhYxA5PEJCWI2LMpFf3BLEJCxwAEgh5eKWW
-        w4l3wHkuC1vWyco6F
-X-Received: by 2002:a05:6402:404:: with SMTP id q4mr76806661edv.295.1609842535044;
-        Tue, 05 Jan 2021 02:28:55 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzCJTTQIgJsc5JrHCkbND3KztYMvX8DlFCDLt4b/1HEBPbRvYfaH6P9hUf9sKM5fx9Zi/grmA==
-X-Received: by 2002:a05:6402:404:: with SMTP id q4mr76806650edv.295.1609842534887;
-        Tue, 05 Jan 2021 02:28:54 -0800 (PST)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-37a3-353b-be90-1238.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:37a3:353b:be90:1238])
-        by smtp.gmail.com with ESMTPSA id oq7sm24754910ejb.63.2021.01.05.02.28.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Jan 2021 02:28:54 -0800 (PST)
-Subject: Re: [PATCH] usb: uas: Add PNY USB Portable SSD to unusual_uas
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        usb-storage@lists.one-eyed-alien.net
-Cc:     stable@vger.kernel.org, linux-usb@vger.kernel.org
-References: <2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <e0a6cb75-1000-5889-6dfa-dc236d4ed4fa@redhat.com>
-Date:   Tue, 5 Jan 2021 11:28:53 +0100
+        bh=TCdWrkSxLou0I6q81I1C/gts0l+m7St/LyKjpTgDhNY=;
+        b=RABnb0R7pWETieRI1N3KnNwpOo+VWMMBKtb10jv8huirM0zeDKovNuF8AebdkV16MibW78
+        +nGgyFD87w58tH+zZ92GiHrFkg8Vreq3+r2UFE+lywDhbS1n/1LrC27LWMKCBcr66Fs/NJ
+        tIel5M5UXu0oaKKdcM07V1ioeeubxlU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-589-BTmzTlDvM8-rSTiBU-5qZA-1; Tue, 05 Jan 2021 05:31:11 -0500
+X-MC-Unique: BTmzTlDvM8-rSTiBU-5qZA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7159A803630;
+        Tue,  5 Jan 2021 10:31:10 +0000 (UTC)
+Received: from [10.36.114.117] (ovpn-114-117.ams2.redhat.com [10.36.114.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A78471CA2;
+        Tue,  5 Jan 2021 10:31:08 +0000 (UTC)
+Subject: Re: [PATCH v1 3/4] s390/kvm: add kvm_s390_vsie_mvpg_check needed for
+ VSIE MVPG
+To:     Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, stable@vger.kernel.org
+References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+ <20201218141811.310267-4-imbrenda@linux.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat GmbH
+Message-ID: <ae6f3ec4-773f-2527-6cb5-7aaf803f73bf@redhat.com>
+Date:   Tue, 5 Jan 2021 11:31:08 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com>
+In-Reply-To: <20201218141811.310267-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 1/5/21 5:07 AM, Thinh Nguyen wrote:
-> Here's another variant PNY Pro Elite USB 3.1 Gen 2 portable SSD that
-> hangs and doesn't respond to ATA_1x pass-through commands. If it doesn't
-> support these commands, it should respond properly to the host. Add it
-> to the unusual uas list to be able to move forward with other
-> operations.
+On 18.12.20 15:18, Claudio Imbrenda wrote:
+> Add kvm_s390_vsie_mvpg_check to perform the necessary checks in case an
+> MVPG instruction intercepts in a VSIE guest.
 > 
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-
-Thanks, patch looks good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
-
-
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > ---
->  drivers/usb/storage/unusual_uas.h | 7 +++++++
->  1 file changed, 7 insertions(+)
+>  arch/s390/kvm/gaccess.c | 55 +++++++++++++++++++++++++++++++++++++++++
+>  arch/s390/kvm/gaccess.h |  3 +++
+>  2 files changed, 58 insertions(+)
 > 
-> diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-> index 870e9cf3d5dc..f9677a5ec31b 100644
-> --- a/drivers/usb/storage/unusual_uas.h
-> +++ b/drivers/usb/storage/unusual_uas.h
-> @@ -90,6 +90,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x9999,
->  		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
->  		US_FL_BROKEN_FUA),
->  
-> +/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
-> +UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
-> +		"PNY",
-> +		"Pro Elite SSD",
-> +		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-> +		US_FL_NO_ATA_1X),
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index 8e256a233583..90e9baff6eac 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -1228,3 +1228,58 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+>  	mmap_read_unlock(sg->mm);
+>  	return rc;
+>  }
 > +
->  /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
->  UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
->  		"PNY",
+> +static int kvm_s390_mvpg_check_one(struct kvm_vcpu *vcpu, unsigned long *addr,
+> +			     const int edat, const union asce asce,
+> +			     const enum gacc_mode mode, unsigned long *pteptr)
+> +{
+> +	enum prot_type prot;
+> +	int rc;
+> +
+> +	rc = guest_translate(vcpu, *addr, addr, asce, mode, &prot, pteptr);
+> +	if (rc <= 0)
+> +		return rc;
+> +
+> +	switch (rc) {
+> +	case PGM_REGION_FIRST_TRANS:
+> +	case PGM_REGION_SECOND_TRANS:
+> +	case PGM_REGION_THIRD_TRANS:
+> +	case PGM_SEGMENT_TRANSLATION:
+> +		if (!edat)
+> +			return trans_exc(vcpu, rc, *addr, 0, mode, prot);
+> +		*pteptr |= 4;
+
+Hmmm, I wonder why that is necessary. Can't we set that in all relevant
+cases in guest_translate() just as you do via
+
+*entryptr |= dat_protection ? 6 : 4;
+
+
+Can you enlighten me? :)
+
+> +		fallthrough;
+> +	case PGM_PAGE_TRANSLATION:
+> +		return -ENOENT;
+> +	default:
+> +		return rc;
+> +	}
+> +}
+> +
+> +int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
+> +			     unsigned long r2, void *gpei)
+> +{
+> +	unsigned long pei[2] = {0};
+> +	union ctlreg0 cr0;
+> +	union asce cr1;
+> +	int edat, rc1, rc2;
+> +
+> +	cr0.val = vcpu->arch.sie_block->gcr[0];
+> +	cr1.val = vcpu->arch.sie_block->gcr[1];
+> +	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+> +
+> +	rc1 = kvm_s390_mvpg_check_one(vcpu, &r1, edat, cr1, GACC_FETCH, pei);
+> +	rc2 = kvm_s390_mvpg_check_one(vcpu, &r2, edat, cr1, GACC_STORE, pei + 1);
+> +
+> +	if (rc1 == -ENOENT || rc2 == -ENOENT) {
+> +		memcpy(gpei, pei, sizeof(pei));
+
+I'd really prefer just passing two unsigned long pointers to
+kvm_s390_vsie_mvpg_check() and eventually directly forwarding them to
+kvm_s390_mvpg_check_one().
+
+> +		return -ENOENT;
+> +	}
+> +
+> +	if (rc2 < 0)
+> +		return rc2;
+> +	if (rc1 < 0)
+> +		return rc1;
+> +
+> +	return 0;
+> +}
+> diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+> index f4c51756c462..2c53cee3b29f 100644
+> --- a/arch/s390/kvm/gaccess.h
+> +++ b/arch/s390/kvm/gaccess.h
+> @@ -166,6 +166,9 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
+>  int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
+>  		 unsigned long len, enum gacc_mode mode);
+>  
+> +int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
+> +			     unsigned long r2, void *gpei);
+> +
+>  int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
+>  		      void *data, unsigned long len, enum gacc_mode mode);
+>  
 > 
-> base-commit: 5c8fe583cce542aa0b84adc939ce85293de36e5e
-> 
+
+
+-- 
+Thanks,
+
+David / dhildenb
 
