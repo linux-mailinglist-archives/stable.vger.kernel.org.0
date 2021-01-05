@@ -2,192 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 068142EB158
-	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 18:27:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B66002EB1E3
+	for <lists+stable@lfdr.de>; Tue,  5 Jan 2021 18:59:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728833AbhAER00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 12:26:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56612 "EHLO
+        id S1730580AbhAER4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Jan 2021 12:56:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728897AbhAER00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 12:26:26 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595B4C061574;
-        Tue,  5 Jan 2021 09:25:45 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id m12so203184lfo.7;
-        Tue, 05 Jan 2021 09:25:45 -0800 (PST)
+        with ESMTP id S1726132AbhAER4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 12:56:53 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4004AC061574
+        for <stable@vger.kernel.org>; Tue,  5 Jan 2021 09:56:13 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id t6so130768plq.1
+        for <stable@vger.kernel.org>; Tue, 05 Jan 2021 09:56:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=JBAoqa/YYzs12J+EpEorHCfSUVTlayy6/Zn5pCrlnlU=;
-        b=Wb/I1FIvHaCKVnSm3BDf3HcY5UB5226ifzpFXz9Bc/IWoi9dhucPYq5+BXuRiOdqc4
-         asGGICYjXvJYO4V3MLhHUoau6UMT7bV0EfiRgndua/77F0JeDNc3VY9rIYshHAJ7unz4
-         C31/lUz7IPge2XmbIuFR27FIQwTb2mfvtIU0S6wr5D+g4lH9V0WDtIY40lLpzsSNfWyO
-         8DaMWjBO9hDOuIVfVQfkp48Wa1L11aYKS63Ac9++6XTVpaTOIUKF3nrlgqbEQfIya3p0
-         xTVpJMz6DpA7XeKG0O9bXutyh7wngd7Vj6MMO9SbM4JkjOKl6hh3Zwqlyvxq0YxYrjOs
-         /tnw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=av/y5Xr9NTNTQMtwqh3tFMDQ25xUfJ5Z/ibQJ0IC2gQ=;
+        b=oYhU7CrTJLkcEASi9SOFmAXCGQownK7OHY4e/9sl/u2P9+t9uB9o+yX52ItBWVzb2o
+         phlnsAkfIdglKvUDYbpYAv2FAsVvr6LKAG7ELPU+Ib3It1IRiVXXMJA5jN06cFV1WNrz
+         q1R07bjJwkwjtoG0zY0zjltFalzltGrOaQ7QPgrdWmJ8SsfJkdpMYpbm6GcF36ua5rgq
+         sPeAFphaqVDQoe820DrIh6P0FNputNsW37vObfYU3ZLx/KwgjIziIe1V9B+qTY9wGRzL
+         22q/KYDXH41SjfRqyxCH8IEKhkQY95QJqT5jLpkRBsnZ4o7jHb8nqKifSU+UkqS2GNpV
+         zCAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=JBAoqa/YYzs12J+EpEorHCfSUVTlayy6/Zn5pCrlnlU=;
-        b=IyFvoyrIlUyY5lB5lY84TCf/3g8vfAeWW/jDr3jo1T80+zEUvYnzdLYtl7tOJOsx2l
-         +PjKs+kmPT+CfN2t3kJxrOhpNoiXGXcSXvCIjf1KiiJHExDIoVAJGvx09G71srI0Plys
-         j8WCB9xQUReTFMFxnG50UO/9RgpfTJtDbeVKUa6hNZKvlG3hdHKeBjtsHnjn329vf6/p
-         IvgzqZrMoWEWyy1SJakNXACu1+BJtrSC0msmpHAnK7dfDeAJ9BG3RpSPcibnj6IIQrce
-         NBsqszeHIk45bQ9nc8c02NK6Isir0A8DqJ77HvHKyaXfOuNBt4qOi2/z1TA8A4cAS6Gb
-         L7mw==
-X-Gm-Message-State: AOAM533jmzeAlBDQ+OggBHDAQH8u7271V3iBajLCzFPGEuo7qkF3VpHE
-        YWkS7sk4m68HtdkMKqy9qOdxhrCcnHU=
-X-Google-Smtp-Source: ABdhPJzCgGWL4WFl8jteD+gVSVMTu69LYnDY3u3fLr6D6g+bEwKLZ6cN/6UnPfwcAVUmV5xzuTS9Iw==
-X-Received: by 2002:ac2:4f88:: with SMTP id z8mr130061lfs.141.1609867543680;
-        Tue, 05 Jan 2021 09:25:43 -0800 (PST)
-Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
-        by smtp.googlemail.com with ESMTPSA id 127sm29049lfk.102.2021.01.05.09.25.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Jan 2021 09:25:43 -0800 (PST)
-Subject: Re: [PATCH 2/4] cpuidle: Fix missing need_resched() check after
- rcu_idle_enter()
-To:     Frederic Weisbecker <frederic@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
-References: <20201222013712.15056-1-frederic@kernel.org>
- <20201222013712.15056-3-frederic@kernel.org>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <e882be10-548a-8e90-9bc6-acea453a5241@gmail.com>
-Date:   Tue, 5 Jan 2021 20:25:41 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.2
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=av/y5Xr9NTNTQMtwqh3tFMDQ25xUfJ5Z/ibQJ0IC2gQ=;
+        b=A0HFASXgO48f+ojRIfJ4Mo4xm6UYR4un5E1PEUUAew3puMP5LPltM0QsPigQSV0GB9
+         kYk+X83cGB8XQcg1a3/VvZ9Q00ka/UNAKvxnCY74IpXeBx+OpGjQTU+FWLRVOxNl2+rb
+         XQRqLw+6P3kCKVDy+OI7l0LRBTup/Ym0qVHmao9QefuoiYqyjrQ3kpq7YlUAhsDoh5Ie
+         J6aB5Os8jsJrLY5OJmnNbW0j0P64f5IJBpPzGP9ozPudA7QcOKtdJNw4lQy8ZTTxPosh
+         R24zRM73jDOd038H3AOYob1xA17SDZraqwlBdj9iMwP1/C7ahrOhfZVVOkODUsbJVdvE
+         Qmqg==
+X-Gm-Message-State: AOAM532rPaa3jl4wfJj0AG/uJzuav/piagWmJNKQAQcj4H8/KJp4xv1h
+        RR0KNk9aTxv/lk26BKu32VdV6og1/HLF2Q==
+X-Google-Smtp-Source: ABdhPJwLO7+x9qkm4znoGHcRbfTXRhoI9qU0PiU6jQcCiqzC4QMEuKb7XuXY/0KOMla2vXWBVJ7XDA==
+X-Received: by 2002:a17:90a:bf05:: with SMTP id c5mr366411pjs.95.1609869372479;
+        Tue, 05 Jan 2021 09:56:12 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id er23sm195925pjb.12.2021.01.05.09.56.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Jan 2021 09:56:11 -0800 (PST)
+Message-ID: <5ff4a83b.1c69fb81.6ab63.0872@mx.google.com>
+Date:   Tue, 05 Jan 2021 09:56:11 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201222013712.15056-3-frederic@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.213-25-g4d76bd8af5ced
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 151 runs,
+ 6 regressions (v4.14.213-25-g4d76bd8af5ced)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-22.12.2020 04:37, Frederic Weisbecker пишет:
-> Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
-> kthread (rcuog) to be serviced.
-> 
-> Usually a wake up happening while running the idle task is spotted in
-> one of the need_resched() checks carefully placed within the idle loop
-> that can break to the scheduler.
-> 
-> Unfortunately within cpuidle the call to rcu_idle_enter() is already
-> beyond the last generic need_resched() check. Some drivers may perform
-> their own checks like with mwait_idle_with_hints() but many others don't
-> and we may halt the CPU with a resched request unhandled, leaving the
-> task hanging.
-> 
-> Fix this with performing a last minute need_resched() check after
-> calling rcu_idle_enter().
-> 
-> Reported-by: Paul E. McKenney <paulmck@kernel.org>
-> Fixes: 1098582a0f6c (sched,idle,rcu: Push rcu_idle deeper into the idle path)
-> Cc: stable@vger.kernel.org
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> ---
->  drivers/cpuidle/cpuidle.c | 33 +++++++++++++++++++++++++--------
->  1 file changed, 25 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
-> index ef2ea1b12cd8..4cc1ba49ce05 100644
-> --- a/drivers/cpuidle/cpuidle.c
-> +++ b/drivers/cpuidle/cpuidle.c
-> @@ -134,8 +134,8 @@ int cpuidle_find_deepest_state(struct cpuidle_driver *drv,
->  }
->  
->  #ifdef CONFIG_SUSPEND
-> -static void enter_s2idle_proper(struct cpuidle_driver *drv,
-> -				struct cpuidle_device *dev, int index)
-> +static int enter_s2idle_proper(struct cpuidle_driver *drv,
-> +			       struct cpuidle_device *dev, int index)
->  {
->  	ktime_t time_start, time_end;
->  	struct cpuidle_state *target_state = &drv->states[index];
-> @@ -151,7 +151,14 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
->  	stop_critical_timings();
->  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
->  		rcu_idle_enter();
-> -	target_state->enter_s2idle(dev, drv, index);
-> +	/*
-> +	 * Last need_resched() check must come after rcu_idle_enter()
-> +	 * which may wake up RCU internal tasks.
-> +	 */
-> +	if (!need_resched())
-> +		target_state->enter_s2idle(dev, drv, index);
-> +	else
-> +		index = -EBUSY;
->  	if (WARN_ON_ONCE(!irqs_disabled()))
->  		local_irq_disable();
->  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
-> @@ -159,10 +166,13 @@ static void enter_s2idle_proper(struct cpuidle_driver *drv,
->  	tick_unfreeze();
->  	start_critical_timings();
->  
-> -	time_end = ns_to_ktime(local_clock());
-> +	if (index > 0) {
+stable-rc/queue/4.14 baseline: 151 runs, 6 regressions (v4.14.213-25-g4d76b=
+d8af5ced)
 
-index=0 is valid too
+Regressions Summary
+-------------------
 
-> +		time_end = ns_to_ktime(local_clock());
-> +		dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
-> +		dev->states_usage[index].s2idle_usage++;
-> +	}
->  
-> -	dev->states_usage[index].s2idle_time += ktime_us_delta(time_end, time_start);
-> -	dev->states_usage[index].s2idle_usage++;
-> +	return index;
->  }
->  
->  /**
-> @@ -184,7 +194,7 @@ int cpuidle_enter_s2idle(struct cpuidle_driver *drv, struct cpuidle_device *dev)
->  	 */
->  	index = find_deepest_state(drv, dev, U64_MAX, 0, true);
->  	if (index > 0) {
-> -		enter_s2idle_proper(drv, dev, index);
-> +		index = enter_s2idle_proper(drv, dev, index);
->  		local_irq_enable();
->  	}
->  	return index;
-> @@ -234,7 +244,14 @@ int cpuidle_enter_state(struct cpuidle_device *dev, struct cpuidle_driver *drv,
->  	stop_critical_timings();
->  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
->  		rcu_idle_enter();
-> -	entered_state = target_state->enter(dev, drv, index);
-> +	/*
-> +	 * Last need_resched() check must come after rcu_idle_enter()
-> +	 * which may wake up RCU internal tasks.
-> +	 */
-> +	if (!need_resched())
-> +		entered_state = target_state->enter(dev, drv, index);
-> +	else
-> +		entered_state = -EBUSY;
->  	if (!(target_state->flags & CPUIDLE_FLAG_RCU_IDLE))
->  		rcu_idle_exit();
->  	start_critical_timings();
-> 
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-This patch causes a hardlock on NVIDIA Tegra using today's linux-next.
-Disabling coupled idling state helps. Please fix thanks in advance.
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.213-25-g4d76bd8af5ced/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.213-25-g4d76bd8af5ced
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4d76bd8af5ced1803f1b71581e1f7533b893c86b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff470fb26cb79ef4cc94ce4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff470fb26cb79ef4cc94=
+ce5
+        failing since 28 days (last pass: v4.14.210-20-gc32b9f7cbda7, first=
+ fail: v4.14.210-20-g5ea7913395d3) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff4712c4c6268082ac94ccd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff4712c4c6268082ac94=
+cce
+        failing since 52 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff471244c6268082ac94cc9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff471244c6268082ac94=
+cca
+        failing since 52 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff4713e13aebf4fc6c94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff4713e13aebf4fc6c94=
+cba
+        failing since 52 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff470f126cb79ef4cc94cc2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff470f126cb79ef4cc94=
+cc3
+        failing since 52 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff47335330e3240e0c94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.213=
+-25-g4d76bd8af5ced/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff47335330e3240e0c94=
+cba
+        failing since 52 days (last pass: v4.14.206-21-g787a7a3ca16c, first=
+ fail: v4.14.206-22-ga949bf40fb01) =
+
+ =20
