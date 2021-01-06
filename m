@@ -2,68 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5032EBF17
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 14:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E342EC03D
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 16:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727505AbhAFNpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 08:45:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727306AbhAFNpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Jan 2021 08:45:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CD1C22B40;
-        Wed,  6 Jan 2021 13:45:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609940714;
-        bh=dzveg0rL9XKUMaosUdzq5ZPSRie1W3jtdMWmi/+hiZ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pyfG6+RfMCFB39KoB8xKmp8vD9zh0nDfYmWpOYj7LCdVBpQK8hG0vq/vN/nkHYfBr
-         DJCU2jAdJKODN8xDm0q4I4+m843AibGk8CBktIuQdVeT35U0dvvSktGs9JfHWQ9UQo
-         o3EEj0i1kb05gbwhy9XZ5br02Dai+gG+fAbwpCz8=
-Date:   Wed, 6 Jan 2021 14:46:32 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/35] 4.19.165-rc1 review
-Message-ID: <X/W/OBYOyPB7jrRz@kroah.com>
-References: <20210104155703.375788488@linuxfoundation.org>
- <46249e9b-218f-0a7f-24fc-23854e8ab7df@linuxfoundation.org>
+        id S1726195AbhAFPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 10:17:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726109AbhAFPRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 10:17:45 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5E6C06134D
+        for <stable@vger.kernel.org>; Wed,  6 Jan 2021 07:17:04 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id r7so2750317wrc.5
+        for <stable@vger.kernel.org>; Wed, 06 Jan 2021 07:17:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=raspberrypi.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=PE0jOtNMjFje+mvhguTZNdxmt10fdjmfoJdtuZiVuXQ=;
+        b=e1rsNgAlHPp3/TCa+MY7d3ka4llX4r09bOvkvcB0TvQPov2f3/vd9mKoadQoiOORVi
+         9g62BhwSFqwjdMZ0bKtc0OB7O9bkU24x6IpoD+kEPYWeFr/SHMuPsowv5CHWAeMHj1UB
+         VtfvsSKdxZzkrPoHeHDxfDNXePRTX27XXlwVUtoOARqPSiUvXO6mJZwdSBgWTC+y9+Vh
+         ya45nnh90VdsQzhHROD+YrpAXbPZ0Eq7ET/8LqfQsBK7tHxjNeDRUqlmErSQLq50uomi
+         rtcj8IrmslUT5TQYcwxUBhH6jPTcmSu1PSU90D5dy6G7sX+zOcAqo2yhkn585e8of5VT
+         OyqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=PE0jOtNMjFje+mvhguTZNdxmt10fdjmfoJdtuZiVuXQ=;
+        b=o8xoPp+iBVm0nbTkXW6G5p9ZrzPtfinTeN8xCsIkhEsQF59HvA3V1ikJFooyqFGIVU
+         KLPZPxdzu2GsKvyPaiDPewrnRmxrLwBW8jQoueX8DYOtggY/g3sKUNdiLbkHEyBpoazS
+         4fyWT2wtgFN63vbMAVW01nAHe3QbPLH1cRGD71MXwrk01NZyEnql9OkpO1Y55ej0Qydj
+         gonw7WpBtb48LzTa9xID/hfaph3Z83kCD7Q9urSuXKaHIKNvaHrOaQoMZlFEByIlzqL+
+         TOyCgLvUMVzKo3mNLjcHJ3k0/M/nv4ASukipwQUV6vtYuF4vgccB1b0yeIBx+Abwvy/K
+         fK6g==
+X-Gm-Message-State: AOAM5306Hs5anK13sIiEIMYZ1rCKuQ3vxiqTVy2WqjoXa+5zGTS+qHe7
+        X8z9qgSGtMDq78lSBATzB4vsrA==
+X-Google-Smtp-Source: ABdhPJwvYDioKJZF+OaUlEWuT+zvSLBsig/DSHQudgEfm6KcaYex2YUi4t7nR5ejcmC6XdvDxjyD0A==
+X-Received: by 2002:a5d:6ccb:: with SMTP id c11mr4775211wrc.224.1609946223362;
+        Wed, 06 Jan 2021 07:17:03 -0800 (PST)
+Received: from naushir-VirtualBox.patuck.local ([88.97.76.4])
+        by smtp.gmail.com with ESMTPSA id o83sm3408512wme.21.2021.01.06.07.17.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Jan 2021 07:17:02 -0800 (PST)
+From:   Naushir Patuck <naush@raspberrypi.com>
+To:     linux-media@vger.kernel.org
+Cc:     laurent.pinchart@ideasonboard.com,
+        Naushir Patuck <naush@raspberrypi.com>, stable@vger.kernel.org,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Subject: [PATCH v2] Revert "media: videobuf2: Fix length check for single plane dmabuf queueing"
+Date:   Wed,  6 Jan 2021 15:16:57 +0000
+Message-Id: <20210106151657.16210-1-naush@raspberrypi.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210106135210.12337-1-naush@raspberrypi.com>
+References: <20210106135210.12337-1-naush@raspberrypi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <46249e9b-218f-0a7f-24fc-23854e8ab7df@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 05, 2021 at 09:44:26AM -0700, Shuah Khan wrote:
-> On 1/4/21 8:57 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.19.165 release.
-> > There are 35 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 06 Jan 2021 15:56:52 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.165-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted on my test system. No dmesg regressions.
-> 
-> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+The updated length check for dmabuf types broke existing usage in v4l2
+userland clients.
 
-Thanks for testing them all and letting me know.
+Fixes: 961d3b27 ("media: videobuf2: Fix length check for single plane dmabuf queueing")
+Cc: stable@vger.kernel.org
+Signed-off-by: Naushir Patuck <naush@raspberrypi.com>
+Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+---
+ drivers/media/common/videobuf2/videobuf2-v4l2.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-greg k-h
+diff --git a/drivers/media/common/videobuf2/videobuf2-v4l2.c b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+index 96d3b2b2aa31..3f61f5863bf7 100644
+--- a/drivers/media/common/videobuf2/videobuf2-v4l2.c
++++ b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+@@ -118,8 +118,7 @@ static int __verify_length(struct vb2_buffer *vb, const struct v4l2_buffer *b)
+ 				return -EINVAL;
+ 		}
+ 	} else {
+-		length = (b->memory == VB2_MEMORY_USERPTR ||
+-			  b->memory == VB2_MEMORY_DMABUF)
++		length = (b->memory == VB2_MEMORY_USERPTR)
+ 			? b->length : vb->planes[0].length;
+ 
+ 		if (b->bytesused > length)
+-- 
+2.25.1
+
