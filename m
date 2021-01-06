@@ -2,85 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 504852EB8A5
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 04:50:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE612EBABC
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 08:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbhAFDuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Jan 2021 22:50:08 -0500
-Received: from 142-4-23-50.unifiedlayer.com ([142.4.23.50]:58630 "EHLO
-        142-4-23-50.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726371AbhAFDuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Jan 2021 22:50:07 -0500
-X-Greylist: delayed 28125 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 Jan 2021 22:50:07 EST
-Received: from omoraka25 by 142-4-23-50.ipage.com with local (Exim 4.93)
-        (envelope-from <omoraka25@142-4-23-50.ipage.com>)
-        id 1kwsM0-0006mT-UY; Tue, 05 Jan 2021 12:50:53 -0700
-To:     stanasel@uoradea.ro
-Subject: MANUSCRIPT PROOFREADING
-X-PHP-Script: modernacademicedit.org/mail5/send.php for 105.112.100.25
-X-PHP-Originating-Script: 1001:send.php
-From:   scriptediting23@pub45.org
-Reply-To: modernacademicedit@gmail.com
-Message-Id: <E1kwsM0-0006mT-UY@142-4-23-50.ipage.com>
-Date:   Tue, 05 Jan 2021 12:50:52 -0700
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 142-4-23-50.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
-X-AntiAbuse: Sender Address Domain - 142-4-23-50.ipage.com
-X-Get-Message-Sender-Via: 142-4-23-50.ipage.com: authenticated_id: omoraka25/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 142-4-23-50.ipage.com: omoraka25
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+        id S1726580AbhAFHvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 02:51:05 -0500
+Received: from mxout70.expurgate.net ([91.198.224.70]:39936 "EHLO
+        mxout70.expurgate.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726516AbhAFHvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 02:51:04 -0500
+X-Greylist: delayed 969 seconds by postgrey-1.27 at vger.kernel.org; Wed, 06 Jan 2021 02:51:03 EST
+Received: from [127.0.0.1] (helo=localhost)
+        by relay.expurgate.net with smtp (Exim 4.92)
+        (envelope-from <ms@dev.tdt.de>)
+        id 1kx3Jb-000Abi-8Q; Wed, 06 Jan 2021 08:33:07 +0100
+Received: from [195.243.126.94] (helo=securemail.tdt.de)
+        by relay.expurgate.net with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ms@dev.tdt.de>)
+        id 1kx3Ja-000AbP-KA; Wed, 06 Jan 2021 08:33:06 +0100
+Received: from securemail.tdt.de (localhost [127.0.0.1])
+        by securemail.tdt.de (Postfix) with ESMTP id B03F8240041;
+        Wed,  6 Jan 2021 08:33:05 +0100 (CET)
+Received: from mail.dev.tdt.de (unknown [10.2.4.42])
+        by securemail.tdt.de (Postfix) with ESMTP id 2B578240040;
+        Wed,  6 Jan 2021 08:33:05 +0100 (CET)
+Received: from mail.dev.tdt.de (localhost [IPv6:::1])
+        by mail.dev.tdt.de (Postfix) with ESMTP id A498C20046;
+        Wed,  6 Jan 2021 08:33:04 +0100 (CET)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Wed, 06 Jan 2021 08:33:04 +0100
+From:   Martin Schiller <ms@dev.tdt.de>
+To:     Xie He <xie.he.0141@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Jakub Kicinski <kuba@kernel.org>,
+        Linux X25 <linux-x25@vger.kernel.org>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.4 075/130] net/lapb: fix t1 timer handling for
+ LAPB_STATE_0
+Organization: TDT AG
+In-Reply-To: <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
+References: <20201223021813.2791612-75-sashal@kernel.org>
+ <20201223170124.5963-1-xie.he.0141@gmail.com>
+ <CAJht_EOXf4Z3G-rq92hb_YvJEsHtDy15FE7WuthqDQsPY039QQ@mail.gmail.com>
+Message-ID: <70be903f2be49e243b5a28cf565c07a8@dev.tdt.de>
+X-Sender: ms@dev.tdt.de
+User-Agent: Roundcube Webmail/1.3.15
+X-Spam-Status: No, score=-1.0 required=5.0 tests=ALL_TRUSTED autolearn=ham
+        autolearn_force=no version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.dev.tdt.de
+X-purgate-ID: 151534::1609918387-0001A85E-4872F59B/0/0
+X-purgate: clean
+X-purgate-type: clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN ACADEMIC EDITING 
-www.modernacademicedit.com
+On 2020-12-24 10:49, Xie He wrote:
+> On Wed, Dec 23, 2020 at 9:01 AM Xie He <xie.he.0141@gmail.com> wrote:
+>> 
+>> I don't think this patch is suitable for stable branches. This patch 
+>> is
+>> part of a patch series that changes the lapb module from "establishing 
+>> the
+>> L2 connection only when needed by L3", to "establishing the L2 
+>> connection
+>> automatically whenever we are able to". This is a behavioral change. 
+>> It
+>> should be seen as a new feature. It is not a bug fix.
+> 
+> Applying this patch without other patches in the same series will also
+> introduce problems, because this patch relies on part of the changes
+> in the subsequent patch in the same series to be correct.
+> 
+> Hi Martin,
+> 
+> It's better that we avoid using words like "fix" in non-bug-fix
+> patches, and make every patch work on its own without subsequent
+> patches. Otherwise we'll make people confused.
 
-
-Don't allow poor spelling or poor formatting deny your manuscript’s chance of publication in high-quality journals.
-Don't become one of the hundreds of authors who have their manuscripts rejected due to spelling, grammatical, typographical or punctuation errors.
-Hence, what Are You Waiting For?
-Modern Academic Editing is the most trusted academic proofreading and editing services for you.
-
-Dear Colleague,
-MODERN ACADEMIC EDITING is the Number 1 choice for native and non-native English speaking students, professionals, authors, and individuals from around the globe, for ensuring the highest-possible quality of editing and confirming that ideas are communicated clearly and effectively. Thousands of academic authors and researchers have already experienced our specialist Proofreading services now it’s your turn! Therefore, we call on writers and authors in all academic fields to submit their manuscripts for editing and proofreading. We have observed, over and over again, that incorrect grammar, punctuation, spelling or syntax often leads to a negative response to manuscripts from reviewers. Using an online grammar correction service is not always sufficient to highlight mistakes. Hence, we advise that authors should send their manuscript(s) to us for accurate grammatical proofreading and editing.
-
-We invite you to submit your articles and theses (MS-Word document) as e-mail attachments to our Editorial Office at: articles@modernacademicedit.com or modernacademicedit@gmail.com. Manuscripts are expected to be in double line spacing (Still depends on the journal's format).Upon receipt of your manuscript, an acknowledgment letter, including the manuscript number and the payment charges, will be sent to the corresponding author.
-
-Our charges are as follows:
-
-WORD COUNT	STANDARD
-3 days	EXPRESS
-2 days	URGENT**
-24 hrs
-Up to 1,000	$25	$35	$50
-1,001 to 2,000	$50	$70	$100
-2,001 to 3,000	$75	$105	$150
-3,001 to 4,000	$100	$140	$200
-4,001 to 5,000	$125	$175	$250
-5,001 to 6,000	$150	$210	$300
-6,001 to 7,000	$175	$240	$350
-7,001 to 8,000	$200	$275	$400
-8,001 to 9,000	$225	$310	$450
-9,001 to 10,000	$250	$345	$500
-10,001 to 11,000	$275	$380	$550
-11,001 to 12,000	$300	$415	$600
-Over 12,000 Words (e.g thesis)	Available on request with special discount	Available on request with special discount	Available on request with special discount
-
-Payments are made through bank wire transfer or via credit card online (instant payment).Also, our areas of specialization include proofreading, grammatical editing, proper punctuation, paraphrasing and editing of sentences, aligning of articles to the required format and translating from your native language to English.
-
-For more information, visit our site https://modernacademicedit.com. It is appreciated if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Chris Tom
-Editor
-Modern Academic Editing
-
-To unsubscribe, kindly send a mail tounsubscribe.modernacademicedit@gmail.com
-
-
+Yes, you are right.
