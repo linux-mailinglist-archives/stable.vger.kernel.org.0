@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D381B2EC476
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 21:10:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 988342EC47E
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 21:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbhAFUJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 15:09:00 -0500
-Received: from mail-40133.protonmail.ch ([185.70.40.133]:50666 "EHLO
-        mail-40133.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726090AbhAFUI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 15:08:59 -0500
-Date:   Wed, 06 Jan 2021 20:08:14 +0000
+        id S1727164AbhAFUJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 15:09:52 -0500
+Received: from mail-02.mail-europe.com ([51.89.119.103]:57576 "EHLO
+        mail-02.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727031AbhAFUJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 15:09:51 -0500
+Date:   Wed, 06 Jan 2021 20:08:19 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1609963697; bh=hjIccLTNrNOzUNrqAIbTw81FXVcf6wB+LAQsEABOGxY=;
+        t=1609963703; bh=gVx8E+xZ9lrHiS0GOCboaARCIQvynUD7BXGkbX/mth4=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=i5a6TJtch6Od01ozZrBiV73uviXZxXdQfPmCCKjPgtoZjLBFlLr4uVJz8CWfOwXVJ
-         1kA9sw2VpQ5ZM52dVlUsQWtGwJ9vjW3SxqmHdmWoISKy8k1v0M9B9d261QKbXcxnSy
-         PGBo+whYEUl/Ph+Txmsf15Yfn7aaqJwn0in1qoHpN22fwRnDg9yMk15FkiMQfpIJ2o
-         DDNYqwel+FAKjcmoTk1yfKI2OEo/9NT+uoQvJ3ozEpsmvUzktyia6N6w3Fs1BuiL5T
-         yaf2+yyy2mNzbOkVljPxvQxPq/biuNwF0Mc0tQdm4/dFHmiw9oiwMC7pKHb+VuLJxK
-         kcMyDawmaFVsg==
+        b=D5BR4ONH0+Jq/LU0r/+wUjKpN7kzcWdAhFr9x7aMgFdq26mi41Ql2zYLn3g4AuR7y
+         /LrjwC+6fobtndVgofP13pV8AsRd5qvnyTf/EMj71FnmDVTDO7MDk1O3T+Y4BNnyxo
+         CSh1T5hd9CvPzhYWfS37WM829VOabqEnMxuz4ROjYgyG7ovyA3bp/6B1LB4rvxOKet
+         UlyHGyu9IXcwWAqczIjrmR9pVtNTCzL1Qs4SuMN8kSiMgRm4yCX5FeCgufBxYrZIrp
+         AfpxXUy5EWWVVuO24Qqga4QaKpYiWWbWYUzF89n+Cht+IGJn/tNQeKSn+XZeEDNz5+
+         v+0bgIMZtAblg==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Alexander Lobakin <alobakin@pm.me>,
@@ -34,10 +34,10 @@ Cc:     Alexander Lobakin <alobakin@pm.me>,
         linux-mips@vger.kernel.org, stable@vger.kernel.org,
         linux-kernel@vger.kernel.org
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v2 mips-next 1/4] MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
-Message-ID: <20210106200801.31993-1-alobakin@pm.me>
-In-Reply-To: <20210106200713.31840-1-alobakin@pm.me>
-References: <20210106200713.31840-1-alobakin@pm.me>
+Subject: [PATCH v2 mips-next 2/4] MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
+Message-ID: <20210106200801.31993-2-alobakin@pm.me>
+In-Reply-To: <20210106200801.31993-1-alobakin@pm.me>
+References: <20210106200713.31840-1-alobakin@pm.me> <20210106200801.31993-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -50,62 +50,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MIPS uses its own declaration of rwdata, and thus it should be kept
-in sync with the asm-generic one. Currently PAGE_ALIGNED_DATA() is
-missing from the linker script, which emits the following ld
-warnings:
+Discard GNU attributes at link time as kernel doesn't use it at all.
+Solves a dozen of the following ld warnings (one per every file):
 
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/kernel/vdso.o' being placed
-in section `.data..page_aligned'
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/vdso/vdso-image.o' being placed
-in section `.data..page_aligned'
+mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
+from `arch/mips/kernel/head.o' being placed in section
+`.gnu.attributes'
+mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
+from `init/main.o' being placed in section `.gnu.attributes'
 
-Add the necessary declaration, so the mentioned structures will be
-placed in vmlinux as intended:
+Misc: sort DISCARDS section entries alphabetically.
 
-ffffffff80630580 D __end_once
-ffffffff80630580 D __start___dyndbg
-ffffffff80630580 D __start_once
-ffffffff80630580 D __stop___dyndbg
-ffffffff80634000 d mips_vdso_data
-ffffffff80638000 d vdso_data
-ffffffff80638580 D _gp
-ffffffff8063c000 T __init_begin
-ffffffff8063c000 D _edata
-ffffffff8063c000 T _sinittext
-
-->
-
-ffffffff805a4000 D __end_init_task
-ffffffff805a4000 D __nosave_begin
-ffffffff805a4000 D __nosave_end
-ffffffff805a4000 d mips_vdso_data
-ffffffff805a8000 d vdso_data
-ffffffff805ac000 D mmlist_lock
-ffffffff805ac080 D tasklist_lock
-
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Cc: stable@vger.kernel.org # 4.4+
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/kernel/vmlinux.lds.S | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/kernel/vmlinux.lds.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
 S
-index 5e97e9d02f98..83e27a181206 100644
+index 83e27a181206..5d6563970ab2 100644
 --- a/arch/mips/kernel/vmlinux.lds.S
 +++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -90,6 +90,7 @@ SECTIONS
-=20
- =09=09INIT_TASK_DATA(THREAD_SIZE)
- =09=09NOSAVE_DATA
-+=09=09PAGE_ALIGNED_DATA(PAGE_SIZE)
- =09=09CACHELINE_ALIGNED_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- =09=09READ_MOSTLY_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- =09=09DATA_DATA
+@@ -221,9 +221,10 @@ SECTIONS
+ =09=09/* ABI crap starts here */
+ =09=09*(.MIPS.abiflags)
+ =09=09*(.MIPS.options)
++=09=09*(.eh_frame)
++=09=09*(.gnu.attributes)
+ =09=09*(.options)
+ =09=09*(.pdr)
+ =09=09*(.reginfo)
+-=09=09*(.eh_frame)
+ =09}
+ }
 --=20
 2.30.0
 
