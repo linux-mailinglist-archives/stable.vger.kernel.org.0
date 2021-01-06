@@ -2,103 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 829492EBCBF
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 11:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2079C2EBD11
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 12:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbhAFKvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 05:51:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56946 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726786AbhAFKvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 05:51:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1609930224;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4QxMA+cVz43np+3lUK6WKIRMH8Gubjyttk2lLsha7SA=;
-        b=YUytsZWiY6NirIV80R+GgJkomH9jCJel+AErq9N09MGduPtMWsoVC6ChDGi+4ybOCbMgmk
-        937fDNTJzaQhwg0tcFGjsSmDTh3BzWRu9wTfp/916JnuK3cdGNUUTWg5c7e6cNwqJWyo/h
-        KwblgfLdRR4Rir0rk1W9XPW7wYyxEPg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-149-GVjCmVPJPA6CyTKXWIArfA-1; Wed, 06 Jan 2021 05:50:23 -0500
-X-MC-Unique: GVjCmVPJPA6CyTKXWIArfA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725800AbhAFLUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 06:20:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725788AbhAFLUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 06:20:45 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742CCC06134C;
+        Wed,  6 Jan 2021 03:20:05 -0800 (PST)
+Received: from zn.tnic (p200300ec2f096900a40cd61b64ba6652.dip0.t-ipconnect.de [IPv6:2003:ec:2f09:6900:a40c:d61b:64ba:6652])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 41388800D55;
-        Wed,  6 Jan 2021 10:50:21 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.35.206.196])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 630C1669FC;
-        Wed,  6 Jan 2021 10:50:17 +0000 (UTC)
-From:   Maxim Levitsky <mlevitsk@redhat.com>
-To:     kvm@vger.kernel.org
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND
-        64-BIT)), Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
-        Wanpeng Li <wanpengli@tencent.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Maxim Levitsky <mlevitsk@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 3/6] KVM: nSVM: cancel KVM_REQ_GET_NESTED_STATE_PAGES on nested vmexit
-Date:   Wed,  6 Jan 2021 12:49:58 +0200
-Message-Id: <20210106105001.449974-4-mlevitsk@redhat.com>
-In-Reply-To: <20210106105001.449974-1-mlevitsk@redhat.com>
-References: <20210106105001.449974-1-mlevitsk@redhat.com>
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D668D1EC04A6;
+        Wed,  6 Jan 2021 12:20:02 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1609932003;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=GkbOGO3ttAQssPFItWpFkdwfZXTITZYEyMkEOic6szc=;
+        b=cXt344jMP5rmWn+UIdx3p+HWpGLCDOgbIkFDc7LG1jnLEbcTjm8T3k3cDkg0+F0RqhBClV
+        bELDXZG/XkIUtiZydY4K+xgXNs3S6D+zmAOo9iz5ZehWoBGBsduDIxBf0qG1m2AWZW3Bq2
+        Q3+kmIFcdpe4bwURYReTN9gsDk70zQk=
+Date:   Wed, 6 Jan 2021 12:19:58 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
+        kuo-lang.tseng@intel.com, shakeelb@google.com,
+        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
+        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH V2 1/4] x86/resctrl: Use IPI instead of task_work_add()
+ to update PQR_ASSOC MSR
+Message-ID: <20210106111958.GD5729@zn.tnic>
+References: <cover.1608243147.git.reinette.chatre@intel.com>
+ <17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It is possible to exit the nested guest mode, entered by
-svm_set_nested_state prior to first vm entry to it (e.g due to pending event)
-if the nested run was not pending during the migration.
+On Thu, Dec 17, 2020 at 02:31:18PM -0800, Reinette Chatre wrote:
+> +#ifdef CONFIG_SMP
+> +static void update_task_closid_rmid(struct task_struct *t)
+> +{
+> +	if (task_curr(t))
+> +		smp_call_function_single(task_cpu(t), _update_task_closid_rmid,
+> +					 t, 1);
+>  }
+> +#else
+> +static void update_task_closid_rmid(struct task_struct *t)
+> +{
+> +	_update_task_closid_rmid(t);
+> +}
+> +#endif
 
-In this case we must not switch to the nested msr permission bitmap.
-Also add a warning to catch similar cases in the future.
+Why the ifdeffery? Why not simply:
 
-CC: stable@vger.kernel.org
-Fixes: a7d5c7ce41ac1 ("KVM: nSVM: delay MSR permission processing to first nested VM run")
+static void update_task_closid_rmid(struct task_struct *t)
+{
+        if (IS_ENABLED(CONFIG_SMP) && task_curr(t))
+                smp_call_function_single(task_cpu(t), _update_task_closid_rmid, t, 1);
+        else
+                _update_task_closid_rmid(t);
+}
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
----
- arch/x86/kvm/svm/nested.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+?
 
-diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
-index 18b71e73a9935..6208d3a5a3fdb 100644
---- a/arch/x86/kvm/svm/nested.c
-+++ b/arch/x86/kvm/svm/nested.c
-@@ -199,6 +199,10 @@ static bool nested_svm_vmrun_msrpm(struct vcpu_svm *svm)
- static bool svm_get_nested_state_pages(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-+
-+	if (WARN_ON_ONCE(!is_guest_mode(&svm->vcpu)))
-+		return false;
-+
- 	if (!nested_svm_vmrun_msrpm(svm)) {
- 		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
- 		vcpu->run->internal.suberror =
-@@ -598,6 +602,8 @@ int nested_svm_vmexit(struct vcpu_svm *svm)
- 	svm->nested.vmcb12_gpa = 0;
- 	WARN_ON_ONCE(svm->nested.nested_run_pending);
- 
-+	kvm_clear_request(KVM_REQ_GET_NESTED_STATE_PAGES, &svm->vcpu);
-+
- 	/* in case we halted in L2 */
- 	svm->vcpu.arch.mp_state = KVM_MP_STATE_RUNNABLE;
- 
+If no particular reason, I'll change it before committing.
+
+Thx.
+
 -- 
-2.26.2
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
