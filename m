@@ -2,68 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0835E2EBD21
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 12:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF6E2EBE00
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 13:57:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726020AbhAFL0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 06:26:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52388 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725905AbhAFL0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Jan 2021 06:26:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1815C22B37;
-        Wed,  6 Jan 2021 11:25:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609932328;
-        bh=dKDGsUfUFlfnuTfp1bAUM+cB+B1BsbaavEtFCZGIEy8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=L2eKcFBg22hLd9qDr4Scn+aHenc2YEWAQEeN4vOmQcP3xP2Th0tEjDgXi9EBSUUec
-         NKj8FQ4YcSMKx4oTARcCGLTOUXQu2hxIj9FbzI+P/gO11bB4WjwUrlmbca3lvkRNko
-         jHMMEbB85a/fO+K40wOvMAt7hV/kh2Vs/XSSRKrt9qnIpn8szs1xaMm7rKNR+2d+td
-         A9GAV2BO/4OIFNkZi2hTxbNMpRhXMzGXl2I9AouxM4KXzzMgQUpdZnB5ZdPzgiTOmd
-         bMTLcT9EhkTSUrsE9yzvBzD9jy9lvl0O3NgyDDsYNVy3hmf0gPTHfzuS0J0wVflYWx
-         sE4JJfoK6FfFg==
-Received: from johan by xi.lan with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kx6wP-00076G-OS; Wed, 06 Jan 2021 12:25:25 +0100
-Date:   Wed, 6 Jan 2021 12:25:25 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Pete Zaitcev <zaitcev@redhat.com>
-Cc:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] USB: usblp: fix DMA to stack
-Message-ID: <X/WeJfWKtFEebpMC@hovoldconsulting.com>
-References: <20210104145302.2087-1-johan@kernel.org>
- <20210104113736.0af1ce0a@suzdal.zaitcev.lan>
+        id S1726807AbhAFMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 07:55:33 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:43598 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726303AbhAFMzc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 07:55:32 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id DED801C0B9B; Wed,  6 Jan 2021 13:54:49 +0100 (CET)
+Date:   Wed, 6 Jan 2021 13:54:49 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 4.19 13/35] null_blk: Fix zone size initialization
+Message-ID: <20210106125449.GA7589@duo.ucw.cz>
+References: <20210104155703.375788488@linuxfoundation.org>
+ <20210104155704.049016882@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Content-Disposition: inline
-In-Reply-To: <20210104113736.0af1ce0a@suzdal.zaitcev.lan>
+In-Reply-To: <20210104155704.049016882@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 11:37:36AM -0600, Pete Zaitcev wrote:
-> On Mon,  4 Jan 2021 15:53:02 +0100
-> Johan Hovold <johan@kernel.org> wrote:
-> 
-> > +++ b/drivers/usb/class/usblp.c
-> > -#define usblp_hp_channel_change_request(usblp, channel, buffer) \
-> > -	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
-> > +static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
-> 
-> Acked-By: Pete Zaitcev <zaitcev@redhat.com>
-> 
-> I would probably get rid of the buffer pointer and return
-> new_channel & 0xFF in case of success. That would kill
-> the newChannel too, and there's no need to debage u8 versus
-> unsigned char. But this is good enough. A function is better
-> than trying to cram the kfree() into the clause of the switch.
 
-Yeah, I wanted a minimal change suitable for stable and the helper was
-already there to be used for this.
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Johan
+Hi!
+
+> commit 0ebcdd702f49aeb0ad2e2d894f8c124a0acc6e23 upstream.
+>=20
+> For a null_blk device with zoned mode enabled is currently initialized
+> with a number of zones equal to the device capacity divided by the zone
+> size, without considering if the device capacity is a multiple of the
+> zone size. If the zone size is not a divisor of the capacity, the zones
+> end up not covering the entire capacity, potentially resulting is out
+> of bounds accesses to the zone array.
+>=20
+> Fix this by adding one last smaller zone with a size equal to the
+> remainder of the disk capacity divided by the zone size if the capacity
+> is not a multiple of the zone size. For such smaller last zone, the zone
+> capacity is also checked so that it does not exceed the smaller zone
+> size.
+
+> --- a/drivers/block/null_blk_zoned.c
+> +++ b/drivers/block/null_blk_zoned.c
+> @@ -1,9 +1,9 @@
+>  // SPDX-License-Identifier: GPL-2.0
+>  #include <linux/vmalloc.h>
+> +#include <linux/sizes.h>
+>  #include "null_blk.h"
+> =20
+> -/* zone_size in MBs to sectors. */
+> -#define ZONE_SIZE_SHIFT		11
+> +#define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
+
+This macro is quite dangerous. (mb) would help, but inline function
+would be better.
+
+
+> +	dev->nr_zones =3D dev_capacity_sects >> ilog2(dev->zone_size_sects);
+> +	if (dev_capacity_sects & (dev->zone_size_sects - 1))
+> +		dev->nr_zones++;
+
+Is this same as nr_zones =3D DIV_ROUND_UP(dev_capacity_sects,
+dev->zone_size_sects)? Would that be faster, more readable and robust
+against weird dev->zone_size_sects sizes?
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX/WzGQAKCRAw5/Bqldv6
+8lqUAKC4lnEVavZsVvuVOURrv5t1AOeYXACaArcggbTBIyOc+PTZkdqWBpNO+O0=
+=UkhQ
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--
