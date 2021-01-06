@@ -2,268 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4570C2ECA9C
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 07:43:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB6D2ECB19
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 08:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbhAGGkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 01:40:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725959AbhAGGkn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 01:40:43 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32681C0612FF
-        for <stable@vger.kernel.org>; Wed,  6 Jan 2021 22:39:57 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id u4so1433233pjn.4
-        for <stable@vger.kernel.org>; Wed, 06 Jan 2021 22:39:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G08AdDZPEKrJeqyI9Rr/oKsdqOUnXxOjvSeQsJJZeRk=;
-        b=WnoyHHf6DZoxWNB2Kv3+7f6CsfNuB92a1wBuCZyoWCiwWMMq1lv2Vll6X83FMNk7ue
-         GkKDKRD/kElM/LTxkdH4IIrp6jr1kIXOaSeJbR1Q1JUeNOdhWvklyqux5C1m3MNoQmaH
-         38UROb4NWpjl5RM5KROlwHANLvzmT0N0rAeWS9OsCTYeBUHx82QObLYqPVqTHUy9IMAe
-         NLNo6nC7sxHrBrpzG8i/P4SnzgpC0SvLXEEuKazjo9uEWIZOwazW7dC+DizLi0E0MkOB
-         v3YQy/LCIxjUPAjJbFJkuz4AnzNm3+ROGYrBsEQBoPMO0seYjPDpoBH5CgRI+qODSeC1
-         pQ3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G08AdDZPEKrJeqyI9Rr/oKsdqOUnXxOjvSeQsJJZeRk=;
-        b=j/XYM7/KtndsF1fV7o5wm+1TKSkzpVxZWrq8ywTOqfrzDi/3Si5JtdSikB6mJNDrIX
-         m47pQTQTbJJ1w2L37Dm1WUkSHjdrSksk7i33c9NYMFYNazKECc4xfzoIk7PIZqu7pkEg
-         XBh92y3NROxcKD3Ujgg3c0vi4KbmkohrFCLX7qT6sysUcaMGcyyxkez888z9uE0nDGDx
-         qmhpd9Ad/Ol9+G8miDwyvflnDBdaW1+ZOOshacRSEw3PqBJsvYmv3gFUpqYOUB7syz2g
-         /aoBB+6p+LngwCj83DSJICtFm+cubT8fxukHvUCyKwZD5qcKZ9bzGCuG5zZeR/6FP+ga
-         vItg==
-X-Gm-Message-State: AOAM532hagc2A+ejjiPjEAWMdg59zcB7i9R9Z9ZYDmyNSJg1B82Mjxok
-        pHckGXwEi7W6CudTQ80SK0Vzs0prViK3lA==
-X-Google-Smtp-Source: ABdhPJyfdRi+qZFO8CDj8WI1N/IirXb7hME4CHTPlHNfG78scWJtst5dKPx3qvxoXLqxn+z2nihW6g==
-X-Received: by 2002:a17:90a:8a8b:: with SMTP id x11mr2696210pjn.54.1610001596452;
-        Wed, 06 Jan 2021 22:39:56 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 197sm4998566pgg.43.2021.01.06.22.39.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Jan 2021 22:39:55 -0800 (PST)
-Message-ID: <5ff6acbb.1c69fb81.306ae.c54f@mx.google.com>
-Date:   Wed, 06 Jan 2021 22:39:55 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.165
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.19.y baseline: 169 runs, 5 regressions (v4.19.165)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1725983AbhAGHvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 02:51:09 -0500
+Received: from mga12.intel.com ([192.55.52.136]:19929 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725862AbhAGHvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 02:51:08 -0500
+IronPort-SDR: vuuAXZWHdHd6bdAnajzgbgKtzgl+cK3TSRaoUzdfFJ8G3dLjpUdf5tFpyozRUAz6vF2kINcQsb
+ GL7rSMpNzmQA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9856"; a="156577778"
+X-IronPort-AV: E=Sophos;i="5.79,329,1602572400"; 
+   d="scan'208";a="156577778"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2021 23:50:24 -0800
+IronPort-SDR: stQ4a6PiUxDXQzWh2hLoc4caPZ/2WrIoah2M+H/b8sfCVEcRyIa1Pmed22d1x8vRYgqLZFUnTC
+ XT6vnhXtRSqg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,329,1602572400"; 
+   d="scan'208";a="351169587"
+Received: from yiliu-dev.bj.intel.com (HELO iov-dev2.bj.intel.com) ([10.238.156.135])
+  by fmsmga008.fm.intel.com with ESMTP; 06 Jan 2021 23:50:20 -0800
+From:   Liu Yi L <yi.l.liu@intel.com>
+To:     baolu.lu@linux.intel.com, joro@8bytes.org, will@kernel.org
+Cc:     kevin.tian@intel.com, ashok.raj@intel.com, jun.j.tian@intel.com,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        yi.y.sun@intel.com, yi.l.liu@intel.com, dan.carpenter@oracle.com,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Guo Kaijie <Kaijie.Guo@intel.com>,
+        Xin Zeng <xin.zeng@intel.com>, stable@vger.kernel.org,
+        #@vger.kernel.org, v5.0+@vger.kernel.org
+Subject: [PATCH v4 1/3] iommu/vt-d: Move intel_iommu info from struct intel_svm to struct intel_svm_dev
+Date:   Thu,  7 Jan 2021 00:03:55 +0800
+Message-Id: <1609949037-25291-2-git-send-email-yi.l.liu@intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1609949037-25291-1-git-send-email-yi.l.liu@intel.com>
+References: <1609949037-25291-1-git-send-email-yi.l.liu@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 169 runs, 5 regressions (v4.19.165)
+Current struct intel_svm has a field to record the struct intel_iommu
+pointer for a PASID bind. And struct intel_svm will be shared by all
+the devices bind to the same process. The devices may be behind different
+DMAR units. As the iommu driver code uses the intel_iommu pointer stored
+in intel_svm struct to do cache invalidations, it may only flush the cache
+on a single DMAR unit, for others, the cache invalidation is missed.
 
-Regressions Summary
--------------------
+As intel_svm struct already has a device list, this patch just moves the
+intel_iommu pointer to be a field of intel_svm_dev struct.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
+Fixes: 1c4f88b7f1f92 ("iommu/vt-d: Shared virtual address in scalable mode")
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Raj Ashok <ashok.raj@intel.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Reported-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Reported-by: Xin Zeng <xin.zeng@intel.com>
+Signed-off-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Signed-off-by: Xin Zeng <xin.zeng@intel.com>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Tested-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Cc: stable@vger.kernel.org # v5.0+
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+---
+ drivers/iommu/intel/svm.c   | 9 +++++----
+ include/linux/intel-iommu.h | 2 +-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index 4fa248b..6956669 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -142,7 +142,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
+ 	}
+ 	desc.qw2 = 0;
+ 	desc.qw3 = 0;
+-	qi_submit_sync(svm->iommu, &desc, 1, 0);
++	qi_submit_sync(sdev->iommu, &desc, 1, 0);
+ 
+ 	if (sdev->dev_iotlb) {
+ 		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
+@@ -166,7 +166,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
+ 		}
+ 		desc.qw2 = 0;
+ 		desc.qw3 = 0;
+-		qi_submit_sync(svm->iommu, &desc, 1, 0);
++		qi_submit_sync(sdev->iommu, &desc, 1, 0);
+ 	}
+ }
+ 
+@@ -211,7 +211,7 @@ static void intel_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+ 	 */
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(sdev, &svm->devs, list)
+-		intel_pasid_tear_down_entry(svm->iommu, sdev->dev,
++		intel_pasid_tear_down_entry(sdev->iommu, sdev->dev,
+ 					    svm->pasid, true);
+ 	rcu_read_unlock();
+ 
+@@ -363,6 +363,7 @@ int intel_svm_bind_gpasid(struct iommu_domain *domain, struct device *dev,
+ 	}
+ 	sdev->dev = dev;
+ 	sdev->sid = PCI_DEVID(info->bus, info->devfn);
++	sdev->iommu = iommu;
+ 
+ 	/* Only count users if device has aux domains */
+ 	if (iommu_dev_feature_enabled(dev, IOMMU_DEV_FEAT_AUX))
+@@ -546,6 +547,7 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
+ 		goto out;
+ 	}
+ 	sdev->dev = dev;
++	sdev->iommu = iommu;
+ 
+ 	ret = intel_iommu_enable_pasid(iommu, dev);
+ 	if (ret) {
+@@ -575,7 +577,6 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
+ 			kfree(sdev);
+ 			goto out;
+ 		}
+-		svm->iommu = iommu;
+ 
+ 		if (pasid_max > intel_pasid_max_id)
+ 			pasid_max = intel_pasid_max_id;
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index d956987..9452268 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -758,6 +758,7 @@ struct intel_svm_dev {
+ 	struct list_head list;
+ 	struct rcu_head rcu;
+ 	struct device *dev;
++	struct intel_iommu *iommu;
+ 	struct svm_dev_ops *ops;
+ 	struct iommu_sva sva;
+ 	u32 pasid;
+@@ -771,7 +772,6 @@ struct intel_svm {
+ 	struct mmu_notifier notifier;
+ 	struct mm_struct *mm;
+ 
+-	struct intel_iommu *iommu;
+ 	unsigned int flags;
+ 	u32 pasid;
+ 	int gpasid; /* In case that guest PASID is different from host PASID */
+-- 
+2.7.4
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.165/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.165
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4143d798313fffa39f05bf24dd560ace42225c26 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff67747065d26241ec94cbf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff67747065d26241ec94=
-cc0
-        failing since 49 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
- fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff677457fd7a8f61bc94cc6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff677457fd7a8f61bc94=
-cc7
-        failing since 49 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
- fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff67751a4ed8c0301c94cc7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff67751a4ed8c0301c94=
-cc8
-        failing since 49 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
- fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff676f4b01ea7a58ac94ccf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff676f4b01ea7a58ac94=
-cd0
-        failing since 49 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
- fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff6770cf7741ad32ec94ccd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatil=
-epb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-65/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatil=
-epb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff6770cf7741ad32ec94=
-cce
-        failing since 49 days (last pass: v4.19.157-26-ga8e7fec1fea1, first=
- fail: v4.19.157-102-g1d674327c1b7) =
-
- =20
