@@ -2,100 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF6E2EBE00
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 13:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 769BB2EBE41
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 14:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726807AbhAFMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 07:55:33 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:43598 "EHLO
+        id S1726509AbhAFNI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 08:08:29 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:44542 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726303AbhAFMzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 07:55:32 -0500
+        with ESMTP id S1725789AbhAFNI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 08:08:29 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id DED801C0B9B; Wed,  6 Jan 2021 13:54:49 +0100 (CET)
-Date:   Wed, 6 Jan 2021 13:54:49 +0100
-From:   Pavel Machek <pavel@ucw.cz>
+        id F0ACE1C0B92; Wed,  6 Jan 2021 14:07:45 +0100 (CET)
+Date:   Wed, 6 Jan 2021 14:07:45 +0100
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 4.19 13/35] null_blk: Fix zone size initialization
-Message-ID: <20210106125449.GA7589@duo.ucw.cz>
-References: <20210104155703.375788488@linuxfoundation.org>
- <20210104155704.049016882@linuxfoundation.org>
+        Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4 34/47] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+Message-ID: <20210106130745.GA8113@duo.ucw.cz>
+References: <20210104155705.740576914@linuxfoundation.org>
+ <20210104155707.382290687@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
+        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
 Content-Disposition: inline
-In-Reply-To: <20210104155704.049016882@linuxfoundation.org>
+In-Reply-To: <20210104155707.382290687@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---IS0zKkzwUGydFO0o
+--CE+1k2dSO48ffgeK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> commit 0ebcdd702f49aeb0ad2e2d894f8c124a0acc6e23 upstream.
+> From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 >=20
-> For a null_blk device with zoned mode enabled is currently initialized
-> with a number of zones equal to the device capacity divided by the zone
-> size, without considering if the device capacity is a multiple of the
-> zone size. If the zone size is not a divisor of the capacity, the zones
-> end up not covering the entire capacity, potentially resulting is out
-> of bounds accesses to the zone array.
+> [ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
 >=20
-> Fix this by adding one last smaller zone with a size equal to the
-> remainder of the disk capacity divided by the zone size if the capacity
-> is not a multiple of the zone size. For such smaller last zone, the zone
-> capacity is also checked so that it does not exceed the smaller zone
-> size.
+> When clk_hw_register_fixed_rate_with_accuracy() fails,
+> clk_data should be freed. It's the same for the subsequent
+> two error paths, but we should also unregister the already
+> registered clocks in them.
 
-> --- a/drivers/block/null_blk_zoned.c
-> +++ b/drivers/block/null_blk_zoned.c
-> @@ -1,9 +1,9 @@
->  // SPDX-License-Identifier: GPL-2.0
->  #include <linux/vmalloc.h>
-> +#include <linux/sizes.h>
->  #include "null_blk.h"
-> =20
-> -/* zone_size in MBs to sectors. */
-> -#define ZONE_SIZE_SHIFT		11
-> +#define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
+This still leaks rtc, AFAICT. What is worse, sun6i_rtc will point to
+invalid memory after the error exit.
 
-This macro is quite dangerous. (mb) would help, but inline function
-would be better.
-
-
-> +	dev->nr_zones =3D dev_capacity_sects >> ilog2(dev->zone_size_sects);
-> +	if (dev_capacity_sects & (dev->zone_size_sects - 1))
-> +		dev->nr_zones++;
-
-Is this same as nr_zones =3D DIV_ROUND_UP(dev_capacity_sects,
-dev->zone_size_sects)? Would that be faster, more readable and robust
-against weird dev->zone_size_sects sizes?
+Something like this?
 
 Best regards,
 								Pavel
---=20
-http://www.livejournal.com/~pavelmachek
 
---IS0zKkzwUGydFO0o
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index e85abe805606..59389bb99e39 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -211,6 +211,7 @@ static void __init sun6i_rtc_clk_init(struct device_nod=
+e *node)
+ 	rtc->base =3D of_io_request_and_map(node, 0, of_node_full_name(node));
+ 	if (IS_ERR(rtc->base)) {
+ 		pr_crit("Can't map RTC registers");
++		kfree(rtc);
+ 		goto err;
+ 	}
+=20
+@@ -272,6 +273,8 @@ static void __init sun6i_rtc_clk_init(struct device_nod=
+e *node)
+ 	clk_hw_unregister_fixed_rate(rtc->int_osc);
+ err:
+ 	kfree(clk_data);
++	kfree(rtc);
++	sun6i_rtc =3D NULL;
+ }
+ CLK_OF_DECLARE_DRIVER(sun6i_rtc_clk, "allwinner,sun6i-a31-rtc",
+ 		      sun6i_rtc_clk_init);
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--CE+1k2dSO48ffgeK
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX/WzGQAKCRAw5/Bqldv6
-8lqUAKC4lnEVavZsVvuVOURrv5t1AOeYXACaArcggbTBIyOc+PTZkdqWBpNO+O0=
-=UkhQ
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX/W2IQAKCRAw5/Bqldv6
+8mPXAJ0da3pksK41IGG2AIKibMwdM6cKZACeOOzM5Pu7sFekg9AjxyoX0yO2I08=
+=OMHb
 -----END PGP SIGNATURE-----
 
---IS0zKkzwUGydFO0o--
+--CE+1k2dSO48ffgeK--
