@@ -2,86 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2079C2EBD11
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 12:21:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0835E2EBD21
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 12:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725800AbhAFLUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 06:20:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725788AbhAFLUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Jan 2021 06:20:45 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742CCC06134C;
-        Wed,  6 Jan 2021 03:20:05 -0800 (PST)
-Received: from zn.tnic (p200300ec2f096900a40cd61b64ba6652.dip0.t-ipconnect.de [IPv6:2003:ec:2f09:6900:a40c:d61b:64ba:6652])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D668D1EC04A6;
-        Wed,  6 Jan 2021 12:20:02 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1609932003;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=GkbOGO3ttAQssPFItWpFkdwfZXTITZYEyMkEOic6szc=;
-        b=cXt344jMP5rmWn+UIdx3p+HWpGLCDOgbIkFDc7LG1jnLEbcTjm8T3k3cDkg0+F0RqhBClV
-        bELDXZG/XkIUtiZydY4K+xgXNs3S6D+zmAOo9iz5ZehWoBGBsduDIxBf0qG1m2AWZW3Bq2
-        Q3+kmIFcdpe4bwURYReTN9gsDk70zQk=
-Date:   Wed, 6 Jan 2021 12:19:58 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
-        kuo-lang.tseng@intel.com, shakeelb@google.com,
-        valentin.schneider@arm.com, mingo@redhat.com, babu.moger@amd.com,
-        james.morse@arm.com, hpa@zytor.com, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH V2 1/4] x86/resctrl: Use IPI instead of task_work_add()
- to update PQR_ASSOC MSR
-Message-ID: <20210106111958.GD5729@zn.tnic>
-References: <cover.1608243147.git.reinette.chatre@intel.com>
- <17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com>
+        id S1726020AbhAFL0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 06:26:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52388 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725905AbhAFL0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Jan 2021 06:26:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1815C22B37;
+        Wed,  6 Jan 2021 11:25:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1609932328;
+        bh=dKDGsUfUFlfnuTfp1bAUM+cB+B1BsbaavEtFCZGIEy8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=L2eKcFBg22hLd9qDr4Scn+aHenc2YEWAQEeN4vOmQcP3xP2Th0tEjDgXi9EBSUUec
+         NKj8FQ4YcSMKx4oTARcCGLTOUXQu2hxIj9FbzI+P/gO11bB4WjwUrlmbca3lvkRNko
+         jHMMEbB85a/fO+K40wOvMAt7hV/kh2Vs/XSSRKrt9qnIpn8szs1xaMm7rKNR+2d+td
+         A9GAV2BO/4OIFNkZi2hTxbNMpRhXMzGXl2I9AouxM4KXzzMgQUpdZnB5ZdPzgiTOmd
+         bMTLcT9EhkTSUrsE9yzvBzD9jy9lvl0O3NgyDDsYNVy3hmf0gPTHfzuS0J0wVflYWx
+         sE4JJfoK6FfFg==
+Received: from johan by xi.lan with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kx6wP-00076G-OS; Wed, 06 Jan 2021 12:25:25 +0100
+Date:   Wed, 6 Jan 2021 12:25:25 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Pete Zaitcev <zaitcev@redhat.com>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] USB: usblp: fix DMA to stack
+Message-ID: <X/WeJfWKtFEebpMC@hovoldconsulting.com>
+References: <20210104145302.2087-1-johan@kernel.org>
+ <20210104113736.0af1ce0a@suzdal.zaitcev.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com>
+In-Reply-To: <20210104113736.0af1ce0a@suzdal.zaitcev.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 17, 2020 at 02:31:18PM -0800, Reinette Chatre wrote:
-> +#ifdef CONFIG_SMP
-> +static void update_task_closid_rmid(struct task_struct *t)
-> +{
-> +	if (task_curr(t))
-> +		smp_call_function_single(task_cpu(t), _update_task_closid_rmid,
-> +					 t, 1);
->  }
-> +#else
-> +static void update_task_closid_rmid(struct task_struct *t)
-> +{
-> +	_update_task_closid_rmid(t);
-> +}
-> +#endif
+On Mon, Jan 04, 2021 at 11:37:36AM -0600, Pete Zaitcev wrote:
+> On Mon,  4 Jan 2021 15:53:02 +0100
+> Johan Hovold <johan@kernel.org> wrote:
+> 
+> > +++ b/drivers/usb/class/usblp.c
+> > -#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+> > -	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
+> > +static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
+> 
+> Acked-By: Pete Zaitcev <zaitcev@redhat.com>
+> 
+> I would probably get rid of the buffer pointer and return
+> new_channel & 0xFF in case of success. That would kill
+> the newChannel too, and there's no need to debage u8 versus
+> unsigned char. But this is good enough. A function is better
+> than trying to cram the kfree() into the clause of the switch.
 
-Why the ifdeffery? Why not simply:
+Yeah, I wanted a minimal change suitable for stable and the helper was
+already there to be used for this.
 
-static void update_task_closid_rmid(struct task_struct *t)
-{
-        if (IS_ENABLED(CONFIG_SMP) && task_curr(t))
-                smp_call_function_single(task_cpu(t), _update_task_closid_rmid, t, 1);
-        else
-                _update_task_closid_rmid(t);
-}
-
-?
-
-If no particular reason, I'll change it before committing.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Johan
