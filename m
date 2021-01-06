@@ -2,1207 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB91F2EC19E
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 18:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188352EC1A0
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 18:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727276AbhAFRBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 12:01:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57960 "EHLO mail.kernel.org"
+        id S1727569AbhAFRB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 12:01:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727012AbhAFRBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Jan 2021 12:01:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7B2823120;
-        Wed,  6 Jan 2021 17:00:41 +0000 (UTC)
+        id S1726551AbhAFRB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Jan 2021 12:01:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CE8423123;
+        Wed,  6 Jan 2021 17:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609952442;
-        bh=oEL6MYfwJlDKYdcytHRavi7u606kCqWoxmpnHgemn1c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edpkTmB6o6SaA+KqHD2P//EdTw6hsa+TZsQ7FLFgu+xKFt1DMjxQLl8gj70meq3Qh
-         K87z5jaiYekGVC711L5tKVKXByxf/5rk4UgbO8hEC5JoroK3qhVne7OueK4gfOYNo9
-         8cmWnKvwUE9rglOwHPITl88lWyL3zaEPl6kFM/Ds=
+        s=korg; t=1609952444;
+        bh=RnBV6ycCBeKADH6mVmYNN6BtLdCFaC1Kh1NmnKi9t64=;
+        h=From:To:Cc:Subject:Date:From;
+        b=H0pjX1IeoeXHIyFKRPnkRSE6jMwft4O6aUg6DrYX9t8lsIfeiDuOXoUfEFh7Y+kDk
+         mxsjO/DvS7glB4/0hNBBlgMn/BA7rMGQS0Cyhkld6UnJgI9tFPrwUUVw7NrN1Rr3bm
+         pQW+0602VLkJZbqSa8aCYqvBObZdRk23e6YoPxWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.165
-Date:   Wed,  6 Jan 2021 18:01:57 +0100
-Message-Id: <1609952516120148@kroah.com>
+Subject: Linux 5.4.87
+Date:   Wed,  6 Jan 2021 18:02:03 +0100
+Message-Id: <1609952522189204@kroah.com>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <160995251611257@kroah.com>
-References: <160995251611257@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index d02af6881a5f..e636c2143295 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 164
-+SUBLEVEL = 165
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/powerpc/include/asm/bitops.h b/arch/powerpc/include/asm/bitops.h
-index ff71566dadee..76db1c5000bd 100644
---- a/arch/powerpc/include/asm/bitops.h
-+++ b/arch/powerpc/include/asm/bitops.h
-@@ -221,15 +221,34 @@ static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
-  */
- static __inline__ int fls(unsigned int x)
- {
--	return 32 - __builtin_clz(x);
-+	int lz;
-+
-+	if (__builtin_constant_p(x))
-+		return x ? 32 - __builtin_clz(x) : 0;
-+	asm("cntlzw %0,%1" : "=r" (lz) : "r" (x));
-+	return 32 - lz;
- }
- 
- #include <asm-generic/bitops/builtin-__fls.h>
- 
-+/*
-+ * 64-bit can do this using one cntlzd (count leading zeroes doubleword)
-+ * instruction; for 32-bit we use the generic version, which does two
-+ * 32-bit fls calls.
-+ */
-+#ifdef CONFIG_PPC64
- static __inline__ int fls64(__u64 x)
- {
--	return 64 - __builtin_clzll(x);
-+	int lz;
-+
-+	if (__builtin_constant_p(x))
-+		return x ? 64 - __builtin_clzll(x) : 0;
-+	asm("cntlzd %0,%1" : "=r" (lz) : "r" (x));
-+	return 64 - lz;
- }
-+#else
-+#include <asm-generic/bitops/fls64.h>
-+#endif
- 
- #ifdef CONFIG_PPC64
- unsigned int __arch_hweight8(unsigned int w);
-diff --git a/arch/powerpc/sysdev/mpic_msgr.c b/arch/powerpc/sysdev/mpic_msgr.c
-index 280e964e1aa8..497e86cfb12e 100644
---- a/arch/powerpc/sysdev/mpic_msgr.c
-+++ b/arch/powerpc/sysdev/mpic_msgr.c
-@@ -196,7 +196,7 @@ static int mpic_msgr_probe(struct platform_device *dev)
- 
- 	/* IO map the message register block. */
- 	of_address_to_resource(np, 0, &rsrc);
--	msgr_block_addr = ioremap(rsrc.start, resource_size(&rsrc));
-+	msgr_block_addr = devm_ioremap(&dev->dev, rsrc.start, resource_size(&rsrc));
- 	if (!msgr_block_addr) {
- 		dev_err(&dev->dev, "Failed to iomap MPIC message registers");
- 		return -EFAULT;
-diff --git a/arch/x86/kvm/cpuid.h b/arch/x86/kvm/cpuid.h
-index d78a61408243..7dec43b2c420 100644
---- a/arch/x86/kvm/cpuid.h
-+++ b/arch/x86/kvm/cpuid.h
-@@ -154,6 +154,20 @@ static inline int guest_cpuid_stepping(struct kvm_vcpu *vcpu)
- 	return x86_stepping(best->eax);
- }
- 
-+static inline bool guest_has_spec_ctrl_msr(struct kvm_vcpu *vcpu)
-+{
-+	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_STIBP) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD));
-+}
-+
-+static inline bool guest_has_pred_cmd_msr(struct kvm_vcpu *vcpu)
-+{
-+	return (guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL) ||
-+		guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB));
-+}
-+
- static inline bool supports_cpuid_fault(struct kvm_vcpu *vcpu)
- {
- 	return vcpu->arch.msr_platform_info & MSR_PLATFORM_INFO_CPUID_FAULT;
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index a0c3d1b4b295..d2dc734f5bd0 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -4209,8 +4209,7 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
- 		msr_info->data = svm->spec_ctrl;
-@@ -4312,8 +4311,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBRS) &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_SSBD))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
- 		/* The STIBP bit doesn't fault even if it's not advertised */
-@@ -4340,12 +4338,11 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		break;
- 	case MSR_IA32_PRED_CMD:
- 		if (!msr->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_AMD_IBPB))
-+		    !guest_has_pred_cmd_msr(vcpu))
- 			return 1;
- 
- 		if (data & ~PRED_CMD_IBPB)
- 			return 1;
--
- 		if (!data)
- 			break;
- 
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index d6bcbce6c15c..77b9ed5223f3 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -4066,7 +4066,7 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return kvm_get_msr_common(vcpu, msr_info);
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
- 		msr_info->data = to_vmx(vcpu)->spec_ctrl;
-@@ -4180,7 +4180,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_SPEC_CTRL:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_spec_ctrl_msr(vcpu))
- 			return 1;
- 
- 		/* The STIBP bit doesn't fault even if it's not advertised */
-@@ -4210,7 +4210,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		break;
- 	case MSR_IA32_PRED_CMD:
- 		if (!msr_info->host_initiated &&
--		    !guest_cpuid_has(vcpu, X86_FEATURE_SPEC_CTRL))
-+		    !guest_has_pred_cmd_msr(vcpu))
- 			return 1;
- 
- 		if (data & ~PRED_CMD_IBPB)
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index d1725ac636c0..079ed33fd806 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -1,9 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/vmalloc.h>
-+#include <linux/sizes.h>
- #include "null_blk.h"
- 
--/* zone_size in MBs to sectors. */
--#define ZONE_SIZE_SHIFT		11
-+#define MB_TO_SECTS(mb) (((sector_t)mb * SZ_1M) >> SECTOR_SHIFT)
- 
- static inline unsigned int null_zone_no(struct nullb_device *dev, sector_t sect)
- {
-@@ -12,7 +12,7 @@ static inline unsigned int null_zone_no(struct nullb_device *dev, sector_t sect)
- 
- int null_zone_init(struct nullb_device *dev)
- {
--	sector_t dev_size = (sector_t)dev->size * 1024 * 1024;
-+	sector_t dev_capacity_sects;
- 	sector_t sector = 0;
- 	unsigned int i;
- 
-@@ -25,9 +25,12 @@ int null_zone_init(struct nullb_device *dev)
- 		return -EINVAL;
- 	}
- 
--	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
--	dev->nr_zones = dev_size >>
--				(SECTOR_SHIFT + ilog2(dev->zone_size_sects));
-+	dev_capacity_sects = MB_TO_SECTS(dev->size);
-+	dev->zone_size_sects = MB_TO_SECTS(dev->zone_size);
-+	dev->nr_zones = dev_capacity_sects >> ilog2(dev->zone_size_sects);
-+	if (dev_capacity_sects & (dev->zone_size_sects - 1))
-+		dev->nr_zones++;
-+
- 	dev->zones = kvmalloc_array(dev->nr_zones, sizeof(struct blk_zone),
- 			GFP_KERNEL | __GFP_ZERO);
- 	if (!dev->zones)
-@@ -37,7 +40,10 @@ int null_zone_init(struct nullb_device *dev)
- 		struct blk_zone *zone = &dev->zones[i];
- 
- 		zone->start = zone->wp = sector;
--		zone->len = dev->zone_size_sects;
-+		if (zone->start + dev->zone_size_sects > dev_capacity_sects)
-+			zone->len = dev_capacity_sects - zone->start;
-+		else
-+			zone->len = dev->zone_size_sects;
- 		zone->type = BLK_ZONE_TYPE_SEQWRITE_REQ;
- 		zone->cond = BLK_ZONE_COND_EMPTY;
- 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index 7ffeb37e8f20..a017322dba82 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -263,8 +263,12 @@ static int h5_close(struct hci_uart *hu)
- 	if (h5->vnd && h5->vnd->close)
- 		h5->vnd->close(h5);
- 
--	if (!hu->serdev)
--		kfree(h5);
-+	if (hu->serdev)
-+		serdev_device_close(hu->serdev);
-+
-+	kfree_skb(h5->rx_skb);
-+	kfree(h5);
-+	h5 = NULL;
- 
- 	return 0;
- }
-diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
-index e3599b43f9eb..599be2d2b0ae 100644
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -533,6 +533,15 @@ static int verity_verify_io(struct dm_verity_io *io)
- 	return 0;
- }
- 
-+/*
-+ * Skip verity work in response to I/O error when system is shutting down.
-+ */
-+static inline bool verity_is_system_shutting_down(void)
-+{
-+	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
-+		|| system_state == SYSTEM_RESTART;
-+}
-+
- /*
-  * End one "io" structure with a given error.
-  */
-@@ -560,7 +569,8 @@ static void verity_end_io(struct bio *bio)
- {
- 	struct dm_verity_io *io = bio->bi_private;
- 
--	if (bio->bi_status && !verity_fec_is_enabled(io->v)) {
-+	if (bio->bi_status &&
-+	    (!verity_fec_is_enabled(io->v) || verity_is_system_shutting_down())) {
- 		verity_finish_io(io, bio->bi_status);
- 		return;
- 	}
-diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
-index 02c5e390f89f..8e0f936b3e37 100644
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1138,7 +1138,7 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
- 	struct md_rdev *err_rdev = NULL;
- 	gfp_t gfp = GFP_NOIO;
- 
--	if (r10_bio->devs[slot].rdev) {
-+	if (slot >= 0 && r10_bio->devs[slot].rdev) {
- 		/*
- 		 * This is an error retry, but we cannot
- 		 * safely dereference the rdev in the r10_bio,
-@@ -1547,6 +1547,7 @@ static void __make_request(struct mddev *mddev, struct bio *bio, int sectors)
- 	r10_bio->mddev = mddev;
- 	r10_bio->sector = bio->bi_iter.bi_sector;
- 	r10_bio->state = 0;
-+	r10_bio->read_slot = -1;
- 	memset(r10_bio->devs, 0, sizeof(r10_bio->devs[0]) * conf->copies);
- 
- 	if (bio_data_dir(bio) == READ)
-diff --git a/drivers/media/usb/dvb-usb/gp8psk.c b/drivers/media/usb/dvb-usb/gp8psk.c
-index 13e96b0aeb0f..d97eab01cb8c 100644
---- a/drivers/media/usb/dvb-usb/gp8psk.c
-+++ b/drivers/media/usb/dvb-usb/gp8psk.c
-@@ -185,7 +185,7 @@ static int gp8psk_load_bcm4500fw(struct dvb_usb_device *d)
- 
- static int gp8psk_power_ctrl(struct dvb_usb_device *d, int onoff)
- {
--	u8 status, buf;
-+	u8 status = 0, buf;
- 	int gp_product_id = le16_to_cpu(d->udev->descriptor.idProduct);
- 
- 	if (onoff) {
-diff --git a/drivers/misc/vmw_vmci/vmci_context.c b/drivers/misc/vmw_vmci/vmci_context.c
-index bc089e634a75..26e20b091160 100644
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -751,7 +751,7 @@ static int vmci_ctx_get_chkpt_doorbells(struct vmci_ctx *context,
- 			return VMCI_ERROR_MORE_DATA;
- 		}
- 
--		dbells = kmalloc(data_size, GFP_ATOMIC);
-+		dbells = kzalloc(data_size, GFP_ATOMIC);
- 		if (!dbells)
- 			return VMCI_ERROR_NO_MEM;
- 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 2cd5a7b1a2e3..e85abe805606 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -232,7 +232,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 								300000000);
- 	if (IS_ERR(rtc->int_osc)) {
- 		pr_crit("Couldn't register the internal oscillator\n");
--		return;
-+		goto err;
- 	}
- 
- 	parents[0] = clk_hw_get_name(rtc->int_osc);
-@@ -248,7 +248,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
- 		pr_crit("Couldn't register the LOSC clock\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	of_property_read_string_index(node, "clock-output-names", 1,
-@@ -259,7 +259,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 					  &rtc->lock);
- 	if (IS_ERR(rtc->ext_losc)) {
- 		pr_crit("Couldn't register the LOSC external gate\n");
--		return;
-+		goto err_register;
- 	}
- 
- 	clk_data->num = 2;
-@@ -268,6 +268,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
- 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
- 	return;
- 
-+err_register:
-+	clk_hw_unregister_fixed_rate(rtc->int_osc);
- err:
- 	kfree(clk_data);
- }
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 5e23e4aa5b0a..c48e1d84efb6 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -118,8 +118,6 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_device *vdev)
- 	int bar;
- 	struct vfio_pci_dummy_resource *dummy_res;
- 
--	INIT_LIST_HEAD(&vdev->dummy_resources_list);
--
- 	for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
- 		res = vdev->pdev->resource + bar;
- 
-@@ -1522,6 +1520,7 @@ static int vfio_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	mutex_init(&vdev->igate);
- 	spin_lock_init(&vdev->irqlock);
- 	mutex_init(&vdev->ioeventfds_lock);
-+	INIT_LIST_HEAD(&vdev->dummy_resources_list);
- 	INIT_LIST_HEAD(&vdev->ioeventfds_list);
- 	mutex_init(&vdev->vma_lock);
- 	INIT_LIST_HEAD(&vdev->vma_list);
-diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
-index 9d8e02cfd480..3cfbec482efb 100644
---- a/drivers/xen/gntdev.c
-+++ b/drivers/xen/gntdev.c
-@@ -842,17 +842,18 @@ struct gntdev_copy_batch {
- 	s16 __user *status[GNTDEV_COPY_BATCH];
- 	unsigned int nr_ops;
- 	unsigned int nr_pages;
-+	bool writeable;
- };
- 
- static int gntdev_get_page(struct gntdev_copy_batch *batch, void __user *virt,
--			   bool writeable, unsigned long *gfn)
-+				unsigned long *gfn)
- {
- 	unsigned long addr = (unsigned long)virt;
- 	struct page *page;
- 	unsigned long xen_pfn;
- 	int ret;
- 
--	ret = get_user_pages_fast(addr, 1, writeable, &page);
-+	ret = get_user_pages_fast(addr, 1, batch->writeable, &page);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -868,9 +869,13 @@ static void gntdev_put_pages(struct gntdev_copy_batch *batch)
- {
- 	unsigned int i;
- 
--	for (i = 0; i < batch->nr_pages; i++)
-+	for (i = 0; i < batch->nr_pages; i++) {
-+		if (batch->writeable && !PageDirty(batch->pages[i]))
-+			set_page_dirty_lock(batch->pages[i]);
- 		put_page(batch->pages[i]);
-+	}
- 	batch->nr_pages = 0;
-+	batch->writeable = false;
- }
- 
- static int gntdev_copy(struct gntdev_copy_batch *batch)
-@@ -959,8 +964,9 @@ static int gntdev_grant_copy_seg(struct gntdev_copy_batch *batch,
- 			virt = seg->source.virt + copied;
- 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
- 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
-+			batch->writeable = false;
- 
--			ret = gntdev_get_page(batch, virt, false, &gfn);
-+			ret = gntdev_get_page(batch, virt, &gfn);
- 			if (ret < 0)
- 				return ret;
- 
-@@ -978,8 +984,9 @@ static int gntdev_grant_copy_seg(struct gntdev_copy_batch *batch,
- 			virt = seg->dest.virt + copied;
- 			off = (unsigned long)virt & ~XEN_PAGE_MASK;
- 			len = min(len, (size_t)XEN_PAGE_SIZE - off);
-+			batch->writeable = true;
- 
--			ret = gntdev_get_page(batch, virt, true, &gfn);
-+			ret = gntdev_get_page(batch, virt, &gfn);
- 			if (ret < 0)
- 				return ret;
- 
-diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
-index 042d5b44f4ed..aa86cb2db823 100644
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -58,8 +58,8 @@ int __fscrypt_prepare_link(struct inode *inode, struct inode *dir,
- 	if (err)
- 		return err;
- 
--	/* ... in case we looked up ciphertext name before key was added */
--	if (dentry->d_flags & DCACHE_ENCRYPTED_NAME)
-+	/* ... in case we looked up no-key name before key was added */
-+	if (fscrypt_is_nokey_name(dentry))
- 		return -ENOKEY;
- 
- 	if (!fscrypt_has_permitted_context(dir, inode))
-@@ -83,9 +83,9 @@ int __fscrypt_prepare_rename(struct inode *old_dir, struct dentry *old_dentry,
- 	if (err)
- 		return err;
- 
--	/* ... in case we looked up ciphertext name(s) before key was added */
--	if ((old_dentry->d_flags | new_dentry->d_flags) &
--	    DCACHE_ENCRYPTED_NAME)
-+	/* ... in case we looked up no-key name(s) before key was added */
-+	if (fscrypt_is_nokey_name(old_dentry) ||
-+	    fscrypt_is_nokey_name(new_dentry))
- 		return -ENOKEY;
- 
- 	if (old_dir != new_dir) {
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 4191552880bd..3c238006870d 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2106,6 +2106,9 @@ static int ext4_add_entry(handle_t *handle, struct dentry *dentry,
- 	if (!dentry->d_name.len)
- 		return -EINVAL;
- 
-+	if (fscrypt_is_nokey_name(dentry))
-+		return -ENOKEY;
-+
- 	retval = ext4_fname_setup_filename(dir, &dentry->d_name, 0, &fname);
- 	if (retval)
- 		return retval;
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index ee96f504ed78..e9e9f09f5370 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -454,19 +454,17 @@ static bool system_going_down(void)
- 
- static void ext4_handle_error(struct super_block *sb)
- {
-+	journal_t *journal = EXT4_SB(sb)->s_journal;
-+
- 	if (test_opt(sb, WARN_ON_ERROR))
- 		WARN_ON_ONCE(1);
- 
--	if (sb_rdonly(sb))
-+	if (sb_rdonly(sb) || test_opt(sb, ERRORS_CONT))
- 		return;
- 
--	if (!test_opt(sb, ERRORS_CONT)) {
--		journal_t *journal = EXT4_SB(sb)->s_journal;
--
--		EXT4_SB(sb)->s_mount_flags |= EXT4_MF_FS_ABORTED;
--		if (journal)
--			jbd2_journal_abort(journal, -EIO);
--	}
-+	EXT4_SB(sb)->s_mount_flags |= EXT4_MF_FS_ABORTED;
-+	if (journal)
-+		jbd2_journal_abort(journal, -EIO);
- 	/*
- 	 * We force ERRORS_RO behavior when system is rebooting. Otherwise we
- 	 * could panic during 'reboot -f' as the underlying device got already
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 53ffa6fe207a..aacd8e11758c 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2857,6 +2857,8 @@ bool f2fs_empty_dir(struct inode *dir);
- 
- static inline int f2fs_add_link(struct dentry *dentry, struct inode *inode)
- {
-+	if (fscrypt_is_nokey_name(dentry))
-+		return -ENOKEY;
- 	return f2fs_do_add_link(d_inode(dentry->d_parent), &dentry->d_name,
- 				inode, inode->i_ino, inode->i_mode);
- }
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 4137d96534a6..e039af1872ab 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -779,9 +779,10 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
- {
- 	struct task_struct *p;
- 	enum pid_type type;
-+	unsigned long flags;
- 	struct pid *pid;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
- 
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -802,7 +803,7 @@ void send_sigio(struct fown_struct *fown, int fd, int band)
- 		read_unlock(&tasklist_lock);
- 	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- }
- 
- static void send_sigurg_to_task(struct task_struct *p,
-@@ -817,9 +818,10 @@ int send_sigurg(struct fown_struct *fown)
- 	struct task_struct *p;
- 	enum pid_type type;
- 	struct pid *pid;
-+	unsigned long flags;
- 	int ret = 0;
- 	
--	read_lock(&fown->lock);
-+	read_lock_irqsave(&fown->lock, flags);
- 
- 	type = fown->pid_type;
- 	pid = fown->pid;
-@@ -842,7 +844,7 @@ int send_sigurg(struct fown_struct *fown)
- 		read_unlock(&tasklist_lock);
- 	}
-  out_unlock_fown:
--	read_unlock(&fown->lock);
-+	read_unlock_irqrestore(&fown->lock, flags);
- 	return ret;
- }
- 
-diff --git a/fs/nfs/nfs4super.c b/fs/nfs/nfs4super.c
-index 6fb7cb6b3f4b..e7a10f5f5405 100644
---- a/fs/nfs/nfs4super.c
-+++ b/fs/nfs/nfs4super.c
-@@ -95,7 +95,7 @@ static void nfs4_evict_inode(struct inode *inode)
- 	nfs_inode_return_delegation_noreclaim(inode);
- 	/* Note that above delegreturn would trigger pnfs return-on-close */
- 	pnfs_return_layout(inode);
--	pnfs_destroy_layout(NFS_I(inode));
-+	pnfs_destroy_layout_final(NFS_I(inode));
- 	/* First call standard NFS clear_inode() code */
- 	nfs_clear_inode(inode);
- }
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 2b9e139a2997..a253384a4710 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -294,6 +294,7 @@ void
- pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
- {
- 	struct inode *inode;
-+	unsigned long i_state;
- 
- 	if (!lo)
- 		return;
-@@ -304,8 +305,12 @@ pnfs_put_layout_hdr(struct pnfs_layout_hdr *lo)
- 		if (!list_empty(&lo->plh_segs))
- 			WARN_ONCE(1, "NFS: BUG unfreed layout segments.\n");
- 		pnfs_detach_layout_hdr(lo);
-+		i_state = inode->i_state;
- 		spin_unlock(&inode->i_lock);
- 		pnfs_free_layout_hdr(lo);
-+		/* Notify pnfs_destroy_layout_final() that we're done */
-+		if (i_state & (I_FREEING | I_CLEAR))
-+			wake_up_var(lo);
- 	}
- }
- 
-@@ -713,8 +718,7 @@ pnfs_free_lseg_list(struct list_head *free_me)
- 	}
- }
- 
--void
--pnfs_destroy_layout(struct nfs_inode *nfsi)
-+static struct pnfs_layout_hdr *__pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- 	struct pnfs_layout_hdr *lo;
- 	LIST_HEAD(tmp_list);
-@@ -732,9 +736,34 @@ pnfs_destroy_layout(struct nfs_inode *nfsi)
- 		pnfs_put_layout_hdr(lo);
- 	} else
- 		spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return lo;
-+}
-+
-+void pnfs_destroy_layout(struct nfs_inode *nfsi)
-+{
-+	__pnfs_destroy_layout(nfsi);
- }
- EXPORT_SYMBOL_GPL(pnfs_destroy_layout);
- 
-+static bool pnfs_layout_removed(struct nfs_inode *nfsi,
-+				struct pnfs_layout_hdr *lo)
-+{
-+	bool ret;
-+
-+	spin_lock(&nfsi->vfs_inode.i_lock);
-+	ret = nfsi->layout != lo;
-+	spin_unlock(&nfsi->vfs_inode.i_lock);
-+	return ret;
-+}
-+
-+void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+	struct pnfs_layout_hdr *lo = __pnfs_destroy_layout(nfsi);
-+
-+	if (lo)
-+		wait_var_event(lo, pnfs_layout_removed(nfsi, lo));
-+}
-+
- static bool
- pnfs_layout_add_bulk_destroy_list(struct inode *inode,
- 		struct list_head *layout_list)
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 3ba44819a88a..80fafa29e567 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -254,6 +254,7 @@ struct pnfs_layout_segment *pnfs_layout_process(struct nfs4_layoutget *lgp);
- void pnfs_layoutget_free(struct nfs4_layoutget *lgp);
- void pnfs_free_lseg_list(struct list_head *tmp_list);
- void pnfs_destroy_layout(struct nfs_inode *);
-+void pnfs_destroy_layout_final(struct nfs_inode *);
- void pnfs_destroy_all_layouts(struct nfs_client *);
- int pnfs_destroy_layouts_byfsid(struct nfs_client *clp,
- 		struct nfs_fsid *fsid,
-@@ -645,6 +646,10 @@ static inline void pnfs_destroy_layout(struct nfs_inode *nfsi)
- {
- }
- 
-+static inline void pnfs_destroy_layout_final(struct nfs_inode *nfsi)
-+{
-+}
-+
- static inline struct pnfs_layout_segment *
- pnfs_get_lseg(struct pnfs_layout_segment *lseg)
- {
-diff --git a/fs/quota/quota_tree.c b/fs/quota/quota_tree.c
-index bb3f59bcfcf5..656f9ff63edd 100644
---- a/fs/quota/quota_tree.c
-+++ b/fs/quota/quota_tree.c
-@@ -61,7 +61,7 @@ static ssize_t read_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
- 
- 	memset(buf, 0, info->dqi_usable_bs);
- 	return sb->s_op->quota_read(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- }
- 
- static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
-@@ -70,7 +70,7 @@ static ssize_t write_blk(struct qtree_mem_dqinfo *info, uint blk, char *buf)
- 	ssize_t ret;
- 
- 	ret = sb->s_op->quota_write(sb, info->dqi_type, buf,
--	       info->dqi_usable_bs, blk << info->dqi_blocksize_bits);
-+	       info->dqi_usable_bs, (loff_t)blk << info->dqi_blocksize_bits);
- 	if (ret != info->dqi_usable_bs) {
- 		quota_error(sb, "dquota write failed");
- 		if (ret >= 0)
-@@ -283,7 +283,7 @@ static uint find_free_dqentry(struct qtree_mem_dqinfo *info,
- 			    blk);
- 		goto out_buf;
- 	}
--	dquot->dq_off = (blk << info->dqi_blocksize_bits) +
-+	dquot->dq_off = ((loff_t)blk << info->dqi_blocksize_bits) +
- 			sizeof(struct qt_disk_dqdbheader) +
- 			i * info->dqi_entry_size;
- 	kfree(buf);
-@@ -558,7 +558,7 @@ static loff_t find_block_dqentry(struct qtree_mem_dqinfo *info,
- 		ret = -EIO;
- 		goto out_buf;
- 	} else {
--		ret = (blk << info->dqi_blocksize_bits) + sizeof(struct
-+		ret = ((loff_t)blk << info->dqi_blocksize_bits) + sizeof(struct
- 		  qt_disk_dqdbheader) + i * info->dqi_entry_size;
- 	}
- out_buf:
-diff --git a/fs/reiserfs/stree.c b/fs/reiserfs/stree.c
-index 2946713cb00d..5229038852ca 100644
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -454,6 +454,12 @@ static int is_leaf(char *buf, int blocksize, struct buffer_head *bh)
- 					 "(second one): %h", ih);
- 			return 0;
- 		}
-+		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
-+			reiserfs_warning(NULL, "reiserfs-5093",
-+					 "item entry count seems wrong %h",
-+					 ih);
-+			return 0;
-+		}
- 		prev_location = ih_location(ih);
- 	}
- 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 10aab5dccaee..8fe2ee5462a0 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -290,6 +290,15 @@ static struct dentry *ubifs_lookup(struct inode *dir, struct dentry *dentry,
- 	return d_splice_alias(inode, dentry);
- }
- 
-+static int ubifs_prepare_create(struct inode *dir, struct dentry *dentry,
-+				struct fscrypt_name *nm)
-+{
-+	if (fscrypt_is_nokey_name(dentry))
-+		return -ENOKEY;
-+
-+	return fscrypt_setup_filename(dir, &dentry->d_name, 0, nm);
-+}
-+
- static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
- 			bool excl)
- {
-@@ -313,7 +322,7 @@ static int ubifs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
- 	if (err)
- 		return err;
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
-@@ -977,7 +986,7 @@ static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
- 	if (err)
- 		return err;
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
-@@ -1062,7 +1071,7 @@ static int ubifs_mknod(struct inode *dir, struct dentry *dentry,
- 		return err;
- 	}
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err) {
- 		kfree(dev);
- 		goto out_budg;
-@@ -1146,7 +1155,7 @@ static int ubifs_symlink(struct inode *dir, struct dentry *dentry,
- 	if (err)
- 		return err;
- 
--	err = fscrypt_setup_filename(dir, &dentry->d_name, 0, &nm);
-+	err = ubifs_prepare_create(dir, dentry, &nm);
- 	if (err)
- 		goto out_budg;
- 
-diff --git a/include/linux/fscrypt_notsupp.h b/include/linux/fscrypt_notsupp.h
-index 24b261e49dc1..93304cfeb601 100644
---- a/include/linux/fscrypt_notsupp.h
-+++ b/include/linux/fscrypt_notsupp.h
-@@ -24,6 +24,11 @@ static inline bool fscrypt_dummy_context_enabled(struct inode *inode)
- 	return false;
- }
- 
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return false;
-+}
-+
- /* crypto.c */
- static inline void fscrypt_enqueue_decrypt_work(struct work_struct *work)
- {
-diff --git a/include/linux/fscrypt_supp.h b/include/linux/fscrypt_supp.h
-index 8641e20694ce..0409c14ae1de 100644
---- a/include/linux/fscrypt_supp.h
-+++ b/include/linux/fscrypt_supp.h
-@@ -58,6 +58,35 @@ static inline bool fscrypt_dummy_context_enabled(struct inode *inode)
- 		inode->i_sb->s_cop->dummy_context(inode);
- }
- 
-+/**
-+ * fscrypt_is_nokey_name() - test whether a dentry is a no-key name
-+ * @dentry: the dentry to check
-+ *
-+ * This returns true if the dentry is a no-key dentry.  A no-key dentry is a
-+ * dentry that was created in an encrypted directory that hasn't had its
-+ * encryption key added yet.  Such dentries may be either positive or negative.
-+ *
-+ * When a filesystem is asked to create a new filename in an encrypted directory
-+ * and the new filename's dentry is a no-key dentry, it must fail the operation
-+ * with ENOKEY.  This includes ->create(), ->mkdir(), ->mknod(), ->symlink(),
-+ * ->rename(), and ->link().  (However, ->rename() and ->link() are already
-+ * handled by fscrypt_prepare_rename() and fscrypt_prepare_link().)
-+ *
-+ * This is necessary because creating a filename requires the directory's
-+ * encryption key, but just checking for the key on the directory inode during
-+ * the final filesystem operation doesn't guarantee that the key was available
-+ * during the preceding dentry lookup.  And the key must have already been
-+ * available during the dentry lookup in order for it to have been checked
-+ * whether the filename already exists in the directory and for the new file's
-+ * dentry not to be invalidated due to it incorrectly having the no-key flag.
-+ *
-+ * Return: %true if the dentry is a no-key name
-+ */
-+static inline bool fscrypt_is_nokey_name(const struct dentry *dentry)
-+{
-+	return dentry->d_flags & DCACHE_ENCRYPTED_NAME;
-+}
-+
- /* crypto.c */
- extern void fscrypt_enqueue_decrypt_work(struct work_struct *);
- extern struct fscrypt_ctx *fscrypt_get_ctx(const struct inode *, gfp_t);
-diff --git a/include/linux/of.h b/include/linux/of.h
-index d4f14b0302b6..6429f00341d1 100644
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -1258,6 +1258,7 @@ static inline int of_get_available_child_count(const struct device_node *np)
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section(__##table##_of_table)			\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
-diff --git a/include/uapi/linux/const.h b/include/uapi/linux/const.h
-index 5ed721ad5b19..af2a44c08683 100644
---- a/include/uapi/linux/const.h
-+++ b/include/uapi/linux/const.h
-@@ -28,4 +28,9 @@
- #define _BITUL(x)	(_UL(1) << (x))
- #define _BITULL(x)	(_ULL(1) << (x))
- 
-+#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
-+#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
-+
-+#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
-+
- #endif /* _UAPI_LINUX_CONST_H */
-diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
-index dc69391d2bba..fc21d3726b59 100644
---- a/include/uapi/linux/ethtool.h
-+++ b/include/uapi/linux/ethtool.h
-@@ -14,7 +14,7 @@
- #ifndef _UAPI_LINUX_ETHTOOL_H
- #define _UAPI_LINUX_ETHTOOL_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/if_ether.h>
- 
-diff --git a/include/uapi/linux/kernel.h b/include/uapi/linux/kernel.h
-index 0ff8f7477847..fadf2db71fe8 100644
---- a/include/uapi/linux/kernel.h
-+++ b/include/uapi/linux/kernel.h
-@@ -3,13 +3,6 @@
- #define _UAPI_LINUX_KERNEL_H
- 
- #include <linux/sysinfo.h>
--
--/*
-- * 'kernel.h' contains some often-used function prototypes etc
-- */
--#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
--#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
--
--#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
-+#include <linux/const.h>
- 
- #endif /* _UAPI_LINUX_KERNEL_H */
-diff --git a/include/uapi/linux/lightnvm.h b/include/uapi/linux/lightnvm.h
-index f9a1be7fc696..ead2e72e5c88 100644
---- a/include/uapi/linux/lightnvm.h
-+++ b/include/uapi/linux/lightnvm.h
-@@ -21,7 +21,7 @@
- #define _UAPI_LINUX_LIGHTNVM_H
- 
- #ifdef __KERNEL__
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/ioctl.h>
- #else /* __KERNEL__ */
- #include <stdio.h>
-diff --git a/include/uapi/linux/mroute6.h b/include/uapi/linux/mroute6.h
-index 9999cc006390..1617eb9949a5 100644
---- a/include/uapi/linux/mroute6.h
-+++ b/include/uapi/linux/mroute6.h
-@@ -2,7 +2,7 @@
- #ifndef _UAPI__LINUX_MROUTE6_H
- #define _UAPI__LINUX_MROUTE6_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/sockios.h>
- #include <linux/in6.h>		/* For struct sockaddr_in6. */
-diff --git a/include/uapi/linux/netfilter/x_tables.h b/include/uapi/linux/netfilter/x_tables.h
-index a8283f7dbc51..b8c6bb233ac1 100644
---- a/include/uapi/linux/netfilter/x_tables.h
-+++ b/include/uapi/linux/netfilter/x_tables.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
- #ifndef _UAPI_X_TABLES_H
- #define _UAPI_X_TABLES_H
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- 
- #define XT_FUNCTION_MAXNAMELEN 30
-diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
-index 776bc92e9118..3481cde43a84 100644
---- a/include/uapi/linux/netlink.h
-+++ b/include/uapi/linux/netlink.h
-@@ -2,7 +2,7 @@
- #ifndef _UAPI__LINUX_NETLINK_H
- #define _UAPI__LINUX_NETLINK_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/socket.h> /* for __kernel_sa_family_t */
- #include <linux/types.h>
- 
-diff --git a/include/uapi/linux/sysctl.h b/include/uapi/linux/sysctl.h
-index d71013fffaf6..d3393a6571ba 100644
---- a/include/uapi/linux/sysctl.h
-+++ b/include/uapi/linux/sysctl.h
-@@ -23,7 +23,7 @@
- #ifndef _UAPI_LINUX_SYSCTL_H
- #define _UAPI_LINUX_SYSCTL_H
- 
--#include <linux/kernel.h>
-+#include <linux/const.h>
- #include <linux/types.h>
- #include <linux/compiler.h>
- 
-diff --git a/kernel/module.c b/kernel/module.c
-index d05e1bfdd355..429769605871 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -1806,7 +1806,6 @@ static int mod_sysfs_init(struct module *mod)
- 	if (err)
- 		mod_kobject_put(mod);
- 
--	/* delay uevent until full sysfs population */
- out:
- 	return err;
- }
-@@ -1843,7 +1842,6 @@ static int mod_sysfs_setup(struct module *mod,
- 	add_sect_attrs(mod, info);
- 	add_notes_attrs(mod, info);
- 
--	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
- 	return 0;
- 
- out_unreg_modinfo_attrs:
-@@ -3499,6 +3497,9 @@ static noinline int do_init_module(struct module *mod)
- 	blocking_notifier_call_chain(&module_notify_list,
- 				     MODULE_STATE_LIVE, mod);
- 
-+	/* Delay uevent until module has finished its init routine */
-+	kobject_uevent(&mod->mkobj.kobj, KOBJ_ADD);
-+
- 	/*
- 	 * We need to finish all async code before the module init sequence
- 	 * is done.  This has potential to deadlock.  For example, a newly
-@@ -3841,6 +3842,7 @@ static int load_module(struct load_info *info, const char __user *uargs,
- 				     MODULE_STATE_GOING, mod);
- 	klp_module_going(mod);
-  bug_cleanup:
-+	mod->state = MODULE_STATE_GOING;
- 	/* module_bug_cleanup needs module_mutex protection */
- 	mutex_lock(&module_mutex);
- 	module_bug_cleanup(mod);
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index 7c12b0deb4eb..db62dbe7eaa8 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -753,8 +753,13 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 		runtime->boundary *= 2;
- 
- 	/* clear the buffer for avoiding possible kernel info leaks */
--	if (runtime->dma_area && !substream->ops->copy_user)
--		memset(runtime->dma_area, 0, runtime->dma_bytes);
-+	if (runtime->dma_area && !substream->ops->copy_user) {
-+		size_t size = runtime->dma_bytes;
-+
-+		if (runtime->info & SNDRV_PCM_INFO_MMAP)
-+			size = PAGE_ALIGN(size);
-+		memset(runtime->dma_area, 0, size);
-+	}
- 
- 	snd_pcm_timer_resolution_change(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
-diff --git a/sound/core/rawmidi.c b/sound/core/rawmidi.c
-index 9b26973fe697..f4f855d7a791 100644
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -87,11 +87,21 @@ static inline unsigned short snd_rawmidi_file_flags(struct file *file)
- 	}
- }
- 
--static inline int snd_rawmidi_ready(struct snd_rawmidi_substream *substream)
-+static inline bool __snd_rawmidi_ready(struct snd_rawmidi_runtime *runtime)
-+{
-+	return runtime->avail >= runtime->avail_min;
-+}
-+
-+static bool snd_rawmidi_ready(struct snd_rawmidi_substream *substream)
- {
- 	struct snd_rawmidi_runtime *runtime = substream->runtime;
-+	unsigned long flags;
-+	bool ready;
- 
--	return runtime->avail >= runtime->avail_min;
-+	spin_lock_irqsave(&runtime->lock, flags);
-+	ready = __snd_rawmidi_ready(runtime);
-+	spin_unlock_irqrestore(&runtime->lock, flags);
-+	return ready;
- }
- 
- static inline int snd_rawmidi_ready_append(struct snd_rawmidi_substream *substream,
-@@ -960,7 +970,7 @@ int snd_rawmidi_receive(struct snd_rawmidi_substream *substream,
- 	if (result > 0) {
- 		if (runtime->event)
- 			schedule_work(&runtime->event_work);
--		else if (snd_rawmidi_ready(substream))
-+		else if (__snd_rawmidi_ready(runtime))
- 			wake_up(&runtime->sleep);
- 	}
- 	spin_unlock_irqrestore(&runtime->lock, flags);
-@@ -1039,7 +1049,7 @@ static ssize_t snd_rawmidi_read(struct file *file, char __user *buf, size_t coun
- 	result = 0;
- 	while (count > 0) {
- 		spin_lock_irq(&runtime->lock);
--		while (!snd_rawmidi_ready(substream)) {
-+		while (!__snd_rawmidi_ready(runtime)) {
- 			wait_queue_entry_t wait;
- 
- 			if ((file->f_flags & O_NONBLOCK) != 0 || result > 0) {
-@@ -1056,9 +1066,11 @@ static ssize_t snd_rawmidi_read(struct file *file, char __user *buf, size_t coun
- 				return -ENODEV;
- 			if (signal_pending(current))
- 				return result > 0 ? result : -ERESTARTSYS;
--			if (!runtime->avail)
--				return result > 0 ? result : -EIO;
- 			spin_lock_irq(&runtime->lock);
-+			if (!runtime->avail) {
-+				spin_unlock_irq(&runtime->lock);
-+				return result > 0 ? result : -EIO;
-+			}
- 		}
- 		spin_unlock_irq(&runtime->lock);
- 		count1 = snd_rawmidi_kernel_read1(substream,
-@@ -1196,7 +1208,7 @@ int __snd_rawmidi_transmit_ack(struct snd_rawmidi_substream *substream, int coun
- 	runtime->avail += count;
- 	substream->bytes += count;
- 	if (count > 0) {
--		if (runtime->drain || snd_rawmidi_ready(substream))
-+		if (runtime->drain || __snd_rawmidi_ready(runtime))
- 			wake_up(&runtime->sleep);
- 	}
- 	return count;
-@@ -1363,9 +1375,11 @@ static ssize_t snd_rawmidi_write(struct file *file, const char __user *buf,
- 				return -ENODEV;
- 			if (signal_pending(current))
- 				return result > 0 ? result : -ERESTARTSYS;
--			if (!runtime->avail && !timeout)
--				return result > 0 ? result : -EIO;
- 			spin_lock_irq(&runtime->lock);
-+			if (!runtime->avail && !timeout) {
-+				spin_unlock_irq(&runtime->lock);
-+				return result > 0 ? result : -EIO;
-+			}
- 		}
- 		spin_unlock_irq(&runtime->lock);
- 		count1 = snd_rawmidi_kernel_write1(substream, buf, NULL, count);
-@@ -1445,6 +1459,7 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
- 	struct snd_rawmidi *rmidi;
- 	struct snd_rawmidi_substream *substream;
- 	struct snd_rawmidi_runtime *runtime;
-+	unsigned long buffer_size, avail, xruns;
- 
- 	rmidi = entry->private_data;
- 	snd_iprintf(buffer, "%s\n\n", rmidi->name);
-@@ -1463,13 +1478,16 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
- 				    "  Owner PID    : %d\n",
- 				    pid_vnr(substream->pid));
- 				runtime = substream->runtime;
-+				spin_lock_irq(&runtime->lock);
-+				buffer_size = runtime->buffer_size;
-+				avail = runtime->avail;
-+				spin_unlock_irq(&runtime->lock);
- 				snd_iprintf(buffer,
- 				    "  Mode         : %s\n"
- 				    "  Buffer size  : %lu\n"
- 				    "  Avail        : %lu\n",
- 				    runtime->oss ? "OSS compatible" : "native",
--				    (unsigned long) runtime->buffer_size,
--				    (unsigned long) runtime->avail);
-+				    buffer_size, avail);
- 			}
- 		}
- 	}
-@@ -1487,13 +1505,16 @@ static void snd_rawmidi_proc_info_read(struct snd_info_entry *entry,
- 					    "  Owner PID    : %d\n",
- 					    pid_vnr(substream->pid));
- 				runtime = substream->runtime;
-+				spin_lock_irq(&runtime->lock);
-+				buffer_size = runtime->buffer_size;
-+				avail = runtime->avail;
-+				xruns = runtime->xruns;
-+				spin_unlock_irq(&runtime->lock);
- 				snd_iprintf(buffer,
- 					    "  Buffer size  : %lu\n"
- 					    "  Avail        : %lu\n"
- 					    "  Overruns     : %lu\n",
--					    (unsigned long) runtime->buffer_size,
--					    (unsigned long) runtime->avail,
--					    (unsigned long) runtime->xruns);
-+					    buffer_size, avail, xruns);
- 			}
- 		}
- 	}
-diff --git a/sound/core/seq/seq_queue.h b/sound/core/seq/seq_queue.h
-index e006fc8e3a36..6b634cfb42ed 100644
---- a/sound/core/seq/seq_queue.h
-+++ b/sound/core/seq/seq_queue.h
-@@ -40,10 +40,10 @@ struct snd_seq_queue {
- 	
- 	struct snd_seq_timer *timer;	/* time keeper for this queue */
- 	int	owner;		/* client that 'owns' the timer */
--	unsigned int	locked:1,	/* timer is only accesibble by owner if set */
--		klocked:1,	/* kernel lock (after START) */	
--		check_again:1,
--		check_blocked:1;
-+	bool	locked;		/* timer is only accesibble by owner if set */
-+	bool	klocked;	/* kernel lock (after START) */
-+	bool	check_again;	/* concurrent access happened during check */
-+	bool	check_blocked;	/* queue being checked */
- 
- 	unsigned int flags;		/* status flags */
- 	unsigned int info_flags;	/* info for sync */
+I'm announcing the release of the 5.4.87 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                |    2 
+ arch/powerpc/include/asm/bitops.h       |   23 +++
+ arch/powerpc/sysdev/mpic_msgr.c         |    2 
+ arch/um/drivers/ubd_kern.c              |  191 +++++++++++++++++++-------------
+ arch/x86/kvm/cpuid.h                    |   14 ++
+ arch/x86/kvm/svm.c                      |   17 +-
+ arch/x86/kvm/vmx/vmx.c                  |   13 +-
+ arch/x86/kvm/x86.c                      |   22 +++
+ arch/x86/kvm/x86.h                      |    1 
+ block/blk-pm.c                          |   15 +-
+ drivers/block/null_blk_zoned.c          |   19 ++-
+ drivers/bluetooth/hci_h5.c              |    8 +
+ drivers/i3c/master.c                    |    5 
+ drivers/md/dm-verity-target.c           |   12 +-
+ drivers/md/raid10.c                     |    3 
+ drivers/media/usb/dvb-usb/gp8psk.c      |    2 
+ drivers/misc/vmw_vmci/vmci_context.c    |    2 
+ drivers/rtc/rtc-pl031.c                 |    6 -
+ drivers/rtc/rtc-sun6i.c                 |    8 -
+ drivers/scsi/cxgbi/cxgb4i/Kconfig       |    1 
+ drivers/thermal/cpu_cooling.c           |    9 +
+ drivers/vfio/pci/vfio_pci.c             |    3 
+ fs/bfs/inode.c                          |    2 
+ fs/btrfs/ioctl.c                        |   39 ++++++
+ fs/crypto/fscrypt_private.h             |    5 
+ fs/crypto/hooks.c                       |   10 -
+ fs/crypto/keysetup.c                    |    2 
+ fs/crypto/policy.c                      |    6 -
+ fs/ext4/namei.c                         |    3 
+ fs/ext4/super.c                         |   14 +-
+ fs/f2fs/checkpoint.c                    |    2 
+ fs/f2fs/debug.c                         |   11 +
+ fs/f2fs/f2fs.h                          |   12 +-
+ fs/f2fs/node.c                          |   29 +++-
+ fs/f2fs/node.h                          |    4 
+ fs/f2fs/shrinker.c                      |    4 
+ fs/f2fs/super.c                         |    9 -
+ fs/fcntl.c                              |   10 +
+ fs/jffs2/jffs2_fs_sb.h                  |    1 
+ fs/jffs2/super.c                        |   17 +-
+ fs/namespace.c                          |    9 +
+ fs/nfs/nfs4super.c                      |    2 
+ fs/nfs/pnfs.c                           |   33 +++++
+ fs/nfs/pnfs.h                           |    5 
+ fs/pnode.h                              |    2 
+ fs/quota/quota_tree.c                   |    8 -
+ fs/reiserfs/stree.c                     |    6 +
+ fs/ubifs/dir.c                          |   17 ++
+ include/linux/fscrypt.h                 |   34 +++++
+ include/linux/of.h                      |    1 
+ include/uapi/linux/const.h              |    5 
+ include/uapi/linux/ethtool.h            |    2 
+ include/uapi/linux/fscrypt.h            |    5 
+ include/uapi/linux/kernel.h             |    9 -
+ include/uapi/linux/lightnvm.h           |    2 
+ include/uapi/linux/mroute6.h            |    2 
+ include/uapi/linux/netfilter/x_tables.h |    2 
+ include/uapi/linux/netlink.h            |    2 
+ include/uapi/linux/sysctl.h             |    2 
+ kernel/cgroup/cgroup-v1.c               |    2 
+ kernel/module.c                         |    6 -
+ kernel/time/tick-sched.c                |    7 -
+ net/sched/sch_taprio.c                  |   17 ++
+ sound/core/pcm_native.c                 |    9 +
+ sound/core/rawmidi.c                    |   49 +++++---
+ sound/core/seq/seq_queue.h              |    8 -
+ tools/include/uapi/linux/const.h        |    5 
+ 67 files changed, 562 insertions(+), 247 deletions(-)
+
+Anant Thazhemadam (2):
+      Bluetooth: hci_h5: close serdev device and free hu in h5_close
+      misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
+
+Arnaldo Carvalho de Melo (1):
+      tools headers UAPI: Sync linux/const.h with the kernel headers
+
+Bart Van Assche (1):
+      scsi: block: Fix a race in the runtime power management code
+
+Boqun Feng (1):
+      fcntl: Fix potential deadlock in send_sig{io, urg}()
+
+Chao Yu (1):
+      f2fs: fix shift-out-of-bounds in sanity_check_raw_super()
+
+Christophe Leroy (1):
+      powerpc/bitops: Fix possible undefined behaviour with fls() and fls64()
+
+Damien Le Moal (1):
+      null_blk: Fix zone size initialization
+
+Davide Caratti (1):
+      net/sched: sch_taprio: reset child qdiscs before freeing them
+
+Dinghao Liu (1):
+      rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+
+Eric Auger (1):
+      vfio/pci: Move dummy_resources_list init in vfio_pci_probe()
+
+Eric Biggers (6):
+      ext4: prevent creating duplicate encrypted filenames
+      ubifs: prevent creating duplicate encrypted filenames
+      f2fs: prevent creating duplicate encrypted filenames
+      fscrypt: add fscrypt_is_nokey_name()
+      fscrypt: remove kernel-internal constants from UAPI header
+      fs/namespace.c: WARN if mnt_count has become negative
+
+Filipe Manana (1):
+      btrfs: fix race when defragmenting leads to unnecessary IO
+
+Gabriel Krisman Bertazi (1):
+      um: ubd: Submit all data segments atomically
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.87
+
+Hyeongseok Kim (1):
+      dm verity: skip verity work if I/O error when system is shutting down
+
+Jaegeuk Kim (1):
+      f2fs: avoid race condition for shrinker count
+
+Jamie Iles (1):
+      jffs2: Fix NULL pointer dereference in rp_size fs option parsing
+
+Jan Kara (2):
+      ext4: don't remount read-only with errors=continue on reboot
+      quota: Don't overflow quota file offsets
+
+Jessica Yu (1):
+      module: delay kobject uevent until after module init call
+
+Johan Hovold (1):
+      of: fix linker-section match-table corruption
+
+Kevin Vigor (1):
+      md/raid10: initialize r10_bio->read_slot before use.
+
+Mauro Carvalho Chehab (1):
+      media: gp8psk: initialize stats at power control logic
+
+Miroslav Benes (1):
+      module: set MODULE_STATE_GOING state when a module fails to load
+
+Paolo Bonzini (3):
+      KVM: x86: avoid incorrect writes to host MSR_IA32_SPEC_CTRL
+      KVM: SVM: relax conditions for allowing MSR_IA32_SPEC_CTRL accesses
+      KVM: x86: reinstate vendor-agnostic check on SPEC_CTRL cpuid bits
+
+Petr Vorel (1):
+      uapi: move constants from <linux/kernel.h> to <linux/const.h>
+
+Qinglang Miao (3):
+      cgroup: Fix memory leak when parsing multiple source parameters
+      powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
+      i3c master: fix missing destroy_workqueue() on error in i3c_master_register
+
+Randy Dunlap (2):
+      scsi: cxgb4i: Fix TLS dependency
+      bfs: don't use WARNING: string when it's just info.
+
+Rustam Kovhaev (1):
+      reiserfs: add check for an invalid ih_entry_count
+
+Takashi Iwai (3):
+      ALSA: seq: Use bool for snd_seq_queue internal flags
+      ALSA: rawmidi: Access runtime->avail always in spinlock
+      ALSA: pcm: Clear the full allocated memory at hw_params
+
+Thomas Gleixner (1):
+      tick/sched: Remove bogus boot "safety" check
+
+Trond Myklebust (1):
+      NFSv4: Fix a pNFS layout related use-after-free race when freeing the inode
+
+Zheng Liang (1):
+      rtc: pl031: fix resource leak in pl031_probe
+
+Zhuguangqing (1):
+      thermal/drivers/cpufreq_cooling: Update cpufreq_state only if state has changed
+
+lizhe (1):
+      jffs2: Allow setting rp_size to zero during remounting
+
