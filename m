@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8D72EC2EC
-	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 19:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 001A52EC2F9
+	for <lists+stable@lfdr.de>; Wed,  6 Jan 2021 19:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725890AbhAFSEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Jan 2021 13:04:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57294 "EHLO mail.kernel.org"
+        id S1726740AbhAFSIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Jan 2021 13:08:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725803AbhAFSEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Jan 2021 13:04:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66067216C4;
-        Wed,  6 Jan 2021 18:03:20 +0000 (UTC)
+        id S1726435AbhAFSIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Jan 2021 13:08:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8621E23130;
+        Wed,  6 Jan 2021 18:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1609956200;
-        bh=YEmjCkuvqJwXAs/CFcpsZIBub1wETbB3Xxi/z8ZXSgA=;
+        s=korg; t=1609956471;
+        bh=QLVGM+c+i30uk6Vw3Qq+VDDASLEBhRWK8PFwyTKRT4o=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SyCAuPdeO3AYDtkKYfMF+9KgP/SNKTYMn8Vfi0SFaI7MEL+khoxLTMu8JErs7SHIP
-         wLezrLEBCn2+b0fkeRfYgWm3Ezxrc3yM9+PRHp7ditsSCVJJVSyJCmHL22YTepE8l5
-         s7TmF2/wFDK90D+Pc/t9/CVunhkKpmTgBFUzQ1n8=
-Date:   Wed, 6 Jan 2021 19:04:42 +0100
+        b=FniQHU+ZDsQz2wozZTjXPDohX15sJk617NdwmGwo08jynY4op6Rmyq3ntakbL3qRc
+         p+Z/RXX21YqtwGjE8cijxilnWafp7MMiBG3YisqQlDb3hSE+COhoRAIl1iUks+xW/v
+         rZ7icnLPwmEOIhoN6EP64dll7zDL9Md2SnI4Upuo=
+Date:   Wed, 6 Jan 2021 19:09:04 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Imre Deak <imre.deak@intel.com>
-Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: Re: v5.10 stable backport request
-Message-ID: <X/X7umSYEeKCZ0Dw@kroah.com>
-References: <20210106175301.GB202232@ideak-desk.fi.intel.com>
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        doebel@amazon.de, aams@amazon.de, mku@amazon.de, jgross@suse.com,
+        julien@xen.org, wipawel@amazon.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Backport of patch series for stable 4.9 branch
+Message-ID: <X/X8wP9A8OvCXPuz@kroah.com>
+References: <20210105110142.1810-1-sjpark@amazon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210106175301.GB202232@ideak-desk.fi.intel.com>
+In-Reply-To: <20210105110142.1810-1-sjpark@amazon.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 06, 2021 at 07:53:01PM +0200, Imre Deak wrote:
-> Stable team, please backport the upstream commit
+On Tue, Jan 05, 2021 at 12:01:37PM +0100, SeongJae Park wrote:
+> From: SeongJae Park <sjpark@amazon.de>
 > 
-> 8f329967d596 ("drm/i915/tgl: Fix Combo PHY DPLL fractional divider for 38.4MHz ref clock")
-> 
-> to the v5.10 stable kernel.
+> SeongJae Park (5):
+>   xen/xenbus: Allow watches discard events before queueing
+>   xen/xenbus: Add 'will_handle' callback support in xenbus_watch_path()
+>   xen/xenbus/xen_bus_type: Support will_handle watch callback
+>   xen/xenbus: Count pending messages for each watch
+>   xenbus/xenbus_backend: Disallow pending watch messages
 
-I see no such commit id in Linus's kernel :(
+Now queued up, thanks.
+
+greg k-h
