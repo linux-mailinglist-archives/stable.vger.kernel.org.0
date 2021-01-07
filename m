@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 479192ED1FD
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:22:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E30F2ED1CF
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728010AbhAGOVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:21:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
+        id S1729183AbhAGORf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:17:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbhAGOQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:16:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A85123355;
-        Thu,  7 Jan 2021 14:15:47 +0000 (UTC)
+        id S1729182AbhAGORe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:17:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD7DA23384;
+        Thu,  7 Jan 2021 14:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028948;
-        bh=pt5JnC+WMpS8EA5WcJFDwwU1mZ+eTmpK+WAcu8fE8Kg=;
+        s=korg; t=1610028986;
+        bh=AXywxoBkPUBwm+JrjiZENZi5RLflUxlB+adI7JBoYZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tgNjP1CZGMsJQZe5Rv7zcc3v6vhqRDTjvmYtyY5WuYoIHO2AVFaXgVhn/wt0N340E
-         2YOaIA+0sR2CYHbRlkdDY7vWq1R3Q9JhvD+zmXEzH7v2JooIvPNtQ6zfOMnxxjZvFH
-         a5LjRONLStv9Grvwwb4dcM0Pd0zVWfQGr0SZr+Nk=
+        b=e/Qr2S1zHPIrmDzi39c2CTkVA3c+banWidgQhnO/wvUsq2vV8UBSrbv2TTYm7e6Fs
+         8qq9+DQJ9ke5QB68lf9PzDnzsCOJXg1NKXYlJFApiDPbQI4qroLJh1ny9lEbYW+H/a
+         lyt61jIUGSrC8j+rHvJaLT4G1XTaghnpVn5HDbps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 10/19] of: fix linker-section match-table corruption
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Jan Kara <jack@suse.cz>,
+        syzbot+83b6f7cf9922cae5c4d7@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 15/32] reiserfs: add check for an invalid ih_entry_count
 Date:   Thu,  7 Jan 2021 15:16:35 +0100
-Message-Id: <20210107140828.067450578@linuxfoundation.org>
+Message-Id: <20210107140828.577180668@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
-References: <20210107140827.584658199@linuxfoundation.org>
+In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
+References: <20210107140827.866214702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,66 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 5812b32e01c6d86ba7a84110702b46d8a8531fe9 upstream.
+commit d24396c5290ba8ab04ba505176874c4e04a2d53c upstream.
 
-Specify type alignment when declaring linker-section match-table entries
-to prevent gcc from increasing alignment and corrupting the various
-tables with padding (e.g. timers, irqchips, clocks, reserved memory).
+when directory item has an invalid value set for ih_entry_count it might
+trigger use-after-free or out-of-bounds read in bin_search_in_dir_item()
 
-This is specifically needed on x86 where gcc (typically) aligns larger
-objects like struct of_device_id with static extent on 32-byte
-boundaries which at best prevents matching on anything but the first
-entry. Specifying alignment when declaring variables suppresses this
-optimisation.
+ih_entry_count * IH_SIZE for directory item should not be larger than
+ih_item_len
 
-Here's a 64-bit example where all entries are corrupt as 16 bytes of
-padding has been inserted before the first entry:
-
-	ffffffff8266b4b0 D __clk_of_table
-	ffffffff8266b4c0 d __of_table_fixed_factor_clk
-	ffffffff8266b5a0 d __of_table_fixed_clk
-	ffffffff8266b680 d __clk_of_table_sentinel
-
-And here's a 32-bit example where the 8-byte-aligned table happens to be
-placed on a 32-byte boundary so that all but the first entry are corrupt
-due to the 28 bytes of padding inserted between entries:
-
-	812b3ec0 D __irqchip_of_table
-	812b3ec0 d __of_table_irqchip1
-	812b3fa0 d __of_table_irqchip2
-	812b4080 d __of_table_irqchip3
-	812b4160 d irqchip_of_match_end
-
-Verified on x86 using gcc-9.3 and gcc-4.9 (which uses 64-byte
-alignment), and on arm using gcc-7.2.
-
-Note that there are no in-tree users of these tables on x86 currently
-(even if they are included in the image).
-
-Fixes: 54196ccbe0ba ("of: consolidate linker section OF match table declarations")
-Fixes: f6e916b82022 ("irqchip: add basic infrastructure")
-Cc: stable <stable@vger.kernel.org>     # 3.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20201123102319.8090-2-johan@kernel.org
-[ johan: adjust context to 5.4 ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20201101140958.3650143-1-rkovhaev@gmail.com
+Reported-and-tested-by: syzbot+83b6f7cf9922cae5c4d7@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=83b6f7cf9922cae5c4d7
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/of.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/reiserfs/stree.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -941,6 +941,7 @@ static inline int of_get_available_child
- #define _OF_DECLARE(table, name, compat, fn, fn_type)			\
- 	static const struct of_device_id __of_table_##name		\
- 		__used __section(__##table##_of_table)			\
-+		__aligned(__alignof__(struct of_device_id))		\
- 		 = { .compatible = compat,				\
- 		     .data = (fn == (fn_type)NULL) ? fn : fn  }
- #else
+--- a/fs/reiserfs/stree.c
++++ b/fs/reiserfs/stree.c
+@@ -453,6 +453,12 @@ static int is_leaf(char *buf, int blocks
+ 					 "(second one): %h", ih);
+ 			return 0;
+ 		}
++		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
++			reiserfs_warning(NULL, "reiserfs-5093",
++					 "item entry count seems wrong %h",
++					 ih);
++			return 0;
++		}
+ 		prev_location = ih_location(ih);
+ 	}
+ 
 
 
