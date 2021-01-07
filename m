@@ -2,235 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9D82ED64C
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 19:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E4B2ED662
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 19:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729010AbhAGSDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 13:03:12 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46224 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbhAGSDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 13:03:11 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 0A2B4AAF1;
-        Thu,  7 Jan 2021 18:02:29 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 0DA65DA6E9; Thu,  7 Jan 2021 19:00:39 +0100 (CET)
-Date:   Thu, 7 Jan 2021 19:00:38 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org,
-        =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>
-Subject: Re: [PATCH v2] btrfs: shrink delalloc pages instead of full inodes
-Message-ID: <20210107180038.GV6430@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
-        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org,
-        =?iso-8859-1?Q?Ren=E9?= Rebe <rene@exactcode.de>
-References: <34d0a7e07cf75ca4b44cf54693cd74477649fb88.1609792754.git.josef@toxicpanda.com>
+        id S1726780AbhAGSHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 13:07:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726600AbhAGSHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 13:07:10 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7877CC0612F6
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 10:06:29 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id s21so4322758pfu.13
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 10:06:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=sIzH/LUCfU7wH+MS6z1iScXedpx0hX7u9oOCy5bTKIg=;
+        b=n4zwX8zV7xpA1E65wY+pqC1PEvv/JIw4zsUlSqSKEbMBC+PvutdB0DIRNshvirA1Ee
+         2XSEF5Kx51Fjv7W5u0ti63HkHJeJXZ+3UqdaxwPVsmjNabMPM3NopNQ3ewb7FgDcqkwR
+         lD8pRHTjwKjocgEbnJdsdMNDurTRm/RycyfdwqL37Pd8e5hWaCrO85rLY7fEFdSUtKET
+         qGRQclqG8pEY6NlkFbb0SWsHubY8WZw15BhaVvkc0CfR5vDVGqmnt+kAmVSN4GTgWgMo
+         n75jLCpMiVHunFJ5QSXwRskPDr6NXTZIdx8kH6e/oahyMeLnYCUCJXy6Nx6lAxJcI6T5
+         1N2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=sIzH/LUCfU7wH+MS6z1iScXedpx0hX7u9oOCy5bTKIg=;
+        b=n6lwnTm13acCh1VVKZEGZBZ1LEhrC2Db9euxGRilio6Rf8PFFklCduZgKL31U91i0P
+         ebQPVd0p4bPPMw48Z0TBPOjnpgRlMhJAK+aFnkvTZKtCfOcIkXvXBvmzC6kH1FxEytTj
+         xyLoULKvF4/5q3on3cB78KWYbity3BKyJ9DHl6up18eYj5AYEVxUV9M2wI404ICxLxxn
+         BFhYCe1FkiUjlspqMmdnigezzQOfVYNa/772kc2M8EbOhpkkuwZilaJ2XqTevEQWFJXv
+         8YxKzMD7/1O+LaeGJj3UTpumfBbH0WqY+ntl4YJTMDq16ckkeKCP7RHYwl+FVcXwI09R
+         ZfsA==
+X-Gm-Message-State: AOAM533K7oYZdFyQWyfqzc60PyvvmF7lYjjCiuL10eB0kx2n/fcZWWIi
+        Vk1cWLMWa2+HhzgRewtho01/x7GJxsy1MQ==
+X-Google-Smtp-Source: ABdhPJyfsCW+wy26J24kAe4UwfTK+/J6sIn52A0I6sdfmQxR8y+rA+1tqpMToTp8CkiY4/YwZOGoMA==
+X-Received: by 2002:a63:c04b:: with SMTP id z11mr3052853pgi.74.1610042788706;
+        Thu, 07 Jan 2021 10:06:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id gp17sm2665844pjb.0.2021.01.07.10.06.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Jan 2021 10:06:27 -0800 (PST)
+Message-ID: <5ff74da3.1c69fb81.7d8a2.5f19@mx.google.com>
+Date:   Thu, 07 Jan 2021 10:06:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <34d0a7e07cf75ca4b44cf54693cd74477649fb88.1609792754.git.josef@toxicpanda.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.87-7-ge91f6eb9254c
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 185 runs,
+ 6 regressions (v5.4.87-7-ge91f6eb9254c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 04, 2021 at 03:39:50PM -0500, Josef Bacik wrote:
-> Commit 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in
-> shrink_delalloc") cleaned up how we do delalloc shrinking by utilizing
-> some infrastructure we have in place to flush inodes that we use for
-> device replace and snapshot.  However this introduced a pretty serious
-> performance regression.  To reproduce the user untarred the source
-> tarball of Firefox, and would see it take anywhere from 5 to 20 times as
-> long to untar in 5.10 compared to 5.9.
-> 
-> The root cause is because before we would generally use the normal
-> writeback path to reclaim delalloc space, and for this we would provide
-> it with the number of pages we wanted to flush.  The referenced commit
-> changed this to flush that many inodes, which drastically increased the
-> amount of space we were flushing in certain cases, which severely
-> affected performance.
-> 
-> We cannot revert this patch unfortunately, because Filipe has another
-> fix that requires the ability to skip flushing inodes that are being
+stable-rc/queue/5.4 baseline: 185 runs, 6 regressions (v5.4.87-7-ge91f6eb92=
+54c)
 
-Which fix is that? Commit id or at last the subject.
+Regressions Summary
+-------------------
 
-> cloned in certain scenarios, which means we need to keep using our
-> flushing infrastructure or risk re-introducing the deadlock.
-> 
-> Instead to fix this problem we can go back to providing
-> btrfs_start_delalloc_roots with a number of pages to flush, and then set
-> up a writeback_control and utilize sync_inode() to handle the flushing
-> for us.  This gives us the same behavior we had prior to the fix, while
-> still allowing us to avoid the deadlock that was fixed by Filipe.  I
-> redid the users original test and got the following results
-> 
-> 5.9	0m54.258s
-> 5.10	1m26.212s
-> Patched	0m38.800s
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-Patched is on which base? Also the hardware type seems to be a
-significant factor. I've been testing that on some old SSD, the time
-difference was about 5 minutes vs 1, both on 5.11-rc2 and 5.10.5. I'll
-add my results to the final version of the patch.
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
 
-> We are significantly faster because of the work I did around improving
-> ENOSPC flushing in 5.10 and 5.11, so reverting to the previous write out
-> behavior gave us a pretty big boost.
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
 
-The reference to the enospc needs to be less vague if you mention 2
-versions.
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
 
-> CC: stable@vger.kernel.org # 5.10
-> Reported-by: René Rebe <rene@exactcode.de>
-> Fixes: 38d715f494f2 ("btrfs: use btrfs_start_delalloc_roots in shrink_delalloc")
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> ---
-> v1->v2:
-> - Explicitly state what the regression was in the commit message.
-> 
->  fs/btrfs/inode.c      | 60 +++++++++++++++++++++++++++++++------------
->  fs/btrfs/space-info.c |  4 ++-
->  2 files changed, 46 insertions(+), 18 deletions(-)
-> 
-> diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-> index 070716650df8..a8e0a6b038d3 100644
-> --- a/fs/btrfs/inode.c
-> +++ b/fs/btrfs/inode.c
-> @@ -9390,7 +9390,8 @@ static struct btrfs_delalloc_work *btrfs_alloc_delalloc_work(struct inode *inode
->   * some fairly slow code that needs optimization. This walks the list
->   * of all the inodes with pending delalloc and forces them to disk.
->   */
-> -static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot,
-> +static int start_delalloc_inodes(struct btrfs_root *root,
-> +				 struct writeback_control *wbc, bool snapshot,
->  				 bool in_reclaim_context)
->  {
->  	struct btrfs_inode *binode;
-> @@ -9399,6 +9400,7 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
->  	struct list_head works;
->  	struct list_head splice;
->  	int ret = 0;
-> +	bool full_flush = wbc->nr_to_write == LONG_MAX;
->  
->  	INIT_LIST_HEAD(&works);
->  	INIT_LIST_HEAD(&splice);
-> @@ -9427,18 +9429,24 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
->  		if (snapshot)
->  			set_bit(BTRFS_INODE_SNAPSHOT_FLUSH,
->  				&binode->runtime_flags);
-> -		work = btrfs_alloc_delalloc_work(inode);
-> -		if (!work) {
-> -			iput(inode);
-> -			ret = -ENOMEM;
-> -			goto out;
-> -		}
-> -		list_add_tail(&work->list, &works);
-> -		btrfs_queue_work(root->fs_info->flush_workers,
-> -				 &work->work);
-> -		if (*nr != U64_MAX) {
-> -			(*nr)--;
-> -			if (*nr == 0)
-> +		if (full_flush) {
-> +			work = btrfs_alloc_delalloc_work(inode);
-> +			if (!work) {
-> +				iput(inode);
-> +				ret = -ENOMEM;
-> +				goto out;
-> +			}
-> +			list_add_tail(&work->list, &works);
-> +			btrfs_queue_work(root->fs_info->flush_workers,
-> +					 &work->work);
-> +		} else {
-> +			ret = sync_inode(inode, wbc);
-> +			if (!ret &&
-> +			    test_bit(BTRFS_INODE_HAS_ASYNC_EXTENT,
-> +				     &BTRFS_I(inode)->runtime_flags))
-> +				ret = sync_inode(inode, wbc);
-> +			btrfs_add_delayed_iput(inode);
-> +			if (ret || wbc->nr_to_write <= 0)
->  				goto out;
->  		}
->  		cond_resched();
-> @@ -9464,18 +9472,29 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
->  
->  int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
->  {
-> +	struct writeback_control wbc = {
-> +		.nr_to_write = LONG_MAX,
-> +		.sync_mode = WB_SYNC_NONE,
-> +		.range_start = 0,
-> +		.range_end = LLONG_MAX,
-> +	};
->  	struct btrfs_fs_info *fs_info = root->fs_info;
-> -	u64 nr = U64_MAX;
->  
->  	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
->  		return -EROFS;
->  
-> -	return start_delalloc_inodes(root, &nr, true, false);
-> +	return start_delalloc_inodes(root, &wbc, true, false);
->  }
->  
->  int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
->  			       bool in_reclaim_context)
->  {
-> +	struct writeback_control wbc = {
-> +		.nr_to_write = (nr == U64_MAX) ? LONG_MAX : (unsigned long)nr,
-> +		.sync_mode = WB_SYNC_NONE,
-> +		.range_start = 0,
-> +		.range_end = LLONG_MAX,
-> +	};
->  	struct btrfs_root *root;
->  	struct list_head splice;
->  	int ret;
-> @@ -9489,6 +9508,13 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
->  	spin_lock(&fs_info->delalloc_root_lock);
->  	list_splice_init(&fs_info->delalloc_roots, &splice);
->  	while (!list_empty(&splice) && nr) {
-> +		/*
-> +		 * Reset nr_to_write here so we know that we're doing a full
-> +		 * flush.
-> +		 */
-> +		if (nr == U64_MAX)
-> +			wbc.nr_to_write = LONG_MAX;
-> +
->  		root = list_first_entry(&splice, struct btrfs_root,
->  					delalloc_root);
->  		root = btrfs_grab_root(root);
-> @@ -9497,9 +9523,9 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
->  			       &fs_info->delalloc_roots);
->  		spin_unlock(&fs_info->delalloc_root_lock);
->  
-> -		ret = start_delalloc_inodes(root, &nr, false, in_reclaim_context);
-> +		ret = start_delalloc_inodes(root, &wbc, false, in_reclaim_context);
->  		btrfs_put_root(root);
-> -		if (ret < 0)
-> +		if (ret < 0 || wbc.nr_to_write <= 0)
->  			goto out;
->  		spin_lock(&fs_info->delalloc_root_lock);
->  	}
-> diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-> index 67e55c5479b8..e8347461c8dd 100644
-> --- a/fs/btrfs/space-info.c
-> +++ b/fs/btrfs/space-info.c
-> @@ -532,7 +532,9 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
->  
->  	loops = 0;
->  	while ((delalloc_bytes || dio_bytes) && loops < 3) {
-> -		btrfs_start_delalloc_roots(fs_info, items, true);
-> +		u64 nr_pages = min(delalloc_bytes, to_reclaim) >> PAGE_SHIFT;
-> +
-> +		btrfs_start_delalloc_roots(fs_info, nr_pages, true);
->  
->  		loops++;
->  		if (wait_ordered && !trans) {
-> -- 
-> 2.26.2
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.87-7-ge91f6eb9254c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.87-7-ge91f6eb9254c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e91f6eb9254c8a1a48fe79b86ef652efe4a01892 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff7148196f18a21c4c94cf8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
+a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-=
+a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff7148196f18a21c4c94=
+cf9
+        failing since 48 days (last pass: v5.4.78-5-g843222460ebea, first f=
+ail: v5.4.78-13-g81acf0f7c6ec) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff71280296dae7a1ec94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff71280296dae7a1ec94=
+cba
+        failing since 54 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff712959807aacd29c94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff712959807aacd29c94=
+cba
+        failing since 54 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff71289296dae7a1ec94cc6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
+tilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versa=
+tilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff71289296dae7a1ec94=
+cc7
+        failing since 54 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff712431f44a87664c94cbf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff712431f44a87664c94=
+cc0
+        failing since 54 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff7125f1f44a87664c94ce7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-7-=
+ge91f6eb9254c/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff7125f1f44a87664c94=
+ce8
+        failing since 54 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =20
