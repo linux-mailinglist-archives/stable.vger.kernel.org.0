@@ -2,136 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1D72ED2B3
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCEA2ED224
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728312AbhAGOgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:36:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
+        id S1726229AbhAGOam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729287AbhAGOcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:32:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D2F1233E2;
-        Thu,  7 Jan 2021 14:31:21 +0000 (UTC)
+        id S1725965AbhAGOam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:30:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0216322EBF;
+        Thu,  7 Jan 2021 14:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029881;
-        bh=bmG8cDKhmZ3Yu1LN9m5aZPQoMKQO1lvaFBzrdJo7uPw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUStcHLvizQdQRmZBW7jEXG1zVZj7xop7qWfPgJuW9BbzB1rqfyeMZjs/o3nd6MwE
-         i8u2P9CU72MyBJY9m7yitrlDsEG6Oxfx154Peffdc4/UeP6G1No/uPOn0lC0TBAQq/
-         b91T9Ogl+JoShTuPvgQlLAoTwX6Rl7/H8oaVMnMA=
+        s=korg; t=1610029801;
+        bh=g++6W7stsKXVrnpYsku5yAZmGyGeOt55FP5yVfIlPv0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZpxtzghsquzIgOjyx1flTWHAd1NCrKCsrfPF5+E6N1tPXZn8hYqgAES2IbTfPqaXA
+         dx4AUc3oR616JwgXEQ4qU3NX2xuRaEBbv8WuG302gxI4mLAjmaQ145zyZM6e8ekCgA
+         S1GypSCPT2jOU35019evgPvJinASNS9ux2o0nkeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alberto Aguirre <albaguirre@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 04/29] ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/20] 4.4.250-rc2 review
 Date:   Thu,  7 Jan 2021 15:31:19 +0100
-Message-Id: <20210107143053.539114711@linuxfoundation.org>
+Message-Id: <20210107143049.179580814@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
-References: <20210107143052.973437064@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.250-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.250-rc2
+X-KernelTest-Deadline: 2021-01-09T14:30+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alberto Aguirre <albaguirre@gmail.com>
+This is the start of the stable review cycle for the 4.4.250 release.
+There are 20 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 103e9625647ad74d201e26fb74afcd8479142a37 upstream
+Responses should be made by Sat, 09 Jan 2021 14:30:35 +0000.
+Anything received after that time might be too late.
 
-Signed-off-by: Alberto Aguirre <albaguirre@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/usb/pcm.c |   52 ++++++++++++++++++++--------------------------------
- 1 file changed, 20 insertions(+), 32 deletions(-)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.250-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -324,6 +324,7 @@ static int set_sync_ep_implicit_fb_quirk
- 	struct usb_host_interface *alts;
- 	struct usb_interface *iface;
- 	unsigned int ep;
-+	unsigned int ifnum;
- 
- 	/* Implicit feedback sync EPs consumers are always playback EPs */
- 	if (subs->direction != SNDRV_PCM_STREAM_PLAYBACK)
-@@ -334,44 +335,23 @@ static int set_sync_ep_implicit_fb_quirk
- 	case USB_ID(0x0763, 0x2031): /* M-Audio Fast Track C600 */
- 	case USB_ID(0x22f0, 0x0006): /* Allen&Heath Qu-16 */
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 3);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--		break;
-+		ifnum = 3;
-+		goto add_sync_ep_from_ifnum;
- 	case USB_ID(0x0763, 0x2080): /* M-Audio FastTrack Ultra */
- 	case USB_ID(0x0763, 0x2081):
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 2);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--	case USB_ID(0x2466, 0x8003):
-+		ifnum = 2;
-+		goto add_sync_ep_from_ifnum;
-+	case USB_ID(0x2466, 0x8003): /* Fractal Audio Axe-Fx II */
- 		ep = 0x86;
--		iface = usb_ifnum_to_if(dev, 2);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--	case USB_ID(0x1397, 0x0002):
-+		ifnum = 2;
-+		goto add_sync_ep_from_ifnum;
-+	case USB_ID(0x1397, 0x0002): /* Behringer UFX1204 */
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 1);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--
-+		ifnum = 1;
-+		goto add_sync_ep_from_ifnum;
- 	}
-+
- 	if (attr == USB_ENDPOINT_SYNC_ASYNC &&
- 	    altsd->bInterfaceClass == USB_CLASS_VENDOR_SPEC &&
- 	    altsd->bInterfaceProtocol == 2 &&
-@@ -386,6 +366,14 @@ static int set_sync_ep_implicit_fb_quirk
- 	/* No quirk */
- 	return 0;
- 
-+add_sync_ep_from_ifnum:
-+	iface = usb_ifnum_to_if(dev, ifnum);
-+
-+	if (!iface || iface->num_altsetting == 0)
-+		return -EINVAL;
-+
-+	alts = &iface->altsetting[1];
-+
- add_sync_ep:
- 	subs->sync_endpoint = snd_usb_add_endpoint(subs->stream->chip,
- 						   alts, ep, !subs->direction,
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.250-rc2
+
+Zhang Xiaohui <ruc_zhangxiaohui@163.com>
+    mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
+
+Jonathan Cameron <Jonathan.Cameron@huawei.com>
+    iio:magnetometer:mag3110: Fix alignment and data leak issues.
+
+Jessica Yu <jeyu@kernel.org>
+    module: delay kobject uevent until after module init call
+
+Qinglang Miao <miaoqinglang@huawei.com>
+    powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
+
+Jan Kara <jack@suse.cz>
+    quota: Don't overflow quota file offsets
+
+Miroslav Benes <mbenes@suse.cz>
+    module: set MODULE_STATE_GOING state when a module fails to load
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: seq: Use bool for snd_seq_queue internal flags
+
+Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+    media: gp8psk: initialize stats at power control logic
+
+Anant Thazhemadam <anant.thazhemadam@gmail.com>
+    misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
+
+Rustam Kovhaev <rkovhaev@gmail.com>
+    reiserfs: add check for an invalid ih_entry_count
+
+Johan Hovold <johan@kernel.org>
+    of: fix linker-section match-table corruption
+
+Petr Vorel <petr.vorel@gmail.com>
+    uapi: move constants from <linux/kernel.h> to <linux/const.h>
+
+Johan Hovold <johan@kernel.org>
+    USB: serial: digi_acceleport: fix write-wakeup deadlocks
+
+Stefan Haberland <sth@linux.ibm.com>
+    s390/dasd: fix hanging device offline processing
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Dell headphone has noise on unmute for ALC236
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda - Fix a wrong FIXUP for alc289 on Dell machines
+
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Support Dell headset mode for ALC3271
+
+Johan Hovold <johan@kernel.org>
+    ALSA: usb-audio: fix sync-ep altsetting sanity check
+
+Alberto Aguirre <albaguirre@gmail.com>
+    ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/ca0132 - Fix work handling in delayed HP detection
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                |  4 +--
+ arch/powerpc/sysdev/mpic_msgr.c         |  2 +-
+ drivers/iio/magnetometer/mag3110.c      | 13 +++++++---
+ drivers/media/usb/dvb-usb/gp8psk.c      |  2 +-
+ drivers/misc/vmw_vmci/vmci_context.c    |  2 +-
+ drivers/net/wireless/mwifiex/join.c     |  2 ++
+ drivers/s390/block/dasd_alias.c         | 10 +++++++-
+ drivers/usb/serial/digi_acceleport.c    | 45 ++++++++++-----------------------
+ fs/quota/quota_tree.c                   |  8 +++---
+ fs/reiserfs/stree.c                     |  6 +++++
+ include/linux/of.h                      |  1 +
+ include/uapi/linux/const.h              |  5 ++++
+ include/uapi/linux/lightnvm.h           |  2 +-
+ include/uapi/linux/netfilter/x_tables.h |  2 +-
+ include/uapi/linux/netlink.h            |  2 +-
+ include/uapi/linux/sysctl.h             |  2 +-
+ kernel/module.c                         |  6 +++--
+ sound/core/seq/seq_queue.h              |  8 +++---
+ sound/pci/hda/patch_ca0132.c            | 16 ++++++++++--
+ sound/pci/hda/patch_realtek.c           | 25 +++++++++++++++---
+ sound/usb/pcm.c                         | 38 ++++++++++++----------------
+ 21 files changed, 118 insertions(+), 83 deletions(-)
 
 
