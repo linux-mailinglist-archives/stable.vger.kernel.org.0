@@ -2,106 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A602ED07D
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 14:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 114B52ED090
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 14:23:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728331AbhAGNSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 08:18:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728298AbhAGNSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 08:18:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D62022475;
-        Thu,  7 Jan 2021 13:17:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610025455;
-        bh=JZ+OaRXG+Un6oig4DRNdAgRzUYjP49BVUyO23JTKOZg=;
-        h=Subject:To:From:Date:From;
-        b=PjMSM2JbWkX4gHzUzoqkE+G2KhLSIFR5ND8woldhukZeNWsMD4oNYbn7E32SvqZ1e
-         38uW/TeTdf/o0u+S1r0mGVGfc6EKJzCgltYl4U4Y1438WTKkRPPxy5xlIsTgvnjGH/
-         aseN+HRhnv5FKb7E6R+gHNm9kbGrbtU+KmOhvJsc=
-Subject: patch "usb: gadget: enable super speed plus" added to usb-linus
-To:     taehyun.cho@samsung.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, lorenzo@google.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 07 Jan 2021 14:18:46 +0100
-Message-ID: <161002552611875@kroah.com>
+        id S1727562AbhAGNVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 08:21:20 -0500
+Received: from mail-40131.protonmail.ch ([185.70.40.131]:23470 "EHLO
+        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728427AbhAGNVU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 08:21:20 -0500
+Date:   Thu, 07 Jan 2021 13:20:33 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
+        t=1610025637; bh=1iHiRQzHqAO/hOdIJm7931oVSjvi8g99iSxotTA/NNE=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=Awz+ntc9XFxB3byalr3Ar0uBftjJ34q+4h01Xb55pnPE3Cb64NIpk3HqGpInQ7lEm
+         f6b/iJ6qEzjkGHR/WVYiIP8MGtzwz2845rJwK73wU8Ca2Z+RDR1feEDja745CtaX13
+         YL8g99zm6cGpd9uCDzGTF1tR8xxXYSFAi4zGQ5URQZpECQtUr6pbWAQS6qbfg7eoDx
+         eDJ4NEonCsAwafi18yssbLCIDOb6C6nDO/8r9kWQtP/cMPh0/BWIQJWzoocZknZmb8
+         zV0Qqo5jWC/DQqDm1Mx42/kayzt2kVW1LGADT3FpV0r+XKZngqbmWdTPz7np+oFPXR
+         l9sncFXbotHKg==
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+From:   Alexander Lobakin <alobakin@pm.me>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Pei Huang <huangpei@loongson.cn>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Corey Minyard <cminyard@mvista.com>,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Reply-To: Alexander Lobakin <alobakin@pm.me>
+Subject: [PATCH v4 mips-next 4/7] MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
+Message-ID: <20210107132010.463129-1-alobakin@pm.me>
+In-Reply-To: <20210107123331.354075-1-alobakin@pm.me>
+References: <20210107123331.354075-1-alobakin@pm.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Catch any symbols placed in .rel.dyn and check for these sections
+to be zero-sized at link time.
+Eliminates following ld warning:
 
-This is a note to let you know that I've just added the patch titled
+mips-alpine-linux-musl-ld: warning: orphan section `.rel.dyn'
+from `init/main.o' being placed in section `.rel.dyn'
 
-    usb: gadget: enable super speed plus
+Adopted from x86/kernel/vmlinux.lds.S.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From e2459108b5a0604c4b472cae2b3cb8d3444c77fb Mon Sep 17 00:00:00 2001
-From: "taehyun.cho" <taehyun.cho@samsung.com>
-Date: Thu, 7 Jan 2021 00:46:25 +0900
-Subject: usb: gadget: enable super speed plus
-
-Enable Super speed plus in configfs to support USB3.1 Gen2.
-This ensures that when a USB gadget is plugged in, it is
-enumerated as Gen 2 and connected at 10 Gbps if the host and
-cable are capable of it.
-
-Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
-etc.) already have SuperSpeed Plus support.
-
-Tested: plugged gadget into Linux host and saw:
-[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
-
-Tested-by: Lorenzo Colitti <lorenzo@google.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- drivers/usb/gadget/configfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/kernel/vmlinux.lds.S | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
-index 408a5332a975..36ffb43f9c1a 100644
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1543,7 +1543,7 @@ static const struct usb_gadget_driver configfs_driver_template = {
- 	.suspend	= configfs_composite_suspend,
- 	.resume		= configfs_composite_resume,
- 
--	.max_speed	= USB_SPEED_SUPER,
-+	.max_speed	= USB_SPEED_SUPER_PLUS,
- 	.driver = {
- 		.owner          = THIS_MODULE,
- 		.name		= "configfs-gadget",
-@@ -1583,7 +1583,7 @@ static struct config_group *gadgets_make(
- 	gi->composite.unbind = configfs_do_nothing;
- 	gi->composite.suspend = NULL;
- 	gi->composite.resume = NULL;
--	gi->composite.max_speed = USB_SPEED_SUPER;
-+	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
- 
- 	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
--- 
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
+S
+index 0f4e46ea4458..0f736d60d43e 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -226,4 +226,15 @@ SECTIONS
+ =09=09*(.pdr)
+ =09=09*(.reginfo)
+ =09}
++
++=09/*
++=09 * Sections that should stay zero sized, which is safer to
++=09 * explicitly check instead of blindly discarding.
++=09 */
++
++=09.rel.dyn : {
++=09=09*(.rel.*)
++=09=09*(.rel_*)
++=09}
++=09ASSERT(SIZEOF(.rel.dyn) =3D=3D 0, "Unexpected run-time relocations (.re=
+l) detected!")
+ }
+--=20
 2.30.0
 
 
