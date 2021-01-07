@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E74AC2ED2D1
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD962ED23E
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:32:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbhAGObw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:31:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
+        id S1729111AbhAGOb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:31:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729019AbhAGObu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:31:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 438F923380;
-        Thu,  7 Jan 2021 14:30:51 +0000 (UTC)
+        id S1729099AbhAGObz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:31:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79ED523383;
+        Thu,  7 Jan 2021 14:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029851;
-        bh=0q8qmvE5+73hTUDZwLg/Tgkq28+KghNjI0B15Ui87Mw=;
+        s=korg; t=1610029853;
+        bh=pzRhHs59aiMH3Yt9MNi2DX7MUHYsbgwMmFKqAuHKQ34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJoXpboaMYcQGjHivhGw/BtvjQEv/o7acWFJYwxGff0sRXMqyecbYYZpZfdWPnuax
-         zQ/GfuZQznFIzjIwMP8yeU/Iv1vHsIsoPUzM+REyEy/5Sho+KI+u5cMCQRXB44qIFi
-         GUtMLvWs63cq1jXYxbLlpPvGOcXm00iUgjVQl78E=
+        b=2OrhXSfUWPKfUhuYTK/fUFcKcOeuDrhS2j/avK8Y1ec9KNoIit/4BscTx8Hxx/bSD
+         E806V/STD7f333vfHJaeqDBg/+hjnkYq8UlG7sxDms9EVIXejvUJAerB+m66DyyO/0
+         uufR5Ie5t60kVloKBY4TmzBkKFsD2rN22NBoWI1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+63cbe31877bb80ef58f5@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 18/29] ALSA: seq: Use bool for snd_seq_queue internal flags
-Date:   Thu,  7 Jan 2021 15:31:33 +0100
-Message-Id: <20210107143055.476091798@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 19/29] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+Date:   Thu,  7 Jan 2021 15:31:34 +0100
+Message-Id: <20210107143055.669299315@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
 References: <20210107143052.973437064@linuxfoundation.org>
@@ -40,44 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 4ebd47037027c4beae99680bff3b20fdee5d7c1e upstream.
+[ Upstream commit 28d211919e422f58c1e6c900e5810eee4f1ce4c8 ]
 
-The snd_seq_queue struct contains various flags in the bit fields.
-Those are categorized to two different use cases, both of which are
-protected by different spinlocks.  That implies that there are still
-potential risks of the bad operations for bit fields by concurrent
-accesses.
+When clk_hw_register_fixed_rate_with_accuracy() fails,
+clk_data should be freed. It's the same for the subsequent
+two error paths, but we should also unregister the already
+registered clocks in them.
 
-For addressing the problem, this patch rearranges those flags to be
-a standard bool instead of a bit field.
-
-Reported-by: syzbot+63cbe31877bb80ef58f5@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20201206083456.21110-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20201020061226.6572-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_queue.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-sun6i.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/core/seq/seq_queue.h
-+++ b/sound/core/seq/seq_queue.h
-@@ -40,10 +40,10 @@ struct snd_seq_queue {
- 	
- 	struct snd_seq_timer *timer;	/* time keeper for this queue */
- 	int	owner;		/* client that 'owns' the timer */
--	unsigned int	locked:1,	/* timer is only accesibble by owner if set */
--		klocked:1,	/* kernel lock (after START) */	
--		check_again:1,
--		check_blocked:1;
-+	bool	locked;		/* timer is only accesibble by owner if set */
-+	bool	klocked;	/* kernel lock (after START) */
-+	bool	check_again;	/* concurrent access happened during check */
-+	bool	check_blocked;	/* queue being checked */
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 8eb2b6dd36fea..1d0d9c8d0085d 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -230,7 +230,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 								300000000);
+ 	if (IS_ERR(rtc->int_osc)) {
+ 		pr_crit("Couldn't register the internal oscillator\n");
+-		return;
++		goto err;
+ 	}
  
- 	unsigned int flags;		/* status flags */
- 	unsigned int info_flags;	/* info for sync */
+ 	parents[0] = clk_hw_get_name(rtc->int_osc);
+@@ -246,7 +246,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	rtc->losc = clk_register(NULL, &rtc->hw);
+ 	if (IS_ERR(rtc->losc)) {
+ 		pr_crit("Couldn't register the LOSC clock\n");
+-		return;
++		goto err_register;
+ 	}
+ 
+ 	of_property_read_string_index(node, "clock-output-names", 1,
+@@ -257,7 +257,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 					  &rtc->lock);
+ 	if (IS_ERR(rtc->ext_losc)) {
+ 		pr_crit("Couldn't register the LOSC external gate\n");
+-		return;
++		goto err_register;
+ 	}
+ 
+ 	clk_data->num = 2;
+@@ -266,6 +266,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node)
+ 	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+ 	return;
+ 
++err_register:
++	clk_hw_unregister_fixed_rate(rtc->int_osc);
+ err:
+ 	kfree(clk_data);
+ }
+-- 
+2.27.0
+
 
 
