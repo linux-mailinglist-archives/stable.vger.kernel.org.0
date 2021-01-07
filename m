@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E30F2ED1CF
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 893E92ED199
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729183AbhAGORf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:17:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39648 "EHLO mail.kernel.org"
+        id S1728900AbhAGOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:16:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729182AbhAGORe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:17:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD7DA23384;
-        Thu,  7 Jan 2021 14:16:25 +0000 (UTC)
+        id S1728893AbhAGOQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:16:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80CD623356;
+        Thu,  7 Jan 2021 14:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028986;
+        s=korg; t=1610028953;
         bh=AXywxoBkPUBwm+JrjiZENZi5RLflUxlB+adI7JBoYZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/Qr2S1zHPIrmDzi39c2CTkVA3c+banWidgQhnO/wvUsq2vV8UBSrbv2TTYm7e6Fs
-         8qq9+DQJ9ke5QB68lf9PzDnzsCOJXg1NKXYlJFApiDPbQI4qroLJh1ny9lEbYW+H/a
-         lyt61jIUGSrC8j+rHvJaLT4G1XTaghnpVn5HDbps=
+        b=QMyLvxmP2Gv5aMnNtqhk2TaXQJKvdvBEaVpKt1mX0NDKWaT+A30z6omzepC5XelMB
+         PIzlDjFcPxWN8S4Zb4EwVl2Je5nOZFw7f8IqLGi57azgqFw+iJgLYUJ7tWusfs91hp
+         C5urEeBsUQW6Xf8bNoucfCp7YZ8HJXkZngstWWZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
         Jan Kara <jack@suse.cz>,
         syzbot+83b6f7cf9922cae5c4d7@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 15/32] reiserfs: add check for an invalid ih_entry_count
-Date:   Thu,  7 Jan 2021 15:16:35 +0100
-Message-Id: <20210107140828.577180668@linuxfoundation.org>
+Subject: [PATCH 4.4 11/19] reiserfs: add check for an invalid ih_entry_count
+Date:   Thu,  7 Jan 2021 15:16:36 +0100
+Message-Id: <20210107140828.109909866@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
-References: <20210107140827.866214702@linuxfoundation.org>
+In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
+References: <20210107140827.584658199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
