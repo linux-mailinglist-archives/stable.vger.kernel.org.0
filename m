@@ -2,77 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 236DF2ED2C4
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5AE2ED25A
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbhAGOhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:37:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
+        id S1729208AbhAGOcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:32:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729172AbhAGOcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:32:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F26A2233EB;
-        Thu,  7 Jan 2021 14:31:34 +0000 (UTC)
+        id S1729204AbhAGOcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:32:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BA5223358;
+        Thu,  7 Jan 2021 14:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029895;
-        bh=ZqsyhDJr975uH78eq9vlqfIjc4P44FyApTZEkqL50qQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDAM/SRRvpayRKsaE2xz8DYVX4P4sOe7UIoNfaULqO5H4rG1/xlP2QRN1urCCt2E6
-         S3GNY9SDlYbzyN4Qhgvw8Z4w4nstn7asceYikFWpKbyAAXyFzVyF2mQkl/0cSMQhK6
-         AmLEfyeerjR1/ASC8O+5FrjAcwenmWDGO37pEWbU=
+        s=korg; t=1610029902;
+        bh=f2BJZqgiOu6i363FPPRFdSFCigX5dqCcn4+1ZmhB3HM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QOXZFdIwPktH1qn4I6nICEyxiwj7MbwGQxaZ/D2DnRku4OHy7eSuZDfEsTmSFyjcK
+         +eph1Pzb3bcuRzg2L2+2EHwIGPAw6LppNd1tulVWHXGCPM3b9BOtkjq5B8yLwgNhNs
+         vRmBj+aYg/mksm7q67J7rbTI25Fw7vi1PxVHZ55w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaohui <ruc_zhangxiaohui@163.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/29] mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
-Date:   Thu,  7 Jan 2021 15:31:44 +0100
-Message-Id: <20210107143057.119431084@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.19 0/8] 4.19.166-rc1 review
+Date:   Thu,  7 Jan 2021 15:32:00 +0100
+Message-Id: <20210107143047.586006010@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
-References: <20210107143052.973437064@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.166-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.166-rc1
+X-KernelTest-Deadline: 2021-01-09T14:30+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
+This is the start of the stable review cycle for the 4.19.166 release.
+There are 8 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 5c455c5ab332773464d02ba17015acdca198f03d ]
+Responses should be made by Sat, 09 Jan 2021 14:30:35 +0000.
+Anything received after that time might be too late.
 
-mwifiex_cmd_802_11_ad_hoc_start() calls memcpy() without checking
-the destination size may trigger a buffer overflower,
-which a local user could use to cause denial of service
-or the execution of arbitrary code.
-Fix it by putting the length check before calling memcpy().
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.166-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-Signed-off-by: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201206084801.26479-1-ruc_zhangxiaohui@163.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/wireless/marvell/mwifiex/join.c | 2 ++
- 1 file changed, 2 insertions(+)
+thanks,
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/join.c b/drivers/net/wireless/marvell/mwifiex/join.c
-index d87aeff70cefb..c2cb1e711c06e 100644
---- a/drivers/net/wireless/marvell/mwifiex/join.c
-+++ b/drivers/net/wireless/marvell/mwifiex/join.c
-@@ -877,6 +877,8 @@ mwifiex_cmd_802_11_ad_hoc_start(struct mwifiex_private *priv,
- 
- 	memset(adhoc_start->ssid, 0, IEEE80211_MAX_SSID_LEN);
- 
-+	if (req_ssid->ssid_len > IEEE80211_MAX_SSID_LEN)
-+		req_ssid->ssid_len = IEEE80211_MAX_SSID_LEN;
- 	memcpy(adhoc_start->ssid, req_ssid->ssid, req_ssid->ssid_len);
- 
- 	mwifiex_dbg(adapter, INFO, "info: ADHOC_S_CMD: SSID = %s\n",
--- 
-2.27.0
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.166-rc1
+
+Zhang Xiaohui <ruc_zhangxiaohui@163.com>
+    mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
+
+Jonathan Cameron <Jonathan.Cameron@huawei.com>
+    iio:magnetometer:mag3110: Fix alignment and data leak issues.
+
+Jonathan Cameron <Jonathan.Cameron@huawei.com>
+    iio:imu:bmi160: Fix alignment and data leak issues
+
+Josh Poimboeuf <jpoimboe@redhat.com>
+    kdev_t: always inline major/minor helper functions
+
+Yu Kuai <yukuai3@huawei.com>
+    dmaengine: at_hdmac: add missing kfree() call in at_dma_xlate()
+
+Yu Kuai <yukuai3@huawei.com>
+    dmaengine: at_hdmac: add missing put_device() call in at_dma_xlate()
+
+Tudor Ambarus <tudor.ambarus@microchip.com>
+    dmaengine: at_hdmac: Substitute kzalloc with kmalloc
+
+Felix Fietkau <nbd@nbd.name>
+    Revert "mtd: spinand: Fix OOB read"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                    |  4 ++--
+ drivers/dma/at_hdmac.c                      | 11 ++++++++---
+ drivers/iio/imu/bmi160/bmi160_core.c        | 13 +++++++++----
+ drivers/iio/magnetometer/mag3110.c          | 13 +++++++++----
+ drivers/mtd/nand/spi/core.c                 |  4 ----
+ drivers/net/wireless/marvell/mwifiex/join.c |  2 ++
+ include/linux/kdev_t.h                      | 22 +++++++++++-----------
+ 7 files changed, 41 insertions(+), 28 deletions(-)
 
 
