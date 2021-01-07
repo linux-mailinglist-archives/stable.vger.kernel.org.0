@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE352ECF4B
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 13:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBC52ECFB8
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 13:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726326AbhAGMAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 07:00:04 -0500
-Received: from mail-40131.protonmail.ch ([185.70.40.131]:22404 "EHLO
-        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725974AbhAGMAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 07:00:04 -0500
-Date:   Thu, 07 Jan 2021 11:59:19 +0000
+        id S1728200AbhAGMaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 07:30:55 -0500
+Received: from mail-40134.protonmail.ch ([185.70.40.134]:44469 "EHLO
+        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728188AbhAGMaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 07:30:55 -0500
+Date:   Thu, 07 Jan 2021 12:30:08 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610020761; bh=/QpZtUfW8sCY4JlyQE+cRg/152g/kjH3nLFh80d0Hbk=;
+        t=1610022611; bh=e3bnSwSnCE4VZ3KFWoriT36YdZpDmKtvitn1N44EPZE=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=Ngatwy647URiYFOHt2f6ts1sFxqi75bAxDr7xnIcvZPgZuOkMvFjU0eJYV52wuChA
-         46KkuGuhpJOWdXPO24qMOoClJI5Gldx28BrcUawpgP5aN/uHvVjChV+R8GoATIQ584
-         035sbeP9/VlhUJ+cnJ7r+EXdoXtMwkh3nofFve85s0zp5hi6p+4UBsAEj/hMzPl664
-         Gv1W9LSRdIKlsOYoqp9xWCZ5LSOcABn1CbRqRSUzqZxHBZEirihfdEpOoTqKk9DvRc
-         wUjnpKugp5AAOqgYJ2hFfcOxfqbIZg7GxMrimwapaM+EN0NnWY9FkPxdj29nCS28Ha
-         DgXM++POOkCSQ==
-To:     Kees Cook <keescook@chromium.org>
+        b=XCLeYds6RzSh90AdJ1CaF4KFV3CHWPyxMwMhTa83qQc7MJ+JXPWLc+/UvPMcxndVL
+         UiIFs1v1aKyG7f+cHiMq0XOWCY5IprIKS53oJ8y2+6AGa6QfX0PBurvT/8qz+F9HHz
+         bLFgEVtQ8WvHyC+JvYTUjZwDYrrr5WIa6smG/oVCwR3QsHqwrxRa26XWHEqYUStDnV
+         vaImFwahpngARKQ2Tzzgva60b/NBSfy4khM8l8epRK6+VyShEk6i/Okcwx/sn8Ochk
+         26aHQbFY5oF817lW77n3OgIvBrlf5MlXKDJd3khCX9vwmc5yS697cb+qX+xCRtr3Vs
+         RQaI2SRl9GiOQ==
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+Cc:     Alexander Lobakin <alobakin@pm.me>, Arnd Bergmann <arnd@arndb.de>,
+        Kees Cook <keescook@chromium.org>,
         Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Fangrui Song <maskray@google.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Pei Huang <huangpei@loongson.cn>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Alex Smith <alex.smith@imgtec.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
-        Markos Chandras <markos.chandras@imgtec.com>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Sami Tolvanen <samitolvanen@google.com>
+        Corey Minyard <cminyard@mvista.com>,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: Re: [PATCH v2 mips-next 2/4] MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
-Message-ID: <20210107115855.281681-1-alobakin@pm.me>
-In-Reply-To: <202101061518.67B9E0205@keescook>
-References: <20210106200713.31840-1-alobakin@pm.me> <20210106200801.31993-1-alobakin@pm.me> <20210106200801.31993-2-alobakin@pm.me> <202101061400.8F83981AE@keescook> <20210106223606.267756-1-alobakin@pm.me> <202101061518.67B9E0205@keescook>
+Subject: Re: [PATCH v3 mips-next 0/7] MIPS: vmlinux.lds.S sections fixes & cleanup
+Message-ID: <20210107122944.353565-1-alobakin@pm.me>
+In-Reply-To: <20210107115120.281008-1-alobakin@pm.me>
+References: <20210107115120.281008-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -51,86 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
-Date: Wed, 6 Jan 2021 15:26:18 -0800
+> This series hunts the problems discovered after manual enabling of
+> ARCH_WANT_LD_ORPHAN_WARN. Notably:
+>  - adds the missing PAGE_ALIGNED_DATA() section affecting VDSO
+>    placement (marked for stable);
+>  - properly stops .eh_frame section generation.
+>=20
+> Compile and runtime tested on MIPS32R2 CPS board with no issues
+> using two different toolkits:
+>  - Binutils 2.35.1, GCC 10.2.0;
+>  - LLVM stack 11.0.0.
+>=20
+> Since v2 [1]:
+>  - stop discarding .eh_frame and just prevent it from generating
+>    (Kees);
+>  - drop redundant sections assertions (Fangrui);
+>  - place GOT table in .text instead of asserting as it's not empty
+>    when building with LLVM (Nathan);
+>  - catch compound literals in generic definitions when building with
+>    LD_DEAD_CODE_DATA_ELIMINATION (Kees);
+>  - collect two Reviewed-bys (Kees).
+>=20
+> Since v1 [0]:
+>  - catch .got entries too as LLD may produce it (Nathan);
+>  - check for unwanted sections to be zero-sized instead of
+>    discarding (Fangrui).
+>=20
+> [0] https://lore.kernel.org/linux-mips/20210104121729.46981-1-alobakin@pm=
+.me
+> [1] https://lore.kernel.org/linux-mips/20210106200713.31840-1-alobakin@pm=
+.me
+>=20
+> Alexander Lobakin (7):
+>   MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
+>   MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
+>   MIPS: properly stop .eh_frame generation
 
-> On Wed, Jan 06, 2021 at 10:36:38PM +0000, Alexander Lobakin wrote:
->> From: Kees Cook <keescook@chromium.org>
->> Date: Wed, 6 Jan 2021 14:07:07 -0800
->>
->>> On Wed, Jan 06, 2021 at 08:08:19PM +0000, Alexander Lobakin wrote:
->>>> Discard GNU attributes at link time as kernel doesn't use it at all.
->>>> Solves a dozen of the following ld warnings (one per every file):
->>>>
->>>> mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
->>>> from `arch/mips/kernel/head.o' being placed in section
->>>> `.gnu.attributes'
->>>> mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
->>>> from `init/main.o' being placed in section `.gnu.attributes'
->>>>
->>>> Misc: sort DISCARDS section entries alphabetically.
->>>
->>> Hmm, I wonder what is causing the appearance of .eh_frame? With help I
->>> tracked down all the causes of this on x86, arm, and arm64, so that's
->>> why it's not in the asm-generic DISCARDS section. I suspect this could
->>> be cleaned up for mips too?
->>
->> I could take a look and hunt it down. Could you please give some refs on
->> what were the causes and solutions for the mentioned architectures?
->
-> Sure! Here are the ones I could find again:
->
-> 34b4a5c54c42 ("arm64/kernel: Remove needless Call Frame Information annot=
-ations")
-> 6e0a66d10c5b ("arm64/build: Remove .eh_frame* sections due to unwind tabl=
-es")
-> d1c0272bc1c0 ("x86/boot/compressed: Remove, discard, or assert for unwant=
-ed sections")
->
->>> Similarly for .gnu.attributes. What is generating that? (Or, more
->>> specifically, why is it both being generated AND discarded?)
->>
->> On my setup, GNU Attributes consist of MIPS FP type (soft) and
->> (if I'm correct) MIPS GNU Hash tables.
->
-> Ah, right, the soft-float markings sound correct to discard, IIUC.
->
->> By the way. I've built the kernel with LLVM stack (and found several
->> subjects for more patches) and, besides '.got', also got a fistful
->> of '.data..compoundliteral*' symbols (drivers/mtd/nand/spi/,
->> net/ipv6/ etc). Where should they be placed (rodata, rwdata, ...)
->> or they are anomalies of some kind and should be fixed somehow?
->
-> Ah yeah, I've seen this before:
-> https://lore.kernel.org/lkml/202010051345.2Q0cvqdM-lkp@intel.com/
-> https://lore.kernel.org/lkml/CAKwvOd=3Ds53vUELe311VSjxt2_eQd+RGNCf__n+cV+=
-R=3DPQ_CdXQ@mail.gmail.com/
->
-> And it looks like LTO trips over it too:
-> https://lore.kernel.org/lkml/20201211184633.3213045-3-samitolvanen@google=
-.com/
->
-> So I think the correct solution is to follow Sami's patch and add it to
-> vmlinux.lds.h:
->
-> -#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
-> +#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundlit=
-eral*
-> ...
-> -#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
-> -#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
-> +#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
-> +#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
->
-> Can you include a patch for this in your series?
->
-> Thanks!
+Well, GNU fails to build VDSO with this patch... Sorry, sending
+v4 now.
 
-Thanks for the help!
-Hope now I caught them all properly in v3.
-
+>   MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
+>   MIPS: vmlinux.lds.S: explicitly declare .got table
+>   vmlinux.lds.h: catch compound literals into data and BSS
+>   MIPS: select ARCH_WANT_LD_ORPHAN_WARN
+>=20
+>  arch/mips/Kconfig                 |  1 +
+>  arch/mips/include/asm/asm.h       | 18 ++++++++++++++++++
+>  arch/mips/kernel/vmlinux.lds.S    | 15 ++++++++++++++-
+>  include/asm-generic/vmlinux.lds.h |  6 +++---
+>  4 files changed, 36 insertions(+), 4 deletions(-)
+>=20
 > --
-> Kees Cook
+> 2.30.0
 
 Al
 
