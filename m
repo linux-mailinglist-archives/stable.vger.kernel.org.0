@@ -2,68 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BBF2ED61D
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 18:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02BF52ED62D
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 18:59:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbhAGRyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 12:54:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32870 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbhAGRyv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 12:54:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEE20233FD;
-        Thu,  7 Jan 2021 17:54:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610042051;
-        bh=UUdkZzAHAyFFZRZw07cLgdRfBklJxASyB71ohBH9Iko=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nsgsMKr+x4lqWPa5gU6giPVINpNLjPoDVz+5xQmP/OVnf12AsLoBKEYC7hvGH3319
-         wDlenzSb4yD6csInpAcID+uKumpv+Gv/yuBpzGZbuIqYCbkqZ5+9TgemzqlLWIEjNz
-         Ss1CUeZN/JOVsSnXSkg7SwONKqJc5x8KNL0aPqjo=
-Date:   Thu, 7 Jan 2021 18:55:30 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
+        id S1727959AbhAGR6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 12:58:46 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:37514 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726406AbhAGR6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 12:58:45 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id C1FD71C0B81; Thu,  7 Jan 2021 18:58:02 +0100 (CET)
+Date:   Thu, 7 Jan 2021 18:58:01 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/20] 4.4.250-rc2 review
-Message-ID: <X/dLEsU/0BN42UQ7@kroah.com>
-References: <20210107143049.179580814@linuxfoundation.org>
- <20210107163039.GB9524@duo.ucw.cz>
+Subject: Re: [PATCH 4.19 0/8] 4.19.166-rc1 review
+Message-ID: <20210107175801.GA3906@amd>
+References: <20210107143047.586006010@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
 Content-Disposition: inline
-In-Reply-To: <20210107163039.GB9524@duo.ucw.cz>
+In-Reply-To: <20210107143047.586006010@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 07, 2021 at 05:30:39PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > This is the start of the stable review cycle for the 4.4.250 release.
-> > There are 20 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 09 Jan 2021 14:30:35 +0000.
-> > Anything received after that time might be too late.
-> 
-> This and 4.19.166-rc1 was tested by CIP project, and we did not find
-> anything wrong.
-> 
-> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-4.4.y     
-> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-4.19.y
-> 
-> (I'm sending one email instead of two to keep the traffic down. If you
-> prefer separate emails, let me know.)
-> 
-> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-Separate is better as that's how I pick up the tested-by tags for the
-release commits.
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi!
 
-greg k-h
+> This is the start of the stable review cycle for the 4.19.166 release.
+> There are 8 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+
+This was tested by CIP project, and we did not find anything wrong.
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.19.y
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl/3S6gACgkQMOfwapXb+vK2mACfTvbwuRU6myMEHl52RvSBUaON
+f3AAnRYGX5R29CRVh1GfpDXvvakpEjIR
+=bGr3
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
