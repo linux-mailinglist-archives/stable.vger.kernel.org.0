@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1FE2ED192
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D4A2ED1D3
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbhAGOQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:16:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S1729226AbhAGOSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:18:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726151AbhAGOQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:16:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9180B23120;
-        Thu,  7 Jan 2021 14:15:34 +0000 (UTC)
+        id S1729213AbhAGORj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:17:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C3D02335A;
+        Thu,  7 Jan 2021 14:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028935;
-        bh=5NE5IHiGeikbaGJyU7OCpX2zte3K6Dj/b5es2lLhJJo=;
+        s=korg; t=1610029032;
+        bh=chJ3YTwI9qWaQhHm4MFMlDh3GuPSCEAmPqBAwX+pzjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwPW5LddnqZIhC5kOBGmw1ahJIkpsuiNL505oRPuYUlLq8zoAHwk4Ep6F/c4Kitt0
-         VsiJQY2rTRmfNs2dySQ9Wm9nIsd5g3pAN3xv/mnJeP59P8ugU+rxgq++vSeNgcvOO2
-         sxd/uTBuUvPmNSSSse1Dr1u/oURaqimn5X5dF9Gg=
+        b=aBrHTad0giYHCoAXnL3B3gQaebFxAfrCFVl7nLR5FB26UvB7jmjmTKTKCf9wb8PTP
+         b6Vwm61nCMs532O9XMyJ3c/ltPAeOmqUdaTQlgC4ICDaUroxj/SPJWKYB2IeT8+YNO
+         +PvLbDuaOd+AQBnwyOMd1hmuWlKeUpHPQqCwmfhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 03/19] ALSA: usb-audio: fix sync-ep altsetting sanity check
-Date:   Thu,  7 Jan 2021 15:16:28 +0100
-Message-Id: <20210107140827.738972413@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/32] s390/dasd: fix hanging device offline processing
+Date:   Thu,  7 Jan 2021 15:16:29 +0100
+Message-Id: <20210107140828.301211290@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
-References: <20210107140827.584658199@linuxfoundation.org>
+In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
+References: <20210107140827.866214702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 5d1b71226dc4d44b4b65766fa9d74492f9d4587b upstream
+[ Upstream commit 658a337a606f48b7ebe451591f7681d383fa115e ]
 
-The altsetting sanity check in set_sync_ep_implicit_fb_quirk() was
-checking for there to be at least one altsetting but then went on to
-access the second one, which may not exist.
+For an LCU update a read unit address configuration IO is required.
+This is started using sleep_on(), which has early exit paths in case the
+device is not usable for IO. For example when it is in offline processing.
 
-This could lead to random slab data being used to initialise the sync
-endpoint in snd_usb_add_endpoint().
+In those cases the LCU update should fail and not be retried.
+Therefore lcu_update_work checks if EOPNOTSUPP is returned or not.
 
-Fixes: c75a8a7ae565 ("ALSA: snd-usb: add support for implicit feedback")
-Fixes: ca10a7ebdff1 ("ALSA: usb-audio: FT C400 sync playback EP to capture EP")
-Fixes: 5e35dc0338d8 ("ALSA: usb-audio: add implicit fb quirk for Behringer UFX1204")
-Fixes: 17f08b0d9aaf ("ALSA: usb-audio: add implicit fb quirk for Axe-Fx II")
-Fixes: 103e9625647a ("ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk")
-Cc: stable <stable@vger.kernel.org>     # 3.5
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200114083953.1106-1-johan@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
+accidentally removed the EOPNOTSUPP return code from
+read_unit_address_configuration(), which in turn might lead to an endless
+loop of the LCU update in offline processing.
+
+Fix by returning EOPNOTSUPP again if the device is not able to perform the
+request.
+
+Fixes: 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
+Cc: stable@vger.kernel.org #5.3
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd_alias.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -365,7 +365,7 @@ static int set_sync_ep_implicit_fb_quirk
- add_sync_ep_from_ifnum:
- 	iface = usb_ifnum_to_if(dev, ifnum);
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index 0569c15fddfe4..2002684a68b3c 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -461,11 +461,19 @@ static int read_unit_address_configuration(struct dasd_device *device,
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
  
--	if (!iface || iface->num_altsetting == 0)
-+	if (!iface || iface->num_altsetting < 2)
- 		return -EINVAL;
- 
- 	alts = &iface->altsetting[1];
+ 	rc = dasd_sleep_on(cqr);
+-	if (rc && !suborder_not_supported(cqr)) {
++	if (!rc)
++		goto out;
++
++	if (suborder_not_supported(cqr)) {
++		/* suborder not supported or device unusable for IO */
++		rc = -EOPNOTSUPP;
++	} else {
++		/* IO failed but should be retried */
+ 		spin_lock_irqsave(&lcu->lock, flags);
+ 		lcu->flags |= NEED_UAC_UPDATE;
+ 		spin_unlock_irqrestore(&lcu->lock, flags);
+ 	}
++out:
+ 	dasd_kfree_request(cqr, cqr->memdev);
+ 	return rc;
+ }
+-- 
+2.27.0
+
 
 
