@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C99D42ED2D5
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7852ED2D2
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbhAGOiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:38:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45564 "EHLO mail.kernel.org"
+        id S1729420AbhAGOiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:38:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729039AbhAGObw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728983AbhAGObw (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 7 Jan 2021 09:31:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 222792311E;
-        Thu,  7 Jan 2021 14:31:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 738C3233A0;
+        Thu,  7 Jan 2021 14:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029867;
-        bh=gBkpl3m4jJGJDQ83gMnX/l9iczs2j62lLFhEFweDDFg=;
+        s=korg; t=1610029869;
+        bh=hLKRlzV9HJgJF3/Ryhk2CejgBYqdQ8YDfA/XwtsyKRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7N/O91Mno5YZ1tgMhYBcnix6I8/h7eaj6I73EpE8+/zuPCpHvIScJ4RWpy3gTu4U
-         PJnmLCSas+yGuy3GEL38Id3vuSE9ZI59QQD1x0Urrz2wgDzLUuH8GLZRmefRB9kHPx
-         DcciREp4KWpNCrGQXPGCkOXTLAQJraHkvJXRwX7o=
+        b=A4y/GaOQJnlS8FISkDkUvCO27759GxmB2btPHxS9DD6El3wgbLqL8OKV7kBQgYt0h
+         az0t+G7luNQhU6t1RgxiEbcC69XtZzxhJerKLr776+l1K1PSqIwQ9cPGgxEFKX+UFn
+         XCVg5Y92Wgvy8AZajvI5/uQ/6dMbNhEIjaI9G1i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/29] ALSA: pcm: Clear the full allocated memory at hw_params
-Date:   Thu,  7 Jan 2021 15:31:39 +0100
-Message-Id: <20210107143056.389471030@linuxfoundation.org>
+        stable@vger.kernel.org, Hyeongseok Kim <hyeongseok@gmail.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 25/29] dm verity: skip verity work if I/O error when system is shutting down
+Date:   Thu,  7 Jan 2021 15:31:40 +0100
+Message-Id: <20210107143056.558164713@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
 References: <20210107143052.973437064@linuxfoundation.org>
@@ -39,50 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hyeongseok Kim <hyeongseok@gmail.com>
 
-[ Upstream commit 618de0f4ef11acd8cf26902e65493d46cc20cc89 ]
+[ Upstream commit 252bd1256396cebc6fc3526127fdb0b317601318 ]
 
-The PCM hw_params core function tries to clear up the PCM buffer
-before actually using for avoiding the information leak from the
-previous usages or the usage before a new allocation.  It performs the
-memset() with runtime->dma_bytes, but this might still leave some
-remaining bytes untouched; namely, the PCM buffer size is aligned in
-page size for mmap, hence runtime->dma_bytes doesn't necessarily cover
-all PCM buffer pages, and the remaining bytes are exposed via mmap.
+If emergency system shutdown is called, like by thermal shutdown,
+a dm device could be alive when the block device couldn't process
+I/O requests anymore. In this state, the handling of I/O errors
+by new dm I/O requests or by those already in-flight can lead to
+a verity corruption state, which is a misjudgment.
 
-This patch changes the memory clearance to cover the all buffer pages
-if the stream is supposed to be mmap-ready (that guarantees that the
-buffer size is aligned in page size).
+So, skip verity work in response to I/O error when system is shutting
+down.
 
-Reviewed-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20201218145625.2045-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hyeongseok Kim <hyeongseok@gmail.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/md/dm-verity-target.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index 071e09c3d8557..c78db361cbbaa 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -721,8 +721,13 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 		runtime->boundary *= 2;
+diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
+index e705799976c2c..2dae30713eb3d 100644
+--- a/drivers/md/dm-verity-target.c
++++ b/drivers/md/dm-verity-target.c
+@@ -551,6 +551,15 @@ static int verity_verify_io(struct dm_verity_io *io)
+ 	return 0;
+ }
  
- 	/* clear the buffer for avoiding possible kernel info leaks */
--	if (runtime->dma_area && !substream->ops->copy_user)
--		memset(runtime->dma_area, 0, runtime->dma_bytes);
-+	if (runtime->dma_area && !substream->ops->copy_user) {
-+		size_t size = runtime->dma_bytes;
++/*
++ * Skip verity work in response to I/O error when system is shutting down.
++ */
++static inline bool verity_is_system_shutting_down(void)
++{
++	return system_state == SYSTEM_HALT || system_state == SYSTEM_POWER_OFF
++		|| system_state == SYSTEM_RESTART;
++}
 +
-+		if (runtime->info & SNDRV_PCM_INFO_MMAP)
-+			size = PAGE_ALIGN(size);
-+		memset(runtime->dma_area, 0, size);
-+	}
+ /*
+  * End one "io" structure with a given error.
+  */
+@@ -578,7 +587,8 @@ static void verity_end_io(struct bio *bio)
+ {
+ 	struct dm_verity_io *io = bio->bi_private;
  
- 	snd_pcm_timer_resolution_change(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_SETUP);
+-	if (bio->bi_status && !verity_fec_is_enabled(io->v)) {
++	if (bio->bi_status &&
++	    (!verity_fec_is_enabled(io->v) || verity_is_system_shutting_down())) {
+ 		verity_finish_io(io, bio->bi_status);
+ 		return;
+ 	}
 -- 
 2.27.0
 
