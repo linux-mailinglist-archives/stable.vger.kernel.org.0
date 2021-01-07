@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 391112ECF32
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D602ECF36
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbhAGLyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 06:54:45 -0500
-Received: from mail2.protonmail.ch ([185.70.40.22]:37830 "EHLO
-        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727773AbhAGLyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:54:45 -0500
-Date:   Thu, 07 Jan 2021 11:53:55 +0000
+        id S1728088AbhAGLyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 06:54:51 -0500
+Received: from mail1.protonmail.ch ([185.70.40.18]:12636 "EHLO
+        mail1.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728087AbhAGLyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:54:50 -0500
+Date:   Thu, 07 Jan 2021 11:54:01 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610020441; bh=Yi9X+eUEsj/PoAs0Ktl/IbvqOd3Iq8nO46nm6Q1y7o8=;
+        t=1610020448; bh=1iHiRQzHqAO/hOdIJm7931oVSjvi8g99iSxotTA/NNE=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=olch6uOdeXf81zieTiFd4h4w+2qI8kBFfpV4nb4jEmg59GwerED1uRcSnqoiEcKbA
-         iXvjaXQT+e30EtH1gsdlB7UaDFzaD9NHI3qiMe+49kIbnrh2H9dJsGF/EhIfGAvPiB
-         omBDZJ88L9owcLFIxIfOh87KHx4xxDMyGTjjapllxvzh2oDfjgy1hZd76e254FeH5y
-         YLw61PJDRn1uAE+zqNPjGkBvk7Dmi/gQYNpw4cLdBml/l2ND8WEVrkagb5T4SCIJAN
-         rYN7xCt3aNCOZhxqsi2b6MPUR2+V0nWPnLyDZJv8vEd9jrSH3SzvMkdBDf/iSE8WEn
-         G+VPjAMK7R/IQ==
+        b=h9iDE6kYHoQBexkMbRaeK54YzGi6+A5II9aLhoDuUgm9dAgTgIfDEJGYmr1UC2yIZ
+         JREQr544tOE1P32+AuHWzTO5MRYqHkYBz1c9dE0WDWNm608M5Awd90cTG3Cnb/IxGo
+         gYlMIVh2tb3kQMwghxTHGFtxhzqXHh7/vuRXYCTaet0z8uvPzSkJTJBJPTQIuD8DTF
+         e7nnotl5SZ+TKjpCirUVXeE7esPQt874qFPiteLNySMNysyOtATkdySQ4yXZFH4spw
+         CCXyRY/GZIKfSymZrdNz9h0ndUR9p+LZSS9HbBeCmgJ32pPsEUSj8DS50Pm7Odo4vL
+         7EkzefXyUDKtg==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -39,8 +39,8 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v3 mips-next 3/7] MIPS: properly stop .eh_frame generation
-Message-ID: <20210107115329.281266-3-alobakin@pm.me>
+Subject: [PATCH v3 mips-next 4/7] MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
+Message-ID: <20210107115329.281266-4-alobakin@pm.me>
 In-Reply-To: <20210107115329.281266-1-alobakin@pm.me>
 References: <20210107115120.281008-1-alobakin@pm.me> <20210107115329.281266-1-alobakin@pm.me>
 MIME-Version: 1.0
@@ -55,74 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly") added
--fno-asynchronous-unwind-tables to KBUILD_CFLAGS to prevent compiler
-from emitting .eh_frame symbols.
-However, as MIPS heavily uses CFI, that's not enough. Use the
-approach taken for x86 (as it also uses CFI) and explicitly put CFI
-symbols into the .debug_frame section (except for VDSO).
-This allows us to drop .eh_frame from DISCARDS as it's no longer
-being generated.
+Catch any symbols placed in .rel.dyn and check for these sections
+to be zero-sized at link time.
+Eliminates following ld warning:
 
-Fixes: 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly")
-Suggested-by: Kees Cook <keescook@chromium.org>
+mips-alpine-linux-musl-ld: warning: orphan section `.rel.dyn'
+from `init/main.o' being placed in section `.rel.dyn'
+
+Adopted from x86/kernel/vmlinux.lds.S.
+
+Suggested-by: Fangrui Song <maskray@google.com>
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/include/asm/asm.h    | 18 ++++++++++++++++++
- arch/mips/kernel/vmlinux.lds.S |  1 -
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ arch/mips/kernel/vmlinux.lds.S | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/mips/include/asm/asm.h b/arch/mips/include/asm/asm.h
-index 3682d1a0bb80..908f6d6ae24b 100644
---- a/arch/mips/include/asm/asm.h
-+++ b/arch/mips/include/asm/asm.h
-@@ -20,10 +20,27 @@
- #include <asm/sgidefs.h>
- #include <asm/asm-eva.h>
-=20
-+#ifndef __VDSO__
-+/*
-+ * Emit CFI data in .debug_frame sections, not .eh_frame sections.
-+ * We don't do DWARF unwinding at runtime, so only the offline DWARF
-+ * information is useful to anyone. Note we should change this if we
-+ * ever decide to enable DWARF unwinding at runtime.
-+ */
-+#define CFI_SECTIONS=09.cfi_sections .debug_frame
-+#else
-+ /*
-+  * For the vDSO, emit both runtime unwind information and debug
-+  * symbols for the .dbg file.
-+  */
-+#define CFI_SECTIONS=09.cfi_sections .debug_frame, .eh_frame
-+#endif
-+
- /*
-  * LEAF - declare leaf routine
-  */
- #define LEAF(symbol)=09=09=09=09=09\
-+=09=09CFI_SECTIONS;=09=09=09=09\
- =09=09.globl=09symbol;=09=09=09=09\
- =09=09.align=092;=09=09=09=09\
- =09=09.type=09symbol, @function;=09=09\
-@@ -36,6 +53,7 @@ symbol:=09=09.frame=09sp, 0, ra;=09=09=09\
-  * NESTED - declare nested routine entry point
-  */
- #define NESTED(symbol, framesize, rpc)=09=09=09\
-+=09=09CFI_SECTIONS;=09=09=09=09\
- =09=09.globl=09symbol;=09=09=09=09\
- =09=09.align=092;=09=09=09=09\
- =09=09.type=09symbol, @function;=09=09\
 diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
 S
-index 16468957cba2..0f4e46ea4458 100644
+index 0f4e46ea4458..0f736d60d43e 100644
 --- a/arch/mips/kernel/vmlinux.lds.S
 +++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -225,6 +225,5 @@ SECTIONS
- =09=09*(.options)
+@@ -226,4 +226,15 @@ SECTIONS
  =09=09*(.pdr)
  =09=09*(.reginfo)
--=09=09*(.eh_frame)
  =09}
++
++=09/*
++=09 * Sections that should stay zero sized, which is safer to
++=09 * explicitly check instead of blindly discarding.
++=09 */
++
++=09.rel.dyn : {
++=09=09*(.rel.*)
++=09=09*(.rel_*)
++=09}
++=09ASSERT(SIZEOF(.rel.dyn) =3D=3D 0, "Unexpected run-time relocations (.re=
+l) detected!")
  }
 --=20
 2.30.0
