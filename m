@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364012ED2CB
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8CF32ED2E6
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbhAGOcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:32:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
+        id S1727736AbhAGOkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:40:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729100AbhAGObz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:31:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0D523384;
-        Thu,  7 Jan 2021 14:30:55 +0000 (UTC)
+        id S1729086AbhAGOby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:31:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8133233CE;
+        Thu,  7 Jan 2021 14:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029856;
-        bh=j7wIWmPz4LCwK472zUBV70R6svjuVOVYEpgERvVCHsE=;
+        s=korg; t=1610029879;
+        bh=7Tt5NhYT2QB2Fby398qNEU9l5KBPFcDzoFuadTPvOVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lAb/Kw+RQ04xmTwXKq70hFSsaIFE/NGZzPbq3AyCqHAWXb776t6D1+V5mEgtxzNwF
-         2yBpztAgJZgATwIu3GWczVIJFKl0Mi+8GctmMa7Qa+gVHk21mKyapV4naDUUfobVLU
-         bTNXb/55utmvsxXeYTInSHdcHcvaRORY6nN3RmOg=
+        b=zek+EV8GZaBYrxJBVnOFjs0hyCd8MVRlQ35yBsELPq8xIepAD4a4N7lB8PGbmiTZD
+         no3QAIB0liGeMmlYKdmn4EAMB9UPsAnPrAXHfJWVer8iNghir2MLF6JVGeAxHnCgf0
+         6GWI60UEwjKEdnx8kfjqeoCAi2IxtZTbiZZPZeow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Vigor <kvigor@gmail.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.14 02/29] md/raid10: initialize r10_bio->read_slot before use.
-Date:   Thu,  7 Jan 2021 15:31:17 +0100
-Message-Id: <20210107143053.269861038@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 03/29] ALSA: hda/ca0132 - Fix work handling in delayed HP detection
+Date:   Thu,  7 Jan 2021 15:31:18 +0100
+Message-Id: <20210107143053.414602517@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
 References: <20210107143052.973437064@linuxfoundation.org>
@@ -39,46 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Vigor <kvigor@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 93decc563637c4288380912eac0eb42fb246cc04 upstream.
+commit 42fb6b1d41eb5905d77c06cad2e87b70289bdb76 upstream
 
-In __make_request() a new r10bio is allocated and passed to
-raid10_read_request(). The read_slot member of the bio is not
-initialized, and the raid10_read_request() uses it to index an
-array. This leads to occasional panics.
+CA0132 has the delayed HP jack detection code that is invoked from the
+unsol handler, but it does a few weird things: it contains the cancel
+of a work inside the work handler, and yet it misses the cancel-sync
+call at (runtime-)suspend.  This patch addresses those issues.
 
-Fix by initializing the field to invalid value and checking for
-valid value in raid10_read_request().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Kevin Vigor <kvigor@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: 15c2b3cc09a3 ("ALSA: hda/ca0132 - Fix possible workqueue stall")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191213085111.22855-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- drivers/md/raid10.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1120,7 +1120,7 @@ static void raid10_read_request(struct m
- 	struct md_rdev *err_rdev = NULL;
- 	gfp_t gfp = GFP_NOIO;
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -4443,11 +4443,10 @@ static void hp_callback(struct hda_codec
+ 	/* Delay enabling the HP amp, to let the mic-detection
+ 	 * state machine run.
+ 	 */
+-	cancel_delayed_work(&spec->unsol_hp_work);
+-	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
+ 	tbl = snd_hda_jack_tbl_get(codec, cb->nid);
+ 	if (tbl)
+ 		tbl->block_report = 1;
++	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
+ }
  
--	if (r10_bio->devs[slot].rdev) {
-+	if (slot >= 0 && r10_bio->devs[slot].rdev) {
- 		/*
- 		 * This is an error retry, but we cannot
- 		 * safely dereference the rdev in the r10_bio,
-@@ -1513,6 +1513,7 @@ static void __make_request(struct mddev
- 	r10_bio->mddev = mddev;
- 	r10_bio->sector = bio->bi_iter.bi_sector;
- 	r10_bio->state = 0;
-+	r10_bio->read_slot = -1;
- 	memset(r10_bio->devs, 0, sizeof(r10_bio->devs[0]) * conf->copies);
+ static void amic_callback(struct hda_codec *codec, struct hda_jack_callback *cb)
+@@ -4625,12 +4624,25 @@ static void ca0132_free(struct hda_codec
+ 	kfree(codec->spec);
+ }
  
- 	if (bio_data_dir(bio) == READ)
++#ifdef CONFIG_PM
++static int ca0132_suspend(struct hda_codec *codec)
++{
++	struct ca0132_spec *spec = codec->spec;
++
++	cancel_delayed_work_sync(&spec->unsol_hp_work);
++	return 0;
++}
++#endif
++
+ static const struct hda_codec_ops ca0132_patch_ops = {
+ 	.build_controls = ca0132_build_controls,
+ 	.build_pcms = ca0132_build_pcms,
+ 	.init = ca0132_init,
+ 	.free = ca0132_free,
+ 	.unsol_event = snd_hda_jack_unsol_event,
++#ifdef CONFIG_PM
++	.suspend = ca0132_suspend,
++#endif
+ };
+ 
+ static void ca0132_config(struct hda_codec *codec)
 
 
