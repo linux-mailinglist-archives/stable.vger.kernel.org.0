@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0292ECF2D
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 391112ECF32
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbhAGLyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 06:54:37 -0500
-Received: from mail-40136.protonmail.ch ([185.70.40.136]:26319 "EHLO
-        mail-40136.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726073AbhAGLyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:54:37 -0500
-Date:   Thu, 07 Jan 2021 11:53:47 +0000
+        id S1728071AbhAGLyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 06:54:45 -0500
+Received: from mail2.protonmail.ch ([185.70.40.22]:37830 "EHLO
+        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727773AbhAGLyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:54:45 -0500
+Date:   Thu, 07 Jan 2021 11:53:55 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610020434; bh=012vDHOxvqVPo52Yrh8ZCe0PscXXJoRaQmC+Qol94bs=;
+        t=1610020441; bh=Yi9X+eUEsj/PoAs0Ktl/IbvqOd3Iq8nO46nm6Q1y7o8=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=i5uzE6dEay+n9oB4Ha9x/Bs3DGWcLR4jx8PQ0SGSMzWu2ZWPwxJVMdBGFV1E8aK6Q
-         o+Pfj5c9RnGaj6rLxtfZOC1g1tY4txEHA6igfXQSmA7AbTuy2/Fy9loJDpkob/5/7m
-         208L/Ww9Mo8ERAqXwyUFibi4QB8kA+vu30v93S832oFg4vn4TvNjbEvKDmWiX2HV/B
-         vcUVVoYlU69Pq1tVH/xSTAPq83rt0+2V6lmcW0QFjJFhDqd3Bww+m87Gp8yzQsuErx
-         wj8mrqgQtKiSSW7ffLZYw+u77+w3Bmys9hpBU7Wh3HtwjGiPQKPI6N9q/tNZIIEVq3
-         O9IQ+NkMJa7Jg==
+        b=olch6uOdeXf81zieTiFd4h4w+2qI8kBFfpV4nb4jEmg59GwerED1uRcSnqoiEcKbA
+         iXvjaXQT+e30EtH1gsdlB7UaDFzaD9NHI3qiMe+49kIbnrh2H9dJsGF/EhIfGAvPiB
+         omBDZJ88L9owcLFIxIfOh87KHx4xxDMyGTjjapllxvzh2oDfjgy1hZd76e254FeH5y
+         YLw61PJDRn1uAE+zqNPjGkBvk7Dmi/gQYNpw4cLdBml/l2ND8WEVrkagb5T4SCIJAN
+         rYN7xCt3aNCOZhxqsi2b6MPUR2+V0nWPnLyDZJv8vEd9jrSH3SzvMkdBDf/iSE8WEn
+         G+VPjAMK7R/IQ==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -39,8 +39,8 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v3 mips-next 2/7] MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
-Message-ID: <20210107115329.281266-2-alobakin@pm.me>
+Subject: [PATCH v3 mips-next 3/7] MIPS: properly stop .eh_frame generation
+Message-ID: <20210107115329.281266-3-alobakin@pm.me>
 In-Reply-To: <20210107115329.281266-1-alobakin@pm.me>
 References: <20210107115120.281008-1-alobakin@pm.me> <20210107115329.281266-1-alobakin@pm.me>
 MIME-Version: 1.0
@@ -55,34 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Discard GNU attributes (MIPS FP type, GNU Hash etc.) at link time
-as kernel doesn't use it at all.
-Solves a dozen of the following ld warnings (one per every file):
+Commit 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly") added
+-fno-asynchronous-unwind-tables to KBUILD_CFLAGS to prevent compiler
+from emitting .eh_frame symbols.
+However, as MIPS heavily uses CFI, that's not enough. Use the
+approach taken for x86 (as it also uses CFI) and explicitly put CFI
+symbols into the .debug_frame section (except for VDSO).
+This allows us to drop .eh_frame from DISCARDS as it's no longer
+being generated.
 
-mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
-from `arch/mips/kernel/head.o' being placed in section
-`.gnu.attributes'
-mips-alpine-linux-musl-ld: warning: orphan section `.gnu.attributes'
-from `init/main.o' being placed in section `.gnu.attributes'
-
+Fixes: 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly")
+Suggested-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/kernel/vmlinux.lds.S | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/include/asm/asm.h    | 18 ++++++++++++++++++
+ arch/mips/kernel/vmlinux.lds.S |  1 -
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
+diff --git a/arch/mips/include/asm/asm.h b/arch/mips/include/asm/asm.h
+index 3682d1a0bb80..908f6d6ae24b 100644
+--- a/arch/mips/include/asm/asm.h
++++ b/arch/mips/include/asm/asm.h
+@@ -20,10 +20,27 @@
+ #include <asm/sgidefs.h>
+ #include <asm/asm-eva.h>
+=20
++#ifndef __VDSO__
++/*
++ * Emit CFI data in .debug_frame sections, not .eh_frame sections.
++ * We don't do DWARF unwinding at runtime, so only the offline DWARF
++ * information is useful to anyone. Note we should change this if we
++ * ever decide to enable DWARF unwinding at runtime.
++ */
++#define CFI_SECTIONS=09.cfi_sections .debug_frame
++#else
++ /*
++  * For the vDSO, emit both runtime unwind information and debug
++  * symbols for the .dbg file.
++  */
++#define CFI_SECTIONS=09.cfi_sections .debug_frame, .eh_frame
++#endif
++
+ /*
+  * LEAF - declare leaf routine
+  */
+ #define LEAF(symbol)=09=09=09=09=09\
++=09=09CFI_SECTIONS;=09=09=09=09\
+ =09=09.globl=09symbol;=09=09=09=09\
+ =09=09.align=092;=09=09=09=09\
+ =09=09.type=09symbol, @function;=09=09\
+@@ -36,6 +53,7 @@ symbol:=09=09.frame=09sp, 0, ra;=09=09=09\
+  * NESTED - declare nested routine entry point
+  */
+ #define NESTED(symbol, framesize, rpc)=09=09=09\
++=09=09CFI_SECTIONS;=09=09=09=09\
+ =09=09.globl=09symbol;=09=09=09=09\
+ =09=09.align=092;=09=09=09=09\
+ =09=09.type=09symbol, @function;=09=09\
 diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
 S
-index 83e27a181206..16468957cba2 100644
+index 16468957cba2..0f4e46ea4458 100644
 --- a/arch/mips/kernel/vmlinux.lds.S
 +++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -221,6 +221,7 @@ SECTIONS
- =09=09/* ABI crap starts here */
- =09=09*(.MIPS.abiflags)
- =09=09*(.MIPS.options)
-+=09=09*(.gnu.attributes)
+@@ -225,6 +225,5 @@ SECTIONS
  =09=09*(.options)
  =09=09*(.pdr)
  =09=09*(.reginfo)
+-=09=09*(.eh_frame)
+ =09}
+ }
 --=20
 2.30.0
 
