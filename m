@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2452ED264
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9582ED261
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:37:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729352AbhAGOcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:32:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46832 "EHLO mail.kernel.org"
+        id S1729337AbhAGOcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:32:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728474AbhAGOcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:32:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EB3323340;
-        Thu,  7 Jan 2021 14:32:12 +0000 (UTC)
+        id S1729386AbhAGOcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:32:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77C902311E;
+        Thu,  7 Jan 2021 14:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029933;
-        bh=muR2kQFQILfLiyi2AXgXzFAGkI5+hz4YcTyi8BYH/WM=;
+        s=korg; t=1610029940;
+        bh=Bud2sO1NsdUfoYt/Q2KW2qBHsRbg6KazHjbTfsQbrzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGWrzQwVl4+rX4lJJC03Nbbn389HQzx4lWO8bMFpwMeJitMC5kP1Ax+8XRgavHmvn
-         3vZRKdx6wB/hHolK4vtQsCWc8D1c/XCHrwNilyGSO1oVh9nmoYkMD9hVT7ViqOykUq
-         NLSzU4lJV15JKwI9OIidAZXbueZq3nPr+f/Twsdw=
+        b=y6WGiYD1yrHI8I7R6IvM8xfhMvVdD/6JMvc5sFh+XivwV6NR7g4qE0Nxe4Lm4HAuj
+         7myLRHmBDsYAf2Vs+S8P+q4vF6GWqR+fUNyEegmJqClWCMcMmMTRkS1IvZGzbmp/MP
+         hYkgtFuKOQWGnbhkzROG++YYly+UZG3g1PwmYfeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stylon Wang <stylon.wang@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Andre Tomt <andre@tomt.net>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 01/13] Revert "drm/amd/display: Fix memory leaks in S3 resume"
-Date:   Thu,  7 Jan 2021 15:33:20 +0100
-Message-Id: <20210107143050.100326268@linuxfoundation.org>
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Felix Fietkau <nbd@nbd.name>
+Subject: [PATCH 5.4 02/13] Revert "mtd: spinand: Fix OOB read"
+Date:   Thu,  7 Jan 2021 15:33:21 +0100
+Message-Id: <20210107143050.259221202@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143049.929352526@linuxfoundation.org>
 References: <20210107143049.929352526@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,37 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexdeucher@gmail.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-This reverts commit a135a1b4c4db1f3b8cbed9676a40ede39feb3362.
+This reverts stable commit baad618d078c857f99cc286ea249e9629159901f.
 
-This leads to blank screens on some boards after replugging a
-display.  Revert until we understand the root cause and can
-fix both the leak and the blank screen after replug.
+This commit is adding lines to spinand_write_to_cache_op, wheras the upstream
+commit 868cbe2a6dcee451bd8f87cbbb2a73cf463b57e5 that this was supposed to
+backport was touching spinand_read_from_cache_op.
+It causes a crash on writing OOB data by attempting to write to read-only
+kernel memory.
 
-Cc: Stylon Wang <stylon.wang@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Cc: Andre Tomt <andre@tomt.net>
-Cc: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mtd/nand/spi/core.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1434,8 +1434,7 @@ amdgpu_dm_update_connector_after_detect(
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -317,10 +317,6 @@ static int spinand_write_to_cache_op(str
+ 		buf += ret;
+ 	}
  
- 			drm_connector_update_edid_property(connector,
- 							   aconnector->edid);
--			aconnector->num_modes = drm_add_edid_modes(connector, aconnector->edid);
--			drm_connector_list_update(connector);
-+			drm_add_edid_modes(connector, aconnector->edid);
+-	if (req->ooblen)
+-		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
+-		       req->ooblen);
+-
+ 	return 0;
+ }
  
- 			if (aconnector->dc_link->aux_mode)
- 				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
 
 
