@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5DB2ECB3E
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 08:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D9C2ECB41
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 08:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727442AbhAGHyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 02:54:03 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:43661 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726505AbhAGHyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 02:54:02 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UKzE3SW_1610005998;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UKzE3SW_1610005998)
+        id S1727468AbhAGHyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 02:54:05 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:54133 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727416AbhAGHyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 02:54:04 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0UKzE3St_1610005999;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UKzE3St_1610005999)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 07 Jan 2021 15:53:18 +0800
+          Thu, 07 Jan 2021 15:53:19 +0800
 From:   Wen Yang <wenyang@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -22,9 +22,9 @@ Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
         linux-kernel@vger.kernel.org,
         "Eric W. Biederman" <ebiederm@xmission.com>,
         stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 4.19 3/7] proc: Rename in proc_inode rename sysctl_inodes sibling_inodes
-Date:   Thu,  7 Jan 2021 15:53:10 +0800
-Message-Id: <20210107075314.62683-4-wenyang@linux.alibaba.com>
+Subject: [PATCH 4.19 4/7] proc: Generalize proc_sys_prune_dcache into proc_prune_siblings_dcache
+Date:   Thu,  7 Jan 2021 15:53:11 +0800
+Message-Id: <20210107075314.62683-5-wenyang@linux.alibaba.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20210107075314.62683-1-wenyang@linux.alibaba.com>
 References: <20210107075314.62683-1-wenyang@linux.alibaba.com>
@@ -36,86 +36,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit 0afa5ca82212247456f9de1468b595a111fee633 ]
+[ Upstream commit 26dbc60f385ff9cff475ea2a3bad02e80fd6fa43 ]
 
-I about to need and use the same functionality for pid based
-inodes and there is no point in adding a second field when
-this field is already here and serving the same purporse.
-
-Just give the field a generic name so it is clear that
-it is no longer sysctl specific.
-
-Also for good measure initialize sibling_inodes when
-proc_inode is initialized.
+This prepares the way for allowing the pid part of proc to use this
+dcache pruning code as well.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Cc: <stable@vger.kernel.org> # 4.19.x
 Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
 ---
- fs/proc/inode.c       | 1 +
- fs/proc/internal.h    | 2 +-
- fs/proc/proc_sysctl.c | 8 ++++----
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ fs/proc/inode.c       | 38 ++++++++++++++++++++++++++++++++++++++
+ fs/proc/internal.h    |  1 +
+ fs/proc/proc_sysctl.c | 35 +----------------------------------
+ 3 files changed, 40 insertions(+), 34 deletions(-)
 
 diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index 31bf3bb..e5334ed 100644
+index e5334ed..fffc7e4 100644
 --- a/fs/proc/inode.c
 +++ b/fs/proc/inode.c
-@@ -70,6 +70,7 @@ static struct inode *proc_alloc_inode(struct super_block *sb)
- 	ei->pde = NULL;
- 	ei->sysctl = NULL;
- 	ei->sysctl_entry = NULL;
-+	INIT_HLIST_NODE(&ei->sibling_inodes);
- 	ei->ns_ops = NULL;
- 	inode = &ei->vfs_inode;
- 	return inode;
+@@ -112,6 +112,44 @@ void __init proc_init_kmemcache(void)
+ 	BUILD_BUG_ON(sizeof(struct proc_dir_entry) >= SIZEOF_PDE);
+ }
+ 
++void proc_prune_siblings_dcache(struct hlist_head *inodes, spinlock_t *lock)
++{
++	struct inode *inode;
++	struct proc_inode *ei;
++	struct hlist_node *node;
++	struct super_block *sb;
++
++	rcu_read_lock();
++	for (;;) {
++		node = hlist_first_rcu(inodes);
++		if (!node)
++			break;
++		ei = hlist_entry(node, struct proc_inode, sibling_inodes);
++		spin_lock(lock);
++		hlist_del_init_rcu(&ei->sibling_inodes);
++		spin_unlock(lock);
++
++		inode = &ei->vfs_inode;
++		sb = inode->i_sb;
++		if (!atomic_inc_not_zero(&sb->s_active))
++			continue;
++		inode = igrab(inode);
++		rcu_read_unlock();
++		if (unlikely(!inode)) {
++			deactivate_super(sb);
++			rcu_read_lock();
++			continue;
++		}
++
++		d_prune_aliases(inode);
++		iput(inode);
++		deactivate_super(sb);
++
++		rcu_read_lock();
++	}
++	rcu_read_unlock();
++}
++
+ static int proc_show_options(struct seq_file *seq, struct dentry *root)
+ {
+ 	struct super_block *sb = root->d_sb;
 diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 95b1419..d922c01 100644
+index d922c01..6cae472 100644
 --- a/fs/proc/internal.h
 +++ b/fs/proc/internal.h
-@@ -91,7 +91,7 @@ struct proc_inode {
- 	struct proc_dir_entry *pde;
- 	struct ctl_table_header *sysctl;
- 	struct ctl_table *sysctl_entry;
--	struct hlist_node sysctl_inodes;
-+	struct hlist_node sibling_inodes;
- 	const struct proc_ns_operations *ns_ops;
- 	struct inode vfs_inode;
- } __randomize_layout;
+@@ -210,6 +210,7 @@ struct pde_opener {
+ extern const struct inode_operations proc_pid_link_inode_operations;
+ 
+ void proc_init_kmemcache(void);
++void proc_prune_siblings_dcache(struct hlist_head *inodes, spinlock_t *lock);
+ void set_proc_pid_nlink(void);
+ extern struct inode *proc_get_inode(struct super_block *, struct proc_dir_entry *);
+ extern int proc_fill_super(struct super_block *, void *data, int flags);
 diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index c95f32b..0f578f6 100644
+index 0f578f6..57b16bf 100644
 --- a/fs/proc/proc_sysctl.c
 +++ b/fs/proc/proc_sysctl.c
-@@ -274,9 +274,9 @@ static void proc_sys_prune_dcache(struct ctl_table_header *head)
- 		node = hlist_first_rcu(&head->inodes);
- 		if (!node)
- 			break;
--		ei = hlist_entry(node, struct proc_inode, sysctl_inodes);
-+		ei = hlist_entry(node, struct proc_inode, sibling_inodes);
- 		spin_lock(&sysctl_lock);
--		hlist_del_init_rcu(&ei->sysctl_inodes);
-+		hlist_del_init_rcu(&ei->sibling_inodes);
- 		spin_unlock(&sysctl_lock);
+@@ -264,40 +264,7 @@ static void unuse_table(struct ctl_table_header *p)
  
- 		inode = &ei->vfs_inode;
-@@ -478,7 +478,7 @@ static struct inode *proc_sys_make_inode(struct super_block *sb,
- 	}
- 	ei->sysctl = head;
- 	ei->sysctl_entry = table;
--	hlist_add_head_rcu(&ei->sysctl_inodes, &head->inodes);
-+	hlist_add_head_rcu(&ei->sibling_inodes, &head->inodes);
- 	head->count++;
- 	spin_unlock(&sysctl_lock);
- 
-@@ -509,7 +509,7 @@ static struct inode *proc_sys_make_inode(struct super_block *sb,
- void proc_sys_evict_inode(struct inode *inode, struct ctl_table_header *head)
+ static void proc_sys_prune_dcache(struct ctl_table_header *head)
  {
- 	spin_lock(&sysctl_lock);
--	hlist_del_init_rcu(&PROC_I(inode)->sysctl_inodes);
-+	hlist_del_init_rcu(&PROC_I(inode)->sibling_inodes);
- 	if (!--head->count)
- 		kfree_rcu(head, rcu);
- 	spin_unlock(&sysctl_lock);
+-	struct inode *inode;
+-	struct proc_inode *ei;
+-	struct hlist_node *node;
+-	struct super_block *sb;
+-
+-	rcu_read_lock();
+-	for (;;) {
+-		node = hlist_first_rcu(&head->inodes);
+-		if (!node)
+-			break;
+-		ei = hlist_entry(node, struct proc_inode, sibling_inodes);
+-		spin_lock(&sysctl_lock);
+-		hlist_del_init_rcu(&ei->sibling_inodes);
+-		spin_unlock(&sysctl_lock);
+-
+-		inode = &ei->vfs_inode;
+-		sb = inode->i_sb;
+-		if (!atomic_inc_not_zero(&sb->s_active))
+-			continue;
+-		inode = igrab(inode);
+-		rcu_read_unlock();
+-		if (unlikely(!inode)) {
+-			deactivate_super(sb);
+-			rcu_read_lock();
+-			continue;
+-		}
+-
+-		d_prune_aliases(inode);
+-		iput(inode);
+-		deactivate_super(sb);
+-
+-		rcu_read_lock();
+-	}
+-	rcu_read_unlock();
++	proc_prune_siblings_dcache(&head->inodes, &sysctl_lock);
+ }
+ 
+ /* called under sysctl_lock, will reacquire if has to wait */
 -- 
 1.8.3.1
 
