@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A81F2ECF40
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 636BC2ECF39
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728147AbhAGLzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 06:55:25 -0500
-Received: from mail1.protonmail.ch ([185.70.40.18]:52829 "EHLO
-        mail1.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728130AbhAGLzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:55:22 -0500
-Date:   Thu, 07 Jan 2021 11:54:11 +0000
+        id S1728103AbhAGLzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 06:55:11 -0500
+Received: from mail2.protonmail.ch ([185.70.40.22]:34421 "EHLO
+        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727949AbhAGLzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:55:09 -0500
+Date:   Thu, 07 Jan 2021 11:54:18 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610020456; bh=9oCj7QKLJWJNGcOnNqI17iIRyczWE6M4kFx9CTLO44o=;
+        t=1610020462; bh=tAhGyp2geX19Adc0pmsweHYMg6GqMIq+Zk7djwr/y7M=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=PX7IdcsmptB95flrpg7vbA9aXY9Z4x0rBaPZAqWBLPxiyKVct33PYc+tD+iFojHb5
-         /WQ4rauUjUGQrB3wCWthec91WMP36cR/ZvDcSR9I5pSObxgE+10VkNJc8R53cP7xJ3
-         Z/5yOorsBQGDFzv5/WRP23wfcYHdX1ZW4R5imCcHYifo9kvN2mZyucsp7W4ENoOgsX
-         EsQ9+rXIirHMLfO/Znuy0UK0+OzPyRZg++nPcXI+1dZg4KNT1oCL2f7lMYlhqFbIwx
-         a2EqXM2d79aeE4dwJGr27V5f37DCMYsoHHMnz+b6stL0v3IW+FvWdWxsFM8GIheh1g
-         2lJ4rFqEVgF1Q==
+        b=amg/7JOJnqFWWVQp/gxCX6tnUeBa8j16Rk1uTsVynSGorkosoyeIqnL7nLDtgPxp2
+         T1Q9+3BAYT41ifEM/+EtsI4ntgGbrbFZH7vigGO+RpZ99dnjPrSshSJzDBWBOfs5La
+         /ZoLyuHNVd9hJ+mUXXQsIhoOooqoIerVtfG6AMoRs29Aa5AxieIiBFaSRdhcAfJCjJ
+         ENKwogm6sCOq//rikZZipdJlQ/8cTW6/yXGuJRdOiM3VleUB1r8W0e7UmgFWOxgWXw
+         zJOFS8HZze4RvM29KSSxqYIraXrZvN/AMTFDF1+hm0hF7ZuFMxc0YGrYWJ5e0UDsA3
+         4FH+hCykb4pzg==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -39,8 +39,8 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v3 mips-next 5/7] MIPS: vmlinux.lds.S: explicitly declare .got table
-Message-ID: <20210107115329.281266-5-alobakin@pm.me>
+Subject: [PATCH v3 mips-next 6/7] vmlinux.lds.h: catch compound literals into data and BSS
+Message-ID: <20210107115329.281266-6-alobakin@pm.me>
 In-Reply-To: <20210107115329.281266-1-alobakin@pm.me>
 References: <20210107115120.281008-1-alobakin@pm.me> <20210107115329.281266-1-alobakin@pm.me>
 MIME-Version: 1.0
@@ -55,33 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM stack generates GOT table when building the kernel:
+When building kernel with LD_DEAD_CODE_DATA_ELIMINATION, LLVM stack
+generates separate sections for compound literals, just like in case
+with enabled LTO [0]:
 
-ld.lld: warning: <internal>:(.got) is being placed in '.got'
+ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+(.data..compoundliteral.14) is being placed in
+'.data..compoundliteral.14'
+ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+(.data..compoundliteral.15) is being placed in
+'.data..compoundliteral.15'
+ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+(.data..compoundliteral.16) is being placed in
+'.data..compoundliteral.16'
+ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+(.data..compoundliteral.17) is being placed in
+'.data..compoundliteral.17'
 
-According to the debug assertions, it's not zero-sized and thus
-can't be handled the same way as .rel.dyn (like it's done for x86).
-Use the ARM/ARM64 path here and place it at the end of .text section.
+[...]
 
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Handle this by adding the related sections to generic definitions
+as suggested by Sami [0].
+
+[0] https://lore.kernel.org/lkml/20201211184633.3213045-3-samitolvanen@goog=
+le.com
+
+Suggested-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/kernel/vmlinux.lds.S | 1 +
- 1 file changed, 1 insertion(+)
+ include/asm-generic/vmlinux.lds.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
-S
-index 0f736d60d43e..4709959f6985 100644
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -69,6 +69,7 @@ SECTIONS
- =09=09*(.text.*)
- =09=09*(.fixup)
- =09=09*(.gnu.warning)
-+=09=09*(.got)
- =09} :text =3D 0
- =09_etext =3D .;=09/* End of text section */
-=20
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinu=
+x.lds.h
+index b2b3d81b1535..5f2f5b1db84f 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -95,10 +95,10 @@
+  */
+ #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
+ #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
+-#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
++#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliter=
+al*
+ #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
+-#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
+-#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
++#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
++#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
+ #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
+ #else
+ #define TEXT_MAIN .text
 --=20
 2.30.0
 
