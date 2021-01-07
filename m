@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 636BC2ECF39
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 581B82ECF44
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728103AbhAGLzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 06:55:11 -0500
-Received: from mail2.protonmail.ch ([185.70.40.22]:34421 "EHLO
-        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727949AbhAGLzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:55:09 -0500
-Date:   Thu, 07 Jan 2021 11:54:18 +0000
+        id S1728116AbhAGLzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 06:55:18 -0500
+Received: from mail-40134.protonmail.ch ([185.70.40.134]:49104 "EHLO
+        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725965AbhAGLzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:55:18 -0500
+Date:   Thu, 07 Jan 2021 11:54:25 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610020462; bh=tAhGyp2geX19Adc0pmsweHYMg6GqMIq+Zk7djwr/y7M=;
+        t=1610020475; bh=1c0zIRSp5j+9jPf96D96lWaXSqjKgRxuaqZWXnp1GJA=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=amg/7JOJnqFWWVQp/gxCX6tnUeBa8j16Rk1uTsVynSGorkosoyeIqnL7nLDtgPxp2
-         T1Q9+3BAYT41ifEM/+EtsI4ntgGbrbFZH7vigGO+RpZ99dnjPrSshSJzDBWBOfs5La
-         /ZoLyuHNVd9hJ+mUXXQsIhoOooqoIerVtfG6AMoRs29Aa5AxieIiBFaSRdhcAfJCjJ
-         ENKwogm6sCOq//rikZZipdJlQ/8cTW6/yXGuJRdOiM3VleUB1r8W0e7UmgFWOxgWXw
-         zJOFS8HZze4RvM29KSSxqYIraXrZvN/AMTFDF1+hm0hF7ZuFMxc0YGrYWJ5e0UDsA3
-         4FH+hCykb4pzg==
+        b=QSf4PK1l/0z+lqNG/RN+SWI8NiSqHOQYaqNMT8tTimEIsiiENHGqnuihCuJ3YfoTS
+         PwSAP0XUEjMITW1M5igKo6aiOLj+hPQ/VbHC404RmbVM7zmG89DsY0Fv2hyhFJ4ZNz
+         1XPd99TE8cWH/9iL0qyVCv2k+6igCBxmqW7kCSiAKWcPe1GAvIEAmC+/qJlZWV3IF/
+         HegvS3yUPHnrgTtRi1vsPzSH02S6gvkG76xhpSPZLFAlcqCM6jVtk3HiLdvJT8g6Cj
+         aIT5D9n9qMw0z1SZ6HCDiay0gmxBlNIf12r3H+iRq7DHCrv6PnTUtDcTvsP714KN+m
+         djC48Y9URNyEw==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -39,8 +39,8 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v3 mips-next 6/7] vmlinux.lds.h: catch compound literals into data and BSS
-Message-ID: <20210107115329.281266-6-alobakin@pm.me>
+Subject: [PATCH v3 mips-next 7/7] MIPS: select ARCH_WANT_LD_ORPHAN_WARN
+Message-ID: <20210107115329.281266-7-alobakin@pm.me>
 In-Reply-To: <20210107115329.281266-1-alobakin@pm.me>
 References: <20210107115120.281008-1-alobakin@pm.me> <20210107115329.281266-1-alobakin@pm.me>
 MIME-Version: 1.0
@@ -55,57 +55,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When building kernel with LD_DEAD_CODE_DATA_ELIMINATION, LLVM stack
-generates separate sections for compound literals, just like in case
-with enabled LTO [0]:
+Now, after that all the sections are explicitly described and
+declared in vmlinux.lds.S, we can enable ld orphan warnings to
+prevent from missing any new sections in future.
 
-ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
-(.data..compoundliteral.14) is being placed in
-'.data..compoundliteral.14'
-ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
-(.data..compoundliteral.15) is being placed in
-'.data..compoundliteral.15'
-ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
-(.data..compoundliteral.16) is being placed in
-'.data..compoundliteral.16'
-ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
-(.data..compoundliteral.17) is being placed in
-'.data..compoundliteral.17'
-
-[...]
-
-Handle this by adding the related sections to generic definitions
-as suggested by Sami [0].
-
-[0] https://lore.kernel.org/lkml/20201211184633.3213045-3-samitolvanen@goog=
-le.com
-
-Suggested-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- include/asm-generic/vmlinux.lds.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinu=
-x.lds.h
-index b2b3d81b1535..5f2f5b1db84f 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -95,10 +95,10 @@
-  */
- #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
- #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
--#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
-+#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliter=
-al*
- #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
--#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
--#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
-+#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
-+#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
- #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
- #else
- #define TEXT_MAIN .text
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index d68df1febd25..d3e64cc0932b 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -18,6 +18,7 @@ config MIPS
+ =09select ARCH_USE_QUEUED_SPINLOCKS
+ =09select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT if MMU
+ =09select ARCH_WANT_IPC_PARSE_VERSION
++=09select ARCH_WANT_LD_ORPHAN_WARN
+ =09select BUILDTIME_TABLE_SORT
+ =09select CLONE_BACKWARDS
+ =09select CPU_NO_EFFICIENT_FFS if (TARGET_ISA_REV < 1)
 --=20
 2.30.0
 
