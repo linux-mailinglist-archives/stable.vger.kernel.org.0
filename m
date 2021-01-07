@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3961E2ED28F
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2F82ED29C
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbhAGOeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:34:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
+        id S1728432AbhAGOel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:34:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729749AbhAGOeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:34:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F80123383;
-        Thu,  7 Jan 2021 14:33:29 +0000 (UTC)
+        id S1729759AbhAGOeN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:34:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 501182339D;
+        Thu,  7 Jan 2021 14:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610030010;
-        bh=7TBz14ywOEcasArJ3v4XMJ+eqqqNZQCMOT2FiI5FyeY=;
+        s=korg; t=1610030012;
+        bh=gfaR36mNm4g5wMocpec7JhcyAr99jWZmVBNXJoNagGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGtNgfg4tuYBQRAEVcSp6IbRulM9kSCa8x7C82WKPh6zsUonlEJw4bxefZg+llE5o
-         BEmC02bMvSD0nPUXrcIKwWaOqS2o0SFcIQoYDUns3PyFTy6Vy5x3xfHRfa24ZQiW86
-         cHMrA3wc5TnptHtjmYyAnqSoXPoBkYsG2ix/1el8=
+        b=dSTxHdW+w4ViIz5zf++QTHK0vF51ZIskHFBP7xA7j7kBeA1mZjBgEdEUybbfl2yJ8
+         pkXyU1jDC9PkiHug7Jn6+5IfMaD53ER5TvXsKXCeiiKBQviEGwMpI5Rik25POOEe1j
+         8sYhwHPjteUqUdkDQLxOGrFt2ts+uJCCAPq6wvv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 06/20] kdev_t: always inline major/minor helper functions
-Date:   Thu,  7 Jan 2021 15:34:01 +0100
-Message-Id: <20210107143053.310861707@linuxfoundation.org>
+        stable@vger.kernel.org, Edward Vear <edwardvear@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.10 07/20] Bluetooth: Fix attempting to set RPA timeout when unsupported
+Date:   Thu,  7 Jan 2021 15:34:02 +0100
+Message-Id: <20210107143053.441330544@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.392839477@linuxfoundation.org>
 References: <20210107143052.392839477@linuxfoundation.org>
@@ -42,104 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Edward Vear <edwardvear@gmail.com>
 
-commit aa8c7db494d0a83ecae583aa193f1134ef25d506 upstream.
+commit a31489d2a368d2f9225ed6a6f595c63bc7d10de8 upstream.
 
-Silly GCC doesn't always inline these trivial functions.
+During controller initialization, an LE Set RPA Timeout command is sent
+to the controller if supported. However, the value checked to determine
+if the command is supported is incorrect. Page 1921 of the Bluetooth
+Core Spec v5.2 shows that bit 2 of octet 35 of the Supported_Commands
+field corresponds to the LE Set RPA Timeout command, but currently
+bit 6 of octet 35 is checked. This patch checks the correct value
+instead.
 
-Fixes the following warning:
+This issue led to the error seen in the following btmon output during
+initialization of an adapter (rtl8761b) and prevented initialization
+from completing.
 
-  arch/x86/kernel/sys_ia32.o: warning: objtool: cp_stat64()+0xd8: call to new_encode_dev() with UACCESS enabled
+< HCI Command: LE Set Resolvable Private Address Timeout (0x08|0x002e) plen 2
+        Timeout: 900 seconds
+> HCI Event: Command Complete (0x0e) plen 4
+      LE Set Resolvable Private Address Timeout (0x08|0x002e) ncmd 2
+        Status: Unsupported Remote Feature / Unsupported LMP Feature (0x1a)
+= Close Index: 00:E0:4C:6B:E5:03
 
-Link: https://lkml.kernel.org/r/984353b44a4484d86ba9f73884b7306232e25e30.1608737428.git.jpoimboe@redhat.com
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>	[build-tested]
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The error did not appear when running with this patch.
+
+Signed-off-by: Edward Vear <edwardvear@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/kdev_t.h |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ net/bluetooth/hci_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/kdev_t.h
-+++ b/include/linux/kdev_t.h
-@@ -21,61 +21,61 @@
- 	})
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -763,7 +763,7 @@ static int hci_init3_req(struct hci_requ
+ 			hci_req_add(req, HCI_OP_LE_CLEAR_RESOLV_LIST, 0, NULL);
+ 		}
  
- /* acceptable for old filesystems */
--static inline bool old_valid_dev(dev_t dev)
-+static __always_inline bool old_valid_dev(dev_t dev)
- {
- 	return MAJOR(dev) < 256 && MINOR(dev) < 256;
- }
+-		if (hdev->commands[35] & 0x40) {
++		if (hdev->commands[35] & 0x04) {
+ 			__le16 rpa_timeout = cpu_to_le16(hdev->rpa_timeout);
  
--static inline u16 old_encode_dev(dev_t dev)
-+static __always_inline u16 old_encode_dev(dev_t dev)
- {
- 	return (MAJOR(dev) << 8) | MINOR(dev);
- }
- 
--static inline dev_t old_decode_dev(u16 val)
-+static __always_inline dev_t old_decode_dev(u16 val)
- {
- 	return MKDEV((val >> 8) & 255, val & 255);
- }
- 
--static inline u32 new_encode_dev(dev_t dev)
-+static __always_inline u32 new_encode_dev(dev_t dev)
- {
- 	unsigned major = MAJOR(dev);
- 	unsigned minor = MINOR(dev);
- 	return (minor & 0xff) | (major << 8) | ((minor & ~0xff) << 12);
- }
- 
--static inline dev_t new_decode_dev(u32 dev)
-+static __always_inline dev_t new_decode_dev(u32 dev)
- {
- 	unsigned major = (dev & 0xfff00) >> 8;
- 	unsigned minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
- 	return MKDEV(major, minor);
- }
- 
--static inline u64 huge_encode_dev(dev_t dev)
-+static __always_inline u64 huge_encode_dev(dev_t dev)
- {
- 	return new_encode_dev(dev);
- }
- 
--static inline dev_t huge_decode_dev(u64 dev)
-+static __always_inline dev_t huge_decode_dev(u64 dev)
- {
- 	return new_decode_dev(dev);
- }
- 
--static inline int sysv_valid_dev(dev_t dev)
-+static __always_inline int sysv_valid_dev(dev_t dev)
- {
- 	return MAJOR(dev) < (1<<14) && MINOR(dev) < (1<<18);
- }
- 
--static inline u32 sysv_encode_dev(dev_t dev)
-+static __always_inline u32 sysv_encode_dev(dev_t dev)
- {
- 	return MINOR(dev) | (MAJOR(dev) << 18);
- }
- 
--static inline unsigned sysv_major(u32 dev)
-+static __always_inline unsigned sysv_major(u32 dev)
- {
- 	return (dev >> 18) & 0x3fff;
- }
- 
--static inline unsigned sysv_minor(u32 dev)
-+static __always_inline unsigned sysv_minor(u32 dev)
- {
- 	return dev & 0x3ffff;
- }
+ 			/* Set RPA timeout */
 
 
