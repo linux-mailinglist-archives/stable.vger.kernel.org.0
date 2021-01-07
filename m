@@ -2,80 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CACCE2ED59D
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 18:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF342ED5B1
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 18:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729178AbhAGR3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 12:29:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        id S1729200AbhAGRbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 12:31:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729176AbhAGR3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 12:29:07 -0500
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E13C0612F4
-        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 09:28:26 -0800 (PST)
-Received: by mail-ot1-x32d.google.com with SMTP id b24so7058383otj.0
-        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 09:28:26 -0800 (PST)
+        with ESMTP id S1728891AbhAGRbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 12:31:11 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB19BC0612F4
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 09:30:30 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id g15so5396818pgu.9
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 09:30:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=4XgGuWmsnJEUhvBhcTXOQcE0YoUI3Zn2SdeXb8fj0G8=;
-        b=ndtg5t63BeDPmtzmMAQcbs0x/lmhlDJQOa33Mwr+AxM76kl6c33BP3YZipIrnTesmV
-         kBVAnsNjoizQnAHXGInQqwGadtHKlYdiDPsAc+kGu/iNDssh7Lb0odanXiFb4a9G1/JW
-         lGVARbTodrC3tpKC1zoH8xa6XS+ujIuKeoieVt3eSQcFaaTw3j+p1z9DgkbpQ0KvLr3f
-         5l8cmAIohTP8yR8Vb1/UPCu56onN208MNM+cFgrcJKse/vMJ1dQ086/xdVQkRGEHhsVj
-         Awga9OAmSIkcxZJwseQknF+siCZXhryYohop/J4V6mJNEr3a0S+x7BtdM5sNudYoXRkp
-         i7+w==
+        h=from:subject:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8X7AeS8ogU2ApNgoLbqDEiV+8z00LcQbO21cEd1qiBk=;
+        b=vMQi7NwssqJ6QpCdFwOe0QpIEWuL2GsC96JRIh6n7IYFju3CgsRF/p/a9chrHstZ07
+         Rf8W3PR/yiaIKsIH08Ju7l6Xnml1JxLfGJHFOFG4W7o214fvstHhTCcTkMxmgciSRDp7
+         4g+u6QUpSBHuhZvCpZ+7rFJKkfYGCNgnvJrw4EhdDe0WEDVl+I91vSlmPgJ7YGrZytFC
+         9yfl+to1KoPyNWTGmtHftFMz/u7cnXzocAP2nsW+GTsfRn+DuYKxl+eHOG3nKfydQX4Y
+         5rENI5gb/oDQkVKAh68Xrn8eFAA5fvjcfQq+TbHHYMGWDrH4ZuGeUjHnwETJhB8u8+en
+         kOCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=4XgGuWmsnJEUhvBhcTXOQcE0YoUI3Zn2SdeXb8fj0G8=;
-        b=b75Z+TsRmVTo+gfjLZc4a42jJdENZLaXYWaeAdrx3kUratKDT8Yvu5lQL3he+MwDar
-         Sa9sBZzqZY3VjKK26jTIqimpUhEWJVrz+HXlnvG2+yp5k1xsW0LOMlDq8VhkdFnNOkGl
-         8IpuugvoP0nJxvkimxTitSccXczfeId8OR1+HrXsFZqsbvjjA2O1vtWwCEIH8LwXG3iN
-         pcb1qTAg/JbMirKR/t1iaIq6DhWJ7oJeEMwvOSZinTHbHbD5Opi1ZZWzrvs9R0ooiZeN
-         m8sn70gm1l4ZYQ+DEdhAiPgwmbRJBdffdFB2Ljpvf+tG2JuKEhKW0lYBRIUpqzUjjaoI
-         1v1Q==
-X-Gm-Message-State: AOAM53241T0DQBPD8GUEs7KZlOJx2Wpx7f6Aqg5Gg05jCGfMp2geRNH3
-        enc5LTGfRD9FNRQ3nUHpC6nhY18mmhQOZOhgey0=
-X-Google-Smtp-Source: ABdhPJy26+b+GNd7yIO8Dv4xrX1lHH9AjrqiP1dWivHvZlde7J2CqVYntmvFpkaFCtKpYxUdH72ZkURwgAfiNS7W8P4=
-X-Received: by 2002:a05:6830:92a:: with SMTP id v42mr3278091ott.151.1610040504421;
- Thu, 07 Jan 2021 09:28:24 -0800 (PST)
+        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8X7AeS8ogU2ApNgoLbqDEiV+8z00LcQbO21cEd1qiBk=;
+        b=UvBt+N986UHmdu0nyxY+7RHVV1VPeQJ+IU5cIOSboEswWntIDEvb7vVr9ApNb9r/o0
+         +T4hv4uFfN7Bta+jnBjkOnpyfHcmsV3hrOuZ5NOizRoHDCeD+fMZjGuiDrEe/wDMgsq3
+         +OtiqsqGceNkldZZtEMyGSU3TD8tdGSS5wQDuKlxi8Blx8cF0Cu25z5847s2CJX49qtn
+         zpoJfHyj3KOz1e2VYlwJECZI4KyUD+oh+AMZuViQ2Gv/RqzVZBE9KuovagBVIaGvWL6j
+         Ghio8R7Ugjp6A5cnrJFsYFoVrsJQR6th5acOmwAv+OdAi3PAEI2J8Z6GMaEjaGCou5el
+         8I7g==
+X-Gm-Message-State: AOAM531918kwnaMDq4SV42lkggIPow0lavXFF4MamB/Lllc9tSWjxi7p
+        oMGoAwjoCVO8UCDRS5v5yNs=
+X-Google-Smtp-Source: ABdhPJye+o3sLN+++kc9ZXGpKdut1k5LtnhhM/2QZnWSxwrA1S8zSLVVwloeThjwbt3nruCuCfgyuw==
+X-Received: by 2002:a63:1e1a:: with SMTP id e26mr2904692pge.66.1610040630357;
+        Thu, 07 Jan 2021 09:30:30 -0800 (PST)
+Received: from [127.0.0.1] ([14.33.99.63])
+        by smtp.gmail.com with ESMTPSA id s13sm6894268pfd.99.2021.01.07.09.30.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Jan 2021 09:30:29 -0800 (PST)
+From:   Jinoh Kang <jinoh.kang.kr@gmail.com>
+Subject: Re: [BACKPORT] xen/pvh: correctly setup the PV EFI interface for dom0
+To:     stable@vger.kernel.org
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        PGNet Dev <pgnet.dev@gmail.com>,
+        Roger Pau Monne <roger.pau@citrix.com>
+References: <1558349221210204@kroah.com>
+ <20190527121138.41800-1-roger.pau@citrix.com>
+Message-ID: <aeeaf95b-765d-7bd1-e156-4b26d3dca739@gmail.com>
+Date:   Thu, 7 Jan 2021 17:30:25 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
 MIME-Version: 1.0
-Received: by 2002:a05:6830:1695:0:0:0:0 with HTTP; Thu, 7 Jan 2021 09:28:24
- -0800 (PST)
-Reply-To: mrsaishad4@gmail.com
-From:   "MRS. AISHA GADDAFI" <mr.amujedg.mohmmed100@gmail.com>
-Date:   Thu, 7 Jan 2021 09:28:24 -0800
-Message-ID: <CAPRWzUSGsmAd4oYwhz7NYzRz8Qg1fr0n8JgTg8y2Hx26mdO73Q@mail.gmail.com>
-Subject: Greetings to you,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190527121138.41800-1-roger.pau@citrix.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This patch had slipped through the cracks, yet it still applies cleanly
+to v4.19.165.
+
+It would be much appreciated to have this patch queued.
+
+------------------ original patch ------------------
+
+>From -  Mon Sep 17 00:00:00 2001
+Subject: [BACKPORT] xen/pvh: correctly setup the PV EFI interface for dom0
+Date: Mon, 27 May 2019 14:11:38 +0200
+From: Roger Pau Monne <roger.pau@citrix.com>
+
+commit 72813bfbf0276a97c82af038efb5f02dcdd9e310 upstream
+
+This involves initializing the boot params EFI related fields and the
+efi global variable.
+
+Without this fix a PVH dom0 doesn't detect when booted from EFI, and
+thus doesn't support accessing any of the EFI related data.
+
+Reported-by: PGNet Dev <pgnet.dev@gmail.com>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: stable@vger.kernel.org # 4.19+
+---
+ arch/x86/xen/efi.c           | 12 ++++++------
+ arch/x86/xen/enlighten_pv.c  |  2 +-
+ arch/x86/xen/enlighten_pvh.c |  4 ++++
+ arch/x86/xen/xen-ops.h       |  4 ++--
+ 4 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
+index 1804b27f9632..30edb9bc58e2 100644
+--- a/arch/x86/xen/efi.c
++++ b/arch/x86/xen/efi.c
+@@ -170,7 +170,7 @@ static enum efi_secureboot_mode xen_efi_get_secureboot(void)
+ 	return efi_secureboot_mode_unknown;
+ }
+ 
+-void __init xen_efi_init(void)
++void __init xen_efi_init(struct boot_params *boot_params)
+ {
+ 	efi_system_table_t *efi_systab_xen;
+ 
+@@ -179,12 +179,12 @@ void __init xen_efi_init(void)
+ 	if (efi_systab_xen == NULL)
+ 		return;
+ 
+-	strncpy((char *)&boot_params.efi_info.efi_loader_signature, "Xen",
+-			sizeof(boot_params.efi_info.efi_loader_signature));
+-	boot_params.efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
+-	boot_params.efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
++	strncpy((char *)&boot_params->efi_info.efi_loader_signature, "Xen",
++			sizeof(boot_params->efi_info.efi_loader_signature));
++	boot_params->efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
++	boot_params->efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
+ 
+-	boot_params.secure_boot = xen_efi_get_secureboot();
++	boot_params->secure_boot = xen_efi_get_secureboot();
+ 
+ 	set_bit(EFI_BOOT, &efi.flags);
+ 	set_bit(EFI_PARAVIRT, &efi.flags);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 782f98b332f0..0f8da4aebe7b 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1399,7 +1399,7 @@ asmlinkage __visible void __init xen_start_kernel(void)
+ 	/* We need this for printk timestamps */
+ 	xen_setup_runstate_info(0);
+ 
+-	xen_efi_init();
++	xen_efi_init(&boot_params);
+ 
+ 	/* Start the world */
+ #ifdef CONFIG_X86_32
+diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
+index dab07827d25e..f04d22bcf08d 100644
+--- a/arch/x86/xen/enlighten_pvh.c
++++ b/arch/x86/xen/enlighten_pvh.c
+@@ -14,6 +14,8 @@
+ #include <xen/interface/memory.h>
+ #include <xen/interface/hvm/start_info.h>
+ 
++#include "xen-ops.h"
++
+ /*
+  * PVH variables.
+  *
+@@ -79,6 +81,8 @@ static void __init init_pvh_bootparams(void)
+ 	pvh_bootparams.hdr.type_of_loader = (9 << 4) | 0; /* Xen loader */
+ 
+ 	x86_init.acpi.get_root_pointer = pvh_get_root_pointer;
++
++	xen_efi_init(&pvh_bootparams);
+ }
+ 
+ /*
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 0e60bd918695..2f111f47ba98 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -122,9 +122,9 @@ static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
+ void __init xen_init_apic(void);
+ 
+ #ifdef CONFIG_XEN_EFI
+-extern void xen_efi_init(void);
++extern void xen_efi_init(struct boot_params *boot_params);
+ #else
+-static inline void __init xen_efi_init(void)
++static inline void __init xen_efi_init(struct boot_params *boot_params)
+ {
+ }
+ #endif
 -- 
-Hello dear I am Dr. Aisha Gaddafi.
-
-I am Dr. Aisha Gaddafi, the daughter of late Libyan president, am
-contacting you because I need a Partner or an investor that will help
-me in investing the sum of $27.5 Million USD in his or her country.
-the funds is deposited here in Burkina Faso where I am living for the
-moment with my children as my husband is late.
-
-I would like to hear your kind interest towards the investment of the
-total sum mentioned Above, as my partner and beneficiary of the funds
-I want to inform you that you will receive 30% share of the total sum
-after the transfer of the said funds $27.5 Million USD is completed
-into your bank account, while the balance as my own share will be used
-for the investment in your country.
-
-Please after reading this mail try and make sure you reply and contact
-me with this my private email address: {mrsaishad4@gmail.com} so that
-I will see your mail and reply you without delaying, if you really
-want me to see your respond and interest concerning the transaction.
-
-Thanks with my best regards
-Dr. Aisha Gaddafi.
+2.20.1 (Apple Git-117)
