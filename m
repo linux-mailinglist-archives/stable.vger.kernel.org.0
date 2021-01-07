@@ -2,96 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D46CC2ECE56
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD1A2ECF1D
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 12:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbhAGK7j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 05:59:39 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24637 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726526AbhAGK7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 05:59:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610017093;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=eJuYKsFgeD/TaN1guAoXSRGGao5WVLChcuMpd8zsQq4=;
-        b=huqjN0WsnF0kqGM5w+LF+0bg3LYzVV1br55vwxpc2u16wGPxOlDt669Kxz52uwwLVcG/25
-        N6PbCNH17/x8Mszg1U7Blx8JkvD+fMiJ99JHqMnIwphcw0p1Iw4raIXcmUC12lfNPcoGBP
-        kB6cjTaQYmjIK5UC5qwq9+H3/vMNiA4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-378-PLDymmrbNOGnq5zJt0MzTg-1; Thu, 07 Jan 2021 05:58:09 -0500
-X-MC-Unique: PLDymmrbNOGnq5zJt0MzTg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 47B8F4239C;
-        Thu,  7 Jan 2021 10:58:06 +0000 (UTC)
-Received: from warthog.procyon.org.uk (ovpn-112-8.rdu2.redhat.com [10.10.112.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 67BC271CB9;
-        Thu,  7 Jan 2021 10:58:03 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <20210107092855.76093-1-tianjia.zhang@linux.alibaba.com>
-References: <20210107092855.76093-1-tianjia.zhang@linux.alibaba.com>
-To:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Cc:     dhowells@redhat.com, Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Tobias Markus <tobias@markus-regensburg.de>,
-        Tee Hao Wei <angelsl@in04.sg>, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] X.509: Fix crash caused by NULL pointer
+        id S1726768AbhAGLwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 06:52:32 -0500
+Received: from mail-40131.protonmail.ch ([185.70.40.131]:40163 "EHLO
+        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725960AbhAGLwc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 06:52:32 -0500
+Date:   Thu, 07 Jan 2021 11:51:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
+        t=1610020309; bh=DrNPDCI5aGCF7b5CZJNTzFjDzr4fV3uFR8hbRikrekQ=;
+        h=Date:To:From:Cc:Reply-To:Subject:From;
+        b=JhDu74CyZxiVoZN4SNG2Dkh/eCyKWE5abJFrIB64wNs9O3PTPr/nkrNkFhaTYSz7Q
+         XmIvNsASTb/ZXQRL619zcgYqvc4/EWHculnh8KvIpUQ8zXzeplsUIOYM5RKjI8Duwd
+         ZdqU/SL7kBa298cfB9stEHEqihsfv/TpB7AffQyEDnzHT9MZURxf9XbMggbyxVWkWR
+         thxNXMXZu1k1hU0q9CTeBfInpU9799VtsxvU77sGgYLTSEv1b7TgR1WsaEKRS6R+yG
+         ehOE5mz0aGApWhSAjHEjzQMbq2mp8IA970qAi27WPQp0tsXRRV4iDb37UP5gv0UKS9
+         R3EMzrTs7FDtg==
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+From:   Alexander Lobakin <alobakin@pm.me>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Pei Huang <huangpei@loongson.cn>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Corey Minyard <cminyard@mvista.com>,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, stable@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Reply-To: Alexander Lobakin <alobakin@pm.me>
+Subject: [PATCH v3 mips-next 0/7] MIPS: vmlinux.lds.S sections fixes & cleanup
+Message-ID: <20210107115120.281008-1-alobakin@pm.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <772252.1610017082.1@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date:   Thu, 07 Jan 2021 10:58:02 +0000
-Message-ID: <772253.1610017082@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tianjia Zhang <tianjia.zhang@linux.alibaba.com> wrote:
+This series hunts the problems discovered after manual enabling of
+ARCH_WANT_LD_ORPHAN_WARN. Notably:
+ - adds the missing PAGE_ALIGNED_DATA() section affecting VDSO
+   placement (marked for stable);
+ - properly stops .eh_frame section generation.
 
-> On the following call path, `sig->pkey_algo` is not assigned
-> in asymmetric_key_verify_signature(), which causes runtime
-> crash in public_key_verify_signature().
-> =
+Compile and runtime tested on MIPS32R2 CPS board with no issues
+using two different toolkits:
+ - Binutils 2.35.1, GCC 10.2.0;
+ - LLVM stack 11.0.0.
 
->   keyctl_pkey_verify
->     asymmetric_key_verify_signature
->       verify_signature
->         public_key_verify_signature
-> =
+Since v2 [1]:
+ - stop discarding .eh_frame and just prevent it from generating
+   (Kees);
+ - drop redundant sections assertions (Fangrui);
+ - place GOT table in .text instead of asserting as it's not empty
+   when building with LLVM (Nathan);
+ - catch compound literals in generic definitions when building with
+   LD_DEAD_CODE_DATA_ELIMINATION (Kees);
+ - collect two Reviewed-bys (Kees).
 
-> This patch simply check this situation and fixes the crash
-> caused by NULL pointer.
-> =
+Since v1 [0]:
+ - catch .got entries too as LLD may produce it (Nathan);
+ - check for unwanted sections to be zero-sized instead of
+   discarding (Fangrui).
 
-> Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate veri=
-fication")
-> Cc: stable@vger.kernel.org # v5.10+
-> Reported-by: Tobias Markus <tobias@markus-regensburg.de>
-> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+[0] https://lore.kernel.org/linux-mips/20210104121729.46981-1-alobakin@pm.m=
+e
+[1] https://lore.kernel.org/linux-mips/20210106200713.31840-1-alobakin@pm.m=
+e
 
-Looks reasonable:
+Alexander Lobakin (7):
+  MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
+  MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
+  MIPS: properly stop .eh_frame generation
+  MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
+  MIPS: vmlinux.lds.S: explicitly declare .got table
+  vmlinux.lds.h: catch compound literals into data and BSS
+  MIPS: select ARCH_WANT_LD_ORPHAN_WARN
 
-Acked-by: David Howells <dhowells@redhat.com>
+ arch/mips/Kconfig                 |  1 +
+ arch/mips/include/asm/asm.h       | 18 ++++++++++++++++++
+ arch/mips/kernel/vmlinux.lds.S    | 15 ++++++++++++++-
+ include/asm-generic/vmlinux.lds.h |  6 +++---
+ 4 files changed, 36 insertions(+), 4 deletions(-)
 
-I wonder, though, if cert_sig_digest_update() should be obtained by some s=
-ort
-of function pointer.  It doesn't really seem to belong in this file.  But =
-this
-is a separate issue.
+--=20
+2.30.0
 
-David
 
