@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8789C2ED289
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4C42ED27C
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729711AbhAGOeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47994 "EHLO mail.kernel.org"
+        id S1729605AbhAGOdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:33:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729694AbhAGOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:33:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 881762054F;
-        Thu,  7 Jan 2021 14:33:14 +0000 (UTC)
+        id S1729600AbhAGOdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:33:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C188B22EBF;
+        Thu,  7 Jan 2021 14:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029995;
-        bh=VdFGYdGHXccxjEfKMloHEAKw+mi60xUy/1XNS57HknM=;
+        s=korg; t=1610029997;
+        bh=wtAM82iXgMoyxDh/Ji0NKnDig34WfzmB6eoRobblbSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYvBMBA1nr0wkV2k1/5s/+46k5yYQv723Mb4B9vWOmdRGJ5GaOMYZSowoPi5b/Wup
-         MW+BUrKykYgDT3qRTsoOCXk+eQTdIbu68nVwWKf0H30af6s2RubuppMwYC9lyxN0Ny
-         NemBYsenvPrB80FsWCMZXxos/sUPgHJzTWuMALIU=
+        b=aT1c2j+I+1tjh/RQ3Tc9gLzmMG4cMi1zNjhLcoRlgN2nQcCDhOCaZul0R4I+SKmoP
+         wfuDQcnqg4f8KMUpTOps9ViUesx7ulEiOd6jOhY4zrkojckbD62+/zawCzm+G6txna
+         7Air+P/3/g0qUEEAhwf6/zEVVN5YFrkYq50B06QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+db9cdf3dd1f64252c6ef@syzkaller.appspotmail.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/20] perf: Break deadlock involving exec_update_mutex
-Date:   Thu,  7 Jan 2021 15:34:11 +0100
-Message-Id: <20210107143054.675898906@linuxfoundation.org>
+Subject: [PATCH 5.10 17/20] rwsem: Implement down_read_killable_nested
+Date:   Thu,  7 Jan 2021 15:34:12 +0100
+Message-Id: <20210107143054.781425623@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.392839477@linuxfoundation.org>
 References: <20210107143052.392839477@linuxfoundation.org>
@@ -41,113 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: peterz@infradead.org <peterz@infradead.org>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 78af4dc949daaa37b3fcd5f348f373085b4e858f ]
+[ Upstream commit 0f9368b5bf6db0c04afc5454b1be79022a681615 ]
 
-Syzbot reported a lock inversion involving perf. The sore point being
-perf holding exec_update_mutex() for a very long time, specifically
-across a whole bunch of filesystem ops in pmu::event_init() (uprobes)
-and anon_inode_getfile().
+In preparation for converting exec_update_mutex to a rwsem so that
+multiple readers can execute in parallel and not deadlock, add
+down_read_killable_nested.  This is needed so that kcmp_lock
+can be converted from working on a mutexes to working on rw_semaphores.
 
-This then inverts against procfs code trying to take
-exec_update_mutex.
-
-Move the permission checks later, such that we need to hold the mutex
-over less code.
-
-Reported-by: syzbot+db9cdf3dd1f64252c6ef@syzkaller.appspotmail.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/87o8jabqh3.fsf@x220.int.ebiederm.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 46 ++++++++++++++++++++++----------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ include/linux/rwsem.h  |  2 ++
+ kernel/locking/rwsem.c | 14 ++++++++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index dc568ca295bdc..7e9a398fc3cb0 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -11720,24 +11720,6 @@ SYSCALL_DEFINE5(perf_event_open,
- 		goto err_task;
- 	}
+diff --git a/include/linux/rwsem.h b/include/linux/rwsem.h
+index 25e3fde856178..13021b08b2ed6 100644
+--- a/include/linux/rwsem.h
++++ b/include/linux/rwsem.h
+@@ -171,6 +171,7 @@ extern void downgrade_write(struct rw_semaphore *sem);
+  * See Documentation/locking/lockdep-design.rst for more details.)
+  */
+ extern void down_read_nested(struct rw_semaphore *sem, int subclass);
++extern int __must_check down_read_killable_nested(struct rw_semaphore *sem, int subclass);
+ extern void down_write_nested(struct rw_semaphore *sem, int subclass);
+ extern int down_write_killable_nested(struct rw_semaphore *sem, int subclass);
+ extern void _down_write_nest_lock(struct rw_semaphore *sem, struct lockdep_map *nest_lock);
+@@ -191,6 +192,7 @@ extern void down_read_non_owner(struct rw_semaphore *sem);
+ extern void up_read_non_owner(struct rw_semaphore *sem);
+ #else
+ # define down_read_nested(sem, subclass)		down_read(sem)
++# define down_read_killable_nested(sem, subclass)	down_read_killable(sem)
+ # define down_write_nest_lock(sem, nest_lock)	down_write(sem)
+ # define down_write_nested(sem, subclass)	down_write(sem)
+ # define down_write_killable_nested(sem, subclass)	down_write_killable(sem)
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index f11b9bd3431d2..54d11cb975510 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -1605,6 +1605,20 @@ void down_read_nested(struct rw_semaphore *sem, int subclass)
+ }
+ EXPORT_SYMBOL(down_read_nested);
  
--	if (task) {
--		err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
--		if (err)
--			goto err_task;
--
--		/*
--		 * Preserve ptrace permission check for backwards compatibility.
--		 *
--		 * We must hold exec_update_mutex across this and any potential
--		 * perf_install_in_context() call for this new event to
--		 * serialize against exec() altering our credentials (and the
--		 * perf_event_exit_task() that could imply).
--		 */
--		err = -EACCES;
--		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
--			goto err_cred;
--	}
--
- 	if (flags & PERF_FLAG_PID_CGROUP)
- 		cgroup_fd = pid;
- 
-@@ -11745,7 +11727,7 @@ SYSCALL_DEFINE5(perf_event_open,
- 				 NULL, NULL, cgroup_fd);
- 	if (IS_ERR(event)) {
- 		err = PTR_ERR(event);
--		goto err_cred;
-+		goto err_task;
- 	}
- 
- 	if (is_sampling_event(event)) {
-@@ -11864,6 +11846,24 @@ SYSCALL_DEFINE5(perf_event_open,
- 		goto err_context;
- 	}
- 
-+	if (task) {
-+		err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
-+		if (err)
-+			goto err_file;
++int down_read_killable_nested(struct rw_semaphore *sem, int subclass)
++{
++	might_sleep();
++	rwsem_acquire_read(&sem->dep_map, subclass, 0, _RET_IP_);
 +
-+		/*
-+		 * Preserve ptrace permission check for backwards compatibility.
-+		 *
-+		 * We must hold exec_update_mutex across this and any potential
-+		 * perf_install_in_context() call for this new event to
-+		 * serialize against exec() altering our credentials (and the
-+		 * perf_event_exit_task() that could imply).
-+		 */
-+		err = -EACCES;
-+		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
-+			goto err_cred;
++	if (LOCK_CONTENDED_RETURN(sem, __down_read_trylock, __down_read_killable)) {
++		rwsem_release(&sem->dep_map, _RET_IP_);
++		return -EINTR;
 +	}
 +
- 	if (move_group) {
- 		gctx = __perf_event_ctx_lock_double(group_leader, ctx);
- 
-@@ -12039,7 +12039,10 @@ err_locked:
- 	if (move_group)
- 		perf_event_ctx_unlock(group_leader, gctx);
- 	mutex_unlock(&ctx->mutex);
--/* err_file: */
-+err_cred:
-+	if (task)
-+		mutex_unlock(&task->signal->exec_update_mutex);
-+err_file:
- 	fput(event_file);
- err_context:
- 	perf_unpin_context(ctx);
-@@ -12051,9 +12054,6 @@ err_alloc:
- 	 */
- 	if (!event_file)
- 		free_event(event);
--err_cred:
--	if (task)
--		mutex_unlock(&task->signal->exec_update_mutex);
- err_task:
- 	if (task)
- 		put_task_struct(task);
++	return 0;
++}
++EXPORT_SYMBOL(down_read_killable_nested);
++
+ void _down_write_nest_lock(struct rw_semaphore *sem, struct lockdep_map *nest)
+ {
+ 	might_sleep();
 -- 
 2.27.0
 
