@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7772ED1B7
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C2C2ED1EF
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:22:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbhAGOQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:16:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39050 "EHLO mail.kernel.org"
+        id S1727885AbhAGOT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:19:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728817AbhAGOQy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:16:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47E9E23358;
-        Thu,  7 Jan 2021 14:15:50 +0000 (UTC)
+        id S1728036AbhAGORR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:17:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3B3F233E2;
+        Thu,  7 Jan 2021 14:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028950;
-        bh=CmBtylNqzT62dUOb5GXnCh+v4oVfy5Rsr1/aDUhSRLw=;
+        s=korg; t=1610029008;
+        bh=M8r8CHOnyqls9B7FWyeet+G/8JiA4BwX4eNqgpkXWvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8zUTJ/U1uSeGE35seBSHu9Xn65EP+CQIvhzK+0t1hqy2skeyjHRCmGzobsvg5DOe
-         haxEgooxPzyFje31Ao3dqf4KjT2UcwcbIbkhMVmDZxRwt1W5vekUlnU0D4kkmigO/k
-         aYOEL65JwJoAeg2ElArAZGYF45umjLhDM573Kyf0=
+        b=SM1iEgTi2LbYt1Mr9OTjhfqilZSCTA8i2LKq7/HoldgDkkRLIH8/QCTCELvMjr3p2
+         lZy1kHS5c1w0lP9GYIs3jrZ0dyhfz7GychYyKt/qcCc+m0D8Wh34jzqQvJKPVQxVWK
+         K66oYntPSgzjpDk1HP3y35ud4bBJARYwFwBNuTLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.4 19/19] iio:magnetometer:mag3110: Fix alignment and data leak issues.
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>,
+        Michael Kurth <mku@amazon.de>,
+        Pawel Wieczorkiewicz <wipawel@amazon.de>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.9 24/32] xen/xenbus: Allow watches discard events before queueing
 Date:   Thu,  7 Jan 2021 15:16:44 +0100
-Message-Id: <20210107140828.467869494@linuxfoundation.org>
+Message-Id: <20210107140829.007519269@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
-References: <20210107140827.584658199@linuxfoundation.org>
+In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
+References: <20210107140827.866214702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: SeongJae Park <sjpark@amazon.de>
 
-commit 89deb1334252ea4a8491d47654811e28b0790364 upstream
+commit fed1755b118147721f2c87b37b9d66e62c39b668 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc() so no data can leak apart from
-previous readings.
+If handling logics of watch events are slower than the events enqueue
+logic and the events can be created from the guests, the guests could
+trigger memory pressure by intensively inducing the events, because it
+will create a huge number of pending events that exhausting the memory.
 
-The explicit alignment of ts is not necessary in this case but
-does make the code slightly less fragile so I have included it.
+Fortunately, some watch events could be ignored, depending on its
+handler callback.  For example, if the callback has interest in only one
+single path, the watch wouldn't want multiple pending events.  Or, some
+watches could ignore events to same path.
 
-Fixes: 39631b5f9584 ("iio: Add Freescale mag3110 magnetometer driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-4-jic23@kernel.org
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To let such watches to volutarily help avoiding the memory pressure
+situation, this commit introduces new watch callback, 'will_handle'.  If
+it is not NULL, it will be called for each new event just before
+enqueuing it.  Then, if the callback returns false, the event will be
+discarded.  No watch is using the callback for now, though.
+
+This is part of XSA-349
+
+Cc: stable@vger.kernel.org
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reported-by: Michael Kurth <mku@amazon.de>
+Reported-by: Pawel Wieczorkiewicz <wipawel@amazon.de>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/iio/magnetometer/mag3110.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/magnetometer/mag3110.c
-+++ b/drivers/iio/magnetometer/mag3110.c
-@@ -52,6 +52,12 @@ struct mag3110_data {
- 	struct i2c_client *client;
- 	struct mutex lock;
- 	u8 ctrl_reg1;
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__be16 channels[3];
-+		u8 temperature;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- static int mag3110_request(struct mag3110_data *data)
-@@ -245,10 +251,9 @@ static irqreturn_t mag3110_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mag3110_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 3 16-bit channels + 1 byte temp + padding + ts */
- 	int ret;
- 
--	ret = mag3110_read(data, (__be16 *) buffer);
-+	ret = mag3110_read(data, data->scan.channels);
- 	if (ret < 0)
- 		goto done;
- 
-@@ -257,10 +262,10 @@ static irqreturn_t mag3110_trigger_handl
- 			MAG3110_DIE_TEMP);
- 		if (ret < 0)
- 			goto done;
--		buffer[6] = ret;
-+		data->scan.temperature = ret;
+
+---
+ drivers/net/xen-netback/xenbus.c   |    2 ++
+ drivers/xen/xenbus/xenbus_client.c |    1 +
+ drivers/xen/xenbus/xenbus_xs.c     |    7 ++++++-
+ include/xen/xenbus.h               |    7 +++++++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
+
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -770,12 +770,14 @@ static int xen_register_credit_watch(str
+ 		return -ENOMEM;
+ 	snprintf(node, maxlen, "%s/rate", dev->nodename);
+ 	vif->credit_watch.node = node;
++	vif->credit_watch.will_handle = NULL;
+ 	vif->credit_watch.callback = xen_net_rate_changed;
+ 	err = register_xenbus_watch(&vif->credit_watch);
+ 	if (err) {
+ 		pr_err("Failed to set watcher %s\n", vif->credit_watch.node);
+ 		kfree(node);
+ 		vif->credit_watch.node = NULL;
++		vif->credit_watch.will_handle = NULL;
+ 		vif->credit_watch.callback = NULL;
  	}
+ 	return err;
+--- a/drivers/xen/xenbus/xenbus_client.c
++++ b/drivers/xen/xenbus/xenbus_client.c
+@@ -120,6 +120,7 @@ int xenbus_watch_path(struct xenbus_devi
+ 	int err;
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns());
+ 	watch->node = path;
++	watch->will_handle = NULL;
+ 	watch->callback = callback;
  
- done:
+ 	err = register_xenbus_watch(watch);
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -901,7 +901,12 @@ static int process_msg(void)
+ 		spin_lock(&watches_lock);
+ 		msg->u.watch.handle = find_watch(
+ 			msg->u.watch.vec[XS_WATCH_TOKEN]);
+-		if (msg->u.watch.handle != NULL) {
++		if (msg->u.watch.handle != NULL &&
++				(!msg->u.watch.handle->will_handle ||
++				 msg->u.watch.handle->will_handle(
++					 msg->u.watch.handle,
++					 (const char **)msg->u.watch.vec,
++					 msg->u.watch.vec_size))) {
+ 			spin_lock(&watch_events_lock);
+ 			list_add_tail(&msg->list, &watch_events);
+ 			wake_up(&watch_events_waitq);
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -58,6 +58,13 @@ struct xenbus_watch
+ 	/* Path being watched. */
+ 	const char *node;
+ 
++	/*
++	 * Called just before enqueing new event while a spinlock is held.
++	 * The event will be discarded if this callback returns false.
++	 */
++	bool (*will_handle)(struct xenbus_watch *,
++			    const char **vec, unsigned int len);
++
+ 	/* Callback (executed in a process context with no locks held). */
+ 	void (*callback)(struct xenbus_watch *,
+ 			 const char **vec, unsigned int len);
 
 
