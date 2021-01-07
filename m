@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CF32ED2E6
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1D72ED2B3
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727736AbhAGOkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:40:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
+        id S1728312AbhAGOgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:36:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729086AbhAGOby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:31:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8133233CE;
-        Thu,  7 Jan 2021 14:31:18 +0000 (UTC)
+        id S1729287AbhAGOcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:32:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D2F1233E2;
+        Thu,  7 Jan 2021 14:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029879;
-        bh=7Tt5NhYT2QB2Fby398qNEU9l5KBPFcDzoFuadTPvOVs=;
+        s=korg; t=1610029881;
+        bh=bmG8cDKhmZ3Yu1LN9m5aZPQoMKQO1lvaFBzrdJo7uPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zek+EV8GZaBYrxJBVnOFjs0hyCd8MVRlQ35yBsELPq8xIepAD4a4N7lB8PGbmiTZD
-         no3QAIB0liGeMmlYKdmn4EAMB9UPsAnPrAXHfJWVer8iNghir2MLF6JVGeAxHnCgf0
-         6GWI60UEwjKEdnx8kfjqeoCAi2IxtZTbiZZPZeow=
+        b=tUStcHLvizQdQRmZBW7jEXG1zVZj7xop7qWfPgJuW9BbzB1rqfyeMZjs/o3nd6MwE
+         i8u2P9CU72MyBJY9m7yitrlDsEG6Oxfx154Peffdc4/UeP6G1No/uPOn0lC0TBAQq/
+         b91T9Ogl+JoShTuPvgQlLAoTwX6Rl7/H8oaVMnMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Alberto Aguirre <albaguirre@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 03/29] ALSA: hda/ca0132 - Fix work handling in delayed HP detection
-Date:   Thu,  7 Jan 2021 15:31:18 +0100
-Message-Id: <20210107143053.414602517@linuxfoundation.org>
+Subject: [PATCH 4.14 04/29] ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk
+Date:   Thu,  7 Jan 2021 15:31:19 +0100
+Message-Id: <20210107143053.539114711@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
 References: <20210107143052.973437064@linuxfoundation.org>
@@ -39,66 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alberto Aguirre <albaguirre@gmail.com>
 
-commit 42fb6b1d41eb5905d77c06cad2e87b70289bdb76 upstream
+commit 103e9625647ad74d201e26fb74afcd8479142a37 upstream
 
-CA0132 has the delayed HP jack detection code that is invoked from the
-unsol handler, but it does a few weird things: it contains the cancel
-of a work inside the work handler, and yet it misses the cancel-sync
-call at (runtime-)suspend.  This patch addresses those issues.
-
-Fixes: 15c2b3cc09a3 ("ALSA: hda/ca0132 - Fix possible workqueue stall")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191213085111.22855-4-tiwai@suse.de
+Signed-off-by: Alberto Aguirre <albaguirre@gmail.com>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[sudip: adjust context]
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_ca0132.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ sound/usb/pcm.c |   52 ++++++++++++++++++++--------------------------------
+ 1 file changed, 20 insertions(+), 32 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -4443,11 +4443,10 @@ static void hp_callback(struct hda_codec
- 	/* Delay enabling the HP amp, to let the mic-detection
- 	 * state machine run.
- 	 */
--	cancel_delayed_work(&spec->unsol_hp_work);
--	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
- 	tbl = snd_hda_jack_tbl_get(codec, cb->nid);
- 	if (tbl)
- 		tbl->block_report = 1;
-+	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
- }
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -324,6 +324,7 @@ static int set_sync_ep_implicit_fb_quirk
+ 	struct usb_host_interface *alts;
+ 	struct usb_interface *iface;
+ 	unsigned int ep;
++	unsigned int ifnum;
  
- static void amic_callback(struct hda_codec *codec, struct hda_jack_callback *cb)
-@@ -4625,12 +4624,25 @@ static void ca0132_free(struct hda_codec
- 	kfree(codec->spec);
- }
- 
-+#ifdef CONFIG_PM
-+static int ca0132_suspend(struct hda_codec *codec)
-+{
-+	struct ca0132_spec *spec = codec->spec;
+ 	/* Implicit feedback sync EPs consumers are always playback EPs */
+ 	if (subs->direction != SNDRV_PCM_STREAM_PLAYBACK)
+@@ -334,44 +335,23 @@ static int set_sync_ep_implicit_fb_quirk
+ 	case USB_ID(0x0763, 0x2031): /* M-Audio Fast Track C600 */
+ 	case USB_ID(0x22f0, 0x0006): /* Allen&Heath Qu-16 */
+ 		ep = 0x81;
+-		iface = usb_ifnum_to_if(dev, 3);
+-
+-		if (!iface || iface->num_altsetting == 0)
+-			return -EINVAL;
+-
+-		alts = &iface->altsetting[1];
+-		goto add_sync_ep;
+-		break;
++		ifnum = 3;
++		goto add_sync_ep_from_ifnum;
+ 	case USB_ID(0x0763, 0x2080): /* M-Audio FastTrack Ultra */
+ 	case USB_ID(0x0763, 0x2081):
+ 		ep = 0x81;
+-		iface = usb_ifnum_to_if(dev, 2);
+-
+-		if (!iface || iface->num_altsetting == 0)
+-			return -EINVAL;
+-
+-		alts = &iface->altsetting[1];
+-		goto add_sync_ep;
+-	case USB_ID(0x2466, 0x8003):
++		ifnum = 2;
++		goto add_sync_ep_from_ifnum;
++	case USB_ID(0x2466, 0x8003): /* Fractal Audio Axe-Fx II */
+ 		ep = 0x86;
+-		iface = usb_ifnum_to_if(dev, 2);
+-
+-		if (!iface || iface->num_altsetting == 0)
+-			return -EINVAL;
+-
+-		alts = &iface->altsetting[1];
+-		goto add_sync_ep;
+-	case USB_ID(0x1397, 0x0002):
++		ifnum = 2;
++		goto add_sync_ep_from_ifnum;
++	case USB_ID(0x1397, 0x0002): /* Behringer UFX1204 */
+ 		ep = 0x81;
+-		iface = usb_ifnum_to_if(dev, 1);
+-
+-		if (!iface || iface->num_altsetting == 0)
+-			return -EINVAL;
+-
+-		alts = &iface->altsetting[1];
+-		goto add_sync_ep;
+-
++		ifnum = 1;
++		goto add_sync_ep_from_ifnum;
+ 	}
 +
-+	cancel_delayed_work_sync(&spec->unsol_hp_work);
-+	return 0;
-+}
-+#endif
-+
- static const struct hda_codec_ops ca0132_patch_ops = {
- 	.build_controls = ca0132_build_controls,
- 	.build_pcms = ca0132_build_pcms,
- 	.init = ca0132_init,
- 	.free = ca0132_free,
- 	.unsol_event = snd_hda_jack_unsol_event,
-+#ifdef CONFIG_PM
-+	.suspend = ca0132_suspend,
-+#endif
- };
+ 	if (attr == USB_ENDPOINT_SYNC_ASYNC &&
+ 	    altsd->bInterfaceClass == USB_CLASS_VENDOR_SPEC &&
+ 	    altsd->bInterfaceProtocol == 2 &&
+@@ -386,6 +366,14 @@ static int set_sync_ep_implicit_fb_quirk
+ 	/* No quirk */
+ 	return 0;
  
- static void ca0132_config(struct hda_codec *codec)
++add_sync_ep_from_ifnum:
++	iface = usb_ifnum_to_if(dev, ifnum);
++
++	if (!iface || iface->num_altsetting == 0)
++		return -EINVAL;
++
++	alts = &iface->altsetting[1];
++
+ add_sync_ep:
+ 	subs->sync_endpoint = snd_usb_add_endpoint(subs->stream->chip,
+ 						   alts, ep, !subs->direction,
 
 
