@@ -2,272 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2362EE803
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 22:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 029ED2EE818
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 23:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbhAGVyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 16:54:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41382 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726754AbhAGVyL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 16:54:11 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21749C0612F4
-        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 13:53:31 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id n7so6192054pgg.2
-        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 13:53:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DOclq064aKuELCW8wRmtFbGQCh+n+TFoIXyGZM4+chg=;
-        b=ssQXm+B9pteleGQlDRTJ2I8TVoivzoSbmdazAsy0l7gcFZ6WBrNzwmbqjX3+VYo8pR
-         Y4mirMVuiLRfnC95W3QO0uespaAM8idXBCBj01lPlUBOLsP66KX05MOWf7K5l2ZpP2kX
-         0Ut7Zs3ko67m1irtRL15G2dvKsloigLyLVo2tkUNe4IYwR+YIL0zBqxlik2Hu6T78EX3
-         /HE+A/nflF043PuLu2r1Cbp75nysFA/VZwJYLHp5E9oJkE4epKBl39OD5aSDoNOtfqfs
-         ZYF/1hX0V+UaGKFpnfxjkmLH5ocujBf/s8iUXQ9GmhFpDEuNT7q2N1ggFjarlxUZs/ju
-         eCMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DOclq064aKuELCW8wRmtFbGQCh+n+TFoIXyGZM4+chg=;
-        b=ohQ3xBNprHsYbU7WSf3YccgN78F15tVBDpOgfWqjLqmwMzBxFYRnvaa5f6Zp2NuGWr
-         hyxXb0W8/T1YMUvaRrb2WyVT5Y9BG8DJVBqoohaDTbRn4ZlmwfPUtPnl+DcGGo6CdGET
-         +FGUqTGcQcSvPdpU23rvliugHjaLq3Y0vKIoCL8mR6Fa4/PWu+o01Sty+CjsZLrIySa1
-         KXAEX3zCVP7S44M5V/R7s5ixuNQq6XXCEBwGKTB0GENikzYtqg8gKGrXwjas6BmUikWJ
-         Dn4/wRXypgynk9+Bvp60vSvXw8iXTzMOSzDvINugBarN4wWGwlK0LnJ1kxOC2kdgjr3d
-         Ch1A==
-X-Gm-Message-State: AOAM532F+R1a9ID922Ygl6CrUlibonMr8hqU/gnSDLarNKWv7W22Z8Zj
-        XenjxSEuFnaSGFTtIOXtZFCBJ6kY1JoAdw==
-X-Google-Smtp-Source: ABdhPJwsyshb8oS6Aes5Wbh0/YSY2S9nYrLA4/GtNHyeu/CTRXcKX3oGTQ7jKzio+9evkoA3ji1u6Q==
-X-Received: by 2002:a62:7ac4:0:b029:19d:b6ee:c64c with SMTP id v187-20020a627ac40000b029019db6eec64cmr613060pfc.3.1610056410249;
-        Thu, 07 Jan 2021 13:53:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x14sm960364pfp.77.2021.01.07.13.53.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jan 2021 13:53:29 -0800 (PST)
-Message-ID: <5ff782d9.1c69fb81.d272c.28c3@mx.google.com>
-Date:   Thu, 07 Jan 2021 13:53:29 -0800 (PST)
+        id S1727451AbhAGWFe convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 7 Jan 2021 17:05:34 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:50030 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725944AbhAGWFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 17:05:34 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 23532673-1500050 
+        for multiple; Thu, 07 Jan 2021 22:04:48 +0000
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.87-14-gf52a40401ee9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 175 runs,
- 5 regressions (v5.4.87-14-gf52a40401ee9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20210107195037.GA7228@intel.com>
+References: <20201016175411.30406-1-chris@chris-wilson.co.uk> <20210107195037.GA7228@intel.com>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Limit VFE threads based on GT
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Date:   Thu, 07 Jan 2021 22:04:46 +0000
+Message-ID: <161005708697.28368.4209742988334494636@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 175 runs, 5 regressions (v5.4.87-14-gf52a40=
-401ee9)
+Quoting Rodrigo Vivi (2021-01-07 19:50:37)
+> On Fri, Oct 16, 2020 at 06:54:11PM +0100, Chris Wilson wrote:
+> > MEDIA_STATE_VFE only accepts the 'maximum number of threads' in the
+> > range [0, n-1] where n is #EU * (#threads/EU) with the number of threads
+> > based on plaform and the number of EU based on the number of slices and
+> > subslices. This is a fixed number per platform/gt, so appropriately
+> > limit the number of threads we spawn to match the device.
+> > 
+> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2024
+> 
+> we need to get this closed...
 
-Regressions Summary
--------------------
+Unfortunately this failed the validation test. And as that test is still
+not in CI, I cannot say why. My vote would be to remove the
+clear_residuals until it works on all target platforms. Plus we clearly
+need a hsw-gt1 in CI.
+ 
+> >       bv->scratch_size = bv->surface_height * bv->surface_width;
+> > @@ -244,7 +258,6 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
+> >                   u32 urb_size, u32 curbe_size,
+> >                   u32 mode)
+> >  {
+> > -     u32 urb_entries = bv->max_urb_entries;
+> >       u32 threads = bv->max_primitives - 1;
+> >       u32 *cs = batch_alloc_items(batch, 32, 8);
+> >  
+> > @@ -254,7 +267,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
+> >       *cs++ = 0;
+> >  
+> >       /* number of threads & urb entries for GPGPU vs Media Mode */
+> > -     *cs++ = threads << 16 | urb_entries << 8 | mode << 2;
+> > +     *cs++ = threads << 16 | 1 << 8 | mode << 2;
+> 
+> why urb_entries = 1 ?
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+We only used a single entry. There was no measurable benefit from
+assigning more entries, and the importance of any side effects from doing
+so unknown.
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+> the range is 0,64 and 0,128 depending on the sku.
+> 
+> in general there's a min of 32 URBs
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.87-14-gf52a40401ee9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.87-14-gf52a40401ee9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f52a40401ee9825556cc803c110c67bfec5f6b94 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-hifive-unleashed-a00 | riscv | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff74df8fdec718486c94ccc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleash=
-ed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleash=
-ed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff74df8fdec718486c94=
-ccd
-        failing since 48 days (last pass: v5.4.77-152-ga3746663c3479, first=
- fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff74d7c4c61ebdf8ac94cd9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff74d7c4c61ebdf8ac94=
-cda
-        failing since 54 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff74d80f79a1d8c93c94ce4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff74d80f79a1d8c93c94=
-ce5
-        failing since 54 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff74d83234df551cdc94ced
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff74d83234df551cdc94=
-cee
-        failing since 54 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff74d38fe57783475c94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.87-=
-14-gf52a40401ee9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff74d38fe57783475c94=
-cc4
-        failing since 54 days (last pass: v5.4.77-44-g28fe0e171c204, first =
-fail: v5.4.77-46-ga3e34830d912) =
-
- =20
+Don't forget num_entries * entry_size must fit within the URB
+allocation/allotment.
+-Chris
