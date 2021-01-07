@@ -2,115 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D53D2ED1AF
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB75F2ED1D9
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbhAGORv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:17:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729238AbhAGORn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:17:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2E223371;
-        Thu,  7 Jan 2021 14:17:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029041;
-        bh=Z8u03H/lO7PXoq3GbVsBabhrrdJ39M3QWKoqX0iReT0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuyrWM+i1exVoQM35FyrKI5lbbysWt5gsKKMV6/C9S90Fd55pKuHsD2hdhHkypwCH
-         Ai++8EIPajY/Kb3V7I/VERmJuEZOCGN8qMT5/Lms5yoW8sQEhl+tvYIF2BVU+n8EqQ
-         gNsHD34p+9jY7835xa0zx93ggB3uA3yErWpcrn3Y=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 32/32] iio:magnetometer:mag3110: Fix alignment and data leak issues.
-Date:   Thu,  7 Jan 2021 15:16:52 +0100
-Message-Id: <20210107140829.394192914@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
-References: <20210107140827.866214702@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727871AbhAGOS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:18:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729341AbhAGOSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 09:18:25 -0500
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7CD3C0612F4
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 06:17:44 -0800 (PST)
+Received: by mail-lf1-x143.google.com with SMTP id h205so14903342lfd.5
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 06:17:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=1BE9dnFeMlO87yw0Pb6LWjNYqQ7ZqkZnHENkJwfeBeE=;
+        b=T55H6Az7Gaj+lWJBR5nd4qPtLvKfuPiznQV1rKc/Ke3nXc5aflSbJhW9ySl6Ufas3O
+         4jKeg/5uqSGbhKwHC8IkuNhBPpgFlKztHOeWMBfWIYmmcsRmXU+dZJPjeH54dRS9LIB7
+         OCUZo4AjPeGF1vvlRvyS/2z2/CEIHH0rRRntWzCMw9hOjVUaYMcUR4hOVhvhs19A9hPB
+         QSaJKyJx8I4F2UWLhf7InZ/JKdxmQFC4NOZ/FZfeFPDdrh+lxkylI+0Xn16kjVvU8xy0
+         7ILYyj/54xsuMlSqu2tgdMPyuhc8Dy+BBPpl6kdLUgqfImou0AZymxcLVCx639nmBeCm
+         tCiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=1BE9dnFeMlO87yw0Pb6LWjNYqQ7ZqkZnHENkJwfeBeE=;
+        b=jPuJXWKoK20/SkYxE7ToSkHTDD3KNR8WjKzXmFQuuUIFRw219yIqj9GnACxHWGqSX1
+         ZeOYmDSOOgX7fIgf2/qA+u3crTX0b55btEkTPn4aurnZtmmDhZFcOXNT0Vw/eQA9NPVF
+         RkiO+WDyhqQYocvHNJnXnwBFCPvq9B5/xEC7hgvc9Nd2BOfnAJ9RmCRfanVEEusE1nPf
+         na/Q1N0DbHD7qd6Z7VStecJ2/S4y0b82Tni2hsxAIZfkKs+xaKDjZTC2GyoWlo05OUdl
+         mff6bHkjZNlxeml1crmMXE9EHhXchNS5+aO88fSzrJ/9ONu35HLA75ftGle0S2AfBQFi
+         Rf9A==
+X-Gm-Message-State: AOAM532j9HmBpvClJ2b1aPeTKSpYg7+If3x6i6Pi3cipgl/xpycj+lln
+        Xb6y08S1GwBn4Gx8iW4z5dT+uVNp2mkiGg81yQ==
+X-Google-Smtp-Source: ABdhPJwvCMapH1RB6vYsWntHS7wXQNzfc6+JZK0HX/dKHojJhAtswcasIoRO6PS+n1OHusELnssRAWXYOw/wGXwp4RQ=
+X-Received: by 2002:a05:6512:31d6:: with SMTP id j22mr3915751lfe.239.1610029062988;
+ Thu, 07 Jan 2021 06:17:42 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:ac2:55ae:0:0:0:0:0 with HTTP; Thu, 7 Jan 2021 06:17:42 -0800 (PST)
+Reply-To: mrkasimmohamed15@gmail.com
+From:   "Dr.Kasim Mohamed" <ellaemiantor2@gmail.com>
+Date:   Thu, 7 Jan 2021 06:17:42 -0800
+Message-ID: <CAHRdPM5veMj-=G-3ZP8Ls-0qyRv12J8JwUr5gvEoJuVA8LL5Vg@mail.gmail.com>
+Subject: Please Urgent Response
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+-- 
+I am Mr Kasim Mohamed
 
-commit 89deb1334252ea4a8491d47654811e28b0790364 upstream
-
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp() assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
-This data is allocated with kzalloc() so no data can leak apart from
-previous readings.
-
-The explicit alignment of ts is not necessary in this case but
-does make the code slightly less fragile so I have included it.
-
-Fixes: 39631b5f9584 ("iio: Add Freescale mag3110 magnetometer driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200920112742.170751-4-jic23@kernel.org
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/iio/magnetometer/mag3110.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
---- a/drivers/iio/magnetometer/mag3110.c
-+++ b/drivers/iio/magnetometer/mag3110.c
-@@ -52,6 +52,12 @@ struct mag3110_data {
- 	struct i2c_client *client;
- 	struct mutex lock;
- 	u8 ctrl_reg1;
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		__be16 channels[3];
-+		u8 temperature;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- static int mag3110_request(struct mag3110_data *data)
-@@ -262,10 +268,9 @@ static irqreturn_t mag3110_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mag3110_data *data = iio_priv(indio_dev);
--	u8 buffer[16]; /* 3 16-bit channels + 1 byte temp + padding + ts */
- 	int ret;
- 
--	ret = mag3110_read(data, (__be16 *) buffer);
-+	ret = mag3110_read(data, data->scan.channels);
- 	if (ret < 0)
- 		goto done;
- 
-@@ -274,10 +279,10 @@ static irqreturn_t mag3110_trigger_handl
- 			MAG3110_DIE_TEMP);
- 		if (ret < 0)
- 			goto done;
--		buffer[6] = ret;
-+		data->scan.temperature = ret;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
- 
- done:
-
-
+Hi Friend I am a bank director of the UBA Bank Plc bf .I want to
+transfer an abandoned sum of 27.5 millions USD  to you through ATM
+VISA CARD .50% will be for you. No risk involved. Contact me for more
+details. Kindly reply me back to my alternative email
+address(mrkasimmohamed15@gmail.com) Mr kasim mohamed
