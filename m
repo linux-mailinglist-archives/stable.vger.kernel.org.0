@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220362ED232
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:32:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6902ED2DB
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbhAGObX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:31:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45348 "EHLO mail.kernel.org"
+        id S1728830AbhAGObg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:31:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728630AbhAGObX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:31:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2092823355;
-        Thu,  7 Jan 2021 14:30:37 +0000 (UTC)
+        id S1728630AbhAGObg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:31:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5326623358;
+        Thu,  7 Jan 2021 14:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029838;
-        bh=/cUAJkHsZFcvwbqWxhVQwEO1V4E8nA+8vHJiQIFaVV0=;
+        s=korg; t=1610029840;
+        bh=SaG+crkRcZiiauzcbyJ1e95h1sh9V8uN+afl6o7MiEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P06p/uGF7TiskFrcwZfN5XYEqtXPyRz91/aA9LDO7hEVHk9LGa0GYYxzfpIItX9Qe
-         4DEsiXUOL8uiPANKokKIYPHn7iM4vShulj5vxXbehiYJ9ObVn52Qiq4Y2bjyKgwJ4L
-         EC/2mP4u3nw7sXA0yEXcPh2tFUpei0Yn5C4zc/+8=
+        b=Suh002imjVwcoGpl/inz3CVCMEoz6mcPjjPcP1YODSCXZjQIFg4twq08jaYIMDjDb
+         cnJxGKmI/W8RUpPBncdcQwlOwK3QBJ3FcWaRL525RcTQJ11FQHdmMNg7P31TowTTKI
+         8jNKH+uh1D8FZIvdWCMqVuyg3rp4iEaON0k+88CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/29] powerpc/bitops: Fix possible undefined behaviour with fls() and fls64()
-Date:   Thu,  7 Jan 2021 15:31:27 +0100
-Message-Id: <20210107143054.693870389@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
+        Rich Felker <dalias@aerifal.cx>, Rich Felker <dalias@libc.org>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Florian Weimer <fweimer@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 13/29] uapi: move constants from <linux/kernel.h> to <linux/const.h>
+Date:   Thu,  7 Jan 2021 15:31:28 +0100
+Message-Id: <20210107143054.812122562@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107143052.973437064@linuxfoundation.org>
 References: <20210107143052.973437064@linuxfoundation.org>
@@ -42,121 +44,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 1891ef21d92c4801ea082ee8ed478e304ddc6749 ]
+commit a85cbe6159ffc973e5702f70a3bd5185f8f3c38d upstream.
 
-fls() and fls64() are using __builtin_ctz() and _builtin_ctzll().
-On powerpc, those builtins trivially use ctlzw and ctlzd power
-instructions.
+and include <linux/const.h> in UAPI headers instead of <linux/kernel.h>.
 
-Allthough those instructions provide the expected result with
-input argument 0, __builtin_ctz() and __builtin_ctzll() are
-documented as undefined for value 0.
+The reason is to avoid indirect <linux/sysinfo.h> include when using
+some network headers: <linux/netlink.h> or others -> <linux/kernel.h>
+-> <linux/sysinfo.h>.
 
-The easiest fix would be to use fls() and fls64() functions
-defined in include/asm-generic/bitops/builtin-fls.h and
-include/asm-generic/bitops/fls64.h, but GCC output is not optimal:
+This indirect include causes on MUSL redefinition of struct sysinfo when
+included both <sys/sysinfo.h> and some of UAPI headers:
 
-00000388 <testfls>:
- 388:   2c 03 00 00     cmpwi   r3,0
- 38c:   41 82 00 10     beq     39c <testfls+0x14>
- 390:   7c 63 00 34     cntlzw  r3,r3
- 394:   20 63 00 20     subfic  r3,r3,32
- 398:   4e 80 00 20     blr
- 39c:   38 60 00 00     li      r3,0
- 3a0:   4e 80 00 20     blr
+    In file included from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/kernel.h:5,
+                     from x86_64-buildroot-linux-musl/sysroot/usr/include/linux/netlink.h:5,
+                     from ../include/tst_netlink.h:14,
+                     from tst_crypto.c:13:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/linux/sysinfo.h:8:8: error: redefinition of `struct sysinfo'
+     struct sysinfo {
+            ^~~~~~~
+    In file included from ../include/tst_safe_macros.h:15,
+                     from ../include/tst_test.h:93,
+                     from tst_crypto.c:11:
+    x86_64-buildroot-linux-musl/sysroot/usr/include/sys/sysinfo.h:10:8: note: originally defined here
 
-000003b0 <testfls64>:
- 3b0:   2c 03 00 00     cmpwi   r3,0
- 3b4:   40 82 00 1c     bne     3d0 <testfls64+0x20>
- 3b8:   2f 84 00 00     cmpwi   cr7,r4,0
- 3bc:   38 60 00 00     li      r3,0
- 3c0:   4d 9e 00 20     beqlr   cr7
- 3c4:   7c 83 00 34     cntlzw  r3,r4
- 3c8:   20 63 00 20     subfic  r3,r3,32
- 3cc:   4e 80 00 20     blr
- 3d0:   7c 63 00 34     cntlzw  r3,r3
- 3d4:   20 63 00 40     subfic  r3,r3,64
- 3d8:   4e 80 00 20     blr
+Link: https://lkml.kernel.org/r/20201015190013.8901-1-petr.vorel@gmail.com
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Suggested-by: Rich Felker <dalias@aerifal.cx>
+Acked-by: Rich Felker <dalias@libc.org>
+Cc: Peter Korsgaard <peter@korsgaard.com>
+Cc: Baruch Siach <baruch@tkos.co.il>
+Cc: Florian Weimer <fweimer@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-When the input of fls(x) is a constant, just check x for nullity and
-return either 0 or __builtin_clz(x). Otherwise, use cntlzw instruction
-directly.
-
-For fls64() on PPC64, do the same but with __builtin_clzll() and
-cntlzd instruction. On PPC32, lets take the generic fls64() which
-will use our fls(). The result is as expected:
-
-00000388 <testfls>:
- 388:   7c 63 00 34     cntlzw  r3,r3
- 38c:   20 63 00 20     subfic  r3,r3,32
- 390:   4e 80 00 20     blr
-
-000003a0 <testfls64>:
- 3a0:   2c 03 00 00     cmpwi   r3,0
- 3a4:   40 82 00 10     bne     3b4 <testfls64+0x14>
- 3a8:   7c 83 00 34     cntlzw  r3,r4
- 3ac:   20 63 00 20     subfic  r3,r3,32
- 3b0:   4e 80 00 20     blr
- 3b4:   7c 63 00 34     cntlzw  r3,r3
- 3b8:   20 63 00 40     subfic  r3,r3,64
- 3bc:   4e 80 00 20     blr
-
-Fixes: 2fcff790dcb4 ("powerpc: Use builtin functions for fls()/__fls()/fls64()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/348c2d3f19ffcff8abe50d52513f989c4581d000.1603375524.git.christophe.leroy@csgroup.eu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/bitops.h | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ include/uapi/linux/const.h              |    5 +++++
+ include/uapi/linux/ethtool.h            |    2 +-
+ include/uapi/linux/kernel.h             |    9 +--------
+ include/uapi/linux/lightnvm.h           |    2 +-
+ include/uapi/linux/mroute6.h            |    2 +-
+ include/uapi/linux/netfilter/x_tables.h |    2 +-
+ include/uapi/linux/netlink.h            |    2 +-
+ include/uapi/linux/sysctl.h             |    2 +-
+ 8 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/bitops.h b/arch/powerpc/include/asm/bitops.h
-index b750ffef83c7d..0ec93d940d12c 100644
---- a/arch/powerpc/include/asm/bitops.h
-+++ b/arch/powerpc/include/asm/bitops.h
-@@ -220,15 +220,34 @@ static __inline__ void __clear_bit_unlock(int nr, volatile unsigned long *addr)
-  */
- static __inline__ int fls(unsigned int x)
- {
--	return 32 - __builtin_clz(x);
-+	int lz;
+--- a/include/uapi/linux/const.h
++++ b/include/uapi/linux/const.h
+@@ -25,4 +25,9 @@
+ #define _BITUL(x)	(_AC(1,UL) << (x))
+ #define _BITULL(x)	(_AC(1,ULL) << (x))
+ 
++#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
++#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
 +
-+	if (__builtin_constant_p(x))
-+		return x ? 32 - __builtin_clz(x) : 0;
-+	asm("cntlzw %0,%1" : "=r" (lz) : "r" (x));
-+	return 32 - lz;
- }
- 
- #include <asm-generic/bitops/builtin-__fls.h>
- 
-+/*
-+ * 64-bit can do this using one cntlzd (count leading zeroes doubleword)
-+ * instruction; for 32-bit we use the generic version, which does two
-+ * 32-bit fls calls.
-+ */
-+#ifdef CONFIG_PPC64
- static __inline__ int fls64(__u64 x)
- {
--	return 64 - __builtin_clzll(x);
-+	int lz;
++#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
 +
-+	if (__builtin_constant_p(x))
-+		return x ? 64 - __builtin_clzll(x) : 0;
-+	asm("cntlzd %0,%1" : "=r" (lz) : "r" (x));
-+	return 64 - lz;
- }
-+#else
-+#include <asm-generic/bitops/fls64.h>
-+#endif
+ #endif /* !(_LINUX_CONST_H) */
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -14,7 +14,7 @@
+ #ifndef _UAPI_LINUX_ETHTOOL_H
+ #define _UAPI_LINUX_ETHTOOL_H
  
- #ifdef CONFIG_PPC64
- unsigned int __arch_hweight8(unsigned int w);
--- 
-2.27.0
-
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/if_ether.h>
+ 
+--- a/include/uapi/linux/kernel.h
++++ b/include/uapi/linux/kernel.h
+@@ -3,13 +3,6 @@
+ #define _UAPI_LINUX_KERNEL_H
+ 
+ #include <linux/sysinfo.h>
+-
+-/*
+- * 'kernel.h' contains some often-used function prototypes etc
+- */
+-#define __ALIGN_KERNEL(x, a)		__ALIGN_KERNEL_MASK(x, (typeof(x))(a) - 1)
+-#define __ALIGN_KERNEL_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+-
+-#define __KERNEL_DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
++#include <linux/const.h>
+ 
+ #endif /* _UAPI_LINUX_KERNEL_H */
+--- a/include/uapi/linux/lightnvm.h
++++ b/include/uapi/linux/lightnvm.h
+@@ -21,7 +21,7 @@
+ #define _UAPI_LINUX_LIGHTNVM_H
+ 
+ #ifdef __KERNEL__
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/ioctl.h>
+ #else /* __KERNEL__ */
+ #include <stdio.h>
+--- a/include/uapi/linux/mroute6.h
++++ b/include/uapi/linux/mroute6.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_MROUTE6_H
+ #define _UAPI__LINUX_MROUTE6_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/sockios.h>
+ #include <linux/in6.h>		/* For struct sockaddr_in6. */
+--- a/include/uapi/linux/netfilter/x_tables.h
++++ b/include/uapi/linux/netfilter/x_tables.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+ #ifndef _UAPI_X_TABLES_H
+ #define _UAPI_X_TABLES_H
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ 
+ #define XT_FUNCTION_MAXNAMELEN 30
+--- a/include/uapi/linux/netlink.h
++++ b/include/uapi/linux/netlink.h
+@@ -2,7 +2,7 @@
+ #ifndef _UAPI__LINUX_NETLINK_H
+ #define _UAPI__LINUX_NETLINK_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/socket.h> /* for __kernel_sa_family_t */
+ #include <linux/types.h>
+ 
+--- a/include/uapi/linux/sysctl.h
++++ b/include/uapi/linux/sysctl.h
+@@ -23,7 +23,7 @@
+ #ifndef _UAPI_LINUX_SYSCTL_H
+ #define _UAPI_LINUX_SYSCTL_H
+ 
+-#include <linux/kernel.h>
++#include <linux/const.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+ 
 
 
