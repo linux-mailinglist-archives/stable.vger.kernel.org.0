@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E47112ECFE1
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 13:35:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4502ECFE3
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 13:35:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbhAGMeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 07:34:31 -0500
-Received: from mail2.protonmail.ch ([185.70.40.22]:31388 "EHLO
-        mail2.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728090AbhAGMeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 07:34:31 -0500
-X-Greylist: delayed 2405 seconds by postgrey-1.27 at vger.kernel.org; Thu, 07 Jan 2021 07:34:29 EST
-Date:   Thu, 07 Jan 2021 12:33:38 +0000
+        id S1728119AbhAGMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 07:35:33 -0500
+Received: from mail-40134.protonmail.ch ([185.70.40.134]:39474 "EHLO
+        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727765AbhAGMfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 07:35:32 -0500
+Date:   Thu, 07 Jan 2021 12:34:47 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610022823; bh=cGGCdvWu4PwKRz1S12Mzu82QSX0n1m3RhliddwWOBIo=;
-        h=Date:To:From:Cc:Reply-To:Subject:From;
-        b=g46HgMEoNVFPYStTMl2U0tiPPlynTb67J8pWxwlfvVy6Em26mrnGfYXJ/NHnzF9C0
-         2l0iJxG1l6L2MQmeYZiPk5ENNdy7OPJYqqUNgs8l5ON/RdkT7ZICusXDnJal0o/X3i
-         Tj4cO9W6AOsYzEJ0gxL2+BDdGBbhOUiaYSHhiaYiMvQthW9Prgz9YMLvzYTSsqwFzf
-         Y1JjpqrCobMYSRQ+oCsp1mj+LhXd0yY23z00kpxeH166K/JShx6Ws84LoZP/ZUU6Ty
-         4BRvaE0wALd41ERV9FeUwIZ0F7w7LKZEhl03kCs89rDDh8rRI5ktvz8h0G0KHnV8m6
-         XoOQIqhKZCu+Q==
+        t=1610022890; bh=Hhk9OJTluJ5KWBmdxz+W1q3+eakKWb3hNy44poTwuNA=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=l5GVk4sCvt8vCoYVw0sPrYtfanVAMJIAYRjscOnpxyU9uMfcf0KfgJs3gJYKc6WR9
+         Rd5fCvH/l8aC5UaiBJ0Ox3AumM0Cv14/wKLw/JT6vgzKN2EgDkfHrYmFwXDqZfnXGr
+         rH9Y4HZKVbGq4o277yjpACwZZ/u0A8eJ3V0IDI6fNKiaKSa/N8ShJeDriSxpaCnnRs
+         dHMGbCAO09EcojIUbyaHDGhDR8avm1x0QHGYq6fMfQy2wgWfmOSZ3sqTjP9huowfnA
+         2IcDDcBnck63tmzZ0Z6vqNM8ettTkwhSFm3/PdSxYIjjRaC6jV82q0kRFNmf8KWOqL
+         XpHoYfy/nvyvg==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -40,8 +39,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v4 mips-next 0/7] MIPS: vmlinux.lds.S sections fixes & cleanup
-Message-ID: <20210107123331.354075-1-alobakin@pm.me>
+Subject: [PATCH v4 mips-next 1/7] MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
+Message-ID: <20210107123428.354231-1-alobakin@pm.me>
+In-Reply-To: <20210107123331.354075-1-alobakin@pm.me>
+References: <20210107123331.354075-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -54,58 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This series hunts the problems discovered after manual enabling of
-ARCH_WANT_LD_ORPHAN_WARN. Notably:
- - adds the missing PAGE_ALIGNED_DATA() section affecting VDSO
-   placement (marked for stable);
- - properly stops .eh_frame section generation.
+MIPS uses its own declaration of rwdata, and thus it should be kept
+in sync with the asm-generic one. Currently PAGE_ALIGNED_DATA() is
+missing from the linker script, which emits the following ld
+warnings:
 
-Compile and runtime tested on MIPS32R2 CPS board with no issues
-using two different toolkits:
- - Binutils 2.35.1, GCC 10.2.0;
- - LLVM stack 11.0.0.
+mips-alpine-linux-musl-ld: warning: orphan section
+`.data..page_aligned' from `arch/mips/kernel/vdso.o' being placed
+in section `.data..page_aligned'
+mips-alpine-linux-musl-ld: warning: orphan section
+`.data..page_aligned' from `arch/mips/vdso/vdso-image.o' being placed
+in section `.data..page_aligned'
 
-Since v3 [2]:
- - fix the third patch as GNU stack emits .rel.dyn into VDSO for
-   some reason if .cfi_sections is specified.
+Add the necessary declaration, so the mentioned structures will be
+placed in vmlinux as intended:
 
-Since v2 [1]:
- - stop discarding .eh_frame and just prevent it from generating
-   (Kees);
- - drop redundant sections assertions (Fangrui);
- - place GOT table in .text instead of asserting as it's not empty
-   when building with LLVM (Nathan);
- - catch compound literals in generic definitions when building with
-   LD_DEAD_CODE_DATA_ELIMINATION (Kees);
- - collect two Reviewed-bys (Kees).
+ffffffff80630580 D __end_once
+ffffffff80630580 D __start___dyndbg
+ffffffff80630580 D __start_once
+ffffffff80630580 D __stop___dyndbg
+ffffffff80634000 d mips_vdso_data
+ffffffff80638000 d vdso_data
+ffffffff80638580 D _gp
+ffffffff8063c000 T __init_begin
+ffffffff8063c000 D _edata
+ffffffff8063c000 T _sinittext
 
-Since v1 [0]:
- - catch .got entries too as LLD may produce it (Nathan);
- - check for unwanted sections to be zero-sized instead of
-   discarding (Fangrui).
+->
 
-[0] https://lore.kernel.org/linux-mips/20210104121729.46981-1-alobakin@pm.m=
-e
-[1] https://lore.kernel.org/linux-mips/20210106200713.31840-1-alobakin@pm.m=
-e
-[2] https://lore.kernel.org/linux-mips/20210107115120.281008-1-alobakin@pm.=
-me
+ffffffff805a4000 D __end_init_task
+ffffffff805a4000 D __nosave_begin
+ffffffff805a4000 D __nosave_end
+ffffffff805a4000 d mips_vdso_data
+ffffffff805a8000 d vdso_data
+ffffffff805ac000 D mmlist_lock
+ffffffff805ac080 D tasklist_lock
 
-Alexander Lobakin (7):
-  MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
-  MIPS: vmlinux.lds.S: add ".gnu.attributes" to DISCARDS
-  MIPS: properly stop .eh_frame generation
-  MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
-  MIPS: vmlinux.lds.S: explicitly declare .got table
-  vmlinux.lds.h: catch compound literals into data and BSS
-  MIPS: select ARCH_WANT_LD_ORPHAN_WARN
+Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
+Cc: stable@vger.kernel.org # 4.4+
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+---
+ arch/mips/kernel/vmlinux.lds.S | 1 +
+ 1 file changed, 1 insertion(+)
 
- arch/mips/Kconfig                 |  1 +
- arch/mips/include/asm/asm.h       | 18 ++++++++++++++++++
- arch/mips/kernel/vmlinux.lds.S    | 15 ++++++++++++++-
- include/asm-generic/vmlinux.lds.h |  6 +++---
- 4 files changed, 36 insertions(+), 4 deletions(-)
-
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
+S
+index 5e97e9d02f98..83e27a181206 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -90,6 +90,7 @@ SECTIONS
+=20
+ =09=09INIT_TASK_DATA(THREAD_SIZE)
+ =09=09NOSAVE_DATA
++=09=09PAGE_ALIGNED_DATA(PAGE_SIZE)
+ =09=09CACHELINE_ALIGNED_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
+ =09=09READ_MOSTLY_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
+ =09=09DATA_DATA
 --=20
 2.30.0
 
