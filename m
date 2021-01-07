@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D4A2ED1D3
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25C012ED194
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729226AbhAGOSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:18:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
+        id S1726151AbhAGOQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:16:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbhAGORj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:17:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C3D02335A;
-        Thu,  7 Jan 2021 14:17:12 +0000 (UTC)
+        id S1725835AbhAGOQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:16:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C928D2312A;
+        Thu,  7 Jan 2021 14:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029032;
-        bh=chJ3YTwI9qWaQhHm4MFMlDh3GuPSCEAmPqBAwX+pzjU=;
+        s=korg; t=1610028937;
+        bh=RawbylZmgmj5mOVo2ZB9dT2wcrTcrtr/EZBSPHV79/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBrHTad0giYHCoAXnL3B3gQaebFxAfrCFVl7nLR5FB26UvB7jmjmTKTKCf9wb8PTP
-         b6Vwm61nCMs532O9XMyJ3c/ltPAeOmqUdaTQlgC4ICDaUroxj/SPJWKYB2IeT8+YNO
-         +PvLbDuaOd+AQBnwyOMd1hmuWlKeUpHPQqCwmfhk=
+        b=jkw6aYJ3PjbOgcUoXu5zTzlh4ZkIwAQUI5GcSVzSov/OrOhEBd8dUGFMwAjtVcn5N
+         Y1qt62KKJ/13SG9UyC8b9lJaEVCyaD/xaE57o1cCbbJy7ZRbgy/SihcH611/VpCGbF
+         WHmjADn6Yeg8JaoIEJ7JX52q4CZdQXuQmbazTUXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/32] s390/dasd: fix hanging device offline processing
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 04/19] ALSA: hda/realtek - Support Dell headset mode for ALC3271
 Date:   Thu,  7 Jan 2021 15:16:29 +0100
-Message-Id: <20210107140828.301211290@linuxfoundation.org>
+Message-Id: <20210107140827.793159252@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
-References: <20210107140827.866214702@linuxfoundation.org>
+In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
+References: <20210107140827.584658199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Kailang Yang <kailang@realtek.com>
 
-[ Upstream commit 658a337a606f48b7ebe451591f7681d383fa115e ]
+commit fcc6c877a01f83cbce1cca885ea62df6a10d33c3 upstream
 
-For an LCU update a read unit address configuration IO is required.
-This is started using sleep_on(), which has early exit paths in case the
-device is not usable for IO. For example when it is in offline processing.
+Add DELL4_MIC_NO_PRESENCE model.
+Add the pin configuration value of this machine into the pin_quirk
+table to make DELL4_MIC_NO_PRESENCE apply to this machine.
 
-In those cases the LCU update should fail and not be retried.
-Therefore lcu_update_work checks if EOPNOTSUPP is returned or not.
-
-Commit 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-accidentally removed the EOPNOTSUPP return code from
-read_unit_address_configuration(), which in turn might lead to an endless
-loop of the LCU update in offline processing.
-
-Fix by returning EOPNOTSUPP again if the device is not able to perform the
-request.
-
-Fixes: 41995342b40c ("s390/dasd: fix endless loop after read unit address configuration")
-Cc: stable@vger.kernel.org #5.3
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_alias.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
-index 0569c15fddfe4..2002684a68b3c 100644
---- a/drivers/s390/block/dasd_alias.c
-+++ b/drivers/s390/block/dasd_alias.c
-@@ -461,11 +461,19 @@ static int read_unit_address_configuration(struct dasd_device *device,
- 	spin_unlock_irqrestore(&lcu->lock, flags);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4848,6 +4848,7 @@ enum {
+ 	ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_DELL2_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_DELL3_MIC_NO_PRESENCE,
++	ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_HEADSET_MODE,
+ 	ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC,
+ 	ALC269_FIXUP_ASPIRE_HEADSET_MIC,
+@@ -5150,6 +5151,16 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
++	[ALC269_FIXUP_DELL4_MIC_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ 0x1b, 0x01a1913d }, /* use as headphone mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE
++	},
+ 	[ALC269_FIXUP_HEADSET_MODE] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_headset_mode,
+@@ -6194,6 +6205,11 @@ static const struct snd_hda_pin_quirk al
+ 		{0x17, 0x90170110},
+ 		{0x1a, 0x03011020},
+ 		{0x21, 0x03211030}),
++	SND_HDA_PIN_QUIRK(0x10ec0299, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
++		ALC225_STANDARD_PINS,
++		{0x12, 0xb7a60130},
++		{0x13, 0xb8a60140},
++		{0x17, 0x90170110}),
+ 	{}
+ };
  
- 	rc = dasd_sleep_on(cqr);
--	if (rc && !suborder_not_supported(cqr)) {
-+	if (!rc)
-+		goto out;
-+
-+	if (suborder_not_supported(cqr)) {
-+		/* suborder not supported or device unusable for IO */
-+		rc = -EOPNOTSUPP;
-+	} else {
-+		/* IO failed but should be retried */
- 		spin_lock_irqsave(&lcu->lock, flags);
- 		lcu->flags |= NEED_UAC_UPDATE;
- 		spin_unlock_irqrestore(&lcu->lock, flags);
- 	}
-+out:
- 	dasd_kfree_request(cqr, cqr->memdev);
- 	return rc;
- }
--- 
-2.27.0
-
 
 
