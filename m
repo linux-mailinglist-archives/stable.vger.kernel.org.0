@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 114B52ED090
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 14:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 429982ED098
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 14:23:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727562AbhAGNVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 08:21:20 -0500
-Received: from mail-40131.protonmail.ch ([185.70.40.131]:23470 "EHLO
-        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728427AbhAGNVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 08:21:20 -0500
-Date:   Thu, 07 Jan 2021 13:20:33 +0000
+        id S1728325AbhAGNVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 08:21:34 -0500
+Received: from mail-40134.protonmail.ch ([185.70.40.134]:64020 "EHLO
+        mail-40134.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728390AbhAGNVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 08:21:33 -0500
+Date:   Thu, 07 Jan 2021 13:20:49 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me; s=protonmail;
-        t=1610025637; bh=1iHiRQzHqAO/hOdIJm7931oVSjvi8g99iSxotTA/NNE=;
+        t=1610025651; bh=9oCj7QKLJWJNGcOnNqI17iIRyczWE6M4kFx9CTLO44o=;
         h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=Awz+ntc9XFxB3byalr3Ar0uBftjJ34q+4h01Xb55pnPE3Cb64NIpk3HqGpInQ7lEm
-         f6b/iJ6qEzjkGHR/WVYiIP8MGtzwz2845rJwK73wU8Ca2Z+RDR1feEDja745CtaX13
-         YL8g99zm6cGpd9uCDzGTF1tR8xxXYSFAi4zGQ5URQZpECQtUr6pbWAQS6qbfg7eoDx
-         eDJ4NEonCsAwafi18yssbLCIDOb6C6nDO/8r9kWQtP/cMPh0/BWIQJWzoocZknZmb8
-         zV0Qqo5jWC/DQqDm1Mx42/kayzt2kVW1LGADT3FpV0r+XKZngqbmWdTPz7np+oFPXR
-         l9sncFXbotHKg==
+        b=lrLPAOvww0VvEA4BtSTnnUTYtcgzLetcZIBJZI7GJT8o5QacEQyCtZ4AUc6x8k323
+         jMAKgxOIP62fj4sou0ajm07YYRlfNW0D36sPcxS8N4l1i7zGK+xA6tw6GEFLKtE7l9
+         zIHmFSEar2TLaHvwmFRtMohUoQFC/j/68PHBVMswYWSIYJ57JpBFWtvGroeUBqL7Qz
+         9cgckGv6AZjZhxZtQDK7zA0609rtDrXdPmaEq9N8Z6p3pqxbksf3Gycm61TBb4aXPZ
+         guCuLJi8d9Bwh4bS4ApL0AQHSlG8QNR6l8FhH/rJhXAo40NCnfGEkHEUg89uyhEu8c
+         jyYk0VWsux/5g==
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 From:   Alexander Lobakin <alobakin@pm.me>
 Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
@@ -39,10 +39,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
 Reply-To: Alexander Lobakin <alobakin@pm.me>
-Subject: [PATCH v4 mips-next 4/7] MIPS: vmlinux.lds.S: catch bad .rel.dyn at link time
-Message-ID: <20210107132010.463129-1-alobakin@pm.me>
-In-Reply-To: <20210107123331.354075-1-alobakin@pm.me>
-References: <20210107123331.354075-1-alobakin@pm.me>
+Subject: [PATCH v4 mips-next 5/7] MIPS: vmlinux.lds.S: explicitly declare .got table
+Message-ID: <20210107132010.463129-2-alobakin@pm.me>
+In-Reply-To: <20210107132010.463129-1-alobakin@pm.me>
+References: <20210107123331.354075-1-alobakin@pm.me> <20210107132010.463129-1-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
@@ -55,43 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Catch any symbols placed in .rel.dyn and check for these sections
-to be zero-sized at link time.
-Eliminates following ld warning:
+LLVM stack generates GOT table when building the kernel:
 
-mips-alpine-linux-musl-ld: warning: orphan section `.rel.dyn'
-from `init/main.o' being placed in section `.rel.dyn'
+ld.lld: warning: <internal>:(.got) is being placed in '.got'
 
-Adopted from x86/kernel/vmlinux.lds.S.
+According to the debug assertions, it's not zero-sized and thus
+can't be handled the same way as .rel.dyn (like it's done for x86).
+Use the ARM/ARM64 path here and place it at the end of .text section.
 
-Suggested-by: Fangrui Song <maskray@google.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 ---
- arch/mips/kernel/vmlinux.lds.S | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/mips/kernel/vmlinux.lds.S | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.=
 S
-index 0f4e46ea4458..0f736d60d43e 100644
+index 0f736d60d43e..4709959f6985 100644
 --- a/arch/mips/kernel/vmlinux.lds.S
 +++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -226,4 +226,15 @@ SECTIONS
- =09=09*(.pdr)
- =09=09*(.reginfo)
- =09}
-+
-+=09/*
-+=09 * Sections that should stay zero sized, which is safer to
-+=09 * explicitly check instead of blindly discarding.
-+=09 */
-+
-+=09.rel.dyn : {
-+=09=09*(.rel.*)
-+=09=09*(.rel_*)
-+=09}
-+=09ASSERT(SIZEOF(.rel.dyn) =3D=3D 0, "Unexpected run-time relocations (.re=
-l) detected!")
- }
+@@ -69,6 +69,7 @@ SECTIONS
+ =09=09*(.text.*)
+ =09=09*(.fixup)
+ =09=09*(.gnu.warning)
++=09=09*(.got)
+ =09} :text =3D 0
+ =09_etext =3D .;=09/* End of text section */
+=20
 --=20
 2.30.0
 
