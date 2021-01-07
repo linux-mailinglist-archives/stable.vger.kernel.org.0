@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 893E92ED199
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C74B2ED19F
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbhAGOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:16:56 -0500
+        id S1727933AbhAGORN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:17:13 -0500
 Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728893AbhAGOQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:16:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80CD623356;
-        Thu,  7 Jan 2021 14:15:52 +0000 (UTC)
+        id S1728036AbhAGORL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:17:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F10292339D;
+        Thu,  7 Jan 2021 14:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028953;
-        bh=AXywxoBkPUBwm+JrjiZENZi5RLflUxlB+adI7JBoYZ4=;
+        s=korg; t=1610028988;
+        bh=qP+9VmaW6GniQE0oNeVr19yzeSV9DhxRTPBDOSQyBiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMyLvxmP2Gv5aMnNtqhk2TaXQJKvdvBEaVpKt1mX0NDKWaT+A30z6omzepC5XelMB
-         PIzlDjFcPxWN8S4Zb4EwVl2Je5nOZFw7f8IqLGi57azgqFw+iJgLYUJ7tWusfs91hp
-         C5urEeBsUQW6Xf8bNoucfCp7YZ8HJXkZngstWWZ4=
+        b=XDhWIgZLIUPoBcMRdIh1XS+Oj+1gK/4S94YXRVCUIhTTsLbdXQUAo6sWUr7Zp+DSE
+         jcaMkIpI1Y2qte55pgodecWscOlk0FKMdxmJ8K+O8MZ4Edhvjk35eawzKIH/W0mFSd
+         dM5c2ex48OQsBWXrFt88nZE58QBDY1MoTewdD2rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        Jan Kara <jack@suse.cz>,
-        syzbot+83b6f7cf9922cae5c4d7@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 11/19] reiserfs: add check for an invalid ih_entry_count
+        stable@vger.kernel.org,
+        syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Subject: [PATCH 4.9 16/32] misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
 Date:   Thu,  7 Jan 2021 15:16:36 +0100
-Message-Id: <20210107140828.109909866@linuxfoundation.org>
+Message-Id: <20210107140828.616984909@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
-References: <20210107140827.584658199@linuxfoundation.org>
+In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
+References: <20210107140827.866214702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit d24396c5290ba8ab04ba505176874c4e04a2d53c upstream.
+commit 31dcb6c30a26d32650ce134820f27de3c675a45a upstream.
 
-when directory item has an invalid value set for ih_entry_count it might
-trigger use-after-free or out-of-bounds read in bin_search_in_dir_item()
+A kernel-infoleak was reported by syzbot, which was caused because
+dbells was left uninitialized.
+Using kzalloc() instead of kmalloc() fixes this issue.
 
-ih_entry_count * IH_SIZE for directory item should not be larger than
-ih_item_len
-
-Link: https://lore.kernel.org/r/20201101140958.3650143-1-rkovhaev@gmail.com
-Reported-and-tested-by: syzbot+83b6f7cf9922cae5c4d7@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=83b6f7cf9922cae5c4d7
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
+Tested-by: syzbot+a79e17c39564bedf0930@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201122224534.333471-1-anant.thazhemadam@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/reiserfs/stree.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/misc/vmw_vmci/vmci_context.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/reiserfs/stree.c
-+++ b/fs/reiserfs/stree.c
-@@ -453,6 +453,12 @@ static int is_leaf(char *buf, int blocks
- 					 "(second one): %h", ih);
- 			return 0;
+--- a/drivers/misc/vmw_vmci/vmci_context.c
++++ b/drivers/misc/vmw_vmci/vmci_context.c
+@@ -750,7 +750,7 @@ static int vmci_ctx_get_chkpt_doorbells(
+ 			return VMCI_ERROR_MORE_DATA;
  		}
-+		if (is_direntry_le_ih(ih) && (ih_item_len(ih) < (ih_entry_count(ih) * IH_SIZE))) {
-+			reiserfs_warning(NULL, "reiserfs-5093",
-+					 "item entry count seems wrong %h",
-+					 ih);
-+			return 0;
-+		}
- 		prev_location = ih_location(ih);
- 	}
+ 
+-		dbells = kmalloc(data_size, GFP_ATOMIC);
++		dbells = kzalloc(data_size, GFP_ATOMIC);
+ 		if (!dbells)
+ 			return VMCI_ERROR_NO_MEM;
  
 
 
