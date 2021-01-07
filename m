@@ -2,98 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517DD2ECD19
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 10:49:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2F72ECD9B
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 11:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726326AbhAGJst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 04:48:49 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:7024 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725900AbhAGJss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 04:48:48 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5ff6d8d80001>; Thu, 07 Jan 2021 01:48:08 -0800
-Received: from [10.26.72.150] (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 7 Jan
- 2021 09:48:06 +0000
-Subject: Re: [PATCH] arm64: tegra: Add power-domain for Tegra210 HDA
-To:     Sameer Pujar <spujar@nvidia.com>, <thierry.reding@gmail.com>,
-        <robh+dt@kernel.org>
-CC:     <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <1609995970-12256-1-git-send-email-spujar@nvidia.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <1dfc080c-f587-d19f-65c9-b3220b3202a0@nvidia.com>
-Date:   Thu, 7 Jan 2021 09:48:04 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726541AbhAGKQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 05:16:34 -0500
+Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:3910 "EHLO
+        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726925AbhAGKQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 05:16:34 -0500
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+        by mx0b-0016f401.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 107AEXhH011439;
+        Thu, 7 Jan 2021 02:15:51 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=pfpt0220;
+ bh=8XkpVUGNJnLte6APyGiHdCIL1BuiuZ5TOnsYfPRWigc=;
+ b=VxUEJI3pt3ipC333IMYdCB/zELOy0byCt6xiiXDqwEwpHLCJ+UZI3UD1pByiJcp8sFXe
+ e+4x2CxJ59AosCyJPNakAsc+NoTlzi268xCPz1CN4qssWMNclEpG8kO6TUlF71dFvWQP
+ KuOBRtE64hGhPCYoOExJAvlSVSrYzJUB+GF6dxmLRWYU61EGae7BnJcSTwcV29N9dnqk
+ sDcMIzENKZeYsH8WDEy0gBZq4dZnCL1jOvQ2WCZmnYOXgHU/5MurYTfe4jEVWltu7d12
+ KNfw67queaMEzoEJbSYlzfbjLe6PUu6hIyEuE60V4QZRf44VE2+TKKRPlKFquA/IAh96 bw== 
+Received: from dc5-exch01.marvell.com ([199.233.59.181])
+        by mx0b-0016f401.pphosted.com with ESMTP id 35wy5a07qd-4
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Thu, 07 Jan 2021 02:15:51 -0800
+Received: from SC-EXCH03.marvell.com (10.93.176.83) by DC5-EXCH01.marvell.com
+ (10.69.176.38) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 7 Jan
+ 2021 02:15:47 -0800
+Received: from DC5-EXCH02.marvell.com (10.69.176.39) by SC-EXCH03.marvell.com
+ (10.93.176.83) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 7 Jan
+ 2021 02:15:46 -0800
+Received: from maili.marvell.com (10.69.176.80) by DC5-EXCH02.marvell.com
+ (10.69.176.39) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 7 Jan 2021 02:15:46 -0800
+Received: from dut1171.mv.qlogic.com (unknown [10.112.88.18])
+        by maili.marvell.com (Postfix) with ESMTP id B4FD93F703F;
+        Thu,  7 Jan 2021 02:15:46 -0800 (PST)
+Received: from dut1171.mv.qlogic.com (localhost [127.0.0.1])
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7) with ESMTP id 107AFkA9006781;
+        Thu, 7 Jan 2021 02:15:46 -0800
+Received: (from root@localhost)
+        by dut1171.mv.qlogic.com (8.14.7/8.14.7/Submit) id 107AFkLn006771;
+        Thu, 7 Jan 2021 02:15:46 -0800
+From:   Manish Chopra <manishc@marvell.com>
+To:     <kuba@kernel.org>
+CC:     <netdev@vger.kernel.org>, <stable@vger.kernel.org>,
+        <irusskikh@marvell.com>, <GR-Linux-NIC-Dev@marvell.com>
+Subject: [PATCH net 1/1] netxen_nic: fix MSI/MSI-x interrupts
+Date:   Thu, 7 Jan 2021 02:15:20 -0800
+Message-ID: <20210107101520.6735-1-manishc@marvell.com>
+X-Mailer: git-send-email 2.12.0
 MIME-Version: 1.0
-In-Reply-To: <1609995970-12256-1-git-send-email-spujar@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1610012888; bh=IjN25z+yWpSbbGI53L+67ScDv4QXQ/8Bbz0TLdhRyYY=;
-        h=Subject:To:CC:References:From:Message-ID:Date:User-Agent:
-         MIME-Version:In-Reply-To:Content-Type:Content-Language:
-         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
-        b=qznrjEdnM+8mWavbGJf3rO0LQ3iotUPiNeuxvyJx46Ish8/Wf5e57/u6S51anRH9i
-         8yIa+4+SPIIBprmZJUC/rDpPY6iVoqLxqzhdw3NQtL89llzVTR4LbCjAp9CH3Xp/cq
-         OvtvdlzUYz7eq7KWiSwaQ2M++oDC5IECF8OK6C84HMIm9E5n2VGqF1IrkvEeBX9eis
-         Us9XxNEj5e7OHPF6GW+204NzUKzX+nQGuK5Z1RwTHWco0vtipJMI78rOd/UBtijxmH
-         pNLL8NQO0PWTiXsb7MRt94yRntPVg3bplOcEi8k9iAVRvPDu7sjJtwUl7s1Yfgh5VP
-         Xmh/wDGucEdUw==
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2021-01-07_05:2021-01-07,2021-01-07 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+For all PCI functions on the netxen_nic adapter, interrupt
+mode (INTx or MSI) configuration is dependent on what has
+been configured by the PCI function zero in the shared
+interrupt register, as these adapters do not support mixed
+mode interrupts among the functions of a given adapter.
 
-On 07/01/2021 05:06, Sameer Pujar wrote:
-> HDA initialization is failing occasionally on Tegra210 and following
-> print is observed in the boot log. Because of this probe() fails and
-> no sound card is registered.
-> 
->   [16.800802] tegra-hda 70030000.hda: no codecs found!
-> 
-> Codecs request a state change and enumeration by the controller. In
-> failure cases this does not seem to happen as STATETS register reads 0.
-> 
-> The problem seems to be related to the HDA codec dependency on SOR
-> power domain. If it is gated during HDA probe then the failure is
-> observed. Building Tegra HDA driver into kernel image avoids this
-> failure but does not completely address the dependency part. Fix this
-> problem by adding 'power-domains' DT property for Tegra210 HDA. Note
-> that Tegra186 and Tegra194 HDA do this already.
-> 
-> Fixes: 742af7e7a0a1 ("arm64: tegra: Add Tegra210 support")
-> Depends-on: 96d1f078ff0 ("arm64: tegra: Add SOR power-domain for Tegra210")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-> ---
->  arch/arm64/boot/dts/nvidia/tegra210.dtsi | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/arm64/boot/dts/nvidia/tegra210.dtsi b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-> index 4fbf8c1..fd33b4d 100644
-> --- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-> +++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
-> @@ -997,6 +997,7 @@
->  			 <&tegra_car 128>, /* hda2hdmi */
->  			 <&tegra_car 111>; /* hda2codec_2x */
->  		reset-names = "hda", "hda2hdmi", "hda2codec_2x";
-> +		power-domains = <&pd_sor>;
->  		status = "disabled";
->  	};
+Logic for setting MSI/MSI-x interrupt mode in the shared interrupt
+register based on PCI function id zero check is not appropriate for
+all family of netxen adapters, as for some of the netxen family
+adapters PCI function zero is not really meant to be probed/loaded
+in the host but rather just act as a management function on the device,
+which caused all the other PCI functions on the adapter to always use
+legacy interrupt (INTx) mode instead of choosing MSI/MSI-x interrupt mode.
 
-Thanks!
+This patch replaces that check with port number so that for all
+type of adapters driver attempts for MSI/MSI-x interrupt modes.
 
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Fixes: b37eb210c076 ("netxen_nic: Avoid mixed mode interrupts")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+---
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-Cheers
-Jon
-
+diff --git a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+index f218477..d258e0c 100644
+--- a/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
++++ b/drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c
+@@ -564,11 +564,6 @@ static int netxen_set_features(struct net_device *dev,
+ 	.ndo_set_features = netxen_set_features,
+ };
+ 
+-static inline bool netxen_function_zero(struct pci_dev *pdev)
+-{
+-	return (PCI_FUNC(pdev->devfn) == 0) ? true : false;
+-}
+-
+ static inline void netxen_set_interrupt_mode(struct netxen_adapter *adapter,
+ 					     u32 mode)
+ {
+@@ -664,7 +659,7 @@ static int netxen_setup_intr(struct netxen_adapter *adapter)
+ 	netxen_initialize_interrupt_registers(adapter);
+ 	netxen_set_msix_bit(pdev, 0);
+ 
+-	if (netxen_function_zero(pdev)) {
++	if (adapter->portnum == 0) {
+ 		if (!netxen_setup_msi_interrupts(adapter, num_msix))
+ 			netxen_set_interrupt_mode(adapter, NETXEN_MSI_MODE);
+ 		else
 -- 
-nvpublic
+1.8.3.1
+
