@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AABF12ED1A0
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCF12ED200
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:22:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729000AbhAGORN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:17:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
+        id S1728824AbhAGOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:16:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727973AbhAGORK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:17:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35A802312A;
-        Thu,  7 Jan 2021 14:16:19 +0000 (UTC)
+        id S1728816AbhAGOQt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:16:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD72923343;
+        Thu,  7 Jan 2021 14:15:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028979;
-        bh=4Hjr/G8euEi7JaeaLyEm7G0ERZe3jD4A2lUn4xVhrl4=;
+        s=korg; t=1610028946;
+        bh=lfil6zS8OB/gOcAYPslknKv20SsUYoOKgOQgH00KE9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DIUufx6g3byJftL6GnF6i5FgZaiaH4LC4dC3A1iE5MLWNeEp5O3rXbclhxILl2pL
-         5lkU5Uj/BVfZeqDmOWq/oSOloetJoDr5SnBkyo5P/ROIqZZeJy6G5h1EQIXZliGZWb
-         jG8h1k5nHVp4hwF0pcyB+uplRDYyzEVtT29vZFy8=
+        b=UkPu8O/Jsm72RNIPzZMlYuCgPcwdYYg8gVDqyNt5ktOCaHVcOYxeNNoBQ9vkdyHQR
+         EXBi++luK+rlDMCAqXCPLfuHJVa2oDtI1RzOZWyboERTJXB4SYgYQtUjFpHkzSpVC/
+         c1JFIy+2EKbMOvz46xvUbzoonNq9hz4saPm6BBkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Suren Baghdasaryan <surenb@google.com>,
-        syzbot+92fa328176eb07e4ac1a@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 12/32] l2tp: fix races with ipv4-mapped ipv6 addresses
-Date:   Thu,  7 Jan 2021 15:16:32 +0100
-Message-Id: <20210107140828.444949453@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 08/19] USB: serial: digi_acceleport: fix write-wakeup deadlocks
+Date:   Thu,  7 Jan 2021 15:16:33 +0100
+Message-Id: <20210107140827.968177664@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
-References: <20210107140827.866214702@linuxfoundation.org>
+In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
+References: <20210107140827.584658199@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,173 +39,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b954f94023dcc61388c8384f0f14eb8e42c863c5 upstream.
+[ Upstream commit 5098e77962e7c8947f87bd8c5869c83e000a522a ]
 
-The l2tp_tunnel_create() function checks for v4mapped ipv6
-sockets and cache that flag, so that l2tp core code can
-reusing it at xmit time.
+The driver must not call tty_wakeup() while holding its private lock as
+line disciplines are allowed to call back into write() from
+write_wakeup(), leading to a deadlock.
 
-If the socket is provided by the userspace, the connection
-status of the tunnel sockets can change between the tunnel
-creation and the xmit call, so that syzbot is able to
-trigger the following splat:
+Also remove the unneeded work struct that was used to defer wakeup in
+order to work around a possible race in ancient times (see comment about
+n_tty write_chan() in commit 14b54e39b412 ("USB: serial: remove
+changelogs and old todo entries")).
 
-BUG: KASAN: use-after-free in ip6_dst_idev include/net/ip6_fib.h:192
-[inline]
-BUG: KASAN: use-after-free in ip6_xmit+0x1f76/0x2260
-net/ipv6/ip6_output.c:264
-Read of size 8 at addr ffff8801bd949318 by task syz-executor4/23448
-
-CPU: 0 PID: 23448 Comm: syz-executor4 Not tainted 4.16.0-rc4+ #65
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:17 [inline]
-  dump_stack+0x194/0x24d lib/dump_stack.c:53
-  print_address_description+0x73/0x250 mm/kasan/report.c:256
-  kasan_report_error mm/kasan/report.c:354 [inline]
-  kasan_report+0x23c/0x360 mm/kasan/report.c:412
-  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
-  ip6_dst_idev include/net/ip6_fib.h:192 [inline]
-  ip6_xmit+0x1f76/0x2260 net/ipv6/ip6_output.c:264
-  inet6_csk_xmit+0x2fc/0x580 net/ipv6/inet6_connection_sock.c:139
-  l2tp_xmit_core net/l2tp/l2tp_core.c:1053 [inline]
-  l2tp_xmit_skb+0x105f/0x1410 net/l2tp/l2tp_core.c:1148
-  pppol2tp_sendmsg+0x470/0x670 net/l2tp/l2tp_ppp.c:341
-  sock_sendmsg_nosec net/socket.c:630 [inline]
-  sock_sendmsg+0xca/0x110 net/socket.c:640
-  ___sys_sendmsg+0x767/0x8b0 net/socket.c:2046
-  __sys_sendmsg+0xe5/0x210 net/socket.c:2080
-  SYSC_sendmsg net/socket.c:2091 [inline]
-  SyS_sendmsg+0x2d/0x50 net/socket.c:2087
-  do_syscall_64+0x281/0x940 arch/x86/entry/common.c:287
-  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-RIP: 0033:0x453e69
-RSP: 002b:00007f819593cc68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f819593d6d4 RCX: 0000000000453e69
-RDX: 0000000000000081 RSI: 000000002037ffc8 RDI: 0000000000000004
-RBP: 000000000072bea0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000000004c3 R14: 00000000006f72e8 R15: 0000000000000000
-
-This change addresses the issues:
-* explicitly checking for TCP_ESTABLISHED for user space provided sockets
-* dropping the v4mapped flag usage - it can become outdated - and
-  explicitly invoking ipv6_addr_v4mapped() instead
-
-The issue is apparently there since ancient times.
-
-v1 -> v2: (many thanks to Guillaume)
- - with csum issue introduced in v1
- - replace pr_err with pr_debug
- - fix build issue with IPV6 disabled
- - move l2tp_sk_is_v4mapped in l2tp_core.c
-
-v2 -> v3:
- - don't update inet_daddr for v4mapped address, unneeded
- - drop rendundant check at creation time
-
-Reported-and-tested-by: syzbot+92fa328176eb07e4ac1a@syzkaller.appspotmail.com
-Fixes: 3557baabf280 ("[L2TP]: PPP over L2TP driver core")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Suren Baghdasaryan <surenb@google.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- net/l2tp/l2tp_core.c |   38 ++++++++++++++++++--------------------
- net/l2tp/l2tp_core.h |    3 ---
- 2 files changed, 18 insertions(+), 23 deletions(-)
+ drivers/usb/serial/digi_acceleport.c |   45 ++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 32 deletions(-)
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -112,6 +112,13 @@ struct l2tp_net {
- 	spinlock_t l2tp_session_hlist_lock;
+--- a/drivers/usb/serial/digi_acceleport.c
++++ b/drivers/usb/serial/digi_acceleport.c
+@@ -23,7 +23,6 @@
+ #include <linux/tty_flip.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+-#include <linux/workqueue.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb.h>
+ #include <linux/wait.h>
+@@ -201,14 +200,12 @@ struct digi_port {
+ 	int dp_throttle_restart;
+ 	wait_queue_head_t dp_flush_wait;
+ 	wait_queue_head_t dp_close_wait;	/* wait queue for close */
+-	struct work_struct dp_wakeup_work;
+ 	struct usb_serial_port *dp_port;
  };
  
-+#if IS_ENABLED(CONFIG_IPV6)
-+static bool l2tp_sk_is_v6(struct sock *sk)
-+{
-+	return sk->sk_family == PF_INET6 &&
-+	       !ipv6_addr_v4mapped(&sk->sk_v6_daddr);
-+}
-+#endif
  
- static inline struct l2tp_tunnel *l2tp_tunnel(struct sock *sk)
- {
-@@ -1136,7 +1143,7 @@ static int l2tp_xmit_core(struct l2tp_se
- 	skb->ignore_df = 1;
- 	skb_dst_drop(skb);
- #if IS_ENABLED(CONFIG_IPV6)
--	if (tunnel->sock->sk_family == PF_INET6 && !tunnel->v4mapped)
-+	if (l2tp_sk_is_v6(tunnel->sock))
- 		error = inet6_csk_xmit(tunnel->sock, skb, NULL);
- 	else
- #endif
-@@ -1199,6 +1206,15 @@ int l2tp_xmit_skb(struct l2tp_session *s
- 		goto out_unlock;
+ /* Local Function Declarations */
+ 
+-static void digi_wakeup_write_lock(struct work_struct *work);
+ static int digi_write_oob_command(struct usb_serial_port *port,
+ 	unsigned char *buf, int count, int interruptible);
+ static int digi_write_inb_command(struct usb_serial_port *port,
+@@ -355,26 +352,6 @@ __releases(lock)
+ 	return timeout;
+ }
+ 
+-
+-/*
+- *  Digi Wakeup Write
+- *
+- *  Wake up port, line discipline, and tty processes sleeping
+- *  on writes.
+- */
+-
+-static void digi_wakeup_write_lock(struct work_struct *work)
+-{
+-	struct digi_port *priv =
+-			container_of(work, struct digi_port, dp_wakeup_work);
+-	struct usb_serial_port *port = priv->dp_port;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&priv->dp_port_lock, flags);
+-	tty_port_tty_wakeup(&port->port);
+-	spin_unlock_irqrestore(&priv->dp_port_lock, flags);
+-}
+-
+ /*
+  *  Digi Write OOB Command
+  *
+@@ -986,6 +963,7 @@ static void digi_write_bulk_callback(str
+ 	struct digi_serial *serial_priv;
+ 	int ret = 0;
+ 	int status = urb->status;
++	bool wakeup;
+ 
+ 	/* port and serial sanity check */
+ 	if (port == NULL || (priv = usb_get_serial_port_data(port)) == NULL) {
+@@ -1012,6 +990,7 @@ static void digi_write_bulk_callback(str
  	}
  
-+	/* The user-space may change the connection status for the user-space
-+	 * provided socket at run time: we must check it under the socket lock
-+	 */
-+	if (tunnel->fd >= 0 && sk->sk_state != TCP_ESTABLISHED) {
-+		kfree_skb(skb);
-+		ret = NET_XMIT_DROP;
-+		goto out_unlock;
-+	}
+ 	/* try to send any buffered data on this port */
++	wakeup = true;
+ 	spin_lock(&priv->dp_port_lock);
+ 	priv->dp_write_urb_in_use = 0;
+ 	if (priv->dp_out_buf_len > 0) {
+@@ -1027,19 +1006,18 @@ static void digi_write_bulk_callback(str
+ 		if (ret == 0) {
+ 			priv->dp_write_urb_in_use = 1;
+ 			priv->dp_out_buf_len = 0;
++			wakeup = false;
+ 		}
+ 	}
+-	/* wake up processes sleeping on writes immediately */
+-	tty_port_tty_wakeup(&port->port);
+-	/* also queue up a wakeup at scheduler time, in case we */
+-	/* lost the race in write_chan(). */
+-	schedule_work(&priv->dp_wakeup_work);
+-
+ 	spin_unlock(&priv->dp_port_lock);
 +
- 	inet = inet_sk(sk);
- 	fl = &inet->cork.fl;
- 	switch (tunnel->encap) {
-@@ -1214,7 +1230,7 @@ int l2tp_xmit_skb(struct l2tp_session *s
+ 	if (ret && ret != -EPERM)
+ 		dev_err_console(port,
+ 			"%s: usb_submit_urb failed, ret=%d, port=%d\n",
+ 			__func__, ret, priv->dp_port_num);
++
++	if (wakeup)
++		tty_port_tty_wakeup(&port->port);
+ }
  
- 		/* Calculate UDP checksum if configured to do so */
- #if IS_ENABLED(CONFIG_IPV6)
--		if (sk->sk_family == PF_INET6 && !tunnel->v4mapped)
-+		if (l2tp_sk_is_v6(sk))
- 			udp6_set_csum(udp_get_no_check6_tx(sk),
- 				      skb, &inet6_sk(sk)->saddr,
- 				      &sk->sk_v6_daddr, udp_len);
-@@ -1620,24 +1636,6 @@ int l2tp_tunnel_create(struct net *net,
- 	if (cfg != NULL)
- 		tunnel->debug = cfg->debug;
+ static int digi_write_room(struct tty_struct *tty)
+@@ -1239,7 +1217,6 @@ static int digi_port_init(struct usb_ser
+ 	init_waitqueue_head(&priv->dp_transmit_idle_wait);
+ 	init_waitqueue_head(&priv->dp_flush_wait);
+ 	init_waitqueue_head(&priv->dp_close_wait);
+-	INIT_WORK(&priv->dp_wakeup_work, digi_wakeup_write_lock);
+ 	priv->dp_port = port;
  
--#if IS_ENABLED(CONFIG_IPV6)
--	if (sk->sk_family == PF_INET6) {
--		struct ipv6_pinfo *np = inet6_sk(sk);
--
--		if (ipv6_addr_v4mapped(&np->saddr) &&
--		    ipv6_addr_v4mapped(&sk->sk_v6_daddr)) {
--			struct inet_sock *inet = inet_sk(sk);
--
--			tunnel->v4mapped = true;
--			inet->inet_saddr = np->saddr.s6_addr32[3];
--			inet->inet_rcv_saddr = sk->sk_v6_rcv_saddr.s6_addr32[3];
--			inet->inet_daddr = sk->sk_v6_daddr.s6_addr32[3];
--		} else {
--			tunnel->v4mapped = false;
--		}
--	}
--#endif
--
- 	/* Mark socket as an encapsulation socket. See net/ipv4/udp.c */
- 	tunnel->encap = encap;
- 	if (encap == L2TP_ENCAPTYPE_UDP) {
---- a/net/l2tp/l2tp_core.h
-+++ b/net/l2tp/l2tp_core.h
-@@ -191,9 +191,6 @@ struct l2tp_tunnel {
- 	struct sock		*sock;		/* Parent socket */
- 	int			fd;		/* Parent fd, if tunnel socket
- 						 * was created by userspace */
--#if IS_ENABLED(CONFIG_IPV6)
--	bool			v4mapped;
--#endif
+ 	init_waitqueue_head(&port->write_wait);
+@@ -1525,13 +1502,14 @@ static int digi_read_oob_callback(struct
+ 			rts = tty->termios.c_cflag & CRTSCTS;
+ 		
+ 		if (tty && opcode == DIGI_CMD_READ_INPUT_SIGNALS) {
++			bool wakeup = false;
++
+ 			spin_lock(&priv->dp_port_lock);
+ 			/* convert from digi flags to termiox flags */
+ 			if (val & DIGI_READ_INPUT_SIGNALS_CTS) {
+ 				priv->dp_modem_signals |= TIOCM_CTS;
+-				/* port must be open to use tty struct */
+ 				if (rts)
+-					tty_port_tty_wakeup(&port->port);
++					wakeup = true;
+ 			} else {
+ 				priv->dp_modem_signals &= ~TIOCM_CTS;
+ 				/* port must be open to use tty struct */
+@@ -1550,6 +1528,9 @@ static int digi_read_oob_callback(struct
+ 				priv->dp_modem_signals &= ~TIOCM_CD;
  
- 	struct work_struct	del_work;
- 
+ 			spin_unlock(&priv->dp_port_lock);
++
++			if (wakeup)
++				tty_port_tty_wakeup(&port->port);
+ 		} else if (opcode == DIGI_CMD_TRANSMIT_IDLE) {
+ 			spin_lock(&priv->dp_port_lock);
+ 			priv->dp_transmit_idle = 1;
 
 
