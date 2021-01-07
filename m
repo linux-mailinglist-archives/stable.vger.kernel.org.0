@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6BD62ED1C7
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:21:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9332ED1EA
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729114AbhAGOR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:17:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39046 "EHLO mail.kernel.org"
+        id S1728187AbhAGOTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:19:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729105AbhAGOR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729104AbhAGOR2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 7 Jan 2021 09:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8B2E2064B;
-        Thu,  7 Jan 2021 14:16:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2292123355;
+        Thu,  7 Jan 2021 14:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610029019;
-        bh=bmG8cDKhmZ3Yu1LN9m5aZPQoMKQO1lvaFBzrdJo7uPw=;
+        s=korg; t=1610029021;
+        bh=0kSchLY9ai+cWrRhAzU1RAPj7dkBox3EXYv3kQH2Ohc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1gqSJVICLb9X/PIIiSIVH8Oc3BkjwXeJyB0gvTPfRzvOU6Ftrqijmw0JU6Eqlmvo
-         AXiH2psAcSEVtfzCOakKieNwUeCTZUPvTurDqKpgsxwbFXA5MjBDM7DiRPUgjGIqFn
-         2KDODHnKwzefKHctmM/SZvnyHfGvaqfUlYe3pjeY=
+        b=kuH4cu+5k50MS14lzvDP9iJPOqSIJW6NlGOvRywr+6vG5Gh7sLptAGRN+a4FHkVrw
+         Y5CVSICbZmuqOydsGrzqA+mRVeXMfP9y8PEWw6WPaxLBFq4Tia1ltTHhJIEFgyikLM
+         PfsG4lBFhWAwMC9oM2zxdGeqZtV2YOQ7jwQpNQbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alberto Aguirre <albaguirre@gmail.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Takashi Iwai <tiwai@suse.de>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 03/32] ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk
-Date:   Thu,  7 Jan 2021 15:16:23 +0100
-Message-Id: <20210107140828.023195892@linuxfoundation.org>
+Subject: [PATCH 4.9 04/32] ALSA: usb-audio: fix sync-ep altsetting sanity check
+Date:   Thu,  7 Jan 2021 15:16:24 +0100
+Message-Id: <20210107140828.071957192@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
 References: <20210107140827.866214702@linuxfoundation.org>
@@ -40,98 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alberto Aguirre <albaguirre@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 103e9625647ad74d201e26fb74afcd8479142a37 upstream
+commit 5d1b71226dc4d44b4b65766fa9d74492f9d4587b upstream
 
-Signed-off-by: Alberto Aguirre <albaguirre@gmail.com>
+The altsetting sanity check in set_sync_ep_implicit_fb_quirk() was
+checking for there to be at least one altsetting but then went on to
+access the second one, which may not exist.
+
+This could lead to random slab data being used to initialise the sync
+endpoint in snd_usb_add_endpoint().
+
+Fixes: c75a8a7ae565 ("ALSA: snd-usb: add support for implicit feedback")
+Fixes: ca10a7ebdff1 ("ALSA: usb-audio: FT C400 sync playback EP to capture EP")
+Fixes: 5e35dc0338d8 ("ALSA: usb-audio: add implicit fb quirk for Behringer UFX1204")
+Fixes: 17f08b0d9aaf ("ALSA: usb-audio: add implicit fb quirk for Axe-Fx II")
+Fixes: 103e9625647a ("ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk")
+Cc: stable <stable@vger.kernel.org>     # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200114083953.1106-1-johan@kernel.org
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/pcm.c |   52 ++++++++++++++++++++--------------------------------
- 1 file changed, 20 insertions(+), 32 deletions(-)
+ sound/usb/pcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/sound/usb/pcm.c
 +++ b/sound/usb/pcm.c
-@@ -324,6 +324,7 @@ static int set_sync_ep_implicit_fb_quirk
- 	struct usb_host_interface *alts;
- 	struct usb_interface *iface;
- 	unsigned int ep;
-+	unsigned int ifnum;
+@@ -369,7 +369,7 @@ static int set_sync_ep_implicit_fb_quirk
+ add_sync_ep_from_ifnum:
+ 	iface = usb_ifnum_to_if(dev, ifnum);
  
- 	/* Implicit feedback sync EPs consumers are always playback EPs */
- 	if (subs->direction != SNDRV_PCM_STREAM_PLAYBACK)
-@@ -334,44 +335,23 @@ static int set_sync_ep_implicit_fb_quirk
- 	case USB_ID(0x0763, 0x2031): /* M-Audio Fast Track C600 */
- 	case USB_ID(0x22f0, 0x0006): /* Allen&Heath Qu-16 */
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 3);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--		break;
-+		ifnum = 3;
-+		goto add_sync_ep_from_ifnum;
- 	case USB_ID(0x0763, 0x2080): /* M-Audio FastTrack Ultra */
- 	case USB_ID(0x0763, 0x2081):
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 2);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--	case USB_ID(0x2466, 0x8003):
-+		ifnum = 2;
-+		goto add_sync_ep_from_ifnum;
-+	case USB_ID(0x2466, 0x8003): /* Fractal Audio Axe-Fx II */
- 		ep = 0x86;
--		iface = usb_ifnum_to_if(dev, 2);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--	case USB_ID(0x1397, 0x0002):
-+		ifnum = 2;
-+		goto add_sync_ep_from_ifnum;
-+	case USB_ID(0x1397, 0x0002): /* Behringer UFX1204 */
- 		ep = 0x81;
--		iface = usb_ifnum_to_if(dev, 1);
--
--		if (!iface || iface->num_altsetting == 0)
--			return -EINVAL;
--
--		alts = &iface->altsetting[1];
--		goto add_sync_ep;
--
-+		ifnum = 1;
-+		goto add_sync_ep_from_ifnum;
- 	}
-+
- 	if (attr == USB_ENDPOINT_SYNC_ASYNC &&
- 	    altsd->bInterfaceClass == USB_CLASS_VENDOR_SPEC &&
- 	    altsd->bInterfaceProtocol == 2 &&
-@@ -386,6 +366,14 @@ static int set_sync_ep_implicit_fb_quirk
- 	/* No quirk */
- 	return 0;
+-	if (!iface || iface->num_altsetting == 0)
++	if (!iface || iface->num_altsetting < 2)
+ 		return -EINVAL;
  
-+add_sync_ep_from_ifnum:
-+	iface = usb_ifnum_to_if(dev, ifnum);
-+
-+	if (!iface || iface->num_altsetting == 0)
-+		return -EINVAL;
-+
-+	alts = &iface->altsetting[1];
-+
- add_sync_ep:
- 	subs->sync_endpoint = snd_usb_add_endpoint(subs->stream->chip,
- 						   alts, ep, !subs->direction,
+ 	alts = &iface->altsetting[1];
 
 
