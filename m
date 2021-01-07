@@ -2,155 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D3D2ED18E
-	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CDB2ED1E4
+	for <lists+stable@lfdr.de>; Thu,  7 Jan 2021 15:22:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728565AbhAGOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 09:16:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38598 "EHLO mail.kernel.org"
+        id S1728413AbhAGOTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 09:19:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726151AbhAGOQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 7 Jan 2021 09:16:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C2D23118;
-        Thu,  7 Jan 2021 14:15:26 +0000 (UTC)
+        id S1729091AbhAGOR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Jan 2021 09:17:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8102323358;
+        Thu,  7 Jan 2021 14:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610028927;
-        bh=e3dE13/Q8RWQvRF6W6tkfvEM9wPbAZs6qVG35FtTRzA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wBvaUe8cx4nyDAvoKvrNNGx6KGdBDcM6mgO3kTIVfCc0SzKuX2lqu9Y+kBYMD8Rgs
-         uY6/ppkxknpObwQIPSXjQda/JhclAIs3K+2SFXHas51mxexw5dBxUIqAhBGB4uoByC
-         3b6WLNy7rT3SzZZci9AY85CQ6PTWvBl3jiU0aCwc=
+        s=korg; t=1610029026;
+        bh=zGPLzw0ptRmSF1sK8hvpfqO36N5dxwnYz9Xb4qpCBrU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=xGH37FZbkKnBz6I/8mujvwIpz6HelRET5bNtbXdAp4kAuKSPx7XDZoBfmeRXq4Tdz
+         44R1URKKxtezvvg5hR9cCbHrWXs7nzH+ycs3R4/TaRcX3S6x28v08BoPFTnUB8AvZj
+         sXuIm8sbc+EyKfO7z/XfimnXg8ealuTToOrfkafI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/19] 4.4.250-rc1 review
-Date:   Thu,  7 Jan 2021 15:16:25 +0100
-Message-Id: <20210107140827.584658199@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 06/32] ALSA: hda - Fix a wrong FIXUP for alc289 on Dell machines
+Date:   Thu,  7 Jan 2021 15:16:26 +0100
+Message-Id: <20210107140828.165458468@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-MIME-Version: 1.0
+In-Reply-To: <20210107140827.866214702@linuxfoundation.org>
+References: <20210107140827.866214702@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.250-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.250-rc1
-X-KernelTest-Deadline: 2021-01-09T14:08+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.250 release.
-There are 19 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Hui Wang <hui.wang@canonical.com>
 
-Responses should be made by Sat, 09 Jan 2021 14:08:13 +0000.
-Anything received after that time might be too late.
+commit d5078193e56bb24f4593f00102a3b5e07bb84ee0 upstream
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.250-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+With the alc289, the Pin 0x1b is Headphone-Mic, so we should assign
+ALC269_FIXUP_DELL4_MIC_NO_PRESENCE rather than
+ALC225_FIXUP_DELL1_MIC_NO_PRESENCE to it. And this change is suggested
+by Kailang of Realtek and is verified on the machine.
 
-thanks,
+Fixes: 3f2f7c553d07 ("ALSA: hda - Fix headset mic detection problem for two Dell machines")
+Cc: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.250-rc1
-
-Jonathan Cameron <Jonathan.Cameron@huawei.com>
-    iio:magnetometer:mag3110: Fix alignment and data leak issues.
-
-Jessica Yu <jeyu@kernel.org>
-    module: delay kobject uevent until after module init call
-
-Qinglang Miao <miaoqinglang@huawei.com>
-    powerpc: sysdev: add missing iounmap() on error in mpic_msgr_probe()
-
-Jan Kara <jack@suse.cz>
-    quota: Don't overflow quota file offsets
-
-Miroslav Benes <mbenes@suse.cz>
-    module: set MODULE_STATE_GOING state when a module fails to load
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: seq: Use bool for snd_seq_queue internal flags
-
-Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-    media: gp8psk: initialize stats at power control logic
-
-Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    misc: vmw_vmci: fix kernel info-leak by initializing dbells in vmci_ctx_get_chkpt_doorbells()
-
-Rustam Kovhaev <rkovhaev@gmail.com>
-    reiserfs: add check for an invalid ih_entry_count
-
-Johan Hovold <johan@kernel.org>
-    of: fix linker-section match-table corruption
-
-Petr Vorel <petr.vorel@gmail.com>
-    uapi: move constants from <linux/kernel.h> to <linux/const.h>
-
-Johan Hovold <johan@kernel.org>
-    USB: serial: digi_acceleport: fix write-wakeup deadlocks
-
-Stefan Haberland <sth@linux.ibm.com>
-    s390/dasd: fix hanging device offline processing
-
-Kailang Yang <kailang@realtek.com>
-    ALSA: hda/realtek - Dell headphone has noise on unmute for ALC236
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda - Fix a wrong FIXUP for alc289 on Dell machines
-
-Kailang Yang <kailang@realtek.com>
-    ALSA: hda/realtek - Support Dell headset mode for ALC3271
-
-Johan Hovold <johan@kernel.org>
-    ALSA: usb-audio: fix sync-ep altsetting sanity check
-
-Alberto Aguirre <albaguirre@gmail.com>
-    ALSA: usb-audio: simplify set_sync_ep_implicit_fb_quirk
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/ca0132 - Fix work handling in delayed HP detection
-
-
--------------
-
-Diffstat:
-
- Makefile                                |  4 +--
- arch/powerpc/sysdev/mpic_msgr.c         |  2 +-
- drivers/iio/magnetometer/mag3110.c      | 13 +++++++---
- drivers/media/usb/dvb-usb/gp8psk.c      |  2 +-
- drivers/misc/vmw_vmci/vmci_context.c    |  2 +-
- drivers/s390/block/dasd_alias.c         | 10 +++++++-
- drivers/usb/serial/digi_acceleport.c    | 45 ++++++++++-----------------------
- fs/quota/quota_tree.c                   |  8 +++---
- fs/reiserfs/stree.c                     |  6 +++++
- include/linux/of.h                      |  1 +
- include/uapi/linux/const.h              |  5 ++++
- include/uapi/linux/lightnvm.h           |  2 +-
- include/uapi/linux/netfilter/x_tables.h |  2 +-
- include/uapi/linux/netlink.h            |  2 +-
- include/uapi/linux/sysctl.h             |  2 +-
- kernel/module.c                         |  6 +++--
- sound/core/seq/seq_queue.h              |  8 +++---
- sound/pci/hda/patch_ca0132.c            | 16 ++++++++++--
- sound/pci/hda/patch_realtek.c           | 25 +++++++++++++++---
- sound/usb/pcm.c                         | 38 ++++++++++++----------------
- 20 files changed, 116 insertions(+), 83 deletions(-)
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6194,7 +6194,7 @@ static const struct snd_hda_pin_quirk al
+ 		{0x12, 0x90a60120},
+ 		{0x14, 0x90170110},
+ 		{0x21, 0x0321101f}),
+-	SND_HDA_PIN_QUIRK(0x10ec0289, 0x1028, "Dell", ALC225_FIXUP_DELL1_MIC_NO_PRESENCE,
++	SND_HDA_PIN_QUIRK(0x10ec0289, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
+ 		{0x12, 0xb7a60130},
+ 		{0x14, 0x90170110},
+ 		{0x21, 0x04211020}),
 
 
