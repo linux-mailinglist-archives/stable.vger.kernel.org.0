@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D076B2EFA32
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 22:19:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC7B32EFA3C
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 22:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbhAHVSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jan 2021 16:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33960 "EHLO
+        id S1729516AbhAHVTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jan 2021 16:19:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729452AbhAHVSM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 16:18:12 -0500
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4BDC061786;
-        Fri,  8 Jan 2021 13:17:31 -0800 (PST)
-Received: by mail-qk1-x72e.google.com with SMTP id 186so9807720qkj.3;
-        Fri, 08 Jan 2021 13:17:31 -0800 (PST)
+        with ESMTP id S1727845AbhAHVTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 16:19:46 -0500
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3368BC061574;
+        Fri,  8 Jan 2021 13:19:06 -0800 (PST)
+Received: by mail-qt1-x835.google.com with SMTP id 2so7548241qtt.10;
+        Fri, 08 Jan 2021 13:19:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=CwnmURqbXWi83+YJ2u0BfQ7YOsLloUGg9mtui9lPXE4=;
-        b=NmZdsAfKHe+255PDndngVtKAu8nMd2MXHttlqF5HxQ45ZAGa/mNYrYpfHamJYuZgXl
-         qyI2TRugzunZHHus/iRK/ZWD7Obx5ZiOiuf8V2ea76rwDLH+BWXZIUVzHXbhkVZclZzG
-         S8u9q8PO10jcQUZkIGqKXDMNaggK/xl5lrkYhT2NYP6F9lGjhUORxa1QoLE//En6pd/4
-         S/FX0ZNzchl27Fzu/llHmIVhh8sNdMhYnrGtgy26ayrTz42NFcXsEMMwOHTmF4uZFyLs
-         uV15EYT6Wp5d8oSinBhwOHMg+2zihEnwQwR2z+ETl4jLiIsifubLzZPUwv375BE/BEPm
-         vYmA==
+        bh=FT8leUKcQW0PbWbAqTVuy6I1pPu6asWx5VuvUk3OGU0=;
+        b=ldFjd7QEAoot+4bc90T+cGOopb7MJhsAriABNvpBJNnORtF7foNGMXIt/DCLHLLiko
+         X/E1kW0YQ0ajzR7D6Hd3PWn/Q79xZrFAQxptsdz4Zk5+H0K6F03nTYXck82taYpiqwYD
+         EjCsKxf1rhikMbj/TtRWKbkPl4qCxhnhgvF6Qp+0avDZ3W6/18yPCJ/d8vxruCIDjVhD
+         X3iGWWyabEB+60KSJwxj34YUl1ZiPewWP7RkIyYpVgpV7OLKapEnaTqvZys+mEw1BJes
+         Q6ArnijyCqb1UgCNHOvZAnRpnbFpOjzF91L2LduPR3oXSLmP++shftBTipa+KFwzieAz
+         fKlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=CwnmURqbXWi83+YJ2u0BfQ7YOsLloUGg9mtui9lPXE4=;
-        b=a1sEj93XrNU5sIMVf1BCsaC00iV6Z9hjnOwsGptgjsQxI110TCE78LFuGpfNVuQJhF
-         qhe6f/Ma54hknULt88MzZcEtPFb2Jl+y8ynqVMV76keZQhnGcQM9SS6VNL4DX6nrS8aN
-         J1JwtIRybEIjU2Y2gXtZ4YTiQ8/Fgnp7eky79gmmL+ZafAZcDWynd2PKB9hgaCfbQ9MA
-         5jVXy+ESFyCtSru87mWaOfQCMUqbFSaB4Ppkc7AJb7RTzHLVgLnBi1NbVHK8mKI0lXFe
-         0o0DMBK2iLEuBr0JILD8UttUAtM5ccywCOmLyslkYm02VnrdseKeYpMpfLwG5ZvKe9SN
-         klfg==
-X-Gm-Message-State: AOAM531Um/AUMUxP33Ofcl0vf2T4BhYwdZBlkvLzgG94PgiPxlLrxzbX
-        O49iv7c90NbkRM6XdSBHdGc=
-X-Google-Smtp-Source: ABdhPJwYeJUt6gB0gAwhAnxzXp2NRRU8FBnM8XYYTz56YtbWM7wJOLi/BpXWdEJ/8lynUZTreKO2Eg==
-X-Received: by 2002:a37:c442:: with SMTP id h2mr5841601qkm.283.1610140650847;
-        Fri, 08 Jan 2021 13:17:30 -0800 (PST)
+        bh=FT8leUKcQW0PbWbAqTVuy6I1pPu6asWx5VuvUk3OGU0=;
+        b=TmZQFi2R9X157Q9n74IG0cVoklpOfQWue+t4A7vppk/mX8+GVYg8YcWeTDTO52v+t4
+         3gD/MyiCztCZwPbt41fT0Iaz0ScEoS6FBpbqZXr6+4RGy/1kzATqoQ7YoVBKMXnbpXt4
+         1ZczhddDrzVCeEQ89bCHM5Y7MMazYaIo2woiqb3p9NXfFPudiDPsptB/RZPIwy/e1C81
+         Pm5hKJ5hV0sySKl/Xf8kgszNwHAUc1fUNPs1JU6hWj4XsixhQcdEyNbwxgl9TU4v+l1T
+         ZC3FFHfaGRcpicu1biqh/c5UjfzXqPHD+7Goh66AaYvn80SCUPKDQaNGLFjIuxW1zBAs
+         h8Tw==
+X-Gm-Message-State: AOAM532V4uzgLWAf2C/UYMyLd1fST2kEa5ZfMEbACIvi29uqaJ0Tqecm
+        p4AJ/ikiTEW+fc2vgUMO44Q=
+X-Google-Smtp-Source: ABdhPJwXR85WUk2uK/FbRNd/B1DnI7feLX9vmw2Gdl1bj4XQ72b9R23KlhnbciRs+xN7GkOABAJUTQ==
+X-Received: by 2002:aed:231d:: with SMTP id h29mr5412755qtc.238.1610140745288;
+        Fri, 08 Jan 2021 13:19:05 -0800 (PST)
 Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
-        by smtp.gmail.com with ESMTPSA id a9sm5412026qkk.39.2021.01.08.13.17.29
+        by smtp.gmail.com with ESMTPSA id l204sm5408189qke.56.2021.01.08.13.19.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Jan 2021 13:17:30 -0800 (PST)
-Date:   Fri, 8 Jan 2021 14:17:28 -0700
+        Fri, 08 Jan 2021 13:19:04 -0800 (PST)
+Date:   Fri, 8 Jan 2021 14:19:03 -0700
 From:   Nathan Chancellor <natechancellor@gmail.com>
 To:     Alexander Lobakin <alobakin@pm.me>
 Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
@@ -65,50 +65,72 @@ Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arch@vger.kernel.org, stable@vger.kernel.org,
         clang-built-linux@googlegroups.com
-Subject: Re: [PATCH v4 mips-next 5/7] MIPS: vmlinux.lds.S: explicitly declare
- .got table
-Message-ID: <20210108211728.GE2547542@ubuntu-m3-large-x86>
+Subject: Re: [PATCH v4 mips-next 6/7] vmlinux.lds.h: catch compound literals
+ into data and BSS
+Message-ID: <20210108211903.GF2547542@ubuntu-m3-large-x86>
 References: <20210107123331.354075-1-alobakin@pm.me>
  <20210107132010.463129-1-alobakin@pm.me>
- <20210107132010.463129-2-alobakin@pm.me>
+ <20210107132010.463129-3-alobakin@pm.me>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210107132010.463129-2-alobakin@pm.me>
+In-Reply-To: <20210107132010.463129-3-alobakin@pm.me>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 07, 2021 at 01:20:49PM +0000, Alexander Lobakin wrote:
-> LLVM stack generates GOT table when building the kernel:
+On Thu, Jan 07, 2021 at 01:20:55PM +0000, Alexander Lobakin wrote:
+> When building kernel with LD_DEAD_CODE_DATA_ELIMINATION, LLVM stack
+> generates separate sections for compound literals, just like in case
+> with enabled LTO [0]:
 > 
-> ld.lld: warning: <internal>:(.got) is being placed in '.got'
+> ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+> (.data..compoundliteral.14) is being placed in
+> '.data..compoundliteral.14'
+> ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+> (.data..compoundliteral.15) is being placed in
+> '.data..compoundliteral.15'
+> ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+> (.data..compoundliteral.16) is being placed in
+> '.data..compoundliteral.16'
+> ld.lld: warning: drivers/built-in.a(mtd/nand/spi/gigadevice.o):
+> (.data..compoundliteral.17) is being placed in
+> '.data..compoundliteral.17'
 > 
-> According to the debug assertions, it's not zero-sized and thus
-> can't be handled the same way as .rel.dyn (like it's done for x86).
-> Use the ARM/ARM64 path here and place it at the end of .text section.
+> [...]
 > 
-> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Handle this by adding the related sections to generic definitions
+> as suggested by Sami [0].
+> 
+> [0] https://lore.kernel.org/lkml/20201211184633.3213045-3-samitolvanen@google.com
+> 
+> Suggested-by: Kees Cook <keescook@chromium.org>
 > Signed-off-by: Alexander Lobakin <alobakin@pm.me>
 
 Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 
 > ---
->  arch/mips/kernel/vmlinux.lds.S | 1 +
->  1 file changed, 1 insertion(+)
+>  include/asm-generic/vmlinux.lds.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
-> index 0f736d60d43e..4709959f6985 100644
-> --- a/arch/mips/kernel/vmlinux.lds.S
-> +++ b/arch/mips/kernel/vmlinux.lds.S
-> @@ -69,6 +69,7 @@ SECTIONS
->  		*(.text.*)
->  		*(.fixup)
->  		*(.gnu.warning)
-> +		*(.got)
->  	} :text = 0
->  	_etext = .;	/* End of text section */
->  
+> diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+> index b2b3d81b1535..5f2f5b1db84f 100644
+> --- a/include/asm-generic/vmlinux.lds.h
+> +++ b/include/asm-generic/vmlinux.lds.h
+> @@ -95,10 +95,10 @@
+>   */
+>  #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
+>  #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
+> -#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
+> +#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..L* .data..compoundliteral*
+>  #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
+> -#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
+> -#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
+> +#define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]* .rodata..L*
+> +#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
+>  #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
+>  #else
+>  #define TEXT_MAIN .text
 > -- 
 > 2.30.0
 > 
