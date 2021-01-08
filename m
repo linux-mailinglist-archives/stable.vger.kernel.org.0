@@ -2,91 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A4F2EEB59
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 03:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA882EEB5B
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 03:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726851AbhAHCh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 21:37:29 -0500
-Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:61062 "EHLO
-        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbhAHCh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 21:37:28 -0500
+        id S1726370AbhAHChg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 21:37:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726281AbhAHChg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 21:37:36 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF69FC0612F4;
+        Thu,  7 Jan 2021 18:36:55 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id t6so4918388plq.1;
+        Thu, 07 Jan 2021 18:36:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1610073448; x=1641609448;
-  h=date:from:to:cc:message-id:references:mime-version:
-   content-transfer-encoding:in-reply-to:subject;
-  bh=my3Naolu1PChTdM9Bl0HiSg56oK/sbgUmZToPz64Yxo=;
-  b=f32WMGvbM46PPI7fyPA3XrD6uqbC7Ogsr8r34V4mOAebfJvoz3TDnwpF
-   JIGourGztRYd0utT/5baPnm0Kc7D5IL6AbMXiBlr7nmgnJVKtq9OYSqdG
-   kj3o7gz8GmOa6bC2GVwYXn5AS3HQBE7T73yLfCxeGrAAmDxf8w5oQ9bSu
-   k=;
-X-IronPort-AV: E=Sophos;i="5.79,330,1602547200"; 
-   d="scan'208";a="76128177"
-Subject: Re: [PATCH] neighbour: Disregard DEAD dst in neigh_update
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-1d-98acfc19.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-out-6002.iad6.amazon.com with ESMTP; 08 Jan 2021 02:36:46 +0000
-Received: from EX13MTAUEE001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-1d-98acfc19.us-east-1.amazon.com (Postfix) with ESMTPS id AD2E5A1F59;
-        Fri,  8 Jan 2021 02:36:44 +0000 (UTC)
-Received: from EX13D06UEA002.ant.amazon.com (10.43.61.198) by
- EX13MTAUEE001.ant.amazon.com (10.43.62.226) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Fri, 8 Jan 2021 02:36:42 +0000
-Received: from ucf43ac461c9a53.ant.amazon.com (10.43.161.68) by
- EX13D06UEA002.ant.amazon.com (10.43.61.198) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Fri, 8 Jan 2021 02:36:41 +0000
-Date:   Thu, 7 Jan 2021 21:36:37 -0500
-From:   Your Real Name <zhutong@amazon.com>
-To:     David Miller <davem@davemloft.net>
-CC:     <sashal@kernel.org>, <edumazet@google.com>, <vvs@virtuozzo.com>,
-        <netdev@vger.kernel.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Message-ID: <20210108023637.GA31904@ucf43ac461c9a53.ant.amazon.com>
-References: <20201230225415.GA490@ucf43ac461c9a53.ant.amazon.com>
- <20210105.160521.1279064249478522010.davem@davemloft.net>
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=2jWvMs7HNFgAsWyHmNDqd2Gz0J6BFz9KPE4hHrpib2U=;
+        b=UvsSw171IQmkCp1jhJHvxmO2GnDN9+ENmEaO8y573NyUys3ADL7jqivOmQU6eOnhWN
+         km3S545XcU8QPsS/BuW3Lcww6FEaJubaPHvIUzba0wn7RWNJspVTQbz9RUk5GXcjkbxa
+         nebAEpRYy4YmmEf5mD4MxPBo6PrLdlgCpmK6quTIhETWIOQM6qtG8zTTvNd7UYG3fDC2
+         vlhDqKgrZbn/eL5V1JXzMbmp7mXTqZyPOFrZyI0LMli26UCEp8sN5pgmMCnhTcCh4VBU
+         X3QqqupsImNACUISrlPF7r8MiHiGvo38FR+YYWj4w8beCkGauoxpRozlYgsrp0vGnGSk
+         KAYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=2jWvMs7HNFgAsWyHmNDqd2Gz0J6BFz9KPE4hHrpib2U=;
+        b=gMuOQCBpRMTeqlU2M41q8UI2UXJgQ2jLX9YrfsAJgPlJB+3H6tY4Z/CWoBqKp/z/Fe
+         3qGbrSxhhdPrEQhhv69l+ku8tEvgziyPA4muUY7n37ulHD7p1q0WOCa3wx+/rX/AH7/b
+         jtf8MRPmDHO1yursuPlKaQ2akXSudVXLbeeuuXif+/0K3nZJbXDdIKGl5a6N7KGDFS7w
+         VA3wDJ584/tovUhWFDJqhBd2G8wVwhkMbpeICxSIZ8IRm9aS3KviolaU+ZSXaLpKDu7i
+         nxL3/uIdMYZYIGwc9+D7W6uGtvrb/aILfq8cUomoGGc7d+C/OMtmFe5M3/G2s5WuzKbM
+         1v2w==
+X-Gm-Message-State: AOAM530tg7WM+WIdp6rYF/T6suLkYtY3obFHa4AR0W/Z0Z0Ft0XNp3lI
+        ox+mEq+wkopU8NUNxVsNPNI=
+X-Google-Smtp-Source: ABdhPJyasOdYyIDErWAaInoO7fb2yolBJ7yy5zBrZaTUN9wI+W2cGLqEXFQBTJc4Uz70Pre+VY3tXw==
+X-Received: by 2002:a17:90b:1a86:: with SMTP id ng6mr1481468pjb.12.1610073415325;
+        Thu, 07 Jan 2021 18:36:55 -0800 (PST)
+Received: from b29397-desktop ([194.5.48.251])
+        by smtp.gmail.com with ESMTPSA id r20sm8070301pgb.3.2021.01.07.18.36.51
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 07 Jan 2021 18:36:54 -0800 (PST)
+Date:   Fri, 8 Jan 2021 10:36:46 +0800
+From:   Peter Chen <hzpeterchen@gmail.com>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Cc:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, John Youn <John.Youn@synopsys.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 0/2] usb: dwc3: gadget: Check for multiple start/stop
+Message-ID: <20210108023646.GB4672@b29397-desktop>
+References: <cover.1609865348.git.Thinh.Nguyen@synopsys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210105.160521.1279064249478522010.davem@davemloft.net>
+In-Reply-To: <cover.1609865348.git.Thinh.Nguyen@synopsys.com>
 User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Originating-IP: [10.43.161.68]
-X-ClientProxiedBy: EX13D39UWA001.ant.amazon.com (10.43.160.54) To
- EX13D06UEA002.ant.amazon.com (10.43.61.198)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 05, 2021 at 04:05:21PM -0800, David Miller wrote: 
+On 21-01-05 08:56:28, Thinh Nguyen wrote:
+> Add some checks to avoid going through the start/stop sequence if the gadget
+> had already started/stopped. This series base-commit is Greg's usb-linus
+> branch.
 > 
-> 
-> From: Tong Zhu <zhutong@amazon.com>
-> Date: Wed, 30 Dec 2020 17:54:23 -0500
-> 
-> > In 4.x kernel a dst in DST_OBSOLETE_DEAD state is associated
-> > with loopback net_device and leads to loopback neighbour. It
-> > leads to an ethernet header with all zero addresses.
-> >
-> > A very troubling case is working with mac80211 and ath9k.
-> > A packet with all zero source MAC address to mac80211 will
-> > eventually fail ieee80211_find_sta_by_ifaddr in ath9k (xmit.c).
-> > As result, ath9k flushes tx queue (ath_tx_complete_aggr) without
-> > updating baw (block ack window), damages baw logic and disables
-> > transmission.
-> >
-> > Signed-off-by: Tong Zhu <zhutong@amazon.com>
-> 
-> Please repost with an appropriate Fixes: tag.
-> 
-> Thanks.
 
-I had a second thought on this. This fix should go mainline too. This is a 
-case we are sending out queued packets when arp reply from the neighbour 
-comes in. With 5.x kernel, a dst in DST_OBSOLETE_DEAD state leads to dropping
-of this packet. It is not as bad as with 4.x kernel that may end up with an
-all-zero mac address packet out to ethernet or choking up ath9k when using 
-block ack. Dropping the packet is still wrong. I’ll repost as a fix to
-mainline and target backport to 4.x LTS releases.
+Hi Thinh,
 
-Best regards
-    
+What's the sequence your could reproduce it?
+
+Peter
+> 
+> 
+> Thinh Nguyen (2):
+>   usb: dwc3: gadget: Check if the gadget had started
+>   usb: dwc3: gadget: Check if the gadget had stopped
+> 
+>  drivers/usb/dwc3/gadget.c | 28 ++++++++++++----------------
+>  1 file changed, 12 insertions(+), 16 deletions(-)
+> 
+> 
+> base-commit: 96ebc9c871d8a28fb22aa758dd9188a4732df482
+> -- 
+> 2.28.0
+> 
+
+-- 
+
+Thanks,
+Peter Chen
+
