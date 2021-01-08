@@ -2,195 +2,342 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF0B02EE9E0
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 00:43:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83192EEA13
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 01:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726854AbhAGXmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 18:42:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
+        id S1729390AbhAHABA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 19:01:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725944AbhAGXmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 18:42:22 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6228FC0612F6
-        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 15:41:42 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id w17so13168991ybl.15
-        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 15:41:42 -0800 (PST)
+        with ESMTP id S1727300AbhAHABA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 19:01:00 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06119C0612F5
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 16:00:20 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id v19so6424342pgj.12
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 16:00:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:to:cc;
-        bh=E7U4y6f6fCTA1c1lfgDAQLQv0BC0j20W4BBoLaKmuXo=;
-        b=ZK+woJKJUDMYY+l3oIQFIMyhAQ/Nl50mAk5fJtGnnfLudnr6ldkKpshauoLrpy+bc6
-         WwXdzU+5P/zd9dWzf3tbUnS7P3x1DFb8CTs/4pT5i4SFVr3CmggrZu6dEFgVSRJ3eYR2
-         OBhqlZcAnIlWdky4/nNI835Cg+zzwbo8OB0y4Ed4BLz8uLEoGKe8Lj/wZ+YTHbqCsqvZ
-         I38CBRMDPkUAbHH8+khunLQiYsfJKu0lh/CQs2V32dcUMWWlxPMs5w3onHHnDJyuzd/S
-         760F/azdUFwsw1zxTk7Y8xr45FlfRBzlFFNckaYN1S3gnmoZ1pRBGOcm8i+uxRj+2vis
-         xwlw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=uoECV8K5varWwC/s4ncjebxFoEeMZfGzg3NbKahpp5U=;
+        b=n0mmOhYE36M1bN9CXpdwMJWf6E6lc9dfTWk06lT2MKLwfWgy7C8JV9JakadMmK4dRm
+         AXQyDvWvCipZVhUSOQzxhvivBgzimDc7VzEoiLLzWIMaFGjKsHsfsl0p2b/9rZS2LrQ8
+         ntogXyNmEjgpFHOmOS3B+l3Ux3GKmCXal7jsXrenQpvDXKPkaY/q0BMbt+vD6blZhCsQ
+         t05vtu0XjVzljhO9t6akxYnX3teI3g7bQWULnKcU9Ya8ZvJhU+cPZyyRY1Bqb4uFj4zU
+         Vpo8hALe6fojqVO6FiUPYaLsF7yWsaWOtmcFB6eROA0ZumbsVGuSHmFyu+q2BdEipC6i
+         FXuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :to:cc;
-        bh=E7U4y6f6fCTA1c1lfgDAQLQv0BC0j20W4BBoLaKmuXo=;
-        b=Sfhz5t3J2AVMSt9fDWeND4kaWBmAqz4DITs99TjntbtapbcII1RRm9RbS1W17HeFpk
-         3ZTVOKk1YmPXnqtupFbYv6lbzqVU9j1MUESuO/kZVVAoKH9RpKZuLa9dWzLMS8efjEpV
-         xrNU/D3ls+cc8vJN6c8XxnNjB/Zisw8HWxK6yKJF/yId7zLmJDB0S5O+EUWHyoU9ztLs
-         uNrNJIXqCRYgZ6cC7j/J9+uv2cEFdSActvenCVJfPg69lmhNKi59TMFPDZ9RR+g7CO5T
-         KG2xVmhEvvvJIIHZ/JV2cZx6foztUJH3pbPAYiEr2cJGWTAWvi4pZxaKEiINioMgsprJ
-         cvuQ==
-X-Gm-Message-State: AOAM5319wpL0brYh3ttdJrTW/TezarDJtJgbGaZypuqZHWyWJIxwCngA
-        Ej4QeNrQcsfhFFzW8ZSM8QX5gBj5xqXwJ/Q=
-X-Google-Smtp-Source: ABdhPJxKmOBqt5322ua8/SoJlklpM5/Go991H/gXTFHrjywnTjfxnSzwXIo/tNHVaLv+Wl2iijcHrfn9e/l7m2M=
-Sender: "saravanak via sendgmr" <saravanak@saravanak.san.corp.google.com>
-X-Received: from saravanak.san.corp.google.com ([2620:15c:2d:3:7220:84ff:fe09:fedc])
- (user=saravanak job=sendgmr) by 2002:a25:d4e:: with SMTP id
- 75mr1757542ybn.340.1610062901494; Thu, 07 Jan 2021 15:41:41 -0800 (PST)
-Date:   Thu,  7 Jan 2021 15:41:36 -0800
-Message-Id: <20210107234136.740371-1-saravanak@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.29.2.729.g45daf8777d-goog
-Subject: [PATCH v2] driver core: Fix device link device name collision
-From:   Saravana Kannan <saravanak@google.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Saravana Kannan <saravanak@google.com>
-Cc:     stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        kernel-team@android.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=uoECV8K5varWwC/s4ncjebxFoEeMZfGzg3NbKahpp5U=;
+        b=KbLyuN+BoufuawL6s4B3GuLNh4zQrO4cV/idnXG5vC29SqGQwSpHaPM3yk9f1KicJ4
+         RDyvYo6qrf3On+cfLnSgRIJ5VWNoOmYB70TJ64laGgoT0f+j1Q3uprl8Ijk/9nnySg+g
+         GBtHgJzFm7Q8iQn6GDH91T5s8THDry16WOT4vu8MLvn+pJV6W7LC+sjXqF89GS+szR3U
+         UZU7/V3tmLfX6DwnfhbDStqQ+/5gnwva9Eo8+QGP5+SXvKnMgquuoGnagc61ecVVRqhv
+         PMXIW/ryxCWC5xiqPDze/FQHMMxZcenQ1nMDed4fVAJszH50OwWWNrXAiIOnYnqWCGSx
+         LoOQ==
+X-Gm-Message-State: AOAM5304VTixw42dNQijmONHTS/8Y1FVXshAYQCgAahVsFRPiBIqDpWl
+        UZ8XxSi/y1exC3OIEzAOvlxlaOY1QsHA1w==
+X-Google-Smtp-Source: ABdhPJz2sMyirtmlg4Upo1BDyaU5I/m1CAi6rbbjwQ7nptNMdy7PLd/74hCZikBOJY4lOQ6JqJQZpA==
+X-Received: by 2002:a62:8205:0:b029:19e:717c:d647 with SMTP id w5-20020a6282050000b029019e717cd647mr1011939pfd.50.1610064019175;
+        Thu, 07 Jan 2021 16:00:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a13sm6787442pfr.59.2021.01.07.16.00.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Jan 2021 16:00:18 -0800 (PST)
+Message-ID: <5ff7a092.1c69fb81.86276.0a68@mx.google.com>
+Date:   Thu, 07 Jan 2021 16:00:18 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.87-13-gb56dac9bf317
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.4 baseline: 171 runs,
+ 7 regressions (v5.4.87-13-gb56dac9bf317)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The device link device's name was of the form:
-<supplier-dev-name>--<consumer-dev-name>
+stable-rc/queue/5.4 baseline: 171 runs, 7 regressions (v5.4.87-13-gb56dac9b=
+f317)
 
-This can cause name collision as reported here [1] as device names are
-not globally unique. Since device names have to be unique within the
-bus/class, add the bus/class name as a prefix to the device names used to
-construct the device link device name.
+Regressions Summary
+-------------------
 
-So the devuce link device's name will be of the form:
-<supplier-bus-name>:<supplier-dev-name>--<consumer-bus-name>:<consumer-dev-name>
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+hifive-unleashed-a00       | riscv | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
 
-[1] - https://lore.kernel.org/lkml/20201229033440.32142-1-michael@walle.cc/
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
 
-Cc: stable@vger.kernel.org
-Fixes: 287905e68dd2 ("driver core: Expose device link details in sysfs")
-Reported-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
----
- Documentation/ABI/testing/sysfs-class-devlink    |  4 ++--
- Documentation/ABI/testing/sysfs-devices-consumer |  5 +++--
- Documentation/ABI/testing/sysfs-devices-supplier |  5 +++--
- drivers/base/core.c                              | 13 ++++++-------
- include/linux/device.h                           | 12 ++++++++++++
- 5 files changed, 26 insertions(+), 13 deletions(-)
+meson-gxm-q200             | arm64 | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
 
-diff --git a/Documentation/ABI/testing/sysfs-class-devlink b/Documentation/ABI/testing/sysfs-class-devlink
-index b662f747c83e..8a21ce515f61 100644
---- a/Documentation/ABI/testing/sysfs-class-devlink
-+++ b/Documentation/ABI/testing/sysfs-class-devlink
-@@ -5,8 +5,8 @@ Description:
- 		Provide a place in sysfs for the device link objects in the
- 		kernel at any given time.  The name of a device link directory,
- 		denoted as ... above, is of the form <supplier>--<consumer>
--		where <supplier> is the supplier device name and <consumer> is
--		the consumer device name.
-+		where <supplier> is the supplier bus:device name and <consumer>
-+		is the consumer bus:device name.
- 
- What:		/sys/class/devlink/.../auto_remove_on
- Date:		May 2020
-diff --git a/Documentation/ABI/testing/sysfs-devices-consumer b/Documentation/ABI/testing/sysfs-devices-consumer
-index 1f06d74d1c3c..0809fda092e6 100644
---- a/Documentation/ABI/testing/sysfs-devices-consumer
-+++ b/Documentation/ABI/testing/sysfs-devices-consumer
-@@ -4,5 +4,6 @@ Contact:	Saravana Kannan <saravanak@google.com>
- Description:
- 		The /sys/devices/.../consumer:<consumer> are symlinks to device
- 		links where this device is the supplier. <consumer> denotes the
--		name of the consumer in that device link. There can be zero or
--		more of these symlinks for a given device.
-+		name of the consumer in that device link and is of the form
-+		bus:device name. There can be zero or more of these symlinks
-+		for a given device.
-diff --git a/Documentation/ABI/testing/sysfs-devices-supplier b/Documentation/ABI/testing/sysfs-devices-supplier
-index a919e0db5e90..207f5972e98d 100644
---- a/Documentation/ABI/testing/sysfs-devices-supplier
-+++ b/Documentation/ABI/testing/sysfs-devices-supplier
-@@ -4,5 +4,6 @@ Contact:	Saravana Kannan <saravanak@google.com>
- Description:
- 		The /sys/devices/.../supplier:<supplier> are symlinks to device
- 		links where this device is the consumer. <supplier> denotes the
--		name of the supplier in that device link. There can be zero or
--		more of these symlinks for a given device.
-+		name of the supplier in that device link and is of the form
-+		bus:device name. There can be zero or more of these symlinks
-+		for a given device.
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 25e08e5f40bd..1927e70eb71a 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -470,12 +470,12 @@ static int devlink_add_symlinks(struct device *dev,
- 	if (ret)
- 		goto err_con;
- 
--	snprintf(buf, len, "consumer:%s", dev_name(con));
-+	snprintf(buf, len, "consumer:%s:%s", dev_bus_name(con), dev_name(con));
- 	ret = sysfs_create_link(&sup->kobj, &link->link_dev.kobj, buf);
- 	if (ret)
- 		goto err_con_dev;
- 
--	snprintf(buf, len, "supplier:%s", dev_name(sup));
-+	snprintf(buf, len, "supplier:%s:%s", dev_bus_name(sup), dev_name(sup));
- 	ret = sysfs_create_link(&con->kobj, &link->link_dev.kobj, buf);
- 	if (ret)
- 		goto err_sup_dev;
-@@ -737,8 +737,9 @@ struct device_link *device_link_add(struct device *consumer,
- 
- 	link->link_dev.class = &devlink_class;
- 	device_set_pm_not_required(&link->link_dev);
--	dev_set_name(&link->link_dev, "%s--%s",
--		     dev_name(supplier), dev_name(consumer));
-+	dev_set_name(&link->link_dev, "%s:%s--%s:%s",
-+		     dev_bus_name(supplier), dev_name(supplier),
-+		     dev_bus_name(consumer), dev_name(consumer));
- 	if (device_register(&link->link_dev)) {
- 		put_device(consumer);
- 		put_device(supplier);
-@@ -1808,9 +1809,7 @@ const char *dev_driver_string(const struct device *dev)
- 	 * never change once they are set, so they don't need special care.
- 	 */
- 	drv = READ_ONCE(dev->driver);
--	return drv ? drv->name :
--			(dev->bus ? dev->bus->name :
--			(dev->class ? dev->class->name : ""));
-+	return drv ? drv->name : dev_bus_name(dev);
- }
- EXPORT_SYMBOL(dev_driver_string);
- 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 89bb8b84173e..1779f90eeb4c 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -609,6 +609,18 @@ static inline const char *dev_name(const struct device *dev)
- 	return kobject_name(&dev->kobj);
- }
- 
-+/**
-+ * dev_bus_name - Return a device's bus/class name, if at all possible
-+ * @dev: struct device to get the bus/class name of
-+ *
-+ * Will return the name of the bus/class the device is attached to.  If it is
-+ * not attached to a bus/class, an empty string will be returned.
-+ */
-+static inline const char *dev_bus_name(const struct device *dev)
-+{
-+	return dev->bus ? dev->bus->name : (dev->class ? dev->class->name : "");
-+}
-+
- __printf(2, 3) int dev_set_name(struct device *dev, const char *name, ...);
- 
- #ifdef CONFIG_NUMA
--- 
-2.29.2.729.g45daf8777d-goog
+qemu_arm-versatilepb       | arm   | lab-baylibre  | gcc-8    | versatile_d=
+efconfig | 1          =
 
+qemu_arm-versatilepb       | arm   | lab-broonie   | gcc-8    | versatile_d=
+efconfig | 1          =
+
+qemu_arm-versatilepb       | arm   | lab-cip       | gcc-8    | versatile_d=
+efconfig | 1          =
+
+qemu_arm-versatilepb       | arm   | lab-collabora | gcc-8    | versatile_d=
+efconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.87-13-gb56dac9bf317/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.87-13-gb56dac9bf317
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b56dac9bf3172427cb96228b51f4f58e346da4d1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+hifive-unleashed-a00       | riscv | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76ec38c96e1fda3c94cc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
+-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76ec38c96e1fda3c94=
+cc9
+        failing since 48 days (last pass: v5.4.78-5-g843222460ebea, first f=
+ail: v5.4.78-13-g81acf0f7c6ec) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76ebb8c96e1fda3c94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-=
+khadas-vim.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-=
+khadas-vim.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76ebb8c96e1fda3c94=
+cba
+        new failure (last pass: v5.4.87-7-ge91f6eb9254c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+meson-gxm-q200             | arm64 | lab-baylibre  | gcc-8    | defconfig  =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76fdfed183bcb11c94cc3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76fdfed183bcb11c94=
+cc4
+        new failure (last pass: v5.4.87-7-ge91f6eb9254c) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+qemu_arm-versatilepb       | arm   | lab-baylibre  | gcc-8    | versatile_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76d82193810b8e5c94ccb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76d82193810b8e5c94=
+ccc
+        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+qemu_arm-versatilepb       | arm   | lab-broonie   | gcc-8    | versatile_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76d8db33d353dfdc94cd7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76d8db33d353dfdc94=
+cd8
+        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+qemu_arm-versatilepb       | arm   | lab-cip       | gcc-8    | versatile_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76d8ab33d353dfdc94cd0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
+atilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76d8ab33d353dfdc94=
+cd1
+        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform                   | arch  | lab           | compiler | defconfig  =
+         | regressions
+---------------------------+-------+---------------+----------+------------=
+---------+------------
+qemu_arm-versatilepb       | arm   | lab-collabora | gcc-8    | versatile_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ff76d421be9486d0ac94cfb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
+-gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ff76d421be9486d0ac94=
+cfc
+        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
+fail: v5.4.77-45-gfd610189f77e1) =
+
+ =20
