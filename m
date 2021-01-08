@@ -2,174 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FCD2EEE6D
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 09:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C9E2EEE74
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 09:19:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727450AbhAHIRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jan 2021 03:17:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53552 "EHLO
+        id S1727286AbhAHITO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jan 2021 03:19:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726120AbhAHIRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 03:17:25 -0500
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD5CC0612F5;
-        Fri,  8 Jan 2021 00:16:45 -0800 (PST)
-Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id 0DBAD22173;
-        Fri,  8 Jan 2021 09:16:40 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1610093801;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gvegYc2ArERKAXTUrHpWM7M3yYsGDxjQQlmUK+NpU9k=;
-        b=AyBqgXSoqkz1XxTGhXqc084hYWuAXm4fx2h1VgPobd2i7CQn0Q9oFL5fUuS8NP6RuNfezp
-        9B+ERtL3J30Qg1DDMtt0V4wNzn8TloYa9eerCQzEv+odmy7hmfZmUJvHnOl5sJgFSDRxM6
-        o95GV9N2xGChjNeXYdWMJ2XNLlb4ef4=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 08 Jan 2021 09:16:39 +0100
-From:   Michael Walle <michael@walle.cc>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
-        kernel-team@android.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] driver core: Fix device link device name collision
-In-Reply-To: <20210108012427.766318-1-saravanak@google.com>
-References: <20210108012427.766318-1-saravanak@google.com>
-User-Agent: Roundcube Webmail/1.4.9
-Message-ID: <9ec99f2f0e1e75e11f2d7d013dc78203@walle.cc>
-X-Sender: michael@walle.cc
+        with ESMTP id S1726784AbhAHITO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 03:19:14 -0500
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A70C0612FB
+        for <stable@vger.kernel.org>; Fri,  8 Jan 2021 00:18:01 -0800 (PST)
+Received: by mail-qk1-x749.google.com with SMTP id x74so8698360qkb.12
+        for <stable@vger.kernel.org>; Fri, 08 Jan 2021 00:18:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:in-reply-to:message-id:mime-version:references:subject
+         :from:to:cc;
+        bh=R57CcAcJp5uD5dq5EWgT5pOw4gxHlrQ3Su0vEVAHoVA=;
+        b=BwTJuMFDGoSghD5LbsH5Cw7LX0/rKMZncBvaYZmRRftCpPS9ikO90ooY3zKsdBHh0R
+         CWQ4iBzzkqTJ39D0Yw4W6CAF5nepOQ+ExE7x9ZiXEDenNPmY3P9HZigEYXbkFkkHNsSU
+         SJXVByg5dPtfQXULAO04yhngGjj2YUq7Sv4aqVoQlhd4ahZQia3YHUOrbgHirzEep4Qi
+         bUbwkQyT5tM/KCUUj4xsczk/IsYJ/zjKkdFcukHKGbmz5KoJMoWo/nTusrS7wY71Zg4T
+         c5adwvygIR9zH2k8XCT4ixdFebAy+5sDWfL7DoGk0iuA1ly9FHeF++vt2ORArBYSCTlW
+         L9/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=R57CcAcJp5uD5dq5EWgT5pOw4gxHlrQ3Su0vEVAHoVA=;
+        b=KJWvEqN8MLTULRHABSub3rSOYZCxssN06w2+rk8zn6ui+dhOEDVjWr8En6RsqklbdO
+         oZgPWmUS5JE6qPC43qFMwd2fGRh8+QHpMywVaWzbp1F+EDJ9gN/sX/oYNA+v+D1fkZ+o
+         Kcsnf30fZW+8MIKIHo6sO+JnbS3P/UmtH2t0FZEDukG2lEKEPeUzoBoCEsEppBk/E384
+         zxj2nb+1QM9wFBd15VlpTk8TRFiZVPxUMY9enGu/mAWMZCoj32oiTOVIM6f8ZVP1fu/0
+         FgToow4J4Wb5iL9Reshjj+vzDuF+xVPiMEDw07n/LY23Of9RDlYdd9yhULiTOfQZY5Lb
+         lWrg==
+X-Gm-Message-State: AOAM532EVQDhV0mN39Uccf3XOaO5VWp78BZi7pBqJ3iCkbEB+zjw1Qgk
+        3yZ/X0OLncbZvsalZESBWlHP0KxcuGVX
+X-Google-Smtp-Source: ABdhPJwHhuxkzvvD6e9WI7V4kGI7pAXOpvrQPy2rirJ5V9r+aLhmL4ro1CwshF/ltrcIA1JYp9UCtMgshgTP
+Sender: "tzungbi via sendgmr" <tzungbi@tzungbi-z840.tpe.corp.google.com>
+X-Received: from tzungbi-z840.tpe.corp.google.com ([2401:fa00:1:b:725a:fff:fe41:c6a5])
+ (user=tzungbi job=sendgmr) by 2002:a0c:f185:: with SMTP id
+ m5mr5692827qvl.19.1610093880727; Fri, 08 Jan 2021 00:18:00 -0800 (PST)
+Date:   Fri,  8 Jan 2021 16:17:36 +0800
+In-Reply-To: <20210108081738.2175224-1-tzungbi@google.com>
+Message-Id: <20210108081738.2175224-3-tzungbi@google.com>
+Mime-Version: 1.0
+References: <20210108081738.2175224-1-tzungbi@google.com>
+X-Mailer: git-send-email 2.29.2.729.g45daf8777d-goog
+Subject: [PATCH v2 2/4] remoteproc/mediatek: enable MPU for all memory regions
+ in MT8192 SCP
+From:   Tzung-Bi Shih <tzungbi@google.com>
+To:     ohad@wizery.com, bjorn.andersson@linaro.org, robh+dt@kernel.org
+Cc:     linux-remoteproc@vger.kernel.org, matthias.bgg@gmail.com,
+        linux-mediatek@lists.infradead.org, mathieu.poirier@linaro.org,
+        devicetree@vger.kernel.org, tzungbi@google.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 2021-01-08 02:24, schrieb Saravana Kannan:
-> The device link device's name was of the form:
-> <supplier-dev-name>--<consumer-dev-name>
-> 
-> This can cause name collision as reported here [1] as device names are
-> not globally unique. Since device names have to be unique within the
-> bus/class, add the bus/class name as a prefix to the device names used 
-> to
-> construct the device link device name.
-> 
-> So the devuce link device's name will be of the form:
-> <supplier-bus-name>:<supplier-dev-name>--<consumer-bus-name>:<consumer-dev-name>
-> 
-> [1] - 
-> https://lore.kernel.org/lkml/20201229033440.32142-1-michael@walle.cc/
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 287905e68dd2 ("driver core: Expose device link details in 
-> sysfs")
-> Reported-by: Michael Walle <michael@walle.cc>
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> ---
-[..]
+The register MT8192_CORE0_MEM_ATT_PREDEF contains attributes for each
+memory region.  It defines whether a memory region can be managed by MPU
+or not.
 
-The changes are missing for the error path and 
-devlink_remove_symlinks(),
-right?
+In the past, due to the default settings in the register, MT8192 SCP
+works luckily.  After enabling L1TCM, SCP starts to access memory region
+that is not included in the default settings.  As a result, SCP hangs.
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 4140a69dfe18..385e16d92874 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -485,7 +485,7 @@ static int devlink_add_symlinks(struct device *dev,
-  	goto out;
+Enables MPU for all memory regions in MT8192 SCP.
 
-  err_sup_dev:
--	snprintf(buf, len, "consumer:%s", dev_name(con));
-+	snprintf(buf, len, "consumer:%s:%s", dev_bus_name(con), 
-dev_name(con));
-  	sysfs_remove_link(&sup->kobj, buf);
-  err_con_dev:
-  	sysfs_remove_link(&link->link_dev.kobj, "consumer");
-@@ -508,7 +508,9 @@ static void devlink_remove_symlinks(struct device 
-*dev,
-  	sysfs_remove_link(&link->link_dev.kobj, "consumer");
-  	sysfs_remove_link(&link->link_dev.kobj, "supplier");
+Note that the register is read only once when SCP resets.  Thus, it must
+be set from kernel side.
 
--	len = max(strlen(dev_name(sup)), strlen(dev_name(con)));
-+	len = max(strlen(dev_bus_name(sup)) + strlen(dev_name(sup)),
-+		  strlen(dev_bus_name(con)) + strlen(dev_name(con)));
-+	len += strlen(":");
-  	len += strlen("supplier:") + 1;
-  	buf = kzalloc(len, GFP_KERNEL);
-  	if (!buf) {
-@@ -516,9 +518,9 @@ static void devlink_remove_symlinks(struct device 
-*dev,
-  		return;
-  	}
+Fixes: fd0b6c1ff85a ("remoteproc/mediatek: Add support for mt8192 SCP")
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+---
+Changes from previous version[1]:
+- Adds Fixes and Cc tags.
 
--	snprintf(buf, len, "supplier:%s", dev_name(sup));
-+	snprintf(buf, len, "supplier:%s:%s", dev_bus_name(sup), 
-dev_name(sup));
-  	sysfs_remove_link(&con->kobj, buf);
--	snprintf(buf, len, "consumer:%s", dev_name(con));
-+	snprintf(buf, len, "consumer:%s:%s", dev_bus_name(sup), 
-dev_name(con));
-  	sysfs_remove_link(&sup->kobj, buf);
-  	kfree(buf);
-  }
+[1]: https://patchwork.kernel.org/project/linux-remoteproc/list/?series=410291
 
-With these changes:
+ drivers/remoteproc/mtk_common.h | 1 +
+ drivers/remoteproc/mtk_scp.c    | 3 +++
+ 2 files changed, 4 insertions(+)
 
-Tested-by: Michael Walle <michael@walle.cc>
-
-This at least make the warning go away.
-BUT, there is somesthing strange or at least I don't get it:
-
-# find /sys/bus/pci/devices/0000:00:00.0/ -name "consumer\:*"
-# find /sys/bus/pci/devices/0000:00:00.1/ -name "consumer\:*"
-/sys/bus/pci/devices/0000:00:00.1/consumer:mdio_bus:0000:00:00.1:04
-/sys/bus/pci/devices/0000:00:00.1/consumer:mdio_bus:0000:00:00.1
-
-enetc0 (0000:00:00.0) has no consumers while enetc1 (0000:00:00.1)
-has ones. Although both have PHYs connected. Here are the
-corresonding device tree entries:
-
-enetc0:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28.dts?h=v5.11-rc2#n81
-
-enetc1:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/freescale/fsl-ls1028a-kontron-sl28-var4.dts?h=v5.11-rc2#n21
-
-Why is there a link between enetc1 and its PHY (and MDIO bus)
-but not for enetc0?
-
-btw, here are all links:
-
-# ls /sys/class/devlink/
-pci:0000:00:00.1--mdio_bus:0000:00:00.1
-platform:5000000.iommu--pci:0000:00:00.0
-platform:5000000.iommu--pci:0000:00:00.1
-platform:5000000.iommu--pci:0000:00:00.2
-platform:5000000.iommu--pci:0000:00:00.3
-platform:5000000.iommu--pci:0000:00:00.5
-platform:5000000.iommu--pci:0000:00:00.6
-platform:5000000.iommu--pci:0001:00:00.0
-platform:5000000.iommu--pci:0002:00:00.0
-platform:5000000.iommu--platform:2140000.mmc
-platform:5000000.iommu--platform:2150000.mmc
-platform:5000000.iommu--platform:22c0000.dma-controller
-platform:5000000.iommu--platform:3100000.usb
-platform:5000000.iommu--platform:3110000.usb
-platform:5000000.iommu--platform:3200000.sata
-platform:5000000.iommu--platform:8000000.crypto
-platform:5000000.iommu--platform:8380000.dma-controller
-platform:5000000.iommu--platform:f080000.display
-platform:f1f0000.clock-controller--platform:f080000.display
-regulator:regulator.0--i2c:0-0050
-regulator:regulator.0--i2c:1-0057
-regulator:regulator.0--i2c:2-0050
-regulator:regulator.0--platform:3200000.sata
-
+diff --git a/drivers/remoteproc/mtk_common.h b/drivers/remoteproc/mtk_common.h
+index 988edb4977c3..661c998288d7 100644
+--- a/drivers/remoteproc/mtk_common.h
++++ b/drivers/remoteproc/mtk_common.h
+@@ -47,6 +47,7 @@
+ 
+ #define MT8192_CORE0_SW_RSTN_CLR	0x10000
+ #define MT8192_CORE0_SW_RSTN_SET	0x10004
++#define MT8192_CORE0_MEM_ATT_PREDEF	0x10008
+ #define MT8192_CORE0_WDT_CFG		0x10034
+ 
+ #define SCP_FW_VER_LEN			32
+diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
+index 1f0ed2974d5c..c33c41fe54cd 100644
+--- a/drivers/remoteproc/mtk_scp.c
++++ b/drivers/remoteproc/mtk_scp.c
+@@ -369,6 +369,9 @@ static int mt8192_scp_before_load(struct mtk_scp *scp)
+ 	mt8192_power_on_sram(scp->reg_base + MT8192_L1TCM_SRAM_PDN);
+ 	mt8192_power_on_sram(scp->reg_base + MT8192_CPU0_SRAM_PD);
+ 
++	/* enable MPU for all memory regions */
++	writel(0xff, scp->reg_base + MT8192_CORE0_MEM_ATT_PREDEF);
++
+ 	return 0;
+ }
+ 
 -- 
--michael
+2.29.2.729.g45daf8777d-goog
+
