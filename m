@@ -2,94 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E67CB2EEAD0
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 02:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8702EEADD
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 02:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729720AbhAHBON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 20:14:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44630 "EHLO
+        id S1729561AbhAHBZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 20:25:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728184AbhAHBOM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 20:14:12 -0500
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B263C0612F6
-        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 17:13:32 -0800 (PST)
-Received: by mail-ot1-x329.google.com with SMTP id r9so8160614otk.11
-        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 17:13:32 -0800 (PST)
+        with ESMTP id S1729552AbhAHBZM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 20:25:12 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3388DC0612F5
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 17:24:32 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id h75so13375271ybg.18
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 17:24:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/5oVjFgVep5FAMpxMvOf0cQ2ipnfcqntMeat9CC6JrE=;
-        b=WyuWKoqHOeUGpyNAMbINW2ehrIrTzyqPd9u5fHLBS8+EFX9HpAH0A9UEgJ32AqktFn
-         XKE3bqysYInT7w4C3o84sERF3NB5vfhGhOzpI8LaxRrP1TV2fS/hhufT2K33EOyp6Rb/
-         L9m9Pk6rt+tU0b2zTPG4DKdW3EW55Dbm1fi2E=
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=KOAVDThdKzrh65X/GbWaYtQc60+9XyXrjP6Yz10hBpg=;
+        b=RBGLN+zZzbIyfD+Sx/8r3MreHegdReAedekFKpvtaPNNaqDbxkXYUj2VDgIfMU2A+a
+         0gSrIzpImGQ7lN+roVMUsqqZ/U6UKXglPQAKcLOxtuXz5XCZrSBzdnRyeyAZ6P7rAP2+
+         p20EzqAtITf3uOy8l+7o8K8aplevxQgr8mcMGEN/YLXWuDLt8A/lOi6vRoJ24r/ltKVD
+         kyQB7m52qcSKNuifYv9rjJ5XWDxv3vyUrdczvAB0Al217clWckEOomaFHNDcQuiAkhs2
+         wb9lWUU5U2EJa53S5Bd1MeIOxKCQDs1WnLO2WDPO0iabFn/+7S/upoYubbaTArj+IHqn
+         XzIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/5oVjFgVep5FAMpxMvOf0cQ2ipnfcqntMeat9CC6JrE=;
-        b=rdZoIeYpPwGUHukjf/r5vWerMFlNB9ymWm/hOpbohhZMwnfeGjewttm0oiN9HQkmfk
-         xXYZuJZV4IDAGFiUKKoPpYxxCEOdJsMwdL9CQNiAZQRmb8L6M5R8nqi9pVQzeVFwURTo
-         Hw8bdlE2eieQoUvMMuWVaR/tWrqHLmikFnBD1R0kz1rr/g7mZavaHwtlVKvOoncwfkzw
-         y54q9jKmzaQOReP1c4ge1h5SulyGL3XUWh/ZxwFrxY+8jLKEkUGKGdjWZ1GKAQfZnYz0
-         QR4JbuaYSEUPK1rtWiKzt6ygjHYdLyrdMGuRTU/fPqmzFOHf/ndZVNSUgIFjx3pePexr
-         wcyg==
-X-Gm-Message-State: AOAM533+XIK9/+hN8FbEOftJ6GW5faQ9li3xbFL+92wNDWbdPEtNtvbF
-        933s5dUtx0de5kJWL7rq4buV9A==
-X-Google-Smtp-Source: ABdhPJw2WXmOy7CQd39757Ch9Gplx3g0zYmu20ue/MOH5mKdB4b7GXrETs03LDjoXJjP60Ndbir/eA==
-X-Received: by 2002:a05:6830:16d9:: with SMTP id l25mr932576otr.314.1610068411904;
-        Thu, 07 Jan 2021 17:13:31 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id z1sm1717351oib.54.2021.01.07.17.13.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 Jan 2021 17:13:31 -0800 (PST)
-Subject: Re: [PATCH 4.4 00/19] 4.4.250-rc1 review
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=KOAVDThdKzrh65X/GbWaYtQc60+9XyXrjP6Yz10hBpg=;
+        b=ZxTWouiY4uKch9U+N+XQ8rPnQtit4NgPLzM3rg/aRdRSJ5Qqg/lQf0/LvXE4akrKzl
+         Y4qqhnjKaP/vdIEIoc6GZuzOkLwtr2B+y6p2toQS0nudvNiYkErUfJ6Wux6toSgy+klj
+         3YuwgljzBZ3D9D1IqeCykiKkzmucvA+H9BXV0+cydQIyXiuIh+BgxURfK9rlErIR1Gju
+         HKyU+nxRm3IIwsk8ZJU1w3V7BPTaVlLF7Wf6JWbvv4kRLM4eczDMfnoJjd7dpYu61r1r
+         yNZ0DxHKB4X3fehLUvNMsnO6Dj3aQ/NmFCtA+2WuKpPXJSFrCJsrctUkAOsaWn4BaCnL
+         REEg==
+X-Gm-Message-State: AOAM532+uLkNy/We2pJ+KNJ2JZ01yUfS9NqXhlZZddd9WRvAFuS6iPT2
+        QRyPLcLCIwxRqOXDQVidt7FJH/I4Wfn1IxI=
+X-Google-Smtp-Source: ABdhPJzcbE9RQxvMxNJh1QmFnA8FU8pPSupKeop38Z4gjuGWxWAa4dIAdZFbvDm5UgGdd3I+qjJIZj+dv7KoTlU=
+Sender: "saravanak via sendgmr" <saravanak@saravanak.san.corp.google.com>
+X-Received: from saravanak.san.corp.google.com ([2620:15c:2d:3:7220:84ff:fe09:fedc])
+ (user=saravanak job=sendgmr) by 2002:a25:c095:: with SMTP id
+ c143mr2229233ybf.119.1610069071305; Thu, 07 Jan 2021 17:24:31 -0800 (PST)
+Date:   Thu,  7 Jan 2021 17:24:26 -0800
+Message-Id: <20210108012427.766318-1-saravanak@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.29.2.729.g45daf8777d-goog
+Subject: [PATCH v3] driver core: Fix device link device name collision
+From:   Saravana Kannan <saravanak@google.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20210107140827.584658199@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <31074bbb-2da2-b576-4576-0dc18cc5cb12@linuxfoundation.org>
-Date:   Thu, 7 Jan 2021 18:13:30 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
-MIME-Version: 1.0
-In-Reply-To: <20210107140827.584658199@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Saravana Kannan <saravanak@google.com>
+Cc:     stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        kernel-team@android.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/7/21 7:16 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.250 release.
-> There are 19 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 09 Jan 2021 14:08:13 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.250-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+The device link device's name was of the form:
+<supplier-dev-name>--<consumer-dev-name>
 
-Compiled and booted on my test system. No dmesg regressions.
+This can cause name collision as reported here [1] as device names are
+not globally unique. Since device names have to be unique within the
+bus/class, add the bus/class name as a prefix to the device names used to
+construct the device link device name.
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+So the devuce link device's name will be of the form:
+<supplier-bus-name>:<supplier-dev-name>--<consumer-bus-name>:<consumer-dev-name>
 
-thanks,
--- Shuah
+[1] - https://lore.kernel.org/lkml/20201229033440.32142-1-michael@walle.cc/
+
+Cc: stable@vger.kernel.org
+Fixes: 287905e68dd2 ("driver core: Expose device link details in sysfs")
+Reported-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+---
+ Documentation/ABI/testing/sysfs-class-devlink   |  4 ++--
+ .../ABI/testing/sysfs-devices-consumer          |  5 +++--
+ .../ABI/testing/sysfs-devices-supplier          |  5 +++--
+ drivers/base/core.c                             | 17 +++++++++--------
+ include/linux/device.h                          | 12 ++++++++++++
+ 5 files changed, 29 insertions(+), 14 deletions(-)
+
+diff --git a/Documentation/ABI/testing/sysfs-class-devlink b/Documentation/ABI/testing/sysfs-class-devlink
+index b662f747c83e..8a21ce515f61 100644
+--- a/Documentation/ABI/testing/sysfs-class-devlink
++++ b/Documentation/ABI/testing/sysfs-class-devlink
+@@ -5,8 +5,8 @@ Description:
+ 		Provide a place in sysfs for the device link objects in the
+ 		kernel at any given time.  The name of a device link directory,
+ 		denoted as ... above, is of the form <supplier>--<consumer>
+-		where <supplier> is the supplier device name and <consumer> is
+-		the consumer device name.
++		where <supplier> is the supplier bus:device name and <consumer>
++		is the consumer bus:device name.
+ 
+ What:		/sys/class/devlink/.../auto_remove_on
+ Date:		May 2020
+diff --git a/Documentation/ABI/testing/sysfs-devices-consumer b/Documentation/ABI/testing/sysfs-devices-consumer
+index 1f06d74d1c3c..0809fda092e6 100644
+--- a/Documentation/ABI/testing/sysfs-devices-consumer
++++ b/Documentation/ABI/testing/sysfs-devices-consumer
+@@ -4,5 +4,6 @@ Contact:	Saravana Kannan <saravanak@google.com>
+ Description:
+ 		The /sys/devices/.../consumer:<consumer> are symlinks to device
+ 		links where this device is the supplier. <consumer> denotes the
+-		name of the consumer in that device link. There can be zero or
+-		more of these symlinks for a given device.
++		name of the consumer in that device link and is of the form
++		bus:device name. There can be zero or more of these symlinks
++		for a given device.
+diff --git a/Documentation/ABI/testing/sysfs-devices-supplier b/Documentation/ABI/testing/sysfs-devices-supplier
+index a919e0db5e90..207f5972e98d 100644
+--- a/Documentation/ABI/testing/sysfs-devices-supplier
++++ b/Documentation/ABI/testing/sysfs-devices-supplier
+@@ -4,5 +4,6 @@ Contact:	Saravana Kannan <saravanak@google.com>
+ Description:
+ 		The /sys/devices/.../supplier:<supplier> are symlinks to device
+ 		links where this device is the consumer. <supplier> denotes the
+-		name of the supplier in that device link. There can be zero or
+-		more of these symlinks for a given device.
++		name of the supplier in that device link and is of the form
++		bus:device name. There can be zero or more of these symlinks
++		for a given device.
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 25e08e5f40bd..4140a69dfe18 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -456,7 +456,9 @@ static int devlink_add_symlinks(struct device *dev,
+ 	struct device *con = link->consumer;
+ 	char *buf;
+ 
+-	len = max(strlen(dev_name(sup)), strlen(dev_name(con)));
++	len = max(strlen(dev_bus_name(sup)) + strlen(dev_name(sup)),
++		  strlen(dev_bus_name(con)) + strlen(dev_name(con)));
++	len += strlen(":");
+ 	len += strlen("supplier:") + 1;
+ 	buf = kzalloc(len, GFP_KERNEL);
+ 	if (!buf)
+@@ -470,12 +472,12 @@ static int devlink_add_symlinks(struct device *dev,
+ 	if (ret)
+ 		goto err_con;
+ 
+-	snprintf(buf, len, "consumer:%s", dev_name(con));
++	snprintf(buf, len, "consumer:%s:%s", dev_bus_name(con), dev_name(con));
+ 	ret = sysfs_create_link(&sup->kobj, &link->link_dev.kobj, buf);
+ 	if (ret)
+ 		goto err_con_dev;
+ 
+-	snprintf(buf, len, "supplier:%s", dev_name(sup));
++	snprintf(buf, len, "supplier:%s:%s", dev_bus_name(sup), dev_name(sup));
+ 	ret = sysfs_create_link(&con->kobj, &link->link_dev.kobj, buf);
+ 	if (ret)
+ 		goto err_sup_dev;
+@@ -737,8 +739,9 @@ struct device_link *device_link_add(struct device *consumer,
+ 
+ 	link->link_dev.class = &devlink_class;
+ 	device_set_pm_not_required(&link->link_dev);
+-	dev_set_name(&link->link_dev, "%s--%s",
+-		     dev_name(supplier), dev_name(consumer));
++	dev_set_name(&link->link_dev, "%s:%s--%s:%s",
++		     dev_bus_name(supplier), dev_name(supplier),
++		     dev_bus_name(consumer), dev_name(consumer));
+ 	if (device_register(&link->link_dev)) {
+ 		put_device(consumer);
+ 		put_device(supplier);
+@@ -1808,9 +1811,7 @@ const char *dev_driver_string(const struct device *dev)
+ 	 * never change once they are set, so they don't need special care.
+ 	 */
+ 	drv = READ_ONCE(dev->driver);
+-	return drv ? drv->name :
+-			(dev->bus ? dev->bus->name :
+-			(dev->class ? dev->class->name : ""));
++	return drv ? drv->name : dev_bus_name(dev);
+ }
+ EXPORT_SYMBOL(dev_driver_string);
+ 
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 89bb8b84173e..1779f90eeb4c 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -609,6 +609,18 @@ static inline const char *dev_name(const struct device *dev)
+ 	return kobject_name(&dev->kobj);
+ }
+ 
++/**
++ * dev_bus_name - Return a device's bus/class name, if at all possible
++ * @dev: struct device to get the bus/class name of
++ *
++ * Will return the name of the bus/class the device is attached to.  If it is
++ * not attached to a bus/class, an empty string will be returned.
++ */
++static inline const char *dev_bus_name(const struct device *dev)
++{
++	return dev->bus ? dev->bus->name : (dev->class ? dev->class->name : "");
++}
++
+ __printf(2, 3) int dev_set_name(struct device *dev, const char *name, ...);
+ 
+ #ifdef CONFIG_NUMA
+-- 
+2.29.2.729.g45daf8777d-goog
+
