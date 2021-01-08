@@ -2,120 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C9E2EEE74
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 09:19:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0751F2EEE7B
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 09:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbhAHITO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jan 2021 03:19:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726784AbhAHITO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 03:19:14 -0500
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A70C0612FB
-        for <stable@vger.kernel.org>; Fri,  8 Jan 2021 00:18:01 -0800 (PST)
-Received: by mail-qk1-x749.google.com with SMTP id x74so8698360qkb.12
-        for <stable@vger.kernel.org>; Fri, 08 Jan 2021 00:18:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:in-reply-to:message-id:mime-version:references:subject
-         :from:to:cc;
-        bh=R57CcAcJp5uD5dq5EWgT5pOw4gxHlrQ3Su0vEVAHoVA=;
-        b=BwTJuMFDGoSghD5LbsH5Cw7LX0/rKMZncBvaYZmRRftCpPS9ikO90ooY3zKsdBHh0R
-         CWQ4iBzzkqTJ39D0Yw4W6CAF5nepOQ+ExE7x9ZiXEDenNPmY3P9HZigEYXbkFkkHNsSU
-         SJXVByg5dPtfQXULAO04yhngGjj2YUq7Sv4aqVoQlhd4ahZQia3YHUOrbgHirzEep4Qi
-         bUbwkQyT5tM/KCUUj4xsczk/IsYJ/zjKkdFcukHKGbmz5KoJMoWo/nTusrS7wY71Zg4T
-         c5adwvygIR9zH2k8XCT4ixdFebAy+5sDWfL7DoGk0iuA1ly9FHeF++vt2ORArBYSCTlW
-         L9/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=R57CcAcJp5uD5dq5EWgT5pOw4gxHlrQ3Su0vEVAHoVA=;
-        b=KJWvEqN8MLTULRHABSub3rSOYZCxssN06w2+rk8zn6ui+dhOEDVjWr8En6RsqklbdO
-         oZgPWmUS5JE6qPC43qFMwd2fGRh8+QHpMywVaWzbp1F+EDJ9gN/sX/oYNA+v+D1fkZ+o
-         Kcsnf30fZW+8MIKIHo6sO+JnbS3P/UmtH2t0FZEDukG2lEKEPeUzoBoCEsEppBk/E384
-         zxj2nb+1QM9wFBd15VlpTk8TRFiZVPxUMY9enGu/mAWMZCoj32oiTOVIM6f8ZVP1fu/0
-         FgToow4J4Wb5iL9Reshjj+vzDuF+xVPiMEDw07n/LY23Of9RDlYdd9yhULiTOfQZY5Lb
-         lWrg==
-X-Gm-Message-State: AOAM532EVQDhV0mN39Uccf3XOaO5VWp78BZi7pBqJ3iCkbEB+zjw1Qgk
-        3yZ/X0OLncbZvsalZESBWlHP0KxcuGVX
-X-Google-Smtp-Source: ABdhPJwHhuxkzvvD6e9WI7V4kGI7pAXOpvrQPy2rirJ5V9r+aLhmL4ro1CwshF/ltrcIA1JYp9UCtMgshgTP
-Sender: "tzungbi via sendgmr" <tzungbi@tzungbi-z840.tpe.corp.google.com>
-X-Received: from tzungbi-z840.tpe.corp.google.com ([2401:fa00:1:b:725a:fff:fe41:c6a5])
- (user=tzungbi job=sendgmr) by 2002:a0c:f185:: with SMTP id
- m5mr5692827qvl.19.1610093880727; Fri, 08 Jan 2021 00:18:00 -0800 (PST)
-Date:   Fri,  8 Jan 2021 16:17:36 +0800
-In-Reply-To: <20210108081738.2175224-1-tzungbi@google.com>
-Message-Id: <20210108081738.2175224-3-tzungbi@google.com>
-Mime-Version: 1.0
-References: <20210108081738.2175224-1-tzungbi@google.com>
-X-Mailer: git-send-email 2.29.2.729.g45daf8777d-goog
-Subject: [PATCH v2 2/4] remoteproc/mediatek: enable MPU for all memory regions
- in MT8192 SCP
-From:   Tzung-Bi Shih <tzungbi@google.com>
-To:     ohad@wizery.com, bjorn.andersson@linaro.org, robh+dt@kernel.org
-Cc:     linux-remoteproc@vger.kernel.org, matthias.bgg@gmail.com,
-        linux-mediatek@lists.infradead.org, mathieu.poirier@linaro.org,
-        devicetree@vger.kernel.org, tzungbi@google.com,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1727430AbhAHIT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jan 2021 03:19:26 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:48886 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725793AbhAHIT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 03:19:26 -0500
+Date:   Fri, 08 Jan 2021 08:18:42 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1610093923;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=q65QGZu7U1uTBRcwZxKM6PUCnxFUGixRYAOQnjlYh2g=;
+        b=HAk1fcRQHl8k+byNRqd3Yyo4t/QyqYHEpyQcIBNjpiBn+D3kYpBNCoI4si99oeDFkkgPnB
+        IX1cu8uAw6KEUG8Qnq8/ERuUOTTsjU4heqM6G8bb2JoS44xaSGY/a5mhGgl3EGIIHhy57L
+        98URmjv6j02ER2DZL2oktDJ+SPrd5oXXutxjOE4xGeUK7m11hwo1Cwc5j5KdwgnE1mNBxJ
+        WlTDS0qhk3iIUa0yPCn2WoIUb6IcvcFQvIHG2vcQOtOwkyuyTIlDKrOYXJyuhIOrGKxDiW
+        xGTdZAanOw7liRIsBVuyknupPwej43L3KulfGO2ZW33YV1M3dt9uaq5t6fGmDg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1610093923;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=q65QGZu7U1uTBRcwZxKM6PUCnxFUGixRYAOQnjlYh2g=;
+        b=i3RI9UGD66QmVQXmkgPTcN2OStN6FQSHWQKgLP31gYdei0czcwiwGlneP3n6zRUN/kJDTI
+        xaAsi9sUFdPq6HDA==
+From:   "tip-bot2 for Fenghua Yu" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/resctrl: Don't move a task to the same resource group
+Cc:     Shakeel Butt <shakeelb@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3C962ede65d8e95be793cb61102cca37f7bb018e66=2E16082?=
+ =?utf-8?q?43147=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
+References: =?utf-8?q?=3C962ede65d8e95be793cb61102cca37f7bb018e66=2E160824?=
+ =?utf-8?q?3147=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
+MIME-Version: 1.0
+Message-ID: <161009392288.414.6204730563015001676.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The register MT8192_CORE0_MEM_ATT_PREDEF contains attributes for each
-memory region.  It defines whether a memory region can be managed by MPU
-or not.
+The following commit has been merged into the x86/urgent branch of tip:
 
-In the past, due to the default settings in the register, MT8192 SCP
-works luckily.  After enabling L1TCM, SCP starts to access memory region
-that is not included in the default settings.  As a result, SCP hangs.
+Commit-ID:     a0195f314a25582b38993bf30db11c300f4f4611
+Gitweb:        https://git.kernel.org/tip/a0195f314a25582b38993bf30db11c300f4f4611
+Author:        Fenghua Yu <fenghua.yu@intel.com>
+AuthorDate:    Thu, 17 Dec 2020 14:31:19 -08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 08 Jan 2021 09:08:03 +01:00
 
-Enables MPU for all memory regions in MT8192 SCP.
+x86/resctrl: Don't move a task to the same resource group
 
-Note that the register is read only once when SCP resets.  Thus, it must
-be set from kernel side.
+Shakeel Butt reported in [1] that a user can request a task to be moved
+to a resource group even if the task is already in the group. It just
+wastes time to do the move operation which could be costly to send IPI
+to a different CPU.
 
-Fixes: fd0b6c1ff85a ("remoteproc/mediatek: Add support for mt8192 SCP")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Add a sanity check to ensure that the move operation only happens when
+the task is not already in the resource group.
+
+[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
+
+Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com
 ---
-Changes from previous version[1]:
-- Adds Fixes and Cc tags.
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-[1]: https://patchwork.kernel.org/project/linux-remoteproc/list/?series=410291
-
- drivers/remoteproc/mtk_common.h | 1 +
- drivers/remoteproc/mtk_scp.c    | 3 +++
- 2 files changed, 4 insertions(+)
-
-diff --git a/drivers/remoteproc/mtk_common.h b/drivers/remoteproc/mtk_common.h
-index 988edb4977c3..661c998288d7 100644
---- a/drivers/remoteproc/mtk_common.h
-+++ b/drivers/remoteproc/mtk_common.h
-@@ -47,6 +47,7 @@
- 
- #define MT8192_CORE0_SW_RSTN_CLR	0x10000
- #define MT8192_CORE0_SW_RSTN_SET	0x10004
-+#define MT8192_CORE0_MEM_ATT_PREDEF	0x10008
- #define MT8192_CORE0_WDT_CFG		0x10034
- 
- #define SCP_FW_VER_LEN			32
-diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
-index 1f0ed2974d5c..c33c41fe54cd 100644
---- a/drivers/remoteproc/mtk_scp.c
-+++ b/drivers/remoteproc/mtk_scp.c
-@@ -369,6 +369,9 @@ static int mt8192_scp_before_load(struct mtk_scp *scp)
- 	mt8192_power_on_sram(scp->reg_base + MT8192_L1TCM_SRAM_PDN);
- 	mt8192_power_on_sram(scp->reg_base + MT8192_CPU0_SRAM_PD);
- 
-+	/* enable MPU for all memory regions */
-+	writel(0xff, scp->reg_base + MT8192_CORE0_MEM_ATT_PREDEF);
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 1c6f8a6..460f3e0 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -546,6 +546,13 @@ static void update_task_closid_rmid(struct task_struct *t)
+ static int __rdtgroup_move_task(struct task_struct *tsk,
+ 				struct rdtgroup *rdtgrp)
+ {
++	/* If the task is already in rdtgrp, no need to move the task. */
++	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
++	     tsk->rmid == rdtgrp->mon.rmid) ||
++	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
++	     tsk->closid == rdtgrp->mon.parent->closid))
++		return 0;
 +
- 	return 0;
- }
- 
--- 
-2.29.2.729.g45daf8777d-goog
-
+ 	/*
+ 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
+ 	 * updated by them.
