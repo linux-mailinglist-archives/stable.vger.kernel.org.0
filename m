@@ -2,342 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B83192EEA13
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 01:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1762A2EEA2A
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 01:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729390AbhAHABA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Jan 2021 19:01:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33106 "EHLO
+        id S1729047AbhAHALT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Jan 2021 19:11:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727300AbhAHABA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 19:01:00 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06119C0612F5
-        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 16:00:20 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id v19so6424342pgj.12
-        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 16:00:20 -0800 (PST)
+        with ESMTP id S1728416AbhAHALT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Jan 2021 19:11:19 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E53AC0612B0
+        for <stable@vger.kernel.org>; Thu,  7 Jan 2021 16:10:49 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id y8so4735027plp.8
+        for <stable@vger.kernel.org>; Thu, 07 Jan 2021 16:10:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uoECV8K5varWwC/s4ncjebxFoEeMZfGzg3NbKahpp5U=;
-        b=n0mmOhYE36M1bN9CXpdwMJWf6E6lc9dfTWk06lT2MKLwfWgy7C8JV9JakadMmK4dRm
-         AXQyDvWvCipZVhUSOQzxhvivBgzimDc7VzEoiLLzWIMaFGjKsHsfsl0p2b/9rZS2LrQ8
-         ntogXyNmEjgpFHOmOS3B+l3Ux3GKmCXal7jsXrenQpvDXKPkaY/q0BMbt+vD6blZhCsQ
-         t05vtu0XjVzljhO9t6akxYnX3teI3g7bQWULnKcU9Ya8ZvJhU+cPZyyRY1Bqb4uFj4zU
-         Vpo8hALe6fojqVO6FiUPYaLsF7yWsaWOtmcFB6eROA0ZumbsVGuSHmFyu+q2BdEipC6i
-         FXuw==
+        d=sargun.me; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VemmJRt3P01EfOt/Xs0GaR4+0L00UbeVA9HwVzMYZ2U=;
+        b=N/0AO3Hkrsmpg9he747deZ1NWCfNdSA1YWaiR0ENE5CA73yXFEltWofju2t9HFV2bI
+         cylfx8yyKZlsBCjVPftfOFI+UniGkF7xF6Wd+Vf3JoxE1G0RKIsQbDFI0jI9YhVPg041
+         WInPhrfeRtXmeSUOXj8hkBTsUDg4pNozyRCF8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uoECV8K5varWwC/s4ncjebxFoEeMZfGzg3NbKahpp5U=;
-        b=KbLyuN+BoufuawL6s4B3GuLNh4zQrO4cV/idnXG5vC29SqGQwSpHaPM3yk9f1KicJ4
-         RDyvYo6qrf3On+cfLnSgRIJ5VWNoOmYB70TJ64laGgoT0f+j1Q3uprl8Ijk/9nnySg+g
-         GBtHgJzFm7Q8iQn6GDH91T5s8THDry16WOT4vu8MLvn+pJV6W7LC+sjXqF89GS+szR3U
-         UZU7/V3tmLfX6DwnfhbDStqQ+/5gnwva9Eo8+QGP5+SXvKnMgquuoGnagc61ecVVRqhv
-         PMXIW/ryxCWC5xiqPDze/FQHMMxZcenQ1nMDed4fVAJszH50OwWWNrXAiIOnYnqWCGSx
-         LoOQ==
-X-Gm-Message-State: AOAM5304VTixw42dNQijmONHTS/8Y1FVXshAYQCgAahVsFRPiBIqDpWl
-        UZ8XxSi/y1exC3OIEzAOvlxlaOY1QsHA1w==
-X-Google-Smtp-Source: ABdhPJz2sMyirtmlg4Upo1BDyaU5I/m1CAi6rbbjwQ7nptNMdy7PLd/74hCZikBOJY4lOQ6JqJQZpA==
-X-Received: by 2002:a62:8205:0:b029:19e:717c:d647 with SMTP id w5-20020a6282050000b029019e717cd647mr1011939pfd.50.1610064019175;
-        Thu, 07 Jan 2021 16:00:19 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a13sm6787442pfr.59.2021.01.07.16.00.17
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VemmJRt3P01EfOt/Xs0GaR4+0L00UbeVA9HwVzMYZ2U=;
+        b=JgHU3nkahk+kwvby4MI4Bie3d1zB37jzP/TmhLEHC7k7QPGWUwMy4XT3Sa5ne9gdWP
+         5i7LzsItJ94lUJ5I/TVM6AnCXhgqzgBlbqO6o8MMCw0d38BcCgu+BRgtjsG9/r0s7muT
+         RVh96DBQwLad/DH24IpyI7Qk4OcwztS7AZrpolFTIUF/2I9wo+eIkVBauNO7KTUrxDso
+         8z1uHJ5219BlofDWtKtkELfsASQOERoCLUUAY2j0+pYGZbIUKrkpWr+9D0ZBrQ9regge
+         SpMdYK5mGiU4+2LnS793ib7bNQ8KgfuU2yBy2hCPn4DzFHOlK9ujSx3F0L6YM0LDvF7M
+         rOsg==
+X-Gm-Message-State: AOAM530/eeuGU5OW0IcMIo6AzlO5C7zNXLEquppDKa9oJY2xzGDFYeU5
+        CqtCUXcZIKWp4M640VR7Dn4ilA==
+X-Google-Smtp-Source: ABdhPJyMPWJF4SraNB6fF/bnP0KeLcBT4pvkQjkBwm/3jtD55YsYbV6MhAsCtQMmWf8PoQzaEfEsSA==
+X-Received: by 2002:a17:902:a3ca:b029:da:df3c:91c8 with SMTP id q10-20020a170902a3cab02900dadf3c91c8mr1222725plb.41.1610064648453;
+        Thu, 07 Jan 2021 16:10:48 -0800 (PST)
+Received: from ubuntu.netflix.com (203.20.25.136.in-addr.arpa. [136.25.20.203])
+        by smtp.gmail.com with ESMTPSA id k11sm7083997pgt.83.2021.01.07.16.10.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jan 2021 16:00:18 -0800 (PST)
-Message-ID: <5ff7a092.1c69fb81.86276.0a68@mx.google.com>
-Date:   Thu, 07 Jan 2021 16:00:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 07 Jan 2021 16:10:47 -0800 (PST)
+From:   Sargun Dhillon <sargun@sargun.me>
+To:     linux-unionfs@vger.kernel.org, miklos@szeredi.hu,
+        Amir Goldstein <amir73il@gmail.com>
+Cc:     Sargun Dhillon <sargun@sargun.me>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        linux-fsdevel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Chengguang Xu <cgxu519@mykernel.net>,
+        Christoph Hellwig <hch@lst.de>, NeilBrown <neilb@suse.com>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        Jeff Layton <jlayton@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH v4] overlay: Implement volatile-specific fsync error behaviour
+Date:   Thu,  7 Jan 2021 16:10:43 -0800
+Message-Id: <20210108001043.12683-1-sargun@sargun.me>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.87-13-gb56dac9bf317
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 171 runs,
- 7 regressions (v5.4.87-13-gb56dac9bf317)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 171 runs, 7 regressions (v5.4.87-13-gb56dac9b=
-f317)
+Overlayfs's volatile option allows the user to bypass all forced sync calls
+to the upperdir filesystem. This comes at the cost of safety. We can never
+ensure that the user's data is intact, but we can make a best effort to
+expose whether or not the data is likely to be in a bad state.
+
+The best way to handle this in the time being is that if an overlayfs's
+upperdir experiences an error after a volatile mount occurs, that error
+will be returned on fsync, fdatasync, sync, and syncfs. This is
+contradictory to the traditional behaviour of VFS which fails the call
+once, and only raises an error if a subsequent fsync error has occurred,
+and been raised by the filesystem.
+
+One awkward aspect of the patch is that we have to manually set the
+superblock's errseq_t after the sync_fs callback as opposed to just
+returning an error from syncfs. This is because the call chain looks
+something like this:
+
+sys_syncfs ->
+	sync_filesystem ->
+		__sync_filesystem ->
+			/* The return value is ignored here
+			sb->s_op->sync_fs(sb)
+			_sync_blockdev
+		/* Where the VFS fetches the error to raise to userspace */
+		errseq_check_and_advance
+
+Because of this we call errseq_set every time the sync_fs callback occurs.
+Due to the nature of this seen / unseen dichotomy, if the upperdir is an
+inconsistent state at the initial mount time, overlayfs will refuse to
+mount, as overlayfs cannot get a snapshot of the upperdir's errseq that
+will increment on error until the user calls syncfs.
+
+Signed-off-by: Sargun Dhillon <sargun@sargun.me>
+Suggested-by: Amir Goldstein <amir73il@gmail.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Fixes: c86243b090bc ("ovl: provide a mount option "volatile"")
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-unionfs@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: Jeff Layton <jlayton@redhat.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+---
+ Documentation/filesystems/overlayfs.rst |  8 ++++++
+ fs/overlayfs/file.c                     |  5 ++--
+ fs/overlayfs/overlayfs.h                |  1 +
+ fs/overlayfs/ovl_entry.h                |  2 ++
+ fs/overlayfs/readdir.c                  |  5 ++--
+ fs/overlayfs/super.c                    | 34 ++++++++++++++++++++-----
+ fs/overlayfs/util.c                     | 27 ++++++++++++++++++++
+ 7 files changed, 71 insertions(+), 11 deletions(-)
+
+diff --git a/Documentation/filesystems/overlayfs.rst b/Documentation/filesystems/overlayfs.rst
+index 580ab9a0fe31..137afeb3f581 100644
+--- a/Documentation/filesystems/overlayfs.rst
++++ b/Documentation/filesystems/overlayfs.rst
+@@ -575,6 +575,14 @@ without significant effort.
+ The advantage of mounting with the "volatile" option is that all forms of
+ sync calls to the upper filesystem are omitted.
+ 
++In order to avoid a giving a false sense of safety, the syncfs (and fsync)
++semantics of volatile mounts are slightly different than that of the rest of
++VFS.  If any writeback error occurs on the upperdir's filesystem after a
++volatile mount takes place, all sync functions will return an error.  Once this
++condition is reached, the filesystem will not recover, and every subsequent sync
++call will return an error, even if the upperdir has not experience a new error
++since the last sync call.
++
+ When overlay is mounted with "volatile" option, the directory
+ "$workdir/work/incompat/volatile" is created.  During next mount, overlay
+ checks for this directory and refuses to mount if present. This is a strong
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index a1f72ac053e5..5c5c3972ebd0 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -445,8 +445,9 @@ static int ovl_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+ 	const struct cred *old_cred;
+ 	int ret;
+ 
+-	if (!ovl_should_sync(OVL_FS(file_inode(file)->i_sb)))
+-		return 0;
++	ret = ovl_sync_status(OVL_FS(file_inode(file)->i_sb));
++	if (ret <= 0)
++		return ret;
+ 
+ 	ret = ovl_real_fdget_meta(file, &real, !datasync);
+ 	if (ret)
+diff --git a/fs/overlayfs/overlayfs.h b/fs/overlayfs/overlayfs.h
+index f8880aa2ba0e..9f7af98ae200 100644
+--- a/fs/overlayfs/overlayfs.h
++++ b/fs/overlayfs/overlayfs.h
+@@ -322,6 +322,7 @@ int ovl_check_metacopy_xattr(struct ovl_fs *ofs, struct dentry *dentry);
+ bool ovl_is_metacopy_dentry(struct dentry *dentry);
+ char *ovl_get_redirect_xattr(struct ovl_fs *ofs, struct dentry *dentry,
+ 			     int padding);
++int ovl_sync_status(struct ovl_fs *ofs);
+ 
+ static inline bool ovl_is_impuredir(struct super_block *sb,
+ 				    struct dentry *dentry)
+diff --git a/fs/overlayfs/ovl_entry.h b/fs/overlayfs/ovl_entry.h
+index 1b5a2094df8e..b208eba5d0b6 100644
+--- a/fs/overlayfs/ovl_entry.h
++++ b/fs/overlayfs/ovl_entry.h
+@@ -79,6 +79,8 @@ struct ovl_fs {
+ 	atomic_long_t last_ino;
+ 	/* Whiteout dentry cache */
+ 	struct dentry *whiteout;
++	/* r/o snapshot of upperdir sb's only taken on volatile mounts */
++	errseq_t errseq;
+ };
+ 
+ static inline struct vfsmount *ovl_upper_mnt(struct ovl_fs *ofs)
+diff --git a/fs/overlayfs/readdir.c b/fs/overlayfs/readdir.c
+index 01620ebae1bd..a273ef901e57 100644
+--- a/fs/overlayfs/readdir.c
++++ b/fs/overlayfs/readdir.c
+@@ -909,8 +909,9 @@ static int ovl_dir_fsync(struct file *file, loff_t start, loff_t end,
+ 	struct file *realfile;
+ 	int err;
+ 
+-	if (!ovl_should_sync(OVL_FS(file->f_path.dentry->d_sb)))
+-		return 0;
++	err = ovl_sync_status(OVL_FS(file->f_path.dentry->d_sb));
++	if (err <= 0)
++		return err;
+ 
+ 	realfile = ovl_dir_real_file(file, true);
+ 	err = PTR_ERR_OR_ZERO(realfile);
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 290983bcfbb3..d23177a53c95 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -261,11 +261,20 @@ static int ovl_sync_fs(struct super_block *sb, int wait)
+ 	struct super_block *upper_sb;
+ 	int ret;
+ 
+-	if (!ovl_upper_mnt(ofs))
+-		return 0;
++	ret = ovl_sync_status(ofs);
++	/*
++	 * We have to always set the err, because the return value isn't
++	 * checked in syncfs, and instead indirectly return an error via
++	 * the sb's writeback errseq, which VFS inspects after this call.
++	 */
++	if (ret < 0) {
++		errseq_set(&sb->s_wb_err, -EIO);
++		return -EIO;
++	}
++
++	if (!ret)
++		return ret;
+ 
+-	if (!ovl_should_sync(ofs))
+-		return 0;
+ 	/*
+ 	 * Not called for sync(2) call or an emergency sync (SB_I_SKIP_SYNC).
+ 	 * All the super blocks will be iterated, including upper_sb.
+@@ -1927,6 +1936,8 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
+ 	sb->s_op = &ovl_super_operations;
+ 
+ 	if (ofs->config.upperdir) {
++		struct super_block *upper_sb;
++
+ 		if (!ofs->config.workdir) {
+ 			pr_err("missing 'workdir'\n");
+ 			goto out_err;
+@@ -1936,6 +1947,16 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
+ 		if (err)
+ 			goto out_err;
+ 
++		upper_sb = ovl_upper_mnt(ofs)->mnt_sb;
++		if (!ovl_should_sync(ofs)) {
++			ofs->errseq = errseq_sample(&upper_sb->s_wb_err);
++			if (errseq_check(&upper_sb->s_wb_err, ofs->errseq)) {
++				err = -EIO;
++				pr_err("Cannot mount volatile when upperdir has an unseen error. Sync upperdir fs to clear state.\n");
++				goto out_err;
++			}
++		}
++
+ 		err = ovl_get_workdir(sb, ofs, &upperpath);
+ 		if (err)
+ 			goto out_err;
+@@ -1943,9 +1964,8 @@ static int ovl_fill_super(struct super_block *sb, void *data, int silent)
+ 		if (!ofs->workdir)
+ 			sb->s_flags |= SB_RDONLY;
+ 
+-		sb->s_stack_depth = ovl_upper_mnt(ofs)->mnt_sb->s_stack_depth;
+-		sb->s_time_gran = ovl_upper_mnt(ofs)->mnt_sb->s_time_gran;
+-
++		sb->s_stack_depth = upper_sb->s_stack_depth;
++		sb->s_time_gran = upper_sb->s_time_gran;
+ 	}
+ 	oe = ovl_get_lowerstack(sb, splitlower, numlower, ofs, layers);
+ 	err = PTR_ERR(oe);
+diff --git a/fs/overlayfs/util.c b/fs/overlayfs/util.c
+index 23f475627d07..6e7b8c882045 100644
+--- a/fs/overlayfs/util.c
++++ b/fs/overlayfs/util.c
+@@ -950,3 +950,30 @@ char *ovl_get_redirect_xattr(struct ovl_fs *ofs, struct dentry *dentry,
+ 	kfree(buf);
+ 	return ERR_PTR(res);
+ }
++
++/*
++ * ovl_sync_status() - Check fs sync status for volatile mounts
++ *
++ * Returns 1 if this is not a volatile mount and a real sync is required.
++ *
++ * Returns 0 if syncing can be skipped because mount is volatile, and no errors
++ * have occurred on the upperdir since the mount.
++ *
++ * Returns -errno if it is a volatile mount, and the error that occurred since
++ * the last mount. If the error code changes, it'll return the latest error
++ * code.
++ */
++
++int ovl_sync_status(struct ovl_fs *ofs)
++{
++	struct vfsmount *mnt;
++
++	if (ovl_should_sync(ofs))
++		return 1;
++
++	mnt = ovl_upper_mnt(ofs);
++	if (!mnt)
++		return 0;
++
++	return errseq_check(&mnt->mnt_sb->s_wb_err, ofs->errseq);
++}
+-- 
+2.25.1
 
-Regressions Summary
--------------------
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-hifive-unleashed-a00       | riscv | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-meson-gxm-q200             | arm64 | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-baylibre  | gcc-8    | versatile_d=
-efconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-broonie   | gcc-8    | versatile_d=
-efconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-cip       | gcc-8    | versatile_d=
-efconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-collabora | gcc-8    | versatile_d=
-efconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.87-13-gb56dac9bf317/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.87-13-gb56dac9bf317
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b56dac9bf3172427cb96228b51f4f58e346da4d1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-hifive-unleashed-a00       | riscv | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76ec38c96e1fda3c94cc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
--a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed=
--a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76ec38c96e1fda3c94=
-cc9
-        failing since 48 days (last pass: v5.4.78-5-g843222460ebea, first f=
-ail: v5.4.78-13-g81acf0f7c6ec) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76ebb8c96e1fda3c94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-=
-khadas-vim.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-=
-khadas-vim.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76ebb8c96e1fda3c94=
-cba
-        new failure (last pass: v5.4.87-7-ge91f6eb9254c) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-meson-gxm-q200             | arm64 | lab-baylibre  | gcc-8    | defconfig  =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76fdfed183bcb11c94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76fdfed183bcb11c94=
-cc4
-        new failure (last pass: v5.4.87-7-ge91f6eb9254c) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-qemu_arm-versatilepb       | arm   | lab-baylibre  | gcc-8    | versatile_d=
-efconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76d82193810b8e5c94ccb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76d82193810b8e5c94=
-ccc
-        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-qemu_arm-versatilepb       | arm   | lab-broonie   | gcc-8    | versatile_d=
-efconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76d8db33d353dfdc94cd7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76d8db33d353dfdc94=
-cd8
-        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-qemu_arm-versatilepb       | arm   | lab-cip       | gcc-8    | versatile_d=
-efconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76d8ab33d353dfdc94cd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vers=
-atilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76d8ab33d353dfdc94=
-cd1
-        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-         | regressions
----------------------------+-------+---------------+----------+------------=
----------+------------
-qemu_arm-versatilepb       | arm   | lab-collabora | gcc-8    | versatile_d=
-efconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff76d421be9486d0ac94cfb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.87-13=
--gb56dac9bf317/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff76d421be9486d0ac94=
-cfc
-        failing since 55 days (last pass: v5.4.77-44-gce6b18c3a8969, first =
-fail: v5.4.77-45-gfd610189f77e1) =
-
- =20
