@@ -2,92 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C42782EED85
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 07:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE54E2EEDEC
+	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 08:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725848AbhAHGme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jan 2021 01:42:34 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:3466 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbhAHGme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 01:42:34 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5ff7feb10000>; Thu, 07 Jan 2021 22:41:53 -0800
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 8 Jan
- 2021 06:41:52 +0000
-Received: from jckuo-lt.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server id 15.0.1473.3 via Frontend
- Transport; Fri, 8 Jan 2021 06:41:50 +0000
-From:   JC Kuo <jckuo@nvidia.com>
-To:     <mathias.nyman@linux.intel.com>, <gregkh@linuxfoundation.org>,
-        <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
-        <robh@kernel.org>
-CC:     <linux-tegra@vger.kernel.org>, <linux-usb@vger.kernel.org>,
-        <nkristam@nvidia.com>, <stable@vger.kernel.org>,
-        JC Kuo <jckuo@nvidia.com>
-Subject: [PATCH v2] xhci: tegra: Delay for disabling LFPS detector
-Date:   Fri, 8 Jan 2021 14:41:48 +0800
-Message-ID: <20210108064148.26766-1-jckuo@nvidia.com>
-X-Mailer: git-send-email 2.25.1
+        id S1725793AbhAHHfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jan 2021 02:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725791AbhAHHfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Jan 2021 02:35:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4562523403;
+        Fri,  8 Jan 2021 07:34:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610091260;
+        bh=ET7EZ4mvypeXbGjc6I95Szrku1HDtcYcljZd497LRCk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1AKdmLGWNoFs4I4RUZUXI4nRu4Gvzplk5OuaUSq0tUYrXaWfobwlD+AfAQf1fWVy/
+         lA2NuiuqvqUnQQTSh9BEgb+St3vMr7BT/djoUSnbub56JhCkBkUBdt7Lw45zsrBRiy
+         VqVTG7vGlC+79EUir++sxgYHPw9UhIacV/onh0vs=
+Date:   Fri, 8 Jan 2021 08:34:16 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Your Real Name <zhutong@amazon.com>
+Cc:     David Miller <davem@davemloft.net>, sashal@kernel.org,
+        edumazet@google.com, vvs@virtuozzo.com, netdev@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] neighbour: Disregard DEAD dst in neigh_update
+Message-ID: <X/gK+KBlROogPCol@kroah.com>
+References: <20201230225415.GA490@ucf43ac461c9a53.ant.amazon.com>
+ <20210105.160521.1279064249478522010.davem@davemloft.net>
+ <20210108023637.GA31904@ucf43ac461c9a53.ant.amazon.com>
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1610088113; bh=pczClffUlnMYECBb52f5ayAnqt859pvkCJeq1rn2FTQ=;
-        h=From:To:CC:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-         X-NVConfidentiality:Content-Transfer-Encoding:Content-Type;
-        b=eoLjhqaXttCCV9F88l1SH+B0VEfLHw/1twmDD2ElY/juSHvJeOMYCxKb4jPi9Xntb
-         EWqW+/NBiwxQr1WP8zVU9/TzBzt5ia5X2NGmUVcbIZ57wDLs1DxSPF8eWGLY3pfNku
-         knsNU08gNzr09MH1Ki9d5ZPc7DWomlkTwL8WlGmCxbwg7l4meYuys4QzzhwMn9Pz0l
-         qIaBJFOB+XE9O+3tWT0yZ6Shv9g7cvtiWSB7+Dl+EAiBFmM5V8/dWAJwPTR4/BRgWY
-         ghEWpPiQ5smY3AD6xPv2KvWtbqFsBnTTlwZJ5/F2j1jBgEnc/9uLR2od3MFTGoYiCd
-         KModYdqZU1yDw==
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210108023637.GA31904@ucf43ac461c9a53.ant.amazon.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Occasionally, we are seeing some SuperSpeed devices resumes right after
-being directed to U3. This commits add 500us delay to ensure LFPS
-detector is disabled before sending ACK to firmware.
+On Thu, Jan 07, 2021 at 09:36:37PM -0500, Your Real Name wrote:
+> On Tue, Jan 05, 2021 at 04:05:21PM -0800, David Miller wrote: 
+> > 
+> > 
+> > From: Tong Zhu <zhutong@amazon.com>
+> > Date: Wed, 30 Dec 2020 17:54:23 -0500
+> > 
+> > > In 4.x kernel a dst in DST_OBSOLETE_DEAD state is associated
+> > > with loopback net_device and leads to loopback neighbour. It
+> > > leads to an ethernet header with all zero addresses.
+> > >
+> > > A very troubling case is working with mac80211 and ath9k.
+> > > A packet with all zero source MAC address to mac80211 will
+> > > eventually fail ieee80211_find_sta_by_ifaddr in ath9k (xmit.c).
+> > > As result, ath9k flushes tx queue (ath_tx_complete_aggr) without
+> > > updating baw (block ack window), damages baw logic and disables
+> > > transmission.
+> > >
+> > > Signed-off-by: Tong Zhu <zhutong@amazon.com>
+> > 
+> > Please repost with an appropriate Fixes: tag.
+> > 
+> > Thanks.
+> 
+> I had a second thought on this. This fix should go mainline too. This is a 
+> case we are sending out queued packets when arp reply from the neighbour 
+> comes in. With 5.x kernel, a dst in DST_OBSOLETE_DEAD state leads to dropping
+> of this packet. It is not as bad as with 4.x kernel that may end up with an
+> all-zero mac address packet out to ethernet or choking up ath9k when using 
+> block ack. Dropping the packet is still wrong. I’ll repost as a fix to
+> mainline and target backport to 4.x LTS releases.
 
-[   16.099363] tegra-xusb 70090000.usb: entering ELPG
-[   16.104343] tegra-xusb 70090000.usb: 2-1 isn't suspended: 0x0c001203
-[   16.114576] tegra-xusb 70090000.usb: not all ports suspended: -16
-[   16.120789] tegra-xusb 70090000.usb: entering ELPG failed
+That's how kernel development works, please read
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how stable kernels are allowed to accept patches.
 
-The register write passes through a few flop stages of 32KHz clock domain.
-NVIDIA ASIC designer reviewed RTL and suggests 500us delay.
+good luck!
 
-Cc: stable@vger.kernel.org
-Signed-off-by: JC Kuo <jckuo@nvidia.com>
----
- drivers/usb/host/xhci-tegra.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-changes in v2:=20
-    describes how 500us was determined in commit message
-    cc stable@vger.kernel.org
-
-diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
-index 934be1686352..20cdc11f7dc6 100644
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -623,6 +623,12 @@ static void tegra_xusb_mbox_handle(struct tegra_xusb *=
-tegra,
- 								     enable);
- 			if (err < 0)
- 				break;
-+
-+			/*
-+			 * wait 500us for LFPS detector to be disabled before sending ACK
-+			 */
-+			if (!enable)
-+				usleep_range(500, 1000);
- 		}
-=20
- 		if (err < 0) {
---=20
-2.25.1
-
+greg k-h
