@@ -2,109 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC562EFA41
-	for <lists+stable@lfdr.de>; Fri,  8 Jan 2021 22:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BCF12EFC36
+	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 01:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729092AbhAHVUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Jan 2021 16:20:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34246 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728940AbhAHVUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Jan 2021 16:20:03 -0500
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2407C061793;
-        Fri,  8 Jan 2021 13:19:22 -0800 (PST)
-Received: by mail-qk1-x72e.google.com with SMTP id f26so9827319qka.0;
-        Fri, 08 Jan 2021 13:19:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=hnXLl4sHbKEop6wOqXRNzmI1tuKMV2HMaSYRF/O+288=;
-        b=unfNElP7xA2Sx2i4/PYLes/KURdHDgTBaRSIhvDyW1dATgDtcLx8X7bdS3KdW8COcH
-         hq46bxmUjaPgcv5cHp0eTddMSVvu9fj1f772wnAxJwi9gGEhY6aXcHu/rcx/DKMdp4Bt
-         USaMgeXqktWYH8f78nEQv0dP4ftyWtZ1eyVIsZveFCwBwOw/DhqO/Xc8przOBA5FDTjm
-         XehhfkW/vSUFay0ft5eiEvAOMB7MJBXTV99GFXbu7r+4diYhqjJbT6f4bZkQpqf5ifvc
-         UE7pZArnW+Sl+dBeWuqLc6mYCfvzmRCZAoGu4kCdSW4bdq5BZRNdAKvsOwweEPzLdDKw
-         aBlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=hnXLl4sHbKEop6wOqXRNzmI1tuKMV2HMaSYRF/O+288=;
-        b=gdv2gPfPejbrZgovXh2iMfzTXDumJTsZpIZrYOJvFPF/OwPMj/pjWcAFJl+lxgLNO4
-         biy+HQSdtmxksit3Gl/KpTgH1YwGj2flxkr5vRyAzI/M1kDnaFpFE34uL4FUIUhwzJ6i
-         JaEcc05UYccKNIgfSlGwwe0JLoHHt3UjPwKxhdazbeGZ2FhRsb/7pdT8Lf5Ol8GoADsR
-         E5mohBIDwb/dniXadVKnubo4H7BCz6GTxwWht7Fq8a9be/Ztml2BQEBgReBmnu4Q9sZK
-         /YwACuUi+GiEH++4M2vmjHtxUFoyl+Fpttpyn2KBWrDczO8jChepfr9kHr+Yauj7K3bO
-         KI/g==
-X-Gm-Message-State: AOAM530dX5nyn4xNiyVAEel9Gb9jRgeK8IL8cWzET8ajmPQ8RB6CFDQx
-        GHOhw5i2Otzq/1w5mNoYJ5E=
-X-Google-Smtp-Source: ABdhPJxdd6u4Oceg1KPjIbdklnamT9CZ5Zdtmx32wCgErkWYrB9pYGhZFRq1edyAuj4fGTauhEeq0Q==
-X-Received: by 2002:a05:620a:ec5:: with SMTP id x5mr5797597qkm.143.1610140761875;
-        Fri, 08 Jan 2021 13:19:21 -0800 (PST)
-Received: from ubuntu-m3-large-x86 ([2604:1380:45f1:1d00::1])
-        by smtp.gmail.com with ESMTPSA id p128sm5732545qkb.101.2021.01.08.13.19.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Jan 2021 13:19:21 -0800 (PST)
-Date:   Fri, 8 Jan 2021 14:19:19 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Alexander Lobakin <alobakin@pm.me>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Pei Huang <huangpei@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Corey Minyard <cminyard@mvista.com>,
-        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, stable@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: Re: [PATCH v4 mips-next 7/7] MIPS: select ARCH_WANT_LD_ORPHAN_WARN
-Message-ID: <20210108211919.GG2547542@ubuntu-m3-large-x86>
-References: <20210107123331.354075-1-alobakin@pm.me>
- <20210107132010.463129-1-alobakin@pm.me>
- <20210107132010.463129-4-alobakin@pm.me>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210107132010.463129-4-alobakin@pm.me>
+        id S1725844AbhAIAcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Jan 2021 19:32:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57220 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725817AbhAIAcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Jan 2021 19:32:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A9023A79;
+        Sat,  9 Jan 2021 00:31:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1610152279;
+        bh=U/efYcnH/eEvynzRHOVxEFCTc0EDiWWRL7rlqn22YNo=;
+        h=Date:From:To:Subject:From;
+        b=mBlm1+KF2ISr23RE9auFwF6Wm9Adq8hV6nZ1Oaw0zJ5ZScUvURDQmmydsFhNlPSJZ
+         eTaNfH52gnbHVcU5rXnFf36F/qKc/vOPZMaFv/W441Ojgh0fhT/ZW+Xd79NSS+Oj1I
+         6aYTqkLnbQnnch4271O4oolnBRQvnY2TQXP+dxLo=
+Date:   Fri, 08 Jan 2021 16:31:18 -0800
+From:   akpm@linux-foundation.org
+To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        shy828301@gmail.com, songmuchun@bytedance.com,
+        stable@vger.kernel.org
+Subject:  + mm-memcg-fix-memcg-file_dirty-numa-stat.patch added to
+ -mm tree
+Message-ID: <20210109003118.n6j35Rw7q%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 07, 2021 at 01:21:02PM +0000, Alexander Lobakin wrote:
-> Now, after that all the sections are explicitly described and
-> declared in vmlinux.lds.S, we can enable ld orphan warnings to
-> prevent from missing any new sections in future.
-> 
-> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-> Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+The patch titled
+     Subject: mm: memcg: fix memcg file_dirty numa stat
+has been added to the -mm tree.  Its filename is
+     mm-memcg-fix-memcg-file_dirty-numa-stat.patch
 
-> ---
->  arch/mips/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-> index d68df1febd25..d3e64cc0932b 100644
-> --- a/arch/mips/Kconfig
-> +++ b/arch/mips/Kconfig
-> @@ -18,6 +18,7 @@ config MIPS
->  	select ARCH_USE_QUEUED_SPINLOCKS
->  	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT if MMU
->  	select ARCH_WANT_IPC_PARSE_VERSION
-> +	select ARCH_WANT_LD_ORPHAN_WARN
->  	select BUILDTIME_TABLE_SORT
->  	select CLONE_BACKWARDS
->  	select CPU_NO_EFFICIENT_FFS if (TARGET_ISA_REV < 1)
-> -- 
-> 2.30.0
-> 
-> 
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-fix-memcg-file_dirty-numa-stat.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-fix-memcg-file_dirty-numa-stat.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Shakeel Butt <shakeelb@google.com>
+Subject: mm: memcg: fix memcg file_dirty numa stat
+
+The kernel updates the per-node NR_FILE_DIRTY stats on page migration but
+not the memcg numa stats.  That was not an issue until recently the commit
+5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface for
+cgroup v2") exposed numa stats for the memcg.  So fix the file_dirty
+per-memcg numa stat.
+
+Link: https://lkml.kernel.org/r/20210108155813.2914586-1-shakeelb@google.com
+Fixes: 5f9a4f4a7096 ("mm: memcontrol: add the missing numa_stat interface for cgroup v2")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/migrate.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/migrate.c~mm-memcg-fix-memcg-file_dirty-numa-stat
++++ a/mm/migrate.c
+@@ -500,9 +500,9 @@ int migrate_page_move_mapping(struct add
+ 			__inc_lruvec_state(new_lruvec, NR_SHMEM);
+ 		}
+ 		if (dirty && mapping_can_writeback(mapping)) {
+-			__dec_node_state(oldzone->zone_pgdat, NR_FILE_DIRTY);
++			__dec_lruvec_state(old_lruvec, NR_FILE_DIRTY);
+ 			__dec_zone_state(oldzone, NR_ZONE_WRITE_PENDING);
+-			__inc_node_state(newzone->zone_pgdat, NR_FILE_DIRTY);
++			__inc_lruvec_state(new_lruvec, NR_FILE_DIRTY);
+ 			__inc_zone_state(newzone, NR_ZONE_WRITE_PENDING);
+ 		}
+ 	}
+_
+
+Patches currently in -mm which might be from shakeelb@google.com are
+
+mm-memcg-fix-memcg-file_dirty-numa-stat.patch
+mm-fix-numa-stats-for-thp-migration.patch
+mm-memcg-add-swapcache-stat-for-memcg-v2.patch
+
