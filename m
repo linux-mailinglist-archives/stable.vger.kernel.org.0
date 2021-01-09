@@ -2,332 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305672F0321
-	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 20:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB522F0337
+	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 20:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726068AbhAITWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jan 2021 14:22:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51304 "EHLO
+        id S1726011AbhAITpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jan 2021 14:45:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726062AbhAITWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Jan 2021 14:22:19 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70D16C061786
-        for <stable@vger.kernel.org>; Sat,  9 Jan 2021 11:21:39 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id c12so8424941pfo.10
-        for <stable@vger.kernel.org>; Sat, 09 Jan 2021 11:21:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SUKXtOKg6JQdiEKXpzjalKhFXvVSN6DG+Q3+2rvjSjM=;
-        b=P94eBiiOUonHOECVah01lzYQaVg84vC6U4iF6EOv6Y0TNb5ryo8aiQc4NvDiSgeLEZ
-         ldbTPE6nGv6+nsf/LDlWU2nkH0vX4pMC/o1Ye9eMz+hHyl1nQbqsGPJhFqXIKH7E7ajf
-         IwY/3zIsA0TKF5CQXEME1zfaSKGl6Rebo6uNWHd8wG2I24ZPH8FZVdSXXbnR//sVdBF1
-         yCiuCWmCszeTQxzn0osKgOSRnH4l7DtsgoPg1i/qwVrFlW/XCZ+HxBHtsonhcPklXbYB
-         oG86KIxfBYVvpnd49hOV9TH4g0AFTHFhU0cQ339twIhBzmrAacN7dLM6MtATWyViwSQ0
-         BvqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SUKXtOKg6JQdiEKXpzjalKhFXvVSN6DG+Q3+2rvjSjM=;
-        b=OgfJYUxaa/ds769wEf6dTm2x31K1BkoQkEv9XiAkJhQQYjZw0vdfVijPyCrNDw0/6W
-         mGe/pY6vPECL1UnHYTB1+ilN6R6VNhxVtHk/G8d4wa9AmVz3sudpGl+16VnKmrvMU3aE
-         jV0djMeVOKDsAV88Zq441mUKDcJNvLoDp0BzC2/49uwaep7Kl6Jp7g9e576YrJnXZRbH
-         vTpgkEGh71wmZSJ7tMR8Yt43SyR6vhbs82UIrAQCPw40mog5BDrMlfnJ7GkYrx3ELYho
-         ZCL8v3tcQaeMuIOg6HBErp6drLrie0eHfVd7HW3r0DR6BuFuBTnVIGaeAlLKiiXYcSHL
-         xMXQ==
-X-Gm-Message-State: AOAM531ZzXjC7CencP4prEr9HdEHJYedeALuCc9bOyrQcMiYWG3ZdYdp
-        XxbUIlkWVuYah48buFz5fjsDyMIu067Fzg==
-X-Google-Smtp-Source: ABdhPJxgVfPehBlqIroz8lXnMyGZYQR6mstCtlZmiUVCVGP7/II/UIc7zJ/BEiIhQ8cSMyymYyXRYA==
-X-Received: by 2002:a65:6409:: with SMTP id a9mr12672326pgv.171.1610220098595;
-        Sat, 09 Jan 2021 11:21:38 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m8sm9218868pjr.39.2021.01.09.11.21.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Jan 2021 11:21:37 -0800 (PST)
-Message-ID: <5ffa0241.1c69fb81.3c934.3d59@mx.google.com>
-Date:   Sat, 09 Jan 2021 11:21:37 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1726001AbhAITpf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jan 2021 14:45:35 -0500
+X-Greylist: delayed 831 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 09 Jan 2021 11:44:54 PST
+Received: from hall.aurel32.net (hall.aurel32.net [IPv6:2001:bc8:30d7:100::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF80C06179F;
+        Sat,  9 Jan 2021 11:44:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=aurel32.net
+        ; s=202004.hall; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:
+        Subject:Cc:To:From:Content-Type:From:Reply-To:Subject:Content-ID:
+        Content-Description:In-Reply-To:References:X-Debbugs-Cc;
+        bh=Va69OFCaPzTyF2nCJ8Ej3Vk2ibZnYCpl6p6y3KC54nE=; b=uTEZa9USiLaUtdOnB5xFSUgzjI
+        fyMrhzbjk1lpRHvsx0BjOpm123MNyU4F/GATAvdoqd8wL7yjFg/aoRbj0hVMCCs69y+wVFlR0GI1C
+        FT39rr3m5a2dp2JafVwQAvrwm2b3gGngLI7VymQxISxs06WNPUX/ECJvDpv5L7gqtA7F1ULOIE+dt
+        aQSyR6cxbWgpfq6p9KJYHP4rIucy2Xik5RBVo3mWJMNotLhcOWJ5o/nLZUyNHQYjzBoijhLI2qbYT
+        /2Mx6VUqAO2WaLtuvnprMmGYNqmhlwoz25FZbneQbOJ6e5nKRp4qCjaDF83V1pUN4MGAF7Ejaozwp
+        gGPVNvwA==;
+Received: from [2a01:e35:2fdd:a4e1:fe91:fc89:bc43:b814] (helo=ohm.rr44.fr)
+        by hall.aurel32.net with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1kyJws-00088b-5r; Sat, 09 Jan 2021 20:30:54 +0100
+Received: from aurel32 by ohm.rr44.fr with local (Exim 4.94)
+        (envelope-from <aurelien@aurel32.net>)
+        id 1kyJwp-0020S8-Pm; Sat, 09 Jan 2021 20:30:51 +0100
+From:   Aurelien Jarno <aurelien@aurel32.net>
+To:     linux-kernel@vger.kernel.org
+Cc:     Aurelien Jarno <aurelien@aurel32.net>, stable@vger.kernel.org,
+        YunQiang Su <syq@debian.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org (open list:MIPS)
+Subject: [PATCH] MIPS: Support binutils configured with --enable-mips-fix-loongson3-llsc=yes
+Date:   Sat,  9 Jan 2021 20:30:47 +0100
+Message-Id: <20210109193048.478339-1-aurelien@aurel32.net>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.19.166
-X-Kernelci-Report-Type: test
-Subject: stable/linux-4.19.y baseline: 171 runs, 7 regressions (v4.19.166)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 171 runs, 7 regressions (v4.19.166)
+From version 2.35, binutils can be configured with
+--enable-mips-fix-loongson3-llsc=yes, which means it defaults to
+-mfix-loongson3-llsc. This breaks labels which might then point at the
+wrong instruction.
+
+The workaround to explicitly pass -mno-fix-loongson3-llsc has been
+added in Linux version 5.1, but is only enabled when building a Loongson
+64 kernel. As vendors might use a common toolchain for building Loongson
+and non-Loongson kernels, just move that workaround to
+arch/mips/Makefile. At the same time update the comments to reflect the
+current status.
+
+Cc: stable@vger.kernel.org # 5.1+
+Cc: YunQiang Su <syq@debian.org>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+---
+ arch/mips/Makefile            | 19 +++++++++++++++++++
+ arch/mips/loongson64/Platform | 22 ----------------------
+ 2 files changed, 19 insertions(+), 22 deletions(-)
+
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+index cd4343edeb11..5ffdd67093bc 100644
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(call cc-option,-mno-sched-prolog) \
+ #
+ cflags-y += -fno-stack-check
+ 
++# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
++# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
++# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
++# for a description).
++#
++# We disable this in order to prevent the assembler meddling with the
++# instruction that labels refer to, ie. if we label an ll instruction:
++#
++# 1: ll v0, 0(a0)
++#
++# ...then with the assembler fix applied the label may actually point at a sync
++# instruction inserted by the assembler, and if we were using the label in an
++# exception table the table would no longer contain the address of the ll
++# instruction.
++#
++# Avoid this by explicitly disabling that assembler behaviour.
++#
++cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
++
+ #
+ # CPU-dependent compiler/assembler options for optimization.
+ #
+diff --git a/arch/mips/loongson64/Platform b/arch/mips/loongson64/Platform
+index ec42c5085905..e2354e128d9a 100644
+--- a/arch/mips/loongson64/Platform
++++ b/arch/mips/loongson64/Platform
+@@ -5,28 +5,6 @@
+ 
+ cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+ 
+-#
+-# Some versions of binutils, not currently mainline as of 2019/02/04, support
+-# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
+-# to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h for a
+-# description).
+-#
+-# We disable this in order to prevent the assembler meddling with the
+-# instruction that labels refer to, ie. if we label an ll instruction:
+-#
+-# 1: ll v0, 0(a0)
+-#
+-# ...then with the assembler fix applied the label may actually point at a sync
+-# instruction inserted by the assembler, and if we were using the label in an
+-# exception table the table would no longer contain the address of the ll
+-# instruction.
+-#
+-# Avoid this by explicitly disabling that assembler behaviour. If upstream
+-# binutils does not merge support for the flag then we can revisit & remove
+-# this later - for now it ensures vendor toolchains don't cause problems.
+-#
+-cflags-$(CONFIG_CPU_LOONGSON64)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
+-
+ #
+ # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
+ # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
+-- 
+2.29.2
 
-Regressions Summary
--------------------
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
-
-panda                      | arm   | lab-collabora   | gcc-8    | omap2plus=
-_defconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-broonie     | gcc-8    | versatile=
-_defconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-collabora   | gcc-8    | versatile=
-_defconfig | 1          =
-
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.166/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.166
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      610bdbf6a174c9a91e34e276a9594114b44bef74 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd28c9969e78cfc94cd7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-khadas-vim.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s905x-khadas-vim.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd28c9969e78cfc94=
-cd8
-        failing since 2 days (last pass: v4.19.164, first fail: v4.19.165) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-panda                      | arm   | lab-collabora   | gcc-8    | omap2plus=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cfe32e31f4d2ffc94cdc
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ff9cfe32e31f4d=
-2ffc94ce1
-        failing since 2 days (last pass: v4.19.164, first fail: v4.19.165)
-        2 lines
-
-    2021-01-09 15:46:38.844000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-01-09 15:46:38.855000+00:00  <8>[   22.898345] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd836cce49ded0c94ce4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd836cce49ded0c94=
-ce5
-        failing since 51 days (last pass: v4.19.157, first fail: v4.19.158) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-broonie     | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd8d6cce49ded0c94cea
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd8d6cce49ded0c94=
-ceb
-        failing since 51 days (last pass: v4.19.157, first fail: v4.19.158) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd966cce49ded0c94d49
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd966cce49ded0c94=
-d4a
-        failing since 51 days (last pass: v4.19.157, first fail: v4.19.158) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-collabora   | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd5681362579f9c94cc2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd5681362579f9c94=
-cc3
-        failing since 51 days (last pass: v4.19.157, first fail: v4.19.158) =
-
- =
-
-
-
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ff9cd5316fec6ad79c94cc7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb=
-.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.166/=
-arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ff9cd5316fec6ad79c94=
-cc8
-        failing since 51 days (last pass: v4.19.157, first fail: v4.19.158) =
-
- =20
