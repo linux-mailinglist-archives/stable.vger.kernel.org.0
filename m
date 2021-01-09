@@ -2,77 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C41452F034F
-	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 21:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC0312F0352
+	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 21:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726001AbhAIUCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jan 2021 15:02:50 -0500
-Received: from [78.8.192.131] ([78.8.192.131]:12716 "EHLO orcam.me.uk"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725999AbhAIUCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Jan 2021 15:02:50 -0500
-X-Greylist: delayed 504 seconds by postgrey-1.27 at vger.kernel.org; Sat, 09 Jan 2021 15:02:49 EST
-Received: from cvs.linux-mips.org (eddie.linux-mips.org [148.251.95.138])
-        by orcam.me.uk (Postfix) with ESMTPS id D7E412BE0EC;
-        Sat,  9 Jan 2021 19:53:52 +0000 (GMT)
-Date:   Sat, 9 Jan 2021 19:53:19 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Aurelien Jarno <aurelien@aurel32.net>
-cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        YunQiang Su <syq@debian.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>
-Subject: Re: [PATCH] MIPS: Support binutils configured with
- --enable-mips-fix-loongson3-llsc=yes
-In-Reply-To: <20210109193048.478339-1-aurelien@aurel32.net>
-Message-ID: <alpine.LFD.2.21.2101091944330.1637534@eddie.linux-mips.org>
-References: <20210109193048.478339-1-aurelien@aurel32.net>
+        id S1726011AbhAIUH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jan 2021 15:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726006AbhAIUH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jan 2021 15:07:27 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC26C061786
+        for <stable@vger.kernel.org>; Sat,  9 Jan 2021 12:06:47 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id b5so8121428pjl.0
+        for <stable@vger.kernel.org>; Sat, 09 Jan 2021 12:06:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-transfer-encoding:content-language;
+        bh=XGAMMZsbYCUGjn/7vUQpuXOzkGrvX40U8YFaopPsXG4=;
+        b=NnbjUOyUqqyo/+stMOmwIQUumLBt5z4LgD3Kjg90wDKapOW1V/6IptEc485gunpOP0
+         ZXYquPmRtADPkihfd8OXJkkcXFMXWR0zDmaryhe3oN7r10IpcKB6vlztn25+WzPj8oJq
+         PI/m4DlD+Mbzw3aX2mubno1yTtObf0dp4FJPvzyELXYNXrVovprYUiZ7ECv1geXQS53J
+         rJIbrq/wKyIgPF9ucPb4Y6vMnGjl+UgMq/MBmbubEZ0yjxBhmgo3k6Jle6/HY2TPCE7x
+         +AV+T2Tnq3swbGrYyk/YWckQHP0solhvgCH5F5lvUKiA6BLS6MvhQ3EVEi4PavjOyh3m
+         +FWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-transfer-encoding:content-language;
+        bh=XGAMMZsbYCUGjn/7vUQpuXOzkGrvX40U8YFaopPsXG4=;
+        b=kS86Hs7IvwxRC79YRrt6cYmGh4a6PIM5ipG8+TwD29s47ZLWpx7NWzDm7XLaiUofu0
+         T4HRwb5ekoH31Q3V9RmYm3zprREUoFrqodSUfKaiaTA8/6pm00VtqRDIJMQHJRZ58sZx
+         S6YU9pnCwFGd1FPFMx4kggCVXcbf/yCJ/IKIoVnV6vmLuixCKNEmwnqbvkcoBbmJ8G8o
+         j2f9SSW4whMnzRYIgZn9cENGDmdhLtj64Qi+L1mOJkqO+0hT03BBIwwIjgBah4NNG74q
+         MxTWjDI1kcU8aBwhc+/PkP4tyYxVgaKTwVHMrxuWoLNfyskjDFt8rcNJnoNuAS34qu9g
+         ZDHQ==
+X-Gm-Message-State: AOAM533bmYXmzTcIuEz5WcUu6t0gv4JDHCwhU5koKIHB4R6b8xTQ4wRl
+        itMq/eySDqb0wfIvRbNlm7FEWxqeV2Xkzg==
+X-Google-Smtp-Source: ABdhPJw8ul7uGaK/ShttnYpw/8l0bmral7XTFTG1bY3sqit/ihVH+QHYeOFAW6dbFInyyH+jA31w5Q==
+X-Received: by 2002:a17:902:7c8f:b029:dc:8e14:95a8 with SMTP id y15-20020a1709027c8fb02900dc8e1495a8mr12927757pll.52.1610222806851;
+        Sat, 09 Jan 2021 12:06:46 -0800 (PST)
+Received: from ?IPv6:fd01:5ca1:ab1e:8a2a:842a:94e2:b7e6:9100? ([2a09:bac0:20::815:825])
+        by smtp.gmail.com with ESMTPSA id w19sm13417873pgf.23.2021.01.09.12.06.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 09 Jan 2021 12:06:46 -0800 (PST)
+To:     stable@vger.kernel.org
+From:   syphyr <syphyr@gmail.com>
+Subject: Bluetooth Fix for 5.4 LTS
+Message-ID: <6c91a7ed-a2a0-f74c-5c0c-c7abe0f783c1@gmail.com>
+Date:   Sat, 9 Jan 2021 21:06:43 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 9 Jan 2021, Aurelien Jarno wrote:
+Hello,
 
-> diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-> index cd4343edeb11..5ffdd67093bc 100644
-> --- a/arch/mips/Makefile
-> +++ b/arch/mips/Makefile
-> @@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(call cc-option,-mno-sched-prolog) \
->  #
->  cflags-y += -fno-stack-check
->  
-> +# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
-> +# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
-> +# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
-> +# for a description).
-> +#
-> +# We disable this in order to prevent the assembler meddling with the
-> +# instruction that labels refer to, ie. if we label an ll instruction:
-> +#
-> +# 1: ll v0, 0(a0)
-> +#
-> +# ...then with the assembler fix applied the label may actually point at a sync
-> +# instruction inserted by the assembler, and if we were using the label in an
-> +# exception table the table would no longer contain the address of the ll
-> +# instruction.
 
- Interesting.  Given that a MIPS assembler is generally free to shuffle 
-instructions as it sees fit in its default reorder mode as long as that 
-does not change the semantics of the code executed, shouldn't we instead 
-place all label/instruction pairs used for exception handling in noreorder 
-blocks so as to make sure the label refers to the instruction an exception 
-handler expects it to?
+I would like to report that bluetooth has started crashing with 5.4.87 
+kernel release because of this commit: 
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.4.88&id=18e1101b0ee9b9f2483e0efd0dcf3763b3915026. 
+The fix is this: 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.11-rc2&id=5c3b5796866f85354a5ce76a28f8ffba0dcefc7e 
 
- E.g. for the case quoted above:
 
-	.set	push
-	.set	noreorder
-1:	ll	v0, 0(a0)
-	.set	pop
 
-  Maciej
+Best Regards.
 
