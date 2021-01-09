@@ -2,83 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D2F2F00C4
-	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 16:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 099C82F00C9
+	for <lists+stable@lfdr.de>; Sat,  9 Jan 2021 16:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbhAIP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jan 2021 10:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57196 "EHLO mail.kernel.org"
+        id S1726648AbhAIP0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jan 2021 10:26:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726389AbhAIP01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Jan 2021 10:26:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D657023A63;
-        Sat,  9 Jan 2021 15:25:26 +0000 (UTC)
+        id S1726631AbhAIP0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Jan 2021 10:26:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4A4723A68;
+        Sat,  9 Jan 2021 15:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610205927;
-        bh=XI7WZgAk8s2zhqYRupZ0xuOM0/B2xC7dYcdJgB83v5M=;
-        h=From:To:Cc:Subject:Date:From;
-        b=CkxtoRhF8clV3JRuG31m2jMku9upkg1on6odD/w8IWbzQFGmr1gBPwb/AJOqcRkAS
-         JwBmoY1aOQ2dWaOXMA60iNMHv6Xl717NJd0RsTvXw2ZD5IZDDt/4AxcPArhVNUk1pX
-         yWudeojQnSIYh28a6Dorx9+e1xTdlzmvzfNALURY=
+        s=korg; t=1610205930;
+        bh=UqfTD/u9nGpawr4a/tikRK7fHUjTZVHWBbXt14abJ74=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jDVgSG8A5Nm62EmYQtQssl44rg2MMsJ1bDuYZDrMmbyymvYEr1qBPdWG1BavTtdcV
+         RjAeRLm3DgTQja0j1N9iYApFjWsIxq7SJB54CoPxOACglttIioPHPA2FwLoWVe6czm
+         ifL94qMVPGO0pjIMeDnE6pCPZnKpg5f6T8NdKnls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.166
-Date:   Sat,  9 Jan 2021 16:26:39 +0100
-Message-Id: <16102059998717@kroah.com>
+Subject: Re: Linux 4.19.166
+Date:   Sat,  9 Jan 2021 16:26:40 +0100
+Message-Id: <1610205999124228@kroah.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <16102059998717@kroah.com>
+References: <16102059998717@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.166 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 +-
- drivers/dma/at_hdmac.c                      |   11 ++++++++---
- drivers/iio/imu/bmi160/bmi160_core.c        |   13 +++++++++----
- drivers/iio/magnetometer/mag3110.c          |   13 +++++++++----
- drivers/mtd/nand/spi/core.c                 |    4 ----
- drivers/net/wireless/marvell/mwifiex/join.c |    2 ++
- include/linux/kdev_t.h                      |   22 +++++++++++-----------
- 7 files changed, 40 insertions(+), 27 deletions(-)
-
-Felix Fietkau (1):
-      Revert "mtd: spinand: Fix OOB read"
-
-Greg Kroah-Hartman (1):
-      Linux 4.19.166
-
-Jonathan Cameron (2):
-      iio:imu:bmi160: Fix alignment and data leak issues
-      iio:magnetometer:mag3110: Fix alignment and data leak issues.
-
-Josh Poimboeuf (1):
-      kdev_t: always inline major/minor helper functions
-
-Tudor Ambarus (1):
-      dmaengine: at_hdmac: Substitute kzalloc with kmalloc
-
-Yu Kuai (2):
-      dmaengine: at_hdmac: add missing put_device() call in at_dma_xlate()
-      dmaengine: at_hdmac: add missing kfree() call in at_dma_xlate()
-
-Zhang Xiaohui (1):
-      mwifiex: Fix possible buffer overflows in mwifiex_cmd_802_11_ad_hoc_start
-
+diff --git a/Makefile b/Makefile
+index e636c2143295..b2c939f289c2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 165
++SUBLEVEL = 166
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
+index 86427f6ba78c..c52718b37f8f 100644
+--- a/drivers/dma/at_hdmac.c
++++ b/drivers/dma/at_hdmac.c
+@@ -1683,9 +1683,11 @@ static struct dma_chan *at_dma_xlate(struct of_phandle_args *dma_spec,
+ 	dma_cap_zero(mask);
+ 	dma_cap_set(DMA_SLAVE, mask);
+ 
+-	atslave = kzalloc(sizeof(*atslave), GFP_KERNEL);
+-	if (!atslave)
++	atslave = kmalloc(sizeof(*atslave), GFP_KERNEL);
++	if (!atslave) {
++		put_device(&dmac_pdev->dev);
+ 		return NULL;
++	}
+ 
+ 	atslave->cfg = ATC_DST_H2SEL_HW | ATC_SRC_H2SEL_HW;
+ 	/*
+@@ -1714,8 +1716,11 @@ static struct dma_chan *at_dma_xlate(struct of_phandle_args *dma_spec,
+ 	atslave->dma_dev = &dmac_pdev->dev;
+ 
+ 	chan = dma_request_channel(mask, at_dma_filter, atslave);
+-	if (!chan)
++	if (!chan) {
++		put_device(&dmac_pdev->dev);
++		kfree(atslave);
+ 		return NULL;
++	}
+ 
+ 	atchan = to_at_dma_chan(chan);
+ 	atchan->per_if = dma_spec->args[0] & 0xff;
+diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
+index e95d817c8390..1e413bb233ae 100644
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -110,6 +110,13 @@ enum bmi160_sensor_type {
+ 
+ struct bmi160_data {
+ 	struct regmap *regmap;
++	/*
++	 * Ensure natural alignment for timestamp if present.
++	 * Max length needed: 2 * 3 channels + 4 bytes padding + 8 byte ts.
++	 * If fewer channels are enabled, less space may be needed, as
++	 * long as the timestamp is still aligned to 8 bytes.
++	 */
++	__le16 buf[12] __aligned(8);
+ };
+ 
+ const struct regmap_config bmi160_regmap_config = {
+@@ -385,8 +392,6 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct bmi160_data *data = iio_priv(indio_dev);
+-	__le16 buf[12];
+-	/* 2 sens x 3 axis x __le16 + 2 x __le16 pad + 4 x __le16 tstamp */
+ 	int i, ret, j = 0, base = BMI160_REG_DATA_MAGN_XOUT_L;
+ 	__le16 sample;
+ 
+@@ -396,10 +401,10 @@ static irqreturn_t bmi160_trigger_handler(int irq, void *p)
+ 				       &sample, sizeof(sample));
+ 		if (ret < 0)
+ 			goto done;
+-		buf[j++] = sample;
++		data->buf[j++] = sample;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	iio_push_to_buffers_with_timestamp(indio_dev, data->buf,
+ 					   iio_get_time_ns(indio_dev));
+ done:
+ 	iio_trigger_notify_done(indio_dev->trig);
+diff --git a/drivers/iio/magnetometer/mag3110.c b/drivers/iio/magnetometer/mag3110.c
+index f063355480ba..57fbe5bfe883 100644
+--- a/drivers/iio/magnetometer/mag3110.c
++++ b/drivers/iio/magnetometer/mag3110.c
+@@ -56,6 +56,12 @@ struct mag3110_data {
+ 	struct mutex lock;
+ 	u8 ctrl_reg1;
+ 	int sleep_val;
++	/* Ensure natural alignment of timestamp */
++	struct {
++		__be16 channels[3];
++		u8 temperature;
++		s64 ts __aligned(8);
++	} scan;
+ };
+ 
+ static int mag3110_request(struct mag3110_data *data)
+@@ -387,10 +393,9 @@ static irqreturn_t mag3110_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct mag3110_data *data = iio_priv(indio_dev);
+-	u8 buffer[16]; /* 3 16-bit channels + 1 byte temp + padding + ts */
+ 	int ret;
+ 
+-	ret = mag3110_read(data, (__be16 *) buffer);
++	ret = mag3110_read(data, data->scan.channels);
+ 	if (ret < 0)
+ 		goto done;
+ 
+@@ -399,10 +404,10 @@ static irqreturn_t mag3110_trigger_handler(int irq, void *p)
+ 			MAG3110_DIE_TEMP);
+ 		if (ret < 0)
+ 			goto done;
+-		buffer[6] = ret;
++		data->scan.temperature = ret;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 		iio_get_time_ns(indio_dev));
+ 
+ done:
+diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
+index 83954f424d41..1d61ae7aaa66 100644
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -378,10 +378,6 @@ static int spinand_write_to_cache_op(struct spinand_device *spinand,
+ 		}
+ 	}
+ 
+-	if (req->ooblen)
+-		memcpy(req->oobbuf.in, spinand->oobbuf + req->ooboffs,
+-		       req->ooblen);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/wireless/marvell/mwifiex/join.c b/drivers/net/wireless/marvell/mwifiex/join.c
+index d87aeff70cef..c2cb1e711c06 100644
+--- a/drivers/net/wireless/marvell/mwifiex/join.c
++++ b/drivers/net/wireless/marvell/mwifiex/join.c
+@@ -877,6 +877,8 @@ mwifiex_cmd_802_11_ad_hoc_start(struct mwifiex_private *priv,
+ 
+ 	memset(adhoc_start->ssid, 0, IEEE80211_MAX_SSID_LEN);
+ 
++	if (req_ssid->ssid_len > IEEE80211_MAX_SSID_LEN)
++		req_ssid->ssid_len = IEEE80211_MAX_SSID_LEN;
+ 	memcpy(adhoc_start->ssid, req_ssid->ssid, req_ssid->ssid_len);
+ 
+ 	mwifiex_dbg(adapter, INFO, "info: ADHOC_S_CMD: SSID = %s\n",
+diff --git a/include/linux/kdev_t.h b/include/linux/kdev_t.h
+index 85b5151911cf..4856706fbfeb 100644
+--- a/include/linux/kdev_t.h
++++ b/include/linux/kdev_t.h
+@@ -21,61 +21,61 @@
+ 	})
+ 
+ /* acceptable for old filesystems */
+-static inline bool old_valid_dev(dev_t dev)
++static __always_inline bool old_valid_dev(dev_t dev)
+ {
+ 	return MAJOR(dev) < 256 && MINOR(dev) < 256;
+ }
+ 
+-static inline u16 old_encode_dev(dev_t dev)
++static __always_inline u16 old_encode_dev(dev_t dev)
+ {
+ 	return (MAJOR(dev) << 8) | MINOR(dev);
+ }
+ 
+-static inline dev_t old_decode_dev(u16 val)
++static __always_inline dev_t old_decode_dev(u16 val)
+ {
+ 	return MKDEV((val >> 8) & 255, val & 255);
+ }
+ 
+-static inline u32 new_encode_dev(dev_t dev)
++static __always_inline u32 new_encode_dev(dev_t dev)
+ {
+ 	unsigned major = MAJOR(dev);
+ 	unsigned minor = MINOR(dev);
+ 	return (minor & 0xff) | (major << 8) | ((minor & ~0xff) << 12);
+ }
+ 
+-static inline dev_t new_decode_dev(u32 dev)
++static __always_inline dev_t new_decode_dev(u32 dev)
+ {
+ 	unsigned major = (dev & 0xfff00) >> 8;
+ 	unsigned minor = (dev & 0xff) | ((dev >> 12) & 0xfff00);
+ 	return MKDEV(major, minor);
+ }
+ 
+-static inline u64 huge_encode_dev(dev_t dev)
++static __always_inline u64 huge_encode_dev(dev_t dev)
+ {
+ 	return new_encode_dev(dev);
+ }
+ 
+-static inline dev_t huge_decode_dev(u64 dev)
++static __always_inline dev_t huge_decode_dev(u64 dev)
+ {
+ 	return new_decode_dev(dev);
+ }
+ 
+-static inline int sysv_valid_dev(dev_t dev)
++static __always_inline int sysv_valid_dev(dev_t dev)
+ {
+ 	return MAJOR(dev) < (1<<14) && MINOR(dev) < (1<<18);
+ }
+ 
+-static inline u32 sysv_encode_dev(dev_t dev)
++static __always_inline u32 sysv_encode_dev(dev_t dev)
+ {
+ 	return MINOR(dev) | (MAJOR(dev) << 18);
+ }
+ 
+-static inline unsigned sysv_major(u32 dev)
++static __always_inline unsigned sysv_major(u32 dev)
+ {
+ 	return (dev >> 18) & 0x3fff;
+ }
+ 
+-static inline unsigned sysv_minor(u32 dev)
++static __always_inline unsigned sysv_minor(u32 dev)
+ {
+ 	return dev & 0x3ffff;
+ }
