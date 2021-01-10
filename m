@@ -2,90 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1C92F04B2
-	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 02:24:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA6152F04C0
+	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 02:53:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbhAJBXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Jan 2021 20:23:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43522 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbhAJBXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Jan 2021 20:23:21 -0500
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CA61C061786
-        for <stable@vger.kernel.org>; Sat,  9 Jan 2021 17:22:41 -0800 (PST)
-Received: by mail-io1-xd34.google.com with SMTP id p187so13999661iod.4
-        for <stable@vger.kernel.org>; Sat, 09 Jan 2021 17:22:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to;
-        bh=e6e1WQ0HuKFQorLeoEP/9uWxRmzhO1+fvSeoZaYFDBo=;
-        b=fNzouggdPpLz0vDwfJZgUTRxQUNb/7O+MEBPhTmvnByKbKofgX6Forp6Ghuu7irN3E
-         0hVIg0pESVpTdorUjdlNUfpeEXa32kLopyT29Lw1hYfj5zkdpRM6PNNyIOb9+cxmITHi
-         R+Wf8/u9rfg/gKWXB2U1HnQfayWWtB3MZN+TBABC/booy0cmCXuv+M5GqEQJvKZeQqE8
-         gmwi4mYnaLfdu5EyATUeH/sxVelyiZCwEUr3a1vuPtG2U61Z+MJKklTNEg8zZGQR9M2C
-         Zvz0aCXqwdUajgrI1pgPzuTvUcOZq5vqIjFDRL9NLdRq2OunOO4TJCXHWOByUdsFPP9I
-         sXww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to;
-        bh=e6e1WQ0HuKFQorLeoEP/9uWxRmzhO1+fvSeoZaYFDBo=;
-        b=ttgDZLJnDWUkVJzLXGqgaZc21ZG6sQbP4aBFqjipoE4vP9qy3cfne3MVaeHI2DgMoy
-         MVObS/w8W6BccECkKx+WhuQLbBTn1UYoTEsUDBLmCjobQ4YfylRmMIOAC6tge3yyK9q+
-         a/5GLOzFYG+wvFU3tzgnfxtz8W4uH6wtNpRaFItwUb62IZXYSaVT7y3l4yya7Of2SL87
-         FDXyteI/OZ+5kOlwClGwJXEgIxPEz7svWNny0PM7agIqG62AaFfUsfJIGdQ7y6sbMgjX
-         fwWCufYL3BfdAIKS/6+pDSBA5YmzNWTas6y+P5EWMiTq07/i4fCQtJ6fG0nCzURZUMEx
-         Zm9g==
-X-Gm-Message-State: AOAM532CycDmMQa0Yij34JnmqiW//6bCGc7ys9Sz96e0MGmoka6jDGGZ
-        +BQddbKJUKoOGkF7Y0dHk0HI3F+WBEG+s3HBvLNuYR3aFPzQNg==
-X-Google-Smtp-Source: ABdhPJz44JmFKkF05mZDzYPmtewLG/rWQOvHU+jRxjsXj/tB8aXeYT/JE3+RFxnJ62OO+DsehH5EIALXsIqSdTt946c=
-X-Received: by 2002:a02:2ace:: with SMTP id w197mr9517315jaw.132.1610241760237;
- Sat, 09 Jan 2021 17:22:40 -0800 (PST)
+        id S1726195AbhAJBxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Jan 2021 20:53:11 -0500
+Received: from ssl.serverraum.org ([176.9.125.105]:47153 "EHLO
+        ssl.serverraum.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726062AbhAJBxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Jan 2021 20:53:11 -0500
+Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 6A08022708;
+        Sun, 10 Jan 2021 02:52:29 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1610243549;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=16pmvivc9vFTk99NqF9j4WTSYp42RpBOCt/XNxbgRtA=;
+        b=iGOorF0Pg1R2Lz421FCYlE0ICtda/WSEpJbhFiRWk0j/zpv9mdVf/hBJsVKdsoImZoUTam
+        wu0WwKO7a6lGbFq0Fur8yUkTYhGYfGTokaxmMobWVUpMOG6DmRlZyFIce1nLSa9c+39i13
+        /F2t+2KRtNHJQ99Q3HoMl6CjTm/kies=
 MIME-Version: 1.0
-References: <CA+icZUUq9Skdt0ws7uqa3N9P5vwhQX6DrhfNxMvkoKMEbyWE-Q@mail.gmail.com>
-In-Reply-To: <CA+icZUUq9Skdt0ws7uqa3N9P5vwhQX6DrhfNxMvkoKMEbyWE-Q@mail.gmail.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Sun, 10 Jan 2021 02:22:29 +0100
-Message-ID: <CA+icZUWNc6S350i7Ct73XnLJHgHymyDvQ1twVckSsFTemxuCrA@mail.gmail.com>
-Subject: Fwd: depmod fixes for linux-stable releases
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Sun, 10 Jan 2021 02:52:29 +0100
+From:   Michael Walle <michael@walle.cc>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org,
+        kernel-team@android.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] driver core: Fix device link device name collision
+In-Reply-To: <20210109224506.1254201-1-saravanak@google.com>
+References: <20210109224506.1254201-1-saravanak@google.com>
+User-Agent: Roundcube Webmail/1.4.9
+Message-ID: <5d8ea5751e761df7511a3f2db4de1273@walle.cc>
+X-Sender: michael@walle.cc
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Corrected to <stable@vger.kernel.org>.
+Am 2021-01-09 23:45, schrieb Saravana Kannan:
+> The device link device's name was of the form:
+> <supplier-dev-name>--<consumer-dev-name>
+> 
+> This can cause name collision as reported here [1] as device names are
+> not globally unique. Since device names have to be unique within the
+> bus/class, add the bus/class name as a prefix to the device names used 
+> to
+> construct the device link device name.
+> 
+> So the devuce link device's name will be of the form:
+> <supplier-bus-name>:<supplier-dev-name>--<consumer-bus-name>:<consumer-dev-name>
+> 
+> [1] - 
+> https://lore.kernel.org/lkml/20201229033440.32142-1-michael@walle.cc/
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 287905e68dd2 ("driver core: Expose device link details in 
+> sysfs")
+> Reported-by: Michael Walle <michael@walle.cc>
+> Signed-off-by: Saravana Kannan <saravanak@google.com>
 
-- Sedat -
+Tested-by: Michael Walle <michael@walle.cc>
 
----------- Forwarded message ---------
-From: Sedat Dilek <sedat.dilek@gmail.com>
-Date: Sun, Jan 10, 2021 at 2:18 AM
-Subject: depmod fixes for linux-stable releases
-To: Sasha Levin <sashal@kernel.org>, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-<linux-kernel@vger.kernel.org>, <linux-stable@vger.kernel.org>
+Thanks!
 
-
-Hi,
-
-I was CCed on the "depmod: handle the case of /sbin/depmod without
-/sbin in PATH" changes to linux-stable releases.
-
-Do you mind also pushing...?
-
-commit 436e980e2ed526832de822cbf13c317a458b78e1
-kbuild: don't hardcode depmod path
-
-That was the origin for the depmod follow-up.
-
-Thanks.
-
-Regards,
-- Sedat -
-
-[1] https://git.kernel.org/linus/436e980e2ed526832de822cbf13c317a458b78e1
+-michael
