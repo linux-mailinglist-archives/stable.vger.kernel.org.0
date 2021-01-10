@@ -2,60 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C58E2F0660
-	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 11:21:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C75D82F066C
+	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 11:25:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726315AbhAJKUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jan 2021 05:20:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38356 "EHLO mail.kernel.org"
+        id S1726222AbhAJKZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Jan 2021 05:25:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726303AbhAJKUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 10 Jan 2021 05:20:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 825B6236F9;
-        Sun, 10 Jan 2021 10:19:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610273970;
-        bh=Jw0l8gSsx8En7t0dNhT3ZISp+QqP4m6mM+GqH79ZZZY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u5tyrYK+KUj1HdKkURjetX0/vavu9Q6DGFiVb1AIbGfneigANZRLTM2dqoMaqWYtE
-         cQN2YyEFNUzx7/QnaXW5FS3XoH5yuXqmNvAr8gORRaU1tYw2V4NWF6a8iM4Fq/rea8
-         2MX3a4WgE6b5LzBG+7jd2xx65ZGndylr747MNAfZIVrk8AXWrrz2ql/z66PTLIGhDh
-         PA8LT58ToR56QCt83NA8x1RmFn+OAZKwEMIqPnQvMY++7R8stA5j6KMohBhgff8eal
-         BjMlZ0hNPeWAYAcod+g+gOP8F0diG0EFTS9yvo5O/6l2BatNBTRD201LRlk4xo9/qs
-         ViQ5ImxHhO/3Q==
-Date:   Sun, 10 Jan 2021 05:19:29 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Sedat Dilek <sedat.dilek@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        id S1726112AbhAJKZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 10 Jan 2021 05:25:02 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 604F9236F9;
+        Sun, 10 Jan 2021 10:24:21 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=wait-a-minute.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1kyXtT-006Psw-4e; Sun, 10 Jan 2021 10:24:19 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Mathias Kresin <dev@kresin.me>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Serge Semin <fancer.lancer@gmail.com>
+Cc:     Hauke Mehrtens <hauke@hauke-m.de>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         stable@vger.kernel.org
-Subject: Re: depmod fixes for linux-stable releases
-Message-ID: <20210110101929.GG4035784@sasha-vm>
-References: <CA+icZUUq9Skdt0ws7uqa3N9P5vwhQX6DrhfNxMvkoKMEbyWE-Q@mail.gmail.com>
- <CAHk-=whNpzmU0UQ+dXU-A8tAyiKEzfrX-ax_80UmM77Ehjzy1A@mail.gmail.com>
+Subject: Re: [PATCH] irqchip: mips-cpu: set IPI domain parent chip
+Date:   Sun, 10 Jan 2021 10:24:14 +0000
+Message-Id: <161027422717.65915.10926355857179319603.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210107213603.1637781-1-dev@kresin.me>
+References: <20210107213603.1637781-1-dev@kresin.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAHk-=whNpzmU0UQ+dXU-A8tAyiKEzfrX-ax_80UmM77Ehjzy1A@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: dev@kresin.me, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, tsbogend@alpha.franken.de, fancer.lancer@gmail.com, hauke@hauke-m.de, martin.blumenstingl@googlemail.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 09, 2021 at 05:23:22PM -0800, Linus Torvalds wrote:
->Ack, I think 436e980e2ed5 ("kbuild: don't hardcode depmod path") is
->stable material even if it doesn't fix a bug.
->
->Not only does the fix for that commit not make sense without the
->commit in the first place, but any environment that sets depmod
->somewhere else might well be an environment that still wants stable
->kernels.
->
->It may not be the traditional case, but there's little reason for the
->kernel build to force that /sbin/depmod location.
+On Thu, 7 Jan 2021 22:36:03 +0100, Mathias Kresin wrote:
+> Since commit 55567976629e ("genirq/irqdomain: Allow partial trimming of
+> irq_data hierarchy") the irq_data chain is valided.
+> 
+> The irq_domain_trim_hierarchy() function doesn't consider the irq + ipi
+> domain hierarchy as valid, since the ipi domain has the irq domain set
+> as parent, but the parent domain has no chip set. Hence the boot ends in
+> a kernel panic.
+> 
+> [...]
 
-I'll take it, thanks!
+Applied to irq/irqchip-next, thanks!
 
+[1/1] irqchip: mips-cpu: set IPI domain parent chip
+      commit: 599b3063adf4bf041a87a69244ee36aded0d878f
+
+Cheers,
+
+	M.
 -- 
-Thanks,
-Sasha
+Without deviation from the norm, progress is not possible.
+
+
