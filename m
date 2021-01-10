@@ -2,350 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA4F2F07C0
-	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 16:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 913DE2F07BF
+	for <lists+stable@lfdr.de>; Sun, 10 Jan 2021 16:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726228AbhAJPEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jan 2021 10:04:51 -0500
-Received: from mail.fireflyinternet.com ([77.68.26.236]:63090 "EHLO
+        id S1726250AbhAJPEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Jan 2021 10:04:50 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:63093 "EHLO
         fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726069AbhAJPEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Jan 2021 10:04:51 -0500
+        with ESMTP id S1726228AbhAJPEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Jan 2021 10:04:50 -0500
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23553096-1500050 
-        for multiple; Sun, 10 Jan 2021 15:04:06 +0000
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 23553098-1500050 
+        for multiple; Sun, 10 Jan 2021 15:04:07 +0000
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>,
-        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         Jon Bloomfield <jon.bloomfield@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Randy Wright <rwright@hpe.com>, stable@vger.kernel.org
-Subject: [PATCH 01/11] drm/i915/gt: Limit VFE threads based on GT
-Date:   Sun, 10 Jan 2021 15:03:54 +0000
-Message-Id: <20210110150404.19535-1-chris@chris-wilson.co.uk>
+        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 03/11] drm/i915: Allow the sysadmin to override security mitigations
+Date:   Sun, 10 Jan 2021 15:03:56 +0000
+Message-Id: <20210110150404.19535-3-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210110150404.19535-1-chris@chris-wilson.co.uk>
+References: <20210110150404.19535-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MEDIA_STATE_VFE only accepts the 'maximum number of threads' in the
-range [0, n-1] where n is #EU * (#threads/EU) with the number of threads
-based on plaform and the number of EU based on the number of slices and
-subslices. This is a fixed number per platform/gt, so appropriately
-limit the number of threads we spawn to match the device.
+The clear-residuals mitigation is a relatively heavy hammer and under some
+circumstances the user may wish to forgo the context isolation in order
+to meet some performance requirement. Introduce a generic module
+parameter to allow selectively enabling/disabling different mitigations.
 
-v2: Oversaturate the system with tasks to force execution on every HW
-thread; if the thread idles it is returned to the pool and may be reused
-again before an unused thread.
-
-v3: Fix more state commands, which was causing Baytrail to barf.
-v4: STATE_CACHE_INVALIDATE requires a stall on Ivybridge
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2024
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1858
 Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
-Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc: Jon Bloomfield <jon.bloomfield@intel.com>
 Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Randy Wright <rwright@hpe.com>
-Cc: stable@vger.kernel.org # v5.7+
+Cc: stable@vger.kernel.org # v5.7
 ---
- drivers/gpu/drm/i915/gt/gen7_renderclear.c | 157 ++++++++++++---------
- 1 file changed, 94 insertions(+), 63 deletions(-)
+ drivers/gpu/drm/i915/Makefile                 |   1 +
+ .../gpu/drm/i915/gt/intel_ring_submission.c   |   4 +-
+ drivers/gpu/drm/i915/i915_mitigations.c       | 148 ++++++++++++++++++
+ drivers/gpu/drm/i915/i915_mitigations.h       |  13 ++
+ 4 files changed, 165 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/gpu/drm/i915/i915_mitigations.c
+ create mode 100644 drivers/gpu/drm/i915/i915_mitigations.h
 
-diff --git a/drivers/gpu/drm/i915/gt/gen7_renderclear.c b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-index d93d85cd3027..f32a8e8040b2 100644
---- a/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-+++ b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-@@ -7,8 +7,6 @@
+diff --git a/drivers/gpu/drm/i915/Makefile b/drivers/gpu/drm/i915/Makefile
+index 4074d8cb0d6e..48f82c354611 100644
+--- a/drivers/gpu/drm/i915/Makefile
++++ b/drivers/gpu/drm/i915/Makefile
+@@ -38,6 +38,7 @@ i915-y += i915_drv.o \
+ 	  i915_config.o \
+ 	  i915_irq.o \
+ 	  i915_getparam.o \
++	  i915_mitigations.o \
+ 	  i915_params.o \
+ 	  i915_pci.o \
+ 	  i915_scatterlist.o \
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring_submission.c b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
+index 724d56c9583d..657afd8ebc14 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring_submission.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
+@@ -32,6 +32,7 @@
+ #include "gen6_ppgtt.h"
+ #include "gen7_renderclear.h"
  #include "i915_drv.h"
- #include "intel_gpu_commands.h"
++#include "i915_mitigations.h"
+ #include "intel_breadcrumbs.h"
+ #include "intel_context.h"
+ #include "intel_gt.h"
+@@ -918,7 +919,8 @@ static int switch_context(struct i915_request *rq)
+ 	GEM_BUG_ON(HAS_EXECLISTS(engine->i915));
  
--#define MAX_URB_ENTRIES 64
--#define STATE_SIZE (4 * 1024)
- #define GT3_INLINE_DATA_DELAYS 0x1E00
- #define batch_advance(Y, CS) GEM_BUG_ON((Y)->end != (CS))
- 
-@@ -34,38 +32,59 @@ struct batch_chunk {
- };
- 
- struct batch_vals {
--	u32 max_primitives;
--	u32 max_urb_entries;
--	u32 cmd_size;
--	u32 state_size;
-+	u32 max_threads;
- 	u32 state_start;
--	u32 batch_size;
-+	u32 surface_start;
- 	u32 surface_height;
- 	u32 surface_width;
--	u32 scratch_size;
--	u32 max_size;
-+	u32 size;
- };
- 
-+static inline int num_primitives(const struct batch_vals *bv)
+ 	if (engine->wa_ctx.vma && ce != engine->kernel_context) {
+-		if (engine->wa_ctx.vma->private != ce) {
++		if (engine->wa_ctx.vma->private != ce &&
++		    i915_mitigate_clear_residuals()) {
+ 			ret = clear_residuals(rq);
+ 			if (ret)
+ 				return ret;
+diff --git a/drivers/gpu/drm/i915/i915_mitigations.c b/drivers/gpu/drm/i915/i915_mitigations.c
+new file mode 100644
+index 000000000000..8d5637cfa734
+--- /dev/null
++++ b/drivers/gpu/drm/i915/i915_mitigations.c
+@@ -0,0 +1,148 @@
++// SPDX-License-Identifier: MIT
++/*
++ * Copyright © 2021 Intel Corporation
++ */
++
++#include <linux/kernel.h>
++#include <linux/moduleparam.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++
++#include "i915_drv.h"
++#include "i915_mitigations.h"
++
++static unsigned long mitigations = ~0UL;
++
++enum {
++	CLEAR_RESIDUALS = 0,
++};
++
++static const char * const names[] = {
++	[CLEAR_RESIDUALS] = "residuals",
++};
++
++bool i915_mitigate_clear_residuals(void)
 +{
-+	/*
-+	 * We need to saturate the GPU with work in order to dispatch
-+	 * a shader on every HW thread, and clear the thread-local registers.
-+	 * In short, we have to dispatch work faster than the shaders can
-+	 * run in order to fill occupy each HW thread.
-+	 */
-+	return bv->max_threads;
++	return READ_ONCE(mitigations) & BIT(CLEAR_RESIDUALS);
 +}
 +
- static void
- batch_get_defaults(struct drm_i915_private *i915, struct batch_vals *bv)
- {
- 	if (IS_HASWELL(i915)) {
--		bv->max_primitives = 280;
--		bv->max_urb_entries = MAX_URB_ENTRIES;
-+		switch (INTEL_INFO(i915)->gt) {
-+		default:
-+		case 1:
-+			bv->max_threads = 70;
-+			break;
-+		case 2:
-+			bv->max_threads = 140;
-+			break;
-+		case 3:
-+			bv->max_threads = 280;
-+			break;
-+		}
- 		bv->surface_height = 16 * 16;
- 		bv->surface_width = 32 * 2 * 16;
- 	} else {
--		bv->max_primitives = 128;
--		bv->max_urb_entries = MAX_URB_ENTRIES / 2;
-+		switch (INTEL_INFO(i915)->gt) {
-+		default:
-+		case 1: /* including vlv */
-+			bv->max_threads = 36;
-+			break;
-+		case 2:
-+			bv->max_threads = 128;
-+			break;
-+		}
- 		bv->surface_height = 16 * 8;
- 		bv->surface_width = 32 * 16;
- 	}
--	bv->cmd_size = bv->max_primitives * 4096;
--	bv->state_size = STATE_SIZE;
--	bv->state_start = bv->cmd_size;
--	bv->batch_size = bv->cmd_size + bv->state_size;
--	bv->scratch_size = bv->surface_height * bv->surface_width;
--	bv->max_size = bv->batch_size + bv->scratch_size;
-+	bv->state_start = round_up(SZ_1K + num_primitives(bv) * 64, SZ_4K);
-+	bv->surface_start = bv->state_start + SZ_4K;
-+	bv->size = bv->surface_start + bv->surface_height * bv->surface_width;
- }
- 
- static void batch_init(struct batch_chunk *bc,
-@@ -155,7 +174,8 @@ static u32
- gen7_fill_binding_table(struct batch_chunk *state,
- 			const struct batch_vals *bv)
- {
--	u32 surface_start = gen7_fill_surface_state(state, bv->batch_size, bv);
-+	u32 surface_start =
-+		gen7_fill_surface_state(state, bv->surface_start, bv);
- 	u32 *cs = batch_alloc_items(state, 32, 8);
- 	u32 offset = batch_offset(state, cs);
- 
-@@ -214,9 +234,9 @@ static void
- gen7_emit_state_base_address(struct batch_chunk *batch,
- 			     u32 surface_state_base)
- {
--	u32 *cs = batch_alloc_items(batch, 0, 12);
-+	u32 *cs = batch_alloc_items(batch, 0, 10);
- 
--	*cs++ = STATE_BASE_ADDRESS | (12 - 2);
-+	*cs++ = STATE_BASE_ADDRESS | (10 - 2);
- 	/* general */
- 	*cs++ = batch_addr(batch) | BASE_ADDRESS_MODIFY;
- 	/* surface */
-@@ -233,8 +253,6 @@ gen7_emit_state_base_address(struct batch_chunk *batch,
- 	*cs++ = BASE_ADDRESS_MODIFY;
- 	*cs++ = 0;
- 	*cs++ = BASE_ADDRESS_MODIFY;
--	*cs++ = 0;
--	*cs++ = 0;
- 	batch_advance(batch, cs);
- }
- 
-@@ -244,8 +262,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
- 		    u32 urb_size, u32 curbe_size,
- 		    u32 mode)
- {
--	u32 urb_entries = bv->max_urb_entries;
--	u32 threads = bv->max_primitives - 1;
-+	u32 threads = bv->max_threads - 1;
- 	u32 *cs = batch_alloc_items(batch, 32, 8);
- 
- 	*cs++ = MEDIA_VFE_STATE | (8 - 2);
-@@ -254,7 +271,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
- 	*cs++ = 0;
- 
- 	/* number of threads & urb entries for GPGPU vs Media Mode */
--	*cs++ = threads << 16 | urb_entries << 8 | mode << 2;
-+	*cs++ = threads << 16 | 1 << 8 | mode << 2;
- 
- 	*cs++ = 0;
- 
-@@ -293,17 +310,12 @@ gen7_emit_media_object(struct batch_chunk *batch,
- {
- 	unsigned int x_offset = (media_object_index % 16) * 64;
- 	unsigned int y_offset = (media_object_index / 16) * 16;
--	unsigned int inline_data_size;
--	unsigned int media_batch_size;
--	unsigned int i;
-+	unsigned int pkt = 6 + 3;
- 	u32 *cs;
- 
--	inline_data_size = 112 * 8;
--	media_batch_size = inline_data_size + 6;
-+	cs = batch_alloc_items(batch, 8, pkt);
- 
--	cs = batch_alloc_items(batch, 8, media_batch_size);
--
--	*cs++ = MEDIA_OBJECT | (media_batch_size - 2);
-+	*cs++ = MEDIA_OBJECT | (pkt - 2);
- 
- 	/* interface descriptor offset */
- 	*cs++ = 0;
-@@ -317,25 +329,44 @@ gen7_emit_media_object(struct batch_chunk *batch,
- 	*cs++ = 0;
- 
- 	/* inline */
--	*cs++ = (y_offset << 16) | (x_offset);
-+	*cs++ = y_offset << 16 | x_offset;
- 	*cs++ = 0;
- 	*cs++ = GT3_INLINE_DATA_DELAYS;
--	for (i = 3; i < inline_data_size; i++)
--		*cs++ = 0;
- 
- 	batch_advance(batch, cs);
- }
- 
- static void gen7_emit_pipeline_flush(struct batch_chunk *batch)
- {
--	u32 *cs = batch_alloc_items(batch, 0, 5);
-+	u32 *cs = batch_alloc_items(batch, 0, 4);
- 
--	*cs++ = GFX_OP_PIPE_CONTROL(5);
--	*cs++ = PIPE_CONTROL_STATE_CACHE_INVALIDATE |
--		PIPE_CONTROL_GLOBAL_GTT_IVB;
-+	*cs++ = GFX_OP_PIPE_CONTROL(4);
-+	*cs++ = PIPE_CONTROL_RENDER_TARGET_CACHE_FLUSH |
-+		PIPE_CONTROL_DEPTH_CACHE_FLUSH |
-+		PIPE_CONTROL_DC_FLUSH_ENABLE |
-+		PIPE_CONTROL_CS_STALL;
- 	*cs++ = 0;
- 	*cs++ = 0;
++static int mitigations_set(const char *val, const struct kernel_param *kp)
++{
++	unsigned long new = ~0UL;
++	char *str, *sep, *tok;
++	bool first = true;
++	int err = 0;
 +
-+	batch_advance(batch, cs);
++	BUILD_BUG_ON(ARRAY_SIZE(names) >= BITS_PER_TYPE(mitigations));
++
++	str = kstrdup(val, GFP_KERNEL);
++	if (!str)
++		return -ENOMEM;
++
++	for (sep = str; (tok = strsep(&sep, ","));) {
++		bool enable = true;
++		int i;
++
++		/* Be tolerant of leading/trailing whitespace */
++		tok = strim(tok);
++
++		if (first) {
++			first = false;
++
++			if (!strcmp(tok, "auto")) {
++				new = ~0UL;
++				continue;
++			}
++
++			new = 0;
++			if (!strcmp(tok, "off"))
++				continue;
++		}
++
++		if (*tok == '!') {
++			enable = !enable;
++			tok++;
++		}
++
++		if (!strncmp(tok, "no", 2)) {
++			enable = !enable;
++			tok += 2;
++		}
++
++		if (*tok == '\0')
++			continue;
++
++		for (i = 0; i < ARRAY_SIZE(names); i++) {
++			if (!strcmp(tok, names[i])) {
++				if (enable)
++					new |= BIT(i);
++				else
++					new &= ~BIT(i);
++				break;
++			}
++		}
++		if (i == ARRAY_SIZE(names)) {
++			pr_err("Bad %s.mitigations=%s, '%s' is unknown\n",
++			       DRIVER_NAME, val, tok);
++			err = -EINVAL;
++			break;
++		}
++	}
++	kfree(str);
++	if (err)
++		return err;
++
++	WRITE_ONCE(mitigations, new);
++	return 0;
 +}
 +
-+static void gen7_emit_pipeline_invalidate(struct batch_chunk *batch)
++static int mitigations_get(char *buffer, const struct kernel_param *kp)
 +{
-+	u32 *cs = batch_alloc_items(batch, 0, 8);
++	unsigned long local = READ_ONCE(mitigations);
++	int count, i;
++	bool enable;
 +
-+	/* ivb: Stall before STATE_CACHE_INVALIDATE */
-+	*cs++ = GFX_OP_PIPE_CONTROL(4);
-+	*cs++ = PIPE_CONTROL_STALL_AT_SCOREBOARD |
-+		PIPE_CONTROL_CS_STALL;
- 	*cs++ = 0;
-+	*cs++ = 0;
++	if (!local)
++		return scnprintf(buffer, PAGE_SIZE, "%s\n", "off");
 +
-+	*cs++ = GFX_OP_PIPE_CONTROL(4);
-+	*cs++ = PIPE_CONTROL_STATE_CACHE_INVALIDATE;
-+	*cs++ = 0;
-+	*cs++ = 0;
++	if (local & BIT(BITS_PER_LONG - 1)) {
++		count = scnprintf(buffer, PAGE_SIZE, "%s,", "auto");
++		enable = false;
++	} else {
++		enable = true;
++		count = 0;
++	}
 +
- 	batch_advance(batch, cs);
- }
- 
-@@ -344,34 +375,34 @@ static void emit_batch(struct i915_vma * const vma,
- 		       const struct batch_vals *bv)
- {
- 	struct drm_i915_private *i915 = vma->vm->i915;
--	unsigned int desc_count = 64;
--	const u32 urb_size = 112;
-+	const unsigned int desc_count = 1;
-+	const unsigned int urb_size = 1;
- 	struct batch_chunk cmds, state;
--	u32 interface_descriptor;
-+	u32 descriptors;
- 	unsigned int i;
- 
--	batch_init(&cmds, vma, start, 0, bv->cmd_size);
--	batch_init(&state, vma, start, bv->state_start, bv->state_size);
-+	batch_init(&cmds, vma, start, 0, bv->state_start);
-+	batch_init(&state, vma, start, bv->state_start, SZ_4K);
- 
--	interface_descriptor =
--		gen7_fill_interface_descriptor(&state, bv,
--					       IS_HASWELL(i915) ?
--					       &cb_kernel_hsw :
--					       &cb_kernel_ivb,
--					       desc_count);
--	gen7_emit_pipeline_flush(&cmds);
-+	descriptors = gen7_fill_interface_descriptor(&state, bv,
-+						     IS_HASWELL(i915) ?
-+						     &cb_kernel_hsw :
-+						     &cb_kernel_ivb,
-+						     desc_count);
++	for (i = 0; i < ARRAY_SIZE(names); i++) {
++		if ((local & BIT(i)) != enable)
++			continue;
 +
-+	gen7_emit_pipeline_invalidate(&cmds);
- 	batch_add(&cmds, PIPELINE_SELECT | PIPELINE_SELECT_MEDIA);
- 	batch_add(&cmds, MI_NOOP);
--	gen7_emit_state_base_address(&cmds, interface_descriptor);
-+	gen7_emit_pipeline_invalidate(&cmds);
++		count += scnprintf(buffer + count, PAGE_SIZE - count,
++				   "%s%s,", enable ? "" : "!", names[i]);
++	}
 +
- 	gen7_emit_pipeline_flush(&cmds);
-+	gen7_emit_state_base_address(&cmds, descriptors);
-+	gen7_emit_pipeline_invalidate(&cmds);
- 
- 	gen7_emit_vfe_state(&cmds, bv, urb_size - 1, 0, 0);
-+	gen7_emit_interface_descriptor_load(&cmds, descriptors, desc_count);
- 
--	gen7_emit_interface_descriptor_load(&cmds,
--					    interface_descriptor,
--					    desc_count);
--
--	for (i = 0; i < bv->max_primitives; i++)
-+	for (i = 0; i < num_primitives(bv); i++)
- 		gen7_emit_media_object(&cmds, i);
- 
- 	batch_add(&cmds, MI_BATCH_BUFFER_END);
-@@ -385,15 +416,15 @@ int gen7_setup_clear_gpr_bb(struct intel_engine_cs * const engine,
- 
- 	batch_get_defaults(engine->i915, &bv);
- 	if (!vma)
--		return bv.max_size;
-+		return bv.size;
- 
--	GEM_BUG_ON(vma->obj->base.size < bv.max_size);
-+	GEM_BUG_ON(vma->obj->base.size < bv.size);
- 
- 	batch = i915_gem_object_pin_map(vma->obj, I915_MAP_WC);
- 	if (IS_ERR(batch))
- 		return PTR_ERR(batch);
- 
--	emit_batch(vma, memset(batch, 0, bv.max_size), &bv);
-+	emit_batch(vma, memset(batch, 0, bv.size), &bv);
- 
- 	i915_gem_object_flush_map(vma->obj);
- 	__i915_gem_object_release_map(vma->obj);
++	buffer[count - 1] = '\n';
++	return count;
++}
++
++static const struct kernel_param_ops ops = {
++	.set = mitigations_set,
++	.get = mitigations_get,
++};
++
++module_param_cb_unsafe(mitigations, &ops, NULL, 0600);
++MODULE_PARM_DESC(mitigations,
++"Selectively enable security mitigations for all Intel® GPUs in the system.\n"
++"\n"
++"  auto -- enables all mitigations required for the platform [default]\n"
++"  off  -- disables all mitigations\n"
++"\n"
++"Individual mitigations can be enabled by passing a comma-separated string,\n"
++"e.g. mitigations=residuals to enable only clearing residuals or\n"
++"mitigations=auto,noresiduals to disable only the clear residual mitigation.\n"
++"Either '!' or 'no' may be used to switch from enabling the mitigation to\n"
++"disabling it.\n"
++"\n"
++"Active mitigations for Ivybridge, Baytrail, Haswell:\n"
++"  residuals -- clear all thread-local registers between contexts"
++);
+diff --git a/drivers/gpu/drm/i915/i915_mitigations.h b/drivers/gpu/drm/i915/i915_mitigations.h
+new file mode 100644
+index 000000000000..1359d8135287
+--- /dev/null
++++ b/drivers/gpu/drm/i915/i915_mitigations.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: MIT */
++/*
++ * Copyright © 2021 Intel Corporation
++ */
++
++#ifndef __I915_MITIGATIONS_H__
++#define __I915_MITIGATIONS_H__
++
++#include <linux/types.h>
++
++bool i915_mitigate_clear_residuals(void);
++
++#endif /* __I915_MITIGATIONS_H__ */
 -- 
 2.20.1
 
