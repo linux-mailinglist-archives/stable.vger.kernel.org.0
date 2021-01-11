@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE5E2F166E
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D122F15E5
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730796AbhAKNwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:52:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
+        id S1733170AbhAKNpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:45:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730713AbhAKNJI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C95522AAB;
-        Mon, 11 Jan 2021 13:08:51 +0000 (UTC)
+        id S1731406AbhAKNLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1BB62253A;
+        Mon, 11 Jan 2021 13:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370532;
-        bh=yMxywED+ArmJLZi/EXozXCbOVYKMDgdSS+ji1SoFQio=;
+        s=korg; t=1610370649;
+        bh=9LQ54fnhvOE76S0JLfOU0aM96N2ZyaGgbNMalhH2Hx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntYWwoTXyJoiO7Jej1y4Brb+jcbbOH5Okvsqm1cgMDqkCbOHdzpOJPBnWMcfITkRK
-         b0NRlNT5a/mtg8rc/T/6Aeq5GyaPO7eRcGgWG+xeryHbsqnjjAScQ1Hr9dZRe63jMe
-         dd/GHbFMF4tESGYT1MEAfmn4MDX0gXieey3/26QM=
+        b=e6GZCkVTe2cgFVKoWsbyxEeZmeS98MwCCn/R42XDio3f0PitIDz1UDe+bT3838kzF
+         8WIqCQHRC09dEvT+haL8O0zI9pedgvoWnfMKXxKs80Vf6G+do/r1C8ntBAmO3MqZ7X
+         J7Gl3/KLDRo8IN6IEXGAHwicFPyPd7B/+XJC4g0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 33/77] r8169: work around power-saving bug on some chip versions
+Subject: [PATCH 5.4 38/92] r8169: work around power-saving bug on some chip versions
 Date:   Mon, 11 Jan 2021 14:01:42 +0100
-Message-Id: <20210111130037.990817985@linuxfoundation.org>
+Message-Id: <20210111130040.986000050@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,13 +53,13 @@ Link: https://lore.kernel.org/r/a1c39460-d533-7f9e-fa9d-2b8990b02426@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169.c |    6 ++++--
+ drivers/net/ethernet/realtek/r8169_main.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169.c
-+++ b/drivers/net/ethernet/realtek/r8169.c
-@@ -4237,7 +4237,8 @@ static void r8168_pll_power_down(struct
- 		return;
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -3958,7 +3958,8 @@ static void rtl_pll_power_down(struct rt
+ 	}
  
  	switch (tp->mac_version) {
 -	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
@@ -68,8 +68,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	case RTL_GIGA_MAC_VER_37:
  	case RTL_GIGA_MAC_VER_39:
  	case RTL_GIGA_MAC_VER_43:
-@@ -4263,7 +4264,8 @@ static void r8168_pll_power_down(struct
- static void r8168_pll_power_up(struct rtl8169_private *tp)
+@@ -3987,7 +3988,8 @@ static void rtl_pll_power_down(struct rt
+ static void rtl_pll_power_up(struct rtl8169_private *tp)
  {
  	switch (tp->mac_version) {
 -	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
