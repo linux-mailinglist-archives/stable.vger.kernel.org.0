@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5045F2F0E5F
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:42:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4778A2F0E6A
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbhAKImM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:42:12 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:54075 "EHLO
+        id S1727964AbhAKIn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:43:26 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:36595 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727865AbhAKImM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:42:12 -0500
+        by vger.kernel.org with ESMTP id S1727962AbhAKInZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:43:25 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 76E812493;
-        Mon, 11 Jan 2021 03:41:26 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:41:26 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id C42A724C2;
+        Mon, 11 Jan 2021 03:42:19 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:42:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XjzBPN
-        38yoUbFosiqMSPvw34pmEEVc9Tth3XOutKG0M=; b=SfvKsZKoqGDQB4NmgrcH34
-        XX5/SjudcyAjmVp71wPIkuociVialr8tf2Qn/6ir3bhfe9x+cvRorn4DoSkIN85I
-        6WIE5BdNHJwf3Q12Ap9PLtVR+0bpGBdYCHYxBwbC4DKiXELN1NiDUScsQFQVeAvZ
-        0kuD5qojv4QYwqhGKMJ9fqKdix/iGqeakeNsa9C8KBwNKQkceL0LncGX+TjWyU/q
-        53SViDXc74wy826w5zlEVoG7du2QK2mjVSo4E8pQvzySA3pGyrdLD0I8dyW3EAoL
-        QPz4c7pFrcJU5WIVmXFDyFWzrsLCbwuAgcktj5zu+9tR+/CrBmXHi46KGG7kZBEQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=fGbz94
+        Ih+gpNwEn5Sc9Lg1eK5uMiHipdfeY0NTubT9s=; b=RFt39FJGo1qphX8Mt6XnDF
+        uxnQHO8nSVFN/Pr7Zztp0hH5yxehDr9g/FLEQ05rJZuv9pllpisbG+zCd6oJg842
+        DSna7WoD8djrYvsoYPUfa2yhEPe603zr2/82G2sAYeyjkspVD4haJhmyxhLMT49d
+        2PTRVy+gAchXL+41bpOleeu3eF+tAum/8nk+Rhx+B8BO8mT3eBKebRhiuxNVuU3t
+        Wzw+yjmcK1NqDNg+engKcpmv14fnFDPAUdEWG/dvlUilCvsSZCs15xF4wTB+ihSW
+        KQvbg+tczpwDMQUJKuLkpSMJo0qKuM9qDGNjJae+Q+DUf1L17D7dZSpSxDwv6Cfw
         ==
-X-ME-Sender: <xms:Ng_8X83YHleFaZj8bTlkkbirfFwqVRlhN4cDjH_sw_RDonZfU5oNsg>
-    <xme:Ng_8X3GZ3Lmp4GmUd_v7EaU31B2-Uo6pY6jjpBiqY3-3BUTrJV-fjXwBTOtuYQBgN
-    _gIEYogwFnilA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddulecutefuodetggdotefrod
+X-ME-Sender: <xms:aw_8X8Fl3lRYmCle6t-THtCH6JR1kj5YgnBeER3raSdIyqI0jPRHmA>
+    <xme:aw_8X1XV_mUe1DODNa7HPI_kjQ9R8vhVDy2kdkDrf3eDHu00QTChG_CwiCfvrm_dP
+    UHlqO5JbbuY8w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvtdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Ng_8X04zVb5dy3SBzN4DJlQnMDMYuyHoHqmLlEJYabvcmMv6p2UBFg>
-    <xmx:Ng_8X11YKsvEtzMeahsmj1zzs8h3DBZxeDtXQiPps-HVXvcfcfxgoA>
-    <xmx:Ng_8X_HxauQjjIuo-7MYe-LJ7rTWpJQx6HDl8z-QRd4b-qlZwv6HBw>
-    <xmx:Ng_8XyMsbHiAUURKhQMZZ9nXQV3Z1JWU5lnr825u9v2cBoT7n7GhNbUHpho>
+X-ME-Proxy: <xmx:aw_8X2KL57h5KdwXCZwC73Bb_HjXlhYWAC31oS9T8v-8jb13u9q27w>
+    <xmx:aw_8X-HQC4Elj4i4eszGcMF-7U7lOYhZUlLcrlYD7nPrXEQgh-TARg>
+    <xmx:aw_8XyXaYXkEU47QKXtUuBjpXj5FuhtQbMOOUTq69oJYTwiLD3vLiw>
+    <xmx:aw_8X7fy4dAX2pATioF3VaCTd7AtzcUvvavp5__puZtZ68O5o4O-B-V-uMw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C304D24005D;
-        Mon, 11 Jan 2021 03:41:25 -0500 (EST)
-Subject: FAILED: patch "[PATCH] USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug" failed to apply to 4.9-stable tree
-To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        by mail.messagingengine.com (Postfix) with ESMTPA id F30BD108005C;
+        Mon, 11 Jan 2021 03:42:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: Fix MTU size mismatch with RX packet" failed to apply to 4.4-stable tree
+To:     manish.narani@xilinx.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:42:32 +0100
-Message-ID: <16103545525940@kroah.com>
+Date:   Mon, 11 Jan 2021 09:43:31 +0100
+Message-ID: <16103546112228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,89 +71,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c318840fb2a42ce25febc95c4c19357acf1ae5ca Mon Sep 17 00:00:00 2001
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 30 Dec 2020 11:20:44 -0500
-Subject: [PATCH] USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
+From 0a88fa221ce911c331bf700d2214c5b2f77414d3 Mon Sep 17 00:00:00 2001
+From: Manish Narani <manish.narani@xilinx.com>
+Date: Tue, 17 Nov 2020 12:43:35 +0530
+Subject: [PATCH] usb: gadget: u_ether: Fix MTU size mismatch with RX packet
+ size
 
-The dummy-hcd driver was written under the assumption that all the
-parameters in URBs sent to its root hub would be valid.  With URBs
-sent from userspace via usbfs, that assumption can be violated.
+Fix the MTU size issue with RX packet size as the host sends the packet
+with extra bytes containing ethernet header. This causes failure when
+user sets the MTU size to the maximum i.e. 15412. In this case the
+ethernet packet received will be of length 15412 plus the ethernet header
+length. This patch fixes the issue where there is a check that RX packet
+length must not be more than max packet length.
 
-In particular, the driver doesn't fully check the port-feature values
-stored in the wValue entry of Clear-Port-Feature and Set-Port-Feature
-requests.  Values that are too large can cause the driver to perform
-an invalid left shift of more than 32 bits.  Ironically, two of those
-left shifts are unnecessary, because they implement Set-Port-Feature
-requests that hubs are not required to support, according to section
-11.24.2.13 of the USB-2.0 spec.
-
-This patch adds the appropriate checks for the port feature selector
-values and removes the unnecessary feature settings.  It also rejects
-requests to set the TEST feature or to set or clear the INDICATOR and
-C_OVERCURRENT features, as none of these are relevant to dummy-hcd's
-root-hub emulation.
-
-CC: <stable@vger.kernel.org>
-Reported-and-tested-by: syzbot+5925509f78293baa7331@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20201230162044.GA727759@rowland.harvard.edu
+Fixes: bba787a860fa ("usb: gadget: ether: Allow jumbo frames")
+Signed-off-by: Manish Narani <manish.narani@xilinx.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1605597215-122027-1-git-send-email-manish.narani@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
-index ab5e978b5052..1a953f44183a 100644
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -2118,9 +2118,21 @@ static int dummy_hub_control(
- 				dum_hcd->port_status &= ~USB_PORT_STAT_POWER;
- 			set_link_state(dum_hcd);
- 			break;
--		default:
-+		case USB_PORT_FEAT_ENABLE:
-+		case USB_PORT_FEAT_C_ENABLE:
-+		case USB_PORT_FEAT_C_SUSPEND:
-+			/* Not allowed for USB-3 */
-+			if (hcd->speed == HCD_USB3)
-+				goto error;
-+			fallthrough;
-+		case USB_PORT_FEAT_C_CONNECTION:
-+		case USB_PORT_FEAT_C_RESET:
- 			dum_hcd->port_status &= ~(1 << wValue);
- 			set_link_state(dum_hcd);
-+			break;
-+		default:
-+		/* Disallow INDICATOR and C_OVER_CURRENT */
-+			goto error;
- 		}
- 		break;
- 	case GetHubDescriptor:
-@@ -2281,18 +2293,17 @@ static int dummy_hub_control(
- 			 */
- 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
- 			fallthrough;
-+		case USB_PORT_FEAT_C_CONNECTION:
-+		case USB_PORT_FEAT_C_RESET:
-+		case USB_PORT_FEAT_C_ENABLE:
-+		case USB_PORT_FEAT_C_SUSPEND:
-+			/* Not allowed for USB-3, and ignored for USB-2 */
-+			if (hcd->speed == HCD_USB3)
-+				goto error;
-+			break;
- 		default:
--			if (hcd->speed == HCD_USB3) {
--				if ((dum_hcd->port_status &
--				     USB_SS_PORT_STAT_POWER) != 0) {
--					dum_hcd->port_status |= (1 << wValue);
--				}
--			} else
--				if ((dum_hcd->port_status &
--				     USB_PORT_STAT_POWER) != 0) {
--					dum_hcd->port_status |= (1 << wValue);
--				}
--			set_link_state(dum_hcd);
-+		/* Disallow TEST, INDICATOR, and C_OVER_CURRENT */
-+			goto error;
- 		}
- 		break;
- 	case GetPortErrorCount:
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 31ea76adcc0d..c019f2b0c0af 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -45,9 +45,10 @@
+ #define UETH__VERSION	"29-May-2008"
+ 
+ /* Experiments show that both Linux and Windows hosts allow up to 16k
+- * frame sizes. Set the max size to 15k+52 to prevent allocating 32k
++ * frame sizes. Set the max MTU size to 15k+52 to prevent allocating 32k
+  * blocks and still have efficient handling. */
+-#define GETHER_MAX_ETH_FRAME_LEN 15412
++#define GETHER_MAX_MTU_SIZE 15412
++#define GETHER_MAX_ETH_FRAME_LEN (GETHER_MAX_MTU_SIZE + ETH_HLEN)
+ 
+ struct eth_dev {
+ 	/* lock is held while accessing port_usb
+@@ -786,7 +787,7 @@ struct eth_dev *gether_setup_name(struct usb_gadget *g,
+ 
+ 	/* MTU range: 14 - 15412 */
+ 	net->min_mtu = ETH_HLEN;
+-	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
++	net->max_mtu = GETHER_MAX_MTU_SIZE;
+ 
+ 	dev->gadget = g;
+ 	SET_NETDEV_DEV(net, &g->dev);
+@@ -848,7 +849,7 @@ struct net_device *gether_setup_name_default(const char *netname)
+ 
+ 	/* MTU range: 14 - 15412 */
+ 	net->min_mtu = ETH_HLEN;
+-	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
++	net->max_mtu = GETHER_MAX_MTU_SIZE;
+ 
+ 	return net;
+ }
 
