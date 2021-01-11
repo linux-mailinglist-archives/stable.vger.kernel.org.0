@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F412F164B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 136062F1588
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730848AbhAKNJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:09:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
+        id S1730973AbhAKNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:41:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730799AbhAKNJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 135E222AAB;
-        Mon, 11 Jan 2021 13:09:09 +0000 (UTC)
+        id S1731043AbhAKNMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21F7521534;
+        Mon, 11 Jan 2021 13:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370550;
-        bh=UydTLdreVjfJNWvvcennbFS5TKT5XPVp+559k5oOHB0=;
+        s=korg; t=1610370741;
+        bh=6oYeBbxmcIwtSIoJvuKO7E95e3znV0E+ecg6FXvDM8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjKJr3kUf8WVCQZRmb7khiYbsB+Ro00VE7nxQmQEQUQ92u29G9gw/6MG+st34iCig
-         y4BqNZtg+WDxIexdlYQv0GZnGsK5b2+Vf1GUlzPePSLTOlP55sDv81GEGdhHj6yV+6
-         90TP2XdAs57gr0Gn4hRnECQshwcn77t/xXfcTV3M=
+        b=LS632cAqJtBwV0r1pJbK6DMWz9hmqHLxijkpWcCmXHkxRHjeAwZBqj7TYscc5CeWb
+         sHDDzvh+r2e8lLJF+uLM66QrwEIlIqQEg8HBnTL9Mgst0BSel9cEa2QDK/Fa7C+NfI
+         aOa1T+k+luqHLMzH3tWnq3HWq0q20yfZxmSeSb9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PGNet Dev <pgnet.dev@gmail.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Jinoh Kang <jinoh.kang.kr@gmail.com>
-Subject: [PATCH 4.19 72/77] xen/pvh: correctly setup the PV EFI interface for dom0
-Date:   Mon, 11 Jan 2021 14:02:21 +0100
-Message-Id: <20210111130039.869512056@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Labisch <clnetbox@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 78/92] ALSA: hda/via: Fix runtime PM for Clevo W35xSS
+Date:   Mon, 11 Jan 2021 14:02:22 +0100
+Message-Id: <20210111130042.913637333@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,105 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 72813bfbf0276a97c82af038efb5f02dcdd9e310 upstream.
+commit 4bfd6247fa9164c8e193a55ef9c0ea3ee22f82d8 upstream.
 
-This involves initializing the boot params EFI related fields and the
-efi global variable.
+Clevo W35xSS_370SS with VIA codec has had the runtime PM problem that
+looses the power state of some nodes after the runtime resume.  This
+was worked around by disabling the default runtime PM via a denylist
+entry.  Since 5.10.x made the runtime PM applied (casually) even
+though it's disabled in the denylist, this problem was revisited.  The
+result was that disabling power_save_node feature suffices for the
+runtime PM problem.
 
-Without this fix a PVH dom0 doesn't detect when booted from EFI, and
-thus doesn't support accessing any of the EFI related data.
+This patch implements the disablement of power_save_node feature in
+VIA codec for the device.  It also drops the former denylist entry,
+too, as the runtime PM should work in the codec side properly now.
 
-Reported-by: PGNet Dev <pgnet.dev@gmail.com>
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Jinoh Kang <jinoh.kang.kr@gmail.com>
-Cc: stable@vger.kernel.org # 4.19+
+Fixes: b529ef2464ad ("ALSA: hda: Add Clevo W35xSS_370SS to the power_save blacklist")
+Reported-by: Christian Labisch <clnetbox@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210104153046.19993-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- arch/x86/xen/efi.c           |   12 ++++++------
- arch/x86/xen/enlighten_pv.c  |    2 +-
- arch/x86/xen/enlighten_pvh.c |    4 ++++
- arch/x86/xen/xen-ops.h       |    4 ++--
- 4 files changed, 13 insertions(+), 9 deletions(-)
+ sound/pci/hda/hda_intel.c |    2 --
+ sound/pci/hda/patch_via.c |   13 +++++++++++++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/xen/efi.c
-+++ b/arch/x86/xen/efi.c
-@@ -172,7 +172,7 @@ static enum efi_secureboot_mode xen_efi_
- 	return efi_secureboot_mode_unknown;
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2186,8 +2186,6 @@ static struct snd_pci_quirk power_save_b
+ 	SND_PCI_QUIRK(0x1849, 0x7662, "Asrock H81M-HDS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
+-	/* https://bugzilla.redhat.com/show_bug.cgi?id=1581607 */
+-	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1002,6 +1002,7 @@ static const struct hda_verb vt1802_init
+ enum {
+ 	VIA_FIXUP_INTMIC_BOOST,
+ 	VIA_FIXUP_ASUS_G75,
++	VIA_FIXUP_POWER_SAVE,
+ };
+ 
+ static void via_fixup_intmic_boost(struct hda_codec *codec,
+@@ -1011,6 +1012,13 @@ static void via_fixup_intmic_boost(struc
+ 		override_mic_boost(codec, 0x30, 0, 2, 40);
  }
  
--void __init xen_efi_init(void)
-+void __init xen_efi_init(struct boot_params *boot_params)
- {
- 	efi_system_table_t *efi_systab_xen;
- 
-@@ -181,12 +181,12 @@ void __init xen_efi_init(void)
- 	if (efi_systab_xen == NULL)
- 		return;
- 
--	strncpy((char *)&boot_params.efi_info.efi_loader_signature, "Xen",
--			sizeof(boot_params.efi_info.efi_loader_signature));
--	boot_params.efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
--	boot_params.efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
-+	strncpy((char *)&boot_params->efi_info.efi_loader_signature, "Xen",
-+			sizeof(boot_params->efi_info.efi_loader_signature));
-+	boot_params->efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
-+	boot_params->efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
- 
--	boot_params.secure_boot = xen_efi_get_secureboot();
-+	boot_params->secure_boot = xen_efi_get_secureboot();
- 
- 	set_bit(EFI_BOOT, &efi.flags);
- 	set_bit(EFI_PARAVIRT, &efi.flags);
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1409,7 +1409,7 @@ asmlinkage __visible void __init xen_sta
- 	/* We need this for printk timestamps */
- 	xen_setup_runstate_info(0);
- 
--	xen_efi_init();
-+	xen_efi_init(&boot_params);
- 
- 	/* Start the world */
- #ifdef CONFIG_X86_32
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -14,6 +14,8 @@
- #include <xen/interface/memory.h>
- #include <xen/interface/hvm/start_info.h>
- 
-+#include "xen-ops.h"
++static void via_fixup_power_save(struct hda_codec *codec,
++				 const struct hda_fixup *fix, int action)
++{
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		codec->power_save_node = 0;
++}
 +
- /*
-  * PVH variables.
-  *
-@@ -79,6 +81,8 @@ static void __init init_pvh_bootparams(v
- 	pvh_bootparams.hdr.type_of_loader = (9 << 4) | 0; /* Xen loader */
+ static const struct hda_fixup via_fixups[] = {
+ 	[VIA_FIXUP_INTMIC_BOOST] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -1025,11 +1033,16 @@ static const struct hda_fixup via_fixups
+ 			{ }
+ 		}
+ 	},
++	[VIA_FIXUP_POWER_SAVE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = via_fixup_power_save,
++	},
+ };
  
- 	x86_init.acpi.get_root_pointer = pvh_get_root_pointer;
-+
-+	xen_efi_init(&pvh_bootparams);
- }
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
++	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
+ 	{}
+ };
  
- /*
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -122,9 +122,9 @@ static inline void __init xen_init_vga(c
- void __init xen_init_apic(void);
- 
- #ifdef CONFIG_XEN_EFI
--extern void xen_efi_init(void);
-+extern void xen_efi_init(struct boot_params *boot_params);
- #else
--static inline void __init xen_efi_init(void)
-+static inline void __init xen_efi_init(struct boot_params *boot_params)
- {
- }
- #endif
 
 
