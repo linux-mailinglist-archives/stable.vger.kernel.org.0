@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F4B2F1610
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8730B2F163E
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:50:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731415AbhAKNsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:48:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
+        id S1731017AbhAKNtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:49:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731149AbhAKNKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C320122C97;
-        Mon, 11 Jan 2021 13:09:34 +0000 (UTC)
+        id S1731016AbhAKNJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B3132225E;
+        Mon, 11 Jan 2021 13:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370575;
-        bh=/z54QfOG6s9ODcbkYCIYxVVtDhnpn0+2ykax0ZVUG9M=;
+        s=korg; t=1610370577;
+        bh=TabGUsZRlJ69uVDmZWyfVoemmBF30gcq66G9ApZcjxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHeYOq4TizVtQqNC8ngR/JOXfzsJ7+vAQZzjm5YDS2+2S+WHIATJyb6AwCziTx6IU
-         0wCUDsks5tPqNw9fvbzhklEuFch4ovw0V646HdYOrH9/iOPuoIf1qm8+GQMC7Idj53
-         xRflKKS3vpsu6L5SiqdhJ27Kd3z4PFp5g8kWHUIs=
+        b=GAvSntCg+OKu+DgHPwnE+iiNzMFZPB0PCSNsHLi0xuCL74prAQjGgn6SWqyNrTJPh
+         TT618Iy6ej3DaG9107CoJv1iflq5NDcdcw4sLuzxTCYXPZef2Je5IDIvM4QpRJeJ4F
+         usadUTspAm46FnaFv14ZkSY5gg118U9SEy9vTE08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.19 66/77] x86/mm: Fix leak of pmd ptlock
-Date:   Mon, 11 Jan 2021 14:02:15 +0100
-Message-Id: <20210111130039.581237108@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Labisch <clnetbox@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 67/77] ALSA: hda/via: Fix runtime PM for Clevo W35xSS
+Date:   Mon, 11 Jan 2021 14:02:16 +0100
+Message-Id: <20210111130039.628452970@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
 References: <20210111130036.414620026@linuxfoundation.org>
@@ -40,85 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
+commit 4bfd6247fa9164c8e193a55ef9c0ea3ee22f82d8 upstream.
 
-Commit
+Clevo W35xSS_370SS with VIA codec has had the runtime PM problem that
+looses the power state of some nodes after the runtime resume.  This
+was worked around by disabling the default runtime PM via a denylist
+entry.  Since 5.10.x made the runtime PM applied (casually) even
+though it's disabled in the denylist, this problem was revisited.  The
+result was that disabling power_save_node feature suffices for the
+runtime PM problem.
 
-  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+This patch implements the disablement of power_save_node feature in
+VIA codec for the device.  It also drops the former denylist entry,
+too, as the runtime PM should work in the codec side properly now.
 
-introduced a new location where a pmd was released, but neglected to
-run the pmd page destructor. In fact, this happened previously for a
-different pmd release path and was fixed by commit:
-
-  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
-
-This issue was hidden until recently because the failure mode is silent,
-but commit:
-
-  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
-
-turns the failure mode into this signature:
-
- BUG: Bad page state in process lt-pmem-ns  pfn:15943d
- page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
- flags: 0xaffff800000000()
- raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
- raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
- page dumped because: nonzero mapcount
- [..]
-  dump_stack+0x8b/0xb0
-  bad_page.cold+0x63/0x94
-  free_pcp_prepare+0x224/0x270
-  free_unref_page+0x18/0xd0
-  pud_free_pmd_page+0x146/0x160
-  ioremap_pud_range+0xe3/0x350
-  ioremap_page_range+0x108/0x160
-  __ioremap_caller.constprop.0+0x174/0x2b0
-  ? memremap+0x7a/0x110
-  memremap+0x7a/0x110
-  devm_memremap+0x53/0xa0
-  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
-  ? __devm_release_region+0x52/0x80
-  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
-
-Given this is a repeat occurrence it seemed prudent to look for other
-places where this destructor might be missing and whether a better
-helper is needed. try_to_free_pmd_page() looks like a candidate, but
-testing with setting up and tearing down pmd mappings via the dax unit
-tests is thus far not triggering the failure.
-
-As for a better helper pmd_free() is close, but it is a messy fit
-due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
-paravirt_tlb_remove_table() instead of free_page(), so open-coded
-pgtable_pmd_page_dtor() seems the best way forward for now.
-
-Debugged together with Matthew Wilcox <willy@infradead.org>.
-
-Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: b529ef2464ad ("ALSA: hda: Add Clevo W35xSS_370SS to the power_save blacklist")
+Reported-by: Christian Labisch <clnetbox@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
+Link: https://lore.kernel.org/r/20210104153046.19993-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/hda_intel.c |    2 --
+ sound/pci/hda/patch_via.c |   13 +++++++++++++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -838,6 +838,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
- 	}
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2328,8 +2328,6 @@ static struct snd_pci_quirk power_save_b
+ 	SND_PCI_QUIRK(0x1849, 0x7662, "Asrock H81M-HDS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
+-	/* https://bugzilla.redhat.com/show_bug.cgi?id=1581607 */
+-	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1015,6 +1015,7 @@ static const struct hda_verb vt1802_init
+ enum {
+ 	VIA_FIXUP_INTMIC_BOOST,
+ 	VIA_FIXUP_ASUS_G75,
++	VIA_FIXUP_POWER_SAVE,
+ };
  
- 	free_page((unsigned long)pmd_sv);
+ static void via_fixup_intmic_boost(struct hda_codec *codec,
+@@ -1024,6 +1025,13 @@ static void via_fixup_intmic_boost(struc
+ 		override_mic_boost(codec, 0x30, 0, 2, 40);
+ }
+ 
++static void via_fixup_power_save(struct hda_codec *codec,
++				 const struct hda_fixup *fix, int action)
++{
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		codec->power_save_node = 0;
++}
 +
-+	pgtable_pmd_page_dtor(virt_to_page(pmd));
- 	free_page((unsigned long)pmd);
+ static const struct hda_fixup via_fixups[] = {
+ 	[VIA_FIXUP_INTMIC_BOOST] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -1038,11 +1046,16 @@ static const struct hda_fixup via_fixups
+ 			{ }
+ 		}
+ 	},
++	[VIA_FIXUP_POWER_SAVE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = via_fixup_power_save,
++	},
+ };
  
- 	return 1;
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
++	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
+ 	{}
+ };
+ 
 
 
