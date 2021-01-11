@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8492F15CE
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C32F22F1657
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:52:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731337AbhAKNpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:45:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58652 "EHLO mail.kernel.org"
+        id S2387420AbhAKNvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:51:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731418AbhAKNLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE692250F;
-        Mon, 11 Jan 2021 13:10:53 +0000 (UTC)
+        id S1730682AbhAKNJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D132225E;
+        Mon, 11 Jan 2021 13:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370653;
-        bh=XDAwESQ4s9euZtoYkuxHhJ1wUbaYZ6pzGd2Ec/bDwO0=;
+        s=korg; t=1610370537;
+        bh=vWJ89WgJ64urz1PsjPcMt6Y5ukGj9sNADlTrhhycSCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2jNKQyMRmG58ZdpIMbYLq+wuTBPz+WgKkSZp3RxcTVs4HfdawcjHjwHj55jzS2jBt
-         +5Ny4iNGyI2AoFttU2NvACUkmaf4NeCr+ITskQr/bFAmYdoAeXe5fNCHedgElkIehv
-         6XfjGbZrJcVkgViRcZR8c/8oB1OKV7qxaqf+mz3Q=
+        b=nkgVnuQB0ZSMDEUR7mYq4qJ4GY8GqIm9minBbHXq93OIbD4R9UOE+HcdQ5tIIjEHI
+         ldpCJA0RKPgyNoIWnlODoZS31W+CQkHdF30zbLpaYS5jKJt2lNA8Tcp7t+deDU9G5+
+         d7A2qg7qZl3uA0BqfwgFa6qk6Sy85yK9bZfoynQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
+        Nogah Frankel <nogahf@mellanox.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 40/92] net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register access
+Subject: [PATCH 4.19 35/77] net: sched: prevent invalid Scell_log shift count
 Date:   Mon, 11 Jan 2021 14:01:44 +0100
-Message-Id: <20210111130041.081687151@linuxfoundation.org>
+Message-Id: <20210111130038.089248250@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 709a3c9dff2a639966ae7d8ba6239d2b8aba036d ]
+[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
 
-There is one GSWIP_MII_CFG register for each switch-port except the CPU
-port. The register offset for the first port is 0x0, 0x02 for the
-second, 0x04 for the third and so on.
+Check Scell_log shift size in red_check_params() and modify all callers
+of red_check_params() to pass Scell_log.
 
-Update the driver to not only restrict the GSWIP_MII_CFG registers to
-ports 0, 1 and 5. Handle ports 0..5 instead but skip the CPU port. This
-means we are not overwriting the configuration for the third port (port
-two since we start counting from zero) with the settings for the sixth
-port (with number five) anymore.
+This prevents a shift out-of-bounds as detected by UBSAN:
+  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
+  shift exponent 72 is too large for 32-bit type 'int'
 
-The GSWIP_MII_PCDU(p) registers are not updated because there's really
-only three (one for each of the following ports: 0, 1, 5).
-
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
+Cc: Nogah Frankel <nogahf@mellanox.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ include/net/red.h     |    4 +++-
+ net/sched/sch_choke.c |    2 +-
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    2 +-
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -92,9 +92,7 @@
- 					 GSWIP_MDIO_PHY_FDUP_MASK)
- 
- /* GSWIP MII Registers */
--#define GSWIP_MII_CFG0			0x00
--#define GSWIP_MII_CFG1			0x02
--#define GSWIP_MII_CFG5			0x04
-+#define GSWIP_MII_CFGp(p)		(0x2 * (p))
- #define  GSWIP_MII_CFG_EN		BIT(14)
- #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
- #define  GSWIP_MII_CFG_MODE_MIIP	0x0
-@@ -392,17 +390,9 @@ static void gswip_mii_mask(struct gswip_
- static void gswip_mii_mask_cfg(struct gswip_priv *priv, u32 clear, u32 set,
- 			       int port)
- {
--	switch (port) {
--	case 0:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG0);
--		break;
--	case 1:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG1);
--		break;
--	case 5:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG5);
--		break;
--	}
-+	/* There's no MII_CFG register for the CPU port */
-+	if (!dsa_is_cpu_port(priv->ds, port))
-+		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFGp(port));
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -168,12 +168,14 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
  }
  
- static void gswip_mii_mask_pcdu(struct gswip_priv *priv, u32 clear, u32 set,
-@@ -806,9 +796,8 @@ static int gswip_setup(struct dsa_switch
- 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+ 	if (fls(qth_max) + Wlog > 32)
+ 		return false;
++	if (Scell_log >= 32)
++		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
+ 	return true;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -371,7 +371,7 @@ static int choke_change(struct Qdisc *sc
  
- 	/* Disable the xMII link */
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 0);
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 1);
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 5);
-+	for (i = 0; i < priv->hw_info->max_ports; i++)
-+		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
  
- 	/* enable special tag insertion on cpu port */
- 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -357,7 +357,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -214,7 +214,7 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -651,7 +651,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog))
++					ctl_v1->Wlog, ctl_v1->Scell_log))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
