@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8712F136A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F302F139A
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729095AbhAKNIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:08:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
+        id S1731448AbhAKNLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730758AbhAKNIJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2188D2250F;
-        Mon, 11 Jan 2021 13:07:52 +0000 (UTC)
+        id S1731443AbhAKNLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C34A22515;
+        Mon, 11 Jan 2021 13:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370473;
-        bh=fMvEGgNJiH3fN5VWU5fVlLjxkoXawqbWiqvbbcugPIQ=;
+        s=korg; t=1610370662;
+        bh=uDKpZ9/xQLMGaaTQY81UYFTxD6iHtYVej1suSNWkwNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ql5JlvLA/sHVyUVyzUi9NTeO89qNjtWXzSuDV6g62FVFCDNd8cd7LBvwxuumYR4gW
-         DiUxFGK+KJAf0BCG/OG4mSd4invoEcfP2b1fPQhx4I/s4Kq9TxY44uTkdJCh9wG/FW
-         ayOsSjxaf2ISzCqlE//ccoYxKYV0LqPh2cQFN+bQ=
+        b=hp3s15Tx3+VAhu4UnZqLTKYKD2zI319zhF6Qvjk8amwo/mPAm6LdT5yrk6hoBlR16
+         JjRZkEjNy4kUMhEnIOUwSsXUr+UHmy8grb15xTz9pahqd9rlHuOVzVh90Pv3LiJeVK
+         j0+ijIB2OVm/lYI1inwRk53n5aSqwXwLtRiUvJCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
+        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 38/77] net: systemport: set dev->max_mtu to UMAC_MAX_MTU_SIZE
-Date:   Mon, 11 Jan 2021 14:01:47 +0100
-Message-Id: <20210111130038.242053796@linuxfoundation.org>
+Subject: [PATCH 5.4 44/92] ionic: account for vlan tag len in rx buffer len
+Date:   Mon, 11 Jan 2021 14:01:48 +0100
+Message-Id: <20210111130041.268227610@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 54ddbdb024882e226055cc4c3c246592ddde2ee5 ]
+[ Upstream commit 83469893204281ecf65d572bddf02de29a19787c ]
 
-The driver is already allocating receive buffers of 2KiB and the
-Ethernet MAC is configured to accept frames up to UMAC_MAX_MTU_SIZE.
+Let the FW know we have enough receive buffer space for the
+vlan tag if it isn't stripped.
 
-Fixes: bfcb813203e6 ("net: dsa: configure the MTU for switch ports")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20201218173843.141046-1-f.fainelli@gmail.com
+Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Link: https://lore.kernel.org/r/20201218215001.64696-1-snelson@pensando.io
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2507,6 +2507,7 @@ static int bcm_sysport_probe(struct plat
- 	/* HW supported features, none enabled by default */
- 	dev->hw_features |= NETIF_F_RXCSUM | NETIF_F_HIGHDMA |
- 				NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
-+	dev->max_mtu = UMAC_MAX_MTU_SIZE;
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -257,7 +257,7 @@ void ionic_rx_fill(struct ionic_queue *q
+ 	unsigned int len;
+ 	unsigned int i;
  
- 	/* Request the WOL interrupt and advertise suspend if available */
- 	priv->wol_irq_disabled = 1;
+-	len = netdev->mtu + ETH_HLEN;
++	len = netdev->mtu + ETH_HLEN + VLAN_HLEN;
+ 
+ 	for (i = ionic_q_space_avail(q); i; i--) {
+ 		skb = ionic_rx_skb_alloc(q, len, &dma_addr);
 
 
