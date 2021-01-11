@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D66002F1372
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37A7B2F1483
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731064AbhAKNIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:08:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
+        id S1726215AbhAKNZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:25:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731061AbhAKNIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 811DA22795;
-        Mon, 11 Jan 2021 13:08:04 +0000 (UTC)
+        id S1732543AbhAKNRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6915822A83;
+        Mon, 11 Jan 2021 13:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370485;
-        bh=SuEabbIVXSYdhRm1lySB7vFdCV6L1oW/q2Y4Yjmad8o=;
+        s=korg; t=1610370984;
+        bh=1tuhAKTK+QKWP8XWnF7qfEy4sK2N7L2YE6mFsi5xke8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=urU30etP6fPIouipWe31sWnqf78QO5rJol0qltHblyjXg0EKvuJLWGVYPN7Uc+H3t
-         hXM0McP6HpQjV4RXuwFTJGS+qYXFkTBkpkt0f42KKE7fdZG0xg8mcj/k/jvjpGOrw5
-         elsQ1SoaeID3sFIHCSb1wNYchI7AyjviKvXlNumk=
+        b=shaCfRKwizOpY/LuDNEq097CA7a08u+r4g0sVlIED7tzd89JQtKlovMN3JVlFv179
+         syI6g7/VTq6OUvZHh+Ch60hJiv23eoOI9u0iHbosKvdQKrBJxqq2UkduEfEbLHzovK
+         YFfq+P5PqGwyfxWcA85HYFQINBBjEP52GppdDKvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        "taehyun.cho" <taehyun.cho@samsung.com>
-Subject: [PATCH 4.19 43/77] usb: gadget: enable super speed plus
-Date:   Mon, 11 Jan 2021 14:01:52 +0100
-Message-Id: <20210111130038.471773749@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH 5.10 089/145] USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
+Date:   Mon, 11 Jan 2021 14:01:53 +0100
+Message-Id: <20210111130052.808813501@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: taehyun.cho <taehyun.cho@samsung.com>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
+commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760 upstream.
 
-Enable Super speed plus in configfs to support USB3.1 Gen2.
-This ensures that when a USB gadget is plugged in, it is
-enumerated as Gen 2 and connected at 10 Gbps if the host and
-cable are capable of it.
+The commit 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit
+latency is too long") was constraining the xhci code not to allow U1/U2
+sleep states if the latency to wake up from the U-states reached the
+service interval of an periodic endpoint. This fix was not taking into
+account that in case the quirk XHCI_INTEL_HOST is set, the wakeup time
+will be calculated and configured differently.
 
-Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
-etc.) already have SuperSpeed Plus support.
+It checks for u1_params.mel/u2_params.mel as a limit. But the code could
+decide to write another MEL into the hardware. This leads to broken
+cases where not enough bandwidth is available for other devices:
 
-Tested: plugged gadget into Linux host and saw:
-[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
+usb 1-2: can't set config #1, error -28
 
-Tested-by: Lorenzo Colitti <lorenzo@google.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
+This patch is fixing that case by checking for timeout_ns after the
+wakeup time was calculated depending on the quirks.
+
+Fixes: 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit latency is too long")
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201215193147.11738-1-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1505,7 +1505,7 @@ static const struct usb_gadget_driver co
- 	.suspend	= configfs_composite_suspend,
- 	.resume		= configfs_composite_resume,
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4646,19 +4646,19 @@ static u16 xhci_calculate_u1_timeout(str
+ {
+ 	unsigned long long timeout_ns;
  
--	.max_speed	= USB_SPEED_SUPER,
-+	.max_speed	= USB_SPEED_SUPER_PLUS,
- 	.driver = {
- 		.owner          = THIS_MODULE,
- 		.name		= "configfs-gadget",
-@@ -1545,7 +1545,7 @@ static struct config_group *gadgets_make
- 	gi->composite.unbind = configfs_do_nothing;
- 	gi->composite.suspend = NULL;
- 	gi->composite.resume = NULL;
--	gi->composite.max_speed = USB_SPEED_SUPER;
-+	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
++	else
++		timeout_ns = udev->u1_params.sel;
++
+ 	/* Prevent U1 if service interval is shorter than U1 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
  
- 	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u1_params.sel;
+-
+ 	/* The U1 timeout is encoded in 1us intervals.
+ 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
+ 	 */
+@@ -4710,19 +4710,19 @@ static u16 xhci_calculate_u2_timeout(str
+ {
+ 	unsigned long long timeout_ns;
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
++	else
++		timeout_ns = udev->u2_params.sel;
++
+ 	/* Prevent U2 if service interval is shorter than U2 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u2_params.sel;
+-
+ 	/* The U2 timeout is encoded in 256us intervals */
+ 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
+ 	/* If the necessary timeout value is bigger than what we can set in the
 
 
