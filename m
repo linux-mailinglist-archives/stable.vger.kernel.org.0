@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28CF02F163B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:50:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7CA2F15AC
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730926AbhAKNJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56990 "EHLO mail.kernel.org"
+        id S2387714AbhAKNnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:43:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730922AbhAKNJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA4A222D2C;
-        Mon, 11 Jan 2021 13:08:58 +0000 (UTC)
+        id S1730792AbhAKNL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF7EB2255F;
+        Mon, 11 Jan 2021 13:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370539;
-        bh=2oF1xm8tCBpOayJ3t4YzHCy8Kx1yxxEBHrgYOTGnDiY=;
+        s=korg; t=1610370704;
+        bh=6R25EZ9NDxWxuLAw08CwEgyMKSZFbQhVTswTkVPgFZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qYyI5QK98vykrC9OLJIKt328/jf/vMfcBBM/wDZVPo86jVpgEVA4aeYG4nKdI7Ca
-         BG8zR2wuLgCugCSyZ+g1DvZt4/V2vL5uUDiXH4XlVOWmAdBYx6pqorKj3F4NsZN4KI
-         J5l0+nakrsXEq7wdzPEYU6MoeIqpnFA78erACDNU=
+        b=VErvCGozU8V0l5YTIfLkIGeo+Cnzq1bcd5iYbjKKuXH6HJZV33TXfkzOjuk74oLI5
+         6sHwf9aPoaShR0qMosa74oGCcIkMv/XfjOubXzgd/W+pjJ+iLX+sjmg9MI83njoQJ4
+         bK4AVFtgGYNYwOUBDMd2kGLQGkkzhzTWb6j3LIPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jason Wang <jasowang@redhat.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 26/77] tun: fix return value when the number of iovs exceeds MAX_SKB_FRAGS
+Subject: [PATCH 5.4 31/92] tun: fix return value when the number of iovs exceeds MAX_SKB_FRAGS
 Date:   Mon, 11 Jan 2021 14:01:35 +0100
-Message-Id: <20210111130037.667158711@linuxfoundation.org>
+Message-Id: <20210111130040.648412742@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -1450,7 +1450,7 @@ static struct sk_buff *tun_napi_alloc_fr
+@@ -1469,7 +1469,7 @@ static struct sk_buff *tun_napi_alloc_fr
  	int i;
  
  	if (it->nr_segs > MAX_SKB_FRAGS + 1)
