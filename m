@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7412F2F179C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:09:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43EDE2F175B
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbhAKOId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:08:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50254 "EHLO mail.kernel.org"
+        id S1727791AbhAKNEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:04:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729904AbhAKNDf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D59B22D08;
-        Mon, 11 Jan 2021 13:03:11 +0000 (UTC)
+        id S1730090AbhAKNEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:04:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA8512253A;
+        Mon, 11 Jan 2021 13:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370192;
-        bh=/baKpyauMrwoRkDSxTcryXp5Jvs4bjqPSZqSOJHSRxk=;
+        s=korg; t=1610370194;
+        bh=ZwsZkSYfM5KR4IgNJmfL82GKzTKSzQC5mSAEDNtlr6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vdu+LJQI/EdNQVb1oz/G+jq/xuOBX2RITv1ngz4uSiu+EI0hdPR8eTo3VxfwWBb+A
-         5XGbXJXk1c77HMqRXKrDOf8g692mq32wPWfevXfsCWHXfHu4g8ionqDhljWofEpblY
-         iZcbRs7RSexgZ+TucnX+KofsYAagJqmYkdWD4BII=
+        b=PN8I4nwPiB9ohFLrcLNcjtufH8gctIvRARAvjQSh9BLaf6QPcN9iwxK4PHrBP25yQ
+         E1LV+JhNWZ5ZcIL0nDpdsxJWHIKKfA/Zxvg+e48ruNin0Y2vxakz69jvWl3hZQzQ06
+         hUU4IKWokGQ7ior1KhhdAhzoK/dbdnupHO8l0nWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 06/45] atm: idt77252: call pci_disable_device() on error path
-Date:   Mon, 11 Jan 2021 14:00:44 +0100
-Message-Id: <20210111130033.984053236@linuxfoundation.org>
+Subject: [PATCH 4.9 07/45] net: dcb: Validate netlink message in DCB handler
+Date:   Mon, 11 Jan 2021 14:00:45 +0100
+Message-Id: <20210111130034.024552843@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
 References: <20210111130033.676306636@linuxfoundation.org>
@@ -39,31 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Petr Machata <me@pmachata.org>
 
-[ Upstream commit 8df66af5c1e5f80562fe728db5ec069b21810144 ]
+[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
 
-This error path needs to disable the pci device before returning.
+DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
+messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
+the CAP_NET_ADMIN capability.
 
-Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X93dmC4NX0vbTpGp@mwanda
+However, the operation to be performed is not decided from the DCB message
+type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
+reading DCB objects, the corresponding SET and DEL commands are used for
+manipulation.
+
+The assumption is that set-like commands will be sent via an RTM_SETDCB
+message, and get-like ones via RTM_GETDCB. However, this assumption is not
+enforced.
+
+It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
+capability by sending the corresponding command in an RTM_GETDCB message.
+That is a bug. Fix it by validating the type of the request message against
+the type used for the response.
+
+Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
+Signed-off-by: Petr Machata <me@pmachata.org>
+Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/idt77252.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dcb/dcbnl.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -3615,7 +3615,7 @@ static int idt77252_init_one(struct pci_
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1726,6 +1726,8 @@ static int dcb_doit(struct sk_buff *skb,
+ 	fn = &reply_funcs[dcb->cmd];
+ 	if (!fn->cb)
+ 		return -EOPNOTSUPP;
++	if (fn->type != nlh->nlmsg_type)
++		return -EPERM;
  
- 	if ((err = dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(32)))) {
- 		printk("idt77252: can't enable DMA for PCI device at %s\n", pci_name(pcidev));
--		return err;
-+		goto err_out_disable_pdev;
- 	}
- 
- 	card = kzalloc(sizeof(struct idt77252_dev), GFP_KERNEL);
+ 	if (!tb[DCB_ATTR_IFNAME])
+ 		return -EINVAL;
 
 
