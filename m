@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E46C2F146C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB8B2F1335
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732597AbhAKNRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:17:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35860 "EHLO mail.kernel.org"
+        id S1730289AbhAKNFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:05:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732586AbhAKNRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15DC822515;
-        Mon, 11 Jan 2021 13:16:33 +0000 (UTC)
+        id S1730287AbhAKNFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:05:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBBA8225AB;
+        Mon, 11 Jan 2021 13:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370993;
-        bh=k5tUJHFjMO2s79xpLs4QJPdGWhJciPZsye1o8rF3dAs=;
+        s=korg; t=1610370279;
+        bh=u9WYEJYd5BU1aoAQsY33A+FOR4Djvrd9dC+1/c9oFF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NxT2X5oMwjU2p4pH29qhQN6UhdGHu0rqT3BCx31W90AM8M0QT34VilZXo/GfbdMw8
-         80nua09eiMexCQW6S9dyuqW3oLnwLC0QTAGXvYZF/cLe+sVbAGztH5ykusQp+AkEDI
-         5q5HH5tfF1qLWMQHtTy18TzfH2NNyyAawQqLJ4mo=
+        b=Th5x73YlPVdYhxM+e8UjAOXS/eEjqVwwvjJh4wQuhPjYyWqTfEWsJSutYZLyhH9Hi
+         lbdEslIowjieQzCSPHZOoHLzNjvrt+Zi8B8IH57Pjy/DdJY5Q9qM9qPFghF/ZjXBlY
+         rXaWv3lFA0du27YopJO8WVL2qLTnphm7VCCLGpuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Mark Salter <msalter@redhat.com>,
-        Aurelien Jacquiot <jacquiot.aurelien@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/145] local64.h: make <asm/local64.h> mandatory
-Date:   Mon, 11 Jan 2021 14:01:28 +0100
-Message-Id: <20210111130051.625313507@linuxfoundation.org>
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Sudarsana Kalluru <skalluru@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 10/57] qede: fix offload for IPIP tunnel packets
+Date:   Mon, 11 Jan 2021 14:01:29 +0100
+Message-Id: <20210111130034.229643115@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
+References: <20210111130033.715773309@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,291 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Manish Chopra <manishc@marvell.com>
 
-[ Upstream commit 87dbc209ea04645fd2351981f09eff5d23f8e2e9 ]
+[ Upstream commit 5d5647dad259bb416fd5d3d87012760386d97530 ]
 
-Make <asm-generic/local64.h> mandatory in include/asm-generic/Kbuild and
-remove all arch/*/include/asm/local64.h arch-specific files since they
-only #include <asm-generic/local64.h>.
+IPIP tunnels packets are unknown to device,
+hence these packets are incorrectly parsed and
+caused the packet corruption, so disable offlods
+for such packets at run time.
 
-This fixes build errors on arch/c6x/ and arch/nios2/ for
-block/blk-iocost.c.
-
-Build-tested on 21 of 25 arch-es.  (tools problems on the others)
-
-Yes, we could even rename <asm-generic/local64.h> to
-<linux/local64.h> and change all #includes to use
-<linux/local64.h> instead.
-
-Link: https://lkml.kernel.org/r/20201227024446.17018-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Ley Foon Tan <ley.foon.tan@intel.com>
-Cc: Mark Salter <msalter@redhat.com>
-Cc: Aurelien Jacquiot <jacquiot.aurelien@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Link: https://lore.kernel.org/r/20201221145530.7771-1-manishc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/include/asm/local64.h   | 1 -
- arch/arc/include/asm/Kbuild        | 1 -
- arch/arm/include/asm/Kbuild        | 1 -
- arch/arm64/include/asm/Kbuild      | 1 -
- arch/csky/include/asm/Kbuild       | 1 -
- arch/h8300/include/asm/Kbuild      | 1 -
- arch/hexagon/include/asm/Kbuild    | 1 -
- arch/ia64/include/asm/local64.h    | 1 -
- arch/m68k/include/asm/Kbuild       | 1 -
- arch/microblaze/include/asm/Kbuild | 1 -
- arch/mips/include/asm/Kbuild       | 1 -
- arch/nds32/include/asm/Kbuild      | 1 -
- arch/parisc/include/asm/Kbuild     | 1 -
- arch/powerpc/include/asm/Kbuild    | 1 -
- arch/riscv/include/asm/Kbuild      | 1 -
- arch/s390/include/asm/Kbuild       | 1 -
- arch/sh/include/asm/Kbuild         | 1 -
- arch/sparc/include/asm/Kbuild      | 1 -
- arch/x86/include/asm/local64.h     | 1 -
- arch/xtensa/include/asm/Kbuild     | 1 -
- include/asm-generic/Kbuild         | 1 +
- 21 files changed, 1 insertion(+), 20 deletions(-)
- delete mode 100644 arch/alpha/include/asm/local64.h
- delete mode 100644 arch/ia64/include/asm/local64.h
- delete mode 100644 arch/x86/include/asm/local64.h
+ drivers/net/ethernet/qlogic/qede/qede_fp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/alpha/include/asm/local64.h b/arch/alpha/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/alpha/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/arc/include/asm/Kbuild b/arch/arc/include/asm/Kbuild
-index 81f4edec0c2a9..3c1afa524b9c2 100644
---- a/arch/arc/include/asm/Kbuild
-+++ b/arch/arc/include/asm/Kbuild
-@@ -1,7 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += user.h
-diff --git a/arch/arm/include/asm/Kbuild b/arch/arm/include/asm/Kbuild
-index 383635b68763c..f1398b9267c08 100644
---- a/arch/arm/include/asm/Kbuild
-+++ b/arch/arm/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += early_ioremap.h
- generic-y += extable.h
- generic-y += flat.h
--generic-y += local64.h
- generic-y += parport.h
- generic-y += seccomp.h
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -1708,6 +1708,11 @@ netdev_features_t qede_features_check(st
+ 			      ntohs(udp_hdr(skb)->dest) != gnv_port))
+ 				return features & ~(NETIF_F_CSUM_MASK |
+ 						    NETIF_F_GSO_MASK);
++		} else if (l4_proto == IPPROTO_IPIP) {
++			/* IPIP tunnels are unknown to the device or at least unsupported natively,
++			 * offloads for them can't be done trivially, so disable them for such skb.
++			 */
++			return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
+ 		}
+ 	}
  
-diff --git a/arch/arm64/include/asm/Kbuild b/arch/arm64/include/asm/Kbuild
-index ff9cbb6312128..07ac208edc894 100644
---- a/arch/arm64/include/asm/Kbuild
-+++ b/arch/arm64/include/asm/Kbuild
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- generic-y += early_ioremap.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
- generic-y += qspinlock.h
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index 64876e59e2ef9..2a5a4d94fafad 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += asm-offsets.h
- generic-y += gpio.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += qrwlock.h
- generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/h8300/include/asm/Kbuild b/arch/h8300/include/asm/Kbuild
-index ddf04f32b5467..60ee7f0d60a8f 100644
---- a/arch/h8300/include/asm/Kbuild
-+++ b/arch/h8300/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generic-y += asm-offsets.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += spinlock.h
-diff --git a/arch/hexagon/include/asm/Kbuild b/arch/hexagon/include/asm/Kbuild
-index 373964bb177e4..3ece3c93fe086 100644
---- a/arch/hexagon/include/asm/Kbuild
-+++ b/arch/hexagon/include/asm/Kbuild
-@@ -2,5 +2,4 @@
- generic-y += extable.h
- generic-y += iomap.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/ia64/include/asm/local64.h b/arch/ia64/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/ia64/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/m68k/include/asm/Kbuild b/arch/m68k/include/asm/Kbuild
-index 1bff55aa2d54e..0dbf9c5c6faeb 100644
---- a/arch/m68k/include/asm/Kbuild
-+++ b/arch/m68k/include/asm/Kbuild
-@@ -2,6 +2,5 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += spinlock.h
-diff --git a/arch/microblaze/include/asm/Kbuild b/arch/microblaze/include/asm/Kbuild
-index 63bce836b9f10..29b0e557aa7c5 100644
---- a/arch/microblaze/include/asm/Kbuild
-+++ b/arch/microblaze/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += syscalls.h
-diff --git a/arch/mips/include/asm/Kbuild b/arch/mips/include/asm/Kbuild
-index 198b3bafdac97..95b4fa7bd0d1f 100644
---- a/arch/mips/include/asm/Kbuild
-+++ b/arch/mips/include/asm/Kbuild
-@@ -6,7 +6,6 @@ generated-y += syscall_table_64_n64.h
- generated-y += syscall_table_64_o32.h
- generic-y += export.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
- generic-y += qrwlock.h
-diff --git a/arch/nds32/include/asm/Kbuild b/arch/nds32/include/asm/Kbuild
-index ff1e94299317d..82a4453c9c2d5 100644
---- a/arch/nds32/include/asm/Kbuild
-+++ b/arch/nds32/include/asm/Kbuild
-@@ -4,6 +4,5 @@ generic-y += cmpxchg.h
- generic-y += export.h
- generic-y += gpio.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += parport.h
- generic-y += user.h
-diff --git a/arch/parisc/include/asm/Kbuild b/arch/parisc/include/asm/Kbuild
-index e3ee5c0bfe80f..a1bd2adc63e3a 100644
---- a/arch/parisc/include/asm/Kbuild
-+++ b/arch/parisc/include/asm/Kbuild
-@@ -3,7 +3,6 @@ generated-y += syscall_table_32.h
- generated-y += syscall_table_64.h
- generated-y += syscall_table_c32.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/powerpc/include/asm/Kbuild b/arch/powerpc/include/asm/Kbuild
-index 90cd5c53af666..e1f9b4ea1c537 100644
---- a/arch/powerpc/include/asm/Kbuild
-+++ b/arch/powerpc/include/asm/Kbuild
-@@ -5,7 +5,6 @@ generated-y += syscall_table_c32.h
- generated-y += syscall_table_spu.h
- generic-y += export.h
- generic-y += kvm_types.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += qrwlock.h
- generic-y += vtime.h
-diff --git a/arch/riscv/include/asm/Kbuild b/arch/riscv/include/asm/Kbuild
-index 59dd7be550054..445ccc97305a5 100644
---- a/arch/riscv/include/asm/Kbuild
-+++ b/arch/riscv/include/asm/Kbuild
-@@ -3,6 +3,5 @@ generic-y += early_ioremap.h
- generic-y += extable.h
- generic-y += flat.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
-index 319efa0e6d024..1a18d7b82f86d 100644
---- a/arch/s390/include/asm/Kbuild
-+++ b/arch/s390/include/asm/Kbuild
-@@ -7,5 +7,4 @@ generated-y += unistd_nr.h
- generic-y += asm-offsets.h
- generic-y += export.h
- generic-y += kvm_types.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/sh/include/asm/Kbuild b/arch/sh/include/asm/Kbuild
-index 7435182ef8465..fc44d9c88b419 100644
---- a/arch/sh/include/asm/Kbuild
-+++ b/arch/sh/include/asm/Kbuild
-@@ -1,6 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
- generated-y += syscall_table.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += parport.h
-diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-index 5269a704801fa..3688fdae50e45 100644
---- a/arch/sparc/include/asm/Kbuild
-+++ b/arch/sparc/include/asm/Kbuild
-@@ -6,5 +6,4 @@ generated-y += syscall_table_64.h
- generated-y += syscall_table_c32.h
- generic-y += export.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
-diff --git a/arch/x86/include/asm/local64.h b/arch/x86/include/asm/local64.h
-deleted file mode 100644
-index 36c93b5cc239b..0000000000000
---- a/arch/x86/include/asm/local64.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/local64.h>
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index c59c42a1221a8..adefb1636f7ae 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -2,7 +2,6 @@
- generated-y += syscall_table.h
- generic-y += extable.h
- generic-y += kvm_para.h
--generic-y += local64.h
- generic-y += mcs_spinlock.h
- generic-y += param.h
- generic-y += qrwlock.h
-diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
-index e78bbb9a07e90..d1300c6e0a471 100644
---- a/include/asm-generic/Kbuild
-+++ b/include/asm-generic/Kbuild
-@@ -34,6 +34,7 @@ mandatory-y += kmap_types.h
- mandatory-y += kprobes.h
- mandatory-y += linkage.h
- mandatory-y += local.h
-+mandatory-y += local64.h
- mandatory-y += mm-arch-hooks.h
- mandatory-y += mmiowb.h
- mandatory-y += mmu.h
--- 
-2.27.0
-
 
 
