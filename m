@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD842F1349
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E45D2F1442
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:23:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730443AbhAKNGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:06:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53948 "EHLO mail.kernel.org"
+        id S1727716AbhAKNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:22:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730440AbhAKNGV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A4A22515;
-        Mon, 11 Jan 2021 13:05:40 +0000 (UTC)
+        id S1733150AbhAKNSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99DC722B30;
+        Mon, 11 Jan 2021 13:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370340;
-        bh=3e4T6+takvLVp8yclhmdAKFbBXersdPv2Br2au6RPMQ=;
+        s=korg; t=1610371079;
+        bh=1cVKl6jHfHzjlMO3C+xdzyYRJVTJext9+IRzNi/iLwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVWU9QUxn9wle3iBP3+9VZ+3gpJDf/VIkMxv2whznsQ3+O1O4Qy41DcMyPFniXG58
-         9+L/bnr07ZW9MrI5Yx5ICL/+psXxBEUimlFnxIy6E7/fFweelIx0yT6ZYH/w8iewu0
-         NXO7YtMTrQGlbouHvi5MmemF+Akk6ek8UQGPnppg=
+        b=YiDFtM8//BfL6Y+3iMfQYcKvVmg6eQY4LdeBGmj7Qsw2Aexj9RZWqBu15w7Ol4UV7
+         7NuwlXZ/NRQr2E79msiLDkK3Tq7EdjOi/0G8Sbznenm8RqhdbqRqv8rjopR5MeD7yb
+         bvWbVh8yNdGGHXcLMcsmhHo5E4M9MWmALVVVpfX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 37/57] USB: serial: option: add LongSung M5710 module support
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 092/145] USB: serial: iuu_phoenix: fix DMA from stack
 Date:   Mon, 11 Jan 2021 14:01:56 +0100
-Message-Id: <20210111130035.523711960@linuxfoundation.org>
+Message-Id: <20210111130052.953092626@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +38,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Palmer <daniel@0x0f.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 0e2d6795e8dbe91c2f5473564c6b25d11df3778b upstream.
+commit 54d0a3ab80f49f19ee916def62fe067596833403 upstream.
 
-Add a device-id entry for the LongSung M5710 module.
+Stack-allocated buffers cannot be used for DMA (on all architectures) so
+allocate the flush command buffer using kmalloc().
 
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2df3 ProdID=9d03 Rev= 1.00
-S:  Manufacturer=Marvell
-S:  Product=Mobile Composite Device Bus
-S:  SerialNumber=<snip>
-C:* #Ifs= 5 Cfg#= 1 Atr=c0 MxPwr=500mA
-A:  FirstIf#= 0 IfCount= 2 Cls=e0(wlcon) Sub=01 Prot=03
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
-E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0c(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0b(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=0a(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Daniel Palmer <daniel@0x0f.com>
-https://lore.kernel.org/r/20201227031716.1343300-1-daniel@0x0f.com
-[ johan: drop id defines, only bind to vendor class ]
-Cc: stable@vger.kernel.org
+Fixes: 60a8fc017103 ("USB: add iuu_phoenix driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.25
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/iuu_phoenix.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2059,6 +2059,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
+--- a/drivers/usb/serial/iuu_phoenix.c
++++ b/drivers/usb/serial/iuu_phoenix.c
+@@ -532,23 +532,29 @@ static int iuu_uart_flush(struct usb_ser
+ 	struct device *dev = &port->dev;
+ 	int i;
+ 	int status;
+-	u8 rxcmd = IUU_UART_RX;
++	u8 *rxcmd;
+ 	struct iuu_private *priv = usb_get_serial_port_data(port);
+ 
+ 	if (iuu_led(port, 0xF000, 0, 0, 0xFF) < 0)
+ 		return -EIO;
+ 
++	rxcmd = kmalloc(1, GFP_KERNEL);
++	if (!rxcmd)
++		return -ENOMEM;
++
++	rxcmd[0] = IUU_UART_RX;
++
+ 	for (i = 0; i < 2; i++) {
+-		status = bulk_immediate(port, &rxcmd, 1);
++		status = bulk_immediate(port, rxcmd, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_write error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
+ 
+ 		status = read_immediate(port, &priv->len, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
+ 
+ 		if (priv->len > 0) {
+@@ -556,12 +562,16 @@ static int iuu_uart_flush(struct usb_ser
+ 			status = read_immediate(port, priv->buf, priv->len);
+ 			if (status != IUU_OPERATION_OK) {
+ 				dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-				return status;
++				goto out_free;
+ 			}
+ 		}
+ 	}
+ 	dev_dbg(dev, "%s - uart_flush_read OK!\n", __func__);
+ 	iuu_led(port, 0, 0xF000, 0, 0xFF);
++
++out_free:
++	kfree(rxcmd);
++
+ 	return status;
+ }
+ 
 
 
