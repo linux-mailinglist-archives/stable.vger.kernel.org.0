@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9932F1787
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:07:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35AFE2F17AD
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730028AbhAKOHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:07:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+        id S2388833AbhAKOJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 09:09:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729821AbhAKNDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6942227C3;
-        Mon, 11 Jan 2021 13:03:29 +0000 (UTC)
+        id S1729686AbhAKNDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36221227C3;
+        Mon, 11 Jan 2021 13:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370210;
-        bh=7e4x7QERNUpbnTYTuc74wsLQJVQJN0MHhcK1ALBJxjw=;
+        s=korg; t=1610370137;
+        bh=Kmxdr/KjYM0UXQrAREInlmMDqzatsClRN0e/BJvRxVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKWxNo2uPtR56ZEW+/p+A2ZQvoK7UJXDqyLURBqmXhUR44pTGJaav+iMiMNiBJ4+R
-         Ng5zwLBTRoQiUG6+l7fydxvopWQwrW+6yahEcmNhTWGnLVoFSe/GgH7W5Sr4afImbj
-         pzDZZBbwj9caTTxc2f/z9nerKYP5nkpfIYR43miM=
+        b=Bv8f/wkyBIeux4MhNsxe83MLIJ4kdtNyXAlZjmm/6LjIhZb5X/KagPOXSeXOoK96R
+         nfwxRsKLChuBVa4KonJjgqfrIPu2V1eFdBa8+9VJtg1k1veKe2jFkKCRoLsPCJ8wQM
+         CM6a1Z0YcAthDT6KzHZOS/hfEltgjGuTOfF4WFrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 4.9 26/45] usb: uas: Add PNY USB Portable SSD to unusual_uas
-Date:   Mon, 11 Jan 2021 14:01:04 +0100
-Message-Id: <20210111130034.921894454@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.4 33/38] x86/mm: Fix leak of pmd ptlock
+Date:   Mon, 11 Jan 2021 14:01:05 +0100
+Message-Id: <20210111130034.044562734@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+References: <20210111130032.469630231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 96ebc9c871d8a28fb22aa758dd9188a4732df482 upstream.
+commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
 
-Here's another variant PNY Pro Elite USB 3.1 Gen 2 portable SSD that
-hangs and doesn't respond to ATA_1x pass-through commands. If it doesn't
-support these commands, it should respond properly to the host. Add it
-to the unusual uas list to be able to move forward with other
-operations.
+Commit
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com
+  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+
+introduced a new location where a pmd was released, but neglected to
+run the pmd page destructor. In fact, this happened previously for a
+different pmd release path and was fixed by commit:
+
+  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
+
+This issue was hidden until recently because the failure mode is silent,
+but commit:
+
+  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
+
+turns the failure mode into this signature:
+
+ BUG: Bad page state in process lt-pmem-ns  pfn:15943d
+ page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
+ flags: 0xaffff800000000()
+ raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
+ raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
+ page dumped because: nonzero mapcount
+ [..]
+  dump_stack+0x8b/0xb0
+  bad_page.cold+0x63/0x94
+  free_pcp_prepare+0x224/0x270
+  free_unref_page+0x18/0xd0
+  pud_free_pmd_page+0x146/0x160
+  ioremap_pud_range+0xe3/0x350
+  ioremap_page_range+0x108/0x160
+  __ioremap_caller.constprop.0+0x174/0x2b0
+  ? memremap+0x7a/0x110
+  memremap+0x7a/0x110
+  devm_memremap+0x53/0xa0
+  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
+  ? __devm_release_region+0x52/0x80
+  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
+
+Given this is a repeat occurrence it seemed prudent to look for other
+places where this destructor might be missing and whether a better
+helper is needed. try_to_free_pmd_page() looks like a candidate, but
+testing with setting up and tearing down pmd mappings via the dax unit
+tests is thus far not triggering the failure.
+
+As for a better helper pmd_free() is close, but it is a messy fit
+due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
+paravirt_tlb_remove_table() instead of free_page(), so open-coded
+pgtable_pmd_page_dtor() seems the best way forward for now.
+
+Debugged together with Matthew Wilcox <willy@infradead.org>.
+
+Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/mm/pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -164,6 +164,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
- 		US_FL_BROKEN_FUA),
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -720,6 +720,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
+ 	}
  
- /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
-+UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
-+		"PNY",
-+		"Pro Elite SSD",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_NO_ATA_1X),
+ 	free_page((unsigned long)pmd_sv);
 +
-+/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
- UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
- 		"PNY",
- 		"Pro Elite SSD",
++	pgtable_pmd_page_dtor(virt_to_page(pmd));
+ 	free_page((unsigned long)pmd);
+ 
+ 	return 1;
 
 
