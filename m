@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9FC2F1700
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 465962F166D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728591AbhAKN76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:59:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
+        id S1730830AbhAKNwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728808AbhAKNG2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0E362251F;
-        Mon, 11 Jan 2021 13:05:46 +0000 (UTC)
+        id S1730699AbhAKNJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F1122ADF;
+        Mon, 11 Jan 2021 13:08:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370347;
-        bh=I4sHZ/9+9WaCBncCxa31WvcaN/i3zoWGwQUJX7ocuzY=;
+        s=korg; t=1610370505;
+        bh=TOJcZvjnJZQGS+cQbsthieBdACSYNWvv/ibbBiaOXuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyQPXm1j0uUNWjoZ+Qwvp0PFzrImvR6fKjaC4VrFtFnxJFaClEXkuGNADMjO5abd+
-         cykEPCA9SGwm5g3tHGV/6gwvrzEdKfOm+lEi1w+sPBm4o7CxHLMF0lzjc75h6hbji9
-         Rm2byuGwF48xZMNIpOsFIA5HSxFH+J+nd7RYbPcU=
+        b=IQ9Q0fhj5GIy6Gk7xbgk0Zj8stxmzHes+r3QQWwysOdyMZ8IsiuwxEpNmVbuCWqEC
+         mX/SWsRJXrt2EarxuhtQjHWbuZwc0hogIh9E6KhFwaDCF7Ghr0z/hxs7802Ne8RAdN
+         KIeZ7hvTh39tyofPLzx+NkYraIH4sjIix56himo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 40/57] USB: usblp: fix DMA to stack
-Date:   Mon, 11 Jan 2021 14:01:59 +0100
-Message-Id: <20210111130035.657475002@linuxfoundation.org>
+Subject: [PATCH 4.19 51/77] USB: serial: iuu_phoenix: fix DMA from stack
+Date:   Mon, 11 Jan 2021 14:02:00 +0100
+Message-Id: <20210111130038.874137327@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +40,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 020a1f453449294926ca548d8d5ca970926e8dfd upstream.
+commit 54d0a3ab80f49f19ee916def62fe067596833403 upstream.
 
-Stack-allocated buffers cannot be used for DMA (on all architectures).
+Stack-allocated buffers cannot be used for DMA (on all architectures) so
+allocate the flush command buffer using kmalloc().
 
-Replace the HP-channel macro with a helper function that allocates a
-dedicated transfer buffer so that it can continue to be used with
-arguments from the stack.
-
-Note that the buffer is cleared on allocation as usblp_ctrl_msg()
-returns success also on short transfers (the buffer is only used for
-debugging).
-
-Cc: stable@vger.kernel.org
+Fixes: 60a8fc017103 ("USB: add iuu_phoenix driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.25
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210104145302.2087-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/usblp.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/usb/serial/iuu_phoenix.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -289,8 +289,25 @@ static int usblp_ctrl_msg(struct usblp *
- #define usblp_reset(usblp)\
- 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
+--- a/drivers/usb/serial/iuu_phoenix.c
++++ b/drivers/usb/serial/iuu_phoenix.c
+@@ -536,23 +536,29 @@ static int iuu_uart_flush(struct usb_ser
+ 	struct device *dev = &port->dev;
+ 	int i;
+ 	int status;
+-	u8 rxcmd = IUU_UART_RX;
++	u8 *rxcmd;
+ 	struct iuu_private *priv = usb_get_serial_port_data(port);
  
--#define usblp_hp_channel_change_request(usblp, channel, buffer) \
--	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
-+static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
-+{
-+	u8 *buf;
-+	int ret;
-+
-+	buf = kzalloc(1, GFP_KERNEL);
-+	if (!buf)
+ 	if (iuu_led(port, 0xF000, 0, 0, 0xFF) < 0)
+ 		return -EIO;
+ 
++	rxcmd = kmalloc(1, GFP_KERNEL);
++	if (!rxcmd)
 +		return -ENOMEM;
 +
-+	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
-+			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
-+			channel, buf, 1);
-+	if (ret == 0)
-+		*new_channel = buf[0];
++	rxcmd[0] = IUU_UART_RX;
 +
-+	kfree(buf);
-+
-+	return ret;
-+}
+ 	for (i = 0; i < 2; i++) {
+-		status = bulk_immediate(port, &rxcmd, 1);
++		status = bulk_immediate(port, rxcmd, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_write error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
  
- /*
-  * See the description for usblp_select_alts() below for the usage
+ 		status = read_immediate(port, &priv->len, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
+ 
+ 		if (priv->len > 0) {
+@@ -560,12 +566,16 @@ static int iuu_uart_flush(struct usb_ser
+ 			status = read_immediate(port, priv->buf, priv->len);
+ 			if (status != IUU_OPERATION_OK) {
+ 				dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-				return status;
++				goto out_free;
+ 			}
+ 		}
+ 	}
+ 	dev_dbg(dev, "%s - uart_flush_read OK!\n", __func__);
+ 	iuu_led(port, 0, 0xF000, 0, 0xFF);
++
++out_free:
++	kfree(rxcmd);
++
+ 	return status;
+ }
+ 
 
 
