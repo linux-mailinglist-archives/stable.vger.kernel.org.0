@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C0F2F17A6
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E71972F178F
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729802AbhAKNDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:03:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50166 "EHLO mail.kernel.org"
+        id S1729991AbhAKNDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:03:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729784AbhAKNDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB682225E;
-        Mon, 11 Jan 2021 13:02:30 +0000 (UTC)
+        id S1729959AbhAKNDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD358225AC;
+        Mon, 11 Jan 2021 13:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370151;
-        bh=mrNo0Ex0OLlP2kMgax/JZwei4JLmgWL/WzFV0B+sF1w=;
+        s=korg; t=1610370203;
+        bh=34Aj2L0RvDFMS4ZKzTodq8xu8rAEnK9IVYiI0+RiQsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wU6s5G5+j6FqGbAhXCbj4QMtruOKAmV2MyDDry3A+Ya9Z3LQy6QLygIa/UrP29uHA
-         fjjivNcetsLfXJmnWC3R/K8NWyuWkLrc5EXtjzXmOU+9tCAcSnz/tonoXyMH3R6J3z
-         OOXrQFh7snfTMIafO4vx1jwoyB7Sa8MLCxjZUpG8=
+        b=jwibylOPm9OBNZWsa/H0b+pQGwxY4LnOd6vLBku69yH7CiT1ihESQ5NXLHNIdxOiA
+         vHyqDS2j7jg0x+FyLu9atE9Ij39G81/QxJk6MZonqv1T1pOJpTngjgo3nGttFBqjaE
+         YyVP5toEl2ln4Cy/rD+gcDhABvb7vA4zyi9R+xp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 21/38] USB: serial: iuu_phoenix: fix DMA from stack
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
+        Nogah Frankel <nogahf@mellanox.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 15/45] net: sched: prevent invalid Scell_log shift count
 Date:   Mon, 11 Jan 2021 14:00:53 +0100
-Message-Id: <20210111130033.481687959@linuxfoundation.org>
+Message-Id: <20210111130034.390190141@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
+References: <20210111130033.676306636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,76 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 54d0a3ab80f49f19ee916def62fe067596833403 upstream.
+[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
 
-Stack-allocated buffers cannot be used for DMA (on all architectures) so
-allocate the flush command buffer using kmalloc().
+Check Scell_log shift size in red_check_params() and modify all callers
+of red_check_params() to pass Scell_log.
 
-Fixes: 60a8fc017103 ("USB: add iuu_phoenix driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.25
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This prevents a shift out-of-bounds as detected by UBSAN:
+  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
+  shift exponent 72 is too large for 32-bit type 'int'
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
+Cc: Nogah Frankel <nogahf@mellanox.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/iuu_phoenix.c |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ include/net/red.h     |    4 +++-
+ net/sched/sch_choke.c |    2 +-
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    2 +-
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/iuu_phoenix.c
-+++ b/drivers/usb/serial/iuu_phoenix.c
-@@ -551,23 +551,29 @@ static int iuu_uart_flush(struct usb_ser
- 	struct device *dev = &port->dev;
- 	int i;
- 	int status;
--	u8 rxcmd = IUU_UART_RX;
-+	u8 *rxcmd;
- 	struct iuu_private *priv = usb_get_serial_port_data(port);
- 
- 	if (iuu_led(port, 0xF000, 0, 0, 0xFF) < 0)
- 		return -EIO;
- 
-+	rxcmd = kmalloc(1, GFP_KERNEL);
-+	if (!rxcmd)
-+		return -ENOMEM;
-+
-+	rxcmd[0] = IUU_UART_RX;
-+
- 	for (i = 0; i < 2; i++) {
--		status = bulk_immediate(port, &rxcmd, 1);
-+		status = bulk_immediate(port, rxcmd, 1);
- 		if (status != IUU_OPERATION_OK) {
- 			dev_dbg(dev, "%s - uart_flush_write error\n", __func__);
--			return status;
-+			goto out_free;
- 		}
- 
- 		status = read_immediate(port, &priv->len, 1);
- 		if (status != IUU_OPERATION_OK) {
- 			dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
--			return status;
-+			goto out_free;
- 		}
- 
- 		if (priv->len > 0) {
-@@ -575,12 +581,16 @@ static int iuu_uart_flush(struct usb_ser
- 			status = read_immediate(port, priv->buf, priv->len);
- 			if (status != IUU_OPERATION_OK) {
- 				dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
--				return status;
-+				goto out_free;
- 			}
- 		}
- 	}
- 	dev_dbg(dev, "%s - uart_flush_read OK!\n", __func__);
- 	iuu_led(port, 0, 0xF000, 0, 0xFF);
-+
-+out_free:
-+	kfree(rxcmd);
-+
- 	return status;
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -167,12 +167,14 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
  }
  
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+ 	if (fls(qth_max) + Wlog > 32)
+ 		return false;
++	if (Scell_log >= 32)
++		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
+ 	return true;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -425,7 +425,7 @@ static int choke_change(struct Qdisc *sc
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -356,7 +356,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -184,7 +184,7 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -645,7 +645,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog))
++					ctl_v1->Wlog, ctl_v1->Scell_log))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
