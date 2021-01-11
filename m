@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 267932F161D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D85FE2F14DE
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731125AbhAKNKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:10:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55534 "EHLO mail.kernel.org"
+        id S1731069AbhAKNb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:31:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730764AbhAKNIJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BA342225E;
-        Mon, 11 Jan 2021 13:07:28 +0000 (UTC)
+        id S1728921AbhAKNPa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74041225AC;
+        Mon, 11 Jan 2021 13:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370448;
-        bh=ZjdsGTBZOcFa18VX4bHs5tA9QYubn3McMHcu6nFZ+3U=;
+        s=korg; t=1610370889;
+        bh=qgonb/oF0Wnlp/y6P7LJTKtvexIxDr4oWRdKBi+emkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iz7wKeikAorj1DrjFyMRTggZOrUXllrDAsRGA9cXBg/mH+QEqh5tNSCWOiAr1BjYg
-         E7QEppTW5wjZHREvDAILtdI37hPCr0ANcm1RkTa0iZUUZniAFi0CfvIM5fd9KTVK75
-         8y04IDsXpQuuXF1ywue0uKIOGXEy8D9NkfGXQ/b4=
+        b=ZoNBzkcZ2jk/cyaisVSzQvNq11K237PPy5GSC2VyfbhD5hNcyZfAf1/u7R+F9lNsz
+         g58lV5yodBntGfHtGro9QjSeJgtf6w5IZwQeh4FfIMpm62ZK12GGLJQSI5OiyuHUOD
+         K2zXkuDxOCRl/XRP18/gPWz4mxC1b57pnOeb8ztI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/77] scsi: ufs: Fix wrong print message in dev_err()
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 048/145] selftests: mlxsw: Set headroom size of correct port
 Date:   Mon, 11 Jan 2021 14:01:12 +0100
-Message-Id: <20210111130036.573671195@linuxfoundation.org>
+Message-Id: <20210111130050.832623753@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 1fa0570002e3f66db9b58c32c60de4183b857a19 ]
+[ Upstream commit 2ff2c7e274392871bfdee00ff2adbb8ebae5d240 ]
 
-Change dev_err() print message from "dme-reset" to "dme_enable" in function
-ufshcd_dme_enable().
+The test was setting the headroom size of the wrong port. This was not
+visible because of a firmware bug that canceled this bug.
 
-Link: https://lore.kernel.org/r/20201207190137.6858-3-huobean@gmail.com
-Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Set the headroom size of the correct port, so that the test will pass
+with both old and new firmware versions.
+
+Fixes: bfa804784e32 ("selftests: mlxsw: Add a PFC test")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20201230114251.394009-1-idosch@idosch.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
+ tools/testing/selftests/drivers/net/mlxsw/qos_pfc.sh |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 61b1eae42ea85..40f478c4d118f 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3583,7 +3583,7 @@ static int ufshcd_dme_enable(struct ufs_hba *hba)
- 	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
- 	if (ret)
- 		dev_err(hba->dev,
--			"dme-reset: error code %d\n", ret);
-+			"dme-enable: error code %d\n", ret);
+--- a/tools/testing/selftests/drivers/net/mlxsw/qos_pfc.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/qos_pfc.sh
+@@ -230,7 +230,7 @@ switch_create()
+ 	__mlnx_qos -i $swp4 --pfc=0,1,0,0,0,0,0,0 >/dev/null
+ 	# PG0 will get autoconfigured to Xoff, give PG1 arbitrarily 100K, which
+ 	# is (-2*MTU) about 80K of delay provision.
+-	__mlnx_qos -i $swp3 --buffer_size=0,$_100KB,0,0,0,0,0,0 >/dev/null
++	__mlnx_qos -i $swp4 --buffer_size=0,$_100KB,0,0,0,0,0,0 >/dev/null
  
- 	return ret;
- }
--- 
-2.27.0
-
+ 	# bridges
+ 	# -------
 
 
