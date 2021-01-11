@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E2E2F12D2
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34AF12F12DE
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727917AbhAKNAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:00:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48520 "EHLO mail.kernel.org"
+        id S1728018AbhAKNBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:01:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727847AbhAKNAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:00:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EB0122515;
-        Mon, 11 Jan 2021 13:00:11 +0000 (UTC)
+        id S1727454AbhAKNBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:01:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF4622527;
+        Mon, 11 Jan 2021 13:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370011;
-        bh=eE8E9oYTMU+D1wcRGu3mH53HOe2W/HgBq65zkGsRu4Y=;
+        s=korg; t=1610370014;
+        bh=c+VdNQkvnXBrSweCeC/HDTRguVf18HGSP1aDZdj7Yu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5orbqClTQqFC+d/PLLAFPp2IAdyM8HDq+ueGjb+zazoYW3VcSRRUL2FJa78AKJ6l
-         F7P6Q3L/eIe9D24+Fz1nJiQs6oN3/FEy8ai+X7+J2fwec3nPN7g24rAssG99A2xUUb
-         /X7HlVwOwOrsqvFo6NK6pB8fyg1lt4DKKB2/CIHc=
+        b=Cf1mwN53Zsm5NQWlHAXCr7BzxKLoJTRFgTSUxne8axqPQeyhMqtUOXbqoskIKvmk4
+         lr0el82c2LZwxWBU7Pzo5jBG+d7OOJCt2MQDYjQmMiwML4zt5KBwbAkeL+yyHl14uN
+         OHEwAiEConr4okMuwOjc28Cc9WwR9/xIUHNQTV/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
-        Nogah Frankel <nogahf@mellanox.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jeff Dike <jdike@akamai.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 12/38] net: sched: prevent invalid Scell_log shift count
-Date:   Mon, 11 Jan 2021 14:00:44 +0100
-Message-Id: <20210111130033.066979023@linuxfoundation.org>
+Subject: [PATCH 4.4 13/38] virtio_net: Fix recursive call to cpus_read_lock()
+Date:   Mon, 11 Jan 2021 14:00:45 +0100
+Message-Id: <20210111130033.111954313@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
 References: <20210111130032.469630231@linuxfoundation.org>
@@ -45,98 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jeff Dike <jdike@akamai.com>
 
-[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
+[ Upstream commit de33212f768c5d9e2fe791b008cb26f92f0aa31c ]
 
-Check Scell_log shift size in red_check_params() and modify all callers
-of red_check_params() to pass Scell_log.
+virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
+and CONFIG_HOTPLUG are enabled.
 
-This prevents a shift out-of-bounds as detected by UBSAN:
-  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
-  shift exponent 72 is too large for 32-bit type 'int'
+The path is:
+    virtnet_set_channels - calls get_online_cpus(), which is a trivial
+wrapper around cpus_read_lock()
+    netif_set_real_num_tx_queues
+    netif_reset_xps_queues_gt
+    netif_reset_xps_queues - calls cpus_read_lock()
 
-Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
-Cc: Nogah Frankel <nogahf@mellanox.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This call chain and potential deadlock happens when the number of TX
+queues is reduced.
+
+This commit the removes netif_set_real_num_[tr]x_queues calls from
+inside the get/put_online_cpus section, as they don't require that it
+be held.
+
+Fixes: 47be24796c13 ("virtio-net: fix the set affinity bug when CPU IDs are not consecutive")
+Signed-off-by: Jeff Dike <jdike@akamai.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20201223025421.671-1-jdike@akamai.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/red.h     |    4 +++-
- net/sched/sch_choke.c |    2 +-
- net/sched/sch_gred.c  |    2 +-
- net/sched/sch_red.c   |    2 +-
- net/sched/sch_sfq.c   |    2 +-
- 5 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/virtio_net.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/include/net/red.h
-+++ b/include/net/red.h
-@@ -167,12 +167,14 @@ static inline void red_set_vars(struct r
- 	v->qcount	= -1;
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1372,14 +1372,16 @@ static int virtnet_set_channels(struct n
+ 
+ 	get_online_cpus();
+ 	err = virtnet_set_queues(vi, queue_pairs);
+-	if (!err) {
+-		netif_set_real_num_tx_queues(dev, queue_pairs);
+-		netif_set_real_num_rx_queues(dev, queue_pairs);
+-
+-		virtnet_set_affinity(vi);
++	if (err) {
++		put_online_cpus();
++		goto err;
+ 	}
++	virtnet_set_affinity(vi);
+ 	put_online_cpus();
+ 
++	netif_set_real_num_tx_queues(dev, queue_pairs);
++	netif_set_real_num_rx_queues(dev, queue_pairs);
++err:
+ 	return err;
  }
  
--static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
-+static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
- {
- 	if (fls(qth_min) + Wlog > 32)
- 		return false;
- 	if (fls(qth_max) + Wlog > 32)
- 		return false;
-+	if (Scell_log >= 32)
-+		return false;
- 	if (qth_max < qth_min)
- 		return false;
- 	return true;
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -439,7 +439,7 @@ static int choke_change(struct Qdisc *sc
- 
- 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
- 
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (ctl->limit > CHOKE_MAX_QUEUE)
---- a/net/sched/sch_gred.c
-+++ b/net/sched/sch_gred.c
-@@ -389,7 +389,7 @@ static inline int gred_change_vq(struct
- 	struct gred_sched *table = qdisc_priv(sch);
- 	struct gred_sched_data *q = table->tab[dp];
- 
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (!q) {
---- a/net/sched/sch_red.c
-+++ b/net/sched/sch_red.c
-@@ -203,7 +203,7 @@ static int red_change(struct Qdisc *sch,
- 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
- 
- 	ctl = nla_data(tb[TCA_RED_PARMS]);
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (ctl->limit > 0) {
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -645,7 +645,7 @@ static int sfq_change(struct Qdisc *sch,
- 	}
- 
- 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
--					ctl_v1->Wlog))
-+					ctl_v1->Wlog, ctl_v1->Scell_log))
- 		return -EINVAL;
- 	if (ctl_v1 && ctl_v1->qth_min) {
- 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
