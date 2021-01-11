@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4332F2F1658
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:52:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C650C2F1655
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:52:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387791AbhAKNvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:51:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
+        id S1729189AbhAKNvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:51:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730761AbhAKNJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BE7322B49;
-        Mon, 11 Jan 2021 13:08:31 +0000 (UTC)
+        id S1730763AbhAKNJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA095227C3;
+        Mon, 11 Jan 2021 13:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370512;
-        bh=GENzHdZElW2QpmyTnUlj4aKM/9LbSROcAV1ahB1ZNeY=;
+        s=korg; t=1610370514;
+        bh=34WK/JO9EGofM1VPONr95EJPWXbjCgz42fnwczCGMRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVo21xISsooOQS94fd24HgmkWlmc88j7Musz10AnN8opKTMh8RwofzHX+Xx+tx7n8
-         /EG2fgj4VcfSj4qDhyPNY27P+wMhRXz4Ug0Ss6ZA8XsHgn4Etk3TnsIOSqXdg5JmRB
-         2OYvQrogIpZmAH/XJejGKywyqkvsN8SSqGO2PXfU=
+        b=ZUhzVEzD0oltTdrtVhYlKF7Isu+gNm45acZVMinpTUne/OZzO/tdDFi35O6DjyuMg
+         ryXkxcUw5YoUKu1iOCkDacxMvMsusprS2MQArKjugYl0np6tNqQZdB8fJCsKYkJllv
+         /oO3qO/DItMucsVCem5BnwcLggyHG4Kxv/JYs2JU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 54/77] USB: yurex: fix control-URB timeout handling
-Date:   Mon, 11 Jan 2021 14:02:03 +0100
-Message-Id: <20210111130039.016080812@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 55/77] USB: usblp: fix DMA to stack
+Date:   Mon, 11 Jan 2021 14:02:04 +0100
+Message-Id: <20210111130039.065429390@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
 References: <20210111130036.414620026@linuxfoundation.org>
@@ -42,36 +40,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 372c93131998c0622304bed118322d2a04489e63 upstream.
+commit 020a1f453449294926ca548d8d5ca970926e8dfd upstream.
 
-Make sure to always cancel the control URB in write() so that it can be
-reused after a timeout or spurious CMD_ACK.
+Stack-allocated buffers cannot be used for DMA (on all architectures).
 
-Currently any further write requests after a timeout would fail after
-triggering a WARN() in usb_submit_urb() when attempting to submit the
-already active URB.
+Replace the HP-channel macro with a helper function that allocates a
+dedicated transfer buffer so that it can continue to be used with
+arguments from the stack.
 
-Reported-by: syzbot+e87ebe0f7913f71f2ea5@syzkaller.appspotmail.com
-Fixes: 6bc235a2e24a ("USB: add driver for Meywa-Denki & Kayac YUREX")
-Cc: stable <stable@vger.kernel.org>     # 2.6.37
+Note that the buffer is cleared on allocation as usblp_ctrl_msg()
+returns success also on short transfers (the buffer is only used for
+debugging).
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210104145302.2087-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/yurex.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/class/usblp.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -497,6 +497,9 @@ static ssize_t yurex_write(struct file *
- 		timeout = schedule_timeout(YUREX_WRITE_TIMEOUT);
- 	finish_wait(&dev->waitq, &wait);
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -274,8 +274,25 @@ static int usblp_ctrl_msg(struct usblp *
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
  
-+	/* make sure URB is idle after timeout or (spurious) CMD_ACK */
-+	usb_kill_urb(dev->cntl_urb);
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
 +
- 	mutex_unlock(&dev->io_mutex);
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
++
++	kfree(buf);
++
++	return ret;
++}
  
- 	if (retval < 0) {
+ /*
+  * See the description for usblp_select_alts() below for the usage
 
 
