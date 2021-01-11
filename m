@@ -2,83 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 204352F11FA
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 12:57:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D81F2F1202
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 13:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729369AbhAKL5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 06:57:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729348AbhAKL5b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 06:57:31 -0500
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF276C061786
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 03:56:50 -0800 (PST)
-Received: by mail-ot1-x32e.google.com with SMTP id d8so16607498otq.6
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 03:56:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=5AhdYP1i1JCGwCJOnEc+gqmiDyLnrwQ1D1+0KB8faLc=;
-        b=acekbiumxh486BgAbJqxLMSVSJzyqKSG8UGBMomRKivTgIidY3tzR9BJz+ErePxUNQ
-         e74j6n/aAn689YLg6T/aCGLkUdoeUV1V6ax/9R+ec6n191RAR5JPYVIPT1EWd8oPl80x
-         XRwCzmVkiPGaEd/DPqW4eF2TyNO0UQU/udRp605LC9xxabpK8ciuyOMvWcPksa4elvi/
-         HbEmlVRFp6dfLWj2GnKj0DAWWKGK5sSjXLUrSMvEzgBZX844jOA1XY5weimGgHiF1Eyg
-         IfNaZrs1hnqAlZv5aJDeWQHk2ChaqcDgkoTy9xrBvl1SCDUqChmHAzT2tBzBs8xTxU5q
-         mU6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=5AhdYP1i1JCGwCJOnEc+gqmiDyLnrwQ1D1+0KB8faLc=;
-        b=WHXRmo6CGjCc5LeaDiLk+5zMUYx1zr09qzw/xqQeHGwcFUPvgTdjU00XjdYVpdipLm
-         CBimr59i26M48fNlfpOOIp3/u4FVEluUT9jEwQtNLPC9imoOQkE2cCOdeL3ibZ2Lqfcu
-         oIysncou86fzAjkBW10gPIXSD7KyNo30Z2u+prAc8O889Iikx0segKsCTneiVVIciKDJ
-         2/25E2XO/BZSkT02CliIlzx806WMqeq2z9jVkqPJeJ8kuikFdiMXeCSp1Y6fXfFClCHd
-         P5T8uwIjgOyoCBC3vhFM9CSsH/8v1iB5RU8wBbd8spVWId8KI9HMhlEEn+olvbQFGbLK
-         NmtQ==
-X-Gm-Message-State: AOAM531LcYjw3YsCFS53bVuqf1/oiwMLAzicK1ebJW/tx/6ZGiGeR8kd
-        ZE2FUQW7b6yZijP9ry4euDIvi0lFreni0hqlkqM=
-X-Google-Smtp-Source: ABdhPJys5GCnOC7g2CdFuINyhkdmUzJWY9KZP8/PR1ly1/CYzdtKWHKVOxDqjh1sePOGIY0c0cXAPqqN9d0jtIQthxY=
-X-Received: by 2002:a05:6830:1d8f:: with SMTP id y15mr10758354oti.332.1610366210397;
- Mon, 11 Jan 2021 03:56:50 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:ac9:346b:0:0:0:0:0 with HTTP; Mon, 11 Jan 2021 03:56:50
- -0800 (PST)
-Reply-To: samuelamar849@gmail.com
-From:   Samuel Amar <sa0317292@gmail.com>
-Date:   Mon, 11 Jan 2021 03:56:50 -0800
-Message-ID: <CAFCYy3juaJB4BbMsnV_S1Qdy_Vgup7FL_o-skLNFywSCoE3XvA@mail.gmail.com>
-Subject: Treat as urgent
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1729688AbhAKMAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 07:00:03 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:53796 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729407AbhAKMAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 07:00:03 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1kyvqy-00AB0I-Kk; Mon, 11 Jan 2021 11:59:20 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Mon, 11 Jan 2021 11:58:44 +0000
+Subject: [git:media_tree/fixes] media: rc: fix timeout handling after switch to microsecond durations
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sean Young <sean@mess.org>, Matthias Reichl <hias@horus.com>,
+        stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1kyvqy-00AB0I-Kk@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+This is an automatic generated email to let you know that the following patch were queued:
 
-I am Mr. Samuel Amar. A computer scientist with UBA Bank. I am 28
-years old, just started work with UBA Bank. I came across your file
-which was marked X and your released Disk painted RED, I took time to
-study it and found out that you have paid VIRTUALLY all fees and
-certificate but the fund has not been release to you. The most
-annoying thing is that they cannot tell you the truth that on no
-account will they ever release the fund to you, Please this is like a
-Mafia setting in Benin Republic; you may not understand it because you
-are not from this country.
+Subject: media: rc: fix timeout handling after switch to microsecond durations
+Author:  Matthias Reichl <hias@horus.com>
+Date:    Tue Jan 5 10:30:23 2021 +0100
 
-The only thing I will need to release this fund to you is a special
-HARD DISK we call it HD120 GIG. I will buy two of it, recopy your
-information, destroy the previous one, and punch the computer to
-reflect in your bank within 24 banking hours. I will clean up the
-tracer and destroy your old file, after which I will run away from
-Benin Republic to meet with you.
+Commit 528222d853f92 ("media: rc: harmonize infrared durations to
+microseconds") missed to switch some timeout calculations from
+nanoseconds to microseconds. This resulted in spurious key_up+key_down
+events at the last scancode if the rc device uses a long timeout
+(eg 100ms on nuvoton-cir) as the device timeout wasn't properly
+accounted for in the keyup timeout calculation.
 
-If you are interested kindly get in touch with me immediately, You
-should send to me your convenient phone numbers for easy communication
-and also re-confirm your banking details, so that there won't be any
-mistake.
+Fix this by applying the proper conversion functions.
 
-Regards,
-Mr. Samuel Amar.
+Cc: stable@vger.kernel.org
+Fixes: 528222d853f92 ("media: rc: harmonize infrared durations to microseconds")
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/rc/ir-mce_kbd-decoder.c | 2 +-
+ drivers/media/rc/rc-main.c            | 4 ++--
+ drivers/media/rc/serial_ir.c          | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+---
+
+diff --git a/drivers/media/rc/ir-mce_kbd-decoder.c b/drivers/media/rc/ir-mce_kbd-decoder.c
+index be8f2756a444..1524dc0fc566 100644
+--- a/drivers/media/rc/ir-mce_kbd-decoder.c
++++ b/drivers/media/rc/ir-mce_kbd-decoder.c
+@@ -320,7 +320,7 @@ again:
+ 				data->body);
+ 			spin_lock(&data->keylock);
+ 			if (scancode) {
+-				delay = nsecs_to_jiffies(dev->timeout) +
++				delay = usecs_to_jiffies(dev->timeout) +
+ 					msecs_to_jiffies(100);
+ 				mod_timer(&data->rx_timeout, jiffies + delay);
+ 			} else {
+diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
+index 29d4d01896ff..1fd62c1dac76 100644
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -737,7 +737,7 @@ static unsigned int repeat_period(int protocol)
+ void rc_repeat(struct rc_dev *dev)
+ {
+ 	unsigned long flags;
+-	unsigned int timeout = nsecs_to_jiffies(dev->timeout) +
++	unsigned int timeout = usecs_to_jiffies(dev->timeout) +
+ 		msecs_to_jiffies(repeat_period(dev->last_protocol));
+ 	struct lirc_scancode sc = {
+ 		.scancode = dev->last_scancode, .rc_proto = dev->last_protocol,
+@@ -855,7 +855,7 @@ void rc_keydown(struct rc_dev *dev, enum rc_proto protocol, u64 scancode,
+ 	ir_do_keydown(dev, protocol, scancode, keycode, toggle);
+ 
+ 	if (dev->keypressed) {
+-		dev->keyup_jiffies = jiffies + nsecs_to_jiffies(dev->timeout) +
++		dev->keyup_jiffies = jiffies + usecs_to_jiffies(dev->timeout) +
+ 			msecs_to_jiffies(repeat_period(protocol));
+ 		mod_timer(&dev->timer_keyup, dev->keyup_jiffies);
+ 	}
+diff --git a/drivers/media/rc/serial_ir.c b/drivers/media/rc/serial_ir.c
+index 8cc28c92d05d..96ae0294ac10 100644
+--- a/drivers/media/rc/serial_ir.c
++++ b/drivers/media/rc/serial_ir.c
+@@ -385,7 +385,7 @@ static irqreturn_t serial_ir_irq_handler(int i, void *blah)
+ 	} while (!(sinp(UART_IIR) & UART_IIR_NO_INT)); /* still pending ? */
+ 
+ 	mod_timer(&serial_ir.timeout_timer,
+-		  jiffies + nsecs_to_jiffies(serial_ir.rcdev->timeout));
++		  jiffies + usecs_to_jiffies(serial_ir.rcdev->timeout));
+ 
+ 	ir_raw_event_handle(serial_ir.rcdev);
+ 
