@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A50912F14CC
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D102F13D9
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730784AbhAKNam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:30:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
+        id S1731857AbhAKNPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732265AbhAKNPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E739A2250F;
-        Mon, 11 Jan 2021 13:15:07 +0000 (UTC)
+        id S1731838AbhAKNPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB482246B;
+        Mon, 11 Jan 2021 13:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370908;
-        bh=yGXrBMdps86ymZsOAFuv9S5ykYhBW2fRYEfRHWMJ+o4=;
+        s=korg; t=1610370919;
+        bh=0Xwk5scFIROJEGullXvUPQ8TZHfXsavCG4gpCugdOLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jN+Q46eXwNqTvzm1TrhlomM3oF+gvkHfMaOZChmruhfcDHYphVM7gDY4lcDDYi2cG
-         gn+RSgQcuV/b97ubt3Byv3J7up0ortApBNtjd+wW9EyQl60ZSSbCn+YTONjNkbI91B
-         evMvDYAN31V7T+pKraWJluzPu9h/KAdtkBg1it7U=
+        b=ydGoj7ReuIZNau1HOD8CIwb70ZZweGTzyBnp/DQUeqRQa7wWZUKaZG2KRPmZ7BH4N
+         oFb5rEdubuLxzV8dJ3B500ysd3/om+gMAFkLSivaKpikDapukdQh25J+L6dUMByEMq
+         uB3OMEpMR6y+L366xxTB2G9656ExNQdNSa2to9GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Yijun Shen <Yijun.shen@dell.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 029/145] Revert "e1000e: disable s0ix entry and exit flows for ME systems"
-Date:   Mon, 11 Jan 2021 14:00:53 +0100
-Message-Id: <20210111130049.910970569@linuxfoundation.org>
+        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 031/145] bnxt_en: Check TQM rings for maximum supported value.
+Date:   Mon, 11 Jan 2021 14:00:55 +0100
+Message-Id: <20210111130050.008885782@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -43,111 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@dell.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 6cecf02e77ab9bf97e9252f9fcb8f0738a6de12c ]
+[ Upstream commit a029a2fef5d11bb85587433c3783615442abac96 ]
 
-commit e086ba2fccda ("e1000e: disable s0ix entry and exit flows for ME
-systems") disabled s0ix flows for systems that have various incarnations of
-the i219-LM ethernet controller.  This changed caused power consumption
-regressions on the following shipping Dell Comet Lake based laptops:
-* Latitude 5310
-* Latitude 5410
-* Latitude 5410
-* Latitude 5510
-* Precision 3550
-* Latitude 5411
-* Latitude 5511
-* Precision 3551
-* Precision 7550
-* Precision 7750
+TQM rings are hardware resources that require host context memory
+managed by the driver.  The driver supports up to 9 TQM rings and
+the number of rings to use is requested by firmware during run-time.
+Cap this number to the maximum supported to prevent accessing beyond
+the array.  Future firmware may request more than 9 TQM rings.  Define
+macros to remove the magic number 9 from the C code.
 
-This commit was introduced because of some regressions on certain Thinkpad
-laptops.  This comment was potentially caused by an earlier
-commit 632fbd5eb5b0e ("e1000e: fix S0ix flows for cable connected case").
-or it was possibly caused by a system not meeting platform architectural
-requirements for low power consumption.  Other changes made in the driver
-with extended timeouts are expected to make the driver more impervious to
-platform firmware behavior.
-
-Fixes: e086ba2fccda ("e1000e: disable s0ix entry and exit flows for ME systems")
-Reviewed-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Yijun Shen <Yijun.shen@dell.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: ac3158cb0108 ("bnxt_en: Allocate TQM ring context memory according to fw specification.")
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |   45 +----------------------------
- 1 file changed, 2 insertions(+), 43 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    7 +++++--
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h |    7 ++++++-
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -103,45 +103,6 @@ static const struct e1000_reg_info e1000
- 	{0, NULL}
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -6790,8 +6790,10 @@ static int bnxt_hwrm_func_backing_store_
+ 		ctx->tqm_fp_rings_count = resp->tqm_fp_rings_count;
+ 		if (!ctx->tqm_fp_rings_count)
+ 			ctx->tqm_fp_rings_count = bp->max_q;
++		else if (ctx->tqm_fp_rings_count > BNXT_MAX_TQM_FP_RINGS)
++			ctx->tqm_fp_rings_count = BNXT_MAX_TQM_FP_RINGS;
+ 
+-		tqm_rings = ctx->tqm_fp_rings_count + 1;
++		tqm_rings = ctx->tqm_fp_rings_count + BNXT_MAX_TQM_SP_RINGS;
+ 		ctx_pg = kcalloc(tqm_rings, sizeof(*ctx_pg), GFP_KERNEL);
+ 		if (!ctx_pg) {
+ 			kfree(ctx);
+@@ -6925,7 +6927,8 @@ static int bnxt_hwrm_func_backing_store_
+ 	     pg_attr = &req.tqm_sp_pg_size_tqm_sp_lvl,
+ 	     pg_dir = &req.tqm_sp_page_dir,
+ 	     ena = FUNC_BACKING_STORE_CFG_REQ_ENABLES_TQM_SP;
+-	     i < 9; i++, num_entries++, pg_attr++, pg_dir++, ena <<= 1) {
++	     i < BNXT_MAX_TQM_RINGS;
++	     i++, num_entries++, pg_attr++, pg_dir++, ena <<= 1) {
+ 		if (!(enables & ena))
+ 			continue;
+ 
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1435,6 +1435,11 @@ struct bnxt_ctx_pg_info {
+ 	struct bnxt_ctx_pg_info **ctx_pg_tbl;
  };
  
--struct e1000e_me_supported {
--	u16 device_id;		/* supported device ID */
--};
--
--static const struct e1000e_me_supported me_supported[] = {
--	{E1000_DEV_ID_PCH_LPT_I217_LM},
--	{E1000_DEV_ID_PCH_LPTLP_I218_LM},
--	{E1000_DEV_ID_PCH_I218_LM2},
--	{E1000_DEV_ID_PCH_I218_LM3},
--	{E1000_DEV_ID_PCH_SPT_I219_LM},
--	{E1000_DEV_ID_PCH_SPT_I219_LM2},
--	{E1000_DEV_ID_PCH_LBG_I219_LM3},
--	{E1000_DEV_ID_PCH_SPT_I219_LM4},
--	{E1000_DEV_ID_PCH_SPT_I219_LM5},
--	{E1000_DEV_ID_PCH_CNP_I219_LM6},
--	{E1000_DEV_ID_PCH_CNP_I219_LM7},
--	{E1000_DEV_ID_PCH_ICP_I219_LM8},
--	{E1000_DEV_ID_PCH_ICP_I219_LM9},
--	{E1000_DEV_ID_PCH_CMP_I219_LM10},
--	{E1000_DEV_ID_PCH_CMP_I219_LM11},
--	{E1000_DEV_ID_PCH_CMP_I219_LM12},
--	{E1000_DEV_ID_PCH_TGP_I219_LM13},
--	{E1000_DEV_ID_PCH_TGP_I219_LM14},
--	{E1000_DEV_ID_PCH_TGP_I219_LM15},
--	{0}
--};
--
--static bool e1000e_check_me(u16 device_id)
--{
--	struct e1000e_me_supported *id;
--
--	for (id = (struct e1000e_me_supported *)me_supported;
--	     id->device_id; id++)
--		if (device_id == id->device_id)
--			return true;
--
--	return false;
--}
--
- /**
-  * __ew32_prepare - prepare to write to MAC CSR register on certain parts
-  * @hw: pointer to the HW structure
-@@ -6974,8 +6935,7 @@ static __maybe_unused int e1000e_pm_susp
- 		e1000e_pm_thaw(dev);
- 	} else {
- 		/* Introduce S0ix implementation */
--		if (hw->mac.type >= e1000_pch_cnp &&
--		    !e1000e_check_me(hw->adapter->pdev->device))
-+		if (hw->mac.type >= e1000_pch_cnp)
- 			e1000e_s0ix_entry_flow(adapter);
- 	}
++#define BNXT_MAX_TQM_SP_RINGS		1
++#define BNXT_MAX_TQM_FP_RINGS		8
++#define BNXT_MAX_TQM_RINGS		\
++	(BNXT_MAX_TQM_SP_RINGS + BNXT_MAX_TQM_FP_RINGS)
++
+ struct bnxt_ctx_mem_info {
+ 	u32	qp_max_entries;
+ 	u16	qp_min_qp1_entries;
+@@ -1473,7 +1478,7 @@ struct bnxt_ctx_mem_info {
+ 	struct bnxt_ctx_pg_info stat_mem;
+ 	struct bnxt_ctx_pg_info mrav_mem;
+ 	struct bnxt_ctx_pg_info tim_mem;
+-	struct bnxt_ctx_pg_info *tqm_mem[9];
++	struct bnxt_ctx_pg_info *tqm_mem[BNXT_MAX_TQM_RINGS];
+ };
  
-@@ -6991,8 +6951,7 @@ static __maybe_unused int e1000e_pm_resu
- 	int rc;
- 
- 	/* Introduce S0ix implementation */
--	if (hw->mac.type >= e1000_pch_cnp &&
--	    !e1000e_check_me(hw->adapter->pdev->device))
-+	if (hw->mac.type >= e1000_pch_cnp)
- 		e1000e_s0ix_exit_flow(adapter);
- 
- 	rc = __e1000_resume(pdev);
+ struct bnxt_fw_health {
 
 
