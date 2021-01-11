@@ -2,107 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E95752F1F88
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCAA32F1FDD
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390871AbhAKTcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 14:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
+        id S2391029AbhAKTwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 14:52:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390834AbhAKTcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 14:32:19 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959F4C061795;
-        Mon, 11 Jan 2021 11:31:38 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id m25so1165931lfc.11;
-        Mon, 11 Jan 2021 11:31:38 -0800 (PST)
+        with ESMTP id S2390955AbhAKTwA (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 11 Jan 2021 14:52:00 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09EA7C061795
+        for <Stable@vger.kernel.org>; Mon, 11 Jan 2021 11:51:20 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id k10so307073wmi.3
+        for <Stable@vger.kernel.org>; Mon, 11 Jan 2021 11:51:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6U2KagvKGBYbazGvRLBQUQ5ZhQBgacU+6DJEDT+njvQ=;
-        b=p4Qmg+C0rj9DA/1P5y2fDZorr6nQSgwQzxxSTH1ZrN8Bov5iXW6/ncgbEEN0JiqngK
-         DCegRWzU7mVc3ao9Gqnv5fcseHriELTCB7fbj6GUPLcQqS5OgcNSfKHWxFq/O6SXhlQn
-         EtTLOzNfdWXA0UlYT09iEp2Qd7rycPVRr/4gi2YGXJptXUiOp3f05p5dg4tCFYLyPpNg
-         kmlTmd7rG2on7Qe2OggkCgbkWwtsAr2D3bMOZBSto9CNAPZxQaRbRooc6k6il/rQAEJj
-         Gg0ncR00Ii1pYhSdTrf/5jFuoNbvaOINpIoypHbu3dph6q6b97EwhWP1Yu+Cf1HcfnRc
-         neew==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=MMmpt7PZmxXLNdxlS5MO/gZr/sGvWAZvLTTxoKgKALg=;
+        b=vI6rRSnSzcDhH7q2ifzyDVGnvemBoe93YbpJszjB6FPuPkNvfXywATy4UHTO5gN8oO
+         nDQbnO4AKichnNujdPj3QeJug5o4c0NDowmanTO0GpWeWU/HlvljdxKbQtYOmBaYQacI
+         cogLc+/OPK94N06x+bN+vcR5ZukE8JKO0IGHvv97u+ru5X8WMMjShFiiChRzhODC1nTe
+         lp9stj7lMdeUsM5dElNWL6C/6IqMkRY0DWrZUBzAf4MNORXjdk389HWfn5Q7RoNU07Km
+         JO56CKmynm3SuXjRyqyfUBOzhFd5Yeg6enT6V5tmZNBEd/U8RelWiMqlXNQuUFVEQZVS
+         DX6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6U2KagvKGBYbazGvRLBQUQ5ZhQBgacU+6DJEDT+njvQ=;
-        b=MKq9yRlgEAgbT31k1Y6szTPuOjpGgj99Pd3EctDNpb0Hg7my5yGFY3SCJTIT+tED8k
-         8SpVDduFeQiA2u8bb9Yb3wV5kmAq2RyS3dKGzffdg7bnh1bxJj1nb3ZKhR+yvEA92G2J
-         NuiKHRhwwAya41LhdH0LKUR+Ej8tcFZxZYKxrbI5tVvM/dTpyUPIEmvD9h4LgBfOOWqf
-         cfsBco3hmnlK/akiC27dqFEpHOd6EyUJuXC2dl6lCUMSA/nZqNl82ftJLkCZ2sO/3W9A
-         qFve7VCS9vfxWWKIibZpgXiy8A6XliSKVo58g6qLe+FEqOGq+vbdoU25NoJpdlbTgrsb
-         bN7A==
-X-Gm-Message-State: AOAM5318cymqm6NoTn6HPMzMd8JvMYTZg/gQOodJVRVfxb4UAHYY8fAe
-        Z3T0mhDfKstlXyPdCpufqrviI1j0UQs=
-X-Google-Smtp-Source: ABdhPJy8kJhkgtzdz4lO3IgYKa1z3DaoNi/iax+nK3nQ8xWGe9OrsGQhlxOVlpkvmdq14mmR57dp1Q==
-X-Received: by 2002:a05:6512:3f3:: with SMTP id n19mr468250lfq.586.1610393496909;
-        Mon, 11 Jan 2021 11:31:36 -0800 (PST)
-Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
-        by smtp.googlemail.com with ESMTPSA id u8sm74067ljj.1.2021.01.11.11.31.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Jan 2021 11:31:36 -0800 (PST)
-Subject: Re: [PATCH v2] i2c: tegra: Wait for config load atomically while in
- ISR
-To:     Mikko Perttunen <mperttunen@nvidia.com>, ldewangan@nvidia.com,
-        thierry.reding@gmail.com, jonathanh@nvidia.com, wsa@kernel.org
-Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210111160832.3669873-1-mperttunen@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
-Date:   Mon, 11 Jan 2021 22:31:35 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.2
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MMmpt7PZmxXLNdxlS5MO/gZr/sGvWAZvLTTxoKgKALg=;
+        b=MyxYqjPpDGTHIorZlObK1v3iNsu62iE7pRDaEDMvOQa5u4Xw3LaUN1KW+5PH9U5Fzx
+         5IzmfsI6mtVcxSkbLc3n5dcc8Ea1ogovZd05GYYIbtyefR5CuWAVS/7aiaEH5cO7tzWq
+         4AIAN68aPChokNiiBXK+aKI3O1A/zUcK4AlRtkI7v9kM77W8RcZiVDj18ZeneoQyVIjp
+         vj/COI0NrUEvu5LzHpmYJaPGEn8bGG7T6QAoYNgUD0g9v3ixSashd8HAhbbSMKbYQZ7T
+         LLZFP6DU9GRgGrdh4I37ILvqE8mEU2a2If8202OhPgqmlIfhRy6lkIk2ghyJhsvniOLT
+         3rsA==
+X-Gm-Message-State: AOAM532FZXt3895bgWkaucbrsN2cb16TN1uqF9wZsK+9vHAaHs+WbXCu
+        cJ4vbG0aW8uQzoMAePQ5qA8=
+X-Google-Smtp-Source: ABdhPJwD57jDykhAqTD7eoC7WPZbQbBmzjRNUgbk5AfUXeDYWR0aa7tS7Ni9gWG4SnEAU7n900MRTw==
+X-Received: by 2002:a05:600c:20f:: with SMTP id 15mr393867wmi.36.1610394678752;
+        Mon, 11 Jan 2021 11:51:18 -0800 (PST)
+Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
+        by smtp.gmail.com with ESMTPSA id l8sm452721wmf.35.2021.01.11.11.51.17
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 11 Jan 2021 11:51:17 -0800 (PST)
+Date:   Mon, 11 Jan 2021 19:51:16 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: imu: st_lsm6dsx: fix edge-trigger
+ interrupts" failed to apply to 5.4-stable tree
+Message-ID: <20210111195116.pj4vk5ebmpqa27vw@debian>
+References: <1609153975178175@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210111160832.3669873-1-mperttunen@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="hujscgmhnqq4jv4m"
+Content-Disposition: inline
+In-Reply-To: <1609153975178175@kroah.com>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-11.01.2021 19:08, Mikko Perttunen пишет:
-> Upon a communication error, the interrupt handler can call
-> tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
-> unless the current transaction was marked atomic. Fix this by
-> making the poll happen atomically if we are in an IRQ.
-> 
-> This matches the behavior prior to the patch mentioned
-> in the Fixes tag.
-> 
-> Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-> ---
-> v2:
-> * Use in_irq() instead of passing a flag from the ISR.
->   Thanks to Dmitry for the suggestion.
-> * Update commit message.
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 6f08c0c3238d..0727383f4940 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
->  	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
->  	u32 val;
->  
-> -	if (!i2c_dev->atomic_mode)
-> +	if (!i2c_dev->atomic_mode && !in_irq())
->  		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
->  						  delay_us, timeout_us);
->  
-> 
 
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+--hujscgmhnqq4jv4m
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Greg,
+
+On Mon, Dec 28, 2020 at 12:12:55PM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+Here is the backport.
+
+--
+Regards
+Sudip
+
+--hujscgmhnqq4jv4m
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="0001-iio-imu-st_lsm6dsx-fix-edge-trigger-interrupts.patch"
+
+From 1a0094adf70fca60dcff572853697dd5bce9a6eb Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Sat, 14 Nov 2020 19:39:05 +0100
+Subject: [PATCH] iio: imu: st_lsm6dsx: fix edge-trigger interrupts
+
+commit 3f9bce7a22a3f8ac9d885c9d75bc45569f24ac8b upstream
+
+If we are using edge IRQs, new samples can arrive while processing
+current interrupt since there are no hw guarantees the irq line
+stays "low" long enough to properly detect the new interrupt.
+In this case the new sample will be missed.
+Polling FIFO status register in st_lsm6dsx_handler_thread routine
+allow us to read new samples even if the interrupt arrives while
+processing previous data and the timeslot where the line is "low"
+is too short to be properly detected.
+
+Fixes: 89ca88a7cdf2 ("iio: imu: st_lsm6dsx: support active-low interrupts")
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/5e93cda7dc1e665f5685c53ad8e9ea71dbae782d.1605378871.git.lorenzo@kernel.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[sudip: manual backport to old irq handler path]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+---
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+index b0f3da1976e4..d1f2109012ed 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -664,13 +664,29 @@ static irqreturn_t st_lsm6dsx_handler_irq(int irq, void *private)
+ static irqreturn_t st_lsm6dsx_handler_thread(int irq, void *private)
+ {
+ 	struct st_lsm6dsx_hw *hw = private;
+-	int count;
++	int fifo_len = 0, len;
+ 
+-	mutex_lock(&hw->fifo_lock);
+-	count = hw->settings->fifo_ops.read_fifo(hw);
+-	mutex_unlock(&hw->fifo_lock);
++	/*
++	 * If we are using edge IRQs, new samples can arrive while
++	 * processing current interrupt since there are no hw
++	 * guarantees the irq line stays "low" long enough to properly
++	 * detect the new interrupt. In this case the new sample will
++	 * be missed.
++	 * Polling FIFO status register allow us to read new
++	 * samples even if the interrupt arrives while processing
++	 * previous data and the timeslot where the line is "low" is
++	 * too short to be properly detected.
++	 */
++	do {
++		mutex_lock(&hw->fifo_lock);
++		len = hw->settings->fifo_ops.read_fifo(hw);
++		mutex_unlock(&hw->fifo_lock);
++
++		if (len > 0)
++			fifo_len += len;
++	} while (len > 0);
+ 
+-	return count ? IRQ_HANDLED : IRQ_NONE;
++	return fifo_len ? IRQ_HANDLED : IRQ_NONE;
+ }
+ 
+ static int st_lsm6dsx_buffer_preenable(struct iio_dev *iio_dev)
+-- 
+2.11.0
+
+
+--hujscgmhnqq4jv4m--
