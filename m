@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D092F1696
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2522F1622
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730888AbhAKNyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:54:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
+        id S1731117AbhAKNtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:49:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730637AbhAKNHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9B8C225AC;
-        Mon, 11 Jan 2021 13:07:34 +0000 (UTC)
+        id S1731105AbhAKNKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 356D62250F;
+        Mon, 11 Jan 2021 13:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370455;
-        bh=YLGxne2Z27dnFk+C+c83Jkj5l1wv4USSGsKiDZy/V94=;
+        s=korg; t=1610370588;
+        bh=SFdCxK+xwbydU7AWWzGIYYkfI9DiNJX2c/s24L5vk64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=up2xrLEtg3lSSgeAtmxiAkMH6GNDeZJoIMHYu2o8UkdjG1/jaq9612Xyn7a2Tf5V+
-         PvXrsz7j1QfFnJXUWLwFc8Nd3laHl+k2Z935RKP2RTr0uzccAHQzIb04rT3EHd/QA4
-         4ow8dGDMQHi3CTeP1vQGfPaf/bc274I/1mnjDVDs=
+        b=wH0GZYMUkHW63pC76JzVd4eq0tdFv/UlTshTZ5frjg5Kdzl5MU4HdipksMaCdsGlx
+         kLjDoa97qcONzkkGEoe4scjSmKL1IeypbBKvyaYXh3GTbjRZHNqTlBlGx3bzvhq1zi
+         qhGmFDSzMZgs59MrYKZVrFiuv5dudeRHyIKhxE/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Woody Suwalski <terraluna977@gmail.com>,
-        Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Stan Johnson <userm57@yahoo.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Hannes Reinecke <hare@suse.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/77] scsi: scsi_transport_spi: Set RQF_PM for domain validation commands
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>
+Subject: [PATCH 5.4 11/92] iavf: fix double-release of rtnl_lock
 Date:   Mon, 11 Jan 2021 14:01:15 +0100
-Message-Id: <20210111130036.711898511@linuxfoundation.org>
+Message-Id: <20210111130039.703655025@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,108 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit cfefd9f8240a7b9fdd96fcd54cb029870b6d8d88 ]
+[ Upstream commit f1340265726e0edf8a8cef28e665b28ad6302ce9 ]
 
-Disable runtime power management during domain validation. Since a later
-patch removes RQF_PREEMPT, set RQF_PM for domain validation commands such
-that these are executed in the quiesced SCSI device state.
+This code does not jump to exit on an error in iavf_lan_add_device(),
+so the rtnl_unlock() from the normal path will follow.
 
-Link: https://lore.kernel.org/r/20201209052951.16136-6-bvanassche@acm.org
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Woody Suwalski <terraluna977@gmail.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Stan Johnson <userm57@yahoo.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b66c7bc1cd4d ("iavf: Refactor init state machine")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_spi.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
-index 69213842e63e0..efb9c3d902133 100644
---- a/drivers/scsi/scsi_transport_spi.c
-+++ b/drivers/scsi/scsi_transport_spi.c
-@@ -130,12 +130,16 @@ static int spi_execute(struct scsi_device *sdev, const void *cmd,
- 		sshdr = &sshdr_tmp;
- 
- 	for(i = 0; i < DV_RETRIES; i++) {
-+		/*
-+		 * The purpose of the RQF_PM flag below is to bypass the
-+		 * SDEV_QUIESCE state.
-+		 */
- 		result = scsi_execute(sdev, cmd, dir, buffer, bufflen, sense,
- 				      sshdr, DV_TIMEOUT, /* retries */ 1,
- 				      REQ_FAILFAST_DEV |
- 				      REQ_FAILFAST_TRANSPORT |
- 				      REQ_FAILFAST_DRIVER,
--				      0, NULL);
-+				      RQF_PM, NULL);
- 		if (driver_byte(result) != DRIVER_SENSE ||
- 		    sshdr->sense_key != UNIT_ATTENTION)
- 			break;
-@@ -1018,23 +1022,26 @@ spi_dv_device(struct scsi_device *sdev)
- 	 */
- 	lock_system_sleep();
- 
-+	if (scsi_autopm_get_device(sdev))
-+		goto unlock_system_sleep;
-+
- 	if (unlikely(spi_dv_in_progress(starget)))
--		goto unlock;
-+		goto put_autopm;
- 
- 	if (unlikely(scsi_device_get(sdev)))
--		goto unlock;
-+		goto put_autopm;
- 
- 	spi_dv_in_progress(starget) = 1;
- 
- 	buffer = kzalloc(len, GFP_KERNEL);
- 
- 	if (unlikely(!buffer))
--		goto out_put;
-+		goto put_sdev;
- 
- 	/* We need to verify that the actual device will quiesce; the
- 	 * later target quiesce is just a nice to have */
- 	if (unlikely(scsi_device_quiesce(sdev)))
--		goto out_free;
-+		goto free_buffer;
- 
- 	scsi_target_quiesce(starget);
- 
-@@ -1054,12 +1061,16 @@ spi_dv_device(struct scsi_device *sdev)
- 
- 	spi_initial_dv(starget) = 1;
- 
-- out_free:
-+free_buffer:
- 	kfree(buffer);
-- out_put:
-+
-+put_sdev:
- 	spi_dv_in_progress(starget) = 0;
- 	scsi_device_put(sdev);
--unlock:
-+put_autopm:
-+	scsi_autopm_put_device(sdev);
-+
-+unlock_system_sleep:
- 	unlock_system_sleep();
- }
- EXPORT_SYMBOL(spi_dv_device);
--- 
-2.27.0
-
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1844,11 +1844,9 @@ static int iavf_init_get_resources(struc
+ 	netif_tx_stop_all_queues(netdev);
+ 	if (CLIENT_ALLOWED(adapter)) {
+ 		err = iavf_lan_add_device(adapter);
+-		if (err) {
+-			rtnl_unlock();
++		if (err)
+ 			dev_info(&pdev->dev, "Failed to add VF to client API service list: %d\n",
+ 				 err);
+-		}
+ 	}
+ 	dev_info(&pdev->dev, "MAC address: %pM\n", adapter->hw.mac.addr);
+ 	if (netdev->features & NETIF_F_GRO)
 
 
