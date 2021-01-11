@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2632F15BA
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:44:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 382A42F166F
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730731AbhAKNnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
+        id S1730697AbhAKNwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730737AbhAKNLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9182250F;
-        Mon, 11 Jan 2021 13:11:36 +0000 (UTC)
+        id S1730714AbhAKNJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A3EF22BED;
+        Mon, 11 Jan 2021 13:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370697;
-        bh=BWYcWP3aNUwnjZWiVR99nwIp3Z0D++CFG5rwRWS12WQ=;
+        s=korg; t=1610370507;
+        bh=LvbmAEcajM6WWT5dJpUfwU7h5n32yfVgglKatLMhJO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SftU3BfJNGdyWeiGnotVR5lTsmyemLnCCBlAe85PiGWX4bpb6vUflsNaOLuuc3Sby
-         kronOvx4Cak9qEVF6UT9gREigjSL1CaokHupbh5K5C9IrnsselJHpHDylnJxxohoAZ
-         JWrQvE5snBn94/6LKQ+XyBhFy3LFZS1xLyORZJBo=
+        b=OoobpL3Cu7CALHBKv3gtcqjqj7wtSKxcozJw5TFo2m+nUjmvOepxG32l6jJgSl+0n
+         /PoabhGGjazkCIwXh23w2d+jvaK43n2OSwH2bstoLSTsyQN35JJ6iOfQn+WXycsN+t
+         bWlUAxEaFa1FQhdwhHDKAfutXTfR3BCpd26GpwlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>
-Subject: [PATCH 5.4 57/92] usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
+        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 52/77] USB: serial: option: add LongSung M5710 module support
 Date:   Mon, 11 Jan 2021 14:02:01 +0100
-Message-Id: <20210111130041.893546666@linuxfoundation.org>
+Message-Id: <20210111130038.924471580@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Daniel Palmer <daniel@0x0f.com>
 
-commit 83a43ff80a566de8718dfc6565545a0080ec1fb5 upstream.
+commit 0e2d6795e8dbe91c2f5473564c6b25d11df3778b upstream.
 
-if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+Add a device-id entry for the LongSung M5710 module.
 
-Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2df3 ProdID=9d03 Rev= 1.00
+S:  Manufacturer=Marvell
+S:  Product=Mobile Composite Device Bus
+S:  SerialNumber=<snip>
+C:* #Ifs= 5 Cfg#= 1 Atr=c0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=e0(wlcon) Sub=01 Prot=03
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+E:  Ad=87(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0c(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0b(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0f(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=88(I) Atr=03(Int.) MxPS=  64 Ivl=4096ms
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=0a(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Daniel Palmer <daniel@0x0f.com>
+https://lore.kernel.org/r/20201227031716.1343300-1-daniel@0x0f.com
+[ johan: drop id defines, only bind to vendor class ]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -139,9 +139,13 @@ static struct imx_usbmisc_data *usbmisc_
- 	misc_pdev = of_find_device_by_node(args.np);
- 	of_node_put(args.np);
- 
--	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
-+	if (!misc_pdev)
- 		return ERR_PTR(-EPROBE_DEFER);
- 
-+	if (!platform_get_drvdata(misc_pdev)) {
-+		put_device(&misc_pdev->dev);
-+		return ERR_PTR(-EPROBE_DEFER);
-+	}
- 	data->dev = &misc_pdev->dev;
- 
- 	/*
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2057,6 +2057,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
 
 
