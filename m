@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F13F2F1462
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E17B12F141B
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728804AbhAKNYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:24:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
+        id S1732868AbhAKNUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:20:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732663AbhAKNRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B271D2246B;
-        Mon, 11 Jan 2021 13:17:24 +0000 (UTC)
+        id S1732807AbhAKNSI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 096572250F;
+        Mon, 11 Jan 2021 13:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371045;
-        bh=ZC8biu2rBnDrTjnIWiaDeoITdh+U0ptR2jeWui5ivvc=;
+        s=korg; t=1610371047;
+        bh=dSAyY5YQZ2k+3B7GRzaJh6FEdJUK+pijLdCsbNVqXhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf014tLUb5JzG4yAKlgXA7DpmXpB0KbjnqPzs/MUv9aV/3QPrwiiig+NKp+zEtHgb
-         o7XU+69Zks4jPzo5EmAdoc5SdC//h1QnpFl0MZ4y4yw3n9bejwSfbMbCbD1o2L8V1R
-         FcfOsLXnslsOsUOUYqAm6JbJzvJbyQg9NAogJvv4=
+        b=itobrWwDO4v4euQZ3hCY451Y1ojobZk/ydugwJ8iEnnT18e/GmtsUlxOkouxiU2nn
+         TrASn81uUQTJK1yAA3miY1CeqEPo4JOP8FnUHa73QcBQbTeX0Be9j5pxq/lfWLbm5L
+         SQ4hCvOULWLaPiBwOdzidaMFk+VldrHLLtfw1kv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jonathan Lemon <bsd@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 117/145] blk-iocost: fix NULL iocg deref from racing against initialization
-Date:   Mon, 11 Jan 2021 14:02:21 +0100
-Message-Id: <20210111130054.150102299@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Labisch <clnetbox@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 118/145] ALSA: hda/via: Fix runtime PM for Clevo W35xSS
+Date:   Mon, 11 Jan 2021 14:02:22 +0100
+Message-Id: <20210111130054.200559808@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,84 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d16baa3f1453c14d680c5fee01cd122a22d0e0ce upstream.
+commit 4bfd6247fa9164c8e193a55ef9c0ea3ee22f82d8 upstream.
 
-When initializing iocost for a queue, its rqos should be registered before
-the blkcg policy is activated to allow policy data initiailization to lookup
-the associated ioc. This unfortunately means that the rqos methods can be
-called on bios before iocgs are attached to all existing blkgs.
+Clevo W35xSS_370SS with VIA codec has had the runtime PM problem that
+looses the power state of some nodes after the runtime resume.  This
+was worked around by disabling the default runtime PM via a denylist
+entry.  Since 5.10.x made the runtime PM applied (casually) even
+though it's disabled in the denylist, this problem was revisited.  The
+result was that disabling power_save_node feature suffices for the
+runtime PM problem.
 
-While the race is theoretically possible on ioc_rqos_throttle(), it mostly
-happened in ioc_rqos_merge() due to the difference in how they lookup ioc.
-The former determines it from the passed in @rqos and then bails before
-dereferencing iocg if the looked up ioc is disabled, which most likely is
-the case if initialization is still in progress. The latter looked up ioc by
-dereferencing the possibly NULL iocg making it a lot more prone to actually
-triggering the bug.
+This patch implements the disablement of power_save_node feature in
+VIA codec for the device.  It also drops the former denylist entry,
+too, as the runtime PM should work in the codec side properly now.
 
-* Make ioc_rqos_merge() use the same method as ioc_rqos_throttle() to look
-  up ioc for consistency.
-
-* Make ioc_rqos_throttle() and ioc_rqos_merge() test for NULL iocg before
-  dereferencing it.
-
-* Explain the danger of NULL iocgs in blk_iocost_init().
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jonathan Lemon <bsd@fb.com>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b529ef2464ad ("ALSA: hda: Add Clevo W35xSS_370SS to the power_save blacklist")
+Reported-by: Christian Labisch <clnetbox@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210104153046.19993-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-iocost.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ sound/pci/hda/hda_intel.c |    2 --
+ sound/pci/hda/patch_via.c |   13 +++++++++++++
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2525,8 +2525,8 @@ static void ioc_rqos_throttle(struct rq_
- 	bool use_debt, ioc_locked;
- 	unsigned long flags;
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2220,8 +2220,6 @@ static const struct snd_pci_quirk power_
+ 	SND_PCI_QUIRK(0x1849, 0x7662, "Asrock H81M-HDS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1043, 0x8733, "Asus Prime X370-Pro", 0),
+-	/* https://bugzilla.redhat.com/show_bug.cgi?id=1581607 */
+-	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+ 	SND_PCI_QUIRK(0x1558, 0x6504, "Clevo W65_67SB", 0),
+ 	/* https://bugzilla.redhat.com/show_bug.cgi?id=1525104 */
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1002,6 +1002,7 @@ static const struct hda_verb vt1802_init
+ enum {
+ 	VIA_FIXUP_INTMIC_BOOST,
+ 	VIA_FIXUP_ASUS_G75,
++	VIA_FIXUP_POWER_SAVE,
+ };
  
--	/* bypass IOs if disabled or for root cgroup */
--	if (!ioc->enabled || !iocg->level)
-+	/* bypass IOs if disabled, still initializing, or for root cgroup */
-+	if (!ioc->enabled || !iocg || !iocg->level)
- 		return;
+ static void via_fixup_intmic_boost(struct hda_codec *codec,
+@@ -1011,6 +1012,13 @@ static void via_fixup_intmic_boost(struc
+ 		override_mic_boost(codec, 0x30, 0, 2, 40);
+ }
  
- 	/* calculate the absolute vtime cost */
-@@ -2653,14 +2653,14 @@ static void ioc_rqos_merge(struct rq_qos
- 			   struct bio *bio)
- {
- 	struct ioc_gq *iocg = blkg_to_iocg(bio->bi_blkg);
--	struct ioc *ioc = iocg->ioc;
-+	struct ioc *ioc = rqos_to_ioc(rqos);
- 	sector_t bio_end = bio_end_sector(bio);
- 	struct ioc_now now;
- 	u64 vtime, abs_cost, cost;
- 	unsigned long flags;
++static void via_fixup_power_save(struct hda_codec *codec,
++				 const struct hda_fixup *fix, int action)
++{
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		codec->power_save_node = 0;
++}
++
+ static const struct hda_fixup via_fixups[] = {
+ 	[VIA_FIXUP_INTMIC_BOOST] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -1025,11 +1033,16 @@ static const struct hda_fixup via_fixups
+ 			{ }
+ 		}
+ 	},
++	[VIA_FIXUP_POWER_SAVE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = via_fixup_power_save,
++	},
+ };
  
--	/* bypass if disabled or for root cgroup */
--	if (!ioc->enabled || !iocg->level)
-+	/* bypass if disabled, still initializing, or for root cgroup */
-+	if (!ioc->enabled || !iocg || !iocg->level)
- 		return;
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
++	SND_PCI_QUIRK(0x1558, 0x3501, "Clevo W35xSS_370SS", VIA_FIXUP_POWER_SAVE),
+ 	{}
+ };
  
- 	abs_cost = calc_vtime_cost(bio, iocg, true);
-@@ -2837,6 +2837,12 @@ static int blk_iocost_init(struct reques
- 	ioc_refresh_params(ioc, true);
- 	spin_unlock_irq(&ioc->lock);
- 
-+	/*
-+	 * rqos must be added before activation to allow iocg_pd_init() to
-+	 * lookup the ioc from q. This means that the rqos methods may get
-+	 * called before policy activation completion, can't assume that the
-+	 * target bio has an iocg associated and need to test for NULL iocg.
-+	 */
- 	rq_qos_add(q, rqos);
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
- 	if (ret) {
 
 
