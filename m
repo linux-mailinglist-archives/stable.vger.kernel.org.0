@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DA532F168C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:55:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B382F15A1
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387799AbhAKNxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:53:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
+        id S1731664AbhAKNmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728952AbhAKNI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23206229C4;
-        Mon, 11 Jan 2021 13:07:45 +0000 (UTC)
+        id S1730854AbhAKNME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B3BB229C4;
+        Mon, 11 Jan 2021 13:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370466;
+        s=korg; t=1610370708;
         bh=SoE5L+xLOHSO4s0H0GXXzM6KwEtcX67+LjFiMjJRfCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1ixy3LIqOkjFZh2awP2OmexMP68fMToX3czJd9NG9hU5BVT8g2CASoJwFGUbasHY
-         ploq3AYsgV/n6S11OZG5Fw1XnecpbHmZiKCtfAG0FK9950AziPiZ0xTYLbvodXHQi7
-         14eTC4lC1b4GN0unI+dExsOcXIgjQSivwdALDlf8=
+        b=SEObD/0mrukaIimr2gok7O/4F9D/ygLqJN9z+g5anZqTjImcX22Jpmo0QhzC4afT+
+         u2MTia7hZ/fz9uWoTzTizDtu/Hw1RyzCpjv9WZjBhHZnNGxYxmBVGydFxqvkC58ka/
+         9UtFE7afH4/11Hun04Qw8zNSp2V9r4nXWnHomrOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 27/77] ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
-Date:   Mon, 11 Jan 2021 14:01:36 +0100
-Message-Id: <20210111130037.716168401@linuxfoundation.org>
+Subject: [PATCH 5.4 33/92] ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
+Date:   Mon, 11 Jan 2021 14:01:37 +0100
+Message-Id: <20210111130040.742940184@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
