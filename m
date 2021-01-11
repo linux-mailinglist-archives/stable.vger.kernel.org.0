@@ -2,37 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2922F144B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0402F1410
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:20:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733131AbhAKNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:18:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
+        id S1733276AbhAKNT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:19:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733092AbhAKNSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:18:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7EFE223E8;
-        Mon, 11 Jan 2021 13:17:42 +0000 (UTC)
+        id S1729395AbhAKNT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:19:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1696622AAF;
+        Mon, 11 Jan 2021 13:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371063;
-        bh=2t+WZ3wo3EWL0qknBF1qUK7OtU0b/HOC0cZVsmqATvk=;
+        s=korg; t=1610371126;
+        bh=DlM0LE88xUdrg3zLOdefm+q9D1U5twwMobrnzwH5+ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPOiwmefjM5uOg9lkeQsi5KgCwzUxYxE2XPOkUvHj0/+S0bYvOHWkg0p7n3jwiYs1
-         zPzrDYDUMhFpOPAglY9qm9ZGUj7A7xZsTA2BAydcEFTxJlp11YJ6tyKOCviOrY0jzb
-         6jip82ldxaOGlbCZ4NTAUvPzy0sjKoNrSuxmp2gE=
+        b=qEI3a1eaXvAr9R9KLMp/jqdinBkB24XJp2lcUK+3RRbDMFfX7lmOL0Iw9kmtF3CrW
+         CX2I8mRm8mf9K0Zj3jf+UCz45c8PLWSBv6Yl5/xsslVmnk8wYGAjxFFgrig/rZYyTW
+         PFDLeZTsKz00XNFNGK6B+Mmc8C+6/KzFGxygbu9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Raj Ashok <ashok.raj@intel.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Guo Kaijie <Kaijie.Guo@intel.com>,
-        Xin Zeng <xin.zeng@intel.com>, Liu Yi L <yi.l.liu@intel.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 124/145] iommu/vt-d: Move intel_iommu info from struct intel_svm to struct intel_svm_dev
-Date:   Mon, 11 Jan 2021 14:02:28 +0100
-Message-Id: <20210111130054.465822290@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 125/145] btrfs: qgroup: dont try to wait flushing if were already holding a transaction
+Date:   Mon, 11 Jan 2021 14:02:29 +0100
+Message-Id: <20210111130054.514634756@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -44,111 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yi L <yi.l.liu@intel.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 9ad9f45b3b91162b33abfe175ae75ab65718dbf5 upstream.
+commit ae5e070eaca9dbebde3459dd8f4c2756f8c097d0 upstream.
 
-'struct intel_svm' is shared by all devices bound to a give process,
-but records only a single pointer to a 'struct intel_iommu'. Consequently,
-cache invalidations may only be applied to a single DMAR unit, and are
-erroneously skipped for the other devices.
+There is a chance of racing for qgroup flushing which may lead to
+deadlock:
 
-In preparation for fixing this, rework the structures so that the iommu
-pointer resides in 'struct intel_svm_dev', allowing 'struct intel_svm'
-to track them in its device list.
+	Thread A		|	Thread B
+   (not holding trans handle)	|  (holding a trans handle)
+--------------------------------+--------------------------------
+__btrfs_qgroup_reserve_meta()   | __btrfs_qgroup_reserve_meta()
+|- try_flush_qgroup()		| |- try_flush_qgroup()
+   |- QGROUP_FLUSHING bit set   |    |
+   |				|    |- test_and_set_bit()
+   |				|    |- wait_event()
+   |- btrfs_join_transaction()	|
+   |- btrfs_commit_transaction()|
 
-Fixes: 1c4f88b7f1f9 ("iommu/vt-d: Shared virtual address in scalable mode")
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Raj Ashok <ashok.raj@intel.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Reported-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Reported-by: Xin Zeng <xin.zeng@intel.com>
-Signed-off-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Signed-off-by: Xin Zeng <xin.zeng@intel.com>
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Tested-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Cc: stable@vger.kernel.org # v5.0+
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/1609949037-25291-2-git-send-email-yi.l.liu@intel.com
-Signed-off-by: Will Deacon <will@kernel.org>
+			!!! DEAD LOCK !!!
+
+Since thread A wants to commit transaction, but thread B is holding a
+transaction handle, blocking the commit.
+At the same time, thread B is waiting for thread A to finish its commit.
+
+This is just a hot fix, and would lead to more EDQUOT when we're near
+the qgroup limit.
+
+The proper fix would be to make all metadata/data reservations happen
+without holding a transaction handle.
+
+CC: stable@vger.kernel.org # 5.9+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel/svm.c   |    9 +++++----
- include/linux/intel-iommu.h |    2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ fs/btrfs/qgroup.c |   30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -142,7 +142,7 @@ static void intel_flush_svm_range_dev (s
- 	}
- 	desc.qw2 = 0;
- 	desc.qw3 = 0;
--	qi_submit_sync(svm->iommu, &desc, 1, 0);
-+	qi_submit_sync(sdev->iommu, &desc, 1, 0);
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3565,16 +3565,6 @@ static int try_flush_qgroup(struct btrfs
+ 	bool can_commit = true;
  
- 	if (sdev->dev_iotlb) {
- 		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
-@@ -166,7 +166,7 @@ static void intel_flush_svm_range_dev (s
- 		}
- 		desc.qw2 = 0;
- 		desc.qw3 = 0;
--		qi_submit_sync(svm->iommu, &desc, 1, 0);
-+		qi_submit_sync(sdev->iommu, &desc, 1, 0);
- 	}
- }
+ 	/*
+-	 * We don't want to run flush again and again, so if there is a running
+-	 * one, we won't try to start a new flush, but exit directly.
+-	 */
+-	if (test_and_set_bit(BTRFS_ROOT_QGROUP_FLUSHING, &root->state)) {
+-		wait_event(root->qgroup_flush_wait,
+-			!test_bit(BTRFS_ROOT_QGROUP_FLUSHING, &root->state));
+-		return 0;
+-	}
+-
+-	/*
+ 	 * If current process holds a transaction, we shouldn't flush, as we
+ 	 * assume all space reservation happens before a transaction handle is
+ 	 * held.
+@@ -3588,6 +3578,26 @@ static int try_flush_qgroup(struct btrfs
+ 	    current->journal_info != BTRFS_SEND_TRANS_STUB)
+ 		can_commit = false;
  
-@@ -211,7 +211,7 @@ static void intel_mm_release(struct mmu_
- 	 */
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(sdev, &svm->devs, list)
--		intel_pasid_tear_down_entry(svm->iommu, sdev->dev,
-+		intel_pasid_tear_down_entry(sdev->iommu, sdev->dev,
- 					    svm->pasid, true);
- 	rcu_read_unlock();
- 
-@@ -363,6 +363,7 @@ int intel_svm_bind_gpasid(struct iommu_d
- 	}
- 	sdev->dev = dev;
- 	sdev->sid = PCI_DEVID(info->bus, info->devfn);
-+	sdev->iommu = iommu;
- 
- 	/* Only count users if device has aux domains */
- 	if (iommu_dev_feature_enabled(dev, IOMMU_DEV_FEAT_AUX))
-@@ -546,6 +547,7 @@ intel_svm_bind_mm(struct device *dev, un
++	/*
++	 * We don't want to run flush again and again, so if there is a running
++	 * one, we won't try to start a new flush, but exit directly.
++	 */
++	if (test_and_set_bit(BTRFS_ROOT_QGROUP_FLUSHING, &root->state)) {
++		/*
++		 * We are already holding a transaction, thus we can block other
++		 * threads from flushing.  So exit right now. This increases
++		 * the chance of EDQUOT for heavy load and near limit cases.
++		 * But we can argue that if we're already near limit, EDQUOT is
++		 * unavoidable anyway.
++		 */
++		if (!can_commit)
++			return 0;
++
++		wait_event(root->qgroup_flush_wait,
++			!test_bit(BTRFS_ROOT_QGROUP_FLUSHING, &root->state));
++		return 0;
++	}
++
+ 	ret = btrfs_start_delalloc_snapshot(root);
+ 	if (ret < 0)
  		goto out;
- 	}
- 	sdev->dev = dev;
-+	sdev->iommu = iommu;
- 
- 	ret = intel_iommu_enable_pasid(iommu, dev);
- 	if (ret) {
-@@ -575,7 +577,6 @@ intel_svm_bind_mm(struct device *dev, un
- 			kfree(sdev);
- 			goto out;
- 		}
--		svm->iommu = iommu;
- 
- 		if (pasid_max > intel_pasid_max_id)
- 			pasid_max = intel_pasid_max_id;
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -758,6 +758,7 @@ struct intel_svm_dev {
- 	struct list_head list;
- 	struct rcu_head rcu;
- 	struct device *dev;
-+	struct intel_iommu *iommu;
- 	struct svm_dev_ops *ops;
- 	struct iommu_sva sva;
- 	u32 pasid;
-@@ -771,7 +772,6 @@ struct intel_svm {
- 	struct mmu_notifier notifier;
- 	struct mm_struct *mm;
- 
--	struct intel_iommu *iommu;
- 	unsigned int flags;
- 	u32 pasid;
- 	int gpasid; /* In case that guest PASID is different from host PASID */
 
 
