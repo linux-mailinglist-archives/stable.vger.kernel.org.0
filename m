@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 411212F162D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73BF22F157E
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731777AbhAKNtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:49:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
+        id S1730370AbhAKNlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:41:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731034AbhAKNJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 821EB22A84;
-        Mon, 11 Jan 2021 13:09:14 +0000 (UTC)
+        id S1731513AbhAKNMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4217F21973;
+        Mon, 11 Jan 2021 13:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370555;
-        bh=klBwhmR3aP1jzh2PAR5QImW5qMPg1akCZ6gth3VZork=;
+        s=korg; t=1610370748;
+        bh=FjhDmEErWLv+VD/UaFYFFWSZMxO5uY64QUES59IVFFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frlHivz7u2OW/hQGtOJ4FFa3rJ5oT2MaOVReJDbE+f3/0FmdN5y0PkTO0MdhYHW9r
-         k1VsMafboWEtDiaNF5uZLcXuEBuK7gvXoIjVUEuh5XJDSpOvVRm0eF8kot2xiPK1o4
-         Z829W2c+FC/sXbXmeVhTXCctFo8R5NyhpevbeJXA=
+        b=feaH1EDnUTL2nMwHdhBsFY2YSFpTwe4LATc9MrfeoT8XaWqcbrJnSx+z5m5fiAfjT
+         D4o4WoxOESDRpT7O4yk6KPfvXIsCh2cUxISDMzIJYx48lFQQcRTs6hzMYU+btpwuuI
+         XOaVMftaCorejot+W9eFVBe+QsPv9cyEmNjWKt4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d66bfadebca46cf61a2b@syzkaller.appspotmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.19 74/77] netfilter: ipset: fix shift-out-of-bounds in htable_bits()
-Date:   Mon, 11 Jan 2021 14:02:23 +0100
-Message-Id: <20210111130039.973811156@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 80/92] ALSA: hda/realtek - Fix speaker volume control on Lenovo C940
+Date:   Mon, 11 Jan 2021 14:02:24 +0100
+Message-Id: <20210111130043.009580745@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 5c8193f568ae16f3242abad6518dc2ca6c8eef86 upstream.
+commit f86de9b1c0663b0a3ca2dcddec9aa910ff0fbf2c upstream.
 
-htable_bits() can call jhash_size(32) and trigger shift-out-of-bounds
+Cannot adjust speaker's volume on Lenovo C940.
+Applying the alc298_fixup_speaker_volume function can fix the issue.
 
-UBSAN: shift-out-of-bounds in net/netfilter/ipset/ip_set_hash_gen.h:151:6
-shift exponent 32 is too large for 32-bit type 'unsigned int'
-CPU: 0 PID: 8498 Comm: syz-executor519
- Not tainted 5.10.0-rc7-next-20201208-syzkaller #0
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
- htable_bits net/netfilter/ipset/ip_set_hash_gen.h:151 [inline]
- hash_mac_create.cold+0x58/0x9b net/netfilter/ipset/ip_set_hash_gen.h:1524
- ip_set_create+0x610/0x1380 net/netfilter/ipset/ip_set_core.c:1115
- nfnetlink_rcv_msg+0xecc/0x1180 net/netfilter/nfnetlink.c:252
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- nfnetlink_rcv+0x1ac/0x420 net/netfilter/nfnetlink.c:600
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2345
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2399
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2432
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ Additional note: C940 has I2S amp for the speaker and this needs the
+  same initialization as Dell machines.
+  The patch was slightly modified so that the quirk entry is moved
+  next to the corresponding Dell quirk entry. -- tiwai ]
 
-This patch replaces htable_bits() by simple fls(hashsize - 1) call:
-it alone returns valid nbits both for round and non-round hashsizes.
-It is normal to set any nbits here because it is validated inside
-following htable_size() call which returns 0 for nbits>31.
-
-Fixes: 1feab10d7e6d("netfilter: ipset: Unified hash type generation")
-Reported-by: syzbot+d66bfadebca46cf61a2b@syzkaller.appspotmail.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ea25b4e5c468491aa2e9d6cb1f2fced3@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/ipset/ip_set_hash_gen.h |   20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_realtek.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -115,20 +115,6 @@ htable_size(u8 hbits)
- 	return hsize * sizeof(struct hbucket *) + sizeof(struct htable);
- }
- 
--/* Compute htable_bits from the user input parameter hashsize */
--static u8
--htable_bits(u32 hashsize)
--{
--	/* Assume that hashsize == 2^htable_bits */
--	u8 bits = fls(hashsize - 1);
--
--	if (jhash_size(bits) != hashsize)
--		/* Round up to the first 2^n value */
--		bits = fls(hashsize);
--
--	return bits;
--}
--
- #ifdef IP_SET_HASH_WITH_NETS
- #if IPSET_NET_COUNT > 1
- #define __CIDR(cidr, i)		(cidr[i])
-@@ -1287,7 +1273,11 @@ IPSET_TOKEN(HTYPE, _create)(struct net *
- 	if (!h)
- 		return -ENOMEM;
- 
--	hbits = htable_bits(hashsize);
-+	/* Compute htable_bits from the user input parameter hashsize.
-+	 * Assume that hashsize == 2^htable_bits,
-+	 * otherwise round up to the first 2^n value.
-+	 */
-+	hbits = fls(hashsize - 1);
- 	hsize = htable_size(hbits);
- 	if (hsize == 0) {
- 		kfree(h);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6236,6 +6236,7 @@ enum {
+ 	ALC221_FIXUP_HP_FRONT_MIC,
+ 	ALC292_FIXUP_TPT460,
+ 	ALC298_FIXUP_SPK_VOLUME,
++	ALC298_FIXUP_LENOVO_SPK_VOLUME,
+ 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
+ 	ALC269_FIXUP_ATIV_BOOK_8,
+ 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
+@@ -7062,6 +7063,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC298_FIXUP_DELL_AIO_MIC_NO_PRESENCE,
+ 	},
++	[ALC298_FIXUP_LENOVO_SPK_VOLUME] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc298_fixup_speaker_volume,
++	},
+ 	[ALC295_FIXUP_DISABLE_DAC3] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc295_fixup_disable_dac3,
+@@ -8040,6 +8045,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
++	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
 
 
