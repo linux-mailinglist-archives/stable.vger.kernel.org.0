@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8162F1582
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5682F1640
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:51:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733006AbhAKNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:41:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
+        id S1731304AbhAKNuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:50:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731012AbhAKNMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:12:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD9522795;
-        Mon, 11 Jan 2021 13:12:16 +0000 (UTC)
+        id S1730989AbhAKNJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C32CE225AB;
+        Mon, 11 Jan 2021 13:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370737;
-        bh=maoFeyNVcqarQ+CBTrSqZu7z/+dUHZnwukKGn83MjFA=;
+        s=korg; t=1610370548;
+        bh=LXP6tuufYFW7jUWZ60lcjdZMLnmWhNG3hxlvzB6Yqoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clltO46tHmPjkY9YqQgZ4gPK+r+WIXcc6j0dh0TQaa30zKjF814NxUxOvO9fUKxlO
-         mBkF3JY76Nol8l4PLVS+Q7Lat0DO2Dq0fM/PTqAWoYqs6eeR/KiMlUfzO4xyzVvrKb
-         UWcAdNFG0GFXPTKcd/PCGA04UNDz3HXtmg22BDF0=
+        b=aB//0jvqJhgOgzb+sbgymSe/Anm0JXtt1ADeMj7+suXwlI4fo/TVAWeUvd8sFOX7n
+         wuoaWM8FuPs+GPCVqVFBDeRft4fHIyUuA5UaBrCwN1G4IEKvNLa+ltR7o49J1cZEFw
+         waqE4bolQekTj4g5WLtPjBrqcJKrclbzkNC57+GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.4 76/92] x86/mm: Fix leak of pmd ptlock
+        stable@vger.kernel.org,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.19 71/77] Revert "device property: Keep secondary firmware node secondary by type"
 Date:   Mon, 11 Jan 2021 14:02:20 +0100
-Message-Id: <20210111130042.817522329@linuxfoundation.org>
+Message-Id: <20210111130039.819211483@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
+commit 47f4469970d8861bc06d2d4d45ac8200ff07c693 upstream.
 
-Commit
+While commit d5dcce0c414f ("device property: Keep secondary firmware
+node secondary by type") describes everything correct in its commit
+message, the change it made does the opposite and original commit
+c15e1bdda436 ("device property: Fix the secondary firmware node handling
+in set_primary_fwnode()") was fully correct.
 
-  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+Revert the former one here and improve documentation in the next patch.
 
-introduced a new location where a pmd was released, but neglected to
-run the pmd page destructor. In fact, this happened previously for a
-different pmd release path and was fixed by commit:
-
-  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
-
-This issue was hidden until recently because the failure mode is silent,
-but commit:
-
-  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
-
-turns the failure mode into this signature:
-
- BUG: Bad page state in process lt-pmem-ns  pfn:15943d
- page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
- flags: 0xaffff800000000()
- raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
- raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
- page dumped because: nonzero mapcount
- [..]
-  dump_stack+0x8b/0xb0
-  bad_page.cold+0x63/0x94
-  free_pcp_prepare+0x224/0x270
-  free_unref_page+0x18/0xd0
-  pud_free_pmd_page+0x146/0x160
-  ioremap_pud_range+0xe3/0x350
-  ioremap_page_range+0x108/0x160
-  __ioremap_caller.constprop.0+0x174/0x2b0
-  ? memremap+0x7a/0x110
-  memremap+0x7a/0x110
-  devm_memremap+0x53/0xa0
-  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
-  ? __devm_release_region+0x52/0x80
-  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
-
-Given this is a repeat occurrence it seemed prudent to look for other
-places where this destructor might be missing and whether a better
-helper is needed. try_to_free_pmd_page() looks like a candidate, but
-testing with setting up and tearing down pmd mappings via the dax unit
-tests is thus far not triggering the failure.
-
-As for a better helper pmd_free() is close, but it is a messy fit
-due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
-paravirt_tlb_remove_table() instead of free_page(), so open-coded
-pgtable_pmd_page_dtor() seems the best way forward for now.
-
-Debugged together with Matthew Wilcox <willy@infradead.org>.
-
-Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
+Fixes: d5dcce0c414f ("device property: Keep secondary firmware node secondary by type")
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -826,6 +826,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
- 	}
- 
- 	free_page((unsigned long)pmd_sv);
-+
-+	pgtable_pmd_page_dtor(virt_to_page(pmd));
- 	free_page((unsigned long)pmd);
- 
- 	return 1;
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3349,7 +3349,7 @@ void set_primary_fwnode(struct device *d
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+ 			if (!(parent && fn == parent->fwnode))
+-				fn->secondary = ERR_PTR(-ENODEV);
++				fn->secondary = NULL;
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
