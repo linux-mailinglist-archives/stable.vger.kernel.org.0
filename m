@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E53A12F14EB
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0D62F1609
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:48:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731835AbhAKNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:15:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
+        id S2387649AbhAKNry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:47:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732238AbhAKNPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8D521973;
-        Mon, 11 Jan 2021 13:14:33 +0000 (UTC)
+        id S1731165AbhAKNKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 591B322515;
+        Mon, 11 Jan 2021 13:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370874;
-        bh=voa17hyhicDaoIa5/Ekbhr46NkGW059LLvqZ3jV7pH8=;
+        s=korg; t=1610370608;
+        bh=NfbENLbrHaqZlcMZodbtf1ymoyzKPsa7mmPLq2d/+6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgRTdVQ8W0t+rC7lTjSb4NBRSt3UWfoe5tnruhHmAkUAacuKwE0ldSAWBUZ4wxRVq
-         pWKlnfHh5UAENRh/qtqtUcDXb8jYGjgpxvremw+R6WcQnkAEA/I66K9KT2MqPSLs/K
-         g/9es/2IV9TCWIVbvomAO7wnH+rx2HWTTjJHlleE=
+        b=dNxbVTKNsXfsq5P2W9wd43nX8THsvyJ77QNFg+xzpABMR8zg148H7cppnio4egPDK
+         E1jtuYiFt2OUQfYqAguSBN6tIZC4Y9o7T4+WiqSlMV/qPoh12yzF3IRliAeDOq1ywT
+         sLibkjLcugnKfpEiDQP0Q4+I63aG4O1Co/mtAYco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 042/145] r8169: work around power-saving bug on some chip versions
+        stable@vger.kernel.org, Alim Akhtar <alim.akhtar@samsung.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 02/92] scsi: ufs: Fix wrong print message in dev_err()
 Date:   Mon, 11 Jan 2021 14:01:06 +0100
-Message-Id: <20210111130050.542486628@linuxfoundation.org>
+Message-Id: <20210111130039.275773049@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Bean Huo <beanhuo@micron.com>
 
-[ Upstream commit e80bd76fbf563cc7ed8c9e9f3bbcdf59b0897f69 ]
+[ Upstream commit 1fa0570002e3f66db9b58c32c60de4183b857a19 ]
 
-A user reported failing network with RTL8168dp (a quite rare chip
-version). Realtek confirmed that few chip versions suffer from a PLL
-power-down hw bug.
+Change dev_err() print message from "dme-reset" to "dme_enable" in function
+ufshcd_dme_enable().
 
-Fixes: 07df5bd874f0 ("r8169: power down chip in probe")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/a1c39460-d533-7f9e-fa9d-2b8990b02426@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20201207190137.6858-3-huobean@gmail.com
+Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2243,7 +2243,8 @@ static void rtl_pll_power_down(struct rt
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 675e16e61ebdd..b888117f4ecd3 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3593,7 +3593,7 @@ static int ufshcd_dme_enable(struct ufs_hba *hba)
+ 	ret = ufshcd_send_uic_cmd(hba, &uic_cmd);
+ 	if (ret)
+ 		dev_err(hba->dev,
+-			"dme-reset: error code %d\n", ret);
++			"dme-enable: error code %d\n", ret);
  
- 	switch (tp->mac_version) {
--	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
-+	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
-+	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
- 	case RTL_GIGA_MAC_VER_37:
- 	case RTL_GIGA_MAC_VER_39:
- 	case RTL_GIGA_MAC_VER_43:
-@@ -2269,7 +2270,8 @@ static void rtl_pll_power_down(struct rt
- static void rtl_pll_power_up(struct rtl8169_private *tp)
- {
- 	switch (tp->mac_version) {
--	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
-+	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
-+	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
- 	case RTL_GIGA_MAC_VER_37:
- 	case RTL_GIGA_MAC_VER_39:
- 	case RTL_GIGA_MAC_VER_43:
+ 	return ret;
+ }
+-- 
+2.27.0
+
 
 
