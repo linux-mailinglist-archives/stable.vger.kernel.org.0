@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1212F1590
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:43:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9FC2F1700
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:00:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbhAKNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
+        id S1728591AbhAKN76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:59:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731350AbhAKNML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:12:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 124F022B51;
-        Mon, 11 Jan 2021 13:11:29 +0000 (UTC)
+        id S1728808AbhAKNG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:06:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0E362251F;
+        Mon, 11 Jan 2021 13:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370690;
-        bh=RMD2vaXVrjkPvjcRICMHAwtmJRNH0mjnsLDPtwWFHYs=;
+        s=korg; t=1610370347;
+        bh=I4sHZ/9+9WaCBncCxa31WvcaN/i3zoWGwQUJX7ocuzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYnVuD5H1aRXFOqdegLJ1yCWBjH/JqsDG14NR78/V8uky97IhRexmaLPS9rGNA9Kg
-         UXhNCJd6uzyq5VVKWNS8mWQJVlNacDZhdUmn4yIhj5LHMsOeJvj1PLjvByEyGBS1MJ
-         00MixTIf54oWETRuvEm6pPL2iOzFhqLcTFahR9BY=
+        b=kyQPXm1j0uUNWjoZ+Qwvp0PFzrImvR6fKjaC4VrFtFnxJFaClEXkuGNADMjO5abd+
+         cykEPCA9SGwm5g3tHGV/6gwvrzEdKfOm+lEi1w+sPBm4o7CxHLMF0lzjc75h6hbji9
+         Rm2byuGwF48xZMNIpOsFIA5HSxFH+J+nd7RYbPcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+9e04e2df4a32fb661daf@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.4 55/92] USB: cdc-wdm: Fix use after free in service_outstanding_interrupt().
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 40/57] USB: usblp: fix DMA to stack
 Date:   Mon, 11 Jan 2021 14:01:59 +0100
-Message-Id: <20210111130041.796849350@linuxfoundation.org>
+Message-Id: <20210111130035.657475002@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
+References: <20210111130033.715773309@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +38,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Johan Hovold <johan@kernel.org>
 
-commit 5e5ff0b4b6bcb4d17b7a26ec8bcfc7dd4651684f upstream.
+commit 020a1f453449294926ca548d8d5ca970926e8dfd upstream.
 
-syzbot is reporting UAF at usb_submit_urb() [1], for
-service_outstanding_interrupt() is not checking WDM_DISCONNECTING
-before calling usb_submit_urb(). Close the race by doing same checks
-wdm_read() does upon retry.
+Stack-allocated buffers cannot be used for DMA (on all architectures).
 
-Also, while wdm_read() checks WDM_DISCONNECTING with desc->rlock held,
-service_interrupt_work() does not hold desc->rlock. Thus, it is possible
-that usb_submit_urb() is called from service_outstanding_interrupt() from
-service_interrupt_work() after WDM_DISCONNECTING was set and kill_urbs()
- from wdm_disconnect() completed. Thus, move kill_urbs() in
-wdm_disconnect() to after cancel_work_sync() (which makes sure that
-service_interrupt_work() is no longer running) completed.
+Replace the HP-channel macro with a helper function that allocates a
+dedicated transfer buffer so that it can continue to be used with
+arguments from the stack.
 
-Although it seems to be safe to dereference desc->intf->dev in
-service_outstanding_interrupt() even if WDM_DISCONNECTING was already set
-because desc->rlock or cancel_work_sync() prevents wdm_disconnect() from
-reaching list_del() before service_outstanding_interrupt() completes,
-let's not emit error message if WDM_DISCONNECTING is set by
-wdm_disconnect() while usb_submit_urb() is in progress.
+Note that the buffer is cleared on allocation as usblp_ctrl_msg()
+returns success also on short transfers (the buffer is only used for
+debugging).
 
-[1] https://syzkaller.appspot.com/bug?extid=9e04e2df4a32fb661daf
-
-Reported-by: syzbot <syzbot+9e04e2df4a32fb661daf@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/620e2ee0-b9a3-dbda-a25b-a93e0ed03ec5@i-love.sakura.ne.jp
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210104145302.2087-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-wdm.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/usb/class/usblp.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -465,13 +465,23 @@ static int service_outstanding_interrupt
- 	if (!desc->resp_count || !--desc->resp_count)
- 		goto out;
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -289,8 +289,25 @@ static int usblp_ctrl_msg(struct usblp *
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
  
-+	if (test_bit(WDM_DISCONNECTING, &desc->flags)) {
-+		rv = -ENODEV;
-+		goto out;
-+	}
-+	if (test_bit(WDM_RESETTING, &desc->flags)) {
-+		rv = -EIO;
-+		goto out;
-+	}
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
 +
- 	set_bit(WDM_RESPONDING, &desc->flags);
- 	spin_unlock_irq(&desc->iuspin);
- 	rv = usb_submit_urb(desc->response, GFP_KERNEL);
- 	spin_lock_irq(&desc->iuspin);
- 	if (rv) {
--		dev_err(&desc->intf->dev,
--			"usb_submit_urb failed with result %d\n", rv);
-+		if (!test_bit(WDM_DISCONNECTING, &desc->flags))
-+			dev_err(&desc->intf->dev,
-+				"usb_submit_urb failed with result %d\n", rv);
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
++
++	kfree(buf);
++
++	return ret;
++}
  
- 		/* make sure the next notification trigger a submit */
- 		clear_bit(WDM_RESPONDING, &desc->flags);
-@@ -1026,9 +1036,9 @@ static void wdm_disconnect(struct usb_in
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
- 	mutex_lock(&desc->wlock);
--	kill_urbs(desc);
- 	cancel_work_sync(&desc->rxwork);
- 	cancel_work_sync(&desc->service_outs_intr);
-+	kill_urbs(desc);
- 	mutex_unlock(&desc->wlock);
- 	mutex_unlock(&desc->rlock);
- 
+ /*
+  * See the description for usblp_select_alts() below for the usage
 
 
