@@ -2,99 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7279E2F1A88
+	by mail.lfdr.de (Postfix) with ESMTP id E20F62F1A89
 	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 17:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388952AbhAKQJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388946AbhAKQJX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jan 2021 11:09:23 -0500
-Received: from foss.arm.com ([217.140.110.172]:60602 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387962AbhAKQJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 11:09:19 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 50DDB31B;
-        Mon, 11 Jan 2021 08:08:33 -0800 (PST)
-Received: from [10.57.56.43] (unknown [10.57.56.43])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 12FE93F70D;
-        Mon, 11 Jan 2021 08:08:31 -0800 (PST)
-Subject: Re: [PATCH] dma: mark unmapped DMA scatter/gather invalid
-To:     Marc Orr <marcorr@google.com>, hch@lst.de,
-        m.szyprowski@samsung.com, jxgao@google.com,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20210111154335.23388-1-marcorr@google.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <dc6db6b4-88f1-4762-bd3b-edf3dd410366@arm.com>
-Date:   Mon, 11 Jan 2021 16:08:25 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730554AbhAKQJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 11:09:22 -0500
+Received: from mail.kapsi.fi (mail.kapsi.fi [IPv6:2001:67c:1be8::25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B48FC061794;
+        Mon, 11 Jan 2021 08:08:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=kapsi.fi;
+         s=20161220; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject
+        :Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=mBrxEkbUIvCU64g8yLzd4fzQlEvtB3Lv42lSlfsc8rI=; b=u3fAoA6ZOBhFbdIhIm47DZPUXP
+        5U0BaI8pWeNHbfyBZ35bXAw8ApyZOvA5IF1b/PrIO7g8nce9J49Kl/azhi04l4hRjDIewHWnuFJjM
+        MGT5xAdMGhG9unjyXE8u9JDk0owmbHk8DifmpkgeVMa4q7hxzN5wgvJ+WKn8kaNPDKfVvMLBbyn2q
+        0Clw6xue5Pd7VgQ3xN9q3UJinbsU8jgwmFMzkvjMDY0YrM76I7EhlWclaCvaxWAWlVCrxd/QibIxm
+        NhthxsLqkWJ2GVvIINCSyyex4PnqqZW2HuxsvS1LqPFwEja0UqPgL/ylFGuY9huyyfjuO0Pr+oRP9
+        moT4ZIJg==;
+Received: from dsl-hkibng22-54f986-236.dhcp.inet.fi ([84.249.134.236] helo=toshino.localdomain)
+        by mail.kapsi.fi with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.89)
+        (envelope-from <mperttunen@nvidia.com>)
+        id 1kyzkC-000879-FQ; Mon, 11 Jan 2021 18:08:36 +0200
+From:   Mikko Perttunen <mperttunen@nvidia.com>
+To:     ldewangan@nvidia.com, digetx@gmail.com, thierry.reding@gmail.com,
+        jonathanh@nvidia.com, wsa@kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Mikko Perttunen <mperttunen@nvidia.com>, stable@vger.kernel.org
+Subject: [PATCH v2] i2c: tegra: Wait for config load atomically while in ISR
+Date:   Mon, 11 Jan 2021 18:08:32 +0200
+Message-Id: <20210111160832.3669873-1-mperttunen@nvidia.com>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-In-Reply-To: <20210111154335.23388-1-marcorr@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 84.249.134.236
+X-SA-Exim-Mail-From: mperttunen@nvidia.com
+X-SA-Exim-Scanned: No (on mail.kapsi.fi); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-01-11 15:43, Marc Orr wrote:
-> This patch updates dma_direct_unmap_sg() to mark each scatter/gather
-> entry invalid, after it's unmapped. This fixes two issues:
+Upon a communication error, the interrupt handler can call
+tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
+unless the current transaction was marked atomic. Fix this by
+making the poll happen atomically if we are in an IRQ.
 
-s/fixes/bodges around (badly)/
+This matches the behavior prior to the patch mentioned
+in the Fixes tag.
 
-> 1. It makes the unmapping code able to tolerate a double unmap.
-> 2. It prevents the NVMe driver from erroneously treating an unmapped DMA
-> address as mapped.
-> 
-> The bug that motivated this patch was the following sequence, which
-> occurred within the NVMe driver, with the kernel flag `swiotlb=force`.
-> 
-> * NVMe driver calls dma_direct_map_sg()
-> * dma_direct_map_sg() fails part way through the scatter gather/list
-> * dma_direct_map_sg() calls dma_direct_unmap_sg() to unmap any entries
->    succeeded.
-> * NVMe driver calls dma_direct_unmap_sg(), redundantly, leading to a
->    double unmap, which is a bug.
+Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+---
+v2:
+* Use in_irq() instead of passing a flag from the ISR.
+  Thanks to Dmitry for the suggestion.
+* Update commit message.
+---
+ drivers/i2c/busses/i2c-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-So why not just fix that actual bug?
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 6f08c0c3238d..0727383f4940 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
+ 	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+ 	u32 val;
+ 
+-	if (!i2c_dev->atomic_mode)
++	if (!i2c_dev->atomic_mode && !in_irq())
+ 		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+ 						  delay_us, timeout_us);
+ 
+-- 
+2.30.0
 
-> With this patch, a hadoop workload running on a cluster of three AMD
-> SEV VMs, is able to succeed. Without the patch, the hadoop workload
-> suffers application-level and even VM-level failures.
-> 
-> Tested-by: Jianxiong Gao <jxgao@google.com>
-> Tested-by: Marc Orr <marcorr@google.com>
-> Reviewed-by: Jianxiong Gao <jxgao@google.com>
-> Signed-off-by: Marc Orr <marcorr@google.com>
-> ---
->   kernel/dma/direct.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-> index 0a4881e59aa7..3d9b17fe5771 100644
-> --- a/kernel/dma/direct.c
-> +++ b/kernel/dma/direct.c
-> @@ -374,9 +374,11 @@ void dma_direct_unmap_sg(struct device *dev, struct scatterlist *sgl,
->   	struct scatterlist *sg;
->   	int i;
->   
-> -	for_each_sg(sgl, sg, nents, i)
-> +	for_each_sg(sgl, sg, nents, i) {
->   		dma_direct_unmap_page(dev, sg->dma_address, sg_dma_len(sg), dir,
->   			     attrs);
-> +		sg->dma_address = DMA_MAPPING_ERROR;
-
-There are more DMA API backends than just dma-direct, so while this 
-might help paper over bugs when SWIOTLB is in use, it's not going to 
-have any effect when those same bugs are hit under other circumstances. 
-Once again, the moral of the story is that effort is better spent just 
-fixing the bugs ;)
-
-Robin.
-
-> +	}
->   }
->   EXPORT_SYMBOL(dma_direct_unmap_sg);
->   #endif
-> 
