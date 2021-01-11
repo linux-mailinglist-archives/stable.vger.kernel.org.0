@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FF62F1512
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B9F2F1523
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbhAKNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:35:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32804 "EHLO mail.kernel.org"
+        id S1732002AbhAKNNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732065AbhAKNOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:14:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4923321973;
-        Mon, 11 Jan 2021 13:13:31 +0000 (UTC)
+        id S1732000AbhAKNNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E72132255F;
+        Mon, 11 Jan 2021 13:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370811;
-        bh=pVjPnRGRrkyfNhyw85E2fzo6fGHo0T+GKH8Jl29FUw4=;
+        s=korg; t=1610370816;
+        bh=B95Z6aOSSEIH5gVm3bkLqjeme1dp2fzwlKy3MxXZe6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8b70L9OQw9ZeVCQt8Iya43Q3+dyKZIsEm9YmnUUcucXDMK7DXSkihWeofoUSDF/P
-         lZJXh5Z9RzTFctYnRTlaxW//1aL7j90QhIhRVq5IBXrF57jouWatZPw1CoSEOa8crU
-         Rp6/W4JxDxbxj47yz7gxCATzq7yNBCsEWYIN8faQ=
+        b=jDjoOHkNTUkoU6YKsdE5o86PVigwVTFP6Q5fm9oCYCAFVvqLFzwRMPKKlDLxPdUhD
+         tgwsoX+13mKgxxO4RWXp6+AcSCTvgBYuy00ax0m6C6vGNurqV04cLpVG5P0viQZmo+
+         nosMJXjrMMI0sedbJRYQaRyDEcaXFAy8Zp/8YEyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        stable@vger.kernel.org, Jeff Dike <jdike@akamai.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 015/145] net: ethernet: mvneta: Fix error handling in mvneta_probe
-Date:   Mon, 11 Jan 2021 14:00:39 +0100
-Message-Id: <20210111130049.245602301@linuxfoundation.org>
+Subject: [PATCH 5.10 017/145] virtio_net: Fix recursive call to cpus_read_lock()
+Date:   Mon, 11 Jan 2021 14:00:41 +0100
+Message-Id: <20210111130049.339270672@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,32 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jeff Dike <jdike@akamai.com>
 
-[ Upstream commit 58f60329a6be35a5653edb3fd2023ccef9eb9943 ]
+[ Upstream commit de33212f768c5d9e2fe791b008cb26f92f0aa31c ]
 
-When mvneta_port_power_up() fails, we should execute
-cleanup functions after label err_netdev to avoid memleak.
+virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
+and CONFIG_HOTPLUG are enabled.
 
-Fixes: 41c2b6b4f0f80 ("net: ethernet: mvneta: Add back interface mode validation")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20201220082930.21623-1-dinghao.liu@zju.edu.cn
+The path is:
+    virtnet_set_channels - calls get_online_cpus(), which is a trivial
+wrapper around cpus_read_lock()
+    netif_set_real_num_tx_queues
+    netif_reset_xps_queues_gt
+    netif_reset_xps_queues - calls cpus_read_lock()
+
+This call chain and potential deadlock happens when the number of TX
+queues is reduced.
+
+This commit the removes netif_set_real_num_[tr]x_queues calls from
+inside the get/put_online_cpus section, as they don't require that it
+be held.
+
+Fixes: 47be24796c13 ("virtio-net: fix the set affinity bug when CPU IDs are not consecutive")
+Signed-off-by: Jeff Dike <jdike@akamai.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20201223025421.671-1-jdike@akamai.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -5232,7 +5232,7 @@ static int mvneta_probe(struct platform_
- 	err = mvneta_port_power_up(pp, pp->phy_interface);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "can't power up port\n");
--		return err;
-+		goto err_netdev;
- 	}
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2093,14 +2093,16 @@ static int virtnet_set_channels(struct n
  
- 	/* Armada3700 network controller does not support per-cpu
+ 	get_online_cpus();
+ 	err = _virtnet_set_queues(vi, queue_pairs);
+-	if (!err) {
+-		netif_set_real_num_tx_queues(dev, queue_pairs);
+-		netif_set_real_num_rx_queues(dev, queue_pairs);
+-
+-		virtnet_set_affinity(vi);
++	if (err) {
++		put_online_cpus();
++		goto err;
+ 	}
++	virtnet_set_affinity(vi);
+ 	put_online_cpus();
+ 
++	netif_set_real_num_tx_queues(dev, queue_pairs);
++	netif_set_real_num_rx_queues(dev, queue_pairs);
++ err:
+ 	return err;
+ }
+ 
 
 
