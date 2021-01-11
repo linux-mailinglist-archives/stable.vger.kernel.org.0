@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF782F13FD
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7082F1434
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733120AbhAKNSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:18:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S1728620AbhAKNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:21:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732964AbhAKNSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:18:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D080322B51;
-        Mon, 11 Jan 2021 13:18:00 +0000 (UTC)
+        id S1733228AbhAKNTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:19:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A661C223E8;
+        Mon, 11 Jan 2021 13:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371081;
-        bh=2G2IQN845sU7EH8SMAZAKc7uaLxN2Q7AHbdF6SS7x9Y=;
+        s=korg; t=1610371106;
+        bh=VBF7P6eld1L6OJjTaNs7GsE7yMzmSopp1KtlLEBrm3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0MzWWKmfjJFnCUu7hxJO18xFkVXxGkfCf6DzSjsjk0YOe0Jzy7WVVIbzxNIYDm9A
-         ABN3knq4ki7V5Ci8q+0xSStVinSBvDOTKfEZNrOIrxwhxskNdp9SjB48/boHfVxoun
-         KrsdJPxQPbF8WPtmH2zLI3c17BRaak8XczcrePio=
+        b=HFCrOKvzj9xI5QIiZt77PnFyjtyPQ55HEumysS4ctE+e/1W3yA7qtB6nH5w6xDSOg
+         tuQful/X1Oh6ge4kmyvmV0UZqgol5Be7k1bwEuIYIMBUSo3Fxgemdru+++s99qashk
+         ZADECm/ABGuN3rmnFgWSEGwBIv65pYhWaTSqb9Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Massimo B." <massimo.b@gmx.net>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 126/145] btrfs: send: fix wrong file path when there is an inode with a pending rmdir
-Date:   Mon, 11 Jan 2021 14:02:30 +0100
-Message-Id: <20210111130054.564736748@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 127/145] Revert "device property: Keep secondary firmware node secondary by type"
+Date:   Mon, 11 Jan 2021 14:02:31 +0100
+Message-Id: <20210111130054.614865838@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -40,290 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-commit 0b3f407e6728d990ae1630a02c7b952c21c288d3 upstream.
+commit 47f4469970d8861bc06d2d4d45ac8200ff07c693 upstream.
 
-When doing an incremental send, if we have a new inode that happens to
-have the same number that an old directory inode had in the base snapshot
-and that old directory has a pending rmdir operation, we end up computing
-a wrong path for the new inode, causing the receiver to fail.
+While commit d5dcce0c414f ("device property: Keep secondary firmware
+node secondary by type") describes everything correct in its commit
+message, the change it made does the opposite and original commit
+c15e1bdda436 ("device property: Fix the secondary firmware node handling
+in set_primary_fwnode()") was fully correct.
 
-Example reproducer:
+Revert the former one here and improve documentation in the next patch.
 
-  $ cat test-send-rmdir.sh
-  #!/bin/bash
-
-  DEV=/dev/sdi
-  MNT=/mnt/sdi
-
-  mkfs.btrfs -f $DEV >/dev/null
-  mount $DEV $MNT
-
-  mkdir $MNT/dir
-  touch $MNT/dir/file1
-  touch $MNT/dir/file2
-  touch $MNT/dir/file3
-
-  # Filesystem looks like:
-  #
-  # .                                     (ino 256)
-  # |----- dir/                           (ino 257)
-  #         |----- file1                  (ino 258)
-  #         |----- file2                  (ino 259)
-  #         |----- file3                  (ino 260)
-  #
-
-  btrfs subvolume snapshot -r $MNT $MNT/snap1
-  btrfs send -f /tmp/snap1.send $MNT/snap1
-
-  # Now remove our directory and all its files.
-  rm -fr $MNT/dir
-
-  # Unmount the filesystem and mount it again. This is to ensure that
-  # the next inode that is created ends up with the same inode number
-  # that our directory "dir" had, 257, which is the first free "objectid"
-  # available after mounting again the filesystem.
-  umount $MNT
-  mount $DEV $MNT
-
-  # Now create a new file (it could be a directory as well).
-  touch $MNT/newfile
-
-  # Filesystem now looks like:
-  #
-  # .                                     (ino 256)
-  # |----- newfile                        (ino 257)
-  #
-
-  btrfs subvolume snapshot -r $MNT $MNT/snap2
-  btrfs send -f /tmp/snap2.send -p $MNT/snap1 $MNT/snap2
-
-  # Now unmount the filesystem, create a new one, mount it and try to apply
-  # both send streams to recreate both snapshots.
-  umount $DEV
-
-  mkfs.btrfs -f $DEV >/dev/null
-
-  mount $DEV $MNT
-
-  btrfs receive -f /tmp/snap1.send $MNT
-  btrfs receive -f /tmp/snap2.send $MNT
-
-  umount $MNT
-
-When running the test, the receive operation for the incremental stream
-fails:
-
-  $ ./test-send-rmdir.sh
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
-  At subvol /mnt/sdi/snap1
-  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
-  At subvol /mnt/sdi/snap2
-  At subvol snap1
-  At snapshot snap2
-  ERROR: chown o257-9-0 failed: No such file or directory
-
-So fix this by tracking directories that have a pending rmdir by inode
-number and generation number, instead of only inode number.
-
-A test case for fstests follows soon.
-
-Reported-by: Massimo B. <massimo.b@gmx.net>
-Tested-by: Massimo B. <massimo.b@gmx.net>
-Link: https://lore.kernel.org/linux-btrfs/6ae34776e85912960a253a8327068a892998e685.camel@gmx.net/
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: d5dcce0c414f ("device property: Keep secondary firmware node secondary by type")
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   49 +++++++++++++++++++++++++++++++------------------
- 1 file changed, 31 insertions(+), 18 deletions(-)
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -236,6 +236,7 @@ struct waiting_dir_move {
- 	 * after this directory is moved, we can try to rmdir the ino rmdir_ino.
- 	 */
- 	u64 rmdir_ino;
-+	u64 rmdir_gen;
- 	bool orphanized;
- };
- 
-@@ -316,7 +317,7 @@ static int is_waiting_for_move(struct se
- static struct waiting_dir_move *
- get_waiting_dir_move(struct send_ctx *sctx, u64 ino);
- 
--static int is_waiting_for_rm(struct send_ctx *sctx, u64 dir_ino);
-+static int is_waiting_for_rm(struct send_ctx *sctx, u64 dir_ino, u64 gen);
- 
- static int need_send_hole(struct send_ctx *sctx)
- {
-@@ -2299,7 +2300,7 @@ static int get_cur_path(struct send_ctx
- 
- 		fs_path_reset(name);
- 
--		if (is_waiting_for_rm(sctx, ino)) {
-+		if (is_waiting_for_rm(sctx, ino, gen)) {
- 			ret = gen_unique_name(sctx, ino, gen, name);
- 			if (ret < 0)
- 				goto out;
-@@ -2858,8 +2859,8 @@ out:
- 	return ret;
- }
- 
--static struct orphan_dir_info *
--add_orphan_dir_info(struct send_ctx *sctx, u64 dir_ino)
-+static struct orphan_dir_info *add_orphan_dir_info(struct send_ctx *sctx,
-+						   u64 dir_ino, u64 dir_gen)
- {
- 	struct rb_node **p = &sctx->orphan_dirs.rb_node;
- 	struct rb_node *parent = NULL;
-@@ -2868,20 +2869,23 @@ add_orphan_dir_info(struct send_ctx *sct
- 	while (*p) {
- 		parent = *p;
- 		entry = rb_entry(parent, struct orphan_dir_info, node);
--		if (dir_ino < entry->ino) {
-+		if (dir_ino < entry->ino)
- 			p = &(*p)->rb_left;
--		} else if (dir_ino > entry->ino) {
-+		else if (dir_ino > entry->ino)
- 			p = &(*p)->rb_right;
--		} else {
-+		else if (dir_gen < entry->gen)
-+			p = &(*p)->rb_left;
-+		else if (dir_gen > entry->gen)
-+			p = &(*p)->rb_right;
-+		else
- 			return entry;
--		}
- 	}
- 
- 	odi = kmalloc(sizeof(*odi), GFP_KERNEL);
- 	if (!odi)
- 		return ERR_PTR(-ENOMEM);
- 	odi->ino = dir_ino;
--	odi->gen = 0;
-+	odi->gen = dir_gen;
- 	odi->last_dir_index_offset = 0;
- 
- 	rb_link_node(&odi->node, parent, p);
-@@ -2889,8 +2893,8 @@ add_orphan_dir_info(struct send_ctx *sct
- 	return odi;
- }
- 
--static struct orphan_dir_info *
--get_orphan_dir_info(struct send_ctx *sctx, u64 dir_ino)
-+static struct orphan_dir_info *get_orphan_dir_info(struct send_ctx *sctx,
-+						   u64 dir_ino, u64 gen)
- {
- 	struct rb_node *n = sctx->orphan_dirs.rb_node;
- 	struct orphan_dir_info *entry;
-@@ -2901,15 +2905,19 @@ get_orphan_dir_info(struct send_ctx *sct
- 			n = n->rb_left;
- 		else if (dir_ino > entry->ino)
- 			n = n->rb_right;
-+		else if (gen < entry->gen)
-+			n = n->rb_left;
-+		else if (gen > entry->gen)
-+			n = n->rb_right;
- 		else
- 			return entry;
- 	}
- 	return NULL;
- }
- 
--static int is_waiting_for_rm(struct send_ctx *sctx, u64 dir_ino)
-+static int is_waiting_for_rm(struct send_ctx *sctx, u64 dir_ino, u64 gen)
- {
--	struct orphan_dir_info *odi = get_orphan_dir_info(sctx, dir_ino);
-+	struct orphan_dir_info *odi = get_orphan_dir_info(sctx, dir_ino, gen);
- 
- 	return odi != NULL;
- }
-@@ -2954,7 +2962,7 @@ static int can_rmdir(struct send_ctx *sc
- 	key.type = BTRFS_DIR_INDEX_KEY;
- 	key.offset = 0;
- 
--	odi = get_orphan_dir_info(sctx, dir);
-+	odi = get_orphan_dir_info(sctx, dir, dir_gen);
- 	if (odi)
- 		key.offset = odi->last_dir_index_offset;
- 
-@@ -2985,7 +2993,7 @@ static int can_rmdir(struct send_ctx *sc
- 
- 		dm = get_waiting_dir_move(sctx, loc.objectid);
- 		if (dm) {
--			odi = add_orphan_dir_info(sctx, dir);
-+			odi = add_orphan_dir_info(sctx, dir, dir_gen);
- 			if (IS_ERR(odi)) {
- 				ret = PTR_ERR(odi);
- 				goto out;
-@@ -2993,12 +3001,13 @@ static int can_rmdir(struct send_ctx *sc
- 			odi->gen = dir_gen;
- 			odi->last_dir_index_offset = found_key.offset;
- 			dm->rmdir_ino = dir;
-+			dm->rmdir_gen = dir_gen;
- 			ret = 0;
- 			goto out;
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -4278,7 +4278,7 @@ void set_primary_fwnode(struct device *d
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+ 			if (!(parent && fn == parent->fwnode))
+-				fn->secondary = ERR_PTR(-ENODEV);
++				fn->secondary = NULL;
+ 		} else {
+ 			dev->fwnode = NULL;
  		}
- 
- 		if (loc.objectid > send_progress) {
--			odi = add_orphan_dir_info(sctx, dir);
-+			odi = add_orphan_dir_info(sctx, dir, dir_gen);
- 			if (IS_ERR(odi)) {
- 				ret = PTR_ERR(odi);
- 				goto out;
-@@ -3038,6 +3047,7 @@ static int add_waiting_dir_move(struct s
- 		return -ENOMEM;
- 	dm->ino = ino;
- 	dm->rmdir_ino = 0;
-+	dm->rmdir_gen = 0;
- 	dm->orphanized = orphanized;
- 
- 	while (*p) {
-@@ -3183,7 +3193,7 @@ static int path_loop(struct send_ctx *sc
- 	while (ino != BTRFS_FIRST_FREE_OBJECTID) {
- 		fs_path_reset(name);
- 
--		if (is_waiting_for_rm(sctx, ino))
-+		if (is_waiting_for_rm(sctx, ino, gen))
- 			break;
- 		if (is_waiting_for_move(sctx, ino)) {
- 			if (*ancestor_ino == 0)
-@@ -3223,6 +3233,7 @@ static int apply_dir_move(struct send_ct
- 	u64 parent_ino, parent_gen;
- 	struct waiting_dir_move *dm = NULL;
- 	u64 rmdir_ino = 0;
-+	u64 rmdir_gen;
- 	u64 ancestor;
- 	bool is_orphan;
- 	int ret;
-@@ -3237,6 +3248,7 @@ static int apply_dir_move(struct send_ct
- 	dm = get_waiting_dir_move(sctx, pm->ino);
- 	ASSERT(dm);
- 	rmdir_ino = dm->rmdir_ino;
-+	rmdir_gen = dm->rmdir_gen;
- 	is_orphan = dm->orphanized;
- 	free_waiting_dir_move(sctx, dm);
- 
-@@ -3273,6 +3285,7 @@ static int apply_dir_move(struct send_ct
- 			dm = get_waiting_dir_move(sctx, pm->ino);
- 			ASSERT(dm);
- 			dm->rmdir_ino = rmdir_ino;
-+			dm->rmdir_gen = rmdir_gen;
- 		}
- 		goto out;
- 	}
-@@ -3291,7 +3304,7 @@ static int apply_dir_move(struct send_ct
- 		struct orphan_dir_info *odi;
- 		u64 gen;
- 
--		odi = get_orphan_dir_info(sctx, rmdir_ino);
-+		odi = get_orphan_dir_info(sctx, rmdir_ino, rmdir_gen);
- 		if (!odi) {
- 			/* already deleted */
- 			goto finish;
 
 
