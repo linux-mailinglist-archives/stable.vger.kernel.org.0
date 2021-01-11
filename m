@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E5722F1598
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2632F15BA
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:44:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730929AbhAKNmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:42:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
+        id S1730731AbhAKNnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:43:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731493AbhAKNMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:12:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FD6322BEF;
-        Mon, 11 Jan 2021 13:11:34 +0000 (UTC)
+        id S1730737AbhAKNLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9182250F;
+        Mon, 11 Jan 2021 13:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370695;
-        bh=6H5GGj7HOh8U/tIPGatbGzCG5pDdwPCzGC9ia3RsTr8=;
+        s=korg; t=1610370697;
+        bh=BWYcWP3aNUwnjZWiVR99nwIp3Z0D++CFG5rwRWS12WQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7hYjdupORBgtIW+pwlEaeYuvoUgM8hlSgilDv1Cbmuve0zLDAVwtQOweazo/aPc4
-         uYGuOmLkkEO9/tYrO4IzHsGE4ObQE1Ml1vQrB1eNDAGcX0Aa0MEBtcXDiTnvQMkbMQ
-         BeYNEpNvfZ2YzoQa/LhJUMbIoCUjB3B4WFh5t+EA=
+        b=SftU3BfJNGdyWeiGnotVR5lTsmyemLnCCBlAe85PiGWX4bpb6vUflsNaOLuuc3Sby
+         kronOvx4Cak9qEVF6UT9gREigjSL1CaokHupbh5K5C9IrnsselJHpHDylnJxxohoAZ
+         JWrQvE5snBn94/6LKQ+XyBhFy3LFZS1xLyORZJBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Subject: [PATCH 5.4 56/92] usb: dwc3: ulpi: Use VStsDone to detect PHY regs access completion
-Date:   Mon, 11 Jan 2021 14:02:00 +0100
-Message-Id: <20210111130041.845030430@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>
+Subject: [PATCH 5.4 57/92] usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
+Date:   Mon, 11 Jan 2021 14:02:01 +0100
+Message-Id: <20210111130041.893546666@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -40,54 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit ce722da66d3e9384aa2de9d33d584ee154e5e157 upstream.
+commit 83a43ff80a566de8718dfc6565545a0080ec1fb5 upstream.
 
-In accordance with [1] the DWC_usb3 core sets the GUSB2PHYACCn.VStsDone
-bit when the PHY vendor control access is done and clears it when the
-application initiates a new transaction. The doc doesn't say anything
-about the GUSB2PHYACCn.VStsBsy flag serving for the same purpose. Moreover
-we've discovered that the VStsBsy flag can be cleared before the VStsDone
-bit. So using the former as a signal of the PHY control registers
-completion might be dangerous. Let's have the VStsDone flag utilized
-instead then.
+if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-[1] Synopsys DesignWare Cores SuperSpeed USB 3.0 xHCI Host Controller
-    Databook, 2.70a, December 2013, p.388
-
-Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20201210085008.13264-2-Sergey.Semin@baikalelectronics.ru
+Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/core.h |    1 +
- drivers/usb/dwc3/ulpi.c |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/chipidea/ci_hdrc_imx.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -283,6 +283,7 @@
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -139,9 +139,13 @@ static struct imx_usbmisc_data *usbmisc_
+ 	misc_pdev = of_find_device_by_node(args.np);
+ 	of_node_put(args.np);
  
- /* Global USB2 PHY Vendor Control Register */
- #define DWC3_GUSB2PHYACC_NEWREGREQ	BIT(25)
-+#define DWC3_GUSB2PHYACC_DONE		BIT(24)
- #define DWC3_GUSB2PHYACC_BUSY		BIT(23)
- #define DWC3_GUSB2PHYACC_WRITE		BIT(22)
- #define DWC3_GUSB2PHYACC_ADDR(n)	(n << 16)
---- a/drivers/usb/dwc3/ulpi.c
-+++ b/drivers/usb/dwc3/ulpi.c
-@@ -24,7 +24,7 @@ static int dwc3_ulpi_busyloop(struct dwc
+-	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
++	if (!misc_pdev)
+ 		return ERR_PTR(-EPROBE_DEFER);
  
- 	while (count--) {
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
--		if (!(reg & DWC3_GUSB2PHYACC_BUSY))
-+		if (reg & DWC3_GUSB2PHYACC_DONE)
- 			return 0;
- 		cpu_relax();
- 	}
++	if (!platform_get_drvdata(misc_pdev)) {
++		put_device(&misc_pdev->dev);
++		return ERR_PTR(-EPROBE_DEFER);
++	}
+ 	data->dev = &misc_pdev->dev;
+ 
+ 	/*
 
 
