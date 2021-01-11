@@ -2,68 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D976F2F0EA2
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 10:00:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BE92F0EA6
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 10:00:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727887AbhAKI7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:59:34 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60853 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727623AbhAKI7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:59:34 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6ED60195C75F;
-        Mon, 11 Jan 2021 03:58:48 -0500 (EST)
+        id S1728095AbhAKJAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 04:00:20 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:46647 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728091AbhAKJAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 04:00:20 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id EC2DA2576;
+        Mon, 11 Jan 2021 03:59:13 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 11 Jan 2021 03:58:48 -0500
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:59:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=VbR7nO
-        ZBbtU/quvw80zECfrDKTbCNG3YOtdU6R3gn4M=; b=YwJyUcJ96ljE26tnzZYSXI
-        bZXu0mmhiLfAe3QqFS1kAtdAu5cQtMgAVTo97yIcJR8OJW6yRxc9OIPDsNQd0y1O
-        kkwSbYWBAedFVI4LrGTaF8k5GHSMPywEKGnwIz2uWPmLd/S6bdYSxNYgd4Z/KErS
-        jay+UCvXzm4HvZAnHXNVRf7ODjW6B0wwtUqVNPpDPL3bi6b8gowIjs1ghd0IIlb4
-        WQ7X3LHgpbQ3Qp9T53CAQWlkxsJJDK3nUoCGKCHlHk/94OY5SKe4TMd26Gr/6gVC
-        zpv+85YJLuyoWavUS24S2dHKZiDkakhNaz4pk55c4LwcLCSScheFYw31uC3CTdgg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=hThMiO
+        7QeJuby1lBtDrxHaZVWhfx9nGGWny8nlR0lsw=; b=CGsz6n9qdyNBwvM5fLWbFk
+        Y6lVQPzdL0Oc91t2YdBe8C2d6MA0cbDjfAPMRwsdFrg6eSz8BLlQIGwsBJcotLqi
+        qdZ/bj4IAbqr0HPpqKgJWIGiC/nJFQR31cclbqcLe2OK1LZ5Ip0zIREx/WprWsRD
+        nRxOCiKLUqBhN1w3vLp59F0/tVJiRJGnm/eW2A6dFPh+8O6W9fI20v6Yl4BRRzVa
+        yG7eB8sCboItBMWtGpwBDfY8Kr3q5RpNddrMzXYURk2fqXBxbBAluM8+XCILRVBU
+        TQ+WzSuWkyHP569zsJEpYkmfkHbBiKi1vybaCo4XYXcjKkvwCtrlrxrZzqwftf/A
         ==
-X-ME-Sender: <xms:SBP8X1QxFPq_ZllcdgLGI5N752bynmlWN8RNd5Usok7eA23dnyDDhA>
-    <xme:SBP8X2NwLKIPIzEcl34o9UZBYA3hwrdHYLykGhXIFDPfZRDDoLN4xP7PxMgyjmSH4
-    gBAxOdFKYwjdg>
+X-ME-Sender: <xms:YRP8X6z2dHLosHDs5ZV7lQLls0RlpKiH-4ilgTWrkCNocBbAxvlZsQ>
+    <xme:YRP8X2Sr8aeEnfvaCJAlL_RB9K0kLWwj2BikFb_5eud9CM8y6wZufMCOigRDcKgzt
+    K766vwCp5i7Zg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeefjeevheefudeftdekvdejteekvefhieeuudeiff
-    fhhfettdejkeetgeefjeetteenucffohhmrghinhepkhgvrhhnvghltghirdhorhhgpdhk
-    vghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghruf
-    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
-    mh
-X-ME-Proxy: <xmx:SBP8X4PUpqPw9gOIFYhrS3I9J2hPMbkFOTzMRweFCUbBJCDyJTrQBg>
-    <xmx:SBP8X2uxhPyQsGZWg4L8TLfwOpc51aI2GG-CuwIS9L2zmSXUDHZcGQ>
-    <xmx:SBP8XyUo637Bq_vky7zjnmeAVdoAx-fG9I5e2dxPHXzN_166NIzYVg>
-    <xmx:SBP8X7_c9yqyF2g8lWO5_jzB2Ps4yJ4exr7vjuI8EVUFxJ282h_hvg>
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
+    eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
+    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurf
+    grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:YRP8X8UpclHoG3fbAU5Nbh-FoKs7CZC1EXugnHdvnAtZDsIX30hiOw>
+    <xmx:YRP8Xwgzottpj31FzGnuFcXAWRPC-_Ows68f-Q1kwQrWk90VUvRMpg>
+    <xmx:YRP8X8CujHV2EpnPxNRHqQtwskmEZaO0G0egovjsBUWSmISE1_th_A>
+    <xmx:YRP8X16XGYG8d-EJBzMcxUBNtpQiQ16CgkUdwgy0BRYlrQQcrYnK-GWBxS8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2037C24005D;
-        Mon, 11 Jan 2021 03:58:48 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: link with -z norelro for LLD or aarch64-elf" failed to apply to 5.4-stable tree
-To:     ndesaulniers@google.com, amodra@gmail.com, ardb@kernel.org,
-        bot@kernelci.org, catalin.marinas@arm.com, maskray@google.com,
-        natechancellor@gmail.com, qperret@google.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4174324005D;
+        Mon, 11 Jan 2021 03:59:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: clear the shadow batch" failed to apply to 4.9-stable tree
+To:     matthew.auld@intel.com, chris@chris-wilson.co.uk,
+        jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:59:59 +0100
-Message-ID: <161035559958166@kroah.com>
+Date:   Mon, 11 Jan 2021 10:00:24 +0100
+Message-ID: <1610355624149236@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -74,82 +71,102 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 Mon Sep 17 00:00:00 2001
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Thu, 17 Dec 2020 16:24:32 -0800
-Subject: [PATCH] arm64: link with -z norelro for LLD or aarch64-elf
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 75353bcd2184010f08a3ed2f0da019bd9d604e1e Mon Sep 17 00:00:00 2001
+From: Matthew Auld <matthew.auld@intel.com>
+Date: Thu, 24 Dec 2020 15:13:57 +0000
+Subject: [PATCH] drm/i915: clear the shadow batch
 
-With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
-aarch64-linux-gnu-ld: warning: -z norelro ignored
+The shadow batch is an internal object, which doesn't have any page
+clearing, and since the batch_len can be smaller than the object, we
+should take care to clear it.
 
-BFD can produce this warning when the target emulation mode does not
-support RELRO program headers, and -z relro or -z norelro is passed.
+Testcase: igt/gen9_exec_parse/shadow-peek
+Fixes: 4f7af1948abc ("drm/i915: Support ro ppgtt mapped cmdparser shadow buffers")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201224151358.401345-1-matthew.auld@intel.com
+Cc: stable@vger.kernel.org
+(cherry picked from commit eeb52ee6c4a429ec301faf1dc48988744960786e)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 
-Alan Modra clarifies:
-  The default linker emulation for an aarch64-linux ld.bfd is
-  -maarch64linux, the default for an aarch64-elf linker is
-  -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
-  you get an emulation that doesn't support -z relro.
-
-The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
--maarch64linux based on the toolchain configuration.
-
-LLD will always create RELRO program header regardless of target
-emulation.
-
-To avoid the above warning when linking with BFD, pass -z norelro only
-when linking with LLD or with -maarch64linux.
-
-Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
-Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-Cc: <stable@vger.kernel.org> # 5.0.x-
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Reported-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Alan Modra <amodra@gmail.com>
-Cc: Fāng-ruì Sòng <maskray@google.com>
-Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index 6be9b3750250..90309208bb28 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -10,7 +10,7 @@
- #
- # Copyright (C) 1995-2001 by Russell King
+diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
+index 93265951fdbb..b0899b665e85 100644
+--- a/drivers/gpu/drm/i915/i915_cmd_parser.c
++++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
+@@ -1166,7 +1166,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 		}
+ 	}
+ 	if (IS_ERR(src)) {
+-		unsigned long x, n;
++		unsigned long x, n, remain;
+ 		void *ptr;
  
--LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
-+LDFLAGS_vmlinux	:=--no-undefined -X
+ 		/*
+@@ -1177,14 +1177,15 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 		 * We don't care about copying too much here as we only
+ 		 * validate up to the end of the batch.
+ 		 */
++		remain = length;
+ 		if (!(dst_obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_READ))
+-			length = round_up(length,
++			remain = round_up(remain,
+ 					  boot_cpu_data.x86_clflush_size);
  
- ifeq ($(CONFIG_RELOCATABLE), y)
- # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
-@@ -115,16 +115,20 @@ KBUILD_CPPFLAGS	+= -mbig-endian
- CHECKFLAGS	+= -D__AARCH64EB__
- # Prefer the baremetal ELF build target, but not all toolchains include
- # it so fall back to the standard linux version if needed.
--KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb)
-+KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb -z norelro)
- UTS_MACHINE	:= aarch64_be
- else
- KBUILD_CPPFLAGS	+= -mlittle-endian
- CHECKFLAGS	+= -D__AARCH64EL__
- # Same as above, prefer ELF but fall back to linux target if needed.
--KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux)
-+KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux -z norelro)
- UTS_MACHINE	:= aarch64
- endif
+ 		ptr = dst;
+ 		x = offset_in_page(offset);
+-		for (n = offset >> PAGE_SHIFT; length; n++) {
+-			int len = min(length, PAGE_SIZE - x);
++		for (n = offset >> PAGE_SHIFT; remain; n++) {
++			int len = min(remain, PAGE_SIZE - x);
  
-+ifeq ($(CONFIG_LD_IS_LLD), y)
-+KBUILD_LDFLAGS	+= -z norelro
-+endif
+ 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
+ 			if (needs_clflush)
+@@ -1193,13 +1194,15 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
+ 			kunmap_atomic(src);
+ 
+ 			ptr += len;
+-			length -= len;
++			remain -= len;
+ 			x = 0;
+ 		}
+ 	}
+ 
+ 	i915_gem_object_unpin_pages(src_obj);
+ 
++	memset32(dst + length, 0, (dst_obj->base.size - length) / sizeof(u32));
 +
- CHECKFLAGS	+= -D__aarch64__
+ 	/* dst_obj is returned with vmap pinned */
+ 	return dst;
+ }
+@@ -1392,11 +1395,6 @@ static unsigned long *alloc_whitelist(u32 batch_length)
  
- ifeq ($(CONFIG_DYNAMIC_FTRACE_WITH_REGS),y)
+ #define LENGTH_BIAS 2
+ 
+-static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
+-{
+-	return !(obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_WRITE);
+-}
+-
+ /**
+  * intel_engine_cmd_parser() - parse a batch buffer for privilege violations
+  * @engine: the engine on which the batch is to execute
+@@ -1538,16 +1536,9 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
+ 				ret = 0; /* allow execution */
+ 			}
+ 		}
+-
+-		if (shadow_needs_clflush(shadow->obj))
+-			drm_clflush_virt_range(batch_end, 8);
+ 	}
+ 
+-	if (shadow_needs_clflush(shadow->obj)) {
+-		void *ptr = page_mask_bits(shadow->obj->mm.mapping);
+-
+-		drm_clflush_virt_range(ptr, (void *)(cmd + 1) - ptr);
+-	}
++	i915_gem_object_flush_map(shadow->obj);
+ 
+ 	if (!IS_ERR_OR_NULL(jump_whitelist))
+ 		kfree(jump_whitelist);
 
