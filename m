@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9EB2F1330
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:05:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F04122F130C
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbhAKNFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:05:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52338 "EHLO mail.kernel.org"
+        id S1727304AbhAKNCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:02:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730265AbhAKNFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D833422795;
-        Mon, 11 Jan 2021 13:04:31 +0000 (UTC)
+        id S1729416AbhAKNCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:02:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 737CF2251F;
+        Mon, 11 Jan 2021 13:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370272;
-        bh=rhR9TjcvCo4LY0to8vsWustufsGZtC9xR0beXfdgKVM=;
+        s=korg; t=1610370116;
+        bh=dUErXp/SWhpDo6ZZNPnEl8bhszyk8ag0fqc8gzI25q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXm9mYbhz4ToYz4r+vNBotqifquySV8Ad0G6Ofj67kYeLeZR2RM12aKZ7AwnWKOvO
-         Gwy86oTVGv5wNNUk2LkRZeg2dB8u9gRsXDUnLXbyQSVXPHkO0yXS9hBDZcBefpnGPN
-         NrhS/AyEnZL/qpd8C3IPxhlsQiAOXioAPa0JXMuw=
+        b=0WgwdPWLkASyUHfCfgWHaMdKesyjV4YwK0C6kuns+krQ1OQwDJQPOGyIR1osOUmb2
+         eIpG9j39MxdSMsPxlYWNrmI4NBE3lhjPs06fShUbu5pgB8uR6GPi84B4ULE01QwcJL
+         bnjVFdkiyz3H+RmRzTCQuWjSznlHguWHrc2BoMYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 14/45] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.4 20/38] usb: uas: Add PNY USB Portable SSD to unusual_uas
 Date:   Mon, 11 Jan 2021 14:00:52 +0100
-Message-Id: <20210111130034.339702593@linuxfoundation.org>
+Message-Id: <20210111130033.442984599@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+References: <20210111130032.469630231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
+commit 96ebc9c871d8a28fb22aa758dd9188a4732df482 upstream.
 
-Currently the vhost_zerocopy_callback() maybe be called to decrease
-the refcount when sendmsg fails in tun. The error handling in vhost
-handle_tx_zerocopy() will try to decrease the same refcount again.
-This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
-when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
+Here's another variant PNY Pro Elite USB 3.1 Gen 2 portable SSD that
+hangs and doesn't respond to ATA_1x pass-through commands. If it doesn't
+support these commands, it should respond properly to the host. Add it
+to the unusual uas list to be able to move forward with other
+operations.
 
-Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/vhost/net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -377,6 +377,7 @@ static void handle_tx(struct vhost_net *
- 	size_t hdr_size;
- 	struct socket *sock;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-+	struct ubuf_info *ubuf;
- 	bool zcopy, zcopy_used;
- 	int sent_pkts = 0;
+---
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -163,6 +163,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		US_FL_BROKEN_FUA),
  
-@@ -444,9 +445,7 @@ static void handle_tx(struct vhost_net *
- 
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
--			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
--
- 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
-@@ -465,7 +464,8 @@ static void handle_tx(struct vhost_net *
- 		err = sock->ops->sendmsg(sock, &msg, len);
- 		if (unlikely(err < 0)) {
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
-+				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
-+					vhost_net_ubuf_put(ubufs);
- 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
- 					% UIO_MAXIOV;
- 			}
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
+ 		"PNY",
+ 		"Pro Elite SSD",
 
 
