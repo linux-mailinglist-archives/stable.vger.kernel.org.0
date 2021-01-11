@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA6642F1493
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3A92F1494
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732011AbhAKN07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:26:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35238 "EHLO mail.kernel.org"
+        id S1731995AbhAKN1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:27:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732445AbhAKNQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732439AbhAKNQi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Jan 2021 08:16:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EB42246B;
-        Mon, 11 Jan 2021 13:15:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FC4B22795;
+        Mon, 11 Jan 2021 13:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370958;
-        bh=HznA0eEHrJ9bdfPi1nOVuidn9zDlJncJbcLATJvhaoM=;
+        s=korg; t=1610370982;
+        bh=xoTRx8qQQtnSaYwMqIVpCPfEi1lceBrcYZvQ/URSaLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbuoQlmFEd+a96NEtPfXMWOQkIkNq/PHasvRGAu2varziHMRjaIKjD8kHKpAYwQSh
-         VqINgA2A9Zsis0HTRXf0twCi0uRJmUAwx9OfB+xecpQiKDUH5Slrxe6n3RoOWILNVN
-         MtiFHtZ3vivlsfMDqLGzAfvtbefpMU4Db/ZNlwto=
+        b=2WEC4PZthogNisB/afzVTfzPhFfJbIbfQPv09mcXhCgJOKT9LPab4Wqa7fwNhAOWR
+         xHGGOuk/d/VGDFWxZv+WWOwk0mKEUxTSLRjkzeQifbG278LjXSJvhGn4EIOzHsb3O0
+         lZZTTBuuQJJ5dlZkSWOYAyDUOvf0ANA6ZVARTjEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Woody Suwalski <terraluna977@gmail.com>,
         Can Guo <cang@codeaurora.org>,
         Stanley Chu <stanley.chu@mediatek.com>,
         Ming Lei <ming.lei@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jens Axboe <axboe@kernel.dk>,
+        Stan Johnson <userm57@yahoo.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Hannes Reinecke <hare@suse.de>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/145] scsi: ide: Mark power management requests with RQF_PM instead of RQF_PREEMPT
-Date:   Mon, 11 Jan 2021 14:01:25 +0100
-Message-Id: <20210111130051.473787566@linuxfoundation.org>
+Subject: [PATCH 5.10 062/145] scsi: scsi_transport_spi: Set RQF_PM for domain validation commands
+Date:   Mon, 11 Jan 2021 14:01:26 +0100
+Message-Id: <20210111130051.525597037@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -50,54 +52,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 5ae65383fc7633e0247c31b0c8bf0e6ea63b95a3 ]
+[ Upstream commit cfefd9f8240a7b9fdd96fcd54cb029870b6d8d88 ]
 
-This is another step that prepares for the removal of RQF_PREEMPT.
+Disable runtime power management during domain validation. Since a later
+patch removes RQF_PREEMPT, set RQF_PM for domain validation commands such
+that these are executed in the quiesced SCSI device state.
 
-Link: https://lore.kernel.org/r/20201209052951.16136-5-bvanassche@acm.org
-Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20201209052951.16136-6-bvanassche@acm.org
 Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Woody Suwalski <terraluna977@gmail.com>
 Cc: Can Guo <cang@codeaurora.org>
 Cc: Stanley Chu <stanley.chu@mediatek.com>
 Cc: Ming Lei <ming.lei@redhat.com>
 Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Stan Johnson <userm57@yahoo.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
 Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ide/ide-io.c | 2 +-
- drivers/ide/ide-pm.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_spi.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
-index c210ea3bd02fa..4867b67b60d69 100644
---- a/drivers/ide/ide-io.c
-+++ b/drivers/ide/ide-io.c
-@@ -518,7 +518,7 @@ repeat:
- 		 */
- 		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
- 		    ata_pm_request(rq) == 0 &&
--		    (rq->rq_flags & RQF_PREEMPT) == 0) {
-+		    (rq->rq_flags & RQF_PM) == 0) {
- 			/* there should be no pending command at this point */
- 			ide_unlock_port(hwif);
- 			goto plug_device;
-diff --git a/drivers/ide/ide-pm.c b/drivers/ide/ide-pm.c
-index 192e6c65d34e7..82ab308f1aafe 100644
---- a/drivers/ide/ide-pm.c
-+++ b/drivers/ide/ide-pm.c
-@@ -77,7 +77,7 @@ int generic_ide_resume(struct device *dev)
- 	}
+diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
+index f3d5b1bbd5aa7..c37dd15d16d24 100644
+--- a/drivers/scsi/scsi_transport_spi.c
++++ b/drivers/scsi/scsi_transport_spi.c
+@@ -117,12 +117,16 @@ static int spi_execute(struct scsi_device *sdev, const void *cmd,
+ 		sshdr = &sshdr_tmp;
  
- 	memset(&rqpm, 0, sizeof(rqpm));
--	rq = blk_get_request(drive->queue, REQ_OP_DRV_IN, BLK_MQ_REQ_PREEMPT);
-+	rq = blk_get_request(drive->queue, REQ_OP_DRV_IN, BLK_MQ_REQ_PM);
- 	ide_req(rq)->type = ATA_PRIV_PM_RESUME;
- 	ide_req(rq)->special = &rqpm;
- 	rqpm.pm_step = IDE_PM_START_RESUME;
+ 	for(i = 0; i < DV_RETRIES; i++) {
++		/*
++		 * The purpose of the RQF_PM flag below is to bypass the
++		 * SDEV_QUIESCE state.
++		 */
+ 		result = scsi_execute(sdev, cmd, dir, buffer, bufflen, sense,
+ 				      sshdr, DV_TIMEOUT, /* retries */ 1,
+ 				      REQ_FAILFAST_DEV |
+ 				      REQ_FAILFAST_TRANSPORT |
+ 				      REQ_FAILFAST_DRIVER,
+-				      0, NULL);
++				      RQF_PM, NULL);
+ 		if (driver_byte(result) != DRIVER_SENSE ||
+ 		    sshdr->sense_key != UNIT_ATTENTION)
+ 			break;
+@@ -1005,23 +1009,26 @@ spi_dv_device(struct scsi_device *sdev)
+ 	 */
+ 	lock_system_sleep();
+ 
++	if (scsi_autopm_get_device(sdev))
++		goto unlock_system_sleep;
++
+ 	if (unlikely(spi_dv_in_progress(starget)))
+-		goto unlock;
++		goto put_autopm;
+ 
+ 	if (unlikely(scsi_device_get(sdev)))
+-		goto unlock;
++		goto put_autopm;
+ 
+ 	spi_dv_in_progress(starget) = 1;
+ 
+ 	buffer = kzalloc(len, GFP_KERNEL);
+ 
+ 	if (unlikely(!buffer))
+-		goto out_put;
++		goto put_sdev;
+ 
+ 	/* We need to verify that the actual device will quiesce; the
+ 	 * later target quiesce is just a nice to have */
+ 	if (unlikely(scsi_device_quiesce(sdev)))
+-		goto out_free;
++		goto free_buffer;
+ 
+ 	scsi_target_quiesce(starget);
+ 
+@@ -1041,12 +1048,16 @@ spi_dv_device(struct scsi_device *sdev)
+ 
+ 	spi_initial_dv(starget) = 1;
+ 
+- out_free:
++free_buffer:
+ 	kfree(buffer);
+- out_put:
++
++put_sdev:
+ 	spi_dv_in_progress(starget) = 0;
+ 	scsi_device_put(sdev);
+-unlock:
++put_autopm:
++	scsi_autopm_put_device(sdev);
++
++unlock_system_sleep:
+ 	unlock_system_sleep();
+ }
+ EXPORT_SYMBOL(spi_dv_device);
 -- 
 2.27.0
 
