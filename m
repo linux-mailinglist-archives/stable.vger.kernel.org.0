@@ -2,62 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208B12F1EB1
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B12162F1EF6
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730166AbhAKTKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 14:10:49 -0500
-Received: from mga06.intel.com ([134.134.136.31]:4752 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726118AbhAKTKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 14:10:49 -0500
-IronPort-SDR: kG12SknC+H94zGH4pMsACZoJBK6brrZ0QPzTpck5PgFMkzUjYbAQjfpi1p/iSY00cbs1CpYNG2
- AF4IsVHfi1iA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="239461080"
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="239461080"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 11:10:08 -0800
-IronPort-SDR: 3PVDINbffg6RI4QqpjO2kLpON+bYM7pQn5R7wt/AQ/7FYNa/P27zjcaxxQ9JhJvRDjwsWRBZOz
- d/vEDYKw7zjw==
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="381116787"
-Received: from libresli-mobl1.ger.corp.intel.com (HELO localhost) ([10.213.207.39])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 11:10:06 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     lyude@redhat.com, intel-gfx@lists.freedesktop.org
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/backlight: fix CPU mode backlight takeover on LPT
-In-Reply-To: <875z43yemi.fsf@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20210108152841.6944-1-jani.nikula@intel.com> <e5fd2290fae25fc1167ea6fe91e7060840d0db47.camel@redhat.com> <875z43yemi.fsf@intel.com>
-Date:   Mon, 11 Jan 2021 21:10:03 +0200
-Message-ID: <87bldvwar8.fsf@intel.com>
+        id S1730444AbhAKTUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 14:20:06 -0500
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:12453 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729848AbhAKTUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 14:20:06 -0500
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5ffca4bd0003>; Mon, 11 Jan 2021 11:19:25 -0800
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 11 Jan
+ 2021 19:19:25 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 11 Jan 2021 19:19:25 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.10 000/144] 5.10.7-rc2 review
+In-Reply-To: <20210111161510.602817176@linuxfoundation.org>
+References: <20210111161510.602817176@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain
+Message-ID: <003040e4e8514aec86f56badabcea893@HQMAIL111.nvidia.com>
+Date:   Mon, 11 Jan 2021 19:19:25 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1610392765; bh=eDY69QaiTGmJL+G1eVFzXI06l/o9oU/JWAHPWV5iBds=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=gFkc15OMz+QagHVZXHxiDw8ZdVtlz2nNlUxSVI2mLiQRAFkwhN3AfinNd5DF4ogju
+         E5ki3ujn6G1oQmvbPaOM7WIhO98cOY099S8yA8apvqMiL77c0a84/GSJVPKT7QU3dp
+         gbChrhPkSN7pSMVfJNwf5NZ5fzPfnx11oUSyL8wGJuuneljQHvRpNaWrZ5RsnKllou
+         JqIbwzPJJGy9yAg/kNOrzZwLsw8jHsrQ/4zcwRQUHXbsuVoTnv7cVin+o2E7EwNPBE
+         6UMb/A99ewetremwslW2BRRAk+4v4HJSHYuOC4tSDGvboERmmrKs9hkO9HE0NvLuQZ
+         sCS82kR9199Dg==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Jan 2021, Jani Nikula <jani.nikula@intel.com> wrote:
-> On Fri, 08 Jan 2021, Lyude Paul <lyude@redhat.com> wrote:
->> Reviewed-by: Lyude Paul <lyude@redhat.com>
->>
->> Let me know when you've pushed this upstream and I'll go ahead and send out a
->> rebased version of my backlight series.
->
-> Pushed, thanks for the review.
->
-> I'm hoping to do more review of the series today, so please hold off on
-> actually sending the rebased version for a bit longer.
+On Mon, 11 Jan 2021 17:15:35 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.7 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 13 Jan 2021 16:14:43 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.7-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Done, go ahead!
+All tests passing for Tegra ...
 
-BR,
-Jani.
+Test results for stable-v5.10:
+    12 builds:	12 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    64 tests:	64 pass, 0 fail
 
+Linux version:	5.10.7-rc2-g0ea94a3ff7f8
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
--- 
-Jani Nikula, Intel Open Source Graphics Center
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
