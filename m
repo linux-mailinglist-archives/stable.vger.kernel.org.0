@@ -2,131 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1782F1E80
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:05:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208B12F1EB1
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390634AbhAKTE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 14:04:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40436 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726063AbhAKTE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 14:04:27 -0500
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B84F0C061794
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 11:03:46 -0800 (PST)
-Received: by mail-lj1-x22f.google.com with SMTP id f17so33940ljg.12
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 11:03:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kPTtQzuom5Awb0GxiDKd05xSwBAc8AF72bAoBes2ggE=;
-        b=H2kU5UYMYcLQgzHllGugRqyIESmcF7I3idrXTq24h4uCLEVVDpGBmLxGmD8+GhSnGF
-         m3sQWed5AyIGadPjSXqHFAF5DYRLez2ICQqJFYKb2qGv5VvYWGCJMpJiiR9pFThDDPpR
-         3/cFpiZY2VRv3AnOfbFvv16B9MBZPaZxXw1C0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kPTtQzuom5Awb0GxiDKd05xSwBAc8AF72bAoBes2ggE=;
-        b=fVY0yecpNE94t/YvgR+X24heYV7IBK0hkK/vVNSODeXUVKf3oWCz9GYMApWIqJdHXQ
-         HuzNgr0En2NV8LmABUHYcwwa5gE2HUemZm/PfTCOOzE46QJHDZekOfeGSsKT5BGMFa//
-         GhIWlwmzOGJ4uKaCt1rqrgttCc8vSMWEN1SD6xdlpszqXMwOBY0Ik4SnvwdFd3Dp/ZcJ
-         HdP0cA1MRvR3Ur0sHb4UBC5diRJT0V3oncRo383P1ZmHuGUwsdBpPMxSfAN8WUbDLj8F
-         v518tGfTXUKZU7cOCI3PqX0IEkYBPhnT5w4dV4VwyvL5Y+Is0QU95RX8NuaEoxxwyDFL
-         WywA==
-X-Gm-Message-State: AOAM5332KBy2cq/Q20hdrQskG2p+a/3vYVhWfOW8QFWstCRvBsBOqU3y
-        JlwQoW7KIM4n7zWQsrQC7EJxZVi1XqXXwg==
-X-Google-Smtp-Source: ABdhPJxXUNfeY1YlKqv+9fW06CFFIFobLLdySEL9eIrQYoScQAccRqW21nHRP8Psy67Kdx9W4v6Vig==
-X-Received: by 2002:a2e:86d0:: with SMTP id n16mr380125ljj.147.1610391824943;
-        Mon, 11 Jan 2021 11:03:44 -0800 (PST)
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
-        by smtp.gmail.com with ESMTPSA id g190sm79871lfd.72.2021.01.11.11.03.43
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Jan 2021 11:03:43 -0800 (PST)
-Received: by mail-lj1-f172.google.com with SMTP id y22so58533ljn.9
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 11:03:43 -0800 (PST)
-X-Received: by 2002:a2e:8995:: with SMTP id c21mr368315lji.251.1610391823175;
- Mon, 11 Jan 2021 11:03:43 -0800 (PST)
+        id S1730166AbhAKTKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 14:10:49 -0500
+Received: from mga06.intel.com ([134.134.136.31]:4752 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726118AbhAKTKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 14:10:49 -0500
+IronPort-SDR: kG12SknC+H94zGH4pMsACZoJBK6brrZ0QPzTpck5PgFMkzUjYbAQjfpi1p/iSY00cbs1CpYNG2
+ AF4IsVHfi1iA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="239461080"
+X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
+   d="scan'208";a="239461080"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 11:10:08 -0800
+IronPort-SDR: 3PVDINbffg6RI4QqpjO2kLpON+bYM7pQn5R7wt/AQ/7FYNa/P27zjcaxxQ9JhJvRDjwsWRBZOz
+ d/vEDYKw7zjw==
+X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
+   d="scan'208";a="381116787"
+Received: from libresli-mobl1.ger.corp.intel.com (HELO localhost) ([10.213.207.39])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 11:10:06 -0800
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     lyude@redhat.com, intel-gfx@lists.freedesktop.org
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915/backlight: fix CPU mode backlight takeover on LPT
+In-Reply-To: <875z43yemi.fsf@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20210108152841.6944-1-jani.nikula@intel.com> <e5fd2290fae25fc1167ea6fe91e7060840d0db47.camel@redhat.com> <875z43yemi.fsf@intel.com>
+Date:   Mon, 11 Jan 2021 21:10:03 +0200
+Message-ID: <87bldvwar8.fsf@intel.com>
 MIME-Version: 1.0
-References: <20210111130048.499958175@linuxfoundation.org> <20210111130053.764396270@linuxfoundation.org>
- <alpine.LSU.2.11.2101110947280.1731@eggly.anvils>
-In-Reply-To: <alpine.LSU.2.11.2101110947280.1731@eggly.anvils>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 11 Jan 2021 11:03:27 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whj+ixuJ7+_h42CRssvsuzHaMsYf-2LjYBaM4dRax7cyQ@mail.gmail.com>
-Message-ID: <CAHk-=whj+ixuJ7+_h42CRssvsuzHaMsYf-2LjYBaM4dRax7cyQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 109/145] mm: make wait_on_page_writeback() wait for
- multiple pending writebacks
-To:     Hugh Dickins <hughd@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        syzbot <syzbot+2fc0712f8f8b8b8fa0ef@syzkaller.appspotmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, stable@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 11, 2021 at 9:55 AM Hugh Dickins <hughd@google.com> wrote:
+On Mon, 11 Jan 2021, Jani Nikula <jani.nikula@intel.com> wrote:
+> On Fri, 08 Jan 2021, Lyude Paul <lyude@redhat.com> wrote:
+>> Reviewed-by: Lyude Paul <lyude@redhat.com>
+>>
+>> Let me know when you've pushed this upstream and I'll go ahead and send out a
+>> rebased version of my backlight series.
 >
-> I think it's too early to push this one through to stable:
-> Linus mentioned on Friday that Michael Larabel of Phoronix
-> has observed a performance regression from this commit.
+> Pushed, thanks for the review.
+>
+> I'm hoping to do more review of the series today, so please hold off on
+> actually sending the rebased version for a bit longer.
 
-That turned out to be a red herring. Yes, Michael saw a performance
-regression on some machines, but the change to go back to the old
-model (where the repeat was basically at wakeup time rather than in
-the waiter) didn't actually make any difference.
+Done, go ahead!
 
-And the issue only showed on a couple of machines, and only with
-certain configurations (ie apparently switching to the performance
-governor made it go away).
+BR,
+Jani.
 
-So it seems to have been some modal behavior about random timing
-(possibly just interaction with cpufreq) rather than a real
-regression.
 
-I think the real issue is simply that some loads are very sensitive to
-the exact writeback timing patterns. And I think we're making things
-worse by having some of the patterns be very non-deterministic indeed.
-
-For example, long before we actually take the page lock and then wait
-for (and set) the page writeback bit, look at how we first use the
-Xarray tags to turn the "page dirty" tag into "page needs writeback"
-tag, and then look up an array of such writeback pages: all without
-any real locking at all (apart from the xas lock itself for the
-tagging op).
-
-Making things even less deterministic, the code that doesn't do
-writeback - but just _wait_ for writeback - doesn't actually serialize
-with the page lock at all. It _just_ does that
-"wait_for_page_writeback()", which is ambiguous when there are
-consecutive writebacks happening. That's actually the case that I
-think Michael would have seen - because he obviously never saw the
-(very very rare) BUG_ON.
-
-The BUG_ON() in page writeback itself is serialized by the page lock
-and so there aren't really many possibilities for that to get
-contention or other odd behavior (the wakeup race being the one very
-very unlikely notable one). In contrast, the "wait for writeback"
-isn't serialized by anything else, so that one is literally "if was at
-writeback at some point, wait for it to no longer be", and then the
-aggressive wakeup was good for that case, while it caused problems for
-the writeback case.
-
-Anyway, the numbers are all ambiguous, the one-liner fix is not
-horrible, and the take-away from all of this is likely mostly: it
-would be good to have some more clarity about the whole writeback and
-wait-for-writeback thing.
-
-In many ways it would be really line to have a sequence count rather
-than just a single bit. But obviously that does not work for 'struct
-page'.
-
-Anyway, don't hold up this "get rid of BUG_ON() in writeback" patch for this.
-
-              Linus
+-- 
+Jani Nikula, Intel Open Source Graphics Center
