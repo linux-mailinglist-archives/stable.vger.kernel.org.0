@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0782F1310
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67F782F131C
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727750AbhAKNDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:03:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50166 "EHLO mail.kernel.org"
+        id S1728268AbhAKNDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:03:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728168AbhAKNDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8843F22527;
-        Mon, 11 Jan 2021 13:02:10 +0000 (UTC)
+        id S1729984AbhAKNDp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2982C22515;
+        Mon, 11 Jan 2021 13:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370131;
-        bh=AUa3O2rtN9c+6wAZA0K8stbsrTdfjFw0rmbuk3mypA4=;
+        s=korg; t=1610370205;
+        bh=DGjqeSzhmZONKmlP3RH4AQsxitnDkiXln9C4V30Kcok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YakFI4CZ6XLMiw5sym7hbT9jMXoRCKb3gzw2nxihgQgXsVZh5okDwmxOw/iFLLhcb
-         Dgp9tZ+bw9YhL612IRQsM0ehkusxXMsU52lJKnJdRk23DOfR3lytNaMqvaosneKj9J
-         cWzUFedMogVKFqldJdc/q2/E8TQSbDsoUB/NR4+k=
+        b=wjW4vKqy29or1SEoJsUt6z7RKrLsA0u61z3+6Wcu+kNEms676vXq78CBhgN54Atel
+         vnaxVG8NlH5TqqgwiPgaiPnEFnCRfHmJTJBsokZUNXz+M5Ka149pP1CNtXfXWrOdrG
+         lMMiRum3xybUbueJ1S/sRJowehF6lt4PGibajnr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Sriharsha Allenki <sallenki@codeaurora.org>
-Subject: [PATCH 4.4 30/38] usb: gadget: Fix spinlock lockup on usb_function_deactivate
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>
+Subject: [PATCH 4.9 24/45] usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
 Date:   Mon, 11 Jan 2021 14:01:02 +0100
-Message-Id: <20210111130033.907069613@linuxfoundation.org>
+Message-Id: <20210111130034.822910169@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
+References: <20210111130033.676306636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,86 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriharsha Allenki <sallenki@codeaurora.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 5cc35c224a80aa5a5a539510ef049faf0d6ed181 upstream.
+commit 83a43ff80a566de8718dfc6565545a0080ec1fb5 upstream.
 
-There is a spinlock lockup as part of composite_disconnect
-when it tries to acquire cdev->lock as part of usb_gadget_deactivate.
-This is because the usb_gadget_deactivate is called from
-usb_function_deactivate with the same spinlock held.
+if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-This would result in the below call stack and leads to stall.
-
-rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-rcu:     3-...0: (1 GPs behind) idle=162/1/0x4000000000000000
-softirq=10819/10819 fqs=2356
- (detected by 2, t=5252 jiffies, g=20129, q=3770)
- Task dump for CPU 3:
- task:uvc-gadget_wlhe state:R  running task     stack:    0 pid:  674 ppid:
- 636 flags:0x00000202
- Call trace:
-  __switch_to+0xc0/0x170
-  _raw_spin_lock_irqsave+0x84/0xb0
-  composite_disconnect+0x28/0x78
-  configfs_composite_disconnect+0x68/0x70
-  usb_gadget_disconnect+0x10c/0x128
-  usb_gadget_deactivate+0xd4/0x108
-  usb_function_deactivate+0x6c/0x80
-  uvc_function_disconnect+0x20/0x58
-  uvc_v4l2_release+0x30/0x88
-  v4l2_release+0xbc/0xf0
-  __fput+0x7c/0x230
-  ____fput+0x14/0x20
-  task_work_run+0x88/0x140
-  do_notify_resume+0x240/0x6f0
-  work_pending+0x8/0x200
-
-Fix this by doing an unlock on cdev->lock before the usb_gadget_deactivate
-call from usb_function_deactivate.
-
-The same lockup can happen in the usb_gadget_activate path. Fix that path
-as well.
-
-Reported-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/linux-usb/20201102094936.GA29581@b29397-desktop/
-Tested-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201202130220.24926-1-sallenki@codeaurora.org
+Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/composite.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/ci_hdrc_imx.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -293,8 +293,11 @@ int usb_function_deactivate(struct usb_f
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -133,9 +133,13 @@ static struct imx_usbmisc_data *usbmisc_
+ 	misc_pdev = of_find_device_by_node(args.np);
+ 	of_node_put(args.np);
  
- 	spin_lock_irqsave(&cdev->lock, flags);
+-	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
++	if (!misc_pdev)
+ 		return ERR_PTR(-EPROBE_DEFER);
  
--	if (cdev->deactivations == 0)
-+	if (cdev->deactivations == 0) {
-+		spin_unlock_irqrestore(&cdev->lock, flags);
- 		status = usb_gadget_deactivate(cdev->gadget);
-+		spin_lock_irqsave(&cdev->lock, flags);
++	if (!platform_get_drvdata(misc_pdev)) {
++		put_device(&misc_pdev->dev);
++		return ERR_PTR(-EPROBE_DEFER);
 +	}
- 	if (status == 0)
- 		cdev->deactivations++;
+ 	data->dev = &misc_pdev->dev;
  
-@@ -325,8 +328,11 @@ int usb_function_activate(struct usb_fun
- 		status = -EINVAL;
- 	else {
- 		cdev->deactivations--;
--		if (cdev->deactivations == 0)
-+		if (cdev->deactivations == 0) {
-+			spin_unlock_irqrestore(&cdev->lock, flags);
- 			status = usb_gadget_activate(cdev->gadget);
-+			spin_lock_irqsave(&cdev->lock, flags);
-+		}
- 	}
- 
- 	spin_unlock_irqrestore(&cdev->lock, flags);
+ 	if (of_find_property(np, "disable-over-current", NULL))
 
 
