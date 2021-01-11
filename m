@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE77B2F15CB
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B197E2F167D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731628AbhAKNpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58878 "EHLO mail.kernel.org"
+        id S1729188AbhAKNxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:53:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731439AbhAKNLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 273BC229C4;
-        Mon, 11 Jan 2021 13:11:00 +0000 (UTC)
+        id S1729317AbhAKNIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:08:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 710722251F;
+        Mon, 11 Jan 2021 13:07:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370660;
-        bh=blUMQHoXIKTmHAs/tkVLjkrrjh9v/Zn/TYAiAvccOzw=;
+        s=korg; t=1610370475;
+        bh=03QIzvnRplZlJC1D4Z2elr/xFNXfVFUhnrgchIP0d/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ob6qxVXyBLhThBKuYRT8tRibskfvl4fbGvARofEhCMnTsHrkDmCtpvROvlqlqL1lP
-         mTBPHkk7mzjzDvvWRyR6r6ckXcF1+oYnWWQx8kHatifVPj0qX455ghmjFjZ1uK6EBH
-         MceoX6QbrM040ntdQWvf7vxBRe+nKWHZ4U6jF+IA=
+        b=IlXgZpGhzxprCfEiLmHvPgwkEYTsH86Admq9CWHrXCDzsTJMh3SfL2G3z013Xvgbn
+         qVq1iY02DlF6H5sQ0/jxY7SNOASmbTxUq55OvsYFz5G75ccEX/Fq/rfJesfWjxnfm+
+         Iz58b8MT8VpqQ++YwokOf7aPxEJZ2m49dsMm9pLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 43/92] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
-Date:   Mon, 11 Jan 2021 14:01:47 +0100
-Message-Id: <20210111130041.220554024@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.19 39/77] Bluetooth: revert: hci_h5: close serdev device and free hu in h5_close
+Date:   Mon, 11 Jan 2021 14:01:48 +0100
+Message-Id: <20210111130038.290994079@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
+commit 5c3b5796866f85354a5ce76a28f8ffba0dcefc7e upstream.
 
-Currently the vhost_zerocopy_callback() maybe be called to decrease
-the refcount when sendmsg fails in tun. The error handling in vhost
-handle_tx_zerocopy() will try to decrease the same refcount again.
-This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
-when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
+There have been multiple revisions of the patch fix the h5->rx_skb
+leak. Accidentally the first revision (which is buggy) and v5 have
+both been merged:
 
-Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+v1 commit 70f259a3f427 ("Bluetooth: hci_h5: close serdev device and free
+hu in h5_close");
+v5 commit 855af2d74c87 ("Bluetooth: hci_h5: fix memory leak in h5_close")
+
+The correct v5 makes changes slightly higher up in the h5_close()
+function, which allowed both versions to get merged without conflict.
+
+The changes from v1 unconditionally frees the h5 data struct, this
+is wrong because in the serdev enumeration case the memory is
+allocated in h5_serdev_probe() like this:
+
+        h5 = devm_kzalloc(dev, sizeof(*h5), GFP_KERNEL);
+
+So its lifetime is tied to the lifetime of the driver being bound
+to the serdev and it is automatically freed when the driver gets
+unbound. In the serdev case the same h5 struct is re-used over
+h5_close() and h5_open() calls and thus MUST not be free-ed in
+h5_close().
+
+The serdev_device_close() added to h5_close() is incorrect in the
+same way, serdev_device_close() is called on driver unbound too and
+also MUST no be called from h5_close().
+
+This reverts the changes made by merging v1 of the patch, so that
+just the changes of the correct v5 remain.
+
+Cc: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/vhost/net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -860,6 +860,7 @@ static void handle_tx_zerocopy(struct vh
- 	size_t len, total_len = 0;
- 	int err;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-+	struct ubuf_info *ubuf;
- 	bool zcopy_used;
- 	int sent_pkts = 0;
+---
+ drivers/bluetooth/hci_h5.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -263,12 +263,8 @@ static int h5_close(struct hci_uart *hu)
+ 	if (h5->vnd && h5->vnd->close)
+ 		h5->vnd->close(h5);
  
-@@ -892,9 +893,7 @@ static void handle_tx_zerocopy(struct vh
- 
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
--			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
+-	if (hu->serdev)
+-		serdev_device_close(hu->serdev);
 -
- 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
-@@ -924,7 +923,8 @@ static void handle_tx_zerocopy(struct vh
- 		err = sock->ops->sendmsg(sock, &msg, len);
- 		if (unlikely(err < 0)) {
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
-+				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
-+					vhost_net_ubuf_put(ubufs);
- 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
- 					% UIO_MAXIOV;
- 			}
+-	kfree_skb(h5->rx_skb);
+-	kfree(h5);
+-	h5 = NULL;
++	if (!hu->serdev)
++		kfree(h5);
+ 
+ 	return 0;
+ }
 
 
