@@ -2,35 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8EC2F1333
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 246B42F14AD
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:28:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730276AbhAKNFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:05:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52378 "EHLO mail.kernel.org"
+        id S1727826AbhAKN2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:28:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730271AbhAKNFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D6C022A85;
-        Mon, 11 Jan 2021 13:04:34 +0000 (UTC)
+        id S1732355AbhAKNQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AF4F2229C;
+        Mon, 11 Jan 2021 13:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370274;
-        bh=PSJJeZbr+lK0GCebJ9clBwB5PAAtK4YdfQoHGi7zZiE=;
+        s=korg; t=1610370933;
+        bh=9YssnOBa8PYmCh71AmtEoBV4hBdFfYQ9/eEhNwIi0io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOv2+iT49BFjR/k61GUJ851PpP6741adWt6d+cf5MXrarQKb4UR+kUpgInqAmR1sO
-         2Sa6Lb+hGAtY9HCEAsIXG81ich4UsCQVOb3coEIzGOe0jip/wANejd9c98lzWtNzN3
-         eZsIkd8tJZHnxqozqjPPgnfiF2W3FXjpSvaCIIs0=
+        b=B8YeyGTrMi70R9f9YS4bbrM3f9UnJKrBdmax8MZbHM2ZdwHHEnE5lWa8ETjzMaKhe
+         5SvslxrTisyJaMOlV464vYU3FXkePoeHjKd0NMKDFNcAaCR5UBtb1OUNmsqOvgcZjC
+         MCvwaVUNrQpv6q/0AD0aAeosCXmkAPojfsxKOG1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying-Tsun Huang <ying-tsun.huang@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.9 45/45] x86/mtrr: Correct the range check before performing MTRR type lookups
-Date:   Mon, 11 Jan 2021 14:01:23 +0100
-Message-Id: <20210111130035.804259149@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 060/145] scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
+Date:   Mon, 11 Jan 2021 14:01:24 +0100
+Message-Id: <20210111130051.424676739@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit cb7f4a8b1fb426a175d1708f05581939c61329d4 upstream.
+[ Upstream commit 96d86e6a80a3ab9aff81d12f9f1f2a0da2917d38 ]
 
-In mtrr_type_lookup(), if the input memory address region is not in the
-MTRR, over 4GB, and not over the top of memory, a write-back attribute
-is returned. These condition checks are for ensuring the input memory
-address region is actually mapped to the physical memory.
+RQF_PREEMPT is used for two different purposes in the legacy IDE code:
 
-However, if the end address is just aligned with the top of memory,
-the condition check treats the address is over the top of memory, and
-write-back attribute is not returned.
+ 1. To mark power management requests.
 
-And this hits in a real use case with NVDIMM: the nd_pmem module tries
-to map NVDIMMs as cacheable memories when NVDIMMs are connected. If a
-NVDIMM is the last of the DIMMs, the performance of this NVDIMM becomes
-very low since it is aligned with the top of memory and its memory type
-is uncached-minus.
+ 2. To mark requests that should preempt another request. An (old)
+    explanation of that feature is as follows: "The IDE driver in the Linux
+    kernel normally uses a series of busywait delays during its
+    initialization. When the driver executes these busywaits, the kernel
+    does nothing for the duration of the wait. The time spent in these
+    waits could be used for other initialization activities, if they could
+    be run concurrently with these waits.
 
-Move the input end address change to inclusive up into
-mtrr_type_lookup(), before checking for the top of memory in either
-mtrr_type_lookup_{variable,fixed}() helpers.
+    More specifically, busywait-style delays such as udelay() in module
+    init functions inhibit kernel preemption because the Big Kernel Lock is
+    held, while yielding APIs such as schedule_timeout() allow
+    preemption. This is true because the kernel handles the BKL specially
+    and releases and reacquires it across reschedules allowed by the
+    current thread.
 
- [ bp: Massage commit message. ]
+    This IDE-preempt specification requires that the driver eliminate these
+    busywaits and replace them with a mechanism that allows other work to
+    proceed while the IDE driver is initializing."
 
-Fixes: 0cc705f56e40 ("x86/mm/mtrr: Clean up mtrr_type_lookup()")
-Signed-off-by: Ying-Tsun Huang <ying-tsun.huang@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201215070721.4349-1-ying-tsun.huang@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since I haven't found an implementation of (2), do not set the PREEMPT flag
+for sense requests. This patch causes sense requests to be postponed while
+a drive is suspended instead of being submitted to ide_queue_rq().
 
+If it would ever be necessary to restore the IDE PREEMPT functionality,
+that can be done by introducing a new flag in struct ide_request.
+
+Link: https://lore.kernel.org/r/20201209052951.16136-4-bvanassche@acm.org
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mtrr/generic.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ide/ide-atapi.c | 1 -
+ drivers/ide/ide-io.c    | 5 -----
+ 2 files changed, 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -166,9 +166,6 @@ static u8 mtrr_type_lookup_variable(u64
- 	*repeat = 0;
- 	*uniform = 1;
+diff --git a/drivers/ide/ide-atapi.c b/drivers/ide/ide-atapi.c
+index 2162bc80f09e0..013ad33fbbc81 100644
+--- a/drivers/ide/ide-atapi.c
++++ b/drivers/ide/ide-atapi.c
+@@ -223,7 +223,6 @@ void ide_prep_sense(ide_drive_t *drive, struct request *rq)
+ 	sense_rq->rq_disk = rq->rq_disk;
+ 	sense_rq->cmd_flags = REQ_OP_DRV_IN;
+ 	ide_req(sense_rq)->type = ATA_PRIV_SENSE;
+-	sense_rq->rq_flags |= RQF_PREEMPT;
  
--	/* Make end inclusive instead of exclusive */
--	end--;
--
- 	prev_match = MTRR_TYPE_INVALID;
- 	for (i = 0; i < num_var_ranges; ++i) {
- 		unsigned short start_state, end_state, inclusive;
-@@ -260,6 +257,9 @@ u8 mtrr_type_lookup(u64 start, u64 end,
- 	int repeat;
- 	u64 partial_end;
- 
-+	/* Make end inclusive instead of exclusive */
-+	end--;
-+
- 	if (!mtrr_state_set)
- 		return MTRR_TYPE_INVALID;
- 
+ 	req->cmd[0] = GPCMD_REQUEST_SENSE;
+ 	req->cmd[4] = cmd_len;
+diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+index 1a53c7a752244..c210ea3bd02fa 100644
+--- a/drivers/ide/ide-io.c
++++ b/drivers/ide/ide-io.c
+@@ -515,11 +515,6 @@ repeat:
+ 		 * above to return us whatever is in the queue. Since we call
+ 		 * ide_do_request() ourselves, we end up taking requests while
+ 		 * the queue is blocked...
+-		 * 
+-		 * We let requests forced at head of queue with ide-preempt
+-		 * though. I hope that doesn't happen too much, hopefully not
+-		 * unless the subdriver triggers such a thing in its own PM
+-		 * state machine.
+ 		 */
+ 		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
+ 		    ata_pm_request(rq) == 0 &&
+-- 
+2.27.0
+
 
 
