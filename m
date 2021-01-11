@@ -2,100 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88CB52F0BB0
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 05:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2862F0C22
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 06:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727049AbhAKEEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Jan 2021 23:04:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725824AbhAKEEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Jan 2021 23:04:55 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90BDC061795;
-        Sun, 10 Jan 2021 20:04:14 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id 3so13717056wmg.4;
-        Sun, 10 Jan 2021 20:04:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=YtyEgNKIS4L+pfBHOPculvaKhcVREy7GPu2xVWuzm2s=;
-        b=SlTOULy9tk/yRruDhD3atnfZ4NTdIjSxK07DuV3EJzl0OL51vx9GhcfuSDSYVXWG/R
-         Xo/DrS/UZdNN+UaWLtnUsg4d311u4hKZJsvpfE1klRD5kmnbHS+24dREoGYaO69dntCi
-         FLePfPC9wGQ7gfp1OeDxVmnWFbNUOprZrH/ip1/xnVHvAGBJecfV4UIxRXtMmvVl0vrq
-         sqoKvgev2dihJktZYmX6B4kO7FVX4cLlKawMqdWjV0jDlsK6tTjb8Q4MyPdtA+JLCvd6
-         dAFgnnhw0cKZJ6QlZbtG6aslbpvrQftG/nNPtEg7Zh1rH1C1bKrpSFbiLVDbYZOlyKPD
-         yIOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YtyEgNKIS4L+pfBHOPculvaKhcVREy7GPu2xVWuzm2s=;
-        b=LUm4CzK3J4pjUuB/X3BzKRgPh4LXoz/jLqbYkvHToPD4o/d7cpQZhmUTQZ0tU8XE7q
-         SE/xIP0OjCCB7Gylqe9Xv+ZXFUj7Xsh73NVw9/hQpIA3Fmr5jIcSSMUYdO8gQ/GD0Q/O
-         VgmNilpWXCSsL4x7DqrONfY/j1uArPukIecs3F6z9aYL7e7IjPPcnB4NvyG+giZX5iOr
-         I8sNeyFMhooC277rs9t2G5V49qSkk6H6bSKJV3EgWP/l1lVWKm/tGHGamDoLBGLLNGN5
-         +2A4XSsKfEDA9G6BWyKNsAQElbwTD2PG7pVn3ymIp6h31ewqf8aDqeJ/pV4TloVgux0g
-         MDIA==
-X-Gm-Message-State: AOAM530ZAbT1mcZBAUCixcD0X6w/aSb4AuMH52nJ33q7/COfQSJa0pww
-        AMJMe+TjQbo3RpXgzooZOqZVrmErMKA=
-X-Google-Smtp-Source: ABdhPJyNKp2gKaFsj9crBQZm5oikCOqkgdz8zVZsKpL1xjuUpw0IL62aOrV4J9WpbmfsKCfhn5rTHg==
-X-Received: by 2002:a1c:2003:: with SMTP id g3mr13011338wmg.136.1610337853507;
-        Sun, 10 Jan 2021 20:04:13 -0800 (PST)
-Received: from localhost.localdomain ([85.255.237.6])
-        by smtp.gmail.com with ESMTPSA id o8sm22658061wrm.17.2021.01.10.20.04.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Jan 2021 20:04:13 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: don't take files/mm for a dead task
-Date:   Mon, 11 Jan 2021 04:00:31 +0000
-Message-Id: <0c0af65180413ebfdd0ba376d185906573fe6396.1610337318.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1610337318.git.asml.silence@gmail.com>
-References: <cover.1610337318.git.asml.silence@gmail.com>
+        id S1726049AbhAKFOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 00:14:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55688 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725355AbhAKFOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 00:14:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C97522475;
+        Mon, 11 Jan 2021 05:13:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610341999;
+        bh=C+RiGYCD0+Sx2Z10XCabJDdYItSYmFwjBeUz63WDKPg=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=hYQY/EcWH3NxEorLjArE1gEfRul9Nrq3shHp9jcWe1ON+fGVpwK7g7Ca2Ireh9i/J
+         fS7n5qLIW5wFsbR5yQOZGQhGefe7U1CKw0zYuDGTbbWsPPQC6TeWzJjjGoXQpnf4xW
+         ROCb/nzv7Kkb4nZGob16xfsR69k6moxQdHIIxjT4UFqlO0Jcdx5XGXID38d3eS1pr3
+         WXMFx+S+If8yFaV3nsojuhPEllHvbKTMs1COw9b7K7aJfhCoI1fIpp0wQEwXOaM140
+         7v+bFcY5F9ca/aiIWP+kqIj5Znk/JDwsVGKSWjx2Yte3KukG7I39np8veUH4u5ZWGw
+         OkdPCmvYClh3Q==
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 043E435226D5; Sun, 10 Jan 2021 21:13:19 -0800 (PST)
+Date:   Sun, 10 Jan 2021 21:13:18 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Frederic Weisbecker <frederic@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: Re: [RFC PATCH 5/8] entry: Explicitly flush pending rcuog wakeup
+ before last rescheduling points
+Message-ID: <20210111051318.GZ2743@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20210109020536.127953-1-frederic@kernel.org>
+ <20210109020536.127953-6-frederic@kernel.org>
+ <20210111004014.GA242508@lothringen>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210111004014.GA242508@lothringen>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In rare cases a task may be exiting while io_ring_exit_work() trying to
-cancel/wait its requests. It's ok for __io_sq_thread_acquire_mm()
-because of SQPOLL check, but is not for __io_sq_thread_acquire_files().
-Play safe and fail for both of them.
+On Mon, Jan 11, 2021 at 01:40:14AM +0100, Frederic Weisbecker wrote:
+> On Sat, Jan 09, 2021 at 03:05:33AM +0100, Frederic Weisbecker wrote:
+> > Following the idle loop model, cleanly check for pending rcuog wakeup
+> > before the last rescheduling point on resuming to user mode. This
+> > way we can avoid to do it from rcu_user_enter() with the last resort
+> > self-IPI hack that enforces rescheduling.
+> > 
+> > Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Ingo Molnar<mingo@kernel.org>
+> > Cc: Paul E. McKenney <paulmck@kernel.org>
+> > Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > ---
+> >  kernel/entry/common.c |  6 ++++++
+> >  kernel/rcu/tree.c     | 12 +++++++-----
+> >  2 files changed, 13 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+> > index 378341642f94..8f3292b5f9b7 100644
+> > --- a/kernel/entry/common.c
+> > +++ b/kernel/entry/common.c
+> > @@ -178,6 +178,9 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+> >  		/* Architecture specific TIF work */
+> >  		arch_exit_to_user_mode_work(regs, ti_work);
+> >  
+> > +		/* Check if any of the above work has queued a deferred wakeup */
+> > +		rcu_nocb_flush_deferred_wakeup();
+> 
+> So this needs to be moved to the IRQs disabled section, just a few lines later,
+> otherwise preemption may schedule another task that in turn do call_rcu() and create
+> new deferred wake up (thank Paul for the warning). Not to mention moving to
+> another CPU with its own deferred wakeups to flush...
+> 
+> I'll fix that for the next version.
 
-Cc: stable@vger.kernel.org # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Ah, so it was not just my laptop dying, then!  ;-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7af74c1ec909..b0e6d8e607a3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1106,6 +1106,9 @@ static void io_sq_thread_drop_mm_files(void)
- 
- static int __io_sq_thread_acquire_files(struct io_ring_ctx *ctx)
- {
-+	if (current->flags & PF_EXITING)
-+		return -EFAULT;
-+
- 	if (!current->files) {
- 		struct files_struct *files;
- 		struct nsproxy *nsproxy;
-@@ -1133,6 +1136,8 @@ static int __io_sq_thread_acquire_mm(struct io_ring_ctx *ctx)
- {
- 	struct mm_struct *mm;
- 
-+	if (current->flags & PF_EXITING)
-+		return -EFAULT;
- 	if (current->mm)
- 		return 0;
- 
--- 
-2.24.0
-
+							Thanx, Paul
