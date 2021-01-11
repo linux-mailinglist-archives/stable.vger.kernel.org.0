@@ -2,142 +2,373 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27EB32F2112
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 21:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B782F212B
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 21:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391215AbhAKUpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 15:45:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390791AbhAKUpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 15:45:49 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F947C061786
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 12:45:09 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id m5so134056wrx.9
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 12:45:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=DrCh6CjVqcxtLw3kGW7seTg6rb8L0rH8w5Pqdi/02Bk=;
-        b=nhXjAlIr4SPyyNqLOoOPbA0ZUjquzOEqPMczr7WOyq7zPwkUCTJbY34E7duhDQHmYv
-         2EQFUHPY4TO1x40W6WwYCOAzzpbRNEv0Un0LU6j7qgeWYKyFKLGaNzP2LZx0JDyZWFIw
-         tdZxHsOuNLHT2U4cNUzrDzoO3TmDnxNar1oWE1l3zeCnY9IbCrFnKrCkjBqDZ3nHYGAS
-         ZQoDpNpd4Cy9h/W7BeENyG3Ldj+nbRfFTvPU80peAozPvuHUrJi2MW8Pr9l7938nPqR+
-         8gkm7z3lCkTlbayqqhaK3bweTxjm/zMT4r7uVMSI/EeWWSI20z8dvvhBMswzqjKepgD1
-         9p/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=DrCh6CjVqcxtLw3kGW7seTg6rb8L0rH8w5Pqdi/02Bk=;
-        b=d3KfAO1r4d2TxQP7kUvMGT3s92hwwS7A7OnnEWkIhviO5QdLXJOGXetVp9k8+lb9xr
-         cg6x17P/8IWZIf8/ogPmHez167/amQg6M7Y3PTMDqHYRm3yZGDqraFp8UI0VtNz3UziW
-         CejPSsh1g49u5tenrvc07L21kU0q0Hs5bHWQ3FI6eKXg01UuUjOywonlyLqCzx8ljQJ7
-         gHz+P9ZVpU9nHFlHvVNLFTVwpsjjxGiIPObg0XZlpu+nm5p+c8U6xYIzigMw8OF/9VS+
-         0bm2dVTnHGmzYAtO8J6Shi+SX6ljh4QmE7Ozh6GhCjWwZs/Jr3xG7IpV6Yx2sY9vCg++
-         3zIQ==
-X-Gm-Message-State: AOAM533OE/9Wj87TQRpzK+W7u+Ad5h7D1CigNJlUrYtEghhCDE/jspdI
-        5WTwSU7CjAcxZIpzxnq/47Fkyu7b91r9zw==
-X-Google-Smtp-Source: ABdhPJzZD4DJAGsD/gyzFyFbdZRDIc/eYMzFbJ+uC8RmzgpPyr7pc5lgetTLVkdD7EcTMJb+/UtzIg==
-X-Received: by 2002:a5d:6983:: with SMTP id g3mr884604wru.168.1610397908013;
-        Mon, 11 Jan 2021 12:45:08 -0800 (PST)
-Received: from debian (host-92-5-250-55.as43234.net. [92.5.250.55])
-        by smtp.gmail.com with ESMTPSA id x18sm1266382wrg.55.2021.01.11.12.45.07
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 11 Jan 2021 12:45:07 -0800 (PST)
-Date:   Mon, 11 Jan 2021 20:45:05 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     lukas@wunner.de, broonie@kernel.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] spi: pxa2xx: Fix use-after-free on
- unbind" failed to apply to 4.14-stable tree
-Message-ID: <20210111204505.yzydbkffdn2k44u3@debian>
-References: <160915257822973@kroah.com>
+        id S1727380AbhAKUwR convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 11 Jan 2021 15:52:17 -0500
+Received: from mail.fireflyinternet.com ([77.68.26.236]:53934 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727363AbhAKUwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 15:52:16 -0500
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 23564345-1500050 
+        for multiple; Mon, 11 Jan 2021 20:51:26 +0000
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="a7mtnjoi7ljaqlh4"
-Content-Disposition: inline
-In-Reply-To: <160915257822973@kroah.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20210111173512.GA3689@intel.com>
+References: <20210110150404.19535-1-chris@chris-wilson.co.uk> <20210111173512.GA3689@intel.com>
+Subject: Re: [Intel-gfx] [PATCH 01/11] drm/i915/gt: Limit VFE threads based on GT
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Randy Wright <rwright@hpe.com>
+To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
+Date:   Mon, 11 Jan 2021 20:51:23 +0000
+Message-ID: <161039828373.28181.4936101209209634775@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---a7mtnjoi7ljaqlh4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Greg,
-
-On Mon, Dec 28, 2020 at 11:49:38AM +0100, gregkh@linuxfoundation.org wrote:
+Quoting Rodrigo Vivi (2021-01-11 17:35:12)
+> On Sun, Jan 10, 2021 at 03:03:54PM +0000, Chris Wilson wrote:
+> > MEDIA_STATE_VFE only accepts the 'maximum number of threads' in the
+> > range [0, n-1] where n is #EU * (#threads/EU) with the number of threads
+> > based on plaform and the number of EU based on the number of slices and
+> > subslices. This is a fixed number per platform/gt, so appropriately
+> > limit the number of threads we spawn to match the device.
+> > 
+> > v2: Oversaturate the system with tasks to force execution on every HW
+> > thread; if the thread idles it is returned to the pool and may be reused
+> > again before an unused thread.
+> > 
+> > v3: Fix more state commands, which was causing Baytrail to barf.
 > 
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> CI is still not happy with byt right? or is that false positive?
 
-Here is the backport, will also apply to 4.9-stable and 4.4-stable.
-
---
-Regards
-Sudip
-
---a7mtnjoi7ljaqlh4
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="0001-spi-pxa2xx-Fix-use-after-free-on-unbind.patch"
-
-From d0263dea6365ee31ca590e3866b8ca6a24cf456a Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 7 Dec 2020 09:17:05 +0100
-Subject: [PATCH] spi: pxa2xx: Fix use-after-free on unbind
-
-commit 5626308bb94d9f930aa5f7c77327df4c6daa7759 upstream
-
-pxa2xx_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
-
-Fix by switching over to the new devm_spi_alloc_master/slave() helper
-which keeps the private data accessible until the driver has unbound.
-
-Fixes: 32e5b57232c0 ("spi: pxa2xx: Fix controller unregister order")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v2.6.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v2.6.17+: 32e5b57232c0: spi: pxa2xx: Fix controller unregister order
-Cc: <stable@vger.kernel.org> # v2.6.17+
-Link: https://lore.kernel.org/r/5764b04d4a6e43069ebb7808f64c2f774ac6f193.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- drivers/spi/spi-pxa2xx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index 1579eb2bc29f..06eb7d259b7f 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1660,7 +1660,7 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
+After v3, ivb still failed.
  
--	master = spi_alloc_master(dev, sizeof(struct driver_data));
-+	master = devm_spi_alloc_master(dev, sizeof(*drv_data));
- 	if (!master) {
- 		dev_err(&pdev->dev, "cannot alloc spi_master\n");
- 		pxa_ssp_free(ssp);
-@@ -1841,7 +1841,6 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
- 	free_irq(ssp->irq, drv_data);
- 
- out_error_master_alloc:
--	spi_master_put(master);
- 	pxa_ssp_free(ssp);
- 	return status;
- }
--- 
-2.11.0
+> > v4: STATE_CACHE_INVALIDATE requires a stall on Ivybridge
 
+Right now with the multiple pipecontrls around the PIPELINE_SELECT *and*
+STATE_BASE, CI has been happy for multiple runs. I was able to reproduce
+the same selftests failures and confirm that we do not see any of those
+failures in a thousand iterations. High level of confidence, but since
+we are dealing with empirical results with cross-referencing to mesa who
+also have seen similar undocumented failures, there's still an element
+of doubt as to whether it is truly watertight.
 
---a7mtnjoi7ljaqlh4--
+The CI results for this series passed on the all important ivb,byt,hsw.
+
+> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2024
+> > Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
+> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> > Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
+> > Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+> > Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+> > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > Cc: Randy Wright <rwright@hpe.com>
+> > Cc: stable@vger.kernel.org # v5.7+
+> > ---
+> >  drivers/gpu/drm/i915/gt/gen7_renderclear.c | 157 ++++++++++++---------
+> >  1 file changed, 94 insertions(+), 63 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/gt/gen7_renderclear.c b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
+> > index d93d85cd3027..f32a8e8040b2 100644
+> > --- a/drivers/gpu/drm/i915/gt/gen7_renderclear.c
+> > +++ b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
+> > @@ -7,8 +7,6 @@
+> >  #include "i915_drv.h"
+> >  #include "intel_gpu_commands.h"
+> >  
+> > -#define MAX_URB_ENTRIES 64
+> > -#define STATE_SIZE (4 * 1024)
+> >  #define GT3_INLINE_DATA_DELAYS 0x1E00
+> >  #define batch_advance(Y, CS) GEM_BUG_ON((Y)->end != (CS))
+> >  
+> > @@ -34,38 +32,59 @@ struct batch_chunk {
+> >  };
+> >  
+> >  struct batch_vals {
+> > -     u32 max_primitives;
+> > -     u32 max_urb_entries;
+> > -     u32 cmd_size;
+> > -     u32 state_size;
+> > +     u32 max_threads;
+> >       u32 state_start;
+> > -     u32 batch_size;
+> > +     u32 surface_start;
+> >       u32 surface_height;
+> >       u32 surface_width;
+> > -     u32 scratch_size;
+> > -     u32 max_size;
+> > +     u32 size;
+> >  };
+> >  
+> > +static inline int num_primitives(const struct batch_vals *bv)
+> > +{
+> > +     /*
+> > +      * We need to saturate the GPU with work in order to dispatch
+> > +      * a shader on every HW thread, and clear the thread-local registers.
+> > +      * In short, we have to dispatch work faster than the shaders can
+> > +      * run in order to fill occupy each HW thread.
+> > +      */
+> > +     return bv->max_threads;
+> > +}
+> > +
+> >  static void
+> >  batch_get_defaults(struct drm_i915_private *i915, struct batch_vals *bv)
+> >  {
+> >       if (IS_HASWELL(i915)) {
+> > -             bv->max_primitives = 280;
+> > -             bv->max_urb_entries = MAX_URB_ENTRIES;
+> > +             switch (INTEL_INFO(i915)->gt) {
+> > +             default:
+> > +             case 1:
+> > +                     bv->max_threads = 70;
+> > +                     break;
+> > +             case 2:
+> > +                     bv->max_threads = 140;
+> > +                     break;
+> > +             case 3:
+> > +                     bv->max_threads = 280;
+> > +                     break;
+> > +             }
+> >               bv->surface_height = 16 * 16;
+> >               bv->surface_width = 32 * 2 * 16;
+> >       } else {
+> > -             bv->max_primitives = 128;
+> > -             bv->max_urb_entries = MAX_URB_ENTRIES / 2;
+> > +             switch (INTEL_INFO(i915)->gt) {
+> > +             default:
+> > +             case 1: /* including vlv */
+> > +                     bv->max_threads = 36;
+> > +                     break;
+> > +             case 2:
+> > +                     bv->max_threads = 128;
+> > +                     break;
+> > +             }
+> >               bv->surface_height = 16 * 8;
+> >               bv->surface_width = 32 * 16;
+> 
+> all the values above matches the spec.
+> 
+> >       }
+> > -     bv->cmd_size = bv->max_primitives * 4096;
+> > -     bv->state_size = STATE_SIZE;
+> > -     bv->state_start = bv->cmd_size;
+> > -     bv->batch_size = bv->cmd_size + bv->state_size;
+> > -     bv->scratch_size = bv->surface_height * bv->surface_width;
+> > -     bv->max_size = bv->batch_size + bv->scratch_size;
+> > +     bv->state_start = round_up(SZ_1K + num_primitives(bv) * 64, SZ_4K);
+> > +     bv->surface_start = bv->state_start + SZ_4K;
+> > +     bv->size = bv->surface_start + bv->surface_height * bv->surface_width;
+> 
+> I liked this batch values simplification...
+> 
+> >  }
+> >  
+> >  static void batch_init(struct batch_chunk *bc,
+> > @@ -155,7 +174,8 @@ static u32
+> >  gen7_fill_binding_table(struct batch_chunk *state,
+> >                       const struct batch_vals *bv)
+> >  {
+> > -     u32 surface_start = gen7_fill_surface_state(state, bv->batch_size, bv);
+> > +     u32 surface_start =
+> > +             gen7_fill_surface_state(state, bv->surface_start, bv);
+> >       u32 *cs = batch_alloc_items(state, 32, 8);
+> >       u32 offset = batch_offset(state, cs);
+> >  
+> > @@ -214,9 +234,9 @@ static void
+> >  gen7_emit_state_base_address(struct batch_chunk *batch,
+> >                            u32 surface_state_base)
+> >  {
+> > -     u32 *cs = batch_alloc_items(batch, 0, 12);
+> > +     u32 *cs = batch_alloc_items(batch, 0, 10);
+> >  
+> > -     *cs++ = STATE_BASE_ADDRESS | (12 - 2);
+> > +     *cs++ = STATE_BASE_ADDRESS | (10 - 2);
+> >       /* general */
+> >       *cs++ = batch_addr(batch) | BASE_ADDRESS_MODIFY;
+> >       /* surface */
+> > @@ -233,8 +253,6 @@ gen7_emit_state_base_address(struct batch_chunk *batch,
+> >       *cs++ = BASE_ADDRESS_MODIFY;
+> >       *cs++ = 0;
+> >       *cs++ = BASE_ADDRESS_MODIFY;
+> > -     *cs++ = 0;
+> > -     *cs++ = 0;
+> 
+> why don't we need this anymore?
+
+It was incorrect, gen7 is just (10-2). The last two were extraneous
+padding.
+
+> >       batch_advance(batch, cs);
+> >  }
+> >  
+> > @@ -244,8 +262,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
+> >                   u32 urb_size, u32 curbe_size,
+> >                   u32 mode)
+> >  {
+> > -     u32 urb_entries = bv->max_urb_entries;
+> > -     u32 threads = bv->max_primitives - 1;
+> > +     u32 threads = bv->max_threads - 1;
+> >       u32 *cs = batch_alloc_items(batch, 32, 8);
+> >  
+> >       *cs++ = MEDIA_VFE_STATE | (8 - 2);
+> > @@ -254,7 +271,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
+> >       *cs++ = 0;
+> >  
+> >       /* number of threads & urb entries for GPGPU vs Media Mode */
+> > -     *cs++ = threads << 16 | urb_entries << 8 | mode << 2;
+> > +     *cs++ = threads << 16 | 1 << 8 | mode << 2;
+> >  
+> >       *cs++ = 0;
+> >  
+> > @@ -293,17 +310,12 @@ gen7_emit_media_object(struct batch_chunk *batch,
+> >  {
+> >       unsigned int x_offset = (media_object_index % 16) * 64;
+> >       unsigned int y_offset = (media_object_index / 16) * 16;
+> > -     unsigned int inline_data_size;
+> > -     unsigned int media_batch_size;
+> > -     unsigned int i;
+> > +     unsigned int pkt = 6 + 3;
+> >       u32 *cs;
+> >  
+> > -     inline_data_size = 112 * 8;
+> > -     media_batch_size = inline_data_size + 6;
+> > +     cs = batch_alloc_items(batch, 8, pkt);
+> >  
+> > -     cs = batch_alloc_items(batch, 8, media_batch_size);
+> > -
+> > -     *cs++ = MEDIA_OBJECT | (media_batch_size - 2);
+> > +     *cs++ = MEDIA_OBJECT | (pkt - 2);
+> >  
+> >       /* interface descriptor offset */
+> >       *cs++ = 0;
+> > @@ -317,25 +329,44 @@ gen7_emit_media_object(struct batch_chunk *batch,
+> >       *cs++ = 0;
+> >  
+> >       /* inline */
+> > -     *cs++ = (y_offset << 16) | (x_offset);
+> > +     *cs++ = y_offset << 16 | x_offset;
+> >       *cs++ = 0;
+> >       *cs++ = GT3_INLINE_DATA_DELAYS;
+> > -     for (i = 3; i < inline_data_size; i++)
+> > -             *cs++ = 0;
+> 
+> why?
+
+We don't use the extra urb data, and worse the extra inline data slows
+down the CP to be slower than the thread dispatch. That was causing the 
+issue that the same HW thread was servicing multiple MEDIA_OBJECTS, and
+we did not then clear all the thread-local registers across the EU (as
+some threads never executed our shader). And that was the cause of the
+validation failures in v1.
+
+[The first clue was that if we submitted more a few more objects than
+threads with v1, it takes twice as long, and passes the validation test.
+Now, touch wood, it appears that we are able to saturate the HW threads
+with an equal number of objects, so every HW thread does exactly one
+iteration of the shader.]
+
+> >       batch_advance(batch, cs);
+> >  }
+> >  
+> >  static void gen7_emit_pipeline_flush(struct batch_chunk *batch)
+> >  {
+> > -     u32 *cs = batch_alloc_items(batch, 0, 5);
+> > +     u32 *cs = batch_alloc_items(batch, 0, 4);
+> >  
+> > -     *cs++ = GFX_OP_PIPE_CONTROL(5);
+> > -     *cs++ = PIPE_CONTROL_STATE_CACHE_INVALIDATE |
+> > -             PIPE_CONTROL_GLOBAL_GTT_IVB;
+> > +     *cs++ = GFX_OP_PIPE_CONTROL(4);
+> > +     *cs++ = PIPE_CONTROL_RENDER_TARGET_CACHE_FLUSH |
+> > +             PIPE_CONTROL_DEPTH_CACHE_FLUSH |
+> > +             PIPE_CONTROL_DC_FLUSH_ENABLE |
+> > +             PIPE_CONTROL_CS_STALL;
+> >       *cs++ = 0;
+> >       *cs++ = 0;
+> > +
+> > +     batch_advance(batch, cs);
+> > +}
+> > +
+> > +static void gen7_emit_pipeline_invalidate(struct batch_chunk *batch)
+> > +{
+> > +     u32 *cs = batch_alloc_items(batch, 0, 8);
+> > +
+> > +     /* ivb: Stall before STATE_CACHE_INVALIDATE */
+> > +     *cs++ = GFX_OP_PIPE_CONTROL(4);
+> > +     *cs++ = PIPE_CONTROL_STALL_AT_SCOREBOARD |
+> > +             PIPE_CONTROL_CS_STALL;
+> >       *cs++ = 0;
+> > +     *cs++ = 0;
+> > +
+> > +     *cs++ = GFX_OP_PIPE_CONTROL(4);
+> > +     *cs++ = PIPE_CONTROL_STATE_CACHE_INVALIDATE;
+> > +     *cs++ = 0;
+> > +     *cs++ = 0;
+> > +
+> >       batch_advance(batch, cs);
+> >  }
+> >  
+> > @@ -344,34 +375,34 @@ static void emit_batch(struct i915_vma * const vma,
+> >                      const struct batch_vals *bv)
+> >  {
+> >       struct drm_i915_private *i915 = vma->vm->i915;
+> > -     unsigned int desc_count = 64;
+> > -     const u32 urb_size = 112;
+> > +     const unsigned int desc_count = 1;
+> > +     const unsigned int urb_size = 1;
+> >       struct batch_chunk cmds, state;
+> > -     u32 interface_descriptor;
+> > +     u32 descriptors;
+> >       unsigned int i;
+> >  
+> > -     batch_init(&cmds, vma, start, 0, bv->cmd_size);
+> > -     batch_init(&state, vma, start, bv->state_start, bv->state_size);
+> > +     batch_init(&cmds, vma, start, 0, bv->state_start);
+> > +     batch_init(&state, vma, start, bv->state_start, SZ_4K);
+> >  
+> > -     interface_descriptor =
+> > -             gen7_fill_interface_descriptor(&state, bv,
+> > -                                            IS_HASWELL(i915) ?
+> > -                                            &cb_kernel_hsw :
+> > -                                            &cb_kernel_ivb,
+> > -                                            desc_count);
+> > -     gen7_emit_pipeline_flush(&cmds);
+> > +     descriptors = gen7_fill_interface_descriptor(&state, bv,
+> > +                                                  IS_HASWELL(i915) ?
+> > +                                                  &cb_kernel_hsw :
+> > +                                                  &cb_kernel_ivb,
+> > +                                                  desc_count);
+> > +
+> > +     gen7_emit_pipeline_invalidate(&cmds);
+> >       batch_add(&cmds, PIPELINE_SELECT | PIPELINE_SELECT_MEDIA);
+> >       batch_add(&cmds, MI_NOOP);
+> > -     gen7_emit_state_base_address(&cmds, interface_descriptor);
+> > +     gen7_emit_pipeline_invalidate(&cmds);
+> > +
+> >       gen7_emit_pipeline_flush(&cmds);
+> > +     gen7_emit_state_base_address(&cmds, descriptors);
+> > +     gen7_emit_pipeline_invalidate(&cmds);
+> 
+> why do we need double invalidate?
+
+Empirical results. We need the flush before STATE_BASE otherwise there
+were lost writes; mesa has had a similar experience with needing a
+magical flush before. The invalidate afterwards is similarly required by
+the HW.
+
+The invalidate before the PIPELINE_SELECT is mandatory in bspec for MEDIA,
+and vouched for by our CI results. The one after the PIPELINE_SELECT does
+not appear in the docs, yet preferred by CI.
+
+It's this combination of flush/invalidate that finally worked on all
+three gen7 platforms, but there's almost definitely a more optimal set of
+pipecontrols.
+-Chris
