@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3A92F1494
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:27:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C392F13EA
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731995AbhAKN1A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:27:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34958 "EHLO mail.kernel.org"
+        id S1732493AbhAKNQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:16:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732439AbhAKNQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:16:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FC4B22795;
-        Mon, 11 Jan 2021 13:16:22 +0000 (UTC)
+        id S1732489AbhAKNQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D91A322CAE;
+        Mon, 11 Jan 2021 13:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370982;
-        bh=xoTRx8qQQtnSaYwMqIVpCPfEi1lceBrcYZvQ/URSaLI=;
+        s=korg; t=1610370991;
+        bh=27eIFbX1I7PrBJaWxYzwZi1zfub80K7yPMyP+kG2urQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WEC4PZthogNisB/afzVTfzPhFfJbIbfQPv09mcXhCgJOKT9LPab4Wqa7fwNhAOWR
-         xHGGOuk/d/VGDFWxZv+WWOwk0mKEUxTSLRjkzeQifbG278LjXSJvhGn4EIOzHsb3O0
-         lZZTTBuuQJJ5dlZkSWOYAyDUOvf0ANA6ZVARTjEc=
+        b=ljl6Ar4iPEFtozGvhVy0AGdZ7K2rBGuERlfbLwB9G7ynrODW4UYRlwr4+bZjK3vKO
+         i5KiVwZ/dpvQwvI4v/YzpsqZZRUcbBTm4hRoP+2rQf6kJ30hnmIQPmfbRz3cFUswXY
+         b0PbQEO/jdu+BXIqG4Jb3ZK6lJLmeOOC/t/HntSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Woody Suwalski <terraluna977@gmail.com>,
-        Can Guo <cang@codeaurora.org>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
         Stanley Chu <stanley.chu@mediatek.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Ming Lei <ming.lei@redhat.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Stan Johnson <userm57@yahoo.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Hannes Reinecke <hare@suse.de>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/145] scsi: scsi_transport_spi: Set RQF_PM for domain validation commands
-Date:   Mon, 11 Jan 2021 14:01:26 +0100
-Message-Id: <20210111130051.525597037@linuxfoundation.org>
+Subject: [PATCH 5.10 063/145] scsi: core: Only process PM requests if rpm_status != RPM_ACTIVE
+Date:   Mon, 11 Jan 2021 14:01:27 +0100
+Message-Id: <20210111130051.576653895@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -52,104 +50,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit cfefd9f8240a7b9fdd96fcd54cb029870b6d8d88 ]
+[ Upstream commit e6044f714b256259df9611ff49af433e5411c5c8 ]
 
-Disable runtime power management during domain validation. Since a later
-patch removes RQF_PREEMPT, set RQF_PM for domain validation commands such
-that these are executed in the quiesced SCSI device state.
+Instead of submitting all SCSI commands submitted with scsi_execute() to a
+SCSI device if rpm_status != RPM_ACTIVE, only submit RQF_PM (power
+management requests) if rpm_status != RPM_ACTIVE. This patch makes the SCSI
+core handle the runtime power management status (rpm_status) as it should
+be handled.
 
-Link: https://lore.kernel.org/r/20201209052951.16136-6-bvanassche@acm.org
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Woody Suwalski <terraluna977@gmail.com>
+Link: https://lore.kernel.org/r/20201209052951.16136-7-bvanassche@acm.org
 Cc: Can Guo <cang@codeaurora.org>
 Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>
 Cc: Ming Lei <ming.lei@redhat.com>
 Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Stan Johnson <userm57@yahoo.com>
+Cc: Martin Kepplinger <martin.kepplinger@puri.sm>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
 Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_spi.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/scsi/scsi_lib.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
-index f3d5b1bbd5aa7..c37dd15d16d24 100644
---- a/drivers/scsi/scsi_transport_spi.c
-+++ b/drivers/scsi/scsi_transport_spi.c
-@@ -117,12 +117,16 @@ static int spi_execute(struct scsi_device *sdev, const void *cmd,
- 		sshdr = &sshdr_tmp;
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 2d17137f8ff3b..31d7a6ddc9db7 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -249,7 +249,8 @@ int __scsi_execute(struct scsi_device *sdev, const unsigned char *cmd,
  
- 	for(i = 0; i < DV_RETRIES; i++) {
-+		/*
-+		 * The purpose of the RQF_PM flag below is to bypass the
-+		 * SDEV_QUIESCE state.
-+		 */
- 		result = scsi_execute(sdev, cmd, dir, buffer, bufflen, sense,
- 				      sshdr, DV_TIMEOUT, /* retries */ 1,
- 				      REQ_FAILFAST_DEV |
- 				      REQ_FAILFAST_TRANSPORT |
- 				      REQ_FAILFAST_DRIVER,
--				      0, NULL);
-+				      RQF_PM, NULL);
- 		if (driver_byte(result) != DRIVER_SENSE ||
- 		    sshdr->sense_key != UNIT_ATTENTION)
- 			break;
-@@ -1005,23 +1009,26 @@ spi_dv_device(struct scsi_device *sdev)
+ 	req = blk_get_request(sdev->request_queue,
+ 			data_direction == DMA_TO_DEVICE ?
+-			REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN, BLK_MQ_REQ_PREEMPT);
++			REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN,
++			rq_flags & RQF_PM ? BLK_MQ_REQ_PM : 0);
+ 	if (IS_ERR(req))
+ 		return ret;
+ 	rq = scsi_req(req);
+@@ -1203,6 +1204,8 @@ static blk_status_t
+ scsi_device_state_check(struct scsi_device *sdev, struct request *req)
+ {
+ 	switch (sdev->sdev_state) {
++	case SDEV_CREATED:
++		return BLK_STS_OK;
+ 	case SDEV_OFFLINE:
+ 	case SDEV_TRANSPORT_OFFLINE:
+ 		/*
+@@ -1229,18 +1232,18 @@ scsi_device_state_check(struct scsi_device *sdev, struct request *req)
+ 		return BLK_STS_RESOURCE;
+ 	case SDEV_QUIESCE:
+ 		/*
+-		 * If the devices is blocked we defer normal commands.
++		 * If the device is blocked we only accept power management
++		 * commands.
+ 		 */
+-		if (req && !(req->rq_flags & RQF_PREEMPT))
++		if (req && WARN_ON_ONCE(!(req->rq_flags & RQF_PM)))
+ 			return BLK_STS_RESOURCE;
+ 		return BLK_STS_OK;
+ 	default:
+ 		/*
+ 		 * For any other not fully online state we only allow
+-		 * special commands.  In particular any user initiated
+-		 * command is not allowed.
++		 * power management commands.
+ 		 */
+-		if (req && !(req->rq_flags & RQF_PREEMPT))
++		if (req && !(req->rq_flags & RQF_PM))
+ 			return BLK_STS_IOERR;
+ 		return BLK_STS_OK;
+ 	}
+@@ -2508,15 +2511,13 @@ void sdev_evt_send_simple(struct scsi_device *sdev,
+ EXPORT_SYMBOL_GPL(sdev_evt_send_simple);
+ 
+ /**
+- *	scsi_device_quiesce - Block user issued commands.
++ *	scsi_device_quiesce - Block all commands except power management.
+  *	@sdev:	scsi device to quiesce.
+  *
+  *	This works by trying to transition to the SDEV_QUIESCE state
+  *	(which must be a legal transition).  When the device is in this
+- *	state, only special requests will be accepted, all others will
+- *	be deferred.  Since special requests may also be requeued requests,
+- *	a successful return doesn't guarantee the device will be
+- *	totally quiescent.
++ *	state, only power management requests will be accepted, all others will
++ *	be deferred.
+  *
+  *	Must be called with user context, may sleep.
+  *
+@@ -2578,12 +2579,12 @@ void scsi_device_resume(struct scsi_device *sdev)
+ 	 * device deleted during suspend)
  	 */
- 	lock_system_sleep();
- 
-+	if (scsi_autopm_get_device(sdev))
-+		goto unlock_system_sleep;
-+
- 	if (unlikely(spi_dv_in_progress(starget)))
--		goto unlock;
-+		goto put_autopm;
- 
- 	if (unlikely(scsi_device_get(sdev)))
--		goto unlock;
-+		goto put_autopm;
- 
- 	spi_dv_in_progress(starget) = 1;
- 
- 	buffer = kzalloc(len, GFP_KERNEL);
- 
- 	if (unlikely(!buffer))
--		goto out_put;
-+		goto put_sdev;
- 
- 	/* We need to verify that the actual device will quiesce; the
- 	 * later target quiesce is just a nice to have */
- 	if (unlikely(scsi_device_quiesce(sdev)))
--		goto out_free;
-+		goto free_buffer;
- 
- 	scsi_target_quiesce(starget);
- 
-@@ -1041,12 +1048,16 @@ spi_dv_device(struct scsi_device *sdev)
- 
- 	spi_initial_dv(starget) = 1;
- 
-- out_free:
-+free_buffer:
- 	kfree(buffer);
-- out_put:
-+
-+put_sdev:
- 	spi_dv_in_progress(starget) = 0;
- 	scsi_device_put(sdev);
--unlock:
-+put_autopm:
-+	scsi_autopm_put_device(sdev);
-+
-+unlock_system_sleep:
- 	unlock_system_sleep();
+ 	mutex_lock(&sdev->state_mutex);
++	if (sdev->sdev_state == SDEV_QUIESCE)
++		scsi_device_set_state(sdev, SDEV_RUNNING);
+ 	if (sdev->quiesced_by) {
+ 		sdev->quiesced_by = NULL;
+ 		blk_clear_pm_only(sdev->request_queue);
+ 	}
+-	if (sdev->sdev_state == SDEV_QUIESCE)
+-		scsi_device_set_state(sdev, SDEV_RUNNING);
+ 	mutex_unlock(&sdev->state_mutex);
  }
- EXPORT_SYMBOL(spi_dv_device);
+ EXPORT_SYMBOL(scsi_device_resume);
 -- 
 2.27.0
 
