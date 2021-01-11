@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84C492F1362
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B61C2F146D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730655AbhAKNH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:07:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
+        id S1732608AbhAKNRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:17:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730649AbhAKNH6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 242B8229CA;
-        Mon, 11 Jan 2021 13:07:17 +0000 (UTC)
+        id S1732603AbhAKNRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A68882226A;
+        Mon, 11 Jan 2021 13:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370437;
-        bh=8ZRubXY4IiMXWJoWSSogaIWe+OAl/TR6/1E4Qi9ZkyU=;
+        s=korg; t=1610370998;
+        bh=H3Vg39PJBb8bU4b9uFjLwWenejDhGNvVdsLhkM1vwtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLIj/gYlUd2guqVNIRgmXHoChH/hEnU8o83pjZoR797JKxcx6tsWuW4lx7Ha+2eVA
-         yLxmo89kAN8xiL6N/Go+HaQBVFbXruvuyVwZmYdeToJWdqNYQE6NHeTi2+tq7nMNC9
-         PkT/HkfLRtISJ5eLtuqK3YI1xAI0G/FhJuq6dqr0=
+        b=Ir7fhglME+6Gssml12wFUgK2DH7+cRCdpf/5yjUr1FoYxLJm0bLoaqQtgVI5hqhTt
+         tXqFQ/ZEUnTyvlGowqiagXcF7tb8CsbQC75Oct1/d+q4obXGqMrvN0YxYWWlujYosM
+         IhtDaUhxVyIWB2Omjz12NmWNc4BANC05IzOunbi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 21/77] net/ncsi: Use real net-device for response handler
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Subject: [PATCH 5.10 066/145] depmod: handle the case of /sbin/depmod without /sbin in PATH
 Date:   Mon, 11 Jan 2021 14:01:30 +0100
-Message-Id: <20210111130037.437535996@linuxfoundation.org>
+Message-Id: <20210111130051.723998803@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Wang <wangzhiqiang.bj@bytedance.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 427c940558560bff2583d07fc119a21094675982 ]
+[ Upstream commit cedd1862be7e666be87ec824dabc6a2b05618f36 ]
 
-When aggregating ncsi interfaces and dedicated interfaces to bond
-interfaces, the ncsi response handler will use the wrong net device to
-find ncsi_dev, so that the ncsi interface will not work properly.
-Here, we use the original net device to fix it.
+Commit 436e980e2ed5 ("kbuild: don't hardcode depmod path") stopped
+hard-coding the path of depmod, but in the process caused trouble for
+distributions that had that /sbin location, but didn't have it in the
+PATH (generally because /sbin is limited to the super-user path).
 
-Fixes: 138635cc27c9 ("net/ncsi: NCSI response packet handler")
-Signed-off-by: John Wang <wangzhiqiang.bj@bytedance.com>
-Link: https://lore.kernel.org/r/20201223055523.2069-1-wangzhiqiang.bj@bytedance.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Work around it for now by just adding /sbin to the end of PATH in the
+depmod.sh script.
+
+Reported-and-tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ncsi/ncsi-rsp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/depmod.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ncsi/ncsi-rsp.c
-+++ b/net/ncsi/ncsi-rsp.c
-@@ -949,7 +949,7 @@ int ncsi_rcv_rsp(struct sk_buff *skb, st
- 	int payload, i, ret;
+diff --git a/scripts/depmod.sh b/scripts/depmod.sh
+index e083bcae343f3..3643b4f896ede 100755
+--- a/scripts/depmod.sh
++++ b/scripts/depmod.sh
+@@ -15,6 +15,8 @@ if ! test -r System.map ; then
+ 	exit 0
+ fi
  
- 	/* Find the NCSI device */
--	nd = ncsi_find_dev(dev);
-+	nd = ncsi_find_dev(orig_dev);
- 	ndp = nd ? TO_NCSI_DEV_PRIV(nd) : NULL;
- 	if (!ndp)
- 		return -ENODEV;
++# legacy behavior: "depmod" in /sbin, no /sbin in PATH
++PATH="$PATH:/sbin"
+ if [ -z $(command -v $DEPMOD) ]; then
+ 	echo "Warning: 'make modules_install' requires $DEPMOD. Please install it." >&2
+ 	echo "This is probably in the kmod package." >&2
+-- 
+2.27.0
+
 
 
