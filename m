@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A2882F174A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1042F1748
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388081AbhAKOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:03:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
+        id S1730205AbhAKNEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730189AbhAKNEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:04:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 197D72251F;
-        Mon, 11 Jan 2021 13:03:59 +0000 (UTC)
+        id S1730200AbhAKNEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:04:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DAD32255F;
+        Mon, 11 Jan 2021 13:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370240;
-        bh=f5rsc8AXBs/QRobZKekQdYfPZhLpC7GlnU/UBghQZLE=;
+        s=korg; t=1610370245;
+        bh=xZfgbdIZgnixBjkOpU9qNJuurp2/n8Tkx0NY8XmEcoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUlxUBvkqi+oD4ujMKrW7Hi6mfj7GqU4tL5BsD51a4NeF1eRP8ytD8PKdq4T6pK+C
-         GXx/MEAgLt2vWtr5+nHJXjNI5iMKM7k9YGnCGfNmK5eWKYRMpEMPE1is0JiqC08tbp
-         VkttYW56KV9rC+hDMK3kpbxWDTTkWN/KoGooJVxw=
+        b=qewFTdj34bmT4RL0umtFUcjslWZEFxi27Oh6S6KRzQ/DRbOWC1ha+fUsPmH3/N/lt
+         oA3UqzB0k+6DC+0I+J3eMP2sLmNQmctCWaQDnikznrz2ZJ8nHnjbW/KbRgAPfK+thB
+         J70ms47t6KwX9REaUdOdKVa4kA5sXl80Xr8Jxk/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie Hung <eddie.hung@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.9 38/45] usb: gadget: configfs: Fix use-after-free issue with udc_name
-Date:   Mon, 11 Jan 2021 14:01:16 +0100
-Message-Id: <20210111130035.479090748@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.9 40/45] x86/mm: Fix leak of pmd ptlock
+Date:   Mon, 11 Jan 2021 14:01:18 +0100
+Message-Id: <20210111130035.573043718@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
 References: <20210111130033.676306636@linuxfoundation.org>
@@ -40,72 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie Hung <eddie.hung@mediatek.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 64e6bbfff52db4bf6785fab9cffab850b2de6870 upstream.
+commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
 
-There is a use-after-free issue, if access udc_name
-in function gadget_dev_desc_UDC_store after another context
-free udc_name in function unregister_gadget.
+Commit
 
-Context 1:
-gadget_dev_desc_UDC_store()->unregister_gadget()->
-free udc_name->set udc_name to NULL
+  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
 
-Context 2:
-gadget_dev_desc_UDC_show()-> access udc_name
+introduced a new location where a pmd was released, but neglected to
+run the pmd page destructor. In fact, this happened previously for a
+different pmd release path and was fixed by commit:
 
-Call trace:
-dump_backtrace+0x0/0x340
-show_stack+0x14/0x1c
-dump_stack+0xe4/0x134
-print_address_description+0x78/0x478
-__kasan_report+0x270/0x2ec
-kasan_report+0x10/0x18
-__asan_report_load1_noabort+0x18/0x20
-string+0xf4/0x138
-vsnprintf+0x428/0x14d0
-sprintf+0xe4/0x12c
-gadget_dev_desc_UDC_show+0x54/0x64
-configfs_read_file+0x210/0x3a0
-__vfs_read+0xf0/0x49c
-vfs_read+0x130/0x2b4
-SyS_read+0x114/0x208
-el0_svc_naked+0x34/0x38
+  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
 
-Add mutex_lock to protect this kind of scenario.
+This issue was hidden until recently because the failure mode is silent,
+but commit:
 
-Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1609239215-21819-1-git-send-email-macpaul.lin@mediatek.com
+  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
+
+turns the failure mode into this signature:
+
+ BUG: Bad page state in process lt-pmem-ns  pfn:15943d
+ page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
+ flags: 0xaffff800000000()
+ raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
+ raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
+ page dumped because: nonzero mapcount
+ [..]
+  dump_stack+0x8b/0xb0
+  bad_page.cold+0x63/0x94
+  free_pcp_prepare+0x224/0x270
+  free_unref_page+0x18/0xd0
+  pud_free_pmd_page+0x146/0x160
+  ioremap_pud_range+0xe3/0x350
+  ioremap_page_range+0x108/0x160
+  __ioremap_caller.constprop.0+0x174/0x2b0
+  ? memremap+0x7a/0x110
+  memremap+0x7a/0x110
+  devm_memremap+0x53/0xa0
+  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
+  ? __devm_release_region+0x52/0x80
+  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
+
+Given this is a repeat occurrence it seemed prudent to look for other
+places where this destructor might be missing and whether a better
+helper is needed. try_to_free_pmd_page() looks like a candidate, but
+testing with setting up and tearing down pmd mappings via the dax unit
+tests is thus far not triggering the failure.
+
+As for a better helper pmd_free() is close, but it is a messy fit
+due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
+paravirt_tlb_remove_table() instead of free_page(), so open-coded
+pgtable_pmd_page_dtor() seems the best way forward for now.
+
+Debugged together with Matthew Wilcox <willy@infradead.org>.
+
+Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/x86/mm/pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -232,9 +232,16 @@ static ssize_t gadget_dev_desc_bcdUSB_st
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -697,6 +697,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
+ 	}
  
- static ssize_t gadget_dev_desc_UDC_show(struct config_item *item, char *page)
- {
--	char *udc_name = to_gadget_info(item)->composite.gadget_driver.udc_name;
-+	struct gadget_info *gi = to_gadget_info(item);
-+	char *udc_name;
-+	int ret;
- 
--	return sprintf(page, "%s\n", udc_name ?: "");
-+	mutex_lock(&gi->lock);
-+	udc_name = gi->composite.gadget_driver.udc_name;
-+	ret = sprintf(page, "%s\n", udc_name ?: "");
-+	mutex_unlock(&gi->lock);
+ 	free_page((unsigned long)pmd_sv);
 +
-+	return ret;
- }
++	pgtable_pmd_page_dtor(virt_to_page(pmd));
+ 	free_page((unsigned long)pmd);
  
- static int unregister_gadget(struct gadget_info *gi)
+ 	return 1;
 
 
