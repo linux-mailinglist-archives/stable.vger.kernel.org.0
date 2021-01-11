@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731FF2F13D0
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA322F1313
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbhAKNPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:15:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S1729176AbhAKNDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:03:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731773AbhAKNPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE1E2229C;
-        Mon, 11 Jan 2021 13:14:31 +0000 (UTC)
+        id S1729715AbhAKNDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 977DD225AB;
+        Mon, 11 Jan 2021 13:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370871;
-        bh=/12LQ52/KgBNkpRjlM2nsi+WqfnZjXZznXhbhMlMZyQ=;
+        s=korg; t=1610370142;
+        bh=7/faWLGJNNlINUfVqdeH9J3vRoIwqJbpbTBtE4//Zqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iT1Va3u8kqK97lBbc/eQcmPOLK8N7HFOP69VY3xXOW1OT721zSqHaj1UO3oT2n5Mg
-         C3OKCdWIuPkmwzOp6fU2hQzQDKAiE93YPIxHCQt3hjd7XzQj6PUtSgNUosn3OKk238
-         KyZdpgu3UwAW6cmbxNbwnv78arUqA/KHVlm2rS2E=
+        b=oz4P/20LR7pw4iYf7JTIjJXrhxkDREgsI+Qm3L8wFlXVYKvsw/gVyJ+F1NnAZGx2Z
+         rEYI39rV1UMJ7IELLJD1+sVG5CgzZP/lXS8hrrjlBmwZbYJUACyMz9Y5o4GEOPol//
+         XWZASbsfxKeXUUIaBbxGFpgNYWSGKIcSweLTghCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 041/145] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
-Date:   Mon, 11 Jan 2021 14:01:05 +0100
-Message-Id: <20210111130050.494571461@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.4 35/38] Revert "device property: Keep secondary firmware node secondary by type"
+Date:   Mon, 11 Jan 2021 14:01:07 +0100
+Message-Id: <20210111130034.141539940@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+References: <20210111130032.469630231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
+commit 47f4469970d8861bc06d2d4d45ac8200ff07c693 upstream.
 
-Currently the vhost_zerocopy_callback() maybe be called to decrease
-the refcount when sendmsg fails in tun. The error handling in vhost
-handle_tx_zerocopy() will try to decrease the same refcount again.
-This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
-when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
+While commit d5dcce0c414f ("device property: Keep secondary firmware
+node secondary by type") describes everything correct in its commit
+message, the change it made does the opposite and original commit
+c15e1bdda436 ("device property: Fix the secondary firmware node handling
+in set_primary_fwnode()") was fully correct.
 
-Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Revert the former one here and improve documentation in the next patch.
+
+Fixes: d5dcce0c414f ("device property: Keep secondary firmware node secondary by type")
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/vhost/net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -863,6 +863,7 @@ static void handle_tx_zerocopy(struct vh
- 	size_t len, total_len = 0;
- 	int err;
- 	struct vhost_net_ubuf_ref *ubufs;
-+	struct ubuf_info *ubuf;
- 	bool zcopy_used;
- 	int sent_pkts = 0;
- 
-@@ -895,9 +896,7 @@ static void handle_tx_zerocopy(struct vh
- 
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
--			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
--
- 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
-@@ -927,7 +926,8 @@ static void handle_tx_zerocopy(struct vh
- 		err = sock->ops->sendmsg(sock, &msg, len);
- 		if (unlikely(err < 0)) {
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
-+				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
-+					vhost_net_ubuf_put(ubufs);
- 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
- 					% UIO_MAXIOV;
- 			}
+---
+ drivers/base/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2357,7 +2357,7 @@ void set_primary_fwnode(struct device *d
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+ 			if (!(parent && fn == parent->fwnode))
+-				fn->secondary = ERR_PTR(-ENODEV);
++				fn->secondary = NULL;
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
 
 
