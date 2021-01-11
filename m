@@ -2,76 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D68402F1AB3
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 17:15:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3E12F1ADB
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 17:25:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731098AbhAKQP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 11:15:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47312 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730621AbhAKQP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 11:15:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8DFE2247F;
-        Mon, 11 Jan 2021 16:14:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610381688;
-        bh=vU6H120stfuOQ5pc95UICs91NrCA+KFQFAToskWyZpA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hoSh/oB7ljXzyLCi+dfAntUXnizW2+IZJheAzTKPcGNh23wFUFYgQUhq27SIW4LDx
-         OY+DaAU2Jf/Ag6O/o111G7gj+To6ZlXDCHNfiy9FXxnQIwrlhfXWQJ/7M6PxWi8m98
-         BNG+d/x4LtbzR9WHiAzpZNbY9j+SgRuaJV4Xaf3c=
-Date:   Mon, 11 Jan 2021 17:15:59 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marc Orr <marcorr@google.com>
-Cc:     hch@lst.de, m.szyprowski@samsung.com, robin.murphy@arm.com,
-        jxgao@google.com, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] dma: mark unmapped DMA scatter/gather invalid
-Message-ID: <X/x5v4Gjretp4lii@kroah.com>
-References: <20210111154335.23388-1-marcorr@google.com>
+        id S1730926AbhAKQYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 11:24:06 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:37924 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729275AbhAKQYG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 11:24:06 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 249051C0B77; Mon, 11 Jan 2021 17:23:23 +0100 (CET)
+Date:   Mon, 11 Jan 2021 17:23:22 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/38] 4.4.251-rc1 review
+Message-ID: <20210111162322.GA6322@duo.ucw.cz>
+References: <20210111130032.469630231@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="liOOAslEiF7prFVr"
 Content-Disposition: inline
-In-Reply-To: <20210111154335.23388-1-marcorr@google.com>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 11, 2021 at 07:43:35AM -0800, Marc Orr wrote:
-> This patch updates dma_direct_unmap_sg() to mark each scatter/gather
-> entry invalid, after it's unmapped. This fixes two issues:
-> 
-> 1. It makes the unmapping code able to tolerate a double unmap.
-> 2. It prevents the NVMe driver from erroneously treating an unmapped DMA
-> address as mapped.
-> 
-> The bug that motivated this patch was the following sequence, which
-> occurred within the NVMe driver, with the kernel flag `swiotlb=force`.
-> 
-> * NVMe driver calls dma_direct_map_sg()
-> * dma_direct_map_sg() fails part way through the scatter gather/list
-> * dma_direct_map_sg() calls dma_direct_unmap_sg() to unmap any entries
->   succeeded.
-> * NVMe driver calls dma_direct_unmap_sg(), redundantly, leading to a
->   double unmap, which is a bug.
-> 
-> With this patch, a hadoop workload running on a cluster of three AMD
-> SEV VMs, is able to succeed. Without the patch, the hadoop workload
-> suffers application-level and even VM-level failures.
-> 
-> Tested-by: Jianxiong Gao <jxgao@google.com>
-> Tested-by: Marc Orr <marcorr@google.com>
-> Reviewed-by: Jianxiong Gao <jxgao@google.com>
-> Signed-off-by: Marc Orr <marcorr@google.com>
-> ---
->  kernel/dma/direct.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
 
-<formletter>
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Hi!
 
-</formletter>
+> This is the start of the stable review cycle for the 4.4.251 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+> Responses should be made by Wed, 13 Jan 2021 13:00:19 +0000.
+> Anything received after that time might be too late.
+
+CIP testing did not find any problems here:
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/2=
+39870904
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--liOOAslEiF7prFVr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX/x7egAKCRAw5/Bqldv6
+8ko0AJ94r/a19xkeajaPKPenCq+bZv2KkwCfWSvHbEqLYGBI2o77ZuTFOYYw2XQ=
+=6bUe
+-----END PGP SIGNATURE-----
+
+--liOOAslEiF7prFVr--
