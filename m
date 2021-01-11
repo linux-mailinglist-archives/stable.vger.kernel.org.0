@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CE842F12E4
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 229272F13DA
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728207AbhAKNB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:01:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
+        id S1732263AbhAKNPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728101AbhAKNB2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:01:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A113225AB;
-        Mon, 11 Jan 2021 13:00:22 +0000 (UTC)
+        id S1732259AbhAKNPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3634A22515;
+        Mon, 11 Jan 2021 13:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370023;
-        bh=1LrTAo30UoxfvSG5Zl26OAxd/3iOnNwjAik6c8Pum60=;
+        s=korg; t=1610370930;
+        bh=9l3wbcohiV15RcD7nSgAg/Kbc7YaBioEZyNqVPCVw08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wybgc33ughduDrPT2iwEqNp+kXU+/XzQxYGn9y5kMwYBjagR3NZDD67eNkKGwiChY
-         NohIe6gWEaFfvZ3h2eDgTH70huQhhNbc3pVUkwK6A/hwMHbfxPMWYslXwZeM0aOH7e
-         FxySGsd6ViI03VW6FuNCnggOtR2yqHkE/+Tju5NI=
+        b=fFYmQD2novmsCDM0VkVV2dGbfwF0fgkFt/dcEm0L2T/mEiver+acAdKrgaqNkTNaF
+         fdTRGTqdDoKf3GuY6H/zYnoXkj3IdTLMhTE5aFk5bedIb49kZfUM61/M38RzH/zdcY
+         CkJqF09ryRFFTSH8BdfhhILXAt6iRaFZT6VZoS/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Georgi Bakalski <georgi.bakalski@gmail.com>,
-        Sean Young <sean@mess.org>, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.4 17/38] USB: cdc-acm: blacklist another IR Droid device
-Date:   Mon, 11 Jan 2021 14:00:49 +0100
-Message-Id: <20210111130033.294090516@linuxfoundation.org>
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 026/145] tun: fix return value when the number of iovs exceeds MAX_SKB_FRAGS
+Date:   Mon, 11 Jan 2021 14:00:50 +0100
+Message-Id: <20210111130049.766753932@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-commit 0ffc76539e6e8d28114f95ac25c167c37b5191b3 upstream.
+[ Upstream commit 950271d7cc0b4546af3549d8143c4132d6e1f138 ]
 
-This device is supported by the IR Toy driver.
+Currently the tun_napi_alloc_frags() function returns -ENOMEM when the
+number of iovs exceeds MAX_SKB_FRAGS + 1. However this is inappropriate,
+we should use -EMSGSIZE instead of -ENOMEM.
 
-Reported-by: Georgi Bakalski <georgi.bakalski@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201227134502.4548-2-sean@mess.org
+The following distinctions are matters:
+1. the caller need to drop the bad packet when -EMSGSIZE is returned,
+   which means meeting a persistent failure.
+2. the caller can try again when -ENOMEM is returned, which means
+   meeting a transient failure.
+
+Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/1608864736-24332-1-git-send-email-wangyunjian@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/class/cdc-acm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/tun.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1894,6 +1894,10 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x04d8, 0x0083),	/* Bootloader mode */
- 	.driver_info = IGNORE_DEVICE,
- 	},
-+
-+	{ USB_DEVICE(0x04d8, 0xf58b),
-+	.driver_info = IGNORE_DEVICE,
-+	},
- #endif
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1401,7 +1401,7 @@ static struct sk_buff *tun_napi_alloc_fr
+ 	int i;
  
- 	/*Samsung phone in firmware update mode */
+ 	if (it->nr_segs > MAX_SKB_FRAGS + 1)
+-		return ERR_PTR(-ENOMEM);
++		return ERR_PTR(-EMSGSIZE);
+ 
+ 	local_bh_disable();
+ 	skb = napi_get_frags(&tfile->napi);
 
 
