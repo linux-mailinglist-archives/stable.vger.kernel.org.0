@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC07C2F0E8A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DDD2F0E8C
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:52:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728061AbhAKIvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:51:14 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55847 "EHLO
+        id S1727739AbhAKIw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:52:59 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:41863 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728024AbhAKIvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:51:14 -0500
+        by vger.kernel.org with ESMTP id S1726611AbhAKIw6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:52:58 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 131CBFBE;
-        Mon, 11 Jan 2021 03:50:06 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:50:07 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 5BB0C24CB;
+        Mon, 11 Jan 2021 03:51:52 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:51:52 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mQYsFm
-        deAa8BfylwjTM9uhmJNQZGzolCxROANIIpaDY=; b=TCBSoxfxOakiYZNsXzlrAz
-        R7clvdRkhmW29CAd7IvLmZmu8u68IDJZTt5EFoBzA88uZ3hUTYJIfUFV/HOA1jGX
-        RcFvtcmCjNrpy3IT0qmx9myA0gxWGSaSg/grcPSPaIdrjSqsGOtSxLg5PoMRyfyT
-        FcYx1wGp63LnBQ2Uct2RYhcWm4rc0DJL63WFOWWE6XWUwI/mgJWdbx2sYzdhQtWS
-        Vh8WgwBak3McuGwk3l2dLLK4qENcsF7UCvp+GjaG8uCEntg4j9HyotC6M4egiAxB
-        irhdrOQ1BGVWIWJzXWuOxpGmE2BiGNyg13Z8PfTlBSIUXwffJ+uosjNnVpfh+eAQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mMldDO
+        op2e02c/JXlnP++elZuCop0e3zPP0rQA6wOi4=; b=X2c8rR4GNIjbzWGvGLCg1e
+        qI1KF46YtWKR8NOKCRYEQXIlzWaUNGH4/MkwbN2o478D2L8NoLFTSHjVPF8Z4Oic
+        E+9sJanx86uv8YQISnoDzTBms0hWBnOaPb6NNcuUTdoSCmeIDi5DJ73eS1omGH37
+        /kTX/C4Xd0a+PcP156EtaOCKPl5jwKhwoR/dbBXFNkZuusMXALMjTsNOXJ3ZT6HD
+        DwBPDHrgrdgGsNyIeNDs+REw245pmgES6fxJ76D2rDjWhZNLl4jufjneynC1T9D9
+        YNj/Ko4PcUvcylkBixTyHeoeUzh/fRtRLVF8jqbpuhWU8J4nXT4nx6iQ2+ci8y9w
         ==
-X-ME-Sender: <xms:PRH8X2hP4YO8ohplM6iiPw_MgIDzPv0YkllCJhYPZg7oofRhrH6TYQ>
-    <xme:PRH8X3BbHEDjEs-zMdaTju_B_fpTJZ8MQ0fQMEqC7mqrh8S_4Me4q1tbdZJ9LfR9Y
-    tJ9C1XQy5Jmew>
+X-ME-Sender: <xms:pxH8X6NDxK8pCcUCLZkX-hIHYTqsuTG-at9AyTcHbS2HwSzRACoCyA>
+    <xme:pxH8X49ajydDU_WTeIRdMJQr2JArzIo0k9FavkE7gIh342RsoVUg_UugCvF-3eOER
+    64mxsBsj11Fqg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:PRH8X-Hm2Shk1LuackI23kkAJ_-Pfgtr5Nwr1wNBAzLlo_J-tS9wUg>
-    <xmx:PRH8X_TfhGTaLWPh1m7r6FEZP_iAjpsetCog5901lTvEC--xu7BWlg>
-    <xmx:PRH8XzxX_HakEm2Mx-j-N9Uh1muOatUga39yL8C8L-Fgc-nm4isGrQ>
-    <xmx:PhH8X8p11IGXYGeC7gk6xkOkaw6O8KprVglC63n4wCUBcqivkFIkm2sF_n0>
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:pxH8XxRhmhgeKNxKBifoqatF8A_Ny9rqPy5KX6waoI7jrDA9ygp2kA>
+    <xmx:pxH8X6u5RkiUtddulQuB-oNlbNMgbaP3b2US-Gad6mw29nrt3_ynig>
+    <xmx:pxH8Xyd01AAKzl1fTqSAhtZk61imYyMV8IwvUSscigqZ3IdxPeFU9g>
+    <xmx:qBH8X6TXpZpUCoTp34XLmW5kCoKGQNCHaPiLGyaZkgLCaMjWXlm_NnLpM1s>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A915824005C;
-        Mon, 11 Jan 2021 03:50:05 -0500 (EST)
-Subject: FAILED: patch "[PATCH] blk-iocost: fix NULL iocg deref from racing against" failed to apply to 5.4-stable tree
-To:     tj@kernel.org, axboe@kernel.dk, bsd@fb.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0209C108005C;
+        Mon, 11 Jan 2021 03:51:50 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Move intel_iommu info from struct intel_svm to" failed to apply to 5.4-stable tree
+To:     yi.l.liu@intel.com, Kaijie.Guo@intel.com, ashok.raj@intel.com,
+        baolu.lu@linux.intel.com, dwmw2@infradead.org,
+        jacob.jun.pan@linux.intel.com, will@kernel.org, xin.zeng@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:51:18 +0100
-Message-ID: <1610355078186128@kroah.com>
+Date:   Mon, 11 Jan 2021 09:53:03 +0100
+Message-ID: <161035518312185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,82 +72,110 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d16baa3f1453c14d680c5fee01cd122a22d0e0ce Mon Sep 17 00:00:00 2001
-From: Tejun Heo <tj@kernel.org>
-Date: Tue, 5 Jan 2021 12:37:23 -0500
-Subject: [PATCH] blk-iocost: fix NULL iocg deref from racing against
- initialization
+From 9ad9f45b3b91162b33abfe175ae75ab65718dbf5 Mon Sep 17 00:00:00 2001
+From: Liu Yi L <yi.l.liu@intel.com>
+Date: Thu, 7 Jan 2021 00:03:55 +0800
+Subject: [PATCH] iommu/vt-d: Move intel_iommu info from struct intel_svm to
+ struct intel_svm_dev
 
-When initializing iocost for a queue, its rqos should be registered before
-the blkcg policy is activated to allow policy data initiailization to lookup
-the associated ioc. This unfortunately means that the rqos methods can be
-called on bios before iocgs are attached to all existing blkgs.
+'struct intel_svm' is shared by all devices bound to a give process,
+but records only a single pointer to a 'struct intel_iommu'. Consequently,
+cache invalidations may only be applied to a single DMAR unit, and are
+erroneously skipped for the other devices.
 
-While the race is theoretically possible on ioc_rqos_throttle(), it mostly
-happened in ioc_rqos_merge() due to the difference in how they lookup ioc.
-The former determines it from the passed in @rqos and then bails before
-dereferencing iocg if the looked up ioc is disabled, which most likely is
-the case if initialization is still in progress. The latter looked up ioc by
-dereferencing the possibly NULL iocg making it a lot more prone to actually
-triggering the bug.
+In preparation for fixing this, rework the structures so that the iommu
+pointer resides in 'struct intel_svm_dev', allowing 'struct intel_svm'
+to track them in its device list.
 
-* Make ioc_rqos_merge() use the same method as ioc_rqos_throttle() to look
-  up ioc for consistency.
+Fixes: 1c4f88b7f1f9 ("iommu/vt-d: Shared virtual address in scalable mode")
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Raj Ashok <ashok.raj@intel.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Reported-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Reported-by: Xin Zeng <xin.zeng@intel.com>
+Signed-off-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Signed-off-by: Xin Zeng <xin.zeng@intel.com>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Tested-by: Guo Kaijie <Kaijie.Guo@intel.com>
+Cc: stable@vger.kernel.org # v5.0+
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/1609949037-25291-2-git-send-email-yi.l.liu@intel.com
+Signed-off-by: Will Deacon <will@kernel.org>
 
-* Make ioc_rqos_throttle() and ioc_rqos_merge() test for NULL iocg before
-  dereferencing it.
-
-* Explain the danger of NULL iocgs in blk_iocost_init().
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Jonathan Lemon <bsd@fb.com>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index ac6078a34939..98d656bdb42b 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2551,8 +2551,8 @@ static void ioc_rqos_throttle(struct rq_qos *rqos, struct bio *bio)
- 	bool use_debt, ioc_locked;
- 	unsigned long flags;
+diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
+index 9bcedd360235..790ef3497e7e 100644
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -142,7 +142,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
+ 	}
+ 	desc.qw2 = 0;
+ 	desc.qw3 = 0;
+-	qi_submit_sync(svm->iommu, &desc, 1, 0);
++	qi_submit_sync(sdev->iommu, &desc, 1, 0);
  
--	/* bypass IOs if disabled or for root cgroup */
--	if (!ioc->enabled || !iocg->level)
-+	/* bypass IOs if disabled, still initializing, or for root cgroup */
-+	if (!ioc->enabled || !iocg || !iocg->level)
- 		return;
+ 	if (sdev->dev_iotlb) {
+ 		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
+@@ -166,7 +166,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
+ 		}
+ 		desc.qw2 = 0;
+ 		desc.qw3 = 0;
+-		qi_submit_sync(svm->iommu, &desc, 1, 0);
++		qi_submit_sync(sdev->iommu, &desc, 1, 0);
+ 	}
+ }
  
- 	/* calculate the absolute vtime cost */
-@@ -2679,14 +2679,14 @@ static void ioc_rqos_merge(struct rq_qos *rqos, struct request *rq,
- 			   struct bio *bio)
- {
- 	struct ioc_gq *iocg = blkg_to_iocg(bio->bi_blkg);
--	struct ioc *ioc = iocg->ioc;
-+	struct ioc *ioc = rqos_to_ioc(rqos);
- 	sector_t bio_end = bio_end_sector(bio);
- 	struct ioc_now now;
- 	u64 vtime, abs_cost, cost;
- 	unsigned long flags;
+@@ -211,7 +211,7 @@ static void intel_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+ 	 */
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(sdev, &svm->devs, list)
+-		intel_pasid_tear_down_entry(svm->iommu, sdev->dev,
++		intel_pasid_tear_down_entry(sdev->iommu, sdev->dev,
+ 					    svm->pasid, true);
+ 	rcu_read_unlock();
  
--	/* bypass if disabled or for root cgroup */
--	if (!ioc->enabled || !iocg->level)
-+	/* bypass if disabled, still initializing, or for root cgroup */
-+	if (!ioc->enabled || !iocg || !iocg->level)
- 		return;
+@@ -364,6 +364,7 @@ int intel_svm_bind_gpasid(struct iommu_domain *domain, struct device *dev,
+ 	}
+ 	sdev->dev = dev;
+ 	sdev->sid = PCI_DEVID(info->bus, info->devfn);
++	sdev->iommu = iommu;
  
- 	abs_cost = calc_vtime_cost(bio, iocg, true);
-@@ -2863,6 +2863,12 @@ static int blk_iocost_init(struct request_queue *q)
- 	ioc_refresh_params(ioc, true);
- 	spin_unlock_irq(&ioc->lock);
+ 	/* Only count users if device has aux domains */
+ 	if (iommu_dev_feature_enabled(dev, IOMMU_DEV_FEAT_AUX))
+@@ -548,6 +549,7 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
+ 		goto out;
+ 	}
+ 	sdev->dev = dev;
++	sdev->iommu = iommu;
  
-+	/*
-+	 * rqos must be added before activation to allow iocg_pd_init() to
-+	 * lookup the ioc from q. This means that the rqos methods may get
-+	 * called before policy activation completion, can't assume that the
-+	 * target bio has an iocg associated and need to test for NULL iocg.
-+	 */
- 	rq_qos_add(q, rqos);
- 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
+ 	ret = intel_iommu_enable_pasid(iommu, dev);
  	if (ret) {
+@@ -577,7 +579,6 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
+ 			kfree(sdev);
+ 			goto out;
+ 		}
+-		svm->iommu = iommu;
+ 
+ 		if (pasid_max > intel_pasid_max_id)
+ 			pasid_max = intel_pasid_max_id;
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index d956987ed032..94522685a0d9 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -758,6 +758,7 @@ struct intel_svm_dev {
+ 	struct list_head list;
+ 	struct rcu_head rcu;
+ 	struct device *dev;
++	struct intel_iommu *iommu;
+ 	struct svm_dev_ops *ops;
+ 	struct iommu_sva sva;
+ 	u32 pasid;
+@@ -771,7 +772,6 @@ struct intel_svm {
+ 	struct mmu_notifier notifier;
+ 	struct mm_struct *mm;
+ 
+-	struct intel_iommu *iommu;
+ 	unsigned int flags;
+ 	u32 pasid;
+ 	int gpasid; /* In case that guest PASID is different from host PASID */
 
