@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F972F1450
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BD12F1378
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732257AbhAKNS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:18:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36406 "EHLO mail.kernel.org"
+        id S1730748AbhAKNJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:09:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732743AbhAKNSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:18:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4062722A83;
-        Mon, 11 Jan 2021 13:17:47 +0000 (UTC)
+        id S1730721AbhAKNJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FDFD21534;
+        Mon, 11 Jan 2021 13:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371067;
-        bh=vhFLJ8HdTM02dwPJ00wgNSQScS2zmm2Uyf30gja4WeY=;
+        s=korg; t=1610370509;
+        bh=+6pb8yRuN6V+nCW5kpXkVhfOZg6PyGeOad7faSLloxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmipQh32MPlm1UbV4LagojwF7ALW5jCynW0Azz4OUCI7MuE9sBcPgd6Er2vNtx0PG
-         LcQeCD9j/MC6Fr5wH1xZqp5H2cYoV+W4vE4bcKlI0cgUwCWciZFkQs7Vx7CAVvRcWj
-         V9lZ0U73/+E49WlvZV1Pnnz3ZxPbhwi/51Cu9AWY=
+        b=xIfHZeW/2agx/la94fH33ynLQwRUPfJRrIPMxOEuLzT4wsmUy/Ois+E1fu5hw8JeU
+         /P1hnkxaV0uJaHq7swnqza1+WlnBWes9G/MsJctwGw3hOLOnlM7qwwGdPEnj0iKepb
+         kDbBOcqXGLYVjalwwAXTxZ5PnVjmTWHn7dGxSe3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+92e45ae45543f89e8c88@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 097/145] ALSA: usb-audio: Fix UBSAN warnings for MIDI jacks
-Date:   Mon, 11 Jan 2021 14:02:01 +0100
-Message-Id: <20210111130053.196216910@linuxfoundation.org>
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 53/77] USB: serial: option: add Quectel EM160R-GL
+Date:   Mon, 11 Jan 2021 14:02:02 +0100
+Message-Id: <20210111130038.974598560@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bjørn Mork <bjorn@mork.no>
 
-commit c06ccf3ebb7503706ea49fd248e709287ef385a3 upstream.
+commit d6c1ddd938d84a1adef7e19e8efc10e1b4df5034 upstream.
 
-The calculation of in_cables and out_cables bitmaps are done with the
-bit shift by the value from the descriptor, which is an arbitrary
-value, and can lead to UBSAN shift-out-of-bounds warnings.
+New modem using ff/ff/30 for QCDM, ff/00/00 for  AT and NMEA,
+and ff/ff/ff for RMNET/QMI.
 
-Fix it by filtering the bad descriptor values with the check of the
-upper bound 0x10 (the cable bitmaps are 16 bits).
+T: Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=5000 MxCh= 0
+D: Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs= 1
+P: Vendor=2c7c ProdID=0620 Rev= 4.09
+S: Manufacturer=Quectel
+S: Product=EM160R-GL
+S: SerialNumber=e31cedc1
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+E: Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=82(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
+E: Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
 
-Reported-by: syzbot+92e45ae45543f89e8c88@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201223174557.10249-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+[ johan: add model comment ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/midi.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1889,6 +1889,8 @@ static int snd_usbmidi_get_ms_info(struc
- 		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
- 		if (!ms_ep)
- 			continue;
-+		if (ms_ep->bNumEmbMIDIJack > 0x10)
-+			continue;
- 		if (usb_endpoint_dir_out(ep)) {
- 			if (endpoints[epidx].out_ep) {
- 				if (++epidx >= MIDI_MAX_ENDPOINTS) {
-@@ -2141,6 +2143,8 @@ static int snd_usbmidi_detect_roland(str
- 		    cs_desc[1] == USB_DT_CS_INTERFACE &&
- 		    cs_desc[2] == 0xf1 &&
- 		    cs_desc[3] == 0x02) {
-+			if (cs_desc[4] > 0x10 || cs_desc[5] > 0x10)
-+				continue;
- 			endpoint->in_cables  = (1 << cs_desc[4]) - 1;
- 			endpoint->out_cables = (1 << cs_desc[5]) - 1;
- 			return snd_usbmidi_detect_endpoints(umidi, endpoint, 1);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1117,6 +1117,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM12, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0xff, 0x30) },	/* EM160R-GL */
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, 0x0620, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500Q, 0xff, 0xff, 0x10),
 
 
