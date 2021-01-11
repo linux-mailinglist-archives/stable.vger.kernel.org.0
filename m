@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 674342F155E
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:39:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A562F153C
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731581AbhAKNiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:38:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S1730692AbhAKNhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:37:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731552AbhAKNM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:12:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 063B6229CA;
-        Mon, 11 Jan 2021 13:12:39 +0000 (UTC)
+        id S1726890AbhAKNN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B901621534;
+        Mon, 11 Jan 2021 13:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370760;
-        bh=Z9cMea0DCwPV9ekGawv44LwH2gcwZ+Yd/UNJSXtQM6w=;
+        s=korg; t=1610370765;
+        bh=3yp5qsA3SEx3Gj+bzyrpvCgVBvhwQdMDTMprdwZU3Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQq77HVr9D8IqYBuJQ0oYdqANUGMEuAcUoGUTmn3z8j/XVvHcwjdKRWw8bLNjGxPJ
-         mlE9F8+iMRWNkM/SNQmJ8RfEM7R1Zr7YFnYM+VLzLmS9pbT53Y4WbodUnQXAZr9HL7
-         YGs5XccLr6GNCOy02yl2SU/WPl4HfeGBdvn0CH0Q=
+        b=H9ZzCy0LrzaBZa+cZQVY0ht+OukTgUOqnjrtCw1L6+fF/4SsxZxDKFln9wNmq8djQ
+         DvemY0WDwSnFtpLENxD7/eCLeMr3XVghoNOFfaaPxfHgfgmVI/kem+xNjtHzHlE8y7
+         jnd5hZuYBNTrv73u7nElcxYz8eFmRPFszQ3kZow0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.4 85/92] dmabuf: fix use-after-free of dmabufs file->f_inode
-Date:   Mon, 11 Jan 2021 14:02:29 +0100
-Message-Id: <20210111130043.253495312@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 87/92] netfilter: x_tables: Update remaining dereference to RCU
+Date:   Mon, 11 Jan 2021 14:02:31 +0100
+Message-Id: <20210111130043.351425234@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -42,105 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 
-commit 05cd84691eafcd7959a1e120d5e72c0dd98c5d91 upstream.
+commit 443d6e86f821a165fae3fc3fc13086d27ac140b1 upstream.
 
-It is observed 'use-after-free' on the dmabuf's file->f_inode with the
-race between closing the dmabuf file and reading the dmabuf's debug
-info.
+This fixes the dereference to fetch the RCU pointer when holding
+the appropriate xtables lock.
 
-Consider the below scenario where P1 is closing the dma_buf file
-and P2 is reading the dma_buf's debug info in the system:
-
-P1						P2
-					dma_buf_debug_show()
-dma_buf_put()
-  __fput()
-    file->f_op->release()
-    dput()
-    ....
-      dentry_unlink_inode()
-        iput(dentry->d_inode)
-        (where the inode is freed)
-					mutex_lock(&db_list.lock)
-					read 'dma_buf->file->f_inode'
-					(the same inode is freed by P1)
-					mutex_unlock(&db_list.lock)
-      dentry->d_op->d_release()-->
-        dma_buf_release()
-          .....
-          mutex_lock(&db_list.lock)
-          removes the dmabuf from the list
-          mutex_unlock(&db_list.lock)
-
-In the above scenario, when dma_buf_put() is called on a dma_buf, it
-first frees the dma_buf's file->f_inode(=dentry->d_inode) and then
-removes this dma_buf from the system db_list. In between P2 traversing
-the db_list tries to access this dma_buf's file->f_inode that was freed
-by P1 which is a use-after-free case.
-
-Since, __fput() calls f_op->release first and then later calls the
-d_op->d_release, move the dma_buf's db_list removal from d_release() to
-f_op->release(). This ensures that dma_buf's file->f_inode is not
-accessed after it is released.
-
-Cc: <stable@vger.kernel.org> # 5.4.x-
-Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/1609857399-31549-1-git-send-email-charante@codeaurora.org
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: cc00bcaa5899 ("netfilter: x_tables: Switch synchronization to RCU")
+Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma-buf/dma-buf.c |   21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ net/ipv4/netfilter/arp_tables.c |    2 +-
+ net/ipv4/netfilter/ip_tables.c  |    2 +-
+ net/ipv6/netfilter/ip6_tables.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -76,10 +76,6 @@ static void dma_buf_release(struct dentr
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -1406,7 +1406,7 @@ static int compat_get_entries(struct net
+ 	xt_compat_lock(NFPROTO_ARP);
+ 	t = xt_find_table_lock(net, NFPROTO_ARP, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ 		struct xt_table_info info;
  
- 	dmabuf->ops->release(dmabuf);
- 
--	mutex_lock(&db_list.lock);
--	list_del(&dmabuf->list_node);
--	mutex_unlock(&db_list.lock);
--
- 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
- 		dma_resv_fini(dmabuf->resv);
- 
-@@ -88,6 +84,22 @@ static void dma_buf_release(struct dentr
- 	kfree(dmabuf);
- }
- 
-+static int dma_buf_file_release(struct inode *inode, struct file *file)
-+{
-+	struct dma_buf *dmabuf;
-+
-+	if (!is_dma_buf_file(file))
-+		return -EINVAL;
-+
-+	dmabuf = file->private_data;
-+
-+	mutex_lock(&db_list.lock);
-+	list_del(&dmabuf->list_node);
-+	mutex_unlock(&db_list.lock);
-+
-+	return 0;
-+}
-+
- static const struct dentry_operations dma_buf_dentry_ops = {
- 	.d_dname = dmabuffs_dname,
- 	.d_release = dma_buf_release,
-@@ -413,6 +425,7 @@ static void dma_buf_show_fdinfo(struct s
- }
- 
- static const struct file_operations dma_buf_fops = {
-+	.release	= dma_buf_file_release,
- 	.mmap		= dma_buf_mmap_internal,
- 	.llseek		= dma_buf_llseek,
- 	.poll		= dma_buf_poll,
+ 		ret = compat_table_info(private, &info);
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1616,7 +1616,7 @@ compat_get_entries(struct net *net, stru
+ 	xt_compat_lock(AF_INET);
+ 	t = xt_find_table_lock(net, AF_INET, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ 		struct xt_table_info info;
+ 		ret = compat_table_info(private, &info);
+ 		if (!ret && get.size == info.size)
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1625,7 +1625,7 @@ compat_get_entries(struct net *net, stru
+ 	xt_compat_lock(AF_INET6);
+ 	t = xt_find_table_lock(net, AF_INET6, get.name);
+ 	if (!IS_ERR(t)) {
+-		const struct xt_table_info *private = t->private;
++		const struct xt_table_info *private = xt_table_get_private_protected(t);
+ 		struct xt_table_info info;
+ 		ret = compat_table_info(private, &info);
+ 		if (!ret && get.size == info.size)
 
 
