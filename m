@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF0CF2F169D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F94D2F15DD
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730597AbhAKNHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:07:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
+        id S1731320AbhAKNLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730591AbhAKNHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E35BA22515;
-        Mon, 11 Jan 2021 13:07:14 +0000 (UTC)
+        id S1731316AbhAKNLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBEEC22795;
+        Mon, 11 Jan 2021 13:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370435;
-        bh=99pWozPUTAovepm9asQ1gDQbcAldCs2aL9E+joD8nIw=;
+        s=korg; t=1610370622;
+        bh=FUy1xwRMw7YqWPft1kH5bPHMQ2sY+SKXfSX4oqJwuJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6YLZ8ntb4toBt+5uw3w7ShaTS1E9WH2uSz2SfWjw0Z9vNV06ulRLrTchJvA1V+nD
-         U0IEixlipWXyB8wG0eaifJjKfbbso6I0u1bSRRcqOmyYoAoPHSjje81C8H8u0YmPHd
-         1L9VhzmakpTcxvDSQGNTpUx4snuqqLSDVeU2N/Ck=
+        b=fV5ceLXKdALJxp7cFlA9eOd9uylqQUIPdMBsMAO673UMfJV1SYm/NDXOZXEiQN165
+         oDMCXIeeEFOM3TAqHJp79fkoJHb0BYK7goy86UyIqHR4Pz4Emsawr0GJ+jHtwUlEj+
+         EU/4bmwKR6FwwnNLQ+MW1ZzNaDKC+tZklkdjP+mY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 20/77] net: dcb: Validate netlink message in DCB handler
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 25/92] net: ethernet: Fix memleak in ethoc_probe
 Date:   Mon, 11 Jan 2021 14:01:29 +0100
-Message-Id: <20210111130037.389318488@linuxfoundation.org>
+Message-Id: <20210111130040.359268434@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <me@pmachata.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
+[ Upstream commit 5d41f9b7ee7a5a5138894f58846a4ffed601498a ]
 
-DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
-messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
-the CAP_NET_ADMIN capability.
+When mdiobus_register() fails, priv->mdio allocated
+by mdiobus_alloc() has not been freed, which leads
+to memleak.
 
-However, the operation to be performed is not decided from the DCB message
-type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
-reading DCB objects, the corresponding SET and DEL commands are used for
-manipulation.
-
-The assumption is that set-like commands will be sent via an RTM_SETDCB
-message, and get-like ones via RTM_GETDCB. However, this assumption is not
-enforced.
-
-It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
-capability by sending the corresponding command in an RTM_GETDCB message.
-That is a bug. Fix it by validating the type of the request message against
-the type used for the response.
-
-Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
-Signed-off-by: Petr Machata <me@pmachata.org>
-Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
+Fixes: e7f4dc3536a4 ("mdio: Move allocation of interrupts into core")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20201223110615.31389-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ethoc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1756,6 +1756,8 @@ static int dcb_doit(struct sk_buff *skb,
- 	fn = &reply_funcs[dcb->cmd];
- 	if (!fn->cb)
- 		return -EOPNOTSUPP;
-+	if (fn->type != nlh->nlmsg_type)
-+		return -EPERM;
+--- a/drivers/net/ethernet/ethoc.c
++++ b/drivers/net/ethernet/ethoc.c
+@@ -1207,7 +1207,7 @@ static int ethoc_probe(struct platform_d
+ 	ret = mdiobus_register(priv->mdio);
+ 	if (ret) {
+ 		dev_err(&netdev->dev, "failed to register MDIO bus\n");
+-		goto free2;
++		goto free3;
+ 	}
  
- 	if (!tb[DCB_ATTR_IFNAME])
- 		return -EINVAL;
+ 	ret = ethoc_mdio_probe(netdev);
+@@ -1239,6 +1239,7 @@ error2:
+ 	netif_napi_del(&priv->napi);
+ error:
+ 	mdiobus_unregister(priv->mdio);
++free3:
+ 	mdiobus_free(priv->mdio);
+ free2:
+ 	clk_disable_unprepare(priv->clk);
 
 
