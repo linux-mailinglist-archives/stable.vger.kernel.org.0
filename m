@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF302F1305
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8161E2F13B9
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729341AbhAKNCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
+        id S1727073AbhAKNNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729314AbhAKNCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:02:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB3B52250E;
-        Mon, 11 Jan 2021 13:01:51 +0000 (UTC)
+        id S1731998AbhAKNNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B90C2253A;
+        Mon, 11 Jan 2021 13:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370112;
-        bh=mQrKzEhE0lfko0hSa7iYajsD9DroLaanyDC1YYELfsY=;
+        s=korg; t=1610370814;
+        bh=9DT0OLOL1Sae2kQnMggXLcorwQc2ktDj8rjbEQ4k8MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obbF5WbI3uXgOUU8YuA2ASLDjwOyAZ/TXGB4O9VD2MB+ObM9//FZ31IDvuOyKmWE6
-         +Ukya7lz2iU2qlBOy9W1AMBv0N3HKrl3p5DK01LWiai8efIkylGJl9MH3/lRo0RYU0
-         CqANiUsS9b5AMX/iT3/EI8BewEk2+pDH5Fp9SQKc=
+        b=oOGnYjMcnCT25BAvAL6gk1iE5UzmmG3JeAMKkGR15uui3QihUpqrbMIzjlB91LrFy
+         V3LjzxeVOssWBOjBIzurjcbMUCKbx2G7S33tosK8HBRu/AekMf1pha5ecWefoN4s56
+         p5+IvNTXaZLGhrWH6SxpT2Vg0e2JhRI3VaIf5Scg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 08/38] net: hns: fix return value check in __lb_other_process()
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Sudarsana Kalluru <skalluru@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 016/145] qede: fix offload for IPIP tunnel packets
 Date:   Mon, 11 Jan 2021 14:00:40 +0100
-Message-Id: <20210111130032.867246503@linuxfoundation.org>
+Message-Id: <20210111130049.293206480@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Manish Chopra <manishc@marvell.com>
 
-[ Upstream commit 5ede3ada3da7f050519112b81badc058190b9f9f ]
+[ Upstream commit 5d5647dad259bb416fd5d3d87012760386d97530 ]
 
-The function skb_copy() could return NULL, the return value
-need to be checked.
+IPIP tunnels packets are unknown to device,
+hence these packets are incorrectly parsed and
+caused the packet corruption, so disable offlods
+for such packets at run time.
 
-Fixes: b5996f11ea54 ("net: add Hisilicon Network Subsystem basic ethernet support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Link: https://lore.kernel.org/r/20201221145530.7771-1-manishc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-@@ -433,6 +433,10 @@ static void __lb_other_process(struct hn
- 	/* for mutl buffer*/
- 	new_skb = skb_copy(skb, GFP_ATOMIC);
- 	dev_kfree_skb_any(skb);
-+	if (!new_skb) {
-+		netdev_err(ndev, "skb alloc failed\n");
-+		return;
-+	}
- 	skb = new_skb;
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -1799,6 +1799,11 @@ netdev_features_t qede_features_check(st
+ 			      ntohs(udp_hdr(skb)->dest) != gnv_port))
+ 				return features & ~(NETIF_F_CSUM_MASK |
+ 						    NETIF_F_GSO_MASK);
++		} else if (l4_proto == IPPROTO_IPIP) {
++			/* IPIP tunnels are unknown to the device or at least unsupported natively,
++			 * offloads for them can't be done trivially, so disable them for such skb.
++			 */
++			return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
+ 		}
+ 	}
  
- 	check_ok = 0;
 
 
