@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FCE2F162C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A08F42F1574
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730498AbhAKNtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:49:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57224 "EHLO mail.kernel.org"
+        id S1731522AbhAKNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:39:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731102AbhAKNKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A7CA227C3;
-        Mon, 11 Jan 2021 13:09:18 +0000 (UTC)
+        id S1731528AbhAKNMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC5F2255F;
+        Mon, 11 Jan 2021 13:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370559;
-        bh=PSJJeZbr+lK0GCebJ9clBwB5PAAtK4YdfQoHGi7zZiE=;
+        s=korg; t=1610370753;
+        bh=3S/OYm4FYnOaQmVTlfLMvhu1wsDpuztSU3FKo0jWEBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cD7ljy19tQb4XlhkT66226YJ68qske26DgvtcT49veu9mt3aIY0LdVYAFXX3W7PXu
-         +6A7wuU9c2RsJs281EW+VC4ewb91O9b99U1MGr/5134GJU8ZnhJmjxH8lG47s7HvQq
-         H3YqYoybYxfb3x72cVtBXsbyPduWZAMMlNOVNhh8=
+        b=ZcCy3q0CNa2RVueHM8hXmzli84CiP7/u0mklXY9+jC+mWCsA6YeD8uMHV7Q4vzW1W
+         CYFAOInkHiwUvD9XArbd7Aat5rlnmJb6iX1KcTXvXc/vzYAsl32mCCK71uW75VPRtM
+         oauROiMD5Q2m4AurkP8TuGP1ut2FDGVvAQNqnUdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying-Tsun Huang <ying-tsun.huang@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 76/77] x86/mtrr: Correct the range check before performing MTRR type lookups
-Date:   Mon, 11 Jan 2021 14:02:25 +0100
-Message-Id: <20210111130040.065311683@linuxfoundation.org>
+        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 82/92] ALSA: hda/realtek: Add two "Intel Reference board" SSID in the ALC256.
+Date:   Mon, 11 Jan 2021 14:02:26 +0100
+Message-Id: <20210111130043.106807251@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+From: PeiSen Hou <pshou@realtek.com>
 
-commit cb7f4a8b1fb426a175d1708f05581939c61329d4 upstream.
+commit ce2e79b223867b9e586021b55dee7035517a236b upstream.
 
-In mtrr_type_lookup(), if the input memory address region is not in the
-MTRR, over 4GB, and not over the top of memory, a write-back attribute
-is returned. These condition checks are for ensuring the input memory
-address region is actually mapped to the physical memory.
+Add two "Intel Reference boad" SSID in the alc256.
+Enable "power saving mode" and Enable "headset jack mode".
 
-However, if the end address is just aligned with the top of memory,
-the condition check treats the address is over the top of memory, and
-write-back attribute is not returned.
-
-And this hits in a real use case with NVDIMM: the nd_pmem module tries
-to map NVDIMMs as cacheable memories when NVDIMMs are connected. If a
-NVDIMM is the last of the DIMMs, the performance of this NVDIMM becomes
-very low since it is aligned with the top of memory and its memory type
-is uncached-minus.
-
-Move the input end address change to inclusive up into
-mtrr_type_lookup(), before checking for the top of memory in either
-mtrr_type_lookup_{variable,fixed}() helpers.
-
- [ bp: Massage commit message. ]
-
-Fixes: 0cc705f56e40 ("x86/mm/mtrr: Clean up mtrr_type_lookup()")
-Signed-off-by: Ying-Tsun Huang <ying-tsun.huang@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201215070721.4349-1-ying-tsun.huang@amd.com
+Signed-off-by: PeiSen Hou <pshou@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5978d2267f034c28973d117925ec9c63@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mtrr/generic.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -166,9 +166,6 @@ static u8 mtrr_type_lookup_variable(u64
- 	*repeat = 0;
- 	*uniform = 1;
- 
--	/* Make end inclusive instead of exclusive */
--	end--;
--
- 	prev_match = MTRR_TYPE_INVALID;
- 	for (i = 0; i < num_var_ranges; ++i) {
- 		unsigned short start_state, end_state, inclusive;
-@@ -260,6 +257,9 @@ u8 mtrr_type_lookup(u64 start, u64 end,
- 	int repeat;
- 	u64 partial_end;
- 
-+	/* Make end inclusive instead of exclusive */
-+	end--;
-+
- 	if (!mtrr_state_set)
- 		return MTRR_TYPE_INVALID;
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7941,6 +7941,8 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x10cf, 0x1845, "Lifebook U904", ALC269_FIXUP_LIFEBOOK_EXTMIC),
+ 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
+ 	SND_PCI_QUIRK(0x10ec, 0x1230, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
++	SND_PCI_QUIRK(0x10ec, 0x1252, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
++	SND_PCI_QUIRK(0x10ec, 0x1254, "Intel Reference board", ALC295_FIXUP_CHROME_BOOK),
+ 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
+ 	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
 
 
