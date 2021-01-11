@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222EC2F1481
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF9E2F1342
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730876AbhAKNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35568 "EHLO mail.kernel.org"
+        id S1730375AbhAKNFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:05:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732499AbhAKNRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C8D722B49;
-        Mon, 11 Jan 2021 13:16:26 +0000 (UTC)
+        id S1728003AbhAKNFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:05:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0547225AB;
+        Mon, 11 Jan 2021 13:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370987;
-        bh=/pd8RLnDeNu7p+BdZvik1txSdKxNe8f/cfwwP4ayZU8=;
+        s=korg; t=1610370336;
+        bh=Dz3urzV+VpYBY1hRXwu3fhbJg3txPYChSESO+gfAa7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4PPowDYvR3lEVFd2FCYoGIQre1dIZEx+cutlJL//zPRrUSo+NRsK7sSTWTz9J9X5
-         b/ULHvOSPVqfdHQOQ7/+uB9OLydXQpbvQpLWHCPX3ZOgLdykcbG7y8v8hsRKR1k1qG
-         JwIgKNgyjG9wm7JfDDOOj8HEwOudTu8zfPgl233E=
+        b=HszloSTYF61KHr+UIS9Vmsnj1yW+/7eYO+AFkjaLK6Cen0AHQbbGRgKRg5GB7lgFP
+         9dtes1mU4yA01UGwex3M5qvd4Yk0dd3r+n7B/cUPa8JcGEZevTqGLZdl5CFaPZtmtK
+         QfbOq3M4xSIYj7Dsw6QDipQ3b/WLAP+VESd8xHVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com,
-        Yuyang Du <yuyang.du@intel.com>,
-        Shuah Khan <shuahkh@osg.samsung.com>, linux-usb@vger.kernel.org
-Subject: [PATCH 5.10 090/145] usb: usbip: vhci_hcd: protect shift size
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.14 35/57] usb: uas: Add PNY USB Portable SSD to unusual_uas
 Date:   Mon, 11 Jan 2021 14:01:54 +0100
-Message-Id: <20210111130052.856084802@linuxfoundation.org>
+Message-Id: <20210111130035.427960522@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
+References: <20210111130033.715773309@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 718bf42b119de652ebcc93655a1f33a9c0d04b3c upstream.
+commit 96ebc9c871d8a28fb22aa758dd9188a4732df482 upstream.
 
-Fix shift out-of-bounds in vhci_hcd.c:
+Here's another variant PNY Pro Elite USB 3.1 Gen 2 portable SSD that
+hangs and doesn't respond to ATA_1x pass-through commands. If it doesn't
+support these commands, it should respond properly to the host. Add it
+to the unusual uas list to be able to move forward with other
+operations.
 
-  UBSAN: shift-out-of-bounds in ../drivers/usb/usbip/vhci_hcd.c:399:41
-  shift exponent 768 is too large for 32-bit type 'int'
-
-Fixes: 03cd00d538a6 ("usbip: vhci-hcd: Set the vhci structure up to work")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com
-Cc: Yuyang Du <yuyang.du@intel.com>
-Cc: Shuah Khan <shuahkh@osg.samsung.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201229071309.18418-1-rdunlap@infradead.org
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usbip/vhci_hcd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -396,6 +396,8 @@ static int vhci_hub_control(struct usb_h
- 		default:
- 			usbip_dbg_vhci_rh(" ClearPortFeature: default %x\n",
- 					  wValue);
-+			if (wValue >= 32)
-+				goto error;
- 			vhci_hcd->port_status[rhport] &= ~(1 << wValue);
- 			break;
- 		}
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -167,6 +167,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		US_FL_BROKEN_FUA),
+ 
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
+ 		"PNY",
+ 		"Pro Elite SSD",
 
 
