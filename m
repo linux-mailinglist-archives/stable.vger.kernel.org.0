@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C712F13F0
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66002F1372
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732489AbhAKNRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:17:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
+        id S1731064AbhAKNIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:08:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732532AbhAKNRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D3812250F;
-        Mon, 11 Jan 2021 13:16:20 +0000 (UTC)
+        id S1731061AbhAKNIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:08:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 811DA22795;
+        Mon, 11 Jan 2021 13:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370980;
-        bh=BWYcWP3aNUwnjZWiVR99nwIp3Z0D++CFG5rwRWS12WQ=;
+        s=korg; t=1610370485;
+        bh=SuEabbIVXSYdhRm1lySB7vFdCV6L1oW/q2Y4Yjmad8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mg4RG+8TKYiwt1vBgVx/GnK1hHoRoUzToVtGL+gpjn0H99qABuYsZKmIQp7+oVL9h
-         cKsn88rw6BmdEYnYbOlhwDhc+bS8pKzTfmg5OptAayUqJRb5VGD/dU+CHeVbYBsvbw
-         yBSTRKeDQrnqOPK0KmwLJKQV8LNsOmF4eeVUCjZM=
+        b=urU30etP6fPIouipWe31sWnqf78QO5rJol0qltHblyjXg0EKvuJLWGVYPN7Uc+H3t
+         hXM0McP6HpQjV4RXuwFTJGS+qYXFkTBkpkt0f42KKE7fdZG0xg8mcj/k/jvjpGOrw5
+         elsQ1SoaeID3sFIHCSb1wNYchI7AyjviKvXlNumk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>
-Subject: [PATCH 5.10 088/145] usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        "taehyun.cho" <taehyun.cho@samsung.com>
+Subject: [PATCH 4.19 43/77] usb: gadget: enable super speed plus
 Date:   Mon, 11 Jan 2021 14:01:52 +0100
-Message-Id: <20210111130052.761167554@linuxfoundation.org>
+Message-Id: <20210111130038.471773749@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: taehyun.cho <taehyun.cho@samsung.com>
 
-commit 83a43ff80a566de8718dfc6565545a0080ec1fb5 upstream.
+commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
 
-if of_find_device_by_node() succeed, usbmisc_get_init_data() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+Enable Super speed plus in configfs to support USB3.1 Gen2.
+This ensures that when a USB gadget is plugged in, it is
+enumerated as Gen 2 and connected at 10 Gbps if the host and
+cable are capable of it.
 
-Fixes: ef12da914ed6 ("usb: chipidea: imx: properly check for usbmisc")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
+etc.) already have SuperSpeed Plus support.
+
+Tested: plugged gadget into Linux host and saw:
+[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
+
+Tested-by: Lorenzo Colitti <lorenzo@google.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201117011430.642589-1-yukuai3@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/configfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -139,9 +139,13 @@ static struct imx_usbmisc_data *usbmisc_
- 	misc_pdev = of_find_device_by_node(args.np);
- 	of_node_put(args.np);
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1505,7 +1505,7 @@ static const struct usb_gadget_driver co
+ 	.suspend	= configfs_composite_suspend,
+ 	.resume		= configfs_composite_resume,
  
--	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
-+	if (!misc_pdev)
- 		return ERR_PTR(-EPROBE_DEFER);
+-	.max_speed	= USB_SPEED_SUPER,
++	.max_speed	= USB_SPEED_SUPER_PLUS,
+ 	.driver = {
+ 		.owner          = THIS_MODULE,
+ 		.name		= "configfs-gadget",
+@@ -1545,7 +1545,7 @@ static struct config_group *gadgets_make
+ 	gi->composite.unbind = configfs_do_nothing;
+ 	gi->composite.suspend = NULL;
+ 	gi->composite.resume = NULL;
+-	gi->composite.max_speed = USB_SPEED_SUPER;
++	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
  
-+	if (!platform_get_drvdata(misc_pdev)) {
-+		put_device(&misc_pdev->dev);
-+		return ERR_PTR(-EPROBE_DEFER);
-+	}
- 	data->dev = &misc_pdev->dev;
- 
- 	/*
+ 	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
 
 
