@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0392F138C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB352F1392
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731238AbhAKNKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:10:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
+        id S1731353AbhAKNLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731236AbhAKNKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25847227C3;
-        Mon, 11 Jan 2021 13:10:23 +0000 (UTC)
+        id S1731345AbhAKNLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C70021534;
+        Mon, 11 Jan 2021 13:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370624;
-        bh=BQSipWm4K8jrZ6XWz6uhxK9p+QWwX1+/3UZ0O6jNdkE=;
+        s=korg; t=1610370631;
+        bh=L47XDru5DO/x57PYjBmpn9hhBR5f2Vn1dNZcEwIfZ38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRSobjXqWIzYURRcWNiy5kfO0Un2p1rGmlQnl80mrfTrWSou0DKrFQdqvbam6qGVZ
-         JvgWnC7sj71k/Ovu2TZhOMAg8uDNE3FrnXJYn55lhVCXwJWPpESuBzi/q506Z7431f
-         9Z113A8pnOXFDNc6S8P+pI4+6ehK4m77/wlDfhbc=
+        b=UbwGO9pWvaNiHh47G6FdKSiqi8IPtvZCpuCCyD0y4GtfZ4pnq23beUAyGr6kggg8x
+         ddwZQNFoXkWUPb62LQ4YK50QQ2XDnozwrSOkLKDuv4qevI/6CcMnjtTZLAcSM4Tzhy
+         aZ/IYR/wtKspqNdc1yrmBQ68ihYvkryN593AO9M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Huang Shijie <sjhuang@iluvatar.ai>,
+        Shi Jiasheng <jiasheng.shi@iluvatar.ai>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/92] scsi: ufs-pci: Ensure UFS device is in PowerDown mode for suspend-to-disk ->poweroff()
-Date:   Mon, 11 Jan 2021 14:01:07 +0100
-Message-Id: <20210111130039.323817472@linuxfoundation.org>
+Subject: [PATCH 5.4 06/92] lib/genalloc: fix the overflow when size is too big
+Date:   Mon, 11 Jan 2021 14:01:10 +0100
+Message-Id: <20210111130039.468790192@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -40,75 +42,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Huang Shijie <sjhuang@iluvatar.ai>
 
-[ Upstream commit af423534d2de86cd0db729a5ac41f056ca8717de ]
+[ Upstream commit 36845663843fc59c5d794e3dc0641472e3e572da ]
 
-The expectation for suspend-to-disk is that devices will be powered-off, so
-the UFS device should be put in PowerDown mode. If spm_lvl is not 5, then
-that will not happen. Change the pm callbacks to force spm_lvl 5 for
-suspend-to-disk poweroff.
+Some graphic card has very big memory on chip, such as 32G bytes.
 
-Link: https://lore.kernel.org/r/20201207083120.26732-3-adrian.hunter@intel.com
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+In the following case, it will cause overflow:
+
+    pool = gen_pool_create(PAGE_SHIFT, NUMA_NO_NODE);
+    ret = gen_pool_add(pool, 0x1000000, SZ_32G, NUMA_NO_NODE);
+
+    va = gen_pool_alloc(pool, SZ_4G);
+
+The overflow occurs in gen_pool_alloc_algo_owner():
+
+		....
+		size = nbits << order;
+		....
+
+The @nbits is "int" type, so it will overflow.
+Then the gen_pool_avail() will return the wrong value.
+
+This patch converts some "int" to "unsigned long", and
+changes the compare code in while.
+
+Link: https://lkml.kernel.org/r/20201229060657.3389-1-sjhuang@iluvatar.ai
+Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
+Reported-by: Shi Jiasheng <jiasheng.shi@iluvatar.ai>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd-pci.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ lib/genalloc.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
-index 3b19de3ae9a30..e4ba2445ff56f 100644
---- a/drivers/scsi/ufs/ufshcd-pci.c
-+++ b/drivers/scsi/ufs/ufshcd-pci.c
-@@ -96,6 +96,30 @@ static int ufshcd_pci_resume(struct device *dev)
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+index 9fc31292cfa1d..80d10d02cf388 100644
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -81,14 +81,14 @@ static int clear_bits_ll(unsigned long *addr, unsigned long mask_to_clear)
+  * users set the same bit, one user will return remain bits, otherwise
+  * return 0.
+  */
+-static int bitmap_set_ll(unsigned long *map, int start, int nr)
++static int bitmap_set_ll(unsigned long *map, unsigned long start, unsigned long nr)
  {
- 	return ufshcd_system_resume(dev_get_drvdata(dev));
- }
-+
-+/**
-+ * ufshcd_pci_poweroff - suspend-to-disk poweroff function
-+ * @dev: pointer to PCI device handle
-+ *
-+ * Returns 0 if successful
-+ * Returns non-zero otherwise
-+ */
-+static int ufshcd_pci_poweroff(struct device *dev)
-+{
-+	struct ufs_hba *hba = dev_get_drvdata(dev);
-+	int spm_lvl = hba->spm_lvl;
-+	int ret;
-+
-+	/*
-+	 * For poweroff we need to set the UFS device to PowerDown mode.
-+	 * Force spm_lvl to ensure that.
-+	 */
-+	hba->spm_lvl = 5;
-+	ret = ufshcd_system_suspend(hba);
-+	hba->spm_lvl = spm_lvl;
-+	return ret;
-+}
-+
- #endif /* !CONFIG_PM_SLEEP */
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_set = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_set = BITMAP_FIRST_WORD_MASK(start);
  
- #ifdef CONFIG_PM
-@@ -190,8 +214,14 @@ ufshcd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- }
+-	while (nr - bits_to_set >= 0) {
++	while (nr >= bits_to_set) {
+ 		if (set_bits_ll(p, mask_to_set))
+ 			return nr;
+ 		nr -= bits_to_set;
+@@ -116,14 +116,15 @@ static int bitmap_set_ll(unsigned long *map, int start, int nr)
+  * users clear the same bit, one user will return remain bits,
+  * otherwise return 0.
+  */
+-static int bitmap_clear_ll(unsigned long *map, int start, int nr)
++static unsigned long
++bitmap_clear_ll(unsigned long *map, unsigned long start, unsigned long nr)
+ {
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
  
- static const struct dev_pm_ops ufshcd_pci_pm_ops = {
--	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_pci_suspend,
--				ufshcd_pci_resume)
-+#ifdef CONFIG_PM_SLEEP
-+	.suspend	= ufshcd_pci_suspend,
-+	.resume		= ufshcd_pci_resume,
-+	.freeze		= ufshcd_pci_suspend,
-+	.thaw		= ufshcd_pci_resume,
-+	.poweroff	= ufshcd_pci_poweroff,
-+	.restore	= ufshcd_pci_resume,
-+#endif
- 	SET_RUNTIME_PM_OPS(ufshcd_pci_runtime_suspend,
- 			   ufshcd_pci_runtime_resume,
- 			   ufshcd_pci_runtime_idle)
+-	while (nr - bits_to_clear >= 0) {
++	while (nr >= bits_to_clear) {
+ 		if (clear_bits_ll(p, mask_to_clear))
+ 			return nr;
+ 		nr -= bits_to_clear;
+@@ -183,8 +184,8 @@ int gen_pool_add_owner(struct gen_pool *pool, unsigned long virt, phys_addr_t ph
+ 		 size_t size, int nid, void *owner)
+ {
+ 	struct gen_pool_chunk *chunk;
+-	int nbits = size >> pool->min_alloc_order;
+-	int nbytes = sizeof(struct gen_pool_chunk) +
++	unsigned long nbits = size >> pool->min_alloc_order;
++	unsigned long nbytes = sizeof(struct gen_pool_chunk) +
+ 				BITS_TO_LONGS(nbits) * sizeof(long);
+ 
+ 	chunk = vzalloc_node(nbytes, nid);
+@@ -242,7 +243,7 @@ void gen_pool_destroy(struct gen_pool *pool)
+ 	struct list_head *_chunk, *_next_chunk;
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int bit, end_bit;
++	unsigned long bit, end_bit;
+ 
+ 	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
+ 		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
+@@ -278,7 +279,7 @@ unsigned long gen_pool_alloc_algo_owner(struct gen_pool *pool, size_t size,
+ 	struct gen_pool_chunk *chunk;
+ 	unsigned long addr = 0;
+ 	int order = pool->min_alloc_order;
+-	int nbits, start_bit, end_bit, remain;
++	unsigned long nbits, start_bit, end_bit, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -487,7 +488,7 @@ void gen_pool_free_owner(struct gen_pool *pool, unsigned long addr, size_t size,
+ {
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int start_bit, nbits, remain;
++	unsigned long start_bit, nbits, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -754,7 +755,7 @@ unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
+ 	index = bitmap_find_next_zero_area(map, size, start, nr, 0);
+ 
+ 	while (index < size) {
+-		int next_bit = find_next_bit(map, size, index + nr);
++		unsigned long next_bit = find_next_bit(map, size, index + nr);
+ 		if ((next_bit - index) < len) {
+ 			len = next_bit - index;
+ 			start_bit = index;
 -- 
 2.27.0
 
