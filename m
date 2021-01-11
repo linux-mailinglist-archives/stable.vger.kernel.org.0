@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DCD22F1314
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B6E2F13CD
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbhAKNDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50254 "EHLO mail.kernel.org"
+        id S1727307AbhAKNPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729744AbhAKNDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6067422795;
-        Mon, 11 Jan 2021 13:02:28 +0000 (UTC)
+        id S1732221AbhAKNPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27365223E8;
+        Mon, 11 Jan 2021 13:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370148;
-        bh=PSJJeZbr+lK0GCebJ9clBwB5PAAtK4YdfQoHGi7zZiE=;
+        s=korg; t=1610370887;
+        bh=Gg9z6JL+vxxqWPzngExFRAgFl7dGE2SV/3kWYZbc7TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/AlSgji3LPPjQ6toZiAqz9II9ZydZAOwI/SDjDVj9dBDK8/19zDfYpoA5Fij4iVG
-         WCj7gpIDjKQF+iw3wm22hD/jzNrHya6fClGKaBl+8aG9oyGvu32RcdrkGXo8moWxPH
-         XTGlnHPmOeS/l39cvshbWLAmwoL5hfqdTTVWh0d4=
+        b=P2sRzbc/6xSF98jARFjCJPgr93ME18Z22BcLdnsFXEf+4iv9vcr1wRwX5Qlfi2bCJ
+         OE1wFhjObaGoRkxqLF+Wdql+7uDoMQSNDMyIw3MMZrbeHrruFgTD3sNbTOErOKI79P
+         Wi2I038pYvGMZReGYJN0j5x9+joe0/wP2VdhwPVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying-Tsun Huang <ying-tsun.huang@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.4 38/38] x86/mtrr: Correct the range check before performing MTRR type lookups
-Date:   Mon, 11 Jan 2021 14:01:10 +0100
-Message-Id: <20210111130034.275116538@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 047/145] net: usb: qmi_wwan: add Quectel EM160R-GL
+Date:   Mon, 11 Jan 2021 14:01:11 +0100
+Message-Id: <20210111130050.785749679@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+From: "Bjørn Mork" <bjorn@mork.no>
 
-commit cb7f4a8b1fb426a175d1708f05581939c61329d4 upstream.
+[ Upstream commit cfd82dfc9799c53ef109343a23af006a0f6860a9 ]
 
-In mtrr_type_lookup(), if the input memory address region is not in the
-MTRR, over 4GB, and not over the top of memory, a write-back attribute
-is returned. These condition checks are for ensuring the input memory
-address region is actually mapped to the physical memory.
+New modem using ff/ff/30 for QCDM, ff/00/00 for  AT and NMEA,
+and ff/ff/ff for RMNET/QMI.
 
-However, if the end address is just aligned with the top of memory,
-the condition check treats the address is over the top of memory, and
-write-back attribute is not returned.
+T: Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=5000 MxCh= 0
+D: Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs= 1
+P: Vendor=2c7c ProdID=0620 Rev= 4.09
+S: Manufacturer=Quectel
+S: Product=EM160R-GL
+S: SerialNumber=e31cedc1
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+E: Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=82(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
+E: Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
 
-And this hits in a real use case with NVDIMM: the nd_pmem module tries
-to map NVDIMMs as cacheable memories when NVDIMMs are connected. If a
-NVDIMM is the last of the DIMMs, the performance of this NVDIMM becomes
-very low since it is aligned with the top of memory and its memory type
-is uncached-minus.
-
-Move the input end address change to inclusive up into
-mtrr_type_lookup(), before checking for the top of memory in either
-mtrr_type_lookup_{variable,fixed}() helpers.
-
- [ bp: Massage commit message. ]
-
-Fixes: 0cc705f56e40 ("x86/mm/mtrr: Clean up mtrr_type_lookup()")
-Signed-off-by: Ying-Tsun Huang <ying-tsun.huang@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201215070721.4349-1-ying-tsun.huang@amd.com
+Signed-off-by: BjÃ¸rn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20201230152451.245271-1-bjorn@mork.no
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/cpu/mtrr/generic.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -166,9 +166,6 @@ static u8 mtrr_type_lookup_variable(u64
- 	*repeat = 0;
- 	*uniform = 1;
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1036,6 +1036,7 @@ static const struct usb_device_id produc
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0125)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0306)},	/* Quectel EP06/EG06/EM06 */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
++	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
  
--	/* Make end inclusive instead of exclusive */
--	end--;
--
- 	prev_match = MTRR_TYPE_INVALID;
- 	for (i = 0; i < num_var_ranges; ++i) {
- 		unsigned short start_state, end_state, inclusive;
-@@ -260,6 +257,9 @@ u8 mtrr_type_lookup(u64 start, u64 end,
- 	int repeat;
- 	u64 partial_end;
- 
-+	/* Make end inclusive instead of exclusive */
-+	end--;
-+
- 	if (!mtrr_state_set)
- 		return MTRR_TYPE_INVALID;
- 
+ 	/* 3. Combined interface devices matching on interface number */
 
 
