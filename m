@@ -2,311 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28DCA2F1946
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 16:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B498A2F1951
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 16:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728082AbhAKPN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 10:13:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47092 "EHLO
+        id S1730321AbhAKPPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 10:15:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727917AbhAKPN6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 10:13:58 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07433C061786
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 07:13:18 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id v1so7972161pjr.2
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 07:13:18 -0800 (PST)
+        with ESMTP id S1729295AbhAKPPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 10:15:41 -0500
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA04C061786;
+        Mon, 11 Jan 2021 07:15:01 -0800 (PST)
+Received: by mail-lf1-x132.google.com with SMTP id o19so78906lfo.1;
+        Mon, 11 Jan 2021 07:15:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Y/43E1DOESJiJG37bOvOzgpaaFh5SgMOl0zDP2XoArI=;
-        b=CZpaMeTJljc4P3hr2gS/aB4hvm35kZodReL05/ShVOc5S6YgmHWZrmOvDoN66ljL6Z
-         l9MmXQK09nSp0ap24c83AutGQ4KkcpNPYrXVL8SoTa3IpRmiFr6gX6u/w8lQqSt2sYGZ
-         mW+O6nR1/QhVLIW2pUFFb8JovFXtR8wJzmuiRP2MZ6NZ0rGxqktisHjDjeXUTuEf9WVh
-         WhjiirYVMWEdKWjAAvvkqb39tNuctZqVxOooZXlxBMKPaGNtFDJu8y7Qn/RQ1Biuj5I9
-         nG2k4cGs7EV5wK+d9aTOd3Jig7QCMhCYiXYngj325426xEuAEDeDRcALeEiUejjXJRT2
-         ZnJQ==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=AjtuZDdcWOc1/aa559ej/SsGKfJvStJlSBlf/+tuqFA=;
+        b=IDPaeXPlFe/R9pS10V9hjQdlj+S47fDehlQSxYLZ7jj/yBD7pn3TAw+7g+/3Iw/Dco
+         b9pe7BZE9sPZoZfqLZLh3xoCpKeMvutiK7qcFt2aWSOktto9q1nSiZL4dtY5dOR3HypW
+         gwfGRWRagM48GipIVOgvPpX1MTGgeNVLmsVypdwNQFLIlh5l5h6hmGW7AA/DCf0v8Hkz
+         UrO8uEYYlBeinK2HxQS//MpYUKTaoHKClbczwORmsA7vmu5r3oRPxOnVn8abTeThC1u0
+         mXXOlhmRgdTyT3HsoP/i/oXZ52zE+Ox53uWjCIQ2p1HFEyC+Ek6RmzbSRXjRSUr7mrD+
+         BZ9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Y/43E1DOESJiJG37bOvOzgpaaFh5SgMOl0zDP2XoArI=;
-        b=ZidP83eyvgw080VU6CL4nMGWgMc0kBEzWFMuinP2mmTHIH/J5ZCbi7QOiKbyLV4MXh
-         JTKq1bcZGwh2CZC7FHJiWQsEe3KI2lNXG6+7hLuEmjDAIX3MiEVNlm87GM377Q/bXjHk
-         V7goYoNLfKBYZtG/giFNxydrcjQN3UvI8Kv9VW+9+z8rCsL5b55OHv+VjG3DvwWHFdVg
-         PaOFa6ogo85qepJnTv0SqNA2q9p0Edn29nzyHuAqMDXmzH6vHIco5fSbRHpy6l11T/ek
-         Z4+0qusAxcunO6O7HwaZWjMOuWUDYVmwI5RCYIl7fSTxTv7e5CeAmpCqd+e7OpYGtyKp
-         S/Xg==
-X-Gm-Message-State: AOAM53391xi6Rj8MnCYh51NSSS06iYV1bzF2nEq8mhf1VEa2fE1+qQ7e
-        oM6zBe8opXCWJe2hR9+Z88kxyWk3lhZPlA==
-X-Google-Smtp-Source: ABdhPJzSD5sR0h/pdl0ZDgo4wK9/GgdLxBI7/IckxQnYDPGhbkUykSWJPOqX6CyCFcIokMjceFyHxQ==
-X-Received: by 2002:a17:902:c155:b029:da:9460:99a0 with SMTP id 21-20020a170902c155b02900da946099a0mr233697plj.20.1610377997179;
-        Mon, 11 Jan 2021 07:13:17 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a141sm19568894pfa.189.2021.01.11.07.13.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jan 2021 07:13:16 -0800 (PST)
-Message-ID: <5ffc6b0c.1c69fb81.d207e.9726@mx.google.com>
-Date:   Mon, 11 Jan 2021 07:13:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=AjtuZDdcWOc1/aa559ej/SsGKfJvStJlSBlf/+tuqFA=;
+        b=sAsa4iVCHAW/FvwyJxOeW4x3s+71FvSZOn6dtmV4XcaTO/3ecQwNuvnAFHNR2TTwP/
+         CZHUL45qa3swJyuXS+t8mhtoI6CYRlZ3dHO6th7kYhjJWzPQGWBsAWALr9WfkmQVYOby
+         yzxVN+G0tt4aLV4TbRWaI2dUCO9qqdh3RZXPDWbtjQXmu16GDKPyZQuCO2oh6HO1lT4L
+         77xAf8wqzr8oaueGGgg5lGC1gvzuFKptpjcSOWE98SIH313k4KL4WxIpVhaDVcvs9Ujb
+         TB3IiA7rWjQyHo7DkLDZUS+Nx9VrimED+0wElbg2E/Ii5WdUtI+F3lRYTMjL1CxyyqNO
+         vPRw==
+X-Gm-Message-State: AOAM531CunFpyTGY9LFPoA5JU68NINHV6ZSktw4jFoP6pJnPaBVT5caX
+        ljsTiX0Vtl7YHBG7H31Ic6Dkya095Ow=
+X-Google-Smtp-Source: ABdhPJwYAi44DlFlpntPHSRlq0LUv5Am5FXiHbfev4FoJCgQ1QQ7fNoxfmGX4Nl6deNcgFvTcxIHbQ==
+X-Received: by 2002:a19:e210:: with SMTP id z16mr35086lfg.640.1610378099532;
+        Mon, 11 Jan 2021 07:14:59 -0800 (PST)
+Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.googlemail.com with ESMTPSA id y23sm3484025ljc.119.2021.01.11.07.14.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jan 2021 07:14:58 -0800 (PST)
+Subject: Re: [PATCH] i2c: tegra: Wait for config load atomically while in ISR
+To:     Mikko Perttunen <mperttunen@nvidia.com>, ldewangan@nvidia.com,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, wsa@kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210111135547.3613092-1-mperttunen@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <b7f69fb9-2960-f994-51d8-afd86af26bba@gmail.com>
+Date:   Mon, 11 Jan 2021 18:14:58 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.214-54-gec361fb28cca
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.14.y baseline: 135 runs,
- 6 regressions (v4.14.214-54-gec361fb28cca)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210111135547.3613092-1-mperttunen@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 135 runs, 6 regressions (v4.14.214-54-gec3=
-61fb28cca)
+11.01.2021 16:55, Mikko Perttunen пишет:
+> Upon a communication error, the interrupt handler can call
+> tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
+> unless the current transaction was marked atomic. Since
+> tegra_i2c_disable_packet_mode is only called from the interrupt path,
+> make it use atomic waiting always.
+> 
+> Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+> ---
+> This fixes constant spew for me while HDMI is connected to a
+> powered off television.
+> 
+>  drivers/i2c/busses/i2c-tegra.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 6f08c0c3238d..4a7ff1840565 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -528,12 +528,12 @@ static void tegra_i2c_vi_init(struct tegra_i2c_dev *i2c_dev)
+>  
+>  static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
+>  				   u32 reg, u32 mask, u32 delay_us,
+> -				   u32 timeout_us)
+> +				   u32 timeout_us, bool force_atomic)
+>  {
+>  	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+>  	u32 val;
+>  
+> -	if (!i2c_dev->atomic_mode)
+> +	if (!i2c_dev->atomic_mode && !force_atomic)
+>  		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+>  						  delay_us, timeout_us);
+>  
+> @@ -560,7 +560,7 @@ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
+>  	val |= mask;
+>  	i2c_writel(i2c_dev, val, offset);
+>  
+> -	err = tegra_i2c_poll_register(i2c_dev, offset, mask, 1000, 1000000);
+> +	err = tegra_i2c_poll_register(i2c_dev, offset, mask, 1000, 1000000, false);
+>  	if (err) {
+>  		dev_err(i2c_dev->dev, "failed to flush FIFO\n");
+>  		return err;
+> @@ -569,7 +569,7 @@ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
+>  	return 0;
+>  }
+>  
+> -static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
+> +static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev, bool force_atomic)
+>  {
+>  	int err;
+>  
+> @@ -579,7 +579,7 @@ static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
+>  	i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
+>  
+>  	err = tegra_i2c_poll_register(i2c_dev, I2C_CONFIG_LOAD, 0xffffffff,
+> -				      1000, I2C_CONFIG_LOAD_TIMEOUT);
+> +				      1000, I2C_CONFIG_LOAD_TIMEOUT, force_atomic);
+>  	if (err) {
+>  		dev_err(i2c_dev->dev, "failed to load config\n");
+>  		return err;
+> @@ -684,7 +684,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+>  	if (i2c_dev->multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
+>  		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
+>  
+> -	err = tegra_i2c_wait_for_config_load(i2c_dev);
+> +	err = tegra_i2c_wait_for_config_load(i2c_dev, false);
+>  	if (err)
+>  		return err;
+>  
+> @@ -707,7 +707,7 @@ static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
+>  	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
+>  		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
+>  
+> -	return tegra_i2c_wait_for_config_load(i2c_dev);
+> +	return tegra_i2c_wait_for_config_load(i2c_dev, true);
+>  }
+>  
+>  static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+> @@ -1090,7 +1090,7 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
+>  	      I2C_BC_TERMINATE;
+>  	i2c_writel(i2c_dev, val, I2C_BUS_CLEAR_CNFG);
+>  
+> -	err = tegra_i2c_wait_for_config_load(i2c_dev);
+> +	err = tegra_i2c_wait_for_config_load(i2c_dev, false);
+>  	if (err)
+>  		return err;
+>  
+> 
+
+What about a simpler variant:
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 6f08c0c3238d..0727383f4940 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct
+tegra_i2c_dev *i2c_dev,
+ 	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+ 	u32 val;
 
-Regressions Summary
--------------------
+-	if (!i2c_dev->atomic_mode)
++	if (!i2c_dev->atomic_mode && !in_irq())
+ 		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+ 						  delay_us, timeout_us);
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.214-54-gec361fb28cca/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.214-54-gec361fb28cca
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ec361fb28cca60ca105e60594ed00d9b2dffd82d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc3980110949404ec94cc2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ffc3980110949404ec94=
-cc3
-        failing since 285 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-panda                | arm   | lab-collabora | gcc-8    | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc38fe7bfb1ba8d7c94ce1
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ffc38fe7bfb1ba=
-8d7c94ce6
-        new failure (last pass: v4.14.214)
-        2 lines
-
-    2021-01-11 11:39:35.821000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc3869daf81456d9c94cc2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ffc3869daf81456d9c94=
-cc3
-        failing since 57 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc387c7d67a7c550c94cc3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ffc387c7d67a7c550c94=
-cc4
-        failing since 57 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc3864a04086925dc94cec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ffc3864a04086925dc94=
-ced
-        failing since 57 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ffc38a8368ced04a3c94cd5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-14-54-gec361fb28cca/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ffc38a8368ced04a3c94=
-cd6
-        failing since 57 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =20
