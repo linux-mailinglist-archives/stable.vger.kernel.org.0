@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D69E2F1487
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:27:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F93D2F1398
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732486AbhAKNQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:16:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35320 "EHLO mail.kernel.org"
+        id S1731428AbhAKNLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732482AbhAKNQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:16:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D4D92251F;
-        Mon, 11 Jan 2021 13:16:04 +0000 (UTC)
+        id S1731413AbhAKNLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2B322255F;
+        Mon, 11 Jan 2021 13:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370965;
-        bh=mjw7k9PTZPm3lxBElJ4hbpVY0ZiMp9ZckBuLku1Jras=;
+        s=korg; t=1610370656;
+        bh=pvgkMbPInBQDNDSLiEui6QI4i2DPvDYr4OCaX+EDWeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBS97qYC7Pz/j0rjKqCv3odoAFZNPo/JFRMM/QB535BzWeymQCI9bt9xZcRL0SbTu
-         N2auGHRaQnn4mopiyQ8E0DXLwv002jXvKGKwPSpF8Oa1mO/wKbXtKrKpExY+6CxbhF
-         Unzg8nAR/B17bP1arkoJj0fcxJn6F8swRd7IE2rk=
+        b=RT06Vc0Bcwd2uACW0A5CZssHRPZvzk4QBLWPRQM9tzXIKb9sY+vjhomx68C5qSvxN
+         oTMEZRgsytfGjvjpr0de2vh9o0g4bknGQ17Y+8CG3gJ7Ot3L5C0wvKPBlqkEEvyApu
+         owVVyAg51FEiNcPDnEhhCSo5quRAtw3biFCvi9QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Madhusudanarao Amara <madhusudanarao.amara@intel.com>
-Subject: [PATCH 5.10 081/145] usb: typec: intel_pmc_mux: Configure HPD first for HPD+IRQ request
+        stable@vger.kernel.org, Roland Dreier <roland@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 41/92] CDC-NCM: remove "connected" log message
 Date:   Mon, 11 Jan 2021 14:01:45 +0100
-Message-Id: <20210111130052.421430582@linuxfoundation.org>
+Message-Id: <20210111130041.131012429@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhusudanarao Amara <madhusudanarao.amara@intel.com>
+From: Roland Dreier <roland@kernel.org>
 
-commit 0f041b8592daaaea46e91a8ebb3b47e6e0171fd8 upstream.
+[ Upstream commit 59b4a8fa27f5a895582ada1ae5034af7c94a57b5 ]
 
-Warm reboot scenarios some times type C Mux driver gets Mux configuration
-request as HPD=1,IRQ=1. In that scenario typeC Mux driver need to configure
-Mux as follows as per IOM requirement:
- (1). Confgiure Mux HPD = 1, IRQ = 0
- (2). Configure Mux with HPD = 1, IRQ = 1
+The cdc_ncm driver passes network connection notifications up to
+usbnet_link_change(), which is the right place for any logging.
+Remove the netdev_info() duplicating this from the driver itself.
 
-IOM expects TypeC Mux configuration as follows:
- (1). HPD=1, IRQ=0
- (2). HPD=1, IRQ=1
-if IOM gets mux config request (2) without configuring (1), it will ignore
-the request. The impact of this is there is no DP_alt mode display.
+This stops devices such as my "TRENDnet USB 10/100/1G/2.5G LAN"
+(ID 20f4:e02b) adapter from spamming the kernel log with
 
-Fixes: 43d596e32276 ("usb: typec: intel_pmc_mux: Check the port status before connect")
-Cc: stable@vger.kernel.org
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Madhusudanarao Amara <madhusudanarao.amara@intel.com>
-Link: https://lore.kernel.org/r/20201216140918.49197-1-madhusudanarao.amara@intel.com
+    cdc_ncm 2-2:2.0 enp0s2u2c2: network connection: connected
+
+messages every 60 msec or so.
+
+Signed-off-by: Roland Dreier <roland@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20201224032116.2453938-1-roland@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/usb/cdc_ncm.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -202,10 +202,21 @@ static int
- pmc_usb_mux_dp_hpd(struct pmc_usb_port *port, struct typec_displayport_data *dp)
- {
- 	u8 msg[2] = { };
-+	int ret;
- 
- 	msg[0] = PMC_USB_DP_HPD;
- 	msg[0] |= port->usb3_port << PMC_USB_MSG_USB3_PORT_SHIFT;
- 
-+	/* Configure HPD first if HPD,IRQ comes together */
-+	if (!IOM_PORT_HPD_ASSERTED(port->iom_status) &&
-+	    dp->status & DP_STATUS_IRQ_HPD &&
-+	    dp->status & DP_STATUS_HPD_STATE) {
-+		msg[1] = PMC_USB_DP_HPD_LVL;
-+		ret = pmc_usb_command(port, msg, sizeof(msg));
-+		if (ret)
-+			return ret;
-+	}
-+
- 	if (dp->status & DP_STATUS_IRQ_HPD)
- 		msg[1] = PMC_USB_DP_HPD_IRQ;
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1625,9 +1625,6 @@ static void cdc_ncm_status(struct usbnet
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		netif_info(dev, link, dev->net,
+-			   "network connection: %sconnected\n",
+-			   !!event->wValue ? "" : "dis");
+ 		usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
  
 
 
