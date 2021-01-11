@@ -2,135 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC432F11B5
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 12:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DA22F11EB
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 12:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729630AbhAKLoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 06:44:32 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45747 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729658AbhAKLoc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 06:44:32 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id DD85F2938;
-        Mon, 11 Jan 2021 06:43:25 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 11 Jan 2021 06:43:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=f5/l5F
-        zZI3ssX5X0eix0J2LjK1WN6H/+Xp1un57SLfk=; b=WOwBXeiVwNfsQjM+GrHNFi
-        jCRwWA0sLMMqK3kDDK+ZxrPF7vMcDJHEHszGmzqxK8e/mgs6jpHv7w21g/hDSCZt
-        9tZQ+Pc4cqk9qvgXseXsBJKBPVTKT0ycGk6OuuJ3RYiLI9GPRkGVOC+B6YGnr2eK
-        vkSQo9Jy2Il7UvYY8RDTcJLhMf6tmVXGHS3Zk4ce9j8+DDNXamLcwdZaPRwnEUQE
-        LAVC18SgZ1uo2xmg/BoCVQatVnB1YYuYL3i/R688VgtuTYjbB2CAvsPkJB2VVUZO
-        s2m+V9iuQdU71ZRCSS8cC/bwGuANXoKq4zVoTnrwRXFG7gIVm5mLgVgKf8D0Ltlg
-        ==
-X-ME-Sender: <xms:3Tn8X2FVtaoGqSQePMDlKLywkBSP1bYz85xJ3FGpJSO8gbMqFqAe0g>
-    <xme:3Tn8Xy0TaRCwvGqm9qxwl0GMj-01A_Rd-b9_FyFAklBRyYobmZOr2TcGGdfYt8QTI
-    rKkyTVj3epptQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehuddgfedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:3Tn8X2nCFJ0DlpctdyWDY-83P6DJ4-qCUVxjQt7dnNSQay-yzrZN7A>
-    <xmx:3Tn8X6_ZYgT8F78gsbqZk_9atPs5sOxT-nm7ao4-xuj_QqhquVDhrQ>
-    <xmx:3Tn8XzpD-iCjWO5bBTIpaiM3rz4x-2d76FaOX5Gdp1BaJI3KwLeIPg>
-    <xmx:3Tn8X-MXjZXy_olPa8Y4lVSvp8fYran-aHUB-b3mjziw1teK75h-W7ngJeI>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4E6C108005C;
-        Mon, 11 Jan 2021 06:43:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: dont kill fasync under completion_lock" failed to apply to 5.10-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 12:44:37 +0100
-Message-ID: <161036547722987@kroah.com>
+        id S1729867AbhAKLvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 06:51:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37826 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729755AbhAKLvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 06:51:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A351224BD;
+        Mon, 11 Jan 2021 11:50:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610365829;
+        bh=NP9L6a6Mu9+yVb7bcao5sARkOO84Twaf5gsOxbxTCz4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=B8xIUnRGbG+eiLmhAKkTAsjfXbTYgQ8uYAVSl4bxG+leFEqHaXhtNHSdrT/Wg1Qby
+         p4mox/VJcbAsuChYQKfGUT5MPWDclBa+Vs7ZVCHgzgwZTMKAXZrYdMnyvnA5WocTZq
+         WIsSg74NkVIy04joBEPJ+vveTpsaKvpRXhyxJqeiQfpb8QAKII/LGOxXH8yURCs6ir
+         pL7MdfM1R4DPUVN7j5G+5GUEv09h1wMLcbtLNnDgfjJ0m6u+F5i39hpxXXUPFKAdIr
+         mhkehV98MT98x0YSJ+QMhYPW1hMtXk66Ehc1HAUArzwLoGYfiQTX9DHFDuC2fsyzGI
+         3CleWD3eEwxMw==
+Date:   Mon, 11 Jan 2021 12:50:26 +0100
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Subject: Re: [RFC PATCH 5/8] entry: Explicitly flush pending rcuog wakeup
+ before last rescheduling points
+Message-ID: <20210111115026.GC242508@lothringen>
+References: <20210109020536.127953-1-frederic@kernel.org>
+ <20210109020536.127953-6-frederic@kernel.org>
+ <20210111004014.GA242508@lothringen>
+ <20210111051318.GZ2743@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210111051318.GZ2743@paulmck-ThinkPad-P72>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Jan 10, 2021 at 09:13:18PM -0800, Paul E. McKenney wrote:
+> On Mon, Jan 11, 2021 at 01:40:14AM +0100, Frederic Weisbecker wrote:
+> > On Sat, Jan 09, 2021 at 03:05:33AM +0100, Frederic Weisbecker wrote:
+> > > Following the idle loop model, cleanly check for pending rcuog wakeup
+> > > before the last rescheduling point on resuming to user mode. This
+> > > way we can avoid to do it from rcu_user_enter() with the last resort
+> > > self-IPI hack that enforces rescheduling.
+> > > 
+> > > Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+> > > Cc: Peter Zijlstra <peterz@infradead.org>
+> > > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > > Cc: Ingo Molnar<mingo@kernel.org>
+> > > Cc: Paul E. McKenney <paulmck@kernel.org>
+> > > Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > > ---
+> > >  kernel/entry/common.c |  6 ++++++
+> > >  kernel/rcu/tree.c     | 12 +++++++-----
+> > >  2 files changed, 13 insertions(+), 5 deletions(-)
+> > > 
+> > > diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+> > > index 378341642f94..8f3292b5f9b7 100644
+> > > --- a/kernel/entry/common.c
+> > > +++ b/kernel/entry/common.c
+> > > @@ -178,6 +178,9 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+> > >  		/* Architecture specific TIF work */
+> > >  		arch_exit_to_user_mode_work(regs, ti_work);
+> > >  
+> > > +		/* Check if any of the above work has queued a deferred wakeup */
+> > > +		rcu_nocb_flush_deferred_wakeup();
+> > 
+> > So this needs to be moved to the IRQs disabled section, just a few lines later,
+> > otherwise preemption may schedule another task that in turn do call_rcu() and create
+> > new deferred wake up (thank Paul for the warning). Not to mention moving to
+> > another CPU with its own deferred wakeups to flush...
+> > 
+> > I'll fix that for the next version.
+> 
+> Ah, so it was not just my laptop dying, then!  ;-)
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 4aa84f2ffa81f71e15e5cffc2cc6090dbee78f8e Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 7 Jan 2021 03:15:42 +0000
-Subject: [PATCH] io_uring: dont kill fasync under completion_lock
-
-      CPU0                    CPU1
-       ----                    ----
-  lock(&new->fa_lock);
-                               local_irq_disable();
-                               lock(&ctx->completion_lock);
-                               lock(&new->fa_lock);
-  <Interrupt>
-    lock(&ctx->completion_lock);
-
- *** DEADLOCK ***
-
-Move kill_fasync() out of io_commit_cqring() to io_cqring_ev_posted(),
-so it doesn't hold completion_lock while doing it. That saves from the
-reported deadlock, and it's just nice to shorten the locking time and
-untangle nested locks (compl_lock -> wq_head::lock).
-
-Reported-by: syzbot+91ca3f25bd7f795f019c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 91e517ad1421..401316fe2ae2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1345,11 +1345,6 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
- 
- 	/* order cqe stores with ring update */
- 	smp_store_release(&rings->cq.tail, ctx->cached_cq_tail);
--
--	if (wq_has_sleeper(&ctx->cq_wait)) {
--		wake_up_interruptible(&ctx->cq_wait);
--		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
--	}
- }
- 
- static void io_put_identity(struct io_uring_task *tctx, struct io_kiocb *req)
-@@ -1711,6 +1706,10 @@ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
- 		wake_up(&ctx->sq_data->wait);
- 	if (io_should_trigger_evfd(ctx))
- 		eventfd_signal(ctx->cq_ev_fd, 1);
-+	if (wq_has_sleeper(&ctx->cq_wait)) {
-+		wake_up_interruptible(&ctx->cq_wait);
-+		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
-+	}
- }
- 
- static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
-@@ -1721,6 +1720,10 @@ static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
- 	}
- 	if (io_should_trigger_evfd(ctx))
- 		eventfd_signal(ctx->cq_ev_fd, 1);
-+	if (wq_has_sleeper(&ctx->cq_wait)) {
-+		wake_up_interruptible(&ctx->cq_wait);
-+		kill_fasync(&ctx->cq_fasync, SIGIO, POLL_IN);
-+	}
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
-
+Note that it fixes the "smp_processor_id() in preemptible" warnings you
+reported but it shouldn't fix the other issues.
