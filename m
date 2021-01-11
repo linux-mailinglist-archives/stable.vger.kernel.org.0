@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9B62F1380
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9505E2F1474
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730953AbhAKNJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:09:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57036 "EHLO mail.kernel.org"
+        id S1731433AbhAKNY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:24:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730949AbhAKNJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DBD921973;
-        Mon, 11 Jan 2021 13:09:00 +0000 (UTC)
+        id S1732532AbhAKNRO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C392A2229C;
+        Mon, 11 Jan 2021 13:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370541;
-        bh=l16RtqhC7S/v30fafAiX2Y5m+Bp5Qein82UDZB18Dx4=;
+        s=korg; t=1610371018;
+        bh=818keoIXjNkE9jrV10tW9djgeHMU4ivsrMEKNC6S9mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZhKQEw7/a/S616pDAUD9kXfiCV/zL4s83V9tK7UhZttLv+9rdRT03JamsJzcH0SJs
-         WyG1vWNCciSCDK6kfUiONM6S8TLM3GRPq9ErBBIWK0NXhUaUfbgj56u5TGu8fpY0oi
-         xHStXeg5Yz1v6pSv65vQ7ZCBNB3BgAjlGXUte9JE=
+        b=R+F0V2ysqnjkM4As5pLMjvuIs9xhYyjyzc53lGlQoGwuU49XyD2osYYpIeV8PO3Ow
+         d6ijMCvae7yDUwf7t1HI2pMxl7cRlJKFbDntKtcae0Nfx/BYzsJTEYTyV9j1/FcD+R
+         fXh/qrffWcOb5pDkkHE1yadZvzUHb9rS9PY9BiMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Narani <manish.narani@xilinx.com>
-Subject: [PATCH 4.19 60/77] usb: gadget: u_ether: Fix MTU size mismatch with RX packet size
-Date:   Mon, 11 Jan 2021 14:02:09 +0100
-Message-Id: <20210111130039.294762986@linuxfoundation.org>
+        stable@vger.kernel.org, Eddie Hung <eddie.hung@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 5.10 106/145] usb: gadget: configfs: Fix use-after-free issue with udc_name
+Date:   Mon, 11 Jan 2021 14:02:10 +0100
+Message-Id: <20210111130053.620957067@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,59 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Narani <manish.narani@xilinx.com>
+From: Eddie Hung <eddie.hung@mediatek.com>
 
-commit 0a88fa221ce911c331bf700d2214c5b2f77414d3 upstream.
+commit 64e6bbfff52db4bf6785fab9cffab850b2de6870 upstream.
 
-Fix the MTU size issue with RX packet size as the host sends the packet
-with extra bytes containing ethernet header. This causes failure when
-user sets the MTU size to the maximum i.e. 15412. In this case the
-ethernet packet received will be of length 15412 plus the ethernet header
-length. This patch fixes the issue where there is a check that RX packet
-length must not be more than max packet length.
+There is a use-after-free issue, if access udc_name
+in function gadget_dev_desc_UDC_store after another context
+free udc_name in function unregister_gadget.
 
-Fixes: bba787a860fa ("usb: gadget: ether: Allow jumbo frames")
-Signed-off-by: Manish Narani <manish.narani@xilinx.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1605597215-122027-1-git-send-email-manish.narani@xilinx.com
+Context 1:
+gadget_dev_desc_UDC_store()->unregister_gadget()->
+free udc_name->set udc_name to NULL
+
+Context 2:
+gadget_dev_desc_UDC_show()-> access udc_name
+
+Call trace:
+dump_backtrace+0x0/0x340
+show_stack+0x14/0x1c
+dump_stack+0xe4/0x134
+print_address_description+0x78/0x478
+__kasan_report+0x270/0x2ec
+kasan_report+0x10/0x18
+__asan_report_load1_noabort+0x18/0x20
+string+0xf4/0x138
+vsnprintf+0x428/0x14d0
+sprintf+0xe4/0x12c
+gadget_dev_desc_UDC_show+0x54/0x64
+configfs_read_file+0x210/0x3a0
+__vfs_read+0xf0/0x49c
+vfs_read+0x130/0x2b4
+SyS_read+0x114/0x208
+el0_svc_naked+0x34/0x38
+
+Add mutex_lock to protect this kind of scenario.
+
+Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1609239215-21819-1-git-send-email-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/u_ether.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/configfs.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -45,9 +45,10 @@
- #define UETH__VERSION	"29-May-2008"
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -221,9 +221,16 @@ static ssize_t gadget_dev_desc_bcdUSB_st
  
- /* Experiments show that both Linux and Windows hosts allow up to 16k
-- * frame sizes. Set the max size to 15k+52 to prevent allocating 32k
-+ * frame sizes. Set the max MTU size to 15k+52 to prevent allocating 32k
-  * blocks and still have efficient handling. */
--#define GETHER_MAX_ETH_FRAME_LEN 15412
-+#define GETHER_MAX_MTU_SIZE 15412
-+#define GETHER_MAX_ETH_FRAME_LEN (GETHER_MAX_MTU_SIZE + ETH_HLEN)
+ static ssize_t gadget_dev_desc_UDC_show(struct config_item *item, char *page)
+ {
+-	char *udc_name = to_gadget_info(item)->composite.gadget_driver.udc_name;
++	struct gadget_info *gi = to_gadget_info(item);
++	char *udc_name;
++	int ret;
  
- struct eth_dev {
- 	/* lock is held while accessing port_usb
-@@ -786,7 +787,7 @@ struct eth_dev *gether_setup_name(struct
- 
- 	/* MTU range: 14 - 15412 */
- 	net->min_mtu = ETH_HLEN;
--	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
-+	net->max_mtu = GETHER_MAX_MTU_SIZE;
- 
- 	dev->gadget = g;
- 	SET_NETDEV_DEV(net, &g->dev);
-@@ -848,7 +849,7 @@ struct net_device *gether_setup_name_def
- 
- 	/* MTU range: 14 - 15412 */
- 	net->min_mtu = ETH_HLEN;
--	net->max_mtu = GETHER_MAX_ETH_FRAME_LEN;
-+	net->max_mtu = GETHER_MAX_MTU_SIZE;
- 
- 	return net;
+-	return sprintf(page, "%s\n", udc_name ?: "");
++	mutex_lock(&gi->lock);
++	udc_name = gi->composite.gadget_driver.udc_name;
++	ret = sprintf(page, "%s\n", udc_name ?: "");
++	mutex_unlock(&gi->lock);
++
++	return ret;
  }
+ 
+ static int unregister_gadget(struct gadget_info *gi)
 
 
