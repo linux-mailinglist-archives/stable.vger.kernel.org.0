@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C012F132B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D36142F1353
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730215AbhAKNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51772 "EHLO mail.kernel.org"
+        id S1730545AbhAKNHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:07:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728346AbhAKNEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:04:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 760A122515;
-        Mon, 11 Jan 2021 13:04:11 +0000 (UTC)
+        id S1730541AbhAKNHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E98B922795;
+        Mon, 11 Jan 2021 13:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370251;
-        bh=8jl9gkz96iSt/IcIkfmZuHAkL1C82Yc2gSQ2KHN3JNo=;
+        s=korg; t=1610370417;
+        bh=jjYAseWg2HOjRMlOeY2x4tbpR7/ZWjLk5Wb9MXxpk9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zynqLT1cu1sNdlb5xbFx9obyqyaAIn0ALKhiwZcfPOa4pHDxLUPk5VlhNo8T8HHmh
-         DhDGhlsPeasviQSUy71C8hMH23ZVGKxBjwhAd8AUU0uzQW6ZOn6zDGMjoQ+Tg/D5E/
-         HBrGi/Gt+ool50AvzGKGbiAYlsa14tH5HnIgazzE=
+        b=Ixu6pT15al7YKaYeX/HEMrtCNdniWunOAwaAlUgIMBGi+2Tf+xKP2blYqC3Nc3TNh
+         OhxwyinwoYyF47MdtIcUp7DsB3LPKv7YzSHjI1kVyenhBTVImF271kVWmxjXwNRqoR
+         QC2yNNpLpofGRawS0ESaHVzaFBP49OQsmcB3YvDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d66bfadebca46cf61a2b@syzkaller.appspotmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 43/45] netfilter: ipset: fix shift-out-of-bounds in htable_bits()
-Date:   Mon, 11 Jan 2021 14:01:21 +0100
-Message-Id: <20210111130035.707078890@linuxfoundation.org>
+        stable@vger.kernel.org, Liron Himi <lironh@marvell.com>,
+        Stefan Chulski <stefanc@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 13/77] net: mvpp2: prs: fix PPPoE with ipv6 packet parse
+Date:   Mon, 11 Jan 2021 14:01:22 +0100
+Message-Id: <20210111130037.053923594@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Stefan Chulski <stefanc@marvell.com>
 
-commit 5c8193f568ae16f3242abad6518dc2ca6c8eef86 upstream.
+[ Upstream commit fec6079b2eeab319d9e3d074f54d3b6f623e9701 ]
 
-htable_bits() can call jhash_size(32) and trigger shift-out-of-bounds
+Current PPPoE+IPv6 entry is jumping to 'next-hdr'
+field and not to 'DIP' field as done for IPv4.
 
-UBSAN: shift-out-of-bounds in net/netfilter/ipset/ip_set_hash_gen.h:151:6
-shift exponent 32 is too large for 32-bit type 'unsigned int'
-CPU: 0 PID: 8498 Comm: syz-executor519
- Not tainted 5.10.0-rc7-next-20201208-syzkaller #0
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:395
- htable_bits net/netfilter/ipset/ip_set_hash_gen.h:151 [inline]
- hash_mac_create.cold+0x58/0x9b net/netfilter/ipset/ip_set_hash_gen.h:1524
- ip_set_create+0x610/0x1380 net/netfilter/ipset/ip_set_core.c:1115
- nfnetlink_rcv_msg+0xecc/0x1180 net/netfilter/nfnetlink.c:252
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- nfnetlink_rcv+0x1ac/0x420 net/netfilter/nfnetlink.c:600
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2345
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2399
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2432
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-This patch replaces htable_bits() by simple fls(hashsize - 1) call:
-it alone returns valid nbits both for round and non-round hashsizes.
-It is normal to set any nbits here because it is validated inside
-following htable_size() call which returns 0 for nbits>31.
-
-Fixes: 1feab10d7e6d("netfilter: ipset: Unified hash type generation")
-Reported-by: syzbot+d66bfadebca46cf61a2b@syzkaller.appspotmail.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Reported-by: Liron Himi <lironh@marvell.com>
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Link: https://lore.kernel.org/r/1608230266-22111-1-git-send-email-stefanc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/ipset/ip_set_hash_gen.h |   20 +++++---------------
- 1 file changed, 5 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -113,20 +113,6 @@ htable_size(u8 hbits)
- 	return hsize * sizeof(struct hbucket *) + sizeof(struct htable);
- }
- 
--/* Compute htable_bits from the user input parameter hashsize */
--static u8
--htable_bits(u32 hashsize)
--{
--	/* Assume that hashsize == 2^htable_bits */
--	u8 bits = fls(hashsize - 1);
--
--	if (jhash_size(bits) != hashsize)
--		/* Round up to the first 2^n value */
--		bits = fls(hashsize);
--
--	return bits;
--}
--
- #ifdef IP_SET_HASH_WITH_NETS
- #if IPSET_NET_COUNT > 1
- #define __CIDR(cidr, i)		(cidr[i])
-@@ -1309,7 +1295,11 @@ IPSET_TOKEN(HTYPE, _create)(struct net *
- 	get_random_bytes(&h->initval, sizeof(h->initval));
- 	set->timeout = IPSET_NO_TIMEOUT;
- 
--	hbits = htable_bits(hashsize);
-+	/* Compute htable_bits from the user input parameter hashsize.
-+	 * Assume that hashsize == 2^htable_bits,
-+	 * otherwise round up to the first 2^n value.
-+	 */
-+	hbits = fls(hashsize - 1);
- 	hsize = htable_size(hbits);
- 	if (hsize == 0) {
- 		kfree(h);
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -1680,8 +1680,9 @@ static int mvpp2_prs_pppoe_init(struct m
+ 	mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP6);
+ 	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP6,
+ 				 MVPP2_PRS_RI_L3_PROTO_MASK);
+-	/* Skip eth_type + 4 bytes of IPv6 header */
+-	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN + 4,
++	/* Jump to DIP of IPV6 header */
++	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN + 8 +
++				 MVPP2_MAX_L3_ADDR_SIZE,
+ 				 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
+ 	/* Set L3 offset */
+ 	mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
 
 
