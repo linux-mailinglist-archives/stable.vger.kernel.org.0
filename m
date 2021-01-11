@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFE72F14EC
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9A32F14E4
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727778AbhAKNcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:32:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
+        id S1730323AbhAKNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:32:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732240AbhAKNPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B08682251F;
-        Mon, 11 Jan 2021 13:14:35 +0000 (UTC)
+        id S1732220AbhAKNPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F229F22515;
+        Mon, 11 Jan 2021 13:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370876;
-        bh=z4VlwkKKjCoKIoE1XyZL+SK3mpdynt4nY+gOETPlr6o=;
+        s=korg; t=1610370878;
+        bh=2sVDQXRpUdXutBWSy9FjARn+DWwCr2/+6doSpXNW9aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfMyRNBI+C39gYDkUeb84ZHflUApUBU4EnhQhpbDk6gB6i64rnjDsemzIpQ/z0qoF
-         e68FMULcImveELtBlReusEgHU2TOypc3WXaV3axLHdVtd2281/lf2pXkKsGhb2VOKh
-         5hBqOxgxFZeMidGwSCmd+qMBY9gg4yq3O9Qi6mfg=
+        b=aXjczMg7yrXdkPn7isu5Ri4FxhjTCfIgnZdXuk3B7WZVAILl9ei2Icwh3xIKHMs0O
+         sCdz/XbqDb7UVVCtUrk+BK36S2ybWu1dTVsRs1UlJ2z9b/1zKqez458dmpSzIjNJsf
+         //71CwzIpIaHzP2zKUfB6o0NTzyE+8nd5NQgIOio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        stable@vger.kernel.org,
         Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 043/145] net: dsa: lantiq_gswip: Enable GSWIP_MII_CFG_EN also for internal PHYs
-Date:   Mon, 11 Jan 2021 14:01:07 +0100
-Message-Id: <20210111130050.591402411@linuxfoundation.org>
+Subject: [PATCH 5.10 044/145] net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register access
+Date:   Mon, 11 Jan 2021 14:01:08 +0100
+Message-Id: <20210111130050.639647028@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -43,35 +44,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit c1a9ec7e5d577a9391660800c806c53287fca991 ]
+[ Upstream commit 709a3c9dff2a639966ae7d8ba6239d2b8aba036d ]
 
-Enable GSWIP_MII_CFG_EN also for internal PHYs to make traffic flow.
-Without this the PHY link is detected properly and ethtool statistics
-for TX are increasing but there's no RX traffic coming in.
+There is one GSWIP_MII_CFG register for each switch-port except the CPU
+port. The register offset for the first port is 0x0, 0x02 for the
+second, 0x04 for the third and so on.
+
+Update the driver to not only restrict the GSWIP_MII_CFG registers to
+ports 0, 1 and 5. Handle ports 0..5 instead but skip the CPU port. This
+means we are not overwriting the configuration for the third port (port
+two since we start counting from zero) with the settings for the sixth
+port (with number five) anymore.
+
+The GSWIP_MII_PCDU(p) registers are not updated because there's really
+only three (one for each of the following ports: 0, 1, 5).
 
 Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Suggested-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
 --- a/drivers/net/dsa/lantiq_gswip.c
 +++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -1541,9 +1541,7 @@ static void gswip_phylink_mac_link_up(st
- {
- 	struct gswip_priv *priv = ds->priv;
+@@ -92,9 +92,7 @@
+ 					 GSWIP_MDIO_PHY_FDUP_MASK)
  
--	/* Enable the xMII interface only for the external PHY */
--	if (interface != PHY_INTERFACE_MODE_INTERNAL)
--		gswip_mii_mask_cfg(priv, 0, GSWIP_MII_CFG_EN, port);
-+	gswip_mii_mask_cfg(priv, 0, GSWIP_MII_CFG_EN, port);
+ /* GSWIP MII Registers */
+-#define GSWIP_MII_CFG0			0x00
+-#define GSWIP_MII_CFG1			0x02
+-#define GSWIP_MII_CFG5			0x04
++#define GSWIP_MII_CFGp(p)		(0x2 * (p))
+ #define  GSWIP_MII_CFG_EN		BIT(14)
+ #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
+ #define  GSWIP_MII_CFG_MODE_MIIP	0x0
+@@ -392,17 +390,9 @@ static void gswip_mii_mask(struct gswip_
+ static void gswip_mii_mask_cfg(struct gswip_priv *priv, u32 clear, u32 set,
+ 			       int port)
+ {
+-	switch (port) {
+-	case 0:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG0);
+-		break;
+-	case 1:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG1);
+-		break;
+-	case 5:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG5);
+-		break;
+-	}
++	/* There's no MII_CFG register for the CPU port */
++	if (!dsa_is_cpu_port(priv->ds, port))
++		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFGp(port));
  }
  
- static void gswip_get_strings(struct dsa_switch *ds, int port, u32 stringset,
+ static void gswip_mii_mask_pcdu(struct gswip_priv *priv, u32 clear, u32 set,
+@@ -822,9 +812,8 @@ static int gswip_setup(struct dsa_switch
+ 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
+ 
+ 	/* Disable the xMII link */
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 0);
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 1);
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 5);
++	for (i = 0; i < priv->hw_info->max_ports; i++)
++		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
+ 
+ 	/* enable special tag insertion on cpu port */
+ 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
 
 
