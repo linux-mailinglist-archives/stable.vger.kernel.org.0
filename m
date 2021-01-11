@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3842F1525
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCEDF2F1521
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:35:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732021AbhAKNN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:13:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
+        id S1726558AbhAKNOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732016AbhAKNN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88576229CA;
-        Mon, 11 Jan 2021 13:13:40 +0000 (UTC)
+        id S1732036AbhAKNOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:14:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A00A227C3;
+        Mon, 11 Jan 2021 13:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370821;
-        bh=LcVMfTdn2Q2fIyc1vIt3jBWomYH56wkmbgHpg9yTPD4=;
+        s=korg; t=1610370825;
+        bh=+HaAOliobIdZyWT5KnELUAHmdMqwo59Pt6D2zGxneG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvvaNnkAO7gEQIR/fRlshmj27NEL2+jZ2RzO6hOG762IYnvqofyTG6D7UZCgWgxJo
-         ZDHFdSoHlZfYZLTUanfjzyhjtpstnU8Egoq2QCdIJUk2jOP6GjW6tmqFwUU1tdILiM
-         Ei47m4JDWUciw+X1ldjEDZqQuSQC6qMMHuo88XoM=
+        b=Q/qjcGbBysH+nE2Y58XD17VCipijMnC1jHyv2JexxYiN7FvnUDnfEjKxZ+/ZKxCtp
+         itDU3NcfM/+L+FXg1DdqY4pmjVt4/5dl3yS+8WVcQ8YsJZPcMr6nksgbxEbYh1nTL6
+         S2/ag4YIWvr5McQr2Dixi3it5Kpw2Vw0orFxbPk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 019/145] net/ncsi: Use real net-device for response handler
-Date:   Mon, 11 Jan 2021 14:00:43 +0100
-Message-Id: <20210111130049.431918019@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 020/145] net: ethernet: Fix memleak in ethoc_probe
+Date:   Mon, 11 Jan 2021 14:00:44 +0100
+Message-Id: <20210111130049.479468219@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,34 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Wang <wangzhiqiang.bj@bytedance.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 427c940558560bff2583d07fc119a21094675982 ]
+[ Upstream commit 5d41f9b7ee7a5a5138894f58846a4ffed601498a ]
 
-When aggregating ncsi interfaces and dedicated interfaces to bond
-interfaces, the ncsi response handler will use the wrong net device to
-find ncsi_dev, so that the ncsi interface will not work properly.
-Here, we use the original net device to fix it.
+When mdiobus_register() fails, priv->mdio allocated
+by mdiobus_alloc() has not been freed, which leads
+to memleak.
 
-Fixes: 138635cc27c9 ("net/ncsi: NCSI response packet handler")
-Signed-off-by: John Wang <wangzhiqiang.bj@bytedance.com>
-Link: https://lore.kernel.org/r/20201223055523.2069-1-wangzhiqiang.bj@bytedance.com
+Fixes: e7f4dc3536a4 ("mdio: Move allocation of interrupts into core")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20201223110615.31389-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ncsi/ncsi-rsp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ethoc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ncsi/ncsi-rsp.c
-+++ b/net/ncsi/ncsi-rsp.c
-@@ -1120,7 +1120,7 @@ int ncsi_rcv_rsp(struct sk_buff *skb, st
- 	int payload, i, ret;
+--- a/drivers/net/ethernet/ethoc.c
++++ b/drivers/net/ethernet/ethoc.c
+@@ -1211,7 +1211,7 @@ static int ethoc_probe(struct platform_d
+ 	ret = mdiobus_register(priv->mdio);
+ 	if (ret) {
+ 		dev_err(&netdev->dev, "failed to register MDIO bus\n");
+-		goto free2;
++		goto free3;
+ 	}
  
- 	/* Find the NCSI device */
--	nd = ncsi_find_dev(dev);
-+	nd = ncsi_find_dev(orig_dev);
- 	ndp = nd ? TO_NCSI_DEV_PRIV(nd) : NULL;
- 	if (!ndp)
- 		return -ENODEV;
+ 	ret = ethoc_mdio_probe(netdev);
+@@ -1243,6 +1243,7 @@ error2:
+ 	netif_napi_del(&priv->napi);
+ error:
+ 	mdiobus_unregister(priv->mdio);
++free3:
+ 	mdiobus_free(priv->mdio);
+ free2:
+ 	clk_disable_unprepare(priv->clk);
 
 
