@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A392F1325
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A94C2F14CB
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:30:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729596AbhAKNE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:04:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50254 "EHLO mail.kernel.org"
+        id S1729497AbhAKNac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:30:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729580AbhAKNEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:04:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E57C2250E;
-        Mon, 11 Jan 2021 13:04:09 +0000 (UTC)
+        id S1732272AbhAKNPv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B9512226A;
+        Mon, 11 Jan 2021 13:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370249;
-        bh=KRh7+IxB/+quvMJda0WuJaz4Rfkx0FugaSeHp44YD5M=;
+        s=korg; t=1610370910;
+        bh=3uOgKyUvuPg0H0ShYe5pWcrJkp8gkS2HfmouQazHRUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pd5qzcHxY9XVBY8/eRQXWkMKi5apG8QxfL9UTejlxF2bVXF5eICLD5JxbcLWFawBp
-         m+AmCrsSkLgEkMNPDVajy0G6ZK5E8ZjQbP9eouUb3vHYXAaJuYZ2ymNZamf/gGqROC
-         o3xYTktJkHZaOrGOYzenE6WDLBVSd8qLSNY030N8=
+        b=dxSVsdpij7Ilq3vS2OFDqXvWTWUFMUSiWvFs0qvbgewEv+YbLZs3UjxI+MkCj6lp7
+         CNbDkJ0lqRvYnowCB1d4PC/T1msNlJ9gcafV10APUZo0/EeMNS12AtFSKlNYX3bwhL
+         8rEcvrI1uG+jh9DMGueQp2+10IQ0i61vuSvj5yVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 42/45] Revert "device property: Keep secondary firmware node secondary by type"
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 056/145] scsi: ufs-pci: Ensure UFS device is in PowerDown mode for suspend-to-disk ->poweroff()
 Date:   Mon, 11 Jan 2021 14:01:20 +0100
-Message-Id: <20210111130035.663165743@linuxfoundation.org>
+Message-Id: <20210111130051.230618212@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 47f4469970d8861bc06d2d4d45ac8200ff07c693 upstream.
+[ Upstream commit af423534d2de86cd0db729a5ac41f056ca8717de ]
 
-While commit d5dcce0c414f ("device property: Keep secondary firmware
-node secondary by type") describes everything correct in its commit
-message, the change it made does the opposite and original commit
-c15e1bdda436 ("device property: Fix the secondary firmware node handling
-in set_primary_fwnode()") was fully correct.
+The expectation for suspend-to-disk is that devices will be powered-off, so
+the UFS device should be put in PowerDown mode. If spm_lvl is not 5, then
+that will not happen. Change the pm callbacks to force spm_lvl 5 for
+suspend-to-disk poweroff.
 
-Revert the former one here and improve documentation in the next patch.
-
-Fixes: d5dcce0c414f ("device property: Keep secondary firmware node secondary by type")
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20201207083120.26732-3-adrian.hunter@intel.com
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd-pci.c | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -2364,7 +2364,7 @@ void set_primary_fwnode(struct device *d
- 		if (fwnode_is_primary(fn)) {
- 			dev->fwnode = fn->secondary;
- 			if (!(parent && fn == parent->fwnode))
--				fn->secondary = ERR_PTR(-ENODEV);
-+				fn->secondary = NULL;
- 		} else {
- 			dev->fwnode = NULL;
- 		}
+diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
+index 360c25f1f061a..5d33c39fa82f0 100644
+--- a/drivers/scsi/ufs/ufshcd-pci.c
++++ b/drivers/scsi/ufs/ufshcd-pci.c
+@@ -227,6 +227,30 @@ static int ufshcd_pci_resume(struct device *dev)
+ {
+ 	return ufshcd_system_resume(dev_get_drvdata(dev));
+ }
++
++/**
++ * ufshcd_pci_poweroff - suspend-to-disk poweroff function
++ * @dev: pointer to PCI device handle
++ *
++ * Returns 0 if successful
++ * Returns non-zero otherwise
++ */
++static int ufshcd_pci_poweroff(struct device *dev)
++{
++	struct ufs_hba *hba = dev_get_drvdata(dev);
++	int spm_lvl = hba->spm_lvl;
++	int ret;
++
++	/*
++	 * For poweroff we need to set the UFS device to PowerDown mode.
++	 * Force spm_lvl to ensure that.
++	 */
++	hba->spm_lvl = 5;
++	ret = ufshcd_system_suspend(hba);
++	hba->spm_lvl = spm_lvl;
++	return ret;
++}
++
+ #endif /* !CONFIG_PM_SLEEP */
+ 
+ #ifdef CONFIG_PM
+@@ -322,8 +346,14 @@ ufshcd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ }
+ 
+ static const struct dev_pm_ops ufshcd_pci_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_pci_suspend,
+-				ufshcd_pci_resume)
++#ifdef CONFIG_PM_SLEEP
++	.suspend	= ufshcd_pci_suspend,
++	.resume		= ufshcd_pci_resume,
++	.freeze		= ufshcd_pci_suspend,
++	.thaw		= ufshcd_pci_resume,
++	.poweroff	= ufshcd_pci_poweroff,
++	.restore	= ufshcd_pci_resume,
++#endif
+ 	SET_RUNTIME_PM_OPS(ufshcd_pci_runtime_suspend,
+ 			   ufshcd_pci_runtime_resume,
+ 			   ufshcd_pci_runtime_idle)
+-- 
+2.27.0
+
 
 
