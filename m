@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B6782F1639
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:50:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8492F15CE
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730913AbhAKNJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:09:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56814 "EHLO mail.kernel.org"
+        id S1731337AbhAKNpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730911AbhAKNJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F0522AAD;
-        Mon, 11 Jan 2021 13:08:54 +0000 (UTC)
+        id S1731418AbhAKNLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE692250F;
+        Mon, 11 Jan 2021 13:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370534;
-        bh=BhMwMykViZJMHect5OL1Dy4stvtRtfcWtDel32CXr3k=;
+        s=korg; t=1610370653;
+        bh=XDAwESQ4s9euZtoYkuxHhJ1wUbaYZ6pzGd2Ec/bDwO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+Uo2vzStGqvPxRpfszre28dFuZYcFeUo+u3BI2uABoCPmOGbVvV5vzOqRz16OE/M
-         +mM3sEiprf2lpOpvm5NMn3cRWBKwuc18aSlyeUlTG7XhFQLVe9N8rUmyajoFvHce3J
-         kBJp+VSvUh30YT1vHGBtpZtW8F5RY4lIdQywdqxY=
+        b=2jNKQyMRmG58ZdpIMbYLq+wuTBPz+WgKkSZp3RxcTVs4HfdawcjHjwHj55jzS2jBt
+         +5Ny4iNGyI2AoFttU2NvACUkmaf4NeCr+ITskQr/bFAmYdoAeXe5fNCHedgElkIehv
+         6XfjGbZrJcVkgViRcZR8c/8oB1OKV7qxaqf+mz3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 34/77] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
-Date:   Mon, 11 Jan 2021 14:01:43 +0100
-Message-Id: <20210111130038.039221236@linuxfoundation.org>
+Subject: [PATCH 5.4 40/92] net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register access
+Date:   Mon, 11 Jan 2021 14:01:44 +0100
+Message-Id: <20210111130041.081687151@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
+[ Upstream commit 709a3c9dff2a639966ae7d8ba6239d2b8aba036d ]
 
-Currently the vhost_zerocopy_callback() maybe be called to decrease
-the refcount when sendmsg fails in tun. The error handling in vhost
-handle_tx_zerocopy() will try to decrease the same refcount again.
-This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
-when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
+There is one GSWIP_MII_CFG register for each switch-port except the CPU
+port. The register offset for the first port is 0x0, 0x02 for the
+second, 0x04 for the third and so on.
 
-Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
+Update the driver to not only restrict the GSWIP_MII_CFG registers to
+ports 0, 1 and 5. Handle ports 0..5 instead but skip the CPU port. This
+means we are not overwriting the configuration for the third port (port
+two since we start counting from zero) with the settings for the sixth
+port (with number five) anymore.
+
+The GSWIP_MII_PCDU(p) registers are not updated because there's really
+only three (one for each of the following ports: 0, 1, 5).
+
+Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c |   23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -613,6 +613,7 @@ static void handle_tx_zerocopy(struct vh
- 	size_t len, total_len = 0;
- 	int err;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-+	struct ubuf_info *ubuf;
- 	bool zcopy_used;
- 	int sent_pkts = 0;
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -92,9 +92,7 @@
+ 					 GSWIP_MDIO_PHY_FDUP_MASK)
  
-@@ -645,9 +646,7 @@ static void handle_tx_zerocopy(struct vh
+ /* GSWIP MII Registers */
+-#define GSWIP_MII_CFG0			0x00
+-#define GSWIP_MII_CFG1			0x02
+-#define GSWIP_MII_CFG5			0x04
++#define GSWIP_MII_CFGp(p)		(0x2 * (p))
+ #define  GSWIP_MII_CFG_EN		BIT(14)
+ #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
+ #define  GSWIP_MII_CFG_MODE_MIIP	0x0
+@@ -392,17 +390,9 @@ static void gswip_mii_mask(struct gswip_
+ static void gswip_mii_mask_cfg(struct gswip_priv *priv, u32 clear, u32 set,
+ 			       int port)
+ {
+-	switch (port) {
+-	case 0:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG0);
+-		break;
+-	case 1:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG1);
+-		break;
+-	case 5:
+-		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG5);
+-		break;
+-	}
++	/* There's no MII_CFG register for the CPU port */
++	if (!dsa_is_cpu_port(priv->ds, port))
++		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFGp(port));
+ }
  
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
--			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
--
- 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
-@@ -675,7 +674,8 @@ static void handle_tx_zerocopy(struct vh
- 		err = sock->ops->sendmsg(sock, &msg, len);
- 		if (unlikely(err < 0)) {
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
-+				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
-+					vhost_net_ubuf_put(ubufs);
- 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
- 					% UIO_MAXIOV;
- 			}
+ static void gswip_mii_mask_pcdu(struct gswip_priv *priv, u32 clear, u32 set,
+@@ -806,9 +796,8 @@ static int gswip_setup(struct dsa_switch
+ 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
+ 
+ 	/* Disable the xMII link */
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 0);
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 1);
+-	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 5);
++	for (i = 0; i < priv->hw_info->max_ports; i++)
++		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
+ 
+ 	/* enable special tag insertion on cpu port */
+ 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
 
 
