@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1DA2F1465
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16E12F1472
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732924AbhAKNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:24:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36164 "EHLO mail.kernel.org"
+        id S1731154AbhAKNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:24:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731660AbhAKNRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD16223E8;
-        Mon, 11 Jan 2021 13:16:59 +0000 (UTC)
+        id S1732600AbhAKNRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE1E22795;
+        Mon, 11 Jan 2021 13:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371020;
-        bh=TDmRcODaA1zi6IDRn+XzSDrBCs4+1dO5A6xNwn0w2fE=;
+        s=korg; t=1610371022;
+        bh=k3LMdc1mx+tCG5SW3cFuU0akgB7OzWBZtsMuxdz5sPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sZXT5EIy3PrlKEcKopUlOSgnbmGMnM4X5/W/p3HRdz9LtgWGpyjlDuSp1g7YatM5
-         coS9iDWdruqHSlnQZC9HKRySzh3IBKAtDIBuVOr8lX4zlUQL0IZoLarJTiQz9z3VF4
-         WakalXXpUU12P47VB0ypYSVYTJJi0pk/ToZb6VOQ=
+        b=mG1ZblqrO9jW5b+XuimKE+jSOIHNB3NVdhOzv9gh6E5QWKpXclHypUcyZhQAD4xnC
+         i5sD76bDmXWcbICDRt+5g7V917R1vg1LvC1NUHJ5UnOu/pzSbmDUDzr+5WmxN9BMyl
+         LgBsDrEpsLysXbL4E8uFMqoY98zneL3lQvR3NOcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 107/145] USB: serial: keyspan_pda: remove unused variable
-Date:   Mon, 11 Jan 2021 14:02:11 +0100
-Message-Id: <20210111130053.668324634@linuxfoundation.org>
+        stable@vger.kernel.org, David Arcari <darcari@redhat.com>,
+        Naveen Krishna Chatradhi <nchatrad@amd.com>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.10 108/145] hwmon: (amd_energy) fix allocation of hwmon_channel_info config
+Date:   Mon, 11 Jan 2021 14:02:12 +0100
+Message-Id: <20210111130053.716228132@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,34 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: David Arcari <darcari@redhat.com>
 
-Remove an unused variable which was mistakingly left by commit
-37faf5061541 ("USB: serial: keyspan_pda: fix write-wakeup
-use-after-free") and only removed by a later change.
+commit 84e261553e6f919bf0b4d65244599ab2b41f1da5 upstream.
 
-This is needed to suppress a W=1 warning about the unused variable in
-the stable trees that the build bots triggers.
+hwmon, specifically hwmon_num_channel_attrs, expects the config
+array in the hwmon_channel_info structure to be terminated by
+a zero entry.  amd_energy does not honor this convention.  As
+result, a KASAN warning is possible.  Fix this by adding an
+additional entry and setting it to zero.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 8abee9566b7e ("hwmon: Add amd_energy driver to report energy counters")
+
+Signed-off-by: David Arcari <darcari@redhat.com>
+Cc: Naveen Krishna Chatradhi <nchatrad@amd.com>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: David Arcari <darcari@redhat.com>
+Acked-by: Naveen Krishna Chatradhi <nchatrad@amd.com>
+Link: https://lore.kernel.org/r/20210107144707.6927-1-darcari@redhat.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/serial/keyspan_pda.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -555,10 +555,8 @@ exit:
- static void keyspan_pda_write_bulk_callback(struct urb *urb)
- {
- 	struct usb_serial_port *port = urb->context;
--	struct keyspan_pda_private *priv;
+---
+ drivers/hwmon/amd_energy.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/hwmon/amd_energy.c
++++ b/drivers/hwmon/amd_energy.c
+@@ -222,7 +222,7 @@ static int amd_create_sensor(struct devi
+ 	 */
+ 	cpus = num_present_cpus() / num_siblings;
  
- 	set_bit(0, &port->write_urbs_free);
--	priv = usb_get_serial_port_data(port);
+-	s_config = devm_kcalloc(dev, cpus + sockets,
++	s_config = devm_kcalloc(dev, cpus + sockets + 1,
+ 				sizeof(u32), GFP_KERNEL);
+ 	if (!s_config)
+ 		return -ENOMEM;
+@@ -254,6 +254,7 @@ static int amd_create_sensor(struct devi
+ 			scnprintf(label_l[i], 10, "Esocket%u", (i - cpus));
+ 	}
  
- 	/* queue up a wakeup at scheduler time */
- 	usb_serial_port_softint(port);
++	s_config[i] = 0;
+ 	return 0;
+ }
+ 
 
 
