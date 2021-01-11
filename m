@@ -2,290 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C589C2F1D12
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 18:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C0B2F1D29
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 18:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389851AbhAKRsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 12:48:52 -0500
-Received: from mga04.intel.com ([192.55.52.120]:53976 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727750AbhAKRsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 12:48:52 -0500
-IronPort-SDR: gLxYhrOCCuR/bnM5HIuShpVSuvRvpVFH0/OnzQeAT3JqqWOlNOq705DeJtDvlIA0aKIKfWQZol
- HEv0PLsNvwlA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="175327800"
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="175327800"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 09:48:12 -0800
-IronPort-SDR: aLTQ3bcD8OFn5oHqkfBPAxmkBDJclTpnGPYe5Q4jXf7KpSjMUO5/c3LB3n9V9VJMPKoquyolCt
- EiYnuegNlq8A==
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="363212210"
-Received: from jaksamit-mobl.amr.corp.intel.com (HELO intel.com) ([10.212.178.167])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 09:48:11 -0800
-Date:   Mon, 11 Jan 2021 12:48:09 -0500
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 03/11] drm/i915: Allow the sysadmin to
- override security mitigations
-Message-ID: <20210111174809.GC3689@intel.com>
-References: <20210110150404.19535-1-chris@chris-wilson.co.uk>
- <20210110150404.19535-3-chris@chris-wilson.co.uk>
+        id S1730261AbhAKRzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 12:55:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727030AbhAKRzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 12:55:46 -0500
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8843C0617A4
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 09:55:00 -0800 (PST)
+Received: by mail-ot1-x32f.google.com with SMTP id q25so466216otn.10
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 09:55:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=v3TDFrqVxc55qv6u1Dum5raMCBbdcZl0roEhiqKm12E=;
+        b=lZjWCfbG8Auf1FSXEvxpu9z2F5nHThHpYy+3QmdRfHgZVbQ8iOt14U29oCzCIsnSSs
+         VLnoFMCQuU8xnqBAcfa27K7hZwCGat+qOGKyVOKc1qcvS7Lptqlgs3L85HeKvTd7Fq5P
+         qNtF3fONSHYdETB6J67jpgTgQwvHjLNj8ANi2QHjTGFvKED65JATHmMfwF73+u6t2XC4
+         AdO18lob+PcRGaVt9Z3wT0TMgPWAROZq+9iUc3Mz57gtt07GZF4r/fktMmNGMqr+pNrq
+         QSHQPMXbbPinZWTBNZqVISGjn92RtSuT496ufjI7WpQHaqyhMZVHZPPnwyDGmi8DWwog
+         Jr7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=v3TDFrqVxc55qv6u1Dum5raMCBbdcZl0roEhiqKm12E=;
+        b=VOEY5HbRcBSKbeywgNqF3kLNJ5LOusrFA3fgoOI2xvfh8lAxD9rweQ5VG6k8Fcs9wv
+         8iZWHnOUL12B+L+mWdxoatyljNut3JZtf8onm6/w+eIDgKm3yuBWW0zHTjA39+i6krdz
+         HhbSGuepdQYWyjk2lO7+tf0PfE2AcSMFJB2Bl4JymfT6tSyNmMWLlxyFq23g6XpVxSr0
+         aZ7i0rwCmVBu0+dv5GPoPU0bTL3fJAOJ2SBryZz+OYRril4KLm0yB71tkpbG9gLfCoK3
+         4Vp3XV9DusrlQrTs0we89OFabNmG2J0mLbX7YFmOxvgX0LlI7ibOeZLsFtQ91A6kF8JH
+         kM2g==
+X-Gm-Message-State: AOAM531xO40VK9/srCDnn8ywUsZetUOBOVd3DdW6MeTWK//1gPMhQ2Rv
+        KGUczy7yIWefidbt3TWI3IJGxA==
+X-Google-Smtp-Source: ABdhPJys9h9FMDY8QzdOCVIr242CR9PxOf1m9Ov17uYelIEIUq9xy+LTMHC0Hx5xuhWW8BdmeAdCCA==
+X-Received: by 2002:a9d:479a:: with SMTP id b26mr203427otf.297.1610387699841;
+        Mon, 11 Jan 2021 09:54:59 -0800 (PST)
+Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id l5sm90794otj.57.2021.01.11.09.54.58
+        (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
+        Mon, 11 Jan 2021 09:54:59 -0800 (PST)
+Date:   Mon, 11 Jan 2021 09:54:37 -0800 (PST)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@eggly.anvils
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+2fc0712f8f8b8b8fa0ef@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 5.10 109/145] mm: make wait_on_page_writeback() wait for
+ multiple pending writebacks
+In-Reply-To: <20210111130053.764396270@linuxfoundation.org>
+Message-ID: <alpine.LSU.2.11.2101110947280.1731@eggly.anvils>
+References: <20210111130048.499958175@linuxfoundation.org> <20210111130053.764396270@linuxfoundation.org>
+User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210110150404.19535-3-chris@chris-wilson.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 10, 2021 at 03:03:56PM +0000, Chris Wilson wrote:
-> The clear-residuals mitigation is a relatively heavy hammer and under some
-> circumstances the user may wish to forgo the context isolation in order
-> to meet some performance requirement. Introduce a generic module
-> parameter to allow selectively enabling/disabling different mitigations.
+On Mon, 11 Jan 2021, Greg Kroah-Hartman wrote:
+
+> From: Linus Torvalds <torvalds@linux-foundation.org>
 > 
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1858
+> commit c2407cf7d22d0c0d94cf20342b3b8f06f1d904e7 upstream.
+> 
+> Ever since commit 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common()
+> logic") we've had some very occasional reports of BUG_ON(PageWriteback)
+> in write_cache_pages(), which we thought we already fixed in commit
+> 073861ed77b6 ("mm: fix VM_BUG_ON(PageTail) and BUG_ON(PageWriteback)").
+> 
+> But syzbot just reported another one, even with that commit in place.
+> 
+> And it turns out that there's a simpler way to trigger the BUG_ON() than
+> the one Hugh found with page re-use.  It all boils down to the fact that
+> the page writeback is ostensibly serialized by the page lock, but that
+> isn't actually really true.
+> 
+> Yes, the people _setting_ writeback all do so under the page lock, but
+> the actual clearing of the bit - and waking up any waiters - happens
+> without any page lock.
+> 
+> This gives us this fairly simple race condition:
+> 
+>   CPU1 = end previous writeback
+>   CPU2 = start new writeback under page lock
+>   CPU3 = write_cache_pages()
+> 
+>   CPU1          CPU2            CPU3
+>   ----          ----            ----
+> 
+>   end_page_writeback()
+>     test_clear_page_writeback(page)
+>     ... delayed...
+> 
+>                 lock_page();
+>                 set_page_writeback()
+>                 unlock_page()
+> 
+>                                 lock_page()
+>                                 wait_on_page_writeback();
+> 
+>     wake_up_page(page, PG_writeback);
+>     .. wakes up CPU3 ..
+> 
+>                                 BUG_ON(PageWriteback(page));
+> 
+> where the BUG_ON() happens because we woke up the PG_writeback bit
+> becasue of the _previous_ writeback, but a new one had already been
+> started because the clearing of the bit wasn't actually atomic wrt the
+> actual wakeup or serialized by the page lock.
+> 
+> The reason this didn't use to happen was that the old logic in waiting
+> on a page bit would just loop if it ever saw the bit set again.
+> 
+> The nice proper fix would probably be to get rid of the whole "wait for
+> writeback to clear, and then set it" logic in the writeback path, and
+> replace it with an atomic "wait-to-set" (ie the same as we have for page
+> locking: we set the page lock bit with a single "lock_page()", not with
+> "wait for lock bit to clear and then set it").
+> 
+> However, out current model for writeback is that the waiting for the
+> writeback bit is done by the generic VFS code (ie write_cache_pages()),
+> but the actual setting of the writeback bit is done much later by the
+> filesystem ".writepages()" function.
+> 
+> IOW, to make the writeback bit have that same kind of "wait-to-set"
+> behavior as we have for page locking, we'd have to change our roughly
+> ~50 different writeback functions.  Painful.
+> 
+> Instead, just make "wait_on_page_writeback()" loop on the very unlikely
+> situation that the PG_writeback bit is still set, basically re-instating
+> the old behavior.  This is very non-optimal in case of contention, but
+> since we only ever set the bit under the page lock, that situation is
+> controlled.
+> 
+> Reported-by: syzbot+2fc0712f8f8b8b8fa0ef@syzkaller.appspotmail.com
+> Fixes: 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common() logic")
+> Acked-by: Hugh Dickins <hughd@google.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: stable@kernel.org
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I'm afraid this will have the same faith as the rc6 and the validation impact :/
+I think it's too early to push this one through to stable:
+Linus mentioned on Friday that Michael Larabel of Phoronix
+has observed a performance regression from this commit.
 
-> Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> Cc: stable@vger.kernel.org # v5.7
+Correctness outweighs performance of course, but I think
+stable users might see the performance issue much sooner
+than they would ever see the BUG fixed.  Wait a bit,
+while we think some more about what to try next?
+
+Hugh
+
+> 
 > ---
->  drivers/gpu/drm/i915/Makefile                 |   1 +
->  .../gpu/drm/i915/gt/intel_ring_submission.c   |   4 +-
->  drivers/gpu/drm/i915/i915_mitigations.c       | 148 ++++++++++++++++++
->  drivers/gpu/drm/i915/i915_mitigations.h       |  13 ++
->  4 files changed, 165 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/gpu/drm/i915/i915_mitigations.c
->  create mode 100644 drivers/gpu/drm/i915/i915_mitigations.h
+>  mm/page-writeback.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/i915/Makefile b/drivers/gpu/drm/i915/Makefile
-> index 4074d8cb0d6e..48f82c354611 100644
-> --- a/drivers/gpu/drm/i915/Makefile
-> +++ b/drivers/gpu/drm/i915/Makefile
-> @@ -38,6 +38,7 @@ i915-y += i915_drv.o \
->  	  i915_config.o \
->  	  i915_irq.o \
->  	  i915_getparam.o \
-> +	  i915_mitigations.o \
->  	  i915_params.o \
->  	  i915_pci.o \
->  	  i915_scatterlist.o \
-> diff --git a/drivers/gpu/drm/i915/gt/intel_ring_submission.c b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
-> index 724d56c9583d..657afd8ebc14 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_ring_submission.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
-> @@ -32,6 +32,7 @@
->  #include "gen6_ppgtt.h"
->  #include "gen7_renderclear.h"
->  #include "i915_drv.h"
-> +#include "i915_mitigations.h"
->  #include "intel_breadcrumbs.h"
->  #include "intel_context.h"
->  #include "intel_gt.h"
-> @@ -918,7 +919,8 @@ static int switch_context(struct i915_request *rq)
->  	GEM_BUG_ON(HAS_EXECLISTS(engine->i915));
->  
->  	if (engine->wa_ctx.vma && ce != engine->kernel_context) {
-> -		if (engine->wa_ctx.vma->private != ce) {
-> +		if (engine->wa_ctx.vma->private != ce &&
-> +		    i915_mitigate_clear_residuals()) {
->  			ret = clear_residuals(rq);
->  			if (ret)
->  				return ret;
-> diff --git a/drivers/gpu/drm/i915/i915_mitigations.c b/drivers/gpu/drm/i915/i915_mitigations.c
-> new file mode 100644
-> index 000000000000..8d5637cfa734
-> --- /dev/null
-> +++ b/drivers/gpu/drm/i915/i915_mitigations.c
-> @@ -0,0 +1,148 @@
-> +// SPDX-License-Identifier: MIT
-> +/*
-> + * Copyright © 2021 Intel Corporation
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/slab.h>
-> +#include <linux/string.h>
-> +
-> +#include "i915_drv.h"
-> +#include "i915_mitigations.h"
-> +
-> +static unsigned long mitigations = ~0UL;
-> +
-> +enum {
-> +	CLEAR_RESIDUALS = 0,
-
-specially worse if this list grows...
-
-> +};
-> +
-> +static const char * const names[] = {
-> +	[CLEAR_RESIDUALS] = "residuals",
-> +};
-> +
-> +bool i915_mitigate_clear_residuals(void)
-> +{
-> +	return READ_ONCE(mitigations) & BIT(CLEAR_RESIDUALS);
-> +}
-> +
-> +static int mitigations_set(const char *val, const struct kernel_param *kp)
-> +{
-> +	unsigned long new = ~0UL;
-> +	char *str, *sep, *tok;
-> +	bool first = true;
-> +	int err = 0;
-> +
-> +	BUILD_BUG_ON(ARRAY_SIZE(names) >= BITS_PER_TYPE(mitigations));
-> +
-> +	str = kstrdup(val, GFP_KERNEL);
-> +	if (!str)
-> +		return -ENOMEM;
-> +
-> +	for (sep = str; (tok = strsep(&sep, ","));) {
-> +		bool enable = true;
-> +		int i;
-> +
-> +		/* Be tolerant of leading/trailing whitespace */
-> +		tok = strim(tok);
-> +
-> +		if (first) {
-> +			first = false;
-> +
-> +			if (!strcmp(tok, "auto")) {
-> +				new = ~0UL;
-> +				continue;
-> +			}
-> +
-> +			new = 0;
-> +			if (!strcmp(tok, "off"))
-> +				continue;
-> +		}
-> +
-> +		if (*tok == '!') {
-> +			enable = !enable;
-> +			tok++;
-> +		}
-> +
-> +		if (!strncmp(tok, "no", 2)) {
-> +			enable = !enable;
-> +			tok += 2;
-> +		}
-> +
-> +		if (*tok == '\0')
-> +			continue;
-> +
-> +		for (i = 0; i < ARRAY_SIZE(names); i++) {
-> +			if (!strcmp(tok, names[i])) {
-> +				if (enable)
-> +					new |= BIT(i);
-> +				else
-> +					new &= ~BIT(i);
-> +				break;
-> +			}
-> +		}
-> +		if (i == ARRAY_SIZE(names)) {
-> +			pr_err("Bad %s.mitigations=%s, '%s' is unknown\n",
-> +			       DRIVER_NAME, val, tok);
-> +			err = -EINVAL;
-> +			break;
-> +		}
-> +	}
-> +	kfree(str);
-> +	if (err)
-> +		return err;
-> +
-> +	WRITE_ONCE(mitigations, new);
-> +	return 0;
-> +}
-> +
-> +static int mitigations_get(char *buffer, const struct kernel_param *kp)
-> +{
-> +	unsigned long local = READ_ONCE(mitigations);
-> +	int count, i;
-> +	bool enable;
-> +
-> +	if (!local)
-> +		return scnprintf(buffer, PAGE_SIZE, "%s\n", "off");
-> +
-> +	if (local & BIT(BITS_PER_LONG - 1)) {
-> +		count = scnprintf(buffer, PAGE_SIZE, "%s,", "auto");
-> +		enable = false;
-> +	} else {
-> +		enable = true;
-> +		count = 0;
-> +	}
-> +
-> +	for (i = 0; i < ARRAY_SIZE(names); i++) {
-> +		if ((local & BIT(i)) != enable)
-> +			continue;
-> +
-> +		count += scnprintf(buffer + count, PAGE_SIZE - count,
-> +				   "%s%s,", enable ? "" : "!", names[i]);
-> +	}
-> +
-> +	buffer[count - 1] = '\n';
-> +	return count;
-> +}
-> +
-> +static const struct kernel_param_ops ops = {
-> +	.set = mitigations_set,
-> +	.get = mitigations_get,
-> +};
-> +
-> +module_param_cb_unsafe(mitigations, &ops, NULL, 0600);
-> +MODULE_PARM_DESC(mitigations,
-> +"Selectively enable security mitigations for all Intel® GPUs in the system.\n"
-> +"\n"
-> +"  auto -- enables all mitigations required for the platform [default]\n"
-> +"  off  -- disables all mitigations\n"
-> +"\n"
-> +"Individual mitigations can be enabled by passing a comma-separated string,\n"
-> +"e.g. mitigations=residuals to enable only clearing residuals or\n"
-> +"mitigations=auto,noresiduals to disable only the clear residual mitigation.\n"
-> +"Either '!' or 'no' may be used to switch from enabling the mitigation to\n"
-> +"disabling it.\n"
-
-but I liked this structure to at least stop the growing of the params...
-
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-> +"\n"
-> +"Active mitigations for Ivybridge, Baytrail, Haswell:\n"
-> +"  residuals -- clear all thread-local registers between contexts"
-> +);
-> diff --git a/drivers/gpu/drm/i915/i915_mitigations.h b/drivers/gpu/drm/i915/i915_mitigations.h
-> new file mode 100644
-> index 000000000000..1359d8135287
-> --- /dev/null
-> +++ b/drivers/gpu/drm/i915/i915_mitigations.h
-> @@ -0,0 +1,13 @@
-> +/* SPDX-License-Identifier: MIT */
-> +/*
-> + * Copyright © 2021 Intel Corporation
-> + */
-> +
-> +#ifndef __I915_MITIGATIONS_H__
-> +#define __I915_MITIGATIONS_H__
-> +
-> +#include <linux/types.h>
-> +
-> +bool i915_mitigate_clear_residuals(void);
-> +
-> +#endif /* __I915_MITIGATIONS_H__ */
-> -- 
-> 2.20.1
-> 
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> --- a/mm/page-writeback.c
+> +++ b/mm/page-writeback.c
+> @@ -2826,7 +2826,7 @@ EXPORT_SYMBOL(__test_set_page_writeback)
+>   */
+>  void wait_on_page_writeback(struct page *page)
+>  {
+> -	if (PageWriteback(page)) {
+> +	while (PageWriteback(page)) {
+>  		trace_wait_on_page_writeback(page, page_mapping(page));
+>  		wait_on_page_bit(page, PG_writeback);
+>  	}
