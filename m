@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7082F1434
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB8F2F143C
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728620AbhAKNVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:21:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37464 "EHLO mail.kernel.org"
+        id S1730412AbhAKNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:22:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733228AbhAKNTG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:19:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A661C223E8;
-        Mon, 11 Jan 2021 13:18:25 +0000 (UTC)
+        id S1733179AbhAKNSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BD06229C4;
+        Mon, 11 Jan 2021 13:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371106;
-        bh=VBF7P6eld1L6OJjTaNs7GsE7yMzmSopp1KtlLEBrm3g=;
+        s=korg; t=1610371110;
+        bh=Z9cMea0DCwPV9ekGawv44LwH2gcwZ+Yd/UNJSXtQM6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFCrOKvzj9xI5QIiZt77PnFyjtyPQ55HEumysS4ctE+e/1W3yA7qtB6nH5w6xDSOg
-         tuQful/X1Oh6ge4kmyvmV0UZqgol5Be7k1bwEuIYIMBUSo3Fxgemdru+++s99qashk
-         ZADECm/ABGuN3rmnFgWSEGwBIv65pYhWaTSqb9Lk=
+        b=x+TMZy7a1LUA5Jw96ImhZ1fta3An/1dK8DptBXMV1kNHHBihFgAdQq/kFc8rT8xnh
+         tuQpkXxlsZWd9rEmkOxu4DExNDwRV2XQuK2qEn/sGVM9znX2/rS3EqhYSIo4YcuDNW
+         pZgFnBwLp40fXrGneVltH5AqpxUK5ZYfNFQ7S4E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 127/145] Revert "device property: Keep secondary firmware node secondary by type"
-Date:   Mon, 11 Jan 2021 14:02:31 +0100
-Message-Id: <20210111130054.614865838@linuxfoundation.org>
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 5.10 128/145] dmabuf: fix use-after-free of dmabufs file->f_inode
+Date:   Mon, 11 Jan 2021 14:02:32 +0100
+Message-Id: <20210111130054.664526024@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -42,40 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-commit 47f4469970d8861bc06d2d4d45ac8200ff07c693 upstream.
+commit 05cd84691eafcd7959a1e120d5e72c0dd98c5d91 upstream.
 
-While commit d5dcce0c414f ("device property: Keep secondary firmware
-node secondary by type") describes everything correct in its commit
-message, the change it made does the opposite and original commit
-c15e1bdda436 ("device property: Fix the secondary firmware node handling
-in set_primary_fwnode()") was fully correct.
+It is observed 'use-after-free' on the dmabuf's file->f_inode with the
+race between closing the dmabuf file and reading the dmabuf's debug
+info.
 
-Revert the former one here and improve documentation in the next patch.
+Consider the below scenario where P1 is closing the dma_buf file
+and P2 is reading the dma_buf's debug info in the system:
 
-Fixes: d5dcce0c414f ("device property: Keep secondary firmware node secondary by type")
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: 5.10+ <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+P1						P2
+					dma_buf_debug_show()
+dma_buf_put()
+  __fput()
+    file->f_op->release()
+    dput()
+    ....
+      dentry_unlink_inode()
+        iput(dentry->d_inode)
+        (where the inode is freed)
+					mutex_lock(&db_list.lock)
+					read 'dma_buf->file->f_inode'
+					(the same inode is freed by P1)
+					mutex_unlock(&db_list.lock)
+      dentry->d_op->d_release()-->
+        dma_buf_release()
+          .....
+          mutex_lock(&db_list.lock)
+          removes the dmabuf from the list
+          mutex_unlock(&db_list.lock)
+
+In the above scenario, when dma_buf_put() is called on a dma_buf, it
+first frees the dma_buf's file->f_inode(=dentry->d_inode) and then
+removes this dma_buf from the system db_list. In between P2 traversing
+the db_list tries to access this dma_buf's file->f_inode that was freed
+by P1 which is a use-after-free case.
+
+Since, __fput() calls f_op->release first and then later calls the
+d_op->d_release, move the dma_buf's db_list removal from d_release() to
+f_op->release(). This ensures that dma_buf's file->f_inode is not
+accessed after it is released.
+
+Cc: <stable@vger.kernel.org> # 5.4.x-
+Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1609857399-31549-1-git-send-email-charante@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c |   21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -4278,7 +4278,7 @@ void set_primary_fwnode(struct device *d
- 		if (fwnode_is_primary(fn)) {
- 			dev->fwnode = fn->secondary;
- 			if (!(parent && fn == parent->fwnode))
--				fn->secondary = ERR_PTR(-ENODEV);
-+				fn->secondary = NULL;
- 		} else {
- 			dev->fwnode = NULL;
- 		}
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -76,10 +76,6 @@ static void dma_buf_release(struct dentr
+ 
+ 	dmabuf->ops->release(dmabuf);
+ 
+-	mutex_lock(&db_list.lock);
+-	list_del(&dmabuf->list_node);
+-	mutex_unlock(&db_list.lock);
+-
+ 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
+ 		dma_resv_fini(dmabuf->resv);
+ 
+@@ -88,6 +84,22 @@ static void dma_buf_release(struct dentr
+ 	kfree(dmabuf);
+ }
+ 
++static int dma_buf_file_release(struct inode *inode, struct file *file)
++{
++	struct dma_buf *dmabuf;
++
++	if (!is_dma_buf_file(file))
++		return -EINVAL;
++
++	dmabuf = file->private_data;
++
++	mutex_lock(&db_list.lock);
++	list_del(&dmabuf->list_node);
++	mutex_unlock(&db_list.lock);
++
++	return 0;
++}
++
+ static const struct dentry_operations dma_buf_dentry_ops = {
+ 	.d_dname = dmabuffs_dname,
+ 	.d_release = dma_buf_release,
+@@ -413,6 +425,7 @@ static void dma_buf_show_fdinfo(struct s
+ }
+ 
+ static const struct file_operations dma_buf_fops = {
++	.release	= dma_buf_file_release,
+ 	.mmap		= dma_buf_mmap_internal,
+ 	.llseek		= dma_buf_llseek,
+ 	.poll		= dma_buf_poll,
 
 
