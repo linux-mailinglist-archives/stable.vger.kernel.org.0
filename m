@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC752F15D6
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D35A2F161E
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731288AbhAKNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:10:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57732 "EHLO mail.kernel.org"
+        id S1728440AbhAKNKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:10:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730987AbhAKNKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DAFB2255F;
-        Mon, 11 Jan 2021 13:10:35 +0000 (UTC)
+        id S1730802AbhAKNIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:08:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC5921973;
+        Mon, 11 Jan 2021 13:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370636;
-        bh=5igYRM//wsP2dCkuShwXCZoN+YG4ADcFp0CzWco+I50=;
+        s=korg; t=1610370451;
+        bh=+f99D9fEKJnngyVOHBqLeBg8NItk6s5ISu3zsRWthg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rybj4UJKlqYHqSjBnnx7EEGkSb4uzCdVrk15Rfy+yIlR+oS2Tlt4BRAGWGDV5MiZE
-         /KjQMjygs22hwLunDPNiOVW8aIerE/1qgYLFwHpv66zkC9iHG/F15/jAi4MMdCbcWx
-         Pr64lGsNW3K8CqgUNbKUU92zzrxpDdKur7CAljsc=
+        b=t2+DjK1krrTuh/FPswg1omwQo96aBP0mowR9BPK/Mm4aciwtsphcEEzqpUbfo2G3W
+         XdGDWi/K9HQJImVbFrAgqcnJDmky+fXypJmqC/SFJA39Gm18gAicTQPjEWfktTk4xA
+         CG6ry6RaH6bSgXxPOhB3jxo1j3bUCyT1Gbb0UFxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/92] proc: change ->nlink under proc_subdir_lock
-Date:   Mon, 11 Jan 2021 14:01:12 +0100
-Message-Id: <20210111130039.556916907@linuxfoundation.org>
+Subject: [PATCH 4.19 04/77] scsi: ufs-pci: Ensure UFS device is in PowerDown mode for suspend-to-disk ->poweroff()
+Date:   Mon, 11 Jan 2021 14:01:13 +0100
+Message-Id: <20210111130036.621831764@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,114 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit e06689bf57017ac022ccf0f2a5071f760821ce0f ]
+[ Upstream commit af423534d2de86cd0db729a5ac41f056ca8717de ]
 
-Currently gluing PDE into global /proc tree is done under lock, but
-changing ->nlink is not.  Additionally struct proc_dir_entry::nlink is
-not atomic so updates can be lost.
+The expectation for suspend-to-disk is that devices will be powered-off, so
+the UFS device should be put in PowerDown mode. If spm_lvl is not 5, then
+that will not happen. Change the pm callbacks to force spm_lvl 5 for
+suspend-to-disk poweroff.
 
-Link: http://lkml.kernel.org/r/20190925202436.GA17388@avx2
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20201207083120.26732-3-adrian.hunter@intel.com
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/generic.c | 31 +++++++++++++++----------------
- 1 file changed, 15 insertions(+), 16 deletions(-)
+ drivers/scsi/ufs/ufshcd-pci.c | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 64e9ee1b129e2..d4f353187d67c 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -138,8 +138,12 @@ static int proc_getattr(const struct path *path, struct kstat *stat,
+diff --git a/drivers/scsi/ufs/ufshcd-pci.c b/drivers/scsi/ufs/ufshcd-pci.c
+index ffe6f82182ba8..68f4f67c5ff88 100644
+--- a/drivers/scsi/ufs/ufshcd-pci.c
++++ b/drivers/scsi/ufs/ufshcd-pci.c
+@@ -96,6 +96,30 @@ static int ufshcd_pci_resume(struct device *dev)
  {
- 	struct inode *inode = d_inode(path->dentry);
- 	struct proc_dir_entry *de = PDE(inode);
--	if (de && de->nlink)
--		set_nlink(inode, de->nlink);
-+	if (de) {
-+		nlink_t nlink = READ_ONCE(de->nlink);
-+		if (nlink > 0) {
-+			set_nlink(inode, nlink);
-+		}
-+	}
- 
- 	generic_fillattr(inode, stat);
- 	return 0;
-@@ -362,6 +366,7 @@ struct proc_dir_entry *proc_register(struct proc_dir_entry *dir,
- 		write_unlock(&proc_subdir_lock);
- 		goto out_free_inum;
- 	}
-+	dir->nlink++;
- 	write_unlock(&proc_subdir_lock);
- 
- 	return dp;
-@@ -472,10 +477,7 @@ struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
- 		ent->data = data;
- 		ent->proc_fops = &proc_dir_operations;
- 		ent->proc_iops = &proc_dir_inode_operations;
--		parent->nlink++;
- 		ent = proc_register(parent, ent);
--		if (!ent)
--			parent->nlink--;
- 	}
- 	return ent;
+ 	return ufshcd_system_resume(dev_get_drvdata(dev));
  }
-@@ -505,10 +507,7 @@ struct proc_dir_entry *proc_create_mount_point(const char *name)
- 		ent->data = NULL;
- 		ent->proc_fops = NULL;
- 		ent->proc_iops = NULL;
--		parent->nlink++;
- 		ent = proc_register(parent, ent);
--		if (!ent)
--			parent->nlink--;
- 	}
- 	return ent;
- }
-@@ -666,8 +665,12 @@ void remove_proc_entry(const char *name, struct proc_dir_entry *parent)
- 	len = strlen(fn);
- 
- 	de = pde_subdir_find(parent, fn, len);
--	if (de)
-+	if (de) {
- 		rb_erase(&de->subdir_node, &parent->subdir);
-+		if (S_ISDIR(de->mode)) {
-+			parent->nlink--;
-+		}
-+	}
- 	write_unlock(&proc_subdir_lock);
- 	if (!de) {
- 		WARN(1, "name '%s'\n", name);
-@@ -676,9 +679,6 @@ void remove_proc_entry(const char *name, struct proc_dir_entry *parent)
- 
- 	proc_entry_rundown(de);
- 
--	if (S_ISDIR(de->mode))
--		parent->nlink--;
--	de->nlink = 0;
- 	WARN(pde_subdir_first(de),
- 	     "%s: removing non-empty directory '%s/%s', leaking at least '%s'\n",
- 	     __func__, de->parent->name, de->name, pde_subdir_first(de)->name);
-@@ -714,13 +714,12 @@ int remove_proc_subtree(const char *name, struct proc_dir_entry *parent)
- 			de = next;
- 			continue;
- 		}
--		write_unlock(&proc_subdir_lock);
--
--		proc_entry_rundown(de);
- 		next = de->parent;
- 		if (S_ISDIR(de->mode))
- 			next->nlink--;
--		de->nlink = 0;
-+		write_unlock(&proc_subdir_lock);
 +
-+		proc_entry_rundown(de);
- 		if (de == root)
- 			break;
- 		pde_put(de);
++/**
++ * ufshcd_pci_poweroff - suspend-to-disk poweroff function
++ * @dev: pointer to PCI device handle
++ *
++ * Returns 0 if successful
++ * Returns non-zero otherwise
++ */
++static int ufshcd_pci_poweroff(struct device *dev)
++{
++	struct ufs_hba *hba = dev_get_drvdata(dev);
++	int spm_lvl = hba->spm_lvl;
++	int ret;
++
++	/*
++	 * For poweroff we need to set the UFS device to PowerDown mode.
++	 * Force spm_lvl to ensure that.
++	 */
++	hba->spm_lvl = 5;
++	ret = ufshcd_system_suspend(hba);
++	hba->spm_lvl = spm_lvl;
++	return ret;
++}
++
+ #endif /* !CONFIG_PM_SLEEP */
+ 
+ #ifdef CONFIG_PM
+@@ -190,8 +214,14 @@ ufshcd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ }
+ 
+ static const struct dev_pm_ops ufshcd_pci_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(ufshcd_pci_suspend,
+-				ufshcd_pci_resume)
++#ifdef CONFIG_PM_SLEEP
++	.suspend	= ufshcd_pci_suspend,
++	.resume		= ufshcd_pci_resume,
++	.freeze		= ufshcd_pci_suspend,
++	.thaw		= ufshcd_pci_resume,
++	.poweroff	= ufshcd_pci_poweroff,
++	.restore	= ufshcd_pci_resume,
++#endif
+ 	SET_RUNTIME_PM_OPS(ufshcd_pci_runtime_suspend,
+ 			   ufshcd_pci_runtime_resume,
+ 			   ufshcd_pci_runtime_idle)
 -- 
 2.27.0
 
