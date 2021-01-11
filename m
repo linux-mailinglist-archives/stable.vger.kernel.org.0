@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D552F13B3
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:13:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7528C2F141A
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731903AbhAKNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:13:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S1732685AbhAKNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:17:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731713AbhAKNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A614D22515;
-        Mon, 11 Jan 2021 13:13:12 +0000 (UTC)
+        id S1732677AbhAKNRq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5660922C7E;
+        Mon, 11 Jan 2021 13:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370793;
-        bh=fbNeV+OFVNAnSjGoJE6Mc64L/Ho9ndObvVQwda+8Ki4=;
+        s=korg; t=1610371024;
+        bh=Icqj3NnDquF0UPI8M7/V2n9LlkLHdSpbKK/t5/0sNfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDVgDsqnebA+1k9c7xMMtqyJLNoaj9S7uyGOuCVPMhTR1iFhAaZcjROgIcJQY/rMr
-         bQTS0xpJciwTLbab75RxQpEyKorWyV+VSJDI/i1JQKYA6SsTvnKoJRDR6qXMf69VhK
-         kpImokPvCMBFi7TzshDb4lnT239UWlTy1O5V4S9A=
+        b=DeinzU2c66RDnkqgt19zPypHy7ZrlXJFzO5KLb0R5bTw7ZRqMtnmuHUQ104AIvUPG
+         8GwM6n7CdqicfePJ9h0GrLhA6PqaW+jJF++YRwqEpZVEuJEsvqlDIkD9Z++ccs69VX
+         FOYeuut9ftHFGjYNffbOc2ap1O7XQVCAdItUwre8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.4 68/92] usb: gadget: f_uac2: reset wMaxPacketSize
-Date:   Mon, 11 Jan 2021 14:02:12 +0100
-Message-Id: <20210111130042.427175101@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2fc0712f8f8b8b8fa0ef@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, stable@kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 109/145] mm: make wait_on_page_writeback() wait for multiple pending writebacks
+Date:   Mon, 11 Jan 2021 14:02:13 +0100
+Message-Id: <20210111130053.764396270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,152 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 9389044f27081d6ec77730c36d5bf9a1288bcda2 upstream.
+commit c2407cf7d22d0c0d94cf20342b3b8f06f1d904e7 upstream.
 
-With commit 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
-wMaxPacketSize is computed dynamically but the value is never reset.
+Ever since commit 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common()
+logic") we've had some very occasional reports of BUG_ON(PageWriteback)
+in write_cache_pages(), which we thought we already fixed in commit
+073861ed77b6 ("mm: fix VM_BUG_ON(PageTail) and BUG_ON(PageWriteback)").
 
-Because of this, the actual maximum packet size can only decrease each time
-the audio gadget is instantiated.
+But syzbot just reported another one, even with that commit in place.
 
-Reset the endpoint maximum packet size and mark wMaxPacketSize as dynamic
-to solve the problem.
+And it turns out that there's a simpler way to trigger the BUG_ON() than
+the one Hugh found with page re-use.  It all boils down to the fact that
+the page writeback is ostensibly serialized by the page lock, but that
+isn't actually really true.
 
-Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201221173531.215169-2-jbrunet@baylibre.com
+Yes, the people _setting_ writeback all do so under the page lock, but
+the actual clearing of the bit - and waking up any waiters - happens
+without any page lock.
+
+This gives us this fairly simple race condition:
+
+  CPU1 = end previous writeback
+  CPU2 = start new writeback under page lock
+  CPU3 = write_cache_pages()
+
+  CPU1          CPU2            CPU3
+  ----          ----            ----
+
+  end_page_writeback()
+    test_clear_page_writeback(page)
+    ... delayed...
+
+                lock_page();
+                set_page_writeback()
+                unlock_page()
+
+                                lock_page()
+                                wait_on_page_writeback();
+
+    wake_up_page(page, PG_writeback);
+    .. wakes up CPU3 ..
+
+                                BUG_ON(PageWriteback(page));
+
+where the BUG_ON() happens because we woke up the PG_writeback bit
+becasue of the _previous_ writeback, but a new one had already been
+started because the clearing of the bit wasn't actually atomic wrt the
+actual wakeup or serialized by the page lock.
+
+The reason this didn't use to happen was that the old logic in waiting
+on a page bit would just loop if it ever saw the bit set again.
+
+The nice proper fix would probably be to get rid of the whole "wait for
+writeback to clear, and then set it" logic in the writeback path, and
+replace it with an atomic "wait-to-set" (ie the same as we have for page
+locking: we set the page lock bit with a single "lock_page()", not with
+"wait for lock bit to clear and then set it").
+
+However, out current model for writeback is that the waiting for the
+writeback bit is done by the generic VFS code (ie write_cache_pages()),
+but the actual setting of the writeback bit is done much later by the
+filesystem ".writepages()" function.
+
+IOW, to make the writeback bit have that same kind of "wait-to-set"
+behavior as we have for page locking, we'd have to change our roughly
+~50 different writeback functions.  Painful.
+
+Instead, just make "wait_on_page_writeback()" loop on the very unlikely
+situation that the PG_writeback bit is still set, basically re-instating
+the old behavior.  This is very non-optimal in case of contention, but
+since we only ever set the bit under the page lock, that situation is
+controlled.
+
+Reported-by: syzbot+2fc0712f8f8b8b8fa0ef@syzkaller.appspotmail.com
+Fixes: 2a9127fcf229 ("mm: rewrite wait_on_page_bit_common() logic")
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_uac2.c |   69 +++++++++++++++++++++++++++--------
- 1 file changed, 55 insertions(+), 14 deletions(-)
+ mm/page-writeback.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -271,7 +271,7 @@ static struct usb_endpoint_descriptor fs
- 
- 	.bEndpointAddress = USB_DIR_OUT,
- 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
--	.wMaxPacketSize = cpu_to_le16(1023),
-+	/* .wMaxPacketSize = DYNAMIC */
- 	.bInterval = 1,
- };
- 
-@@ -280,7 +280,7 @@ static struct usb_endpoint_descriptor hs
- 	.bDescriptorType = USB_DT_ENDPOINT,
- 
- 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
--	.wMaxPacketSize = cpu_to_le16(1024),
-+	/* .wMaxPacketSize = DYNAMIC */
- 	.bInterval = 4,
- };
- 
-@@ -348,7 +348,7 @@ static struct usb_endpoint_descriptor fs
- 
- 	.bEndpointAddress = USB_DIR_IN,
- 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
--	.wMaxPacketSize = cpu_to_le16(1023),
-+	/* .wMaxPacketSize = DYNAMIC */
- 	.bInterval = 1,
- };
- 
-@@ -357,7 +357,7 @@ static struct usb_endpoint_descriptor hs
- 	.bDescriptorType = USB_DT_ENDPOINT,
- 
- 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
--	.wMaxPacketSize = cpu_to_le16(1024),
-+	/* .wMaxPacketSize = DYNAMIC */
- 	.bInterval = 4,
- };
- 
-@@ -444,12 +444,28 @@ struct cntrl_range_lay3 {
- 	__le32	dRES;
- } __packed;
- 
--static void set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
-+static int set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
- 	struct usb_endpoint_descriptor *ep_desc,
--	unsigned int factor, bool is_playback)
-+	enum usb_device_speed speed, bool is_playback)
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2826,7 +2826,7 @@ EXPORT_SYMBOL(__test_set_page_writeback)
+  */
+ void wait_on_page_writeback(struct page *page)
  {
- 	int chmask, srate, ssize;
--	u16 max_packet_size;
-+	u16 max_size_bw, max_size_ep;
-+	unsigned int factor;
-+
-+	switch (speed) {
-+	case USB_SPEED_FULL:
-+		max_size_ep = 1023;
-+		factor = 1000;
-+		break;
-+
-+	case USB_SPEED_HIGH:
-+		max_size_ep = 1024;
-+		factor = 8000;
-+		break;
-+
-+	default:
-+		return -EINVAL;
-+	}
- 
- 	if (is_playback) {
- 		chmask = uac2_opts->p_chmask;
-@@ -461,10 +477,12 @@ static void set_ep_max_packet_size(const
- 		ssize = uac2_opts->c_ssize;
+-	if (PageWriteback(page)) {
++	while (PageWriteback(page)) {
+ 		trace_wait_on_page_writeback(page, page_mapping(page));
+ 		wait_on_page_bit(page, PG_writeback);
  	}
- 
--	max_packet_size = num_channels(chmask) * ssize *
-+	max_size_bw = num_channels(chmask) * ssize *
- 		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
--	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_packet_size,
--				le16_to_cpu(ep_desc->wMaxPacketSize)));
-+	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
-+						    max_size_ep));
-+
-+	return 0;
- }
- 
- /* Use macro to overcome line length limitation */
-@@ -670,10 +688,33 @@ afunc_bind(struct usb_configuration *cfg
- 	}
- 
- 	/* Calculate wMaxPacketSize according to audio bandwidth */
--	set_ep_max_packet_size(uac2_opts, &fs_epin_desc, 1000, true);
--	set_ep_max_packet_size(uac2_opts, &fs_epout_desc, 1000, false);
--	set_ep_max_packet_size(uac2_opts, &hs_epin_desc, 8000, true);
--	set_ep_max_packet_size(uac2_opts, &hs_epout_desc, 8000, false);
-+	ret = set_ep_max_packet_size(uac2_opts, &fs_epin_desc, USB_SPEED_FULL,
-+				     true);
-+	if (ret < 0) {
-+		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-+		return ret;
-+	}
-+
-+	ret = set_ep_max_packet_size(uac2_opts, &fs_epout_desc, USB_SPEED_FULL,
-+				     false);
-+	if (ret < 0) {
-+		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-+		return ret;
-+	}
-+
-+	ret = set_ep_max_packet_size(uac2_opts, &hs_epin_desc, USB_SPEED_HIGH,
-+				     true);
-+	if (ret < 0) {
-+		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-+		return ret;
-+	}
-+
-+	ret = set_ep_max_packet_size(uac2_opts, &hs_epout_desc, USB_SPEED_HIGH,
-+				     false);
-+	if (ret < 0) {
-+		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
-+		return ret;
-+	}
- 
- 	if (EPOUT_EN(uac2_opts)) {
- 		agdev->out_ep = usb_ep_autoconfig(gadget, &fs_epout_desc);
 
 
