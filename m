@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 844C82F1526
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7342F151D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:35:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731873AbhAKNfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:35:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60828 "EHLO mail.kernel.org"
+        id S1732026AbhAKNfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:35:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732023AbhAKNOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:14:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 918DC22795;
-        Mon, 11 Jan 2021 13:13:19 +0000 (UTC)
+        id S1732031AbhAKNOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:14:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E24522250F;
+        Mon, 11 Jan 2021 13:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370800;
-        bh=0pvycBJoN4waGColndHYcZmO8vQD+V3btAXV0Gvctl0=;
+        s=korg; t=1610370802;
+        bh=xjoEzV6Xi5sP+X7sPDYGi4A5zF7gVw5Z60vBv1CS8ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRSmtZYYTYi7aFWBr+tBe/ylDi7cV3QilLDyEZ6DxSm6FadVaeOq+NA+/Q/3g/s0L
-         Z+vhxFHWL//r2Ta13bikoxHX5CGmJRbgHFYG8UAHaKS2uIeRDIP9ZsAJoi0l8FxkE7
-         VMEa1AQSSkX24C4JWtiV6Kx0N6Dwrz7M4VwOfbr4=
+        b=ngBEfkHsKYDggOQIjsjbirxlNzynH+ej8fAK1et/4bcKtEqhIudTrEp0Sj0o7HzeX
+         8Nzf9sNHaNLxI1w2x8m9ERWdQNiOTHyYvAbg5cI814t972TADaCkt5ZW0iu/dWVhr3
+         LeIGY6B13gMzUpBxdzJQHcIXTMsDWvI9vuk6el3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        Stefan Chulski <stefanc@marvell.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 010/145] atm: idt77252: call pci_disable_device() on error path
-Date:   Mon, 11 Jan 2021 14:00:34 +0100
-Message-Id: <20210111130049.010385251@linuxfoundation.org>
+Subject: [PATCH 5.10 011/145] net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
+Date:   Mon, 11 Jan 2021 14:00:35 +0100
+Message-Id: <20210111130049.058866908@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,31 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stefan Chulski <stefanc@marvell.com>
 
-[ Upstream commit 8df66af5c1e5f80562fe728db5ec069b21810144 ]
+[ Upstream commit 2575bc1aa9d52a62342b57a0b7d0a12146cf6aed ]
 
-This error path needs to disable the pci device before returning.
+During GoP port 2 Networking Complex Control mode of operation configurations,
+also GoP port 3 mode of operation was wrongly set.
+Patch removes these configurations.
 
-Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X93dmC4NX0vbTpGp@mwanda
+Fixes: f84bf386f395 ("net: mvpp2: initialize the GoP")
+Acked-by: Marcin Wojtas <mw@semihalf.com>
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Link: https://lore.kernel.org/r/1608462149-1702-1-git-send-email-stefanc@marvell.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/idt77252.c |    2 +-
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -3607,7 +3607,7 @@ static int idt77252_init_one(struct pci_
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -1231,7 +1231,7 @@ static void mvpp22_gop_init_rgmii(struct
  
- 	if ((err = dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(32)))) {
- 		printk("idt77252: can't enable DMA for PCI device at %s\n", pci_name(pcidev));
--		return err;
-+		goto err_out_disable_pdev;
- 	}
- 
- 	card = kzalloc(sizeof(struct idt77252_dev), GFP_KERNEL);
+ 	regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
+ 	if (port->gop_id == 2)
+-		val |= GENCONF_CTRL0_PORT0_RGMII | GENCONF_CTRL0_PORT1_RGMII;
++		val |= GENCONF_CTRL0_PORT0_RGMII;
+ 	else if (port->gop_id == 3)
+ 		val |= GENCONF_CTRL0_PORT1_RGMII_MII;
+ 	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
 
 
