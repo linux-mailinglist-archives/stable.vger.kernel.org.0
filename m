@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B9F2F1523
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7790C2F150A
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:34:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732002AbhAKNNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:13:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
+        id S1729750AbhAKNel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:34:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732000AbhAKNNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E72132255F;
-        Mon, 11 Jan 2021 13:13:35 +0000 (UTC)
+        id S1732086AbhAKNOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:14:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 394BC22515;
+        Mon, 11 Jan 2021 13:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370816;
-        bh=B95Z6aOSSEIH5gVm3bkLqjeme1dp2fzwlKy3MxXZe6Y=;
+        s=korg; t=1610370818;
+        bh=+Kd3aqHT+ZRR+qTRRaanrxlV7+HyLHkYUaBKHsKdhvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDjoOHkNTUkoU6YKsdE5o86PVigwVTFP6Q5fm9oCYCAFVvqLFzwRMPKKlDLxPdUhD
-         tgwsoX+13mKgxxO4RWXp6+AcSCTvgBYuy00ax0m6C6vGNurqV04cLpVG5P0viQZmo+
-         nosMJXjrMMI0sedbJRYQaRyDEcaXFAy8Zp/8YEyE=
+        b=GY/FkOn1qreURnQIkurzP/92vE1s9EVzdTkQ2pC8Ckd17JFzTuETlEWkF7DDEuMjw
+         4tLd/paDR7pCS6asmo2xM7jYLx+O8j3YVcYVDd6C+k4vgwYfRacVAuL97TvjIbLwwZ
+         frLNa2sSDKqGqg3+ATlQ+Raq9vPH/oRCplGAXrGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Dike <jdike@akamai.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 017/145] virtio_net: Fix recursive call to cpus_read_lock()
-Date:   Mon, 11 Jan 2021 14:00:41 +0100
-Message-Id: <20210111130049.339270672@linuxfoundation.org>
+Subject: [PATCH 5.10 018/145] net: dcb: Validate netlink message in DCB handler
+Date:   Mon, 11 Jan 2021 14:00:42 +0100
+Message-Id: <20210111130049.387370344@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -41,61 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Dike <jdike@akamai.com>
+From: Petr Machata <me@pmachata.org>
 
-[ Upstream commit de33212f768c5d9e2fe791b008cb26f92f0aa31c ]
+[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
 
-virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
-and CONFIG_HOTPLUG are enabled.
+DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
+messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
+the CAP_NET_ADMIN capability.
 
-The path is:
-    virtnet_set_channels - calls get_online_cpus(), which is a trivial
-wrapper around cpus_read_lock()
-    netif_set_real_num_tx_queues
-    netif_reset_xps_queues_gt
-    netif_reset_xps_queues - calls cpus_read_lock()
+However, the operation to be performed is not decided from the DCB message
+type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
+reading DCB objects, the corresponding SET and DEL commands are used for
+manipulation.
 
-This call chain and potential deadlock happens when the number of TX
-queues is reduced.
+The assumption is that set-like commands will be sent via an RTM_SETDCB
+message, and get-like ones via RTM_GETDCB. However, this assumption is not
+enforced.
 
-This commit the removes netif_set_real_num_[tr]x_queues calls from
-inside the get/put_online_cpus section, as they don't require that it
-be held.
+It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
+capability by sending the corresponding command in an RTM_GETDCB message.
+That is a bug. Fix it by validating the type of the request message against
+the type used for the response.
 
-Fixes: 47be24796c13 ("virtio-net: fix the set affinity bug when CPU IDs are not consecutive")
-Signed-off-by: Jeff Dike <jdike@akamai.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20201223025421.671-1-jdike@akamai.com
+Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
+Signed-off-by: Petr Machata <me@pmachata.org>
+Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ net/dcb/dcbnl.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2093,14 +2093,16 @@ static int virtnet_set_channels(struct n
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1765,6 +1765,8 @@ static int dcb_doit(struct sk_buff *skb,
+ 	fn = &reply_funcs[dcb->cmd];
+ 	if (!fn->cb)
+ 		return -EOPNOTSUPP;
++	if (fn->type != nlh->nlmsg_type)
++		return -EPERM;
  
- 	get_online_cpus();
- 	err = _virtnet_set_queues(vi, queue_pairs);
--	if (!err) {
--		netif_set_real_num_tx_queues(dev, queue_pairs);
--		netif_set_real_num_rx_queues(dev, queue_pairs);
--
--		virtnet_set_affinity(vi);
-+	if (err) {
-+		put_online_cpus();
-+		goto err;
- 	}
-+	virtnet_set_affinity(vi);
- 	put_online_cpus();
- 
-+	netif_set_real_num_tx_queues(dev, queue_pairs);
-+	netif_set_real_num_rx_queues(dev, queue_pairs);
-+ err:
- 	return err;
- }
- 
+ 	if (!tb[DCB_ATTR_IFNAME])
+ 		return -EINVAL;
 
 
