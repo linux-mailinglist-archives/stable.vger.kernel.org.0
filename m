@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15162F1433
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4022F142D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729918AbhAKNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:21:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
+        id S1728344AbhAKNV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733244AbhAKNTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:19:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C2022A83;
-        Mon, 11 Jan 2021 13:18:32 +0000 (UTC)
+        id S1733246AbhAKNTQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:19:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BAAE2229C;
+        Mon, 11 Jan 2021 13:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371112;
-        bh=xZJ4AxdMJDxWjNqQHP2cu0DDr9uFvEAqpMKQt77EwSs=;
+        s=korg; t=1610371115;
+        bh=qTsFhm8C1KkjChvnUpqPkXt1ZpVh7r9qSFbqq2w+djE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFFyjMZs8fkwBw3Ey/Sc7gnhbWcDQibnmORjqfgrxaG+/gfH1OHYtJQQnwVhdDATx
-         ewC0yyRXbhCYWel6EepIbUihc/iAufO8C5q2a57xWRAICRhp/kkdFVA3DDPvnmoQzO
-         /DVQ1AeYD6tohXBB5Ek/0Fi4kiwcuXehfsoGkw4E=
+        b=D5zaGUrufSGpN5Kdppy6O0N6qvMc9C7R9slaWysCp/pRTwlgmaHS3qrh2749eyyBR
+         o4iVN1jPlPMHIC3pn8PYppJ3hkbjpviR2GiSPY8tL3RoflxT1+DSHaCtrUHZy4wOwp
+         WMNXBK1ip/oKB5Ns7iE1FUyCvpFr15EMYPa7FtVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Quentin Perret <qperret@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Alan Modra <amodra@gmail.com>,
-        =?UTF-8?q?F=C4=81ng-ru=C3=AC=20S=C3=B2ng?= <maskray@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 129/145] arm64: link with -z norelro for LLD or aarch64-elf
-Date:   Mon, 11 Jan 2021 14:02:33 +0100
-Message-Id: <20210111130054.714929856@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.10 130/145] drm/i915: clear the shadow batch
+Date:   Mon, 11 Jan 2021 14:02:34 +0100
+Message-Id: <20210111130054.762270523@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -45,82 +40,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
+commit 75353bcd2184010f08a3ed2f0da019bd9d604e1e upstream.
 
-With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
-aarch64-linux-gnu-ld: warning: -z norelro ignored
+The shadow batch is an internal object, which doesn't have any page
+clearing, and since the batch_len can be smaller than the object, we
+should take care to clear it.
 
-BFD can produce this warning when the target emulation mode does not
-support RELRO program headers, and -z relro or -z norelro is passed.
-
-Alan Modra clarifies:
-  The default linker emulation for an aarch64-linux ld.bfd is
-  -maarch64linux, the default for an aarch64-elf linker is
-  -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
-  you get an emulation that doesn't support -z relro.
-
-The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
--maarch64linux based on the toolchain configuration.
-
-LLD will always create RELRO program header regardless of target
-emulation.
-
-To avoid the above warning when linking with BFD, pass -z norelro only
-when linking with LLD or with -maarch64linux.
-
-Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
-Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
-Cc: <stable@vger.kernel.org> # 5.0.x-
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Reported-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Cc: Alan Modra <amodra@gmail.com>
-Cc: Fāng-ruì Sòng <maskray@google.com>
-Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Testcase: igt/gen9_exec_parse/shadow-peek
+Fixes: 4f7af1948abc ("drm/i915: Support ro ppgtt mapped cmdparser shadow buffers")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201224151358.401345-1-matthew.auld@intel.com
+Cc: stable@vger.kernel.org
+(cherry picked from commit eeb52ee6c4a429ec301faf1dc48988744960786e)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/Makefile |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/i915_cmd_parser.c |   27 +++++++++------------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
 
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -10,7 +10,7 @@
- #
- # Copyright (C) 1995-2001 by Russell King
+--- a/drivers/gpu/drm/i915/i915_cmd_parser.c
++++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
+@@ -1166,7 +1166,7 @@ static u32 *copy_batch(struct drm_i915_g
+ 		}
+ 	}
+ 	if (IS_ERR(src)) {
+-		unsigned long x, n;
++		unsigned long x, n, remain;
+ 		void *ptr;
  
--LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
-+LDFLAGS_vmlinux	:=--no-undefined -X
+ 		/*
+@@ -1177,14 +1177,15 @@ static u32 *copy_batch(struct drm_i915_g
+ 		 * We don't care about copying too much here as we only
+ 		 * validate up to the end of the batch.
+ 		 */
++		remain = length;
+ 		if (!(dst_obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_READ))
+-			length = round_up(length,
++			remain = round_up(remain,
+ 					  boot_cpu_data.x86_clflush_size);
  
- ifeq ($(CONFIG_RELOCATABLE), y)
- # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
-@@ -110,16 +110,20 @@ KBUILD_CPPFLAGS	+= -mbig-endian
- CHECKFLAGS	+= -D__AARCH64EB__
- # Prefer the baremetal ELF build target, but not all toolchains include
- # it so fall back to the standard linux version if needed.
--KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb)
-+KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb -z norelro)
- UTS_MACHINE	:= aarch64_be
- else
- KBUILD_CPPFLAGS	+= -mlittle-endian
- CHECKFLAGS	+= -D__AARCH64EL__
- # Same as above, prefer ELF but fall back to linux target if needed.
--KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux)
-+KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux -z norelro)
- UTS_MACHINE	:= aarch64
- endif
+ 		ptr = dst;
+ 		x = offset_in_page(offset);
+-		for (n = offset >> PAGE_SHIFT; length; n++) {
+-			int len = min(length, PAGE_SIZE - x);
++		for (n = offset >> PAGE_SHIFT; remain; n++) {
++			int len = min(remain, PAGE_SIZE - x);
  
-+ifeq ($(CONFIG_LD_IS_LLD), y)
-+KBUILD_LDFLAGS	+= -z norelro
-+endif
+ 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
+ 			if (needs_clflush)
+@@ -1193,13 +1194,15 @@ static u32 *copy_batch(struct drm_i915_g
+ 			kunmap_atomic(src);
+ 
+ 			ptr += len;
+-			length -= len;
++			remain -= len;
+ 			x = 0;
+ 		}
+ 	}
+ 
+ 	i915_gem_object_unpin_pages(src_obj);
+ 
++	memset32(dst + length, 0, (dst_obj->base.size - length) / sizeof(u32));
 +
- CHECKFLAGS	+= -D__aarch64__
+ 	/* dst_obj is returned with vmap pinned */
+ 	return dst;
+ }
+@@ -1392,11 +1395,6 @@ static unsigned long *alloc_whitelist(u3
  
- ifeq ($(CONFIG_DYNAMIC_FTRACE_WITH_REGS),y)
+ #define LENGTH_BIAS 2
+ 
+-static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
+-{
+-	return !(obj->cache_coherent & I915_BO_CACHE_COHERENT_FOR_WRITE);
+-}
+-
+ /**
+  * intel_engine_cmd_parser() - parse a batch buffer for privilege violations
+  * @engine: the engine on which the batch is to execute
+@@ -1539,16 +1537,9 @@ int intel_engine_cmd_parser(struct intel
+ 				ret = 0; /* allow execution */
+ 			}
+ 		}
+-
+-		if (shadow_needs_clflush(shadow->obj))
+-			drm_clflush_virt_range(batch_end, 8);
+ 	}
+ 
+-	if (shadow_needs_clflush(shadow->obj)) {
+-		void *ptr = page_mask_bits(shadow->obj->mm.mapping);
+-
+-		drm_clflush_virt_range(ptr, (void *)(cmd + 1) - ptr);
+-	}
++	i915_gem_object_flush_map(shadow->obj);
+ 
+ 	if (!IS_ERR_OR_NULL(jump_whitelist))
+ 		kfree(jump_whitelist);
 
 
