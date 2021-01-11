@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4EB2F1510
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:35:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1480C2F14EF
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732070AbhAKNON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:14:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60788 "EHLO mail.kernel.org"
+        id S1731219AbhAKNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:32:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732066AbhAKNOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:14:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E7AB22AAD;
-        Mon, 11 Jan 2021 13:13:56 +0000 (UTC)
+        id S1732212AbhAKNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:14:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A08922AAF;
+        Mon, 11 Jan 2021 13:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370837;
-        bh=ymxAtAwdo9vYbw2D6Rwx0TX1jZoSUwz4VrH3bPjVfy0=;
+        s=korg; t=1610370857;
+        bh=ZoDqznAwqNHhPb2APJusivNYTMkNm5vnEnrW6EVFyDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5p/Sa84r5cbDGyCjk8nyqKy2PsTzE1w6uVw4lJLTjcEXR13bDVnf8Fel//PlrRNp
-         7YK7kg4m3CYs0QMBLJxHsVN/UBEhvxZ8YPwuPI9itCEKq2PA6OslpPCJtBUwxTD1d2
-         VbmDgmjfjb78gw7w6S6EfczuGaqzEb55SLAruYow=
+        b=Rzvgjvj5n/63UWHYCXjhEp8OFq+GdynyhLS4AC0jjc4hBX8IKecoDZLY1WOv87cbC
+         /JD+mZyPutDs8M5JsGo/6JPp8SkFDzFAwzEYhuKHb0QGf8LpGBycFj0koG/Yz6Fzvq
+         18JDHvZbqqWzUzjWgsDFH/5Hyd73isnr4isgPOE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 025/145] net: ethernet: ti: cpts: fix ethtool output when no ptp_clock registered
-Date:   Mon, 11 Jan 2021 14:00:49 +0100
-Message-Id: <20210111130049.719034658@linuxfoundation.org>
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Yijun Shen <Yijun.shen@dell.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 027/145] e1000e: Only run S0ix flows if shutdown succeeded
+Date:   Mon, 11 Jan 2021 14:00:51 +0100
+Message-Id: <20210111130049.813369506@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -41,46 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Mario Limonciello <mario.limonciello@dell.com>
 
-[ Upstream commit 4614792eebcbf81c60ad3604c1aeeb2b0899cea4 ]
+[ Upstream commit 808e0d8832cc81738f3e8df12dff0688352baf50 ]
 
-The CPTS driver registers PTP PHC clock when first netif is going up and
-unregister it when all netif are down. Now ethtool will show:
- - PTP PHC clock index 0 after boot until first netif is up;
- - the last assigned PTP PHC clock index even if PTP PHC clock is not
-registered any more after all netifs are down.
+If the shutdown failed, the part will be thawed and running
+S0ix flows will put it into an undefined state.
 
-This patch ensures that -1 is returned by ethtool when PTP PHC clock is not
-registered any more.
-
-Fixes: 8a2c9a5ab4b9 ("net: ethernet: ti: cpts: rework initialization/deinitialization")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Link: https://lore.kernel.org/r/20201224162405.28032-1-grygorii.strashko@ti.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Alexander Duyck <alexander.duyck@gmail.com>
+Reviewed-by: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
+Tested-by: Yijun Shen <Yijun.shen@dell.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpts.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/e1000e/netdev.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/ti/cpts.c
-+++ b/drivers/net/ethernet/ti/cpts.c
-@@ -599,6 +599,7 @@ void cpts_unregister(struct cpts *cpts)
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6970,13 +6970,14 @@ static __maybe_unused int e1000e_pm_susp
+ 	e1000e_pm_freeze(dev);
  
- 	ptp_clock_unregister(cpts->clock);
- 	cpts->clock = NULL;
-+	cpts->phc_index = -1;
+ 	rc = __e1000_shutdown(pdev, false);
+-	if (rc)
++	if (rc) {
+ 		e1000e_pm_thaw(dev);
+-
+-	/* Introduce S0ix implementation */
+-	if (hw->mac.type >= e1000_pch_cnp &&
+-	    !e1000e_check_me(hw->adapter->pdev->device))
+-		e1000e_s0ix_entry_flow(adapter);
++	} else {
++		/* Introduce S0ix implementation */
++		if (hw->mac.type >= e1000_pch_cnp &&
++		    !e1000e_check_me(hw->adapter->pdev->device))
++			e1000e_s0ix_entry_flow(adapter);
++	}
  
- 	cpts_write32(cpts, 0, int_enable);
- 	cpts_write32(cpts, 0, control);
-@@ -784,6 +785,7 @@ struct cpts *cpts_create(struct device *
- 	cpts->cc.read = cpts_systim_read;
- 	cpts->cc.mask = CLOCKSOURCE_MASK(32);
- 	cpts->info = cpts_info;
-+	cpts->phc_index = -1;
- 
- 	if (n_ext_ts)
- 		cpts->info.n_ext_ts = n_ext_ts;
+ 	return rc;
+ }
 
 
