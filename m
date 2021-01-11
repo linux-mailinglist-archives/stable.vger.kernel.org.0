@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27E552F136B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 222EC2F1481
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbhAKNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
+        id S1730876AbhAKNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:25:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731006AbhAKNIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC6E0227C3;
-        Mon, 11 Jan 2021 13:08:06 +0000 (UTC)
+        id S1732499AbhAKNRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:17:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C8D722B49;
+        Mon, 11 Jan 2021 13:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370487;
-        bh=EZCG3g6PN/SBPzMjhODmEhS03K20r8C5hjtCXyWJrjk=;
+        s=korg; t=1610370987;
+        bh=/pd8RLnDeNu7p+BdZvik1txSdKxNe8f/cfwwP4ayZU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOfMIDthUirc43FjesEbRNi1e/izbID2BSPMYaK5UbLiMlNkAQvQkA9kGsfYW48+5
-         gyylRz3zyVXMEivhYo27UKd+arLbbwYQQKLfgy4y4xZl6nBL2Hv7jRGEv3ObyIzqFY
-         uJA/GtmyItE612vpBxppZGQcjDvS7BPxZGJtlJiE=
+        b=D4PPowDYvR3lEVFd2FCYoGIQre1dIZEx+cutlJL//zPRrUSo+NRsK7sSTWTz9J9X5
+         b/ULHvOSPVqfdHQOQ7/+uB9OLydXQpbvQpLWHCPX3ZOgLdykcbG7y8v8hsRKR1k1qG
+         JwIgKNgyjG9wm7JfDDOOj8HEwOudTu8zfPgl233E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Georgi Bakalski <georgi.bakalski@gmail.com>,
-        Sean Young <sean@mess.org>, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.19 44/77] USB: cdc-acm: blacklist another IR Droid device
-Date:   Mon, 11 Jan 2021 14:01:53 +0100
-Message-Id: <20210111130038.522290577@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com,
+        Yuyang Du <yuyang.du@intel.com>,
+        Shuah Khan <shuahkh@osg.samsung.com>, linux-usb@vger.kernel.org
+Subject: [PATCH 5.10 090/145] usb: usbip: vhci_hcd: protect shift size
+Date:   Mon, 11 Jan 2021 14:01:54 +0100
+Message-Id: <20210111130052.856084802@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 0ffc76539e6e8d28114f95ac25c167c37b5191b3 upstream.
+commit 718bf42b119de652ebcc93655a1f33a9c0d04b3c upstream.
 
-This device is supported by the IR Toy driver.
+Fix shift out-of-bounds in vhci_hcd.c:
 
-Reported-by: Georgi Bakalski <georgi.bakalski@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
+  UBSAN: shift-out-of-bounds in ../drivers/usb/usbip/vhci_hcd.c:399:41
+  shift exponent 768 is too large for 32-bit type 'int'
+
+Fixes: 03cd00d538a6 ("usbip: vhci-hcd: Set the vhci structure up to work")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com
+Cc: Yuyang Du <yuyang.du@intel.com>
+Cc: Shuah Khan <shuahkh@osg.samsung.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201227134502.4548-2-sean@mess.org
+Link: https://lore.kernel.org/r/20201229071309.18418-1-rdunlap@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/usbip/vhci_hcd.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1939,6 +1939,10 @@ static const struct usb_device_id acm_id
- 	{ USB_DEVICE(0x04d8, 0x0083),	/* Bootloader mode */
- 	.driver_info = IGNORE_DEVICE,
- 	},
-+
-+	{ USB_DEVICE(0x04d8, 0xf58b),
-+	.driver_info = IGNORE_DEVICE,
-+	},
- #endif
- 
- 	/*Samsung phone in firmware update mode */
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -396,6 +396,8 @@ static int vhci_hub_control(struct usb_h
+ 		default:
+ 			usbip_dbg_vhci_rh(" ClearPortFeature: default %x\n",
+ 					  wValue);
++			if (wValue >= 32)
++				goto error;
+ 			vhci_hcd->port_status[rhport] &= ~(1 << wValue);
+ 			break;
+ 		}
 
 
