@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861F32F0E4B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:37:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759622F0E5B
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727953AbhAKIhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:37:18 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:58279 "EHLO
+        id S1727796AbhAKImC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:42:02 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:38831 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727856AbhAKIhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:37:18 -0500
+        by vger.kernel.org with ESMTP id S1727716AbhAKImC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:42:02 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id DC8D22491;
-        Mon, 11 Jan 2021 03:36:12 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:36:13 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 6C07D2217;
+        Mon, 11 Jan 2021 03:41:16 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:41:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iNqSbM
-        +1vAVW91t83A5FkLkblxRx/IBxqMDu/rT3UzA=; b=lwv946BlYHM2vZojHt5+Cz
-        HapI3MvfLKQQDehg6MgXw4tb+vpfV9pLoZDQ8cyRr1DdqwWrl1ZpLqYI6hQ5rMyA
-        wXVxVz03Ng5lS7jxjZx6qI7FUCiTEks9GrkOwXDInW1NvanuHyKMk3rWTYhLgwfj
-        LYrry2PRkvFXfctOC4cJRGU6G6QXiiv/B74rJ0V0KepwdPrtXDy4GWh99zF0bT7z
-        /OwT4Ps6jKpwic04ys/XuqMIYoYuXs1QVK7Hlxrz/h7eVWW2kH6wqgYaSF2Mw7Sk
-        e29byFKnWtFADWMUjDwDLmRXwdifuc8aTLP37Vvd4SmWRHQufVneg1nelv0bEArA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=51jXb6
+        DtD8k85spZU8zpTIifOtGgWr0wXUFnbaymzic=; b=YrM5Hd0SBfhJ4UH1SQjVzc
+        QDa7OcOBN/g6UpaFH7VdNiSh2akewwPMPRBfvBWGIN0rJZWDwq//7rEXV5MHU+tW
+        eToj3kgejRunLUIKz5N2Djjf0chmthkbC2JCKJvO2gfDDg5UUkDHX3NHSQp+Dx/7
+        xFsdFtQRzG7FfnhvsN2MNiSW1OTLJg3hXyQdTiWNfdEcY0PyKRzxMziVptGmtNVt
+        8RiA31L9bWCvVqEaFl2wFZHqoLjCSxxw+3Xqxd/LJW0qgpotrhVrV2j3Uqmj9Haf
+        A0HuViI3ywx8BzfJXFR3/mgmjo/4XB37IPJN8RF9bXHsTyQcNoNy1lFYJEgGGQkA
         ==
-X-ME-Sender: <xms:_A38X-IIgGIJMcEPMEQN4gMK1FtSnQAUvEBRInAKwocTJzBuPgPyWQ>
-    <xme:_A38X2LwzGyJpzCwXHMON0xc3TsaZJA7uUWFZJU8ye-kYduyESoSHNeaziQNEMvUM
-    Dp51yV6c-Wc9A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddukecutefuodetggdotefrod
+X-ME-Sender: <xms:Kw_8X3CpHIdi8Ro6G778EXNZ4ODHHv2MtRHjhiHaL-ccKlfNOzL5ug>
+    <xme:Kw_8X9jgpOKSS22byxT20Z_49mWQQ70oGXs0yEBdNZ-JXggiU2_6uoXe3NSAyBRJq
+    U9rPRaMTaSlyw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepkeenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:_A38X-u98gCt1vhV_zvoPzbKak1uaS2FJ9tSNAu1OU5p7y7EDM-QWQ>
-    <xmx:_A38XzZrg6GvfpaxCyXXTT9M5OSOOD3I9BUNfuvCb0cCRvfRzXmd9w>
-    <xmx:_A38X1buUr1ttqmQN10bG3lEEET528ax7pPnrLWANo-vD-nrFVFL9g>
-    <xmx:_A38X0xnrJUk23Jq0ZPSdnFrh3uX-TPix-WQDW3ZSPM3NDSEyAA2UZqgY_k>
+X-ME-Proxy: <xmx:Kw_8XykktjCyOs4JKJbnh4Wjus1xHWhfZlet8GqcpUS6rH2BO_NMyQ>
+    <xmx:Kw_8X5ynuYokfYnh4JxhpjKGLgpD2ooOUtt-qG7_7SFDscnxO37EiA>
+    <xmx:Kw_8X8RJtuWanZMOXwECTMj54_dFGOX_vD1Kg1T-RZGtMQZLR2kC1A>
+    <xmx:LA_8X149KkFe25F5RMIdzqM_O2TsBGFiP_yeg4RIZLxfT1W5UqZ3sLyZ0ww>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 34E6B108005C;
-        Mon, 11 Jan 2021 03:36:12 -0500 (EST)
-Subject: FAILED: patch "[PATCH] usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression" failed to apply to 5.4-stable tree
-To:     Sergey.Semin@baikalelectronics.ru, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id A5D34240062;
+        Mon, 11 Jan 2021 03:41:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug" failed to apply to 5.4-stable tree
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:37:23 +0100
-Message-ID: <16103542436125@kroah.com>
+Date:   Mon, 11 Jan 2021 09:42:28 +0100
+Message-ID: <161035454814081@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,89 +71,89 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e5f4ca3fce90a37b23a77bfcc86800d484a80514 Mon Sep 17 00:00:00 2001
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Date: Thu, 10 Dec 2020 11:50:08 +0300
-Subject: [PATCH] usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression
+From c318840fb2a42ce25febc95c4c19357acf1ae5ca Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Wed, 30 Dec 2020 11:20:44 -0500
+Subject: [PATCH] USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
 
-First of all the commit e0082698b689 ("usb: dwc3: ulpi: conditionally
-resume ULPI PHY") introduced the Suspend USB2.0 HS/FS/LS PHY regression,
-as by design of the fix any attempt to read/write from/to the PHY control
-registers will completely disable the PHY suspension, which consequently
-will increase the USB bus power consumption. Secondly the fix won't work
-well for the very first attempt of the ULPI PHY control registers IO,
-because after disabling the USB2.0 PHY suspension functionality it will
-still take some time for the bus to resume from the sleep state if one has
-been reached before it. So the very first PHY register read/write
-operation will take more time than the busy-loop provides and the IO
-timeout error might be returned anyway.
+The dummy-hcd driver was written under the assumption that all the
+parameters in URBs sent to its root hub would be valid.  With URBs
+sent from userspace via usbfs, that assumption can be violated.
 
-Here we suggest to fix the denoted problems in the following way. First of
-all let's not disable the Suspend USB2.0 HS/FS/LS PHY functionality so to
-make the controller and the USB2.0 bus more power efficient. Secondly
-instead of that we'll extend the PHY IO op wait procedure with 1 - 1.2 ms
-sleep if the PHY suspension is enabled (1ms should be enough as by LPM
-specification it is at most how long it takes for the USB2.0 bus to resume
-from L1 (Sleep) state). Finally in case if the USB2.0 PHY suspension
-functionality has been disabled on the DWC USB3 controller setup procedure
-we'll compensate the USB bus resume process latency by extending the
-busy-loop attempts counter.
+In particular, the driver doesn't fully check the port-feature values
+stored in the wValue entry of Clear-Port-Feature and Set-Port-Feature
+requests.  Values that are too large can cause the driver to perform
+an invalid left shift of more than 32 bits.  Ironically, two of those
+left shifts are unnecessary, because they implement Set-Port-Feature
+requests that hubs are not required to support, according to section
+11.24.2.13 of the USB-2.0 spec.
 
-Fixes: e0082698b689 ("usb: dwc3: ulpi: conditionally resume ULPI PHY")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20201210085008.13264-4-Sergey.Semin@baikalelectronics.ru
-Cc: stable <stable@vger.kernel.org>
+This patch adds the appropriate checks for the port feature selector
+values and removes the unnecessary feature settings.  It also rejects
+requests to set the TEST feature or to set or clear the INDICATOR and
+C_OVERCURRENT features, as none of these are relevant to dummy-hcd's
+root-hub emulation.
+
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+5925509f78293baa7331@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20201230162044.GA727759@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/dwc3/ulpi.c b/drivers/usb/dwc3/ulpi.c
-index 54c877f7b51d..f23f4c9a557e 100644
---- a/drivers/usb/dwc3/ulpi.c
-+++ b/drivers/usb/dwc3/ulpi.c
-@@ -24,7 +24,7 @@
- static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
- {
- 	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
--	unsigned int count = 1000;
-+	unsigned int count = 10000;
- 	u32 reg;
- 
- 	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
-@@ -33,6 +33,10 @@ static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
- 	if (read)
- 		ns += DWC3_ULPI_BASE_DELAY;
- 
-+	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
-+	if (reg & DWC3_GUSB2PHYCFG_SUSPHY)
-+		usleep_range(1000, 1200);
-+
- 	while (count--) {
- 		ndelay(ns);
- 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
-@@ -50,12 +54,6 @@ static int dwc3_ulpi_read(struct device *dev, u8 addr)
- 	u32 reg;
- 	int ret;
- 
--	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
--	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
--		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
--		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
--	}
--
- 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
- 
-@@ -73,12 +71,6 @@ static int dwc3_ulpi_write(struct device *dev, u8 addr, u8 val)
- 	struct dwc3 *dwc = dev_get_drvdata(dev);
- 	u32 reg;
- 
--	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
--	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
--		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
--		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
--	}
--
- 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
- 	reg |= DWC3_GUSB2PHYACC_WRITE | val;
- 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index ab5e978b5052..1a953f44183a 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2118,9 +2118,21 @@ static int dummy_hub_control(
+ 				dum_hcd->port_status &= ~USB_PORT_STAT_POWER;
+ 			set_link_state(dum_hcd);
+ 			break;
+-		default:
++		case USB_PORT_FEAT_ENABLE:
++		case USB_PORT_FEAT_C_ENABLE:
++		case USB_PORT_FEAT_C_SUSPEND:
++			/* Not allowed for USB-3 */
++			if (hcd->speed == HCD_USB3)
++				goto error;
++			fallthrough;
++		case USB_PORT_FEAT_C_CONNECTION:
++		case USB_PORT_FEAT_C_RESET:
+ 			dum_hcd->port_status &= ~(1 << wValue);
+ 			set_link_state(dum_hcd);
++			break;
++		default:
++		/* Disallow INDICATOR and C_OVER_CURRENT */
++			goto error;
+ 		}
+ 		break;
+ 	case GetHubDescriptor:
+@@ -2281,18 +2293,17 @@ static int dummy_hub_control(
+ 			 */
+ 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
+ 			fallthrough;
++		case USB_PORT_FEAT_C_CONNECTION:
++		case USB_PORT_FEAT_C_RESET:
++		case USB_PORT_FEAT_C_ENABLE:
++		case USB_PORT_FEAT_C_SUSPEND:
++			/* Not allowed for USB-3, and ignored for USB-2 */
++			if (hcd->speed == HCD_USB3)
++				goto error;
++			break;
+ 		default:
+-			if (hcd->speed == HCD_USB3) {
+-				if ((dum_hcd->port_status &
+-				     USB_SS_PORT_STAT_POWER) != 0) {
+-					dum_hcd->port_status |= (1 << wValue);
+-				}
+-			} else
+-				if ((dum_hcd->port_status &
+-				     USB_PORT_STAT_POWER) != 0) {
+-					dum_hcd->port_status |= (1 << wValue);
+-				}
+-			set_link_state(dum_hcd);
++		/* Disallow TEST, INDICATOR, and C_OVER_CURRENT */
++			goto error;
+ 		}
+ 		break;
+ 	case GetPortErrorCount:
 
