@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51F42F1484
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F11472F14A0
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:28:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731601AbhAKNZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:25:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35444 "EHLO mail.kernel.org"
+        id S1731503AbhAKN12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:27:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732506AbhAKNQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:16:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7BB32229C;
-        Mon, 11 Jan 2021 13:16:15 +0000 (UTC)
+        id S1732426AbhAKNQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECF7D225AC;
+        Mon, 11 Jan 2021 13:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370976;
-        bh=WVs8kfxPIchJ0sNdhK1kVYOmHTj23s/Jk/tyhc+kvTg=;
+        s=korg; t=1610370978;
+        bh=Ctj68VZACeIPAZijUdrZcGNznPfeL/T+LUrKGqmYa40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inqdBzLdd74rS0iUeVrDM1s3u2959HntgLsFRmTMWyUeUbLcjEx3/3+ARtMyiCID2
-         7CkZtFfvVbK3McxWUAR8XXQv/sKQlfh2fXc7WfmhJnvk0V0jCHnjM4wYTBDKqfAfBE
-         JBZjioUG1OQq3EK+bhWMgZfbaRguZBUl4GpvlPVo=
+        b=JScpsWkmNp9aXFJBUwcgoi18K0Hjs1x0GzB80aKNAhFe2zaRrx4mNPor2IRuMBBFX
+         nmTgYjNNEwhVe+0i0eTxKGmsJJ4fg29beAJkEKGEB2hKxIG4OAt7fs2fDkDdSvZDH5
+         xgE5EZO4eH2xDO/0yRwnkcOPpd+XRE5/Hz0NdNDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Subject: [PATCH 5.10 086/145] usb: dwc3: ulpi: Replace CPU-based busyloop with Protocol-based one
-Date:   Mon, 11 Jan 2021 14:01:50 +0100
-Message-Id: <20210111130052.662759358@linuxfoundation.org>
+Subject: [PATCH 5.10 087/145] usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression
+Date:   Mon, 11 Jan 2021 14:01:51 +0100
+Message-Id: <20210111130052.712944468@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -42,92 +42,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-commit fca3f138105727c3a22edda32d02f91ce1bf11c9 upstream.
+commit e5f4ca3fce90a37b23a77bfcc86800d484a80514 upstream.
 
-Originally the procedure of the ULPI transaction finish detection has been
-developed as a simple busy-loop with just decrementing counter and no
-delays. It's wrong since on different systems the loop will take a
-different time to complete. So if the system bus and CPU are fast enough
-to overtake the ULPI bus and the companion PHY reaction, then we'll get to
-take a false timeout error. Fix this by converting the busy-loop procedure
-to take the standard bus speed, address value and the registers access
-mode into account for the busy-loop delay calculation.
+First of all the commit e0082698b689 ("usb: dwc3: ulpi: conditionally
+resume ULPI PHY") introduced the Suspend USB2.0 HS/FS/LS PHY regression,
+as by design of the fix any attempt to read/write from/to the PHY control
+registers will completely disable the PHY suspension, which consequently
+will increase the USB bus power consumption. Secondly the fix won't work
+well for the very first attempt of the ULPI PHY control registers IO,
+because after disabling the USB2.0 PHY suspension functionality it will
+still take some time for the bus to resume from the sleep state if one has
+been reached before it. So the very first PHY register read/write
+operation will take more time than the busy-loop provides and the IO
+timeout error might be returned anyway.
 
-Here is the way the fix works. It's known that the ULPI bus is clocked
-with 60MHz signal. In accordance with [1] the ULPI bus protocol is created
-so to spend 5 and 6 clock periods for immediate register write and read
-operations respectively, and 6 and 7 clock periods - for the extended
-register writes and reads. Based on that we can easily pre-calculate the
-time which will be needed for the controller to perform a requested IO
-operation. Note we'll still preserve the attempts counter in case if the
-DWC USB3 controller has got some internals delays.
+Here we suggest to fix the denoted problems in the following way. First of
+all let's not disable the Suspend USB2.0 HS/FS/LS PHY functionality so to
+make the controller and the USB2.0 bus more power efficient. Secondly
+instead of that we'll extend the PHY IO op wait procedure with 1 - 1.2 ms
+sleep if the PHY suspension is enabled (1ms should be enough as by LPM
+specification it is at most how long it takes for the USB2.0 bus to resume
+from L1 (Sleep) state). Finally in case if the USB2.0 PHY suspension
+functionality has been disabled on the DWC USB3 controller setup procedure
+we'll compensate the USB bus resume process latency by extending the
+busy-loop attempts counter.
 
-[1] UTMI+ Low Pin Interface (ULPI) Specification, Revision 1.1,
-    October 20, 2004, pp. 30 - 36.
-
-Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
+Fixes: e0082698b689 ("usb: dwc3: ulpi: conditionally resume ULPI PHY")
 Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20201210085008.13264-3-Sergey.Semin@baikalelectronics.ru
+Link: https://lore.kernel.org/r/20201210085008.13264-4-Sergey.Semin@baikalelectronics.ru
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/ulpi.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/ulpi.c |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
 --- a/drivers/usb/dwc3/ulpi.c
 +++ b/drivers/usb/dwc3/ulpi.c
-@@ -7,6 +7,8 @@
-  * Author: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-  */
- 
-+#include <linux/delay.h>
-+#include <linux/time64.h>
- #include <linux/ulpi/regs.h>
- 
- #include "core.h"
-@@ -17,12 +19,22 @@
- 		DWC3_GUSB2PHYACC_ADDR(ULPI_ACCESS_EXTENDED) | \
- 		DWC3_GUSB2PHYACC_EXTEND_ADDR(a) : DWC3_GUSB2PHYACC_ADDR(a))
- 
--static int dwc3_ulpi_busyloop(struct dwc3 *dwc)
-+#define DWC3_ULPI_BASE_DELAY	DIV_ROUND_UP(NSEC_PER_SEC, 60000000L)
-+
-+static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
+@@ -24,7 +24,7 @@
+ static int dwc3_ulpi_busyloop(struct dwc3 *dwc, u8 addr, bool read)
  {
-+	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
- 	unsigned int count = 1000;
+ 	unsigned long ns = 5L * DWC3_ULPI_BASE_DELAY;
+-	unsigned int count = 1000;
++	unsigned int count = 10000;
  	u32 reg;
  
-+	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
-+		ns += DWC3_ULPI_BASE_DELAY;
-+
-+	if (read)
-+		ns += DWC3_ULPI_BASE_DELAY;
+ 	if (addr >= ULPI_EXT_VENDOR_SPECIFIC)
+@@ -33,6 +33,10 @@ static int dwc3_ulpi_busyloop(struct dwc
+ 	if (read)
+ 		ns += DWC3_ULPI_BASE_DELAY;
+ 
++	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
++	if (reg & DWC3_GUSB2PHYCFG_SUSPHY)
++		usleep_range(1000, 1200);
 +
  	while (count--) {
-+		ndelay(ns);
+ 		ndelay(ns);
  		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
- 		if (reg & DWC3_GUSB2PHYACC_DONE)
- 			return 0;
-@@ -47,7 +59,7 @@ static int dwc3_ulpi_read(struct device
+@@ -50,12 +54,6 @@ static int dwc3_ulpi_read(struct device
+ 	u32 reg;
+ 	int ret;
+ 
+-	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+-	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
+-		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+-		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+-	}
+-
  	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
  	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
  
--	ret = dwc3_ulpi_busyloop(dwc);
-+	ret = dwc3_ulpi_busyloop(dwc, addr, true);
- 	if (ret)
- 		return ret;
+@@ -73,12 +71,6 @@ static int dwc3_ulpi_write(struct device
+ 	struct dwc3 *dwc = dev_get_drvdata(dev);
+ 	u32 reg;
  
-@@ -71,7 +83,7 @@ static int dwc3_ulpi_write(struct device
+-	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+-	if (reg & DWC3_GUSB2PHYCFG_SUSPHY) {
+-		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+-		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+-	}
+-
+ 	reg = DWC3_GUSB2PHYACC_NEWREGREQ | DWC3_ULPI_ADDR(addr);
  	reg |= DWC3_GUSB2PHYACC_WRITE | val;
  	dwc3_writel(dwc->regs, DWC3_GUSB2PHYACC(0), reg);
- 
--	return dwc3_ulpi_busyloop(dwc);
-+	return dwc3_ulpi_busyloop(dwc, addr, false);
- }
- 
- static const struct ulpi_ops dwc3_ulpi_ops = {
 
 
