@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4982F24E1
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 02:17:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B36CB2F24DF
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 02:17:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403978AbhALAZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404027AbhALAZW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jan 2021 19:25:22 -0500
-Received: from mga02.intel.com ([134.134.136.20]:63485 "EHLO mga02.intel.com"
+Received: from mga11.intel.com ([192.55.52.93]:55464 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404027AbhAKXWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 18:22:08 -0500
-IronPort-SDR: +jAeVTDUTPM0MtKRhJ5gIkbJ9hVKXcPdYxu88dSJYhUin/HDtPf6G4eL/x0p1EggLfUcORj4pD
- vhVMOFwBBPDA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="165034751"
+        id S2404030AbhAKXW2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 18:22:28 -0500
+IronPort-SDR: TWotZNRv+xD4wmCLaQz8vkV40n5m96YpTeJA7waidHdgOF/3Man7/5Ht3vVPy2PqIeigobf5V9
+ U1WJDMtCiAYA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="174443398"
 X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="165034751"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:27 -0800
-IronPort-SDR: kVXtl1Z5AUPt9w64/sjeisScP41gtuHnCyLhWHPo9nks0IcTb2H2oj0r5a7IfjHOqxDSuzmsfW
- RsvXbB1WrtIg==
+   d="scan'208";a="174443398"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:48 -0800
+IronPort-SDR: pUUPMeApWvf36wfQKzsB3BjGzMYsmymcMjrPEDMSkJMXrPoXGoYPkBDshkptmcwb3cmQmY0kAo
+ Z6kdLK8wPbCw==
 X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="381190095"
+   d="scan'208";a="363304245"
 Received: from rchatre-mobl1.jf.intel.com ([10.54.70.7])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:27 -0800
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:48 -0800
 From:   Reinette Chatre <reinette.chatre@intel.com>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
 Cc:     Fenghua Yu <fenghua.yu@intel.com>,
         Shakeel Butt <shakeelb@google.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
         Reinette Chatre <reinette.chatre@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.4 1/2] x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR
-Date:   Mon, 11 Jan 2021 15:21:13 -0800
-Message-Id: <3a470a8ff17dfcf1a3d5afc189b74050a2634c2a.1610394119.git.reinette.chatre@intel.com>
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>
+Subject: [PATCH 5.4 2/2] x86/resctrl: Don't move a task to the same resource group
+Date:   Mon, 11 Jan 2021 15:21:41 -0800
+Message-Id: <189c5c33fe6def640b0ac8807cf819d7541bfa46.1610394119.git.reinette.chatre@intel.com>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <161035502216854@kroah.com>
-References: <161035502216854@kroah.com>
+In-Reply-To: <3a470a8ff17dfcf1a3d5afc189b74050a2634c2a.1610394119.git.reinette.chatre@intel.com>
+References: <3a470a8ff17dfcf1a3d5afc189b74050a2634c2a.1610394119.git.reinette.chatre@intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -46,203 +44,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit ae28d1aae48a1258bd09a6f707ebb4231d79a761 upstream
+commit a0195f314a25582b38993bf30db11c300f4f4611 upstream
 
-Currently, when moving a task to a resource group the PQR_ASSOC MSR is
-updated with the new closid and rmid in an added task callback. If the
-task is running, the work is run as soon as possible. If the task is not
-running, the work is executed later in the kernel exit path when the
-kernel returns to the task again.
+Shakeel Butt reported in [1] that a user can request a task to be moved
+to a resource group even if the task is already in the group. It just
+wastes time to do the move operation which could be costly to send IPI
+to a different CPU.
 
-Updating the PQR_ASSOC MSR as soon as possible on the CPU a moved task
-is running is the right thing to do. Queueing work for a task that is
-not running is unnecessary (the PQR_ASSOC MSR is already updated when
-the task is scheduled in) and causing system resource waste with the way
-in which it is implemented: Work to update the PQR_ASSOC register is
-queued every time the user writes a task id to the "tasks" file, even if
-the task already belongs to the resource group.
-
-This could result in multiple pending work items associated with a
-single task even if they are all identical and even though only a single
-update with most recent values is needed. Specifically, even if a task
-is moved between different resource groups while it is sleeping then it
-is only the last move that is relevant but yet a work item is queued
-during each move.
-
-This unnecessary queueing of work items could result in significant
-system resource waste, especially on tasks sleeping for a long time.
-For example, as demonstrated by Shakeel Butt in [1] writing the same
-task id to the "tasks" file can quickly consume significant memory. The
-same problem (wasted system resources) occurs when moving a task between
-different resource groups.
-
-As pointed out by Valentin Schneider in [2] there is an additional issue
-with the way in which the queueing of work is done in that the task_struct
-update is currently done after the work is queued, resulting in a race with
-the register update possibly done before the data needed by the update is
-available.
-
-To solve these issues, update the PQR_ASSOC MSR in a synchronous way
-right after the new closid and rmid are ready during the task movement,
-only if the task is running. If a moved task is not running nothing
-is done since the PQR_ASSOC MSR will be updated next time the task is
-scheduled. This is the same way used to update the register when tasks
-are moved as part of resource group removal.
+Add a sanity check to ensure that the move operation only happens when
+the task is not already in the resource group.
 
 [1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
-[2] https://lore.kernel.org/lkml/20201123022433.17905-1-valentin.schneider@arm.com
-
- [ bp: Massage commit message and drop the two update_task_closid_rmid()
-   variants. ]
 
 Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
 Reported-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: Valentin Schneider <valentin.schneider@arm.com>
 Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
 Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com
+Link: https://lkml.kernel.org/r/962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 108 ++++++++++---------------
- 1 file changed, 43 insertions(+), 65 deletions(-)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 830ccc396e26..91af816e631b 100644
+index 91af816e631b..28f786289fce 100644
 --- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
 +++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -525,85 +525,63 @@ static void rdtgroup_remove(struct rdtgroup *rdtgrp)
- 	kfree(rdtgrp);
- }
- 
--struct task_move_callback {
--	struct callback_head	work;
--	struct rdtgroup		*rdtgrp;
--};
--
--static void move_myself(struct callback_head *head)
-+static void _update_task_closid_rmid(void *task)
- {
--	struct task_move_callback *callback;
--	struct rdtgroup *rdtgrp;
--
--	callback = container_of(head, struct task_move_callback, work);
--	rdtgrp = callback->rdtgrp;
--
- 	/*
--	 * If resource group was deleted before this task work callback
--	 * was invoked, then assign the task to root group and free the
--	 * resource group.
-+	 * If the task is still current on this CPU, update PQR_ASSOC MSR.
-+	 * Otherwise, the MSR is updated when the task is scheduled in.
- 	 */
--	if (atomic_dec_and_test(&rdtgrp->waitcount) &&
--	    (rdtgrp->flags & RDT_DELETED)) {
--		current->closid = 0;
--		current->rmid = 0;
--		rdtgroup_remove(rdtgrp);
--	}
--
--	preempt_disable();
--	/* update PQR_ASSOC MSR to make resource group go into effect */
--	resctrl_sched_in();
--	preempt_enable();
-+	if (task == current)
-+		resctrl_sched_in();
-+}
- 
--	kfree(callback);
-+static void update_task_closid_rmid(struct task_struct *t)
-+{
-+	if (IS_ENABLED(CONFIG_SMP) && task_curr(t))
-+		smp_call_function_single(task_cpu(t), _update_task_closid_rmid, t, 1);
-+	else
-+		_update_task_closid_rmid(t);
- }
- 
+@@ -546,6 +546,13 @@ static void update_task_closid_rmid(struct task_struct *t)
  static int __rdtgroup_move_task(struct task_struct *tsk,
  				struct rdtgroup *rdtgrp)
  {
--	struct task_move_callback *callback;
--	int ret;
--
--	callback = kzalloc(sizeof(*callback), GFP_KERNEL);
--	if (!callback)
--		return -ENOMEM;
--	callback->work.func = move_myself;
--	callback->rdtgrp = rdtgrp;
--
++	/* If the task is already in rdtgrp, no need to move the task. */
++	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
++	     tsk->rmid == rdtgrp->mon.rmid) ||
++	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
++	     tsk->closid == rdtgrp->mon.parent->closid))
++		return 0;
++
  	/*
--	 * Take a refcount, so rdtgrp cannot be freed before the
--	 * callback has been invoked.
-+	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
-+	 * updated by them.
-+	 *
-+	 * For ctrl_mon groups, move both closid and rmid.
-+	 * For monitor groups, can move the tasks only from
-+	 * their parent CTRL group.
- 	 */
--	atomic_inc(&rdtgrp->waitcount);
--	ret = task_work_add(tsk, &callback->work, true);
--	if (ret) {
--		/*
--		 * Task is exiting. Drop the refcount and free the callback.
--		 * No need to check the refcount as the group cannot be
--		 * deleted before the write function unlocks rdtgroup_mutex.
--		 */
--		atomic_dec(&rdtgrp->waitcount);
--		kfree(callback);
--		rdt_last_cmd_puts("Task exited\n");
--	} else {
--		/*
--		 * For ctrl_mon groups move both closid and rmid.
--		 * For monitor groups, can move the tasks only from
--		 * their parent CTRL group.
--		 */
--		if (rdtgrp->type == RDTCTRL_GROUP) {
--			tsk->closid = rdtgrp->closid;
-+
-+	if (rdtgrp->type == RDTCTRL_GROUP) {
-+		tsk->closid = rdtgrp->closid;
-+		tsk->rmid = rdtgrp->mon.rmid;
-+	} else if (rdtgrp->type == RDTMON_GROUP) {
-+		if (rdtgrp->mon.parent->closid == tsk->closid) {
- 			tsk->rmid = rdtgrp->mon.rmid;
--		} else if (rdtgrp->type == RDTMON_GROUP) {
--			if (rdtgrp->mon.parent->closid == tsk->closid) {
--				tsk->rmid = rdtgrp->mon.rmid;
--			} else {
--				rdt_last_cmd_puts("Can't move task to different control group\n");
--				ret = -EINVAL;
--			}
-+		} else {
-+			rdt_last_cmd_puts("Can't move task to different control group\n");
-+			return -EINVAL;
- 		}
- 	}
--	return ret;
-+
-+	/*
-+	 * Ensure the task's closid and rmid are written before determining if
-+	 * the task is current that will decide if it will be interrupted.
-+	 */
-+	barrier();
-+
-+	/*
-+	 * By now, the task's closid and rmid are set. If the task is current
-+	 * on a CPU, the PQR_ASSOC MSR needs to be updated to make the resource
-+	 * group go into effect. If the task is not current, the MSR will be
-+	 * updated when the task is scheduled in.
-+	 */
-+	update_task_closid_rmid(tsk);
-+
-+	return 0;
- }
- 
- /**
+ 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
+ 	 * updated by them.
 -- 
 2.26.2
 
