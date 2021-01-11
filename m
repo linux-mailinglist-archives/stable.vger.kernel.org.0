@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 254532F1694
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:55:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F122F14EA
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730627AbhAKNya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:54:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
+        id S1731817AbhAKNPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729014AbhAKNHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DCA122515;
-        Mon, 11 Jan 2021 13:07:32 +0000 (UTC)
+        id S1731767AbhAKNPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A30322795;
+        Mon, 11 Jan 2021 13:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370453;
-        bh=1TiPWSaZ2BsjA0pf2ejsTyQJsFB2VaC9dCixSX4ErAo=;
+        s=korg; t=1610370896;
+        bh=nJXW8k50MDHJuJ3C+GABp+P+axjo7kBiWqO5tLlJr0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgV/k5hD8pnrJYCu3n+aIwGjDBt29vv+W0hkMTGMEuKkmMheAjDLHSn8YPV4Kc1jK
-         8Z2elAWV6NjLz+w4q7wWoVnBxkPVdfk8FjbOQzrCVCZx47AHQQQSJBqa0at7VkB/NP
-         MngSh3T2M1+zlCgfQAJyg6VjHK+rsCPMiIFxdWxY=
+        b=YInl/FmY+eMSs9BEkgLEGC2Sx+FYbGcvO2PjK5ltb6GodYGSUyx/RvhLEg01nfxJH
+         HOtTAggcd0zjaNK63kv0dW7Wg/p3eSl63oqHAQw3UXJCtywhiTpD8I0VAfdJIrJ8XS
+         d14vxy1AotWUlPXCsILcju24PrsaFEkje9x2fwHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Can Guo <cang@codeaurora.org>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jens Axboe <axboe@kernel.dk>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Andres Freund <andres@anarazel.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/77] scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
-Date:   Mon, 11 Jan 2021 14:01:14 +0100
-Message-Id: <20210111130036.670555504@linuxfoundation.org>
+Subject: [PATCH 5.10 051/145] block: add debugfs stanza for QUEUE_FLAG_NOWAIT
+Date:   Mon, 11 Jan 2021 14:01:15 +0100
+Message-Id: <20210111130050.978460643@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,86 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Andres Freund <andres@anarazel.de>
 
-[ Upstream commit 96d86e6a80a3ab9aff81d12f9f1f2a0da2917d38 ]
+[ Upstream commit dc30432605bbbd486dfede3852ea4d42c40a84b4 ]
 
-RQF_PREEMPT is used for two different purposes in the legacy IDE code:
+This was missed in 021a24460dc2. Leads to the numeric value of
+QUEUE_FLAG_NOWAIT (i.e. 29) showing up in
+/sys/kernel/debug/block/*/state.
 
- 1. To mark power management requests.
-
- 2. To mark requests that should preempt another request. An (old)
-    explanation of that feature is as follows: "The IDE driver in the Linux
-    kernel normally uses a series of busywait delays during its
-    initialization. When the driver executes these busywaits, the kernel
-    does nothing for the duration of the wait. The time spent in these
-    waits could be used for other initialization activities, if they could
-    be run concurrently with these waits.
-
-    More specifically, busywait-style delays such as udelay() in module
-    init functions inhibit kernel preemption because the Big Kernel Lock is
-    held, while yielding APIs such as schedule_timeout() allow
-    preemption. This is true because the kernel handles the BKL specially
-    and releases and reacquires it across reschedules allowed by the
-    current thread.
-
-    This IDE-preempt specification requires that the driver eliminate these
-    busywaits and replace them with a mechanism that allows other work to
-    proceed while the IDE driver is initializing."
-
-Since I haven't found an implementation of (2), do not set the PREEMPT flag
-for sense requests. This patch causes sense requests to be postponed while
-a drive is suspended instead of being submitted to ide_queue_rq().
-
-If it would ever be necessary to restore the IDE PREEMPT functionality,
-that can be done by introducing a new flag in struct ide_request.
-
-Link: https://lore.kernel.org/r/20201209052951.16136-4-bvanassche@acm.org
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 021a24460dc28e7412aecfae89f60e1847e685c0
+Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Cc: Mike Snitzer <snitzer@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andres Freund <andres@anarazel.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ide/ide-atapi.c | 1 -
- drivers/ide/ide-io.c    | 5 -----
- 2 files changed, 6 deletions(-)
+ block/blk-mq-debugfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ide/ide-atapi.c b/drivers/ide/ide-atapi.c
-index 8b2b72b938857..4224c4dd89635 100644
---- a/drivers/ide/ide-atapi.c
-+++ b/drivers/ide/ide-atapi.c
-@@ -213,7 +213,6 @@ void ide_prep_sense(ide_drive_t *drive, struct request *rq)
- 	sense_rq->rq_disk = rq->rq_disk;
- 	sense_rq->cmd_flags = REQ_OP_DRV_IN;
- 	ide_req(sense_rq)->type = ATA_PRIV_SENSE;
--	sense_rq->rq_flags |= RQF_PREEMPT;
+diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
+index 3094542e12ae0..e21eed20a1551 100644
+--- a/block/blk-mq-debugfs.c
++++ b/block/blk-mq-debugfs.c
+@@ -129,6 +129,7 @@ static const char *const blk_queue_flag_name[] = {
+ 	QUEUE_FLAG_NAME(PCI_P2PDMA),
+ 	QUEUE_FLAG_NAME(ZONE_RESETALL),
+ 	QUEUE_FLAG_NAME(RQ_ALLOC_TIME),
++	QUEUE_FLAG_NAME(NOWAIT),
+ };
+ #undef QUEUE_FLAG_NAME
  
- 	req->cmd[0] = GPCMD_REQUEST_SENSE;
- 	req->cmd[4] = cmd_len;
-diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
-index 0d93e0cfbeaf9..4381760846109 100644
---- a/drivers/ide/ide-io.c
-+++ b/drivers/ide/ide-io.c
-@@ -527,11 +527,6 @@ repeat:
- 		 * above to return us whatever is in the queue. Since we call
- 		 * ide_do_request() ourselves, we end up taking requests while
- 		 * the queue is blocked...
--		 * 
--		 * We let requests forced at head of queue with ide-preempt
--		 * though. I hope that doesn't happen too much, hopefully not
--		 * unless the subdriver triggers such a thing in its own PM
--		 * state machine.
- 		 */
- 		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
- 		    ata_pm_request(rq) == 0 &&
 -- 
 2.27.0
 
