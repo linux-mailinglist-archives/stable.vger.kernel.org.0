@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C23EB2F1537
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EC82F1535
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731926AbhAKNNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:13:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60468 "EHLO mail.kernel.org"
+        id S1731935AbhAKNNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731919AbhAKNNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBB9A2253A;
-        Mon, 11 Jan 2021 13:12:51 +0000 (UTC)
+        id S1726652AbhAKNNf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F33E2255F;
+        Mon, 11 Jan 2021 13:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370772;
-        bh=38g0OaW0S0xlW9lL1byQD9zjXHWS9D4jvgtVRmqoqac=;
+        s=korg; t=1610370774;
+        bh=RtPCodWJNa8Vq9zjgTOX1nKJGNsC80WBcGyk3ofdae0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKKF31Wiyqfs/ZIkBEr6rx2kIj749V6S6sSk0oiW3PMLZRJ34wrt4cB7JYaH3kwCr
-         k78fCo6dpo935+ytcDVKPOIRDXOCOw2AZF35dt5Dmpi2DjqIcbCPlutLSwAVKvy4Zf
-         Stg71KOcPJzj8fTAntZV3iXwqU1JkESSpVhXFwnI=
+        b=wB7r/cpKJyBUmuK0w5pv1riAn2FK9PUfZU1WFac3LpzhxZf0apS/BS84Xnz2iyj1K
+         BpRAKmqujMmMT98BgQHtLT+W/iLqCxqir/WuOo6iKv7AXZbzptrcMow9/mkIE7RX19
+         bvspgRNI58Mf4Mi/vmFYnx1Go3kva5cAls8ydoR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e86f7c428c8c50db65b4@syzkaller.appspotmail.com,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 89/92] netfilter: xt_RATEEST: reject non-null terminated string from userspace
-Date:   Mon, 11 Jan 2021 14:02:33 +0100
-Message-Id: <20210111130043.447563580@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 90/92] netfilter: nft_dynset: report EOPNOTSUPP on missing set feature
+Date:   Mon, 11 Jan 2021 14:02:34 +0100
+Message-Id: <20210111130043.494744303@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -41,41 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 6cb56218ad9e580e519dcd23bfb3db08d8692e5a upstream.
+commit 95cd4bca7b1f4a25810f3ddfc5e767fb46931789 upstream.
 
-syzbot reports:
-detected buffer overflow in strlen
-[..]
-Call Trace:
- strlen include/linux/string.h:325 [inline]
- strlcpy include/linux/string.h:348 [inline]
- xt_rateest_tg_checkentry+0x2a5/0x6b0 net/netfilter/xt_RATEEST.c:143
+If userspace requests a feature which is not available the original set
+definition, then bail out with EOPNOTSUPP. If userspace sends
+unsupported dynset flags (new feature not supported by this kernel),
+then report EOPNOTSUPP to userspace. EINVAL should be only used to
+report malformed netlink messages from userspace.
 
-strlcpy assumes src is a c-string. Check info->name before its used.
-
-Reported-by: syzbot+e86f7c428c8c50db65b4@syzkaller.appspotmail.com
-Fixes: 5859034d7eb8793 ("[NETFILTER]: x_tables: add RATEEST target")
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/xt_RATEEST.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/netfilter/nft_dynset.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/xt_RATEEST.c
-+++ b/net/netfilter/xt_RATEEST.c
-@@ -115,6 +115,9 @@ static int xt_rateest_tg_checkentry(cons
- 	} cfg;
- 	int ret;
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -146,7 +146,7 @@ static int nft_dynset_init(const struct
+ 		u32 flags = ntohl(nla_get_be32(tb[NFTA_DYNSET_FLAGS]));
  
-+	if (strnlen(info->name, sizeof(est->name)) >= sizeof(est->name))
-+		return -ENAMETOOLONG;
-+
- 	net_get_random_once(&jhash_rnd, sizeof(jhash_rnd));
+ 		if (flags & ~NFT_DYNSET_F_INV)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 		if (flags & NFT_DYNSET_F_INV)
+ 			priv->invert = true;
+ 	}
+@@ -179,7 +179,7 @@ static int nft_dynset_init(const struct
+ 	timeout = 0;
+ 	if (tb[NFTA_DYNSET_TIMEOUT] != NULL) {
+ 		if (!(set->flags & NFT_SET_TIMEOUT))
+-			return -EINVAL;
++			return -EOPNOTSUPP;
  
- 	mutex_lock(&xn->hash_lock);
+ 		err = nf_msecs_to_jiffies64(tb[NFTA_DYNSET_TIMEOUT], &timeout);
+ 		if (err)
+@@ -193,7 +193,7 @@ static int nft_dynset_init(const struct
+ 
+ 	if (tb[NFTA_DYNSET_SREG_DATA] != NULL) {
+ 		if (!(set->flags & NFT_SET_MAP))
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 		if (set->dtype == NFT_DATA_VERDICT)
+ 			return -EOPNOTSUPP;
+ 
 
 
