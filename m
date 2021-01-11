@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 746DA2F1429
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B582F143B
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733272AbhAKNT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:19:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37650 "EHLO mail.kernel.org"
+        id S1732863AbhAKNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:22:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733267AbhAKNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:19:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F14225AC;
-        Mon, 11 Jan 2021 13:18:43 +0000 (UTC)
+        id S1732740AbhAKNSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29F6B2246B;
+        Mon, 11 Jan 2021 13:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371124;
-        bh=lAjBZ1/oUW3xoJpMuVShWfXYTTmN2gH2t6LM5QOWYe8=;
+        s=korg; t=1610371083;
+        bh=TiAEgY/qhJGrDG/gk3tmvc2efZDSqfTyUW2aM5LIOjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbGNc0O0RERe6GK5jMfxvsXaI6GLJz2gn3PUO73cDWfOhjkIMASIumaFl5ZOQWaqK
-         qcvBw/xIY5XkkSRwPgbGHG2zm4xHBdPw97bfbgHBNn0WnwSWYtnRRzub8yt1cMTF6w
-         72EFaNsf5p0YBGV5ARGSOWaW5iAiN5iQnyQxvV68=
+        b=048Vi6X23Rh+hAHt9asIfVjXnlbu/jO1q/OhuKQpmak43uN86FX8UtQhkiSuEq4Zj
+         R7GXQpWGw3T8l0DSN3eG2pW5i5Xmco3Ml5+KD+c9s31YKFzectPmVI/d+3+W9rFRbt
+         fS6o7Wfm19Ub81gtXSvmdMrR9i0sKQWEKpG7bWeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 134/145] bcache: introduce BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE for large bucket
-Date:   Mon, 11 Jan 2021 14:02:38 +0100
-Message-Id: <20210111130054.948103978@linuxfoundation.org>
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 135/145] net/mlx5e: Fix SWP offsets when vlan inserted by driver
+Date:   Mon, 11 Jan 2021 14:02:39 +0100
+Message-Id: <20210111130054.997561002@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,141 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-commit b16671e8f493e3df40b1fb0dff4078f391c5099a upstream.
+commit b544011f0e58ce43c40105468d6dc67f980a0c7a upstream.
 
-When large bucket feature was added, BCH_FEATURE_INCOMPAT_LARGE_BUCKET
-was introduced into the incompat feature set. It used bucket_size_hi
-(which was added at the tail of struct cache_sb_disk) to extend current
-16bit bucket size to 32bit with existing bucket_size in struct
-cache_sb_disk.
+In case WQE includes inline header the vlan is inserted by driver even
+if vlan offload is set. On geneve over vlan interface where software
+parser is used the SWP offsets should be updated according to the added
+vlan.
 
-This is not a good idea, there are two obvious problems,
-- Bucket size is always value power of 2, if store log2(bucket size) in
-  existing bucket_size of struct cache_sb_disk, it is unnecessary to add
-  bucket_size_hi.
-- Macro csum_set() assumes d[SB_JOURNAL_BUCKETS] is the last member in
-  struct cache_sb_disk, bucket_size_hi was added after d[] which makes
-  csum_set calculate an unexpected super block checksum.
-
-To fix the above problems, this patch introduces a new incompat feature
-bit BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE, when this bit is set, it
-means bucket_size in struct cache_sb_disk stores the order of power-of-2
-bucket size value. When user specifies a bucket size larger than 32768
-sectors, BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE will be set to
-incompat feature set, and bucket_size stores log2(bucket size) more
-than store the real bucket size value.
-
-The obsoleted BCH_FEATURE_INCOMPAT_LARGE_BUCKET won't be used anymore,
-it is renamed to BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET and still only
-recognized by kernel driver for legacy compatible purpose. The previous
-bucket_size_hi is renmaed to obso_bucket_size_hi in struct cache_sb_disk
-and not used in bcache-tools anymore.
-
-For cache device created with BCH_FEATURE_INCOMPAT_LARGE_BUCKET feature,
-bcache-tools and kernel driver still recognize the feature string and
-display it as "obso_large_bucket".
-
-With this change, the unnecessary extra space extend of bcache on-disk
-super block can be avoided, and csum_set() may generate expected check
-sum as well.
-
-Fixes: ffa470327572 ("bcache: add bucket_size_hi into struct cache_sb_disk for large bucket")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org # 5.9+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e3cfc7e6b7bd ("net/mlx5e: TX, Add geneve tunnel stateless offload support")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/features.c |    2 +-
- drivers/md/bcache/features.h |   11 ++++++++---
- drivers/md/bcache/super.c    |   22 +++++++++++++++++++---
- include/uapi/linux/bcache.h  |    2 +-
- 4 files changed, 29 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h           |    9 +++++++++
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/en_accel.h |    8 +++++---
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c             |    9 +++++----
+ 3 files changed, 19 insertions(+), 7 deletions(-)
 
---- a/drivers/md/bcache/features.c
-+++ b/drivers/md/bcache/features.c
-@@ -17,7 +17,7 @@ struct feature {
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
+@@ -366,6 +366,15 @@ struct mlx5e_swp_spec {
+ 	u8 tun_l4_proto;
  };
  
- static struct feature feature_list[] = {
--	{BCH_FEATURE_INCOMPAT, BCH_FEATURE_INCOMPAT_LARGE_BUCKET,
-+	{BCH_FEATURE_INCOMPAT, BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE,
- 		"large_bucket"},
- 	{0, 0, 0 },
- };
---- a/drivers/md/bcache/features.h
-+++ b/drivers/md/bcache/features.h
-@@ -13,11 +13,15 @@
- 
- /* Feature set definition */
- /* Incompat feature set */
--#define BCH_FEATURE_INCOMPAT_LARGE_BUCKET	0x0001 /* 32bit bucket size */
-+/* 32bit bucket size, obsoleted */
-+#define BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET		0x0001
-+/* real bucket size is (1 << bucket_size) */
-+#define BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE	0x0002
- 
- #define BCH_FEATURE_COMPAT_SUPP		0
- #define BCH_FEATURE_RO_COMPAT_SUPP	0
--#define BCH_FEATURE_INCOMPAT_SUPP	BCH_FEATURE_INCOMPAT_LARGE_BUCKET
-+#define BCH_FEATURE_INCOMPAT_SUPP	(BCH_FEATURE_INCOMPAT_OBSO_LARGE_BUCKET| \
-+					 BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE)
- 
- #define BCH_HAS_COMPAT_FEATURE(sb, mask) \
- 		((sb)->feature_compat & (mask))
-@@ -77,7 +81,8 @@ static inline void bch_clear_feature_##n
- 		~BCH##_FEATURE_INCOMPAT_##flagname; \
- }
- 
--BCH_FEATURE_INCOMPAT_FUNCS(large_bucket, LARGE_BUCKET);
-+BCH_FEATURE_INCOMPAT_FUNCS(obso_large_bucket, OBSO_LARGE_BUCKET);
-+BCH_FEATURE_INCOMPAT_FUNCS(large_bucket, LOG_LARGE_BUCKET_SIZE);
- 
- static inline bool bch_has_unknown_compat_features(struct cache_sb *sb)
- {
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -64,9 +64,25 @@ static unsigned int get_bucket_size(stru
- {
- 	unsigned int bucket_size = le16_to_cpu(s->bucket_size);
- 
--	if (sb->version >= BCACHE_SB_VERSION_CDEV_WITH_FEATURES &&
--	     bch_has_feature_large_bucket(sb))
--		bucket_size |= le16_to_cpu(s->bucket_size_hi) << 16;
-+	if (sb->version >= BCACHE_SB_VERSION_CDEV_WITH_FEATURES) {
-+		if (bch_has_feature_large_bucket(sb)) {
-+			unsigned int max, order;
++static inline void mlx5e_eseg_swp_offsets_add_vlan(struct mlx5_wqe_eth_seg *eseg)
++{
++	/* SWP offsets are in 2-bytes words */
++	eseg->swp_outer_l3_offset += VLAN_HLEN / 2;
++	eseg->swp_outer_l4_offset += VLAN_HLEN / 2;
++	eseg->swp_inner_l3_offset += VLAN_HLEN / 2;
++	eseg->swp_inner_l4_offset += VLAN_HLEN / 2;
++}
 +
-+			max = sizeof(unsigned int) * BITS_PER_BYTE - 1;
-+			order = le16_to_cpu(s->bucket_size);
-+			/*
-+			 * bcache tool will make sure the overflow won't
-+			 * happen, an error message here is enough.
-+			 */
-+			if (order > max)
-+				pr_err("Bucket size (1 << %u) overflows\n",
-+					order);
-+			bucket_size = 1 << order;
-+		} else if (bch_has_feature_obso_large_bucket(sb)) {
-+			bucket_size +=
-+				le16_to_cpu(s->obso_bucket_size_hi) << 16;
-+		}
-+	}
- 
- 	return bucket_size;
+ static inline void
+ mlx5e_set_eseg_swp(struct sk_buff *skb, struct mlx5_wqe_eth_seg *eseg,
+ 		   struct mlx5e_swp_spec *swp_spec)
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/en_accel.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/en_accel.h
+@@ -51,7 +51,7 @@ static inline bool mlx5_geneve_tx_allowe
  }
---- a/include/uapi/linux/bcache.h
-+++ b/include/uapi/linux/bcache.h
-@@ -213,7 +213,7 @@ struct cache_sb_disk {
- 		__le16		keys;
- 	};
- 	__le64			d[SB_JOURNAL_BUCKETS];	/* journal buckets */
--	__le16			bucket_size_hi;
-+	__le16			obso_bucket_size_hi;	/* obsoleted */
- };
  
- /*
+ static inline void
+-mlx5e_tx_tunnel_accel(struct sk_buff *skb, struct mlx5_wqe_eth_seg *eseg)
++mlx5e_tx_tunnel_accel(struct sk_buff *skb, struct mlx5_wqe_eth_seg *eseg, u16 ihs)
+ {
+ 	struct mlx5e_swp_spec swp_spec = {};
+ 	unsigned int offset = 0;
+@@ -85,6 +85,8 @@ mlx5e_tx_tunnel_accel(struct sk_buff *sk
+ 	}
+ 
+ 	mlx5e_set_eseg_swp(skb, eseg, &swp_spec);
++	if (skb_vlan_tag_present(skb) &&  ihs)
++		mlx5e_eseg_swp_offsets_add_vlan(eseg);
+ }
+ 
+ #else
+@@ -163,7 +165,7 @@ static inline unsigned int mlx5e_accel_t
+ 
+ static inline bool mlx5e_accel_tx_eseg(struct mlx5e_priv *priv,
+ 				       struct sk_buff *skb,
+-				       struct mlx5_wqe_eth_seg *eseg)
++				       struct mlx5_wqe_eth_seg *eseg, u16 ihs)
+ {
+ #ifdef CONFIG_MLX5_EN_IPSEC
+ 	if (xfrm_offload(skb))
+@@ -172,7 +174,7 @@ static inline bool mlx5e_accel_tx_eseg(s
+ 
+ #if IS_ENABLED(CONFIG_GENEVE)
+ 	if (skb->encapsulation)
+-		mlx5e_tx_tunnel_accel(skb, eseg);
++		mlx5e_tx_tunnel_accel(skb, eseg, ihs);
+ #endif
+ 
+ 	return true;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+@@ -615,9 +615,9 @@ void mlx5e_tx_mpwqe_ensure_complete(stru
+ 
+ static bool mlx5e_txwqe_build_eseg(struct mlx5e_priv *priv, struct mlx5e_txqsq *sq,
+ 				   struct sk_buff *skb, struct mlx5e_accel_tx_state *accel,
+-				   struct mlx5_wqe_eth_seg *eseg)
++				   struct mlx5_wqe_eth_seg *eseg, u16 ihs)
+ {
+-	if (unlikely(!mlx5e_accel_tx_eseg(priv, skb, eseg)))
++	if (unlikely(!mlx5e_accel_tx_eseg(priv, skb, eseg, ihs)))
+ 		return false;
+ 
+ 	mlx5e_txwqe_build_eseg_csum(sq, skb, accel, eseg);
+@@ -647,7 +647,8 @@ netdev_tx_t mlx5e_xmit(struct sk_buff *s
+ 		if (mlx5e_tx_skb_supports_mpwqe(skb, &attr)) {
+ 			struct mlx5_wqe_eth_seg eseg = {};
+ 
+-			if (unlikely(!mlx5e_txwqe_build_eseg(priv, sq, skb, &accel, &eseg)))
++			if (unlikely(!mlx5e_txwqe_build_eseg(priv, sq, skb, &accel, &eseg,
++							     attr.ihs)))
+ 				return NETDEV_TX_OK;
+ 
+ 			mlx5e_sq_xmit_mpwqe(sq, skb, &eseg, netdev_xmit_more());
+@@ -664,7 +665,7 @@ netdev_tx_t mlx5e_xmit(struct sk_buff *s
+ 	/* May update the WQE, but may not post other WQEs. */
+ 	mlx5e_accel_tx_finish(sq, wqe, &accel,
+ 			      (struct mlx5_wqe_inline_seg *)(wqe->data + wqe_attr.ds_cnt_inl));
+-	if (unlikely(!mlx5e_txwqe_build_eseg(priv, sq, skb, &accel, &wqe->eth)))
++	if (unlikely(!mlx5e_txwqe_build_eseg(priv, sq, skb, &accel, &wqe->eth, attr.ihs)))
+ 		return NETDEV_TX_OK;
+ 
+ 	mlx5e_sq_xmit_wqe(sq, skb, &attr, &wqe_attr, wqe, pi, netdev_xmit_more());
 
 
