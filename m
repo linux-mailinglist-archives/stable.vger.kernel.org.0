@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B197E2F167D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F752F15C1
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbhAKNxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:53:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56032 "EHLO mail.kernel.org"
+        id S1731454AbhAKNLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729317AbhAKNIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:08:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 710722251F;
-        Mon, 11 Jan 2021 13:07:55 +0000 (UTC)
+        id S1731451AbhAKNLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB1C622795;
+        Mon, 11 Jan 2021 13:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370475;
-        bh=03QIzvnRplZlJC1D4Z2elr/xFNXfVFUhnrgchIP0d/Q=;
+        s=korg; t=1610370665;
+        bh=Gj/HyAUsIQo2G+cUZKMhSKG86mDRwD00QEa/a3fU9xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlXgZpGhzxprCfEiLmHvPgwkEYTsH86Admq9CWHrXCDzsTJMh3SfL2G3z013Xvgbn
-         qVq1iY02DlF6H5sQ0/jxY7SNOASmbTxUq55OvsYFz5G75ccEX/Fq/rfJesfWjxnfm+
-         Iz58b8MT8VpqQ++YwokOf7aPxEJZ2m49dsMm9pLs=
+        b=PguChEDhnGe7CwkAjxhoxZ2ER60yePUl/NrOYpjMQbZ02mLkXlxhOpHoOAxL+gW+Y
+         aSMxa6fNjHhzv8m3DaR1E1qMsI4tzugKKUszcvwQw4kjiJ32zL8FFLoL7VAFw5AAyt
+         lqgmCYWVRwpo4eKvfi2xaNPKAVXSiUGHJETNqZH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.19 39/77] Bluetooth: revert: hci_h5: close serdev device and free hu in h5_close
-Date:   Mon, 11 Jan 2021 14:01:48 +0100
-Message-Id: <20210111130038.290994079@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Davide Caratti <dcaratti@redhat.com>
+Subject: [PATCH 5.4 45/92] net/sched: sch_taprio: ensure to reset/destroy all child qdiscs
+Date:   Mon, 11 Jan 2021 14:01:49 +0100
+Message-Id: <20210111130041.315198350@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit 5c3b5796866f85354a5ce76a28f8ffba0dcefc7e upstream.
+[ Upstream commit 698285da79f5b0b099db15a37ac661ac408c80eb ]
 
-There have been multiple revisions of the patch fix the h5->rx_skb
-leak. Accidentally the first revision (which is buggy) and v5 have
-both been merged:
+taprio_graft() can insert a NULL element in the array of child qdiscs. As
+a consquence, taprio_reset() might not reset child qdiscs completely, and
+taprio_destroy() might leak resources. Fix it by ensuring that loops that
+iterate over q->qdiscs[] don't end when they find the first NULL item.
 
-v1 commit 70f259a3f427 ("Bluetooth: hci_h5: close serdev device and free
-hu in h5_close");
-v5 commit 855af2d74c87 ("Bluetooth: hci_h5: fix memory leak in h5_close")
-
-The correct v5 makes changes slightly higher up in the h5_close()
-function, which allowed both versions to get merged without conflict.
-
-The changes from v1 unconditionally frees the h5 data struct, this
-is wrong because in the serdev enumeration case the memory is
-allocated in h5_serdev_probe() like this:
-
-        h5 = devm_kzalloc(dev, sizeof(*h5), GFP_KERNEL);
-
-So its lifetime is tied to the lifetime of the driver being bound
-to the serdev and it is automatically freed when the driver gets
-unbound. In the serdev case the same h5 struct is re-used over
-h5_close() and h5_open() calls and thus MUST not be free-ed in
-h5_close().
-
-The serdev_device_close() added to h5_close() is incorrect in the
-same way, serdev_device_close() is called on driver unbound too and
-also MUST no be called from h5_close().
-
-This reverts the changes made by merging v1 of the patch, so that
-just the changes of the correct v5 remain.
-
-Cc: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 44d4775ca518 ("net/sched: sch_taprio: reset child qdiscs before freeing them")
+Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Link: https://lore.kernel.org/r/13edef6778fef03adc751582562fba4a13e06d6a.1608240532.git.dcaratti@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/bluetooth/hci_h5.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ net/sched/sch_taprio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -263,12 +263,8 @@ static int h5_close(struct hci_uart *hu)
- 	if (h5->vnd && h5->vnd->close)
- 		h5->vnd->close(h5);
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1626,7 +1626,7 @@ static void taprio_destroy(struct Qdisc
+ 	taprio_disable_offload(dev, q, NULL);
  
--	if (hu->serdev)
--		serdev_device_close(hu->serdev);
--
--	kfree_skb(h5->rx_skb);
--	kfree(h5);
--	h5 = NULL;
-+	if (!hu->serdev)
-+		kfree(h5);
+ 	if (q->qdiscs) {
+-		for (i = 0; i < dev->num_tx_queues && q->qdiscs[i]; i++)
++		for (i = 0; i < dev->num_tx_queues; i++)
+ 			qdisc_put(q->qdiscs[i]);
  
- 	return 0;
- }
+ 		kfree(q->qdiscs);
 
 
