@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0FF02F0EA5
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 10:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9A42F0EA8
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 10:00:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbhAKJAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 04:00:19 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:38433 "EHLO
+        id S1728188AbhAKJAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 04:00:21 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:39391 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727623AbhAKJAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 04:00:19 -0500
+        by vger.kernel.org with ESMTP id S1727623AbhAKJAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 04:00:21 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id E75D5257F;
-        Mon, 11 Jan 2021 03:59:12 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 54A1525EF;
+        Mon, 11 Jan 2021 03:59:15 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:59:13 -0500
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:59:15 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=DUu/lk
-        1yFTf6oQl4/F7joxrg8HoKL78pCTT7IiN1sd4=; b=qOqwJ5pDZGUaPFtlyHl5lk
-        3w8ZAPjd998SBbtsKVmlx9v25+xvaiifuvIeOms7zg3eQF0a12b/4cJXhZ1UEmOR
-        oGePc40wpqxghd0ofgnKBsu79gG8WT8CXBYQpy/vsicW2L5cIUpiyjA+mIwNnDE5
-        rwPLD4UavbOBI5wV2y2mEJF+LzgUEMq/1Q05zPt/swL2xi415qtZ/xFM0AJTl5mb
-        XetF/NrciIxxUjSZqtvqG8/w9ivkscfnZDR4d80NYoxpyOXtJUGbB+0J+JNFOQ31
-        IRcUGt0QBLmrqQmA0TwxU5bxJsTfy2RTsO7KXMY1rPrDpeBmf2Plg8d6jlYwb9ng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ASor8p
+        M/cnbc5SlpRNvH3wOIXZPEDL4JPwjxQhVyaFg=; b=ikhrV5nT17mSFacTG02Hfk
+        DJ3WpkNeTdYi5NHZf5viyHuo3/F5oncAw/v5GF0amNABczxl5E01HtyLOBKup3CD
+        H/KGNYsDlzOYWAevbgC2W2kQh7+5QXuxIirYKRsMt0CFeXPN264sJjjZRytEzT8y
+        qvRyVyJBCtsQ3q72iF5m1XrGjHjoej6Zn1oCA6YorW2+pl83mEWMvtnRdvYEq4Vu
+        Oxy1jN3VDIALP4FtI+6A9X10GnN74IJIOj86TkmtRfdlHwKn0nU8Iq2YCpCR2Xre
+        7lVi0nU3tx0y6GezaE7I1uj1Mkaq92yECfuoS7c3gtU01G1h7pIs+SOh1akFWfog
         ==
-X-ME-Sender: <xms:XxP8X7GI30CAIvuPSUY7bstBMdjmxrCQdmnqjP64q_I4b2AF3tZ0lQ>
-    <xme:XxP8X4VVHj2eHgDxX7Dj6DFwoobnUjVv9H_UuTMRJGogokhJsKQdQfAHQIqH9x-Cp
-    Kfrv1Bc5qQlVg>
+X-ME-Sender: <xms:YhP8XzNzeFT3I9HLNeF7lnTs2_ek9xD6IY6GhbIJgcXfj3rFyA48cw>
+    <xme:YhP8X9_6wuMPTnLzALXlYr-FwwN7UkLPQbz8v4Yx6RdCy2QCUAXj188sexnWCI4Lj
+    u1S8COwIVnBjA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
     eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurf
+    ghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:XxP8X9I_vGrqWvqzKIbLBky4yh12HS1BUBgzT86BM3pp4kTQ5_8Rdw>
-    <xmx:XxP8X5FE-cl392XZ2zqhuDlLnLihcvTS9X8pMop6II_9v32qFU8u9w>
-    <xmx:XxP8XxU8rCLMWlmsVfBE80gfJlu-AWaRGhFaw12hPw5mlSZ4LAsvxw>
-    <xmx:YBP8XwfxA-5xbhHEZLvrnKqqowaCzVLH1NL1_sBWcZLb8RLzJcLgIQyY6lA>
+X-ME-Proxy: <xmx:YhP8XySDXcY6XCyKm5dhKidzanWuzzZtEY5_GDQUgmtAN-QgbQk1QA>
+    <xmx:YhP8X3uattttW77FrOqk2j2xVrUi5tAmktOxTCkEnr-HyVLbIGr5_Q>
+    <xmx:YhP8X7cMMusDWZGtb753fNAoCa1vjwY61OC-9oh2dvQK0raBGrQeyQ>
+    <xmx:YhP8XzFampBtCT-41jbXQxWM8VEscjrQPOS8xe80Xm9vtqBQAS7bIOMu2io>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8DB131080066;
-        Mon, 11 Jan 2021 03:59:11 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: clear the shadow batch" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 996401080063;
+        Mon, 11 Jan 2021 03:59:14 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: clear the shadow batch" failed to apply to 4.14-stable tree
 To:     matthew.auld@intel.com, chris@chris-wilson.co.uk,
         jani.nikula@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 10:00:24 +0100
-Message-ID: <161035562449124@kroah.com>
+Date:   Mon, 11 Jan 2021 10:00:25 +0100
+Message-ID: <161035562573117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
