@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86DDD2F0E8C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2942F0E95
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727739AbhAKIw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:52:59 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:41863 "EHLO
+        id S1728247AbhAKI5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:57:03 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55895 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726611AbhAKIw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:52:58 -0500
+        by vger.kernel.org with ESMTP id S1727841AbhAKI5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:57:03 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 5BB0C24CB;
-        Mon, 11 Jan 2021 03:51:52 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 6266A21A2;
+        Mon, 11 Jan 2021 03:56:16 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:51:52 -0500
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:56:16 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mMldDO
-        op2e02c/JXlnP++elZuCop0e3zPP0rQA6wOi4=; b=X2c8rR4GNIjbzWGvGLCg1e
-        qI1KF46YtWKR8NOKCRYEQXIlzWaUNGH4/MkwbN2o478D2L8NoLFTSHjVPF8Z4Oic
-        E+9sJanx86uv8YQISnoDzTBms0hWBnOaPb6NNcuUTdoSCmeIDi5DJ73eS1omGH37
-        /kTX/C4Xd0a+PcP156EtaOCKPl5jwKhwoR/dbBXFNkZuusMXALMjTsNOXJ3ZT6HD
-        DwBPDHrgrdgGsNyIeNDs+REw245pmgES6fxJ76D2rDjWhZNLl4jufjneynC1T9D9
-        YNj/Ko4PcUvcylkBixTyHeoeUzh/fRtRLVF8jqbpuhWU8J4nXT4nx6iQ2+ci8y9w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gnRCej
+        B6QaZKLsL//nqvyAX75aiRHj7QOoifdLtpvQU=; b=mDvGDKOzy8OsML4Zzxm11M
+        JN++mOo1gWfsoxKR1OkMfp6FCIXUZyP7auuuWNGpyZ/Bgqq8NAtp5sqNZRP5HEu2
+        /GNnLiYRwPMhS9KlDiTyAMnV79fSFHTyCzO4RqY323TU6Qia8UNEE5dg/LUuoQzt
+        hbdVs+q4NvBUiemeHRA0yol1NoSKWnbLV4o5n0Ew9Xw2F6/Im5RIzWbDJGxqy4So
+        b1K9M1Go2hCghxWOxKPKfPaMQ94ywfL0x9xcXboqp2d4OY/rcKAUi5bObz5gBzux
+        pfPegxFPtWwvGZSsajHUDFWUBp2Z1kUEXm8Rhfi5a6sq6WlJpBQVCFIcSZ4bIKpw
         ==
-X-ME-Sender: <xms:pxH8X6NDxK8pCcUCLZkX-hIHYTqsuTG-at9AyTcHbS2HwSzRACoCyA>
-    <xme:pxH8X49ajydDU_WTeIRdMJQr2JArzIo0k9FavkE7gIh342RsoVUg_UugCvF-3eOER
-    64mxsBsj11Fqg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvudcutefuodetggdotefrod
+X-ME-Sender: <xms:rxL8X66LDV_G74_ENvvOKGJ04_skPgW3SvvOK80fh88pPc7v8kWOBw>
+    <xme:rxL8Xz7poJQ4yRj4yJpnWpgSTaVH_TUCJq-E2StEUcT4Y37-1lUAFLdfvzmpzGp0X
+    JkdAA6ZAlhjxQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpe
+    rhhgqeenucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffe
+    dtgedvjeeuvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhp
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:pxH8XxRhmhgeKNxKBifoqatF8A_Ny9rqPy5KX6waoI7jrDA9ygp2kA>
-    <xmx:pxH8X6u5RkiUtddulQuB-oNlbNMgbaP3b2US-Gad6mw29nrt3_ynig>
-    <xmx:pxH8Xyd01AAKzl1fTqSAhtZk61imYyMV8IwvUSscigqZ3IdxPeFU9g>
-    <xmx:qBH8X6TXpZpUCoTp34XLmW5kCoKGQNCHaPiLGyaZkgLCaMjWXlm_NnLpM1s>
+X-ME-Proxy: <xmx:rxL8X5dbmZp3ZfB-PywpuV8sui3sw_ipZv4Lu7YXo8A8MyDQiDG95g>
+    <xmx:rxL8X3IVrUEQ7_44-o_8UswsB9JKOcnclAtBPccUTtOhO-D2ELFTNw>
+    <xmx:rxL8X-JRUlUw8-ElAHhKJqmmBWNiqvbTiSyQIy0qiP7F9P2HGOXwxQ>
+    <xmx:sBL8Xwidcvo-v7vV0ErilzqtRpauIX_pFIUGNguBfMxKT7ZnDAPIyd9wNO0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0209C108005C;
-        Mon, 11 Jan 2021 03:51:50 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Move intel_iommu info from struct intel_svm to" failed to apply to 5.4-stable tree
-To:     yi.l.liu@intel.com, Kaijie.Guo@intel.com, ashok.raj@intel.com,
-        baolu.lu@linux.intel.com, dwmw2@infradead.org,
-        jacob.jun.pan@linux.intel.com, will@kernel.org, xin.zeng@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 941B01080068;
+        Mon, 11 Jan 2021 03:56:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: correctly calculate item size used when item key" failed to apply to 4.4-stable tree
+To:     ethanwu@synology.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:53:03 +0100
-Message-ID: <161035518312185@kroah.com>
+Date:   Mon, 11 Jan 2021 09:57:28 +0100
+Message-ID: <161035544813755@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,110 +70,211 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ad9f45b3b91162b33abfe175ae75ab65718dbf5 Mon Sep 17 00:00:00 2001
-From: Liu Yi L <yi.l.liu@intel.com>
-Date: Thu, 7 Jan 2021 00:03:55 +0800
-Subject: [PATCH] iommu/vt-d: Move intel_iommu info from struct intel_svm to
- struct intel_svm_dev
+From 9a664971569daf68254928149f580b4f5856d274 Mon Sep 17 00:00:00 2001
+From: ethanwu <ethanwu@synology.com>
+Date: Tue, 1 Dec 2020 17:25:12 +0800
+Subject: [PATCH] btrfs: correctly calculate item size used when item key
+ collision happens
 
-'struct intel_svm' is shared by all devices bound to a give process,
-but records only a single pointer to a 'struct intel_iommu'. Consequently,
-cache invalidations may only be applied to a single DMAR unit, and are
-erroneously skipped for the other devices.
+Item key collision is allowed for some item types, like dir item and
+inode refs, but the overall item size is limited by the nodesize.
 
-In preparation for fixing this, rework the structures so that the iommu
-pointer resides in 'struct intel_svm_dev', allowing 'struct intel_svm'
-to track them in its device list.
+item size(ins_len) passed from btrfs_insert_empty_items to
+btrfs_search_slot already contains size of btrfs_item.
 
-Fixes: 1c4f88b7f1f9 ("iommu/vt-d: Shared virtual address in scalable mode")
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Raj Ashok <ashok.raj@intel.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Reported-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Reported-by: Xin Zeng <xin.zeng@intel.com>
-Signed-off-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Signed-off-by: Xin Zeng <xin.zeng@intel.com>
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Tested-by: Guo Kaijie <Kaijie.Guo@intel.com>
-Cc: stable@vger.kernel.org # v5.0+
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/1609949037-25291-2-git-send-email-yi.l.liu@intel.com
-Signed-off-by: Will Deacon <will@kernel.org>
+When btrfs_search_slot reaches leaf, we'll see if we need to split leaf.
+The check incorrectly reports that split leaf is required, because
+it treats the space required by the newly inserted item as
+btrfs_item + item data. But in item key collision case, only item data
+is actually needed, the newly inserted item could merge into the existing
+one. No new btrfs_item will be inserted.
 
-diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
-index 9bcedd360235..790ef3497e7e 100644
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -142,7 +142,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
+And split_leaf return EOVERFLOW from following code:
+
+  if (extend && data_size + btrfs_item_size_nr(l, slot) +
+      sizeof(struct btrfs_item) > BTRFS_LEAF_DATA_SIZE(fs_info))
+      return -EOVERFLOW;
+
+In most cases, when callers receive EOVERFLOW, they either return
+this error or handle in different ways. For example, in normal dir item
+creation the userspace will get errno EOVERFLOW; in inode ref case
+INODE_EXTREF is used instead.
+
+However, this is not the case for rename. To avoid the unrecoverable
+situation in rename, btrfs_check_dir_item_collision is called in
+early phase of rename. In this function, when item key collision is
+detected leaf space is checked:
+
+  data_size = sizeof(*di) + name_len;
+  if (data_size + btrfs_item_size_nr(leaf, slot) +
+      sizeof(struct btrfs_item) > BTRFS_LEAF_DATA_SIZE(root->fs_info))
+
+the sizeof(struct btrfs_item) + btrfs_item_size_nr(leaf, slot) here
+refers to existing item size, the condition here correctly calculates
+the needed size for collision case rather than the wrong case above.
+
+The consequence of inconsistent condition check between
+btrfs_check_dir_item_collision and btrfs_search_slot when item key
+collision happens is that we might pass check here but fail
+later at btrfs_search_slot. Rename fails and volume is forced readonly
+
+  [436149.586170] ------------[ cut here ]------------
+  [436149.586173] BTRFS: Transaction aborted (error -75)
+  [436149.586196] WARNING: CPU: 0 PID: 16733 at fs/btrfs/inode.c:9870 btrfs_rename2+0x1938/0x1b70 [btrfs]
+  [436149.586227] CPU: 0 PID: 16733 Comm: python Tainted: G      D           4.18.0-rc5+ #1
+  [436149.586228] Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/05/2016
+  [436149.586238] RIP: 0010:btrfs_rename2+0x1938/0x1b70 [btrfs]
+  [436149.586254] RSP: 0018:ffffa327043a7ce0 EFLAGS: 00010286
+  [436149.586255] RAX: 0000000000000000 RBX: ffff8d8a17d13340 RCX: 0000000000000006
+  [436149.586256] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff8d8a7fc164b0
+  [436149.586257] RBP: ffffa327043a7da0 R08: 0000000000000560 R09: 7265282064657472
+  [436149.586258] R10: 0000000000000000 R11: 6361736e61725420 R12: ffff8d8a0d4c8b08
+  [436149.586258] R13: ffff8d8a17d13340 R14: ffff8d8a33e0a540 R15: 00000000000001fe
+  [436149.586260] FS:  00007fa313933740(0000) GS:ffff8d8a7fc00000(0000) knlGS:0000000000000000
+  [436149.586261] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [436149.586262] CR2: 000055d8d9c9a720 CR3: 000000007aae0003 CR4: 00000000003606f0
+  [436149.586295] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [436149.586296] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [436149.586296] Call Trace:
+  [436149.586311]  vfs_rename+0x383/0x920
+  [436149.586313]  ? vfs_rename+0x383/0x920
+  [436149.586315]  do_renameat2+0x4ca/0x590
+  [436149.586317]  __x64_sys_rename+0x20/0x30
+  [436149.586324]  do_syscall_64+0x5a/0x120
+  [436149.586330]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  [436149.586332] RIP: 0033:0x7fa3133b1d37
+  [436149.586348] RSP: 002b:00007fffd3e43908 EFLAGS: 00000246 ORIG_RAX: 0000000000000052
+  [436149.586349] RAX: ffffffffffffffda RBX: 00007fa3133b1d30 RCX: 00007fa3133b1d37
+  [436149.586350] RDX: 000055d8da06b5e0 RSI: 000055d8da225d60 RDI: 000055d8da2c4da0
+  [436149.586351] RBP: 000055d8da2252f0 R08: 00007fa313782000 R09: 00000000000177e0
+  [436149.586351] R10: 000055d8da010680 R11: 0000000000000246 R12: 00007fa313840b00
+
+Thanks to Hans van Kranenburg for information about crc32 hash collision
+tools, I was able to reproduce the dir item collision with following
+python script.
+https://github.com/wutzuchieh/misc_tools/blob/master/crc32_forge.py Run
+it under a btrfs volume will trigger the abort transaction.  It simply
+creates files and rename them to forged names that leads to
+hash collision.
+
+There are two ways to fix this. One is to simply revert the patch
+878f2d2cb355 ("Btrfs: fix max dir item size calculation") to make the
+condition consistent although that patch is correct about the size.
+
+The other way is to handle the leaf space check correctly when
+collision happens. I prefer the second one since it correct leaf
+space check in collision case. This fix will not account
+sizeof(struct btrfs_item) when the item already exists.
+There are two places where ins_len doesn't contain
+sizeof(struct btrfs_item), however.
+
+  1. extent-tree.c: lookup_inline_extent_backref
+  2. file-item.c: btrfs_csum_file_blocks
+
+to make the logic of btrfs_search_slot more clear, we add a flag
+search_for_extension in btrfs_path.
+
+This flag indicates that ins_len passed to btrfs_search_slot doesn't
+contain sizeof(struct btrfs_item). When key exists, btrfs_search_slot
+will use the actual size needed to calculate the required leaf space.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: ethanwu <ethanwu@synology.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index 07810891e204..cc89b63d65a4 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -2555,8 +2555,14 @@ static struct extent_buffer *btrfs_search_slot_get_root(struct btrfs_root *root,
+  * @p:		Holds all btree nodes along the search path
+  * @root:	The root node of the tree
+  * @key:	The key we are looking for
+- * @ins_len:	Indicates purpose of search, for inserts it is 1, for
+- *		deletions it's -1. 0 for plain searches
++ * @ins_len:	Indicates purpose of search:
++ *              >0  for inserts it's size of item inserted (*)
++ *              <0  for deletions
++ *               0  for plain searches, not modifying the tree
++ *
++ *              (*) If size of item inserted doesn't include
++ *              sizeof(struct btrfs_item), then p->search_for_extension must
++ *              be set.
+  * @cow:	boolean should CoW operations be performed. Must always be 1
+  *		when modifying the tree.
+  *
+@@ -2717,6 +2723,20 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 
+ 		if (level == 0) {
+ 			p->slots[level] = slot;
++			/*
++			 * Item key already exists. In this case, if we are
++			 * allowed to insert the item (for example, in dir_item
++			 * case, item key collision is allowed), it will be
++			 * merged with the original item. Only the item size
++			 * grows, no new btrfs item will be added. If
++			 * search_for_extension is not set, ins_len already
++			 * accounts the size btrfs_item, deduct it here so leaf
++			 * space check will be correct.
++			 */
++			if (ret == 0 && ins_len > 0 && !p->search_for_extension) {
++				ASSERT(ins_len >= sizeof(struct btrfs_item));
++				ins_len -= sizeof(struct btrfs_item);
++			}
+ 			if (ins_len > 0 &&
+ 			    btrfs_leaf_free_space(b) < ins_len) {
+ 				if (write_lock_level < 1) {
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 2674f24cf2e0..3935d297d198 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -368,6 +368,12 @@ struct btrfs_path {
+ 	unsigned int search_commit_root:1;
+ 	unsigned int need_commit_sem:1;
+ 	unsigned int skip_release_on_error:1;
++	/*
++	 * Indicate that new item (btrfs_search_slot) is extending already
++	 * existing item and ins_len contains only the data size and not item
++	 * header (ie. sizeof(struct btrfs_item) is not included).
++	 */
++	unsigned int search_for_extension:1;
+ };
+ #define BTRFS_MAX_EXTENT_ITEM_SIZE(r) ((BTRFS_LEAF_DATA_SIZE(r->fs_info) >> 4) - \
+ 					sizeof(struct btrfs_item))
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 56ea380f5a17..d79b8369e6aa 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -844,6 +844,7 @@ int lookup_inline_extent_backref(struct btrfs_trans_handle *trans,
+ 	want = extent_ref_type(parent, owner);
+ 	if (insert) {
+ 		extra_size = btrfs_extent_inline_ref_size(want);
++		path->search_for_extension = 1;
+ 		path->keep_locks = 1;
+ 	} else
+ 		extra_size = -1;
+@@ -996,6 +997,7 @@ int lookup_inline_extent_backref(struct btrfs_trans_handle *trans,
+ out:
+ 	if (insert) {
+ 		path->keep_locks = 0;
++		path->search_for_extension = 0;
+ 		btrfs_unlock_up_safe(path, 1);
  	}
- 	desc.qw2 = 0;
- 	desc.qw3 = 0;
--	qi_submit_sync(svm->iommu, &desc, 1, 0);
-+	qi_submit_sync(sdev->iommu, &desc, 1, 0);
- 
- 	if (sdev->dev_iotlb) {
- 		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
-@@ -166,7 +166,7 @@ static void intel_flush_svm_range_dev (struct intel_svm *svm, struct intel_svm_d
- 		}
- 		desc.qw2 = 0;
- 		desc.qw3 = 0;
--		qi_submit_sync(svm->iommu, &desc, 1, 0);
-+		qi_submit_sync(sdev->iommu, &desc, 1, 0);
+ 	return err;
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index 1545c22ef280..6ccfc019ad90 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -1016,8 +1016,10 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
  	}
- }
  
-@@ -211,7 +211,7 @@ static void intel_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
- 	 */
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(sdev, &svm->devs, list)
--		intel_pasid_tear_down_entry(svm->iommu, sdev->dev,
-+		intel_pasid_tear_down_entry(sdev->iommu, sdev->dev,
- 					    svm->pasid, true);
- 	rcu_read_unlock();
- 
-@@ -364,6 +364,7 @@ int intel_svm_bind_gpasid(struct iommu_domain *domain, struct device *dev,
- 	}
- 	sdev->dev = dev;
- 	sdev->sid = PCI_DEVID(info->bus, info->devfn);
-+	sdev->iommu = iommu;
- 
- 	/* Only count users if device has aux domains */
- 	if (iommu_dev_feature_enabled(dev, IOMMU_DEV_FEAT_AUX))
-@@ -548,6 +549,7 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
+ 	btrfs_release_path(path);
++	path->search_for_extension = 1;
+ 	ret = btrfs_search_slot(trans, root, &file_key, path,
+ 				csum_size, 1);
++	path->search_for_extension = 0;
+ 	if (ret < 0)
  		goto out;
- 	}
- 	sdev->dev = dev;
-+	sdev->iommu = iommu;
  
- 	ret = intel_iommu_enable_pasid(iommu, dev);
- 	if (ret) {
-@@ -577,7 +579,6 @@ intel_svm_bind_mm(struct device *dev, unsigned int flags,
- 			kfree(sdev);
- 			goto out;
- 		}
--		svm->iommu = iommu;
- 
- 		if (pasid_max > intel_pasid_max_id)
- 			pasid_max = intel_pasid_max_id;
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index d956987ed032..94522685a0d9 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -758,6 +758,7 @@ struct intel_svm_dev {
- 	struct list_head list;
- 	struct rcu_head rcu;
- 	struct device *dev;
-+	struct intel_iommu *iommu;
- 	struct svm_dev_ops *ops;
- 	struct iommu_sva sva;
- 	u32 pasid;
-@@ -771,7 +772,6 @@ struct intel_svm {
- 	struct mmu_notifier notifier;
- 	struct mm_struct *mm;
- 
--	struct intel_iommu *iommu;
- 	unsigned int flags;
- 	u32 pasid;
- 	int gpasid; /* In case that guest PASID is different from host PASID */
 
