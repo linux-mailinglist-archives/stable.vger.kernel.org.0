@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7342F151D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC8E2F1522
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:36:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732026AbhAKNfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:35:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60846 "EHLO mail.kernel.org"
+        id S1731971AbhAKNNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732031AbhAKNOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:14:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E24522250F;
-        Mon, 11 Jan 2021 13:13:21 +0000 (UTC)
+        id S1731965AbhAKNNl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4157822CA1;
+        Mon, 11 Jan 2021 13:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370802;
-        bh=xjoEzV6Xi5sP+X7sPDYGi4A5zF7gVw5Z60vBv1CS8ws=;
+        s=korg; t=1610370804;
+        bh=HOfmmsNDwLOfN7qKJIMJttvvQjlx4KepTPwiRGShhy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngBEfkHsKYDggOQIjsjbirxlNzynH+ej8fAK1et/4bcKtEqhIudTrEp0Sj0o7HzeX
-         8Nzf9sNHaNLxI1w2x8m9ERWdQNiOTHyYvAbg5cI814t972TADaCkt5ZW0iu/dWVhr3
-         LeIGY6B13gMzUpBxdzJQHcIXTMsDWvI9vuk6el3o=
+        b=ahr3TkMUMEqOly4zsyQWii95uypRuDDWue9WTi6++jCE0z3e2bx4VTIBWSVcMF0Mj
+         awq167m6TcmkelVoqTuoVjcHdpFMwsKRjOJDqwnpirQ+s7AyDs7NZGE46E58lM/kT3
+         NhZT6sLf3/QniYg2XiJXuImq2iSTilAYtgzXML8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        Stefan Chulski <stefanc@marvell.com>,
+        stable@vger.kernel.org,
+        Thomas Graichen <thomas.graichen@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 011/145] net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
-Date:   Mon, 11 Jan 2021 14:00:35 +0100
-Message-Id: <20210111130049.058866908@linuxfoundation.org>
+Subject: [PATCH 5.10 012/145] net: stmmac: dwmac-meson8b: ignore the second clock input
+Date:   Mon, 11 Jan 2021 14:00:36 +0100
+Message-Id: <20210111130049.104722338@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -40,34 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 2575bc1aa9d52a62342b57a0b7d0a12146cf6aed ]
+[ Upstream commit f87777a3c30cf50c66a20e1d153f0e003bb30774 ]
 
-During GoP port 2 Networking Complex Control mode of operation configurations,
-also GoP port 3 mode of operation was wrongly set.
-Patch removes these configurations.
+The dwmac glue registers on Amlogic Meson8b and newer SoCs has two clock
+inputs:
+- Meson8b and Meson8m2: MPLL2 and MPLL2 (the same parent is wired to
+  both inputs)
+- GXBB, GXL, GXM, AXG, G12A, G12B, SM1: FCLK_DIV2 and MPLL2
 
-Fixes: f84bf386f395 ("net: mvpp2: initialize the GoP")
-Acked-by: Marcin Wojtas <mw@semihalf.com>
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Link: https://lore.kernel.org/r/1608462149-1702-1-git-send-email-stefanc@marvell.com
+All known vendor kernels and u-boots are using the first input only. We
+let the common clock framework automatically choose the "right" parent.
+For some boards this causes a problem though, specificially with G12A and
+newer SoCs. The clock input is used for generating the 125MHz RGMII TX
+clock. For the two input clocks this means on G12A:
+- FCLK_DIV2: 999999985Hz / 8 = 124999998.125Hz
+- MPLL2: 499999993Hz / 4 = 124999998.25Hz
+
+In theory MPLL2 is the "better" clock input because it's gets us 0.125Hz
+closer to the requested frequency than FCLK_DIV2. In reality however
+there is a resource conflict because MPLL2 is needed to generate some of
+the audio clocks. dwmac-meson8b probes first and sets up the clock tree
+with MPLL2. This works fine until the audio driver comes and "steals"
+the MPLL2 clocks and configures it with it's own rate (294909637Hz). The
+common clock framework happily changes the MPLL2 rate but does not
+reconfigure our RGMII TX clock tree, which then ends up at 73727409Hz,
+which is more than 40% off the requested 125MHz.
+
+Don't use the second clock input for now to force the common clock
+framework to always select the first parent. This mimics the behavior
+from the vendor driver and fixes the clock resource conflict with the
+audio driver on G12A boards. Once the common clock framework can handle
+this situation this change can be reverted again.
+
+Fixes: 566e8251625304 ("net: stmmac: add a glue driver for the Amlogic Meson 8b / GXBB DWMAC")
+Reported-by: Thomas Graichen <thomas.graichen@gmail.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: thomas graichen <thomas.graichen@gmail.com>
+Link: https://lore.kernel.org/r/20201219135036.3216017-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -1231,7 +1231,7 @@ static void mvpp22_gop_init_rgmii(struct
- 
- 	regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
- 	if (port->gop_id == 2)
--		val |= GENCONF_CTRL0_PORT0_RGMII | GENCONF_CTRL0_PORT1_RGMII;
-+		val |= GENCONF_CTRL0_PORT0_RGMII;
- 	else if (port->gop_id == 3)
- 		val |= GENCONF_CTRL0_PORT1_RGMII_MII;
- 	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-meson8b.c
+@@ -135,7 +135,7 @@ static int meson8b_init_rgmii_tx_clk(str
+ 	struct device *dev = dwmac->dev;
+ 	static const struct clk_parent_data mux_parents[] = {
+ 		{ .fw_name = "clkin0", },
+-		{ .fw_name = "clkin1", },
++		{ .index = -1, },
+ 	};
+ 	static const struct clk_div_table div_table[] = {
+ 		{ .div = 2, .val = 2, },
 
 
