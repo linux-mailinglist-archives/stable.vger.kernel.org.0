@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16E12F1472
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D552F13B3
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:13:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731154AbhAKNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:24:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
+        id S1731903AbhAKNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732600AbhAKNRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE1E22795;
-        Mon, 11 Jan 2021 13:17:02 +0000 (UTC)
+        id S1731713AbhAKNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A614D22515;
+        Mon, 11 Jan 2021 13:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371022;
-        bh=k3LMdc1mx+tCG5SW3cFuU0akgB7OzWBZtsMuxdz5sPA=;
+        s=korg; t=1610370793;
+        bh=fbNeV+OFVNAnSjGoJE6Mc64L/Ho9ndObvVQwda+8Ki4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mG1ZblqrO9jW5b+XuimKE+jSOIHNB3NVdhOzv9gh6E5QWKpXclHypUcyZhQAD4xnC
-         i5sD76bDmXWcbICDRt+5g7V917R1vg1LvC1NUHJ5UnOu/pzSbmDUDzr+5WmxN9BMyl
-         LgBsDrEpsLysXbL4E8uFMqoY98zneL3lQvR3NOcM=
+        b=iDVgDsqnebA+1k9c7xMMtqyJLNoaj9S7uyGOuCVPMhTR1iFhAaZcjROgIcJQY/rMr
+         bQTS0xpJciwTLbab75RxQpEyKorWyV+VSJDI/i1JQKYA6SsTvnKoJRDR6qXMf69VhK
+         kpImokPvCMBFi7TzshDb4lnT239UWlTy1O5V4S9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Arcari <darcari@redhat.com>,
-        Naveen Krishna Chatradhi <nchatrad@amd.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 108/145] hwmon: (amd_energy) fix allocation of hwmon_channel_info config
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH 5.4 68/92] usb: gadget: f_uac2: reset wMaxPacketSize
 Date:   Mon, 11 Jan 2021 14:02:12 +0100
-Message-Id: <20210111130053.716228132@linuxfoundation.org>
+Message-Id: <20210111130042.427175101@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +38,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Arcari <darcari@redhat.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-commit 84e261553e6f919bf0b4d65244599ab2b41f1da5 upstream.
+commit 9389044f27081d6ec77730c36d5bf9a1288bcda2 upstream.
 
-hwmon, specifically hwmon_num_channel_attrs, expects the config
-array in the hwmon_channel_info structure to be terminated by
-a zero entry.  amd_energy does not honor this convention.  As
-result, a KASAN warning is possible.  Fix this by adding an
-additional entry and setting it to zero.
+With commit 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
+wMaxPacketSize is computed dynamically but the value is never reset.
 
-Fixes: 8abee9566b7e ("hwmon: Add amd_energy driver to report energy counters")
+Because of this, the actual maximum packet size can only decrease each time
+the audio gadget is instantiated.
 
-Signed-off-by: David Arcari <darcari@redhat.com>
-Cc: Naveen Krishna Chatradhi <nchatrad@amd.com>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: David Arcari <darcari@redhat.com>
-Acked-by: Naveen Krishna Chatradhi <nchatrad@amd.com>
-Link: https://lore.kernel.org/r/20210107144707.6927-1-darcari@redhat.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reset the endpoint maximum packet size and mark wMaxPacketSize as dynamic
+to solve the problem.
+
+Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201221173531.215169-2-jbrunet@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwmon/amd_energy.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_uac2.c |   69 +++++++++++++++++++++++++++--------
+ 1 file changed, 55 insertions(+), 14 deletions(-)
 
---- a/drivers/hwmon/amd_energy.c
-+++ b/drivers/hwmon/amd_energy.c
-@@ -222,7 +222,7 @@ static int amd_create_sensor(struct devi
- 	 */
- 	cpus = num_present_cpus() / num_siblings;
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -271,7 +271,7 @@ static struct usb_endpoint_descriptor fs
  
--	s_config = devm_kcalloc(dev, cpus + sockets,
-+	s_config = devm_kcalloc(dev, cpus + sockets + 1,
- 				sizeof(u32), GFP_KERNEL);
- 	if (!s_config)
- 		return -ENOMEM;
-@@ -254,6 +254,7 @@ static int amd_create_sensor(struct devi
- 			scnprintf(label_l[i], 10, "Esocket%u", (i - cpus));
+ 	.bEndpointAddress = USB_DIR_OUT,
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1023),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 1,
+ };
+ 
+@@ -280,7 +280,7 @@ static struct usb_endpoint_descriptor hs
+ 	.bDescriptorType = USB_DT_ENDPOINT,
+ 
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1024),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 4,
+ };
+ 
+@@ -348,7 +348,7 @@ static struct usb_endpoint_descriptor fs
+ 
+ 	.bEndpointAddress = USB_DIR_IN,
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1023),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 1,
+ };
+ 
+@@ -357,7 +357,7 @@ static struct usb_endpoint_descriptor hs
+ 	.bDescriptorType = USB_DT_ENDPOINT,
+ 
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1024),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 4,
+ };
+ 
+@@ -444,12 +444,28 @@ struct cntrl_range_lay3 {
+ 	__le32	dRES;
+ } __packed;
+ 
+-static void set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
++static int set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
+ 	struct usb_endpoint_descriptor *ep_desc,
+-	unsigned int factor, bool is_playback)
++	enum usb_device_speed speed, bool is_playback)
+ {
+ 	int chmask, srate, ssize;
+-	u16 max_packet_size;
++	u16 max_size_bw, max_size_ep;
++	unsigned int factor;
++
++	switch (speed) {
++	case USB_SPEED_FULL:
++		max_size_ep = 1023;
++		factor = 1000;
++		break;
++
++	case USB_SPEED_HIGH:
++		max_size_ep = 1024;
++		factor = 8000;
++		break;
++
++	default:
++		return -EINVAL;
++	}
+ 
+ 	if (is_playback) {
+ 		chmask = uac2_opts->p_chmask;
+@@ -461,10 +477,12 @@ static void set_ep_max_packet_size(const
+ 		ssize = uac2_opts->c_ssize;
  	}
  
-+	s_config[i] = 0;
- 	return 0;
+-	max_packet_size = num_channels(chmask) * ssize *
++	max_size_bw = num_channels(chmask) * ssize *
+ 		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
+-	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_packet_size,
+-				le16_to_cpu(ep_desc->wMaxPacketSize)));
++	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
++						    max_size_ep));
++
++	return 0;
  }
  
+ /* Use macro to overcome line length limitation */
+@@ -670,10 +688,33 @@ afunc_bind(struct usb_configuration *cfg
+ 	}
+ 
+ 	/* Calculate wMaxPacketSize according to audio bandwidth */
+-	set_ep_max_packet_size(uac2_opts, &fs_epin_desc, 1000, true);
+-	set_ep_max_packet_size(uac2_opts, &fs_epout_desc, 1000, false);
+-	set_ep_max_packet_size(uac2_opts, &hs_epin_desc, 8000, true);
+-	set_ep_max_packet_size(uac2_opts, &hs_epout_desc, 8000, false);
++	ret = set_ep_max_packet_size(uac2_opts, &fs_epin_desc, USB_SPEED_FULL,
++				     true);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &fs_epout_desc, USB_SPEED_FULL,
++				     false);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &hs_epin_desc, USB_SPEED_HIGH,
++				     true);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &hs_epout_desc, USB_SPEED_HIGH,
++				     false);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
+ 
+ 	if (EPOUT_EN(uac2_opts)) {
+ 		agdev->out_ep = usb_ep_autoconfig(gadget, &fs_epout_desc);
 
 
