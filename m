@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8132F1601
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 168702F1680
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbhAKNrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:47:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57732 "EHLO mail.kernel.org"
+        id S1729118AbhAKNIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:08:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731205AbhAKNKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9403222B30;
-        Mon, 11 Jan 2021 13:09:52 +0000 (UTC)
+        id S1730945AbhAKNIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:08:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 592EC21534;
+        Mon, 11 Jan 2021 13:07:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370593;
-        bh=jjYAseWg2HOjRMlOeY2x4tbpR7/ZWjLk5Wb9MXxpk9M=;
+        s=korg; t=1610370459;
+        bh=H3Vg39PJBb8bU4b9uFjLwWenejDhGNvVdsLhkM1vwtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvK61jSXPNEglLRZAFjA05Ew25xPKEL/kQ6ze1bCw3/rwkMOCqu7z6zwgCpiXPi8G
-         rIR9aKAPSuzmkHdnqQLzHZsaUwzAHmmuK/dot5+5f4KDsv8SwGJmpY/Eyk4jiKooHO
-         uWG8Gbmx9tIbDGiwVlV5jGkDnHZ9hiW5lGjHPGW4=
+        b=AMK9UKUjtwgqyV131Z7WPsha4VDX/tyLY5gX+GmDD5bI4zb2rH8zfK9WLG2OHH94A
+         1Z8GZ1/g2q37Q4ABsRM4EvTWyC0bhByZJi+sBfxhrE9A2CALmuJpP6KR0ceZqOR5/i
+         BXE0maBWW3tJi/gAeq2QXpEK2KOaKrNkmXFBqQXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liron Himi <lironh@marvell.com>,
-        Stefan Chulski <stefanc@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 13/92] net: mvpp2: prs: fix PPPoE with ipv6 packet parse
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Subject: [PATCH 4.19 08/77] depmod: handle the case of /sbin/depmod without /sbin in PATH
 Date:   Mon, 11 Jan 2021 14:01:17 +0100
-Message-Id: <20210111130039.793386364@linuxfoundation.org>
+Message-Id: <20210111130036.807340350@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit fec6079b2eeab319d9e3d074f54d3b6f623e9701 ]
+[ Upstream commit cedd1862be7e666be87ec824dabc6a2b05618f36 ]
 
-Current PPPoE+IPv6 entry is jumping to 'next-hdr'
-field and not to 'DIP' field as done for IPv4.
+Commit 436e980e2ed5 ("kbuild: don't hardcode depmod path") stopped
+hard-coding the path of depmod, but in the process caused trouble for
+distributions that had that /sbin location, but didn't have it in the
+PATH (generally because /sbin is limited to the super-user path).
 
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Reported-by: Liron Himi <lironh@marvell.com>
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Link: https://lore.kernel.org/r/1608230266-22111-1-git-send-email-stefanc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Work around it for now by just adding /sbin to the end of PATH in the
+depmod.sh script.
+
+Reported-and-tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ scripts/depmod.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-@@ -1680,8 +1680,9 @@ static int mvpp2_prs_pppoe_init(struct m
- 	mvpp2_prs_sram_next_lu_set(&pe, MVPP2_PRS_LU_IP6);
- 	mvpp2_prs_sram_ri_update(&pe, MVPP2_PRS_RI_L3_IP6,
- 				 MVPP2_PRS_RI_L3_PROTO_MASK);
--	/* Skip eth_type + 4 bytes of IPv6 header */
--	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN + 4,
-+	/* Jump to DIP of IPV6 header */
-+	mvpp2_prs_sram_shift_set(&pe, MVPP2_ETH_TYPE_LEN + 8 +
-+				 MVPP2_MAX_L3_ADDR_SIZE,
- 				 MVPP2_PRS_SRAM_OP_SEL_SHIFT_ADD);
- 	/* Set L3 offset */
- 	mvpp2_prs_sram_offset_set(&pe, MVPP2_PRS_SRAM_UDF_TYPE_L3,
+diff --git a/scripts/depmod.sh b/scripts/depmod.sh
+index e083bcae343f3..3643b4f896ede 100755
+--- a/scripts/depmod.sh
++++ b/scripts/depmod.sh
+@@ -15,6 +15,8 @@ if ! test -r System.map ; then
+ 	exit 0
+ fi
+ 
++# legacy behavior: "depmod" in /sbin, no /sbin in PATH
++PATH="$PATH:/sbin"
+ if [ -z $(command -v $DEPMOD) ]; then
+ 	echo "Warning: 'make modules_install' requires $DEPMOD. Please install it." >&2
+ 	echo "This is probably in the kmod package." >&2
+-- 
+2.27.0
+
 
 
