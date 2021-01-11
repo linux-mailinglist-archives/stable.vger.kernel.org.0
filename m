@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E22F52F16CA
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3D62F14E1
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728560AbhAKN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54440 "EHLO mail.kernel.org"
+        id S1731885AbhAKNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725843AbhAKNHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B63912253A;
-        Mon, 11 Jan 2021 13:06:47 +0000 (UTC)
+        id S1731879AbhAKNP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD4A7227C3;
+        Mon, 11 Jan 2021 13:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370408;
-        bh=C7I+VFnbeaep2oXhwuE6FFykUAkpDbRWWT0I3/EQ5vM=;
+        s=korg; t=1610370885;
+        bh=acif9ItcE+J1Fn1mgBfQPEX361VIIqCAwFDdZuTiARo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bv4yaXUv4WPwDKCzFBXukTaf3oJsrLR7lZI/6cy2UGUOl0AGzc6mXRPzlaiOLmS2W
-         noz+Qzygl5WMm/HamRsVmQwMsO4iNAiO2Fw/tFZnmarh1qR9/WSQZzKgVt93eO533Z
-         tJw/e8Cx6slZCfgnW3Tovmw9ykyX+B7izcNo4PC8=
+        b=1ZzcUQ7wyvQ3hB+yGJgk3E7EP1QgYC3J4+NyksK5PyvYrTF0p4Fz9y8q9b6hJGbob
+         ecCVmGvJYEH/VXi01r+MmWCzv3SCs8RfgFrxBojGHUn2lDXyegHHz1z9bKfT7ir/fH
+         l5a1qRSbVndEw1XFNKS/fsBK2AqwOJJFA1U5bx+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominique Martinet <asmadeus@codewreck.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.19 01/77] kbuild: dont hardcode depmod path
+        stable@vger.kernel.org, YANG LI <abaci-bugfix@linux.alibaba.com>,
+        Abaci <abaci@linux.alibaba.com>, Lijun Pan <ljp@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 046/145] ibmvnic: fix: NULL pointer dereference.
 Date:   Mon, 11 Jan 2021 14:01:10 +0100
-Message-Id: <20210111130036.475747143@linuxfoundation.org>
+Message-Id: <20210111130050.736495477@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,31 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominique Martinet <asmadeus@codewreck.org>
+From: YANG LI <abaci-bugfix@linux.alibaba.com>
 
-commit 436e980e2ed526832de822cbf13c317a458b78e1 upstream.
+[ Upstream commit 862aecbd9569e563b979c0e23a908b43cda4b0b9 ]
 
-depmod is not guaranteed to be in /sbin, just let make look for
-it in the path like all the other invoked programs
+The error is due to dereference a null pointer in function
+reset_one_sub_crq_queue():
 
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+if (!scrq) {
+    netdev_dbg(adapter->netdev,
+               "Invalid scrq reset. irq (%d) or msgs(%p).\n",
+		scrq->irq, scrq->msgs);
+		return -EINVAL;
+}
+
+If the expression is true, scrq must be a null pointer and cannot
+dereference.
+
+Fixes: 9281cf2d5840 ("ibmvnic: avoid memset null scrq msgs")
+Signed-off-by: YANG LI <abaci-bugfix@linux.alibaba.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Acked-by: Lijun Pan <ljp@linux.ibm.com>
+Link: https://lore.kernel.org/r/1609312994-121032-1-git-send-email-abaci-bugfix@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -400,7 +400,7 @@ YACC		= bison
- AWK		= awk
- GENKSYMS	= scripts/genksyms/genksyms
- INSTALLKERNEL  := installkernel
--DEPMOD		= /sbin/depmod
-+DEPMOD		= depmod
- PERL		= perl
- PYTHON		= python
- PYTHON2		= python2
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2869,9 +2869,7 @@ static int reset_one_sub_crq_queue(struc
+ 	int rc;
+ 
+ 	if (!scrq) {
+-		netdev_dbg(adapter->netdev,
+-			   "Invalid scrq reset. irq (%d) or msgs (%p).\n",
+-			   scrq->irq, scrq->msgs);
++		netdev_dbg(adapter->netdev, "Invalid scrq reset.\n");
+ 		return -EINVAL;
+ 	}
+ 
 
 
