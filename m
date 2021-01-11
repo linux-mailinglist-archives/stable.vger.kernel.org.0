@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B972F1354
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5AF2F1489
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730548AbhAKNHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:07:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54782 "EHLO mail.kernel.org"
+        id S1730947AbhAKN0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:26:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730542AbhAKNHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E93022A83;
-        Mon, 11 Jan 2021 13:06:31 +0000 (UTC)
+        id S1732516AbhAKNQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81A8922B30;
+        Mon, 11 Jan 2021 13:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370392;
-        bh=pcriLTtPpJM2ggFmyoNvuSxCjVMiHRhqnc3Tp0am0vE=;
+        s=korg; t=1610370974;
+        bh=esMnKU5U+VXw4VGIueJkIC0hPUSISWPK4SveVy8bHlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPaCTptc6aXjYa3vdq8iuooYeDHtNfOJcZjPAomQBfm1Yz1lfJRBW9XaTMC9z9Bn+
-         1SP0pwPmrPcwvy2wBDXWnUi0FXD8MKvu6rbD8AqcQE0libNb8QinK6BG8PwVfSkTKi
-         nb23fKyeuDoOc+sacNDm71aNTbr88qqRBg9rAmrI=
+        b=O00RpDnWLUCUkb7fbPDcN+aS2Zy6FcMwiSfg81MU5zQWHJltD46cRFHzek7ZpLOuK
+         HG30JnQJR4W74lWqX6JiF88nXO1LZun+3l4o/TuD2yhJYI6YGMNV9D+w7J9dJS/1fz
+         3xXFbBniXOyZwyf4wWYIzuwCKXDeTeg5Xs6jI9qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        "taehyun.cho" <taehyun.cho@samsung.com>
-Subject: [PATCH 4.14 29/57] usb: gadget: enable super speed plus
-Date:   Mon, 11 Jan 2021 14:01:48 +0100
-Message-Id: <20210111130035.131398522@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Subject: [PATCH 5.10 085/145] usb: dwc3: ulpi: Use VStsDone to detect PHY regs access completion
+Date:   Mon, 11 Jan 2021 14:01:49 +0100
+Message-Id: <20210111130052.614929828@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: taehyun.cho <taehyun.cho@samsung.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
+commit ce722da66d3e9384aa2de9d33d584ee154e5e157 upstream.
 
-Enable Super speed plus in configfs to support USB3.1 Gen2.
-This ensures that when a USB gadget is plugged in, it is
-enumerated as Gen 2 and connected at 10 Gbps if the host and
-cable are capable of it.
+In accordance with [1] the DWC_usb3 core sets the GUSB2PHYACCn.VStsDone
+bit when the PHY vendor control access is done and clears it when the
+application initiates a new transaction. The doc doesn't say anything
+about the GUSB2PHYACCn.VStsBsy flag serving for the same purpose. Moreover
+we've discovered that the VStsBsy flag can be cleared before the VStsDone
+bit. So using the former as a signal of the PHY control registers
+completion might be dangerous. Let's have the VStsDone flag utilized
+instead then.
 
-Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
-etc.) already have SuperSpeed Plus support.
+[1] Synopsys DesignWare Cores SuperSpeed USB 3.0 xHCI Host Controller
+    Databook, 2.70a, December 2013, p.388
 
-Tested: plugged gadget into Linux host and saw:
-[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
-
-Tested-by: Lorenzo Colitti <lorenzo@google.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
+Fixes: 88bc9d194ff6 ("usb: dwc3: add ULPI interface support")
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Link: https://lore.kernel.org/r/20201210085008.13264-2-Sergey.Semin@baikalelectronics.ru
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/core.h |    1 +
+ drivers/usb/dwc3/ulpi.c |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1504,7 +1504,7 @@ static const struct usb_gadget_driver co
- 	.suspend	= configfs_composite_suspend,
- 	.resume		= configfs_composite_resume,
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -285,6 +285,7 @@
  
--	.max_speed	= USB_SPEED_SUPER,
-+	.max_speed	= USB_SPEED_SUPER_PLUS,
- 	.driver = {
- 		.owner          = THIS_MODULE,
- 		.name		= "configfs-gadget",
-@@ -1544,7 +1544,7 @@ static struct config_group *gadgets_make
- 	gi->composite.unbind = configfs_do_nothing;
- 	gi->composite.suspend = NULL;
- 	gi->composite.resume = NULL;
--	gi->composite.max_speed = USB_SPEED_SUPER;
-+	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
+ /* Global USB2 PHY Vendor Control Register */
+ #define DWC3_GUSB2PHYACC_NEWREGREQ	BIT(25)
++#define DWC3_GUSB2PHYACC_DONE		BIT(24)
+ #define DWC3_GUSB2PHYACC_BUSY		BIT(23)
+ #define DWC3_GUSB2PHYACC_WRITE		BIT(22)
+ #define DWC3_GUSB2PHYACC_ADDR(n)	(n << 16)
+--- a/drivers/usb/dwc3/ulpi.c
++++ b/drivers/usb/dwc3/ulpi.c
+@@ -24,7 +24,7 @@ static int dwc3_ulpi_busyloop(struct dwc
  
- 	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
+ 	while (count--) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYACC(0));
+-		if (!(reg & DWC3_GUSB2PHYACC_BUSY))
++		if (reg & DWC3_GUSB2PHYACC_DONE)
+ 			return 0;
+ 		cpu_relax();
+ 	}
 
 
