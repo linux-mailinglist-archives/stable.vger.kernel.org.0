@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACCC2F163D
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B7B2F16A5
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:56:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731001AbhAKNJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:09:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
+        id S1729049AbhAKNzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:55:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730987AbhAKNJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:09:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98A5F2255F;
-        Mon, 11 Jan 2021 13:09:32 +0000 (UTC)
+        id S1730575AbhAKNH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 764B22225E;
+        Mon, 11 Jan 2021 13:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370573;
-        bh=TDmRcODaA1zi6IDRn+XzSDrBCs4+1dO5A6xNwn0w2fE=;
+        s=korg; t=1610370405;
+        bh=8OYx0ZFF1Jh5aB2IAEvv1+q1SJSSVwAoQ5HaWEuPlYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9ig0KaeVpb6jEi/41tMkJMZvPAjy9TwI7nIpQDTQ5F9PFQWihHfC/BmDRaspB894
-         raKNeot2vxtkciLTEdYWlJwjA/yaHYCMvlkWVxDBWeewVhPi9ciRrm89YBQDqBQSV6
-         nEff0nkH6eu7NNf9ObibEhKf1cBx3X9kOENIHOP8=
+        b=n121NablwHdk35XhTgXoP8p+PXQfujyMDtjsortWxOd1+5bVXEMUnCCk073cCdkBH
+         FQUT6lmGViFEDKW+4d/rLzQhgPcfW1Wqw0IE+22s9VjLohiXb2xrV4+2gbduBixhNB
+         mQH7G21M9w8iWRb1xEHDgCdaXKaGJTn2pbGgZ1bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 65/77] USB: serial: keyspan_pda: remove unused variable
+        stable@vger.kernel.org,
+        syzbot+e86f7c428c8c50db65b4@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 55/57] netfilter: xt_RATEEST: reject non-null terminated string from userspace
 Date:   Mon, 11 Jan 2021 14:02:14 +0100
-Message-Id: <20210111130039.537550043@linuxfoundation.org>
+Message-Id: <20210111130036.389611859@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
-References: <20210111130036.414620026@linuxfoundation.org>
+In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
+References: <20210111130033.715773309@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Florian Westphal <fw@strlen.de>
 
-Remove an unused variable which was mistakingly left by commit
-37faf5061541 ("USB: serial: keyspan_pda: fix write-wakeup
-use-after-free") and only removed by a later change.
+commit 6cb56218ad9e580e519dcd23bfb3db08d8692e5a upstream.
 
-This is needed to suppress a W=1 warning about the unused variable in
-the stable trees that the build bots triggers.
+syzbot reports:
+detected buffer overflow in strlen
+[..]
+Call Trace:
+ strlen include/linux/string.h:325 [inline]
+ strlcpy include/linux/string.h:348 [inline]
+ xt_rateest_tg_checkentry+0x2a5/0x6b0 net/netfilter/xt_RATEEST.c:143
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+strlcpy assumes src is a c-string. Check info->name before its used.
+
+Reported-by: syzbot+e86f7c428c8c50db65b4@syzkaller.appspotmail.com
+Fixes: 5859034d7eb8793 ("[NETFILTER]: x_tables: add RATEEST target")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/serial/keyspan_pda.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -555,10 +555,8 @@ exit:
- static void keyspan_pda_write_bulk_callback(struct urb *urb)
- {
- 	struct usb_serial_port *port = urb->context;
--	struct keyspan_pda_private *priv;
+---
+ net/netfilter/xt_RATEEST.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/net/netfilter/xt_RATEEST.c
++++ b/net/netfilter/xt_RATEEST.c
+@@ -106,6 +106,9 @@ static int xt_rateest_tg_checkentry(cons
+ 	} cfg;
+ 	int ret;
  
- 	set_bit(0, &port->write_urbs_free);
--	priv = usb_get_serial_port_data(port);
++	if (strnlen(info->name, sizeof(est->name)) >= sizeof(est->name))
++		return -ENAMETOOLONG;
++
+ 	net_get_random_once(&jhash_rnd, sizeof(jhash_rnd));
  
- 	/* queue up a wakeup at scheduler time */
- 	usb_serial_port_softint(port);
+ 	mutex_lock(&xt_rateest_mutex);
 
 
