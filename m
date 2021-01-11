@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DD42F15D4
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4872F16C1
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731257AbhAKNKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:10:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
+        id S2387852AbhAKN4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:56:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729045AbhAKNKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEECE21973;
-        Mon, 11 Jan 2021 13:10:03 +0000 (UTC)
+        id S1730437AbhAKNHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F27B22AAB;
+        Mon, 11 Jan 2021 13:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370604;
-        bh=GBnuyhv+xTOA/Q3+Ul00Wf4GB1SWcWwNZ5P9pjPKjQE=;
+        s=korg; t=1610370419;
+        bh=D6CLflUG2o00D2RxO9E2QgxP/uHuqvdfAnb5fqv4eLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00T9dFR7YR20l+EkAShFROuMnMxADWWxwKFVGPQvLnO+Mo2fmVtIvTOg5OYuFDk/q
-         EWUzLjTmE0hESX6I4qaqMHDR1ZcUe+H7BE5hreC2KybdzG/HGc7K8YSaEmen9yaqi7
-         sOAN6A3FdIKjNhwlN3ZQFwUZsG9GIN99kfM+GdFM=
+        b=uZHsZcfqhzt1ik/NBGzRURa5kltwBGYkVU/L9Z1LoPncTqas2Frlyc/ks1uHoMhCS
+         X59q6cHSWBKusHGBwpBfJCmSeGWkidUBBkT2XRO8B8+Udfw50oQRpNrw6D9iA2HpMe
+         OvKyEkCtnRMQXXgQeUPOMRXDvojhn9t1Hi9hre74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        Stefan Chulski <stefanc@marvell.com>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 18/92] net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
-Date:   Mon, 11 Jan 2021 14:01:22 +0100
-Message-Id: <20210111130040.037429097@linuxfoundation.org>
+Subject: [PATCH 4.19 14/77] ethernet: ucc_geth: fix use-after-free in ucc_geth_remove()
+Date:   Mon, 11 Jan 2021 14:01:23 +0100
+Message-Id: <20210111130037.103404477@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-[ Upstream commit 2575bc1aa9d52a62342b57a0b7d0a12146cf6aed ]
+[ Upstream commit e925e0cd2a705aaacb0b907bb3691fcac3a973a4 ]
 
-During GoP port 2 Networking Complex Control mode of operation configurations,
-also GoP port 3 mode of operation was wrongly set.
-Patch removes these configurations.
+ugeth is the netdiv_priv() part of the netdevice. Accessing the memory
+pointed to by ugeth (such as done by ucc_geth_memclean() and the two
+of_node_puts) after free_netdev() is thus use-after-free.
 
-Fixes: f84bf386f395 ("net: mvpp2: initialize the GoP")
-Acked-by: Marcin Wojtas <mw@semihalf.com>
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Link: https://lore.kernel.org/r/1608462149-1702-1-git-send-email-stefanc@marvell.com
+Fixes: 80a9fad8e89a ("ucc_geth: fix module removal")
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |    2 +-
+ drivers/net/ethernet/freescale/ucc_geth.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -1129,7 +1129,7 @@ static void mvpp22_gop_init_rgmii(struct
+--- a/drivers/net/ethernet/freescale/ucc_geth.c
++++ b/drivers/net/ethernet/freescale/ucc_geth.c
+@@ -3947,12 +3947,12 @@ static int ucc_geth_remove(struct platfo
+ 	struct device_node *np = ofdev->dev.of_node;
  
- 	regmap_read(priv->sysctrl_base, GENCONF_CTRL0, &val);
- 	if (port->gop_id == 2)
--		val |= GENCONF_CTRL0_PORT0_RGMII | GENCONF_CTRL0_PORT1_RGMII;
-+		val |= GENCONF_CTRL0_PORT0_RGMII;
- 	else if (port->gop_id == 3)
- 		val |= GENCONF_CTRL0_PORT1_RGMII_MII;
- 	regmap_write(priv->sysctrl_base, GENCONF_CTRL0, val);
+ 	unregister_netdev(dev);
+-	free_netdev(dev);
+ 	ucc_geth_memclean(ugeth);
+ 	if (of_phy_is_fixed_link(np))
+ 		of_phy_deregister_fixed_link(np);
+ 	of_node_put(ugeth->ug_info->tbi_node);
+ 	of_node_put(ugeth->ug_info->phy_node);
++	free_netdev(dev);
+ 
+ 	return 0;
+ }
 
 
