@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 441312F1409
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D4D2F1455
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733211AbhAKNS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:18:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
+        id S1728354AbhAKNXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:23:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733207AbhAKNSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:18:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74AB72251F;
-        Mon, 11 Jan 2021 13:18:14 +0000 (UTC)
+        id S1733123AbhAKNSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF75722AAF;
+        Mon, 11 Jan 2021 13:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371094;
-        bh=Lq/MXugNPfkg9GR7Mk//n4bW8MNNh796E1wXtzobYCk=;
+        s=korg; t=1610371097;
+        bh=BoLImqZ9D+UGGOAjz9LpCYxBKJCMOQ+alHIwZKDypyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LV5cHlLYUn3VJaTfHEaxhryJ5LCokWqLuZ2r2FVbB5nlBwEsXf++6pi6mFZ961xC9
-         +3QbV7YemEcvC21BF7aSUE4uM335YdRpd1o4DFjHFPt2veYEai6BoEkBH6svYxHgQU
-         lcbOMwdvUmqKaonqlxQGS5teqqVZROk2D20Mh5no=
+        b=vGdppj66LdOktBHvfnlStOhGszp9pGKXtyPhyfB+d8RVZzzBdWt+03JLhtjLRUsY2
+         EpDvxqR/Bfu63ILvvivhTzsx+yxDshAOola0HtMvw4Qh10jwtF2aWEiixQCfiOF+vu
+         uHt4nxqygd6pJM85FlqZLcNbY/BkazGlWL633JSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 140/145] netfilter: nft_dynset: report EOPNOTSUPP on missing set feature
-Date:   Mon, 11 Jan 2021 14:02:44 +0100
-Message-Id: <20210111130055.236590459@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 141/145] dmaengine: idxd: off by one in cleanup code
+Date:   Mon, 11 Jan 2021 14:02:45 +0100
+Message-Id: <20210111130055.284556966@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -38,52 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 95cd4bca7b1f4a25810f3ddfc5e767fb46931789 upstream.
+commit ff58f7dd0c1352a01de3a40327895bd51e03de3a upstream.
 
-If userspace requests a feature which is not available the original set
-definition, then bail out with EOPNOTSUPP. If userspace sends
-unsupported dynset flags (new feature not supported by this kernel),
-then report EOPNOTSUPP to userspace. EINVAL should be only used to
-report malformed netlink messages from userspace.
+The clean up is off by one so this will start at "i" and it should start
+with "i - 1" and then it doesn't unregister the zeroeth elements in the
+array.
 
-Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: c52ca478233c ("dmaengine: idxd: add configuration component of driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/X9nFeojulsNqUSnG@mwanda
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_dynset.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/dma/idxd/sysfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -123,7 +123,7 @@ static int nft_dynset_init(const struct
- 		u32 flags = ntohl(nla_get_be32(tb[NFTA_DYNSET_FLAGS]));
+--- a/drivers/dma/idxd/sysfs.c
++++ b/drivers/dma/idxd/sysfs.c
+@@ -379,7 +379,7 @@ int idxd_register_driver(void)
+ 	return 0;
  
- 		if (flags & ~NFT_DYNSET_F_INV)
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 		if (flags & NFT_DYNSET_F_INV)
- 			priv->invert = true;
- 	}
-@@ -156,7 +156,7 @@ static int nft_dynset_init(const struct
- 	timeout = 0;
- 	if (tb[NFTA_DYNSET_TIMEOUT] != NULL) {
- 		if (!(set->flags & NFT_SET_TIMEOUT))
--			return -EINVAL;
-+			return -EOPNOTSUPP;
+ drv_fail:
+-	for (; i > 0; i--)
++	while (--i >= 0)
+ 		driver_unregister(&idxd_drvs[i]->drv);
+ 	return rc;
+ }
+@@ -1639,7 +1639,7 @@ int idxd_register_bus_type(void)
+ 	return 0;
  
- 		err = nf_msecs_to_jiffies64(tb[NFTA_DYNSET_TIMEOUT], &timeout);
- 		if (err)
-@@ -170,7 +170,7 @@ static int nft_dynset_init(const struct
- 
- 	if (tb[NFTA_DYNSET_SREG_DATA] != NULL) {
- 		if (!(set->flags & NFT_SET_MAP))
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 		if (set->dtype == NFT_DATA_VERDICT)
- 			return -EOPNOTSUPP;
- 
+ bus_err:
+-	for (; i > 0; i--)
++	while (--i >= 0)
+ 		bus_unregister(idxd_bus_types[i]);
+ 	return rc;
+ }
 
 
