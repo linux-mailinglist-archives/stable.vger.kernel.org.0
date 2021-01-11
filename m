@@ -2,38 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A660C2F171C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:01:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50F8F2F1719
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730348AbhAKNFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:05:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52524 "EHLO mail.kernel.org"
+        id S1730486AbhAKOBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 09:01:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730265AbhAKNFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5121C229CA;
-        Mon, 11 Jan 2021 13:05:26 +0000 (UTC)
+        id S1730361AbhAKNFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:05:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B7FE21973;
+        Mon, 11 Jan 2021 13:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370326;
-        bh=Q1waZbnvb1vVSY+9g/n2G+JfyzaxQnT6t4ukLZEYNsw=;
+        s=korg; t=1610370331;
+        bh=obHfZ6B5I0DLFG4GxUg5kBUuzOrmx5Mj6UZD2celW38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfnHeW742QmTKdqatZhhrAOMYlsiGoWSBPrj6ApgGSW22K+BoNbqXuq85rFMrdOID
-         IvsVA5Uk3OkEwyUC9vO+5wsBswnM6kBQbs3D+9HywD94hFXGmB7H+aIx6FqKja9PE+
-         N9gLgo2+/sQz92YjbCNWHlJRNrjXqS81MmmwzIcg=
+        b=XrwbSIXj4M+6G7FwaXJUgajaaLW4HznHuuEQL29HioFd73k0iKIDkMhJfrNq5HTM5
+         VTxIWBXkFiktPOHdPx+zUCnXASazxrJZ1gdhu1c45+ppeiJgHkN8hWLiPfA+eX1/lR
+         dcPQSJo8CMkBqyD41HDIOCiGBXspeW0BvWA5b0mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
-        Nogah Frankel <nogahf@mellanox.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 23/57] net: sched: prevent invalid Scell_log shift count
-Date:   Mon, 11 Jan 2021 14:01:42 +0100
-Message-Id: <20210111130034.840102958@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH 4.14 33/57] USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
+Date:   Mon, 11 Jan 2021 14:01:52 +0100
+Message-Id: <20210111130035.325517367@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
 References: <20210111130033.715773309@linuxfoundation.org>
@@ -45,98 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Michael Grzeschik <m.grzeschik@pengutronix.de>
 
-[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
+commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760 upstream.
 
-Check Scell_log shift size in red_check_params() and modify all callers
-of red_check_params() to pass Scell_log.
+The commit 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit
+latency is too long") was constraining the xhci code not to allow U1/U2
+sleep states if the latency to wake up from the U-states reached the
+service interval of an periodic endpoint. This fix was not taking into
+account that in case the quirk XHCI_INTEL_HOST is set, the wakeup time
+will be calculated and configured differently.
 
-This prevents a shift out-of-bounds as detected by UBSAN:
-  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
-  shift exponent 72 is too large for 32-bit type 'int'
+It checks for u1_params.mel/u2_params.mel as a limit. But the code could
+decide to write another MEL into the hardware. This leads to broken
+cases where not enough bandwidth is available for other devices:
 
-Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
-Cc: Nogah Frankel <nogahf@mellanox.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+usb 1-2: can't set config #1, error -28
+
+This patch is fixing that case by checking for timeout_ns after the
+wakeup time was calculated depending on the quirks.
+
+Fixes: 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit latency is too long")
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201215193147.11738-1-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/red.h     |    4 +++-
- net/sched/sch_choke.c |    2 +-
- net/sched/sch_gred.c  |    2 +-
- net/sched/sch_red.c   |    2 +-
- net/sched/sch_sfq.c   |    2 +-
- 5 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/include/net/red.h
-+++ b/include/net/red.h
-@@ -168,12 +168,14 @@ static inline void red_set_vars(struct r
- 	v->qcount	= -1;
- }
- 
--static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
-+static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+---
+ drivers/usb/host/xhci.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4390,19 +4390,19 @@ static u16 xhci_calculate_u1_timeout(str
  {
- 	if (fls(qth_min) + Wlog > 32)
- 		return false;
- 	if (fls(qth_max) + Wlog > 32)
- 		return false;
-+	if (Scell_log >= 32)
-+		return false;
- 	if (qth_max < qth_min)
- 		return false;
- 	return true;
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -370,7 +370,7 @@ static int choke_change(struct Qdisc *sc
+ 	unsigned long long timeout_ns;
  
- 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
- 
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (ctl->limit > CHOKE_MAX_QUEUE)
---- a/net/sched/sch_gred.c
-+++ b/net/sched/sch_gred.c
-@@ -356,7 +356,7 @@ static inline int gred_change_vq(struct
- 	struct gred_sched *table = qdisc_priv(sch);
- 	struct gred_sched_data *q = table->tab[dp];
- 
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (!q) {
---- a/net/sched/sch_red.c
-+++ b/net/sched/sch_red.c
-@@ -184,7 +184,7 @@ static int red_change(struct Qdisc *sch,
- 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
- 
- 	ctl = nla_data(tb[TCA_RED_PARMS]);
--	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
-+	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
- 		return -EINVAL;
- 
- 	if (ctl->limit > 0) {
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -649,7 +649,7 @@ static int sfq_change(struct Qdisc *sch,
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
++	else
++		timeout_ns = udev->u1_params.sel;
++
+ 	/* Prevent U1 if service interval is shorter than U1 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
  	}
  
- 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
--					ctl_v1->Wlog))
-+					ctl_v1->Wlog, ctl_v1->Scell_log))
- 		return -EINVAL;
- 	if (ctl_v1 && ctl_v1->qth_min) {
- 		p = kmalloc(sizeof(*p), GFP_KERNEL);
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u1_params.sel;
+-
+ 	/* The U1 timeout is encoded in 1us intervals.
+ 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
+ 	 */
+@@ -4454,19 +4454,19 @@ static u16 xhci_calculate_u2_timeout(str
+ {
+ 	unsigned long long timeout_ns;
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
++	else
++		timeout_ns = udev->u2_params.sel;
++
+ 	/* Prevent U2 if service interval is shorter than U2 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u2_params.sel;
+-
+ 	/* The U2 timeout is encoded in 256us intervals */
+ 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
+ 	/* If the necessary timeout value is bigger than what we can set in the
 
 
