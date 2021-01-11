@@ -2,32 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2394C2F14D7
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C08672F14D4
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731347AbhAKNbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:31:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
+        id S1732555AbhAKNbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:31:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732236AbhAKNPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D75312255F;
-        Mon, 11 Jan 2021 13:15:25 +0000 (UTC)
+        id S1732249AbhAKNPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED9EC229C4;
+        Mon, 11 Jan 2021 13:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370926;
-        bh=c0KachQ6QPtQ2YGOd7GrCsXbBmZMFNbVkZPOBmcsxXo=;
+        s=korg; t=1610370928;
+        bh=+VER6GljDM6S+ZkfTckZqoKUVdbwbbIkt3errPybeuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1icitsgw1HAQ9d5+o3MDg1yBI0iAREyl3SdmMZftxaU5ECUzAyjzT+15zLZSyPRQ5
-         5WBAisgdG0HlsDEFBJhHrrUkYJJQa3YRW5FdUNuioGKnfO2wNFtiZ4+SllY1P/FJKt
-         IXnMQjhL87TKfn42bFTbm5PIy+rjZIkf8V0QPX5I=
+        b=RBvE0umn/56FQlvkn6x7gGbvCAlsMhdJuGixdBleX/gvDu6vVY9DT0XknlHHJYtUl
+         pSd0QYq+fxOZMZVJmXEnzaf+dA0/5M1eSApAKG/M3a46W0hIast+XQW72crQ+HiYq+
+         BvjSmhPXXKrzNOmM6O3zCV5ZCQvAm6PD88gKZYck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 034/145] ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
-Date:   Mon, 11 Jan 2021 14:00:58 +0100
-Message-Id: <20210111130050.158093754@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
+        Nogah Frankel <nogahf@mellanox.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 035/145] net: sched: prevent invalid Scell_log shift count
+Date:   Mon, 11 Jan 2021 14:00:59 +0100
+Message-Id: <20210111130050.206435817@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,69 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 21fdca22eb7df2a1e194b8adb812ce370748b733 ]
+[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
 
-RT_TOS() only clears one of the ECN bits. Therefore, when
-fib_compute_spec_dst() resorts to a fib lookup, it can return
-different results depending on the value of the second ECN bit.
+Check Scell_log shift size in red_check_params() and modify all callers
+of red_check_params() to pass Scell_log.
 
-For example, ECT(0) and ECT(1) packets could be treated differently.
+This prevents a shift out-of-bounds as detected by UBSAN:
+  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
+  shift exponent 72 is too large for 32-bit type 'int'
 
-  $ ip netns add ns0
-  $ ip netns add ns1
-  $ ip link add name veth01 netns ns0 type veth peer name veth10 netns ns1
-  $ ip -netns ns0 link set dev lo up
-  $ ip -netns ns1 link set dev lo up
-  $ ip -netns ns0 link set dev veth01 up
-  $ ip -netns ns1 link set dev veth10 up
-
-  $ ip -netns ns0 address add 192.0.2.10/24 dev veth01
-  $ ip -netns ns1 address add 192.0.2.11/24 dev veth10
-
-  $ ip -netns ns1 address add 192.0.2.21/32 dev lo
-  $ ip -netns ns1 route add 192.0.2.10/32 tos 4 dev veth10 src 192.0.2.21
-  $ ip netns exec ns1 sysctl -wq net.ipv4.icmp_echo_ignore_broadcasts=0
-
-With TOS 4 and ECT(1), ns1 replies using source address 192.0.2.21
-(ping uses -Q to set all TOS and ECN bits):
-
-  $ ip netns exec ns0 ping -c 1 -b -Q 5 192.0.2.255
-  [...]
-  64 bytes from 192.0.2.21: icmp_seq=1 ttl=64 time=0.544 ms
-
-But with TOS 4 and ECT(0), ns1 replies using source address 192.0.2.11
-because the "tos 4" route isn't matched:
-
-  $ ip netns exec ns0 ping -c 1 -b -Q 6 192.0.2.255
-  [...]
-  64 bytes from 192.0.2.11: icmp_seq=1 ttl=64 time=0.597 ms
-
-After this patch the ECN bits don't affect the result anymore:
-
-  $ ip netns exec ns0 ping -c 1 -b -Q 6 192.0.2.255
-  [...]
-  64 bytes from 192.0.2.21: icmp_seq=1 ttl=64 time=0.591 ms
-
-Fixes: 35ebf65e851c ("ipv4: Create and use fib_compute_spec_dst() helper.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
+Cc: Nogah Frankel <nogahf@mellanox.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_frontend.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/red.h     |    4 +++-
+ net/sched/sch_choke.c |    2 +-
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    2 +-
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -292,7 +292,7 @@ __be32 fib_compute_spec_dst(struct sk_bu
- 			.flowi4_iif = LOOPBACK_IFINDEX,
- 			.flowi4_oif = l3mdev_master_ifindex_rcu(dev),
- 			.daddr = ip_hdr(skb)->saddr,
--			.flowi4_tos = RT_TOS(ip_hdr(skb)->tos),
-+			.flowi4_tos = ip_hdr(skb)->tos & IPTOS_RT_MASK,
- 			.flowi4_scope = scope,
- 			.flowi4_mark = vmark ? skb->mark : 0,
- 		};
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -168,12 +168,14 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
+ }
+ 
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+ 	if (fls(qth_max) + Wlog > 32)
+ 		return false;
++	if (Scell_log >= 32)
++		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
+ 	return true;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -362,7 +362,7 @@ static int choke_change(struct Qdisc *sc
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -480,7 +480,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog)) {
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "invalid RED parameters");
+ 		return -EINVAL;
+ 	}
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -250,7 +250,7 @@ static int __red_change(struct Qdisc *sc
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	err = red_get_flags(ctl->flags, TC_RED_HISTORIC_FLAGS,
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -647,7 +647,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog))
++					ctl_v1->Wlog, ctl_v1->Scell_log))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
