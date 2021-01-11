@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C182F153E
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE402F1621
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726890AbhAKNhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:37:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60132 "EHLO mail.kernel.org"
+        id S2387721AbhAKNs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:48:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731887AbhAKNNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 099EF2225E;
-        Mon, 11 Jan 2021 13:13:07 +0000 (UTC)
+        id S1731121AbhAKNKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 748C622515;
+        Mon, 11 Jan 2021 13:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370788;
-        bh=vhFLJ8HdTM02dwPJ00wgNSQScS2zmm2Uyf30gja4WeY=;
+        s=korg; t=1610370563;
+        bh=xGu95+CnD5vKduMRPLs/Rn1+Ud92sW1QnyUcoG3zxAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyqQO6Em0HjMmzET7ohXO2Fl3H+6ROsD8anbw5Wmqbow2g4L6ANFgedqawEmbhHaK
-         QLGzLyL1KGo2czES43dDvwkzOYPYkWt6+4X65IL72HJtFPllL6OclwgK6GKEBI3Ddc
-         FtLX/OiJ2MMcyIvbQwUx7H4nowRiViM5UoOYNrOE=
+        b=cMyLgl7UkvQUQ9J2hAJxGQidTi2f8T2xZouVvFydV+vsFxmSBBFN7llgIpVtF4+j+
+         K9Wk8DGSeMYxHSBGSVL1CHc9BroBCKrjGAbPynlF0ql9e64rTwN90kh4BPxZKFaYRb
+         73H5b3LjFAqYFaXobqRbUhqNoNNJVmDazbG81hRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+92e45ae45543f89e8c88@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 66/92] ALSA: usb-audio: Fix UBSAN warnings for MIDI jacks
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>
+Subject: [PATCH 4.19 61/77] USB: gadget: legacy: fix return error code in acm_ms_bind()
 Date:   Mon, 11 Jan 2021 14:02:10 +0100
-Message-Id: <20210111130042.330594103@linuxfoundation.org>
+Message-Id: <20210111130039.341242474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit c06ccf3ebb7503706ea49fd248e709287ef385a3 upstream.
+commit c91d3a6bcaa031f551ba29a496a8027b31289464 upstream.
 
-The calculation of in_cables and out_cables bitmaps are done with the
-bit shift by the value from the descriptor, which is an arbitrary
-value, and can lead to UBSAN shift-out-of-bounds warnings.
+If usb_otg_descriptor_alloc() failed, it need return ENOMEM.
 
-Fix it by filtering the bad descriptor values with the check of the
-upper bound 0x10 (the cable bitmaps are 16 bits).
-
-Reported-by: syzbot+92e45ae45543f89e8c88@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201223174557.10249-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 578aa8a2b12c ("usb: gadget: acm_ms: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201117092955.4102785-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/midi.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/legacy/acm_ms.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1889,6 +1889,8 @@ static int snd_usbmidi_get_ms_info(struc
- 		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
- 		if (!ms_ep)
- 			continue;
-+		if (ms_ep->bNumEmbMIDIJack > 0x10)
-+			continue;
- 		if (usb_endpoint_dir_out(ep)) {
- 			if (endpoints[epidx].out_ep) {
- 				if (++epidx >= MIDI_MAX_ENDPOINTS) {
-@@ -2141,6 +2143,8 @@ static int snd_usbmidi_detect_roland(str
- 		    cs_desc[1] == USB_DT_CS_INTERFACE &&
- 		    cs_desc[2] == 0xf1 &&
- 		    cs_desc[3] == 0x02) {
-+			if (cs_desc[4] > 0x10 || cs_desc[5] > 0x10)
-+				continue;
- 			endpoint->in_cables  = (1 << cs_desc[4]) - 1;
- 			endpoint->out_cables = (1 << cs_desc[5]) - 1;
- 			return snd_usbmidi_detect_endpoints(umidi, endpoint, 1);
+--- a/drivers/usb/gadget/legacy/acm_ms.c
++++ b/drivers/usb/gadget/legacy/acm_ms.c
+@@ -203,8 +203,10 @@ static int acm_ms_bind(struct usb_compos
+ 		struct usb_descriptor_header *usb_desc;
+ 
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail_string_ids;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
