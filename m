@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059B62F1418
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB00C2F13A6
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732708AbhAKNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:17:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36456 "EHLO mail.kernel.org"
+        id S1730969AbhAKNMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:12:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732699AbhAKNRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B046B2255F;
-        Mon, 11 Jan 2021 13:17:08 +0000 (UTC)
+        id S1730984AbhAKNMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2348622515;
+        Mon, 11 Jan 2021 13:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371029;
-        bh=iC9m1BmdeWnt802W7E5xu3hKI66EzCeVlbrciNhPVgE=;
+        s=korg; t=1610370727;
+        bh=jo4RtVvdmWtVgWNCwYhEMwcWPnuklUH9D2hsuT5/PuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U4eKK02y3bluLhKmGLQHrRASOTLgRveLqO7Zf+wOY9hqXMJvUvaQC5O4E3uYfZrRd
-         ikgq5Rx+XprfZi0CiAzq4qo3FX2LVB4No0li2kdTdhWqyZ21V2GFLTezxI6I3Mc5S3
-         fAWVWLM4rr1diSzky4lbHwRY/W9ZKlZsK/+xBHJk=
+        b=K/n+oEgu06uXdXoZlemolyHjUTLP3OQoV0gXQsRrAyMKQQTgAbo/eVwnm1JeRCki4
+         16QRS29f0Mrt9UIpPZnwqHrW+1Y3iPAvxGgdFe5D1TRYcm0bfNxFRQ+D6Ne9DRcIy4
+         QXQQY3nZtZKaZsxPkC8FIXd9PT2zRy4k1raTEqr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 111/145] KVM: x86/mmu: Use -1 to flag an undefined spte in get_mmio_spte()
-Date:   Mon, 11 Jan 2021 14:02:15 +0100
-Message-Id: <20210111130053.862018544@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Sriharsha Allenki <sallenki@codeaurora.org>
+Subject: [PATCH 5.4 72/92] usb: gadget: Fix spinlock lockup on usb_function_deactivate
+Date:   Mon, 11 Jan 2021 14:02:16 +0100
+Message-Id: <20210111130042.620240833@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Sriharsha Allenki <sallenki@codeaurora.org>
 
-commit 2aa078932ff6c66bf10cc5b3144440dbfa7d813d upstream.
+commit 5cc35c224a80aa5a5a539510ef049faf0d6ed181 upstream.
 
-Return -1 from the get_walk() helpers if the shadow walk doesn't fill at
-least one spte, which can theoretically happen if the walk hits a
-not-present PDPTR.  Returning the root level in such a case will cause
-get_mmio_spte() to return garbage (uninitialized stack data).  In
-practice, such a scenario should be impossible as KVM shouldn't get a
-reserved-bit page fault with a not-present PDPTR.
+There is a spinlock lockup as part of composite_disconnect
+when it tries to acquire cdev->lock as part of usb_gadget_deactivate.
+This is because the usb_gadget_deactivate is called from
+usb_function_deactivate with the same spinlock held.
 
-Note, using mmu->root_level in get_walk() is wrong for other reasons,
-too, but that's now a moot point.
+This would result in the below call stack and leads to stall.
 
-Fixes: 95fb5b0258b7 ("kvm: x86/mmu: Support MMIO in the TDP MMU")
-Cc: Ben Gardon <bgardon@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20201218003139.2167891-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+rcu:     3-...0: (1 GPs behind) idle=162/1/0x4000000000000000
+softirq=10819/10819 fqs=2356
+ (detected by 2, t=5252 jiffies, g=20129, q=3770)
+ Task dump for CPU 3:
+ task:uvc-gadget_wlhe state:R  running task     stack:    0 pid:  674 ppid:
+ 636 flags:0x00000202
+ Call trace:
+  __switch_to+0xc0/0x170
+  _raw_spin_lock_irqsave+0x84/0xb0
+  composite_disconnect+0x28/0x78
+  configfs_composite_disconnect+0x68/0x70
+  usb_gadget_disconnect+0x10c/0x128
+  usb_gadget_deactivate+0xd4/0x108
+  usb_function_deactivate+0x6c/0x80
+  uvc_function_disconnect+0x20/0x58
+  uvc_v4l2_release+0x30/0x88
+  v4l2_release+0xbc/0xf0
+  __fput+0x7c/0x230
+  ____fput+0x14/0x20
+  task_work_run+0x88/0x140
+  do_notify_resume+0x240/0x6f0
+  work_pending+0x8/0x200
+
+Fix this by doing an unlock on cdev->lock before the usb_gadget_deactivate
+call from usb_function_deactivate.
+
+The same lockup can happen in the usb_gadget_activate path. Fix that path
+as well.
+
+Reported-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/linux-usb/20201102094936.GA29581@b29397-desktop/
+Tested-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201202130220.24926-1-sallenki@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c     |    7 ++++++-
- arch/x86/kvm/mmu/tdp_mmu.c |    2 +-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/composite.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -3488,7 +3488,7 @@ static bool mmio_info_in_cache(struct kv
- static int get_walk(struct kvm_vcpu *vcpu, u64 addr, u64 *sptes)
- {
- 	struct kvm_shadow_walk_iterator iterator;
--	int leaf = vcpu->arch.mmu->root_level;
-+	int leaf = -1;
- 	u64 spte;
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -392,8 +392,11 @@ int usb_function_deactivate(struct usb_f
  
+ 	spin_lock_irqsave(&cdev->lock, flags);
  
-@@ -3532,6 +3532,11 @@ static bool get_mmio_spte(struct kvm_vcp
- 	else
- 		leaf = get_walk(vcpu, addr, sptes);
- 
-+	if (unlikely(leaf < 0)) {
-+		*sptep = 0ull;
-+		return reserved;
+-	if (cdev->deactivations == 0)
++	if (cdev->deactivations == 0) {
++		spin_unlock_irqrestore(&cdev->lock, flags);
+ 		status = usb_gadget_deactivate(cdev->gadget);
++		spin_lock_irqsave(&cdev->lock, flags);
 +	}
-+
- 	rsvd_check = &vcpu->arch.mmu->shadow_zero_check;
+ 	if (status == 0)
+ 		cdev->deactivations++;
  
- 	for (level = root; level >= leaf; level--) {
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1152,8 +1152,8 @@ int kvm_tdp_mmu_get_walk(struct kvm_vcpu
- {
- 	struct tdp_iter iter;
- 	struct kvm_mmu *mmu = vcpu->arch.mmu;
--	int leaf = vcpu->arch.mmu->shadow_root_level;
- 	gfn_t gfn = addr >> PAGE_SHIFT;
-+	int leaf = -1;
+@@ -424,8 +427,11 @@ int usb_function_activate(struct usb_fun
+ 		status = -EINVAL;
+ 	else {
+ 		cdev->deactivations--;
+-		if (cdev->deactivations == 0)
++		if (cdev->deactivations == 0) {
++			spin_unlock_irqrestore(&cdev->lock, flags);
+ 			status = usb_gadget_activate(cdev->gadget);
++			spin_lock_irqsave(&cdev->lock, flags);
++		}
+ 	}
  
- 	tdp_mmu_for_each_pte(iter, mmu, gfn, gfn + 1) {
- 		leaf = iter.level;
+ 	spin_unlock_irqrestore(&cdev->lock, flags);
 
 
