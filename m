@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB8F2F143C
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C15162F1433
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730412AbhAKNWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:22:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
+        id S1729918AbhAKNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:21:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733179AbhAKNSq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:18:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BD06229C4;
-        Mon, 11 Jan 2021 13:18:30 +0000 (UTC)
+        id S1733244AbhAKNTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:19:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C2022A83;
+        Mon, 11 Jan 2021 13:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371110;
-        bh=Z9cMea0DCwPV9ekGawv44LwH2gcwZ+Yd/UNJSXtQM6w=;
+        s=korg; t=1610371112;
+        bh=xZJ4AxdMJDxWjNqQHP2cu0DDr9uFvEAqpMKQt77EwSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+TMZy7a1LUA5Jw96ImhZ1fta3An/1dK8DptBXMV1kNHHBihFgAdQq/kFc8rT8xnh
-         tuQpkXxlsZWd9rEmkOxu4DExNDwRV2XQuK2qEn/sGVM9znX2/rS3EqhYSIo4YcuDNW
-         pZgFnBwLp40fXrGneVltH5AqpxUK5ZYfNFQ7S4E0=
+        b=qFFyjMZs8fkwBw3Ey/Sc7gnhbWcDQibnmORjqfgrxaG+/gfH1OHYtJQQnwVhdDATx
+         ewC0yyRXbhCYWel6EepIbUihc/iAufO8C5q2a57xWRAICRhp/kkdFVA3DDPvnmoQzO
+         /DVQ1AeYD6tohXBB5Ek/0Fi4kiwcuXehfsoGkw4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.10 128/145] dmabuf: fix use-after-free of dmabufs file->f_inode
-Date:   Mon, 11 Jan 2021 14:02:32 +0100
-Message-Id: <20210111130054.664526024@linuxfoundation.org>
+        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
+        Quentin Perret <qperret@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Alan Modra <amodra@gmail.com>,
+        =?UTF-8?q?F=C4=81ng-ru=C3=AC=20S=C3=B2ng?= <maskray@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.10 129/145] arm64: link with -z norelro for LLD or aarch64-elf
+Date:   Mon, 11 Jan 2021 14:02:33 +0100
+Message-Id: <20210111130054.714929856@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -42,105 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 05cd84691eafcd7959a1e120d5e72c0dd98c5d91 upstream.
+commit 311bea3cb9ee20ef150ca76fc60a592bf6b159f5 upstream.
 
-It is observed 'use-after-free' on the dmabuf's file->f_inode with the
-race between closing the dmabuf file and reading the dmabuf's debug
-info.
+With GNU binutils 2.35+, linking with BFD produces warnings for vmlinux:
+aarch64-linux-gnu-ld: warning: -z norelro ignored
 
-Consider the below scenario where P1 is closing the dma_buf file
-and P2 is reading the dma_buf's debug info in the system:
+BFD can produce this warning when the target emulation mode does not
+support RELRO program headers, and -z relro or -z norelro is passed.
 
-P1						P2
-					dma_buf_debug_show()
-dma_buf_put()
-  __fput()
-    file->f_op->release()
-    dput()
-    ....
-      dentry_unlink_inode()
-        iput(dentry->d_inode)
-        (where the inode is freed)
-					mutex_lock(&db_list.lock)
-					read 'dma_buf->file->f_inode'
-					(the same inode is freed by P1)
-					mutex_unlock(&db_list.lock)
-      dentry->d_op->d_release()-->
-        dma_buf_release()
-          .....
-          mutex_lock(&db_list.lock)
-          removes the dmabuf from the list
-          mutex_unlock(&db_list.lock)
+Alan Modra clarifies:
+  The default linker emulation for an aarch64-linux ld.bfd is
+  -maarch64linux, the default for an aarch64-elf linker is
+  -maarch64elf.  They are not equivalent.  If you choose -maarch64elf
+  you get an emulation that doesn't support -z relro.
 
-In the above scenario, when dma_buf_put() is called on a dma_buf, it
-first frees the dma_buf's file->f_inode(=dentry->d_inode) and then
-removes this dma_buf from the system db_list. In between P2 traversing
-the db_list tries to access this dma_buf's file->f_inode that was freed
-by P1 which is a use-after-free case.
+The ARCH=arm64 kernel prefers -maarch64elf, but may fall back to
+-maarch64linux based on the toolchain configuration.
 
-Since, __fput() calls f_op->release first and then later calls the
-d_op->d_release, move the dma_buf's db_list removal from d_release() to
-f_op->release(). This ensures that dma_buf's file->f_inode is not
-accessed after it is released.
+LLD will always create RELRO program header regardless of target
+emulation.
 
-Cc: <stable@vger.kernel.org> # 5.4.x-
-Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/1609857399-31549-1-git-send-email-charante@codeaurora.org
+To avoid the above warning when linking with BFD, pass -z norelro only
+when linking with LLD or with -maarch64linux.
+
+Fixes: 3b92fa7485eb ("arm64: link with -z norelro regardless of CONFIG_RELOCATABLE")
+Fixes: 3bbd3db86470 ("arm64: relocatable: fix inconsistencies in linker script and options")
+Cc: <stable@vger.kernel.org> # 5.0.x-
+Reported-by: kernelci.org bot <bot@kernelci.org>
+Reported-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Alan Modra <amodra@gmail.com>
+Cc: Fāng-ruì Sòng <maskray@google.com>
+Link: https://lore.kernel.org/r/20201218002432.788499-1-ndesaulniers@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma-buf/dma-buf.c |   21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ arch/arm64/Makefile |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -76,10 +76,6 @@ static void dma_buf_release(struct dentr
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -10,7 +10,7 @@
+ #
+ # Copyright (C) 1995-2001 by Russell King
  
- 	dmabuf->ops->release(dmabuf);
+-LDFLAGS_vmlinux	:=--no-undefined -X -z norelro
++LDFLAGS_vmlinux	:=--no-undefined -X
  
--	mutex_lock(&db_list.lock);
--	list_del(&dmabuf->list_node);
--	mutex_unlock(&db_list.lock);
--
- 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
- 		dma_resv_fini(dmabuf->resv);
+ ifeq ($(CONFIG_RELOCATABLE), y)
+ # Pass --no-apply-dynamic-relocs to restore pre-binutils-2.27 behaviour
+@@ -110,16 +110,20 @@ KBUILD_CPPFLAGS	+= -mbig-endian
+ CHECKFLAGS	+= -D__AARCH64EB__
+ # Prefer the baremetal ELF build target, but not all toolchains include
+ # it so fall back to the standard linux version if needed.
+-KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb)
++KBUILD_LDFLAGS	+= -EB $(call ld-option, -maarch64elfb, -maarch64linuxb -z norelro)
+ UTS_MACHINE	:= aarch64_be
+ else
+ KBUILD_CPPFLAGS	+= -mlittle-endian
+ CHECKFLAGS	+= -D__AARCH64EL__
+ # Same as above, prefer ELF but fall back to linux target if needed.
+-KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux)
++KBUILD_LDFLAGS	+= -EL $(call ld-option, -maarch64elf, -maarch64linux -z norelro)
+ UTS_MACHINE	:= aarch64
+ endif
  
-@@ -88,6 +84,22 @@ static void dma_buf_release(struct dentr
- 	kfree(dmabuf);
- }
++ifeq ($(CONFIG_LD_IS_LLD), y)
++KBUILD_LDFLAGS	+= -z norelro
++endif
++
+ CHECKFLAGS	+= -D__aarch64__
  
-+static int dma_buf_file_release(struct inode *inode, struct file *file)
-+{
-+	struct dma_buf *dmabuf;
-+
-+	if (!is_dma_buf_file(file))
-+		return -EINVAL;
-+
-+	dmabuf = file->private_data;
-+
-+	mutex_lock(&db_list.lock);
-+	list_del(&dmabuf->list_node);
-+	mutex_unlock(&db_list.lock);
-+
-+	return 0;
-+}
-+
- static const struct dentry_operations dma_buf_dentry_ops = {
- 	.d_dname = dmabuffs_dname,
- 	.d_release = dma_buf_release,
-@@ -413,6 +425,7 @@ static void dma_buf_show_fdinfo(struct s
- }
- 
- static const struct file_operations dma_buf_fops = {
-+	.release	= dma_buf_file_release,
- 	.mmap		= dma_buf_mmap_internal,
- 	.llseek		= dma_buf_llseek,
- 	.poll		= dma_buf_poll,
+ ifeq ($(CONFIG_DYNAMIC_FTRACE_WITH_REGS),y)
 
 
