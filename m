@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C26D32F14A6
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B972F1354
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731815AbhAKN1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:27:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
+        id S1730548AbhAKNHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:07:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732402AbhAKNQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:16:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 464C322AAF;
-        Mon, 11 Jan 2021 13:16:11 +0000 (UTC)
+        id S1730542AbhAKNHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E93022A83;
+        Mon, 11 Jan 2021 13:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370971;
-        bh=FsuDOkHrxy651SKBoo84r3hTfRxp6uYKARxYY0rNnTE=;
+        s=korg; t=1610370392;
+        bh=pcriLTtPpJM2ggFmyoNvuSxCjVMiHRhqnc3Tp0am0vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4A32IC+NFkNQ0LFhKpw4rzX5b2OTb0cvnfo77tXCGyRPepSNY2sWu8r05nHLRugb
-         9t7WOOZ1iINf7IaqewlvgRnEqTh6v412w6m4r6/TTsHoLgckcAoPrOwQesw9NDNiHt
-         Nyiy+zMRA8E/lqT+ubiTCIVQ7BZBv/UTRWiuVT1Q=
+        b=yPaCTptc6aXjYa3vdq8iuooYeDHtNfOJcZjPAomQBfm1Yz1lfJRBW9XaTMC9z9Bn+
+         1SP0pwPmrPcwvy2wBDXWnUi0FXD8MKvu6rbD8AqcQE0libNb8QinK6BG8PwVfSkTKi
+         nb23fKyeuDoOc+sacNDm71aNTbr88qqRBg9rAmrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.10 084/145] usb: dwc3: gadget: Clear wait flag on dequeue
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        "taehyun.cho" <taehyun.cho@samsung.com>
+Subject: [PATCH 4.14 29/57] usb: gadget: enable super speed plus
 Date:   Mon, 11 Jan 2021 14:01:48 +0100
-Message-Id: <20210111130052.566672513@linuxfoundation.org>
+Message-Id: <20210111130035.131398522@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
+References: <20210111130033.715773309@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: taehyun.cho <taehyun.cho@samsung.com>
 
-commit a5c7682aaaa10e42928d73de1c9e1e02d2b14c2e upstream.
+commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
 
-If an active transfer is dequeued, then the endpoint is freed to start a
-new transfer. Make sure to clear the endpoint's transfer wait flag for
-this case.
+Enable Super speed plus in configfs to support USB3.1 Gen2.
+This ensures that when a USB gadget is plugged in, it is
+enumerated as Gen 2 and connected at 10 Gbps if the host and
+cable are capable of it.
 
-Fixes: e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
-Cc: stable@vger.kernel.org
+Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
+etc.) already have SuperSpeed Plus support.
+
+Tested: plugged gadget into Linux host and saw:
+[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
+
+Tested-by: Lorenzo Colitti <lorenzo@google.com>
 Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/b81cd5b5281cfbfdadb002c4bcf5c9be7c017cfd.1609828485.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/gadget/configfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1763,6 +1763,8 @@ static int dwc3_gadget_ep_dequeue(struct
- 			list_for_each_entry_safe(r, t, &dep->started_list, list)
- 				dwc3_gadget_move_cancelled_request(r);
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1504,7 +1504,7 @@ static const struct usb_gadget_driver co
+ 	.suspend	= configfs_composite_suspend,
+ 	.resume		= configfs_composite_resume,
  
-+			dep->flags &= ~DWC3_EP_WAIT_TRANSFER_COMPLETE;
-+
- 			goto out;
- 		}
- 	}
+-	.max_speed	= USB_SPEED_SUPER,
++	.max_speed	= USB_SPEED_SUPER_PLUS,
+ 	.driver = {
+ 		.owner          = THIS_MODULE,
+ 		.name		= "configfs-gadget",
+@@ -1544,7 +1544,7 @@ static struct config_group *gadgets_make
+ 	gi->composite.unbind = configfs_do_nothing;
+ 	gi->composite.suspend = NULL;
+ 	gi->composite.resume = NULL;
+-	gi->composite.max_speed = USB_SPEED_SUPER;
++	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
+ 
+ 	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
 
 
