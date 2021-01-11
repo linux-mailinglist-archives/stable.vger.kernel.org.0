@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 558E62F132E
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0782F1310
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730245AbhAKNFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:05:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52134 "EHLO mail.kernel.org"
+        id S1727750AbhAKNDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:03:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730233AbhAKNFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA6B227C3;
-        Mon, 11 Jan 2021 13:04:22 +0000 (UTC)
+        id S1728168AbhAKNDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8843F22527;
+        Mon, 11 Jan 2021 13:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370263;
-        bh=MNzc3lxfUsVjdBpXvAUld9FBtVQL0kgZFFUki9bkwW0=;
+        s=korg; t=1610370131;
+        bh=AUa3O2rtN9c+6wAZA0K8stbsrTdfjFw0rmbuk3mypA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7EYRI3xImjMOthgjaARfQGXlMWujzdUMBDVBP3Kc2ka7RLRo5dJodscTtvBBrD19
-         bh+NWf0rS11qq9Alf8NoLrQyPgLjIYGPV6FGrLqS7XVw+gGAdo0pgekIckEXl6xL//
-         WyCxOqEei5h0pZAk3i0zlJOK9csrNZnl994k7ZS8=
+        b=YakFI4CZ6XLMiw5sym7hbT9jMXoRCKb3gzw2nxihgQgXsVZh5okDwmxOw/iFLLhcb
+         Dgp9tZ+bw9YhL612IRQsM0ehkusxXMsU52lJKnJdRk23DOfR3lytNaMqvaosneKj9J
+         cWzUFedMogVKFqldJdc/q2/E8TQSbDsoUB/NR4+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Du Changbin <changbin.du@gmail.com>,
-        Kieran Bingham <kbingham@kernel.org>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 20/45] scripts/gdb: fix lx-version string output
-Date:   Mon, 11 Jan 2021 14:00:58 +0100
-Message-Id: <20210111130034.626067438@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Sriharsha Allenki <sallenki@codeaurora.org>
+Subject: [PATCH 4.4 30/38] usb: gadget: Fix spinlock lockup on usb_function_deactivate
+Date:   Mon, 11 Jan 2021 14:01:02 +0100
+Message-Id: <20210111130033.907069613@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
-References: <20210111130033.676306636@linuxfoundation.org>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+References: <20210111130032.469630231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +39,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Changbin <changbin.du@gmail.com>
+From: Sriharsha Allenki <sallenki@codeaurora.org>
 
-commit b058809bfc8faeb7b7cae047666e23375a060059 upstream
+commit 5cc35c224a80aa5a5a539510ef049faf0d6ed181 upstream.
 
-A bug is present in GDB which causes early string termination when
-parsing variables.  This has been reported [0], but we should ensure
-that we can support at least basic printing of the core kernel strings.
+There is a spinlock lockup as part of composite_disconnect
+when it tries to acquire cdev->lock as part of usb_gadget_deactivate.
+This is because the usb_gadget_deactivate is called from
+usb_function_deactivate with the same spinlock held.
 
-For current gdb version (has been tested with 7.3 and 8.1), 'lx-version'
-only prints one character.
+This would result in the below call stack and leads to stall.
 
-  (gdb) lx-version
-  L(gdb)
+rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+rcu:     3-...0: (1 GPs behind) idle=162/1/0x4000000000000000
+softirq=10819/10819 fqs=2356
+ (detected by 2, t=5252 jiffies, g=20129, q=3770)
+ Task dump for CPU 3:
+ task:uvc-gadget_wlhe state:R  running task     stack:    0 pid:  674 ppid:
+ 636 flags:0x00000202
+ Call trace:
+  __switch_to+0xc0/0x170
+  _raw_spin_lock_irqsave+0x84/0xb0
+  composite_disconnect+0x28/0x78
+  configfs_composite_disconnect+0x68/0x70
+  usb_gadget_disconnect+0x10c/0x128
+  usb_gadget_deactivate+0xd4/0x108
+  usb_function_deactivate+0x6c/0x80
+  uvc_function_disconnect+0x20/0x58
+  uvc_v4l2_release+0x30/0x88
+  v4l2_release+0xbc/0xf0
+  __fput+0x7c/0x230
+  ____fput+0x14/0x20
+  task_work_run+0x88/0x140
+  do_notify_resume+0x240/0x6f0
+  work_pending+0x8/0x200
 
-This can be fixed by casting 'linux_banner' as (char *).
+Fix this by doing an unlock on cdev->lock before the usb_gadget_deactivate
+call from usb_function_deactivate.
 
-  (gdb) lx-version
-  Linux version 4.19.0-rc1+ (changbin@acer) (gcc version 7.3.0 (Ubuntu 7.3.0-16ubuntu3)) #21 SMP Sat Sep 1 21:43:30 CST 2018
+The same lockup can happen in the usb_gadget_activate path. Fix that path
+as well.
 
-[0] https://sourceware.org/bugzilla/show_bug.cgi?id=20077
+Reported-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/linux-usb/20201102094936.GA29581@b29397-desktop/
+Tested-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201202130220.24926-1-sallenki@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[kbingham@kernel.org: add detail to commit message]
-Link: http://lkml.kernel.org/r/20181111162035.8356-1-kieran.bingham@ideasonboard.com
-Fixes: 2d061d999424 ("scripts/gdb: add version command")
-Signed-off-by: Du Changbin <changbin.du@gmail.com>
-Signed-off-by: Kieran Bingham <kbingham@kernel.org>
-Acked-by: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/proc.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/gdb/linux/proc.py b/scripts/gdb/linux/proc.py
-index 38b1f09d1cd95..822e3767bc054 100644
---- a/scripts/gdb/linux/proc.py
-+++ b/scripts/gdb/linux/proc.py
-@@ -40,7 +40,7 @@ class LxVersion(gdb.Command):
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -293,8 +293,11 @@ int usb_function_deactivate(struct usb_f
  
-     def invoke(self, arg, from_tty):
-         # linux_banner should contain a newline
--        gdb.write(gdb.parse_and_eval("linux_banner").string())
-+        gdb.write(gdb.parse_and_eval("(char *)linux_banner").string())
+ 	spin_lock_irqsave(&cdev->lock, flags);
  
- LxVersion()
+-	if (cdev->deactivations == 0)
++	if (cdev->deactivations == 0) {
++		spin_unlock_irqrestore(&cdev->lock, flags);
+ 		status = usb_gadget_deactivate(cdev->gadget);
++		spin_lock_irqsave(&cdev->lock, flags);
++	}
+ 	if (status == 0)
+ 		cdev->deactivations++;
  
--- 
-2.27.0
-
+@@ -325,8 +328,11 @@ int usb_function_activate(struct usb_fun
+ 		status = -EINVAL;
+ 	else {
+ 		cdev->deactivations--;
+-		if (cdev->deactivations == 0)
++		if (cdev->deactivations == 0) {
++			spin_unlock_irqrestore(&cdev->lock, flags);
+ 			status = usb_gadget_activate(cdev->gadget);
++			spin_lock_irqsave(&cdev->lock, flags);
++		}
+ 	}
+ 
+ 	spin_unlock_irqrestore(&cdev->lock, flags);
 
 
