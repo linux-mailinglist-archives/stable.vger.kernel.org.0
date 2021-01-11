@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE292F172A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BA72F1739
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:03:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbhAKOBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:01:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52206 "EHLO mail.kernel.org"
+        id S1730537AbhAKODS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 09:03:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730331AbhAKNFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F149E2250F;
-        Mon, 11 Jan 2021 13:05:21 +0000 (UTC)
+        id S1730224AbhAKNE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:04:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D445229C4;
+        Mon, 11 Jan 2021 13:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370322;
-        bh=/DVyfe09j5flBshTYWOBDQ1+QYC4BZsr4OLHo1xdrGo=;
+        s=korg; t=1610370281;
+        bh=ZQ2gSYfibm0I24AI3L3YvPYd4/TwUIzM5D8gpQLJaEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTR4DElBdXxhZ7yOdh7eWa8uF1JuYqEq6crERpRbD6WegVbPPPQgvYTrf5RuJ0EsW
-         7XJjGJ1oU/h1IDomqr4RMsj+RHeUUzoCm0m1DVR59rkGVGxcOiqpcEOLSCDVD/jmK8
-         6MTSC5WiNmPEOfDXp/GD0QSzfv4/+li6O+3yKqtw=
+        b=MykSSwxALWJjOG6rMzp4V3BhkaqKqlXVA1IJ0E32jBYrVVKa8fMXHZZQz1dAS2RDQ
+         Ey7hDOHHH4CVjW5dkjnW/+eFn1nRM7+mSL+ffxEPcZsrok6Iz/tR8tCj6mVy1wLiaP
+         fkh2ZSOEudx7+uImBKG43IAFTM9g9lKODZB6/aCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Jeff Dike <jdike@akamai.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 09/57] atm: idt77252: call pci_disable_device() on error path
-Date:   Mon, 11 Jan 2021 14:01:28 +0100
-Message-Id: <20210111130034.179738576@linuxfoundation.org>
+Subject: [PATCH 4.14 11/57] virtio_net: Fix recursive call to cpus_read_lock()
+Date:   Mon, 11 Jan 2021 14:01:30 +0100
+Message-Id: <20210111130034.279426507@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
 References: <20210111130033.715773309@linuxfoundation.org>
@@ -39,31 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jeff Dike <jdike@akamai.com>
 
-[ Upstream commit 8df66af5c1e5f80562fe728db5ec069b21810144 ]
+[ Upstream commit de33212f768c5d9e2fe791b008cb26f92f0aa31c ]
 
-This error path needs to disable the pci device before returning.
+virtnet_set_channels can recursively call cpus_read_lock if CONFIG_XPS
+and CONFIG_HOTPLUG are enabled.
 
-Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X93dmC4NX0vbTpGp@mwanda
+The path is:
+    virtnet_set_channels - calls get_online_cpus(), which is a trivial
+wrapper around cpus_read_lock()
+    netif_set_real_num_tx_queues
+    netif_reset_xps_queues_gt
+    netif_reset_xps_queues - calls cpus_read_lock()
+
+This call chain and potential deadlock happens when the number of TX
+queues is reduced.
+
+This commit the removes netif_set_real_num_[tr]x_queues calls from
+inside the get/put_online_cpus section, as they don't require that it
+be held.
+
+Fixes: 47be24796c13 ("virtio-net: fix the set affinity bug when CPU IDs are not consecutive")
+Signed-off-by: Jeff Dike <jdike@akamai.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/20201223025421.671-1-jdike@akamai.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/idt77252.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/atm/idt77252.c
-+++ b/drivers/atm/idt77252.c
-@@ -3608,7 +3608,7 @@ static int idt77252_init_one(struct pci_
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1788,14 +1788,16 @@ static int virtnet_set_channels(struct n
  
- 	if ((err = dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(32)))) {
- 		printk("idt77252: can't enable DMA for PCI device at %s\n", pci_name(pcidev));
--		return err;
-+		goto err_out_disable_pdev;
+ 	get_online_cpus();
+ 	err = _virtnet_set_queues(vi, queue_pairs);
+-	if (!err) {
+-		netif_set_real_num_tx_queues(dev, queue_pairs);
+-		netif_set_real_num_rx_queues(dev, queue_pairs);
+-
+-		virtnet_set_affinity(vi);
++	if (err) {
++		put_online_cpus();
++		goto err;
  	}
++	virtnet_set_affinity(vi);
+ 	put_online_cpus();
  
- 	card = kzalloc(sizeof(struct idt77252_dev), GFP_KERNEL);
++	netif_set_real_num_tx_queues(dev, queue_pairs);
++	netif_set_real_num_rx_queues(dev, queue_pairs);
++ err:
+ 	return err;
+ }
+ 
 
 
