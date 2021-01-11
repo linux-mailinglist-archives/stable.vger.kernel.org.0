@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E49192F14B9
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:29:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A8F2F149D
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:28:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732355AbhAKN2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:28:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
+        id S1729805AbhAKN1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:27:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732339AbhAKNQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:16:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC3CA22CE3;
-        Mon, 11 Jan 2021 13:15:52 +0000 (UTC)
+        id S1732438AbhAKNQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FBB82226A;
+        Mon, 11 Jan 2021 13:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370953;
-        bh=k44yOELk82V0efnsAJV8ELPD8Sj4e/nJz2bKZ7w7u/8=;
+        s=korg; t=1610370955;
+        bh=rLxzkPDJwXslXFR8rUQu937xdmA3ViEvFyIEy88lVsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvTx0BzW4XywY7Ca8k2ulzE5qbv0Y6c4PLoTPmohW0s+12ShIEhcbW+uBSRBUQzmq
-         grq0f0IVt+HrBy0Li35fxXWlFVBztmpTqIRPP7oJadFzZ/RApj0ImF+UJmIwdfuZ3j
-         1dL1hr5cf+5gzw+qdwUA9eGXbWSPJL0ZDDUJ8clM=
+        b=O9OPPvDGwiaewuxSRmnDCVcRx45VgC+YV6uqnDrX2a11vdMnizy5rEkMLfBBZdfmo
+         tfrEofloIW+bHhupYrVR60HTfLKy57w6ysvHxO6vTBUPq62JK4BM1rNSh8KCapFGx4
+         Bd4d/2fEeVIOZlINsiBBO/sQP1kGAMGUGOhm3oMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 5.10 077/145] staging: mt7621-dma: Fix a resource leak in an error handling path
-Date:   Mon, 11 Jan 2021 14:01:41 +0100
-Message-Id: <20210111130052.229076605@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        "taehyun.cho" <taehyun.cho@samsung.com>
+Subject: [PATCH 5.10 078/145] usb: gadget: enable super speed plus
+Date:   Mon, 11 Jan 2021 14:01:42 +0100
+Message-Id: <20210111130052.275899601@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -39,43 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: taehyun.cho <taehyun.cho@samsung.com>
 
-commit d887d6104adeb94d1b926936ea21f07367f0ff9f upstream.
+commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
 
-If an error occurs after calling 'mtk_hsdma_init()', it must be undone by
-a corresponding call to 'mtk_hsdma_uninit()' as already done in the
-remove function.
+Enable Super speed plus in configfs to support USB3.1 Gen2.
+This ensures that when a USB gadget is plugged in, it is
+enumerated as Gen 2 and connected at 10 Gbps if the host and
+cable are capable of it.
 
-Fixes: 0853c7a53eb3 ("staging: mt7621-dma: ralink: add rt2880 dma engine")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
+etc.) already have SuperSpeed Plus support.
+
+Tested: plugged gadget into Linux host and saw:
+[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
+
+Tested-by: Lorenzo Colitti <lorenzo@google.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
+Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
+Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201213153513.138723-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/mt7621-dma/mtk-hsdma.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/configfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/mt7621-dma/mtk-hsdma.c
-+++ b/drivers/staging/mt7621-dma/mtk-hsdma.c
-@@ -712,7 +712,7 @@ static int mtk_hsdma_probe(struct platfo
- 	ret = dma_async_device_register(dd);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register dma device\n");
--		return ret;
-+		goto err_uninit_hsdma;
- 	}
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1536,7 +1536,7 @@ static const struct usb_gadget_driver co
+ 	.suspend	= configfs_composite_suspend,
+ 	.resume		= configfs_composite_resume,
  
- 	ret = of_dma_controller_register(pdev->dev.of_node,
-@@ -728,6 +728,8 @@ static int mtk_hsdma_probe(struct platfo
+-	.max_speed	= USB_SPEED_SUPER,
++	.max_speed	= USB_SPEED_SUPER_PLUS,
+ 	.driver = {
+ 		.owner          = THIS_MODULE,
+ 		.name		= "configfs-gadget",
+@@ -1576,7 +1576,7 @@ static struct config_group *gadgets_make
+ 	gi->composite.unbind = configfs_do_nothing;
+ 	gi->composite.suspend = NULL;
+ 	gi->composite.resume = NULL;
+-	gi->composite.max_speed = USB_SPEED_SUPER;
++	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
  
- err_unregister:
- 	dma_async_device_unregister(dd);
-+err_uninit_hsdma:
-+	mtk_hsdma_uninit(hsdma);
- 	return ret;
- }
- 
+ 	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
 
 
