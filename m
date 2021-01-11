@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B662F15E8
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 778322F14DB
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731359AbhAKNp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:45:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
+        id S1727255AbhAKNbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:31:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731368AbhAKNLT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BED6B2225E;
-        Mon, 11 Jan 2021 13:10:37 +0000 (UTC)
+        id S1731767AbhAKNPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF6A822A83;
+        Mon, 11 Jan 2021 13:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370638;
-        bh=W51fhLRjgV3Y/EbtSzLSZFydC1dnSviWQty8J+sxLGk=;
+        s=korg; t=1610370894;
+        bh=kt3eJ6+Fv6BLr3DlqMcs6XcFnePR3mZE7IhULG1IJ4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrhZVlzpfXJ8BjPvSxxEOrqBXsynEjmX0me06/us7bgVvN3tL/KtSBp2RCT5wCGFt
-         31cFt6sPliSjQLveC1tsKPT2ydrLyYteNqpzaLGm7GviRt/GXT78QDikcFFTP8b16u
-         r9bJSHKxQVSnitJAilYqInyn2c+wTo8f9GcrUzs4=
+        b=gXCE2EaN56sCDkCPkqyicLtImP3bIxFGyt/pMTQC5076rGvUL7YwV+6MDMMjFJIxm
+         rQFGo5L7hTv+LTgveQ3/uhMpvaK1th+Lh8hG+e+2Q0hlysnkfxUw3CHXGOw5i2/Vhg
+         R/e/CgEG+jmLrBFzV9NAI0Hyj995YgnSFM/WAdmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Harish <harish@linux.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Shuah Khan <shuah@kernel.org>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/92] proc: fix lookup in /proc/net subdirectories after setns(2)
-Date:   Mon, 11 Jan 2021 14:01:13 +0100
-Message-Id: <20210111130039.606476477@linuxfoundation.org>
+Subject: [PATCH 5.10 050/145] selftests/vm: fix building protection keys test
+Date:   Mon, 11 Jan 2021 14:01:14 +0100
+Message-Id: <20210111130050.929878378@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,171 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Harish <harish@linux.ibm.com>
 
-[ Upstream commit c6c75deda81344c3a95d1d1f606d5cee109e5d54 ]
+[ Upstream commit 7cf22a1c88c05ea3807f95b1edfebb729016ae52 ]
 
-Commit 1fde6f21d90f ("proc: fix /proc/net/* after setns(2)") only forced
-revalidation of regular files under /proc/net/
+Commit d8cbe8bfa7d ("tools/testing/selftests/vm: fix build error") tried
+to include a ARCH check for powerpc, however ARCH is not defined in the
+Makefile before including lib.mk.  This makes test building to skip on
+both x86 and powerpc.
 
-However, /proc/net/ is unusual in the sense of /proc/net/foo handlers
-take netns pointer from parent directory which is old netns.
+Fix the arch check by replacing it using machine type as it is already
+defined and used in the test.
 
-Steps to reproduce:
-
-	(void)open("/proc/net/sctp/snmp", O_RDONLY);
-	unshare(CLONE_NEWNET);
-
-	int fd = open("/proc/net/sctp/snmp", O_RDONLY);
-	read(fd, &c, 1);
-
-Read will read wrong data from original netns.
-
-Patch forces lookup on every directory under /proc/net .
-
-Link: https://lkml.kernel.org/r/20201205160916.GA109739@localhost.localdomain
-Fixes: 1da4d377f943 ("proc: revalidate misc dentries")
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Reported-by: "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/20201215100402.257376-1-harish@linux.ibm.com
+Fixes: d8cbe8bfa7d ("tools/testing/selftests/vm: fix build error")
+Signed-off-by: Harish <harish@linux.ibm.com>
+Reviewed-by: Sandipan Das <sandipan@linux.ibm.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/generic.c       | 24 ++++++++++++++++++++++--
- fs/proc/internal.h      |  7 +++++++
- fs/proc/proc_net.c      | 16 ----------------
- include/linux/proc_fs.h |  8 +++++++-
- 4 files changed, 36 insertions(+), 19 deletions(-)
+ tools/testing/selftests/vm/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index d4f353187d67c..8c3dbe13e647c 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -342,6 +342,16 @@ static const struct file_operations proc_dir_operations = {
- 	.iterate_shared		= proc_readdir,
- };
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index 691893afc15d8..e63f316327080 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for vm selftests
+ uname_M := $(shell uname -m 2>/dev/null || echo not)
+-MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
++MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/' -e 's/ppc64.*/ppc64/')
  
-+static int proc_net_d_revalidate(struct dentry *dentry, unsigned int flags)
-+{
-+	return 0;
-+}
-+
-+const struct dentry_operations proc_net_dentry_ops = {
-+	.d_revalidate	= proc_net_d_revalidate,
-+	.d_delete	= always_delete_dentry,
-+};
-+
- /*
-  * proc directories can do almost nothing..
-  */
-@@ -464,8 +474,8 @@ struct proc_dir_entry *proc_symlink(const char *name,
- }
- EXPORT_SYMBOL(proc_symlink);
+ # Without this, failed build products remain, with up-to-date timestamps,
+ # thus tricking Make (and you!) into believing that All Is Well, in subsequent
+@@ -39,7 +39,7 @@ TEST_GEN_FILES += transhuge-stress
+ TEST_GEN_FILES += userfaultfd
+ TEST_GEN_FILES += khugepaged
  
--struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
--		struct proc_dir_entry *parent, void *data)
-+struct proc_dir_entry *_proc_mkdir(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent, void *data, bool force_lookup)
- {
- 	struct proc_dir_entry *ent;
+-ifeq ($(ARCH),x86_64)
++ifeq ($(MACHINE),x86_64)
+ CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
+ CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
+ CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
+@@ -61,13 +61,13 @@ TEST_GEN_FILES += $(BINARIES_64)
+ endif
+ else
  
-@@ -477,10 +487,20 @@ struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
- 		ent->data = data;
- 		ent->proc_fops = &proc_dir_operations;
- 		ent->proc_iops = &proc_dir_inode_operations;
-+		if (force_lookup) {
-+			pde_force_lookup(ent);
-+		}
- 		ent = proc_register(parent, ent);
- 	}
- 	return ent;
- }
-+EXPORT_SYMBOL_GPL(_proc_mkdir);
-+
-+struct proc_dir_entry *proc_mkdir_data(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent, void *data)
-+{
-+	return _proc_mkdir(name, mode, parent, data, false);
-+}
- EXPORT_SYMBOL_GPL(proc_mkdir_data);
+-ifneq (,$(findstring $(ARCH),powerpc))
++ifneq (,$(findstring $(MACHINE),ppc64))
+ TEST_GEN_FILES += protection_keys
+ endif
  
- struct proc_dir_entry *proc_mkdir_mode(const char *name, umode_t mode,
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index cd0c8d5ce9a13..269acc165055d 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -299,3 +299,10 @@ extern unsigned long task_statm(struct mm_struct *,
- 				unsigned long *, unsigned long *,
- 				unsigned long *, unsigned long *);
- extern void task_mem(struct seq_file *, struct mm_struct *);
-+
-+extern const struct dentry_operations proc_net_dentry_ops;
-+static inline void pde_force_lookup(struct proc_dir_entry *pde)
-+{
-+	/* /proc/net/ entries can be changed under us by setns(CLONE_NEWNET) */
-+	pde->proc_dops = &proc_net_dentry_ops;
-+}
-diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
-index 76ae278df1c47..313b7c751867f 100644
---- a/fs/proc/proc_net.c
-+++ b/fs/proc/proc_net.c
-@@ -39,22 +39,6 @@ static struct net *get_proc_net(const struct inode *inode)
- 	return maybe_get_net(PDE_NET(PDE(inode)));
- }
+ endif
  
--static int proc_net_d_revalidate(struct dentry *dentry, unsigned int flags)
--{
--	return 0;
--}
--
--static const struct dentry_operations proc_net_dentry_ops = {
--	.d_revalidate	= proc_net_d_revalidate,
--	.d_delete	= always_delete_dentry,
--};
--
--static void pde_force_lookup(struct proc_dir_entry *pde)
--{
--	/* /proc/net/ entries can be changed under us by setns(CLONE_NEWNET) */
--	pde->proc_dops = &proc_net_dentry_ops;
--}
--
- static int seq_open_net(struct inode *inode, struct file *file)
- {
- 	unsigned int state_size = PDE(inode)->state_size;
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index a705aa2d03f91..865d02c224ada 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -21,6 +21,7 @@ extern void proc_flush_task(struct task_struct *);
+-ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 ppc64le riscv64 s390x sh64 sparc64 x86_64))
++ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 riscv64 s390x sh64 sparc64 x86_64))
+ TEST_GEN_FILES += va_128TBswitch
+ TEST_GEN_FILES += virtual_address_range
+ TEST_GEN_FILES += write_to_hugetlbfs
+@@ -82,7 +82,7 @@ include ../lib.mk
  
- extern struct proc_dir_entry *proc_symlink(const char *,
- 		struct proc_dir_entry *, const char *);
-+struct proc_dir_entry *_proc_mkdir(const char *, umode_t, struct proc_dir_entry *, void *, bool);
- extern struct proc_dir_entry *proc_mkdir(const char *, struct proc_dir_entry *);
- extern struct proc_dir_entry *proc_mkdir_data(const char *, umode_t,
- 					      struct proc_dir_entry *, void *);
-@@ -99,6 +100,11 @@ static inline struct proc_dir_entry *proc_symlink(const char *name,
- static inline struct proc_dir_entry *proc_mkdir(const char *name,
- 	struct proc_dir_entry *parent) {return NULL;}
- static inline struct proc_dir_entry *proc_create_mount_point(const char *name) { return NULL; }
-+static inline struct proc_dir_entry *_proc_mkdir(const char *name, umode_t mode,
-+		struct proc_dir_entry *parent, void *data, bool force_lookup)
-+{
-+	return NULL;
-+}
- static inline struct proc_dir_entry *proc_mkdir_data(const char *name,
- 	umode_t mode, struct proc_dir_entry *parent, void *data) { return NULL; }
- static inline struct proc_dir_entry *proc_mkdir_mode(const char *name,
-@@ -136,7 +142,7 @@ struct net;
- static inline struct proc_dir_entry *proc_net_mkdir(
- 	struct net *net, const char *name, struct proc_dir_entry *parent)
- {
--	return proc_mkdir_data(name, 0, parent, net);
-+	return _proc_mkdir(name, 0, parent, net, true);
- }
+ $(OUTPUT)/hmm-tests: LDLIBS += -lhugetlbfs -lpthread
  
- struct ns_common;
+-ifeq ($(ARCH),x86_64)
++ifeq ($(MACHINE),x86_64)
+ BINARIES_32 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
+ BINARIES_64 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
+ 
 -- 
 2.27.0
 
