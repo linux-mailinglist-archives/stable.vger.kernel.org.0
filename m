@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0721A2F0E89
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC07C2F0E8A
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:51:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728067AbhAKIu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:50:27 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:52547 "EHLO
+        id S1728061AbhAKIvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:51:14 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:55847 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727962AbhAKIu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:50:27 -0500
+        by vger.kernel.org with ESMTP id S1728024AbhAKIvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:51:14 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 424F52576;
-        Mon, 11 Jan 2021 03:49:21 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:49:21 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 131CBFBE;
+        Mon, 11 Jan 2021 03:50:06 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:50:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=pWEEPY
-        Fn9I7hnmo4jmJI4gf0fTapywLYk4BpPHyUFFo=; b=SrrTtfnHQMQ7i/ZqlPhVaj
-        px+PXguDGEYHAqpz1dvyxkv4h97b4oU4lXo5sPThTazwwcdJ2ErSNo8YxQoUG0A1
-        KHKFvfXz1i5AqM6lug1Qrw6K/Hku7qJHpdks8KEQzQORt6oGj9rd/wuVpfiwbXtd
-        aUIJ1R8NpG9KbW6jD7+J8fGwCnu3BoB7OGj1u4GAsNlflCJj6fE8ChWHCVBcUHr2
-        +LC3Z7wFsRKbopksxCVzpCorx0uOaeUAF1ra4g/PHnzfJRvrPPJQlGCEkrOv3esZ
-        ZRCmd+mcp9598Kk3m2sfniz11vjgkiNI+MSAy4yJ/YN80JE9vKuW2Bwjgz0Yld3g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mQYsFm
+        deAa8BfylwjTM9uhmJNQZGzolCxROANIIpaDY=; b=TCBSoxfxOakiYZNsXzlrAz
+        R7clvdRkhmW29CAd7IvLmZmu8u68IDJZTt5EFoBzA88uZ3hUTYJIfUFV/HOA1jGX
+        RcFvtcmCjNrpy3IT0qmx9myA0gxWGSaSg/grcPSPaIdrjSqsGOtSxLg5PoMRyfyT
+        FcYx1wGp63LnBQ2Uct2RYhcWm4rc0DJL63WFOWWE6XWUwI/mgJWdbx2sYzdhQtWS
+        Vh8WgwBak3McuGwk3l2dLLK4qENcsF7UCvp+GjaG8uCEntg4j9HyotC6M4egiAxB
+        irhdrOQ1BGVWIWJzXWuOxpGmE2BiGNyg13Z8PfTlBSIUXwffJ+uosjNnVpfh+eAQ
         ==
-X-ME-Sender: <xms:EBH8X7KV9Ix2lsbDuQ5dHbRaETq_IeAtzKT6g6d7lRi_JDoM8eQC3w>
-    <xme:EBH8X_LEr2ZL0gJkWe3UTmWgXdFqS-sLnyuB0vq5Q1kDFIyPbJXl4uOcrw8W_nIKJ
-    jIpbMk44FWkfQ>
+X-ME-Sender: <xms:PRH8X2hP4YO8ohplM6iiPw_MgIDzPv0YkllCJhYPZg7oofRhrH6TYQ>
+    <xme:PRH8X3BbHEDjEs-zMdaTju_B_fpTJZ8MQ0fQMEqC7mqrh8S_4Me4q1tbdZJ9LfR9Y
+    tJ9C1XQy5Jmew>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
-    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:EBH8XzufQAZBb5Et7Li6BuDqDYBwE6cbw9GJbE4wFAfTOXw7o09e4A>
-    <xmx:EBH8X0Y62vGK7ZdoG43mnQynJc9-TnRKytvJlhhxT_hYnkarkZSTcw>
-    <xmx:EBH8XyZ4EbOeMo49fIyWUjzEu6Nv7aJchiiyKecvVvCs-SV6knclYw>
-    <xmx:EBH8XyHe_XKTWKZIxhUF05Y_cLr2aqUBZ5VCr2TzpuUAFU2KXo0s6_0yjh0>
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:PRH8X-Hm2Shk1LuackI23kkAJ_-Pfgtr5Nwr1wNBAzLlo_J-tS9wUg>
+    <xmx:PRH8X_TfhGTaLWPh1m7r6FEZP_iAjpsetCog5901lTvEC--xu7BWlg>
+    <xmx:PRH8XzxX_HakEm2Mx-j-N9Uh1muOatUga39yL8C8L-Fgc-nm4isGrQ>
+    <xmx:PhH8X8p11IGXYGeC7gk6xkOkaw6O8KprVglC63n4wCUBcqivkFIkm2sF_n0>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8A984108005B;
-        Mon, 11 Jan 2021 03:49:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/resctrl: Don't move a task to the same resource group" failed to apply to 5.4-stable tree
-To:     fenghua.yu@intel.com, bp@suse.de, reinette.chatre@intel.com,
-        shakeelb@google.com, tony.luck@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id A915824005C;
+        Mon, 11 Jan 2021 03:50:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] blk-iocost: fix NULL iocg deref from racing against" failed to apply to 5.4-stable tree
+To:     tj@kernel.org, axboe@kernel.dk, bsd@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:50:32 +0100
-Message-ID: <161035503243210@kroah.com>
+Date:   Mon, 11 Jan 2021 09:51:18 +0100
+Message-ID: <1610355078186128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,46 +70,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a0195f314a25582b38993bf30db11c300f4f4611 Mon Sep 17 00:00:00 2001
-From: Fenghua Yu <fenghua.yu@intel.com>
-Date: Thu, 17 Dec 2020 14:31:19 -0800
-Subject: [PATCH] x86/resctrl: Don't move a task to the same resource group
+From d16baa3f1453c14d680c5fee01cd122a22d0e0ce Mon Sep 17 00:00:00 2001
+From: Tejun Heo <tj@kernel.org>
+Date: Tue, 5 Jan 2021 12:37:23 -0500
+Subject: [PATCH] blk-iocost: fix NULL iocg deref from racing against
+ initialization
 
-Shakeel Butt reported in [1] that a user can request a task to be moved
-to a resource group even if the task is already in the group. It just
-wastes time to do the move operation which could be costly to send IPI
-to a different CPU.
+When initializing iocost for a queue, its rqos should be registered before
+the blkcg policy is activated to allow policy data initiailization to lookup
+the associated ioc. This unfortunately means that the rqos methods can be
+called on bios before iocgs are attached to all existing blkgs.
 
-Add a sanity check to ensure that the move operation only happens when
-the task is not already in the resource group.
+While the race is theoretically possible on ioc_rqos_throttle(), it mostly
+happened in ioc_rqos_merge() due to the difference in how they lookup ioc.
+The former determines it from the passed in @rqos and then bails before
+dereferencing iocg if the looked up ioc is disabled, which most likely is
+the case if initialization is still in progress. The latter looked up ioc by
+dereferencing the possibly NULL iocg making it a lot more prone to actually
+triggering the bug.
 
-[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
+* Make ioc_rqos_merge() use the same method as ioc_rqos_throttle() to look
+  up ioc for consistency.
 
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Reported-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com
+* Make ioc_rqos_throttle() and ioc_rqos_merge() test for NULL iocg before
+  dereferencing it.
 
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 1c6f8a60ac52..460f3e0df106 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -546,6 +546,13 @@ static void update_task_closid_rmid(struct task_struct *t)
- static int __rdtgroup_move_task(struct task_struct *tsk,
- 				struct rdtgroup *rdtgrp)
+* Explain the danger of NULL iocgs in blk_iocost_init().
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Jonathan Lemon <bsd@fb.com>
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index ac6078a34939..98d656bdb42b 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -2551,8 +2551,8 @@ static void ioc_rqos_throttle(struct rq_qos *rqos, struct bio *bio)
+ 	bool use_debt, ioc_locked;
+ 	unsigned long flags;
+ 
+-	/* bypass IOs if disabled or for root cgroup */
+-	if (!ioc->enabled || !iocg->level)
++	/* bypass IOs if disabled, still initializing, or for root cgroup */
++	if (!ioc->enabled || !iocg || !iocg->level)
+ 		return;
+ 
+ 	/* calculate the absolute vtime cost */
+@@ -2679,14 +2679,14 @@ static void ioc_rqos_merge(struct rq_qos *rqos, struct request *rq,
+ 			   struct bio *bio)
  {
-+	/* If the task is already in rdtgrp, no need to move the task. */
-+	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
-+	     tsk->rmid == rdtgrp->mon.rmid) ||
-+	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
-+	     tsk->closid == rdtgrp->mon.parent->closid))
-+		return 0;
-+
- 	/*
- 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
- 	 * updated by them.
+ 	struct ioc_gq *iocg = blkg_to_iocg(bio->bi_blkg);
+-	struct ioc *ioc = iocg->ioc;
++	struct ioc *ioc = rqos_to_ioc(rqos);
+ 	sector_t bio_end = bio_end_sector(bio);
+ 	struct ioc_now now;
+ 	u64 vtime, abs_cost, cost;
+ 	unsigned long flags;
+ 
+-	/* bypass if disabled or for root cgroup */
+-	if (!ioc->enabled || !iocg->level)
++	/* bypass if disabled, still initializing, or for root cgroup */
++	if (!ioc->enabled || !iocg || !iocg->level)
+ 		return;
+ 
+ 	abs_cost = calc_vtime_cost(bio, iocg, true);
+@@ -2863,6 +2863,12 @@ static int blk_iocost_init(struct request_queue *q)
+ 	ioc_refresh_params(ioc, true);
+ 	spin_unlock_irq(&ioc->lock);
+ 
++	/*
++	 * rqos must be added before activation to allow iocg_pd_init() to
++	 * lookup the ioc from q. This means that the rqos methods may get
++	 * called before policy activation completion, can't assume that the
++	 * target bio has an iocg associated and need to test for NULL iocg.
++	 */
+ 	rq_qos_add(q, rqos);
+ 	ret = blkcg_activate_policy(q, &blkcg_policy_iocost);
+ 	if (ret) {
 
