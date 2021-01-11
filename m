@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 880AD2F134A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D662F13B8
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728396AbhAKNG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:06:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
+        id S1731993AbhAKNNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbhAKNGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ECF32255F;
-        Mon, 11 Jan 2021 13:06:09 +0000 (UTC)
+        id S1731919AbhAKNNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0F4522ADF;
+        Mon, 11 Jan 2021 13:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370370;
-        bh=8lGXfChzd96VRmdI3XiedLSbfp9gS012jJfWzenkTac=;
+        s=korg; t=1610370786;
+        bh=34WK/JO9EGofM1VPONr95EJPWXbjCgz42fnwczCGMRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7KCfvr0okJtjY0YUUtcfRwj0nDrkPVPVh3XwtyhdUGiGZKpk4A3xKI5F//PyyZLg
-         1+5kiqAFWZAXWVO5tSFd3+65f06ZFOyINonnP3Qh+/gTrbVJYAMd1JRQeH8UTuqVER
-         WDrqxsVTKO5ph5eBR680lLTAsM1wM+fZ6EAC9AuI=
+        b=fdAWiAueRBEMNKI8fovynODE3MwCVBwr69nALd0uZryny1zpKF3cie0aIUyz4TbfY
+         ckOmBHD5RV007ecBuwms8ZVmH28gIbFlm9Hf46RIRzYm4bCauYLNbAVVovbLSuniAL
+         aV/EOL6tuPbxhH8OiRdYAZ6X6Nmhx/jMNRcCoHIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 49/57] USB: serial: keyspan_pda: remove unused variable
-Date:   Mon, 11 Jan 2021 14:02:08 +0100
-Message-Id: <20210111130036.097607321@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 65/92] USB: usblp: fix DMA to stack
+Date:   Mon, 11 Jan 2021 14:02:09 +0100
+Message-Id: <20210111130042.283198036@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,32 +40,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-Remove an unused variable which was mistakingly left by commit
-37faf5061541 ("USB: serial: keyspan_pda: fix write-wakeup
-use-after-free") and only removed by a later change.
+commit 020a1f453449294926ca548d8d5ca970926e8dfd upstream.
 
-This is needed to suppress a W=1 warning about the unused variable in
-the stable trees that the build bots triggers.
+Stack-allocated buffers cannot be used for DMA (on all architectures).
 
-Reported-by: kernel test robot <lkp@intel.com>
+Replace the HP-channel macro with a helper function that allocates a
+dedicated transfer buffer so that it can continue to be used with
+arguments from the stack.
+
+Note that the buffer is cleared on allocation as usblp_ctrl_msg()
+returns success also on short transfers (the buffer is only used for
+debugging).
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210104145302.2087-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/serial/keyspan_pda.c |    2 --
- 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/serial/keyspan_pda.c
-+++ b/drivers/usb/serial/keyspan_pda.c
-@@ -559,10 +559,8 @@ exit:
- static void keyspan_pda_write_bulk_callback(struct urb *urb)
- {
- 	struct usb_serial_port *port = urb->context;
--	struct keyspan_pda_private *priv;
+---
+ drivers/usb/class/usblp.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -274,8 +274,25 @@ static int usblp_ctrl_msg(struct usblp *
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
  
- 	set_bit(0, &port->write_urbs_free);
--	priv = usb_get_serial_port_data(port);
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
++
++	kfree(buf);
++
++	return ret;
++}
  
- 	/* queue up a wakeup at scheduler time */
- 	usb_serial_port_softint(port);
+ /*
+  * See the description for usblp_select_alts() below for the usage
 
 
