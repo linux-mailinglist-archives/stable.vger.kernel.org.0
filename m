@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 740FD2F1301
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE842F12E4
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729008AbhAKNCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:02:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48794 "EHLO mail.kernel.org"
+        id S1728207AbhAKNB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:01:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728077AbhAKNBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:01:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 570AD22510;
-        Mon, 11 Jan 2021 13:00:20 +0000 (UTC)
+        id S1728101AbhAKNB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:01:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A113225AB;
+        Mon, 11 Jan 2021 13:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370020;
-        bh=F06FkNZFTnqZxgw/nwOYLrbLIypwVh8ABQmQEKuw5Aw=;
+        s=korg; t=1610370023;
+        bh=1LrTAo30UoxfvSG5Zl26OAxd/3iOnNwjAik6c8Pum60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odSQ5eS61UtT9XmtQGzInn7/kJzZGZQpKRJ2u9bEV719ecsLLsu4fN6ZH/fejLkC2
-         1IwdBhIHr1fbbA6GwOwV9FBbmi1nVo5CaydAv/wkIoDTJT608smr5UcT/EQ+5faWQI
-         afah0DBr42dV3/Pct+ZkYGKa8pYAWmiIBMKCW6G0=
+        b=wybgc33ughduDrPT2iwEqNp+kXU+/XzQxYGn9y5kMwYBjagR3NZDD67eNkKGwiChY
+         NohIe6gWEaFfvZ3h2eDgTH70huQhhNbc3pVUkwK6A/hwMHbfxPMWYslXwZeM0aOH7e
+         FxySGsd6ViI03VW6FuNCnggOtR2yqHkE/+Tju5NI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        "taehyun.cho" <taehyun.cho@samsung.com>
-Subject: [PATCH 4.4 16/38] usb: gadget: enable super speed plus
-Date:   Mon, 11 Jan 2021 14:00:48 +0100
-Message-Id: <20210111130033.252203628@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Georgi Bakalski <georgi.bakalski@gmail.com>,
+        Sean Young <sean@mess.org>, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.4 17/38] USB: cdc-acm: blacklist another IR Droid device
+Date:   Mon, 11 Jan 2021 14:00:49 +0100
+Message-Id: <20210111130033.294090516@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
 References: <20210111130032.469630231@linuxfoundation.org>
@@ -40,52 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: taehyun.cho <taehyun.cho@samsung.com>
+From: Sean Young <sean@mess.org>
 
-commit e2459108b5a0604c4b472cae2b3cb8d3444c77fb upstream.
+commit 0ffc76539e6e8d28114f95ac25c167c37b5191b3 upstream.
 
-Enable Super speed plus in configfs to support USB3.1 Gen2.
-This ensures that when a USB gadget is plugged in, it is
-enumerated as Gen 2 and connected at 10 Gbps if the host and
-cable are capable of it.
+This device is supported by the IR Toy driver.
 
-Many in-tree gadget functions (fs, midi, acm, ncm, mass_storage,
-etc.) already have SuperSpeed Plus support.
-
-Tested: plugged gadget into Linux host and saw:
-[284907.385986] usb 8-2: new SuperSpeedPlus Gen 2 USB device number 3 using xhci_hcd
-
-Tested-by: Lorenzo Colitti <lorenzo@google.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: taehyun.cho <taehyun.cho@samsung.com>
-Signed-off-by: Lorenzo Colitti <lorenzo@google.com>
-Link: https://lore.kernel.org/r/20210106154625.2801030-1-lorenzo@google.com
+Reported-by: Georgi Bakalski <georgi.bakalski@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201227134502.4548-2-sean@mess.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1507,7 +1507,7 @@ static const struct usb_gadget_driver co
- 	.suspend	= configfs_composite_suspend,
- 	.resume		= configfs_composite_resume,
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1894,6 +1894,10 @@ static const struct usb_device_id acm_id
+ 	{ USB_DEVICE(0x04d8, 0x0083),	/* Bootloader mode */
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
++
++	{ USB_DEVICE(0x04d8, 0xf58b),
++	.driver_info = IGNORE_DEVICE,
++	},
+ #endif
  
--	.max_speed	= USB_SPEED_SUPER,
-+	.max_speed	= USB_SPEED_SUPER_PLUS,
- 	.driver = {
- 		.owner          = THIS_MODULE,
- 		.name		= "configfs-gadget",
-@@ -1543,7 +1543,7 @@ static struct config_group *gadgets_make
- 	gi->composite.unbind = configfs_do_nothing;
- 	gi->composite.suspend = NULL;
- 	gi->composite.resume = NULL;
--	gi->composite.max_speed = USB_SPEED_SUPER;
-+	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
- 
- 	spin_lock_init(&gi->spinlock);
- 	mutex_init(&gi->lock);
+ 	/*Samsung phone in firmware update mode */
 
 
