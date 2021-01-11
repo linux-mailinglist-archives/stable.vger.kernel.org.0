@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4D02F1451
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BCC2F13AF
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:13:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732678AbhAKNRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:17:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S1731600AbhAKNNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:13:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732644AbhAKNRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:17:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40BDA22CF6;
-        Mon, 11 Jan 2021 13:17:29 +0000 (UTC)
+        id S1731597AbhAKNNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:13:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAE4622515;
+        Mon, 11 Jan 2021 13:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610371049;
-        bh=h/U1Uoc6/APUMIDpp27tcRaKFdjM+hD2KFESP9ZPg8I=;
+        s=korg; t=1610370746;
+        bh=Km/dsJ7BPaouBSV2sxSWKnkadP9mp3dRlHKD8CKcLnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijN06jJiTVmug5ticazq9W06NXexeuJl/U1zG4XDlwMUcFM7OxIOHVyz9OVTSwHzs
-         9Gm/NYlBw+IE2VynPtGzBzkIXeeRgI72Bj2QpE1j2I8HxdN2Sduk7ZoZrO/0rrHwA7
-         ZptI8LcZtLJewGxkWOdil2MohIbejm6v1ZcOXiqg=
+        b=mR7A58H4U+uVw5fO6xAT0DAXt6rSLNPNghazuy6OHZvfSSXRqyIAD4avol7iplLoe
+         2eLQB40TORLAUC0grvGeKbnaQevqncbJahrCyXstWCokDhTYgNhqeT1pRuJEa2JHrS
+         +TVcQxaHlFDksPw5Oxy/yCVoHMFheB1OfPbCncXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, bo liu <bo.liu@senarytech.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 119/145] ALSA: hda/conexant: add a new hda codec CX11970
+Subject: [PATCH 5.4 79/92] ALSA: hda/conexant: add a new hda codec CX11970
 Date:   Mon, 11 Jan 2021 14:02:23 +0100
-Message-Id: <20210111130054.247167601@linuxfoundation.org>
+Message-Id: <20210111130042.961414146@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,7 +60,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/pci/hda/patch_conexant.c
 +++ b/sound/pci/hda/patch_conexant.c
-@@ -1070,6 +1070,7 @@ static int patch_conexant_auto(struct hd
+@@ -1075,6 +1075,7 @@ static int patch_conexant_auto(struct hd
  static const struct hda_device_id snd_hda_id_conexant[] = {
  	HDA_CODEC_ENTRY(0x14f11f86, "CX8070", patch_conexant_auto),
  	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
