@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3652F0E9A
+	by mail.lfdr.de (Postfix) with ESMTP id E70282F0E9B
 	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:58:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728040AbhAKI5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:57:50 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:36595 "EHLO
+        id S1728099AbhAKI6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:58:10 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45367 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727948AbhAKI5t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:57:49 -0500
+        by vger.kernel.org with ESMTP id S1728095AbhAKI6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:58:09 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id E64C825B7;
-        Mon, 11 Jan 2021 03:56:32 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:56:33 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 4BCCF25D9;
+        Mon, 11 Jan 2021 03:56:40 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:56:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Wav0mP
-        ViLr/mmwBTs4CyLaQ1pfk+T2U2z2CSV0aAVT0=; b=JfmzBrIOhO7khwyq1SuZpy
-        TDGmlsxt1vAobhoZASulgTUD/HAYGd/pvbneAPN8N6rX3rRvrCNOe2dvtazICCgT
-        QtHmmo5QJCLIKaDnA+ieiffEsW3t7Z9vLMcuDP5kkdC6ecaxFReztM9vgNvJzcss
-        2AvqxcmVahXA8ss/6oNJnEI/ZEA5ZN5EL6cMY+IEomAC9c5fGq0/6GninEgImWiH
-        3T3KJR/pT4a6UAt0TUHH9zpFCKgXUCL/ZBgVRtn8UneeMJ7HuLbVOsvI5uqm2yj7
-        N2RcLUGjRI6VSs3qUNSrAJY4qwbTocZN1xm80yCvJgSbKDg3bVhYo5IwCf1CB+/Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iq8SJV
+        ZffZbPXf3criscR+/ZfBxqZPNlvzwTTbxqvwU=; b=MAd8jcOGCycY6pAORxouPJ
+        lGaCmnGatWgUOEhtjSeNx2F47PtZmI15u5nGzRnU3lXHu80qSYUA0aQuQGw0PYh4
+        9D+hbB5tJp8hUevIU1wNtcUVBLgl2lIsJvuiemDtDWfYC2/vvB6iow3fUYVkwTYD
+        udKIP1CdpBu2dqX6rg5y5tX03ifiBrmGTHYjqHNns6yrn5ZXIerwmgI0j6YnEgg0
+        EmvvPx7evKG0Y0lk4DPl1lx2FJrLPrY75A1HUIRK3J9b2QOYALstwkT5KnpDryMC
+        jHduVBVvLrsZ7poAePE5mTZoFK0Q7196oXkSzvZT7rYR2kBMrK+ji2U28jZkgzFQ
         ==
-X-ME-Sender: <xms:wBL8XwCokLRYZSxPwNEX6yWpGcREtNQYJvZDC3WrzKOb-LrPSbN5kg>
-    <xme:wBL8XyikfQAipcncajO_jLNci3Wpr6JVpmbBJrp991r0dtt9gUivO1SqVZKg1OHgu
-    E40-YCIkypCfA>
+X-ME-Sender: <xms:xxL8X--nq-Y9wp-vxtygCZu12GOAr_1PEAKVWVYlQ3e9uN-4q3-LWQ>
+    <xme:xxL8X-tWQcrldL4luzIDorPg-FEEw8cKqwfWg9rtP9s-M_Xo1KtQmHA9w6j2uycRU
+    Dy0C4PW3rzBTw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffe
-    dtgedvjeeuvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:wBL8XzktOxNr-_KH1wDJzzX5HNUb_GI0w9lrNYHDEi0hrr8bmvh_cQ>
-    <xmx:wBL8X2zjQr6ywo54MAQYQTr_G3DRFyBwuMMgluJSn5mA0Pf3Ibcgaw>
-    <xmx:wBL8X1ShoaZUPZznPJfdkVDCiPPgEaMN886TjVivgJxbzqjrV6TdWg>
-    <xmx:wBL8X0Jw0h-llYH1y990yMHrBSX-wMGzaiFC_d_RFIQlgJyDAlsohgr77jc>
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:xxL8X0B87bN3kCGcWhyd5qMuMH1zB7CvawuUZhFn-C7Ds5UOmYyD0g>
+    <xmx:xxL8X2fTokmpnBeDKerotvjVGiywYjaGz9lQTy9MHNbx_utN2ZwVmw>
+    <xmx:xxL8XzNRehWKZPAQNT4H3ft2iQeocsyQJpCVG2nKZ8LifUxo-crXWA>
+    <xmx:xxL8X51EhEE-JH6Fa6fJS19SAgbowpXgSIWYZncarPiNsdo5VILxST_tPms>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 382C3240057;
-        Mon, 11 Jan 2021 03:56:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: correctly calculate item size used when item key" failed to apply to 5.10-stable tree
-To:     ethanwu@synology.com, dsterba@suse.com, fdmanana@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 53A2D1080064;
+        Mon, 11 Jan 2021 03:56:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: fix deadlock when cloning inline extent and low on" failed to apply to 5.10-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:57:45 +0100
-Message-ID: <1610355465162109@kroah.com>
+Date:   Mon, 11 Jan 2021 09:57:52 +0100
+Message-ID: <1610355472129141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,211 +70,317 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9a664971569daf68254928149f580b4f5856d274 Mon Sep 17 00:00:00 2001
-From: ethanwu <ethanwu@synology.com>
-Date: Tue, 1 Dec 2020 17:25:12 +0800
-Subject: [PATCH] btrfs: correctly calculate item size used when item key
- collision happens
+From 3d45f221ce627d13e2e6ef3274f06750c84a6542 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 2 Dec 2020 11:55:58 +0000
+Subject: [PATCH] btrfs: fix deadlock when cloning inline extent and low on
+ free metadata space
 
-Item key collision is allowed for some item types, like dir item and
-inode refs, but the overall item size is limited by the nodesize.
+When cloning an inline extent there are cases where we can not just copy
+the inline extent from the source range to the target range (e.g. when the
+target range starts at an offset greater than zero). In such cases we copy
+the inline extent's data into a page of the destination inode and then
+dirty that page. However, after that we will need to start a transaction
+for each processed extent and, if we are ever low on available metadata
+space, we may need to flush existing delalloc for all dirty inodes in an
+attempt to release metadata space - if that happens we may deadlock:
 
-item size(ins_len) passed from btrfs_insert_empty_items to
-btrfs_search_slot already contains size of btrfs_item.
+* the async reclaim task queued a delalloc work to flush delalloc for
+  the destination inode of the clone operation;
 
-When btrfs_search_slot reaches leaf, we'll see if we need to split leaf.
-The check incorrectly reports that split leaf is required, because
-it treats the space required by the newly inserted item as
-btrfs_item + item data. But in item key collision case, only item data
-is actually needed, the newly inserted item could merge into the existing
-one. No new btrfs_item will be inserted.
+* the task executing that delalloc work gets blocked waiting for the
+  range with the dirty page to be unlocked, which is currently locked
+  by the task doing the clone operation;
 
-And split_leaf return EOVERFLOW from following code:
+* the async reclaim task blocks waiting for the delalloc work to complete;
 
-  if (extend && data_size + btrfs_item_size_nr(l, slot) +
-      sizeof(struct btrfs_item) > BTRFS_LEAF_DATA_SIZE(fs_info))
-      return -EOVERFLOW;
+* the cloning task is waiting on the waitqueue of its reservation ticket
+  while holding the range with the dirty page locked in the inode's
+  io_tree;
 
-In most cases, when callers receive EOVERFLOW, they either return
-this error or handle in different ways. For example, in normal dir item
-creation the userspace will get errno EOVERFLOW; in inode ref case
-INODE_EXTREF is used instead.
+* if metadata space is not released by some other task (like delalloc for
+  some other inode completing for example), the clone task waits forever
+  and as a consequence the delalloc work and async reclaim tasks will hang
+  forever as well. Releasing more space on the other hand may require
+  starting a transaction, which will hang as well when trying to reserve
+  metadata space, resulting in a deadlock between all these tasks.
 
-However, this is not the case for rename. To avoid the unrecoverable
-situation in rename, btrfs_check_dir_item_collision is called in
-early phase of rename. In this function, when item key collision is
-detected leaf space is checked:
+When this happens, traces like the following show up in dmesg/syslog:
 
-  data_size = sizeof(*di) + name_len;
-  if (data_size + btrfs_item_size_nr(leaf, slot) +
-      sizeof(struct btrfs_item) > BTRFS_LEAF_DATA_SIZE(root->fs_info))
+  [87452.323003] INFO: task kworker/u16:11:1810830 blocked for more than 120 seconds.
+  [87452.323644]       Tainted: G    B   W         5.10.0-rc4-btrfs-next-73 #1
+  [87452.324248] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [87452.324852] task:kworker/u16:11  state:D stack:    0 pid:1810830 ppid:     2 flags:0x00004000
+  [87452.325520] Workqueue: btrfs-flush_delalloc btrfs_work_helper [btrfs]
+  [87452.326136] Call Trace:
+  [87452.326737]  __schedule+0x5d1/0xcf0
+  [87452.327390]  schedule+0x45/0xe0
+  [87452.328174]  lock_extent_bits+0x1e6/0x2d0 [btrfs]
+  [87452.328894]  ? finish_wait+0x90/0x90
+  [87452.329474]  btrfs_invalidatepage+0x32c/0x390 [btrfs]
+  [87452.330133]  ? __mod_memcg_state+0x8e/0x160
+  [87452.330738]  __extent_writepage+0x2d4/0x400 [btrfs]
+  [87452.331405]  extent_write_cache_pages+0x2b2/0x500 [btrfs]
+  [87452.332007]  ? lock_release+0x20e/0x4c0
+  [87452.332557]  ? trace_hardirqs_on+0x1b/0xf0
+  [87452.333127]  extent_writepages+0x43/0x90 [btrfs]
+  [87452.333653]  ? lock_acquire+0x1a3/0x490
+  [87452.334177]  do_writepages+0x43/0xe0
+  [87452.334699]  ? __filemap_fdatawrite_range+0xa4/0x100
+  [87452.335720]  __filemap_fdatawrite_range+0xc5/0x100
+  [87452.336500]  btrfs_run_delalloc_work+0x17/0x40 [btrfs]
+  [87452.337216]  btrfs_work_helper+0xf1/0x600 [btrfs]
+  [87452.337838]  process_one_work+0x24e/0x5e0
+  [87452.338437]  worker_thread+0x50/0x3b0
+  [87452.339137]  ? process_one_work+0x5e0/0x5e0
+  [87452.339884]  kthread+0x153/0x170
+  [87452.340507]  ? kthread_mod_delayed_work+0xc0/0xc0
+  [87452.341153]  ret_from_fork+0x22/0x30
+  [87452.341806] INFO: task kworker/u16:1:2426217 blocked for more than 120 seconds.
+  [87452.342487]       Tainted: G    B   W         5.10.0-rc4-btrfs-next-73 #1
+  [87452.343274] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [87452.344049] task:kworker/u16:1   state:D stack:    0 pid:2426217 ppid:     2 flags:0x00004000
+  [87452.344974] Workqueue: events_unbound btrfs_async_reclaim_metadata_space [btrfs]
+  [87452.345655] Call Trace:
+  [87452.346305]  __schedule+0x5d1/0xcf0
+  [87452.346947]  ? kvm_clock_read+0x14/0x30
+  [87452.347676]  ? wait_for_completion+0x81/0x110
+  [87452.348389]  schedule+0x45/0xe0
+  [87452.349077]  schedule_timeout+0x30c/0x580
+  [87452.349718]  ? _raw_spin_unlock_irqrestore+0x3c/0x60
+  [87452.350340]  ? lock_acquire+0x1a3/0x490
+  [87452.351006]  ? try_to_wake_up+0x7a/0xa20
+  [87452.351541]  ? lock_release+0x20e/0x4c0
+  [87452.352040]  ? lock_acquired+0x199/0x490
+  [87452.352517]  ? wait_for_completion+0x81/0x110
+  [87452.353000]  wait_for_completion+0xab/0x110
+  [87452.353490]  start_delalloc_inodes+0x2af/0x390 [btrfs]
+  [87452.353973]  btrfs_start_delalloc_roots+0x12d/0x250 [btrfs]
+  [87452.354455]  flush_space+0x24f/0x660 [btrfs]
+  [87452.355063]  btrfs_async_reclaim_metadata_space+0x1bb/0x480 [btrfs]
+  [87452.355565]  process_one_work+0x24e/0x5e0
+  [87452.356024]  worker_thread+0x20f/0x3b0
+  [87452.356487]  ? process_one_work+0x5e0/0x5e0
+  [87452.356973]  kthread+0x153/0x170
+  [87452.357434]  ? kthread_mod_delayed_work+0xc0/0xc0
+  [87452.357880]  ret_from_fork+0x22/0x30
+  (...)
+  < stack traces of several tasks waiting for the locks of the inodes of the
+    clone operation >
+  (...)
+  [92867.444138] RSP: 002b:00007ffc3371bbe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000052
+  [92867.444624] RAX: ffffffffffffffda RBX: 00007ffc3371bea0 RCX: 00007f61efe73f97
+  [92867.445116] RDX: 0000000000000000 RSI: 0000560fbd5d7a40 RDI: 0000560fbd5d8960
+  [92867.445595] RBP: 00007ffc3371beb0 R08: 0000000000000001 R09: 0000000000000003
+  [92867.446070] R10: 00007ffc3371b996 R11: 0000000000000246 R12: 0000000000000000
+  [92867.446820] R13: 000000000000001f R14: 00007ffc3371bea0 R15: 00007ffc3371beb0
+  [92867.447361] task:fsstress        state:D stack:    0 pid:2508238 ppid:2508153 flags:0x00004000
+  [92867.447920] Call Trace:
+  [92867.448435]  __schedule+0x5d1/0xcf0
+  [92867.448934]  ? _raw_spin_unlock_irqrestore+0x3c/0x60
+  [92867.449423]  schedule+0x45/0xe0
+  [92867.449916]  __reserve_bytes+0x4a4/0xb10 [btrfs]
+  [92867.450576]  ? finish_wait+0x90/0x90
+  [92867.451202]  btrfs_reserve_metadata_bytes+0x29/0x190 [btrfs]
+  [92867.451815]  btrfs_block_rsv_add+0x1f/0x50 [btrfs]
+  [92867.452412]  start_transaction+0x2d1/0x760 [btrfs]
+  [92867.453216]  clone_copy_inline_extent+0x333/0x490 [btrfs]
+  [92867.453848]  ? lock_release+0x20e/0x4c0
+  [92867.454539]  ? btrfs_search_slot+0x9a7/0xc30 [btrfs]
+  [92867.455218]  btrfs_clone+0x569/0x7e0 [btrfs]
+  [92867.455952]  btrfs_clone_files+0xf6/0x150 [btrfs]
+  [92867.456588]  btrfs_remap_file_range+0x324/0x3d0 [btrfs]
+  [92867.457213]  do_clone_file_range+0xd4/0x1f0
+  [92867.457828]  vfs_clone_file_range+0x4d/0x230
+  [92867.458355]  ? lock_release+0x20e/0x4c0
+  [92867.458890]  ioctl_file_clone+0x8f/0xc0
+  [92867.459377]  do_vfs_ioctl+0x342/0x750
+  [92867.459913]  __x64_sys_ioctl+0x62/0xb0
+  [92867.460377]  do_syscall_64+0x33/0x80
+  [92867.460842]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  (...)
+  < stack traces of more tasks blocked on metadata reservation like the clone
+    task above, because the async reclaim task has deadlocked >
+  (...)
 
-the sizeof(struct btrfs_item) + btrfs_item_size_nr(leaf, slot) here
-refers to existing item size, the condition here correctly calculates
-the needed size for collision case rather than the wrong case above.
+Another thing to notice is that the worker task that is deadlocked when
+trying to flush the destination inode of the clone operation is at
+btrfs_invalidatepage(). This is simply because the clone operation has a
+destination offset greater than the i_size and we only update the i_size
+of the destination file after cloning an extent (just like we do in the
+buffered write path).
 
-The consequence of inconsistent condition check between
-btrfs_check_dir_item_collision and btrfs_search_slot when item key
-collision happens is that we might pass check here but fail
-later at btrfs_search_slot. Rename fails and volume is forced readonly
+Since the async reclaim path uses btrfs_start_delalloc_roots() to trigger
+the flushing of delalloc for all inodes that have delalloc, add a runtime
+flag to an inode to signal it should not be flushed, and for inodes with
+that flag set, start_delalloc_inodes() will simply skip them. When the
+cloning code needs to dirty a page to copy an inline extent, set that flag
+on the inode and then clear it when the clone operation finishes.
 
-  [436149.586170] ------------[ cut here ]------------
-  [436149.586173] BTRFS: Transaction aborted (error -75)
-  [436149.586196] WARNING: CPU: 0 PID: 16733 at fs/btrfs/inode.c:9870 btrfs_rename2+0x1938/0x1b70 [btrfs]
-  [436149.586227] CPU: 0 PID: 16733 Comm: python Tainted: G      D           4.18.0-rc5+ #1
-  [436149.586228] Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/05/2016
-  [436149.586238] RIP: 0010:btrfs_rename2+0x1938/0x1b70 [btrfs]
-  [436149.586254] RSP: 0018:ffffa327043a7ce0 EFLAGS: 00010286
-  [436149.586255] RAX: 0000000000000000 RBX: ffff8d8a17d13340 RCX: 0000000000000006
-  [436149.586256] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff8d8a7fc164b0
-  [436149.586257] RBP: ffffa327043a7da0 R08: 0000000000000560 R09: 7265282064657472
-  [436149.586258] R10: 0000000000000000 R11: 6361736e61725420 R12: ffff8d8a0d4c8b08
-  [436149.586258] R13: ffff8d8a17d13340 R14: ffff8d8a33e0a540 R15: 00000000000001fe
-  [436149.586260] FS:  00007fa313933740(0000) GS:ffff8d8a7fc00000(0000) knlGS:0000000000000000
-  [436149.586261] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [436149.586262] CR2: 000055d8d9c9a720 CR3: 000000007aae0003 CR4: 00000000003606f0
-  [436149.586295] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [436149.586296] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [436149.586296] Call Trace:
-  [436149.586311]  vfs_rename+0x383/0x920
-  [436149.586313]  ? vfs_rename+0x383/0x920
-  [436149.586315]  do_renameat2+0x4ca/0x590
-  [436149.586317]  __x64_sys_rename+0x20/0x30
-  [436149.586324]  do_syscall_64+0x5a/0x120
-  [436149.586330]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  [436149.586332] RIP: 0033:0x7fa3133b1d37
-  [436149.586348] RSP: 002b:00007fffd3e43908 EFLAGS: 00000246 ORIG_RAX: 0000000000000052
-  [436149.586349] RAX: ffffffffffffffda RBX: 00007fa3133b1d30 RCX: 00007fa3133b1d37
-  [436149.586350] RDX: 000055d8da06b5e0 RSI: 000055d8da225d60 RDI: 000055d8da2c4da0
-  [436149.586351] RBP: 000055d8da2252f0 R08: 00007fa313782000 R09: 00000000000177e0
-  [436149.586351] R10: 000055d8da010680 R11: 0000000000000246 R12: 00007fa313840b00
+This could be sporadically triggered with test case generic/269 from
+fstests, which exercises many fsstress processes running in parallel with
+several dd processes filling up the entire filesystem.
 
-Thanks to Hans van Kranenburg for information about crc32 hash collision
-tools, I was able to reproduce the dir item collision with following
-python script.
-https://github.com/wutzuchieh/misc_tools/blob/master/crc32_forge.py Run
-it under a btrfs volume will trigger the abort transaction.  It simply
-creates files and rename them to forged names that leads to
-hash collision.
-
-There are two ways to fix this. One is to simply revert the patch
-878f2d2cb355 ("Btrfs: fix max dir item size calculation") to make the
-condition consistent although that patch is correct about the size.
-
-The other way is to handle the leaf space check correctly when
-collision happens. I prefer the second one since it correct leaf
-space check in collision case. This fix will not account
-sizeof(struct btrfs_item) when the item already exists.
-There are two places where ins_len doesn't contain
-sizeof(struct btrfs_item), however.
-
-  1. extent-tree.c: lookup_inline_extent_backref
-  2. file-item.c: btrfs_csum_file_blocks
-
-to make the logic of btrfs_search_slot more clear, we add a flag
-search_for_extension in btrfs_path.
-
-This flag indicates that ins_len passed to btrfs_search_slot doesn't
-contain sizeof(struct btrfs_item). When key exists, btrfs_search_slot
-will use the actual size needed to calculate the required leaf space.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: ethanwu <ethanwu@synology.com>
+CC: stable@vger.kernel.org # 5.9+
+Fixes: 05a5a7621ce6 ("Btrfs: implement full reflink support for inline extents")
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
-index 07810891e204..cc89b63d65a4 100644
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -2555,8 +2555,14 @@ static struct extent_buffer *btrfs_search_slot_get_root(struct btrfs_root *root,
-  * @p:		Holds all btree nodes along the search path
-  * @root:	The root node of the tree
-  * @key:	The key we are looking for
-- * @ins_len:	Indicates purpose of search, for inserts it is 1, for
-- *		deletions it's -1. 0 for plain searches
-+ * @ins_len:	Indicates purpose of search:
-+ *              >0  for inserts it's size of item inserted (*)
-+ *              <0  for deletions
-+ *               0  for plain searches, not modifying the tree
-+ *
-+ *              (*) If size of item inserted doesn't include
-+ *              sizeof(struct btrfs_item), then p->search_for_extension must
-+ *              be set.
-  * @cow:	boolean should CoW operations be performed. Must always be 1
-  *		when modifying the tree.
-  *
-@@ -2717,6 +2723,20 @@ int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
+index 555cbcef6585..d9bf53d9ff90 100644
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -42,6 +42,15 @@ enum {
+ 	 * to an inode.
+ 	 */
+ 	BTRFS_INODE_NO_XATTRS,
++	/*
++	 * Set when we are in a context where we need to start a transaction and
++	 * have dirty pages with the respective file range locked. This is to
++	 * ensure that when reserving space for the transaction, if we are low
++	 * on available space and need to flush delalloc, we will not flush
++	 * delalloc for this inode, because that could result in a deadlock (on
++	 * the file range, inode's io_tree).
++	 */
++	BTRFS_INODE_NO_DELALLOC_FLUSH,
+ };
  
- 		if (level == 0) {
- 			p->slots[level] = slot;
-+			/*
-+			 * Item key already exists. In this case, if we are
-+			 * allowed to insert the item (for example, in dir_item
-+			 * case, item key collision is allowed), it will be
-+			 * merged with the original item. Only the item size
-+			 * grows, no new btrfs item will be added. If
-+			 * search_for_extension is not set, ins_len already
-+			 * accounts the size btrfs_item, deduct it here so leaf
-+			 * space check will be correct.
-+			 */
-+			if (ret == 0 && ins_len > 0 && !p->search_for_extension) {
-+				ASSERT(ins_len >= sizeof(struct btrfs_item));
-+				ins_len -= sizeof(struct btrfs_item);
-+			}
- 			if (ins_len > 0 &&
- 			    btrfs_leaf_free_space(b) < ins_len) {
- 				if (write_lock_level < 1) {
+ /* in memory btrfs inode */
 diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 2674f24cf2e0..3935d297d198 100644
+index 9dde7707873a..2674f24cf2e0 100644
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -368,6 +368,12 @@ struct btrfs_path {
- 	unsigned int search_commit_root:1;
- 	unsigned int need_commit_sem:1;
- 	unsigned int skip_release_on_error:1;
+@@ -3074,7 +3074,8 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 			       u32 min_type);
+ 
+ int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
+-int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr);
++int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
++			       bool in_reclaim_context);
+ int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
+ 			      unsigned int extra_bits,
+ 			      struct extent_state **cached_state);
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index a98e33f232d5..324f646d6e5e 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -715,7 +715,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
+ 	 * flush all outstanding I/O and inode extent mappings before the
+ 	 * copy operation is declared as being finished
+ 	 */
+-	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX);
++	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
+ 	if (ret) {
+ 		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+ 		return ret;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 8e23780acfae..070716650df8 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9390,7 +9390,8 @@ static struct btrfs_delalloc_work *btrfs_alloc_delalloc_work(struct inode *inode
+  * some fairly slow code that needs optimization. This walks the list
+  * of all the inodes with pending delalloc and forces them to disk.
+  */
+-static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot)
++static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot,
++				 bool in_reclaim_context)
+ {
+ 	struct btrfs_inode *binode;
+ 	struct inode *inode;
+@@ -9411,6 +9412,11 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
+ 
+ 		list_move_tail(&binode->delalloc_inodes,
+ 			       &root->delalloc_inodes);
++
++		if (in_reclaim_context &&
++		    test_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &binode->runtime_flags))
++			continue;
++
+ 		inode = igrab(&binode->vfs_inode);
+ 		if (!inode) {
+ 			cond_resched_lock(&root->delalloc_lock);
+@@ -9464,10 +9470,11 @@ int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
+ 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+ 		return -EROFS;
+ 
+-	return start_delalloc_inodes(root, &nr, true);
++	return start_delalloc_inodes(root, &nr, true, false);
+ }
+ 
+-int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr)
++int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
++			       bool in_reclaim_context)
+ {
+ 	struct btrfs_root *root;
+ 	struct list_head splice;
+@@ -9490,7 +9497,7 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr)
+ 			       &fs_info->delalloc_roots);
+ 		spin_unlock(&fs_info->delalloc_root_lock);
+ 
+-		ret = start_delalloc_inodes(root, &nr, false);
++		ret = start_delalloc_inodes(root, &nr, false, in_reclaim_context);
+ 		btrfs_put_root(root);
+ 		if (ret < 0)
+ 			goto out;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 703212ff50a5..dde49a791f3e 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -4951,7 +4951,7 @@ long btrfs_ioctl(struct file *file, unsigned int
+ 	case BTRFS_IOC_SYNC: {
+ 		int ret;
+ 
+-		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX);
++		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
+ 		if (ret)
+ 			return ret;
+ 		ret = btrfs_sync_fs(inode->i_sb, 1);
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index ab80896315be..b03e7891394e 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -89,6 +89,19 @@ static int copy_inline_to_page(struct btrfs_inode *inode,
+ 	if (ret)
+ 		goto out_unlock;
+ 
 +	/*
-+	 * Indicate that new item (btrfs_search_slot) is extending already
-+	 * existing item and ins_len contains only the data size and not item
-+	 * header (ie. sizeof(struct btrfs_item) is not included).
++	 * After dirtying the page our caller will need to start a transaction,
++	 * and if we are low on metadata free space, that can cause flushing of
++	 * delalloc for all inodes in order to get metadata space released.
++	 * However we are holding the range locked for the whole duration of
++	 * the clone/dedupe operation, so we may deadlock if that happens and no
++	 * other task releases enough space. So mark this inode as not being
++	 * possible to flush to avoid such deadlock. We will clear that flag
++	 * when we finish cloning all extents, since a transaction is started
++	 * after finding each extent to clone.
 +	 */
-+	unsigned int search_for_extension:1;
- };
- #define BTRFS_MAX_EXTENT_ITEM_SIZE(r) ((BTRFS_LEAF_DATA_SIZE(r->fs_info) >> 4) - \
- 					sizeof(struct btrfs_item))
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index 56ea380f5a17..d79b8369e6aa 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -844,6 +844,7 @@ int lookup_inline_extent_backref(struct btrfs_trans_handle *trans,
- 	want = extent_ref_type(parent, owner);
- 	if (insert) {
- 		extra_size = btrfs_extent_inline_ref_size(want);
-+		path->search_for_extension = 1;
- 		path->keep_locks = 1;
- 	} else
- 		extra_size = -1;
-@@ -996,6 +997,7 @@ int lookup_inline_extent_backref(struct btrfs_trans_handle *trans,
++	set_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &inode->runtime_flags);
++
+ 	if (comp_type == BTRFS_COMPRESS_NONE) {
+ 		char *map;
+ 
+@@ -549,6 +562,8 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
  out:
- 	if (insert) {
- 		path->keep_locks = 0;
-+		path->search_for_extension = 0;
- 		btrfs_unlock_up_safe(path, 1);
- 	}
- 	return err;
-diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index 1545c22ef280..6ccfc019ad90 100644
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -1016,8 +1016,10 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 	}
+ 	btrfs_free_path(path);
+ 	kvfree(buf);
++	clear_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &BTRFS_I(inode)->runtime_flags);
++
+ 	return ret;
+ }
  
- 	btrfs_release_path(path);
-+	path->search_for_extension = 1;
- 	ret = btrfs_search_slot(trans, root, &file_key, path,
- 				csum_size, 1);
-+	path->search_for_extension = 0;
- 	if (ret < 0)
- 		goto out;
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 64099565ab8f..67e55c5479b8 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -532,7 +532,7 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
  
+ 	loops = 0;
+ 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
+-		btrfs_start_delalloc_roots(fs_info, items);
++		btrfs_start_delalloc_roots(fs_info, items, true);
+ 
+ 		loops++;
+ 		if (wait_ordered && !trans) {
 
