@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D102F13D9
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BC52F1316
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731857AbhAKNPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:15:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
+        id S1729804AbhAKNDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:03:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731838AbhAKNPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB482246B;
-        Mon, 11 Jan 2021 13:15:19 +0000 (UTC)
+        id S1729788AbhAKNDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79EF822515;
+        Mon, 11 Jan 2021 13:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370919;
-        bh=0Xwk5scFIROJEGullXvUPQ8TZHfXsavCG4gpCugdOLQ=;
+        s=korg; t=1610370158;
+        bh=I4sHZ/9+9WaCBncCxa31WvcaN/i3zoWGwQUJX7ocuzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydGoj7ReuIZNau1HOD8CIwb70ZZweGTzyBnp/DQUeqRQa7wWZUKaZG2KRPmZ7BH4N
-         oFb5rEdubuLxzV8dJ3B500ysd3/om+gMAFkLSivaKpikDapukdQh25J+L6dUMByEMq
-         uB3OMEpMR6y+L366xxTB2G9656ExNQdNSa2to9GI=
+        b=kDOR0FHwWrgeKe5snoyoA8wsbWQ3EC+o1Ug179npktBNPYkZFxlXZzE4ad/3P6yt9
+         vgMMVew+hGCBMyvz5BnaGUCGmaANYhsSmknXJixsuJE08bzvWEPNRhKGJtHXLhnadq
+         7OEtZ5eTtHS0T+oc6tVrKsJa5m0nqeBHDEPgN1/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 031/145] bnxt_en: Check TQM rings for maximum supported value.
-Date:   Mon, 11 Jan 2021 14:00:55 +0100
-Message-Id: <20210111130050.008885782@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 24/38] USB: usblp: fix DMA to stack
+Date:   Mon, 11 Jan 2021 14:00:56 +0100
+Message-Id: <20210111130033.622181205@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
+References: <20210111130032.469630231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,74 +38,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit a029a2fef5d11bb85587433c3783615442abac96 ]
+commit 020a1f453449294926ca548d8d5ca970926e8dfd upstream.
 
-TQM rings are hardware resources that require host context memory
-managed by the driver.  The driver supports up to 9 TQM rings and
-the number of rings to use is requested by firmware during run-time.
-Cap this number to the maximum supported to prevent accessing beyond
-the array.  Future firmware may request more than 9 TQM rings.  Define
-macros to remove the magic number 9 from the C code.
+Stack-allocated buffers cannot be used for DMA (on all architectures).
 
-Fixes: ac3158cb0108 ("bnxt_en: Allocate TQM ring context memory according to fw specification.")
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Replace the HP-channel macro with a helper function that allocates a
+dedicated transfer buffer so that it can continue to be used with
+arguments from the stack.
+
+Note that the buffer is cleared on allocation as usblp_ctrl_msg()
+returns success also on short transfers (the buffer is only used for
+debugging).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210104145302.2087-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    7 +++++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    7 ++++++-
- 2 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6790,8 +6790,10 @@ static int bnxt_hwrm_func_backing_store_
- 		ctx->tqm_fp_rings_count = resp->tqm_fp_rings_count;
- 		if (!ctx->tqm_fp_rings_count)
- 			ctx->tqm_fp_rings_count = bp->max_q;
-+		else if (ctx->tqm_fp_rings_count > BNXT_MAX_TQM_FP_RINGS)
-+			ctx->tqm_fp_rings_count = BNXT_MAX_TQM_FP_RINGS;
+---
+ drivers/usb/class/usblp.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -289,8 +289,25 @@ static int usblp_ctrl_msg(struct usblp *
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
  
--		tqm_rings = ctx->tqm_fp_rings_count + 1;
-+		tqm_rings = ctx->tqm_fp_rings_count + BNXT_MAX_TQM_SP_RINGS;
- 		ctx_pg = kcalloc(tqm_rings, sizeof(*ctx_pg), GFP_KERNEL);
- 		if (!ctx_pg) {
- 			kfree(ctx);
-@@ -6925,7 +6927,8 @@ static int bnxt_hwrm_func_backing_store_
- 	     pg_attr = &req.tqm_sp_pg_size_tqm_sp_lvl,
- 	     pg_dir = &req.tqm_sp_page_dir,
- 	     ena = FUNC_BACKING_STORE_CFG_REQ_ENABLES_TQM_SP;
--	     i < 9; i++, num_entries++, pg_attr++, pg_dir++, ena <<= 1) {
-+	     i < BNXT_MAX_TQM_RINGS;
-+	     i++, num_entries++, pg_attr++, pg_dir++, ena <<= 1) {
- 		if (!(enables & ena))
- 			continue;
- 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1435,6 +1435,11 @@ struct bnxt_ctx_pg_info {
- 	struct bnxt_ctx_pg_info **ctx_pg_tbl;
- };
- 
-+#define BNXT_MAX_TQM_SP_RINGS		1
-+#define BNXT_MAX_TQM_FP_RINGS		8
-+#define BNXT_MAX_TQM_RINGS		\
-+	(BNXT_MAX_TQM_SP_RINGS + BNXT_MAX_TQM_FP_RINGS)
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
 +
- struct bnxt_ctx_mem_info {
- 	u32	qp_max_entries;
- 	u16	qp_min_qp1_entries;
-@@ -1473,7 +1478,7 @@ struct bnxt_ctx_mem_info {
- 	struct bnxt_ctx_pg_info stat_mem;
- 	struct bnxt_ctx_pg_info mrav_mem;
- 	struct bnxt_ctx_pg_info tim_mem;
--	struct bnxt_ctx_pg_info *tqm_mem[9];
-+	struct bnxt_ctx_pg_info *tqm_mem[BNXT_MAX_TQM_RINGS];
- };
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
++
++	kfree(buf);
++
++	return ret;
++}
  
- struct bnxt_fw_health {
+ /*
+  * See the description for usblp_select_alts() below for the usage
 
 
