@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8672F16D2
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F4B2F1610
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730500AbhAKN5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:57:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54252 "EHLO mail.kernel.org"
+        id S1731415AbhAKNsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730394AbhAKNG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E452E22AAF;
-        Mon, 11 Jan 2021 13:06:40 +0000 (UTC)
+        id S1731149AbhAKNKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C320122C97;
+        Mon, 11 Jan 2021 13:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370401;
-        bh=PSJJeZbr+lK0GCebJ9clBwB5PAAtK4YdfQoHGi7zZiE=;
+        s=korg; t=1610370575;
+        bh=/z54QfOG6s9ODcbkYCIYxVVtDhnpn0+2ykax0ZVUG9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Th/Mx3GgrxOf6hQvxqLCTOKPDqgSDfAQnn004pyd4TSxINvRl3Rk9l5+hZUEEOLzx
-         jfQTA+JuYq+H6kyJ7visgiKyTEDSlLaXTbeOFpLNHFLJZKs43JxXEkr7Q2o5RwYaad
-         FIwJA6MROA7pnSledxmG4lPa6rER2mA8ILfuH2No=
+        b=YHeYOq4TizVtQqNC8ngR/JOXfzsJ7+vAQZzjm5YDS2+2S+WHIATJyb6AwCziTx6IU
+         0wCUDsks5tPqNw9fvbzhklEuFch4ovw0V646HdYOrH9/iOPuoIf1qm8+GQMC7Idj53
+         xRflKKS3vpsu6L5SiqdhJ27Kd3z4PFp5g8kWHUIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying-Tsun Huang <ying-tsun.huang@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.14 56/57] x86/mtrr: Correct the range check before performing MTRR type lookups
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 66/77] x86/mm: Fix leak of pmd ptlock
 Date:   Mon, 11 Jan 2021 14:02:15 +0100
-Message-Id: <20210111130036.438085698@linuxfoundation.org>
+Message-Id: <20210111130039.581237108@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit cb7f4a8b1fb426a175d1708f05581939c61329d4 upstream.
+commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
 
-In mtrr_type_lookup(), if the input memory address region is not in the
-MTRR, over 4GB, and not over the top of memory, a write-back attribute
-is returned. These condition checks are for ensuring the input memory
-address region is actually mapped to the physical memory.
+Commit
 
-However, if the end address is just aligned with the top of memory,
-the condition check treats the address is over the top of memory, and
-write-back attribute is not returned.
+  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
 
-And this hits in a real use case with NVDIMM: the nd_pmem module tries
-to map NVDIMMs as cacheable memories when NVDIMMs are connected. If a
-NVDIMM is the last of the DIMMs, the performance of this NVDIMM becomes
-very low since it is aligned with the top of memory and its memory type
-is uncached-minus.
+introduced a new location where a pmd was released, but neglected to
+run the pmd page destructor. In fact, this happened previously for a
+different pmd release path and was fixed by commit:
 
-Move the input end address change to inclusive up into
-mtrr_type_lookup(), before checking for the top of memory in either
-mtrr_type_lookup_{variable,fixed}() helpers.
+  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
 
- [ bp: Massage commit message. ]
+This issue was hidden until recently because the failure mode is silent,
+but commit:
 
-Fixes: 0cc705f56e40 ("x86/mm/mtrr: Clean up mtrr_type_lookup()")
-Signed-off-by: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
+
+turns the failure mode into this signature:
+
+ BUG: Bad page state in process lt-pmem-ns  pfn:15943d
+ page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
+ flags: 0xaffff800000000()
+ raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
+ raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
+ page dumped because: nonzero mapcount
+ [..]
+  dump_stack+0x8b/0xb0
+  bad_page.cold+0x63/0x94
+  free_pcp_prepare+0x224/0x270
+  free_unref_page+0x18/0xd0
+  pud_free_pmd_page+0x146/0x160
+  ioremap_pud_range+0xe3/0x350
+  ioremap_page_range+0x108/0x160
+  __ioremap_caller.constprop.0+0x174/0x2b0
+  ? memremap+0x7a/0x110
+  memremap+0x7a/0x110
+  devm_memremap+0x53/0xa0
+  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
+  ? __devm_release_region+0x52/0x80
+  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
+
+Given this is a repeat occurrence it seemed prudent to look for other
+places where this destructor might be missing and whether a better
+helper is needed. try_to_free_pmd_page() looks like a candidate, but
+testing with setting up and tearing down pmd mappings via the dax unit
+tests is thus far not triggering the failure.
+
+As for a better helper pmd_free() is close, but it is a messy fit
+due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
+paravirt_tlb_remove_table() instead of free_page(), so open-coded
+pgtable_pmd_page_dtor() seems the best way forward for now.
+
+Debugged together with Matthew Wilcox <willy@infradead.org>.
+
+Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201215070721.4349-1-ying-tsun.huang@amd.com
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mtrr/generic.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/mm/pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -166,9 +166,6 @@ static u8 mtrr_type_lookup_variable(u64
- 	*repeat = 0;
- 	*uniform = 1;
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -838,6 +838,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
+ 	}
  
--	/* Make end inclusive instead of exclusive */
--	end--;
--
- 	prev_match = MTRR_TYPE_INVALID;
- 	for (i = 0; i < num_var_ranges; ++i) {
- 		unsigned short start_state, end_state, inclusive;
-@@ -260,6 +257,9 @@ u8 mtrr_type_lookup(u64 start, u64 end,
- 	int repeat;
- 	u64 partial_end;
- 
-+	/* Make end inclusive instead of exclusive */
-+	end--;
+ 	free_page((unsigned long)pmd_sv);
 +
- 	if (!mtrr_state_set)
- 		return MTRR_TYPE_INVALID;
++	pgtable_pmd_page_dtor(virt_to_page(pmd));
+ 	free_page((unsigned long)pmd);
  
+ 	return 1;
 
 
