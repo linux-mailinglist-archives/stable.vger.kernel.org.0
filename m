@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1042F1748
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BEF2F1747
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:04:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730205AbhAKNEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730209AbhAKNEs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jan 2021 08:04:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51598 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730200AbhAKNEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:04:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DAD32255F;
-        Mon, 11 Jan 2021 13:04:04 +0000 (UTC)
+        id S1728389AbhAKNEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:04:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D182E22527;
+        Mon, 11 Jan 2021 13:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370245;
-        bh=xZfgbdIZgnixBjkOpU9qNJuurp2/n8Tkx0NY8XmEcoM=;
+        s=korg; t=1610370247;
+        bh=DZnO6qmvTaNiK6GDE1a8fPyxOytyZGcJ/Zn3wR8tVuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qewFTdj34bmT4RL0umtFUcjslWZEFxi27Oh6S6KRzQ/DRbOWC1ha+fUsPmH3/N/lt
-         oA3UqzB0k+6DC+0I+J3eMP2sLmNQmctCWaQDnikznrz2ZJ8nHnjbW/KbRgAPfK+thB
-         J70ms47t6KwX9REaUdOdKVa4kA5sXl80Xr8Jxk/8=
+        b=JjBdK5lNpHJS5Iy7Asz7peMmyssRcf6UjpYvmfaP5eqzuXuycb6dtcy1Xw2wnb7VP
+         MwfxcaKpGzJRI4MnbYzx7UCw4K4qcyVXHF7LiWKlxdaMZyARifRG5fGS55KmoSJoRq
+         RMV3IdL1ji7VykOHB8aNVJxhtCk7+yDV+6SVdFMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Borislav Petkov <bp@suse.de>, Yi Zhang <yi.zhang@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.9 40/45] x86/mm: Fix leak of pmd ptlock
-Date:   Mon, 11 Jan 2021 14:01:18 +0100
-Message-Id: <20210111130035.573043718@linuxfoundation.org>
+        stable@vger.kernel.org, bo liu <bo.liu@senarytech.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 41/45] ALSA: hda/conexant: add a new hda codec CX11970
+Date:   Mon, 11 Jan 2021 14:01:19 +0100
+Message-Id: <20210111130035.623323823@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
 References: <20210111130033.676306636@linuxfoundation.org>
@@ -40,85 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: bo liu <bo.liu@senarytech.com>
 
-commit d1c5246e08eb64991001d97a3bd119c93edbc79a upstream.
+commit 744a11abc56405c5a106e63da30a941b6d27f737 upstream.
 
-Commit
+The current kernel does not support the cx11970 codec chip.
+Add a codec configuration item to kernel.
 
-  28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
+[ Minor coding style fix by tiwai ]
 
-introduced a new location where a pmd was released, but neglected to
-run the pmd page destructor. In fact, this happened previously for a
-different pmd release path and was fixed by commit:
-
-  c283610e44ec ("x86, mm: do not leak page->ptl for pmd page tables").
-
-This issue was hidden until recently because the failure mode is silent,
-but commit:
-
-  b2b29d6d0119 ("mm: account PMD tables like PTE tables")
-
-turns the failure mode into this signature:
-
- BUG: Bad page state in process lt-pmem-ns  pfn:15943d
- page:000000007262ed7b refcount:0 mapcount:-1024 mapping:0000000000000000 index:0x0 pfn:0x15943d
- flags: 0xaffff800000000()
- raw: 00affff800000000 dead000000000100 0000000000000000 0000000000000000
- raw: 0000000000000000 ffff913a029bcc08 00000000fffffbff 0000000000000000
- page dumped because: nonzero mapcount
- [..]
-  dump_stack+0x8b/0xb0
-  bad_page.cold+0x63/0x94
-  free_pcp_prepare+0x224/0x270
-  free_unref_page+0x18/0xd0
-  pud_free_pmd_page+0x146/0x160
-  ioremap_pud_range+0xe3/0x350
-  ioremap_page_range+0x108/0x160
-  __ioremap_caller.constprop.0+0x174/0x2b0
-  ? memremap+0x7a/0x110
-  memremap+0x7a/0x110
-  devm_memremap+0x53/0xa0
-  pmem_attach_disk+0x4ed/0x530 [nd_pmem]
-  ? __devm_release_region+0x52/0x80
-  nvdimm_bus_probe+0x85/0x210 [libnvdimm]
-
-Given this is a repeat occurrence it seemed prudent to look for other
-places where this destructor might be missing and whether a better
-helper is needed. try_to_free_pmd_page() looks like a candidate, but
-testing with setting up and tearing down pmd mappings via the dax unit
-tests is thus far not triggering the failure.
-
-As for a better helper pmd_free() is close, but it is a messy fit
-due to requiring an @mm arg. Also, ___pmd_free_tlb() wants to call
-paravirt_tlb_remove_table() instead of free_page(), so open-coded
-pgtable_pmd_page_dtor() seems the best way forward for now.
-
-Debugged together with Matthew Wilcox <willy@infradead.org>.
-
-Fixes: 28ee90fe6048 ("x86/mm: implement free pmd/pte page interfaces")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: bo liu <bo.liu@senarytech.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/160697689204.605323.17629854984697045602.stgit@dwillia2-desk3.amr.corp.intel.com
+Link: https://lore.kernel.org/r/20201229035226.62120-1-bo.liu@senarytech.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/pgtable.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_conexant.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/mm/pgtable.c
-+++ b/arch/x86/mm/pgtable.c
-@@ -697,6 +697,8 @@ int pud_free_pmd_page(pud_t *pud, unsign
- 	}
- 
- 	free_page((unsigned long)pmd_sv);
-+
-+	pgtable_pmd_page_dtor(virt_to_page(pmd));
- 	free_page((unsigned long)pmd);
- 
- 	return 1;
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -1001,6 +1001,7 @@ static int patch_conexant_auto(struct hd
+ static const struct hda_device_id snd_hda_id_conexant[] = {
+ 	HDA_CODEC_ENTRY(0x14f11f86, "CX8070", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
++	HDA_CODEC_ENTRY(0x14f120d0, "CX11970", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15045, "CX20549 (Venice)", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15047, "CX20551 (Waikiki)", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15051, "CX20561 (Hermosa)", patch_conexant_auto),
 
 
