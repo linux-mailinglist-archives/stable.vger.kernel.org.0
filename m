@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 778322F14DB
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4472F1626
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:49:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727255AbhAKNbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:31:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34118 "EHLO mail.kernel.org"
+        id S2387778AbhAKNtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:49:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731767AbhAKNPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF6A822A83;
-        Mon, 11 Jan 2021 13:14:53 +0000 (UTC)
+        id S1731108AbhAKNKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F033921973;
+        Mon, 11 Jan 2021 13:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370894;
-        bh=kt3eJ6+Fv6BLr3DlqMcs6XcFnePR3mZE7IhULG1IJ4M=;
+        s=korg; t=1610370586;
+        bh=aVJ8CgOh1pd9gLSjSzrywYM/A/tG0BuZmeOQO3xJTso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXCE2EaN56sCDkCPkqyicLtImP3bIxFGyt/pMTQC5076rGvUL7YwV+6MDMMjFJIxm
-         rQFGo5L7hTv+LTgveQ3/uhMpvaK1th+Lh8hG+e+2Q0hlysnkfxUw3CHXGOw5i2/Vhg
-         R/e/CgEG+jmLrBFzV9NAI0Hyj995YgnSFM/WAdmE=
+        b=kKHmbzgc3Sm8jwMSR4R3qdB+0Bc04hgaTYv9bdpRxmEHFwFfy3lZQWux6QWxuXMI/
+         Uws/0sPeV9RhOeqX1zrj2XrY91slDWob8D4v9MeD8xOJeOuQhwXKttC0lqWv4l2wPL
+         /b87Hg37ZBV0lGMdxsIdCq0A02YJ9ZWwVPiUzK3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harish <harish@linux.ibm.com>,
-        Sandipan Das <sandipan@linux.ibm.com>,
-        Shuah Khan <shuah@kernel.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/145] selftests/vm: fix building protection keys test
+        stable@vger.kernel.org,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 10/92] i40e: Fix Error I40E_AQ_RC_EINVAL when removing VFs
 Date:   Mon, 11 Jan 2021 14:01:14 +0100
-Message-Id: <20210111130050.929878378@linuxfoundation.org>
+Message-Id: <20210111130039.653194817@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harish <harish@linux.ibm.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 7cf22a1c88c05ea3807f95b1edfebb729016ae52 ]
+[ Upstream commit 3ac874fa84d1baaf0c0175f2a1499f5d88d528b2 ]
 
-Commit d8cbe8bfa7d ("tools/testing/selftests/vm: fix build error") tried
-to include a ARCH check for powerpc, however ARCH is not defined in the
-Makefile before including lib.mk.  This makes test building to skip on
-both x86 and powerpc.
+When removing VFs for PF added to bridge there was
+an error I40E_AQ_RC_EINVAL. It was caused by not properly
+resetting and reinitializing PF when adding/removing VFs.
+Changed how reset is performed when adding/removing VFs
+to properly reinitialize PFs VSI.
 
-Fix the arch check by replacing it using machine type as it is already
-defined and used in the test.
-
-Link: https://lkml.kernel.org/r/20201215100402.257376-1-harish@linux.ibm.com
-Fixes: d8cbe8bfa7d ("tools/testing/selftests/vm: fix build error")
-Signed-off-by: Harish <harish@linux.ibm.com>
-Reviewed-by: Sandipan Das <sandipan@linux.ibm.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Sandipan Das <sandipan@linux.ibm.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fc60861e9b00 ("i40e: start up in VEPA mode by default")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/vm/Makefile | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e.h             |    3 +++
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |   10 ++++++++++
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    4 ++--
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index 691893afc15d8..e63f316327080 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm selftests
- uname_M := $(shell uname -m 2>/dev/null || echo not)
--MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
-+MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/' -e 's/ppc64.*/ppc64/')
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -129,6 +129,7 @@ enum i40e_state_t {
+ 	__I40E_RESET_INTR_RECEIVED,
+ 	__I40E_REINIT_REQUESTED,
+ 	__I40E_PF_RESET_REQUESTED,
++	__I40E_PF_RESET_AND_REBUILD_REQUESTED,
+ 	__I40E_CORE_RESET_REQUESTED,
+ 	__I40E_GLOBAL_RESET_REQUESTED,
+ 	__I40E_EMP_RESET_INTR_RECEIVED,
+@@ -156,6 +157,8 @@ enum i40e_state_t {
+ };
  
- # Without this, failed build products remain, with up-to-date timestamps,
- # thus tricking Make (and you!) into believing that All Is Well, in subsequent
-@@ -39,7 +39,7 @@ TEST_GEN_FILES += transhuge-stress
- TEST_GEN_FILES += userfaultfd
- TEST_GEN_FILES += khugepaged
+ #define I40E_PF_RESET_FLAG	BIT_ULL(__I40E_PF_RESET_REQUESTED)
++#define I40E_PF_RESET_AND_REBUILD_FLAG	\
++	BIT_ULL(__I40E_PF_RESET_AND_REBUILD_REQUESTED)
  
--ifeq ($(ARCH),x86_64)
-+ifeq ($(MACHINE),x86_64)
- CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bit_program.c -m32)
- CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_64bit_program.c)
- CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_program.c -no-pie)
-@@ -61,13 +61,13 @@ TEST_GEN_FILES += $(BINARIES_64)
- endif
- else
+ /* VSI state flags */
+ enum i40e_vsi_state_t {
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -44,6 +44,8 @@ static int i40e_setup_misc_vector(struct
+ static void i40e_determine_queue_usage(struct i40e_pf *pf);
+ static int i40e_setup_pf_filter_control(struct i40e_pf *pf);
+ static void i40e_prep_for_reset(struct i40e_pf *pf, bool lock_acquired);
++static void i40e_reset_and_rebuild(struct i40e_pf *pf, bool reinit,
++				   bool lock_acquired);
+ static int i40e_reset(struct i40e_pf *pf);
+ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired);
+ static int i40e_setup_misc_vector_for_recovery_mode(struct i40e_pf *pf);
+@@ -8484,6 +8486,14 @@ void i40e_do_reset(struct i40e_pf *pf, u
+ 			 "FW LLDP is disabled\n" :
+ 			 "FW LLDP is enabled\n");
  
--ifneq (,$(findstring $(ARCH),powerpc))
-+ifneq (,$(findstring $(MACHINE),ppc64))
- TEST_GEN_FILES += protection_keys
- endif
++	} else if (reset_flags & I40E_PF_RESET_AND_REBUILD_FLAG) {
++		/* Request a PF Reset
++		 *
++		 * Resets PF and reinitializes PFs VSI.
++		 */
++		i40e_prep_for_reset(pf, lock_acquired);
++		i40e_reset_and_rebuild(pf, true, lock_acquired);
++
+ 	} else if (reset_flags & BIT_ULL(__I40E_REINIT_REQUESTED)) {
+ 		int v;
  
- endif
- 
--ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 ppc64le riscv64 s390x sh64 sparc64 x86_64))
-+ifneq (,$(filter $(MACHINE),arm64 ia64 mips64 parisc64 ppc64 riscv64 s390x sh64 sparc64 x86_64))
- TEST_GEN_FILES += va_128TBswitch
- TEST_GEN_FILES += virtual_address_range
- TEST_GEN_FILES += write_to_hugetlbfs
-@@ -82,7 +82,7 @@ include ../lib.mk
- 
- $(OUTPUT)/hmm-tests: LDLIBS += -lhugetlbfs -lpthread
- 
--ifeq ($(ARCH),x86_64)
-+ifeq ($(MACHINE),x86_64)
- BINARIES_32 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
- BINARIES_64 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
- 
--- 
-2.27.0
-
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1704,7 +1704,7 @@ int i40e_pci_sriov_configure(struct pci_
+ 	if (num_vfs) {
+ 		if (!(pf->flags & I40E_FLAG_VEB_MODE_ENABLED)) {
+ 			pf->flags |= I40E_FLAG_VEB_MODE_ENABLED;
+-			i40e_do_reset_safe(pf, I40E_PF_RESET_FLAG);
++			i40e_do_reset_safe(pf, I40E_PF_RESET_AND_REBUILD_FLAG);
+ 		}
+ 		ret = i40e_pci_sriov_enable(pdev, num_vfs);
+ 		goto sriov_configure_out;
+@@ -1713,7 +1713,7 @@ int i40e_pci_sriov_configure(struct pci_
+ 	if (!pci_vfs_assigned(pf->pdev)) {
+ 		i40e_free_vfs(pf);
+ 		pf->flags &= ~I40E_FLAG_VEB_MODE_ENABLED;
+-		i40e_do_reset_safe(pf, I40E_PF_RESET_FLAG);
++		i40e_do_reset_safe(pf, I40E_PF_RESET_AND_REBUILD_FLAG);
+ 	} else {
+ 		dev_warn(&pdev->dev, "Unable to free VFs because some are assigned to VMs.\n");
+ 		ret = -EINVAL;
 
 
