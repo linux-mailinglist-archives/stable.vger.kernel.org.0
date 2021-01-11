@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F302F139A
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C26D32F14A6
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:28:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731448AbhAKNLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:11:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S1731815AbhAKN1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:27:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731443AbhAKNLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C34A22515;
-        Mon, 11 Jan 2021 13:11:02 +0000 (UTC)
+        id S1732402AbhAKNQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:16:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 464C322AAF;
+        Mon, 11 Jan 2021 13:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370662;
-        bh=uDKpZ9/xQLMGaaTQY81UYFTxD6iHtYVej1suSNWkwNU=;
+        s=korg; t=1610370971;
+        bh=FsuDOkHrxy651SKBoo84r3hTfRxp6uYKARxYY0rNnTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp3s15Tx3+VAhu4UnZqLTKYKD2zI319zhF6Qvjk8amwo/mPAm6LdT5yrk6hoBlR16
-         JjRZkEjNy4kUMhEnIOUwSsXUr+UHmy8grb15xTz9pahqd9rlHuOVzVh90Pv3LiJeVK
-         j0+ijIB2OVm/lYI1inwRk53n5aSqwXwLtRiUvJCA=
+        b=c4A32IC+NFkNQ0LFhKpw4rzX5b2OTb0cvnfo77tXCGyRPepSNY2sWu8r05nHLRugb
+         9t7WOOZ1iINf7IaqewlvgRnEqTh6v412w6m4r6/TTsHoLgckcAoPrOwQesw9NDNiHt
+         Nyiy+zMRA8E/lqT+ubiTCIVQ7BZBv/UTRWiuVT1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 44/92] ionic: account for vlan tag len in rx buffer len
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.10 084/145] usb: dwc3: gadget: Clear wait flag on dequeue
 Date:   Mon, 11 Jan 2021 14:01:48 +0100
-Message-Id: <20210111130041.268227610@linuxfoundation.org>
+Message-Id: <20210111130052.566672513@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shannon Nelson <snelson@pensando.io>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 83469893204281ecf65d572bddf02de29a19787c ]
+commit a5c7682aaaa10e42928d73de1c9e1e02d2b14c2e upstream.
 
-Let the FW know we have enough receive buffer space for the
-vlan tag if it isn't stripped.
+If an active transfer is dequeued, then the endpoint is freed to start a
+new transfer. Make sure to clear the endpoint's transfer wait flag for
+this case.
 
-Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Link: https://lore.kernel.org/r/20201218215001.64696-1-snelson@pensando.io
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e0d19563eb6c ("usb: dwc3: gadget: Wait for transfer completion")
+Cc: stable@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/b81cd5b5281cfbfdadb002c4bcf5c9be7c017cfd.1609828485.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/pensando/ionic/ionic_txrx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-@@ -257,7 +257,7 @@ void ionic_rx_fill(struct ionic_queue *q
- 	unsigned int len;
- 	unsigned int i;
+---
+ drivers/usb/dwc3/gadget.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1763,6 +1763,8 @@ static int dwc3_gadget_ep_dequeue(struct
+ 			list_for_each_entry_safe(r, t, &dep->started_list, list)
+ 				dwc3_gadget_move_cancelled_request(r);
  
--	len = netdev->mtu + ETH_HLEN;
-+	len = netdev->mtu + ETH_HLEN + VLAN_HLEN;
- 
- 	for (i = ionic_q_space_avail(q); i; i--) {
- 		skb = ionic_rx_skb_alloc(q, len, &dma_addr);
++			dep->flags &= ~DWC3_EP_WAIT_TRANSFER_COMPLETE;
++
+ 			goto out;
+ 		}
+ 	}
 
 
