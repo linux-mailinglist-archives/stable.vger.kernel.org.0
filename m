@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9A32F14E4
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 593AD2F15F5
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730323AbhAKNcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:32:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
+        id S1731250AbhAKNqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:46:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732220AbhAKNPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F229F22515;
-        Mon, 11 Jan 2021 13:14:37 +0000 (UTC)
+        id S1731240AbhAKNKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:10:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44D4D22515;
+        Mon, 11 Jan 2021 13:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370878;
-        bh=2sVDQXRpUdXutBWSy9FjARn+DWwCr2/+6doSpXNW9aI=;
+        s=korg; t=1610370626;
+        bh=44NJXjj/d4Ugm0c5usw7vv7MSf4YLcnYQL4+KEEKQcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXjczMg7yrXdkPn7isu5Ri4FxhjTCfIgnZdXuk3B7WZVAILl9ei2Icwh3xIKHMs0O
-         sCdz/XbqDb7UVVCtUrk+BK36S2ybWu1dTVsRs1UlJ2z9b/1zKqez458dmpSzIjNJsf
-         //71CwzIpIaHzP2zKUfB6o0NTzyE+8nd5NQgIOio=
+        b=zoH9Z5V1fRzQwQExL1AyAGL/Lc4DNgp367T1SHs3cmbmsueNZCMokFfPcF0t6d4hE
+         9zoWiw+zjbp2Sm79R88K/nlVKk/eY6uQhB+RkEBZ1f9jFtEryt+TDtauqTkuTR/JhF
+         3R3844uP3MUr2uRSoLsUco8UZD6uR7ls40HelOO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 044/145] net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register access
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jens Axboe <axboe@kernel.dk>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/92] scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
 Date:   Mon, 11 Jan 2021 14:01:08 +0100
-Message-Id: <20210111130050.639647028@linuxfoundation.org>
+Message-Id: <20210111130039.373290696@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 709a3c9dff2a639966ae7d8ba6239d2b8aba036d ]
+[ Upstream commit 96d86e6a80a3ab9aff81d12f9f1f2a0da2917d38 ]
 
-There is one GSWIP_MII_CFG register for each switch-port except the CPU
-port. The register offset for the first port is 0x0, 0x02 for the
-second, 0x04 for the third and so on.
+RQF_PREEMPT is used for two different purposes in the legacy IDE code:
 
-Update the driver to not only restrict the GSWIP_MII_CFG registers to
-ports 0, 1 and 5. Handle ports 0..5 instead but skip the CPU port. This
-means we are not overwriting the configuration for the third port (port
-two since we start counting from zero) with the settings for the sixth
-port (with number five) anymore.
+ 1. To mark power management requests.
 
-The GSWIP_MII_PCDU(p) registers are not updated because there's really
-only three (one for each of the following ports: 0, 1, 5).
+ 2. To mark requests that should preempt another request. An (old)
+    explanation of that feature is as follows: "The IDE driver in the Linux
+    kernel normally uses a series of busywait delays during its
+    initialization. When the driver executes these busywaits, the kernel
+    does nothing for the duration of the wait. The time spent in these
+    waits could be used for other initialization activities, if they could
+    be run concurrently with these waits.
 
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    More specifically, busywait-style delays such as udelay() in module
+    init functions inhibit kernel preemption because the Big Kernel Lock is
+    held, while yielding APIs such as schedule_timeout() allow
+    preemption. This is true because the kernel handles the BKL specially
+    and releases and reacquires it across reschedules allowed by the
+    current thread.
+
+    This IDE-preempt specification requires that the driver eliminate these
+    busywaits and replace them with a mechanism that allows other work to
+    proceed while the IDE driver is initializing."
+
+Since I haven't found an implementation of (2), do not set the PREEMPT flag
+for sense requests. This patch causes sense requests to be postponed while
+a drive is suspended instead of being submitted to ide_queue_rq().
+
+If it would ever be necessary to restore the IDE PREEMPT functionality,
+that can be done by introducing a new flag in struct ide_request.
+
+Link: https://lore.kernel.org/r/20201209052951.16136-4-bvanassche@acm.org
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/ide/ide-atapi.c | 1 -
+ drivers/ide/ide-io.c    | 5 -----
+ 2 files changed, 6 deletions(-)
 
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -92,9 +92,7 @@
- 					 GSWIP_MDIO_PHY_FDUP_MASK)
+diff --git a/drivers/ide/ide-atapi.c b/drivers/ide/ide-atapi.c
+index 80bc3bf82f4d7..775fd34132abb 100644
+--- a/drivers/ide/ide-atapi.c
++++ b/drivers/ide/ide-atapi.c
+@@ -223,7 +223,6 @@ void ide_prep_sense(ide_drive_t *drive, struct request *rq)
+ 	sense_rq->rq_disk = rq->rq_disk;
+ 	sense_rq->cmd_flags = REQ_OP_DRV_IN;
+ 	ide_req(sense_rq)->type = ATA_PRIV_SENSE;
+-	sense_rq->rq_flags |= RQF_PREEMPT;
  
- /* GSWIP MII Registers */
--#define GSWIP_MII_CFG0			0x00
--#define GSWIP_MII_CFG1			0x02
--#define GSWIP_MII_CFG5			0x04
-+#define GSWIP_MII_CFGp(p)		(0x2 * (p))
- #define  GSWIP_MII_CFG_EN		BIT(14)
- #define  GSWIP_MII_CFG_LDCLKDIS		BIT(12)
- #define  GSWIP_MII_CFG_MODE_MIIP	0x0
-@@ -392,17 +390,9 @@ static void gswip_mii_mask(struct gswip_
- static void gswip_mii_mask_cfg(struct gswip_priv *priv, u32 clear, u32 set,
- 			       int port)
- {
--	switch (port) {
--	case 0:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG0);
--		break;
--	case 1:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG1);
--		break;
--	case 5:
--		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFG5);
--		break;
--	}
-+	/* There's no MII_CFG register for the CPU port */
-+	if (!dsa_is_cpu_port(priv->ds, port))
-+		gswip_mii_mask(priv, clear, set, GSWIP_MII_CFGp(port));
- }
- 
- static void gswip_mii_mask_pcdu(struct gswip_priv *priv, u32 clear, u32 set,
-@@ -822,9 +812,8 @@ static int gswip_setup(struct dsa_switch
- 	gswip_mdio_mask(priv, 0xff, 0x09, GSWIP_MDIO_MDC_CFG1);
- 
- 	/* Disable the xMII link */
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 0);
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 1);
--	gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, 5);
-+	for (i = 0; i < priv->hw_info->max_ports; i++)
-+		gswip_mii_mask_cfg(priv, GSWIP_MII_CFG_EN, 0, i);
- 
- 	/* enable special tag insertion on cpu port */
- 	gswip_switch_mask(priv, 0, GSWIP_FDMA_PCTRL_STEN,
+ 	req->cmd[0] = GPCMD_REQUEST_SENSE;
+ 	req->cmd[4] = cmd_len;
+diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+index b137f27a34d58..b32a013d827a0 100644
+--- a/drivers/ide/ide-io.c
++++ b/drivers/ide/ide-io.c
+@@ -512,11 +512,6 @@ repeat:
+ 		 * above to return us whatever is in the queue. Since we call
+ 		 * ide_do_request() ourselves, we end up taking requests while
+ 		 * the queue is blocked...
+-		 * 
+-		 * We let requests forced at head of queue with ide-preempt
+-		 * though. I hope that doesn't happen too much, hopefully not
+-		 * unless the subdriver triggers such a thing in its own PM
+-		 * state machine.
+ 		 */
+ 		if ((drive->dev_flags & IDE_DFLAG_BLOCKED) &&
+ 		    ata_pm_request(rq) == 0 &&
+-- 
+2.27.0
+
 
 
