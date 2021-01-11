@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9193A2F17B0
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:10:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E9932F1787
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:07:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729821AbhAKOKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:10:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50194 "EHLO mail.kernel.org"
+        id S1730028AbhAKOHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 09:07:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729675AbhAKNDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:03:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCDEB2253A;
-        Mon, 11 Jan 2021 13:02:12 +0000 (UTC)
+        id S1729821AbhAKNDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6942227C3;
+        Mon, 11 Jan 2021 13:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370133;
-        bh=MlK/nh35vIef6jk3CPy9RXvKYk3ao/4abMrChiQTZjU=;
+        s=korg; t=1610370210;
+        bh=7e4x7QERNUpbnTYTuc74wsLQJVQJN0MHhcK1ALBJxjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qm7XWOxoKOq8BkPSKbeRathtAQWhBTQGElAbWVGtiBcai/1KwZ4cXlp7HHASaWbi0
-         4uX79HDnF96+uWFZQoM6lsLZRJFAgLaBl5BXg+BcAdH1o7vznbdU9RdCpKv+P39rTl
-         80KNkTN91VZuD7wJ0+IkUDTnx/NpFrO6DucWdKQs=
+        b=VKWxNo2uPtR56ZEW+/p+A2ZQvoK7UJXDqyLURBqmXhUR44pTGJaav+iMiMNiBJ4+R
+         Ng5zwLBTRoQiUG6+l7fydxvopWQwrW+6yahEcmNhTWGnLVoFSe/GgH7W5Sr4afImbj
+         pzDZZBbwj9caTTxc2f/z9nerKYP5nkpfIYR43miM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chandana Kishori Chiluveru <cchiluve@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.4 31/38] usb: gadget: configfs: Preserve function ordering after bind failure
-Date:   Mon, 11 Jan 2021 14:01:03 +0100
-Message-Id: <20210111130033.957315369@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.9 26/45] usb: uas: Add PNY USB Portable SSD to unusual_uas
+Date:   Mon, 11 Jan 2021 14:01:04 +0100
+Message-Id: <20210111130034.921894454@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
-References: <20210111130032.469630231@linuxfoundation.org>
+In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
+References: <20210111130033.676306636@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 6cd0fe91387917be48e91385a572a69dfac2f3f7 upstream.
+commit 96ebc9c871d8a28fb22aa758dd9188a4732df482 upstream.
 
-When binding the ConfigFS gadget to a UDC, the functions in each
-configuration are added in list order. However, if usb_add_function()
-fails, the failed function is put back on its configuration's
-func_list and purge_configs_funcs() is called to further clean up.
+Here's another variant PNY Pro Elite USB 3.1 Gen 2 portable SSD that
+hangs and doesn't respond to ATA_1x pass-through commands. If it doesn't
+support these commands, it should respond properly to the host. Add it
+to the unusual uas list to be able to move forward with other
+operations.
 
-purge_configs_funcs() iterates over the configurations and functions
-in forward order, calling unbind() on each of the previously added
-functions. But after doing so, each function gets moved to the
-tail of the configuration's func_list. This results in reshuffling
-the original order of the functions within a configuration such
-that the failed function now appears first even though it may have
-originally appeared in the middle or even end of the list. At this
-point if the ConfigFS gadget is attempted to re-bind to the UDC,
-the functions will be added in a different order than intended,
-with the only recourse being to remove and relink the functions all
-over again.
-
-An example of this as follows:
-
-ln -s functions/mass_storage.0 configs/c.1
-ln -s functions/ncm.0 configs/c.1
-ln -s functions/ffs.adb configs/c.1	# oops, forgot to start adbd
-echo "<udc device>" > UDC		# fails
-start adbd
-echo "<udc device>" > UDC		# now succeeds, but...
-					# bind order is
-					# "ADB", mass_storage, ncm
-
-[30133.118289] configfs-gadget gadget: adding 'Mass Storage Function'/ffffff810af87200 to config 'c'/ffffff817d6a2520
-[30133.119875] configfs-gadget gadget: adding 'cdc_network'/ffffff80f48d1a00 to config 'c'/ffffff817d6a2520
-[30133.119974] using random self ethernet address
-[30133.120002] using random host ethernet address
-[30133.139604] usb0: HOST MAC 3e:27:46:ba:3e:26
-[30133.140015] usb0: MAC 6e:28:7e:42:66:6a
-[30133.140062] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 to config 'c'/ffffff817d6a2520
-[30133.140081] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 --> -19
-[30133.140098] configfs-gadget gadget: unbind function 'Mass Storage Function'/ffffff810af87200
-[30133.140119] configfs-gadget gadget: unbind function 'cdc_network'/ffffff80f48d1a00
-[30133.173201] configfs-gadget a600000.dwc3: failed to start g1: -19
-[30136.661933] init: starting service 'adbd'...
-[30136.700126] read descriptors
-[30136.700413] read strings
-[30138.574484] configfs-gadget gadget: adding 'Function FS Gadget'/ffffff80f3868438 to config 'c'/ffffff817d6a2520
-[30138.575497] configfs-gadget gadget: adding 'Mass Storage Function'/ffffff810af87200 to config 'c'/ffffff817d6a2520
-[30138.575554] configfs-gadget gadget: adding 'cdc_network'/ffffff80f48d1a00 to config 'c'/ffffff817d6a2520
-[30138.575631] using random self ethernet address
-[30138.575660] using random host ethernet address
-[30138.595338] usb0: HOST MAC 2e:cf:43:cd:ca:c8
-[30138.597160] usb0: MAC 6a:f0:9f:ee:82:a0
-[30138.791490] configfs-gadget gadget: super-speed config #1: c
-
-Fix this by reversing the iteration order of the functions in
-purge_config_funcs() when unbinding them, and adding them back to
-the config's func_list at the head instead of the tail. This
-ensures that we unbind and unwind back to the original list order.
-
-Fixes: 88af8bbe4ef7 ("usb: gadget: the start of the configfs interface")
-Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20201229224443.31623-1-jackp@codeaurora.org
-Cc: stable <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/2edc7af892d0913bf06f5b35e49ec463f03d5ed8.1609819418.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/configfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1221,9 +1221,9 @@ static void purge_configs_funcs(struct g
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -164,6 +164,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x99
+ 		US_FL_BROKEN_FUA),
  
- 		cfg = container_of(c, struct config_usb_cfg, c);
- 
--		list_for_each_entry_safe(f, tmp, &c->functions, list) {
-+		list_for_each_entry_safe_reverse(f, tmp, &c->functions, list) {
- 
--			list_move_tail(&f->list, &cfg->func_list);
-+			list_move(&f->list, &cfg->func_list);
- 			if (f->unbind) {
- 				dev_err(&gi->cdev.gadget->dev, "unbind function"
- 						" '%s'/%p\n", f->name, f);
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
+ 		"PNY",
+ 		"Pro Elite SSD",
 
 
