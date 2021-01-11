@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD9F2F1303
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E16232F130E
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729156AbhAKNC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:02:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49668 "EHLO mail.kernel.org"
+        id S1727960AbhAKNCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:02:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728077AbhAKNC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:02:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 748892225E;
-        Mon, 11 Jan 2021 13:01:47 +0000 (UTC)
+        id S1729275AbhAKNCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:02:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1DD322510;
+        Mon, 11 Jan 2021 13:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370107;
-        bh=2RKH7J2muvcXmbRmaqoRBmJKzIh0qBhj7XPySiMHxCI=;
+        s=korg; t=1610370110;
+        bh=TUk7xG34DBHryzSeOrinhyiqyX9ct/+ZxntIdU1HJEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITYShobDJA0u23ckloOYULncvVux6XUaNHjyaO1yXIykPXFqrU/Qt5ryhIwy7avXU
-         CU9LFNCcY8qn0M2/4kx5DsiVKvudLbebGvBKyOuA9cckrNeyYS1Jao6BhkDVyRLKRg
-         2DWzNFVX7lLU+Mxf3oyT6uf3BWA29D1tD418/j9c=
+        b=jgfcIQ1BqByKlt4AiecHGCj9JZ98UOP9eV2/Dd097AJpEXAB6v7zTlCscMG4saFRx
+         p2jo0h35DD9BtHOTzF5f/ikVWLEgSpjCgUgfxtFash6cvoNbncx/TlCPr0pObjfqIF
+         DDlzkGq6MfNGUnVvaPntwFDYGyfbRfSHonpertC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 06/38] net: dcb: Validate netlink message in DCB handler
-Date:   Mon, 11 Jan 2021 14:00:38 +0100
-Message-Id: <20210111130032.777152798@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 07/38] ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
+Date:   Mon, 11 Jan 2021 14:00:39 +0100
+Message-Id: <20210111130032.818969699@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
 References: <20210111130032.469630231@linuxfoundation.org>
@@ -39,47 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <me@pmachata.org>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
+[ Upstream commit 21fdca22eb7df2a1e194b8adb812ce370748b733 ]
 
-DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
-messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
-the CAP_NET_ADMIN capability.
+RT_TOS() only clears one of the ECN bits. Therefore, when
+fib_compute_spec_dst() resorts to a fib lookup, it can return
+different results depending on the value of the second ECN bit.
 
-However, the operation to be performed is not decided from the DCB message
-type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
-reading DCB objects, the corresponding SET and DEL commands are used for
-manipulation.
+For example, ECT(0) and ECT(1) packets could be treated differently.
 
-The assumption is that set-like commands will be sent via an RTM_SETDCB
-message, and get-like ones via RTM_GETDCB. However, this assumption is not
-enforced.
+  $ ip netns add ns0
+  $ ip netns add ns1
+  $ ip link add name veth01 netns ns0 type veth peer name veth10 netns ns1
+  $ ip -netns ns0 link set dev lo up
+  $ ip -netns ns1 link set dev lo up
+  $ ip -netns ns0 link set dev veth01 up
+  $ ip -netns ns1 link set dev veth10 up
 
-It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
-capability by sending the corresponding command in an RTM_GETDCB message.
-That is a bug. Fix it by validating the type of the request message against
-the type used for the response.
+  $ ip -netns ns0 address add 192.0.2.10/24 dev veth01
+  $ ip -netns ns1 address add 192.0.2.11/24 dev veth10
 
-Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
-Signed-off-by: Petr Machata <me@pmachata.org>
-Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  $ ip -netns ns1 address add 192.0.2.21/32 dev lo
+  $ ip -netns ns1 route add 192.0.2.10/32 tos 4 dev veth10 src 192.0.2.21
+  $ ip netns exec ns1 sysctl -wq net.ipv4.icmp_echo_ignore_broadcasts=0
+
+With TOS 4 and ECT(1), ns1 replies using source address 192.0.2.21
+(ping uses -Q to set all TOS and ECN bits):
+
+  $ ip netns exec ns0 ping -c 1 -b -Q 5 192.0.2.255
+  [...]
+  64 bytes from 192.0.2.21: icmp_seq=1 ttl=64 time=0.544 ms
+
+But with TOS 4 and ECT(0), ns1 replies using source address 192.0.2.11
+because the "tos 4" route isn't matched:
+
+  $ ip netns exec ns0 ping -c 1 -b -Q 6 192.0.2.255
+  [...]
+  64 bytes from 192.0.2.11: icmp_seq=1 ttl=64 time=0.597 ms
+
+After this patch the ECN bits don't affect the result anymore:
+
+  $ ip netns exec ns0 ping -c 1 -b -Q 6 192.0.2.255
+  [...]
+  64 bytes from 192.0.2.21: icmp_seq=1 ttl=64 time=0.591 ms
+
+Fixes: 35ebf65e851c ("ipv4: Create and use fib_compute_spec_dst() helper.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/fib_frontend.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1725,6 +1725,8 @@ static int dcb_doit(struct sk_buff *skb,
- 	fn = &reply_funcs[dcb->cmd];
- 	if (!fn->cb)
- 		return -EOPNOTSUPP;
-+	if (fn->type != nlh->nlmsg_type)
-+		return -EPERM;
- 
- 	if (!tb[DCB_ATTR_IFNAME])
- 		return -EINVAL;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -299,7 +299,7 @@ __be32 fib_compute_spec_dst(struct sk_bu
+ 			.flowi4_iif = LOOPBACK_IFINDEX,
+ 			.flowi4_oif = l3mdev_master_ifindex_rcu(dev),
+ 			.daddr = ip_hdr(skb)->saddr,
+-			.flowi4_tos = RT_TOS(ip_hdr(skb)->tos),
++			.flowi4_tos = ip_hdr(skb)->tos & IPTOS_RT_MASK,
+ 			.flowi4_scope = scope,
+ 			.flowi4_mark = vmark ? skb->mark : 0,
+ 		};
 
 
