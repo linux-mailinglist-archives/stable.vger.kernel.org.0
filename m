@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EDE2F175B
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC9B2F1798
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbhAKNEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:04:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50882 "EHLO mail.kernel.org"
+        id S1728169AbhAKOIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 09:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730090AbhAKNEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:04:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA8512253A;
-        Mon, 11 Jan 2021 13:03:13 +0000 (UTC)
+        id S1727893AbhAKNDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:03:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 096EF22527;
+        Mon, 11 Jan 2021 13:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370194;
-        bh=ZwsZkSYfM5KR4IgNJmfL82GKzTKSzQC5mSAEDNtlr6M=;
+        s=korg; t=1610370196;
+        bh=CbRBZEV03v0zoXlpOxSlcfP7s7m7WeNWW0BWIbTmxkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PN8I4nwPiB9ohFLrcLNcjtufH8gctIvRARAvjQSh9BLaf6QPcN9iwxK4PHrBP25yQ
-         E1LV+JhNWZ5ZcIL0nDpdsxJWHIKKfA/Zxvg+e48ruNin0Y2vxakz69jvWl3hZQzQ06
-         hUU4IKWokGQ7ior1KhhdAhzoK/dbdnupHO8l0nWk=
+        b=adVpJJv2Rl/dAAnfxviWpBmxWrWv3+VsYJlGpxR3+4Z+aBWudJAllE7OKHtAZXazB
+         9w9qZdmFFpBhh7m6Lo08jKVx2Y/+xEf1JIfKPjDi+0oohv0O7inEmInUd6vOSPq3X8
+         +/cY5k6ZGLAtT5cFjXgUfjrkze1pmzWyoiGDxcjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <me@pmachata.org>,
+        stable@vger.kernel.org, John Wang <wangzhiqiang.bj@bytedance.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 07/45] net: dcb: Validate netlink message in DCB handler
-Date:   Mon, 11 Jan 2021 14:00:45 +0100
-Message-Id: <20210111130034.024552843@linuxfoundation.org>
+Subject: [PATCH 4.9 08/45] net/ncsi: Use real net-device for response handler
+Date:   Mon, 11 Jan 2021 14:00:46 +0100
+Message-Id: <20210111130034.067930829@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.676306636@linuxfoundation.org>
 References: <20210111130033.676306636@linuxfoundation.org>
@@ -39,47 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <me@pmachata.org>
+From: John Wang <wangzhiqiang.bj@bytedance.com>
 
-[ Upstream commit 826f328e2b7e8854dd42ea44e6519cd75018e7b1 ]
+[ Upstream commit 427c940558560bff2583d07fc119a21094675982 ]
 
-DCB uses the same handler function for both RTM_GETDCB and RTM_SETDCB
-messages. dcb_doit() bounces RTM_SETDCB mesasges if the user does not have
-the CAP_NET_ADMIN capability.
+When aggregating ncsi interfaces and dedicated interfaces to bond
+interfaces, the ncsi response handler will use the wrong net device to
+find ncsi_dev, so that the ncsi interface will not work properly.
+Here, we use the original net device to fix it.
 
-However, the operation to be performed is not decided from the DCB message
-type, but from the DCB command. Thus DCB_CMD_*_GET commands are used for
-reading DCB objects, the corresponding SET and DEL commands are used for
-manipulation.
-
-The assumption is that set-like commands will be sent via an RTM_SETDCB
-message, and get-like ones via RTM_GETDCB. However, this assumption is not
-enforced.
-
-It is therefore possible to manipulate DCB objects without CAP_NET_ADMIN
-capability by sending the corresponding command in an RTM_GETDCB message.
-That is a bug. Fix it by validating the type of the request message against
-the type used for the response.
-
-Fixes: 2f90b8657ec9 ("ixgbe: this patch adds support for DCB to the kernel and ixgbe driver")
-Signed-off-by: Petr Machata <me@pmachata.org>
-Link: https://lore.kernel.org/r/a2a9b88418f3a58ef211b718f2970128ef9e3793.1608673640.git.me@pmachata.org
+Fixes: 138635cc27c9 ("net/ncsi: NCSI response packet handler")
+Signed-off-by: John Wang <wangzhiqiang.bj@bytedance.com>
+Link: https://lore.kernel.org/r/20201223055523.2069-1-wangzhiqiang.bj@bytedance.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ncsi/ncsi-rsp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1726,6 +1726,8 @@ static int dcb_doit(struct sk_buff *skb,
- 	fn = &reply_funcs[dcb->cmd];
- 	if (!fn->cb)
- 		return -EOPNOTSUPP;
-+	if (fn->type != nlh->nlmsg_type)
-+		return -EPERM;
+--- a/net/ncsi/ncsi-rsp.c
++++ b/net/ncsi/ncsi-rsp.c
+@@ -975,7 +975,7 @@ int ncsi_rcv_rsp(struct sk_buff *skb, st
+ 	int payload, i, ret;
  
- 	if (!tb[DCB_ATTR_IFNAME])
- 		return -EINVAL;
+ 	/* Find the NCSI device */
+-	nd = ncsi_find_dev(dev);
++	nd = ncsi_find_dev(orig_dev);
+ 	ndp = nd ? TO_NCSI_DEV_PRIV(nd) : NULL;
+ 	if (!ndp)
+ 		return -ENODEV;
 
 
