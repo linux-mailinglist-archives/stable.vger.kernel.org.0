@@ -2,90 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B36CB2F24DF
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 02:17:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D77D2F24E0
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 02:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404027AbhALAZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404030AbhALAZW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jan 2021 19:25:22 -0500
-Received: from mga11.intel.com ([192.55.52.93]:55464 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404030AbhAKXW2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 18:22:28 -0500
-IronPort-SDR: TWotZNRv+xD4wmCLaQz8vkV40n5m96YpTeJA7waidHdgOF/3Man7/5Ht3vVPy2PqIeigobf5V9
- U1WJDMtCiAYA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="174443398"
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="174443398"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:48 -0800
-IronPort-SDR: pUUPMeApWvf36wfQKzsB3BjGzMYsmymcMjrPEDMSkJMXrPoXGoYPkBDshkptmcwb3cmQmY0kAo
- Z6kdLK8wPbCw==
-X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
-   d="scan'208";a="363304245"
-Received: from rchatre-mobl1.jf.intel.com ([10.54.70.7])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 15:21:48 -0800
-From:   Reinette Chatre <reinette.chatre@intel.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     Fenghua Yu <fenghua.yu@intel.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 5.4 2/2] x86/resctrl: Don't move a task to the same resource group
-Date:   Mon, 11 Jan 2021 15:21:41 -0800
-Message-Id: <189c5c33fe6def640b0ac8807cf819d7541bfa46.1610394119.git.reinette.chatre@intel.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <3a470a8ff17dfcf1a3d5afc189b74050a2634c2a.1610394119.git.reinette.chatre@intel.com>
-References: <3a470a8ff17dfcf1a3d5afc189b74050a2634c2a.1610394119.git.reinette.chatre@intel.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43096 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404143AbhAKXjC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 18:39:02 -0500
+Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541BAC061786
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 15:38:22 -0800 (PST)
+Received: by mail-ot1-x334.google.com with SMTP id q25so563193otn.10
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 15:38:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rUs9B0GBzcbQupCp4dQGB5oaFGpEbU2gvOFBT7hS9pI=;
+        b=Y6vFICgdPQg+RslusFSizFWpROSs5dTM3on8cnCuX62snvSEo8S8kpiPmkXnJ/zr8N
+         xiebv7nZjm5VRe3i1YlWaXLYvL8bfWkn79m1Gdi5gafA8V6jscUwiuqvKad17k6Rlm+0
+         uxc+MfL722ANsrLADxcYS4XaSlXOzcQnZuMSU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rUs9B0GBzcbQupCp4dQGB5oaFGpEbU2gvOFBT7hS9pI=;
+        b=NzSJiUsmD6Oxh5zagTSJEpMMNkL3wzMTCcJVm9Nv+lJDkHdyTIEQTlh3d4o5AmgivV
+         NnjcqMms1nQ0Xk0bTtwGSnchtKEtn4tP+w33YJepQr+0I9zeJvUpWGolJN7RHZNKsS2g
+         hASJ2XSZYvc+ouEu3tu4iVwakFYupnXVDWey0H+3z6fjv2W5P6VPJK9mGfuFd07T6YQw
+         D1430mvu5QYhirVvwBKmttK6q400p4jAoisgi7uD0qiBWNcUsPglFOtVUVL14/hzBh4g
+         Yv7W2j8oiYZUZ3RHQbue9aK4AOCre0Mnd8r4AjWjeAyZRqgDKWr9REvGjadO/9pvnjBZ
+         ppKw==
+X-Gm-Message-State: AOAM530Htc3r/3Q8/HL7ZyHY2+hDlez6e9y3lUKTy3XrP/BT+AMBDfkz
+        OnPG+Oh9bY5PT54qpm06V42/Rw==
+X-Google-Smtp-Source: ABdhPJxC567gjlAwPeCNwcNL3IqBJ3gs02JXDUD52aZ4hfHSp4qrhzCIr33hiH97GC1kMSzxRCZM0w==
+X-Received: by 2002:a9d:803:: with SMTP id 3mr223415oty.331.1610408301591;
+        Mon, 11 Jan 2021 15:38:21 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id 39sm279466otu.6.2021.01.11.15.38.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jan 2021 15:38:20 -0800 (PST)
+Subject: Re: [PATCH 5.10 000/144] 5.10.7-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20210111161510.602817176@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <86231e8d-f3f4-9f02-e436-761f93b881d7@linuxfoundation.org>
+Date:   Mon, 11 Jan 2021 16:38:19 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210111161510.602817176@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fenghua Yu <fenghua.yu@intel.com>
+On 1/11/21 9:15 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.7 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 13 Jan 2021 16:14:43 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.7-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-commit a0195f314a25582b38993bf30db11c300f4f4611 upstream
+Compiled and booted on my test system. No dmesg regressions.
 
-Shakeel Butt reported in [1] that a user can request a task to be moved
-to a resource group even if the task is already in the group. It just
-wastes time to do the move operation which could be costly to send IPI
-to a different CPU.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Add a sanity check to ensure that the move operation only happens when
-the task is not already in the resource group.
-
-[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
-
-Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
-Reported-by: Shakeel Butt <shakeelb@google.com>
-Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com
----
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 91af816e631b..28f786289fce 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -546,6 +546,13 @@ static void update_task_closid_rmid(struct task_struct *t)
- static int __rdtgroup_move_task(struct task_struct *tsk,
- 				struct rdtgroup *rdtgrp)
- {
-+	/* If the task is already in rdtgrp, no need to move the task. */
-+	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
-+	     tsk->rmid == rdtgrp->mon.rmid) ||
-+	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
-+	     tsk->closid == rdtgrp->mon.parent->closid))
-+		return 0;
-+
- 	/*
- 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
- 	 * updated by them.
--- 
-2.26.2
-
+thanks,
+-- Shuah
