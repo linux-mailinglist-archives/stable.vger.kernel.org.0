@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6C42F15B7
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A95842F15CF
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbhAKNnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59012 "EHLO mail.kernel.org"
+        id S1731411AbhAKNLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730736AbhAKNLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89CCC225AB;
-        Mon, 11 Jan 2021 13:11:11 +0000 (UTC)
+        id S1731405AbhAKNLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E93E722B49;
+        Mon, 11 Jan 2021 13:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370672;
-        bh=VL9IKgNgQz2J7NwXX484ckSLnlZn/DTR/YyUnEcM0fk=;
+        s=korg; t=1610370674;
+        bh=Y88JrtSnJigugINxiQIwypf7dwV/4rm8VVeXFG57HYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Dr/Lyq0I6aBdn5pDO1v9Pq7brI2KHFBqUja3zx8qBHwxtQMCGebCDvYayrnw7yJ3
-         AU/aRLz1Q5TBusqo83tLLCU080uMQXQETtAeVdO69I4nl3uLCZLIuZIB7xmpcCBK9M
-         HopM0+ehv7/wjeG/TXkg7LvR7nTqr9PrCT/SgpUo=
+        b=N718UyMVzi3edaveVAusqEjyAm7qFfiE9aDO6Jxl1txKMfB2E9UkMeZSi06Wb8g6b
+         wECilPAIAmA8DrGG6PjEi7dD7o1LZKh5ZjcV8+Dqu3YsYw7FDa58MAdTdJtXe9XY0A
+         EJRIzKfDBjaZ1+no8S45jgSMjBQr/Rb3BxeGEX5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.4 47/92] Bluetooth: revert: hci_h5: close serdev device and free hu in h5_close
-Date:   Mon, 11 Jan 2021 14:01:51 +0100
-Message-Id: <20210111130041.409792879@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 48/92] video: hyperv_fb: Fix the mmap() regression for v5.4.y and older
+Date:   Mon, 11 Jan 2021 14:01:52 +0100
+Message-Id: <20210111130041.456762660@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -41,65 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit 5c3b5796866f85354a5ce76a28f8ffba0dcefc7e upstream.
+db49200b1dad is backported from the mainline commit
+5f1251a48c17 ("video: hyperv_fb: Fix the cache type when mapping the VRAM"),
+to v5.4.y and older stable branches, but unluckily db49200b1dad causes
+mmap() to fail for /dev/fb0 due to EINVAL:
 
-There have been multiple revisions of the patch fix the h5->rx_skb
-leak. Accidentally the first revision (which is buggy) and v5 have
-both been merged:
+[ 5797.049560] x86/PAT: a.out:1910 map pfn expected mapping type
+  uncached-minus for [mem 0xf8200000-0xf85cbfff], got write-back
 
-v1 commit 70f259a3f427 ("Bluetooth: hci_h5: close serdev device and free
-hu in h5_close");
-v5 commit 855af2d74c87 ("Bluetooth: hci_h5: fix memory leak in h5_close")
+This means the v5.4.y kernel detects an incompatibility issue about the
+mapping type of the VRAM: db49200b1dad changes to use Write-Back when
+mapping the VRAM, while the mmap() syscall tries to use Uncached-minus.
+That’s to say, the kernel thinks Uncached-minus is incompatible with
+Write-Back: see drivers/video/fbdev/core/fbmem.c: fb_mmap() ->
+vm_iomap_memory() -> io_remap_pfn_range() -> ... -> track_pfn_remap() ->
+reserve_pfn_range().
 
-The correct v5 makes changes slightly higher up in the h5_close()
-function, which allowed both versions to get merged without conflict.
+Note: any v5.5 and newer kernel doesn't have the issue, because they
+have commit
+d21987d709e8 ("video: hyperv: hyperv_fb: Support deferred IO for Hyper-V frame buffer driver")
+, and when the hyperv_fb driver has the deferred_io support,
+fb_deferred_io_init() overrides info->fbops->fb_mmap with
+fb_deferred_io_mmap(), which doesn’t check the mapping type
+incompatibility. Note: since it's VRAM here, the checking is not really
+necessary.
 
-The changes from v1 unconditionally frees the h5 data struct, this
-is wrong because in the serdev enumeration case the memory is
-allocated in h5_serdev_probe() like this:
+Fix the regression by ioremap_wc(), which uses Write-combining. The kernel
+thinks it's compatible with Uncached-minus. The VRAM mappped by
+ioremap_wc() is slightly slower than mapped by ioremap_cache(), but is
+still significantly faster than by ioremap().
 
-        h5 = devm_kzalloc(dev, sizeof(*h5), GFP_KERNEL);
+Change the comment accordingly. Linux VM on ARM64 Hyper-V is still not
+working in the latest mainline yet, and when it works in future, the ARM64
+support is unlikely to be backported to v5.4 and older, so using
+ioremap_wc() in v5.4 and older should be ok.
 
-So its lifetime is tied to the lifetime of the driver being bound
-to the serdev and it is automatically freed when the driver gets
-unbound. In the serdev case the same h5 struct is re-used over
-h5_close() and h5_open() calls and thus MUST not be free-ed in
-h5_close().
+Note: this fix is only targeted at the stable branches:
+v5.4.y, v4.19.y, v4.14.y, v4.9.y and v4.4.y.
 
-The serdev_device_close() added to h5_close() is incorrect in the
-same way, serdev_device_close() is called on driver unbound too and
-also MUST no be called from h5_close().
-
-This reverts the changes made by merging v1 of the patch, so that
-just the changes of the correct v5 remain.
-
-Cc: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: db49200b1dad ("video: hyperv_fb: Fix the cache type when mapping the VRAM")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/hyperv_fb.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -250,12 +250,8 @@ static int h5_close(struct hci_uart *hu)
- 	if (h5->vnd && h5->vnd->close)
- 		h5->vnd->close(h5);
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index 81671272aa58f..1c6ae98710a01 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -704,11 +704,9 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	}
  
--	if (hu->serdev)
--		serdev_device_close(hu->serdev);
--
--	kfree_skb(h5->rx_skb);
--	kfree(h5);
--	h5 = NULL;
-+	if (!hu->serdev)
-+		kfree(h5);
+ 	/*
+-	 * Map the VRAM cacheable for performance. This is also required for
+-	 * VM Connect to display properly for ARM64 Linux VM, as the host also
+-	 * maps the VRAM cacheable.
++	 * Map the VRAM cacheable for performance.
+ 	 */
+-	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
++	fb_virt = ioremap_wc(par->mem->start, screen_fb_size);
+ 	if (!fb_virt)
+ 		goto err2;
  
- 	return 0;
- }
+-- 
+2.27.0
+
 
 
