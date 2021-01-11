@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A895D2F16F5
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:00:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1982F16B8
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbhAKN7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:59:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53672 "EHLO mail.kernel.org"
+        id S1730530AbhAKNHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730373AbhAKNGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6022821973;
-        Mon, 11 Jan 2021 13:06:25 +0000 (UTC)
+        id S1730525AbhAKNHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 977D82250F;
+        Mon, 11 Jan 2021 13:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370385;
-        bh=7iijogtg0u4HURqTLp+njXPol1jMSKnrG0odTanONbY=;
+        s=korg; t=1610370388;
+        bh=8WzSXwduy0Uvu1WM40O6odnKoUbQG7G5veNMCzM5ozw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOG9vamadf4yfJzdFVpSdB+cEUI6PQe09BZH81DoRrDq+KvdM6sf1uoKduPdEM14p
-         uH4Kq9Nk9IsU2vS9dmeuob4IAeDc1SURv0HI08FkQJqt1By84Vo3xbno1xS0Y0p+go
-         Lu0NJpbmcrgrf3GZ2Ym91Azz6nkSj0bLJHEphNX4=
+        b=FcOv0DR9NPSSYCUMGDe7tzLYIXiB+79AD3QQX3KjFZ9QWEI0Ae/FH5GJfJqJoRfe6
+         FLLGpD++VDj87LlkMxPOyPuGHTpFjyPOHtrOA9vySdJPSG3At0ru95NKPYv/AoUzsp
+         JRmohGDfCb8qema5sc57N9SGp6Hq0UUM9u0HzHqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 26/57] net: systemport: set dev->max_mtu to UMAC_MAX_MTU_SIZE
-Date:   Mon, 11 Jan 2021 14:01:45 +0100
-Message-Id: <20210111130034.987057399@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/57] video: hyperv_fb: Fix the mmap() regression for v5.4.y and older
+Date:   Mon, 11 Jan 2021 14:01:46 +0100
+Message-Id: <20210111130035.031645003@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
 References: <20210111130033.715773309@linuxfoundation.org>
@@ -40,32 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 54ddbdb024882e226055cc4c3c246592ddde2ee5 ]
+db49200b1dad is backported from the mainline commit
+5f1251a48c17 ("video: hyperv_fb: Fix the cache type when mapping the VRAM"),
+to v5.4.y and older stable branches, but unluckily db49200b1dad causes
+mmap() to fail for /dev/fb0 due to EINVAL:
 
-The driver is already allocating receive buffers of 2KiB and the
-Ethernet MAC is configured to accept frames up to UMAC_MAX_MTU_SIZE.
+[ 5797.049560] x86/PAT: a.out:1910 map pfn expected mapping type
+  uncached-minus for [mem 0xf8200000-0xf85cbfff], got write-back
 
-Fixes: bfcb813203e6 ("net: dsa: configure the MTU for switch ports")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20201218173843.141046-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This means the v5.4.y kernel detects an incompatibility issue about the
+mapping type of the VRAM: db49200b1dad changes to use Write-Back when
+mapping the VRAM, while the mmap() syscall tries to use Uncached-minus.
+That’s to say, the kernel thinks Uncached-minus is incompatible with
+Write-Back: see drivers/video/fbdev/core/fbmem.c: fb_mmap() ->
+vm_iomap_memory() -> io_remap_pfn_range() -> ... -> track_pfn_remap() ->
+reserve_pfn_range().
+
+Note: any v5.5 and newer kernel doesn't have the issue, because they
+have commit
+d21987d709e8 ("video: hyperv: hyperv_fb: Support deferred IO for Hyper-V frame buffer driver")
+, and when the hyperv_fb driver has the deferred_io support,
+fb_deferred_io_init() overrides info->fbops->fb_mmap with
+fb_deferred_io_mmap(), which doesn’t check the mapping type
+incompatibility. Note: since it's VRAM here, the checking is not really
+necessary.
+
+Fix the regression by ioremap_wc(), which uses Write-combining. The kernel
+thinks it's compatible with Uncached-minus. The VRAM mappped by
+ioremap_wc() is slightly slower than mapped by ioremap_cache(), but is
+still significantly faster than by ioremap().
+
+Change the comment accordingly. Linux VM on ARM64 Hyper-V is still not
+working in the latest mainline yet, and when it works in future, the ARM64
+support is unlikely to be backported to v5.4 and older, so using
+ioremap_wc() in v5.4 and older should be ok.
+
+Note: this fix is only targeted at the stable branches:
+v5.4.y, v4.19.y, v4.14.y, v4.9.y and v4.4.y.
+
+Fixes: db49200b1dad ("video: hyperv_fb: Fix the cache type when mapping the VRAM")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/hyperv_fb.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2153,6 +2153,7 @@ static int bcm_sysport_probe(struct plat
- 	/* HW supported features, none enabled by default */
- 	dev->hw_features |= NETIF_F_RXCSUM | NETIF_F_HIGHDMA |
- 				NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM;
-+	dev->max_mtu = UMAC_MAX_MTU_SIZE;
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index f3938c5278832..6e680007cf6b0 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -713,11 +713,9 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	}
  
- 	/* Request the WOL interrupt and advertise suspend if available */
- 	priv->wol_irq_disabled = 1;
+ 	/*
+-	 * Map the VRAM cacheable for performance. This is also required for
+-	 * VM Connect to display properly for ARM64 Linux VM, as the host also
+-	 * maps the VRAM cacheable.
++	 * Map the VRAM cacheable for performance.
+ 	 */
+-	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
++	fb_virt = ioremap_wc(par->mem->start, screen_fb_size);
+ 	if (!fb_virt)
+ 		goto err2;
+ 
+-- 
+2.27.0
+
 
 
