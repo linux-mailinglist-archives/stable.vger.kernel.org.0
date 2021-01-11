@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BF22F157E
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2803D2F1573
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730370AbhAKNlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:41:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59032 "EHLO mail.kernel.org"
+        id S1731526AbhAKNMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:12:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731513AbhAKNMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:12:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4217F21973;
-        Mon, 11 Jan 2021 13:12:28 +0000 (UTC)
+        id S1731521AbhAKNMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:12:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C8E22253A;
+        Mon, 11 Jan 2021 13:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370748;
-        bh=FjhDmEErWLv+VD/UaFYFFWSZMxO5uY64QUES59IVFFI=;
+        s=korg; t=1610370751;
+        bh=Lx5D2+uK7b3CwnDygVD/eA/l7MCVcjIHAbmAGA2crVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=feaH1EDnUTL2nMwHdhBsFY2YSFpTwe4LATc9MrfeoT8XaWqcbrJnSx+z5m5fiAfjT
-         D4o4WoxOESDRpT7O4yk6KPfvXIsCh2cUxISDMzIJYx48lFQQcRTs6hzMYU+btpwuuI
-         XOaVMftaCorejot+W9eFVBe+QsPv9cyEmNjWKt4Q=
+        b=IwL2B0J/lrUwD6sdc/euSg92TBNHpbWiAqKQCMOQ0zFg8DYvv8sN2tq9+Amc8IpHb
+         UEPe9gKfIUzlY5gH/P0iuTvalaxR5fhBNRGRODYYPcwhWchj3BFSLiALbcTcVWIjV7
+         JoI+HDh/fbvd7haWvHaWj97FHHd+fj3W1mEkMv4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 80/92] ALSA: hda/realtek - Fix speaker volume control on Lenovo C940
-Date:   Mon, 11 Jan 2021 14:02:24 +0100
-Message-Id: <20210111130043.009580745@linuxfoundation.org>
+Subject: [PATCH 5.4 81/92] ALSA: hda/realtek: Enable mute and micmute LED on HP EliteBook 850 G7
+Date:   Mon, 11 Jan 2021 14:02:25 +0100
+Message-Id: <20210111130043.057877299@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
 References: <20210111130039.165470698@linuxfoundation.org>
@@ -39,56 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit f86de9b1c0663b0a3ca2dcddec9aa910ff0fbf2c upstream.
+commit a598098cc9737f612dbab52294433fc26c51cc9b upstream.
 
-Cannot adjust speaker's volume on Lenovo C940.
-Applying the alc298_fixup_speaker_volume function can fix the issue.
+HP EliteBook 850 G7 uses the same GPIO pins as ALC285_FIXUP_HP_GPIO_LED
+to enable mute and micmute LED. So apply the quirk to enable the LEDs.
 
-[ Additional note: C940 has I2S amp for the speaker and this needs the
-  same initialization as Dell machines.
-  The patch was slightly modified so that the quirk entry is moved
-  next to the corresponding Dell quirk entry. -- tiwai ]
-
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/ea25b4e5c468491aa2e9d6cb1f2fced3@realtek.com
+Link: https://lore.kernel.org/r/20201230125636.45028-1-kai.heng.feng@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6236,6 +6236,7 @@ enum {
- 	ALC221_FIXUP_HP_FRONT_MIC,
- 	ALC292_FIXUP_TPT460,
- 	ALC298_FIXUP_SPK_VOLUME,
-+	ALC298_FIXUP_LENOVO_SPK_VOLUME,
- 	ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER,
- 	ALC269_FIXUP_ATIV_BOOK_8,
- 	ALC221_FIXUP_HP_MIC_NO_PRESENCE,
-@@ -7062,6 +7063,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC298_FIXUP_DELL_AIO_MIC_NO_PRESENCE,
- 	},
-+	[ALC298_FIXUP_LENOVO_SPK_VOLUME] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc298_fixup_speaker_volume,
-+	},
- 	[ALC295_FIXUP_DISABLE_DAC3] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc295_fixup_disable_dac3,
-@@ -8040,6 +8045,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+@@ -7880,6 +7880,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
 
 
