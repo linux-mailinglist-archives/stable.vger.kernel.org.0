@@ -2,350 +2,674 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF5E2F1432
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5074F2F14EE
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732809AbhAKNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732787AbhAKNVn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 08:21:43 -0500
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4484FC061794
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 05:21:03 -0800 (PST)
-Received: by mail-pg1-x52e.google.com with SMTP id n25so12534534pgb.0
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 05:21:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=z/BjxDCJwsBST2wwaV0IHnQzw+ysnn8QW2e7bc1qB98=;
-        b=ZF+Zfun3l9E7UQkAjzYlhMJiH6Py+7lJVTs1yQfk7zVnYl/0IuwVkzxN6PRBDvywE0
-         5Y+hVxGnNrPlPFBgHw45TgAWA2RKSv/ifSme78iGDNaO9iP+aXJio62Q/4CMfhYl4Ojw
-         GdNcMHY0Xgti0Imit1F3cWl5lld8CcMk479a/eRv2rmFq9U2KyotUUPM3KtvnOhsVPvW
-         XW7oOfR43YPxaZUKhV+LFln0XY7kVBPoWVSJ3sAWJ1F2MowYD6pJhkKhfmS343v1csNh
-         Lb/k5bk8eZ8w7SRHAnzVK9aANbV/8Iw6roLTamruwuSFUtgZhRFN+PBLL2wRhrHxosyB
-         vR4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=z/BjxDCJwsBST2wwaV0IHnQzw+ysnn8QW2e7bc1qB98=;
-        b=lAHlqQZiUz/5C6LzsbjnEcyJxoOdDjtyRfG8heODiCRrAXIyDRlFv4kdT1/8YDlm+6
-         FAOcCpgp96Y4iH8HefYLahZHlvpqBQ4v27ubjY1JI0xeSlE2ToRufxMKRG4lw5Ir5tDz
-         mzlQiVOO2YHmy5r5oTmHpW7Dx0SvgdmRQxsV9g64ek/nj7hPGz43MSOsOUB7pYapVSRJ
-         SnO4I2LRS5v1E/mRn/QCjL9ot452I533sL+184z+WgQBhm87wucvoVY1MrsBnxjek7P3
-         RRXGtYeccjhYJ6tr/anUNgu6pUnstuwUGj8OAEBzkybfyGDI21ZQOZ6YSWF5f8CS644O
-         gZ8w==
-X-Gm-Message-State: AOAM530ZYy3xNIMvp5aIhTPAtf4j7V+BG7YPDP4tHtOKr76aj19hRvRJ
-        OIEfo1FHrs54uPczhsDjFoPtm9DHj7KXaQ==
-X-Google-Smtp-Source: ABdhPJwDR3GVqiLEqyNIChAkz4SSo7DeT4EJzEKOPsxJ+QK0WXMiLw3nRf6XlVEw8sSfWYs57qFVqg==
-X-Received: by 2002:a63:574b:: with SMTP id h11mr19673334pgm.25.1610371262452;
-        Mon, 11 Jan 2021 05:21:02 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z3sm18729694pfb.157.2021.01.11.05.21.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Jan 2021 05:21:01 -0800 (PST)
-Message-ID: <5ffc50bd.1c69fb81.5c90c.7e89@mx.google.com>
-Date:   Mon, 11 Jan 2021 05:21:01 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1732240AbhAKNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:32:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33442 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732206AbhAKNO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:14:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F20D2253A;
+        Mon, 11 Jan 2021 13:14:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610370855;
+        bh=Iajfk/1lkmTh5UkocIrF2gsamUljpmCFhXfOiVYEOwE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zdknhs+a1/Iy+6z87wQkJ6bDk9vWTpLz+BlhyI3Mr8RoKjUowdBFRVBP9OlyP+eqW
+         wRhYTC3NN+y9MVpvooo4RSS5l4hdkud6YzDz9JyVkCP8c9BJV5zm7pZFLVicNEt3fP
+         C8mkdBGyRPuotj2oS3B/G8lvrnTe1O9oJNvq/vbM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 5.10 000/145] 5.10.7-rc1 review
+Date:   Mon, 11 Jan 2021 14:00:24 +0100
+Message-Id: <20210111130048.499958175@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.166-45-g6e65a4b1300d
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 170 runs,
- 7 regressions (v4.19.166-45-g6e65a4b1300d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.10.7-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.7-rc1
+X-KernelTest-Deadline: 2021-01-13T13:00+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 170 runs, 7 regressions (v4.19.166-45-g6e65a=
-4b1300d)
+This is the start of the stable review cycle for the 5.10.7 release.
+There are 145 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Regressions Summary
--------------------
+Responses should be made by Wed, 13 Jan 2021 13:00:19 +0000.
+Anything received after that time might be too late.
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.7-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-panda                      | arm   | lab-collabora   | gcc-8    | omap2plus=
-_defconfig | 1          =
+thanks,
 
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
+greg k-h
 
-qemu_arm-versatilepb       | arm   | lab-broonie     | gcc-8    | versatile=
-_defconfig | 1          =
+-------------
+Pseudo-Shortlog of commits:
 
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.7-rc1
 
-qemu_arm-versatilepb       | arm   | lab-collabora   | gcc-8    | versatile=
-_defconfig | 1          =
+Ping-Ke Shih <pkshih@realtek.com>
+    rtlwifi: rise completion at the last step of firmware callback
 
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
+Magnus Karlsson <magnus.karlsson@intel.com>
+    xsk: Fix memory leak for failed bind
 
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: x86: fix shift out of bounds reported by UBSAN
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.166-45-g6e65a4b1300d/plan/baseline/
+Ying-Tsun Huang <ying-tsun.huang@amd.com>
+    x86/mtrr: Correct the range check before performing MTRR type lookups
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.166-45-g6e65a4b1300d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6e65a4b1300da897386a4d84c62e81602116fb53 =
+Dan Carpenter <dan.carpenter@oracle.com>
+    dmaengine: idxd: off by one in cleanup code
 
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nft_dynset: report EOPNOTSUPP on missing set feature
 
+Florian Westphal <fw@strlen.de>
+    netfilter: xt_RATEEST: reject non-null terminated string from userspace
 
-Test Regressions
----------------- =
+Vasily Averin <vvs@virtuozzo.com>
+    netfilter: ipset: fix shift-out-of-bounds in htable_bits()
 
+Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+    netfilter: x_tables: Update remaining dereference to RCU
 
+Aaro Koskinen <aaro.koskinen@iki.fi>
+    ARM: dts: OMAP3: disable AES on N950/N9
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-meson-gxl-s905x-khadas-vim | arm64 | lab-baylibre    | gcc-8    | defconfig=
-           | 1          =
+Moshe Shemesh <moshe@mellanox.com>
+    net/mlx5e: Fix SWP offsets when vlan inserted by driver
 
+Coly Li <colyli@suse.de>
+    bcache: introduce BCH_FEATURE_INCOMPAT_LOG_LARGE_BUCKET_SIZE for large bucket
 
-  Details:     https://kernelci.org/test/plan/id/5ffc191afd1aec99b3c94cfa
+Coly Li <colyli@suse.de>
+    bcache: check unsupported feature sets for bcache register
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
-5x-khadas-vim.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s90=
-5x-khadas-vim.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+Coly Li <colyli@suse.de>
+    bcache: fix typo from SUUP to SUPP in features.h
 
+Matthew Auld <matthew.auld@intel.com>
+    drm/i915: clear the gpu reloc batch
 
+Matthew Auld <matthew.auld@intel.com>
+    drm/i915: clear the shadow batch
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc191afd1aec99b3c94=
-cfb
-        failing since 1 day (last pass: v4.19.166-7-gc896c168805bb, first f=
-ail: v4.19.166-9-g84297b8c2cc7a) =
+Nick Desaulniers <ndesaulniers@google.com>
+    arm64: link with -z norelro for LLD or aarch64-elf
 
- =
+Charan Teja Reddy <charante@codeaurora.org>
+    dmabuf: fix use-after-free of dmabuf's file->f_inode
 
+Bard Liao <yung-chuan.liao@linux.intel.com>
+    Revert "device property: Keep secondary firmware node secondary by type"
 
+Filipe Manana <fdmanana@suse.com>
+    btrfs: send: fix wrong file path when there is an inode with a pending rmdir
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-panda                      | arm   | lab-collabora   | gcc-8    | omap2plus=
-_defconfig | 1          =
+Qu Wenruo <wqu@suse.com>
+    btrfs: qgroup: don't try to wait flushing if we're already holding a transaction
 
+Liu Yi L <yi.l.liu@intel.com>
+    iommu/vt-d: Move intel_iommu info from struct intel_svm to struct intel_svm_dev
 
-  Details:     https://kernelci.org/test/plan/id/5ffc18aa4a6e692956c94cd1
+PeiSen Hou <pshou@realtek.com>
+    ALSA: hda/realtek: Add two "Intel Reference board" SSID in the ALC256.
 
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    ALSA: hda/realtek: Enable mute and micmute LED on HP EliteBook 850 G7
 
+Manuel Jiménez <mjbfm99@me.com>
+    ALSA: hda/realtek: Add mute LED quirk for more HP laptops
 
+Kailang Yang <kailang@realtek.com>
+    ALSA: hda/realtek - Fix speaker volume control on Lenovo C940
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ffc18aa4a6e692=
-956c94cd6
-        failing since 0 day (last pass: v4.19.166-9-g84297b8c2cc7a, first f=
-ail: v4.19.166-40-g6f3d9bf0e06e)
-        2 lines
+bo liu <bo.liu@senarytech.com>
+    ALSA: hda/conexant: add a new hda codec CX11970
 
-    2021-01-11 09:21:39.702000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-01-11 09:21:39.716000+00:00  <8>[   23.086486] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/via: Fix runtime PM for Clevo W35xSS
 
- =
+Tejun Heo <tj@kernel.org>
+    blk-iocost: fix NULL iocg deref from racing against initialization
 
+Fenghua Yu <fenghua.yu@intel.com>
+    x86/resctrl: Don't move a task to the same resource group
 
+Fenghua Yu <fenghua.yu@intel.com>
+    x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-baylibre    | gcc-8    | versatile=
-_defconfig | 1          =
+Ben Gardon <bgardon@google.com>
+    KVM: x86/mmu: Ensure TDP MMU roots are freed after yield
 
+Lai Jiangshan <laijs@linux.alibaba.com>
+    kvm: check tlbs_dirty directly
 
-  Details:     https://kernelci.org/test/plan/id/5ffc18effa14b39223c94cb9
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Get root level from walkers when retrieving MMIO SPTE
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Use -1 to flag an undefined spte in get_mmio_spte()
 
+Dan Williams <dan.j.williams@intel.com>
+    x86/mm: Fix leak of pmd ptlock
 
+Linus Torvalds <torvalds@linux-foundation.org>
+    mm: make wait_on_page_writeback() wait for multiple pending writebacks
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc18effa14b39223c94=
-cba
-        failing since 58 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
+David Arcari <darcari@redhat.com>
+    hwmon: (amd_energy) fix allocation of hwmon_channel_info config
 
- =
+Johan Hovold <johan@kernel.org>
+    USB: serial: keyspan_pda: remove unused variable
 
+Eddie Hung <eddie.hung@mediatek.com>
+    usb: gadget: configfs: Fix use-after-free issue with udc_name
 
+Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+    usb: gadget: configfs: Preserve function ordering after bind failure
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-broonie     | gcc-8    | versatile=
-_defconfig | 1          =
+Sriharsha Allenki <sallenki@codeaurora.org>
+    usb: gadget: Fix spinlock lockup on usb_function_deactivate
 
+Yang Yingliang <yangyingliang@huawei.com>
+    USB: gadget: legacy: fix return error code in acm_ms_bind()
 
-  Details:     https://kernelci.org/test/plan/id/5ffc1900263d7aa627c94cfe
+Manish Narani <manish.narani@xilinx.com>
+    usb: gadget: u_ether: Fix MTU size mismatch with RX packet size
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Zqiang <qiang.zhang@windriver.com>
+    usb: gadget: function: printer: Fix a memory leak for interface descriptor
 
+Jerome Brunet <jbrunet@baylibre.com>
+    usb: gadget: f_uac2: reset wMaxPacketSize
 
+Alan Stern <stern@rowland.harvard.edu>
+    USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc1900263d7aa627c94=
-cff
-        failing since 58 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
+Arnd Bergmann <arnd@arndb.de>
+    usb: gadget: select CONFIG_CRC32
 
- =
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Fix UBSAN warnings for MIDI jacks
 
+Johan Hovold <johan@kernel.org>
+    USB: usblp: fix DMA to stack
 
+Johan Hovold <johan@kernel.org>
+    USB: yurex: fix control-URB timeout handling
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-cip         | gcc-8    | versatile=
-_defconfig | 1          =
+Bjørn Mork <bjorn@mork.no>
+    USB: serial: option: add Quectel EM160R-GL
 
+Daniel Palmer <daniel@0x0f.com>
+    USB: serial: option: add LongSung M5710 module support
 
-  Details:     https://kernelci.org/test/plan/id/5ffc18eca8bbe1d9adc94cd5
+Johan Hovold <johan@kernel.org>
+    USB: serial: iuu_phoenix: fix DMA from stack
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: uas: Add PNY USB Portable SSD to unusual_uas
 
+Randy Dunlap <rdunlap@infradead.org>
+    usb: usbip: vhci_hcd: protect shift size
 
+Michael Grzeschik <m.grzeschik@pengutronix.de>
+    USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc18eca8bbe1d9adc94=
-cd6
-        failing since 58 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
+Yu Kuai <yukuai3@huawei.com>
+    usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
 
- =
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    usb: dwc3: ulpi: Fix USB2.0 HS/FS/LS PHY suspend regression
 
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    usb: dwc3: ulpi: Replace CPU-based busyloop with Protocol-based one
 
+Serge Semin <Sergey.Semin@baikalelectronics.ru>
+    usb: dwc3: ulpi: Use VStsDone to detect PHY regs access completion
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-collabora   | gcc-8    | versatile=
-_defconfig | 1          =
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Clear wait flag on dequeue
 
+Wesley Cheng <wcheng@codeaurora.org>
+    usb: dwc3: gadget: Restart DWC3 gadget when enabling pullup
 
-  Details:     https://kernelci.org/test/plan/id/5ffc1aa3861ec76eddc94cd8
+Zheng Zengkai <zhengzengkai@huawei.com>
+    usb: dwc3: meson-g12a: disable clk on error handling path in probe
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Madhusudanarao Amara <madhusudanarao.amara@intel.com>
+    usb: typec: intel_pmc_mux: Configure HPD first for HPD+IRQ request
 
+Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+    USB: cdc-wdm: Fix use after free in service_outstanding_interrupt().
 
+Sean Young <sean@mess.org>
+    USB: cdc-acm: blacklist another IR Droid device
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc1aa3861ec76eddc94=
-cd9
-        failing since 58 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
+taehyun.cho <taehyun.cho@samsung.com>
+    usb: gadget: enable super speed plus
 
- =
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    staging: mt7621-dma: Fix a resource leak in an error handling path
 
+Dan Carpenter <dan.carpenter@oracle.com>
+    Staging: comedi: Return -EFAULT if copy_to_user() fails
 
+Nathan Chancellor <natechancellor@gmail.com>
+    powerpc: Handle .text.{hot,unlikely}.* in linker script
 
-platform                   | arch  | lab             | compiler | defconfig=
-           | regressions
----------------------------+-------+-----------------+----------+----------=
------------+------------
-qemu_arm-versatilepb       | arm   | lab-linaro-lkft | gcc-8    | versatile=
-_defconfig | 1          =
+Christophe Leroy <christophe.leroy@csgroup.eu>
+    powerpc/32s: Fix RTAS machine check with VMAP stack
 
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    crypto: asym_tpm: correct zero out potential secrets
 
-  Details:     https://kernelci.org/test/plan/id/5ffc18a458b7c354d6c94cb9
+Ard Biesheuvel <ardb@kernel.org>
+    crypto: ecdh - avoid buffer overflow in ecdh_set_secret()
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.166=
--45-g6e65a4b1300d/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+Alan Stern <stern@rowland.harvard.edu>
+    scsi: block: Do not accept any requests while suspended
 
+Bart Van Assche <bvanassche@acm.org>
+    scsi: block: Remove RQF_PREEMPT and BLK_MQ_REQ_PREEMPT
 
+Hans de Goede <hdegoede@redhat.com>
+    Bluetooth: revert: hci_h5: close serdev device and free hu in h5_close
 
-  * baseline.login: https://kernelci.org/test/case/id/5ffc18a458b7c354d6c94=
-cba
-        failing since 58 days (last pass: v4.19.157-26-gd59f3161b3a0, first=
- fail: v4.19.157-27-g5543cc2c41d55) =
+Dominique Martinet <asmadeus@codewreck.org>
+    kbuild: don't hardcode depmod path
 
- =20
+Jaegeuk Kim <jaegeuk@kernel.org>
+    scsi: ufs: Clear UAC for FFU and RPMB LUNs
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    depmod: handle the case of /sbin/depmod without /sbin in PATH
+
+Huang Shijie <sjhuang@iluvatar.ai>
+    lib/genalloc: fix the overflow when size is too big
+
+Randy Dunlap <rdunlap@infradead.org>
+    local64.h: make <asm/local64.h> mandatory
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: core: Only process PM requests if rpm_status != RPM_ACTIVE
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: scsi_transport_spi: Set RQF_PM for domain validation commands
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: ide: Mark power management requests with RQF_PM instead of RQF_PREEMPT
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
+
+Bart Van Assche <bvanassche@acm.org>
+    scsi: block: Introduce BLK_MQ_REQ_PM
+
+Adrian Hunter <adrian.hunter@intel.com>
+    scsi: ufs-pci: Enable UFSHCD_CAP_RPM_AUTOSUSPEND for Intel controllers
+
+Adrian Hunter <adrian.hunter@intel.com>
+    scsi: ufs-pci: Fix recovery from hibernate exit errors for Intel controllers
+
+Adrian Hunter <adrian.hunter@intel.com>
+    scsi: ufs-pci: Ensure UFS device is in PowerDown mode for suspend-to-disk ->poweroff()
+
+Adrian Hunter <adrian.hunter@intel.com>
+    scsi: ufs-pci: Fix restore from S4 for Intel controllers
+
+Randall Huang <huangrandall@google.com>
+    scsi: ufs: Clear UAC for RPMB after ufshcd resets
+
+Bean Huo <beanhuo@micron.com>
+    scsi: ufs: Fix wrong print message in dev_err()
+
+Yunfeng Ye <yeyunfeng@huawei.com>
+    workqueue: Kick a worker based on the actual activation of delayed works
+
+Andres Freund <andres@anarazel.de>
+    block: add debugfs stanza for QUEUE_FLAG_NOWAIT
+
+Harish <harish@linux.ibm.com>
+    selftests/vm: fix building protection keys test
+
+Noor Azura Ahmad Tarmizi <noor.azura.ahmad.tarmizi@intel.com>
+    stmmac: intel: Add PCI IDs for TGL-H platform
+
+Ido Schimmel <idosch@nvidia.com>
+    selftests: mlxsw: Set headroom size of correct port
+
+Bjørn Mork <bjorn@mork.no>
+    net: usb: qmi_wwan: add Quectel EM160R-GL
+
+YANG LI <abaci-bugfix@linux.alibaba.com>
+    ibmvnic: fix: NULL pointer dereference.
+
+Roland Dreier <roland@kernel.org>
+    CDC-NCM: remove "connected" log message
+
+Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+    net: dsa: lantiq_gswip: Fix GSWIP_MII_CFG(p) register access
+
+Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+    net: dsa: lantiq_gswip: Enable GSWIP_MII_CFG_EN also for internal PHYs
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    r8169: work around power-saving bug on some chip versions
+
+Yunjian Wang <wangyunjian@huawei.com>
+    vhost_net: fix ubuf refcount incorrectly when sendmsg fails
+
+Taehee Yoo <ap420073@gmail.com>
+    bareudp: Fix use of incorrect min_headroom size
+
+Taehee Yoo <ap420073@gmail.com>
+    bareudp: set NETIF_F_LLTX flag
+
+Xie He <xie.he.0141@gmail.com>
+    net: hdlc_ppp: Fix issues when mod_timer is called while timer is running
+
+Cong Wang <cong.wang@bytedance.com>
+    erspan: fix version 1 check in gre_parse_header()
+
+Yunjian Wang <wangyunjian@huawei.com>
+    net: hns: fix return value check in __lb_other_process()
+
+Randy Dunlap <rdunlap@infradead.org>
+    net: sched: prevent invalid Scell_log shift count
+
+Guillaume Nault <gnault@redhat.com>
+    ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
+
+Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+    bnxt_en: Fix AER recovery.
+
+Stefan Chulski <stefanc@marvell.com>
+    net: mvpp2: fix pkt coalescing int-threshold configuration
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Check TQM rings for maximum supported value.
+
+Mario Limonciello <mario.limonciello@dell.com>
+    e1000e: Export S0ix flags to ethtool
+
+Mario Limonciello <mario.limonciello@dell.com>
+    Revert "e1000e: disable s0ix entry and exit flows for ME systems"
+
+Mario Limonciello <mario.limonciello@dell.com>
+    e1000e: bump up timeout to wait when ME un-configures ULP mode
+
+Mario Limonciello <mario.limonciello@dell.com>
+    e1000e: Only run S0ix flows if shutdown succeeded
+
+Yunjian Wang <wangyunjian@huawei.com>
+    tun: fix return value when the number of iovs exceeds MAX_SKB_FRAGS
+
+Grygorii Strashko <grygorii.strashko@ti.com>
+    net: ethernet: ti: cpts: fix ethtool output when no ptp_clock registered
+
+Antoine Tenart <atenart@kernel.org>
+    net-sysfs: take the rtnl lock when accessing xps_rxqs_map and num_tc
+
+Antoine Tenart <atenart@kernel.org>
+    net-sysfs: take the rtnl lock when storing xps_rxqs
+
+Antoine Tenart <atenart@kernel.org>
+    net-sysfs: take the rtnl lock when accessing xps_cpus_map and num_tc
+
+Antoine Tenart <atenart@kernel.org>
+    net-sysfs: take the rtnl lock when storing xps_cpus
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: ethernet: Fix memleak in ethoc_probe
+
+John Wang <wangzhiqiang.bj@bytedance.com>
+    net/ncsi: Use real net-device for response handler
+
+Petr Machata <me@pmachata.org>
+    net: dcb: Validate netlink message in DCB handler
+
+Jeff Dike <jdike@akamai.com>
+    virtio_net: Fix recursive call to cpus_read_lock()
+
+Manish Chopra <manishc@marvell.com>
+    qede: fix offload for IPIP tunnel packets
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: ethernet: mvneta: Fix error handling in mvneta_probe
+
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: continue fatal error reset after passive init
+
+Lijun Pan <ljp@linux.ibm.com>
+    ibmvnic: fix login buffer memory leak
+
+Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+    net: stmmac: dwmac-meson8b: ignore the second clock input
+
+Stefan Chulski <stefanc@marvell.com>
+    net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    atm: idt77252: call pci_disable_device() on error path
+
+Shannon Nelson <snelson@pensando.io>
+    ionic: account for vlan tag len in rx buffer len
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    ethernet: ucc_geth: set dev->max_mtu to 1518
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    ethernet: ucc_geth: fix use-after-free in ucc_geth_remove()
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: systemport: set dev->max_mtu to UMAC_MAX_MTU_SIZE
+
+Stefan Chulski <stefanc@marvell.com>
+    net: mvpp2: prs: fix PPPoE with ipv6 packet parse
+
+Stefan Chulski <stefanc@marvell.com>
+    net: mvpp2: Add TCAM entry to drop flow control pause frames
+
+Davide Caratti <dcaratti@redhat.com>
+    net/sched: sch_taprio: ensure to reset/destroy all child qdiscs
+
+Jakub Kicinski <kuba@kernel.org>
+    iavf: fix double-release of rtnl_lock
+
+Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+    i40e: Fix Error I40E_AQ_RC_EINVAL when removing VFs
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   6 +-
+ arch/alpha/include/asm/local64.h                   |   1 -
+ arch/arc/include/asm/Kbuild                        |   1 -
+ arch/arm/boot/dts/omap3-n950-n9.dtsi               |   8 ++
+ arch/arm/include/asm/Kbuild                        |   1 -
+ arch/arm64/Makefile                                |  10 +-
+ arch/arm64/include/asm/Kbuild                      |   1 -
+ arch/csky/include/asm/Kbuild                       |   1 -
+ arch/h8300/include/asm/Kbuild                      |   1 -
+ arch/hexagon/include/asm/Kbuild                    |   1 -
+ arch/ia64/include/asm/local64.h                    |   1 -
+ arch/m68k/include/asm/Kbuild                       |   1 -
+ arch/microblaze/include/asm/Kbuild                 |   1 -
+ arch/mips/include/asm/Kbuild                       |   1 -
+ arch/nds32/include/asm/Kbuild                      |   1 -
+ arch/parisc/include/asm/Kbuild                     |   1 -
+ arch/powerpc/include/asm/Kbuild                    |   1 -
+ arch/powerpc/kernel/head_book3s_32.S               |   9 ++
+ arch/powerpc/kernel/vmlinux.lds.S                  |   2 +-
+ arch/riscv/include/asm/Kbuild                      |   1 -
+ arch/s390/include/asm/Kbuild                       |   1 -
+ arch/sh/include/asm/Kbuild                         |   1 -
+ arch/sparc/include/asm/Kbuild                      |   1 -
+ arch/x86/include/asm/local64.h                     |   1 -
+ arch/x86/kernel/cpu/mtrr/generic.c                 |   6 +-
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c             | 117 +++++++++------------
+ arch/x86/kvm/mmu.h                                 |   2 +-
+ arch/x86/kvm/mmu/mmu.c                             |  22 ++--
+ arch/x86/kvm/mmu/tdp_mmu.c                         | 111 ++++++++++---------
+ arch/x86/kvm/mmu/tdp_mmu.h                         |   4 +-
+ arch/x86/mm/pgtable.c                              |   2 +
+ arch/xtensa/include/asm/Kbuild                     |   1 -
+ block/blk-core.c                                   |  13 +--
+ block/blk-iocost.c                                 |  16 ++-
+ block/blk-mq-debugfs.c                             |   2 +-
+ block/blk-mq.c                                     |   4 +-
+ block/blk-pm.h                                     |  14 ++-
+ crypto/asymmetric_keys/asym_tpm.c                  |   2 +-
+ crypto/ecdh.c                                      |   3 +-
+ drivers/atm/idt77252.c                             |   2 +-
+ drivers/base/core.c                                |   2 +-
+ drivers/bluetooth/hci_h5.c                         |   8 +-
+ drivers/dma-buf/dma-buf.c                          |  21 +++-
+ drivers/dma/idxd/sysfs.c                           |   4 +-
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c     |   4 +-
+ drivers/gpu/drm/i915/i915_cmd_parser.c             |  27 ++---
+ drivers/hwmon/amd_energy.c                         |   3 +-
+ drivers/ide/ide-atapi.c                            |   1 -
+ drivers/ide/ide-io.c                               |   7 +-
+ drivers/ide/ide-pm.c                               |   2 +-
+ drivers/iommu/intel/svm.c                          |   9 +-
+ drivers/md/bcache/features.c                       |   2 +-
+ drivers/md/bcache/features.h                       |  30 +++++-
+ drivers/md/bcache/super.c                          |  36 ++++++-
+ drivers/net/bareudp.c                              |   3 +-
+ drivers/net/dsa/lantiq_gswip.c                     |  27 ++---
+ drivers/net/ethernet/broadcom/bcmsysport.c         |   1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  38 +++----
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h          |   7 +-
+ drivers/net/ethernet/ethoc.c                       |   3 +-
+ drivers/net/ethernet/freescale/ucc_geth.c          |   3 +-
+ drivers/net/ethernet/hisilicon/hns/hns_ethtool.c   |   4 +
+ drivers/net/ethernet/ibm/ibmvnic.c                 |  10 +-
+ drivers/net/ethernet/intel/e1000e/e1000.h          |   1 +
+ drivers/net/ethernet/intel/e1000e/ethtool.c        |  46 ++++++++
+ drivers/net/ethernet/intel/e1000e/ich8lan.c        |  17 ++-
+ drivers/net/ethernet/intel/e1000e/netdev.c         |  59 ++---------
+ drivers/net/ethernet/intel/i40e/i40e.h             |   3 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |  10 ++
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   4 +-
+ drivers/net/ethernet/intel/iavf/iavf_main.c        |   4 +-
+ drivers/net/ethernet/marvell/mvneta.c              |   2 +-
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |  13 +--
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c     |  38 ++++++-
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.h     |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h  |   9 ++
+ .../mellanox/mlx5/core/en_accel/en_accel.h         |   8 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c    |   9 +-
+ drivers/net/ethernet/pensando/ionic/ionic_txrx.c   |   2 +-
+ drivers/net/ethernet/qlogic/qede/qede_fp.c         |   5 +
+ drivers/net/ethernet/realtek/r8169_main.c          |   6 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c  |   4 +
+ .../net/ethernet/stmicro/stmmac/dwmac-meson8b.c    |   2 +-
+ drivers/net/ethernet/ti/cpts.c                     |   2 +
+ drivers/net/tun.c                                  |   2 +-
+ drivers/net/usb/cdc_ncm.c                          |   3 -
+ drivers/net/usb/qmi_wwan.c                         |   1 +
+ drivers/net/virtio_net.c                           |  12 ++-
+ drivers/net/wan/hdlc_ppp.c                         |   7 ++
+ drivers/net/wireless/realtek/rtlwifi/core.c        |   8 +-
+ drivers/scsi/scsi_lib.c                            |  27 ++---
+ drivers/scsi/scsi_transport_spi.c                  |  27 +++--
+ drivers/scsi/ufs/ufshcd-pci.c                      |  73 ++++++++++++-
+ drivers/scsi/ufs/ufshcd.c                          |  86 ++++++++++++---
+ drivers/scsi/ufs/ufshcd.h                          |   1 +
+ drivers/staging/comedi/comedi_fops.c               |   4 +-
+ drivers/staging/mt7621-dma/mtk-hsdma.c             |   4 +-
+ drivers/usb/chipidea/ci_hdrc_imx.c                 |   6 +-
+ drivers/usb/class/cdc-acm.c                        |   4 +
+ drivers/usb/class/cdc-wdm.c                        |  16 ++-
+ drivers/usb/class/usblp.c                          |  21 +++-
+ drivers/usb/dwc3/core.h                            |   1 +
+ drivers/usb/dwc3/dwc3-meson-g12a.c                 |   2 +-
+ drivers/usb/dwc3/gadget.c                          |  16 +--
+ drivers/usb/dwc3/ulpi.c                            |  38 ++++---
+ drivers/usb/gadget/Kconfig                         |   2 +
+ drivers/usb/gadget/composite.c                     |  10 +-
+ drivers/usb/gadget/configfs.c                      |  19 ++--
+ drivers/usb/gadget/function/f_printer.c            |   1 +
+ drivers/usb/gadget/function/f_uac2.c               |  69 +++++++++---
+ drivers/usb/gadget/function/u_ether.c              |   9 +-
+ drivers/usb/gadget/legacy/acm_ms.c                 |   4 +-
+ drivers/usb/gadget/udc/dummy_hcd.c                 |  35 +++---
+ drivers/usb/host/xhci.c                            |  24 ++---
+ drivers/usb/misc/yurex.c                           |   3 +
+ drivers/usb/serial/iuu_phoenix.c                   |  20 +++-
+ drivers/usb/serial/keyspan_pda.c                   |   2 -
+ drivers/usb/serial/option.c                        |   3 +
+ drivers/usb/storage/unusual_uas.h                  |   7 ++
+ drivers/usb/typec/mux/intel_pmc_mux.c              |  11 ++
+ drivers/usb/usbip/vhci_hcd.c                       |   2 +
+ drivers/vhost/net.c                                |   6 +-
+ fs/btrfs/qgroup.c                                  |  30 ++++--
+ fs/btrfs/send.c                                    |  49 +++++----
+ include/asm-generic/Kbuild                         |   1 +
+ include/linux/blk-mq.h                             |   4 +-
+ include/linux/blkdev.h                             |  18 +++-
+ include/linux/intel-iommu.h                        |   2 +-
+ include/net/red.h                                  |   4 +-
+ include/uapi/linux/bcache.h                        |   2 +-
+ kernel/workqueue.c                                 |  13 ++-
+ lib/genalloc.c                                     |  25 ++---
+ mm/page-writeback.c                                |   2 +-
+ net/core/net-sysfs.c                               |  65 +++++++++---
+ net/dcb/dcbnl.c                                    |   2 +
+ net/ipv4/fib_frontend.c                            |   2 +-
+ net/ipv4/gre_demux.c                               |   2 +-
+ net/ipv4/netfilter/arp_tables.c                    |   2 +-
+ net/ipv4/netfilter/ip_tables.c                     |   2 +-
+ net/ipv6/netfilter/ip6_tables.c                    |   2 +-
+ net/ncsi/ncsi-rsp.c                                |   2 +-
+ net/netfilter/ipset/ip_set_hash_gen.h              |  20 +---
+ net/netfilter/nft_dynset.c                         |   6 +-
+ net/netfilter/xt_RATEEST.c                         |   3 +
+ net/sched/sch_choke.c                              |   2 +-
+ net/sched/sch_gred.c                               |   2 +-
+ net/sched/sch_red.c                                |   2 +-
+ net/sched/sch_sfq.c                                |   2 +-
+ net/sched/sch_taprio.c                             |   7 +-
+ net/xdp/xsk.c                                      |   4 +
+ net/xdp/xsk_buff_pool.c                            |   2 -
+ scripts/depmod.sh                                  |   2 +
+ sound/pci/hda/hda_intel.c                          |   2 -
+ sound/pci/hda/patch_conexant.c                     |   1 +
+ sound/pci/hda/patch_realtek.c                      |  10 ++
+ sound/pci/hda/patch_via.c                          |  13 +++
+ sound/usb/midi.c                                   |   4 +
+ .../testing/selftests/drivers/net/mlxsw/qos_pfc.sh |   2 +-
+ tools/testing/selftests/vm/Makefile                |  10 +-
+ virt/kvm/kvm_main.c                                |   3 +-
+ 160 files changed, 1157 insertions(+), 628 deletions(-)
+
+
