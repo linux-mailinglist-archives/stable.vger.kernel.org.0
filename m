@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D74F62F12D3
+	by mail.lfdr.de (Postfix) with ESMTP id 69E2E2F12D2
 	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbhAKNAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:00:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
+        id S1727917AbhAKNAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:00:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727847AbhAKNAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:00:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7DE2251F;
-        Mon, 11 Jan 2021 13:00:08 +0000 (UTC)
+        id S1727847AbhAKNAw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:00:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EB0122515;
+        Mon, 11 Jan 2021 13:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370009;
-        bh=8q5h240r0//eU8wdVDqG3rrKt+70xf4+EaErF+T3aSE=;
+        s=korg; t=1610370011;
+        bh=eE8E9oYTMU+D1wcRGu3mH53HOe2W/HgBq65zkGsRu4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMX5e6XHsQBr+SzoAsh9bdV0We1Mvj9SGBfIAJZo3hVjoXsTcp6uGG+Y07I198sYy
-         J9FuZyFhB17+aaxoehXlClekpnoZsV82HAUOBq/7aRZwzTUMPNZ1c1t4SgZGdfmlhm
-         jntSsNYfOgGdym+g89x711o6JtavAbPCpq/tdMoQ=
+        b=V5orbqClTQqFC+d/PLLAFPp2IAdyM8HDq+ueGjb+zazoYW3VcSRRUL2FJa78AKJ6l
+         F7P6Q3L/eIe9D24+Fz1nJiQs6oN3/FEy8ai+X7+J2fwec3nPN7g24rAssG99A2xUUb
+         /X7HlVwOwOrsqvFo6NK6pB8fyg1lt4DKKB2/CIHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com,
+        Nogah Frankel <nogahf@mellanox.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 11/38] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
-Date:   Mon, 11 Jan 2021 14:00:43 +0100
-Message-Id: <20210111130033.012589871@linuxfoundation.org>
+Subject: [PATCH 4.4 12/38] net: sched: prevent invalid Scell_log shift count
+Date:   Mon, 11 Jan 2021 14:00:44 +0100
+Message-Id: <20210111130033.066979023@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130032.469630231@linuxfoundation.org>
 References: <20210111130032.469630231@linuxfoundation.org>
@@ -42,57 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
+[ Upstream commit bd1248f1ddbc48b0c30565fce897a3b6423313b8 ]
 
-Currently the vhost_zerocopy_callback() maybe be called to decrease
-the refcount when sendmsg fails in tun. The error handling in vhost
-handle_tx_zerocopy() will try to decrease the same refcount again.
-This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
-when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
+Check Scell_log shift size in red_check_params() and modify all callers
+of red_check_params() to pass Scell_log.
 
-Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This prevents a shift out-of-bounds as detected by UBSAN:
+  UBSAN: shift-out-of-bounds in ./include/net/red.h:252:22
+  shift exponent 72 is too large for 32-bit type 'int'
+
+Fixes: 8afa10cbe281 ("net_sched: red: Avoid illegal values")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+97c5bd9cc81eca63d36e@syzkaller.appspotmail.com
+Cc: Nogah Frankel <nogahf@mellanox.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/red.h     |    4 +++-
+ net/sched/sch_choke.c |    2 +-
+ net/sched/sch_gred.c  |    2 +-
+ net/sched/sch_red.c   |    2 +-
+ net/sched/sch_sfq.c   |    2 +-
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -313,6 +313,7 @@ static void handle_tx(struct vhost_net *
- 	size_t hdr_size;
- 	struct socket *sock;
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-+	struct ubuf_info *ubuf;
- 	bool zcopy, zcopy_used;
- 	int sent_pkts = 0;
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -167,12 +167,14 @@ static inline void red_set_vars(struct r
+ 	v->qcount	= -1;
+ }
  
-@@ -378,9 +379,7 @@ static void handle_tx(struct vhost_net *
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+ 	if (fls(qth_max) + Wlog > 32)
+ 		return false;
++	if (Scell_log >= 32)
++		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
+ 	return true;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -439,7 +439,7 @@ static int choke_change(struct Qdisc *sc
  
- 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
- 		if (zcopy_used) {
--			struct ubuf_info *ubuf;
- 			ubuf = nvq->ubuf_info + nvq->upend_idx;
--
- 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
- 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
- 			ubuf->callback = vhost_zerocopy_callback;
-@@ -399,7 +398,8 @@ static void handle_tx(struct vhost_net *
- 		err = sock->ops->sendmsg(sock, &msg, len);
- 		if (unlikely(err < 0)) {
- 			if (zcopy_used) {
--				vhost_net_ubuf_put(ubufs);
-+				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
-+					vhost_net_ubuf_put(ubufs);
- 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
- 					% UIO_MAXIOV;
- 			}
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -389,7 +389,7 @@ static inline int gred_change_vq(struct
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -203,7 +203,7 @@ static int red_change(struct Qdisc *sch,
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -645,7 +645,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog))
++					ctl_v1->Wlog, ctl_v1->Scell_log))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
 
 
