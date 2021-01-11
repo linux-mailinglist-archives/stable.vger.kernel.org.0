@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1982F16B8
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E27E2F15E2
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730530AbhAKNHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:07:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54726 "EHLO mail.kernel.org"
+        id S1731355AbhAKNLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:11:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730525AbhAKNHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:07:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 977D82250F;
-        Mon, 11 Jan 2021 13:06:27 +0000 (UTC)
+        id S1731348AbhAKNLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:11:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCA8122A84;
+        Mon, 11 Jan 2021 13:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370388;
-        bh=8WzSXwduy0Uvu1WM40O6odnKoUbQG7G5veNMCzM5ozw=;
+        s=korg; t=1610370658;
+        bh=79QgIaz5hQOVT38E+6hDFFvVP9pJhD7hMhgf+oJ8Hc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcOv0DR9NPSSYCUMGDe7tzLYIXiB+79AD3QQX3KjFZ9QWEI0Ae/FH5GJfJqJoRfe6
-         FLLGpD++VDj87LlkMxPOyPuGHTpFjyPOHtrOA9vySdJPSG3At0ru95NKPYv/AoUzsp
-         JRmohGDfCb8qema5sc57N9SGp6Hq0UUM9u0HzHqc=
+        b=l+dXCCWZQjQ3UH1zZ4M3UgYHNawkq/EerZqvtON3jyYDc1Ba2Vj78v3sb2Q/dpFz+
+         bcj65+mTPIFg3TEwiHL60R5cuQPKw4e1+FmPLpGeZiTyJNK7ddpbLRYqnC/Xl6Z6Rr
+         j9570xlulVdHI24n7XDc7TbpnqL4DsHgIzFTxkxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/57] video: hyperv_fb: Fix the mmap() regression for v5.4.y and older
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 42/92] net: usb: qmi_wwan: add Quectel EM160R-GL
 Date:   Mon, 11 Jan 2021 14:01:46 +0100
-Message-Id: <20210111130035.031645003@linuxfoundation.org>
+Message-Id: <20210111130041.170353687@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
+References: <20210111130039.165470698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: "Bj�rn Mork" <bjorn@mork.no>
 
-db49200b1dad is backported from the mainline commit
-5f1251a48c17 ("video: hyperv_fb: Fix the cache type when mapping the VRAM"),
-to v5.4.y and older stable branches, but unluckily db49200b1dad causes
-mmap() to fail for /dev/fb0 due to EINVAL:
+[ Upstream commit cfd82dfc9799c53ef109343a23af006a0f6860a9 ]
 
-[ 5797.049560] x86/PAT: a.out:1910 map pfn expected mapping type
-  uncached-minus for [mem 0xf8200000-0xf85cbfff], got write-back
+New modem using ff/ff/30 for QCDM, ff/00/00 for  AT and NMEA,
+and ff/ff/ff for RMNET/QMI.
 
-This means the v5.4.y kernel detects an incompatibility issue about the
-mapping type of the VRAM: db49200b1dad changes to use Write-Back when
-mapping the VRAM, while the mmap() syscall tries to use Uncached-minus.
-That’s to say, the kernel thinks Uncached-minus is incompatible with
-Write-Back: see drivers/video/fbdev/core/fbmem.c: fb_mmap() ->
-vm_iomap_memory() -> io_remap_pfn_range() -> ... -> track_pfn_remap() ->
-reserve_pfn_range().
+T: Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=5000 MxCh= 0
+D: Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs= 1
+P: Vendor=2c7c ProdID=0620 Rev= 4.09
+S: Manufacturer=Quectel
+S: Product=EM160R-GL
+S: SerialNumber=e31cedc1
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+E: Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=82(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
+E: Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
+E: Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
 
-Note: any v5.5 and newer kernel doesn't have the issue, because they
-have commit
-d21987d709e8 ("video: hyperv: hyperv_fb: Support deferred IO for Hyper-V frame buffer driver")
-, and when the hyperv_fb driver has the deferred_io support,
-fb_deferred_io_init() overrides info->fbops->fb_mmap with
-fb_deferred_io_mmap(), which doesn’t check the mapping type
-incompatibility. Note: since it's VRAM here, the checking is not really
-necessary.
-
-Fix the regression by ioremap_wc(), which uses Write-combining. The kernel
-thinks it's compatible with Uncached-minus. The VRAM mappped by
-ioremap_wc() is slightly slower than mapped by ioremap_cache(), but is
-still significantly faster than by ioremap().
-
-Change the comment accordingly. Linux VM on ARM64 Hyper-V is still not
-working in the latest mainline yet, and when it works in future, the ARM64
-support is unlikely to be backported to v5.4 and older, so using
-ioremap_wc() in v5.4 and older should be ok.
-
-Note: this fix is only targeted at the stable branches:
-v5.4.y, v4.19.y, v4.14.y, v4.9.y and v4.4.y.
-
-Fixes: db49200b1dad ("video: hyperv_fb: Fix the cache type when mapping the VRAM")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20201230152451.245271-1-bjorn@mork.no
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/hyperv_fb.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
-index f3938c5278832..6e680007cf6b0 100644
---- a/drivers/video/fbdev/hyperv_fb.c
-+++ b/drivers/video/fbdev/hyperv_fb.c
-@@ -713,11 +713,9 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
- 	}
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1058,6 +1058,7 @@ static const struct usb_device_id produc
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0125)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0306)},	/* Quectel EP06/EG06/EM06 */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
++	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
  
- 	/*
--	 * Map the VRAM cacheable for performance. This is also required for
--	 * VM Connect to display properly for ARM64 Linux VM, as the host also
--	 * maps the VRAM cacheable.
-+	 * Map the VRAM cacheable for performance.
- 	 */
--	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
-+	fb_virt = ioremap_wc(par->mem->start, screen_fb_size);
- 	if (!fb_virt)
- 		goto err2;
- 
--- 
-2.27.0
-
+ 	/* 3. Combined interface devices matching on interface number */
 
 
