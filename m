@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F13822F13B1
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:13:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 215BC2F1436
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730791AbhAKNNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:13:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        id S1733209AbhAKNS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:18:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731638AbhAKNNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:13:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFDC22AAB;
-        Mon, 11 Jan 2021 13:12:56 +0000 (UTC)
+        id S1733204AbhAKNSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:18:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 301DC2255F;
+        Mon, 11 Jan 2021 13:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370776;
-        bh=hlR4DTAutJKTaLyj2TlIyWV1L+EXEmeTeWFnEO5mTsU=;
+        s=korg; t=1610371119;
+        bh=MFX2fFyY1k9rIYEBe4vxSgyv04VO/wE7buwiG+kc5K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rwADn/joqEvHPX+69actKsfxLpPia22TMafGyILt0mZHXFda7SRAopi9T2EpzIjnI
-         QgqPkjkwDKUe4SN87A+6bfVKvBJ5PFUblZAwCj471KV1KGNq0RkvJyW3YGG+Zp7AhU
-         gs/zEbJrlrmQVMfQMfQHmerohJvZVF/rMB9Sd/1w=
+        b=wLZW3KnQIRWhUowFAChHlkFc7WHNULUHTAx2nYaehEdMrGUfrRYfH+GVJ8HDWVqrL
+         HulKEQyx5PTWhMhyJWR/t7pUSn33X12hp0UytWZG3fgGnUHBIopLVRo34Q/yHIBqr6
+         OpzT3EuikHpphpqg/XIcwR0aSe2jUKefIiOfmrWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying-Tsun Huang <ying-tsun.huang@amd.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 91/92] x86/mtrr: Correct the range check before performing MTRR type lookups
-Date:   Mon, 11 Jan 2021 14:02:35 +0100
-Message-Id: <20210111130043.543092815@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 132/145] bcache: fix typo from SUUP to SUPP in features.h
+Date:   Mon, 11 Jan 2021 14:02:36 +0100
+Message-Id: <20210111130054.858282273@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ying-Tsun Huang <ying-tsun.huang@amd.com>
+From: Coly Li <colyli@suse.de>
 
-commit cb7f4a8b1fb426a175d1708f05581939c61329d4 upstream.
+commit f7b4943dea48a572ad751ce1f18a245d43debe7e upstream.
 
-In mtrr_type_lookup(), if the input memory address region is not in the
-MTRR, over 4GB, and not over the top of memory, a write-back attribute
-is returned. These condition checks are for ensuring the input memory
-address region is actually mapped to the physical memory.
+This patch fixes the following typos,
+from BCH_FEATURE_COMPAT_SUUP to BCH_FEATURE_COMPAT_SUPP
+from BCH_FEATURE_INCOMPAT_SUUP to BCH_FEATURE_INCOMPAT_SUPP
+from BCH_FEATURE_INCOMPAT_SUUP to BCH_FEATURE_RO_COMPAT_SUPP
 
-However, if the end address is just aligned with the top of memory,
-the condition check treats the address is over the top of memory, and
-write-back attribute is not returned.
-
-And this hits in a real use case with NVDIMM: the nd_pmem module tries
-to map NVDIMMs as cacheable memories when NVDIMMs are connected. If a
-NVDIMM is the last of the DIMMs, the performance of this NVDIMM becomes
-very low since it is aligned with the top of memory and its memory type
-is uncached-minus.
-
-Move the input end address change to inclusive up into
-mtrr_type_lookup(), before checking for the top of memory in either
-mtrr_type_lookup_{variable,fixed}() helpers.
-
- [ bp: Massage commit message. ]
-
-Fixes: 0cc705f56e40 ("x86/mm/mtrr: Clean up mtrr_type_lookup()")
-Signed-off-by: Ying-Tsun Huang <ying-tsun.huang@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20201215070721.4349-1-ying-tsun.huang@amd.com
+Fixes: d721a43ff69c ("bcache: increase super block version for cache device and backing device")
+Fixes: ffa470327572 ("bcache: add bucket_size_hi into struct cache_sb_disk for large bucket")
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org # 5.9+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/mtrr/generic.c |    6 +++---
+ drivers/md/bcache/features.h |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/cpu/mtrr/generic.c
-+++ b/arch/x86/kernel/cpu/mtrr/generic.c
-@@ -167,9 +167,6 @@ static u8 mtrr_type_lookup_variable(u64
- 	*repeat = 0;
- 	*uniform = 1;
+--- a/drivers/md/bcache/features.h
++++ b/drivers/md/bcache/features.h
+@@ -15,9 +15,9 @@
+ /* Incompat feature set */
+ #define BCH_FEATURE_INCOMPAT_LARGE_BUCKET	0x0001 /* 32bit bucket size */
  
--	/* Make end inclusive instead of exclusive */
--	end--;
--
- 	prev_match = MTRR_TYPE_INVALID;
- 	for (i = 0; i < num_var_ranges; ++i) {
- 		unsigned short start_state, end_state, inclusive;
-@@ -261,6 +258,9 @@ u8 mtrr_type_lookup(u64 start, u64 end,
- 	int repeat;
- 	u64 partial_end;
+-#define BCH_FEATURE_COMPAT_SUUP		0
+-#define BCH_FEATURE_RO_COMPAT_SUUP	0
+-#define BCH_FEATURE_INCOMPAT_SUUP	BCH_FEATURE_INCOMPAT_LARGE_BUCKET
++#define BCH_FEATURE_COMPAT_SUPP		0
++#define BCH_FEATURE_RO_COMPAT_SUPP	0
++#define BCH_FEATURE_INCOMPAT_SUPP	BCH_FEATURE_INCOMPAT_LARGE_BUCKET
  
-+	/* Make end inclusive instead of exclusive */
-+	end--;
-+
- 	if (!mtrr_state_set)
- 		return MTRR_TYPE_INVALID;
- 
+ #define BCH_HAS_COMPAT_FEATURE(sb, mask) \
+ 		((sb)->feature_compat & (mask))
 
 
