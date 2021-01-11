@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A93242F0E86
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:50:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B99A32F0E84
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 09:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728010AbhAKIuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 03:50:13 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:48835 "EHLO
+        id S1728003AbhAKItz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 03:49:55 -0500
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50275 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727948AbhAKIuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:50:13 -0500
+        by vger.kernel.org with ESMTP id S1725843AbhAKItz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 03:49:55 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 11E59195B121;
-        Mon, 11 Jan 2021 03:49:06 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:49:06 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1A2C8195B41F;
+        Mon, 11 Jan 2021 03:49:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 11 Jan 2021 03:49:08 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gnKRnw
-        GwQk7sqZ2SIh/M9K0X23bAVfrSSIEwDs6fu0A=; b=dZGQ4MBLMNjzLes6Rcg7KZ
-        p9gHmDPM3m0PKa35KirveJM8mlf6P8b3YCqIrWHbk/zTMUFEFrg66sIz4RDueObh
-        h2Hztg1m7fmFCOxgcyJP3XmDVhYVKzhQgS4y3ji+QT3psTS/K5jTik/ucHYATGjO
-        E8SPuKpjg1JVUAJCInLgwCEOD4Gmf723fZUp98QWpFNA0WvrMQ3JVszuVQszwriB
-        o1R7VRDQewJNhykaLeLj0kx+FDFsE4bRyyKO8tjXhpH1AdrpPD3s07hXswkiPikt
-        K4pLqaacwTQ2wJwTxr2iu7gwYgAfZ8ugRDAPwstfV+//r5sNIZkZfpHLTHscLRrg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=k2ldV7
+        wbY8cPxTIX94EyzUnT/YihgVwL9GhrFDMfCvg=; b=F736igXbAIaWlYj8f9Tnav
+        Mv2Xsi1yXrl7aau0EKoio6jrvjScjmnO+ZZYbvcXb4aR35aeC2wdGb4DdrvKw2J+
+        1NusBJd5/IZ7wTSS2pLZvFyzUWPCcrVsbL86MRX4GhA4jLQW3SkEZakqsw7EIQjH
+        9xxqQvD4RxETGjDxXr04/bqtxQoxKLZLxtezBizuSOpTCIUnhXTwiW/+bepG3D8H
+        eJgzLa+Ol/fOhK7uwlCaQ0VgG/xdYld7nmt7JwEx/iRDLldmqrYwT3pb415xsvL8
+        STuorGlyGHjj7cLG4k3CP/ALIHisU2gyT9GkWFkNVsCUpWpbNi7UH1+5ok6IxJsQ
         ==
-X-ME-Sender: <xms:ARH8XznYDXPVfamLkkWj8RL12wYXpgs_kbfAxFbSrTu14ClHRnYeYA>
-    <xme:ARH8X21iqnedd8J438hc9-47eou7kst4IXoWKN_29zSlOHxW00xInKDyUgMi9zXfX
-    xLBlTA8R0XqGA>
+X-ME-Sender: <xms:AxH8X5MsotRREv8zxxSKdd_-qM-etkHisN15uDlK5_nNFm3sskvvCQ>
+    <xme:AxH8X78okxZBM_IduT1HspQOJlBbPTzvmUr7SO-P8t0V4ZYB_fWhXPJETrbgyYmPG
+    BhUJjpabuSi_A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdehtddguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:ARH8X5ou1kF_w7goHw5XZLQRZceqdl3b-XyiBAjoo_CC_Kk2Xr_83Q>
-    <xmx:ARH8X7mf6zzyrp3StpljPjuJraSKBHwR74tnultHqF02BusYnN3mig>
-    <xmx:ARH8Xx38ooo5D0sqRV2YI82uj9bn1C5NA9euNsJodLcssPvaxcUIQg>
-    <xmx:AhH8X59T73zdKnuAUawaR7V-3N1dYNEPyCBY0fm-uiEcrgf3JQasxA>
+X-ME-Proxy: <xmx:AxH8X4RLuPzKSNa40L_MxtCahlT13WxpTU1iY8NtkUItj0AWUftxTQ>
+    <xmx:AxH8X1sr5IiCzgdTn2EaVRUPgo4oweXV-OyR63Nvsde3F9bpbAzznA>
+    <xmx:AxH8Xxf8QWa2OrqwsgEfmc2AjTwNhnE5USPHpkOr0JjqLtMhk1A1Og>
+    <xmx:BBH8X6GtZfT69Rzs8KRRKcKSrzsgxg3MVy3Euzaj-bgj2SeLsG9H-Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 61429240062;
-        Mon, 11 Jan 2021 03:49:05 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/resctrl: Use an IPI instead of task_work_add() to update" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B69851080059;
+        Mon, 11 Jan 2021 03:49:07 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/resctrl: Use an IPI instead of task_work_add() to update" failed to apply to 4.19-stable tree
 To:     fenghua.yu@intel.com, bp@suse.de, james.morse@arm.com,
         reinette.chatre@intel.com, shakeelb@google.com,
         tony.luck@intel.com, valentin.schneider@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Jan 2021 09:50:18 +0100
-Message-ID: <1610355018111165@kroah.com>
+Date:   Mon, 11 Jan 2021 09:50:20 +0100
+Message-ID: <1610355020244192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
