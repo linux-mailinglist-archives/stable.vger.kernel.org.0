@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D5C2F1706
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6782F1639
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728809AbhAKOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:00:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52134 "EHLO mail.kernel.org"
+        id S1730913AbhAKNJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:09:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730403AbhAKNGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:06:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80BC4227C3;
-        Mon, 11 Jan 2021 13:05:51 +0000 (UTC)
+        id S1730911AbhAKNJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60F0522AAD;
+        Mon, 11 Jan 2021 13:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370352;
-        bh=S/nDyzRhMHuWyhGGiyXlfjp3FiYLZw8KCdRMN3DqajU=;
+        s=korg; t=1610370534;
+        bh=BhMwMykViZJMHect5OL1Dy4stvtRtfcWtDel32CXr3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=busVpSuP4PuEIsuM0zF5pC8n2edmbjE+KjgptgbIq0DJRP6x+IEUM6GeuVSwy3eI9
-         ymcVyLFLZ2x87S/HNUWv09R/e5I4UVVGW4PcY9q4sflnvQZPP8W1ykYXRhejx9wY66
-         VLPecWtw5N8j9W6y3TryRw8EgCWmem/89Y4SS0cM=
+        b=g+Uo2vzStGqvPxRpfszre28dFuZYcFeUo+u3BI2uABoCPmOGbVvV5vzOqRz16OE/M
+         +mM3sEiprf2lpOpvm5NMn3cRWBKwuc18aSlyeUlTG7XhFQLVe9N8rUmyajoFvHce3J
+         kBJp+VSvUh30YT1vHGBtpZtW8F5RY4lIdQywdqxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
-        Alexander Duyck <alexanderduyck@fb.com>,
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 24/57] net-sysfs: take the rtnl lock when accessing xps_cpus_map and num_tc
+Subject: [PATCH 4.19 34/77] vhost_net: fix ubuf refcount incorrectly when sendmsg fails
 Date:   Mon, 11 Jan 2021 14:01:43 +0100
-Message-Id: <20210111130034.893522704@linuxfoundation.org>
+Message-Id: <20210111130038.039221236@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
-References: <20210111130033.715773309@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[ Upstream commit fb25038586d0064123e393cadf1fadd70a9df97a ]
+[ Upstream commit 01e31bea7e622f1890c274f4aaaaf8bccd296aa5 ]
 
-Accesses to dev->xps_cpus_map (when using dev->num_tc) should be
-protected by the rtnl lock, like we do for netif_set_xps_queue. I didn't
-see an actual bug being triggered, but let's be safe here and take the
-rtnl lock while accessing the map in sysfs.
+Currently the vhost_zerocopy_callback() maybe be called to decrease
+the refcount when sendmsg fails in tun. The error handling in vhost
+handle_tx_zerocopy() will try to decrease the same refcount again.
+This is wrong. To fix this issue, we only call vhost_net_ubuf_put()
+when vq->heads[nvq->desc].len == VHOST_DMA_IN_PROGRESS.
 
-Fixes: 184c449f91fe ("net: Add support for XPS with QoS via traffic classes")
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/1609207308-20544-1-git-send-email-wangyunjian@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net-sysfs.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/vhost/net.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1207,23 +1207,30 @@ static const struct attribute_group dql_
- static ssize_t xps_cpus_show(struct netdev_queue *queue,
- 			     char *buf)
- {
-+	int cpu, len, ret, num_tc = 1, tc = 0;
- 	struct net_device *dev = queue->dev;
--	int cpu, len, num_tc = 1, tc = 0;
- 	struct xps_dev_maps *dev_maps;
- 	cpumask_var_t mask;
- 	unsigned long index;
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -613,6 +613,7 @@ static void handle_tx_zerocopy(struct vh
+ 	size_t len, total_len = 0;
+ 	int err;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
++	struct ubuf_info *ubuf;
+ 	bool zcopy_used;
+ 	int sent_pkts = 0;
  
- 	index = get_netdev_queue_index(queue);
+@@ -645,9 +646,7 @@ static void handle_tx_zerocopy(struct vh
  
-+	if (!rtnl_trylock())
-+		return restart_syscall();
-+
- 	if (dev->num_tc) {
- 		num_tc = dev->num_tc;
- 		tc = netdev_txq_to_tc(dev, index);
--		if (tc < 0)
--			return -EINVAL;
-+		if (tc < 0) {
-+			ret = -EINVAL;
-+			goto err_rtnl_unlock;
-+		}
- 	}
- 
--	if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
--		return -ENOMEM;
-+	if (!zalloc_cpumask_var(&mask, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto err_rtnl_unlock;
-+	}
- 
- 	rcu_read_lock();
- 	dev_maps = rcu_dereference(dev->xps_maps);
-@@ -1246,9 +1253,15 @@ static ssize_t xps_cpus_show(struct netd
- 	}
- 	rcu_read_unlock();
- 
-+	rtnl_unlock();
-+
- 	len = snprintf(buf, PAGE_SIZE, "%*pb\n", cpumask_pr_args(mask));
- 	free_cpumask_var(mask);
- 	return len < PAGE_SIZE ? len : -EINVAL;
-+
-+err_rtnl_unlock:
-+	rtnl_unlock();
-+	return ret;
- }
- 
- static ssize_t xps_cpus_store(struct netdev_queue *queue,
+ 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+ 		if (zcopy_used) {
+-			struct ubuf_info *ubuf;
+ 			ubuf = nvq->ubuf_info + nvq->upend_idx;
+-
+ 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
+ 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
+ 			ubuf->callback = vhost_zerocopy_callback;
+@@ -675,7 +674,8 @@ static void handle_tx_zerocopy(struct vh
+ 		err = sock->ops->sendmsg(sock, &msg, len);
+ 		if (unlikely(err < 0)) {
+ 			if (zcopy_used) {
+-				vhost_net_ubuf_put(ubufs);
++				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
++					vhost_net_ubuf_put(ubufs);
+ 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
+ 					% UIO_MAXIOV;
+ 			}
 
 
