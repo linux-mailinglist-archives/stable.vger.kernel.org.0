@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74F122F14EA
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22D092F1696
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731817AbhAKNPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:15:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
+        id S1730888AbhAKNyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:54:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731767AbhAKNPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:15:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A30322795;
-        Mon, 11 Jan 2021 13:14:56 +0000 (UTC)
+        id S1730637AbhAKNHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:07:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9B8C225AC;
+        Mon, 11 Jan 2021 13:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370896;
-        bh=nJXW8k50MDHJuJ3C+GABp+P+axjo7kBiWqO5tLlJr0Q=;
+        s=korg; t=1610370455;
+        bh=YLGxne2Z27dnFk+C+c83Jkj5l1wv4USSGsKiDZy/V94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YInl/FmY+eMSs9BEkgLEGC2Sx+FYbGcvO2PjK5ltb6GodYGSUyx/RvhLEg01nfxJH
-         HOtTAggcd0zjaNK63kv0dW7Wg/p3eSl63oqHAQw3UXJCtywhiTpD8I0VAfdJIrJ8XS
-         d14vxy1AotWUlPXCsILcju24PrsaFEkje9x2fwHM=
+        b=up2xrLEtg3lSSgeAtmxiAkMH6GNDeZJoIMHYu2o8UkdjG1/jaq9612Xyn7a2Tf5V+
+         PvXrsz7j1QfFnJXUWLwFc8Nd3laHl+k2Z935RKP2RTr0uzccAHQzIb04rT3EHd/QA4
+         4ow8dGDMQHi3CTeP1vQGfPaf/bc274I/1mnjDVDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Woody Suwalski <terraluna977@gmail.com>,
+        Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Stan Johnson <userm57@yahoo.com>,
         Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Andres Freund <andres@anarazel.de>,
+        Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/145] block: add debugfs stanza for QUEUE_FLAG_NOWAIT
+Subject: [PATCH 4.19 06/77] scsi: scsi_transport_spi: Set RQF_PM for domain validation commands
 Date:   Mon, 11 Jan 2021 14:01:15 +0100
-Message-Id: <20210111130050.978460643@linuxfoundation.org>
+Message-Id: <20210111130036.711898511@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
-References: <20210111130048.499958175@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +50,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andres Freund <andres@anarazel.de>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit dc30432605bbbd486dfede3852ea4d42c40a84b4 ]
+[ Upstream commit cfefd9f8240a7b9fdd96fcd54cb029870b6d8d88 ]
 
-This was missed in 021a24460dc2. Leads to the numeric value of
-QUEUE_FLAG_NOWAIT (i.e. 29) showing up in
-/sys/kernel/debug/block/*/state.
+Disable runtime power management during domain validation. Since a later
+patch removes RQF_PREEMPT, set RQF_PM for domain validation commands such
+that these are executed in the quiesced SCSI device state.
 
-Fixes: 021a24460dc28e7412aecfae89f60e1847e685c0
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Mike Snitzer <snitzer@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Andres Freund <andres@anarazel.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20201209052951.16136-6-bvanassche@acm.org
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Woody Suwalski <terraluna977@gmail.com>
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Stan Johnson <userm57@yahoo.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-debugfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/scsi_transport_spi.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
-index 3094542e12ae0..e21eed20a1551 100644
---- a/block/blk-mq-debugfs.c
-+++ b/block/blk-mq-debugfs.c
-@@ -129,6 +129,7 @@ static const char *const blk_queue_flag_name[] = {
- 	QUEUE_FLAG_NAME(PCI_P2PDMA),
- 	QUEUE_FLAG_NAME(ZONE_RESETALL),
- 	QUEUE_FLAG_NAME(RQ_ALLOC_TIME),
-+	QUEUE_FLAG_NAME(NOWAIT),
- };
- #undef QUEUE_FLAG_NAME
+diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
+index 69213842e63e0..efb9c3d902133 100644
+--- a/drivers/scsi/scsi_transport_spi.c
++++ b/drivers/scsi/scsi_transport_spi.c
+@@ -130,12 +130,16 @@ static int spi_execute(struct scsi_device *sdev, const void *cmd,
+ 		sshdr = &sshdr_tmp;
  
+ 	for(i = 0; i < DV_RETRIES; i++) {
++		/*
++		 * The purpose of the RQF_PM flag below is to bypass the
++		 * SDEV_QUIESCE state.
++		 */
+ 		result = scsi_execute(sdev, cmd, dir, buffer, bufflen, sense,
+ 				      sshdr, DV_TIMEOUT, /* retries */ 1,
+ 				      REQ_FAILFAST_DEV |
+ 				      REQ_FAILFAST_TRANSPORT |
+ 				      REQ_FAILFAST_DRIVER,
+-				      0, NULL);
++				      RQF_PM, NULL);
+ 		if (driver_byte(result) != DRIVER_SENSE ||
+ 		    sshdr->sense_key != UNIT_ATTENTION)
+ 			break;
+@@ -1018,23 +1022,26 @@ spi_dv_device(struct scsi_device *sdev)
+ 	 */
+ 	lock_system_sleep();
+ 
++	if (scsi_autopm_get_device(sdev))
++		goto unlock_system_sleep;
++
+ 	if (unlikely(spi_dv_in_progress(starget)))
+-		goto unlock;
++		goto put_autopm;
+ 
+ 	if (unlikely(scsi_device_get(sdev)))
+-		goto unlock;
++		goto put_autopm;
+ 
+ 	spi_dv_in_progress(starget) = 1;
+ 
+ 	buffer = kzalloc(len, GFP_KERNEL);
+ 
+ 	if (unlikely(!buffer))
+-		goto out_put;
++		goto put_sdev;
+ 
+ 	/* We need to verify that the actual device will quiesce; the
+ 	 * later target quiesce is just a nice to have */
+ 	if (unlikely(scsi_device_quiesce(sdev)))
+-		goto out_free;
++		goto free_buffer;
+ 
+ 	scsi_target_quiesce(starget);
+ 
+@@ -1054,12 +1061,16 @@ spi_dv_device(struct scsi_device *sdev)
+ 
+ 	spi_initial_dv(starget) = 1;
+ 
+- out_free:
++free_buffer:
+ 	kfree(buffer);
+- out_put:
++
++put_sdev:
+ 	spi_dv_in_progress(starget) = 0;
+ 	scsi_device_put(sdev);
+-unlock:
++put_autopm:
++	scsi_autopm_put_device(sdev);
++
++unlock_system_sleep:
+ 	unlock_system_sleep();
+ }
+ EXPORT_SYMBOL(spi_dv_device);
 -- 
 2.27.0
 
