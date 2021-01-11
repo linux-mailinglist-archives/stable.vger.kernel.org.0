@@ -2,167 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF392F1C71
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 18:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 943AC2F1C69
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 18:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727121AbhAKRcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 12:32:16 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38840 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389452AbhAKRcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 12:32:16 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10BH474D044453
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 12:31:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references; s=pp1;
- bh=yFZRcqGQcx35gUSaEebh5dWRCDUG+R6UG3UQoprpPuE=;
- b=TgrPIpvhQIfKBR/dtOJJpKmd05OAlW0bY47fVix3NVbhQaMY1ihPsNGYqzLy7+Pz3dU3
- C3DY5f5x2x6i7I2ALYJ3WmkFT98olF2A3f9O0bqYTLJxOjEUthySxLNliIUPozk1wTxz
- H8nyB3zeCzsp2WzZuhVfBFOopyCx1oK0oVKMUMTlVBQPa51AA3tpPLIc8VS3MwYREDP3
- jYvWA9aEMPf1uJeoqfnHwfXA+yk8yRuifj4jVJgrxZf4m5Re6QwvM5zm+sdlbf7GCmI7
- 83xinA1hO+lecMMu+KkxJmyG0fj7lgoUxgGQe2gjp2ofMocKKCw4yNbgtPmjz3A4/zF9 ZQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 360s3xvmck-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 12:31:34 -0500
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10BH4BaM044821
-        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 12:31:34 -0500
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 360s3xvmcd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Jan 2021 12:31:34 -0500
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10BHN7ve031154;
-        Mon, 11 Jan 2021 17:31:34 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma03wdc.us.ibm.com with ESMTP id 35y448r798-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 11 Jan 2021 17:31:34 +0000
-Received: from b03ledav002.gho.boulder.ibm.com (b03ledav002.gho.boulder.ibm.com [9.17.130.233])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10BHVXr824904110
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 11 Jan 2021 17:31:33 GMT
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3429E136051;
-        Mon, 11 Jan 2021 17:31:33 +0000 (GMT)
-Received: from b03ledav002.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7A3F213604F;
-        Mon, 11 Jan 2021 17:31:32 +0000 (GMT)
-Received: from oc4221205838.ibm.com (unknown [9.211.159.40])
-        by b03ledav002.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 11 Jan 2021 17:31:32 +0000 (GMT)
-From:   Matthew Rosato <mjrosato@linux.ibm.com>
-To:     stable@vger.kernel.org
-Cc:     alex.williamson@redhat.com, cohuck@redhat.com
-Subject: [PATCH] vfio iommu: Add dma available capability
-Date:   Mon, 11 Jan 2021 12:31:28 -0500
-Message-Id: <1610386288-26220-2-git-send-email-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1610386288-26220-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1610386288-26220-1-git-send-email-mjrosato@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2021-01-11_28:2021-01-11,2021-01-11 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- spamscore=0 mlxscore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 mlxlogscore=878 adultscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101110099
+        id S2389435AbhAKRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 12:32:46 -0500
+Received: from mga17.intel.com ([192.55.52.151]:32052 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389244AbhAKRcp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 12:32:45 -0500
+IronPort-SDR: Rj893bq/5BnR3IbOubMGtqTvQo6M7dcAIxfgqQdCSD3TAgG/Z2awPSIiSryOsemIPjxlXaE1qu
+ GQh9z9mWWvxw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="157681598"
+X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
+   d="scan'208";a="157681598"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2021 09:32:05 -0800
+IronPort-SDR: 7rbyUqc2rg+Zxz41GmbCyB3CGM1eprtX02pTl51qv9JzE9KaQ7PqY2x8uxWFPBMwbj5V3FePzo
+ 0iWbZnWTED4A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,339,1602572400"; 
+   d="scan'208";a="344951049"
+Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
+  by fmsmga007.fm.intel.com with ESMTP; 11 Jan 2021 09:32:05 -0800
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 11 Jan 2021 09:32:04 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 11 Jan 2021 09:32:04 -0800
+Received: from fmsmsx610.amr.corp.intel.com ([10.18.126.90]) by
+ fmsmsx610.amr.corp.intel.com ([10.18.126.90]) with mapi id 15.01.1713.004;
+ Mon, 11 Jan 2021 09:32:04 -0800
+From:   "Bloomfield, Jon" <jon.bloomfield@intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
+CC:     Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        "Vivi, Rodrigo" <rodrigo.vivi@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 03/11] drm/i915: Allow the sysadmin to override security
+ mitigations
+Thread-Topic: [PATCH 03/11] drm/i915: Allow the sysadmin to override security
+ mitigations
+Thread-Index: AQHW52H0KsO7cQ69u0GWC0XUKyZqaqoirrpg
+Date:   Mon, 11 Jan 2021 17:31:48 +0000
+Deferred-Delivery: Mon, 11 Jan 2021 17:31:03 +0000
+Message-ID: <a2154cb4c5f7405fbc5551b750506fd8@intel.com>
+References: <20210110150404.19535-1-chris@chris-wilson.co.uk>
+ <20210110150404.19535-3-chris@chris-wilson.co.uk>
+In-Reply-To: <20210110150404.19535-3-chris@chris-wilson.co.uk>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.5.1.3
+x-originating-ip: [10.22.254.132]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7d6e1329652ed971d1b6e0e7bea66fba5044e271 ]
-
-The following functional changes were needed for backport:
-- vfio_iommu_type1_get_info doesn't exist, call
-  vfio_iommu_dma_avail_build_caps from vfio_iommu_type1_ioctl.
-- As further fallout from this, vfio_iommu_dma_avail_build_caps must
-  acquire and release the iommu mutex lock.  To do so, the return value is
-  stored in a local variable as in vfio_iommu_iova_build_caps.
-
-Upstream commit description:
-Commit 492855939bdb ("vfio/type1: Limit DMA mappings per container")
-added the ability to limit the number of memory backed DMA mappings.
-However on s390x, when lazy mapping is in use, we use a very large
-number of concurrent mappings.  Let's provide the current allowable
-number of DMA mappings to userspace via the IOMMU info chain so that
-userspace can take appropriate mitigation.
-
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- drivers/vfio/vfio_iommu_type1.c | 22 ++++++++++++++++++++++
- include/uapi/linux/vfio.h       | 15 +++++++++++++++
- 2 files changed, 37 insertions(+)
-
-diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
-index 3b31e83..bc6ba41 100644
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -2303,6 +2303,24 @@ static int vfio_iommu_iova_build_caps(struct vfio_iommu *iommu,
- 	return ret;
- }
- 
-+static int vfio_iommu_dma_avail_build_caps(struct vfio_iommu *iommu,
-+					   struct vfio_info_cap *caps)
-+{
-+	struct vfio_iommu_type1_info_dma_avail cap_dma_avail;
-+	int ret;
-+
-+	mutex_lock(&iommu->lock);
-+	cap_dma_avail.header.id = VFIO_IOMMU_TYPE1_INFO_DMA_AVAIL;
-+	cap_dma_avail.header.version = 1;
-+
-+	cap_dma_avail.avail = iommu->dma_avail;
-+
-+	ret = vfio_info_add_capability(caps, &cap_dma_avail.header,
-+				       sizeof(cap_dma_avail));
-+	mutex_unlock(&iommu->lock);
-+	return ret;
-+}
-+
- static long vfio_iommu_type1_ioctl(void *iommu_data,
- 				   unsigned int cmd, unsigned long arg)
- {
-@@ -2349,6 +2367,10 @@ static long vfio_iommu_type1_ioctl(void *iommu_data,
- 		info.iova_pgsizes = vfio_pgsize_bitmap(iommu);
- 
- 		ret = vfio_iommu_iova_build_caps(iommu, &caps);
-+
-+		if (!ret)
-+			ret = vfio_iommu_dma_avail_build_caps(iommu, &caps);
-+
- 		if (ret)
- 			return ret;
- 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 9e843a1..cabc931 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -748,6 +748,21 @@ struct vfio_iommu_type1_info_cap_iova_range {
- 	struct	vfio_iova_range iova_ranges[];
- };
- 
-+/*
-+ * The DMA available capability allows to report the current number of
-+ * simultaneously outstanding DMA mappings that are allowed.
-+ *
-+ * The structure below defines version 1 of this capability.
-+ *
-+ * avail: specifies the current number of outstanding DMA mappings allowed.
-+ */
-+#define VFIO_IOMMU_TYPE1_INFO_DMA_AVAIL 3
-+
-+struct vfio_iommu_type1_info_dma_avail {
-+	struct	vfio_info_cap_header header;
-+	__u32	avail;
-+};
-+
- #define VFIO_IOMMU_GET_INFO _IO(VFIO_TYPE, VFIO_BASE + 12)
- 
- /**
--- 
-1.8.3.1
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBDaHJpcyBXaWxzb24gPGNocmlz
+QGNocmlzLXdpbHNvbi5jby51az4NCj4gU2VudDogU3VuZGF5LCBKYW51YXJ5IDEwLCAyMDIxIDc6
+MDQgQU0NCj4gVG86IGludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4gQ2M6IENocmlz
+IFdpbHNvbiA8Y2hyaXNAY2hyaXMtd2lsc29uLmNvLnVrPjsgSm9vbmFzIExhaHRpbmVuDQo+IDxq
+b29uYXMubGFodGluZW5AbGludXguaW50ZWwuY29tPjsgQmxvb21maWVsZCwgSm9uDQo+IDxqb24u
+Ymxvb21maWVsZEBpbnRlbC5jb20+OyBWaXZpLCBSb2RyaWdvIDxyb2RyaWdvLnZpdmlAaW50ZWwu
+Y29tPjsNCj4gc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBbUEFUQ0ggMDMvMTFd
+IGRybS9pOTE1OiBBbGxvdyB0aGUgc3lzYWRtaW4gdG8gb3ZlcnJpZGUgc2VjdXJpdHkNCj4gbWl0
+aWdhdGlvbnMNCj4gDQo+IFRoZSBjbGVhci1yZXNpZHVhbHMgbWl0aWdhdGlvbiBpcyBhIHJlbGF0
+aXZlbHkgaGVhdnkgaGFtbWVyIGFuZCB1bmRlciBzb21lDQo+IGNpcmN1bXN0YW5jZXMgdGhlIHVz
+ZXIgbWF5IHdpc2ggdG8gZm9yZ28gdGhlIGNvbnRleHQgaXNvbGF0aW9uIGluIG9yZGVyDQo+IHRv
+IG1lZXQgc29tZSBwZXJmb3JtYW5jZSByZXF1aXJlbWVudC4gSW50cm9kdWNlIGEgZ2VuZXJpYyBt
+b2R1bGUNCj4gcGFyYW1ldGVyIHRvIGFsbG93IHNlbGVjdGl2ZWx5IGVuYWJsaW5nL2Rpc2FibGlu
+ZyBkaWZmZXJlbnQgbWl0aWdhdGlvbnMuDQo+IA0KPiBDbG9zZXM6IGh0dHBzOi8vZ2l0bGFiLmZy
+ZWVkZXNrdG9wLm9yZy9kcm0vaW50ZWwvLS9pc3N1ZXMvMTg1OA0KPiBGaXhlczogNDdmODI1M2Qy
+Yjg5ICgiZHJtL2k5MTUvZ2VuNzogQ2xlYXIgYWxsIEVVL0wzIHJlc2lkdWFsIGNvbnRleHRzIikN
+Cj4gU2lnbmVkLW9mZi1ieTogQ2hyaXMgV2lsc29uIDxjaHJpc0BjaHJpcy13aWxzb24uY28udWs+
+DQo+IENjOiBKb29uYXMgTGFodGluZW4gPGpvb25hcy5sYWh0aW5lbkBsaW51eC5pbnRlbC5jb20+
+DQo+IENjOiBKb24gQmxvb21maWVsZCA8am9uLmJsb29tZmllbGRAaW50ZWwuY29tPg0KPiBDYzog
+Um9kcmlnbyBWaXZpIDxyb2RyaWdvLnZpdmlAaW50ZWwuY29tPg0KPiBDYzogc3RhYmxlQHZnZXIu
+a2VybmVsLm9yZyAjIHY1LjcNCj4gLS0tDQoNClJldmlld2VkLWJ5OiBKb24gQmxvb21maWVsZCA8
+am9uLmJsb29tZmllbGRAaW50ZWwuY29tPj8NCg==
