@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 171A42F15E4
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE5E2F166E
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733205AbhAKNpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:45:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58590 "EHLO mail.kernel.org"
+        id S1730796AbhAKNwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731391AbhAKNL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:11:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFA5421973;
-        Mon, 11 Jan 2021 13:10:46 +0000 (UTC)
+        id S1730713AbhAKNJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:09:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C95522AAB;
+        Mon, 11 Jan 2021 13:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370647;
-        bh=/9UIJ5d6oF+oQOgHRhv35Uydujl10TUiEJufAONoLvU=;
+        s=korg; t=1610370532;
+        bh=yMxywED+ArmJLZi/EXozXCbOVYKMDgdSS+ji1SoFQio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3U8yLVot2FuBaYcOheBTaer0K/mV/s08hJOCoscVgWYD4+3/BoFtS6g+S8CXqlsp
-         Sqj3czbqe6p181Fu9kNHlKCYmqTHpuXQs2VN7QbODoIkcPgj7Mh9ggzNQHSsKwUUJO
-         WPXdVEUB3TeJqdqq4njiLxQCs+I0XMycGB9NH618=
+        b=ntYWwoTXyJoiO7Jej1y4Brb+jcbbOH5Okvsqm1cgMDqkCbOHdzpOJPBnWMcfITkRK
+         b0NRlNT5a/mtg8rc/T/6Aeq5GyaPO7eRcGgWG+xeryHbsqnjjAScQ1Hr9dZRe63jMe
+         dd/GHbFMF4tESGYT1MEAfmn4MDX0gXieey3/26QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 37/92] net: hdlc_ppp: Fix issues when mod_timer is called while timer is running
-Date:   Mon, 11 Jan 2021 14:01:41 +0100
-Message-Id: <20210111130040.937379207@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 33/77] r8169: work around power-saving bug on some chip versions
+Date:   Mon, 11 Jan 2021 14:01:42 +0100
+Message-Id: <20210111130037.990817985@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130036.414620026@linuxfoundation.org>
+References: <20210111130036.414620026@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 1fef73597fa545c35fddc953979013882fbd4e55 ]
+[ Upstream commit e80bd76fbf563cc7ed8c9e9f3bbcdf59b0897f69 ]
 
-ppp_cp_event is called directly or indirectly by ppp_rx with "ppp->lock"
-held. It may call mod_timer to add a new timer. However, at the same time
-ppp_timer may be already running and waiting for "ppp->lock". In this
-case, there's no need for ppp_timer to continue running and it can just
-exit.
+A user reported failing network with RTL8168dp (a quite rare chip
+version). Realtek confirmed that few chip versions suffer from a PLL
+power-down hw bug.
 
-If we let ppp_timer continue running, it may call add_timer. This causes
-kernel panic because add_timer can't be called with a timer pending.
-This patch fixes this problem.
-
-Fixes: e022c2f07ae5 ("WAN: new synchronous PPP implementation for generic HDLC.")
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 07df5bd874f0 ("r8169: power down chip in probe")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/a1c39460-d533-7f9e-fa9d-2b8990b02426@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc_ppp.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/realtek/r8169.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wan/hdlc_ppp.c
-+++ b/drivers/net/wan/hdlc_ppp.c
-@@ -569,6 +569,13 @@ static void ppp_timer(struct timer_list
- 	unsigned long flags;
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -4237,7 +4237,8 @@ static void r8168_pll_power_down(struct
+ 		return;
  
- 	spin_lock_irqsave(&ppp->lock, flags);
-+	/* mod_timer could be called after we entered this function but
-+	 * before we got the lock.
-+	 */
-+	if (timer_pending(&proto->timer)) {
-+		spin_unlock_irqrestore(&ppp->lock, flags);
-+		return;
-+	}
- 	switch (proto->state) {
- 	case STOPPING:
- 	case REQ_SENT:
+ 	switch (tp->mac_version) {
+-	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
++	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+ 	case RTL_GIGA_MAC_VER_43:
+@@ -4263,7 +4264,8 @@ static void r8168_pll_power_down(struct
+ static void r8168_pll_power_up(struct rtl8169_private *tp)
+ {
+ 	switch (tp->mac_version) {
+-	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
++	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+ 	case RTL_GIGA_MAC_VER_43:
 
 
