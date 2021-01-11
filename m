@@ -2,71 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B3212F18CA
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 947522F1923
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 16:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbhAKOyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:54:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46602 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728564AbhAKOyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 09:54:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD40C225AB;
-        Mon, 11 Jan 2021 14:53:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610376802;
-        bh=qluharLiwyl2e8eu98B+5o/EBRmfdenTmZ6KLl8eGxQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m8pl6tBIpGZMPkvrtl/FpgnWW614lt19eeo+sH0l70FY1nG6CN/wVrYZ2vdgo9CRX
-         Vj7grS2483TNXO3fSxjv2bXDCJe8UURXGSnAni2F8vKEyjjo1erNwX+HQvpAqe5iED
-         /70sICR2BF05mua9Whn5gDt7GfX/N1l7acFfGyVM=
-Date:   Mon, 11 Jan 2021 15:54:33 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
-Cc:     "andre@tomt.net" <andre@tomt.net>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>,
-        "Kazlauskas, Nicholas" <Nicholas.Kazlauskas@amd.com>,
-        "oleksandr@natalenko.name" <oleksandr@natalenko.name>,
-        "Wang, Chao-kai (Stylon)" <Stylon.Wang@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] Revert "drm/amd/display: Fix memory leaks
- in S3 resume"" failed to apply to 5.10-stable tree
-Message-ID: <X/xmqd8ehJVpxFnx@kroah.com>
-References: <1610355550144178@kroah.com>
- <MN2PR12MB4488ECF24D89C1874B3E9087F7AB0@MN2PR12MB4488.namprd12.prod.outlook.com>
+        id S1727750AbhAKPFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 10:05:33 -0500
+Received: from imap2.colo.codethink.co.uk ([78.40.148.184]:43418 "EHLO
+        imap2.colo.codethink.co.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726459AbhAKPFd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 10:05:33 -0500
+Received: from cpc79921-stkp12-2-0-cust288.10-2.cable.virginm.net ([86.16.139.33] helo=[192.168.0.18])
+        by imap2.colo.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
+        id 1kyykV-0008FJ-EB; Mon, 11 Jan 2021 15:04:51 +0000
+Subject: Re: [PATCH] i2c: tegra-bpmp: ignore DMA safe buffer flag
+To:     Mikko Perttunen <mperttunen@nvidia.com>, thierry.reding@gmail.com,
+        jonathanh@nvidia.com
+Cc:     talho@nvidia.com, linux-i2c@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Muhammed Fazal <mfazale@nvidia.com>, stable@vger.kernel.org
+References: <20210111142713.3641208-1-mperttunen@nvidia.com>
+From:   Ben Dooks <ben.dooks@codethink.co.uk>
+Organization: Codethink Limited.
+Message-ID: <16a0be21-2cbe-dd0e-aed7-b84f6abcacac@codethink.co.uk>
+Date:   Mon, 11 Jan 2021 15:04:50 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MN2PR12MB4488ECF24D89C1874B3E9087F7AB0@MN2PR12MB4488.namprd12.prod.outlook.com>
+In-Reply-To: <20210111142713.3641208-1-mperttunen@nvidia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 11, 2021 at 02:40:27PM +0000, Deucher, Alexander wrote:
-> [AMD Public Use]
+On 11/01/2021 14:27, Mikko Perttunen wrote:
+> From: Muhammed Fazal <mfazale@nvidia.com>
 > 
-> > -----Original Message-----
-> > From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-> > Sent: Monday, January 11, 2021 3:59 AM
-> > To: Deucher, Alexander <Alexander.Deucher@amd.com>; andre@tomt.net;
-> > Wentland, Harry <Harry.Wentland@amd.com>; Kazlauskas, Nicholas
-> > <Nicholas.Kazlauskas@amd.com>; oleksandr@natalenko.name; Wang,
-> > Chao-kai (Stylon) <Stylon.Wang@amd.com>
-> > Cc: stable@vger.kernel.org
-> > Subject: FAILED: patch "[PATCH] Revert "drm/amd/display: Fix memory leaks
-> > in S3 resume"" failed to apply to 5.10-stable tree
-> > 
-> > 
-> > The patch below does not apply to the 5.10-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm tree,
-> > then please email the backport, including the original git commit id to
-> > <stable@vger.kernel.org>.
-> > 
+> Ignore I2C_M_DMA_SAFE flag as it does not make a difference
+> for bpmp-i2c, but causes -EINVAL to be returned for valid
+> transactions.
 > 
-> This patch is already in 5.10.  The revert ended up going to stable and upstream at the same time.  Sorry for the confusion.
+> Signed-off-by: Muhammed Fazal <mfazale@nvidia.com>
+> Cc: stable@vger.kernel.org # v4.19+
+> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+> ---
+> This fixes failures seen with PMIC probing tools on
+> Tegra186+ boards.
+> 
+>   drivers/i2c/busses/i2c-tegra-bpmp.c | 3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra-bpmp.c b/drivers/i2c/busses/i2c-tegra-bpmp.c
+> index ec7a7e917edd..998d4b21fb59 100644
+> --- a/drivers/i2c/busses/i2c-tegra-bpmp.c
+> +++ b/drivers/i2c/busses/i2c-tegra-bpmp.c
+> @@ -80,6 +80,9 @@ static int tegra_bpmp_xlate_flags(u16 flags, u16 *out)
+>   		flags &= ~I2C_M_RECV_LEN;
+>   	}
+>   
+> +	if (flags & I2C_M_DMA_SAFE)
+> +		flags &= ~I2C_M_DMA_SAFE;
+> +
 
-Ah, I thought I had seen this go by, too many patches...
+Just a comment, you can do without the test here.
+Just doing this would have been fine:
 
-thanks for letting me know.
+	flags &= ~I2C_M_DMA_SAFE;
 
-greg k-h
+
+
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
+
+https://www.codethink.co.uk/privacy.html
