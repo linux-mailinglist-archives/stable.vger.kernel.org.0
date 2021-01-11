@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9292F1603
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E53A12F14EB
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731020AbhAKNri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 08:47:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57630 "EHLO mail.kernel.org"
+        id S1731835AbhAKNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:15:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731169AbhAKNKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:10:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB25F22AAF;
-        Mon, 11 Jan 2021 13:09:43 +0000 (UTC)
+        id S1732238AbhAKNPO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:15:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8D521973;
+        Mon, 11 Jan 2021 13:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370584;
-        bh=ZUPoPv1DrRYBjzg/5+aEgA4OUgxU5r7rYrliBWfzLgE=;
+        s=korg; t=1610370874;
+        bh=voa17hyhicDaoIa5/Ekbhr46NkGW059LLvqZ3jV7pH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yo21lXNSFmADYwJ1wsAuj2G0w58HJ1w9ihDsvFtP6xXDNVzZc4emzEYs9AJjqYE1s
-         UsriDVLSrds0JrGHHu3n+uVO9CMQKDCQNzozDYEuYOIwePgg92ZZXU5MrfpLn/PBXi
-         C+ppe1bqWFTsB5Bx6afINnv2yiBAhcPO3xFolqos=
+        b=bgRTdVQ8W0t+rC7lTjSb4NBRSt3UWfoe5tnruhHmAkUAacuKwE0ldSAWBUZ4wxRVq
+         pWKlnfHh5UAENRh/qtqtUcDXb8jYGjgpxvremw+R6WcQnkAEA/I66K9KT2MqPSLs/K
+         g/9es/2IV9TCWIVbvomAO7wnH+rx2HWTTjJHlleE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/92] workqueue: Kick a worker based on the actual activation of delayed works
-Date:   Mon, 11 Jan 2021 14:01:05 +0100
-Message-Id: <20210111130039.226222908@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 042/145] r8169: work around power-saving bug on some chip versions
+Date:   Mon, 11 Jan 2021 14:01:06 +0100
+Message-Id: <20210111130050.542486628@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210111130039.165470698@linuxfoundation.org>
-References: <20210111130039.165470698@linuxfoundation.org>
+In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
+References: <20210111130048.499958175@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,68 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 01341fbd0d8d4e717fc1231cdffe00343088ce0b ]
+[ Upstream commit e80bd76fbf563cc7ed8c9e9f3bbcdf59b0897f69 ]
 
-In realtime scenario, We do not want to have interference on the
-isolated cpu cores. but when invoking alloc_workqueue() for percpu wq
-on the housekeeping cpu, it kick a kworker on the isolated cpu.
+A user reported failing network with RTL8168dp (a quite rare chip
+version). Realtek confirmed that few chip versions suffer from a PLL
+power-down hw bug.
 
-  alloc_workqueue
-    pwq_adjust_max_active
-      wake_up_worker
-
-The comment in pwq_adjust_max_active() said:
-  "Need to kick a worker after thawed or an unbound wq's
-   max_active is bumped"
-
-So it is unnecessary to kick a kworker for percpu's wq when invoking
-alloc_workqueue(). this patch only kick a worker based on the actual
-activation of delayed works.
-
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 07df5bd874f0 ("r8169: power down chip in probe")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Link: https://lore.kernel.org/r/a1c39460-d533-7f9e-fa9d-2b8990b02426@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/workqueue.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 4aa268582a225..28e52657e0930 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -3718,17 +3718,24 @@ static void pwq_adjust_max_active(struct pool_workqueue *pwq)
- 	 * is updated and visible.
- 	 */
- 	if (!freezable || !workqueue_freezing) {
-+		bool kick = false;
-+
- 		pwq->max_active = wq->saved_max_active;
- 
- 		while (!list_empty(&pwq->delayed_works) &&
--		       pwq->nr_active < pwq->max_active)
-+		       pwq->nr_active < pwq->max_active) {
- 			pwq_activate_first_delayed(pwq);
-+			kick = true;
-+		}
- 
- 		/*
- 		 * Need to kick a worker after thawed or an unbound wq's
--		 * max_active is bumped.  It's a slow path.  Do it always.
-+		 * max_active is bumped. In realtime scenarios, always kicking a
-+		 * worker will cause interference on the isolated cpu cores, so
-+		 * let's kick iff work items were activated.
- 		 */
--		wake_up_worker(pwq->pool);
-+		if (kick)
-+			wake_up_worker(pwq->pool);
- 	} else {
- 		pwq->max_active = 0;
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2243,7 +2243,8 @@ static void rtl_pll_power_down(struct rt
  	}
--- 
-2.27.0
-
+ 
+ 	switch (tp->mac_version) {
+-	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
++	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+ 	case RTL_GIGA_MAC_VER_43:
+@@ -2269,7 +2270,8 @@ static void rtl_pll_power_down(struct rt
+ static void rtl_pll_power_up(struct rtl8169_private *tp)
+ {
+ 	switch (tp->mac_version) {
+-	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_33:
++	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+ 	case RTL_GIGA_MAC_VER_43:
 
 
