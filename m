@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1480C2F14EF
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE572F14FC
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 14:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731219AbhAKNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732197AbhAKNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 11 Jan 2021 08:32:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33490 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732212AbhAKNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732211AbhAKNO6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 11 Jan 2021 08:14:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A08922AAF;
-        Mon, 11 Jan 2021 13:14:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8188A2255F;
+        Mon, 11 Jan 2021 13:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370857;
-        bh=ZoDqznAwqNHhPb2APJusivNYTMkNm5vnEnrW6EVFyDY=;
+        s=korg; t=1610370883;
+        bh=NsoAK2b0s/Yhrt/Z6oMGfQ1c04owza6RbgTsWv722GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rzvgjvj5n/63UWHYCXjhEp8OFq+GdynyhLS4AC0jjc4hBX8IKecoDZLY1WOv87cbC
-         /JD+mZyPutDs8M5JsGo/6JPp8SkFDzFAwzEYhuKHb0QGf8LpGBycFj0koG/Yz6Fzvq
-         18JDHvZbqqWzUzjWgsDFH/5Hyd73isnr4isgPOE8=
+        b=wv6S7OgQiuw9QiIDFrF+qM6fJTu241XJUuG9UXhaWxNmNWZy/ihZ+z4DwXoQgyYgc
+         SpOtx0Nc89ClJwEXi0wOmGzoMHeEkZJUXyxjWlwJQ2JsfFP6oTAAI0XAUZovErRVxK
+         CryJhAs2eg95pmst4cQAQo0u6cUHh9aBWKsbedq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Duyck <alexander.duyck@gmail.com>,
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Sasha Netfin <sasha.neftin@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Pearson <markpearson@lenovo.com>,
         Mario Limonciello <mario.limonciello@dell.com>,
         Yijun Shen <Yijun.shen@dell.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 027/145] e1000e: Only run S0ix flows if shutdown succeeded
-Date:   Mon, 11 Jan 2021 14:00:51 +0100
-Message-Id: <20210111130049.813369506@linuxfoundation.org>
+Subject: [PATCH 5.10 028/145] e1000e: bump up timeout to wait when ME un-configures ULP mode
+Date:   Mon, 11 Jan 2021 14:00:52 +0100
+Message-Id: <20210111130049.862760972@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130048.499958175@linuxfoundation.org>
 References: <20210111130048.499958175@linuxfoundation.org>
@@ -44,43 +46,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@dell.com>
 
-[ Upstream commit 808e0d8832cc81738f3e8df12dff0688352baf50 ]
+[ Upstream commit 3cf31b1a9effd859bb3d6ff9f8b5b0d5e6cac952 ]
 
-If the shutdown failed, the part will be thawed and running
-S0ix flows will put it into an undefined state.
+Per guidance from Intel ethernet architecture team, it may take
+up to 1 second for unconfiguring ULP mode.
 
-Reported-by: Alexander Duyck <alexander.duyck@gmail.com>
-Reviewed-by: Alexander Duyck <alexander.duyck@gmail.com>
+However in practice this seems to be taking up to 2 seconds on
+some Lenovo machines.  Detect scenarios that take more than 1 second
+but less than 2.5 seconds and emit a warning on resume for those
+scenarios.
+
+Suggested-by: Aaron Ma <aaron.ma@canonical.com>
+Suggested-by: Sasha Netfin <sasha.neftin@intel.com>
+Suggested-by: Hans de Goede <hdegoede@redhat.com>
+CC: Mark Pearson <markpearson@lenovo.com>
+Fixes: f15bb6dde738cc8fa0 ("e1000e: Add support for S0ix")
+BugLink: https://bugs.launchpad.net/bugs/1865570
+Link: https://patchwork.ozlabs.org/project/intel-wired-lan/patch/20200323191639.48826-1-aaron.ma@canonical.com/
+Link: https://lkml.org/lkml/2020/12/13/15
+Link: https://lkml.org/lkml/2020/12/14/708
 Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Tested-by: Yijun Shen <Yijun.shen@dell.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6970,13 +6970,14 @@ static __maybe_unused int e1000e_pm_susp
- 	e1000e_pm_freeze(dev);
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1240,6 +1240,9 @@ static s32 e1000_disable_ulp_lpt_lp(stru
+ 		return 0;
  
- 	rc = __e1000_shutdown(pdev, false);
--	if (rc)
-+	if (rc) {
- 		e1000e_pm_thaw(dev);
--
--	/* Introduce S0ix implementation */
--	if (hw->mac.type >= e1000_pch_cnp &&
--	    !e1000e_check_me(hw->adapter->pdev->device))
--		e1000e_s0ix_entry_flow(adapter);
-+	} else {
-+		/* Introduce S0ix implementation */
-+		if (hw->mac.type >= e1000_pch_cnp &&
-+		    !e1000e_check_me(hw->adapter->pdev->device))
-+			e1000e_s0ix_entry_flow(adapter);
-+	}
+ 	if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
++		struct e1000_adapter *adapter = hw->adapter;
++		bool firmware_bug = false;
++
+ 		if (force) {
+ 			/* Request ME un-configure ULP mode in the PHY */
+ 			mac_reg = er32(H2ME);
+@@ -1248,16 +1251,24 @@ static s32 e1000_disable_ulp_lpt_lp(stru
+ 			ew32(H2ME, mac_reg);
+ 		}
  
- 	return rc;
- }
+-		/* Poll up to 300msec for ME to clear ULP_CFG_DONE. */
++		/* Poll up to 2.5 seconds for ME to clear ULP_CFG_DONE.
++		 * If this takes more than 1 second, show a warning indicating a
++		 * firmware bug
++		 */
+ 		while (er32(FWSM) & E1000_FWSM_ULP_CFG_DONE) {
+-			if (i++ == 30) {
++			if (i++ == 250) {
+ 				ret_val = -E1000_ERR_PHY;
+ 				goto out;
+ 			}
++			if (i > 100 && !firmware_bug)
++				firmware_bug = true;
+ 
+ 			usleep_range(10000, 11000);
+ 		}
+-		e_dbg("ULP_CONFIG_DONE cleared after %dmsec\n", i * 10);
++		if (firmware_bug)
++			e_warn("ULP_CONFIG_DONE took %dmsec.  This is a firmware bug\n", i * 10);
++		else
++			e_dbg("ULP_CONFIG_DONE cleared after %dmsec\n", i * 10);
+ 
+ 		if (force) {
+ 			mac_reg = er32(H2ME);
 
 
