@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F8F2F1719
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F422F1718
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 15:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730486AbhAKOBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 09:01:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52338 "EHLO mail.kernel.org"
+        id S1730366AbhAKNFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 08:05:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730361AbhAKNFr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 08:05:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B7FE21973;
-        Mon, 11 Jan 2021 13:05:30 +0000 (UTC)
+        id S1728530AbhAKNFt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Jan 2021 08:05:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6440222527;
+        Mon, 11 Jan 2021 13:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610370331;
-        bh=obHfZ6B5I0DLFG4GxUg5kBUuzOrmx5Mj6UZD2celW38=;
+        s=korg; t=1610370333;
+        bh=sUKfxwrbimKxmFEzL1rsXWGJvE5P8LG7qKPxBGm+uMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XrwbSIXj4M+6G7FwaXJUgajaaLW4HznHuuEQL29HioFd73k0iKIDkMhJfrNq5HTM5
-         VTxIWBXkFiktPOHdPx+zUCnXASazxrJZ1gdhu1c45+ppeiJgHkN8hWLiPfA+eX1/lR
-         dcPQSJo8CMkBqyD41HDIOCiGBXspeW0BvWA5b0mM=
+        b=S+3PdVEi0qQKUM8jlYv5IJfRlpNXm56hbHgWLRJNjORGlzvWtdZRCy5JO69fiKS2h
+         bYu/CrO8jmyyYl4m6zmKuJt/VnI4LUM4Qpo/ycq5JFP4Dt8yrt545swDHsH0M34DlB
+         0amQXe5Zpvruv05LZe6k66OueG8uReJExAUw0XqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>
-Subject: [PATCH 4.14 33/57] USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
-Date:   Mon, 11 Jan 2021 14:01:52 +0100
-Message-Id: <20210111130035.325517367@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com,
+        Yuyang Du <yuyang.du@intel.com>,
+        Shuah Khan <shuahkh@osg.samsung.com>, linux-usb@vger.kernel.org
+Subject: [PATCH 4.14 34/57] usb: usbip: vhci_hcd: protect shift size
+Date:   Mon, 11 Jan 2021 14:01:53 +0100
+Message-Id: <20210111130035.378296325@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210111130033.715773309@linuxfoundation.org>
 References: <20210111130033.715773309@linuxfoundation.org>
@@ -39,89 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Grzeschik <m.grzeschik@pengutronix.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760 upstream.
+commit 718bf42b119de652ebcc93655a1f33a9c0d04b3c upstream.
 
-The commit 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit
-latency is too long") was constraining the xhci code not to allow U1/U2
-sleep states if the latency to wake up from the U-states reached the
-service interval of an periodic endpoint. This fix was not taking into
-account that in case the quirk XHCI_INTEL_HOST is set, the wakeup time
-will be calculated and configured differently.
+Fix shift out-of-bounds in vhci_hcd.c:
 
-It checks for u1_params.mel/u2_params.mel as a limit. But the code could
-decide to write another MEL into the hardware. This leads to broken
-cases where not enough bandwidth is available for other devices:
+  UBSAN: shift-out-of-bounds in ../drivers/usb/usbip/vhci_hcd.c:399:41
+  shift exponent 768 is too large for 32-bit type 'int'
 
-usb 1-2: can't set config #1, error -28
-
-This patch is fixing that case by checking for timeout_ns after the
-wakeup time was calculated depending on the quirks.
-
-Fixes: 0472bf06c6fd ("xhci: Prevent U1/U2 link pm states if exit latency is too long")
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Fixes: 03cd00d538a6 ("usbip: vhci-hcd: Set the vhci structure up to work")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+297d20e437b79283bf6d@syzkaller.appspotmail.com
+Cc: Yuyang Du <yuyang.du@intel.com>
+Cc: Shuah Khan <shuahkh@osg.samsung.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201215193147.11738-1-m.grzeschik@pengutronix.de
+Link: https://lore.kernel.org/r/20201229071309.18418-1-rdunlap@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4390,19 +4390,19 @@ static u16 xhci_calculate_u1_timeout(str
- {
- 	unsigned long long timeout_ns;
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u1_params.sel;
-+
- 	/* Prevent U1 if service interval is shorter than U1 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
-+		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
- 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -410,6 +410,8 @@ static int vhci_hub_control(struct usb_h
+ 		default:
+ 			usbip_dbg_vhci_rh(" ClearPortFeature: default %x\n",
+ 					  wValue);
++			if (wValue >= 32)
++				goto error;
+ 			vhci_hcd->port_status[rhport] &= ~(1 << wValue);
+ 			break;
  		}
- 	}
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
--	else
--		timeout_ns = udev->u1_params.sel;
--
- 	/* The U1 timeout is encoded in 1us intervals.
- 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
- 	 */
-@@ -4454,19 +4454,19 @@ static u16 xhci_calculate_u2_timeout(str
- {
- 	unsigned long long timeout_ns;
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u2_params.sel;
-+
- 	/* Prevent U2 if service interval is shorter than U2 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
-+		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
- 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
--	else
--		timeout_ns = udev->u2_params.sel;
--
- 	/* The U2 timeout is encoded in 256us intervals */
- 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
- 	/* If the necessary timeout value is bigger than what we can set in the
 
 
