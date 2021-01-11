@@ -2,86 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B12162F1EF6
-	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E95752F1F88
+	for <lists+stable@lfdr.de>; Mon, 11 Jan 2021 20:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbhAKTUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 14:20:06 -0500
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:12453 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729848AbhAKTUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 14:20:06 -0500
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5ffca4bd0003>; Mon, 11 Jan 2021 11:19:25 -0800
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 11 Jan
- 2021 19:19:25 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Mon, 11 Jan 2021 19:19:25 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.10 000/144] 5.10.7-rc2 review
-In-Reply-To: <20210111161510.602817176@linuxfoundation.org>
-References: <20210111161510.602817176@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S2390871AbhAKTcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Jan 2021 14:32:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390834AbhAKTcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Jan 2021 14:32:19 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959F4C061795;
+        Mon, 11 Jan 2021 11:31:38 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id m25so1165931lfc.11;
+        Mon, 11 Jan 2021 11:31:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=6U2KagvKGBYbazGvRLBQUQ5ZhQBgacU+6DJEDT+njvQ=;
+        b=p4Qmg+C0rj9DA/1P5y2fDZorr6nQSgwQzxxSTH1ZrN8Bov5iXW6/ncgbEEN0JiqngK
+         DCegRWzU7mVc3ao9Gqnv5fcseHriELTCB7fbj6GUPLcQqS5OgcNSfKHWxFq/O6SXhlQn
+         EtTLOzNfdWXA0UlYT09iEp2Qd7rycPVRr/4gi2YGXJptXUiOp3f05p5dg4tCFYLyPpNg
+         kmlTmd7rG2on7Qe2OggkCgbkWwtsAr2D3bMOZBSto9CNAPZxQaRbRooc6k6il/rQAEJj
+         Gg0ncR00Ii1pYhSdTrf/5jFuoNbvaOINpIoypHbu3dph6q6b97EwhWP1Yu+Cf1HcfnRc
+         neew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=6U2KagvKGBYbazGvRLBQUQ5ZhQBgacU+6DJEDT+njvQ=;
+        b=MKq9yRlgEAgbT31k1Y6szTPuOjpGgj99Pd3EctDNpb0Hg7my5yGFY3SCJTIT+tED8k
+         8SpVDduFeQiA2u8bb9Yb3wV5kmAq2RyS3dKGzffdg7bnh1bxJj1nb3ZKhR+yvEA92G2J
+         NuiKHRhwwAya41LhdH0LKUR+Ej8tcFZxZYKxrbI5tVvM/dTpyUPIEmvD9h4LgBfOOWqf
+         cfsBco3hmnlK/akiC27dqFEpHOd6EyUJuXC2dl6lCUMSA/nZqNl82ftJLkCZ2sO/3W9A
+         qFve7VCS9vfxWWKIibZpgXiy8A6XliSKVo58g6qLe+FEqOGq+vbdoU25NoJpdlbTgrsb
+         bN7A==
+X-Gm-Message-State: AOAM5318cymqm6NoTn6HPMzMd8JvMYTZg/gQOodJVRVfxb4UAHYY8fAe
+        Z3T0mhDfKstlXyPdCpufqrviI1j0UQs=
+X-Google-Smtp-Source: ABdhPJy8kJhkgtzdz4lO3IgYKa1z3DaoNi/iax+nK3nQ8xWGe9OrsGQhlxOVlpkvmdq14mmR57dp1Q==
+X-Received: by 2002:a05:6512:3f3:: with SMTP id n19mr468250lfq.586.1610393496909;
+        Mon, 11 Jan 2021 11:31:36 -0800 (PST)
+Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.googlemail.com with ESMTPSA id u8sm74067ljj.1.2021.01.11.11.31.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jan 2021 11:31:36 -0800 (PST)
+Subject: Re: [PATCH v2] i2c: tegra: Wait for config load atomically while in
+ ISR
+To:     Mikko Perttunen <mperttunen@nvidia.com>, ldewangan@nvidia.com,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, wsa@kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210111160832.3669873-1-mperttunen@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
+Date:   Mon, 11 Jan 2021 22:31:35 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
-Message-ID: <003040e4e8514aec86f56badabcea893@HQMAIL111.nvidia.com>
-Date:   Mon, 11 Jan 2021 19:19:25 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1610392765; bh=eDY69QaiTGmJL+G1eVFzXI06l/o9oU/JWAHPWV5iBds=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=gFkc15OMz+QagHVZXHxiDw8ZdVtlz2nNlUxSVI2mLiQRAFkwhN3AfinNd5DF4ogju
-         E5ki3ujn6G1oQmvbPaOM7WIhO98cOY099S8yA8apvqMiL77c0a84/GSJVPKT7QU3dp
-         gbChrhPkSN7pSMVfJNwf5NZ5fzPfnx11oUSyL8wGJuuneljQHvRpNaWrZ5RsnKllou
-         JqIbwzPJJGy9yAg/kNOrzZwLsw8jHsrQ/4zcwRQUHXbsuVoTnv7cVin+o2E7EwNPBE
-         6UMb/A99ewetremwslW2BRRAk+4v4HJSHYuOC4tSDGvboERmmrKs9hkO9HE0NvLuQZ
-         sCS82kR9199Dg==
+In-Reply-To: <20210111160832.3669873-1-mperttunen@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 11 Jan 2021 17:15:35 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.7 release.
-> There are 144 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+11.01.2021 19:08, Mikko Perttunen пишет:
+> Upon a communication error, the interrupt handler can call
+> tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
+> unless the current transaction was marked atomic. Fix this by
+> making the poll happen atomically if we are in an IRQ.
 > 
-> Responses should be made by Wed, 13 Jan 2021 16:14:43 +0000.
-> Anything received after that time might be too late.
+> This matches the behavior prior to the patch mentioned
+> in the Fixes tag.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.7-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+> ---
+> v2:
+> * Use in_irq() instead of passing a flag from the ISR.
+>   Thanks to Dmitry for the suggestion.
+> * Update commit message.
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> thanks,
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 6f08c0c3238d..0727383f4940 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
+>  	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+>  	u32 val;
+>  
+> -	if (!i2c_dev->atomic_mode)
+> +	if (!i2c_dev->atomic_mode && !in_irq())
+>  		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+>  						  delay_us, timeout_us);
+>  
 > 
-> greg k-h
 
-All tests passing for Tegra ...
-
-Test results for stable-v5.10:
-    12 builds:	12 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    64 tests:	64 pass, 0 fail
-
-Linux version:	5.10.7-rc2-g0ea94a3ff7f8
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
