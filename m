@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461D32F2DAA
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 12:15:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2899F2F2DAB
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 12:15:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726008AbhALLNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 06:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
+        id S1726799AbhALLNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 06:13:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726377AbhALLNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 06:13:23 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7D3C061795
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:12:43 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id be12so1236803plb.4
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:12:43 -0800 (PST)
+        with ESMTP id S1728346AbhALLNg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 06:13:36 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D536C061786
+        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:12:56 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id q20so1186234pfu.8
+        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:12:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=qWTgN8fS2QQW8CvhcpUwDKVHjyZIRdZy6PAvkC81g/Q=;
-        b=wBWfrrjM+M5NJfe/U4dJ5x5nN1LSS6se9Ff4VZA+V6YzDmkaie6qIh0XapKvHRQ0/7
-         b120l1SIXdqCa3M1bj0OV38s2KRJDrDfaH/zjyZ+k+SD3lpoPnQ8ncHWb398doXh/BhW
-         K4xXbdKRlExgVmEUM4qsNWYHpst/kmZObNseds9piWY7+giCAGen//rpBsb6UBTVEBfO
-         ZhGhPzVFKgWh16ZGJeaP8+aKxfdGgD0r+2lxEgnRNGbEYdqEib3JpQLV4WXlKts/MEvb
-         K0eWyzWJDpFl7QGcDf+piJEtXEX8+GA3WIWWCoaLrJCM551KhBVtMeDOAOC3Oymd77h+
-         YnKQ==
+        bh=AoFHSvcD8CCi2dVCtqT69Ftm9/lZkksBJ4igXadq4hI=;
+        b=ruT8XESOpLi4SDC+c+Ox93pnuheKQpYOqq9iSctoRbgQEIzH+sb7mwsWubI1hbPwI+
+         d/Znyt53Uc38LLeqgWrqn+xTdzbOo8ECqa77iXuf95ON3IHKHIALHfRlVHUBooGB7USY
+         trlDLD5r8pCObM1CvHlXBu8ZCp4HB4rsRZsWb1/LHITEGr1c9KtcDcBlF06WRnL4ia1s
+         ITriIki+PSgtLNLpciKZL10ha9CHHE7usgkRe80njpPWdLFwxEoVHtmo/N3OiL04zuK6
+         zMM9/GnYX7ASBtJXkduJ3ZPSTG5AH/yVz+9MR/Hsw4KA0S/5fzivRz8Xk8l7ojbcDxBP
+         kSdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=qWTgN8fS2QQW8CvhcpUwDKVHjyZIRdZy6PAvkC81g/Q=;
-        b=O8xKqVW29jjl1dt2/ThKpJej3HG/mumcbbZ4bstjip3h3L4ogvwVRX09lLfOZIVPzc
-         QJbPNB7i/93ipX3NgNDTM4wDfxXP/E1huEoBHyJW4Hbdnv6kvWyQMOSlZsqAPpxMj7RP
-         Y8Y9aDaMUhtoMTGQANtmlxQl2X8FVch/tct9tpY8j2thXB6jHGcFOAdzkOMp41U8lqUW
-         FIh19QBF/8O7b+75wAgIjyNb99kWdof6KwZrfuvV1G9+dPz/QzRkeBUb25jD2HRZG9jQ
-         QdRtt/xgZF1PbkH3w9DgGwdMPfw1UGbMtKNSHGXQ97eyZgpqAT9vi7xOFclDBxZ4kSC1
-         vQ5A==
-X-Gm-Message-State: AOAM532EdbmA+CStskLfQLQzPorljORa/kMcHGJMOM17LKngJXvGLvz8
-        0PBGUtgJsfmlPyCCi2nYD1BLVc3yjOU0vQ==
-X-Google-Smtp-Source: ABdhPJx5pIMRl70QTVCEAw1vtYWgilXVFHiAyOQzM9EjBJWA6JwSENOFfbTuW3VAp+CEpfgq9exahA==
-X-Received: by 2002:a17:902:6a83:b029:dc:2a2c:6b91 with SMTP id n3-20020a1709026a83b02900dc2a2c6b91mr4279730plk.8.1610449961735;
-        Tue, 12 Jan 2021 03:12:41 -0800 (PST)
+        bh=AoFHSvcD8CCi2dVCtqT69Ftm9/lZkksBJ4igXadq4hI=;
+        b=eqW3l7GTn6AI37mxjsdn9qYBy3OqbXb6SMMMakU7rnoI3qdraT1unxNa9l/Iqndiec
+         2XJmkVX3FcM1B/xWWrCmEHEByvgDwmo9VumQZ3s6ud7Gx8fxxjb7WcCBcE05LOh9DhUb
+         5edlyl1S2kPJ+0G3rkoe45LNV+ozpAtEGNTpGTVfnZGO++bY3dzV+NNLJz/AutCekD3F
+         QQLi1DUgUcqFeLHkP44lZ1dGVRqcBr+kyOhEjNHexPwj2x2cXGkLE7jV4gfb780i0P7W
+         hwokOmhJF2sZNrXyBpHf11Lt+mJbCZlniZY/npZ1Y9OH57fPnXUHRH1PZdK3gNACBgMI
+         IlEQ==
+X-Gm-Message-State: AOAM532UzG/YxjqdWxNe5vM9j3rfvjk8QoiaARxGC5BDqMMuko2gwUAa
+        FqIOxF4UCp8UKL5OpTs07q4nYCywuixrCw==
+X-Google-Smtp-Source: ABdhPJw0ZOz8ujm7WWeXkQtw4qnvOOS+v/mFK3cbFzmRxMzztdCjmVXukxL1FvNTFTZDElrFo3l8NA==
+X-Received: by 2002:a63:6fce:: with SMTP id k197mr4246316pgc.423.1610449974894;
+        Tue, 12 Jan 2021 03:12:54 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z5sm2882569pff.44.2021.01.12.03.12.39
+        by smtp.gmail.com with ESMTPSA id z7sm2879791pfq.193.2021.01.12.03.12.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jan 2021 03:12:40 -0800 (PST)
-Message-ID: <5ffd8428.1c69fb81.49b97.683b@mx.google.com>
-Date:   Tue, 12 Jan 2021 03:12:40 -0800 (PST)
+        Tue, 12 Jan 2021 03:12:54 -0800 (PST)
+Message-ID: <5ffd8436.1c69fb81.17aa6.69fe@mx.google.com>
+Date:   Tue, 12 Jan 2021 03:12:54 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
+X-Kernelci-Branch: linux-4.4.y
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.250-35-g2a5d30652763e
+X-Kernelci-Kernel: v4.4.250-36-gefb67dacdec1
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.4 build: 189 builds: 0 failed, 189 passed,
- 13 warnings (v4.4.250-35-g2a5d30652763e)
+Subject: stable-rc/linux-4.4.y build: 190 builds: 0 failed, 190 passed,
+ 13 warnings (v4.4.250-36-gefb67dacdec1)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 build: 189 builds: 0 failed, 189 passed, 13 warnings (v=
-4.4.250-35-g2a5d30652763e)
+stable-rc/linux-4.4.y build: 190 builds: 0 failed, 190 passed, 13 warnings =
+(v4.4.250-36-gefb67dacdec1)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
-/kernel/v4.4.250-35-g2a5d30652763e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.250-36-gefb67dacdec1/
 
 Tree: stable-rc
-Branch: queue/4.4
-Git Describe: v4.4.250-35-g2a5d30652763e
-Git Commit: 2a5d30652763e46a6615acbb4ae6ddf969a2a943
+Branch: linux-4.4.y
+Git Describe: v4.4.250-36-gefb67dacdec1
+Git Commit: efb67dacdec11e4291aa7994b71ad02ab7220ef9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -137,6 +137,21 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
 smatches
 
@@ -150,16 +165,6 @@ encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
@@ -167,11 +172,6 @@ ismatches
 -----
 allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -212,6 +212,11 @@ on mismatches
 -----
 axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
 ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -991,6 +996,16 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
 matches
 
@@ -1006,13 +1021,8 @@ encies (FUTEX)
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1021,13 +1031,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
