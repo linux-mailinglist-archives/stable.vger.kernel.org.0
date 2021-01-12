@@ -2,129 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 670B22F3391
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 16:07:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1263C2F3442
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 16:36:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726236AbhALPHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 10:07:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44954 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725863AbhALPHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 10:07:13 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33BF6C061575
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 07:06:32 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id s15so1529778plr.9
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 07:06:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lO4Anqp0yO5boP1OoXosqJ6kbnGa8KHmQ/06aGjVmlM=;
-        b=qMvcGQxOGkrAwkonqvVmwpr3suy6jYXi3szVuW3o/UYvBAJv/yL1w2HzCmyZz5JxF5
-         FqnQOyiFVr//0VKwQ+0A7jOv9Ts8G/Y6yPCivxr3byMV8kZmt0ORit0Okq76LfViINp3
-         aYDpvaO09YxGIk7uymD9R+M+IpgyYykXYlCPqxq6MVqODvZrBtBTS3ai7Ot/zKjTOzuO
-         RGT12fsxanbun9E+Qt8fwo9ksObLc3s1Ptq7LfmEoO9Ku+oIv3M2C9PSVhQXG39x5XA+
-         sOrXsRtvmBy3Q6Iz//gSBSgtV9k7kYjPZTcda1HGngDFG4bJtxX9/wqI8SOyiz4ZIaIH
-         2WSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lO4Anqp0yO5boP1OoXosqJ6kbnGa8KHmQ/06aGjVmlM=;
-        b=g+33EL3ve67/fmbR9b9p2s9Q7LtjPusyEjQn3a4DzpS5MbRSwY/kA0BsEsVvZbauha
-         tT1Ys7kodj/YzsBmeOZwctT2fp9+dVcfDxx3mxl8uEOGF6LjLeqd9u9e8ddy1auAklBP
-         LPav15H0Izzay6q7zlr2KrpLngjlZBwbdFRGG6Dyeye7gLb8LflXoYM5sO2iKjOTVTn2
-         walJr1RbQus8mQFVvoy2PJZNNPJc95cTCIeq3pb9WK50NSsoQGEmw7NO1BWjV/f/zZin
-         cL2RXeBtj8tAvHRh1bTM6L/QaKnzPop2g0Ya8pyLSlP1hNo3rjifw65j4GSvYIThhWVH
-         sGMA==
-X-Gm-Message-State: AOAM530r40uujDsgV9Ljq5nTtWQO3X32faLBoShkyqKHpZHCPxPXy96Q
-        cGvwQzTw2RMQvwQZUcscPDt8dGG8TdVOYEcuNW7SG8vAc8uFL5SVK8E=
-X-Google-Smtp-Source: ABdhPJzOWoiSLHOSdhVWD1LgGI5laVjW58Nny6nHyBuLLSjOnoMW3JkaIUSXdHu5HjHDqQTBWv+gUItBeOl7iL7t3/E=
-X-Received: by 2002:a17:90a:c588:: with SMTP id l8mr5083968pjt.147.1610463991728;
- Tue, 12 Jan 2021 07:06:31 -0800 (PST)
+        id S2391505AbhALPgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 10:36:45 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:42098 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391460AbhALPgp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 10:36:45 -0500
+Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 59A3220B6C40;
+        Tue, 12 Jan 2021 07:36:03 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 59A3220B6C40
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1610465763;
+        bh=McXfpx7CXiTJWz8uagaZ4YpQfZgo3sZg2yh4/x+j+Yc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=V0Z8At8aZ8JrV6C7ViNabSX4/+P0ef/JP6xqvVGNr9XPNlLIwshd1g0xxCt4yhFbC
+         Ql8o+9n/AppO4baHyIjQQACKwa5DdNFyFHNI/aqA4giXq0Qbaqjlb2Uf/ZrVWKCdx+
+         u2RP1TmzzHrYc3QgsKQNMDqRQ89E/JFDQPnqNq0s=
+Date:   Tue, 12 Jan 2021 09:35:34 -0600
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
+        Bruno Meneguele <bmeneg@redhat.com>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with kernel
+ measurements
+Message-ID: <20210112153534.GA4146@sequoia>
+References: <20200708154116.3199728-1-sashal@kernel.org>
+ <20200708154116.3199728-3-sashal@kernel.org>
+ <1594224793.23056.251.camel@linux.ibm.com>
+ <20200709012735.GX2722994@sasha-vm>
+ <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
+ <20201211031008.GN489768@sequoia>
+ <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
+ <20201214164222.GK4951@sequoia>
 MIME-Version: 1.0
-References: <20210110124017.86750-1-songmuchun@bytedance.com>
- <20210110124017.86750-4-songmuchun@bytedance.com> <20210112100213.GK22493@dhcp22.suse.cz>
- <CAMZfGtVJVsuL39owkT+Sp8A7ywXJLhbiQ6zYgL9FKhqSeAvy=w@mail.gmail.com>
- <20210112111712.GN22493@dhcp22.suse.cz> <CAMZfGtWt5+03Pne9QjLn53kqUbZWSmi0f-iEOisHO6LjohdXFA@mail.gmail.com>
- <20210112123738.GQ22493@dhcp22.suse.cz>
-In-Reply-To: <20210112123738.GQ22493@dhcp22.suse.cz>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Tue, 12 Jan 2021 23:05:50 +0800
-Message-ID: <CAMZfGtU1Eh91mcMMz=Z7S_3boreu9r=Xzw0=reRZ=FEdyJ_MXQ@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH v3 3/6] mm: hugetlb: fix a race between
- freeing and dissolving the page
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201214164222.GK4951@sequoia>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 12, 2021 at 8:37 PM Michal Hocko <mhocko@suse.com> wrote:
->
-> On Tue 12-01-21 19:43:21, Muchun Song wrote:
-> > On Tue, Jan 12, 2021 at 7:17 PM Michal Hocko <mhocko@suse.com> wrote:
-> > >
-> > > On Tue 12-01-21 18:13:02, Muchun Song wrote:
-> > > > On Tue, Jan 12, 2021 at 6:02 PM Michal Hocko <mhocko@suse.com> wrote:
-> > > > >
-> > > > > On Sun 10-01-21 20:40:14, Muchun Song wrote:
-> > > > > [...]
-> > > > > > @@ -1770,6 +1788,14 @@ int dissolve_free_huge_page(struct page *page)
-> > > > > >               int nid = page_to_nid(head);
-> > > > > >               if (h->free_huge_pages - h->resv_huge_pages == 0)
-> > > > > >                       goto out;
-> > > > > > +
-> > > > > > +             /*
-> > > > > > +              * We should make sure that the page is already on the free list
-> > > > > > +              * when it is dissolved.
-> > > > > > +              */
-> > > > > > +             if (unlikely(!PageHugeFreed(head)))
-> > > > > > +                     goto out;
-> > > > > > +
-> > > > >
-> > > > > Do you really want to report EBUSY in this case? This doesn't make much
-> > > > > sense to me TBH. I believe you want to return 0 same as when you race
-> > > > > and the page is no longer PageHuge.
-> > > >
-> > > > Return 0 is wrong. Because the page is not freed to the buddy allocator.
-> > > > IIUC, dissolve_free_huge_page returns 0 when the page is already freed
-> > > > to the buddy allocator. Right?
-> > >
-> > > 0 is return when the page is either dissolved or it doesn't need
-> > > dissolving. If there is a race with somebody else freeing the page then
-> > > there is nothing to dissolve. Under which condition it makes sense to
-> > > report the failure and/or retry dissolving?
-> >
-> > If there is a race with somebody else freeing the page, the page
-> > can be freed to the hugepage pool not the buddy allocator. Do
-> > you think that this page is dissolved?
->
-> OK, I see what you mean. Effectively the page would be in a limbo, not
-> yet in the pool nor in the allocator but it can find its way to the
-> either of the two. But I still dislike returning a failure because that
-> would mean e.g. memory hotplug to fail. Can you simply retry inside this
-> code path (drop the lock, cond_resched and retry)?
+On 2020-12-14 10:42:24, Tyler Hicks wrote:
+> On 2020-12-11 06:01:54, Mimi Zohar wrote:
+> > On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
+> > > On 2020-11-29 08:17:38, Mimi Zohar wrote:
+> > > > Hi Sasha,
+> > > > 
+> > > > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
+> > > > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
+> > > > > >Hi Sasha,
+> > > > > >
+> > > > > >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
+> > > > > >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
+> > > > > >>
+> > > > > >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
+> > > > > >>
+> > > > > >> Registers 8-9 are used to store measurements of the kernel and its
+> > > > > >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
+> > > > > >> should include them in the boot aggregate. Registers 8-9 should be
+> > > > > >> only included in non-SHA1 digests to avoid ambiguity.
+> > > > > >
+> > > > > >Prior to Linux 5.8, the SHA1 template data hashes were padded before
+> > > > > >being extended into the TPM.  Support for calculating and extending
+> > > > > >the per TPM bank template data digests is only being upstreamed in
+> > > > > >Linux 5.8.
+> > > > > >
+> > > > > >How will attestation servers know whether to include PCRs 8 & 9 in the
+> > > > > >the boot_aggregate calculation?  Now, there is a direct relationship
+> > > > > >between the template data SHA1 padded digest not including PCRs 8 & 9,
+> > > > > >and the new per TPM bank template data digest including them.
+> > > > > 
+> > > > > Got it, I'll drop it then, thank you!
+> > > > 
+> > > > After re-thinking this over, I realized that the attestation server can
+> > > > verify the "boot_aggregate" based on the quoted PCRs without knowing
+> > > > whether padded SHA1 hashes or per TPM bank hash values were extended
+> > > > into the TPM[1], but non-SHA1 boot aggregate values [2] should always
+> > > > include PCRs 8 & 9.
+> > > 
+> > > I'm still not clear on how an attestation server would know to include
+> > > PCRs 8 and 9 after this change came through a stable kernel update. It
+> > > doesn't seem like something appropriate for stable since it requires
+> > > code changes to attestation servers to handle the change.
+> > > 
+> > > I know this has already been released in some stable releases, so I'm
+> > > too late, but perhaps I'm missing something.
+> > 
+> > The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
+> > was to avoid affecting existing attestation servers.  The intention was
+> > when attestation servers added support for the non-sha1 boot_aggregate
+> > values, they'd also include PCRs 8 & 9.  The existing SHA1
+> > boot_aggregate value remains PCRs 0 - 7.
+> 
+> AFAIK, there's nothing that prevents the non-SHA1 TPM 2.0 PCR banks from
+> being used even before v5.8, albeit with zero padded SHA1 digests.
+> Existing attestation servers that already support that configuration are
+> broken by this stable backport.
 
-Yeah. This is what I want to do (making the memory hotplug as
-successful as possible). So I send the patch:
+To wrap up this thread, I think the last thing to address is if this
+commit should be reverted from stable kernels? Do you have any thoughts
+about that, Mimi?
 
-  [PATCH v3 4/6] mm: hugetlb: add return -EAGAIN for dissolve_free_huge_page
+Tyler
 
-Adding a simple retry inside this function when hitting this race is
-also fine to me. I can do that.
-
-
-
-
-> --
-> Michal Hocko
-> SUSE Labs
+> 
+> > To prevent this or something similar from happening again, what should
+> > have been the proper way of including PCRs 8 & 9?
+> 
+> I don't think that commits like 6f1a1d103b48 ("ima: Switch to
+> ima_hash_algo for boot aggregate") and 20c59ce010f8 ("ima: extend
+> boot_aggregate with kernel measurements") should be backported to
+> stable.
+> 
+> Including PCRs 8 and 9 definitely makes sense to include in the
+> boot_aggregate value but limiting such a change to "starting in 5.8",
+> rather than "starting in 5.8 and 5.4.82", is the safer approach when
+> attestation server modifications are required.
+> 
+> Tyler
+> 
+> > 
+> > thanks,
+> > 
+> > Mimi
+> > 
