@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F2B2F2FAC
+	by mail.lfdr.de (Postfix) with ESMTP id D9AA02F2FAD
 	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:58:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404238AbhALM5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404260AbhALM5v (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jan 2021 07:57:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404205AbhALM5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2404208AbhALM5u (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:57:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A94F23341;
-        Tue, 12 Jan 2021 12:56:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63EDF2333E;
+        Tue, 12 Jan 2021 12:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456203;
-        bh=96kcUeeVfBtCkWLjFvAMr+Zk9U/z11oxm4TPo3Pg69w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVwR8GLmlHEbKLN4gc+U4R8G/DZic5kB8hZ0BJF0btnc9Phi4O6lS9QtlA5Y9/joH
-         lsfzaIDjzP2tHnXXhMRyr/ps0fxEZk1Izq60Bbu9cs9ykJ15pe5nPHWHsip0lCCHIt
-         xOhTtK73xgaMFgljSBQE0QN+t9h5RhlUTMMvgzW7peDuwXfAIBjrLtcPwvttTKtOoP
-         EX+NWY2JIm+OpIvWilEZ30qeGKYRrZM+nfsJ3KlGKbc14xuuLmVC8O0UH7nLbG9Q3t
-         Fzq9fPXL3XPSBFNmTzDz5TqdeU22T91G4xJ4Ty5yFxo1PB5gOSqErDu7wjIx9wzilH
-         Y4USnAFY11PMQ==
+        s=k20201202; t=1610456207;
+        bh=R9NlJVmZo+9hSZ/H0sPBu7mDZfDzLcIZaWJ2UYcSE68=;
+        h=From:To:Cc:Subject:Date:From;
+        b=h9KqIqrZPDbMridc/ua1/1uA4zx7BrXjEc3hjQQnJC1bo0n9Xisq32CY7BhGbwDY8
+         pH70unFete/XFKS2KAf0JpcnElHcl3zkEk9j6A2GzSG9aK/kUn+GSwGbwCiyVys1h2
+         Kre2tmiXcyzZbp6XdZPoNT+QiFz4fhCvEmAJXnI/ke9n4dqnoB6wbuYdSYnOMEW3HI
+         pmFxqPOTeAK/PVzEU66xdfmkHXSpJ8r/2Vl1nUy1CgR39CS9UFxDWxqlvneoQFTGRq
+         YJQqWrA6Ed/HhCqiTJCg1d5vCS1vYAC8u+T7x/re8EzLjd6qL2flcon1a5RAHZFjoB
+         8PW0JkGbIj7lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        David Laight <David.Laight@aculab.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 51/51] poll: fix performance regression due to out-of-line __put_user()
-Date:   Tue, 12 Jan 2021 07:55:33 -0500
-Message-Id: <20210112125534.70280-51-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 01/28] ARC: build: remove non-existing bootpImage from KBUILD_IMAGE
+Date:   Tue, 12 Jan 2021 07:56:17 -0500
+Message-Id: <20210112125645.70739-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
-References: <20210112125534.70280-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,84 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit ef0ba05538299f1391cbe097de36895bb36ecfe6 ]
+[ Upstream commit 9836720911cfec25d3fbdead1c438bf87e0f2841 ]
 
-The kernel test robot reported a -5.8% performance regression on the
-"poll2" test of will-it-scale, and bisected it to commit d55564cfc222
-("x86: Make __put_user() generate an out-of-line call").
+The deb-pkg builds for ARCH=arc fail.
 
-I didn't expect an out-of-line __put_user() to matter, because no normal
-core code should use that non-checking legacy version of user access any
-more.  But I had overlooked the very odd poll() usage, which does a
-__put_user() to update the 'revents' values of the poll array.
+  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
+  $ make -s ARCH=arc defconfig
+  $ make ARCH=arc bindeb-pkg
+  SORTTAB vmlinux
+  SYSMAP  System.map
+  MODPOST Module.symvers
+  make KERNELRELEASE=5.10.0-rc4 ARCH=arc KBUILD_BUILD_VERSION=2 -f ./Makefile intdeb-pkg
+  sh ./scripts/package/builddeb
+  cp: cannot stat 'arch/arc/boot/bootpImage': No such file or directory
+  make[4]: *** [scripts/Makefile.package:87: intdeb-pkg] Error 1
+  make[3]: *** [Makefile:1527: intdeb-pkg] Error 2
+  make[2]: *** [debian/rules:13: binary-arch] Error 2
+  dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
+  make[1]: *** [scripts/Makefile.package:83: bindeb-pkg] Error 2
+  make: *** [Makefile:1527: bindeb-pkg] Error 2
 
-Now, Al Viro correctly points out that instead of updating just the
-'revents' field, it would be much simpler to just copy the _whole_
-pollfd entry, and then we could just use "copy_to_user()" on the whole
-array of entries, the same way we use "copy_from_user()" a few lines
-earlier to get the original values.
+The reason is obvious; arch/arc/Makefile sets $(boot)/bootpImage as
+the default image, but there is no rule to build it.
 
-But that is not what we've traditionally done, and I worry that threaded
-applications might be concurrently modifying the other fields of the
-pollfd array.  So while Al's suggestion is simpler - and perhaps worth
-trying in the future - this instead keeps the "just update revents"
-model.
+Remove the meaningless KBUILD_IMAGE assignment so it will fallback
+to the default vmlinux. With this change, you can build the deb package.
 
-To fix the performance regression, use the modern "unsafe_put_user()"
-instead of __put_user(), with the proper "user_write_access_begin()"
-guarding in place. This improves code generation enormously.
+I removed the 'bootpImage' target as well. At best, it provides
+'make bootpImage' as an alias of 'make vmlinux', but I do not see
+much sense in doing so.
 
-Link: https://lore.kernel.org/lkml/20210107134723.GA28532@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Oliver Sang <oliver.sang@intel.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: David Laight <David.Laight@aculab.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/select.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ arch/arc/Makefile | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/fs/select.c b/fs/select.c
-index ebfebdfe5c69a..37aaa8317f3ae 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1011,14 +1011,17 @@ static int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
- 	fdcount = do_poll(head, &table, end_time);
- 	poll_freewait(&table);
+diff --git a/arch/arc/Makefile b/arch/arc/Makefile
+index f1c44cccf8d6c..5e5699acefef4 100644
+--- a/arch/arc/Makefile
++++ b/arch/arc/Makefile
+@@ -90,12 +90,6 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
  
-+	if (!user_write_access_begin(ufds, nfds * sizeof(*ufds)))
-+		goto out_fds;
-+
- 	for (walk = head; walk; walk = walk->next) {
- 		struct pollfd *fds = walk->entries;
- 		int j;
+ boot		:= arch/arc/boot
  
--		for (j = 0; j < walk->len; j++, ufds++)
--			if (__put_user(fds[j].revents, &ufds->revents))
--				goto out_fds;
-+		for (j = walk->len; j; fds++, ufds++, j--)
-+			unsafe_put_user(fds->revents, &ufds->revents, Efault);
-   	}
-+	user_write_access_end();
+-#default target for make without any arguments.
+-KBUILD_IMAGE	:= $(boot)/bootpImage
+-
+-all:	bootpImage
+-bootpImage: vmlinux
+-
+ boot_targets += uImage uImage.bin uImage.gz
  
- 	err = fdcount;
- out_fds:
-@@ -1030,6 +1033,11 @@ static int do_sys_poll(struct pollfd __user *ufds, unsigned int nfds,
- 	}
- 
- 	return err;
-+
-+Efault:
-+	user_write_access_end();
-+	err = -EFAULT;
-+	goto out_fds;
- }
- 
- static long do_restart_poll(struct restart_block *restart_block)
+ $(boot_targets): vmlinux
 -- 
 2.27.0
 
