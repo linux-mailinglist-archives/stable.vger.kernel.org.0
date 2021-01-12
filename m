@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7F62F30B0
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9962F30AF
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731703AbhALNJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:09:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
+        id S1731674AbhALNJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:09:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404205AbhALM6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2404886AbhALM6M (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:58:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6311A23136;
-        Tue, 12 Jan 2021 12:57:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B3C23133;
+        Tue, 12 Jan 2021 12:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456238;
-        bh=KVEfEUWOLEQmT7+CQxXQJ3XRAZoF8/ksCh1myHnPp1c=;
+        s=k20201202; t=1610456239;
+        bh=mvaNFAlw7j4xFI4gIfaMQt/1iJxGTU0GW3H2ruuMEEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MNq/x0gx3q5FhtdvXASqolw4zJEHmNR+uWzL1cH+3BUjubDh8ZXr+JZRKWFOta1SN
-         S8nN5SaMjJpy82EI1xPQ1gSu4hE2JJIkZ9oMJOqo9pS4aTUUFGi7dY+0X3YrMgSdIH
-         /+OVjJzWSDKcUsSAZvt2WZLsVmlj3pjXv+y8bD4HlN68gxEYjWkzpdI69v034C0Kr0
-         FLKti5sJx2UnRVjp5ux+9GmejxvbFHGhtPglncrf5wc/d5QY4o4nlBGHmQx3VtfbNy
-         lPnDEaVHLOp+Rt0Q+XzLS4E/gpKcG7aSCm9IrAL5OFkD4sPaSZWpTZjjHGXaJIY5hA
-         uuWlYF93VTHuA==
+        b=uCxR+cETfXj1P0A953751xwwVGDivpKeME+1HOZ2F7I6B/Um6kBOFnKGRnUYmBlV9
+         TOWUR7vVgMXH7ostqELSMwFKXG1CixGCDAwsWT9/Ux5Vv5pRR9IDzHpcWjwGJ+mU5P
+         KR6n/Nrdp6gOKR2RfbRysLMzvg2dliD2Ckfvll/eoM5toHSc+5skfNMKWjYo2/PsVV
+         g2kSGHvgUQzh1ZIb3oim9bZGufz0QJED/B9hSj224lrMdQPI8ttwJrh9ojA7opSzNN
+         ZS+DkWKZwDSxgfX5M9BKYVKbS16gTYNPk9+71tSPYwiu7kF6m7F8PgQl+qlygHJy0B
+         MlrLvYlkOmw4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Li <Dennis.Li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 24/28] drm/amdgpu: fix a GPU hang issue when remove device
-Date:   Tue, 12 Jan 2021 07:56:40 -0500
-Message-Id: <20210112125645.70739-24-sashal@kernel.org>
+Cc:     Peter Robinson <pbrobinson@gmail.com>,
+        Ajay Gupta <ajayg@nvidia.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 25/28] usb: typec: Fix copy paste error for NVIDIA alt-mode description
+Date:   Tue, 12 Jan 2021 07:56:41 -0500
+Message-Id: <20210112125645.70739-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125645.70739-1-sashal@kernel.org>
 References: <20210112125645.70739-1-sashal@kernel.org>
@@ -44,48 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Li <Dennis.Li@amd.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 88e21af1b3f887d217f2fb14fc7e7d3cd87ebf57 ]
+[ Upstream commit 41952a66015466c3208aac96b14ffd92e0943589 ]
 
-When GFXOFF is enabled and GPU is idle, driver will fail to access some
-registers. Therefore change to disable power gating before all access
-registers with MMIO.
+The name of the module for the NVIDIA alt-mode is incorrect as it
+looks to be a copy-paste error from the entry above, update it to
+the correct typec_nvidia module name.
 
-Dmesg log is as following:
-amdgpu 0000:03:00.0: amdgpu: amdgpu: finishing device.
-amdgpu: cp queue pipe 4 queue 0 preemption failed
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
-
-Signed-off-by: Dennis Li <Dennis.Li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Ajay Gupta <ajayg@nvidia.com>
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+Link: https://lore.kernel.org/r/20210106001605.167917-1-pbrobinson@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/typec/altmodes/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 29141bff4b572..3b3fc9a426e91 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2057,11 +2057,11 @@ static int amdgpu_device_ip_fini(struct amdgpu_device *adev)
- 	if (adev->gmc.xgmi.num_physical_nodes > 1)
- 		amdgpu_xgmi_remove_device(adev);
+diff --git a/drivers/usb/typec/altmodes/Kconfig b/drivers/usb/typec/altmodes/Kconfig
+index 187690fd1a5bd..60d375e9c3c7c 100644
+--- a/drivers/usb/typec/altmodes/Kconfig
++++ b/drivers/usb/typec/altmodes/Kconfig
+@@ -20,6 +20,6 @@ config TYPEC_NVIDIA_ALTMODE
+ 	  to enable support for VirtualLink devices with NVIDIA GPUs.
  
--	amdgpu_amdkfd_device_fini(adev);
--
- 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
- 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+ 	  To compile this driver as a module, choose M here: the
+-	  module will be called typec_displayport.
++	  module will be called typec_nvidia.
  
-+	amdgpu_amdkfd_device_fini(adev);
-+
- 	/* need to disable SMC first */
- 	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		if (!adev->ip_blocks[i].status.hw)
+ endmenu
 -- 
 2.27.0
 
