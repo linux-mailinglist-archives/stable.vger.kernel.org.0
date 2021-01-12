@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BADE2F308D
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D91092F3081
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbhALNHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53820 "EHLO mail.kernel.org"
+        id S1726478AbhALNGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:06:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405131AbhALM6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:58:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5F9223339;
-        Tue, 12 Jan 2021 12:57:37 +0000 (UTC)
+        id S2405157AbhALM6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:58:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 044302311D;
+        Tue, 12 Jan 2021 12:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456258;
-        bh=pu5+4eUuvLzFgj2xJ+irwMznAzG/r9SCQy75eHiQEUU=;
+        s=k20201202; t=1610456259;
+        bh=WTkWjyPZt28cdMbv407S9n9NIkZVC3x3hlm1XohUOyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acYoeDV42OQ5WoawKQ12OyTYLtPkA2Yvwgpvnj8uxosXp9P2/VFECEV9eViz1fIcI
-         1pX1sJLySgPNT+SQKPJXGsrWUYzjBTGVWVakR7ZjcwBE7jzKjUdCQLP3JwoJ5XZU8c
-         Xukz76lI5XuQT43cJbbRYmRY16YdbGs644VQaTYojKspQwqAQF+xFrMu1gkGxZivu4
-         DP2MpUZdAIy7gMLZg8tEwn/VpTCkaZfBzm7SBsmuZL2JxpBiVsQaC0EZT1K3eU/+zR
-         M+H4YhUv6kGJBQ4LpsbtKOFZFVlHF30L1F2r93UdjQ/zWZtWSDXbNF3B9oep4ZG5uv
-         Ly2smTOE4xTVg==
+        b=kMmXJzZtI6xVXoIEB1nVkYHpZGPh/iGqppjEkC7dWdqQjUPcgOlL7Iq4HoVlmHP2F
+         YtsGXwGLoqU9LMjG6DACzD0y9vq468HjrKdGd7o79WgeQV0cOG85cHELGl8IzdpT4y
+         DNhP2npDHA9QS0ZCNn6Fm/e/Hz7Vyoy3+TWaI7fGCYolG/w9XW60WigeHgkYS58pCs
+         M/hGkovo5H2mOBCt+2K2qJT/ZLX5T1ucLRloWbpsDjGxSvy4Ite2LBkaoDk+P7uvMg
+         K04PF9D4C2ClWk8QYN5vap+pC4LY9ShECZqPymAMipZpGLsqwZit9OfVu0syNF580q
+         rW2WuWFShG2vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/16] net: usb: qmi_wwan: add Quectel EM160R-GL
-Date:   Tue, 12 Jan 2021 07:57:18 -0500
-Message-Id: <20210112125725.71014-9-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/16] bfq: Fix computation of shallow depth
+Date:   Tue, 12 Jan 2021 07:57:19 -0500
+Message-Id: <20210112125725.71014-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125725.71014-1-sashal@kernel.org>
 References: <20210112125725.71014-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,60 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjørn Mork <bjorn@mork.no>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit cfd82dfc9799c53ef109343a23af006a0f6860a9 ]
+[ Upstream commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a ]
 
-New modem using ff/ff/30 for QCDM, ff/00/00 for  AT and NMEA,
-and ff/ff/ff for RMNET/QMI.
+BFQ computes number of tags it allows to be allocated for each request type
+based on tag bitmap. However it uses 1 << bitmap.shift as number of
+available tags which is wrong. 'shift' is just an internal bitmap value
+containing logarithm of how many bits bitmap uses in each bitmap word.
+Thus number of tags allowed for some request types can be far to low.
+Use proper bitmap.depth which has the number of tags instead.
 
-T: Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=5000 MxCh= 0
-D: Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs= 1
-P: Vendor=2c7c ProdID=0620 Rev= 4.09
-S: Manufacturer=Quectel
-S: Product=EM160R-GL
-S: SerialNumber=e31cedc1
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-E: Ad=81(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=01(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=82(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=02(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=84(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=03(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=86(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=04(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
-E: Ad=8e(I) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-E: Ad=0f(O) Atr=02(Bulk) MxPS=1024 Ivl=0ms
-
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20201230152451.245271-1-bjorn@mork.no
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/bfq-iosched.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index ebd630a94571f..1b48d71dbc284 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -995,6 +995,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0125)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0306)},	/* Quectel EP06/EG06/EM06 */
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
-+	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */
- 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0800)},	/* Quectel RM500Q-GL */
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 5198ed1b36690..b7ad8ac6bb41e 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5280,13 +5280,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * limit 'something'.
+ 	 */
+ 	/* no more than 50% of tags for async I/O */
+-	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
++	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
+ 	/*
+ 	 * no more than 75% of tags for sync writes (25% extra tags
+ 	 * w.r.t. async I/O, to prevent async I/O from starving sync
+ 	 * writes)
+ 	 */
+-	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
++	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
  
- 	/* 3. Combined interface devices matching on interface number */
+ 	/*
+ 	 * In-word depths in case some bfq_queue is being weight-
+@@ -5296,9 +5296,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * shortage.
+ 	 */
+ 	/* no more than ~18% of tags for async I/O */
+-	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
++	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
+ 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
+-	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
++	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
+ 
+ 	for (i = 0; i < 2; i++)
+ 		for (j = 0; j < 2; j++)
 -- 
 2.27.0
 
