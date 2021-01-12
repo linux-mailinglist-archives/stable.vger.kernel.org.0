@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A412F2B6D
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 10:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B2C2F2B75
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 10:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391323AbhALJfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 04:35:18 -0500
-Received: from mga11.intel.com ([192.55.52.93]:28605 "EHLO mga11.intel.com"
+        id S2392716AbhALJfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 04:35:40 -0500
+Received: from mga18.intel.com ([134.134.136.126]:57028 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387724AbhALJfS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 04:35:18 -0500
-IronPort-SDR: s1KZ1Rjbm6Kc2JrVjf/N+RsKgHj8mIAMjSXhiBTMPZVW8MXCTL2RGvtpLb/9WXm4wFZmVnKZFv
- QBGIQDRF9Gvw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="174503021"
+        id S2392715AbhALJfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 04:35:40 -0500
+IronPort-SDR: 7L535RC0Cs7jRkuW4IZTaH24Nnh6R5tGbXmrRZgKZKBQEnU09Ifv4pr3Cw5v/yRRfMBxYoNdto
+ 9Shj7uCDeDXQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9861"; a="165691367"
 X-IronPort-AV: E=Sophos;i="5.79,341,1602572400"; 
-   d="scan'208";a="174503021"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 01:34:37 -0800
-IronPort-SDR: B4o+/ciPzlr45jWPFCMxT/2CPpQmmQQCCI4RCNc6hkk4ShdXdoYjAaUysR+2M53gnVdca6eSyz
- b9FQAcucoTBg==
+   d="scan'208";a="165691367"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 01:34:59 -0800
+IronPort-SDR: 4TSrFpjxdyLfaLml0thLClygScVZvIKkcaXY0+AZZr2Jl3jmQhCIG29P4PmSL8NQX5bZfRWq/5
+ 4B8qgPvs6sjw==
 X-IronPort-AV: E=Sophos;i="5.79,341,1602572400"; 
-   d="scan'208";a="464460801"
+   d="scan'208";a="571641600"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 01:34:36 -0800
-Subject: [PATCH v2 0/5] mm: Fix pfn_to_online_page() with respect to
- ZONE_DEVICE
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 01:34:58 -0800
+Subject: [PATCH v2 4/5] mm: Fix page reference leak in soft_offline_page()
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     linux-mm@kvack.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Ira Weiny <ira.weiny@intel.com>, stable@vger.kernel.org,
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
         Naoya Horiguchi <nao.horiguchi@gmail.com>,
-        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
-Date:   Tue, 12 Jan 2021 01:34:36 -0800
-Message-ID: <161044407603.1482714.16630477578392768273.stgit@dwillia2-desk3.amr.corp.intel.com>
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Oscar Salvador <osalvador@suse.de>, stable@vger.kernel.org,
+        vishal.l.verma@intel.com, linux-nvdimm@lists.01.org,
+        linux-kernel@vger.kernel.org
+Date:   Tue, 12 Jan 2021 01:34:58 -0800
+Message-ID: <161044409809.1482714.11965583624142790079.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <161044407603.1482714.16630477578392768273.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <161044407603.1482714.16630477578392768273.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -48,56 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Changes since v1 [1]:
-- Clarify the failing condition in patch 3 (Michal)
-- Clarify how subsection collisions manifest in shipping systems
-  (Michal)
-- Use zone_idx() (Michal)
-- Move section_taint_zone_device() conditions to
-  move_pfn_range_to_zone() (Michal)
-- Fix pfn_to_online_page() to account for pfn_valid() vs
-  pfn_section_valid() confusion (David)
+The conversion to move pfn_to_online_page() internal to
+soft_offline_page() missed that the get_user_pages() reference needs to
+be dropped when pfn_to_online_page() fails.
 
-[1]: http://lore.kernel.org/r/160990599013.2430134.11556277600719835946.stgit@dwillia2-desk3.amr.corp.intel.com
+When soft_offline_page() is handed a pfn_valid() &&
+!pfn_to_online_page() pfn the kernel hangs at dax-device shutdown due to
+a leaked reference.
 
+Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Naoya Horiguchi <nao.horiguchi@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
+ mm/memory-failure.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-Michal reminds that the discussion about how to ensure pfn-walkers do
-not get confused by ZONE_DEVICE pages never resolved. A pfn-walker that
-uses pfn_to_online_page() may inadvertently translate a pfn as online
-and in the page allocator, when it is offline managed by a ZONE_DEVICE
-mapping (details in Patch 3: ("mm: Teach pfn_to_online_page() about
-ZONE_DEVICE section collisions")).
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 5a38e9eade94..78b173c7190c 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct page *page)
+ 	return rc;
+ }
+ 
++static void put_ref_page(struct page *page)
++{
++	if (page)
++		put_page(page);
++}
++
+ /**
+  * soft_offline_page - Soft offline a page.
+  * @pfn: pfn to soft-offline
+@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct page *page)
+ int soft_offline_page(unsigned long pfn, int flags)
+ {
+ 	int ret;
+-	struct page *page;
+ 	bool try_again = true;
++	struct page *page, *ref_page = NULL;
++
++	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
+ 
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	if (flags & MF_COUNT_INCREASED)
++		ref_page = pfn_to_page(pfn);
++
+ 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
+ 	page = pfn_to_online_page(pfn);
+-	if (!page)
++	if (!page) {
++		put_ref_page(ref_page);
+ 		return -EIO;
++	}
+ 
+ 	if (PageHWPoison(page)) {
+ 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
+-		if (flags & MF_COUNT_INCREASED)
+-			put_page(page);
++		put_ref_page(ref_page);
+ 		return 0;
+ 	}
+ 
 
-The 2 proposals under consideration are teach pfn_to_online_page() to be
-precise in the presence of mixed-zone sections, or teach the memory-add
-code to drop the System RAM associated with ZONE_DEVICE collisions. In
-order to not regress memory capacity by a few 10s to 100s of MiB the
-approach taken in this set is to add precision to pfn_to_online_page().
-
-In the course of validating pfn_to_online_page() a couple other fixes
-fell out:
-
-1/ soft_offline_page() fails to drop the reference taken in the
-   madvise(..., MADV_SOFT_OFFLINE) case.
-
-2/ The libnvdimm sysfs attribute visibility code was failing to publish
-   the resource base for memmap=ss!nn defined namespaces. This is needed
-   for the regression test for soft_offline_page().
-
----
-
-Dan Williams (5):
-      mm: Move pfn_to_online_page() out of line
-      mm: Teach pfn_to_online_page() to consider subsection validity
-      mm: Teach pfn_to_online_page() about ZONE_DEVICE section collisions
-      mm: Fix page reference leak in soft_offline_page()
-      libnvdimm/namespace: Fix visibility of namespace resource attribute
-
-
- drivers/nvdimm/namespace_devs.c |   10 +++---
- include/linux/memory_hotplug.h  |   17 +----------
- include/linux/mmzone.h          |   22 +++++++++-----
- mm/memory-failure.c             |   20 ++++++++++---
- mm/memory_hotplug.c             |   62 +++++++++++++++++++++++++++++++++++++++
- 5 files changed, 99 insertions(+), 32 deletions(-)
