@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 431A92F3118
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 319912F311A
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403884AbhALM5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403855AbhALM5g (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jan 2021 07:57:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53866 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403837AbhALM5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA1023333;
-        Tue, 12 Jan 2021 12:56:29 +0000 (UTC)
+        id S2403844AbhALM5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:57:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3433B23339;
+        Tue, 12 Jan 2021 12:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456190;
-        bh=Y0s+VaqXDL8DvN9FddpkCa98zsrkK/PYMkRYZ9XQmC8=;
+        s=k20201202; t=1610456192;
+        bh=atM/We5CsFzw3dFfBXTIftb+fTP0t+mUCTgaENwNCyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9D8yXXLC1WGl9HYMiyKmu6zc3X5XmKfMOD+ozH7/HTiyII1uP//ST6o/5XxJAR0m
-         BbcjQqtsisAnGdwX8azRVdxAhmEfF4x1xUg1R1bkmubiI+U81oOXbi4xlRGHET4JlM
-         ha5Lr9b7kwQ4rs+U4exNzPDijbQmrwjrKMWDN9A4a2cIm+EGyNg0CiSFkcyzkHeCWl
-         jJyB4sWQ2m3LS7IGpalFPmic2EDI9WWAnbnQWT5+/livYkK1unPEdA3RSzAgcMlFwU
-         +AiNLGQy8DZE7r+96cjncfsfdOjeWK9gpwhLcxnDnIpGdJu2NtN/WnaWclAjnSYsCK
-         JzxuN07nK5YSA==
+        b=FEZZ8B2NN1srkM4m/lUuwASw+1abM0tKgK8x9j7n2s/M/ci8S3sQSLSpYAZtMVGE8
+         MYDSEZ8kX4Sk6BLnSNss5sf7MVsRTFH2/Opm0Y5O3A7ZzP6owWV2mCsdgU80dJgVO0
+         4ClJRWXFZtBjLiyAQpXzD9XZCrDpRfAdfkTlNcbsAfAGCG9PdCo9i4ag0xapfDi8b8
+         yFB+01Al7mSIxFG770IkvT6qxhAw0lwyNSbxikPGC8FnrJv4wrBMMceFYZcL3XbfE2
+         vIjdJc53op/Hkl+bB68JYLXtxvZcNnqmac+9icMS+G+eyqkF+RLpgLBSqBgmUqxAdS
+         c6gLD19RwXmqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Li <Dennis.Li@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
+Cc:     Xiaojian Du <Xiaojian.Du@amd.com>, Huang Rui <ray.huang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 42/51] drm/amdgpu: fix a GPU hang issue when remove device
-Date:   Tue, 12 Jan 2021 07:55:24 -0500
-Message-Id: <20210112125534.70280-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 43/51] drm/amd/pm: fix the failure when change power profile for renoir
+Date:   Tue, 12 Jan 2021 07:55:25 -0500
+Message-Id: <20210112125534.70280-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
@@ -44,48 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Li <Dennis.Li@amd.com>
+From: Xiaojian Du <Xiaojian.Du@amd.com>
 
-[ Upstream commit 88e21af1b3f887d217f2fb14fc7e7d3cd87ebf57 ]
+[ Upstream commit 44cb39e19a05ca711bcb6e776e0a4399223204a0 ]
 
-When GFXOFF is enabled and GPU is idle, driver will fail to access some
-registers. Therefore change to disable power gating before all access
-registers with MMIO.
+This patch is to fix the failure when change power profile to
+"profile_peak" for renoir.
 
-Dmesg log is as following:
-amdgpu 0000:03:00.0: amdgpu: amdgpu: finishing device.
-amdgpu: cp queue pipe 4 queue 0 preemption failed
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 2890 wait reg 28a2
-amdgpu 0000:03:00.0: amdgpu: failed to write reg 1a6f4 wait reg 1a706
-
-Signed-off-by: Dennis Li <Dennis.Li@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Xiaojian Du <Xiaojian.Du@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c | 1 +
+ drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 026789b466db9..30c9d60c9b515 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2524,11 +2524,11 @@ static int amdgpu_device_ip_fini(struct amdgpu_device *adev)
- 	if (adev->gmc.xgmi.num_physical_nodes > 1)
- 		amdgpu_xgmi_remove_device(adev);
- 
--	amdgpu_amdkfd_device_fini(adev);
--
- 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
- 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
- 
-+	amdgpu_amdkfd_device_fini(adev);
-+
- 	/* need to disable SMC first */
- 	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		if (!adev->ip_blocks[i].status.hw)
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+index 66c1026489bee..425c48e100e4f 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
+@@ -188,6 +188,7 @@ static int renoir_get_dpm_clk_limited(struct smu_context *smu, enum smu_clk_type
+ 			return -EINVAL;
+ 		*freq = clk_table->SocClocks[dpm_level].Freq;
+ 		break;
++	case SMU_UCLK:
+ 	case SMU_MCLK:
+ 		if (dpm_level >= NUM_FCLK_DPM_LEVELS)
+ 			return -EINVAL;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
+index 660f403d5770c..7907c9e0b5dec 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
+@@ -222,6 +222,7 @@ int smu_v12_0_set_soft_freq_limited_range(struct smu_context *smu, enum smu_clk_
+ 	break;
+ 	case SMU_FCLK:
+ 	case SMU_MCLK:
++	case SMU_UCLK:
+ 		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinFclkByFreq, min, NULL);
+ 		if (ret)
+ 			return ret;
 -- 
 2.27.0
 
