@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319912F311A
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B77572F3119
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403855AbhALM5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403876AbhALM5g (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jan 2021 07:57:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403844AbhALM5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2403846AbhALM5f (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:57:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3433B23339;
-        Tue, 12 Jan 2021 12:56:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B22D22333B;
+        Tue, 12 Jan 2021 12:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456192;
-        bh=atM/We5CsFzw3dFfBXTIftb+fTP0t+mUCTgaENwNCyA=;
+        s=k20201202; t=1610456193;
+        bh=IO07lAPmVIHL6U9iLfamBIZXzOpk67bl0Wv3eCpJyL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FEZZ8B2NN1srkM4m/lUuwASw+1abM0tKgK8x9j7n2s/M/ci8S3sQSLSpYAZtMVGE8
-         MYDSEZ8kX4Sk6BLnSNss5sf7MVsRTFH2/Opm0Y5O3A7ZzP6owWV2mCsdgU80dJgVO0
-         4ClJRWXFZtBjLiyAQpXzD9XZCrDpRfAdfkTlNcbsAfAGCG9PdCo9i4ag0xapfDi8b8
-         yFB+01Al7mSIxFG770IkvT6qxhAw0lwyNSbxikPGC8FnrJv4wrBMMceFYZcL3XbfE2
-         vIjdJc53op/Hkl+bB68JYLXtxvZcNnqmac+9icMS+G+eyqkF+RLpgLBSqBgmUqxAdS
-         c6gLD19RwXmqw==
+        b=KDio7TW/YhbSgh15W+Ct9JQQeZjMT2tk8f4xosGw7S3JGGv3RJkM9GFCPHn/QrU7O
+         4n4WMKf+d44A4rhX48V6PFetMUX0OThQkNLfxezAFDQMWKM2KqpmoqqKA6wyihODSu
+         m6OdbHgeWrt6Pi+Q/9ZKgL8z6MVTgOJKxDBOMO9GIIR+NO6mVT8g4iryq9pkL9Il5c
+         0J1ZnW7YGbukA+j9TWzc27odOSU9COYkTdmVpmGY/0PGOjY3lrUqdKTp2SEi5E3SKb
+         tcVmRgDCmErCx/jjwEqAxzAuiAV7bpB7u+XLqo2OgMmAmIVyDu9QKA+heJM4uI9XSF
+         HvkDV6hCIotpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaojian Du <Xiaojian.Du@amd.com>, Huang Rui <ray.huang@amd.com>,
+Cc:     Jiawei Gu <Jiawei.Gu@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 43/51] drm/amd/pm: fix the failure when change power profile for renoir
-Date:   Tue, 12 Jan 2021 07:55:25 -0500
-Message-Id: <20210112125534.70280-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 44/51] drm/amdgpu: fix potential memory leak during navi12 deinitialization
+Date:   Tue, 12 Jan 2021 07:55:26 -0500
+Message-Id: <20210112125534.70280-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
@@ -43,46 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaojian Du <Xiaojian.Du@amd.com>
+From: Jiawei Gu <Jiawei.Gu@amd.com>
 
-[ Upstream commit 44cb39e19a05ca711bcb6e776e0a4399223204a0 ]
+[ Upstream commit e6d5c64efaa34aae3815a9afeb1314a976142e83 ]
 
-This patch is to fix the failure when change power profile to
-"profile_peak" for renoir.
+Navi12 HDCP & DTM deinitialization needs continue to free bo if already
+created though initialized flag is not set.
 
-Signed-off-by: Xiaojian Du <Xiaojian.Du@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jiawei Gu <Jiawei.Gu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c | 1 +
- drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c  | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-index 66c1026489bee..425c48e100e4f 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-@@ -188,6 +188,7 @@ static int renoir_get_dpm_clk_limited(struct smu_context *smu, enum smu_clk_type
- 			return -EINVAL;
- 		*freq = clk_table->SocClocks[dpm_level].Freq;
- 		break;
-+	case SMU_UCLK:
- 	case SMU_MCLK:
- 		if (dpm_level >= NUM_FCLK_DPM_LEVELS)
- 			return -EINVAL;
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
-index 660f403d5770c..7907c9e0b5dec 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
-@@ -222,6 +222,7 @@ int smu_v12_0_set_soft_freq_limited_range(struct smu_context *smu, enum smu_clk_
- 	break;
- 	case SMU_FCLK:
- 	case SMU_MCLK:
-+	case SMU_UCLK:
- 		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinFclkByFreq, min, NULL);
- 		if (ret)
- 			return ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index a6dbe4b83533f..2f47f81a74a57 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -1283,8 +1283,12 @@ static int psp_hdcp_terminate(struct psp_context *psp)
+ 	if (amdgpu_sriov_vf(psp->adev))
+ 		return 0;
+ 
+-	if (!psp->hdcp_context.hdcp_initialized)
+-		return 0;
++	if (!psp->hdcp_context.hdcp_initialized) {
++		if (psp->hdcp_context.hdcp_shared_buf)
++			goto out;
++		else
++			return 0;
++	}
+ 
+ 	ret = psp_hdcp_unload(psp);
+ 	if (ret)
+@@ -1292,6 +1296,7 @@ static int psp_hdcp_terminate(struct psp_context *psp)
+ 
+ 	psp->hdcp_context.hdcp_initialized = false;
+ 
++out:
+ 	/* free hdcp shared memory */
+ 	amdgpu_bo_free_kernel(&psp->hdcp_context.hdcp_shared_bo,
+ 			      &psp->hdcp_context.hdcp_shared_mc_addr,
+@@ -1430,8 +1435,12 @@ static int psp_dtm_terminate(struct psp_context *psp)
+ 	if (amdgpu_sriov_vf(psp->adev))
+ 		return 0;
+ 
+-	if (!psp->dtm_context.dtm_initialized)
+-		return 0;
++	if (!psp->dtm_context.dtm_initialized) {
++		if (psp->dtm_context.dtm_shared_buf)
++			goto out;
++		else
++			return 0;
++	}
+ 
+ 	ret = psp_dtm_unload(psp);
+ 	if (ret)
+@@ -1439,6 +1448,7 @@ static int psp_dtm_terminate(struct psp_context *psp)
+ 
+ 	psp->dtm_context.dtm_initialized = false;
+ 
++out:
+ 	/* free hdcp shared memory */
+ 	amdgpu_bo_free_kernel(&psp->dtm_context.dtm_shared_bo,
+ 			      &psp->dtm_context.dtm_shared_mc_addr,
 -- 
 2.27.0
 
