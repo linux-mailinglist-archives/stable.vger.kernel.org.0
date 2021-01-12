@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F912F3073
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3101C2F3091
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405028AbhALM6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:58:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S1729388AbhALNHl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:07:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390434AbhALM6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388997AbhALM6T (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:58:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB0B52332A;
-        Tue, 12 Jan 2021 12:57:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ECDC23333;
+        Tue, 12 Jan 2021 12:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456255;
-        bh=vEfqYb1slQpDHscuOQ9ddy7UIs1M+3Umn9b/6Rq80p0=;
+        s=k20201202; t=1610456257;
+        bh=hYeILsnaxK+KNOA/EPB5IzZ+PmRqMc6c+QsaY+EWZpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBIy5Djx3tHNMLxL4swrGWQpz+FbrpoojnGvyUAXrT9YXI5FoqsryI8zdT1fBwZdF
-         rSng8GvlnUJAxu5lKDh3Na+AZIGsNzFZYKxa9jjwadem7kXZ1ONj3pFUrv9NwPHKNl
-         OvacpTKh5xo54HNFaPDBlOIXgfDRZUCxIs6D6W+6jSC8XEnXc+hkiyp/qCyuvq2J/Z
-         RtG+NNhadHLiORUQ+m+7UozEm5Rs3mghOcnvPtldnVz+YsDlWy0WNIpu2tscF3Qm4q
-         Bt9osom35RH92cIzQPGaMNOWOic/6IJh04qPYhGKJy68bydH2L7r4OP4OaJqZX6TWF
-         o6IqIEId+kedg==
+        b=VBsiv3Cv8BQa+K6hvFMnWjjWFGpVkAiwTWJRTi7mmvJdpRi7sjjE6af3KhfIQZUcR
+         Ohd9E7ur4XSndpAbngM2mKV1J0kVnBxeP+5kovC3gAd31FyojHx8KLn0KrofV9osF3
+         FrrJt18PLjST6VQuuXO9C7lSjvAWh0GXRdjRKA6YPF7/f/GeDzmnVzW50rAjSE+/tI
+         CG84Vs2HWxWstKkbcOp7HHFtlvcbVcplCyuoeu1uMGlkK5GBPfmke+tedgxHNm5a5q
+         nNp7KmKItp2PXrns2NVsbMjMn+4b90zn8dfWZyw+y/jt4KZEJOgHICUQuUpY6WLKbM
+         BZ2hqGrLO2xhQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roland Dreier <roland@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/16] CDC-NCM: remove "connected" log message
-Date:   Tue, 12 Jan 2021 07:57:16 -0500
-Message-Id: <20210112125725.71014-7-sashal@kernel.org>
+Cc:     Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 08/16] dmaengine: stm32-mdma: fix STM32_MDMA_VERY_HIGH_PRIORITY value
+Date:   Tue, 12 Jan 2021 07:57:17 -0500
+Message-Id: <20210112125725.71014-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125725.71014-1-sashal@kernel.org>
 References: <20210112125725.71014-1-sashal@kernel.org>
@@ -44,44 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roland Dreier <roland@kernel.org>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit 59b4a8fa27f5a895582ada1ae5034af7c94a57b5 ]
+[ Upstream commit e1263f9277bad198c2acc8092a41aea1edbea0e4 ]
 
-The cdc_ncm driver passes network connection notifications up to
-usbnet_link_change(), which is the right place for any logging.
-Remove the netdev_info() duplicating this from the driver itself.
+STM32_MDMA_VERY_HIGH_PRIORITY is b11 not 0x11, so fix it with 0x3.
 
-This stops devices such as my "TRENDnet USB 10/100/1G/2.5G LAN"
-(ID 20f4:e02b) adapter from spamming the kernel log with
-
-    cdc_ncm 2-2:2.0 enp0s2u2c2: network connection: connected
-
-messages every 60 msec or so.
-
-Signed-off-by: Roland Dreier <roland@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20201224032116.2453938-1-roland@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20210104142045.25583-1-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ncm.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/dma/stm32-mdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-index 1f57a6a2b8a25..e0bbefcbefa17 100644
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1629,9 +1629,6 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
- 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
- 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
- 		 */
--		netif_info(dev, link, dev->net,
--			   "network connection: %sconnected\n",
--			   !!event->wValue ? "" : "dis");
- 		usbnet_link_change(dev, !!event->wValue, 0);
- 		break;
+diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
+index 9c6867916e890..0681c0fa44cfb 100644
+--- a/drivers/dma/stm32-mdma.c
++++ b/drivers/dma/stm32-mdma.c
+@@ -209,7 +209,7 @@
+ #define STM32_MDMA_MAX_CHANNELS		63
+ #define STM32_MDMA_MAX_REQUESTS		256
+ #define STM32_MDMA_MAX_BURST		128
+-#define STM32_MDMA_VERY_HIGH_PRIORITY	0x11
++#define STM32_MDMA_VERY_HIGH_PRIORITY	0x3
  
+ enum stm32_mdma_trigger_mode {
+ 	STM32_MDMA_BUFFER,
 -- 
 2.27.0
 
