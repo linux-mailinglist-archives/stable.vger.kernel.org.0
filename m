@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0802F3150
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:25:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2282F3106
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727338AbhALNRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:17:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
+        id S1726386AbhALNPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:15:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389835AbhALM5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C8D22313B;
-        Tue, 12 Jan 2021 12:56:08 +0000 (UTC)
+        id S2404029AbhALM5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:57:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B399523139;
+        Tue, 12 Jan 2021 12:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456169;
-        bh=JL2CyNISPQy4If4ZizhtYPcGYuhw7Rf1LAlS2ehGsuE=;
+        s=k20201202; t=1610456170;
+        bh=dPVc3Mm4fzodO6CxXpRd21e25zByk0dy7tj/Eoa8myw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XljfOV89P/oDMOIYh4lEudliHbKBPVtJbQUGL0J0Y2wNH2f6ACFVU5JQBGzhOk+MX
-         yATSNLz+x+osGEgFytGOk/uJUo82++2DxB53hb5HMXRy4z6ZKDr/4qsfMDQ4JFrRWa
-         aO1xqxp/fT9y6CqlpcbJL+uHuBsKH/Z9lK9z5bMH6+++WYyhBG+0mIKlFaG0MyYaOo
-         XrlNWQXgqi5gI4OETnPGkmJv+zxu1AyG1aCh6ypPnSvMJ7Nlx3l1qZXOna+LNh75xV
-         WPtycfZ/G/ANxK4dgvzBmGsyvJ9f8S1uwZougtbcU0q9qVaj19ieF9fh+1/y1Mm/UL
-         3aAhTJ3rVFqfA==
+        b=PNRpHI3rBW58K5lquAW11XjpdGy/M84DWmYRQBwT2IZgev23TbWQjh8mZZGBEJ33a
+         Z/hst1H60PGhIPXFqng5gnTEvUB221ub/NXA4ghbKtPbDAO7mcQ0OCDhSlSGQ69+MK
+         NAMdSBjJpopJMq9z5rRsvyogh1LfKS1xtdP2quNYviB+iRNCmtYVHe9xtDNIo2Io1S
+         Or8hvYnjLVZfjfJQ1dqSJxupGIzNSCV+4jJO204g0zjqKdX8+9S15cyQKp1S7gZ+av
+         iz5TIiUdotSwgazGUWOvQdf7p5swF/Mjqk2xiw0zLy30MgWM8tghTDZ1OqXsZHzlxm
+         yA0jrafB2KfXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 26/51] hwmon: (pwm-fan) Ensure that calculation doesn't discard big period values
-Date:   Tue, 12 Jan 2021 07:55:08 -0500
-Message-Id: <20210112125534.70280-26-sashal@kernel.org>
+Cc:     John Millikin <john@john-millikin.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 27/51] lib/raid6: Let $(UNROLL) rules work with macOS userland
+Date:   Tue, 12 Jan 2021 07:55:09 -0500
+Message-Id: <20210112125534.70280-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,55 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: John Millikin <john@john-millikin.com>
 
-[ Upstream commit 1eda52334e6d13eb1a85f713ce06dd39342b5020 ]
+[ Upstream commit 0c36d88cff4d72149f94809303c5180b6f716d39 ]
 
-With MAX_PWM being defined to 255 the code
+Older versions of BSD awk are fussy about the order of '-v' and '-f'
+flags, and require a space after the flag name. This causes build
+failures on platforms with an old awk, such as macOS and NetBSD.
 
-	unsigned long period;
-	...
-	period = ctx->pwm->args.period;
-	state.duty_cycle = DIV_ROUND_UP(pwm * (period - 1), MAX_PWM);
+Since GNU awk and modern versions of BSD awk (distributed with
+FreeBSD/OpenBSD) are fine with either form, the definition of
+'cmd_unroll' can be trivially tweaked to let the lib/raid6 Makefile
+work with both old and new awk flag dialects.
 
-calculates a too small value for duty_cycle if the configured period is
-big (either by discarding the 64 bit value ctx->pwm->args.period or by
-overflowing the multiplication). As this results in a too slow fan and
-so maybe an overheating machine better be safe than sorry and error out
-in .probe.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20201215092031.152243-1-u.kleine-koenig@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: John Millikin <john@john-millikin.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pwm-fan.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ lib/raid6/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index 1f63807c0399e..ec171f2b684a1 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -324,8 +324,18 @@ static int pwm_fan_probe(struct platform_device *pdev)
+diff --git a/lib/raid6/Makefile b/lib/raid6/Makefile
+index b4c0df6d706dc..c770570bfe4f2 100644
+--- a/lib/raid6/Makefile
++++ b/lib/raid6/Makefile
+@@ -48,7 +48,7 @@ endif
+ endif
  
- 	ctx->pwm_value = MAX_PWM;
+ quiet_cmd_unroll = UNROLL  $@
+-      cmd_unroll = $(AWK) -f$(srctree)/$(src)/unroll.awk -vN=$* < $< > $@
++      cmd_unroll = $(AWK) -v N=$* -f $(srctree)/$(src)/unroll.awk < $< > $@
  
--	/* Set duty cycle to maximum allowed and enable PWM output */
- 	pwm_init_state(ctx->pwm, &state);
-+	/*
-+	 * __set_pwm assumes that MAX_PWM * (period - 1) fits into an unsigned
-+	 * long. Check this here to prevent the fan running at a too low
-+	 * frequency.
-+	 */
-+	if (state.period > ULONG_MAX / MAX_PWM + 1) {
-+		dev_err(dev, "Configured period too big\n");
-+		return -EINVAL;
-+	}
-+
-+	/* Set duty cycle to maximum allowed and enable PWM output */
- 	state.duty_cycle = ctx->pwm->args.period - 1;
- 	state.enabled = true;
- 
+ targets += int1.c int2.c int4.c int8.c int16.c int32.c
+ $(obj)/int%.c: $(src)/int.uc $(src)/unroll.awk FORCE
 -- 
 2.27.0
 
