@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F152F2F9B
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E412F2FA6
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:58:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389799AbhALM5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:57:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53818 "EHLO mail.kernel.org"
+        id S2404046AbhALM5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 07:57:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389784AbhALM5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0558B2312D;
-        Tue, 12 Jan 2021 12:55:58 +0000 (UTC)
+        id S2403960AbhALM5k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:57:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE28523130;
+        Tue, 12 Jan 2021 12:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456160;
-        bh=jdW8erxa86DlQqrhQtS+N8JoPjUyTmy+sdSjQnA5l10=;
+        s=k20201202; t=1610456165;
+        bh=mxrOyx50zYnD+PXA6krjmpAE9+v/G6l9keQzUlXiBY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0bCi0c2s8rFH6rxOZ4QAVLpocMFGXyiTIgHD+wcHZ8PQJ29LCr+fiTULIikOSQ4g
-         /FICrbowkxB9Gbqhmbrf1ENhFeIl4mAX+9Hh6YEmuvvbLyBor2DaAOU9r6vA0McXVd
-         XDajJvEOv1IRHwRHreIjaSH1v3cubG5WUG/HwusuS2FCr6sQIrSuGt5paLabrzl9bm
-         PBmu14cEttFSgL6ik8co6oapJtGDGrqaNIA7r8U9IzdZi4Bn5NTkA+5amLskcpBokR
-         gxixrhmLnS+3PyY+WH0ZnRdICXiqwWP5AcgP6yFICU0VUhZLiY5qoIpiuCeWuQHulh
-         UVNLf+UkEyyAg==
+        b=mRHkipXskZ0uTmiq2QYMw+NWJ9VGWb8b2/eBMYYclSYFizf0xroz/qu/Ne2HtfJAT
+         iwYGJiFBvr9vkbLRUjZg/LMAO3Al2Y1FMYcWKEVgkjnTmCN8Rf1KKdhysrdscT6DZS
+         BP+mxodFMASv0mrxniggJ8KC3016gIMGEZ7iwV6aToKgpz0jtbmBex9uQzCE68s4+U
+         OhgLfe+0Xvt53d3m6F8wpIXkJqXVNYvf3rkFml8DDzoAwyzcRePM90ZSFm8mu+368R
+         Yu8R3/TvQiXnjZsWz++0XAYn8qWl6iTsSdIuNFNBzvo/eFvRO5OcSaGW8szn2RyezI
+         YPQTDzPbe0yPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@dell.com>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Yijun Shen <Yijun.shen@dell.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 18/51] e1000e: Only run S0ix flows if shutdown succeeded
-Date:   Tue, 12 Jan 2021 07:55:00 -0500
-Message-Id: <20210112125534.70280-18-sashal@kernel.org>
+Cc:     Roland Dreier <roland@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 23/51] CDC-NCM: remove "connected" log message
+Date:   Tue, 12 Jan 2021 07:55:05 -0500
+Message-Id: <20210112125534.70280-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
@@ -45,48 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@dell.com>
+From: Roland Dreier <roland@kernel.org>
 
-[ Upstream commit 808e0d8832cc81738f3e8df12dff0688352baf50 ]
+[ Upstream commit 59b4a8fa27f5a895582ada1ae5034af7c94a57b5 ]
 
-If the shutdown failed, the part will be thawed and running
-S0ix flows will put it into an undefined state.
+The cdc_ncm driver passes network connection notifications up to
+usbnet_link_change(), which is the right place for any logging.
+Remove the netdev_info() duplicating this from the driver itself.
 
-Reported-by: Alexander Duyck <alexander.duyck@gmail.com>
-Reviewed-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@dell.com>
-Tested-by: Yijun Shen <Yijun.shen@dell.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+This stops devices such as my "TRENDnet USB 10/100/1G/2.5G LAN"
+(ID 20f4:e02b) adapter from spamming the kernel log with
+
+    cdc_ncm 2-2:2.0 enp0s2u2c2: network connection: connected
+
+messages every 60 msec or so.
+
+Signed-off-by: Roland Dreier <roland@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20201224032116.2453938-1-roland@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/usb/cdc_ncm.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 128ab6898070e..6588f5d4a2be8 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6970,13 +6970,14 @@ static __maybe_unused int e1000e_pm_suspend(struct device *dev)
- 	e1000e_pm_freeze(dev);
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index e04f588538ccb..5dc1365dc1f9a 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1863,9 +1863,6 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		netif_info(dev, link, dev->net,
+-			   "network connection: %sconnected\n",
+-			   !!event->wValue ? "" : "dis");
+ 		usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
  
- 	rc = __e1000_shutdown(pdev, false);
--	if (rc)
-+	if (rc) {
- 		e1000e_pm_thaw(dev);
--
--	/* Introduce S0ix implementation */
--	if (hw->mac.type >= e1000_pch_cnp &&
--	    !e1000e_check_me(hw->adapter->pdev->device))
--		e1000e_s0ix_entry_flow(adapter);
-+	} else {
-+		/* Introduce S0ix implementation */
-+		if (hw->mac.type >= e1000_pch_cnp &&
-+		    !e1000e_check_me(hw->adapter->pdev->device))
-+			e1000e_s0ix_entry_flow(adapter);
-+	}
- 
- 	return rc;
- }
 -- 
 2.27.0
 
