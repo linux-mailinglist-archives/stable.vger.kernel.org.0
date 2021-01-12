@@ -2,114 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B862F2B96
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 10:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 928042F2BE7
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 10:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726451AbhALJqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 04:46:36 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56478 "EHLO mx2.suse.de"
+        id S2392860AbhALJye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 04:54:34 -0500
+Received: from mx2.suse.de ([195.135.220.15]:33960 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730148AbhALJqg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 04:46:36 -0500
+        id S1730628AbhALJye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 04:54:34 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1610444749; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=dA3k4t4NuRzP2rImbNYwbp5ThBFOnm8mec1oBsfxQUQ=;
-        b=BUaJWqP9XW/TSzwKi8DEekpPSmcyhrX/viSiS/h2epyh/76Bogh/dVC18jHfq//hUYmGuk
-        e3OFgU9dA4MOaGd5JZE8V1pLDxMq2PikOzCKeTZ2Wd9v9gpLZQD/es06UmOjMFaIiJRpaT
-        hvN+7+NocU82RowqSurESFkl8SrepjA=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id C232BAD19;
-        Tue, 12 Jan 2021 09:45:49 +0000 (UTC)
-Date:   Tue, 12 Jan 2021 10:45:49 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
-        n-horiguchi@ah.jp.nec.com, ak@linux.intel.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/6] mm: hugetlbfs: fix cannot migrate the fallocated
- HugeTLB page
-Message-ID: <20210112094549.GJ22493@dhcp22.suse.cz>
-References: <20210110124017.86750-1-songmuchun@bytedance.com>
- <20210110124017.86750-3-songmuchun@bytedance.com>
+        by mx2.suse.de (Postfix) with ESMTP id 840D8AF58;
+        Tue, 12 Jan 2021 09:53:52 +0000 (UTC)
+Date:   Tue, 12 Jan 2021 10:53:50 +0100
+From:   Oscar Salvador <osalvador@suse.de>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+        Naoya Horiguchi <nao.horiguchi@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>, stable@vger.kernel.org,
+        vishal.l.verma@intel.com, linux-nvdimm@lists.01.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 4/5] mm: Fix page reference leak in soft_offline_page()
+Message-ID: <20210112095345.GA12534@linux>
+References: <161044407603.1482714.16630477578392768273.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <161044409809.1482714.11965583624142790079.stgit@dwillia2-desk3.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210110124017.86750-3-songmuchun@bytedance.com>
+In-Reply-To: <161044409809.1482714.11965583624142790079.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun 10-01-21 20:40:13, Muchun Song wrote:
-> If a new hugetlb page is allocated during fallocate it will not be
-> marked as active (set_page_huge_active) which will result in a later
-> isolate_huge_page failure when the page migration code would like to
-> move that page. Such a failure would be unexpected and wrong.
-> 
-> Only export set_page_huge_active, just leave clear_page_huge_active
-> as static. Because there are no external users.
-> 
-> Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
-> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> Cc: stable@vger.kernel.org
+On Tue, Jan 12, 2021 at 01:34:58AM -0800, Dan Williams wrote:
+> The conversion to move pfn_to_online_page() internal to
+> soft_offline_page() missed that the get_user_pages() reference needs to
+> be dropped when pfn_to_online_page() fails.
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+I would be more specific here wrt. get_user_pages (madvise).
+soft_offline_page gets called from more places besides madvise_*.
 
-Thanks!
+> When soft_offline_page() is handed a pfn_valid() &&
+> !pfn_to_online_page() pfn the kernel hangs at dax-device shutdown due to
+> a leaked reference.
+> 
+> Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Naoya Horiguchi <nao.horiguchi@gmail.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+
+LGTM, thanks for catching this:
+
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+
+A nit below.
 
 > ---
->  fs/hugetlbfs/inode.c    | 3 ++-
->  include/linux/hugetlb.h | 2 ++
->  mm/hugetlb.c            | 2 +-
->  3 files changed, 5 insertions(+), 2 deletions(-)
+>  mm/memory-failure.c |   20 ++++++++++++++++----
+>  1 file changed, 16 insertions(+), 4 deletions(-)
 > 
-> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> index b5c109703daa..21c20fd5f9ee 100644
-> --- a/fs/hugetlbfs/inode.c
-> +++ b/fs/hugetlbfs/inode.c
-> @@ -735,9 +735,10 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
->  
->  		mutex_unlock(&hugetlb_fault_mutex_table[hash]);
->  
-> +		set_page_huge_active(page);
->  		/*
->  		 * unlock_page because locked by add_to_page_cache()
-> -		 * page_put due to reference from alloc_huge_page()
-> +		 * put_page() due to reference from alloc_huge_page()
->  		 */
->  		unlock_page(page);
->  		put_page(page);
-> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-> index ebca2ef02212..b5807f23caf8 100644
-> --- a/include/linux/hugetlb.h
-> +++ b/include/linux/hugetlb.h
-> @@ -770,6 +770,8 @@ static inline void huge_ptep_modify_prot_commit(struct vm_area_struct *vma,
+> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+> index 5a38e9eade94..78b173c7190c 100644
+> --- a/mm/memory-failure.c
+> +++ b/mm/memory-failure.c
+> @@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct page *page)
+>  	return rc;
 >  }
->  #endif
 >  
-> +void set_page_huge_active(struct page *page);
+> +static void put_ref_page(struct page *page)
+> +{
+> +	if (page)
+> +		put_page(page);
+> +}
+
+I am not sure this warrants a function.
+I would probably go with "if (ref_page).." in the two corresponding places,
+but not feeling strong here.
+
 > +
->  #else	/* CONFIG_HUGETLB_PAGE */
->  struct hstate {};
->  
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 1f3bf1710b66..4741d60f8955 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -1348,7 +1348,7 @@ bool page_huge_active(struct page *page)
->  }
->  
->  /* never called for tail page */
-> -static void set_page_huge_active(struct page *page)
-> +void set_page_huge_active(struct page *page)
+>  /**
+>   * soft_offline_page - Soft offline a page.
+>   * @pfn: pfn to soft-offline
+> @@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct page *page)
+>  int soft_offline_page(unsigned long pfn, int flags)
 >  {
->  	VM_BUG_ON_PAGE(!PageHeadHuge(page), page);
->  	SetPagePrivate(&page[1]);
-> -- 
-> 2.11.0
+>  	int ret;
+> -	struct page *page;
+>  	bool try_again = true;
+> +	struct page *page, *ref_page = NULL;
+> +
+> +	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
+
+Did you see any scenario where this could happen? I understand that you are
+adding this because we will leak a reference in case pfn is not valid anymore.
 
 -- 
-Michal Hocko
-SUSE Labs
+Oscar Salvador
+SUSE L3
