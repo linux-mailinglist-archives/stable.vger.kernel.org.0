@@ -2,274 +2,496 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1F12F3D91
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 01:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E75352F3DA5
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 01:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438014AbhALVhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 16:37:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
+        id S2438018AbhALVhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 16:37:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437150AbhALVVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 16:21:55 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA68DC061795
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 13:21:14 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id c124so3149511wma.5
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 13:21:14 -0800 (PST)
+        with ESMTP id S2437157AbhALV1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 16:27:09 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8815FC061575
+        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 13:26:29 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id b8so2151096plx.0
+        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 13:26:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=VKdW4WkmrvRNVM/Vb5+GBiSNUwdBp53cxZDvRw7T1J8=;
-        b=j0ol5F01puV6aJKdp3QZdw9IlKnKpA3ZMWXbyJe6/LUTijPyedgIk0XMPziDKzP8Cl
-         qcQXiNPj2B88itO+FaPq4y7BhVCHMgOGqDzAi8/kxAvETxKyBFgBq5EIaINHW+tTxkvm
-         iLcAsH7ob0NqHTpZlPC0ANh2tiOQIQB/W2WDz3kFLICzVDAt7dsGiNALVyVGY3gg/KQb
-         MkOLNU5AOeO5CTeN23RzOTgN5QSghw6GevbeK4w7jCCQ7YwBsgAAu9rieRdzrRMcGDre
-         sDP1Imz7xGQd0g+yp8bRq44isv94I88dpFAgC0QYeXUcoJnho/h5Dzi+8eJ5iPPCs5/x
-         8XMA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dUHbPFl8u6ymKZcRraJt7zzflzwzwq/sWMQsgAwo9Ks=;
+        b=K+TqjJzq123YhDR1F5AWhRNKDNWoOD8GkI7Qv577csuMKyW99paWluDC8Ky6yLiMkO
+         Y/kuFyYUeo36e0iztCiNsaW8taTqtRDicBzOuUtqWBM+yPFjpF5UkiPhCyx0jh2R8SOw
+         HilOpIDq4TUmZF+t7fIG8cmi/BPbWCYUGD48OshNRuAjRTp5LBLZpKIBXH0DOClcch6b
+         pJZ8kDqU3YQy8kNG3fvDPaq72ZREdinM5W7mnaXAAOPTtBvVv1aSrXJpMm4+UKFzGCNX
+         3dXzc3RAJ34jY2zww/nyzwGQldATN+wmBduqjGsLr2G/sIqbzOLITnLuRR6aYHb9Gu8B
+         8OdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VKdW4WkmrvRNVM/Vb5+GBiSNUwdBp53cxZDvRw7T1J8=;
-        b=OM8y2kK0TvCTopDbxDPj4yz5hDfb8aGqGDjHrDWdjqI9x2nY0AzNT1Nr7Flv80J9Vp
-         L6cWtUESxXCaJqWDS3e79E8zH9T5t7fFHOj3ld2gCZtskWl8ifZGJLAtyk66U6GaNY/Q
-         6vM1axzKyp+fr0BafGsOgvDYtI60Kg2O1rSd6fQQYvF2YVb/qmRCJlyRmrN1uXDKXxL5
-         7IBfn+detGis4H/XdH0xGbZKZyOYMVo05xfl7sXaj6GLduvQQLn1Nfc4thSvj8Eu3t7g
-         +GL0NqakiVW3z2HOd84qe6AKz2CW01sYOG4q1dGaJ11zRagXNmVYibQBWCGf/7BIj3fS
-         EBAQ==
-X-Gm-Message-State: AOAM530huBItMnXyuWXP2GpyaAdUYXvOshBwakXguXtwG5GWQxFdMlKx
-        JuL7mFblgj3Fptk4ZfN2JssL3KxcL+rPVw==
-X-Google-Smtp-Source: ABdhPJxqobPcujkf8LJL8IzuocOy5n6J/PkoUrZnIY3uA3pZuuqvnruxLAgGBkrXVQ1JEybrjTzCIw==
-X-Received: by 2002:a7b:ce17:: with SMTP id m23mr1027654wmc.117.1610486473558;
-        Tue, 12 Jan 2021 13:21:13 -0800 (PST)
-Received: from localhost.localdomain ([85.255.235.134])
-        by smtp.gmail.com with ESMTPSA id y13sm7166093wrl.63.2021.01.12.13.21.12
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dUHbPFl8u6ymKZcRraJt7zzflzwzwq/sWMQsgAwo9Ks=;
+        b=ODwybStxAHPsgjcSSr52hbOoS9SRiUGjkdtUfJSjZuPWb3jeQAoZaeytci+ZvfS5W7
+         YNGp+6wekBAFAm6NXN2fuQqv7UXqv8/0jmZp4UwtAJvn/rynVjBPM30eV1piPr3pi8mN
+         QcIJX6zPhQOwctJ/9+8Ptm7T23Lky7x5y0CeRVOZXle2Qv7qgW0d4IYPsVz0rl821kzK
+         wyAcWB8fLXelp4PZUJmrFBf1JIQLEolGCDG73+KDnaoMEoi64laWI9CVonlH4mFdc7DH
+         zxAaHr321uQHhXwZYYfN5Y6dfEXBQ/8bEUC8T04x3XkHL7rXpXTBmbpZNFvyEa3pK7BP
+         7EXQ==
+X-Gm-Message-State: AOAM532qXr7fsQqCfavtrvSmlZgX8TJ660WxEBV3+83iBfLQFSgr1Xux
+        IFxxhW75kBb/8u2SgdO7YyynGv5T+EhTCA==
+X-Google-Smtp-Source: ABdhPJzAhlh5rZn1bqy/WIWfA18TgQnOJGGgDMM8R0e28+KOdKrdt2/ShQ/i/cd8vYt4Gek/VVeFgA==
+X-Received: by 2002:a17:90a:f408:: with SMTP id ch8mr1126163pjb.222.1610486788254;
+        Tue, 12 Jan 2021 13:26:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l197sm31046pfd.97.2021.01.12.13.26.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jan 2021 13:21:13 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10-stable 3/3] io_uring: patch up IOPOLL overflow_flush sync
-Date:   Tue, 12 Jan 2021 21:17:26 +0000
-Message-Id: <033b9defb5fbbf412675489fd1df42e7cbc1cd9a.1610485688.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1610485688.git.asml.silence@gmail.com>
-References: <cover.1610485688.git.asml.silence@gmail.com>
+        Tue, 12 Jan 2021 13:26:27 -0800 (PST)
+Message-ID: <5ffe1403.1c69fb81.ad106.01c0@mx.google.com>
+Date:   Tue, 12 Jan 2021 13:26:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.250-37-ga4e4f0705fa2b
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 118 runs,
+ 11 regressions (v4.4.250-37-ga4e4f0705fa2b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6c503150ae33ee19036255cfda0998463613352c upstream
+stable-rc/queue/4.4 baseline: 118 runs, 11 regressions (v4.4.250-37-ga4e4f0=
+705fa2b)
 
-IOPOLL skips completion locking but keeps it under uring_lock, thus
-io_cqring_overflow_flush() and so io_cqring_events() need additional
-locking with uring_lock in some cases for IOPOLL.
+Regressions Summary
+-------------------
 
-Remove __io_cqring_overflow_flush() from io_cqring_events(), introduce a
-wrapper around flush doing needed synchronisation and call it by hand.
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 78 +++++++++++++++++++++++++++------------------------
- 1 file changed, 41 insertions(+), 37 deletions(-)
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5ba312ab9978..492492a010a2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1625,9 +1625,9 @@ static bool io_match_files(struct io_kiocb *req,
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
--static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
--				     struct task_struct *tsk,
--				     struct files_struct *files)
-+static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+				       struct task_struct *tsk,
-+				       struct files_struct *files)
- {
- 	struct io_rings *rings = ctx->rings;
- 	struct io_kiocb *req, *tmp;
-@@ -1681,6 +1681,20 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
- 	return cqe != NULL;
- }
- 
-+static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
-+				     struct task_struct *tsk,
-+				     struct files_struct *files)
-+{
-+	if (test_bit(0, &ctx->cq_check_overflow)) {
-+		/* iopoll syncs against uring_lock, not completion_lock */
-+		if (ctx->flags & IORING_SETUP_IOPOLL)
-+			mutex_lock(&ctx->uring_lock);
-+		__io_cqring_overflow_flush(ctx, force, tsk, files);
-+		if (ctx->flags & IORING_SETUP_IOPOLL)
-+			mutex_unlock(&ctx->uring_lock);
-+	}
-+}
-+
- static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -2235,22 +2249,10 @@ static void io_double_put_req(struct io_kiocb *req)
- 		io_free_req(req);
- }
- 
--static unsigned io_cqring_events(struct io_ring_ctx *ctx, bool noflush)
-+static unsigned io_cqring_events(struct io_ring_ctx *ctx)
- {
- 	struct io_rings *rings = ctx->rings;
- 
--	if (test_bit(0, &ctx->cq_check_overflow)) {
--		/*
--		 * noflush == true is from the waitqueue handler, just ensure
--		 * we wake up the task, and the next invocation will flush the
--		 * entries. We cannot safely to it from here.
--		 */
--		if (noflush)
--			return -1U;
--
--		io_cqring_overflow_flush(ctx, false, NULL, NULL);
--	}
--
- 	/* See comment at the top of this file */
- 	smp_rmb();
- 	return ctx->cached_cq_tail - READ_ONCE(rings->cq.head);
-@@ -2475,7 +2477,9 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
- 		 * If we do, we can potentially be spinning for commands that
- 		 * already triggered a CQE (eg in error).
- 		 */
--		if (io_cqring_events(ctx, false))
-+		if (test_bit(0, &ctx->cq_check_overflow))
-+			__io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+		if (io_cqring_events(ctx))
- 			break;
- 
- 		/*
-@@ -6578,7 +6582,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 
- 	/* if we have a backlog and couldn't flush it all, return BUSY */
- 	if (test_bit(0, &ctx->sq_check_overflow)) {
--		if (!io_cqring_overflow_flush(ctx, false, NULL, NULL))
-+		if (!__io_cqring_overflow_flush(ctx, false, NULL, NULL))
- 			return -EBUSY;
- 	}
- 
-@@ -6867,7 +6871,7 @@ struct io_wait_queue {
- 	unsigned nr_timeouts;
- };
- 
--static inline bool io_should_wake(struct io_wait_queue *iowq, bool noflush)
-+static inline bool io_should_wake(struct io_wait_queue *iowq)
- {
- 	struct io_ring_ctx *ctx = iowq->ctx;
- 
-@@ -6876,7 +6880,7 @@ static inline bool io_should_wake(struct io_wait_queue *iowq, bool noflush)
- 	 * started waiting. For timeouts, we always want to return to userspace,
- 	 * regardless of event count.
- 	 */
--	return io_cqring_events(ctx, noflush) >= iowq->to_wait ||
-+	return io_cqring_events(ctx) >= iowq->to_wait ||
- 			atomic_read(&ctx->cq_timeouts) != iowq->nr_timeouts;
- }
- 
-@@ -6886,11 +6890,13 @@ static int io_wake_function(struct wait_queue_entry *curr, unsigned int mode,
- 	struct io_wait_queue *iowq = container_of(curr, struct io_wait_queue,
- 							wq);
- 
--	/* use noflush == true, as we can't safely rely on locking context */
--	if (!io_should_wake(iowq, true))
--		return -1;
--
--	return autoremove_wake_function(curr, mode, wake_flags, key);
-+	/*
-+	 * Cannot safely flush overflowed CQEs from here, ensure we wake up
-+	 * the task, and the next invocation will do it.
-+	 */
-+	if (io_should_wake(iowq) || test_bit(0, &iowq->ctx->cq_check_overflow))
-+		return autoremove_wake_function(curr, mode, wake_flags, key);
-+	return -1;
- }
- 
- static int io_run_task_work_sig(void)
-@@ -6929,7 +6935,8 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	int ret = 0;
- 
- 	do {
--		if (io_cqring_events(ctx, false) >= min_events)
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+		if (io_cqring_events(ctx) >= min_events)
- 			return 0;
- 		if (!io_run_task_work())
- 			break;
-@@ -6951,6 +6958,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	iowq.nr_timeouts = atomic_read(&ctx->cq_timeouts);
- 	trace_io_uring_cqring_wait(ctx, min_events);
- 	do {
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 		prepare_to_wait_exclusive(&ctx->wait, &iowq.wq,
- 						TASK_INTERRUPTIBLE);
- 		/* make sure we run task_work before checking for signals */
-@@ -6959,8 +6967,10 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 			continue;
- 		else if (ret < 0)
- 			break;
--		if (io_should_wake(&iowq, false))
-+		if (io_should_wake(&iowq))
- 			break;
-+		if (test_bit(0, &ctx->cq_check_overflow))
-+			continue;
- 		schedule();
- 	} while (1);
- 	finish_wait(&ctx->wait, &iowq.wq);
-@@ -8385,7 +8395,8 @@ static __poll_t io_uring_poll(struct file *file, poll_table *wait)
- 	smp_rmb();
- 	if (!io_sqring_full(ctx))
- 		mask |= EPOLLOUT | EPOLLWRNORM;
--	if (io_cqring_events(ctx, false))
-+	io_cqring_overflow_flush(ctx, false, NULL, NULL);
-+	if (io_cqring_events(ctx))
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 
- 	return mask;
-@@ -8443,7 +8454,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 	/* if force is set, the ring is going away. always drop after that */
- 	ctx->cq_overflow_flushed = 1;
- 	if (ctx->rings)
--		io_cqring_overflow_flush(ctx, true, NULL, NULL);
-+		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
- 	mutex_unlock(&ctx->uring_lock);
- 
- 	io_kill_timeouts(ctx, NULL);
-@@ -8716,9 +8727,7 @@ static void io_uring_cancel_task_requests(struct io_ring_ctx *ctx,
- 	}
- 
- 	io_cancel_defer_files(ctx, task, files);
--	io_ring_submit_lock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
- 	io_cqring_overflow_flush(ctx, true, task, files);
--	io_ring_submit_unlock(ctx, (ctx->flags & IORING_SETUP_IOPOLL));
- 
- 	while (__io_uring_cancel_task_requests(ctx, task, files)) {
- 		io_run_task_work();
-@@ -9024,13 +9033,8 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 	 */
- 	ret = 0;
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
--		if (!list_empty_careful(&ctx->cq_overflow_list)) {
--			bool needs_lock = ctx->flags & IORING_SETUP_IOPOLL;
-+		io_cqring_overflow_flush(ctx, false, NULL, NULL);
- 
--			io_ring_submit_lock(ctx, needs_lock);
--			io_cqring_overflow_flush(ctx, false, NULL, NULL);
--			io_ring_submit_unlock(ctx, needs_lock);
--		}
- 		if (flags & IORING_ENTER_SQ_WAKEUP)
- 			wake_up(&ctx->sq_data->wait);
- 		if (flags & IORING_ENTER_SQ_WAIT)
--- 
-2.24.0
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.250-37-ga4e4f0705fa2b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.250-37-ga4e4f0705fa2b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a4e4f0705fa2becda22dfde2867630edb3ac4661 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0d50f5d9ce9c6c94cdb
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ffde0d50f5d9ce=
+9c6c94ce0
+        failing since 2 days (last pass: v4.4.250-3-g00441213386a, first fa=
+il: v4.4.250-4-g585b96e43cef)
+        2 lines
+
+    2021-01-12 17:47:46.022000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/114
+    2021-01-12 17:47:46.032000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff26c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-01-12 17:47:46.047000+00:00  [   19.520385] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0e30f5d9ce9c6c94cf6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0e30f5d9ce9c6c94=
+cf7
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0df0f5d9ce9c6c94ced
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0df0f5d9ce9c6c94=
+cee
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0e10f5d9ce9c6c94cf0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0e10f5d9ce9c6c94=
+cf1
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0e20f5d9ce9c6c94cf3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0e20f5d9ce9c6c94=
+cf4
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde981cc0700eb71c94cbd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde981cc0700eb71c94=
+cbe
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0e40f5d9ce9c6c94cf9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0e40f5d9ce9c6c94=
+cfa
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0db0f5d9ce9c6c94ce7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0db0f5d9ce9c6c94=
+ce8
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde0c69f2dadb918c94cf7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde0c69f2dadb918c94=
+cf8
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde14587d34e6b39c94cfd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde14587d34e6b39c94=
+cfe
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ffde9954250e5ef2ac94cc4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.250-3=
+7-ga4e4f0705fa2b/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ffde9954250e5ef2ac94=
+cc5
+        failing since 59 days (last pass: v4.4.243-18-gfc7e8c68369a, first =
+fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =20
