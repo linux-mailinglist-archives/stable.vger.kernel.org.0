@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02B282F3005
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6274D2F3008
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:05:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbhALNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727256AbhALNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jan 2021 08:01:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54600 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390378AbhALM6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389562AbhALM6t (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:58:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A6E523131;
-        Tue, 12 Jan 2021 12:58:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D35C22312F;
+        Tue, 12 Jan 2021 12:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456308;
-        bh=QJ0A0EhUashHLTJ1XMRAOnWqgYjJaaUrFi4eR/gRtEM=;
+        s=k20201202; t=1610456310;
+        bh=0xLiq19uuF+LFA0yw7Rwauxqd1irVWHtnuE67K59/lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1BJ4Te/u9pGr3nfF2iGOMJKqMBX7ZIAWaHuZCtZtsF3kMaN3Spy3bkGibfXaqZFc
-         fT5UtJteaPIBRiY1PE8R4npuQ3MYm9GZD8RAQ/OWj7LsfSkBtuBtqqUuc+Ypf/0OhF
-         yY/tm8Yjhvty1xjh5ktzETZaagnpo+4d4TF8327qILT4fHFTofH2T2FdTrdXMNic+6
-         rrsT7rzhobBs5bMIWNzUDVmh0xVcgixrPEl++6QsoZPEmMr4cJLG6SBgkFaSM7+Q7u
-         tNTNT5jXXzlKlHSS0N94kDqm8cEqBrbKiaCCk7hXImsvYY2cIFctM1fWFB9sMcXxAi
-         Z+FQSt2KNP3QQ==
+        b=b8O+IFZDV1mhk5XsTsWbLrW1xzrSVYxvK5blw0fJPWOYpStCe3DCIq7EXWLyLxolN
+         TLMwQfBVojPJMLN9JxABbmBux71bYXWiqRGUpVBKyaKjN3hBfImirfcsTX4oH+j2ru
+         NjHhomzM0c8ys/od7truSD0S2+6XeKJDbsnP5x000hT9HFGAVLJgzYU/CLFIieWddh
+         cF9uNR0cr8ARsiFzmgcVojEDTN8GkQ6qGGVIMtUaW9OAcXLdoF/mm5w9+Eul9btKCh
+         DvWDBUQcBKH18yRPmjz5KQMwz+CMKgkHCylmUjpUG9h+5SMHgh9mAuDaslVTUGVmFq
+         W1kWy89IcdHiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roland Dreier <roland@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/8] CDC-NCM: remove "connected" log message
-Date:   Tue, 12 Jan 2021 07:58:18 -0500
-Message-Id: <20210112125823.71463-3-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        linux-snps-arc@lists.infradead.org,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 4/8] arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+Date:   Tue, 12 Jan 2021 07:58:19 -0500
+Message-Id: <20210112125823.71463-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125823.71463-1-sashal@kernel.org>
 References: <20210112125823.71463-1-sashal@kernel.org>
@@ -44,44 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roland Dreier <roland@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 59b4a8fa27f5a895582ada1ae5034af7c94a57b5 ]
+[ Upstream commit 8a48c0a3360bf2bf4f40c980d0ec216e770e58ee ]
 
-The cdc_ncm driver passes network connection notifications up to
-usbnet_link_change(), which is the right place for any logging.
-Remove the netdev_info() duplicating this from the driver itself.
+fs/dax.c uses copy_user_page() but ARC does not provide that interface,
+resulting in a build error.
 
-This stops devices such as my "TRENDnet USB 10/100/1G/2.5G LAN"
-(ID 20f4:e02b) adapter from spamming the kernel log with
+Provide copy_user_page() in <asm/page.h>.
 
-    cdc_ncm 2-2:2.0 enp0s2u2c2: network connection: connected
+../fs/dax.c: In function 'copy_cow_page_dax':
+../fs/dax.c:702:2: error: implicit declaration of function 'copy_user_page'; did you mean 'copy_to_user_page'? [-Werror=implicit-function-declaration]
 
-messages every 60 msec or so.
-
-Signed-off-by: Roland Dreier <roland@kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20201224032116.2453938-1-roland@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: Dan Williams <dan.j.williams@intel.com>
+#Acked-by: Vineet Gupta <vgupta@synopsys.com> # v1
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-nvdimm@lists.01.org
+#Reviewed-by: Ira Weiny <ira.weiny@intel.com> # v2
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ncm.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/arc/include/asm/page.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-index bab13ccfb0850..e9f82b67c7edf 100644
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1553,9 +1553,6 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
- 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
- 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
- 		 */
--		netif_info(dev, link, dev->net,
--			   "network connection: %sconnected\n",
--			   !!event->wValue ? "" : "dis");
- 		usbnet_link_change(dev, !!event->wValue, 0);
- 		break;
+diff --git a/arch/arc/include/asm/page.h b/arch/arc/include/asm/page.h
+index 8f1145ed0046f..fd2c88ef2e2b8 100644
+--- a/arch/arc/include/asm/page.h
++++ b/arch/arc/include/asm/page.h
+@@ -17,6 +17,7 @@
+ #define free_user_page(page, addr)	free_page(addr)
  
+ #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
++#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ #define copy_page(to, from)		memcpy((to), (from), PAGE_SIZE)
+ 
+ struct vm_area_struct;
 -- 
 2.27.0
 
