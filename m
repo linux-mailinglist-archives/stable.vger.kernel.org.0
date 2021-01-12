@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B09D82F2F93
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 213FE2F2F96
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389280AbhALM5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S2389508AbhALM5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 07:57:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388706AbhALM47 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:56:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 018602311F;
-        Tue, 12 Jan 2021 12:55:42 +0000 (UTC)
+        id S2389438AbhALM5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:57:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA0723127;
+        Tue, 12 Jan 2021 12:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456144;
-        bh=697ysmwKoKRSvCrwtszXFk25QAtHZknzwmmQ92IkpXk=;
+        s=k20201202; t=1610456152;
+        bh=0npvyNKld9rewmWbSPArt3TwCww7ij8c2XUKC/KBGy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s72kCF9aH9Z4eXIdKdmgg256FRJPcYekuIpodTUIZDK55OAD+R6pmblKkP47FdPjC
-         u3cz820O6NQGWjvJP23vz6RhExmtXH1UNYfeeEqRQG4S54kgjqFiSsirCc65u927EY
-         8uw8UaLYw6pMktAKHjxbsDuq7DEgXpNSNvwpFz6EcyOi39MT4Pis4j8MzJHtno58Fm
-         68W5WyoP5xROSd9KJZKwwf6j/J7kOjhGpv3O5NuW8l1iXB8vNHsC6bUd6K0H6/qE4w
-         4CSW8jd2xnq6RhNBeih4rB6gumoJ/EmHZ3cHaaiPx9eDdTwoGL8jdgoPnTLUIyt3S9
-         iaufdH9I6G8zg==
+        b=Dvs5G/Avi4zqwK6xCmiYwPJsaCVwWYgHOQPVu9+Jujwro7QjV0RonmSdE5TK/Nuvx
+         o5BFC2eHjV4OG3Ou+INx+ovN4LZAH5uQip9683xNKxfEtz2s+xRYNaEIsMPJm25+ou
+         Qj7HPV571Y4jp+bBQQu1MRQ+B6h6FdhN6ps4tQBgWqaqJoAAcKeqPgl7LFuSZi+U3q
+         H4S/4oDu5svvk/ALitpCfdPYc6iE/9Cv5mnG3TXiizQDahFhpXpUb0vNxv9iizoIXs
+         ghYjSlfNbtRw9CyrizV2glwD5vnwTO0gMuOnyU5Q1UsXJ5thxUPC/tQLXNsyjrokzJ
+         lU4m3FkkkpQaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ping-Ke Shih <pkshih@realtek.com>,
-        syzbot+65be4277f3c489293939@syzkaller.appspotmail.com,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/51] rtlwifi: rise completion at the last step of firmware callback
-Date:   Tue, 12 Jan 2021 07:54:49 -0500
-Message-Id: <20210112125534.70280-7-sashal@kernel.org>
+Cc:     =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-power@fi.rohmeurope.com
+Subject: [PATCH AUTOSEL 5.10 13/51] regulator: bd718x7: Add enable times
+Date:   Tue, 12 Jan 2021 07:54:55 -0500
+Message-Id: <20210112125534.70280-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,102 +44,285 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Guido Günther <agx@sigxcpu.org>
 
-[ Upstream commit 4dfde294b9792dcf8615b55c58f093d544f472f0 ]
+[ Upstream commit 3b66e4a8e58a85af3212c7117d7a29c9ef6679a2 ]
 
-request_firmware_nowait() which schedules another work is used to load
-firmware when USB is probing. If USB is unplugged before running the
-firmware work, it goes disconnect ops, and then causes use-after-free.
-Though we wait for completion of firmware work before freeing the hw,
-firmware callback rises completion too early. So I move it to the
-last step.
+Use the typical startup times from the data sheet so boards get a
+reasonable default. Not setting any enable time can lead to board hangs
+when e.g. clocks are enabled too soon afterwards.
 
-usb 5-1: Direct firmware load for rtlwifi/rtl8192cufw.bin failed with error -2
-rtlwifi: Loading alternative firmware rtlwifi/rtl8192cufw.bin
-rtlwifi: Selected firmware is not available
-==================================================================
-BUG: KASAN: use-after-free in rtl_fw_do_work.cold+0x68/0x6a drivers/net/wireless/realtek/rtlwifi/core.c:93
-Write of size 4 at addr ffff8881454cff50 by task kworker/0:6/7379
+This fixes gpu power domain resume on the Librem 5.
 
-CPU: 0 PID: 7379 Comm: kworker/0:6 Not tainted 5.10.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events request_firmware_work_func
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xae/0x4c8 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report.cold+0x1f/0x37 mm/kasan/report.c:562
- rtl_fw_do_work.cold+0x68/0x6a drivers/net/wireless/realtek/rtlwifi/core.c:93
- request_firmware_work_func+0x12c/0x230 drivers/base/firmware_loader/main.c:1079
- process_one_work+0x933/0x1520 kernel/workqueue.c:2272
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2418
- kthread+0x38c/0x460 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+[Moved #defines into driver, seems to be general agreement and avoids any
+cross tree issues -- broonie]
 
-The buggy address belongs to the page:
-page:00000000f54435b3 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1454cf
-flags: 0x200000000000000()
-raw: 0200000000000000 0000000000000000 ffffea00051533c8 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8881454cfe00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8881454cfe80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->ffff8881454cff00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                                 ^
- ffff8881454cff80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8881454d0000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-
-Reported-by: syzbot+65be4277f3c489293939@syzkaller.appspotmail.com
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201214053106.7748-1-pkshih@realtek.com
+Signed-off-by: Guido Günther <agx@sigxcpu.org>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Link: https://lore.kernel.org/r/41fb2ed19f584f138336344e2297ae7301f72b75.1608316658.git.agx@sigxcpu.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/regulator/bd718x7-regulator.c | 57 +++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/core.c b/drivers/net/wireless/realtek/rtlwifi/core.c
-index a7259dbc953da..965bd95890459 100644
---- a/drivers/net/wireless/realtek/rtlwifi/core.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/core.c
-@@ -78,7 +78,6 @@ static void rtl_fw_do_work(const struct firmware *firmware, void *context,
+diff --git a/drivers/regulator/bd718x7-regulator.c b/drivers/regulator/bd718x7-regulator.c
+index 0774467994fbe..3333b8905f1b7 100644
+--- a/drivers/regulator/bd718x7-regulator.c
++++ b/drivers/regulator/bd718x7-regulator.c
+@@ -15,6 +15,36 @@
+ #include <linux/regulator/of_regulator.h>
+ #include <linux/slab.h>
  
- 	rtl_dbg(rtlpriv, COMP_ERR, DBG_LOUD,
- 		"Firmware callback routine entered!\n");
--	complete(&rtlpriv->firmware_loading_complete);
- 	if (!firmware) {
- 		if (rtlpriv->cfg->alt_fw_name) {
- 			err = request_firmware(&firmware,
-@@ -91,13 +90,13 @@ static void rtl_fw_do_work(const struct firmware *firmware, void *context,
- 		}
- 		pr_err("Selected firmware is not available\n");
- 		rtlpriv->max_fw_size = 0;
--		return;
-+		goto exit;
- 	}
- found_alt:
- 	if (firmware->size > rtlpriv->max_fw_size) {
- 		pr_err("Firmware is too big!\n");
- 		release_firmware(firmware);
--		return;
-+		goto exit;
- 	}
- 	if (!is_wow) {
- 		memcpy(rtlpriv->rtlhal.pfirmware, firmware->data,
-@@ -109,6 +108,9 @@ static void rtl_fw_do_work(const struct firmware *firmware, void *context,
- 		rtlpriv->rtlhal.wowlan_fwsize = firmware->size;
- 	}
- 	release_firmware(firmware);
++/* Typical regulator startup times as per data sheet in uS */
++#define BD71847_BUCK1_STARTUP_TIME 144
++#define BD71847_BUCK2_STARTUP_TIME 162
++#define BD71847_BUCK3_STARTUP_TIME 162
++#define BD71847_BUCK4_STARTUP_TIME 240
++#define BD71847_BUCK5_STARTUP_TIME 270
++#define BD71847_BUCK6_STARTUP_TIME 200
++#define BD71847_LDO1_STARTUP_TIME  440
++#define BD71847_LDO2_STARTUP_TIME  370
++#define BD71847_LDO3_STARTUP_TIME  310
++#define BD71847_LDO4_STARTUP_TIME  400
++#define BD71847_LDO5_STARTUP_TIME  530
++#define BD71847_LDO6_STARTUP_TIME  400
 +
-+exit:
-+	complete(&rtlpriv->firmware_loading_complete);
- }
- 
- void rtl_fw_cb(const struct firmware *firmware, void *context)
++#define BD71837_BUCK1_STARTUP_TIME 160
++#define BD71837_BUCK2_STARTUP_TIME 180
++#define BD71837_BUCK3_STARTUP_TIME 180
++#define BD71837_BUCK4_STARTUP_TIME 180
++#define BD71837_BUCK5_STARTUP_TIME 160
++#define BD71837_BUCK6_STARTUP_TIME 240
++#define BD71837_BUCK7_STARTUP_TIME 220
++#define BD71837_BUCK8_STARTUP_TIME 200
++#define BD71837_LDO1_STARTUP_TIME  440
++#define BD71837_LDO2_STARTUP_TIME  370
++#define BD71837_LDO3_STARTUP_TIME  310
++#define BD71837_LDO4_STARTUP_TIME  400
++#define BD71837_LDO5_STARTUP_TIME  310
++#define BD71837_LDO6_STARTUP_TIME  400
++#define BD71837_LDO7_STARTUP_TIME  530
++
+ /*
+  * BD718(37/47/50) have two "enable control modes". ON/OFF can either be
+  * controlled by software - or by PMIC internal HW state machine. Whether
+@@ -613,6 +643,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK1_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -646,6 +677,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK2_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -680,6 +712,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.linear_range_selectors = bd71847_buck3_volt_range_sel,
+ 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK3_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -706,6 +739,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_range_mask = BD71847_BUCK4_RANGE_MASK,
+ 			.linear_range_selectors = bd71847_buck4_volt_range_sel,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK4_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -727,6 +761,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
+ 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK5_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -750,6 +785,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
+ 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71847_BUCK6_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -775,6 +811,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
+ 			.enable_reg = BD718XX_REG_LDO1_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO1_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -796,6 +833,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
+ 			.enable_reg = BD718XX_REG_LDO2_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO2_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -818,6 +856,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO3_MASK,
+ 			.enable_reg = BD718XX_REG_LDO3_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO3_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -840,6 +879,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO4_MASK,
+ 			.enable_reg = BD718XX_REG_LDO4_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO4_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -865,6 +905,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.linear_range_selectors = bd71847_ldo5_volt_range_sel,
+ 			.enable_reg = BD718XX_REG_LDO5_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO5_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -889,6 +930,7 @@ static struct bd718xx_regulator_data bd71847_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO6_MASK,
+ 			.enable_reg = BD718XX_REG_LDO6_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71847_LDO6_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -942,6 +984,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK1_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -975,6 +1018,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK2_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -1005,6 +1049,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD71837_REG_BUCK3_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK3_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -1033,6 +1078,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = DVS_BUCK_RUN_MASK,
+ 			.enable_reg = BD71837_REG_BUCK4_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK4_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 			.of_parse_cb = buck_set_hw_dvs_levels,
+ 		},
+@@ -1065,6 +1111,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.linear_range_selectors = bd71837_buck5_volt_range_sel,
+ 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK5_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1088,6 +1135,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD71837_BUCK6_MASK,
+ 			.enable_reg = BD718XX_REG_2ND_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK6_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1109,6 +1157,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
+ 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK7_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1132,6 +1181,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
+ 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
+ 			.enable_mask = BD718XX_BUCK_EN,
++			.enable_time = BD71837_BUCK8_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1157,6 +1207,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
+ 			.enable_reg = BD718XX_REG_LDO1_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO1_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1178,6 +1229,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
+ 			.enable_reg = BD718XX_REG_LDO2_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO2_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1200,6 +1252,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO3_MASK,
+ 			.enable_reg = BD718XX_REG_LDO3_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO3_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1222,6 +1275,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO4_MASK,
+ 			.enable_reg = BD718XX_REG_LDO4_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO4_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1246,6 +1300,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD71837_LDO5_MASK,
+ 			.enable_reg = BD718XX_REG_LDO5_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO5_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1272,6 +1327,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD718XX_LDO6_MASK,
+ 			.enable_reg = BD718XX_REG_LDO6_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO6_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
+@@ -1296,6 +1352,7 @@ static struct bd718xx_regulator_data bd71837_regulators[] = {
+ 			.vsel_mask = BD71837_LDO7_MASK,
+ 			.enable_reg = BD71837_REG_LDO7_VOLT,
+ 			.enable_mask = BD718XX_LDO_EN,
++			.enable_time = BD71837_LDO7_STARTUP_TIME,
+ 			.owner = THIS_MODULE,
+ 		},
+ 		.init = {
 -- 
 2.27.0
 
