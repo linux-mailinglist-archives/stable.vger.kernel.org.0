@@ -2,76 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804232F27F1
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 06:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C33722F287E
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 07:49:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732740AbhALFiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 00:38:10 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24297 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732713AbhALFiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 00:38:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1610429802;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=VH1DnjM7C34WcJYdUsZY2fXbHo1byMf7LCcAsLj7Uv8=;
-        b=RhoS5SaRHW3Od+Zxb/4HowZ0x6SqFBLTWmoieWF7DpvhpLqrSdAWrH2KGtD/XzALPV+JIn
-        s6lCG2punM8Y525jaUR+Ti9Noqh9L/Z+oOT21fxxv4Nx0LzStW3NOhtOmFHRMc8wfNgtg5
-        nreYGGz0VGmgT5Cvl9mCR3z7Bt+G6/g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-268-l5RWiJr-MDS2JphWcs2S1g-1; Tue, 12 Jan 2021 00:36:40 -0500
-X-MC-Unique: l5RWiJr-MDS2JphWcs2S1g-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3B67C802B40;
-        Tue, 12 Jan 2021 05:36:39 +0000 (UTC)
-Received: from laptop.redhat.com (ovpn-12-95.pek2.redhat.com [10.72.12.95])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 97A9B60BE2;
-        Tue, 12 Jan 2021 05:36:32 +0000 (UTC)
-From:   Cindy Lu <lulu@redhat.com>
-To:     lulu@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        lingshan.zhu@intel.com
-Cc:     stable@vger.kernel.org
-Subject: [PATCH v3] vhost_vdpa: fix the problem in vhost_vdpa_set_config_call
-Date:   Tue, 12 Jan 2021 13:36:29 +0800
-Message-Id: <20210112053629.9853-1-lulu@redhat.com>
+        id S1730595AbhALGtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 01:49:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729891AbhALGtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 01:49:04 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2EEC061575;
+        Mon, 11 Jan 2021 22:48:23 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id m13so1611710ljo.11;
+        Mon, 11 Jan 2021 22:48:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=y6E8pJAG2xNBc207S+ylj91Gue5AgH8ypGOMKjlMFkg=;
+        b=TfqXdSK2nUn8Ilb5i0ApAX3yamw5Gh+PXZ9+051NRsoZ3rZXgAcLS5mZ9hPUP+6cQK
+         Qnc38xo6NCOor8W1s4FhxxRwz+gmZm2X6IE9AXSh5zwVbGPnDff7MWfeOZ6Iizji0T0N
+         GOjfav5/i3pMne9g0b/77IM/DFGzX+TINJvzAisnAOOwQ60xHpKJN6SqcZ1Dy20A7Jto
+         SbweUE40q1aO9ItN0JtpxAqnodAVeRTxjvV0NGRneVtN7LTXNm7xFD1OQodTt9QbGp7Q
+         aVLC2CZvoH/tf5tdcI6lE1JB8Kuyxy4c4TLciAHRVtTGFn+9pPprdW4Lw6e2sgcIdiEa
+         JyPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=y6E8pJAG2xNBc207S+ylj91Gue5AgH8ypGOMKjlMFkg=;
+        b=NHTqkTxAEK8CnJPhUF/vJyWDEs/WwsZCudSjAWVY5oV/5sNBs/nW5Lo0UtTxOymW/h
+         rWTZAZAokM0G1z9GP0QMvevNxv5Uwv2JLg1xrkHm7aDlc+imo3pXM2DnXlLHLAMJeyHR
+         61QirU/NFlYdrBGPjpzZ/fWCOLC77HKQXZsReqewzQdAe3PkvmYYW3GZX9f6+wh1DFEN
+         h2YVmv8P0toHHGyLvw0cVzvoqvN0UPpasPnfo6G/AIyeKTe9Tzi1Ue8wgaWOKmX8BxeH
+         4TebwEjTVNDeH0uzEwhaOOZa/OoLQExlJXplNT+i/TS0ZjnkvEtxGXCl+Za7O/wOkiEi
+         ngVQ==
+X-Gm-Message-State: AOAM53313TgnYP0d9kaS8adgRztXTUrjwQtFbqbNbaMgFC0scOIbA0+f
+        z8hxdNOtDuXCVIYNaB6WICRP+Z/9GbU=
+X-Google-Smtp-Source: ABdhPJyQQ3QGu8coMULH0iUFbesygnM5VHn9NN8VGXF8Mqd2Lf05odYHvGCEaLFhQ7covX6IIgM2xA==
+X-Received: by 2002:a2e:8250:: with SMTP id j16mr1455053ljh.354.1610434102294;
+        Mon, 11 Jan 2021 22:48:22 -0800 (PST)
+Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
+        by smtp.googlemail.com with ESMTPSA id s8sm273037lfi.21.2021.01.11.22.48.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Jan 2021 22:48:21 -0800 (PST)
+Subject: Re: [PATCH v2] i2c: tegra: Wait for config load atomically while in
+ ISR
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Mikko Perttunen <mperttunen@nvidia.com>, ldewangan@nvidia.com,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, wsa@kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210111160832.3669873-1-mperttunen@nvidia.com>
+ <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
+Message-ID: <cb37f001-da0d-fcef-dea8-258caf5687fe@gmail.com>
+Date:   Tue, 12 Jan 2021 09:48:20 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.2
 MIME-Version: 1.0
+In-Reply-To: <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In vhost_vdpa_set_config_call, the cb.private should be vhost_vdpa.
-this cb.private will finally use in vhost_vdpa_config_cb as
-vhost_vdpa. Fix this issue.
+11.01.2021 22:31, Dmitry Osipenko пишет:
+> 11.01.2021 19:08, Mikko Perttunen пишет:
+>> Upon a communication error, the interrupt handler can call
+>> tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
+>> unless the current transaction was marked atomic. Fix this by
+>> making the poll happen atomically if we are in an IRQ.
+>>
+>> This matches the behavior prior to the patch mentioned
+>> in the Fixes tag.
+>>
+>> Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+>> ---
+>> v2:
+>> * Use in_irq() instead of passing a flag from the ISR.
+>>   Thanks to Dmitry for the suggestion.
+>> * Update commit message.
+>> ---
+>>  drivers/i2c/busses/i2c-tegra.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+>> index 6f08c0c3238d..0727383f4940 100644
+>> --- a/drivers/i2c/busses/i2c-tegra.c
+>> +++ b/drivers/i2c/busses/i2c-tegra.c
+>> @@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
+>>  	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
+>>  	u32 val;
+>>  
+>> -	if (!i2c_dev->atomic_mode)
+>> +	if (!i2c_dev->atomic_mode && !in_irq())
+>>  		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
+>>  						  delay_us, timeout_us);
+>>  
+>>
+> 
+> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+> 
 
-Fixes: 776f395004d82 ("vhost_vdpa: Support config interrupt in vdpa")
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Cindy Lu <lulu@redhat.com>
----
- drivers/vhost/vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ef688c8c0e0e..3fbb9c1f49da 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -319,7 +319,7 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
- 	struct eventfd_ctx *ctx;
- 
- 	cb.callback = vhost_vdpa_config_cb;
--	cb.private = v->vdpa;
-+	cb.private = v;
- 	if (copy_from_user(&fd, argp, sizeof(fd)))
- 		return  -EFAULT;
- 
--- 
-2.21.3
-
+Perhaps a follow up change could be to use a threaded interrupt context,
+I'll type a patch for that.
