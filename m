@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42092F30E2
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 424EC2F30DF
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731170AbhALNMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:12:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
+        id S1727474AbhALNMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:12:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390352AbhALM54 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2390370AbhALM54 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:57:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25A0423447;
-        Tue, 12 Jan 2021 12:56:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 594B12376E;
+        Tue, 12 Jan 2021 12:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456210;
-        bh=VqMTlfQ5UltVETkFptKisEKq28AwZpOHW67gTfgAv/U=;
+        s=k20201202; t=1610456212;
+        bh=4JaejSe07CGhIjjx9tNaZtF7SvHpGsjsxd1+c6gw8RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/jTzDAESTDvv/3quVpb56YWFn5jXhOw6XUPpftMhjTtNIZ5Tdky027t/SJBNPwbO
-         Zlv6SzHRa/UAiitgJckofw6Dd7e8xbI+PHsWTJlNTds75/zoB0k17gotjHhdXVgGMW
-         fzsLD7r9q4Q2T7xx4E++OmZzBPbAMRj1GBahlDOJATx/kg+IWAOk5Ken/rQlkzeBGa
-         hmMiCWfTTPZvz0NSjRPpBgN3EwP8DSXyZzcNcfB8gMxpMsSKNwNNUmsFG79Zi+zg9d
-         36lQjm2o3jGXWFgtCDQD+RSCFFDZOpwsZa+TVtTGwH/iOVW/FGkKJzVIWYzywZaAa2
-         BUHyG4cy98o+w==
+        b=hBiWgtHV6DM7F5wu8UGYf4jOJ3potz0l0JPLDMq0qnN/XUygn2EiqQmyZQ0VpG4aa
+         aOJGEnqSQtnIxQDmrRXZqGDLbb2bcqmiEtwEo98UbE7hvsVRpDoX08D0c/nvyZq0rx
+         tZN3UIyX62OFa39PctAG77XEFUi19e7wN8pooHIXZ13itAF2VcBvFa7l3TLRmo77OH
+         8KG2zhN/E9Z4eNRDFBJ/2gUj4K9a0U+9w9406FhYsF+erVoLSh3MyM0QEs4t2CxAu3
+         +EitpxqZqhPEyBy24ZtoJRSvBug9hrmtzpMPefH81ExG4ykztMbim4aUiQ5bbbD8CD
+         vigy0WtoQHyOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 04/28] ARC: build: move symlink creation to arch/arc/Makefile to avoid race
-Date:   Tue, 12 Jan 2021 07:56:20 -0500
-Message-Id: <20210112125645.70739-4-sashal@kernel.org>
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 05/28] netfilter: ipset: fixes possible oops in mtype_resize
+Date:   Tue, 12 Jan 2021 07:56:21 -0500
+Message-Id: <20210112125645.70739-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125645.70739-1-sashal@kernel.org>
 References: <20210112125645.70739-1-sashal@kernel.org>
@@ -43,138 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit c5e6ae563c802c4d828d42e134af64004db2e58c ]
+[ Upstream commit 2b33d6ffa9e38f344418976b06057e2fc2aa9e2a ]
 
-If you run 'make uImage uImage.gz' with the parallel option, uImage.gz
-will be created by two threads simultaneously.
+currently mtype_resize() can cause oops
 
-This is because arch/arc/Makefile does not specify the dependency
-between uImage and uImage.gz. Hence, GNU Make assumes they can be
-built in parallel. One thread descends into arch/arc/boot/ to create
-uImage, and another to create uImage.gz.
+        t = ip_set_alloc(htable_size(htable_bits));
+        if (!t) {
+                ret = -ENOMEM;
+                goto out;
+        }
+        t->hregion = ip_set_alloc(ahash_sizeof_regions(htable_bits));
 
-Please notice the same log is displayed twice in the following steps:
+Increased htable_bits can force htable_size() to return 0.
+In own turn ip_set_alloc(0) returns not 0 but ZERO_SIZE_PTR,
+so follwoing access to t->hregion should trigger an OOPS.
 
-  $ export CROSS_COMPILE=<your-arc-compiler-prefix>
-  $ make -s ARCH=arc defconfig
-  $ make -j$(nproc) ARCH=arc uImage uImage.gz
-  [ snip ]
-    LD      vmlinux
-    SORTTAB vmlinux
-    SYSMAP  System.map
-    OBJCOPY arch/arc/boot/vmlinux.bin
-    OBJCOPY arch/arc/boot/vmlinux.bin
-    GZIP    arch/arc/boot/vmlinux.bin.gz
-    GZIP    arch/arc/boot/vmlinux.bin.gz
-    UIMAGE  arch/arc/boot/uImage.gz
-    UIMAGE  arch/arc/boot/uImage.gz
-  Image Name:   Linux-5.10.0-rc4-00003-g62f23044
-  Created:      Sun Nov 22 02:52:26 2020
-  Image Type:   ARC Linux Kernel Image (gzip compressed)
-  Data Size:    2109376 Bytes = 2059.94 KiB = 2.01 MiB
-  Load Address: 80000000
-  Entry Point:  80004000
-    Image arch/arc/boot/uImage is ready
-  Image Name:   Linux-5.10.0-rc4-00003-g62f23044
-  Created:      Sun Nov 22 02:52:26 2020
-  Image Type:   ARC Linux Kernel Image (gzip compressed)
-  Data Size:    2815455 Bytes = 2749.47 KiB = 2.69 MiB
-  Load Address: 80000000
-  Entry Point:  80004000
-
-This is a race between the two threads trying to write to the same file
-arch/arc/boot/uImage.gz. This is a potential problem that can generate
-a broken file.
-
-I fixed a similar problem for ARM by commit 3939f3345050 ("ARM: 8418/1:
-add boot image dependencies to not generate invalid images").
-
-I highly recommend to avoid such build rules that cause a race condition.
-
-Move the uImage rule to arch/arc/Makefile.
-
-Another strangeness is that arch/arc/boot/Makefile compares the
-timestamps between $(obj)/uImage and $(obj)/uImage.*:
-
-  $(obj)/uImage: $(obj)/uImage.$(suffix-y)
-          @ln -sf $(notdir $<) $@
-          @echo '  Image $@ is ready'
-
-This does not work as expected since $(obj)/uImage is a symlink.
-The symlink should be created in a phony target rule.
-
-I used $(kecho) instead of echo to suppress the message
-'Image arch/arc/boot/uImage is ready' when the -s option is given.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/Makefile      | 13 ++++++++++++-
- arch/arc/boot/Makefile | 11 +----------
- 2 files changed, 13 insertions(+), 11 deletions(-)
+ net/netfilter/ipset/ip_set_hash_gen.h | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-index c95b950389ba6..6f05e509889f6 100644
---- a/arch/arc/Makefile
-+++ b/arch/arc/Makefile
-@@ -90,11 +90,22 @@ libs-y		+= arch/arc/lib/ $(LIBGCC)
- 
- boot		:= arch/arc/boot
- 
--boot_targets := uImage uImage.bin uImage.gz uImage.lzma
-+boot_targets := uImage.bin uImage.gz uImage.lzma
- 
- PHONY += $(boot_targets)
- $(boot_targets): vmlinux
- 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
- 
-+uimage-default-y			:= uImage.bin
-+uimage-default-$(CONFIG_KERNEL_GZIP)	:= uImage.gz
-+uimage-default-$(CONFIG_KERNEL_LZMA)	:= uImage.lzma
+diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
+index a7a982a3e6761..8e9f6e1819014 100644
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -644,7 +644,7 @@ mtype_resize(struct ip_set *set, bool retried)
+ 	struct htype *h = set->data;
+ 	struct htable *t, *orig;
+ 	u8 htable_bits;
+-	size_t dsize = set->dsize;
++	size_t hsize, dsize = set->dsize;
+ #ifdef IP_SET_HASH_WITH_NETS
+ 	u8 flags;
+ 	struct mtype_elem *tmp;
+@@ -668,14 +668,12 @@ mtype_resize(struct ip_set *set, bool retried)
+ retry:
+ 	ret = 0;
+ 	htable_bits++;
+-	if (!htable_bits) {
+-		/* In case we have plenty of memory :-) */
+-		pr_warn("Cannot increase the hashsize of set %s further\n",
+-			set->name);
+-		ret = -IPSET_ERR_HASH_FULL;
+-		goto out;
+-	}
+-	t = ip_set_alloc(htable_size(htable_bits));
++	if (!htable_bits)
++		goto hbwarn;
++	hsize = htable_size(htable_bits);
++	if (!hsize)
++		goto hbwarn;
++	t = ip_set_alloc(hsize);
+ 	if (!t) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -817,6 +815,12 @@ mtype_resize(struct ip_set *set, bool retried)
+ 	if (ret == -EAGAIN)
+ 		goto retry;
+ 	goto out;
 +
-+PHONY += uImage
-+uImage: $(uimage-default-y)
-+	@ln -sf $< $(boot)/uImage
-+	@$(kecho) '  Image $(boot)/uImage is ready'
-+
-+CLEAN_FILES += $(boot)/uImage
-+
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
-diff --git a/arch/arc/boot/Makefile b/arch/arc/boot/Makefile
-index 538b92f4dd253..3b1f8a69a89ef 100644
---- a/arch/arc/boot/Makefile
-+++ b/arch/arc/boot/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--targets := vmlinux.bin vmlinux.bin.gz uImage
-+targets := vmlinux.bin vmlinux.bin.gz
++hbwarn:
++	/* In case we have plenty of memory :-) */
++	pr_warn("Cannot increase the hashsize of set %s further\n", set->name);
++	ret = -IPSET_ERR_HASH_FULL;
++	goto out;
+ }
  
- # uImage build relies on mkimage being availble on your host for ARC target
- # You will need to build u-boot for ARC, rename mkimage to arc-elf32-mkimage
-@@ -13,11 +13,6 @@ LINUX_START_TEXT = $$(readelf -h vmlinux | \
- UIMAGE_LOADADDR    = $(CONFIG_LINUX_LINK_BASE)
- UIMAGE_ENTRYADDR   = $(LINUX_START_TEXT)
- 
--suffix-y := bin
--suffix-$(CONFIG_KERNEL_GZIP)	:= gz
--suffix-$(CONFIG_KERNEL_LZMA)	:= lzma
--
--targets += uImage
- targets += uImage.bin
- targets += uImage.gz
- targets += uImage.lzma
-@@ -42,7 +37,3 @@ $(obj)/uImage.gz: $(obj)/vmlinux.bin.gz FORCE
- 
- $(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma FORCE
- 	$(call if_changed,uimage,lzma)
--
--$(obj)/uImage: $(obj)/uImage.$(suffix-y)
--	@ln -sf $(notdir $<) $@
--	@echo '  Image $@ is ready'
+ /* Get the current number of elements and ext_size in the set  */
 -- 
 2.27.0
 
