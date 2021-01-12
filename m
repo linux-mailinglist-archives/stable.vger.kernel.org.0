@@ -2,78 +2,271 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA272F3A7D
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 20:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A76A2F3A98
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 20:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436822AbhALTaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 14:30:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S2436504AbhALTaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 14:30:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436766AbhALTaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 14:30:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A74F223117;
-        Tue, 12 Jan 2021 19:29:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610479761;
-        bh=kmH9MS3x5UgcjDdiDvhjWqvLlClSPny0nE7KD5J6yjI=;
+        id S2436544AbhALTaw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 14:30:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7628423120;
+        Tue, 12 Jan 2021 19:30:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610479811;
+        bh=9DK+YshWNgncqhJqQ0sxziDYsnj3yXAiDL3hs4TpkL8=;
         h=From:To:Cc:Subject:Date:From;
-        b=s5Xs20jT0lT6NoMFDWc6+BmFoDt5xWou1d7IZwzizmrSY/fpDfW0RlO9p/2dmrHH0
-         vxa4mwiEuSmMsAYUCXjQ6nvE3Zwkv0Ql4dcSrm/erB5ia/TjxfL6wBqtxyM6QNqzp+
-         ApGWNXH0HXEBM7RaMOKeOOnpFwYsXobefRLEq3N9zY49Ift+afvK7xBcd6czL82jUa
-         HA7Wgn0e4fJZSnOS/pfwIVRbyRm4B7tWSZcpdrWUCUpnLPMPDNvVidUI8lyBUU4roy
-         brkJTdO0ECLTIsZAzYWY1e/sp8yGbk++r61TdeRvilte6hB4hr+SHGF8YjJ0KKUmwx
-         sZWrZ9tdy9lxg==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-crypto@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Jann Horn <jannh@google.com>, Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH RESEND] random: fix the RNDRESEEDCRNG ioctl
-Date:   Tue, 12 Jan 2021 11:28:18 -0800
-Message-Id: <20210112192818.69921-1-ebiggers@kernel.org>
+        b=uBhHq0X/C0UE5DrzGyWORFy3w4fojRy5VSUzHL4cdYTVaVhH5idI+d+rfh2lCJ6RM
+         UhqCm3sn5KtFudCAR8OeJD1cNvTKdAOCnhzRsk48HrFTrZlvt0z/PSPEO59fu3RSmZ
+         YfHGaM+3ddu5GNRsXuz8pUcvtiD/e17/o31B5Wyo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.14.215
+Date:   Tue, 12 Jan 2021 20:31:18 +0100
+Message-Id: <16104798772211@kroah.com>
 X-Mailer: git-send-email 2.30.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+I'm announcing the release of the 4.14.215 kernel.
 
-The RNDRESEEDCRNG ioctl reseeds the primary_crng from itself, which
-doesn't make sense.  Reseed it from the input_pool instead.
+All users of the 4.14 kernel series must upgrade.
 
-Fixes: d848e5f8e1eb ("random: add new ioctl RNDRESEEDCRNG")
-Cc: stable@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jann Horn <jannh@google.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Andrew, please consider taking this patch since the maintainer has been
-ignoring it for 4 months
-(https://lkml.kernel.org/lkml/20200916041908.66649-1-ebiggers@kernel.org/T/#u).
+thanks,
 
+greg k-h
 
- drivers/char/random.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+------------
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 5f3b8ac9d97b0..a894c0559a8cf 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1972,7 +1972,7 @@ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
- 			return -EPERM;
- 		if (crng_init < 2)
- 			return -ENODATA;
--		crng_reseed(&primary_crng, NULL);
-+		crng_reseed(&primary_crng, &input_pool);
- 		crng_global_init_time = jiffies - 1;
- 		return 0;
- 	default:
--- 
-2.30.0
+ Makefile                                         |    4 
+ arch/x86/kernel/cpu/mtrr/generic.c               |    6 -
+ arch/x86/kvm/mmu.h                               |    2 
+ arch/x86/mm/pgtable.c                            |    2 
+ crypto/ecdh.c                                    |    3 
+ drivers/atm/idt77252.c                           |    2 
+ drivers/base/core.c                              |    2 
+ drivers/ide/ide-atapi.c                          |    1 
+ drivers/ide/ide-io.c                             |    5 
+ drivers/net/ethernet/broadcom/bcmsysport.c       |    1 
+ drivers/net/ethernet/ethoc.c                     |    3 
+ drivers/net/ethernet/freescale/ucc_geth.c        |    3 
+ drivers/net/ethernet/hisilicon/hns/hns_ethtool.c |    4 
+ drivers/net/ethernet/marvell/mvpp2.c             |    2 
+ drivers/net/ethernet/qlogic/qede/qede_fp.c       |    5 
+ drivers/net/ethernet/ti/cpts.c                   |    2 
+ drivers/net/usb/cdc_ncm.c                        |    3 
+ drivers/net/usb/qmi_wwan.c                       |    1 
+ drivers/net/virtio_net.c                         |   12 +-
+ drivers/net/wan/hdlc_ppp.c                       |    7 +
+ drivers/scsi/ufs/ufshcd-pci.c                    |   34 ++++++
+ drivers/target/target_core_xcopy.c               |  119 +++++++++++++----------
+ drivers/target/target_core_xcopy.h               |    1 
+ drivers/usb/chipidea/ci_hdrc_imx.c               |    6 -
+ drivers/usb/class/cdc-acm.c                      |    4 
+ drivers/usb/class/usblp.c                        |   21 +++-
+ drivers/usb/dwc3/core.h                          |    1 
+ drivers/usb/dwc3/ulpi.c                          |    2 
+ drivers/usb/gadget/Kconfig                       |    2 
+ drivers/usb/gadget/composite.c                   |   10 +
+ drivers/usb/gadget/configfs.c                    |   19 ++-
+ drivers/usb/gadget/function/f_printer.c          |    1 
+ drivers/usb/gadget/function/f_uac2.c             |   69 ++++++++++---
+ drivers/usb/gadget/legacy/acm_ms.c               |    4 
+ drivers/usb/host/xhci.c                          |   24 ++--
+ drivers/usb/misc/yurex.c                         |    3 
+ drivers/usb/serial/iuu_phoenix.c                 |   20 ++-
+ drivers/usb/serial/keyspan_pda.c                 |    2 
+ drivers/usb/serial/option.c                      |    3 
+ drivers/usb/storage/unusual_uas.h                |    7 +
+ drivers/usb/usbip/vhci_hcd.c                     |    2 
+ drivers/vhost/net.c                              |    6 -
+ drivers/video/fbdev/hyperv_fb.c                  |    6 -
+ include/net/red.h                                |    4 
+ kernel/workqueue.c                               |   13 +-
+ lib/genalloc.c                                   |   25 ++--
+ net/core/net-sysfs.c                             |   29 ++++-
+ net/ipv4/fib_frontend.c                          |    2 
+ net/ncsi/ncsi-rsp.c                              |    2 
+ net/netfilter/ipset/ip_set_hash_gen.h            |   20 ---
+ net/netfilter/xt_RATEEST.c                       |    3 
+ net/sched/sch_choke.c                            |    2 
+ net/sched/sch_gred.c                             |    2 
+ net/sched/sch_red.c                              |    2 
+ net/sched/sch_sfq.c                              |    2 
+ scripts/depmod.sh                                |    2 
+ sound/pci/hda/patch_conexant.c                   |    1 
+ sound/pci/hda/patch_realtek.c                    |    6 +
+ sound/usb/midi.c                                 |    4 
+ 59 files changed, 383 insertions(+), 172 deletions(-)
+
+Adrian Hunter (1):
+      scsi: ufs-pci: Ensure UFS device is in PowerDown mode for suspend-to-disk ->poweroff()
+
+Antoine Tenart (2):
+      net-sysfs: take the rtnl lock when storing xps_cpus
+      net-sysfs: take the rtnl lock when accessing xps_cpus_map and num_tc
+
+Ard Biesheuvel (1):
+      crypto: ecdh - avoid buffer overflow in ecdh_set_secret()
+
+Arnd Bergmann (1):
+      usb: gadget: select CONFIG_CRC32
+
+Bard Liao (1):
+      Revert "device property: Keep secondary firmware node secondary by type"
+
+Bart Van Assche (1):
+      scsi: ide: Do not set the RQF_PREEMPT flag for sense requests
+
+Bjørn Mork (2):
+      net: usb: qmi_wwan: add Quectel EM160R-GL
+      USB: serial: option: add Quectel EM160R-GL
+
+Chandana Kishori Chiluveru (1):
+      usb: gadget: configfs: Preserve function ordering after bind failure
+
+Dan Carpenter (1):
+      atm: idt77252: call pci_disable_device() on error path
+
+Dan Williams (1):
+      x86/mm: Fix leak of pmd ptlock
+
+Daniel Palmer (1):
+      USB: serial: option: add LongSung M5710 module support
+
+David Disseldorp (1):
+      scsi: target: Fix XCOPY NAA identifier lookup
+
+Dexuan Cui (1):
+      video: hyperv_fb: Fix the mmap() regression for v5.4.y and older
+
+Dinghao Liu (1):
+      net: ethernet: Fix memleak in ethoc_probe
+
+Dominique Martinet (1):
+      kbuild: don't hardcode depmod path
+
+Eddie Hung (1):
+      usb: gadget: configfs: Fix use-after-free issue with udc_name
+
+Florian Fainelli (1):
+      net: systemport: set dev->max_mtu to UMAC_MAX_MTU_SIZE
+
+Florian Westphal (1):
+      netfilter: xt_RATEEST: reject non-null terminated string from userspace
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.215
+
+Grygorii Strashko (1):
+      net: ethernet: ti: cpts: fix ethtool output when no ptp_clock registered
+
+Guillaume Nault (1):
+      ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
+
+Huang Shijie (1):
+      lib/genalloc: fix the overflow when size is too big
+
+Jeff Dike (1):
+      virtio_net: Fix recursive call to cpus_read_lock()
+
+Jerome Brunet (1):
+      usb: gadget: f_uac2: reset wMaxPacketSize
+
+Johan Hovold (4):
+      USB: serial: iuu_phoenix: fix DMA from stack
+      USB: yurex: fix control-URB timeout handling
+      USB: usblp: fix DMA to stack
+      USB: serial: keyspan_pda: remove unused variable
+
+John Wang (1):
+      net/ncsi: Use real net-device for response handler
+
+Kailang Yang (1):
+      ALSA: hda/realtek - Fix speaker volume control on Lenovo C940
+
+Linus Torvalds (1):
+      depmod: handle the case of /sbin/depmod without /sbin in PATH
+
+Manish Chopra (1):
+      qede: fix offload for IPIP tunnel packets
+
+Michael Grzeschik (1):
+      USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
+
+Paolo Bonzini (1):
+      KVM: x86: fix shift out of bounds reported by UBSAN
+
+Randy Dunlap (2):
+      net: sched: prevent invalid Scell_log shift count
+      usb: usbip: vhci_hcd: protect shift size
+
+Rasmus Villemoes (2):
+      ethernet: ucc_geth: fix use-after-free in ucc_geth_remove()
+      ethernet: ucc_geth: set dev->max_mtu to 1518
+
+Roland Dreier (1):
+      CDC-NCM: remove "connected" log message
+
+Sean Young (1):
+      USB: cdc-acm: blacklist another IR Droid device
+
+Serge Semin (1):
+      usb: dwc3: ulpi: Use VStsDone to detect PHY regs access completion
+
+Sriharsha Allenki (1):
+      usb: gadget: Fix spinlock lockup on usb_function_deactivate
+
+Stefan Chulski (1):
+      net: mvpp2: Fix GoP port 3 Networking Complex Control configurations
+
+Takashi Iwai (1):
+      ALSA: usb-audio: Fix UBSAN warnings for MIDI jacks
+
+Thinh Nguyen (1):
+      usb: uas: Add PNY USB Portable SSD to unusual_uas
+
+Vasily Averin (1):
+      netfilter: ipset: fix shift-out-of-bounds in htable_bits()
+
+Xie He (1):
+      net: hdlc_ppp: Fix issues when mod_timer is called while timer is running
+
+Yang Yingliang (1):
+      USB: gadget: legacy: fix return error code in acm_ms_bind()
+
+Ying-Tsun Huang (1):
+      x86/mtrr: Correct the range check before performing MTRR type lookups
+
+Yu Kuai (1):
+      usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
+
+Yunfeng Ye (1):
+      workqueue: Kick a worker based on the actual activation of delayed works
+
+Yunjian Wang (2):
+      net: hns: fix return value check in __lb_other_process()
+      vhost_net: fix ubuf refcount incorrectly when sendmsg fails
+
+Zqiang (1):
+      usb: gadget: function: printer: Fix a memory leak for interface descriptor
+
+bo liu (1):
+      ALSA: hda/conexant: add a new hda codec CX11970
+
+taehyun.cho (1):
+      usb: gadget: enable super speed plus
 
