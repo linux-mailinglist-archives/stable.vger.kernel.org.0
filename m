@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E8C2F3063
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CDD82F3060
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404288AbhALM57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404336AbhALM57 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Jan 2021 07:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54604 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390402AbhALM55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2403960AbhALM55 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:57:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B90A2388C;
-        Tue, 12 Jan 2021 12:56:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A10DA2388A;
+        Tue, 12 Jan 2021 12:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456218;
-        bh=cwH9I6om9mOnEA0nxe4QTzzXwhsfSs4afbZQWKkDMVQ=;
+        s=k20201202; t=1610456219;
+        bh=dXuMAfBKCBi2SX5HxRW7MZYwE9tglm8NkGuh2VHqTmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnHyeqP+uyGDStFFTXjJkFKFijdBXFowuj5LL2/m+v/Wih5bp4N2YRuvWtXbwW3YN
-         17dgXPVAllmWjC0TkKExAjnnXYC1AUo2Q0iyxU0dr6zNJnJT/ERCq4qyTNLM9kqrCd
-         nrKrblIWJRoRe5H240URFWBNtfNIirOLhcD2zi4nXromMJR8nXBqytnA89ylL7ZYp2
-         38OtEqK07QbUEAn/O+WSxSpzgpntQnaxZYHKQABVRNI1w/d+WCdHoSqsdJmVffEdom
-         PFwXdGjB4EPm8LiobEKWN+EXt5nzxSeCai27y1aJ9wOjeuUleo8mU5/s5JVfEglPtE
-         fwpxbNWWE2Vxg==
+        b=ZfQBFcrCAm0I6s7sdHRJxuv2LkXmomlrwb/tbELgq0FJ/dW7O45b/cubDijiDZHWL
+         4sr6BT2K3nqD5Yyc+6VhCGTZDdsQtrVur6keurVUUXJ3rMj8tLVKsk4UL1DT3JdzIV
+         pJ51EwH0WhPl/HXYTXSHQVuLF5CzBcNZvpukr9kuGARorOWHbCNpZWYAf0UiayB+fe
+         Ia7JElv2djSITnaic7wcZY/5OE1sHW/i8mkbWB6Np9M6jrMFbnxEgSKd9ugZTSNHdZ
+         iATEvm8N80V6Cfr788J6/F3AxJMS/+c6EQN27/NPmP233gshHwXvtvo9saWd6vmw5I
+         j84hLBIueIHDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manish Chopra <manishc@marvell.com>,
-        Sudarsana Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/28] qede: fix offload for IPIP tunnel packets
-Date:   Tue, 12 Jan 2021 07:56:25 -0500
-Message-Id: <20210112125645.70739-9-sashal@kernel.org>
+Cc:     Oded Gabbay <ogabbay@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 10/28] habanalabs: register to pci shutdown callback
+Date:   Tue, 12 Jan 2021 07:56:26 -0500
+Message-Id: <20210112125645.70739-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125645.70739-1-sashal@kernel.org>
 References: <20210112125645.70739-1-sashal@kernel.org>
@@ -44,40 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Oded Gabbay <ogabbay@kernel.org>
 
-[ Upstream commit 5d5647dad259bb416fd5d3d87012760386d97530 ]
+[ Upstream commit fcaebc7354188b0d708c79df4390fbabd4d9799d ]
 
-IPIP tunnels packets are unknown to device,
-hence these packets are incorrectly parsed and
-caused the packet corruption, so disable offlods
-for such packets at run time.
+We need to make sure our device is idle when rebooting a virtual
+machine. This is done in the driver level.
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Link: https://lore.kernel.org/r/20201221145530.7771-1-manishc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The firmware will later handle FLR but we want to be extra safe and
+stop the devices until the FLR is handled.
+
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_fp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/misc/habanalabs/habanalabs_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_fp.c b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-index 004c0bfec41d7..f310a94e04898 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-@@ -1737,6 +1737,11 @@ netdev_features_t qede_features_check(struct sk_buff *skb,
- 			      ntohs(udp_hdr(skb)->dest) != gnv_port))
- 				return features & ~(NETIF_F_CSUM_MASK |
- 						    NETIF_F_GSO_MASK);
-+		} else if (l4_proto == IPPROTO_IPIP) {
-+			/* IPIP tunnels are unknown to the device or at least unsupported natively,
-+			 * offloads for them can't be done trivially, so disable them for such skb.
-+			 */
-+			return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
- 		}
- 	}
+diff --git a/drivers/misc/habanalabs/habanalabs_drv.c b/drivers/misc/habanalabs/habanalabs_drv.c
+index 8c342fb499ca6..ae50bd55f30af 100644
+--- a/drivers/misc/habanalabs/habanalabs_drv.c
++++ b/drivers/misc/habanalabs/habanalabs_drv.c
+@@ -443,6 +443,7 @@ static struct pci_driver hl_pci_driver = {
+ 	.id_table = ids,
+ 	.probe = hl_pci_probe,
+ 	.remove = hl_pci_remove,
++	.shutdown = hl_pci_remove,
+ 	.driver.pm = &hl_pm_ops,
+ };
  
 -- 
 2.27.0
