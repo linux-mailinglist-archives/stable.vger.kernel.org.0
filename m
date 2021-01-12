@@ -2,179 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797832F3644
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 17:58:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF85D2F364F
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 18:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbhALQ5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 11:57:39 -0500
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21286 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726113AbhALQ5j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 11:57:39 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10CGondv007647;
-        Tue, 12 Jan 2021 11:56:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=b+ac3jeEv5SLCCdbpBji9elosV82TGVn32zwP4hDzSY=;
- b=RNIvnFpRKlohMJ4s8AL6Ogq6JrxhfAkmR8m6ZYvO0yUZYgiU9awhem5oJqAwly7jDsTU
- 4TXuuWdEPD05dTISvYAkEPTopiQsqwFn6HmEeK6oe8DA+2VwqTMZXfwnlQso8CitOxKa
- C5e6tu6GTCt62OZEN6VyQNT/iiscfWaKoC2E4JCt1fY1yIdOqm4iJmzGvXO5xpDGQk+K
- 25rQ4MD81yKnV24PuqVq4BcnsNw22rIlTgU5EVsAnvT3YeN6/q8NR93C41kiNXuqffq9
- TfJUCf4OM7OFj465RyZRsmwGhm0brHLeM24Y+z8ZtNljM7ZqCGRM83+egn6fKYW30YyR yQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 361fn883cq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jan 2021 11:56:56 -0500
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10CGpaWp012126;
-        Tue, 12 Jan 2021 11:56:54 -0500
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 361fn883bw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jan 2021 11:56:53 -0500
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10CGuptv018744;
-        Tue, 12 Jan 2021 16:56:51 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 35y447uwfc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 12 Jan 2021 16:56:51 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10CGuiI629032802
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Jan 2021 16:56:44 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 134FB4C044;
-        Tue, 12 Jan 2021 16:56:49 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D1A1E4C04E;
-        Tue, 12 Jan 2021 16:56:46 +0000 (GMT)
-Received: from sig-9-65-221-171.ibm.com (unknown [9.65.221.171])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 12 Jan 2021 16:56:46 +0000 (GMT)
-Message-ID: <3a163a1839ff469acfa8dbb889c1b0889ec771bc.camel@linux.ibm.com>
-Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with
- kernel measurements
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
-        Bruno Meneguele <bmeneg@redhat.com>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Date:   Tue, 12 Jan 2021 11:56:45 -0500
-In-Reply-To: <20210112153534.GA4146@sequoia>
-References: <20200708154116.3199728-1-sashal@kernel.org>
-         <20200708154116.3199728-3-sashal@kernel.org>
-         <1594224793.23056.251.camel@linux.ibm.com>
-         <20200709012735.GX2722994@sasha-vm>
-         <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
-         <20201211031008.GN489768@sequoia>
-         <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
-         <20201214164222.GK4951@sequoia> <20210112153534.GA4146@sequoia>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-14.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
- definitions=2021-01-12_12:2021-01-12,2021-01-12 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1031
- malwarescore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
- suspectscore=0 priorityscore=1501 spamscore=0 impostorscore=0 mlxscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2101120095
+        id S1725846AbhALQ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 11:59:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725843AbhALQ7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 11:59:38 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D27C061786;
+        Tue, 12 Jan 2021 08:58:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=W8sMe2vPnGNuau7lYL1rG0wWEO1MGNksSV6JbP+KXRU=; b=fuc0kPd50jC9pP+pM5HMJPVrw1
+        bn1MsFzPePeT3dMvCXifMdM+cyBh3dyB2A7Ypz3wavELXFqksqp0G7SGCCjDAbs/OyQNjnQNbG5Y6
+        ydx/Pm0suPbw/iXlkemkBE9fk9Spigk2EG0bpF4Zv3A8Lonpi1gEtbjOHeMLG+7h+r2SWMXdIy/e+
+        6UPkQCamW+VA/JqChv9B3RJ7Wp7BeVzztpfBLVdp2NAnu7srinxNUE04HKPfDt7l8xoHNyc5zzRTi
+        x93hzpyt8aN4nWzTi8QobzWx9TIlf3bas8kki5zY8pl4nouDHTL/i9XZJsenqYpOW73qHYgrVPLv0
+        smU62aIg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1kzMzW-0054Be-2e; Tue, 12 Jan 2021 16:58:02 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3932B30015A;
+        Tue, 12 Jan 2021 17:57:55 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 1FE8420BF4004; Tue, 12 Jan 2021 17:57:55 +0100 (CET)
+Date:   Tue, 12 Jan 2021 17:57:55 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Laurent Dufour <ldufour@linux.vnet.ibm.com>
+Cc:     Vinayak Menon <vinmenon@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>, surenb@google.com
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+Message-ID: <X/3VE64nr91WCtuM@hirez.programming.kicks-ass.net>
+References: <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
+ <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
+ <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+ <bfb1cbe6-a705-469d-c95a-776624817e33@codeaurora.org>
+ <0201238b-e716-2a3c-e9ea-d5294ff77525@linux.vnet.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0201238b-e716-2a3c-e9ea-d5294ff77525@linux.vnet.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tyler,
+On Tue, Jan 12, 2021 at 04:47:17PM +0100, Laurent Dufour wrote:
+> Le 12/01/2021 à 12:43, Vinayak Menon a écrit :
 
-On Tue, 2021-01-12 at 09:35 -0600, Tyler Hicks wrote:
-> On 2020-12-14 10:42:24, Tyler Hicks wrote:
-> > On 2020-12-11 06:01:54, Mimi Zohar wrote:
-> > > On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
-> > > > On 2020-11-29 08:17:38, Mimi Zohar wrote:
-> > > > > Hi Sasha,
-> > > > > 
-> > > > > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
-> > > > > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
-> > > > > > >Hi Sasha,
-> > > > > > >
-> > > > > > >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
-> > > > > > >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
-> > > > > > >>
-> > > > > > >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
-> > > > > > >>
-> > > > > > >> Registers 8-9 are used to store measurements of the kernel and its
-> > > > > > >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
-> > > > > > >> should include them in the boot aggregate. Registers 8-9 should be
-> > > > > > >> only included in non-SHA1 digests to avoid ambiguity.
-> > > > > > >
-> > > > > > >Prior to Linux 5.8, the SHA1 template data hashes were padded before
-> > > > > > >being extended into the TPM.  Support for calculating and extending
-> > > > > > >the per TPM bank template data digests is only being upstreamed in
-> > > > > > >Linux 5.8.
-> > > > > > >
-> > > > > > >How will attestation servers know whether to include PCRs 8 & 9 in the
-> > > > > > >the boot_aggregate calculation?  Now, there is a direct relationship
-> > > > > > >between the template data SHA1 padded digest not including PCRs 8 & 9,
-> > > > > > >and the new per TPM bank template data digest including them.
-> > > > > > 
-> > > > > > Got it, I'll drop it then, thank you!
-> > > > > 
-> > > > > After re-thinking this over, I realized that the attestation server can
-> > > > > verify the "boot_aggregate" based on the quoted PCRs without knowing
-> > > > > whether padded SHA1 hashes or per TPM bank hash values were extended
-> > > > > into the TPM[1], but non-SHA1 boot aggregate values [2] should always
-> > > > > include PCRs 8 & 9.
-> > > > 
-> > > > I'm still not clear on how an attestation server would know to include
-> > > > PCRs 8 and 9 after this change came through a stable kernel update. It
-> > > > doesn't seem like something appropriate for stable since it requires
-> > > > code changes to attestation servers to handle the change.
-> > > > 
-> > > > I know this has already been released in some stable releases, so I'm
-> > > > too late, but perhaps I'm missing something.
-> > > 
-> > > The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
-> > > was to avoid affecting existing attestation servers.  The intention was
-> > > when attestation servers added support for the non-sha1 boot_aggregate
-> > > values, they'd also include PCRs 8 & 9.  The existing SHA1
-> > > boot_aggregate value remains PCRs 0 - 7.
+> > Possibility of race against other PTE modifiers
 > > 
-> > AFAIK, there's nothing that prevents the non-SHA1 TPM 2.0 PCR banks from
-> > being used even before v5.8, albeit with zero padded SHA1 digests.
-> > Existing attestation servers that already support that configuration are
-> > broken by this stable backport.
+> > 1) Fork - We have seen a case of SPF racing with fork marking PTEs RO and that
+> > is described and fixed here https://lore.kernel.org/patchwork/patch/1062672/
 
-> To wrap up this thread, I think the last thing to address is if this
-> commit should be reverted from stable kernels? Do you have any thoughts
-> about that, Mimi?
-> 
-> > 
-> > > To prevent this or something similar from happening again, what should
-> > > have been the proper way of including PCRs 8 & 9?
-> > 
-> > I don't think that commits like 6f1a1d103b48 ("ima: Switch to
-> > ima_hash_algo for boot aggregate") and 20c59ce010f8 ("ima: extend
-> > boot_aggregate with kernel measurements") should be backported to
-> > stable.
-> > 
-> > Including PCRs 8 and 9 definitely makes sense to include in the
-> > boot_aggregate value but limiting such a change to "starting in 5.8",
-> > rather than "starting in 5.8 and 5.4.82", is the safer approach when
-> > attestation server modifications are required.
+Right, that's exactly the kind of thing I was worried about.
 
-As I recall, commit 6f1a1d103b48 ("ima: Switch to ima_hash_algo for
-boot aggregate") was backported to address TPMs without SHA1 support,
-as reported by Jerry.
+> > 2) mprotect - change_protection in mprotect which does the deferred flush is
+> > marked under vm_write_begin/vm_write_end, thus SPF bails out on faults
+> > on those VMAs.
 
-Mimi
+Sure, mprotect also changes vm_flags, so it really needs that anyway.
 
+> > 3) userfaultfd - mwriteprotect_range is not protected unlike in (2) above.
+> > But SPF does not take UFFD faults.
+> > 4) hugetlb - hugetlb_change_protection - called from mprotect and covered by
+> > (2) above.
 
+> > 5) Concurrent faults - SPF does not handle all faults. Only anon page faults.
+
+What happened to shared/file-backed stuff? ISTR I had that working.
+
+> > Of which do_anonymous_page and do_swap_page are NONE/NON-PRESENT->PRESENT
+> > transitions without tlb flush. And I hope do_wp_page with RO->RW is fine as well.
+
+The tricky one is demotion, specifically write to non-write.
+
+> > I could not see a case where speculative path cannot see a PTE update done via
+> > a fault on another CPU.
+
+One you didn't mention is the NUMA balancing scanning crud; although I
+think that's fine, loosing a PTE update there is harmless. But I've not
+thought overly hard on it.
+
+> You explained it fine. Indeed SPF is handling deferred TLB invalidation by
+> marking the VMA through vm_write_begin/end(), as for the fork case you
+> mentioned. Once the PTL is held, and the VMA's seqcount is checked, the PTE
+> values read are valid.
+
+That should indeed work, but are we really sure we covered them all?
+Should we invest in better TLBI APIs to make sure we can't get this
+wrong?
 
 
