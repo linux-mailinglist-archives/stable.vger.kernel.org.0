@@ -2,223 +2,1159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBB02F39F3
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 20:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FED42F39F6
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 20:21:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406170AbhALTU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 14:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
+        id S2406790AbhALTVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 14:21:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392184AbhALTU4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 14:20:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CFBD2311F;
-        Tue, 12 Jan 2021 19:20:15 +0000 (UTC)
+        id S2406789AbhALTVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 14:21:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF79623120;
+        Tue, 12 Jan 2021 19:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610479215;
-        bh=AKzyO/ULeU1vwTgtBSJchhZsACM2X0lnRamhrvsgk/w=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tKsAM1bv0vv97TXPNyQr+qCoQEojtlSDK6VCNhtaUfR7lxcziA37Z6JQk6kZgNZbZ
-         lFFdbFcgTAVbw9o6TdDx3K27ftdpmqfp7XMk6i6x7UY0Tn05HbCixSSO2ZNMOV2vit
-         w+GLP13CITd6G/jSKQ960EPfwV7brjLBWr5QEb4k=
+        s=korg; t=1610479221;
+        bh=8U0lyX4gDrrqJ5i9aYKRnewFbme6Bw7qb/xk0dHdnZk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bnfFS62XhRX2ZTJVty9o+QQegATWz5iqLmeK1LExmHB/cxlBakotJWt4gaMq0++45
+         yYCPekS2sRs+TMKBarpWE8tvG4G2Up+8vyzxbdT6MW0OAi/63HpmEdZCbUq4Je612Z
+         itHNXb68h3JoJxG9TZER2HbMPGIHG3FPU+Pjjkao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.251
-Date:   Tue, 12 Jan 2021 20:21:20 +0100
-Message-Id: <1610479280164214@kroah.com>
+Subject: Re: Linux 4.9.251
+Date:   Tue, 12 Jan 2021 20:21:21 +0100
+Message-Id: <161047928021653@kroah.com>
 X-Mailer: git-send-email 2.30.0
+In-Reply-To: <1610479280164214@kroah.com>
+References: <1610479280164214@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.251 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                         |    4 -
- arch/x86/kernel/cpu/mtrr/generic.c               |    6 +-
- arch/x86/mm/pgtable.c                            |    2 
- drivers/atm/idt77252.c                           |    2 
- drivers/base/core.c                              |    2 
- drivers/net/ethernet/ethoc.c                     |    3 -
- drivers/net/ethernet/freescale/ucc_geth.c        |    2 
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c |    4 +
- drivers/net/usb/cdc_ncm.c                        |    3 -
- drivers/net/virtio_net.c                         |   12 ++--
- drivers/net/wan/hdlc_ppp.c                       |    7 ++
- drivers/usb/chipidea/ci_hdrc_imx.c               |    6 +-
- drivers/usb/class/cdc-acm.c                      |    4 +
- drivers/usb/class/usblp.c                        |   21 ++++++-
- drivers/usb/gadget/Kconfig                       |    2 
- drivers/usb/gadget/composite.c                   |   10 ++-
- drivers/usb/gadget/configfs.c                    |   19 ++++--
- drivers/usb/gadget/function/f_printer.c          |    1 
- drivers/usb/gadget/function/f_uac2.c             |   69 ++++++++++++++++++-----
- drivers/usb/gadget/legacy/acm_ms.c               |    4 +
- drivers/usb/host/xhci.c                          |   24 ++++----
- drivers/usb/misc/yurex.c                         |    3 +
- drivers/usb/serial/iuu_phoenix.c                 |   20 +++++-
- drivers/usb/serial/keyspan_pda.c                 |    2 
- drivers/usb/serial/option.c                      |    1 
- drivers/usb/storage/unusual_uas.h                |    7 ++
- drivers/vhost/net.c                              |    6 +-
- drivers/video/fbdev/hyperv_fb.c                  |    6 --
- include/net/red.h                                |    4 +
- kernel/workqueue.c                               |   13 +++-
- lib/genalloc.c                                   |   25 ++++----
- net/ipv4/fib_frontend.c                          |    2 
- net/ncsi/ncsi-rsp.c                              |    2 
- net/netfilter/ipset/ip_set_hash_gen.h            |   20 +-----
- net/netfilter/xt_RATEEST.c                       |    3 +
- net/sched/sch_choke.c                            |    2 
- net/sched/sch_gred.c                             |    2 
- net/sched/sch_red.c                              |    2 
- net/sched/sch_sfq.c                              |    2 
- scripts/depmod.sh                                |    2 
- scripts/gdb/linux/dmesg.py                       |   22 +++++--
- scripts/gdb/linux/proc.py                        |    2 
- sound/pci/hda/patch_conexant.c                   |    1 
- sound/usb/midi.c                                 |    4 +
- 44 files changed, 246 insertions(+), 114 deletions(-)
-
-André Draszik (1):
-      scripts/gdb: make lx-dmesg command work (reliably)
-
-Arnd Bergmann (1):
-      usb: gadget: select CONFIG_CRC32
-
-Bard Liao (1):
-      Revert "device property: Keep secondary firmware node secondary by type"
-
-Chandana Kishori Chiluveru (1):
-      usb: gadget: configfs: Preserve function ordering after bind failure
-
-Dan Carpenter (1):
-      atm: idt77252: call pci_disable_device() on error path
-
-Dan Williams (1):
-      x86/mm: Fix leak of pmd ptlock
-
-Daniel Palmer (1):
-      USB: serial: option: add LongSung M5710 module support
-
-Dexuan Cui (1):
-      video: hyperv_fb: Fix the mmap() regression for v5.4.y and older
-
-Dinghao Liu (1):
-      net: ethernet: Fix memleak in ethoc_probe
-
-Dominique Martinet (1):
-      kbuild: don't hardcode depmod path
-
-Du Changbin (1):
-      scripts/gdb: fix lx-version string output
-
-Eddie Hung (1):
-      usb: gadget: configfs: Fix use-after-free issue with udc_name
-
-Florian Westphal (1):
-      netfilter: xt_RATEEST: reject non-null terminated string from userspace
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.251
-
-Guillaume Nault (1):
-      ipv4: Ignore ECN bits for fib lookups in fib_compute_spec_dst()
-
-Huang Shijie (1):
-      lib/genalloc: fix the overflow when size is too big
-
-Jeff Dike (1):
-      virtio_net: Fix recursive call to cpus_read_lock()
-
-Jerome Brunet (1):
-      usb: gadget: f_uac2: reset wMaxPacketSize
-
-Johan Hovold (4):
-      USB: serial: iuu_phoenix: fix DMA from stack
-      USB: yurex: fix control-URB timeout handling
-      USB: usblp: fix DMA to stack
-      USB: serial: keyspan_pda: remove unused variable
-
-John Wang (1):
-      net/ncsi: Use real net-device for response handler
-
-Leonard Crestez (2):
-      scripts/gdb: lx-dmesg: cast log_buf to void* for addr fetch
-      scripts/gdb: lx-dmesg: use explicit encoding=utf8 errors=replace
-
-Linus Torvalds (1):
-      depmod: handle the case of /sbin/depmod without /sbin in PATH
-
-Michael Grzeschik (1):
-      USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set
-
-Randy Dunlap (1):
-      net: sched: prevent invalid Scell_log shift count
-
-Rasmus Villemoes (1):
-      ethernet: ucc_geth: fix use-after-free in ucc_geth_remove()
-
-Roland Dreier (1):
-      CDC-NCM: remove "connected" log message
-
-Sean Young (1):
-      USB: cdc-acm: blacklist another IR Droid device
-
-Sriharsha Allenki (1):
-      usb: gadget: Fix spinlock lockup on usb_function_deactivate
-
-Takashi Iwai (1):
-      ALSA: usb-audio: Fix UBSAN warnings for MIDI jacks
-
-Thinh Nguyen (1):
-      usb: uas: Add PNY USB Portable SSD to unusual_uas
-
-Vasily Averin (1):
-      netfilter: ipset: fix shift-out-of-bounds in htable_bits()
-
-Xie He (1):
-      net: hdlc_ppp: Fix issues when mod_timer is called while timer is running
-
-Yang Yingliang (1):
-      USB: gadget: legacy: fix return error code in acm_ms_bind()
-
-Ying-Tsun Huang (1):
-      x86/mtrr: Correct the range check before performing MTRR type lookups
-
-Yu Kuai (1):
-      usb: chipidea: ci_hdrc_imx: add missing put_device() call in usbmisc_get_init_data()
-
-Yunfeng Ye (1):
-      workqueue: Kick a worker based on the actual activation of delayed works
-
-Yunjian Wang (2):
-      net: hns: fix return value check in __lb_other_process()
-      vhost_net: fix ubuf refcount incorrectly when sendmsg fails
-
-Zqiang (1):
-      usb: gadget: function: printer: Fix a memory leak for interface descriptor
-
-bo liu (1):
-      ALSA: hda/conexant: add a new hda codec CX11970
-
-taehyun.cho (1):
-      usb: gadget: enable super speed plus
-
+diff --git a/Makefile b/Makefile
+index 525d7ec7249d..8ebbb60f2078 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 250
++SUBLEVEL = 251
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+@@ -349,7 +349,7 @@ OBJDUMP		= $(CROSS_COMPILE)objdump
+ AWK		= awk
+ GENKSYMS	= scripts/genksyms/genksyms
+ INSTALLKERNEL  := installkernel
+-DEPMOD		= /sbin/depmod
++DEPMOD		= depmod
+ PERL		= perl
+ PYTHON		= python
+ CHECK		= sparse
+diff --git a/arch/x86/kernel/cpu/mtrr/generic.c b/arch/x86/kernel/cpu/mtrr/generic.c
+index e12ee86906c6..9436f3452049 100644
+--- a/arch/x86/kernel/cpu/mtrr/generic.c
++++ b/arch/x86/kernel/cpu/mtrr/generic.c
+@@ -166,9 +166,6 @@ static u8 mtrr_type_lookup_variable(u64 start, u64 end, u64 *partial_end,
+ 	*repeat = 0;
+ 	*uniform = 1;
+ 
+-	/* Make end inclusive instead of exclusive */
+-	end--;
+-
+ 	prev_match = MTRR_TYPE_INVALID;
+ 	for (i = 0; i < num_var_ranges; ++i) {
+ 		unsigned short start_state, end_state, inclusive;
+@@ -260,6 +257,9 @@ u8 mtrr_type_lookup(u64 start, u64 end, u8 *uniform)
+ 	int repeat;
+ 	u64 partial_end;
+ 
++	/* Make end inclusive instead of exclusive */
++	end--;
++
+ 	if (!mtrr_state_set)
+ 		return MTRR_TYPE_INVALID;
+ 
+diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
+index 08e0380414a9..b68b102f6774 100644
+--- a/arch/x86/mm/pgtable.c
++++ b/arch/x86/mm/pgtable.c
+@@ -697,6 +697,8 @@ int pud_free_pmd_page(pud_t *pud, unsigned long addr)
+ 	}
+ 
+ 	free_page((unsigned long)pmd_sv);
++
++	pgtable_pmd_page_dtor(virt_to_page(pmd));
+ 	free_page((unsigned long)pmd);
+ 
+ 	return 1;
+diff --git a/drivers/atm/idt77252.c b/drivers/atm/idt77252.c
+index 074616b39f4d..89adb49e435e 100644
+--- a/drivers/atm/idt77252.c
++++ b/drivers/atm/idt77252.c
+@@ -3615,7 +3615,7 @@ static int idt77252_init_one(struct pci_dev *pcidev,
+ 
+ 	if ((err = dma_set_mask_and_coherent(&pcidev->dev, DMA_BIT_MASK(32)))) {
+ 		printk("idt77252: can't enable DMA for PCI device at %s\n", pci_name(pcidev));
+-		return err;
++		goto err_out_disable_pdev;
+ 	}
+ 
+ 	card = kzalloc(sizeof(struct idt77252_dev), GFP_KERNEL);
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index ec5cc5d98a3e..3b8487e28c84 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2364,7 +2364,7 @@ void set_primary_fwnode(struct device *dev, struct fwnode_handle *fwnode)
+ 		if (fwnode_is_primary(fn)) {
+ 			dev->fwnode = fn->secondary;
+ 			if (!(parent && fn == parent->fwnode))
+-				fn->secondary = ERR_PTR(-ENODEV);
++				fn->secondary = NULL;
+ 		} else {
+ 			dev->fwnode = NULL;
+ 		}
+diff --git a/drivers/net/ethernet/ethoc.c b/drivers/net/ethernet/ethoc.c
+index e31199f3048c..0d3b159f4c56 100644
+--- a/drivers/net/ethernet/ethoc.c
++++ b/drivers/net/ethernet/ethoc.c
+@@ -1190,7 +1190,7 @@ static int ethoc_probe(struct platform_device *pdev)
+ 	ret = mdiobus_register(priv->mdio);
+ 	if (ret) {
+ 		dev_err(&netdev->dev, "failed to register MDIO bus\n");
+-		goto free2;
++		goto free3;
+ 	}
+ 
+ 	ret = ethoc_mdio_probe(netdev);
+@@ -1222,6 +1222,7 @@ static int ethoc_probe(struct platform_device *pdev)
+ 	netif_napi_del(&priv->napi);
+ error:
+ 	mdiobus_unregister(priv->mdio);
++free3:
+ 	mdiobus_free(priv->mdio);
+ free2:
+ 	if (priv->clk)
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.c b/drivers/net/ethernet/freescale/ucc_geth.c
+index af922bac19ae..cdef919d5b75 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.c
++++ b/drivers/net/ethernet/freescale/ucc_geth.c
+@@ -3939,12 +3939,12 @@ static int ucc_geth_remove(struct platform_device* ofdev)
+ 	struct device_node *np = ofdev->dev.of_node;
+ 
+ 	unregister_netdev(dev);
+-	free_netdev(dev);
+ 	ucc_geth_memclean(ugeth);
+ 	if (of_phy_is_fixed_link(np))
+ 		of_phy_deregister_fixed_link(np);
+ 	of_node_put(ugeth->ug_info->tbi_node);
+ 	of_node_put(ugeth->ug_info->phy_node);
++	free_netdev(dev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+index f38848c4f69d..62143ccfd5fb 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
+@@ -447,6 +447,10 @@ static void __lb_other_process(struct hns_nic_ring_data *ring_data,
+ 	/* for mutl buffer*/
+ 	new_skb = skb_copy(skb, GFP_ATOMIC);
+ 	dev_kfree_skb_any(skb);
++	if (!new_skb) {
++		netdev_err(ndev, "skb alloc failed\n");
++		return;
++	}
+ 	skb = new_skb;
+ 
+ 	check_ok = 0;
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index be4e56826daf..99ca9526dd65 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1602,9 +1602,6 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		netif_info(dev, link, dev->net,
+-			   "network connection: %sconnected\n",
+-			   !!event->wValue ? "" : "dis");
+ 		usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
+ 
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7118b8263760..a3447f8eaf66 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1357,14 +1357,16 @@ static int virtnet_set_channels(struct net_device *dev,
+ 
+ 	get_online_cpus();
+ 	err = virtnet_set_queues(vi, queue_pairs);
+-	if (!err) {
+-		netif_set_real_num_tx_queues(dev, queue_pairs);
+-		netif_set_real_num_rx_queues(dev, queue_pairs);
+-
+-		virtnet_set_affinity(vi);
++	if (err) {
++		put_online_cpus();
++		goto err;
+ 	}
++	virtnet_set_affinity(vi);
+ 	put_online_cpus();
+ 
++	netif_set_real_num_tx_queues(dev, queue_pairs);
++	netif_set_real_num_rx_queues(dev, queue_pairs);
++err:
+ 	return err;
+ }
+ 
+diff --git a/drivers/net/wan/hdlc_ppp.c b/drivers/net/wan/hdlc_ppp.c
+index 35589ee0cde1..fe543099768c 100644
+--- a/drivers/net/wan/hdlc_ppp.c
++++ b/drivers/net/wan/hdlc_ppp.c
+@@ -572,6 +572,13 @@ static void ppp_timer(unsigned long arg)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&ppp->lock, flags);
++	/* mod_timer could be called after we entered this function but
++	 * before we got the lock.
++	 */
++	if (timer_pending(&proto->timer)) {
++		spin_unlock_irqrestore(&ppp->lock, flags);
++		return;
++	}
+ 	switch (proto->state) {
+ 	case STOPPING:
+ 	case REQ_SENT:
+diff --git a/drivers/usb/chipidea/ci_hdrc_imx.c b/drivers/usb/chipidea/ci_hdrc_imx.c
+index 7ea84e6c85bb..553bdd0983f7 100644
+--- a/drivers/usb/chipidea/ci_hdrc_imx.c
++++ b/drivers/usb/chipidea/ci_hdrc_imx.c
+@@ -133,9 +133,13 @@ static struct imx_usbmisc_data *usbmisc_get_init_data(struct device *dev)
+ 	misc_pdev = of_find_device_by_node(args.np);
+ 	of_node_put(args.np);
+ 
+-	if (!misc_pdev || !platform_get_drvdata(misc_pdev))
++	if (!misc_pdev)
+ 		return ERR_PTR(-EPROBE_DEFER);
+ 
++	if (!platform_get_drvdata(misc_pdev)) {
++		put_device(&misc_pdev->dev);
++		return ERR_PTR(-EPROBE_DEFER);
++	}
+ 	data->dev = &misc_pdev->dev;
+ 
+ 	if (of_find_property(np, "disable-over-current", NULL))
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 90f4a5c8012c..a251514a0ee9 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1849,6 +1849,10 @@ static const struct usb_device_id acm_ids[] = {
+ 	{ USB_DEVICE(0x04d8, 0x0083),	/* Bootloader mode */
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
++
++	{ USB_DEVICE(0x04d8, 0xf58b),
++	.driver_info = IGNORE_DEVICE,
++	},
+ #endif
+ 
+ 	/*Samsung phone in firmware update mode */
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 71c2ae4b8106..76701d6ce92c 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -289,8 +289,25 @@ static int usblp_ctrl_msg(struct usblp *usblp, int request, int type, int dir, i
+ #define usblp_reset(usblp)\
+ 	usblp_ctrl_msg(usblp, USBLP_REQ_RESET, USB_TYPE_CLASS, USB_DIR_OUT, USB_RECIP_OTHER, 0, NULL, 0)
+ 
+-#define usblp_hp_channel_change_request(usblp, channel, buffer) \
+-	usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST, USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE, channel, buffer, 1)
++static int usblp_hp_channel_change_request(struct usblp *usblp, int channel, u8 *new_channel)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kzalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = usblp_ctrl_msg(usblp, USBLP_REQ_HP_CHANNEL_CHANGE_REQUEST,
++			USB_TYPE_VENDOR, USB_DIR_IN, USB_RECIP_INTERFACE,
++			channel, buf, 1);
++	if (ret == 0)
++		*new_channel = buf[0];
++
++	kfree(buf);
++
++	return ret;
++}
+ 
+ /*
+  * See the description for usblp_select_alts() below for the usage
+diff --git a/drivers/usb/gadget/Kconfig b/drivers/usb/gadget/Kconfig
+index f3ee80ece682..59dc3054ad6e 100644
+--- a/drivers/usb/gadget/Kconfig
++++ b/drivers/usb/gadget/Kconfig
+@@ -258,6 +258,7 @@ config USB_CONFIGFS_NCM
+ 	depends on NET
+ 	select USB_U_ETHER
+ 	select USB_F_NCM
++	select CRC32
+ 	help
+ 	  NCM is an advanced protocol for Ethernet encapsulation, allows
+ 	  grouping of several ethernet frames into one USB transfer and
+@@ -307,6 +308,7 @@ config USB_CONFIGFS_EEM
+ 	depends on NET
+ 	select USB_U_ETHER
+ 	select USB_F_EEM
++	select CRC32
+ 	help
+ 	  CDC EEM is a newer USB standard that is somewhat simpler than CDC ECM
+ 	  and therefore can be supported by more hardware.  Technically ECM and
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index 5a1723d99fe5..c574bf981140 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -392,8 +392,11 @@ int usb_function_deactivate(struct usb_function *function)
+ 
+ 	spin_lock_irqsave(&cdev->lock, flags);
+ 
+-	if (cdev->deactivations == 0)
++	if (cdev->deactivations == 0) {
++		spin_unlock_irqrestore(&cdev->lock, flags);
+ 		status = usb_gadget_deactivate(cdev->gadget);
++		spin_lock_irqsave(&cdev->lock, flags);
++	}
+ 	if (status == 0)
+ 		cdev->deactivations++;
+ 
+@@ -424,8 +427,11 @@ int usb_function_activate(struct usb_function *function)
+ 		status = -EINVAL;
+ 	else {
+ 		cdev->deactivations--;
+-		if (cdev->deactivations == 0)
++		if (cdev->deactivations == 0) {
++			spin_unlock_irqrestore(&cdev->lock, flags);
+ 			status = usb_gadget_activate(cdev->gadget);
++			spin_lock_irqsave(&cdev->lock, flags);
++		}
+ 	}
+ 
+ 	spin_unlock_irqrestore(&cdev->lock, flags);
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index 6420cae820bc..0aa1b8fa9b47 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -232,9 +232,16 @@ static ssize_t gadget_dev_desc_bcdUSB_store(struct config_item *item,
+ 
+ static ssize_t gadget_dev_desc_UDC_show(struct config_item *item, char *page)
+ {
+-	char *udc_name = to_gadget_info(item)->composite.gadget_driver.udc_name;
++	struct gadget_info *gi = to_gadget_info(item);
++	char *udc_name;
++	int ret;
++
++	mutex_lock(&gi->lock);
++	udc_name = gi->composite.gadget_driver.udc_name;
++	ret = sprintf(page, "%s\n", udc_name ?: "");
++	mutex_unlock(&gi->lock);
+ 
+-	return sprintf(page, "%s\n", udc_name ?: "");
++	return ret;
+ }
+ 
+ static int unregister_gadget(struct gadget_info *gi)
+@@ -1214,9 +1221,9 @@ static void purge_configs_funcs(struct gadget_info *gi)
+ 
+ 		cfg = container_of(c, struct config_usb_cfg, c);
+ 
+-		list_for_each_entry_safe(f, tmp, &c->functions, list) {
++		list_for_each_entry_safe_reverse(f, tmp, &c->functions, list) {
+ 
+-			list_move_tail(&f->list, &cfg->func_list);
++			list_move(&f->list, &cfg->func_list);
+ 			if (f->unbind) {
+ 				dev_dbg(&gi->cdev.gadget->dev,
+ 				         "unbind function '%s'/%p\n",
+@@ -1502,7 +1509,7 @@ static const struct usb_gadget_driver configfs_driver_template = {
+ 	.suspend	= configfs_composite_suspend,
+ 	.resume		= configfs_composite_resume,
+ 
+-	.max_speed	= USB_SPEED_SUPER,
++	.max_speed	= USB_SPEED_SUPER_PLUS,
+ 	.driver = {
+ 		.owner          = THIS_MODULE,
+ 		.name		= "configfs-gadget",
+@@ -1542,7 +1549,7 @@ static struct config_group *gadgets_make(
+ 	gi->composite.unbind = configfs_do_nothing;
+ 	gi->composite.suspend = NULL;
+ 	gi->composite.resume = NULL;
+-	gi->composite.max_speed = USB_SPEED_SUPER;
++	gi->composite.max_speed = USB_SPEED_SUPER_PLUS;
+ 
+ 	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
+diff --git a/drivers/usb/gadget/function/f_printer.c b/drivers/usb/gadget/function/f_printer.c
+index d89b3046dd10..b962f24b500b 100644
+--- a/drivers/usb/gadget/function/f_printer.c
++++ b/drivers/usb/gadget/function/f_printer.c
+@@ -1120,6 +1120,7 @@ static int printer_func_bind(struct usb_configuration *c,
+ 		printer_req_free(dev->in_ep, req);
+ 	}
+ 
++	usb_free_all_descriptors(f);
+ 	return ret;
+ 
+ }
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index a631975e050d..af7fd0185a44 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -766,7 +766,7 @@ static struct usb_endpoint_descriptor fs_epout_desc = {
+ 
+ 	.bEndpointAddress = USB_DIR_OUT,
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1023),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 1,
+ };
+ 
+@@ -775,7 +775,7 @@ static struct usb_endpoint_descriptor hs_epout_desc = {
+ 	.bDescriptorType = USB_DT_ENDPOINT,
+ 
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1024),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 4,
+ };
+ 
+@@ -843,7 +843,7 @@ static struct usb_endpoint_descriptor fs_epin_desc = {
+ 
+ 	.bEndpointAddress = USB_DIR_IN,
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1023),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 1,
+ };
+ 
+@@ -852,7 +852,7 @@ static struct usb_endpoint_descriptor hs_epin_desc = {
+ 	.bDescriptorType = USB_DT_ENDPOINT,
+ 
+ 	.bmAttributes = USB_ENDPOINT_XFER_ISOC | USB_ENDPOINT_SYNC_ASYNC,
+-	.wMaxPacketSize = cpu_to_le16(1024),
++	/* .wMaxPacketSize = DYNAMIC */
+ 	.bInterval = 4,
+ };
+ 
+@@ -963,12 +963,28 @@ free_ep(struct uac2_rtd_params *prm, struct usb_ep *ep)
+ 			"%s:%d Error!\n", __func__, __LINE__);
+ }
+ 
+-static void set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
++static int set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
+ 	struct usb_endpoint_descriptor *ep_desc,
+-	unsigned int factor, bool is_playback)
++	enum usb_device_speed speed, bool is_playback)
+ {
+ 	int chmask, srate, ssize;
+-	u16 max_packet_size;
++	u16 max_size_bw, max_size_ep;
++	unsigned int factor;
++
++	switch (speed) {
++	case USB_SPEED_FULL:
++		max_size_ep = 1023;
++		factor = 1000;
++		break;
++
++	case USB_SPEED_HIGH:
++		max_size_ep = 1024;
++		factor = 8000;
++		break;
++
++	default:
++		return -EINVAL;
++	}
+ 
+ 	if (is_playback) {
+ 		chmask = uac2_opts->p_chmask;
+@@ -980,10 +996,12 @@ static void set_ep_max_packet_size(const struct f_uac2_opts *uac2_opts,
+ 		ssize = uac2_opts->c_ssize;
+ 	}
+ 
+-	max_packet_size = num_channels(chmask) * ssize *
++	max_size_bw = num_channels(chmask) * ssize *
+ 		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
+-	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_packet_size,
+-				le16_to_cpu(ep_desc->wMaxPacketSize)));
++	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
++						    max_size_ep));
++
++	return 0;
+ }
+ 
+ static int
+@@ -1082,10 +1100,33 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
+ 	uac2->c_prm.uac2 = uac2;
+ 
+ 	/* Calculate wMaxPacketSize according to audio bandwidth */
+-	set_ep_max_packet_size(uac2_opts, &fs_epin_desc, 1000, true);
+-	set_ep_max_packet_size(uac2_opts, &fs_epout_desc, 1000, false);
+-	set_ep_max_packet_size(uac2_opts, &hs_epin_desc, 8000, true);
+-	set_ep_max_packet_size(uac2_opts, &hs_epout_desc, 8000, false);
++	ret = set_ep_max_packet_size(uac2_opts, &fs_epin_desc, USB_SPEED_FULL,
++				     true);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &fs_epout_desc, USB_SPEED_FULL,
++				     false);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &hs_epin_desc, USB_SPEED_HIGH,
++				     true);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
++
++	ret = set_ep_max_packet_size(uac2_opts, &hs_epout_desc, USB_SPEED_HIGH,
++				     false);
++	if (ret < 0) {
++		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
++		return ret;
++	}
+ 
+ 	hs_epout_desc.bEndpointAddress = fs_epout_desc.bEndpointAddress;
+ 	hs_epin_desc.bEndpointAddress = fs_epin_desc.bEndpointAddress;
+diff --git a/drivers/usb/gadget/legacy/acm_ms.c b/drivers/usb/gadget/legacy/acm_ms.c
+index c39de65a448b..270bb88c51cb 100644
+--- a/drivers/usb/gadget/legacy/acm_ms.c
++++ b/drivers/usb/gadget/legacy/acm_ms.c
+@@ -207,8 +207,10 @@ static int acm_ms_bind(struct usb_composite_dev *cdev)
+ 		struct usb_descriptor_header *usb_desc;
+ 
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail_string_ids;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index b27987431079..b0e1d3da2e7e 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4409,19 +4409,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
++	else
++		timeout_ns = udev->u1_params.sel;
++
+ 	/* Prevent U1 if service interval is shorter than U1 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u1_params.sel;
+-
+ 	/* The U1 timeout is encoded in 1us intervals.
+ 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
+ 	 */
+@@ -4473,19 +4473,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
++	else
++		timeout_ns = udev->u2_params.sel;
++
+ 	/* Prevent U2 if service interval is shorter than U2 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
++		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
+ 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u2_params.sel;
+-
+ 	/* The U2 timeout is encoded in 256us intervals */
+ 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
+ 	/* If the necessary timeout value is bigger than what we can set in the
+diff --git a/drivers/usb/misc/yurex.c b/drivers/usb/misc/yurex.c
+index 1be1fa1b7377..16cab1b09ad8 100644
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -507,6 +507,9 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
+ 		timeout = schedule_timeout(YUREX_WRITE_TIMEOUT);
+ 	finish_wait(&dev->waitq, &wait);
+ 
++	/* make sure URB is idle after timeout or (spurious) CMD_ACK */
++	usb_kill_urb(dev->cntl_urb);
++
+ 	mutex_unlock(&dev->io_mutex);
+ 
+ 	if (retval < 0) {
+diff --git a/drivers/usb/serial/iuu_phoenix.c b/drivers/usb/serial/iuu_phoenix.c
+index bdeb2b248954..f3c0ad138c3e 100644
+--- a/drivers/usb/serial/iuu_phoenix.c
++++ b/drivers/usb/serial/iuu_phoenix.c
+@@ -553,23 +553,29 @@ static int iuu_uart_flush(struct usb_serial_port *port)
+ 	struct device *dev = &port->dev;
+ 	int i;
+ 	int status;
+-	u8 rxcmd = IUU_UART_RX;
++	u8 *rxcmd;
+ 	struct iuu_private *priv = usb_get_serial_port_data(port);
+ 
+ 	if (iuu_led(port, 0xF000, 0, 0, 0xFF) < 0)
+ 		return -EIO;
+ 
++	rxcmd = kmalloc(1, GFP_KERNEL);
++	if (!rxcmd)
++		return -ENOMEM;
++
++	rxcmd[0] = IUU_UART_RX;
++
+ 	for (i = 0; i < 2; i++) {
+-		status = bulk_immediate(port, &rxcmd, 1);
++		status = bulk_immediate(port, rxcmd, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_write error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
+ 
+ 		status = read_immediate(port, &priv->len, 1);
+ 		if (status != IUU_OPERATION_OK) {
+ 			dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-			return status;
++			goto out_free;
+ 		}
+ 
+ 		if (priv->len > 0) {
+@@ -577,12 +583,16 @@ static int iuu_uart_flush(struct usb_serial_port *port)
+ 			status = read_immediate(port, priv->buf, priv->len);
+ 			if (status != IUU_OPERATION_OK) {
+ 				dev_dbg(dev, "%s - uart_flush_read error\n", __func__);
+-				return status;
++				goto out_free;
+ 			}
+ 		}
+ 	}
+ 	dev_dbg(dev, "%s - uart_flush_read OK!\n", __func__);
+ 	iuu_led(port, 0, 0xF000, 0, 0xFF);
++
++out_free:
++	kfree(rxcmd);
++
+ 	return status;
+ }
+ 
+diff --git a/drivers/usb/serial/keyspan_pda.c b/drivers/usb/serial/keyspan_pda.c
+index 93a31ea8e210..1899190d4f5d 100644
+--- a/drivers/usb/serial/keyspan_pda.c
++++ b/drivers/usb/serial/keyspan_pda.c
+@@ -559,10 +559,8 @@ static int keyspan_pda_write(struct tty_struct *tty,
+ static void keyspan_pda_write_bulk_callback(struct urb *urb)
+ {
+ 	struct usb_serial_port *port = urb->context;
+-	struct keyspan_pda_private *priv;
+ 
+ 	set_bit(0, &port->write_urbs_free);
+-	priv = usb_get_serial_port_data(port);
+ 
+ 	/* queue up a wakeup at scheduler time */
+ 	usb_serial_port_softint(port);
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 6045a8e24068..1998b314368e 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2043,6 +2043,7 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1406, 0xff) },			/* GosunCn GM500 ECM/NCM */
+diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
+index 018b0663d610..1bf15f9d4f43 100644
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -163,6 +163,13 @@ UNUSUAL_DEV(0x152d, 0x0578, 0x0000, 0x9999,
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_BROKEN_FUA),
+ 
++/* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
++UNUSUAL_DEV(0x154b, 0xf00b, 0x0000, 0x9999,
++		"PNY",
++		"Pro Elite SSD",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_ATA_1X),
++
+ /* Reported-by: Thinh Nguyen <thinhn@synopsys.com> */
+ UNUSUAL_DEV(0x154b, 0xf00d, 0x0000, 0x9999,
+ 		"PNY",
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 861f43f8f9ce..66663757cd70 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -377,6 +377,7 @@ static void handle_tx(struct vhost_net *net)
+ 	size_t hdr_size;
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
++	struct ubuf_info *ubuf;
+ 	bool zcopy, zcopy_used;
+ 	int sent_pkts = 0;
+ 
+@@ -444,9 +445,7 @@ static void handle_tx(struct vhost_net *net)
+ 
+ 		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+ 		if (zcopy_used) {
+-			struct ubuf_info *ubuf;
+ 			ubuf = nvq->ubuf_info + nvq->upend_idx;
+-
+ 			vq->heads[nvq->upend_idx].id = cpu_to_vhost32(vq, head);
+ 			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
+ 			ubuf->callback = vhost_zerocopy_callback;
+@@ -465,7 +464,8 @@ static void handle_tx(struct vhost_net *net)
+ 		err = sock->ops->sendmsg(sock, &msg, len);
+ 		if (unlikely(err < 0)) {
+ 			if (zcopy_used) {
+-				vhost_net_ubuf_put(ubufs);
++				if (vq->heads[ubuf->desc].len == VHOST_DMA_IN_PROGRESS)
++					vhost_net_ubuf_put(ubufs);
+ 				nvq->upend_idx = ((unsigned)nvq->upend_idx - 1)
+ 					% UIO_MAXIOV;
+ 			}
+diff --git a/drivers/video/fbdev/hyperv_fb.c b/drivers/video/fbdev/hyperv_fb.c
+index f3938c527883..6e680007cf6b 100644
+--- a/drivers/video/fbdev/hyperv_fb.c
++++ b/drivers/video/fbdev/hyperv_fb.c
+@@ -713,11 +713,9 @@ static int hvfb_getmem(struct hv_device *hdev, struct fb_info *info)
+ 	}
+ 
+ 	/*
+-	 * Map the VRAM cacheable for performance. This is also required for
+-	 * VM Connect to display properly for ARM64 Linux VM, as the host also
+-	 * maps the VRAM cacheable.
++	 * Map the VRAM cacheable for performance.
+ 	 */
+-	fb_virt = ioremap_cache(par->mem->start, screen_fb_size);
++	fb_virt = ioremap_wc(par->mem->start, screen_fb_size);
+ 	if (!fb_virt)
+ 		goto err2;
+ 
+diff --git a/include/net/red.h b/include/net/red.h
+index 3618cdfec884..17821f66de11 100644
+--- a/include/net/red.h
++++ b/include/net/red.h
+@@ -167,12 +167,14 @@ static inline void red_set_vars(struct red_vars *v)
+ 	v->qcount	= -1;
+ }
+ 
+-static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog)
++static inline bool red_check_params(u32 qth_min, u32 qth_max, u8 Wlog, u8 Scell_log)
+ {
+ 	if (fls(qth_min) + Wlog > 32)
+ 		return false;
+ 	if (fls(qth_max) + Wlog > 32)
+ 		return false;
++	if (Scell_log >= 32)
++		return false;
+ 	if (qth_max < qth_min)
+ 		return false;
+ 	return true;
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 00c295d3104b..205c3131f8b0 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -3448,17 +3448,24 @@ static void pwq_adjust_max_active(struct pool_workqueue *pwq)
+ 	 * is updated and visible.
+ 	 */
+ 	if (!freezable || !workqueue_freezing) {
++		bool kick = false;
++
+ 		pwq->max_active = wq->saved_max_active;
+ 
+ 		while (!list_empty(&pwq->delayed_works) &&
+-		       pwq->nr_active < pwq->max_active)
++		       pwq->nr_active < pwq->max_active) {
+ 			pwq_activate_first_delayed(pwq);
++			kick = true;
++		}
+ 
+ 		/*
+ 		 * Need to kick a worker after thawed or an unbound wq's
+-		 * max_active is bumped.  It's a slow path.  Do it always.
++		 * max_active is bumped. In realtime scenarios, always kicking a
++		 * worker will cause interference on the isolated cpu cores, so
++		 * let's kick iff work items were activated.
+ 		 */
+-		wake_up_worker(pwq->pool);
++		if (kick)
++			wake_up_worker(pwq->pool);
+ 	} else {
+ 		pwq->max_active = 0;
+ 	}
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+index 7e85d1e37a6e..0b8ee173cf3a 100644
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -83,14 +83,14 @@ static int clear_bits_ll(unsigned long *addr, unsigned long mask_to_clear)
+  * users set the same bit, one user will return remain bits, otherwise
+  * return 0.
+  */
+-static int bitmap_set_ll(unsigned long *map, int start, int nr)
++static int bitmap_set_ll(unsigned long *map, unsigned long start, unsigned long nr)
+ {
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_set = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_set = BITMAP_FIRST_WORD_MASK(start);
+ 
+-	while (nr - bits_to_set >= 0) {
++	while (nr >= bits_to_set) {
+ 		if (set_bits_ll(p, mask_to_set))
+ 			return nr;
+ 		nr -= bits_to_set;
+@@ -118,14 +118,15 @@ static int bitmap_set_ll(unsigned long *map, int start, int nr)
+  * users clear the same bit, one user will return remain bits,
+  * otherwise return 0.
+  */
+-static int bitmap_clear_ll(unsigned long *map, int start, int nr)
++static unsigned long
++bitmap_clear_ll(unsigned long *map, unsigned long start, unsigned long nr)
+ {
+ 	unsigned long *p = map + BIT_WORD(start);
+-	const int size = start + nr;
++	const unsigned long size = start + nr;
+ 	int bits_to_clear = BITS_PER_LONG - (start % BITS_PER_LONG);
+ 	unsigned long mask_to_clear = BITMAP_FIRST_WORD_MASK(start);
+ 
+-	while (nr - bits_to_clear >= 0) {
++	while (nr >= bits_to_clear) {
+ 		if (clear_bits_ll(p, mask_to_clear))
+ 			return nr;
+ 		nr -= bits_to_clear;
+@@ -184,8 +185,8 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
+ 		 size_t size, int nid)
+ {
+ 	struct gen_pool_chunk *chunk;
+-	int nbits = size >> pool->min_alloc_order;
+-	int nbytes = sizeof(struct gen_pool_chunk) +
++	unsigned long nbits = size >> pool->min_alloc_order;
++	unsigned long nbytes = sizeof(struct gen_pool_chunk) +
+ 				BITS_TO_LONGS(nbits) * sizeof(long);
+ 
+ 	chunk = vzalloc_node(nbytes, nid);
+@@ -242,7 +243,7 @@ void gen_pool_destroy(struct gen_pool *pool)
+ 	struct list_head *_chunk, *_next_chunk;
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int bit, end_bit;
++	unsigned long bit, end_bit;
+ 
+ 	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
+ 		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
+@@ -293,7 +294,7 @@ unsigned long gen_pool_alloc_algo(struct gen_pool *pool, size_t size,
+ 	struct gen_pool_chunk *chunk;
+ 	unsigned long addr = 0;
+ 	int order = pool->min_alloc_order;
+-	int nbits, start_bit, end_bit, remain;
++	unsigned long nbits, start_bit, end_bit, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -376,7 +377,7 @@ void gen_pool_free(struct gen_pool *pool, unsigned long addr, size_t size)
+ {
+ 	struct gen_pool_chunk *chunk;
+ 	int order = pool->min_alloc_order;
+-	int start_bit, nbits, remain;
++	unsigned long start_bit, nbits, remain;
+ 
+ #ifndef CONFIG_ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	BUG_ON(in_nmi());
+@@ -638,7 +639,7 @@ unsigned long gen_pool_best_fit(unsigned long *map, unsigned long size,
+ 	index = bitmap_find_next_zero_area(map, size, start, nr, 0);
+ 
+ 	while (index < size) {
+-		int next_bit = find_next_bit(map, size, index + nr);
++		unsigned long next_bit = find_next_bit(map, size, index + nr);
+ 		if ((next_bit - index) < len) {
+ 			len = next_bit - index;
+ 			start_bit = index;
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index cbe3fdba4a2c..aa4c045587d1 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -292,7 +292,7 @@ __be32 fib_compute_spec_dst(struct sk_buff *skb)
+ 			.flowi4_iif = LOOPBACK_IFINDEX,
+ 			.flowi4_oif = l3mdev_master_ifindex_rcu(dev),
+ 			.daddr = ip_hdr(skb)->saddr,
+-			.flowi4_tos = RT_TOS(ip_hdr(skb)->tos),
++			.flowi4_tos = ip_hdr(skb)->tos & IPTOS_RT_MASK,
+ 			.flowi4_scope = scope,
+ 			.flowi4_mark = vmark ? skb->mark : 0,
+ 		};
+diff --git a/net/ncsi/ncsi-rsp.c b/net/ncsi/ncsi-rsp.c
+index 087db775b3dc..c973d88e9ea7 100644
+--- a/net/ncsi/ncsi-rsp.c
++++ b/net/ncsi/ncsi-rsp.c
+@@ -975,7 +975,7 @@ int ncsi_rcv_rsp(struct sk_buff *skb, struct net_device *dev,
+ 	int payload, i, ret;
+ 
+ 	/* Find the NCSI device */
+-	nd = ncsi_find_dev(dev);
++	nd = ncsi_find_dev(orig_dev);
+ 	ndp = nd ? TO_NCSI_DEV_PRIV(nd) : NULL;
+ 	if (!ndp)
+ 		return -ENODEV;
+diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
+index d32fd6b036bf..a4bd2d3a4821 100644
+--- a/net/netfilter/ipset/ip_set_hash_gen.h
++++ b/net/netfilter/ipset/ip_set_hash_gen.h
+@@ -113,20 +113,6 @@ htable_size(u8 hbits)
+ 	return hsize * sizeof(struct hbucket *) + sizeof(struct htable);
+ }
+ 
+-/* Compute htable_bits from the user input parameter hashsize */
+-static u8
+-htable_bits(u32 hashsize)
+-{
+-	/* Assume that hashsize == 2^htable_bits */
+-	u8 bits = fls(hashsize - 1);
+-
+-	if (jhash_size(bits) != hashsize)
+-		/* Round up to the first 2^n value */
+-		bits = fls(hashsize);
+-
+-	return bits;
+-}
+-
+ #ifdef IP_SET_HASH_WITH_NETS
+ #if IPSET_NET_COUNT > 1
+ #define __CIDR(cidr, i)		(cidr[i])
+@@ -1309,7 +1295,11 @@ IPSET_TOKEN(HTYPE, _create)(struct net *net, struct ip_set *set,
+ 	get_random_bytes(&h->initval, sizeof(h->initval));
+ 	set->timeout = IPSET_NO_TIMEOUT;
+ 
+-	hbits = htable_bits(hashsize);
++	/* Compute htable_bits from the user input parameter hashsize.
++	 * Assume that hashsize == 2^htable_bits,
++	 * otherwise round up to the first 2^n value.
++	 */
++	hbits = fls(hashsize - 1);
+ 	hsize = htable_size(hbits);
+ 	if (hsize == 0) {
+ 		kfree(h);
+diff --git a/net/netfilter/xt_RATEEST.c b/net/netfilter/xt_RATEEST.c
+index 92cfae66743b..1076b8a50d00 100644
+--- a/net/netfilter/xt_RATEEST.c
++++ b/net/netfilter/xt_RATEEST.c
+@@ -106,6 +106,9 @@ static int xt_rateest_tg_checkentry(const struct xt_tgchk_param *par)
+ 	} cfg;
+ 	int ret;
+ 
++	if (strnlen(info->name, sizeof(est->name)) >= sizeof(est->name))
++		return -ENAMETOOLONG;
++
+ 	net_get_random_once(&jhash_rnd, sizeof(jhash_rnd));
+ 
+ 	mutex_lock(&xt_rateest_mutex);
+diff --git a/net/sched/sch_choke.c b/net/sched/sch_choke.c
+index d13e1de0b3a2..2fb79c245f3f 100644
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -425,7 +425,7 @@ static int choke_change(struct Qdisc *sch, struct nlattr *opt)
+ 
+ 	ctl = nla_data(tb[TCA_CHOKE_PARMS]);
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > CHOKE_MAX_QUEUE)
+diff --git a/net/sched/sch_gred.c b/net/sched/sch_gred.c
+index 729c0e4eca21..d86a96313981 100644
+--- a/net/sched/sch_gred.c
++++ b/net/sched/sch_gred.c
+@@ -356,7 +356,7 @@ static inline int gred_change_vq(struct Qdisc *sch, int dp,
+ 	struct gred_sched *table = qdisc_priv(sch);
+ 	struct gred_sched_data *q = table->tab[dp];
+ 
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (!q) {
+diff --git a/net/sched/sch_red.c b/net/sched/sch_red.c
+index 4610d44f58d3..797895bddcfd 100644
+--- a/net/sched/sch_red.c
++++ b/net/sched/sch_red.c
+@@ -184,7 +184,7 @@ static int red_change(struct Qdisc *sch, struct nlattr *opt)
+ 	max_P = tb[TCA_RED_MAX_P] ? nla_get_u32(tb[TCA_RED_MAX_P]) : 0;
+ 
+ 	ctl = nla_data(tb[TCA_RED_PARMS]);
+-	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog))
++	if (!red_check_params(ctl->qth_min, ctl->qth_max, ctl->Wlog, ctl->Scell_log))
+ 		return -EINVAL;
+ 
+ 	if (ctl->limit > 0) {
+diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
+index 633e237a406c..69a5fffed86c 100644
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -645,7 +645,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
+ 	}
+ 
+ 	if (ctl_v1 && !red_check_params(ctl_v1->qth_min, ctl_v1->qth_max,
+-					ctl_v1->Wlog))
++					ctl_v1->Wlog, ctl_v1->Scell_log))
+ 		return -EINVAL;
+ 	if (ctl_v1 && ctl_v1->qth_min) {
+ 		p = kmalloc(sizeof(*p), GFP_KERNEL);
+diff --git a/scripts/depmod.sh b/scripts/depmod.sh
+index baedaef53ca0..b0cb89e73bc5 100755
+--- a/scripts/depmod.sh
++++ b/scripts/depmod.sh
+@@ -14,6 +14,8 @@ if ! test -r System.map ; then
+ 	exit 0
+ fi
+ 
++# legacy behavior: "depmod" in /sbin, no /sbin in PATH
++PATH="$PATH:/sbin"
+ if [ -z $(command -v $DEPMOD) ]; then
+ 	echo "Warning: 'make modules_install' requires $DEPMOD. Please install it." >&2
+ 	echo "This is probably in the kmod package." >&2
+diff --git a/scripts/gdb/linux/dmesg.py b/scripts/gdb/linux/dmesg.py
+index f9b92ece7834..6d2e09a2ad2f 100644
+--- a/scripts/gdb/linux/dmesg.py
++++ b/scripts/gdb/linux/dmesg.py
+@@ -12,6 +12,7 @@
+ #
+ 
+ import gdb
++import sys
+ 
+ from linux import utils
+ 
+@@ -23,10 +24,11 @@ class LxDmesg(gdb.Command):
+         super(LxDmesg, self).__init__("lx-dmesg", gdb.COMMAND_DATA)
+ 
+     def invoke(self, arg, from_tty):
+-        log_buf_addr = int(str(gdb.parse_and_eval("log_buf")).split()[0], 16)
+-        log_first_idx = int(gdb.parse_and_eval("log_first_idx"))
+-        log_next_idx = int(gdb.parse_and_eval("log_next_idx"))
+-        log_buf_len = int(gdb.parse_and_eval("log_buf_len"))
++        log_buf_addr = int(str(gdb.parse_and_eval(
++            "(void *)'printk.c'::log_buf")).split()[0], 16)
++        log_first_idx = int(gdb.parse_and_eval("'printk.c'::log_first_idx"))
++        log_next_idx = int(gdb.parse_and_eval("'printk.c'::log_next_idx"))
++        log_buf_len = int(gdb.parse_and_eval("'printk.c'::log_buf_len"))
+ 
+         inf = gdb.inferiors()[0]
+         start = log_buf_addr + log_first_idx
+@@ -51,13 +53,19 @@ class LxDmesg(gdb.Command):
+                 continue
+ 
+             text_len = utils.read_u16(log_buf[pos + 10:pos + 12])
+-            text = log_buf[pos + 16:pos + 16 + text_len].decode()
++            text = log_buf[pos + 16:pos + 16 + text_len].decode(
++                encoding='utf8', errors='replace')
+             time_stamp = utils.read_u64(log_buf[pos:pos + 8])
+ 
+             for line in text.splitlines():
+-                gdb.write("[{time:12.6f}] {line}\n".format(
++                msg = u"[{time:12.6f}] {line}\n".format(
+                     time=time_stamp / 1000000000.0,
+-                    line=line))
++                    line=line)
++                # With python2 gdb.write will attempt to convert unicode to
++                # ascii and might fail so pass an utf8-encoded str instead.
++                if sys.hexversion < 0x03000000:
++                    msg = msg.encode(encoding='utf8', errors='replace')
++                gdb.write(msg)
+ 
+             pos += length
+ 
+diff --git a/scripts/gdb/linux/proc.py b/scripts/gdb/linux/proc.py
+index 38b1f09d1cd9..822e3767bc05 100644
+--- a/scripts/gdb/linux/proc.py
++++ b/scripts/gdb/linux/proc.py
+@@ -40,7 +40,7 @@ class LxVersion(gdb.Command):
+ 
+     def invoke(self, arg, from_tty):
+         # linux_banner should contain a newline
+-        gdb.write(gdb.parse_and_eval("linux_banner").string())
++        gdb.write(gdb.parse_and_eval("(char *)linux_banner").string())
+ 
+ LxVersion()
+ 
+diff --git a/sound/pci/hda/patch_conexant.c b/sound/pci/hda/patch_conexant.c
+index 1e99500dbb6c..f7797e546e3d 100644
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -1001,6 +1001,7 @@ static int patch_conexant_auto(struct hda_codec *codec)
+ static const struct hda_device_id snd_hda_id_conexant[] = {
+ 	HDA_CODEC_ENTRY(0x14f11f86, "CX8070", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
++	HDA_CODEC_ENTRY(0x14f120d0, "CX11970", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15045, "CX20549 (Venice)", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15047, "CX20551 (Waikiki)", patch_conexant_auto),
+ 	HDA_CODEC_ENTRY(0x14f15051, "CX20561 (Hermosa)", patch_conexant_auto),
+diff --git a/sound/usb/midi.c b/sound/usb/midi.c
+index b8d4b5b3e54a..ea264727fdf7 100644
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1867,6 +1867,8 @@ static int snd_usbmidi_get_ms_info(struct snd_usb_midi *umidi,
+ 		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
+ 		if (!ms_ep)
+ 			continue;
++		if (ms_ep->bNumEmbMIDIJack > 0x10)
++			continue;
+ 		if (usb_endpoint_dir_out(ep)) {
+ 			if (endpoints[epidx].out_ep) {
+ 				if (++epidx >= MIDI_MAX_ENDPOINTS) {
+@@ -2119,6 +2121,8 @@ static int snd_usbmidi_detect_roland(struct snd_usb_midi *umidi,
+ 		    cs_desc[1] == USB_DT_CS_INTERFACE &&
+ 		    cs_desc[2] == 0xf1 &&
+ 		    cs_desc[3] == 0x02) {
++			if (cs_desc[4] > 0x10 || cs_desc[5] > 0x10)
++				continue;
+ 			endpoint->in_cables  = (1 << cs_desc[4]) - 1;
+ 			endpoint->out_cables = (1 << cs_desc[5]) - 1;
+ 			return snd_usbmidi_detect_endpoints(umidi, endpoint, 1);
