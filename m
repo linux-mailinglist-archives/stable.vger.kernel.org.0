@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91092F3081
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3015C2F3086
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726478AbhALNGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:06:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53840 "EHLO mail.kernel.org"
+        id S1727513AbhALNGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:06:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405157AbhALM6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2405144AbhALM6X (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:58:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 044302311D;
-        Tue, 12 Jan 2021 12:57:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49BE223117;
+        Tue, 12 Jan 2021 12:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456259;
-        bh=WTkWjyPZt28cdMbv407S9n9NIkZVC3x3hlm1XohUOyU=;
+        s=k20201202; t=1610456261;
+        bh=sssGw7VAmhQ9zYNCAgQ46mvt8+d/n+n3c7UnO0Lb+nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kMmXJzZtI6xVXoIEB1nVkYHpZGPh/iGqppjEkC7dWdqQjUPcgOlL7Iq4HoVlmHP2F
-         YtsGXwGLoqU9LMjG6DACzD0y9vq468HjrKdGd7o79WgeQV0cOG85cHELGl8IzdpT4y
-         DNhP2npDHA9QS0ZCNn6Fm/e/Hz7Vyoy3+TWaI7fGCYolG/w9XW60WigeHgkYS58pCs
-         M/hGkovo5H2mOBCt+2K2qJT/ZLX5T1ucLRloWbpsDjGxSvy4Ite2LBkaoDk+P7uvMg
-         K04PF9D4C2ClWk8QYN5vap+pC4LY9ShECZqPymAMipZpGLsqwZit9OfVu0syNF580q
-         rW2WuWFShG2vg==
+        b=AE9Yd8Qhy1aRMVrVDvfq6TCi/F3YCsjIqijXRNv345W+hhyPUdTYv2VeYj9FskuL0
+         oWabOGotxWIs/6o3+MCZkGtpwTLRqKIZ5MENdB2qvu7tnq7eID9DVYHpku6euybuDU
+         a4r4eiGl4KWuHcll7Mt6dlz/tytksRbW5x/z26LXEsGWljlwyZlXBvkL452P+lNdJd
+         n2rWLlFFBvgOJntroKndrNfs+/wJBZ8GDe6U57jS6aFGpV1o5Q+yod+EP0nY+amsZp
+         A/yWRB+9d0q6dLT/ek402SSXsejM5sD0FPNQs9yoyEs5DxkZVc0rZljkWpNnVnI+LO
+         0FpxWegUNgJjA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 10/16] bfq: Fix computation of shallow depth
-Date:   Tue, 12 Jan 2021 07:57:19 -0500
-Message-Id: <20210112125725.71014-10-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        linux-snps-arc@lists.infradead.org,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/16] arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
+Date:   Tue, 12 Jan 2021 07:57:20 -0500
+Message-Id: <20210112125725.71014-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125725.71014-1-sashal@kernel.org>
 References: <20210112125725.71014-1-sashal@kernel.org>
@@ -41,56 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a ]
+[ Upstream commit 8a48c0a3360bf2bf4f40c980d0ec216e770e58ee ]
 
-BFQ computes number of tags it allows to be allocated for each request type
-based on tag bitmap. However it uses 1 << bitmap.shift as number of
-available tags which is wrong. 'shift' is just an internal bitmap value
-containing logarithm of how many bits bitmap uses in each bitmap word.
-Thus number of tags allowed for some request types can be far to low.
-Use proper bitmap.depth which has the number of tags instead.
+fs/dax.c uses copy_user_page() but ARC does not provide that interface,
+resulting in a build error.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Provide copy_user_page() in <asm/page.h>.
+
+../fs/dax.c: In function 'copy_cow_page_dax':
+../fs/dax.c:702:2: error: implicit declaration of function 'copy_user_page'; did you mean 'copy_to_user_page'? [-Werror=implicit-function-declaration]
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: Dan Williams <dan.j.williams@intel.com>
+#Acked-by: Vineet Gupta <vgupta@synopsys.com> # v1
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-nvdimm@lists.01.org
+#Reviewed-by: Ira Weiny <ira.weiny@intel.com> # v2
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arc/include/asm/page.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 5198ed1b36690..b7ad8ac6bb41e 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5280,13 +5280,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * limit 'something'.
- 	 */
- 	/* no more than 50% of tags for async I/O */
--	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
-+	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
- 	/*
- 	 * no more than 75% of tags for sync writes (25% extra tags
- 	 * w.r.t. async I/O, to prevent async I/O from starving sync
- 	 * writes)
- 	 */
--	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
-+	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
+diff --git a/arch/arc/include/asm/page.h b/arch/arc/include/asm/page.h
+index 09ddddf71cc50..a70fef79c4055 100644
+--- a/arch/arc/include/asm/page.h
++++ b/arch/arc/include/asm/page.h
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
  
- 	/*
- 	 * In-word depths in case some bfq_queue is being weight-
-@@ -5296,9 +5296,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
- 	 * shortage.
- 	 */
- 	/* no more than ~18% of tags for async I/O */
--	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
-+	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
- 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
--	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
-+	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
+ #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
++#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ #define copy_page(to, from)		memcpy((to), (from), PAGE_SIZE)
  
- 	for (i = 0; i < 2; i++)
- 		for (j = 0; j < 2; j++)
+ struct vm_area_struct;
 -- 
 2.27.0
 
