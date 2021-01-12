@@ -2,120 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 951BA2F3F4E
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 01:46:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3BA2F3F95
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 01:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404252AbhALWPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 17:15:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53248 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2436751AbhALWO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 17:14:58 -0500
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C8CC061795
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 14:14:17 -0800 (PST)
-Received: by mail-ua1-x942.google.com with SMTP id n18so48714ual.9
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 14:14:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=1RnfXzLQWFI9+I9b5xs+bgVTeAXaEXQFbTpEt1knPmU=;
-        b=QUMYUx7j2p2IqILYKR5LODXC/y4Anh1xbiSCsaDkIuo9c97aRG+sIDS/f723f9KcAm
-         94a6Kux913nlyHyQBOLW54Cei1zyCeHT6eMnMCx6HyjPUsjGc0SWWwPCmW6fgCtqXBL/
-         LjD0vjdme/1Iw3pwE24dIxdpOV9h8WxqkwMA2ZTbBEIpiHushMd3a24in87rQw6KBFzm
-         LncpOK9oiX8ispG4IeL+eEU99o69k3aqMKgzxeI1yyvX5P29aKOVtLmtNyud/VfICHnq
-         td4uMurJBZO3L50EMtJuOjKCm1GTMftXfDmCLatxvlB8Ekn3c0QvBFU0aMWFuhblImX/
-         BsuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=1RnfXzLQWFI9+I9b5xs+bgVTeAXaEXQFbTpEt1knPmU=;
-        b=fR63Qcgx3dwb1Lve+j7q9I2RhDPBuCE41F08mH0r94FTnhPtgsZC2f0GUHW+Nsdrdr
-         pgv+cEmczZHDFJDcykpX+ZTEwsyMHX5tVHXj0neif2y2f/AsgGXgFaGnv34r8zd1wE2K
-         PswiUa9sZ/rwP6YL813KBAIKT334cBC61yDKppTCF7PuOHuMSFxPW+MAKrfLSaXW8aVf
-         Dsoum4u2m6LBQWahYHHle2jdYG70Q5smgVs/ASPZZxtX/piB/fqIp+qXMAdd7KIytH8q
-         wyjkKQ3XVcPG6XgpuQ5245w18E2IcctSnK3Yr+pnitmeFkKa3vobj+npSmXyjsLumsh7
-         Ma2Q==
-X-Gm-Message-State: AOAM530Ik9DGttVaV6NWo1dRWDzPb+hWtuMPC6n65Z5uMKemXHnI9qIJ
-        BfktZBb8LW7ntJ9ihxJ4XRUblyZTUeb5/euHKEI=
-X-Google-Smtp-Source: ABdhPJx3lilU732ibWAuE9MB1NVGr4SnsVmcar+sjCiqZtBHuvOaoqCl1SwrGpb6PvFH2h6E1QQcxGr1IwBoJnQ4dH4=
-X-Received: by 2002:ab0:6f97:: with SMTP id f23mr1513038uav.5.1610489656760;
- Tue, 12 Jan 2021 14:14:16 -0800 (PST)
-MIME-Version: 1.0
-Sender: missalicewarlord@gmail.com
-Received: by 2002:ab0:15c6:0:0:0:0:0 with HTTP; Tue, 12 Jan 2021 14:14:16
- -0800 (PST)
-From:   "Mrs. Nadia Emaan" <mrsnadiaemaan50@gmail.com>
-Date:   Tue, 12 Jan 2021 22:14:16 +0000
-X-Google-Sender-Auth: ZxPy4bHd54l5SwWYs8rQhnHQl8w
-Message-ID: <CAPGg-FF7qU65CC6-xf0=QkSHtLEHcm64AQunCX8nE14j5uf79g@mail.gmail.com>
-Subject: MAY THE PEACE OF GOD BE WITH YOU AND YOUR FAMILY,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1729455AbhALW2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 17:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57964 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2393152AbhALW2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 17:28:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D963C2312E;
+        Tue, 12 Jan 2021 22:27:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1610490446;
+        bh=LD2De/8Cv30EnmDeMrMimhErOSc4FsKTgEp/E78081w=;
+        h=Date:From:To:Subject:From;
+        b=gga0bl1TYEJb5b2yd7Y40NA681A9mV4NHYNW0jv025vcrM4l6tyxHbJtRUj9JcQEN
+         GAW6Pk/od59yzX1fTJeXC2a0tuhOQ+Dpit3lQ/XZM5cUj8qzw5rzmcRNhdu6Q/lU4s
+         rIq0eiy4vWKP7SR3YghWFUyMdn7GI2j4LCugVZEI=
+Date:   Tue, 12 Jan 2021 14:27:25 -0800
+From:   akpm@linux-foundation.org
+To:     mgorman@techsingularity.net, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, vbabka@suse.cz, wu-yan@tcl.com
+Subject:  + mm-compaction-move-high_pfn-to-the-for-loop-scope.patch
+ added to -mm tree
+Message-ID: <20210112222725.GdMhWf999%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-May God Bless you My beloved,
 
-I am contacting you through this means because I need your urgent
-assistance and also help me to carry a charity project in your
-country. I found your email address as a true child of God for past
-few days now that I have been praying to know if you are really the
-chosen one for this great charity project, according to God's
-direction, after all prayers I am convinced, and I have decided to
-contact you. Please, i want you use the funds for the Lord's work,
-with confidence, read and respond now.
+The patch titled
+     Subject: mm, compaction: move high_pfn to the for loop scope
+has been added to the -mm tree.  Its filename is
+     mm-compaction-move-high_pfn-to-the-for-loop-scope.patch
 
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-compaction-move-high_pfn-to-the-for-loop-scope.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-compaction-move-high_pfn-to-the-for-loop-scope.patch
 
-My name is Ms. Nadia Faroul Emaan , a widow, but currently based in West
-Africa since my life with my late husband, who was a businessman in
-this country before dying some years ago. We were married to many
-years without a child. He died after a brief illness that lasted only
-six days and I myself have been suffering from an ovarian cancer
-disease. At this moment I am about to finish the race in this way
-because the disease has reached a very bad stage, without any family
-member and without children. I hope you do not expose or betray this
-trust and I am sure that I am about to trust you for the mutual
-benefit of orphans and the less privileged. I have some funds that I
-inherited from my late husband, the total sum of ($ 12,500,000.00)
-deposited at a bank here in Burkina Faso. After knowing my current
-state of health, I decided to trust you with this fund, believing that
-you will use it in the way I will instruct here.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-you will use this $12.5 Million for public benefit as follows;
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-1. Establish An Orphanage Home To Help The Orphanages Children.
-2. Build A Hospital To Help The Poor.
-3. Build A Nursing Home For Elderly People Need Care & Meal.
+------------------------------------------------------
+From: Rokudo Yan <wu-yan@tcl.com>
+Subject: mm, compaction: move high_pfn to the for loop scope
 
-You will named them after my late husband.Therefore, I need you to
-help me and claim this money and use it for charities, for orphanages
-and provide justice and help to the poor, needy and to promote the
-words of God and the effort to maintain the house of God, according to
-the bible in the book of. Jeremiah 22: 15-16, not minding out
-different religions.
+In fast_isolate_freepages, high_pfn will be used if a prefered one(PFN >=
+low_fn) not found.  But the high_pfn is not reset before searching an free
+area, so when it was used as freepage, it may from another free area
+searched before.  And move_freelist_head(freelist, freepage) will have
+unexpected behavior(eg.  corrupt the MOVABLE freelist)
 
-It will be a pleasure to compensate with 40% percent of the total
-money for your effort in handling the transaction, while 60% of the
-money will go to charity project.
+Unable to handle kernel paging request at virtual address dead000000000200
+Mem abort info:
+  ESR = 0x96000044
+  Exception class = DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+Data abort info:
+  ISV = 0, ISS = 0x00000044
+  CM = 0, WnR = 1
+[dead000000000200] address between user and kernel address ranges
 
-All I need from you is sincerity and ability to complete the task of
-God without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund to your bank account in
-the country, even before I die here in the hospital, due to my current
-state of health, everything must be processed as soon as possible.
+-000|list_cut_before(inline)
+-000|move_freelist_head(inline)
+-000|fast_isolate_freepages(inline)
+-000|isolate_freepages(inline)
+-000|compaction_alloc(?, ?)
+-001|unmap_and_move(inline)
+-001|migrate_pages([NSD:0xFFFFFF80088CBBD0] from = 0xFFFFFF80088CBD88, [NSD:0xFFFFFF80088CBBC8] get_new_p
+-002|__read_once_size(inline)
+-002|static_key_count(inline)
+-002|static_key_false(inline)
+-002|trace_mm_compaction_migratepages(inline)
+-002|compact_zone(?, [NSD:0xFFFFFF80088CBCB0] capc = 0x0)
+-003|kcompactd_do_work(inline)
+-003|kcompactd([X19] p = 0xFFFFFF93227FBC40)
+-004|kthread([X20] _create = 0xFFFFFFE1AFB26380)
+-005|ret_from_fork(asm)
+---|end of frame
 
-I am waiting for your immediate response, if you are only interested
-in obtaining more details about the transaction and execution of this
-humanitarian project for the glory and honor of God.
+The issue was reported on an smart phone product with 6GB ram and 3GB zram
+as swap device.
 
-Sorry if you received this letter in your spam, is due to recent
-connection/network error here in the country.
+This patch fixes the issue by reset high_pfn before searching each free
+area, which ensure freepage and freelist match when call
+move_freelist_head in fast_isolate_freepages().
 
-Please I am waiting for your urgent reply now.
+Link: http://lkml.kernel.org/r/20190118175136.31341-12-mgorman@techsingularity.net
+Link: https://lkml.kernel.org/r/20210112094720.1238444-1-wu-yan@tcl.com
+Fixes: 5a811889de10f1eb ("mm, compaction: use free lists to quickly locate a migration target")
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-May God Bless you,
-Ms Nadia Faroul Emaan.
+ mm/compaction.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/mm/compaction.c~mm-compaction-move-high_pfn-to-the-for-loop-scope
++++ a/mm/compaction.c
+@@ -1342,7 +1342,7 @@ fast_isolate_freepages(struct compact_co
+ {
+ 	unsigned int limit = min(1U, freelist_scan_limit(cc) >> 1);
+ 	unsigned int nr_scanned = 0;
+-	unsigned long low_pfn, min_pfn, high_pfn = 0, highest = 0;
++	unsigned long low_pfn, min_pfn, highest = 0;
+ 	unsigned long nr_isolated = 0;
+ 	unsigned long distance;
+ 	struct page *page = NULL;
+@@ -1387,6 +1387,7 @@ fast_isolate_freepages(struct compact_co
+ 		struct page *freepage;
+ 		unsigned long flags;
+ 		unsigned int order_scanned = 0;
++		unsigned long high_pfn = 0;
+ 
+ 		if (!area->nr_free)
+ 			continue;
+_
+
+Patches currently in -mm which might be from wu-yan@tcl.com are
+
+mm-compaction-move-high_pfn-to-the-for-loop-scope.patch
+
