@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CDD82F3060
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F15E2F3067
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404336AbhALM57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54618 "EHLO mail.kernel.org"
+        id S2404514AbhALM6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 07:58:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403960AbhALM55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A10DA2388A;
-        Tue, 12 Jan 2021 12:56:58 +0000 (UTC)
+        id S2404403AbhALM6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:58:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA70D23121;
+        Tue, 12 Jan 2021 12:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456219;
-        bh=dXuMAfBKCBi2SX5HxRW7MZYwE9tglm8NkGuh2VHqTmo=;
+        s=k20201202; t=1610456220;
+        bh=kHChC0PX9AlMu3NdLHgFXYHYy+a+bM7w1VqarGp3qCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfQBFcrCAm0I6s7sdHRJxuv2LkXmomlrwb/tbELgq0FJ/dW7O45b/cubDijiDZHWL
-         4sr6BT2K3nqD5Yyc+6VhCGTZDdsQtrVur6keurVUUXJ3rMj8tLVKsk4UL1DT3JdzIV
-         pJ51EwH0WhPl/HXYTXSHQVuLF5CzBcNZvpukr9kuGARorOWHbCNpZWYAf0UiayB+fe
-         Ia7JElv2djSITnaic7wcZY/5OE1sHW/i8mkbWB6Np9M6jrMFbnxEgSKd9ugZTSNHdZ
-         iATEvm8N80V6Cfr788J6/F3AxJMS/+c6EQN27/NPmP233gshHwXvtvo9saWd6vmw5I
-         j84hLBIueIHDw==
+        b=fabJQ+N4wQelOYEhUNxx8/jEiPFerj2OB3rNTeoSadozwc3xl/WrOoPiGs6kP26eE
+         ceOgm2t5JdJ0RlMfNOXz00xQbHH76ZmkVkyuE6FSLn1arraZAfW18rb7x+nrKx7onf
+         OsFPiRC8SLASdxopjcK37AGDaM2KFeedAZD9rojRjBUSUQyyMwwCYTyG5NQOMzI4TX
+         I8EYItLwlspoJdj9goFVyjZdRTZZB+WpZho3lsw//apBdnZZtRnFSZvnXyEhrZeahn
+         XunntX2BnhVQbDZ8hQNoAavIIfqh0pF7i3i1u6zREN4lD1d8CSwFhcMtB96xqd9R50
+         ddmaotyGRr2Qw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oded Gabbay <ogabbay@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 10/28] habanalabs: register to pci shutdown callback
-Date:   Tue, 12 Jan 2021 07:56:26 -0500
-Message-Id: <20210112125645.70739-10-sashal@kernel.org>
+Cc:     Roland Dreier <roland@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/28] CDC-NCM: remove "connected" log message
+Date:   Tue, 12 Jan 2021 07:56:27 -0500
+Message-Id: <20210112125645.70739-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125645.70739-1-sashal@kernel.org>
 References: <20210112125645.70739-1-sashal@kernel.org>
@@ -40,33 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oded Gabbay <ogabbay@kernel.org>
+From: Roland Dreier <roland@kernel.org>
 
-[ Upstream commit fcaebc7354188b0d708c79df4390fbabd4d9799d ]
+[ Upstream commit 59b4a8fa27f5a895582ada1ae5034af7c94a57b5 ]
 
-We need to make sure our device is idle when rebooting a virtual
-machine. This is done in the driver level.
+The cdc_ncm driver passes network connection notifications up to
+usbnet_link_change(), which is the right place for any logging.
+Remove the netdev_info() duplicating this from the driver itself.
 
-The firmware will later handle FLR but we want to be extra safe and
-stop the devices until the FLR is handled.
+This stops devices such as my "TRENDnet USB 10/100/1G/2.5G LAN"
+(ID 20f4:e02b) adapter from spamming the kernel log with
 
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+    cdc_ncm 2-2:2.0 enp0s2u2c2: network connection: connected
+
+messages every 60 msec or so.
+
+Signed-off-by: Roland Dreier <roland@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20201224032116.2453938-1-roland@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/habanalabs_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/cdc_ncm.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/habanalabs_drv.c b/drivers/misc/habanalabs/habanalabs_drv.c
-index 8c342fb499ca6..ae50bd55f30af 100644
---- a/drivers/misc/habanalabs/habanalabs_drv.c
-+++ b/drivers/misc/habanalabs/habanalabs_drv.c
-@@ -443,6 +443,7 @@ static struct pci_driver hl_pci_driver = {
- 	.id_table = ids,
- 	.probe = hl_pci_probe,
- 	.remove = hl_pci_remove,
-+	.shutdown = hl_pci_remove,
- 	.driver.pm = &hl_pm_ops,
- };
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index c2c82e6391b4f..d407489cec904 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -1625,9 +1625,6 @@ static void cdc_ncm_status(struct usbnet *dev, struct urb *urb)
+ 		 * USB_CDC_NOTIFY_NETWORK_CONNECTION notification shall be
+ 		 * sent by device after USB_CDC_NOTIFY_SPEED_CHANGE.
+ 		 */
+-		netif_info(dev, link, dev->net,
+-			   "network connection: %sconnected\n",
+-			   !!event->wValue ? "" : "dis");
+ 		usbnet_link_change(dev, !!event->wValue, 0);
+ 		break;
  
 -- 
 2.27.0
