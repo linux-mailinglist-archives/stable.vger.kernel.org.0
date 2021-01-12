@@ -2,107 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F652F2E3A
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 12:45:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C149D2F2E3D
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 12:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728486AbhALLoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 06:44:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728404AbhALLoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 06:44:46 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 657C6C061575
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:44:05 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id b5so1497495pjk.2
-        for <stable@vger.kernel.org>; Tue, 12 Jan 2021 03:44:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YXgK4lRZ9KFIZd6/lO39RKwyKYxTIqhJvO9L+itxVOY=;
-        b=E1kst2tXTMFQJDZxPRDVfYPneeubPmbOWsFnTQkvuSZg5zvYvD5+0yEDnDF8qkN9BP
-         657+XVe9yrBS8clnMKfyqIIXgqpjvTu0N/NyQaNuLNJWORC4xiZaWRM9xjtlySkNwsM0
-         1sDaGLVgx0CnUDPNjy5TqE+G96ULAOU5uOPodXuDdidheJZcvoiodrTwOG2K7N0AaJnH
-         umaVi13EGBZKbAH1CAhghwHP3x+vry3WyI20ngDXJh+C2FhyftdlH/HWK9MzjKp0pWMC
-         DRZY1fbhTn3YmOVtsOhcJwHFwsJJ/S9l2vvD4t3E6RlAwaVvxDUgBHNNVU9uv28yAzAr
-         4JfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YXgK4lRZ9KFIZd6/lO39RKwyKYxTIqhJvO9L+itxVOY=;
-        b=rw4BT1ZAtvI38EU5C+KorI2NkgkUFIW27aw1F1EG/ZVVj44oMdWmmjWPdtmbgbwwnt
-         LgoipLij6VGrQnFcifutU0Wcx+X5iVn/yhlBvFM50OWNp7wnxDx2i1Ehk93bMGSMm5nu
-         z3m6e5k73xdsg0fKP8C8MTnsyYTdrrHGRUobSJEml/ARPZdQQ7NgMgG70Y8PNdGiEt3O
-         Xh8ts3d8IxNtJ5nbUiTcaGdoMWUHvMyncSsMoqPu1bDZQaJq/TCZpQMeAR+p6xdt1hTm
-         72OF6/scig0tXL2p5IwU3dkH5nvXxP8OT2fQyohbaNFPu41iyJBhCg4Jz4E9us7SpcXr
-         KIEA==
-X-Gm-Message-State: AOAM530YALgWrSq71X9CdmyTBp+ipQH+qlWSRS2U6V2M7zy4qnWBBIuS
-        JcR3yoeSGS7g0kd3v325Dp5st/4dSFgaAWX89t7aWw==
-X-Google-Smtp-Source: ABdhPJwhJTuvwURefw5F76iCXx8fAufBEOUt+yDBCmtfhDnc12TggdrqEgSGxOoLHs+vnRoKR3Pm9R4V3jihjOTSA1s=
-X-Received: by 2002:a17:90a:ba88:: with SMTP id t8mr4162139pjr.229.1610451844939;
- Tue, 12 Jan 2021 03:44:04 -0800 (PST)
+        id S1728431AbhALLpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 06:45:02 -0500
+Received: from m43-15.mailgun.net ([69.72.43.15]:48330 "EHLO
+        m43-15.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729258AbhALLpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 06:45:01 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1610451880; h=Content-Transfer-Encoding: Content-Type:
+ In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
+ Subject: Sender; bh=pDD5+cOOV+kq8coSojkQ9ER1nl8CFfyd8Ps/ttb8Gl0=; b=DAlNq3m56kueriJv1+piarBt32NMb0qo9vAvNgZvAxRkxCVsvgtafkVsBjFnc1JoXza8c0io
+ AihOuAb+GwCYOJcOwGF7rOPbIz65GWtch1MyozIklAXGrkVwDMyaKWKCUA1EVhy0IEk/IPJr
+ E5iiTESWLSxmBTFTaAtg9eW8uiA=
+X-Mailgun-Sending-Ip: 69.72.43.15
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n09.prod.us-east-1.postgun.com with SMTP id
+ 5ffd8b888fb3cda82f163e7c (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 12 Jan 2021 11:44:08
+ GMT
+Sender: vinmenon=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 78D49C43465; Tue, 12 Jan 2021 11:44:07 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        NICE_REPLY_A,SPF_FAIL autolearn=no autolearn_force=no version=3.4.0
+Received: from [192.168.1.4] (unknown [183.83.147.228])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: vinmenon)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 454D0C433ED;
+        Tue, 12 Jan 2021 11:43:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 454D0C433ED
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=vinmenon@codeaurora.org
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andy Lutomirski <luto@kernel.org>, Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>, ldufour@linux.vnet.ibm.com,
+        surenb@google.com
+References: <X+D0hTZCrWS3P5Pi@google.com>
+ <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+ <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
+ <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
+ <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
+ <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+From:   Vinayak Menon <vinmenon@codeaurora.org>
+Message-ID: <bfb1cbe6-a705-469d-c95a-776624817e33@codeaurora.org>
+Date:   Tue, 12 Jan 2021 17:13:57 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-References: <20210110124017.86750-1-songmuchun@bytedance.com>
- <20210110124017.86750-4-songmuchun@bytedance.com> <20210112100213.GK22493@dhcp22.suse.cz>
- <CAMZfGtVJVsuL39owkT+Sp8A7ywXJLhbiQ6zYgL9FKhqSeAvy=w@mail.gmail.com> <20210112111712.GN22493@dhcp22.suse.cz>
-In-Reply-To: <20210112111712.GN22493@dhcp22.suse.cz>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Tue, 12 Jan 2021 19:43:21 +0800
-Message-ID: <CAMZfGtWt5+03Pne9QjLn53kqUbZWSmi0f-iEOisHO6LjohdXFA@mail.gmail.com>
-Subject: Re: [External] Re: [PATCH v3 3/6] mm: hugetlb: fix a race between
- freeing and dissolving the page
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-GB
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 12, 2021 at 7:17 PM Michal Hocko <mhocko@suse.com> wrote:
+On 1/5/2021 9:07 PM, Peter Zijlstra wrote:
+> On Mon, Dec 21, 2020 at 08:16:11PM -0800, Linus Torvalds wrote:
 >
-> On Tue 12-01-21 18:13:02, Muchun Song wrote:
-> > On Tue, Jan 12, 2021 at 6:02 PM Michal Hocko <mhocko@suse.com> wrote:
-> > >
-> > > On Sun 10-01-21 20:40:14, Muchun Song wrote:
-> > > [...]
-> > > > @@ -1770,6 +1788,14 @@ int dissolve_free_huge_page(struct page *page)
-> > > >               int nid = page_to_nid(head);
-> > > >               if (h->free_huge_pages - h->resv_huge_pages == 0)
-> > > >                       goto out;
-> > > > +
-> > > > +             /*
-> > > > +              * We should make sure that the page is already on the free list
-> > > > +              * when it is dissolved.
-> > > > +              */
-> > > > +             if (unlikely(!PageHugeFreed(head)))
-> > > > +                     goto out;
-> > > > +
-> > >
-> > > Do you really want to report EBUSY in this case? This doesn't make much
-> > > sense to me TBH. I believe you want to return 0 same as when you race
-> > > and the page is no longer PageHuge.
-> >
-> > Return 0 is wrong. Because the page is not freed to the buddy allocator.
-> > IIUC, dissolve_free_huge_page returns 0 when the page is already freed
-> > to the buddy allocator. Right?
+>> So I think the basic rule is that "if you hold mmap_sem for writing,
+>> you're always safe". And that really should be considered the
+>> "default" locking.
+>>
+>> ANY time you make a modification to the VM layer, you should basically
+>> always treat it as a write operation, and get the mmap_sem for
+>> writing.
+>>
+>> Yeah, yeah, that's a bit simplified, and it ignores various special
+>> cases (and the hardware page table walkers that obviously take no
+>> locks at all), but if you hold the mmap_sem for writing you won't
+>> really race with anything else - not page faults, and not other
+>> "modify this VM".
+>> To a first approximation, everybody that changes the VM should take
+>> the mmap_sem for writing, and the readers should just be just about
+>> page fault handling (and I count GUP as "page fault handling" too -
+>> it's kind of the same "look up page" rather than "modify vm" kind of
+>> operation).
+>>
+>> And there are just a _lot_ more page faults than there are things that
+>> modify the page tables and the vma's.
+>>
+>> So having that mental model of "lookup of pages in a VM take mmap_semn
+>> for reading, any modification of the VM uses it for writing" makes
+>> sense both from a performance angle and a logical standpoint. It's the
+>> correct model.
+>> And it's worth noting that COW is still "lookup of pages", even though
+>> it might modify the page tables in the process. The same way lookup
+>> can modify the page tables to mark things accessed or dirty.
+>>
+>> So COW is still a lookup operation, in ways that "change the
+>> writabiility of this range" very much is not. COW is "lookup for
+>> write", and the magic we do to copy to make that write valid is still
+>> all about the lookup of the page.
+> (your other email clarified this point; the COW needs to copy while
+> holding the PTL and we need TLBI under PTL if we're to change this)
 >
-> 0 is return when the page is either dissolved or it doesn't need
-> dissolving. If there is a race with somebody else freeing the page then
-> there is nothing to dissolve. Under which condition it makes sense to
-> report the failure and/or retry dissolving?
+>> Which brings up another mental mistake I saw earlier in this thread:
+>> you should not think "mmap_sem is for vma, and the page table lock is
+>> for the page table changes".
+>>
+>> mmap_sem is the primary lock for any modifications to the VM layout,
+>> whether it be in the vma's or in the page tables.
+>>
+>> Now, the page table lock does exist _in_addition_to_ the mmap_sem, but
+>> it is partly because
+>>
+>>   (a) we have things that historically walked the page tables _without_
+>> walking the vma's (notably the virtual memory scanning)
+>>
+>>   (b) we do allow concurrent page faults, so we then need a lower-level
+>> lock to serialize the parallelism we _do_ have.
+> And I'm thinking the speculative page fault series steps right into all
+> this, it fundamentally avoids mmap_sem and entirely relies on the PTL.
+>
+> Which opens it up to exactly these races explored here.
+>
+> The range lock approach does not suffer this, but I'm still worried
+> about the actual performance of that thing.
 
-If there is a race with somebody else freeing the page, the page
-can be freed to the hugepage pool not the buddy allocator. Do
-you think that this page is dissolved?
 
-> --
-> Michal Hocko
-> SUSE Labs
+Some thoughts on why there may not be an issue with speculative page fault.
+Adding Laurent as well.
+
+Possibility of race against other PTE modifiers
+
+1) Fork - We have seen a case of SPF racing with fork marking PTEs RO 
+and that
+is described and fixed here https://lore.kernel.org/patchwork/patch/1062672/
+2) mprotect - change_protection in mprotect which does the deferred flush is
+marked under vm_write_begin/vm_write_end, thus SPF bails out on faults 
+on those VMAs.
+3) userfaultfd - mwriteprotect_range is not protected unlike in (2) above.
+But SPF does not take UFFD faults.
+4) hugetlb - hugetlb_change_protection - called from mprotect and covered by
+(2) above.
+5) Concurrent faults - SPF does not handle all faults. Only anon page 
+faults.
+Of which do_anonymous_page and do_swap_page are NONE/NON-PRESENT->PRESENT
+transitions without tlb flush. And I hope do_wp_page with RO->RW is fine 
+as well.
+I could not see a case where speculative path cannot see a PTE update 
+done via
+a fault on another CPU.
+
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, hosted by The Linux Foundation
+
