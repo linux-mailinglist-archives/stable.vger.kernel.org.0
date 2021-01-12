@@ -2,113 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33722F287E
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 07:49:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A0D2F2891
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 07:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730595AbhALGtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 01:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
+        id S2388257AbhALGwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 01:52:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729891AbhALGtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 01:49:04 -0500
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2EEC061575;
-        Mon, 11 Jan 2021 22:48:23 -0800 (PST)
-Received: by mail-lj1-x22f.google.com with SMTP id m13so1611710ljo.11;
-        Mon, 11 Jan 2021 22:48:23 -0800 (PST)
+        with ESMTP id S2387836AbhALGwc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 01:52:32 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25988C061575
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 22:51:52 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id jx16so1915843ejb.10
+        for <stable@vger.kernel.org>; Mon, 11 Jan 2021 22:51:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=y6E8pJAG2xNBc207S+ylj91Gue5AgH8ypGOMKjlMFkg=;
-        b=TfqXdSK2nUn8Ilb5i0ApAX3yamw5Gh+PXZ9+051NRsoZ3rZXgAcLS5mZ9hPUP+6cQK
-         Qnc38xo6NCOor8W1s4FhxxRwz+gmZm2X6IE9AXSh5zwVbGPnDff7MWfeOZ6Iizji0T0N
-         GOjfav5/i3pMne9g0b/77IM/DFGzX+TINJvzAisnAOOwQ60xHpKJN6SqcZ1Dy20A7Jto
-         SbweUE40q1aO9ItN0JtpxAqnodAVeRTxjvV0NGRneVtN7LTXNm7xFD1OQodTt9QbGp7Q
-         aVLC2CZvoH/tf5tdcI6lE1JB8Kuyxy4c4TLciAHRVtTGFn+9pPprdW4Lw6e2sgcIdiEa
-         JyPw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=z+c5bYfh/67BCaPtpPIY8Cp/tFxWK5rm6TOabXYygI0=;
+        b=SbkHmgYnaFO0Da1UpFnG8FstJZZuXcINBwxlKLxwNwlCPNt72aXP6yzJM62GIgsSZ1
+         FAFnsnn7qCXJGfdRXe/5F+letv0dBLCy+WWaGtFfS/ZzdKpCeqt/UNdACIkR6luQap4D
+         gPUz5lJH1Gr/efDVOAQsthPRGIjxp1egAXo2eBd41FKjliAAjx4kI5k2kY4t4vPfBkT/
+         +DmdCyXsDNkV0XutiG0x2DfrBM/M6ZMMf/a4DsNBn4YDNk4QEzvAx4q8g5DKdk2utIFm
+         NLtIhvtC0mgNSSUOeyFcxsAPohAoxrI1g/jFXEjUZGnrkyIDY7fjjNjf8m3gup128bO9
+         BWog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=y6E8pJAG2xNBc207S+ylj91Gue5AgH8ypGOMKjlMFkg=;
-        b=NHTqkTxAEK8CnJPhUF/vJyWDEs/WwsZCudSjAWVY5oV/5sNBs/nW5Lo0UtTxOymW/h
-         rWTZAZAokM0G1z9GP0QMvevNxv5Uwv2JLg1xrkHm7aDlc+imo3pXM2DnXlLHLAMJeyHR
-         61QirU/NFlYdrBGPjpzZ/fWCOLC77HKQXZsReqewzQdAe3PkvmYYW3GZX9f6+wh1DFEN
-         h2YVmv8P0toHHGyLvw0cVzvoqvN0UPpasPnfo6G/AIyeKTe9Tzi1Ue8wgaWOKmX8BxeH
-         4TebwEjTVNDeH0uzEwhaOOZa/OoLQExlJXplNT+i/TS0ZjnkvEtxGXCl+Za7O/wOkiEi
-         ngVQ==
-X-Gm-Message-State: AOAM53313TgnYP0d9kaS8adgRztXTUrjwQtFbqbNbaMgFC0scOIbA0+f
-        z8hxdNOtDuXCVIYNaB6WICRP+Z/9GbU=
-X-Google-Smtp-Source: ABdhPJyQQ3QGu8coMULH0iUFbesygnM5VHn9NN8VGXF8Mqd2Lf05odYHvGCEaLFhQ7covX6IIgM2xA==
-X-Received: by 2002:a2e:8250:: with SMTP id j16mr1455053ljh.354.1610434102294;
-        Mon, 11 Jan 2021 22:48:22 -0800 (PST)
-Received: from [192.168.2.145] (109-252-192-57.dynamic.spd-mgts.ru. [109.252.192.57])
-        by smtp.googlemail.com with ESMTPSA id s8sm273037lfi.21.2021.01.11.22.48.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Jan 2021 22:48:21 -0800 (PST)
-Subject: Re: [PATCH v2] i2c: tegra: Wait for config load atomically while in
- ISR
-From:   Dmitry Osipenko <digetx@gmail.com>
-To:     Mikko Perttunen <mperttunen@nvidia.com>, ldewangan@nvidia.com,
-        thierry.reding@gmail.com, jonathanh@nvidia.com, wsa@kernel.org
-Cc:     linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210111160832.3669873-1-mperttunen@nvidia.com>
- <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
-Message-ID: <cb37f001-da0d-fcef-dea8-258caf5687fe@gmail.com>
-Date:   Tue, 12 Jan 2021 09:48:20 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=z+c5bYfh/67BCaPtpPIY8Cp/tFxWK5rm6TOabXYygI0=;
+        b=PZWAI+9ZZhSgm6EJFpUC8V7Cc6VJDEMrlKCx4AW46i6yLWHroEKxUPI1Gvadrc84nX
+         pbfrTtUO4FAEwHaJaXrdfW9bAs6XFH/4l8u/TORN16fycy+NUVY0O2bdc9sLJE0p0iiK
+         oMdfzb4iHLNzF9b7Ky5j1wpcyat2E+OwT/s3gzoFEGv5vYgJkqPcD2Fy/5DLoqJUEe7s
+         v+JZTWxMgFr5gP8r8BkJkGcAkJV5XcAvshjx2QtSkvVFRly2e1dxTbGju776HVX7D9C3
+         6kFz0Q78vebVE71i9F4s38eTLbtMj/h5KeFrX5Z+bCTCYFxZ3LTSI4CJFGFkswwGYTtK
+         C1IQ==
+X-Gm-Message-State: AOAM532Mng1EPfxhO8tIsH+yMlloic0m2a4gjluWRyn1HvGpMVVF9QY3
+        9reeJf8QpYdseOFBV862zSihgRswRwpkL1qwzjfMuTlt+HtIlFWC
+X-Google-Smtp-Source: ABdhPJyrT2OM1dghokFc/SpNR1HOfB57rndheYACgmEIIMJ7zu/RgxJANbau3/Qr7Idf16ieu0HKUYiK0DAs20usWSs=
+X-Received: by 2002:a17:906:2695:: with SMTP id t21mr2283824ejc.287.1610434310650;
+ Mon, 11 Jan 2021 22:51:50 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <a3b6944a-7c1e-54bf-664d-0ee6a6de4deb@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20210111161510.602817176@linuxfoundation.org>
+In-Reply-To: <20210111161510.602817176@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 12 Jan 2021 12:21:39 +0530
+Message-ID: <CA+G9fYsYyW+eC3oBJeV+cT6WSuagxwo2qFjdzF7YbXinumJxEA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/144] 5.10.7-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-11.01.2021 22:31, Dmitry Osipenko пишет:
-> 11.01.2021 19:08, Mikko Perttunen пишет:
->> Upon a communication error, the interrupt handler can call
->> tegra_i2c_disable_packet_mode. This causes a sleeping poll to happen
->> unless the current transaction was marked atomic. Fix this by
->> making the poll happen atomically if we are in an IRQ.
->>
->> This matches the behavior prior to the patch mentioned
->> in the Fixes tag.
->>
->> Fixes: ede2299f7101 ("i2c: tegra: Support atomic transfers")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
->> ---
->> v2:
->> * Use in_irq() instead of passing a flag from the ISR.
->>   Thanks to Dmitry for the suggestion.
->> * Update commit message.
->> ---
->>  drivers/i2c/busses/i2c-tegra.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
->> index 6f08c0c3238d..0727383f4940 100644
->> --- a/drivers/i2c/busses/i2c-tegra.c
->> +++ b/drivers/i2c/busses/i2c-tegra.c
->> @@ -533,7 +533,7 @@ static int tegra_i2c_poll_register(struct tegra_i2c_dev *i2c_dev,
->>  	void __iomem *addr = i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg);
->>  	u32 val;
->>  
->> -	if (!i2c_dev->atomic_mode)
->> +	if (!i2c_dev->atomic_mode && !in_irq())
->>  		return readl_relaxed_poll_timeout(addr, val, !(val & mask),
->>  						  delay_us, timeout_us);
->>  
->>
-> 
-> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> 
+On Mon, 11 Jan 2021 at 21:44, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.7 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 13 Jan 2021 16:14:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.7-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Perhaps a follow up change could be to use a threaded interrupt context,
-I'll type a patch for that.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.10.7-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.10.y
+git commit: 0ea94a3ff7f854eb84150ee1f9d6a111d978c0ec
+git describe: v5.10.6-145-g0ea94a3ff7f8
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
+.y/build/v5.10.6-145-g0ea94a3ff7f8
+
+No regressions (compared to build v5.10.6)
+
+No fixes (compared to build v5.10.6)
+
+Ran 60294 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* fwts
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-ipc-tests
+* ltp-sched-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* v4l2-compliance
+* kvm-unit-tests
+* kunit
+* rcutorture
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
