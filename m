@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB04F2F3076
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:15:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D39B52F3046
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405176AbhALM6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:58:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53866 "EHLO mail.kernel.org"
+        id S1726416AbhALNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:05:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405164AbhALM6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:58:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45BC023139;
-        Tue, 12 Jan 2021 12:57:46 +0000 (UTC)
+        id S2405259AbhALM63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:58:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB26523134;
+        Tue, 12 Jan 2021 12:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456267;
-        bh=6e72mQQeOkpy6P1S4ZJ1L+Rw9IbGA/l+p3Ag9iSANpU=;
+        s=k20201202; t=1610456268;
+        bh=0fZrqeaQI5oNVvde9YUuw/gZzoU6MMBg+IyS7AGureM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDMycp2NsPEZh4T4WEa2vVqAQdI0HDAwOdkuMrhNtcjvoFVk5YvbahxXkR5lLgkCc
-         SDRV5xq9gzwBOXNymEnruKe30lmBo4lalEYp9LizkFNwdMeLtRLS2Cz4yRDkEzLS1W
-         WPuUOAP1/xYovgf3OP7xoaPWjOLNIeyrsdBOMAwVWeGxwAVoZGAeYhuNJ7WMLxAC9p
-         /baoKrdyhSFSGqgEKT8rbysnXLKT3WRm/SmxtogAf67NTMj+AFQbq0pFMRQMHF+XHZ
-         f8oE6l5SMqqhVb8EHnp2qqE4qa5rijV/b4571Ene5hWAx2BXmOrLIMFken2DyV4nlw
-         zlDHLuQ4I8iXQ==
+        b=fzI6a6cCJk8q4vkmbVVW0/WndLi21UuWvXeTrLcuaaPON61Gf8++wAMCvUzc4Q1wT
+         Wlk4xLYvp0hyYLMchoVmJGFpEYilqN32g3N/8DsN3Bls9oDqL+5OHhZfAnz0yTxsnW
+         8H99PUhDCFA/e7v48v33K+cICRXf+EZjJK9Gdi1mG8huBI2hizFI4YPH3LM6ryttl2
+         VmolHFZcxxHy9DLAjmhrDn2WbSPamjF936gGoJZ1jG4RtuoQEMCoZjSAOfdSV5EaZL
+         Y5qIeWr5OQ9RDewsRcwomek/xkKrZuehsMTqKlpoWhzrS6YNqV7y3RCGixhUVprL4z
+         yQQGGKYl1vSBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Craig Tatlor <ctatlor97@gmail.com>,
-        Brian Masney <masneyb@onstation.org>,
-        Alexey Minnekhanov <alexeymin@postmarketos.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 15/16] drm/msm: Call msm_init_vram before binding the gpu
-Date:   Tue, 12 Jan 2021 07:57:24 -0500
-Message-Id: <20210112125725.71014-15-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Jamie Iles <jamie@jamieiles.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 16/16] ARM: picoxcell: fix missing interrupt-parent properties
+Date:   Tue, 12 Jan 2021 07:57:25 -0500
+Message-Id: <20210112125725.71014-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125725.71014-1-sashal@kernel.org>
 References: <20210112125725.71014-1-sashal@kernel.org>
@@ -45,45 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Craig Tatlor <ctatlor97@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d863f0c7b536288e2bd40cbc01c10465dd226b11 ]
+[ Upstream commit bac717171971176b78c72d15a8b6961764ab197f ]
 
-vram.size is needed when binding a gpu without an iommu and is defined
-in msm_init_vram(), so run that before binding it.
+dtc points out that the interrupts for some devices are not parsable:
 
-Signed-off-by: Craig Tatlor <ctatlor97@gmail.com>
-Reviewed-by: Brian Masney <masneyb@onstation.org>
-Tested-by: Alexey Minnekhanov <alexeymin@postmarketos.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+picoxcell-pc3x2.dtsi:45.19-49.5: Warning (interrupts_property): /paxi/gem@30000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:51.21-55.5: Warning (interrupts_property): /paxi/dmac@40000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:57.21-61.5: Warning (interrupts_property): /paxi/dmac@50000: Missing interrupt-parent
+picoxcell-pc3x2.dtsi:233.21-237.5: Warning (interrupts_property): /rwid-axi/axi2pico@c0000000: Missing interrupt-parent
+
+There are two VIC instances, so it's not clear which one needs to be
+used. I found the BSP sources that reference VIC0, so use that:
+
+https://github.com/r1mikey/meta-picoxcell/blob/master/recipes-kernel/linux/linux-picochip-3.0/0001-picoxcell-support-for-Picochip-picoXcell-SoC.patch
+
+Acked-by: Jamie Iles <jamie@jamieiles.com>
+Link: https://lore.kernel.org/r/20201230152010.3914962-1-arnd@kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/picoxcell-pc3x2.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 3ba3ae9749bec..81de5e1659551 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -483,14 +483,14 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
+diff --git a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+index a1266cf8776ce..8362c6a3bcd30 100644
+--- a/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
++++ b/arch/arm/boot/dts/picoxcell-pc3x2.dtsi
+@@ -54,18 +54,21 @@ paxi {
+ 		emac: gem@30000 {
+ 			compatible = "cadence,gem";
+ 			reg = <0x30000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <31>;
+ 		};
  
- 	drm_mode_config_init(ddev);
+ 		dmac1: dmac@40000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x40000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <25>;
+ 		};
  
--	/* Bind all our sub-components: */
--	ret = component_bind_all(dev, ddev);
-+	ret = msm_init_vram(ddev);
- 	if (ret)
- 		goto err_destroy_mdss;
+ 		dmac2: dmac@50000 {
+ 			compatible = "snps,dw-dmac";
+ 			reg = <0x50000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <26>;
+ 		};
  
--	ret = msm_init_vram(ddev);
-+	/* Bind all our sub-components: */
-+	ret = component_bind_all(dev, ddev);
- 	if (ret)
--		goto err_msm_uninit;
-+		goto err_destroy_mdss;
- 
- 	if (!dev->dma_parms) {
- 		dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms),
+@@ -243,6 +246,7 @@ ebi@50000000 {
+ 		axi2pico@c0000000 {
+ 			compatible = "picochip,axi2pico-pc3x2";
+ 			reg = <0xc0000000 0x10000>;
++			interrupt-parent = <&vic0>;
+ 			interrupts = <13 14 15 16 17 18 19 20 21>;
+ 		};
+ 	};
 -- 
 2.27.0
 
