@@ -2,134 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1263C2F3442
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 16:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61FF02F349C
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 16:51:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391505AbhALPgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 10:36:45 -0500
-Received: from linux.microsoft.com ([13.77.154.182]:42098 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391460AbhALPgp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 10:36:45 -0500
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 59A3220B6C40;
-        Tue, 12 Jan 2021 07:36:03 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 59A3220B6C40
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1610465763;
-        bh=McXfpx7CXiTJWz8uagaZ4YpQfZgo3sZg2yh4/x+j+Yc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V0Z8At8aZ8JrV6C7ViNabSX4/+P0ef/JP6xqvVGNr9XPNlLIwshd1g0xxCt4yhFbC
-         Ql8o+9n/AppO4baHyIjQQACKwa5DdNFyFHNI/aqA4giXq0Qbaqjlb2Uf/ZrVWKCdx+
-         u2RP1TmzzHrYc3QgsKQNMDqRQ89E/JFDQPnqNq0s=
-Date:   Tue, 12 Jan 2021 09:35:34 -0600
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Maurizio Drocco <maurizio.drocco@ibm.com>,
-        Bruno Meneguele <bmeneg@redhat.com>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 03/30] ima: extend boot_aggregate with kernel
- measurements
-Message-ID: <20210112153534.GA4146@sequoia>
-References: <20200708154116.3199728-1-sashal@kernel.org>
- <20200708154116.3199728-3-sashal@kernel.org>
- <1594224793.23056.251.camel@linux.ibm.com>
- <20200709012735.GX2722994@sasha-vm>
- <5b8dcdaf66fbe2a39631833b03772a11613fbbbf.camel@linux.ibm.com>
- <20201211031008.GN489768@sequoia>
- <659c09673affe9637a5d1391c12af3aa710ba78a.camel@linux.ibm.com>
- <20201214164222.GK4951@sequoia>
+        id S2404944AbhALPsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 10:48:33 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7958 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404814AbhALPsa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 10:48:30 -0500
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 10CFWaSx168016;
+        Tue, 12 Jan 2021 10:47:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=5GuUw2ilKr/3LrpKOVWFzEHAHdojZRzNIOzb13tEkOk=;
+ b=Qw6yCWc7I8RYDbigrNyQOqWQRn+9DSOj9/yVfUMANIPWgXYG9VaCPwvdZFNroHm8foRR
+ 5RVidqpGQFmIQ4cFeCCdkLkZ+MahXLF1SeM5zrySsPkk9Hsd2TfhQFHOSwwe1vcYVMhi
+ pb5L+W00Pvlm918KQZ1G6RSB6E6J/L6eISfEjxLdYmnIVUM8TpT031dfIQfg8j26RlDJ
+ fNpsjS8vV8MmUDh+NidXiW1MIgwxikByZ4kCkLNAqqtwRwFgmRFDzAmHTye22qWxKVx5
+ gG4iPS4vqZjjmzxxoKJlRMwNvzW4IR+BOxMGj2neuwmTmCXVsIz4XXi7PQP27zNJSLm7 dQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 361e2p19qw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jan 2021 10:47:26 -0500
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 10CFWgMn168641;
+        Tue, 12 Jan 2021 10:47:23 -0500
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 361e2p19pp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jan 2021 10:47:23 -0500
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 10CFWb9e015679;
+        Tue, 12 Jan 2021 15:47:21 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma02fra.de.ibm.com with ESMTP id 35y448hxxe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Jan 2021 15:47:21 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 10CFlJlg25100636
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Jan 2021 15:47:19 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F056852057;
+        Tue, 12 Jan 2021 15:47:18 +0000 (GMT)
+Received: from pomme.local (unknown [9.145.179.152])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 5B21252059;
+        Tue, 12 Jan 2021 15:47:18 +0000 (GMT)
+Subject: Re: [PATCH] mm/userfaultfd: fix memory corruption due to writeprotect
+To:     Vinayak Menon <vinmenon@codeaurora.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andy Lutomirski <luto@kernel.org>, Peter Xu <peterx@redhat.com>,
+        Nadav Amit <nadav.amit@gmail.com>, Yu Zhao <yuzhao@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        linux-mm <linux-mm@kvack.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>, surenb@google.com
+References: <X+D0hTZCrWS3P5Pi@google.com>
+ <CAHk-=wg_UBuo7ro1fpEGkMyFKA1+PxrE85f9J_AhUfr-nJPpLQ@mail.gmail.com>
+ <9E301C7C-882A-4E0F-8D6D-1170E792065A@gmail.com>
+ <CAHk-=wg-Y+svNy3CDkJjj0X_CJkSbpERLg64-Vqwq5u7SC4z0g@mail.gmail.com>
+ <X+ESkna2z3WjjniN@google.com>
+ <1FCC8F93-FF29-44D3-A73A-DF943D056680@gmail.com>
+ <20201221223041.GL6640@xz-x1>
+ <CAHk-=wh-bG4thjXUekLtrCg8FRrdWjtT40ibXXLSm_hzQG8eOw@mail.gmail.com>
+ <CALCETrV=8tY7h=aaudWBEn-MJnNkm2wz5qjH49SYqwkjYTpOaA@mail.gmail.com>
+ <CAHk-=wj=CcOHQpG0cUGfoMCt2=Uaifpqq-p-mMOmW8XmrBn4fQ@mail.gmail.com>
+ <20210105153727.GK3040@hirez.programming.kicks-ass.net>
+ <bfb1cbe6-a705-469d-c95a-776624817e33@codeaurora.org>
+From:   Laurent Dufour <ldufour@linux.vnet.ibm.com>
+Message-ID: <0201238b-e716-2a3c-e9ea-d5294ff77525@linux.vnet.ibm.com>
+Date:   Tue, 12 Jan 2021 16:47:17 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201214164222.GK4951@sequoia>
+In-Reply-To: <bfb1cbe6-a705-469d-c95a-776624817e33@codeaurora.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.343,18.0.737
+ definitions=2021-01-12_10:2021-01-12,2021-01-12 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
+ mlxlogscore=436 clxscore=1011 lowpriorityscore=0 malwarescore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 priorityscore=1501 adultscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101120090
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-12-14 10:42:24, Tyler Hicks wrote:
-> On 2020-12-11 06:01:54, Mimi Zohar wrote:
-> > On Thu, 2020-12-10 at 21:10 -0600, Tyler Hicks wrote:
-> > > On 2020-11-29 08:17:38, Mimi Zohar wrote:
-> > > > Hi Sasha,
-> > > > 
-> > > > On Wed, 2020-07-08 at 21:27 -0400, Sasha Levin wrote:
-> > > > > On Wed, Jul 08, 2020 at 12:13:13PM -0400, Mimi Zohar wrote:
-> > > > > >Hi Sasha,
-> > > > > >
-> > > > > >On Wed, 2020-07-08 at 11:40 -0400, Sasha Levin wrote:
-> > > > > >> From: Maurizio Drocco <maurizio.drocco@ibm.com>
-> > > > > >>
-> > > > > >> [ Upstream commit 20c59ce010f84300f6c655d32db2610d3433f85c ]
-> > > > > >>
-> > > > > >> Registers 8-9 are used to store measurements of the kernel and its
-> > > > > >> command line (e.g., grub2 bootloader with tpm module enabled). IMA
-> > > > > >> should include them in the boot aggregate. Registers 8-9 should be
-> > > > > >> only included in non-SHA1 digests to avoid ambiguity.
-> > > > > >
-> > > > > >Prior to Linux 5.8, the SHA1 template data hashes were padded before
-> > > > > >being extended into the TPM.  Support for calculating and extending
-> > > > > >the per TPM bank template data digests is only being upstreamed in
-> > > > > >Linux 5.8.
-> > > > > >
-> > > > > >How will attestation servers know whether to include PCRs 8 & 9 in the
-> > > > > >the boot_aggregate calculation?  Now, there is a direct relationship
-> > > > > >between the template data SHA1 padded digest not including PCRs 8 & 9,
-> > > > > >and the new per TPM bank template data digest including them.
-> > > > > 
-> > > > > Got it, I'll drop it then, thank you!
-> > > > 
-> > > > After re-thinking this over, I realized that the attestation server can
-> > > > verify the "boot_aggregate" based on the quoted PCRs without knowing
-> > > > whether padded SHA1 hashes or per TPM bank hash values were extended
-> > > > into the TPM[1], but non-SHA1 boot aggregate values [2] should always
-> > > > include PCRs 8 & 9.
-> > > 
-> > > I'm still not clear on how an attestation server would know to include
-> > > PCRs 8 and 9 after this change came through a stable kernel update. It
-> > > doesn't seem like something appropriate for stable since it requires
-> > > code changes to attestation servers to handle the change.
-> > > 
-> > > I know this has already been released in some stable releases, so I'm
-> > > too late, but perhaps I'm missing something.
-> > 
-> > The point of adding PCRs 8 & 9 only to non-SHA1 boot_aggregate values
-> > was to avoid affecting existing attestation servers.  The intention was
-> > when attestation servers added support for the non-sha1 boot_aggregate
-> > values, they'd also include PCRs 8 & 9.  The existing SHA1
-> > boot_aggregate value remains PCRs 0 - 7.
+Le 12/01/2021 à 12:43, Vinayak Menon a écrit :
+> On 1/5/2021 9:07 PM, Peter Zijlstra wrote:
+>> On Mon, Dec 21, 2020 at 08:16:11PM -0800, Linus Torvalds wrote:
+>>
+>>> So I think the basic rule is that "if you hold mmap_sem for writing,
+>>> you're always safe". And that really should be considered the
+>>> "default" locking.
+>>>
+>>> ANY time you make a modification to the VM layer, you should basically
+>>> always treat it as a write operation, and get the mmap_sem for
+>>> writing.
+>>>
+>>> Yeah, yeah, that's a bit simplified, and it ignores various special
+>>> cases (and the hardware page table walkers that obviously take no
+>>> locks at all), but if you hold the mmap_sem for writing you won't
+>>> really race with anything else - not page faults, and not other
+>>> "modify this VM".
+>>> To a first approximation, everybody that changes the VM should take
+>>> the mmap_sem for writing, and the readers should just be just about
+>>> page fault handling (and I count GUP as "page fault handling" too -
+>>> it's kind of the same "look up page" rather than "modify vm" kind of
+>>> operation).
+>>>
+>>> And there are just a _lot_ more page faults than there are things that
+>>> modify the page tables and the vma's.
+>>>
+>>> So having that mental model of "lookup of pages in a VM take mmap_semn
+>>> for reading, any modification of the VM uses it for writing" makes
+>>> sense both from a performance angle and a logical standpoint. It's the
+>>> correct model.
+>>> And it's worth noting that COW is still "lookup of pages", even though
+>>> it might modify the page tables in the process. The same way lookup
+>>> can modify the page tables to mark things accessed or dirty.
+>>>
+>>> So COW is still a lookup operation, in ways that "change the
+>>> writabiility of this range" very much is not. COW is "lookup for
+>>> write", and the magic we do to copy to make that write valid is still
+>>> all about the lookup of the page.
+>> (your other email clarified this point; the COW needs to copy while
+>> holding the PTL and we need TLBI under PTL if we're to change this)
+>>
+>>> Which brings up another mental mistake I saw earlier in this thread:
+>>> you should not think "mmap_sem is for vma, and the page table lock is
+>>> for the page table changes".
+>>>
+>>> mmap_sem is the primary lock for any modifications to the VM layout,
+>>> whether it be in the vma's or in the page tables.
+>>>
+>>> Now, the page table lock does exist _in_addition_to_ the mmap_sem, but
+>>> it is partly because
+>>>
+>>>   (a) we have things that historically walked the page tables _without_
+>>> walking the vma's (notably the virtual memory scanning)
+>>>
+>>>   (b) we do allow concurrent page faults, so we then need a lower-level
+>>> lock to serialize the parallelism we _do_ have.
+>> And I'm thinking the speculative page fault series steps right into all
+>> this, it fundamentally avoids mmap_sem and entirely relies on the PTL.
+>>
+>> Which opens it up to exactly these races explored here.
+>>
+>> The range lock approach does not suffer this, but I'm still worried
+>> about the actual performance of that thing.
 > 
-> AFAIK, there's nothing that prevents the non-SHA1 TPM 2.0 PCR banks from
-> being used even before v5.8, albeit with zero padded SHA1 digests.
-> Existing attestation servers that already support that configuration are
-> broken by this stable backport.
+> 
+> Some thoughts on why there may not be an issue with speculative page fault.
+> Adding Laurent as well.
+> 
+> Possibility of race against other PTE modifiers
+> 
+> 1) Fork - We have seen a case of SPF racing with fork marking PTEs RO and that
+> is described and fixed here https://lore.kernel.org/patchwork/patch/1062672/
+> 2) mprotect - change_protection in mprotect which does the deferred flush is
+> marked under vm_write_begin/vm_write_end, thus SPF bails out on faults on those 
+> VMAs.
+> 3) userfaultfd - mwriteprotect_range is not protected unlike in (2) above.
+> But SPF does not take UFFD faults.
+> 4) hugetlb - hugetlb_change_protection - called from mprotect and covered by
+> (2) above.
+> 5) Concurrent faults - SPF does not handle all faults. Only anon page faults.
+> Of which do_anonymous_page and do_swap_page are NONE/NON-PRESENT->PRESENT
+> transitions without tlb flush. And I hope do_wp_page with RO->RW is fine as well.
+> I could not see a case where speculative path cannot see a PTE update done via
+> a fault on another CPU.
+> 
 
-To wrap up this thread, I think the last thing to address is if this
-commit should be reverted from stable kernels? Do you have any thoughts
-about that, Mimi?
+Thanks Vinayak,
 
-Tyler
+You explained it fine. Indeed SPF is handling deferred TLB invalidation by 
+marking the VMA through vm_write_begin/end(), as for the fork case you 
+mentioned. Once the PTL is held, and the VMA's seqcount is checked, the PTE 
+values read are valid.
 
-> 
-> > To prevent this or something similar from happening again, what should
-> > have been the proper way of including PCRs 8 & 9?
-> 
-> I don't think that commits like 6f1a1d103b48 ("ima: Switch to
-> ima_hash_algo for boot aggregate") and 20c59ce010f8 ("ima: extend
-> boot_aggregate with kernel measurements") should be backported to
-> stable.
-> 
-> Including PCRs 8 and 9 definitely makes sense to include in the
-> boot_aggregate value but limiting such a change to "starting in 5.8",
-> rather than "starting in 5.8 and 5.4.82", is the safer approach when
-> attestation server modifications are required.
-> 
-> Tyler
-> 
-> > 
-> > thanks,
-> > 
-> > Mimi
-> > 
+Cheers,
+Laurent.
+
+
