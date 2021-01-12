@@ -2,113 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D8832F276F
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 05:58:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362E42F27E9
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 06:34:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387663AbhALE6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Jan 2021 23:58:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387526AbhALE6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Jan 2021 23:58:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E9A922B30;
-        Tue, 12 Jan 2021 04:57:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1610427441;
-        bh=ltMwMcomie2T+wg+k9FYFqLiFg1eEc8cfer63wJLypw=;
-        h=Date:From:To:Subject:From;
-        b=kb64S0LIKr8AC7oFUysZ8zpduk86CoBy7I1M1an7OADCnKFc/1dKPYnZhDjlU8S0B
-         B8aE7kJyZXxxW+It0/Xv29o0+9X8h4+D8r4oY4vj1NOJ0bV8sJXWfV94v9hjsDnJao
-         xJd0HtsbCR0cVUYDpB2xdegJzbNtxnZv+/4Q0e7U=
-Date:   Mon, 11 Jan 2021 20:57:20 -0800
-From:   akpm@linux-foundation.org
-To:     ak@linux.intel.com, mhocko@suse.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org
-Subject:  +
- mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch added to -mm
- tree
-Message-ID: <20210112045720.laKfzIZ7r%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1732841AbhALFeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 00:34:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58952 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732803AbhALFeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 00:34:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1610429572;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3tdKW3SLUhCLxVY2DOdCzA12uRd5TyP8aBW/+yPnNmQ=;
+        b=JC3b0Qu6xa2OvgxlH/WzDq8muGMQmyxzpnYX1FiN6CsLanNxAwlvvUkoemuvqnPucNGdXM
+        F/fkAfC/SuTZmJa05/6ZRVCF7n0NuHpyYvq3Wxwg50W1mph3O3E4KYT1qcMkTEYyObbeC8
+        X56lEbF76LgMxR1yHomaVb/Oq2rHS+w=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-585-qI6e3ArVMbCdtWuQePZw8Q-1; Tue, 12 Jan 2021 00:32:50 -0500
+X-MC-Unique: qI6e3ArVMbCdtWuQePZw8Q-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D80291842140;
+        Tue, 12 Jan 2021 05:32:48 +0000 (UTC)
+Received: from laptop.redhat.com (ovpn-12-95.pek2.redhat.com [10.72.12.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7E0B510016F6;
+        Tue, 12 Jan 2021 05:32:42 +0000 (UTC)
+From:   Cindy Lu <lulu@redhat.com>
+To:     lulu@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        lingshan.zhu@intel.com
+Cc:     stable@vger.kernel.org
+Subject: [PATCH v2] vhost_vdpa: fix the problem in vhost_vdpa_set_config_call
+Date:   Tue, 12 Jan 2021 13:32:27 +0800
+Message-Id: <20210112053227.8574-1-lulu@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In vhost_vdpa_set_config_call, the cb.private should be vhost_vdpa.
+this cb.private will finally use in vhost_vdpa_config_cb as
+vhost_vdpa. Fix this issue.
 
-The patch titled
-     Subject: mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch
-
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Muchun Song <songmuchun@bytedance.com>
-Subject: mm: hugetlb: remove VM_BUG_ON_PAGE from page_huge_active
-
-The page_huge_active() can be called from scan_movable_pages() which
-do not hold a reference count to the HugeTLB page. So when we call
-page_huge_active() from scan_movable_pages(), the HugeTLB page can
-be freed parallel. Then we will trigger a BUG_ON which is in the
-page_huge_active() when CONFIG_DEBUG_VM is enabled. Just remove the
-VM_BUG_ON_PAGE.
-
-Link: https://lkml.kernel.org/r/20210110124017.86750-7-songmuchun@bytedance.com
-Fixes: 7e1f049efb86 ("mm: hugetlb: cleanup using paeg_huge_active()")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Cindy Lu <lulu@redhat.com>
 ---
+ drivers/vhost/vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- mm/hugetlb.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active
-+++ a/mm/hugetlb.c
-@@ -1361,8 +1361,7 @@ struct hstate *size_to_hstate(unsigned l
-  */
- bool page_huge_active(struct page *page)
- {
--	VM_BUG_ON_PAGE(!PageHuge(page), page);
--	return PageHead(page) && PagePrivate(&page[1]);
-+	return PageHeadHuge(page) && PagePrivate(&page[1]);
- }
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ef688c8c0e0e..3fbb9c1f49da 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -319,7 +319,7 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
+ 	struct eventfd_ctx *ctx;
  
- /* never called for tail page */
-_
-
-Patches currently in -mm which might be from songmuchun@bytedance.com are
-
-mm-hugetlbfs-fix-cannot-migrate-the-fallocated-hugetlb-page.patch
-mm-hugetlb-fix-a-race-between-freeing-and-dissolving-the-page.patch
-mm-hugetlb-fix-a-race-between-isolating-and-freeing-page.patch
-mm-hugetlb-remove-vm_bug_on_page-from-page_huge_active.patch
-mm-memcontrol-optimize-per-lruvec-stats-counter-memory-usage.patch
-mm-memcontrol-fix-nr_anon_thps-accounting-in-charge-moving.patch
-mm-memcontrol-convert-nr_anon_thps-account-to-pages.patch
-mm-memcontrol-convert-nr_file_thps-account-to-pages.patch
-mm-memcontrol-convert-nr_shmem_thps-account-to-pages.patch
-mm-memcontrol-convert-nr_shmem_pmdmapped-account-to-pages.patch
-mm-memcontrol-convert-nr_file_pmdmapped-account-to-pages.patch
-mm-memcontrol-make-the-slab-calculation-consistent.patch
-mm-migrate-do-not-migrate-hugetlb-page-whose-refcount-is-one.patch
-mm-hugetlb-add-return-eagain-for-dissolve_free_huge_page.patch
+ 	cb.callback = vhost_vdpa_config_cb;
+-	cb.private = v->vdpa;
++	cb.private = v;
+ 	if (copy_from_user(&fd, argp, sizeof(fd)))
+ 		return  -EFAULT;
+ 
+-- 
+2.21.3
 
