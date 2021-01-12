@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 620902F3121
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C21D2F311C
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbhALNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:16:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53820 "EHLO mail.kernel.org"
+        id S1730185AbhALNQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:16:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390064AbhALM5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6E102313E;
-        Tue, 12 Jan 2021 12:56:25 +0000 (UTC)
+        id S2403799AbhALM5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:57:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E10D92332A;
+        Tue, 12 Jan 2021 12:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456186;
-        bh=6F7ZdDt4Gdnvj9HB0/c8v4mGbdGjGQCEU00+4wZsiBk=;
+        s=k20201202; t=1610456187;
+        bh=EjGNnS50natGBkIa2TTFogr5F7Cron9uqr8pY0Zl1LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULvVA36tYqVFn36aykf8KsrthytzYGv2yJGbJ8u55R06T92yYq0b4qSDPteDHGw9V
-         Bwd6ngccJtFnFLe7beHlhjqm91Q6hKJPVNUf6H3Uf41JjnrOpjStV5JpoM52JpLy1d
-         iwRdm5ckQNgL51f6MLGZJfMQDHmftf8cdpFaZ/ScVQUOwDW6C3NRnEZv6b6prxC5kP
-         +BcWB8+JfHT2i7yrzrVeE/NAmUukPwDn58fWJ6PiuPhV8C4IFfRIoTYAmPaeCPg6Gz
-         C+5wUvmjIuLrNmiWVY4ugRhpdFFKvQ7iG9DxT7bGn7MzWEnMGij8tCGKfZ1C6KwoIV
-         TlFghPJR7nhgg==
+        b=IXsCB0nRryze43y9DPBAhWR7PCe1SL5FjWnJRqXQD5rCXrFOcBWGRWbGJT1lpqp8K
+         0gxl8aPeRdLPBqpBjRKb/Sa9Ynjf0pTCyndIELtGFiHK2kv+zAz6vOswlOUHcdKbCD
+         ca8IhBs4WRWLjwhWVTra/lbMxYYIi/45KrmGlCbjm3LOoHkPzFPjjjTiP7VNIrgD+n
+         s25c03yLQoyfClGlb9ARJ8nQgLXDp4Ept6tkQBm97q3ziSbnLYLjuNOhrbGigCO8mW
+         QUPN6okc2MJla6JqU2dkJaprgPWfLQk5fTp4rPDo94SptV0DiSoaoYSYt+V6XVAifK
+         OtbHaVQALHpPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>,
+Cc:     Israel Rukshin <israelr@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 39/51] nvme: avoid possible double fetch in handling CQE
-Date:   Tue, 12 Jan 2021 07:55:21 -0500
-Message-Id: <20210112125534.70280-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 40/51] nvmet-rdma: Fix list_del corruption on queue establishment failure
+Date:   Tue, 12 Jan 2021 07:55:22 -0500
+Message-Id: <20210112125534.70280-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125534.70280-1-sashal@kernel.org>
 References: <20210112125534.70280-1-sashal@kernel.org>
@@ -42,64 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>
+From: Israel Rukshin <israelr@nvidia.com>
 
-[ Upstream commit 62df80165d7f197c9c0652e7416164f294a96661 ]
+[ Upstream commit 9ceb7863537748c67fa43ac4f2f565819bbd36e4 ]
 
-While handling the completion queue, keep a local copy of the command id
-from the DMA-accessible completion entry. This silences a time-of-check
-to time-of-use (TOCTOU) warning from KF/x[1], with respect to a
-Thunderclap[2] vulnerability analysis. The double-read impact appears
-benign.
+When a queue is in NVMET_RDMA_Q_CONNECTING state, it may has some
+requests at rsp_wait_list. In case a disconnect occurs at this
+state, no one will empty this list and will return the requests to
+free_rsps list. Normally nvmet_rdma_queue_established() free those
+requests after moving the queue to NVMET_RDMA_Q_LIVE state, but in
+this case __nvmet_rdma_queue_disconnect() is called before. The
+crash happens at nvmet_rdma_free_rsps() when calling
+list_del(&rsp->free_list), because the request exists only at
+the wait list. To fix the issue, simply clear rsp_wait_list when
+destroying the queue.
 
-There may be a theoretical window for @command_id to be used as an
-adversary-controlled array-index-value for mounting a speculative
-execution attack, but that mitigation is saved for a potential follow-on.
-A man-in-the-middle attack on the data payload is out of scope for this
-analysis and is hopefully mitigated by filesystem integrity mechanisms.
-
-[1] https://github.com/intel/kernel-fuzzer-for-xen-project
-[2] http://thunderclap.io/thunderclap-paper-ndss2019.pdf
-Signed-off-by: Lalithambika Krishna Kumar <lalithambika.krishnakumar@intel.com>
+Signed-off-by: Israel Rukshin <israelr@nvidia.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/nvme/target/rdma.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 143f16a9f8d7e..a89d74c5cd1a7 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -967,6 +967,7 @@ static inline struct blk_mq_tags *nvme_queue_tagset(struct nvme_queue *nvmeq)
- static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
- {
- 	struct nvme_completion *cqe = &nvmeq->cqes[idx];
-+	__u16 command_id = READ_ONCE(cqe->command_id);
- 	struct request *req;
- 
- 	/*
-@@ -975,17 +976,17 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
- 	 * aborts.  We don't even bother to allocate a struct request
- 	 * for them but rather special case them here.
- 	 */
--	if (unlikely(nvme_is_aen_req(nvmeq->qid, cqe->command_id))) {
-+	if (unlikely(nvme_is_aen_req(nvmeq->qid, command_id))) {
- 		nvme_complete_async_event(&nvmeq->dev->ctrl,
- 				cqe->status, &cqe->result);
- 		return;
- 	}
- 
--	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), cqe->command_id);
-+	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), command_id);
- 	if (unlikely(!req)) {
- 		dev_warn(nvmeq->dev->ctrl.device,
- 			"invalid id %d completed on queue %d\n",
--			cqe->command_id, le16_to_cpu(cqe->sq_id));
-+			command_id, le16_to_cpu(cqe->sq_id));
- 		return;
- 	}
- 
+diff --git a/drivers/nvme/target/rdma.c b/drivers/nvme/target/rdma.c
+index 5c1e7cb7fe0de..bdfc22eb2a10f 100644
+--- a/drivers/nvme/target/rdma.c
++++ b/drivers/nvme/target/rdma.c
+@@ -1641,6 +1641,16 @@ static void __nvmet_rdma_queue_disconnect(struct nvmet_rdma_queue *queue)
+ 	spin_lock_irqsave(&queue->state_lock, flags);
+ 	switch (queue->state) {
+ 	case NVMET_RDMA_Q_CONNECTING:
++		while (!list_empty(&queue->rsp_wait_list)) {
++			struct nvmet_rdma_rsp *rsp;
++
++			rsp = list_first_entry(&queue->rsp_wait_list,
++					       struct nvmet_rdma_rsp,
++					       wait_list);
++			list_del(&rsp->wait_list);
++			nvmet_rdma_put_rsp(rsp);
++		}
++		fallthrough;
+ 	case NVMET_RDMA_Q_LIVE:
+ 		queue->state = NVMET_RDMA_Q_DISCONNECTING;
+ 		disconnect = true;
 -- 
 2.27.0
 
