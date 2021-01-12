@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C685E2F2FAF
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:58:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9202F2FB1
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 13:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390426AbhALM56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 07:57:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
+        id S2404719AbhALM6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 07:58:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390378AbhALM55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Jan 2021 07:57:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9118D2336F;
-        Tue, 12 Jan 2021 12:56:54 +0000 (UTC)
+        id S2404586AbhALM6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Jan 2021 07:58:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7046823127;
+        Tue, 12 Jan 2021 12:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456215;
-        bh=hAoEpwiqPbCT37bbbZ28O2XW8nnm1SUk0LhseHv/JkQ=;
+        s=k20201202; t=1610456228;
+        bh=/TpIWJHKIKeo3ag1s8Vm+eQe+JfpDBJA6BfFKVg4ZZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ScVPWdSUIi9QCGX/UYkLTeFSOCgyGBQAASNJ+ewcaTX8/3V6Vyt+aAgJigQhf0cNA
-         1/tJKaBqaEf7ldhPnRTLzfVZlcWCXMf+UskifEbVIXTObaBCwslrcGYbzeFZxpUCTN
-         vjUJkQPv2gh0bmXs4+kEAx7L5c1P2aN78A1YTAGF57ISteEe0gC+fe6LjY+m186z/A
-         /q6BnQeR1e91qnUOVuydaOgN1IKyMuiFJINPsLgRMKKOi0vGoQyQ8HJSZx/o9DvCrr
-         TBpyrhwgaHIBifkbsBrv36S3bay6GV+YA05ZWK7PkQdgU3ieOfFPo6Gp8bWNp+ankb
-         mmsP3B4yavmUw==
+        b=b2I0OCNQ1QJQZSg+tB8nWfI276xIKDV4I7oDPARzNc7oWnuMbAe8mGhKZmw+PlNjb
+         AZyR4gbGrKDBbfoRB1mYPOFvqIv+4tryZMkpp89LSEgrM/vdMDPKph6VSUeMNI2h5s
+         KRkmLkChRXBxoVqyP0HxuzRir/Ut35rfYpBc5e6oSAh4b3g5RQoL0/fZdei/hZIOEg
+         8S4sCPG6vXfnM5I2n1As1ODSjidvdYLCGc6SJG2aGpxzFTjJO8k2yTpFPg09SP+qZS
+         yfHIsCtLvXUqyYA89jjtKkGPliOzLfcEzcbEz1OxNUxc8yFoj0cVbcpwv6X0jVobXZ
+         +6xgbzU+4aVaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-power@fi.rohmeurope.com
-Subject: [PATCH AUTOSEL 5.4 07/28] regulator: bd718x7: Add enable times
-Date:   Tue, 12 Jan 2021 07:56:23 -0500
-Message-Id: <20210112125645.70739-7-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/28] bfq: Fix computation of shallow depth
+Date:   Tue, 12 Jan 2021 07:56:33 -0500
+Message-Id: <20210112125645.70739-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125645.70739-1-sashal@kernel.org>
 References: <20210112125645.70739-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,285 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Günther <agx@sigxcpu.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 3b66e4a8e58a85af3212c7117d7a29c9ef6679a2 ]
+[ Upstream commit 6d4d273588378c65915acaf7b2ee74e9dd9c130a ]
 
-Use the typical startup times from the data sheet so boards get a
-reasonable default. Not setting any enable time can lead to board hangs
-when e.g. clocks are enabled too soon afterwards.
+BFQ computes number of tags it allows to be allocated for each request type
+based on tag bitmap. However it uses 1 << bitmap.shift as number of
+available tags which is wrong. 'shift' is just an internal bitmap value
+containing logarithm of how many bits bitmap uses in each bitmap word.
+Thus number of tags allowed for some request types can be far to low.
+Use proper bitmap.depth which has the number of tags instead.
 
-This fixes gpu power domain resume on the Librem 5.
-
-[Moved #defines into driver, seems to be general agreement and avoids any
-cross tree issues -- broonie]
-
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Link: https://lore.kernel.org/r/41fb2ed19f584f138336344e2297ae7301f72b75.1608316658.git.agx@sigxcpu.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/bd718x7-regulator.c | 57 +++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ block/bfq-iosched.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/bd718x7-regulator.c b/drivers/regulator/bd718x7-regulator.c
-index bdab46a5c4617..6c431456d2983 100644
---- a/drivers/regulator/bd718x7-regulator.c
-+++ b/drivers/regulator/bd718x7-regulator.c
-@@ -15,6 +15,36 @@
- #include <linux/regulator/of_regulator.h>
- #include <linux/slab.h>
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index ba32adaeefdd0..7d19aae015aeb 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -6320,13 +6320,13 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * limit 'something'.
+ 	 */
+ 	/* no more than 50% of tags for async I/O */
+-	bfqd->word_depths[0][0] = max((1U << bt->sb.shift) >> 1, 1U);
++	bfqd->word_depths[0][0] = max(bt->sb.depth >> 1, 1U);
+ 	/*
+ 	 * no more than 75% of tags for sync writes (25% extra tags
+ 	 * w.r.t. async I/O, to prevent async I/O from starving sync
+ 	 * writes)
+ 	 */
+-	bfqd->word_depths[0][1] = max(((1U << bt->sb.shift) * 3) >> 2, 1U);
++	bfqd->word_depths[0][1] = max((bt->sb.depth * 3) >> 2, 1U);
  
-+/* Typical regulator startup times as per data sheet in uS */
-+#define BD71847_BUCK1_STARTUP_TIME 144
-+#define BD71847_BUCK2_STARTUP_TIME 162
-+#define BD71847_BUCK3_STARTUP_TIME 162
-+#define BD71847_BUCK4_STARTUP_TIME 240
-+#define BD71847_BUCK5_STARTUP_TIME 270
-+#define BD71847_BUCK6_STARTUP_TIME 200
-+#define BD71847_LDO1_STARTUP_TIME  440
-+#define BD71847_LDO2_STARTUP_TIME  370
-+#define BD71847_LDO3_STARTUP_TIME  310
-+#define BD71847_LDO4_STARTUP_TIME  400
-+#define BD71847_LDO5_STARTUP_TIME  530
-+#define BD71847_LDO6_STARTUP_TIME  400
-+
-+#define BD71837_BUCK1_STARTUP_TIME 160
-+#define BD71837_BUCK2_STARTUP_TIME 180
-+#define BD71837_BUCK3_STARTUP_TIME 180
-+#define BD71837_BUCK4_STARTUP_TIME 180
-+#define BD71837_BUCK5_STARTUP_TIME 160
-+#define BD71837_BUCK6_STARTUP_TIME 240
-+#define BD71837_BUCK7_STARTUP_TIME 220
-+#define BD71837_BUCK8_STARTUP_TIME 200
-+#define BD71837_LDO1_STARTUP_TIME  440
-+#define BD71837_LDO2_STARTUP_TIME  370
-+#define BD71837_LDO3_STARTUP_TIME  310
-+#define BD71837_LDO4_STARTUP_TIME  400
-+#define BD71837_LDO5_STARTUP_TIME  310
-+#define BD71837_LDO6_STARTUP_TIME  400
-+#define BD71837_LDO7_STARTUP_TIME  530
-+
- /*
-  * BUCK1/2/3/4
-  * BUCK1RAMPRATE[1:0] BUCK1 DVS ramp rate setting
-@@ -495,6 +525,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck1_set_hw_dvs_levels,
- 		},
-@@ -519,6 +550,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck2_set_hw_dvs_levels,
- 		},
-@@ -547,6 +579,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd71847_buck3_volt_range_sel,
- 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -574,6 +607,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_range_mask = BD71847_BUCK4_RANGE_MASK,
- 			.linear_range_selectors = bd71847_buck4_volt_range_sel,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -596,6 +630,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -620,6 +655,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71847_BUCK6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -646,6 +682,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO1_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -668,6 +705,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
- 			.enable_reg = BD718XX_REG_LDO2_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -691,6 +729,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO3_MASK,
- 			.enable_reg = BD718XX_REG_LDO3_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -714,6 +753,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO4_MASK,
- 			.enable_reg = BD718XX_REG_LDO4_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -740,6 +780,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.linear_range_selectors = bd71847_ldo5_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO5_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -765,6 +806,7 @@ static const struct bd718xx_regulator_data bd71847_regulators[] = {
- 			.vsel_mask = BD718XX_LDO6_MASK,
- 			.enable_reg = BD718XX_REG_LDO6_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71847_LDO6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -791,6 +833,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK1_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck1_set_hw_dvs_levels,
- 		},
-@@ -815,6 +858,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD718XX_REG_BUCK2_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck2_set_hw_dvs_levels,
- 		},
-@@ -839,6 +883,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD71837_REG_BUCK3_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck3_set_hw_dvs_levels,
- 		},
-@@ -863,6 +908,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = DVS_BUCK_RUN_MASK,
- 			.enable_reg = BD71837_REG_BUCK4_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 			.of_parse_cb = buck4_set_hw_dvs_levels,
- 		},
-@@ -891,6 +937,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.linear_range_selectors = bd71837_buck5_volt_range_sel,
- 			.enable_reg = BD718XX_REG_1ST_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -915,6 +962,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_BUCK6_MASK,
- 			.enable_reg = BD718XX_REG_2ND_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -937,6 +985,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_3RD_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_3RD_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK7_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -961,6 +1010,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_4TH_NODVS_BUCK_MASK,
- 			.enable_reg = BD718XX_REG_4TH_NODVS_BUCK_CTRL,
- 			.enable_mask = BD718XX_BUCK_EN,
-+			.enable_time = BD71837_BUCK8_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -987,6 +1037,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.linear_range_selectors = bd718xx_ldo1_volt_range_sel,
- 			.enable_reg = BD718XX_REG_LDO1_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO1_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1009,6 +1060,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.n_voltages = ARRAY_SIZE(ldo_2_volts),
- 			.enable_reg = BD718XX_REG_LDO2_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO2_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1032,6 +1084,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO3_MASK,
- 			.enable_reg = BD718XX_REG_LDO3_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO3_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1055,6 +1108,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO4_MASK,
- 			.enable_reg = BD718XX_REG_LDO4_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO4_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1080,6 +1134,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_LDO5_MASK,
- 			.enable_reg = BD718XX_REG_LDO5_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO5_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1107,6 +1162,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD718XX_LDO6_MASK,
- 			.enable_reg = BD718XX_REG_LDO6_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO6_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
-@@ -1132,6 +1188,7 @@ static const struct bd718xx_regulator_data bd71837_regulators[] = {
- 			.vsel_mask = BD71837_LDO7_MASK,
- 			.enable_reg = BD71837_REG_LDO7_VOLT,
- 			.enable_mask = BD718XX_LDO_EN,
-+			.enable_time = BD71837_LDO7_STARTUP_TIME,
- 			.owner = THIS_MODULE,
- 		},
- 		.init = {
+ 	/*
+ 	 * In-word depths in case some bfq_queue is being weight-
+@@ -6336,9 +6336,9 @@ static unsigned int bfq_update_depths(struct bfq_data *bfqd,
+ 	 * shortage.
+ 	 */
+ 	/* no more than ~18% of tags for async I/O */
+-	bfqd->word_depths[1][0] = max(((1U << bt->sb.shift) * 3) >> 4, 1U);
++	bfqd->word_depths[1][0] = max((bt->sb.depth * 3) >> 4, 1U);
+ 	/* no more than ~37% of tags for sync writes (~20% extra tags) */
+-	bfqd->word_depths[1][1] = max(((1U << bt->sb.shift) * 6) >> 4, 1U);
++	bfqd->word_depths[1][1] = max((bt->sb.depth * 6) >> 4, 1U);
+ 
+ 	for (i = 0; i < 2; i++)
+ 		for (j = 0; j < 2; j++)
 -- 
 2.27.0
 
