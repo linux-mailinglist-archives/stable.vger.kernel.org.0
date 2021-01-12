@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6274D2F3008
-	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5441A2F2FFD
+	for <lists+stable@lfdr.de>; Tue, 12 Jan 2021 14:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727256AbhALNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 08:01:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54604 "EHLO mail.kernel.org"
+        id S2390860AbhALNBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 08:01:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389562AbhALM6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2405513AbhALM6t (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Jan 2021 07:58:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D35C22312F;
-        Tue, 12 Jan 2021 12:58:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF60523132;
+        Tue, 12 Jan 2021 12:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610456310;
-        bh=0xLiq19uuF+LFA0yw7Rwauxqd1irVWHtnuE67K59/lY=;
+        s=k20201202; t=1610456311;
+        bh=K5UVOAFSVMpxnx58cB+TImbkULMojURm5Eon9UXNVrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8O+IFZDV1mhk5XsTsWbLrW1xzrSVYxvK5blw0fJPWOYpStCe3DCIq7EXWLyLxolN
-         TLMwQfBVojPJMLN9JxABbmBux71bYXWiqRGUpVBKyaKjN3hBfImirfcsTX4oH+j2ru
-         NjHhomzM0c8ys/od7truSD0S2+6XeKJDbsnP5x000hT9HFGAVLJgzYU/CLFIieWddh
-         cF9uNR0cr8ARsiFzmgcVojEDTN8GkQ6qGGVIMtUaW9OAcXLdoF/mm5w9+Eul9btKCh
-         DvWDBUQcBKH18yRPmjz5KQMwz+CMKgkHCylmUjpUG9h+5SMHgh9mAuDaslVTUGVmFq
-         W1kWy89IcdHiQ==
+        b=QRkFbKJMn/qyxU3n4j29Sq6ecWiQQyRPJ/lUSB2iZkRJS5h44F9IevFdEdLsMdggk
+         hgE0+rbvOnQArkUwEM/P5YLrnpfQcduAPBKp0LFbHZAnisJOufxx/sYvg9wwwIINtm
+         YRQIFy5VZZfmGj9WYnSj4FqFjXuzVQqh1S7ke4Xcxon6v0M64rDHvHJxxy+bimKchG
+         rtqJVOoP/A8aW87XXmeEjxKWjcenPzjLd5nidz8h/w80ICQ5jGe0ZgIqWcSvQnKylu
+         wFrcq9awaQcAeDHTdsYP+NG6sR2WqAEwWseR/d5a4jQhPDNTCOT84COjP9tTpNvUB3
+         5TOrTGh/qVGVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        linux-snps-arc@lists.infradead.org,
-        Dan Williams <dan.j.williams@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 4/8] arch/arc: add copy_user_page() to <asm/page.h> to fix build error on ARC
-Date:   Tue, 12 Jan 2021 07:58:19 -0500
-Message-Id: <20210112125823.71463-4-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 5/8] misdn: dsp: select CONFIG_BITREVERSE
+Date:   Tue, 12 Jan 2021 07:58:20 -0500
+Message-Id: <20210112125823.71463-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210112125823.71463-1-sashal@kernel.org>
 References: <20210112125823.71463-1-sashal@kernel.org>
@@ -48,48 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 8a48c0a3360bf2bf4f40c980d0ec216e770e58ee ]
+[ Upstream commit 51049bd903a81307f751babe15a1df8d197884e8 ]
 
-fs/dax.c uses copy_user_page() but ARC does not provide that interface,
-resulting in a build error.
+Without this, we run into a link error
 
-Provide copy_user_page() in <asm/page.h>.
+arm-linux-gnueabi-ld: drivers/isdn/mISDN/dsp_audio.o: in function `dsp_audio_generate_law_tables':
+(.text+0x30c): undefined reference to `byte_rev_table'
+arm-linux-gnueabi-ld: drivers/isdn/mISDN/dsp_audio.o:(.text+0x5e4): more undefined references to `byte_rev_table' follow
 
-../fs/dax.c: In function 'copy_cow_page_dax':
-../fs/dax.c:702:2: error: implicit declaration of function 'copy_user_page'; did you mean 'copy_to_user_page'? [-Werror=implicit-function-declaration]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: Dan Williams <dan.j.williams@intel.com>
-#Acked-by: Vineet Gupta <vgupta@synopsys.com> # v1
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-nvdimm@lists.01.org
-#Reviewed-by: Ira Weiny <ira.weiny@intel.com> # v2
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/include/asm/page.h | 1 +
+ drivers/isdn/mISDN/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/arc/include/asm/page.h b/arch/arc/include/asm/page.h
-index 8f1145ed0046f..fd2c88ef2e2b8 100644
---- a/arch/arc/include/asm/page.h
-+++ b/arch/arc/include/asm/page.h
-@@ -17,6 +17,7 @@
- #define free_user_page(page, addr)	free_page(addr)
+diff --git a/drivers/isdn/mISDN/Kconfig b/drivers/isdn/mISDN/Kconfig
+index c0730d5c734d6..fb61181a5c4f7 100644
+--- a/drivers/isdn/mISDN/Kconfig
++++ b/drivers/isdn/mISDN/Kconfig
+@@ -12,6 +12,7 @@ if MISDN != n
+ config MISDN_DSP
+ 	tristate "Digital Audio Processing of transparent data"
+ 	depends on MISDN
++	select BITREVERSE
+ 	help
+ 	  Enable support for digital audio processing capability.
  
- #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
-+#define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- #define copy_page(to, from)		memcpy((to), (from), PAGE_SIZE)
- 
- struct vm_area_struct;
 -- 
 2.27.0
 
