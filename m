@@ -2,76 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507C62F5118
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 18:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 388892F510F
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 18:25:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728043AbhAMR1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 12:27:25 -0500
-Received: from mx.cjr.nz ([51.158.111.142]:31180 "EHLO mx.cjr.nz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727446AbhAMR1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Jan 2021 12:27:24 -0500
-X-Greylist: delayed 610 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Jan 2021 12:27:24 EST
-Received: from authenticated-user (mx.cjr.nz [51.158.111.142])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: pc)
-        by mx.cjr.nz (Postfix) with ESMTPSA id E37127FD55;
-        Wed, 13 Jan 2021 17:16:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cjr.nz; s=dkim;
-        t=1610558186;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BSCNmni3GEWpm4WEf0TUaQXPQtSfjZ/qr/nmhuS4btk=;
-        b=N2n5Ml+jDotLVNO/vxGfPA9RGShJL7Pb80jH42j3/WzNvpcIDN/GLktEgTBRHdmMC35n/L
-        8tTT/IPZv/NakgzglpAgjGuwd+C3vFnhKFNAHEzQNyjDvfyWZHjBIyEZ3Om8aRofLIOmHv
-        yI/+8xmuQSQxUuUwRqlvo1V6tcwjjDL3wGbIC7l/rnKTTP/Ceg1k0maT5lbWt2sStS9PJM
-        E10uuR4R3iw69cJRfUDDgfs77wRwQxi5ZMExvoXfw6qIOXgB3r+SpFHGvKOS0ap6MZLZ6s
-        +AyB2V50AlSXw0Z3g7P0DZPfQmnomJYYmhs34xXovQk5NBvNNYSxgKrCCKMhGA==
-From:   Paulo Alcantara <pc@cjr.nz>
-To:     linux-cifs@vger.kernel.org, piastryyy@gmail.com,
-        smfrench@gmail.com, aaptel@suse.com
-Cc:     Paulo Alcantara <pc@cjr.nz>, Duncan Findlay <duncf@duncf.ca>,
-        Pavel Shilovsky <pshilov@microsoft.com>, stable@vger.kernel.org
-Subject: [PATCH] cifs: fix interrupted close commands
-Date:   Wed, 13 Jan 2021 14:16:16 -0300
-Message-Id: <20210113171616.11730-1-pc@cjr.nz>
-In-Reply-To: <CAH2r5msvYs4nLbje4vP+XNF_7SR=b5QehQ=t1WT4o=Ki6imPxg@mail.gmail.com>
-References: <CAH2r5msvYs4nLbje4vP+XNF_7SR=b5QehQ=t1WT4o=Ki6imPxg@mail.gmail.com>
+        id S1728138AbhAMRXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 12:23:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728133AbhAMRXr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 12:23:47 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3A2AC061575
+        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 09:23:06 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id b6so2314162edx.5
+        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 09:23:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=vanguardiasur-com-ar.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4AwPN586eSy4mbXN3tKGamNWI7spdXbsGdw+y/Zgc3E=;
+        b=nWlCyj5TF4VhJbErT9LiR9QoH6NTt2uP2bbpbU3bVRsUyL9hE7Yb8n43G/TyYE+YAK
+         ETT5zKDsblOwhu+JBn4JC6OmNTbYzIFTkBZ5QK97Uq+LdLR7drY2cEmAk5Du1I5xq/Yk
+         f34ENIv6phGTxkBjDU3/xd25hXSDAk4KsZvfOv/643fIkhFSshIk5ugasKpiBsT868D6
+         46Em0HZolk9xa7NB2/c5twVrxseqVHVwl6ysgeWqR6LUToRGg1J4ynkkvUEM5g5Vqbp2
+         fyYhyz53rZ5e0SlRmGT6qXs395AFF0NydzrQQ9XPtgtQjDVB03y5kQ5gJikyO6wAdvrg
+         A9+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4AwPN586eSy4mbXN3tKGamNWI7spdXbsGdw+y/Zgc3E=;
+        b=UdHuoiIZo0lnUViQzz3ttx7u1Nh91Ohv/RaTuUvl5KwuuKMoxAueT3jjrJIier4AxM
+         rDvRCp75B0qR5QMwZKNotvHNoOOYrsVzfMb1h9TYYvQ3VxCkZXRfiPxkq47LeCHntsFW
+         CFnQYVsAmRdYzCzsXsYZ3J2go+SRRy1SjbH0kq/y74wcRV5aUixV2s1fX+muLKN4sJ2P
+         MGVi8fC0/ButS015MUqS7iymWn/DakdAG1NgeaZ0s4S4LS/vpHdLAoTSp+XUex7haW0v
+         wA5VFYPImkIP3O5WDX5GNs70GROKMOKRU/Cloh+4LMmU/ynqmq8sbCschDkBXV/Ap4NK
+         e+qw==
+X-Gm-Message-State: AOAM531Tq8GbKkdKtXftHR1fLi2m6+SDRb+KyJQ2obARdIfkPVnKCOJJ
+        hObT7X/OorQBEuGV/9DV8FMhQE4zhhsVu2fc2Lf7pOkB54imKg==
+X-Google-Smtp-Source: ABdhPJywHg1wYzXYJj4cTNqUA6DSMYVdgcXGZDE1A5/kG7PCatw9Ngxgx3Ru0sk7d+ltP1Bi3TVOJZMxaXS91FnY9sY=
+X-Received: by 2002:a05:6402:3048:: with SMTP id bu8mr2620460edb.49.1610558585482;
+ Wed, 13 Jan 2021 09:23:05 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210113090027.234403-1-tomi.valkeinen@ideasonboard.com> <d3b141f5-7e72-befd-9e09-4fe1ff63effd@ideasonboard.com>
+In-Reply-To: <d3b141f5-7e72-befd-9e09-4fe1ff63effd@ideasonboard.com>
+From:   Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Date:   Wed, 13 Jan 2021 14:22:53 -0300
+Message-ID: <CAAEAJfAu2ZmGET-nSW20gGfKc8gOLdcSqQhm4Xs6cVE-D8oiBQ@mail.gmail.com>
+Subject: Re: [PATCH] media: ti-vpe: cal: fix write to unallocated memory
+To:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Cc:     Benoit Parrot <bparrot@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        linux-media <linux-media@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Retry close command if it gets interrupted to not leak open handles on
-the server.
+On Wed, 13 Jan 2021 at 06:08, Tomi Valkeinen
+<tomi.valkeinen@ideasonboard.com> wrote:
+>
+> On 13/01/2021 11:00, Tomi Valkeinen wrote:
+> > The asd allocated with v4l2_async_notifier_add_fwnode_subdev() must be
+> > of size cal_v4l2_async_subdev, otherwise access to
+> > cal_v4l2_async_subdev->phy will go to unallocated memory.
+> >
+> > Fixes: 8fcb7576ad19 ("media: ti-vpe: cal: Allow multiple contexts per subdev notifier")
+> > Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+>
+> Ah, I forgot to add:
+>
+> Cc: stable@vger.kernel.org # 5.9+
+>
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reported-by: Duncan Findlay <duncf@duncf.ca>
-Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Fixes: 6988a619f5b7 ("cifs: allow syscalls to be restarted in __smb_send_rqst()")
-Cc: stable@vger.kernel.org
----
- fs/cifs/smb2pdu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Nice catch. I missed users of v4l2_async_notifier_add_fwnode_subdev
+in my recent cleanup series.
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 067eb44c7baa..794fc3b68b4f 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3248,7 +3248,7 @@ __SMB2_close(const unsigned int xid, struct cifs_tcon *tcon,
- 	free_rsp_buf(resp_buftype, rsp);
- 
- 	/* retry close in a worker thread if this one is interrupted */
--	if (rc == -EINTR) {
-+	if (is_interrupt_error(rc)) {
- 		int tmp_rc;
- 
- 		tmp_rc = smb2_handle_cancelled_close(tcon, persistent_fid,
--- 
-2.29.2
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
 
+Thanks,
+Ezequiel
+
+> > ---
+> >  drivers/media/platform/ti-vpe/cal.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+> > index 59a0266b1f39..2eef245c31a1 100644
+> > --- a/drivers/media/platform/ti-vpe/cal.c
+> > +++ b/drivers/media/platform/ti-vpe/cal.c
+> > @@ -406,7 +406,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+> >   */
+> >
+> >  struct cal_v4l2_async_subdev {
+> > -     struct v4l2_async_subdev asd;
+> > +     struct v4l2_async_subdev asd; /* Must be first */
+> >       struct cal_camerarx *phy;
+> >  };
+> >
+> > @@ -472,7 +472,7 @@ static int cal_async_notifier_register(struct cal_dev *cal)
+> >               fwnode = of_fwnode_handle(phy->sensor_node);
+> >               asd = v4l2_async_notifier_add_fwnode_subdev(&cal->notifier,
+> >                                                           fwnode,
+> > -                                                         sizeof(*asd));
+> > +                                                         sizeof(*casd));
+> >               if (IS_ERR(asd)) {
+> >                       phy_err(phy, "Failed to add subdev to notifier\n");
+> >                       ret = PTR_ERR(asd);
+> >
