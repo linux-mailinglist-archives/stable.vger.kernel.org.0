@@ -2,107 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D52E2F4A54
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 12:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D104D2F4A59
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 12:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbhAMLfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 06:35:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55944 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727403AbhAMLfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 06:35:11 -0500
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79937C061786;
-        Wed, 13 Jan 2021 03:34:31 -0800 (PST)
-Received: by mail-pg1-x536.google.com with SMTP id n25so1337701pgb.0;
-        Wed, 13 Jan 2021 03:34:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=dth9qsoBxQdg0Q+nb23OtMhlRan8r4Tw7UF7z6sod7E=;
-        b=q66bTbptdxvrBdYbSGImEFekplRIEDpjdsqyrEo+WPMpWnfah/1wOXSQyl9AbbeiWC
-         y/xg6C3m24NRpZQJXJ9EG+p1lbhdIgtjngrRsoC9KaBPN8ISUNjUOgHz2Xfzrn4f7PQy
-         zyN4u7krT8ci6JXbsZRHSR88Vb/9UBMpd+HqxQiPXSWYF/l5HkTjxPo9ZvpUtZbgvr0T
-         ejmIsABe8+E9qpthYtS/bMvEZ+ef7cW7MpuD8UEnvyDzGhB9OeOH7B5g04tGBNGHcsiX
-         u3FO9DY0uFV99S4tOtlTWQ8AqMxCaLI4Ur4h9wFRlVyoSH1grHeFtjGjfxhZ6ELOUnBO
-         EeEg==
+        id S1728433AbhAMLhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 06:37:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:60659 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728200AbhAMLhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 06:37:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1610537771;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pQcSb6CyS4Rcj5w1L4KFo4VX77Uj3QkqX6PSofKeGPI=;
+        b=FevGkXsNuJvSV0XZ71icVHZMER0FsTiOoaCgJ5v3jm157yIowC0VCGjNCCbos/NvOCqCie
+        j82nrJhZ9i6KPqrzpxAUdNXjKYCFFSaP52Z8iwUtyQm5hGFZkdX+o4SkB8l9yj9JAGyx7W
+        QGRBlaGs2HouzRr2AQbqHUT5qz5RD/I=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-280-fA4gJJ6_OM-Y3X7-LX6prw-1; Wed, 13 Jan 2021 06:36:10 -0500
+X-MC-Unique: fA4gJJ6_OM-Y3X7-LX6prw-1
+Received: by mail-wm1-f69.google.com with SMTP id x20so706486wmc.0
+        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 03:36:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=dth9qsoBxQdg0Q+nb23OtMhlRan8r4Tw7UF7z6sod7E=;
-        b=c5gunggot42bMnBuRiuiG/x0+0RtQvZOr/TxBBG8afs7pBO85iGbfpslyusLVv/tT2
-         9yzW5ZQGtunAshNHELLWQRvVC2jwVSrFXDytDAk2L6vkx5XR2vqLQVg1xU80zNMdDYTd
-         Kk2/tttvS0z9IF2Z/mDO6eId3M+daCT1WaRq6YNacSxfVwJ0Lv5TvZuyvDz4J8/41JQr
-         Kw28aBERvQu7TFIkWzigu5qkHbQ/30AuJBiyEJ+xes1boRpgxCEi2Jk5n9JWxx9EiKR/
-         KLZ8N8u4s+Xw1uN+nMZ5s5bcGs+fEREHOdaNUJ6iw0unC+G0Kg94eUuDPvLCpvDONQ9s
-         0MJA==
-X-Gm-Message-State: AOAM531mbEveGTflFXGFkovLfEmtGYzjRI38EuCySE86STCGGqg4SsyZ
-        MegLmqDC1ZFkmyXL27qOnnE=
-X-Google-Smtp-Source: ABdhPJwcVvKok/Q0yW/9KyCHM5jCd6JQ/SwGesVC4emseSMqb2pcXCh+q6oCvyHuMJqdXy3EpolXeA==
-X-Received: by 2002:a62:5b07:0:b029:1ae:177d:69e1 with SMTP id p7-20020a625b070000b02901ae177d69e1mr1750169pfb.25.1610537671050;
-        Wed, 13 Jan 2021 03:34:31 -0800 (PST)
-Received: from localhost ([100.87.84.221])
-        by smtp.gmail.com with ESMTPSA id c62sm2314832pfa.116.2021.01.13.03.34.29
+        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+         :message-id:mime-version:content-transfer-encoding;
+        bh=pQcSb6CyS4Rcj5w1L4KFo4VX77Uj3QkqX6PSofKeGPI=;
+        b=WRwaV5s69Gw/UK3SZtrtgdKjacN7Fw4+y7cgLhnsXK7NqeJt60Hii1r7gRdh5KkWj7
+         Yf/obx+alT9SrNgK8/lLo/TPM3MQ2WdruFMvDEYFtdBx93Hj+WrYM6J1Jr1B5Afl0j3n
+         vKDQ7ODLXU2gseJPV3FSD54pTTMF2kt6NXkTC4uLtL0gsF/bb2xppN5kbvjPc6kyE3UF
+         yrn6SyEw65+Qm035Nc9Cx2gi5WTHDRQRAbT+zCkOV59LZuDUQBIZ4/8ERkWL8BSSkeJn
+         CjNBI7ao39Ug7yFZzznxWnVYZ7quTVXAQPGJTsV6gMDTw452iqtN4mtb1EstQAeMm9/e
+         HIBg==
+X-Gm-Message-State: AOAM532MlR1USsjRZFkLk3IlYzO9Nueq2oXZ/6IQ3In7JUY1U5goq2XJ
+        4Cq7BgDXzyshA1qNpO83vyJZdsaBPRbOh3aR+iAAxshQOnmHmYr9Sx3bxUefjOc20J6zqW7bE4d
+        254HSEfSP/xpECPXu
+X-Received: by 2002:a1c:a5d4:: with SMTP id o203mr1795408wme.41.1610537768794;
+        Wed, 13 Jan 2021 03:36:08 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxS14vUOEEQ/bzWnoAQ2ltyWpCLjwA+Z3r9kH8HEWajdFCUX904JSU013CXi5oc1xfSAEvgHA==
+X-Received: by 2002:a1c:a5d4:: with SMTP id o203mr1795384wme.41.1610537768581;
+        Wed, 13 Jan 2021 03:36:08 -0800 (PST)
+Received: from alrua-x1.borgediget.toke.dk ([45.145.92.2])
+        by smtp.gmail.com with ESMTPSA id r20sm2460567wmh.15.2021.01.13.03.36.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Jan 2021 03:34:30 -0800 (PST)
-Date:   Wed, 13 Jan 2021 20:34:12 +0900
-From:   Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Suleiman Souhlal <suleiman@google.com>,
-        linux-fscrypt@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [stable] ext4 fscrypt_get_encryption_info() circular locking
- dependency
-Message-ID: <X/7atDqEyQTb+sGW@google.com>
-References: <20201211033657.GE1667627@google.com>
- <X9LsDPsXdLNv0+va@sol.localdomain>
- <20201211040807.GF1667627@google.com>
- <X9O0brQ7junfZTfI@sol.localdomain>
+        Wed, 13 Jan 2021 03:36:08 -0800 (PST)
+Received: by alrua-x1.borgediget.toke.dk (Postfix, from userid 1000)
+        id A504C18032B; Wed, 13 Jan 2021 12:36:07 +0100 (CET)
+From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
+To:     David Howells <dhowells@redhat.com>
+Cc:     dhowells@redhat.com, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] crypto: public_key: check that pkey_algo is non-NULL
+ before passing it to strcmp()
+In-Reply-To: <2648795.1610536273@warthog.procyon.org.uk>
+References: <20210112161044.3101-1-toke@redhat.com>
+ <2648795.1610536273@warthog.procyon.org.uk>
+X-Clacks-Overhead: GNU Terry Pratchett
+Date:   Wed, 13 Jan 2021 12:36:07 +0100
+Message-ID: <875z419ihk.fsf@toke.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <X9O0brQ7junfZTfI@sol.localdomain>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+David Howells <dhowells@redhat.com> writes:
 
-Eric, sorry for the delay.
+> I'm intending to use Tianjia's patch.
 
-On (20/12/11 10:03), Eric Biggers wrote:
-> > [..]
-> > 
-> > [ 1598.658233]  __rwsem_down_read_failed_common+0x186/0x201
-> > [ 1598.658235]  call_rwsem_down_read_failed+0x14/0x30
-> > [ 1598.658238]  down_read+0x2e/0x45
-> > [ 1598.658240]  rmap_walk_file+0x73/0x1ce
-> > [ 1598.658242]  page_referenced+0x10d/0x154
-> > [ 1598.658247]  shrink_active_list+0x1d4/0x475
-> > [ 1598.658250]  shrink_node+0x27e/0x661
-> > [ 1598.658254]  try_to_free_pages+0x425/0x7ec
-> > [ 1598.658258]  __alloc_pages_nodemask+0x80b/0x1514
-> > [ 1598.658279]  __do_page_cache_readahead+0xd4/0x1a9
-> > [ 1598.658282]  filemap_fault+0x346/0x573
-> > [ 1598.658287]  ext4_filemap_fault+0x31/0x44
-> 
-> Could you provide some more information about what is causing these actual
-> lockups for you?  Are there more stack traces?
+Yeah, sorry for missing that.
 
-I think I have some leads, and, just like you said, this deos not appear
-to be ext4 related.
+> Would you like to add a Reviewed-by?
 
-A likely root cause for the lockups I'm observing, is that kswapd
-and virtio_balloon have reverse locking order for THP pages:
+Sure:
 
-	down_write(mapping->i_mmap_rwsem)  -->  page->PG_locked
-vs
-	page->PG_locked --> down_read(mapping->i_mmap_rwsem)
+Reviewed-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
 
-	-ss
+and also, if you like:
+
+Tested-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
+
