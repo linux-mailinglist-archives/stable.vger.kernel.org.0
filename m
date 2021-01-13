@@ -2,85 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A44D2F5249
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 19:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A632F5251
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 19:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbhAMSgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 13:36:06 -0500
-Received: from mxwww.masterlogin.de ([95.129.51.170]:36312 "EHLO
-        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728356AbhAMSgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 13:36:05 -0500
-X-Greylist: delayed 589 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Jan 2021 13:36:04 EST
-Received: from mxout1.routing.net (unknown [192.168.10.81])
-        by backup.mxwww.masterlogin.de (Postfix) with ESMTPS id F1EFB2C42D;
-        Wed, 13 Jan 2021 18:10:36 +0000 (UTC)
-Received: from mxbox4.masterlogin.de (unknown [192.168.10.79])
-        by mxout1.routing.net (Postfix) with ESMTP id B79043FF07;
-        Wed, 13 Jan 2021 18:09:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
-        s=20200217; t=1610561380;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=E2lk75BZSz27MihA13aYu0dHFwcD4S99yuODfKDmRY4=;
-        b=p7KbIaT2J3AJYD/JahEVLjPrQ4jj7GjomcnVJ1/fcmhVkIq5wT9Poun1UJTkfxPJgCRs2E
-        ZIwh4ylWARf/gJ8NRKEki06Nr2tg/vW8um66hjs/vhUbrUAh4m3HNYVjaLDlJI1z0NsXEj
-        pMpCAGQ/8uCMPo41Ebg8aqi654rZ5k4=
-Received: from localhost.localdomain (fttx-pool-185.75.74.15.bambit.de [185.75.74.15])
-        by mxbox4.masterlogin.de (Postfix) with ESMTPSA id 884FD80AFA;
-        Wed, 13 Jan 2021 18:09:39 +0000 (UTC)
-From:   Frank Wunderlich <linux@fw-web.de>
-To:     linux-mediatek@lists.infradead.org
-Cc:     Frank Wunderlich <frank-w@public-files.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Jimin Wang <jimin.wang@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        sin_wenjiehu <sin_wenjiehu@mediatek.com>,
-        Wenbin.Mei@mediatek.com, skylake.huang@mediatek.com,
-        stable@vger.kernel.org
-Subject: [PATCH v2] dts64: mt7622: fix slow sd card access
-Date:   Wed, 13 Jan 2021 19:09:19 +0100
-Message-Id: <20210113180919.49523-1-linux@fw-web.de>
-X-Mailer: git-send-email 2.25.1
+        id S1728281AbhAMSim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 13:38:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728234AbhAMSil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 13:38:41 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AD01C061794
+        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 10:38:01 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id y8so1559423plp.8
+        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 10:38:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ZxqWpnBbh2sCbCjLf9dWnp45bgINKHWRB6SVxJsxiDM=;
+        b=aDu5bp8N9AiDUXS8rOEp4QA7mjDcAGBw9+9jqm0EbrUSneQoYdjX5QyYQu7Zwd3kBr
+         WFc1DEkDlrf9vuuLeNUIxK5ojho/cfSyyYsTnWcKSjdDEkaWRd36Ci6wsvWWtY5XG/Qc
+         g9Xl+mNn6YhXYOwP0Spqegnl3XbuwTpF4lETKBnt881ivTg3jjX3TVEKoLjw5HrfcUSM
+         Fk3K1qjC4TODjHsayHrb/vVuZsB2c9zw/TNEJzRQyBCr807xY3r3K+LVMIQa56A1KfMp
+         xh5LDxZbg9ei8WBqV+YYlb2DVuFBFgBug5nQG9TG44w+tibkvI7ZmOh0AGIHD6uRzkqZ
+         ZFJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ZxqWpnBbh2sCbCjLf9dWnp45bgINKHWRB6SVxJsxiDM=;
+        b=gD1uS++ttJygbtZnWfoaADW0vAv2Cess3HTV9xuHlVLADVpGPbdlVDWc0IR/p+BanQ
+         /ryppRTuydHXxGEx+TW1JX6jVnR95gHoqIq/vKmfNb3meX4dVMfXXA3LsjxoyWUFU/al
+         ALqKVjN0uRZZG36dH60VUDUaAWEuNRf/h5vEW7XSb+hzGFEgjoJoXo/HdxsBWcl6+Sa6
+         DJQTHZd2t+04iW5eSEMrfiYANQHdXMGuv/H/vLquFcgdNSwitaTkIOV12AMFbAR8eZ/V
+         w7A3nJfynF35ynn8/8N3QwrYhNrHCsOg6oTw/fJQC7Ca+YpFD8nGQIeMcRQZFIlPyA6p
+         skJw==
+X-Gm-Message-State: AOAM533wYYD1mdu96StzlXeyLxhVlvAKEEDAZ/27M4rTimiUYDh2I7qe
+        P+nhdFn6blVLa8eCsFFUC/JK2CrahbOn2g==
+X-Google-Smtp-Source: ABdhPJwyA8LnhveeNmFnk2fDIxS3RHprgcXFAEw4/ocOPCyMGs8feKCvccL1MPuUcODjJe6eUCBlhQ==
+X-Received: by 2002:a17:902:758c:b029:da:a6e1:e06 with SMTP id j12-20020a170902758cb02900daa6e10e06mr3511433pll.67.1610563080566;
+        Wed, 13 Jan 2021 10:38:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 77sm3492203pfv.16.2021.01.13.10.37.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Jan 2021 10:37:59 -0800 (PST)
+Message-ID: <5fff3e07.1c69fb81.9b685.79b6@mx.google.com>
+Date:   Wed, 13 Jan 2021 10:37:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Mail-ID: a4fbb957-4fd1-4532-9841-53bdb81f3d8c
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.251
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.9.y baseline: 82 runs, 3 regressions (v4.9.251)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+stable-rc/linux-4.9.y baseline: 82 runs, 3 regressions (v4.9.251)
 
-Fix extreme slow speed (200MB takes ~20 min) on writing sdcard on
-bananapi-r64 by adding reset-control for mmc1 like it's done for mmc0/emmc.
+Regressions Summary
+-------------------
 
-Cc: stable@vger.kernel.org
-Fixes: 2c002a3049f7 ("arm64: dts: mt7622: add mmc related device nodes")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
----
-changes since v1:
- - drop change to uhs-mode because mt7622 does not support it
----
- arch/arm64/boot/dts/mediatek/mt7622.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+platform             | arch  | lab          | compiler | defconfig       | =
+regressions
+---------------------+-------+--------------+----------+-----------------+-=
+-----------
+meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig       | =
+1          =
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt7622.dtsi b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-index 5b9ec032ce8d..7c6d871538a6 100644
---- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-@@ -698,6 +698,8 @@ mmc1: mmc@11240000 {
- 		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
- 			 <&topckgen CLK_TOP_AXI_SEL>;
- 		clock-names = "source", "hclk";
-+		resets = <&pericfg MT7622_PERI_MSDC1_SW_RST>;
-+		reset-names = "hrst";
- 		status = "disabled";
- 	};
- 
--- 
-2.25.1
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig       | =
+1          =
 
+sun8i-h3-orangepi-pc | arm   | lab-clabbe   | gcc-8    | sunxi_defconfig | =
+1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.251/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.251
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      10bd1f305f5f9945bac76a6ddc5371ed2d159bf2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig       | =
+regressions
+---------------------+-------+--------------+----------+-----------------+-=
+-----------
+meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig       | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fff0ca9c864a7b7e7c94ce4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fff0ca9c864a7b7e7c94=
+ce5
+        new failure (last pass: v4.9.250-46-g6d954ea12bd6f) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig       | =
+regressions
+---------------------+-------+--------------+----------+-----------------+-=
+-----------
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig       | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fff0c7fcb84a2302ac94cb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fff0c7fcb84a2302ac94=
+cba
+        failing since 56 days (last pass: v4.9.243-17-g9c24315b745a0, first=
+ fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig       | =
+regressions
+---------------------+-------+--------------+----------+-----------------+-=
+-----------
+sun8i-h3-orangepi-pc | arm   | lab-clabbe   | gcc-8    | sunxi_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/5fff0da510a24e5099c94cdd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sunxi_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm/sunxi_defconfig/gcc-8/lab-clabbe/baseline-sun8i-h3-orangepi-pc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.251=
+/arm/sunxi_defconfig/gcc-8/lab-clabbe/baseline-sun8i-h3-orangepi-pc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5fff0da510a24e5099c94=
+cde
+        new failure (last pass: v4.9.250-46-g6d954ea12bd6f) =
+
+ =20
