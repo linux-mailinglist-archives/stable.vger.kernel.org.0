@@ -2,86 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4571F2F4233
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 04:03:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640892F4297
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 04:41:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728764AbhAMDDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Jan 2021 22:03:25 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:58515 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726499AbhAMDDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 22:03:25 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=tianjia.zhang@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0ULZk49v_1610506958;
-Received: from B-455UMD6M-2027.local(mailfrom:tianjia.zhang@linux.alibaba.com fp:SMTPD_---0ULZk49v_1610506958)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 13 Jan 2021 11:02:39 +0800
-Subject: Re: [PATCH] X.509: Fix crash caused by NULL pointer
-To:     David Howells <dhowells@redhat.com>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Tobias Markus <tobias@markus-regensburg.de>,
-        Tee Hao Wei <angelsl@in04.sg>, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210107092855.76093-1-tianjia.zhang@linux.alibaba.com>
- <772253.1610017082@warthog.procyon.org.uk>
-From:   Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <8ff730e0-bf03-0fbf-41f6-8e06f8956929@linux.alibaba.com>
-Date:   Wed, 13 Jan 2021 11:02:38 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.6.0
+        id S1726013AbhAMDkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Jan 2021 22:40:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:52205 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725983AbhAMDkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Jan 2021 22:40:11 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1610509125;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=fSaLRoG57KvO7g+HhBEQBIyCeK5sYiN7HkTE57zkReU=;
+        b=WGu/K8aYD7DCrnGN7gDIRGROSZBEJEaOxP47+7gCAvYNsVF2AgL8ilT+1C3VFNcs535MgC
+        YjUZ1aNVoaGNdzzu6EV//KVzUfSxh8FJivhu8opmIsaap8UlF2OCgu8riAOKJJIDCdS+hi
+        2vNNsj7xw9TAIchRNythflXdJYQF0Po=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-286-LlhP_UCCPhyJ2DE4Q9BBuA-1; Tue, 12 Jan 2021 22:38:43 -0500
+X-MC-Unique: LlhP_UCCPhyJ2DE4Q9BBuA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9D45A805EE3;
+        Wed, 13 Jan 2021 03:38:42 +0000 (UTC)
+Received: from [10.72.12.205] (ovpn-12-205.pek2.redhat.com [10.72.12.205])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F370B60BFA;
+        Wed, 13 Jan 2021 03:38:36 +0000 (UTC)
+Subject: Re: [PATCH v3] vhost_vdpa: fix the problem in
+ vhost_vdpa_set_config_call
+To:     Cindy Lu <lulu@redhat.com>, mst@redhat.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        lingshan.zhu@intel.com
+Cc:     stable@vger.kernel.org
+References: <20210112053629.9853-1-lulu@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <1403c336-4493-255f-54e3-c55dd2015c40@redhat.com>
+Date:   Wed, 13 Jan 2021 11:38:35 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <772253.1610017082@warthog.procyon.org.uk>
+In-Reply-To: <20210112053629.9853-1-lulu@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+On 2021/1/12 下午1:36, Cindy Lu wrote:
+> In vhost_vdpa_set_config_call, the cb.private should be vhost_vdpa.
+> this cb.private will finally use in vhost_vdpa_config_cb as
+> vhost_vdpa. Fix this issue.
+>
+> Fixes: 776f395004d82 ("vhost_vdpa: Support config interrupt in vdpa")
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Cindy Lu <lulu@redhat.com>
+> ---
 
-On 1/7/21 6:58 PM, David Howells wrote:
-> Tianjia Zhang <tianjia.zhang@linux.alibaba.com> wrote:
-> 
->> On the following call path, `sig->pkey_algo` is not assigned
->> in asymmetric_key_verify_signature(), which causes runtime
->> crash in public_key_verify_signature().
->>
->>    keyctl_pkey_verify
->>      asymmetric_key_verify_signature
->>        verify_signature
->>          public_key_verify_signature
->>
->> This patch simply check this situation and fixes the crash
->> caused by NULL pointer.
->>
->> Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate verification")
->> Cc: stable@vger.kernel.org # v5.10+
->> Reported-by: Tobias Markus <tobias@markus-regensburg.de>
->> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-> 
-> Looks reasonable:
-> 
-> Acked-by: David Howells <dhowells@redhat.com>
-> 
-> I wonder, though, if cert_sig_digest_update() should be obtained by some sort
-> of function pointer.  It doesn't really seem to belong in this file.  But this
-> is a separate issue.
-> 
-> David
-> 
 
-Yes, this is indeed the logic of the SM2 module. I have tried to 
-dynamically load and obtain the pointer of this function through 
-`request_module` before, but this method still does not seem very 
-suitable. Here are some unfinished codes I tried before:
+Hi Cindy:
 
-https://github.com/uudiin/linux/commit/55bca48c6282415d94c53a7692622d544da99342
+I think at least you forget to cc stable.
 
-It would be great if you have some good experience to share with me, I 
-will continue to try to optimize this code.
+Thanks
 
-Best regards,
-Tianjia
+
+>   drivers/vhost/vdpa.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index ef688c8c0e0e..3fbb9c1f49da 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -319,7 +319,7 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
+>   	struct eventfd_ctx *ctx;
+>   
+>   	cb.callback = vhost_vdpa_config_cb;
+> -	cb.private = v->vdpa;
+> +	cb.private = v;
+>   	if (copy_from_user(&fd, argp, sizeof(fd)))
+>   		return  -EFAULT;
+>   
+
