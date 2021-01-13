@@ -2,74 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 866762F4AAE
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 12:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA392F4AB6
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 12:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725951AbhAMLuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 06:50:24 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51736 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725924AbhAMLuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 06:50:23 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2AC0F1C0B8F; Wed, 13 Jan 2021 12:49:41 +0100 (CET)
-Date:   Wed, 13 Jan 2021 12:49:34 +0100
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christian Labisch <clnetbox@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH 4.19 67/77] ALSA: hda/via: Fix runtime PM for Clevo W35xSS
-Message-ID: <20210113114934.GB2843@duo.ucw.cz>
-References: <20210111130036.414620026@linuxfoundation.org>
- <20210111130039.628452970@linuxfoundation.org>
+        id S1726618AbhAMLww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 06:52:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51388 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726606AbhAMLwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Jan 2021 06:52:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE633233FA;
+        Wed, 13 Jan 2021 11:52:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1610538726;
+        bh=ronTwB+LJABXCk1cB+9XpKj/yin7qoHqqnV7QUMI9DE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=IIhQsroYOYPKncNEPN6YyjyMWqLM8oZPU37QAiDxO/45evxhEcvPj3g1B6V/HonVR
+         Zlgqrl3X7jIIEPf3pyQW7N00vkArxo8XFnI0AgpuUpi0JreJqGs/rNbzfuEpzI3lPR
+         beG8B3sOKYMgnRzeoly/GoLS135u/MKHLwotKDgHgA6o9QmMgqtf5lMaa4hpjUW4/F
+         An4E/O4Dhu339d4yESEVyRDHT5lxxgGeSU9dgOUL9Ep6WuDik40f6Dn2Popv0DRPND
+         /xUNcT1DMjlSN5PgOSEoGIllf/w6UmBk3fIYBRXS7genfOhsCX4MJqBzHoxjAjmxW8
+         XTkEaJmDxoD0g==
+Received: by mail-oi1-f177.google.com with SMTP id l207so1791672oib.4;
+        Wed, 13 Jan 2021 03:52:06 -0800 (PST)
+X-Gm-Message-State: AOAM531xe0RjahGji5XjOFxjffxJfICARKOEPuMjHAkjMzPlP+ZIfYOD
+        gQabDi7Ve5Bf5FQrf+gqfyH2p7KBnsF1CU08WRc=
+X-Google-Smtp-Source: ABdhPJxU3PbRXBqqSYoc5gfshHv8AGoTp+L7cm4PqAzYQ//+7JjiKblQjlwanTAvAYwLPZ5K8E7mlAbWK8lEjDdlXHA=
+X-Received: by 2002:aca:dd03:: with SMTP id u3mr920758oig.47.1610538725951;
+ Wed, 13 Jan 2021 03:52:05 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-Content-Disposition: inline
-In-Reply-To: <20210111130039.628452970@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20210112192818.69921-1-ebiggers@kernel.org>
+In-Reply-To: <20210112192818.69921-1-ebiggers@kernel.org>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Wed, 13 Jan 2021 12:51:55 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXGC+TXPCPhVj6KisCPfCZHfRFF45zBiU1KjaBXOsL0xkg@mail.gmail.com>
+Message-ID: <CAMj1kXGC+TXPCPhVj6KisCPfCZHfRFF45zBiU1KjaBXOsL0xkg@mail.gmail.com>
+Subject: Re: [PATCH RESEND] random: fix the RNDRESEEDCRNG ioctl
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>, "Theodore Ts'o" <tytso@mit.edu>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 12 Jan 2021 at 20:30, Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> From: Eric Biggers <ebiggers@google.com>
+>
+> The RNDRESEEDCRNG ioctl reseeds the primary_crng from itself, which
+> doesn't make sense.  Reseed it from the input_pool instead.
+>
+> Fixes: d848e5f8e1eb ("random: add new ioctl RNDRESEEDCRNG")
+> Cc: stable@vger.kernel.org
+> Cc: linux-crypto@vger.kernel.org
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Jann Horn <jannh@google.com>
+> Cc: Theodore Ts'o <tytso@mit.edu>
+> Reviewed-by: Jann Horn <jannh@google.com>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 
-Hi!
-
-> From: Takashi Iwai <tiwai@suse.de>
->=20
-> commit 4bfd6247fa9164c8e193a55ef9c0ea3ee22f82d8 upstream.
->=20
-> Clevo W35xSS_370SS with VIA codec has had the runtime PM problem that
-> looses the power state of some nodes after the runtime resume.  This
-> was worked around by disabling the default runtime PM via a denylist
-> entry.  Since 5.10.x made the runtime PM applied (casually) even
-> though it's disabled in the denylist, this problem was revisited.  The
-> result was that disabling power_save_node feature suffices for the
-> runtime PM problem.
-
-=46rom changelog it looks like we do not need this for 4.19.
-
-Best regards,
-								Pavel
-								=20
-
---=20
-http://www.livejournal.com/~pavelmachek
-
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX/7eTgAKCRAw5/Bqldv6
-8pXmAJ4phO14s2bVgfq1KWY/uM4jKzhXOQCfdKKU+EvVdK9o0pXWg8i01Uxk8LQ=
-=QL4Y
------END PGP SIGNATURE-----
-
---neYutvxvOLaeuPCA--
+> ---
+>
+> Andrew, please consider taking this patch since the maintainer has been
+> ignoring it for 4 months
+> (https://lkml.kernel.org/lkml/20200916041908.66649-1-ebiggers@kernel.org/T/#u).
+>
+>
+>  drivers/char/random.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/char/random.c b/drivers/char/random.c
+> index 5f3b8ac9d97b0..a894c0559a8cf 100644
+> --- a/drivers/char/random.c
+> +++ b/drivers/char/random.c
+> @@ -1972,7 +1972,7 @@ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+>                         return -EPERM;
+>                 if (crng_init < 2)
+>                         return -ENODATA;
+> -               crng_reseed(&primary_crng, NULL);
+> +               crng_reseed(&primary_crng, &input_pool);
+>                 crng_global_init_time = jiffies - 1;
+>                 return 0;
+>         default:
+> --
+> 2.30.0
+>
