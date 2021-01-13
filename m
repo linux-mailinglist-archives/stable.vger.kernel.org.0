@@ -2,67 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4272F48FA
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 11:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD96F2F4968
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 12:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727741AbhAMKox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 05:44:53 -0500
-Received: from elvis.franken.de ([193.175.24.41]:47768 "EHLO elvis.franken.de"
+        id S1727750AbhAMLBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 06:01:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:49604 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727655AbhAMKox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Jan 2021 05:44:53 -0500
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1kzddE-00021m-06; Wed, 13 Jan 2021 11:44:04 +0100
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id EDBF6C02B1; Wed, 13 Jan 2021 11:43:54 +0100 (CET)
-Date:   Wed, 13 Jan 2021 11:43:54 +0100
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     Alexander Lobakin <alobakin@pm.me>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jinyang He <hejinyang@loongson.cn>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Matt Redfearn <matt.redfearn@mips.com>,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: Re: [PATCH mips-fixes] MIPS: relocatable: fix possible boot hangup
- with KASLR enabled
-Message-ID: <20210113104354.GA10505@alpha.franken.de>
-References: <20210110142023.185275-1-alobakin@pm.me>
+        id S1727748AbhAMLBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Jan 2021 06:01:35 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 90C19AB92;
+        Wed, 13 Jan 2021 11:00:53 +0000 (UTC)
+Date:   Wed, 13 Jan 2021 12:00:51 +0100
+From:   Oscar Salvador <osalvador@suse.de>
+To:     Muchun Song <songmuchun@bytedance.com>
+Cc:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
+        n-horiguchi@ah.jp.nec.com, ak@linux.intel.com, mhocko@suse.cz,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v4 2/6] mm: hugetlbfs: fix cannot migrate the fallocated
+ HugeTLB page
+Message-ID: <20210113110051.GB26599@linux>
+References: <20210113052209.75531-1-songmuchun@bytedance.com>
+ <20210113052209.75531-3-songmuchun@bytedance.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210110142023.185275-1-alobakin@pm.me>
+In-Reply-To: <20210113052209.75531-3-songmuchun@bytedance.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 10, 2021 at 02:21:05PM +0000, Alexander Lobakin wrote:
-> LLVM-built Linux triggered a boot hangup with KASLR enabled.
+On Wed, Jan 13, 2021 at 01:22:05PM +0800, Muchun Song wrote:
+> If a new hugetlb page is allocated during fallocate it will not be
+> marked as active (set_page_huge_active) which will result in a later
+> isolate_huge_page failure when the page migration code would like to
+> move that page. Such a failure would be unexpected and wrong.
 > 
-> arch/mips/kernel/relocate.c:get_random_boot() uses linux_banner,
-> which is a string constant, as a random seed, but accesses it
-> as an array of unsigned long (in rotate_xor()).
-> When the address of linux_banner is not aligned to sizeof(long),
-> such access emits unaligned access exception and hangs the kernel.
+> Only export set_page_huge_active, just leave clear_page_huge_active
+> as static. Because there are no external users.
 > 
-> Use PTR_ALIGN() to align input address to sizeof(long) and also
-> align down the input length to prevent possible access-beyond-end.
-> 
-> Fixes: 405bc8fd12f5 ("MIPS: Kernel: Implement KASLR using CONFIG_RELOCATABLE")
-> Cc: stable@vger.kernel.org # 4.7+
-> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-> ---
->  arch/mips/kernel/relocate.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> Fixes: 70c3547e36f5 (hugetlbfs: add hugetlbfs_fallocate())
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+> Cc: stable@vger.kernel.org
 
-applied to mips-fixes.
-
-Thomas.
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 
 -- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+Oscar Salvador
+SUSE L3
