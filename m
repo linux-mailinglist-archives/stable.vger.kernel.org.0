@@ -2,107 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0022F520A
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 19:30:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A44D2F5249
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 19:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbhAMS3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 13:29:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728273AbhAMS3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 13:29:49 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7FFC061786;
-        Wed, 13 Jan 2021 10:29:08 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id t16so4427556ejf.13;
-        Wed, 13 Jan 2021 10:29:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=trmHdIPzmXxvlf8cnFfbYuNN5Xx/8sKP9KLGzody5VU=;
-        b=BTDZuJcxKftMz04Z/cPhM4ZL9+l/nqfnjdT/LnD5R/qav4nUqXSAQWhdQLhDC3XpAR
-         lGnA+g2q7AUpzYWX8Sj0L4hZiF7bye6/WJ6tfAjB3tovvYGClF9pr47+IGsczOqXcJkQ
-         a8Rlqw1Op9HAyIFY5jHDFXwKGfDTb8YJ69kiNa8JrTcunYDoH7+on7d2EgGBmLfvs+B4
-         cz6468d0P9WlCtdQCdvYyTEafV2Rr/B3hSgKtxFpUoeIFPPjyAPqrl2SDQoFQzTuD/VU
-         vUx/oqoVEj6MkZiWOl7xMrFH/n3AaconL/O3kevRyOKzex4GbU4xXK4ksan/EWcbbHdF
-         Hg9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=trmHdIPzmXxvlf8cnFfbYuNN5Xx/8sKP9KLGzody5VU=;
-        b=VyKwrWHDa35sVW02f9I71sEnxe9S2bzIyj07dG8UzAsa9rfsK/5a8poIMEiicVpfuo
-         W0DxhrQADYU1p5sI0V3L+Bz1hXEs/XiAWjkfHLcbqGEKJyiVRwSjH4zJBYTYfq3adCim
-         bt638lTHLnATArmE/QaDFfSM39TILCMMJD+3hGsV9rhcMI/xPsRu8KNJPxudm4U1XAK9
-         Q9lYGn4DUiwx48N1QQZDx/SQgZbEXvqW3AnYiUmWB40RzudCYjRSvXlnjhmu0bTZC/cv
-         UKc2nxERG0oHGpMVJUzSeoRYMflW6IoCcv6ds6h3cPRKk4mBLDQxFYHSLHsStS39Xzgv
-         8nzA==
-X-Gm-Message-State: AOAM5332gqmPc1o+bl3ppZMvU1CgCLCJu0ksC923RLfa+qlbN7MCZQqj
-        3C9BM0UX5i79g2iyiwZdVzIAvR3q3ERUPAo7aw==
-X-Google-Smtp-Source: ABdhPJy1cjnIlFBhUtsw4W/f7OPfIo6L5IWfDAC4rxDzWHCEmtjDAtVqE7+/sXnMZVnvtl3lPR/sBZPfU3w8SQIcyhU=
-X-Received: by 2002:a17:906:c7d9:: with SMTP id dc25mr2602506ejb.138.1610562547258;
- Wed, 13 Jan 2021 10:29:07 -0800 (PST)
+        id S1728415AbhAMSgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 13:36:06 -0500
+Received: from mxwww.masterlogin.de ([95.129.51.170]:36312 "EHLO
+        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728356AbhAMSgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 13:36:05 -0500
+X-Greylist: delayed 589 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Jan 2021 13:36:04 EST
+Received: from mxout1.routing.net (unknown [192.168.10.81])
+        by backup.mxwww.masterlogin.de (Postfix) with ESMTPS id F1EFB2C42D;
+        Wed, 13 Jan 2021 18:10:36 +0000 (UTC)
+Received: from mxbox4.masterlogin.de (unknown [192.168.10.79])
+        by mxout1.routing.net (Postfix) with ESMTP id B79043FF07;
+        Wed, 13 Jan 2021 18:09:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
+        s=20200217; t=1610561380;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=E2lk75BZSz27MihA13aYu0dHFwcD4S99yuODfKDmRY4=;
+        b=p7KbIaT2J3AJYD/JahEVLjPrQ4jj7GjomcnVJ1/fcmhVkIq5wT9Poun1UJTkfxPJgCRs2E
+        ZIwh4ylWARf/gJ8NRKEki06Nr2tg/vW8um66hjs/vhUbrUAh4m3HNYVjaLDlJI1z0NsXEj
+        pMpCAGQ/8uCMPo41Ebg8aqi654rZ5k4=
+Received: from localhost.localdomain (fttx-pool-185.75.74.15.bambit.de [185.75.74.15])
+        by mxbox4.masterlogin.de (Postfix) with ESMTPSA id 884FD80AFA;
+        Wed, 13 Jan 2021 18:09:39 +0000 (UTC)
+From:   Frank Wunderlich <linux@fw-web.de>
+To:     linux-mediatek@lists.infradead.org
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Jimin Wang <jimin.wang@mediatek.com>,
+        Ryder Lee <ryder.lee@mediatek.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        sin_wenjiehu <sin_wenjiehu@mediatek.com>,
+        Wenbin.Mei@mediatek.com, skylake.huang@mediatek.com,
+        stable@vger.kernel.org
+Subject: [PATCH v2] dts64: mt7622: fix slow sd card access
+Date:   Wed, 13 Jan 2021 19:09:19 +0100
+Message-Id: <20210113180919.49523-1-linux@fw-web.de>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <CAH2r5msvYs4nLbje4vP+XNF_7SR=b5QehQ=t1WT4o=Ki6imPxg@mail.gmail.com>
- <20210113171616.11730-1-pc@cjr.nz>
-In-Reply-To: <20210113171616.11730-1-pc@cjr.nz>
-From:   Pavel Shilovsky <piastryyy@gmail.com>
-Date:   Wed, 13 Jan 2021 10:28:55 -0800
-Message-ID: <CAKywueSoG8zCqmVgaOtvG5AM4fi47+bFJ3VdHPAa=sJa+v2duA@mail.gmail.com>
-Subject: Re: [PATCH] cifs: fix interrupted close commands
-To:     Paulo Alcantara <pc@cjr.nz>
-Cc:     linux-cifs <linux-cifs@vger.kernel.org>,
-        Steve French <smfrench@gmail.com>,
-        =?UTF-8?Q?Aur=C3=A9lien_Aptel?= <aaptel@suse.com>,
-        Duncan Findlay <duncf@duncf.ca>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Mail-ID: a4fbb957-4fd1-4532-9841-53bdb81f3d8c
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=D1=81=D1=80, 13 =D1=8F=D0=BD=D0=B2. 2021 =D0=B3. =D0=B2 09:16, Paulo Alcan=
-tara <pc@cjr.nz>:
->
-> Retry close command if it gets interrupted to not leak open handles on
-> the server.
->
-> Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-> Reported-by: Duncan Findlay <duncf@duncf.ca>
-> Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-> Fixes: 6988a619f5b7 ("cifs: allow syscalls to be restarted in __smb_send_=
-rqst()")
-> Cc: stable@vger.kernel.org
-> ---
->  fs/cifs/smb2pdu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-> index 067eb44c7baa..794fc3b68b4f 100644
-> --- a/fs/cifs/smb2pdu.c
-> +++ b/fs/cifs/smb2pdu.c
-> @@ -3248,7 +3248,7 @@ __SMB2_close(const unsigned int xid, struct cifs_tc=
-on *tcon,
->         free_rsp_buf(resp_buftype, rsp);
->
->         /* retry close in a worker thread if this one is interrupted */
-> -       if (rc =3D=3D -EINTR) {
-> +       if (is_interrupt_error(rc)) {
->                 int tmp_rc;
->
->                 tmp_rc =3D smb2_handle_cancelled_close(tcon, persistent_f=
-id,
-> --
-> 2.29.2
->
+From: Frank Wunderlich <frank-w@public-files.de>
 
-Thanks for the fix!
+Fix extreme slow speed (200MB takes ~20 min) on writing sdcard on
+bananapi-r64 by adding reset-control for mmc1 like it's done for mmc0/emmc.
 
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Cc: stable@vger.kernel.org
+Fixes: 2c002a3049f7 ("arm64: dts: mt7622: add mmc related device nodes")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+---
+changes since v1:
+ - drop change to uhs-mode because mt7622 does not support it
+---
+ arch/arm64/boot/dts/mediatek/mt7622.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
---
-Best regards,
-Pavel Shilovsky
+diff --git a/arch/arm64/boot/dts/mediatek/mt7622.dtsi b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+index 5b9ec032ce8d..7c6d871538a6 100644
+--- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+@@ -698,6 +698,8 @@ mmc1: mmc@11240000 {
+ 		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
+ 			 <&topckgen CLK_TOP_AXI_SEL>;
+ 		clock-names = "source", "hclk";
++		resets = <&pericfg MT7622_PERI_MSDC1_SW_RST>;
++		reset-names = "hrst";
+ 		status = "disabled";
+ 	};
+ 
+-- 
+2.25.1
+
