@@ -2,110 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50E932F4503
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 08:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D899B2F454B
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 08:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726411AbhAMHNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 02:13:32 -0500
-Received: from pegase1.c-s.fr ([93.17.236.30]:2782 "EHLO pegase1.c-s.fr"
+        id S1725774AbhAMHgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 02:36:01 -0500
+Received: from mga07.intel.com ([134.134.136.100]:20971 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726522AbhAMHNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Jan 2021 02:13:31 -0500
-Received: from localhost (mailhub1-int [192.168.12.234])
-        by localhost (Postfix) with ESMTP id 4DFzDC65HVz9v264;
-        Wed, 13 Jan 2021 08:12:43 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-        by localhost (pegase1.c-s.fr [192.168.12.234]) (amavisd-new, port 10024)
-        with ESMTP id eYutyGajjNq4; Wed, 13 Jan 2021 08:12:43 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase1.c-s.fr (Postfix) with ESMTP id 4DFzDC4hw3z9v262;
-        Wed, 13 Jan 2021 08:12:43 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 948A58B7D8;
-        Wed, 13 Jan 2021 08:12:44 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id whwj6TNEj0IH; Wed, 13 Jan 2021 08:12:44 +0100 (CET)
-Received: from localhost.localdomain (po15451.idsi0.si.c-s.fr [172.25.230.103])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 70E178B772;
-        Wed, 13 Jan 2021 08:12:44 +0100 (CET)
-Received: by localhost.localdomain (Postfix, from userid 0)
-        id 4EAE0660E6; Wed, 13 Jan 2021 07:12:44 +0000 (UTC)
-Message-Id: <af07f8f0bb734bc1f906c1f79219f81c13c6ad2c.1610521804.git.christophe.leroy@csgroup.eu>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH for 4.9/4.14] powerpc: Fix incorrect stw{, ux, u, x} instructions in
- __set_pte_at
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Date:   Wed, 13 Jan 2021 07:12:44 +0000 (UTC)
+        id S1725773AbhAMHgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Jan 2021 02:36:01 -0500
+IronPort-SDR: TNdWSHV2JbGEdHO1NabWomeULgWmrj243HsvUzor6nAxO2q7Ek/0gq0TKfWQQAeEZq9xFvUJR7
+ nwW+26exSAJw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9862"; a="242238101"
+X-IronPort-AV: E=Sophos;i="5.79,343,1602572400"; 
+   d="scan'208";a="242238101"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 23:35:19 -0800
+IronPort-SDR: R7U7SOlxIAask0dFOPSZ+iv/4TSvK3885rmAPXftCa0I6o/KodFyfMs5MpYz6914ji5DT++mEY
+ igedmqs3aGCA==
+X-IronPort-AV: E=Sophos;i="5.79,343,1602572400"; 
+   d="scan'208";a="400456436"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2021 23:35:15 -0800
+Subject: [PATCH v3 0/6] mm: Fix pfn_to_online_page() with respect to
+ ZONE_DEVICE
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-mm@kvack.org
+Cc:     David Hildenbrand <david@redhat.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>, stable@vger.kernel.org,
+        Naoya Horiguchi <nao.horiguchi@gmail.com>,
+        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@kernel.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
+Date:   Tue, 12 Jan 2021 23:35:15 -0800
+Message-ID: <161052331545.1805594.2356512831689786960.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Changes since v2 [1]:
+- Collect some reviewed-by's from David and Oscar
 
-Backport for 4.9 and 4.14
+- Rework subsection validity to include pfn_valid() gated by
+  CONFIG_HAVE_ARCH_PFN_VALID (David, Oscar)
 
-(cherry picked from commit d85be8a49e733dcd23674aa6202870d54bf5600d)
+- Introduce pgmap_pfn_valid() to validate metadata vs data in a pgmap (David)
 
-The placeholder for instruction selection should use the second
-argument's operand, which is %1, not %0. This could generate incorrect
-assembly code if the memory addressing of operand %0 is a different
-form from that of operand %1.
+! Kill put_ref_page(): the extra "if (ref_page) put_page(ref_page)" still
+  feels more cluttered than adding a tiny helper. (Oscar)
 
-Also remove the %Un placeholder because having %Un placeholders
-for two operands which are based on the same local var (ptep) doesn't
-make much sense. By the way, it doesn't change the current behaviour
-because "<>" constraint is missing for the associated "=m".
+[1]: http://lore.kernel.org/r/161044407603.1482714.16630477578392768273.stgit@dwillia2-desk3.amr.corp.intel.com
 
-[chleroy: revised commit log iaw segher's comments and removed %U0]
-
-Fixes: 9bf2b5cdc5fe ("powerpc: Fixes for CONFIG_PTE_64BIT for SMP support")
-Cc: <stable@vger.kernel.org> # v2.6.28+
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/96354bd77977a6a933fe9020da57629007fdb920.1603358942.git.christophe.leroy@csgroup.eu
 ---
- arch/powerpc/include/asm/book3s/32/pgtable.h | 4 ++--
- arch/powerpc/include/asm/nohash/pgtable.h    | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/32/pgtable.h b/arch/powerpc/include/asm/book3s/32/pgtable.h
-index 016579ef16d3..ec98abca0df0 100644
---- a/arch/powerpc/include/asm/book3s/32/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/32/pgtable.h
-@@ -414,9 +414,9 @@ static inline void __set_pte_at(struct mm_struct *mm, unsigned long addr,
- 	if (pte_val(*ptep) & _PAGE_HASHPTE)
- 		flush_hash_entry(mm, ptep, addr);
- 	__asm__ __volatile__("\
--		stw%U0%X0 %2,%0\n\
-+		stw%X0 %2,%0\n\
- 		eieio\n\
--		stw%U0%X0 %L2,%1"
-+		stw%X1 %L2,%1"
- 	: "=m" (*ptep), "=m" (*((unsigned char *)ptep+4))
- 	: "r" (pte) : "memory");
- 
-diff --git a/arch/powerpc/include/asm/nohash/pgtable.h b/arch/powerpc/include/asm/nohash/pgtable.h
-index 5c68f4a59f75..e9171b8242e4 100644
---- a/arch/powerpc/include/asm/nohash/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/pgtable.h
-@@ -157,9 +157,9 @@ static inline void __set_pte_at(struct mm_struct *mm, unsigned long addr,
- 		flush_hash_entry(mm, ptep, addr);
- #endif
- 	__asm__ __volatile__("\
--		stw%U0%X0 %2,%0\n\
-+		stw%X0 %2,%0\n\
- 		eieio\n\
--		stw%U0%X0 %L2,%1"
-+		stw%X1 %L2,%1"
- 	: "=m" (*ptep), "=m" (*((unsigned char *)ptep+4))
- 	: "r" (pte) : "memory");
- 
--- 
-2.25.0
+Michal reminds that the discussion about how to ensure pfn-walkers do
+not get confused by ZONE_DEVICE pages never resolved. A pfn-walker that
+uses pfn_to_online_page() may inadvertently translate a pfn as online
+and in the page allocator, when it is offline managed by a ZONE_DEVICE
+mapping (details in Patch 3: ("mm: Teach pfn_to_online_page() about
+ZONE_DEVICE section collisions")).
 
+The 2 proposals under consideration are teach pfn_to_online_page() to be
+precise in the presence of mixed-zone sections, or teach the memory-add
+code to drop the System RAM associated with ZONE_DEVICE collisions. In
+order to not regress memory capacity by a few 10s to 100s of MiB the
+approach taken in this set is to add precision to pfn_to_online_page().
+
+In the course of validating pfn_to_online_page() a couple other fixes
+fell out:
+
+1/ soft_offline_page() fails to drop the reference taken in the
+   madvise(..., MADV_SOFT_OFFLINE) case.
+
+2/ The libnvdimm sysfs attribute visibility code was failing to publish
+   the resource base for memmap=ss!nn defined namespaces. This is needed
+   for the regression test for soft_offline_page().
+
+3/ memory_failure() uses get_dev_pagemap() to lookup ZONE_DEVICE pages,
+   however that mapping may contain data pages and metadata raw pfns.
+   Introduce pgmap_pfn_valid() to delineate the 2 types and fail the
+   handling of raw metadata pfns.
+
+---
+
+Dan Williams (6):
+      mm: Move pfn_to_online_page() out of line
+      mm: Teach pfn_to_online_page() to consider subsection validity
+      mm: Teach pfn_to_online_page() about ZONE_DEVICE section collisions
+      mm: Fix page reference leak in soft_offline_page()
+      mm: Fix memory_failure() handling of dax-namespace metadata
+      libnvdimm/namespace: Fix visibility of namespace resource attribute
+
+
+ drivers/nvdimm/namespace_devs.c |   10 +++---
+ include/linux/memory_hotplug.h  |   17 +--------
+ include/linux/memremap.h        |    6 +++
+ include/linux/mmzone.h          |   22 ++++++++----
+ mm/memory-failure.c             |   26 ++++++++++++--
+ mm/memory_hotplug.c             |   70 +++++++++++++++++++++++++++++++++++++++
+ mm/memremap.c                   |   15 ++++++++
+ 7 files changed, 134 insertions(+), 32 deletions(-)
