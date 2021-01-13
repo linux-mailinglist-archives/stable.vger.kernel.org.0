@@ -2,116 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE23A2F5484
-	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 22:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95FED2F54AB
+	for <lists+stable@lfdr.de>; Wed, 13 Jan 2021 22:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbhAMVKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 16:10:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38836 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729004AbhAMVHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 16:07:33 -0500
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317ADC061786
-        for <stable@vger.kernel.org>; Wed, 13 Jan 2021 13:08:18 -0800 (PST)
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.94)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1kznNG-005vE7-1g; Wed, 13 Jan 2021 22:08:14 +0100
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     linux-um@lists.infradead.org
-Cc:     Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
-Subject: [PATCH 2/2] um: defer killing userspace on page table update failures
-Date:   Wed, 13 Jan 2021 22:08:03 +0100
-Message-Id: <20210113220803.92a83b1591ae.I9425b924e7d9483efde4c0ba5bd0c0bed018472a@changeid>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210113220803.0d97c6c96aae.I91e62e7568b2834a3922202a05700c972deaca3f@changeid>
-References: <20210113220803.0d97c6c96aae.I91e62e7568b2834a3922202a05700c972deaca3f@changeid>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1729204AbhAMVus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 16:50:48 -0500
+Received: from 142-4-6-44.unifiedlayer.com ([142.4.6.44]:57244 "EHLO
+        142-4-6-44.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729211AbhAMVuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Jan 2021 16:50:18 -0500
+Received: from aghogho239 by 142-4-6-44.ipage.com with local (Exim 4.93)
+        (envelope-from <aghogho239@142-4-6-44.ipage.com>)
+        id 1kznO2-0003b2-IR; Wed, 13 Jan 2021 14:09:03 -0700
+To:     stankocavar1@gmail.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: www.modproofread092.org/mail2/send.php for 129.205.124.220
+X-PHP-Originating-Script: 1001:send.php
+From:   manuscript3@scipub.edu
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1kznO2-0003b2-IR@142-4-6-44.ipage.com>
+Date:   Wed, 13 Jan 2021 14:09:02 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 142-4-6-44.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1001 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 142-4-6-44.ipage.com
+X-Get-Message-Sender-Via: 142-4-6-44.ipage.com: authenticated_id: aghogho239/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 142-4-6-44.ipage.com: aghogho239
+X-Source: 
+X-Source-Args: php-fpm: pool modproofread092_org                        
+X-Source-Dir: modproofread092.org:/public_html/mail2
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
-In some cases we can get to fix_range_common() with mmap_sem held,
-and in others we get there without it being held. For example, we
-get there with it held from sys_mprotect(), and without it held
-from fork_handler().
 
-Avoid any issues in this and simply defer killing the task until
-it runs the next time. Do it on the mm so that another task that
-shares the same mm can't continue running afterwards.
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-Cc: stable@vger.kernel.org
-Fixes: 468f65976a8d ("um: Fix hung task in fix_range_common()")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
- arch/um/include/shared/skas/mm_id.h | 1 +
- arch/um/kernel/tlb.c                | 7 +++----
- arch/um/os-Linux/skas/process.c     | 4 ++++
- 3 files changed, 8 insertions(+), 4 deletions(-)
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author’s learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
-diff --git a/arch/um/include/shared/skas/mm_id.h b/arch/um/include/shared/skas/mm_id.h
-index 4337b4ced095..e82e203f5f41 100644
---- a/arch/um/include/shared/skas/mm_id.h
-+++ b/arch/um/include/shared/skas/mm_id.h
-@@ -12,6 +12,7 @@ struct mm_id {
- 		int pid;
- 	} u;
- 	unsigned long stack;
-+	int kill;
- };
- 
- #endif
-diff --git a/arch/um/kernel/tlb.c b/arch/um/kernel/tlb.c
-index 89468da6bf88..5be1b0da9f3b 100644
---- a/arch/um/kernel/tlb.c
-+++ b/arch/um/kernel/tlb.c
-@@ -352,12 +352,11 @@ void fix_range_common(struct mm_struct *mm, unsigned long start_addr,
- 
- 	/* This is not an else because ret is modified above */
- 	if (ret) {
-+		struct mm_id *mm_idp = &current->mm->context.id;
-+
- 		printk(KERN_ERR "fix_range_common: failed, killing current "
- 		       "process: %d\n", task_tgid_vnr(current));
--		/* We are under mmap_lock, release it such that current can terminate */
--		mmap_write_unlock(current->mm);
--		force_sig(SIGKILL);
--		do_signal(&current->thread.regs);
-+		mm_idp->kill = 1;
- 	}
- }
- 
-diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
-index 0621d521208e..02c4741ade5e 100644
---- a/arch/um/os-Linux/skas/process.c
-+++ b/arch/um/os-Linux/skas/process.c
-@@ -249,6 +249,7 @@ static int userspace_tramp(void *stack)
- }
- 
- int userspace_pid[NR_CPUS];
-+int kill_userspace_mm[NR_CPUS];
- 
- /**
-  * start_userspace() - prepare a new userspace process
-@@ -342,6 +343,8 @@ void userspace(struct uml_pt_regs *regs, unsigned long *aux_fp_regs)
- 	interrupt_end();
- 
- 	while (1) {
-+		if (kill_userspace_mm[0])
-+			fatal_sigsegv();
- 
- 		/*
- 		 * This can legitimately fail if the process loads a
-@@ -663,4 +666,5 @@ void reboot_skas(void)
- void __switch_mm(struct mm_id *mm_idp)
- {
- 	userspace_pid[0] = mm_idp->u.pid;
-+	kill_userspace_mm[0] = mm_idp->kill;
- }
--- 
-2.26.2
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
+
+Our charges are as follows: $25 per 1000 words, meaning
+
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
+
+Payments are made using our online services via credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
+
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
+
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
 
