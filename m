@@ -2,90 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F0B2F5D2F
-	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 10:23:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B70E2F5D2C
+	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 10:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726478AbhANJWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Jan 2021 04:22:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46692 "EHLO mail.kernel.org"
+        id S1727750AbhANJV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Jan 2021 04:21:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725989AbhANJWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Jan 2021 04:22:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B25923A05;
-        Thu, 14 Jan 2021 09:21:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610616091;
-        bh=Xg+Nb7sW7RlMhBK1L0mV7+DrrI+r1gMKsDrYK5yTTBI=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=SnCuI9YnOVaqEMf6iWH/Yd/vSCtCZU/F0K2GMT9r4OTbmJbW9FL5ThFoSWn/Kr7Ya
-         G8m4mf6s/FCq+os708ckhRPbLaVk7FjI8hfJrOXuP2mM8FkkJAjbxm3gGVdILVR4Jo
-         czFhx0D7eO50FR4UYnbds0KztcfBp6p0TChpQTEE/Ug85hL8cJLTBUn1za46wRuner
-         e5LV1PD07czU7arTct9GDo5NNM2x7jJUWXI0gBakE1yxRXXTAW04lHUyT+a2P4tKnL
-         bomm4WxwDdjZxSeL3LJiAXZO5yWjWE28fFdldAnp3PBMODPtTmfsKg03IQXgvw9ZYK
-         Iik8c4qxG4KRQ==
-From:   Felipe Balbi <balbi@kernel.org>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Dejin Zheng <zhengdejin5@gmail.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Michal Nazarewicz <mina86@mina86.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3] usb: udc: core: Use lock when write to soft_connect
-In-Reply-To: <338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com>
-References: <338ea01fbd69b1985ef58f0f59af02c805ddf189.1610611437.git.Thinh.Nguyen@synopsys.com>
-Date:   Thu, 14 Jan 2021 11:21:23 +0200
-Message-ID: <87bldr3mcs.fsf@kernel.org>
+        id S1727693AbhANJV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Jan 2021 04:21:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E60223A05;
+        Thu, 14 Jan 2021 09:20:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1610616047;
+        bh=SvgtDERwHxTvhHA2BYaTy5jtlIh95UXNvxOFOQTl+bM=;
+        h=Subject:To:From:Date:From;
+        b=rsx6WAAPg1sHj00uKAuCg1ArR9USJHZmKwLHGopQBXlNE2J+EJGdSfSudP97drt2h
+         TL2RbU3Eh9Jaeam1f7TSuagiMZWtVNdNqtgo0TJLXaXx2b7ZdjJBmHBiRUI+/Up14z
+         Ru8+Rlkc2Wp2m5GTZMAPu9DWKfYf9nvjEafNAsWA=
+Subject: patch "USB: gadget: dummy-hcd: Fix errors in port-reset handling" added to usb-linus
+To:     stern@rowland.harvard.edu, balbi@kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 14 Jan 2021 10:21:52 +0100
+Message-ID: <1610616112210232@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+
+This is a note to let you know that I've just added the patch titled
+
+    USB: gadget: dummy-hcd: Fix errors in port-reset handling
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-Hi,
+From 6e6aa61d81194c01283880950df563b1b9abec46 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Wed, 13 Jan 2021 14:45:10 -0500
+Subject: USB: gadget: dummy-hcd: Fix errors in port-reset handling
 
-Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
-> Use lock to guard against concurrent access for soft-connect/disconnect
-> operations when writing to soft_connect sysfs.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 2ccea03a8f7e ("usb: gadget: introduce UDC Class")
-> Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Commit c318840fb2a4 ("USB: Gadget: dummy-hcd: Fix shift-out-of-bounds
+bug") messed up the way dummy-hcd handles requests to turn on the
+RESET port feature (I didn't notice that the original switch case
+ended with a fallthrough).  The call to set_link_state() was
+inadvertently removed, as was the code to set the USB_PORT_STAT_RESET
+flag when the speed is USB2.
 
-this does look better than v2 :-p
+In addition, the original code never checked whether the port was
+connected before handling the port-reset request.  There was a check
+for the port being powered, but it was removed by that commit!  In
+practice this doesn't matter much because the kernel doesn't try to
+reset disconnected ports, but it's still bad form.
 
+This patch fixes these problems by changing the fallthrough to break,
+adding back in the missing set_link_state() call, setting the
+port-reset status flag, adding a port-is-connected test, and removing
+a redundant assignment statement.
+
+Fixes: c318840fb2a4 ("USB: Gadget: dummy-hcd: Fix shift-out-of-bounds bug")
+CC: <stable@vger.kernel.org>
 Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210113194510.GA1290698@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/udc/dummy_hcd.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-=2D-=20
-balbi
+diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
+index 1a953f44183a..57067763b100 100644
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -2270,17 +2270,20 @@ static int dummy_hub_control(
+ 			}
+ 			fallthrough;
+ 		case USB_PORT_FEAT_RESET:
++			if (!(dum_hcd->port_status & USB_PORT_STAT_CONNECTION))
++				break;
+ 			/* if it's already enabled, disable */
+ 			if (hcd->speed == HCD_USB3) {
+-				dum_hcd->port_status = 0;
+ 				dum_hcd->port_status =
+ 					(USB_SS_PORT_STAT_POWER |
+ 					 USB_PORT_STAT_CONNECTION |
+ 					 USB_PORT_STAT_RESET);
+-			} else
++			} else {
+ 				dum_hcd->port_status &= ~(USB_PORT_STAT_ENABLE
+ 					| USB_PORT_STAT_LOW_SPEED
+ 					| USB_PORT_STAT_HIGH_SPEED);
++				dum_hcd->port_status |= USB_PORT_STAT_RESET;
++			}
+ 			/*
+ 			 * We want to reset device status. All but the
+ 			 * Self powered feature
+@@ -2292,7 +2295,8 @@ static int dummy_hub_control(
+ 			 * interval? Is it still 50msec as for HS?
+ 			 */
+ 			dum_hcd->re_timeout = jiffies + msecs_to_jiffies(50);
+-			fallthrough;
++			set_link_state(dum_hcd);
++			break;
+ 		case USB_PORT_FEAT_C_CONNECTION:
+ 		case USB_PORT_FEAT_C_RESET:
+ 		case USB_PORT_FEAT_C_ENABLE:
+-- 
+2.30.0
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-
-iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAmAADRMRHGJhbGJpQGtl
-cm5lbC5vcmcACgkQzL64meEamQafDBAAnq0BJv+hBqwh25lXNBrUOl+VvDUu1RrN
-5qJH7t8M3r5N/l+r061Pq6EhdymblxPFtvnPTOvmqZH9LJMbJUrUB51dXgjOB3Uv
-Cn0Vf8aInJK0PzTEXGbBcSK06/EQrCJFxI5GlUD7h4q1vwrYQ4h8k51tSVPJv8sx
-nfPzUqKXmbtMiXDwyHAWlm1QAxK1R1m4eE17sRTZUz1kz9ENwdzueZeZ3e2ScytR
-vdh2XelxW42qrx1/0IgwK0wXABf7cdQXtXluGKEzibje/XhHwHzedflRqvetnPvx
-scUyaR1U19loZTnz3NZOLpRZrFr8DtH2NiFUp07ZpLtQ5CimP+f6OpRLyuGrBJdK
-ujL3OQA8Tw4BxGufoShWch7tqhDKwKz1vacB4UKY5vl3meYeKpi6LsrlOCjnSQyc
-h8bE8Ev7eLaVWvWueXrTtybzSE+FuWkLCzGWK/UNqflSvVsZKgw7PotdU0Wr8G2q
-YcliBiS4DFhYUUFqQtq0dkAwGSKVTf8jGtk4C5xpZqZQouV3/jxAjkzGMiDmD9LR
-s+O2Ug3ew34skwQL0Aw40U8L3McyC1lkKPfr3v+4zAi/k7vJUWRg9B4Etf19ihMO
-QmzGTdRKfghNiLbLAVWYzUaduJ3rN7FltJysV9BkDDinxfeGfWJNG3SHbvnb35hb
-9GggHt0iznk=
-=VKbr
------END PGP SIGNATURE-----
---=-=-=--
