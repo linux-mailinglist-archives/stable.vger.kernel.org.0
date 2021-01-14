@@ -2,99 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F7F2F58C3
-	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 04:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 641062F5908
+	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 04:32:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbhANC4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 21:56:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
+        id S1725902AbhANDNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 22:13:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725902AbhANC4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Jan 2021 21:56:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FB72235FA;
-        Thu, 14 Jan 2021 02:55:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1610592940;
-        bh=pHW2B/FjsYZUeZYVTsSMdXSjTFntYNHNKbf3cLsyRII=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K2aGv3ZJ7mxc7qcpy7KfhtA+4m/6vmGaaCBtUXxI6su//MvljyyJl8AHka/C+qQTI
-         k+QVMikYV6svcGyOnzmVW8iwAmplQLivKfOxtNHHja93ukJY8OBXomwcGjzL45Jvoh
-         /Hkf+RDHneTlEdX6rbb3Y8lhUEqr80Lcu/y3A8qgNLnmG1+y35RoLQ2hdGu0jt8xDV
-         GgNYucOT9yoUUzz0T7njc1d/75A5hGggP21vyYN6Vrv402KwJtr5obQaF3cTtvjS0C
-         HA/XTjz/KNJMVrf+MALnmDrlEj2+dNZsBIo+wkVAgahSsLq4oogyoy3gFAFqOggSJA
-         QAxv5cCrS6XFg==
-Date:   Thu, 14 Jan 2021 04:55:34 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     David Howells <dhowells@redhat.com>
-Cc:     Toke =?iso-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: public_key: check that pkey_algo is non-NULL
- before passing it to strcmp()
-Message-ID: <X/+yphcab4AERQJS@kernel.org>
-References: <20210112161044.3101-1-toke@redhat.com>
- <2648795.1610536273@warthog.procyon.org.uk>
+        id S1725890AbhANDNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Jan 2021 22:13:50 -0500
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21578235FA;
+        Thu, 14 Jan 2021 03:13:09 +0000 (UTC)
+Date:   Wed, 13 Jan 2021 22:13:07 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     ChunyouTang <tangchunyou@163.com>
+Cc:     tangchunyou@yulong.com, Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Subject: Re: [PATCH] tracing/kprobes: Do the notrace functions check without
+ kprobes on ftrace
+Message-ID: <20210113221307.5456f7fc@oasis.local.home>
+In-Reply-To: <20210114023627.1555-1-tangchunyou@163.com>
+References: <20210114023627.1555-1-tangchunyou@163.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2648795.1610536273@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 13, 2021 at 11:11:13AM +0000, David Howells wrote:
-> I'm intending to use Tianjia's patch.  Would you like to add a Reviewed-by?
+On Thu, 14 Jan 2021 10:36:27 +0800
+ChunyouTang <tangchunyou@163.com> wrote:
+
+> From: Masami Hiramatsu <mhiramat@kernel.org>
 > 
-> David
+> Enable the notrace function check on the architecture which doesn't
+> support kprobes on ftrace but support dynamic ftrace. This notrace
+> function check is not only for the kprobes on ftrace but also
+> sw-breakpoint based kprobes.
+> Thus there is no reason to limit this check for the arch which
+> supports kprobes on ftrace.
+> 
+> This also changes the dependency of Kconfig. Because kprobe event
+> uses the function tracer's address list for identifying notrace
+> function, if the CONFIG_DYNAMIC_FTRACE=n, it can not check whether
+> the target function is notrace or not.
+> 
 
-I can give.
+Please be careful to how you send internal patches, and not
+automatically Cc everyone in the Cc list of the patch.
 
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+-- Steve
 
-/Jarkko
 
+> Link: https://lkml.kernel.org/r/20210105065730.2634785-1-naveen.n.rao@linux.vnet.ibm.com
+> Link: https://lkml.kernel.org/r/161007957862.114704.4512260007555399463.stgit@devnote2
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 45408c4f92506 ("tracing: kprobes: Prohibit probing on notrace function")
+> Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 > ---
-> commit 11078a592e6dcea6b9f30e822d3d30e3defc99ca
-> Author: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-> Date:   Thu Jan 7 17:28:55 2021 +0800
+>  kernel/trace/Kconfig        | 2 +-
+>  kernel/trace/trace_kprobe.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
->     X.509: Fix crash caused by NULL pointer
->     
->     On the following call path, `sig->pkey_algo` is not assigned
->     in asymmetric_key_verify_signature(), which causes runtime
->     crash in public_key_verify_signature().
->     
->       keyctl_pkey_verify
->         asymmetric_key_verify_signature
->           verify_signature
->             public_key_verify_signature
->     
->     This patch simply check this situation and fixes the crash
->     caused by NULL pointer.
->     
->     Fixes: 215525639631 ("X.509: support OSCCA SM2-with-SM3 certificate verification")
->     Cc: stable@vger.kernel.org # v5.10+
->     Reported-by: Tobias Markus <tobias@markus-regensburg.de>
->     Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
->     Signed-off-by: David Howells <dhowells@redhat.com>
-> 
-> diff --git a/crypto/asymmetric_keys/public_key.c b/crypto/asymmetric_keys/public_key.c
-> index 8892908ad58c..788a4ba1e2e7 100644
-> --- a/crypto/asymmetric_keys/public_key.c
-> +++ b/crypto/asymmetric_keys/public_key.c
-> @@ -356,7 +356,8 @@ int public_key_verify_signature(const struct public_key *pkey,
->  	if (ret)
->  		goto error_free_key;
+> diff --git a/kernel/trace/Kconfig b/kernel/trace/Kconfig
+> index d5a19413d4f8..c1a62ae7e812 100644
+> --- a/kernel/trace/Kconfig
+> +++ b/kernel/trace/Kconfig
+> @@ -538,7 +538,7 @@ config KPROBE_EVENTS
+>  config KPROBE_EVENTS_ON_NOTRACE
+>  	bool "Do NOT protect notrace function from kprobe events"
+>  	depends on KPROBE_EVENTS
+> -	depends on KPROBES_ON_FTRACE
+> +	depends on DYNAMIC_FTRACE
+>  	default n
+>  	help
+>  	  This is only for the developers who want to debug ftrace itself
+> diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+> index 9c31f42245e9..e6fba1798771 100644
+> --- a/kernel/trace/trace_kprobe.c
+> +++ b/kernel/trace/trace_kprobe.c
+> @@ -434,7 +434,7 @@ static int disable_trace_kprobe(struct trace_event_call *call,
+>  	return 0;
+>  }
 >  
-> -	if (strcmp(sig->pkey_algo, "sm2") == 0 && sig->data_size) {
-> +	if (sig->pkey_algo && strcmp(sig->pkey_algo, "sm2") == 0 &&
-> +	    sig->data_size) {
->  		ret = cert_sig_digest_update(sig, tfm);
->  		if (ret)
->  			goto error_free_key;
-> 
-> 
+> -#if defined(CONFIG_KPROBES_ON_FTRACE) && \
+> +#if defined(CONFIG_DYNAMIC_FTRACE) && \
+>  	!defined(CONFIG_KPROBE_EVENTS_ON_NOTRACE)
+>  static bool __within_notrace_func(unsigned long addr)
+>  {
+
