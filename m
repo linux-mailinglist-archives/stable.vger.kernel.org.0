@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC492F55FF
-	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 02:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A55D12F5654
+	for <lists+stable@lfdr.de>; Thu, 14 Jan 2021 02:57:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726896AbhANA6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Jan 2021 19:58:18 -0500
-Received: from mga17.intel.com ([192.55.52.151]:7769 "EHLO mga17.intel.com"
+        id S1727184AbhANBqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Jan 2021 20:46:16 -0500
+Received: from mga06.intel.com ([134.134.136.31]:17200 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726996AbhANA5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Jan 2021 19:57:07 -0500
-IronPort-SDR: yuqzCodrUONpkeA0J2IogJHSfr3RIlzyqCsak7G6INk/dufrLXfyubBtpjaGEfGbqsw3gYLBFM
- WZCB9SYHafhA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9863"; a="158064366"
+        id S1727137AbhANA7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Jan 2021 19:59:30 -0500
+IronPort-SDR: czxvANEB56ykrJLzJB+TR+P6Dv1qOHRn0pdEMyfgPFsboE8ofMF8T7P1SjKjfIQ3tim1VlIh7F
+ 0zKsr06PX9Qg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9863"; a="239831069"
 X-IronPort-AV: E=Sophos;i="5.79,345,1602572400"; 
-   d="scan'208";a="158064366"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2021 16:43:11 -0800
-IronPort-SDR: wzoTb6hc9d6sqSJukVWSRq9IMAjmL767ApWlY5EtFShw7qgNK9ZWF4BfFWxVMzbhr+x2kbIecu
- b0GJ+8ILSuOg==
+   d="scan'208";a="239831069"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2021 16:43:32 -0800
+IronPort-SDR: JKUz1UfliHzulnNuEcOPcLkaxSEvNZWPjdOW53CuaeLmvtVpWrng+EQUTdyhmgbeO7NW7Ev8+G
+ fR/oy8U7L/rA==
 X-IronPort-AV: E=Sophos;i="5.79,345,1602572400"; 
-   d="scan'208";a="465080679"
+   d="scan'208";a="405000358"
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2021 16:43:10 -0800
-Subject: [PATCH v4 0/5] mm: Fix pfn_to_online_page() with respect to
- ZONE_DEVICE
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2021 16:43:32 -0800
+Subject: [PATCH v4 4/5] mm: Fix page reference leak in soft_offline_page()
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     akpm@linux-foundation.org
-Cc:     David Hildenbrand <david@redhat.com>, stable@vger.kernel.org,
-        Naoya Horiguchi <nao.horiguchi@gmail.com>,
-        Qian Cai <cai@lca.pw>, Michal Hocko <mhocko@kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>, linux-mm@kvack.org,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
-Date:   Wed, 13 Jan 2021 16:43:10 -0800
-Message-ID: <161058499000.1840162.702316708443239771.stgit@dwillia2-desk3.amr.corp.intel.com>
+Cc:     Naoya Horiguchi <nao.horiguchi@gmail.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-nvdimm@lists.01.org,
+        linux-kernel@vger.kernel.org
+Date:   Wed, 13 Jan 2021 16:43:32 -0800
+Message-ID: <161058501210.1840162.8108917599181157327.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <161058499000.1840162.702316708443239771.stgit@dwillia2-desk3.amr.corp.intel.com>
+References: <161058499000.1840162.702316708443239771.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -45,68 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Changes since v3 [1]:
-- Switch to "if (IS_ENABLED(CONFIG_HAVE_ARCH_PFN_VALID) &&
-  !pfn_valid(pfn))" (David)
-- Finish collecting reviewed-bys across all patches in the series
-- Drop the libnvdimm fixup, to be merged through nvdimm.git not -mm
+The conversion to move pfn_to_online_page() internal to
+soft_offline_page() missed that the get_user_pages() reference taken by
+the madvise() path needs to be dropped when pfn_to_online_page() fails.
+Note the direct sysfs-path to soft_offline_page() does not perform a
+get_user_pages() lookup.
 
-[1]: http://lore.kernel.org/r/161052331545.1805594.2356512831689786960.stgit@dwillia2-desk3.amr.corp.intel.com
+When soft_offline_page() is handed a pfn_valid() &&
+!pfn_to_online_page() pfn the kernel hangs at dax-device shutdown due to
+a leaked reference.
 
+Fixes: feec24a6139d ("mm, soft-offline: convert parameter to pfn")
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Naoya Horiguchi <nao.horiguchi@gmail.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
+ mm/memory-failure.c |   20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-Andrew,
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index 5a38e9eade94..78b173c7190c 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1885,6 +1885,12 @@ static int soft_offline_free_page(struct page *page)
+ 	return rc;
+ }
+ 
++static void put_ref_page(struct page *page)
++{
++	if (page)
++		put_page(page);
++}
++
+ /**
+  * soft_offline_page - Soft offline a page.
+  * @pfn: pfn to soft-offline
+@@ -1910,20 +1916,26 @@ static int soft_offline_free_page(struct page *page)
+ int soft_offline_page(unsigned long pfn, int flags)
+ {
+ 	int ret;
+-	struct page *page;
+ 	bool try_again = true;
++	struct page *page, *ref_page = NULL;
++
++	WARN_ON_ONCE(!pfn_valid(pfn) && (flags & MF_COUNT_INCREASED));
+ 
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	if (flags & MF_COUNT_INCREASED)
++		ref_page = pfn_to_page(pfn);
++
+ 	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
+ 	page = pfn_to_online_page(pfn);
+-	if (!page)
++	if (!page) {
++		put_ref_page(ref_page);
+ 		return -EIO;
++	}
+ 
+ 	if (PageHWPoison(page)) {
+ 		pr_info("%s: %#lx page already poisoned\n", __func__, pfn);
+-		if (flags & MF_COUNT_INCREASED)
+-			put_page(page);
++		put_ref_page(ref_page);
+ 		return 0;
+ 	}
+ 
 
-All patches in this series have been reviewed and the kbuild-robot
-reports a build-success over 172 configs. They pass an updated version
-of the nvdimm unit tests to exercise corner cases of
-pfn_to_online_page() and get_dev_pagemap() [2], and apply cleanly to
-current -next.
-
-Please apply, thanks.
-
-[2]: http://lore.kernel.org/r/161052209289.1804207.11599120961607513911.stgit@dwillia2-desk3.amr.corp.intel.com
-
----
-
-Michal reminds that the discussion about how to ensure pfn-walkers do
-not get confused by ZONE_DEVICE pages never resolved. A pfn-walker that
-uses pfn_to_online_page() may inadvertently translate a pfn as online
-and in the page allocator, when it is offline managed by a ZONE_DEVICE
-mapping (details in Patch 3: ("mm: Teach pfn_to_online_page() about
-ZONE_DEVICE section collisions")).
-
-The 2 proposals under consideration are teach pfn_to_online_page() to be
-precise in the presence of mixed-zone sections, or teach the memory-add
-code to drop the System RAM associated with ZONE_DEVICE collisions. In
-order to not regress memory capacity by a few 10s to 100s of MiB the
-approach taken in this set is to add precision to pfn_to_online_page().
-
-In the course of validating pfn_to_online_page() a couple other fixes
-fell out:
-
-1/ soft_offline_page() fails to drop the reference taken in the
-   madvise(..., MADV_SOFT_OFFLINE) case.
-
-2/ memory_failure() uses get_dev_pagemap() to lookup ZONE_DEVICE pages,
-   however that mapping may contain data pages and metadata raw pfns.
-   Introduce pgmap_pfn_valid() to delineate the 2 types and fail the
-   handling of raw metadata pfns.
-
----
-
-Dan Williams (5):
-      mm: Move pfn_to_online_page() out of line
-      mm: Teach pfn_to_online_page() to consider subsection validity
-      mm: Teach pfn_to_online_page() about ZONE_DEVICE section collisions
-      mm: Fix page reference leak in soft_offline_page()
-      mm: Fix memory_failure() handling of dax-namespace metadata
-
-
- include/linux/memory_hotplug.h |   17 +---------
- include/linux/memremap.h       |    6 +++
- include/linux/mmzone.h         |   22 +++++++++----
- mm/memory-failure.c            |   26 +++++++++++++--
- mm/memory_hotplug.c            |   69 ++++++++++++++++++++++++++++++++++++++++
- mm/memremap.c                  |   15 +++++++++
- 6 files changed, 128 insertions(+), 27 deletions(-)
