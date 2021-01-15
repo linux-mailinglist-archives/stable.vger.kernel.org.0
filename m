@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 539822F79B8
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 095872F7AC5
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732038AbhAOMkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:40:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
+        id S2387668AbhAOMyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:54:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732208AbhAOMkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:40:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DCA2238A1;
-        Fri, 15 Jan 2021 12:39:19 +0000 (UTC)
+        id S2387696AbhAOMfc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C96E6235F8;
+        Fri, 15 Jan 2021 12:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714359;
-        bh=hoCrFzh6EESKRBypPYfJr0YrjNQOPJqIhwUSn0MGLhU=;
+        s=korg; t=1610714092;
+        bh=gAuB4bxz3JyCVSL+w75fTiFRumZx+0gm9gjg+URFPoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nr81wN5Y+bwg6Od0mfzWN9OS1Dfe7GNbGfMEMIuAE4+2knSdnFrjBmtXkD0apgsWR
-         vJLOXCHcAvCxRfm78/dqZqN7+qa7LBjfjo3s/e9AAGK90BBX7WFKTKNjTr9DZfrp0i
-         l900VKEPHbWhhVhBXi+hTatfv1d7fS+RkG9MLswk=
+        b=JQFeVstFotSFmuIeToTXThOyaQDD8qGpAs7hbJl5k9JuEMi2v14cFYr01wnbx/g6g
+         6MPgfztHEXoBFFrhbupkgr2hIBTjEuWnHrpoL3pcC9IVGpZR9eXIXCgSXzrTLp2foD
+         bCpRz+bpkTBtJPcsi3Ga0NeVMEIAaR8iLCtpp6pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 070/103] dmaengine: xilinx_dma: check dma_async_device_register return value
+        stable@vger.kernel.org, Roman Guskov <rguskov@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 41/62] spi: stm32: FIFO threshold level - fix align packet size
 Date:   Fri, 15 Jan 2021 13:28:03 +0100
-Message-Id: <20210115122009.425384659@linuxfoundation.org>
+Message-Id: <20210115122000.381353872@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Roman Guskov <rguskov@dh-electronics.com>
 
-commit 99974aedbd73523969afb09f33c6e3047cd0ddae upstream.
+commit a590370d918fc66c62df6620445791fbe840344a upstream.
 
-dma_async_device_register() can return non-zero error code. Add
-condition to check the return value of dma_async_device_register
-function and handle the error path.
+if cur_bpw <= 8 and xfer_len < 4 then the value of fthlv will be 1 and
+SPI registers content may have been lost.
 
-Addresses-Coverity: Event check_return.
-Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1608722462-29519-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+* If SPI data register is accessed as a 16-bit register and DSIZE <= 8bit,
+  better to select FTHLV = 2, 4, 6 etc
+
+* If SPI data register is accessed as a 32-bit register and DSIZE > 8bit,
+  better to select FTHLV = 2, 4, 6 etc, while if DSIZE <= 8bit,
+  better to select FTHLV = 4, 8, 12 etc
+
+Signed-off-by: Roman Guskov <rguskov@dh-electronics.com>
+Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
+Reviewed-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20201221123532.27272-1-rguskov@dh-electronics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/xilinx/xilinx_dma.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/spi/spi-stm32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3112,7 +3112,11 @@ static int xilinx_dma_probe(struct platf
- 	}
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -494,9 +494,9 @@ static u32 stm32h7_spi_prepare_fthlv(str
  
- 	/* Register the DMA engine with the core */
--	dma_async_device_register(&xdev->common);
-+	err = dma_async_device_register(&xdev->common);
-+	if (err) {
-+		dev_err(xdev->dev, "failed to register the dma device\n");
-+		goto error;
-+	}
+ 	/* align packet size with data registers access */
+ 	if (spi->cur_bpw > 8)
+-		fthlv -= (fthlv % 2); /* multiple of 2 */
++		fthlv += (fthlv % 2) ? 1 : 0;
+ 	else
+-		fthlv -= (fthlv % 4); /* multiple of 4 */
++		fthlv += (fthlv % 4) ? (4 - (fthlv % 4)) : 0;
  
- 	err = of_dma_controller_register(node, of_dma_xilinx_xlate,
- 					 xdev);
+ 	if (!fthlv)
+ 		fthlv = 1;
 
 
