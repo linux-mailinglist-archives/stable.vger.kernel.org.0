@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 500A52F7AEA
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B70A2F7A25
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387472AbhAOMeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:34:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
+        id S1726019AbhAOMpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:45:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387465AbhAOMeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F0B523370;
-        Fri, 15 Jan 2021 12:33:43 +0000 (UTC)
+        id S1733203AbhAOMiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:38:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 133B3235F8;
+        Fri, 15 Jan 2021 12:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714023;
-        bh=Ezy3JaWQRCyS1ArtIJlFN47/XhhNKgcWf6RBUjyAxGo=;
+        s=korg; t=1610714268;
+        bh=ZZWmJlUIDJ2JPv5b9I0qOYxGiQAFlC00RJvtuJxTiWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uef/yA8F4ET7uKEaPjXOwfMlcmWT26IdBDePDxQ9aYJ5hLU5x8WoUkIktC59+GVGu
-         cRjGHG3GnLgdrZUzg1eP6gEideFbKk7AaxJ139/FFDJp5hvk3mmk3uLHeslZr44cUv
-         Qk5uDLAVJocU8porISvJ916Dw1YRvnsAvIvjInj4=
+        b=rL9JWbDkJ7h2ECcHw8a/Q3rMv3GjHEgks1/9XiblxlTeve+ltHI4RU5DPRQ7naTGi
+         AJn6fbKJs1xHNRAFEHOGw+1SZ6VDmZJbP71MEofdYN1BBGjILi0gjL0uxcolnDDKJP
+         6lR2nDLedWW0ss3Vkzdf90ry8qlUvRBjDe+0oLdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?Jouni=20K . =20Sepp=C3=A4nen?=" <jks@iki.fi>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 03/62] net: cdc_ncm: correct overhead in delayed_ndp_size
+        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        Ayush Sawal <ayush.sawal@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 032/103] chtls: Avoid unnecessary freeing of oreq pointer
 Date:   Fri, 15 Jan 2021 13:27:25 +0100
-Message-Id: <20210115121958.566466769@linuxfoundation.org>
+Message-Id: <20210115122007.613127635@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jouni K. Sepp�nen" <jks@iki.fi>
+From: Ayush Sawal <ayush.sawal@chelsio.com>
 
-[ Upstream commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 ]
+[ Upstream commit f8d15d29d6e6b32704c8fce9229716ca145a0de2 ]
 
-Aligning to tx_ndp_modulus is not sufficient because the next align
-call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
-ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
-on a Huawei 909s-120 LTE module as follows:
+In chtls_pass_accept_request(), removing the chtls_reqsk_free()
+call to avoid oreq freeing twice. Here oreq is the pointer to
+struct request_sock.
 
-- the condition marked /* if there is a remaining skb [...] */ is true
-  so the swaps happen
-- skb_out is set from ctx->tx_curr_skb
-- skb_out->len is exactly 0x3f52
-- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
-  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
-- the for loop over n is executed once
-- the cdc_ncm_align_tail call marked /* align beginning of next frame */
-  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
-- the condition marked /* check if we had enough room left [...] */ is
-  false so we break out of the loop
-- the condition marked /* If requested, put NDP at end of frame. */ is
-  true so the NDP is written into skb_out
-- now skb_out->len is 0x4002, so padding_count is minus two interpreted
-  as an unsigned number, which is used as the length argument to memset,
-  leading to a crash with various symptoms but usually including
-
-> Call Trace:
->  <IRQ>
->  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
->  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
->  usbnet_start_xmit+0x5d/0x720 [usbnet]
-
-The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
-boundary (adding at most ctx->tx_modulus-1 bytes), then adds
-ctx->tx_remainder bytes. Alternatively, the next alignment call can
-occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
-ctx->tx_ndp_modulus-1 bytes are added.
-
-A similar problem has occurred before, and the code is nontrivial to
-reason about, so add a guard before the crashing call. By that time it
-is too late to prevent any memory corruption (we'll have written past
-the end of the buffer already) but we can at least try to get a warning
-written into an on-disk log by avoiding the hard crash caused by padding
-past the buffer with a huge number of zeros.
-
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
-Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1126,7 +1126,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	 * accordingly. Otherwise, we should check here.
- 	 */
- 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
--		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
-+		delayed_ndp_size = ctx->max_ndp_size +
-+			max_t(u32,
-+			      ctx->tx_ndp_modulus,
-+			      ctx->tx_modulus + ctx->tx_remainder) - 1;
- 	else
- 		delayed_ndp_size = 0;
+--- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
++++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
+@@ -1396,7 +1396,7 @@ static void chtls_pass_accept_request(st
  
-@@ -1307,7 +1310,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
- 	    skb_out->len > ctx->min_tx_pkt) {
- 		padding_count = ctx->tx_curr_size - skb_out->len;
--		skb_put_zero(skb_out, padding_count);
-+		if (!WARN_ON(padding_count > ctx->tx_curr_size))
-+			skb_put_zero(skb_out, padding_count);
- 	} else if (skb_out->len < ctx->tx_curr_size &&
- 		   (skb_out->len % dev->maxpacket) == 0) {
- 		skb_put_u8(skb_out, 0);	/* force short packet */
+ 	newsk = chtls_recv_sock(sk, oreq, network_hdr, req, cdev);
+ 	if (!newsk)
+-		goto free_oreq;
++		goto reject;
+ 
+ 	if (chtls_get_module(newsk))
+ 		goto reject;
+@@ -1412,8 +1412,6 @@ static void chtls_pass_accept_request(st
+ 	kfree_skb(skb);
+ 	return;
+ 
+-free_oreq:
+-	chtls_reqsk_free(oreq);
+ reject:
+ 	mk_tid_release(reply_skb, 0, tid);
+ 	cxgb4_ofld_send(cdev->lldi->ports[0], reply_skb);
 
 
