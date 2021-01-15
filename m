@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F1A2F7BFF
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC8032F7BB3
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732376AbhAONHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:07:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S1732606AbhAOMbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:31:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732352AbhAOMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50142223E0;
-        Fri, 15 Jan 2021 12:30:08 +0000 (UTC)
+        id S1732596AbhAOMbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C80D2389B;
+        Fri, 15 Jan 2021 12:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713808;
-        bh=vYOnBMwlgCdd1Ail6yvVLfbz0Ss/2pImnzoiell7SrA=;
+        s=korg; t=1610713810;
+        bh=eLxc/JivcVOfxYy1bCgsF9Ag5XJf1/dejhZPv7KCAeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yi2H+YAceVsjuq88zUwHK3Ga+UM0Jlu/N33x+A8qzIABsg5pDs0PCwmTLRYuMRh88
-         Nf+BtD9xIlEit5aZ7NMZxi0urb4K5R2LOYxkQ21XVrpM47Oz4zzQ7tjZGuZyPv/TE/
-         VH+8NcNb9HTb1MXgbxnKF0rhSiOGEAcuqu7d7TXE=
+        b=Ivg5ZJ5ro2rO1SH4wjBIqg6BXcycI/F5i/Jzwl75ugRXSuSFMYCQF3PArQRDzVdHP
+         ZaHat4n8UNTczOr3i1fFfYKq4RyIcW5lI/XaBU56eQO78922Nfd4xO+Cu0puTwOIgI
+         Okzdr9zUqApe0DEKoGgXwkZxerPgy8YksDq8ALSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.9 13/25] spi: pxa2xx: Fix use-after-free on unbind
-Date:   Fri, 15 Jan 2021 13:27:44 +0100
-Message-Id: <20210115121957.335128789@linuxfoundation.org>
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.9 14/25] ARM: OMAP2+: omap_device: fix idling of devices during probe
+Date:   Fri, 15 Jan 2021 13:27:45 +0100
+Message-Id: <20210115121957.384405797@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
 References: <20210115121956.679956165@linuxfoundation.org>
@@ -40,49 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-commit 5626308bb94d9f930aa5f7c77327df4c6daa7759 upstream
+commit ec76c2eea903947202098090bbe07a739b5246e9 upstream.
 
-pxa2xx_spi_remove() accesses the driver's private data after calling
-spi_unregister_controller() even though that function releases the last
-reference on the spi_controller and thereby frees the private data.
+On the GTA04A5 od->_driver_status was not set to BUS_NOTIFY_BIND_DRIVER
+during probe of the second mmc used for wifi. Therefore
+omap_device_late_idle idled the device during probing causing oopses when
+accessing the registers.
 
-Fix by switching over to the new devm_spi_alloc_master/slave() helper
-which keeps the private data accessible until the driver has unbound.
+It was not set because od->_state was set to OMAP_DEVICE_STATE_IDLE
+in the notifier callback. Therefore set od->_driver_status also in that
+case.
 
-Fixes: 32e5b57232c0 ("spi: pxa2xx: Fix controller unregister order")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: <stable@vger.kernel.org> # v2.6.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
-Cc: <stable@vger.kernel.org> # v2.6.17+: 32e5b57232c0: spi: pxa2xx: Fix controller unregister order
-Cc: <stable@vger.kernel.org> # v2.6.17+
-Link: https://lore.kernel.org/r/5764b04d4a6e43069ebb7808f64c2f774ac6f193.1607286887.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+This came apparent after commit 21b2cec61c04 ("mmc: Set
+PROBE_PREFER_ASYNCHRONOUS for drivers that existed in v4.4") causing this
+oops:
+
+omap_hsmmc 480b4000.mmc: omap_device_late_idle: enabled but no driver.  Idling
+8<--- cut here ---
+Unhandled fault: external abort on non-linefetch (0x1028) at 0xfa0b402c
+...
+(omap_hsmmc_set_bus_width) from [<c07996bc>] (omap_hsmmc_set_ios+0x11c/0x258)
+(omap_hsmmc_set_ios) from [<c077b2b0>] (mmc_power_up.part.8+0x3c/0xd0)
+(mmc_power_up.part.8) from [<c077c14c>] (mmc_start_host+0x88/0x9c)
+(mmc_start_host) from [<c077d284>] (mmc_add_host+0x58/0x84)
+(mmc_add_host) from [<c0799190>] (omap_hsmmc_probe+0x5fc/0x8c0)
+(omap_hsmmc_probe) from [<c0666728>] (platform_drv_probe+0x48/0x98)
+(platform_drv_probe) from [<c066457c>] (really_probe+0x1dc/0x3b4)
+
+Fixes: 04abaf07f6d5 ("ARM: OMAP2+: omap_device: Sync omap_device and pm_runtime after probe defer")
+Fixes: 21b2cec61c04 ("mmc: Set PROBE_PREFER_ASYNCHRONOUS for drivers that existed in v4.4")
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+[tony@atomide.com: left out extra parens, trimmed description stack trace]
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/spi/spi-pxa2xx.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1606,7 +1606,7 @@ static int pxa2xx_spi_probe(struct platf
- 		return -ENODEV;
- 	}
- 
--	master = spi_alloc_master(dev, sizeof(struct driver_data));
-+	master = devm_spi_alloc_master(dev, sizeof(*drv_data));
- 	if (!master) {
- 		dev_err(&pdev->dev, "cannot alloc spi_master\n");
- 		pxa_ssp_free(ssp);
-@@ -1788,7 +1788,6 @@ out_error_clock_enabled:
- 	free_irq(ssp->irq, drv_data);
- 
- out_error_master_alloc:
--	spi_master_put(master);
- 	pxa_ssp_free(ssp);
- 	return status;
- }
+---
+ arch/arm/mach-omap2/omap_device.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/arch/arm/mach-omap2/omap_device.c
++++ b/arch/arm/mach-omap2/omap_device.c
+@@ -224,10 +224,12 @@ static int _omap_device_notifier_call(st
+ 		break;
+ 	case BUS_NOTIFY_BIND_DRIVER:
+ 		od = to_omap_device(pdev);
+-		if (od && (od->_state == OMAP_DEVICE_STATE_ENABLED) &&
+-		    pm_runtime_status_suspended(dev)) {
++		if (od) {
+ 			od->_driver_status = BUS_NOTIFY_BIND_DRIVER;
+-			pm_runtime_set_active(dev);
++			if (od->_state == OMAP_DEVICE_STATE_ENABLED &&
++			    pm_runtime_status_suspended(dev)) {
++				pm_runtime_set_active(dev);
++			}
+ 		}
+ 		break;
+ 	case BUS_NOTIFY_ADD_DEVICE:
 
 
