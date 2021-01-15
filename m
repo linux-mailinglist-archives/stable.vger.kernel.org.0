@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC6D2F797D
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 276662F7A51
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387920AbhAOMhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:37:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
+        id S1732891AbhAOMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:37:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732641AbhAOMhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A4A207C4;
-        Fri, 15 Jan 2021 12:36:28 +0000 (UTC)
+        id S2387935AbhAOMhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:37:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A00236FB;
+        Fri, 15 Jan 2021 12:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714189;
-        bh=UWNYTAwPLeQZQRwdYZlc5rsHmDakLpWWE+cRKvJCyOM=;
+        s=korg; t=1610714191;
+        bh=0UqOFdZ0HNO4sY8SrYBkxnjjEJNIXWNcXygoYzrav6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFW1Y0gvOoB3v4flMCa3PoxLQ57z9MziCPl6Vwk+gF0mI24uIxifElkWEwT4gq2Uq
-         3W6aUSa+zBnd8HwFGhIrVYTrO8eS8PgVbgcCyrEhS7ovM2PT5wZS4846YmGQ5M7m5D
-         dBAgxgCiie0FZysU/INNbbN2CLE+BHv/GsuUULLE=
+        b=SlCEdfuH7+DUKHiNRb1/CuIHnCiAFzdLwP4D5AAApRMrCyjm6obB9vJC9CaBjU9QN
+         8/Sm4tvXN9t3Sc7R2G9s5cUEyH58hVi7qeK3nEqcouIYrew/PbpasfO1jtNPBh6VfV
+         I3zFlUbFG4J8hdIAKHM9U8+2fd6EABgILOSyA9Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 023/103] net: bareudp: add missing error handling for bareudp_link_config()
-Date:   Fri, 15 Jan 2021 13:27:16 +0100
-Message-Id: <20210115122007.174053342@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 024/103] ptp: ptp_ines: prevent build when HAS_IOMEM is not set
+Date:   Fri, 15 Jan 2021 13:27:17 +0100
+Message-Id: <20210115122007.222030723@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -38,69 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 94bcfdbff0c210b17b27615f4952cc6ece7d5f5f ]
+[ Upstream commit 1f685e6adbbe3c7b1bd9053be771b898d9efa655 ]
 
-.dellink does not get called after .newlink fails,
-bareudp_newlink() must undo what bareudp_configure()
-has done if bareudp_link_config() fails.
+ptp_ines.c uses devm_platform_ioremap_resource(), which is only
+built/available when CONFIG_HAS_IOMEM is enabled.
+CONFIG_HAS_IOMEM is not enabled for arch/s390/, so builds on S390
+have a build error:
 
-v2: call bareudp_dellink(), like bareudp_dev_create() does
+s390-linux-ld: drivers/ptp/ptp_ines.o: in function `ines_ptp_ctrl_probe':
+ptp_ines.c:(.text+0x17e6): undefined reference to `devm_platform_ioremap_resource'
 
-Fixes: 571912c69f0e ("net: UDP tunnel encapsulation module for tunnelling different protocols like MPLS, IP, NSH etc.")
-Link: https://lore.kernel.org/r/20210105190725.1736246-1-kuba@kernel.org
+Prevent builds of ptp_ines.c when HAS_IOMEM is not set.
+
+Fixes: bad1eaa6ac31 ("ptp: Add a driver for InES time stamping IP core.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: lore.kernel.org/r/202101031125.ZEFCUiKi-lkp@intel.com
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Link: https://lore.kernel.org/r/20210106042531.1351-1-rdunlap@infradead.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bareudp.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/ptp/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/bareudp.c
-+++ b/drivers/net/bareudp.c
-@@ -645,11 +645,20 @@ static int bareudp_link_config(struct ne
- 	return 0;
- }
- 
-+static void bareudp_dellink(struct net_device *dev, struct list_head *head)
-+{
-+	struct bareudp_dev *bareudp = netdev_priv(dev);
-+
-+	list_del(&bareudp->next);
-+	unregister_netdevice_queue(dev, head);
-+}
-+
- static int bareudp_newlink(struct net *net, struct net_device *dev,
- 			   struct nlattr *tb[], struct nlattr *data[],
- 			   struct netlink_ext_ack *extack)
- {
- 	struct bareudp_conf conf;
-+	LIST_HEAD(list_kill);
- 	int err;
- 
- 	err = bareudp2info(data, &conf, extack);
-@@ -662,17 +671,14 @@ static int bareudp_newlink(struct net *n
- 
- 	err = bareudp_link_config(dev, tb);
- 	if (err)
--		return err;
-+		goto err_unconfig;
- 
- 	return 0;
--}
--
--static void bareudp_dellink(struct net_device *dev, struct list_head *head)
--{
--	struct bareudp_dev *bareudp = netdev_priv(dev);
- 
--	list_del(&bareudp->next);
--	unregister_netdevice_queue(dev, head);
-+err_unconfig:
-+	bareudp_dellink(dev, &list_kill);
-+	unregister_netdevice_many(&list_kill);
-+	return err;
- }
- 
- static size_t bareudp_get_size(const struct net_device *dev)
+--- a/drivers/ptp/Kconfig
++++ b/drivers/ptp/Kconfig
+@@ -78,6 +78,7 @@ config DP83640_PHY
+ config PTP_1588_CLOCK_INES
+ 	tristate "ZHAW InES PTP time stamping IP core"
+ 	depends on NETWORK_PHY_TIMESTAMPING
++	depends on HAS_IOMEM
+ 	depends on PHYLIB
+ 	depends on PTP_1588_CLOCK
+ 	help
 
 
