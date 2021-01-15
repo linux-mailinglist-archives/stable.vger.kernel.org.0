@@ -2,272 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529CF2F8016
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 16:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E14592F807C
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 17:19:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732145AbhAOPxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 10:53:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732260AbhAOPw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 10:52:59 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2509C06179E
-        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 07:52:03 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id t6so4917170plq.1
-        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 07:52:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5c0ZokoAWbjgzreoc25g5RGCku8IITtlg0hExTKw+OM=;
-        b=1j2Ui9KLR/1WaGErC05tx8Fnmst5q/PHcSbp8JmlrKwKCilxCYmPPJ6I+u5BXJAqFA
-         vDC98fUrIVUSn+WPAyo5SdHEl7YTtd/OZ4MtsJrOsKZgkrhCOFXJ6SrA3MtbWI3FOGgm
-         v1zFHyya9rS12cvSf4GoGNww8tL1es07H4Zdbe1YPAPKzUuOYT2ZrN92xEm94ndHMjjG
-         8BCpZ8bhSqEoc8ZWJ90eYkPr3VKuaPoTMwIvWzSajYm3M+rq77YFn/K0H21qq/ZqKrxk
-         TyUDVetmGeaXGddlwLiuZASLRctAg9xlJwN3Qr0CBUzFDl/8Xd3HZDfSJBKmVxlgkgJi
-         vQvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5c0ZokoAWbjgzreoc25g5RGCku8IITtlg0hExTKw+OM=;
-        b=WU7+7L7kw3FotwmVTL87px256GCWXS/HmCjuOG7nUAnab96qEBH45fbkRVcXKtYXOf
-         fQhgQErKgiManHD/9op+LErs2ywnXh3j+0kKy+w1P2OJG9+uXiHnyHfP2wxMv+VZc8TY
-         ET6vL6bYudqLyqRFc/2VKmJw6jd4ElwhyJOrkOqyxJkBLSSK5XT3no6nQ0jcO9Eay3XN
-         xxu2a/eq21iT0xK/vBZaetVFupdgA2PAlJo/WB5g5WasiWcnfLrEsvaiYf0xNkN5XQnr
-         eloi1dhAizHX7qshGbwYIDrwOA0GdjkAjqzByjCzQW2sQFe0IbsGv/keaVjI84gvQVe5
-         dAdQ==
-X-Gm-Message-State: AOAM533d+NG2IBwIET6diOIFxr/w2cunAWvPzgiL37NMvKqNYrgL7+7T
-        Umnx/RcMgZNzR2xibHl8MjF93vYBuKHjLQ==
-X-Google-Smtp-Source: ABdhPJxhIK1uj9je2D9BugBvLTnx7Y3onWSbvDN6I/+zoUjM5O74Qdv7xtOJoGyiW9jeGEhKuwjYWw==
-X-Received: by 2002:a17:90a:4d84:: with SMTP id m4mr11328089pjh.145.1610725923029;
-        Fri, 15 Jan 2021 07:52:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a18sm8507807pfg.107.2021.01.15.07.52.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Jan 2021 07:52:02 -0800 (PST)
-Message-ID: <6001ba22.1c69fb81.1dacc.596f@mx.google.com>
-Date:   Fri, 15 Jan 2021 07:52:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728898AbhAOQTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 11:19:08 -0500
+Received: from mga07.intel.com ([134.134.136.100]:57456 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728020AbhAOQTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 11:19:08 -0500
+IronPort-SDR: 7Ewwgms6leusm5vbtesLgWw8ZNJO863fumzBrFpG5W1ZYaoII0ek8sq0jJXttW+AwSzio4JDrS
+ a/K8e8bZhUwA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9864"; a="242638645"
+X-IronPort-AV: E=Sophos;i="5.79,349,1602572400"; 
+   d="scan'208";a="242638645"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jan 2021 08:17:16 -0800
+IronPort-SDR: xPNZdf8OhXGDQE59eTSTCMhCOSqjrvK7p5k3EBoIwcsYfjFRHJ/saomieipw2JrLiXpdUFs3yg
+ JNb5bKq+XlKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,349,1602572400"; 
+   d="scan'208";a="465626805"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by fmsmga001.fm.intel.com with ESMTP; 15 Jan 2021 08:17:15 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>
+Subject: [PATCH 1/2] xhci: make sure TRB is fully written before giving it to the controller
+Date:   Fri, 15 Jan 2021 18:19:06 +0200
+Message-Id: <20210115161907.2875631-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210115161907.2875631-1-mathias.nyman@linux.intel.com>
+References: <20210115161907.2875631-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.215-29-ge0904e5ba4c7
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.14.y baseline: 126 runs,
- 5 regressions (v4.14.215-29-ge0904e5ba4c7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 126 runs, 5 regressions (v4.14.215-29-ge09=
-04e5ba4c7)
+Once the command ring doorbell is rung the xHC controller will parse all
+command TRBs on the command ring that have the cycle bit set properly.
 
-Regressions Summary
--------------------
+If the driver just started writing the next command TRB to the ring when
+hardware finished the previous TRB, then HW might fetch an incomplete TRB
+as long as its cycle bit set correctly.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+A command TRB is 16 bytes (128 bits) long.
+Driver writes the command TRB in four 32 bit chunks, with the chunk
+containing the cycle bit last. This does however not guarantee that
+chunks actually get written in that order.
 
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+This was detected in stress testing when canceling URBs with several
+connected USB devices.
+Two consecutive "Set TR Dequeue pointer" commands got queued right
+after each other, and the second one was only partially written when
+the controller parsed it, causing the dequeue pointer to be set
+to bogus values. This was seen as error messages:
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+"Mismatch between completed Set TR Deq Ptr command & xHCI internal state"
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+Solution is to add a write memory barrier before writing the cycle bit.
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+Cc: <stable@vger.kernel.org>
+Tested-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci-ring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 5677b81c0915..cf0c93a90200 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2931,6 +2931,8 @@ static void queue_trb(struct xhci_hcd *xhci, struct xhci_ring *ring,
+ 	trb->field[0] = cpu_to_le32(field1);
+ 	trb->field[1] = cpu_to_le32(field2);
+ 	trb->field[2] = cpu_to_le32(field3);
++	/* make sure TRB is fully written before giving it to the controller */
++	wmb();
+ 	trb->field[3] = cpu_to_le32(field4);
+ 
+ 	trace_xhci_queue_trb(ring, trb);
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.215-29-ge0904e5ba4c7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.215-29-ge0904e5ba4c7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e0904e5ba4c7b92b4b7c15f985cf11de0fd958f2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6001895656bbc1299fc94cc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6001895656bbc1299fc94=
-cc9
-        failing since 290 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/600186de8c72b92407c94cbe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/600186de8c72b92407c94=
-cbf
-        failing since 61 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/600186dd8c72b92407c94cb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/600186dd8c72b92407c94=
-cba
-        failing since 61 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/600186d70b8f3c7151c94cd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/600186d70b8f3c7151c94=
-cd5
-        failing since 61 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60019ee2ffe83dbe82c94ccf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-15-29-ge0904e5ba4c7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60019ee2ffe83dbe82c94=
-cd0
-        failing since 61 days (last pass: v4.14.206-21-gf1262f26e4d0, first=
- fail: v4.14.206-23-g520c3568920c8) =
-
- =20
