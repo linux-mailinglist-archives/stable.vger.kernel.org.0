@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AADC02F7A2F
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB4A2F7A2B
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387893AbhAOMqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:46:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44878 "EHLO mail.kernel.org"
+        id S1731334AbhAOMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:46:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388078AbhAOMhz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3782D22473;
-        Fri, 15 Jan 2021 12:37:39 +0000 (UTC)
+        id S2388093AbhAOMh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:37:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68A45221FA;
+        Fri, 15 Jan 2021 12:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714259;
-        bh=+MOftX0eh6Va4502EDqSaY5br9ihD+GXizoor8nYNCU=;
+        s=korg; t=1610714261;
+        bh=kgZAR3IAeNFVR66Rs3mtemw0EeM1xQk2pj7RbX5iMlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WekirRlh/DEROwN05g/ZdXmobMHYgTbD1vOj5wMNTJ49Q036AADx9eNqydwO1b/ld
-         ygRQ1uiljx/FkXVhfamNfkOLQIc+JfDBMbOOhFk5yQT8gG/8u6JZslPQXBAktH8sW+
-         S93hlrGDrTIKTUzGAO4X3aitVISNPeOtZTFgocRc=
+        b=BFExK9TiOEpXrO0blLKN93aKmdl/Mm485v702yZfR3X1dhHafGxLTWeuQf0geZP3g
+         3yEWPo8z5v+YRgb4YyQlc/1iXRTFOvtcNVoYJ+FeDXJP0X0PC5dvsPKk+iG7mE2pV4
+         FSez8rpKz+fCaaZ8NuJxeT8GABsl/S2AxbtECyok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Mostafa <kamal@canonical.com>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.10 055/103] selftests/bpf: Clarify build error if no vmlinux
-Date:   Fri, 15 Jan 2021 13:27:48 +0100
-Message-Id: <20210115122008.713997976@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 056/103] can: tcan4x5x: fix bittiming const, use common bittiming from m_can driver
+Date:   Fri, 15 Jan 2021 13:27:49 +0100
+Message-Id: <20210115122008.761325984@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -39,47 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Mostafa <kamal@canonical.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 1a3449c19407a28f7019a887cdf0d6ba2444751a upstream.
+commit aee2b3ccc8a63d1cd7da6a8a153d1f3712d40826 upstream.
 
-If Makefile cannot find any of the vmlinux's in its VMLINUX_BTF_PATHS list,
-it tries to run btftool incorrectly, with VMLINUX_BTF unset:
+According to the TCAN4550 datasheet "SLLSF91 - DECEMBER 2018" the tcan4x5x has
+the same bittiming constants as a m_can revision 3.2.x/3.3.0.
 
-    bpftool btf dump file $(VMLINUX_BTF) format c
+The tcan4x5x chip I'm using identifies itself as m_can revision 3.2.1, so
+remove the tcan4x5x specific bittiming values and rely on the values in the
+m_can driver, which are selected according to core revision.
 
-Such that the keyword 'format' is misinterpreted as the path to vmlinux.
-The resulting build error message is fairly cryptic:
-
-      GEN      vmlinux.h
-    Error: failed to load BTF from format: No such file or directory
-
-This patch makes the failure reason clearer by yielding this instead:
-
-    Makefile:...: *** Cannot find a vmlinux for VMLINUX_BTF at any of
-    "{paths}".  Stop.
-
-Fixes: acbd06206bbb ("selftests/bpf: Add vmlinux.h selftest exercising tracing of syscalls")
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20201215182011.15755-1-kamal@canonical.com
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Cc: Dan Murphy <dmurphy@ti.com>
+Reviewed-by: Sean Nyekjaer <sean@geanix.com>
+Link: https://lore.kernel.org/r/20201215103238.524029-3-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/can/m_can/tcan4x5x.c |   26 --------------------------
+ 1 file changed, 26 deletions(-)
 
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -146,6 +146,9 @@ VMLINUX_BTF_PATHS ?= $(if $(O),$(O)/vmli
- 		     /sys/kernel/btf/vmlinux				\
- 		     /boot/vmlinux-$(shell uname -r)
- VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
-+ifeq ($(VMLINUX_BTF),)
-+$(error Cannot find a vmlinux for VMLINUX_BTF at any of "$(VMLINUX_BTF_PATHS)")
-+endif
+--- a/drivers/net/can/m_can/tcan4x5x.c
++++ b/drivers/net/can/m_can/tcan4x5x.c
+@@ -129,30 +129,6 @@ struct tcan4x5x_priv {
+ 	int reg_offset;
+ };
  
- DEFAULT_BPFTOOL := $(SCRATCH_DIR)/sbin/bpftool
+-static struct can_bittiming_const tcan4x5x_bittiming_const = {
+-	.name = DEVICE_NAME,
+-	.tseg1_min = 2,
+-	.tseg1_max = 31,
+-	.tseg2_min = 2,
+-	.tseg2_max = 16,
+-	.sjw_max = 16,
+-	.brp_min = 1,
+-	.brp_max = 32,
+-	.brp_inc = 1,
+-};
+-
+-static struct can_bittiming_const tcan4x5x_data_bittiming_const = {
+-	.name = DEVICE_NAME,
+-	.tseg1_min = 1,
+-	.tseg1_max = 32,
+-	.tseg2_min = 1,
+-	.tseg2_max = 16,
+-	.sjw_max = 16,
+-	.brp_min = 1,
+-	.brp_max = 32,
+-	.brp_inc = 1,
+-};
+-
+ static void tcan4x5x_check_wake(struct tcan4x5x_priv *priv)
+ {
+ 	int wake_state = 0;
+@@ -479,8 +455,6 @@ static int tcan4x5x_can_probe(struct spi
+ 	mcan_class->dev = &spi->dev;
+ 	mcan_class->ops = &tcan4x5x_ops;
+ 	mcan_class->is_peripheral = true;
+-	mcan_class->bit_timing = &tcan4x5x_bittiming_const;
+-	mcan_class->data_timing = &tcan4x5x_data_bittiming_const;
+ 	mcan_class->net->irq = spi->irq;
  
+ 	spi_set_drvdata(spi, priv);
 
 
