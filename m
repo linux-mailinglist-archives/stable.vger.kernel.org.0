@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2232F7C0E
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3C22F7B5F
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732395AbhAONIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:08:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S1731469AbhAOMdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732157AbhAOMao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36AB42333E;
-        Fri, 15 Jan 2021 12:29:37 +0000 (UTC)
+        id S1732069AbhAOMc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:32:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09E2E23359;
+        Fri, 15 Jan 2021 12:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713777;
-        bh=8tcTVkAs5155gqV6KdpmUfac/ys7Qi1zjNTA95lHapk=;
+        s=korg; t=1610713938;
+        bh=hRcoCfh9d6SyECfi+A1ndn0fRkrdz9XEX+CwrdN/SjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DovKh7WWLRzEs06cTOrY+cntP8TjpoQjwdX+LjKW6uAyNYWToww66XlzhsSHcQpEH
-         4+kIUueFN26S4huazYOuKKE65ZVkTbThuwrrE1p9f20sKgpb9cX5exSXYk7R6Wa0pc
-         V4op6z6Pr1yRAwkRhe2Oxiv1T/HCJ+7DFJtVIrOU=
+        b=otr9f7FohN20bYuicTIX21Q4cNDxW9Xn84LxubPZKKO9O8ptcu0AoQ5irbVeh5QWC
+         NgXbEhltDeg9GcCmOzmJFPQXLmm/rOPTUIS8X3Z+mdCZzLvH72n9qiXEDtTZJrpOmQ
+         a5tZGfMicxOEJsyuipmbJICSG/i06E2iAawmio14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 18/18] net: drop bogus skb with CHECKSUM_PARTIAL and offset beyond end of trimmed packet
-Date:   Fri, 15 Jan 2021 13:27:46 +0100
-Message-Id: <20210115121956.005103672@linuxfoundation.org>
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>
+Subject: [PATCH 4.19 17/43] x86/resctrl: Dont move a task to the same resource group
+Date:   Fri, 15 Jan 2021 13:27:47 +0100
+Message-Id: <20210115121957.882938474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
-References: <20210115121955.112329537@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit 54970a2fbb673f090b7f02d7f57b10b2e0707155 upstream.
+commit a0195f314a25582b38993bf30db11c300f4f4611 upstream
 
-syzbot reproduces BUG_ON in skb_checksum_help():
-tun creates (bogus) skb with huge partial-checksummed area and
-small ip packet inside. Then ip_rcv trims the skb based on size
-of internal ip packet, after that csum offset points beyond of
-trimmed skb. Then checksum_tg() called via netfilter hook
-triggers BUG_ON:
+Shakeel Butt reported in [1] that a user can request a task to be moved
+to a resource group even if the task is already in the group. It just
+wastes time to do the move operation which could be costly to send IPI
+to a different CPU.
 
-        offset = skb_checksum_start_offset(skb);
-        BUG_ON(offset >= skb_headlen(skb));
+Add a sanity check to ensure that the move operation only happens when
+the task is not already in the resource group.
 
-To work around the problem this patch forces pskb_trim_rcsum_slow()
-to return -EINVAL in described scenario. It allows its callers to
-drop such kind of packets.
+[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
 
-Link: https://syzkaller.appspot.com/bug?id=b419a5ca95062664fe1a60b764621eb4526e2cd0
-Reported-by: syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/1b2494af-2c56-8ee2-7bc0-923fcad1cdf8@virtuozzo.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Backporting notes:
+
+Since upstream commit fa7d949337cc ("x86/resctrl: Rename and move rdt
+files to a separate directory"), the file
+arch/x86/kernel/cpu/intel_rdt_rdtgroup.c has been renamed and moved to
+arch/x86/kernel/cpu/resctrl/rdtgroup.c.
+Apply the change against file arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+for older stable trees.
+
+Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/962ede65d8e95be793cb61102cca37f7bb018e66.1608243147.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/core/skbuff.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -1516,6 +1516,12 @@ int pskb_trim_rcsum_slow(struct sk_buff
- 		skb->csum = csum_block_sub(skb->csum,
- 					   skb_checksum(skb, len, delta, 0),
- 					   len);
-+	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		int hdlen = (len > skb_headlen(skb)) ? skb_headlen(skb) : len;
-+		int offset = skb_checksum_start_offset(skb) + skb->csum_offset;
+--- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
++++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+@@ -554,6 +554,13 @@ static void update_task_closid_rmid(stru
+ static int __rdtgroup_move_task(struct task_struct *tsk,
+ 				struct rdtgroup *rdtgrp)
+ {
++	/* If the task is already in rdtgrp, no need to move the task. */
++	if ((rdtgrp->type == RDTCTRL_GROUP && tsk->closid == rdtgrp->closid &&
++	     tsk->rmid == rdtgrp->mon.rmid) ||
++	    (rdtgrp->type == RDTMON_GROUP && tsk->rmid == rdtgrp->mon.rmid &&
++	     tsk->closid == rdtgrp->mon.parent->closid))
++		return 0;
 +
-+		if (offset + sizeof(__sum16) > hdlen)
-+			return -EINVAL;
- 	}
- 	return __pskb_trim(skb, len);
- }
+ 	/*
+ 	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
+ 	 * updated by them.
 
 
