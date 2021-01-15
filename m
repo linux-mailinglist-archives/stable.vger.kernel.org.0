@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E90542F792E
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B199E2F7A06
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732980AbhAOMcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:32:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39426 "EHLO mail.kernel.org"
+        id S1732478AbhAOMoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:44:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731366AbhAOMcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:32:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5814123356;
-        Fri, 15 Jan 2021 12:32:00 +0000 (UTC)
+        id S2388164AbhAOMiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:38:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3059236FB;
+        Fri, 15 Jan 2021 12:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713920;
-        bh=s9BxNrvpscGgwT1e3MQossA3gfz3bqCYc0r2CbY/HFI=;
+        s=korg; t=1610714290;
+        bh=WKlYm6h0UNKbimFVNmrA4FQ36G3fzDbIf1QmBFHlYnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzLn81eZFUb0Y2kerKVvlsk5fpt3U4D69233YVAYdcFLaRPHFJ/gGs80PCANSlJUy
-         er1i5MheeBLo6d2AcT+sq0ko7YzyZHIjWQI6hctS9qYcsHMboNPtUswkkGlnDcDf54
-         y7T87MOwkDRUrPBVWxgukIccJLYKBrIEdKwGLlDc=
+        b=xlHWwguh6EG1IqwEDFgy0xABUCeQB75E8YIvD1iMIyojiWpb54y+XmlbqMYsPKiWj
+         P6yeNtvD5Sdc09/rNdSRzu/DWsnNltykVYuH8rQ19PCM3u5AX/NAWLhJg1J502A7sF
+         06p4KPiSSsNb7Sw6wU6TPiv0WljNztCRJ3QFX43s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?Jouni=20K . =20Sepp=C3=A4nen?=" <jks@iki.fi>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 01/43] net: cdc_ncm: correct overhead in delayed_ndp_size
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 038/103] nexthop: Unlink nexthop group entry in error path
 Date:   Fri, 15 Jan 2021 13:27:31 +0100
-Message-Id: <20210115121957.114342575@linuxfoundation.org>
+Message-Id: <20210115122007.901310024@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,85 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jouni K. Sepp�nen" <jks@iki.fi>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 7a68d725e4ea384977445e0bcaed3d7de83ab5b3 ]
+[ Upstream commit 7b01e53eee6dce7a8a6736e06b99b68cd0cc7a27 ]
 
-Aligning to tx_ndp_modulus is not sufficient because the next align
-call can be cdc_ncm_align_tail, which can add up to ctx->tx_modulus +
-ctx->tx_remainder - 1 bytes. This used to lead to occasional crashes
-on a Huawei 909s-120 LTE module as follows:
+In case of error, remove the nexthop group entry from the list to which
+it was previously added.
 
-- the condition marked /* if there is a remaining skb [...] */ is true
-  so the swaps happen
-- skb_out is set from ctx->tx_curr_skb
-- skb_out->len is exactly 0x3f52
-- ctx->tx_curr_size is 0x4000 and delayed_ndp_size is 0xac
-  (note that the sum of skb_out->len and delayed_ndp_size is 0x3ffe)
-- the for loop over n is executed once
-- the cdc_ncm_align_tail call marked /* align beginning of next frame */
-  increases skb_out->len to 0x3f56 (the sum is now 0x4002)
-- the condition marked /* check if we had enough room left [...] */ is
-  false so we break out of the loop
-- the condition marked /* If requested, put NDP at end of frame. */ is
-  true so the NDP is written into skb_out
-- now skb_out->len is 0x4002, so padding_count is minus two interpreted
-  as an unsigned number, which is used as the length argument to memset,
-  leading to a crash with various symptoms but usually including
-
-> Call Trace:
->  <IRQ>
->  cdc_ncm_fill_tx_frame+0x83a/0x970 [cdc_ncm]
->  cdc_mbim_tx_fixup+0x1d9/0x240 [cdc_mbim]
->  usbnet_start_xmit+0x5d/0x720 [usbnet]
-
-The cdc_ncm_align_tail call first aligns on a ctx->tx_modulus
-boundary (adding at most ctx->tx_modulus-1 bytes), then adds
-ctx->tx_remainder bytes. Alternatively, the next alignment call can
-occur in cdc_ncm_ndp16 or cdc_ncm_ndp32, in which case at most
-ctx->tx_ndp_modulus-1 bytes are added.
-
-A similar problem has occurred before, and the code is nontrivial to
-reason about, so add a guard before the crashing call. By that time it
-is too late to prevent any memory corruption (we'll have written past
-the end of the buffer already) but we can at least try to get a warning
-written into an on-disk log by avoiding the hard crash caused by padding
-past the buffer with a huge number of zeros.
-
-Signed-off-by: Jouni K. Seppänen <jks@iki.fi>
-Fixes: 4a0e3e989d66 ("cdc_ncm: Add support for moving NDP to end of NCM frame")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209407
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv4/nexthop.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -1127,7 +1127,10 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	 * accordingly. Otherwise, we should check here.
- 	 */
- 	if (ctx->drvflags & CDC_NCM_FLAG_NDP_TO_END)
--		delayed_ndp_size = ALIGN(ctx->max_ndp_size, ctx->tx_ndp_modulus);
-+		delayed_ndp_size = ctx->max_ndp_size +
-+			max_t(u32,
-+			      ctx->tx_ndp_modulus,
-+			      ctx->tx_modulus + ctx->tx_remainder) - 1;
- 	else
- 		delayed_ndp_size = 0;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -1277,8 +1277,10 @@ static struct nexthop *nexthop_create_gr
+ 	return nh;
  
-@@ -1308,7 +1311,8 @@ cdc_ncm_fill_tx_frame(struct usbnet *dev
- 	if (!(dev->driver_info->flags & FLAG_SEND_ZLP) &&
- 	    skb_out->len > ctx->min_tx_pkt) {
- 		padding_count = ctx->tx_curr_size - skb_out->len;
--		skb_put_zero(skb_out, padding_count);
-+		if (!WARN_ON(padding_count > ctx->tx_curr_size))
-+			skb_put_zero(skb_out, padding_count);
- 	} else if (skb_out->len < ctx->tx_curr_size &&
- 		   (skb_out->len % dev->maxpacket) == 0) {
- 		skb_put_u8(skb_out, 0);	/* force short packet */
+ out_no_nh:
+-	for (i--; i >= 0; --i)
++	for (i--; i >= 0; --i) {
++		list_del(&nhg->nh_entries[i].nh_list);
+ 		nexthop_put(nhg->nh_entries[i].nh);
++	}
+ 
+ 	kfree(nhg->spare);
+ 	kfree(nhg);
 
 
