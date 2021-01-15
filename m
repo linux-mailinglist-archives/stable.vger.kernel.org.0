@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4282F798F
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBC42F7AF5
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388129AbhAOMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:38:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44878 "EHLO mail.kernel.org"
+        id S2387706AbhAOM4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:56:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731934AbhAOMiK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:38:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A92EE23888;
-        Fri, 15 Jan 2021 12:37:54 +0000 (UTC)
+        id S2387521AbhAOMep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE9C2256F;
+        Fri, 15 Jan 2021 12:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714275;
-        bh=NbB2AQ4CypMmuJMs414rcSphJQYtCRaC+9wKdZRkkoM=;
+        s=korg; t=1610714069;
+        bh=Lr2E47ovMLNH5cjAfP0XE+8hZ6zMuDZnDmwq6ILvmos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDotkSz5f0aTpJkZUNLFwSWh5ahn7JHzbUpPeV5wvzk0F5ctqMdfeRF6EN5ZsXmr9
-         foXYpQOOpLLTKQeytMegN08/VxXFRjU9yAjn4ovwb+HUmqyWyRC1H73hDN8/mLODh4
-         U0sOsGStVny3+T3G04csBMhGASg2k3y+yNNgyDBQ=
+        b=Z7G3UPeyfpP4wK4hPa+/QBPzpRsIH/b5HJ4A7atmEjOF0f0mBgLuCzUiS4wru5xtI
+         Z6lobYaEeAVuu8k9WN2VpXk2PtT7Q7gdpmka86cB9J2mDabmC/0x+yZryXkD3CMrry
+         X2GCM/FaLCUQMEtqy/8wi7VFes6NGbQFym5lzy5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 061/103] spi: spi-geni-qcom: Fix geni_spi_isr() NULL dereference in timeout case
+        stable@vger.kernel.org,
+        syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 32/62] HID: wacom: Fix memory leakage caused by kfifo_alloc
 Date:   Fri, 15 Jan 2021 13:27:54 +0100
-Message-Id: <20210115122008.999891067@linuxfoundation.org>
+Message-Id: <20210115121959.960347166@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Ping Cheng <pinglinux@gmail.com>
 
-commit 4aa1464acbe3697710279a4bd65cb4801ed30425 upstream.
+commit 37309f47e2f5674f3e86cb765312ace42cfcedf5 upstream.
 
-In commit 7ba9bdcb91f6 ("spi: spi-geni-qcom: Don't keep a local state
-variable") we changed handle_fifo_timeout() so that we set
-"mas->cur_xfer" to NULL to make absolutely sure that we don't mess
-with the buffers from the previous transfer in the timeout case.
+As reported by syzbot below, kfifo_alloc'd memory would not be freed
+if a non-zero return value is triggered in wacom_probe. This patch
+creates and uses devm_kfifo_alloc to allocate and free itself.
 
-Unfortunately, this caused the IRQ handler to dereference NULL in some
-cases.  One case:
+BUG: memory leak
+unreferenced object 0xffff88810dc44a00 (size 512):
+  comm "kworker/1:2", pid 3674, jiffies 4294943617 (age 14.100s)
+  hex dump (first 32 bytes):
+   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+   [<0000000023e1afac>] kmalloc_array include/linux/slab.h:592 [inline]
+   [<0000000023e1afac>] __kfifo_alloc+0xad/0x100 lib/kfifo.c:43
+   [<00000000c477f737>] wacom_probe+0x1a1/0x3b0 drivers/hid/wacom_sys.c:2727
+   [<00000000b3109aca>] hid_device_probe+0x16b/0x210 drivers/hid/hid-core.c:2281
+   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
+   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+   [<00000000efb7c59e>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+   [<0000000024ab1590>] __device_attach+0x122/0x250 drivers/base/dd.c:912
+   [<000000004c7ac048>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+   [<00000000b93050a3>] device_add+0x5ac/0xc30 drivers/base/core.c:2936
+   [<00000000e5b46ea5>] hid_add_device+0x151/0x390 drivers/hid/hid-core.c:2437
+   [<00000000c6add147>] usbhid_probe+0x412/0x560 drivers/hid/usbhid/hid-core.c:1407
+   [<00000000c33acdb4>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
+   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
 
-  CPU0                           CPU1
-  ----                           ----
-                                 setup_fifo_xfer()
-                                  geni_se_setup_m_cmd()
-                                 <hardware starts transfer>
-                                 <transfer completes in hardware>
-                                 <hardware sets M_RX_FIFO_WATERMARK_EN in m_irq>
-                                 ...
-                                 handle_fifo_timeout()
-                                  spin_lock_irq(mas->lock)
-                                  mas->cur_xfer = NULL
-                                  geni_se_cancel_m_cmd()
-                                  spin_unlock_irq(mas->lock)
+https://syzkaller.appspot.com/bug?extid=5b49c9695968d7250a26
 
-  geni_spi_isr()
-   spin_lock(mas->lock)
-   if (m_irq & M_RX_FIFO_WATERMARK_EN)
-    geni_spi_handle_rx()
-     mas->cur_xfer NULL dereference!
-
-tl;dr: Seriously delayed interrupts for RX/TX can lead to timeout
-handling setting mas->cur_xfer to NULL.
-
-Let's check for the NULL transfer in the TX and RX cases and reset the
-watermark or clear out the fifo respectively to put the hardware back
-into a sane state.
-
-NOTE: things still could get confused if we get timeouts all the way
-through handle_fifo_timeout() and then start a new transfer because
-interrupts from the old transfer / cancel / abort could still be
-pending.  A future patch will help this corner case.
-
-Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20201217142842.v3.1.I99ee04f0cb823415df59bd4f550d6ff5756e43d6@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-geni-qcom.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/hid/wacom_sys.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-geni-qcom.c
-+++ b/drivers/spi/spi-geni-qcom.c
-@@ -406,6 +406,12 @@ static bool geni_spi_handle_tx(struct sp
- 	unsigned int bytes_per_fifo_word = geni_byte_per_fifo_word(mas);
- 	unsigned int i = 0;
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1270,6 +1270,37 @@ static int wacom_devm_sysfs_create_group
+ 					       group);
+ }
  
-+	/* Stop the watermark IRQ if nothing to send */
-+	if (!mas->cur_xfer) {
-+		writel(0, se->base + SE_GENI_TX_WATERMARK_REG);
-+		return false;
++static void wacom_devm_kfifo_release(struct device *dev, void *res)
++{
++	struct kfifo_rec_ptr_2 *devres = res;
++
++	kfifo_free(devres);
++}
++
++static int wacom_devm_kfifo_alloc(struct wacom *wacom)
++{
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct kfifo_rec_ptr_2 *pen_fifo = &wacom_wac->pen_fifo;
++	int error;
++
++	pen_fifo = devres_alloc(wacom_devm_kfifo_release,
++			      sizeof(struct kfifo_rec_ptr_2),
++			      GFP_KERNEL);
++
++	if (!pen_fifo)
++		return -ENOMEM;
++
++	error = kfifo_alloc(pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
++	if (error) {
++		devres_free(pen_fifo);
++		return error;
 +	}
 +
- 	max_bytes = (mas->tx_fifo_depth - mas->tx_wm) * bytes_per_fifo_word;
- 	if (mas->tx_rem_bytes < max_bytes)
- 		max_bytes = mas->tx_rem_bytes;
-@@ -448,6 +454,14 @@ static void geni_spi_handle_rx(struct sp
- 		if (rx_last_byte_valid && rx_last_byte_valid < 4)
- 			rx_bytes -= bytes_per_fifo_word - rx_last_byte_valid;
- 	}
++	devres_add(&wacom->hdev->dev, pen_fifo);
 +
-+	/* Clear out the FIFO and bail if nowhere to put it */
-+	if (!mas->cur_xfer) {
-+		for (i = 0; i < DIV_ROUND_UP(rx_bytes, bytes_per_fifo_word); i++)
-+			readl(se->base + SE_GENI_RX_FIFOn);
-+		return;
-+	}
++	return 0;
++}
 +
- 	if (mas->rx_rem_bytes < rx_bytes)
- 		rx_bytes = mas->rx_rem_bytes;
+ enum led_brightness wacom_leds_brightness_get(struct wacom_led *led)
+ {
+ 	struct wacom *wacom = led->wacom;
+@@ -2724,7 +2755,7 @@ static int wacom_probe(struct hid_device
+ 	if (features->check_for_hid_type && features->hid_type != hdev->type)
+ 		return -ENODEV;
  
+-	error = kfifo_alloc(&wacom_wac->pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
++	error = wacom_devm_kfifo_alloc(wacom);
+ 	if (error)
+ 		return error;
+ 
+@@ -2786,8 +2817,6 @@ static void wacom_remove(struct hid_devi
+ 
+ 	if (wacom->wacom_wac.features.type != REMOTE)
+ 		wacom_release_resources(wacom);
+-
+-	kfifo_free(&wacom_wac->pen_fifo);
+ }
+ 
+ #ifdef CONFIG_PM
 
 
