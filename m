@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B062F7988
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C18D2F7940
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388041AbhAOMhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44948 "EHLO mail.kernel.org"
+        id S1733275AbhAOMdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:33:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388036AbhAOMhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED10323356;
-        Fri, 15 Jan 2021 12:37:01 +0000 (UTC)
+        id S1733274AbhAOMdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:33:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF08D235F8;
+        Fri, 15 Jan 2021 12:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714222;
-        bh=fVftOZ3FvMhYPI/2X17NxjKeTATjtxglSj3hylaaX58=;
+        s=korg; t=1610714019;
+        bh=kaQy7ys6rWfXfo9e5oLIgJe9emh7z0yyBBYl+dFUjME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBF3iznAPzMFmp0y/uis/zPOP1D1cHZQ12bY0UqtSIwh/Rc3O0NhO6uvYg1Fv9/72
-         HlZMaH1rLSXdeTlH8q1/kbgjtpFDSwi2RqzH1CCsBww9bkWWrokj0AOvakjCpx29f5
-         Q3emR0lql9bV19shQwyXlusSaHQ5G9cR7Ihzw9jo=
+        b=XIASEfc/JU4DEZqz0W7mu4u3CaWDZmAkq/H6gprAbz1OAoMw4yVjjq6SwbHCuksOe
+         KPdtyQJOM+qwhLS1PTlip+qb0jTRm3PDu2hR3pVLiq6qPtbQcRfarWCI8rBKabX4Lo
+         OChOQjnoH5Ywib0Lu7CN1Jse+gcxD8ivjfbZ4EKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
         David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 039/103] nexthop: Bounce NHA_GATEWAY in FDB nexthop groups
+Subject: [PATCH 5.4 10/62] net: ipv6: fib: flush exceptions when purging route
 Date:   Fri, 15 Jan 2021 13:27:32 +0100
-Message-Id: <20210115122007.949280095@linuxfoundation.org>
+Message-Id: <20210115121958.899390981@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Sean Tranchetti <stranche@codeaurora.org>
 
-[ Upstream commit b19218b27f3477316d296e8bcf4446aaf017aa69 ]
+[ Upstream commit d8f5c29653c3f6995e8979be5623d263e92f6b86 ]
 
-The function nh_check_attr_group() is called to validate nexthop groups.
-The intention of that code seems to have been to bounce all attributes
-above NHA_GROUP_TYPE except for NHA_FDB. However instead it bounces all
-these attributes except when NHA_FDB attribute is present--then it accepts
-them.
+Route removal is handled by two code paths. The main removal path is via
+fib6_del_route() which will handle purging any PMTU exceptions from the
+cache, removing all per-cpu copies of the DST entry used by the route, and
+releasing the fib6_info struct.
 
-NHA_FDB validation that takes place before, in rtm_to_nh_config(), already
-bounces NHA_OIF, NHA_BLACKHOLE, NHA_ENCAP and NHA_ENCAP_TYPE. Yet further
-back, NHA_GROUPS and NHA_MASTER are bounced unconditionally.
+The second removal location is during fib6_add_rt2node() during a route
+replacement operation. This path also calls fib6_purge_rt() to handle
+cleaning up the per-cpu copies of the DST entries and releasing the
+fib6_info associated with the older route, but it does not flush any PMTU
+exceptions that the older route had. Since the older route is removed from
+the tree during the replacement, we lose any way of accessing it again.
 
-But that still leaves NHA_GATEWAY as an attribute that would be accepted in
-FDB nexthop groups (with no meaning), so long as it keeps the address
-family as unspecified:
+As these lingering DSTs and the fib6_info struct are holding references to
+the underlying netdevice struct as well, unregistering that device from the
+kernel can never complete.
 
- # ip nexthop add id 1 fdb via 127.0.0.1
- # ip nexthop add id 10 fdb via default group 1
-
-The nexthop code is still relatively new and likely not used very broadly,
-and the FDB bits are newer still. Even though there is a reproducer out
-there, it relies on an improbable gateway arguments "via default", "via
-all" or "via any". Given all this, I believe it is OK to reformulate the
-condition to do the right thing and bounce NHA_GATEWAY.
-
-Fixes: 38428d68719c ("nexthop: support for fdb ecmp nexthops")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Fixes: 2b760fcf5cfb3 ("ipv6: hook up exception table to store dst cache")
+Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
 Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/1609892546-11389-1-git-send-email-stranche@quicinc.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/ip6_fib.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -496,7 +496,7 @@ static int nh_check_attr_group(struct ne
- 	for (i = NHA_GROUP_TYPE + 1; i < __NHA_MAX; ++i) {
- 		if (!tb[i])
- 			continue;
--		if (tb[NHA_FDB])
-+		if (i == NHA_FDB)
- 			continue;
- 		NL_SET_ERR_MSG(extack,
- 			       "No other attributes can be set in nexthop groups");
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -973,6 +973,8 @@ static void fib6_purge_rt(struct fib6_in
+ {
+ 	struct fib6_table *table = rt->fib6_table;
+ 
++	/* Flush all cached dst in exception table */
++	rt6_flush_exceptions(rt);
+ 	fib6_drop_pcpu_from(rt, table);
+ 
+ 	if (rt->nh && !list_empty(&rt->nh_list))
+@@ -1839,9 +1841,6 @@ static void fib6_del_route(struct fib6_t
+ 	net->ipv6.rt6_stats->fib_rt_entries--;
+ 	net->ipv6.rt6_stats->fib_discarded_routes++;
+ 
+-	/* Flush all cached dst in exception table */
+-	rt6_flush_exceptions(rt);
+-
+ 	/* Reset round-robin state, if necessary */
+ 	if (rcu_access_pointer(fn->rr_ptr) == rt)
+ 		fn->rr_ptr = NULL;
 
 
