@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2FF2F7BFA
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ADF02F7C00
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732145AbhAOMan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:30:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36296 "EHLO mail.kernel.org"
+        id S1732778AbhAONHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 08:07:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732134AbhAOMal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F0723339;
-        Fri, 15 Jan 2021 12:29:34 +0000 (UTC)
+        id S1732353AbhAOMbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9E5F238A0;
+        Fri, 15 Jan 2021 12:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713775;
-        bh=LMQDJL6IMoGr4gmCyC0xciArqURJfZSJriojVS7m+jU=;
+        s=korg; t=1610713813;
+        bh=2lfO5BMhBRCISYYSfisVBIn98GspxvrD9EFkcEhvGtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AApCyUqLLrzvylDMP0zP0240m5vatLD013emKmmr9jVz3Komm9kDbtAQSr7VDW+6Z
-         7o/X8sv1c6yq1k8S0AnNBrQ17Es9QVG9Vz0Oq9PaiONymEC3DVUiH7HpJnte07CGSb
-         QNIv0O6OsqnYDcbRFCc1vR1QWxTn8A9RUslwKEWw=
+        b=ftWikzbfvqC6F49ZDp6L8qrAuXaGSvX7Be/3wiT6eLtgNgYmxROQ8WBa6wU8SvNA9
+         tE+kTmDnc0HBevYUTqxmwsXDtkVZeVtVJyzgB1repGHsbiqjFD3QJr4X98P1ziyP2R
+         Tihch7lLCdDtzxGnThOIgMvgE4aCpl1J+zyfmrjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+825f0f9657d4e528046e@syzkaller.appspotmail.com,
-        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 17/18] block: fix use-after-free in disk_part_iter_next
-Date:   Fri, 15 Jan 2021 13:27:45 +0100
-Message-Id: <20210115121955.957022131@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 15/25] cpufreq: powernow-k8: pass policy rather than use cpufreq_cpu_get()
+Date:   Fri, 15 Jan 2021 13:27:46 +0100
+Message-Id: <20210115121957.436024681@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
-References: <20210115121955.112329537@linuxfoundation.org>
+In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
+References: <20210115121956.679956165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit aebf5db917055b38f4945ed6d621d9f07a44ff30 upstream.
+commit 943bdd0cecad06da8392a33093230e30e501eccc upstream.
 
-Make sure that bdgrab() is done on the 'block_device' instance before
-referring to it for avoiding use-after-free.
+Currently there is an unlikely case where cpufreq_cpu_get() returns a
+NULL policy and this will cause a NULL pointer dereference later on.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: syzbot+825f0f9657d4e528046e@syzkaller.appspotmail.com
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this by passing the policy to transition_frequency_fidvid() from
+the caller and hence eliminating the need for the cpufreq_cpu_get()
+and cpufreq_cpu_put().
+
+Thanks to Viresh Kumar for suggesting the fix.
+
+Addresses-Coverity: ("Dereference null return")
+Fixes: b43a7ffbf33b ("cpufreq: Notify all policy->cpus in cpufreq_notify_transition()")
+Suggested-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/genhd.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/cpufreq/powernow-k8.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -158,14 +158,17 @@ struct hd_struct *disk_part_iter_next(st
- 		part = rcu_dereference(ptbl->part[piter->idx]);
- 		if (!part)
- 			continue;
-+		get_device(part_to_dev(part));
-+		piter->part = part;
- 		if (!part_nr_sects_read(part) &&
- 		    !(piter->flags & DISK_PITER_INCL_EMPTY) &&
- 		    !(piter->flags & DISK_PITER_INCL_EMPTY_PART0 &&
--		      piter->idx == 0))
-+		      piter->idx == 0)) {
-+			put_device(part_to_dev(part));
-+			piter->part = NULL;
- 			continue;
-+		}
+--- a/drivers/cpufreq/powernow-k8.c
++++ b/drivers/cpufreq/powernow-k8.c
+@@ -887,9 +887,9 @@ static int get_transition_latency(struct
  
--		get_device(part_to_dev(part));
--		piter->part = part;
- 		piter->idx += inc;
- 		break;
- 	}
+ /* Take a frequency, and issue the fid/vid transition command */
+ static int transition_frequency_fidvid(struct powernow_k8_data *data,
+-		unsigned int index)
++		unsigned int index,
++		struct cpufreq_policy *policy)
+ {
+-	struct cpufreq_policy *policy;
+ 	u32 fid = 0;
+ 	u32 vid = 0;
+ 	int res;
+@@ -921,9 +921,6 @@ static int transition_frequency_fidvid(s
+ 	freqs.old = find_khz_freq_from_fid(data->currfid);
+ 	freqs.new = find_khz_freq_from_fid(fid);
+ 
+-	policy = cpufreq_cpu_get(smp_processor_id());
+-	cpufreq_cpu_put(policy);
+-
+ 	cpufreq_freq_transition_begin(policy, &freqs);
+ 	res = transition_fid_vid(data, fid, vid);
+ 	cpufreq_freq_transition_end(policy, &freqs, res);
+@@ -978,7 +975,7 @@ static long powernowk8_target_fn(void *a
+ 
+ 	powernow_k8_acpi_pst_values(data, newstate);
+ 
+-	ret = transition_frequency_fidvid(data, newstate);
++	ret = transition_frequency_fidvid(data, newstate, pol);
+ 
+ 	if (ret) {
+ 		pr_err("transition frequency failed\n");
 
 
