@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 413862F7B01
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA302F7932
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387654AbhAOM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:57:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
+        id S1733038AbhAOMcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:32:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387444AbhAOMeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E11B23136;
-        Fri, 15 Jan 2021 12:34:07 +0000 (UTC)
+        id S1731622AbhAOMcy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:32:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8560B224F9;
+        Fri, 15 Jan 2021 12:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714047;
-        bh=FOF83rE0CsDT5m7dDfLkq5nxSueUVP1YTUqnm0XU+6U=;
+        s=korg; t=1610713934;
+        bh=LYZmCsTkbQKp4v2/nLIq6dpggX2NPhwPt6DjTkzcvvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXz+/S1y7Z7lMFEIhuk9mMKMTBZjOMuD5kKfJNV8dv2tb4Gv4odcQnWcd0I5fA2ts
-         cB1f3Ntozk3CtMFIez7sdBRDjaSr+1VNCXA/ffwfyIP1AlVCzzIs8AMp0GHqav0Jyn
-         CLXyvKP25eH1iPnEBoZJrTxuqRT5NXnInNE64vLg=
+        b=MMIwJVN2GZdHz782dPXvkVCD6/VPmDQFdiFFtcKc2g+MpUcGq647RJj1h1hwqwlln
+         lH1ocFaOCdKwDFuWST2vsCUkn9sp+Mqilf2cYIi5WReRMajgEaXGquc/pjEP+CutHV
+         Zvw92hbVGr6/0emKSZQD+GWhQPxYm9VBacJr9jGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        stable@vger.kernel.org,
+        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
         Ayush Sawal <ayush.sawal@chelsio.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 23/62] chtls: Fix panic when route to peer not configured
+Subject: [PATCH 4.19 15/43] chtls: Fix chtls resources release sequence
 Date:   Fri, 15 Jan 2021 13:27:45 +0100
-Message-Id: <20210115121959.532751577@linuxfoundation.org>
+Message-Id: <20210115121957.784400767@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +43,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ayush Sawal <ayush.sawal@chelsio.com>
 
-[ Upstream commit 5a5fac9966bb6d513198634b0b1357be7e8447d2 ]
+[ Upstream commit 15ef6b0e30b354253e2c10b3836bc59767eb162b ]
 
-If route to peer is not configured, we might get non tls
-devices from dst_neigh_lookup() which is invalid, adding a
-check to avoid it.
+CPL_ABORT_RPL is sent after releasing the resources by calling
+chtls_release_resources(sk); and chtls_conn_done(sk);
+eventually causing kernel panic. Fixing it by calling release
+in appropriate order.
 
 Fixes: cc35c88ae4db ("crypto : chtls - CPL handler definition")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
 Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
 --- a/drivers/crypto/chelsio/chtls/chtls_cm.c
 +++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -1021,6 +1021,7 @@ static struct sock *chtls_recv_sock(stru
- 				    const struct cpl_pass_accept_req *req,
- 				    struct chtls_dev *cdev)
- {
-+	struct adapter *adap = pci_get_drvdata(cdev->pdev);
- 	struct inet_sock *newinet;
- 	const struct iphdr *iph;
- 	struct tls_context *ctx;
-@@ -1030,9 +1031,10 @@ static struct sock *chtls_recv_sock(stru
- 	struct neighbour *n;
- 	struct tcp_sock *tp;
- 	struct sock *newsk;
-+	bool found = false;
- 	u16 port_id;
- 	int rxq_idx;
--	int step;
-+	int step, i;
+@@ -1884,9 +1884,9 @@ static void bl_abort_syn_rcv(struct sock
+ 	queue = csk->txq_idx;
  
- 	iph = (const struct iphdr *)network_hdr;
- 	newsk = tcp_create_openreq_child(lsk, oreq, cdev->askb);
-@@ -1044,7 +1046,7 @@ static struct sock *chtls_recv_sock(stru
- 		goto free_sk;
+ 	skb->sk	= NULL;
+-	do_abort_syn_rcv(child, lsk);
+ 	chtls_send_abort_rpl(child, skb, BLOG_SKB_CB(skb)->cdev,
+ 			     CPL_ABORT_NO_RST, queue);
++	do_abort_syn_rcv(child, lsk);
+ }
  
- 	n = dst_neigh_lookup(dst, &iph->saddr);
--	if (!n)
-+	if (!n || !n->dev)
- 		goto free_sk;
+ static int abort_syn_rcv(struct sock *sk, struct sk_buff *skb)
+@@ -1916,8 +1916,8 @@ static int abort_syn_rcv(struct sock *sk
+ 	if (!sock_owned_by_user(psk)) {
+ 		int queue = csk->txq_idx;
  
- 	ndev = n->dev;
-@@ -1053,6 +1055,13 @@ static struct sock *chtls_recv_sock(stru
- 	if (is_vlan_dev(ndev))
- 		ndev = vlan_dev_real_dev(ndev);
+-		do_abort_syn_rcv(sk, psk);
+ 		chtls_send_abort_rpl(sk, skb, cdev, CPL_ABORT_NO_RST, queue);
++		do_abort_syn_rcv(sk, psk);
+ 	} else {
+ 		skb->sk = sk;
+ 		BLOG_SKB_CB(skb)->backlog_rcv = bl_abort_syn_rcv;
+@@ -1960,12 +1960,11 @@ static void chtls_abort_req_rss(struct s
  
-+	for_each_port(adap, i)
-+		if (cdev->ports[i] == ndev)
-+			found = true;
-+
-+	if (!found)
-+		goto free_dst;
-+
- 	port_id = cxgb4_port_idx(ndev);
+ 		if (sk->sk_state == TCP_SYN_RECV && !abort_syn_rcv(sk, skb))
+ 			return;
+-
+-		chtls_release_resources(sk);
+-		chtls_conn_done(sk);
+ 	}
  
- 	csk = chtls_sock_create(cdev);
-@@ -1108,6 +1117,7 @@ static struct sock *chtls_recv_sock(stru
- free_csk:
- 	chtls_sock_release(&csk->kref);
- free_dst:
-+	neigh_release(n);
- 	dst_release(dst);
- free_sk:
- 	inet_csk_prepare_forced_close(newsk);
+ 	chtls_send_abort_rpl(sk, skb, csk->cdev, rst_status, queue);
++	chtls_release_resources(sk);
++	chtls_conn_done(sk);
+ }
+ 
+ static void chtls_abort_rpl_rss(struct sock *sk, struct sk_buff *skb)
 
 
