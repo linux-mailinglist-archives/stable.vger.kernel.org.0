@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 164C02F79AA
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBE92F7A85
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387833AbhAOMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:39:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46982 "EHLO mail.kernel.org"
+        id S2387808AbhAOMgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:36:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388301AbhAOMj0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:39:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7DA2256F;
-        Fri, 15 Jan 2021 12:38:45 +0000 (UTC)
+        id S1728878AbhAOMgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:36:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EA1123356;
+        Fri, 15 Jan 2021 12:35:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714326;
-        bh=iSaDCwOeyuyszWHk6CdzwGZ7Exb7zJFu4En/FhfE25A=;
+        s=korg; t=1610714123;
+        bh=SVqLzJthz+vIMjPwp9FB7tdXTohbTXyxEVY+5fW2Wqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ex5NBkys3uk3F8VlUThmMnybJ4C3TCEkrj66t1eVBz5jNV9LGASDHA6iRwpozsQHD
-         EHVeICMA946sRF56JQLYEWx+i7IiFplxq6ZgLz1xq+EUm3UhH16LU5A2bez4dvwEmA
-         oCg/ic2Dz4dkqt6eCK6TX19B3EjB29HmXZnOdpEs=
+        b=L+txIebmr79JMwEbpuBwE1sP7no0auUEtnW+SdMU836lEz5KgP5daVEm2gVAbMACt
+         Yn7q66mnSwqfEOR39YQ08sz5oXNg6iEjnOBATp14aIq1SEBD0dnJSywLiwTUYYNdWy
+         UhZL9d+C+vDQ9HLBjzBpgq9Wz2Ca1zYDqx+9m1a8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.10 085/103] net/mlx5e: Fix two double free cases
-Date:   Fri, 15 Jan 2021 13:28:18 +0100
-Message-Id: <20210115122010.129693003@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 57/62] regulator: qcom-rpmh-regulator: correct hfsmps515 definition
+Date:   Fri, 15 Jan 2021 13:28:19 +0100
+Message-Id: <20210115122001.146147961@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 7a6eb072a9548492ead086f3e820e9aac71c7138 upstream.
+commit df6b92fa40050e59ea89784294bf6d04c0c47705 upstream.
 
-mlx5e_create_ttc_table_groups() frees ft->g on failure of
-kvzalloc(), but such failure will be caught by its caller
-in mlx5e_create_ttc_table() and ft->g will be freed again
-in mlx5e_destroy_flow_table(). The same issue also occurs
-in mlx5e_create_ttc_table_groups(). Set ft->g to NULL after
-kfree() to avoid double free.
+According to the datasheet pm8009's HFS515 regulators have 16mV
+resolution rather than declared 1.6 mV. Correct the resolution.
 
-Fixes: 7b3722fa9ef6 ("net/mlx5e: Support RSS for GRE tunneled packets")
-Fixes: 33cfaaa8f36f ("net/mlx5e: Split the main flow steering table")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 06369bcc15a1 ("regulator: qcom-rpmh: Add support for SM8150")
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20201231122348.637917-3-dmitry.baryshkov@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/regulator/qcom-rpmh-regulator.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -936,6 +936,7 @@ static int mlx5e_create_ttc_table_groups
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
- 	}
- 
-@@ -1081,6 +1082,7 @@ static int mlx5e_create_inner_ttc_table_
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in) {
- 		kfree(ft->g);
-+		ft->g = NULL;
- 		return -ENOMEM;
- 	}
- 
+--- a/drivers/regulator/qcom-rpmh-regulator.c
++++ b/drivers/regulator/qcom-rpmh-regulator.c
+@@ -726,7 +726,7 @@ static const struct rpmh_vreg_hw_data pm
+ static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
+ 	.regulator_type = VRM,
+ 	.ops = &rpmh_regulator_vrm_ops,
+-	.voltage_range = REGULATOR_LINEAR_RANGE(2800000, 0, 4, 1600),
++	.voltage_range = REGULATOR_LINEAR_RANGE(2800000, 0, 4, 16000),
+ 	.n_voltages = 5,
+ 	.pmic_mode_map = pmic_mode_map_pmic5_smps,
+ 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
 
 
