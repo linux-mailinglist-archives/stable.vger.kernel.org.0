@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB4A2F7A2B
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A67932F7AF3
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731334AbhAOMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:46:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44576 "EHLO mail.kernel.org"
+        id S1733285AbhAOM4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:56:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388093AbhAOMh5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68A45221FA;
-        Fri, 15 Jan 2021 12:37:41 +0000 (UTC)
+        id S2387544AbhAOMe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4578122473;
+        Fri, 15 Jan 2021 12:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714261;
-        bh=kgZAR3IAeNFVR66Rs3mtemw0EeM1xQk2pj7RbX5iMlA=;
+        s=korg; t=1610714056;
+        bh=ODdq/ssN88ALrtdV1NdOuf+KVUBD5b8BS01k47GNRrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFExK9TiOEpXrO0blLKN93aKmdl/Mm485v702yZfR3X1dhHafGxLTWeuQf0geZP3g
-         3yEWPo8z5v+YRgb4YyQlc/1iXRTFOvtcNVoYJ+FeDXJP0X0PC5dvsPKk+iG7mE2pV4
-         FSez8rpKz+fCaaZ8NuJxeT8GABsl/S2AxbtECyok=
+        b=fGAe+mXNDAvenFO6nxZ17xR/SY4m+rI75NRBCZWBJGaITBQ8tzmbHacb7G/xAuKnq
+         bRWHJhAQDcg4/8pBPsfNf3qTfaaVeU/ZOzjFwhWwhd/q1Td6AAmmWXbI1WqBfmLALx
+         yJx3jMysdzHcKr6bFEA+Mx5P9vtOlIMmlu8wv7LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 056/103] can: tcan4x5x: fix bittiming const, use common bittiming from m_can driver
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.4 27/62] x86/resctrl: Use an IPI instead of task_work_add() to update PQR_ASSOC MSR
 Date:   Fri, 15 Jan 2021 13:27:49 +0100
-Message-Id: <20210115122008.761325984@linuxfoundation.org>
+Message-Id: <20210115121959.716207910@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +43,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Fenghua Yu <fenghua.yu@intel.com>
 
-commit aee2b3ccc8a63d1cd7da6a8a153d1f3712d40826 upstream.
+commit ae28d1aae48a1258bd09a6f707ebb4231d79a761 upstream
 
-According to the TCAN4550 datasheet "SLLSF91 - DECEMBER 2018" the tcan4x5x has
-the same bittiming constants as a m_can revision 3.2.x/3.3.0.
+Currently, when moving a task to a resource group the PQR_ASSOC MSR is
+updated with the new closid and rmid in an added task callback. If the
+task is running, the work is run as soon as possible. If the task is not
+running, the work is executed later in the kernel exit path when the
+kernel returns to the task again.
 
-The tcan4x5x chip I'm using identifies itself as m_can revision 3.2.1, so
-remove the tcan4x5x specific bittiming values and rely on the values in the
-m_can driver, which are selected according to core revision.
+Updating the PQR_ASSOC MSR as soon as possible on the CPU a moved task
+is running is the right thing to do. Queueing work for a task that is
+not running is unnecessary (the PQR_ASSOC MSR is already updated when
+the task is scheduled in) and causing system resource waste with the way
+in which it is implemented: Work to update the PQR_ASSOC register is
+queued every time the user writes a task id to the "tasks" file, even if
+the task already belongs to the resource group.
 
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Cc: Dan Murphy <dmurphy@ti.com>
-Reviewed-by: Sean Nyekjaer <sean@geanix.com>
-Link: https://lore.kernel.org/r/20201215103238.524029-3-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This could result in multiple pending work items associated with a
+single task even if they are all identical and even though only a single
+update with most recent values is needed. Specifically, even if a task
+is moved between different resource groups while it is sleeping then it
+is only the last move that is relevant but yet a work item is queued
+during each move.
+
+This unnecessary queueing of work items could result in significant
+system resource waste, especially on tasks sleeping for a long time.
+For example, as demonstrated by Shakeel Butt in [1] writing the same
+task id to the "tasks" file can quickly consume significant memory. The
+same problem (wasted system resources) occurs when moving a task between
+different resource groups.
+
+As pointed out by Valentin Schneider in [2] there is an additional issue
+with the way in which the queueing of work is done in that the task_struct
+update is currently done after the work is queued, resulting in a race with
+the register update possibly done before the data needed by the update is
+available.
+
+To solve these issues, update the PQR_ASSOC MSR in a synchronous way
+right after the new closid and rmid are ready during the task movement,
+only if the task is running. If a moved task is not running nothing
+is done since the PQR_ASSOC MSR will be updated next time the task is
+scheduled. This is the same way used to update the register when tasks
+are moved as part of resource group removal.
+
+[1] https://lore.kernel.org/lkml/CALvZod7E9zzHwenzf7objzGKsdBmVwTgEJ0nPgs0LUFU3SN5Pw@mail.gmail.com/
+[2] https://lore.kernel.org/lkml/20201123022433.17905-1-valentin.schneider@arm.com
+
+ [ bp: Massage commit message and drop the two update_task_closid_rmid()
+   variants. ]
+
+Fixes: e02737d5b826 ("x86/intel_rdt: Add tasks files")
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/17aa2fb38fc12ce7bb710106b3e7c7b45acb9e94.1608243147.git.reinette.chatre@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/can/m_can/tcan4x5x.c |   26 --------------------------
- 1 file changed, 26 deletions(-)
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c |  108 +++++++++++++--------------------
+ 1 file changed, 43 insertions(+), 65 deletions(-)
 
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -129,30 +129,6 @@ struct tcan4x5x_priv {
- 	int reg_offset;
- };
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -525,85 +525,63 @@ static void rdtgroup_remove(struct rdtgr
+ 	kfree(rdtgrp);
+ }
  
--static struct can_bittiming_const tcan4x5x_bittiming_const = {
--	.name = DEVICE_NAME,
--	.tseg1_min = 2,
--	.tseg1_max = 31,
--	.tseg2_min = 2,
--	.tseg2_max = 16,
--	.sjw_max = 16,
--	.brp_min = 1,
--	.brp_max = 32,
--	.brp_inc = 1,
+-struct task_move_callback {
+-	struct callback_head	work;
+-	struct rdtgroup		*rdtgrp;
 -};
 -
--static struct can_bittiming_const tcan4x5x_data_bittiming_const = {
--	.name = DEVICE_NAME,
--	.tseg1_min = 1,
--	.tseg1_max = 32,
--	.tseg2_min = 1,
--	.tseg2_max = 16,
--	.sjw_max = 16,
--	.brp_min = 1,
--	.brp_max = 32,
--	.brp_inc = 1,
--};
--
- static void tcan4x5x_check_wake(struct tcan4x5x_priv *priv)
+-static void move_myself(struct callback_head *head)
++static void _update_task_closid_rmid(void *task)
  {
- 	int wake_state = 0;
-@@ -479,8 +455,6 @@ static int tcan4x5x_can_probe(struct spi
- 	mcan_class->dev = &spi->dev;
- 	mcan_class->ops = &tcan4x5x_ops;
- 	mcan_class->is_peripheral = true;
--	mcan_class->bit_timing = &tcan4x5x_bittiming_const;
--	mcan_class->data_timing = &tcan4x5x_data_bittiming_const;
- 	mcan_class->net->irq = spi->irq;
+-	struct task_move_callback *callback;
+-	struct rdtgroup *rdtgrp;
+-
+-	callback = container_of(head, struct task_move_callback, work);
+-	rdtgrp = callback->rdtgrp;
+-
+ 	/*
+-	 * If resource group was deleted before this task work callback
+-	 * was invoked, then assign the task to root group and free the
+-	 * resource group.
++	 * If the task is still current on this CPU, update PQR_ASSOC MSR.
++	 * Otherwise, the MSR is updated when the task is scheduled in.
+ 	 */
+-	if (atomic_dec_and_test(&rdtgrp->waitcount) &&
+-	    (rdtgrp->flags & RDT_DELETED)) {
+-		current->closid = 0;
+-		current->rmid = 0;
+-		rdtgroup_remove(rdtgrp);
+-	}
+-
+-	preempt_disable();
+-	/* update PQR_ASSOC MSR to make resource group go into effect */
+-	resctrl_sched_in();
+-	preempt_enable();
++	if (task == current)
++		resctrl_sched_in();
++}
  
- 	spi_set_drvdata(spi, priv);
+-	kfree(callback);
++static void update_task_closid_rmid(struct task_struct *t)
++{
++	if (IS_ENABLED(CONFIG_SMP) && task_curr(t))
++		smp_call_function_single(task_cpu(t), _update_task_closid_rmid, t, 1);
++	else
++		_update_task_closid_rmid(t);
+ }
+ 
+ static int __rdtgroup_move_task(struct task_struct *tsk,
+ 				struct rdtgroup *rdtgrp)
+ {
+-	struct task_move_callback *callback;
+-	int ret;
+-
+-	callback = kzalloc(sizeof(*callback), GFP_KERNEL);
+-	if (!callback)
+-		return -ENOMEM;
+-	callback->work.func = move_myself;
+-	callback->rdtgrp = rdtgrp;
+-
+ 	/*
+-	 * Take a refcount, so rdtgrp cannot be freed before the
+-	 * callback has been invoked.
++	 * Set the task's closid/rmid before the PQR_ASSOC MSR can be
++	 * updated by them.
++	 *
++	 * For ctrl_mon groups, move both closid and rmid.
++	 * For monitor groups, can move the tasks only from
++	 * their parent CTRL group.
+ 	 */
+-	atomic_inc(&rdtgrp->waitcount);
+-	ret = task_work_add(tsk, &callback->work, true);
+-	if (ret) {
+-		/*
+-		 * Task is exiting. Drop the refcount and free the callback.
+-		 * No need to check the refcount as the group cannot be
+-		 * deleted before the write function unlocks rdtgroup_mutex.
+-		 */
+-		atomic_dec(&rdtgrp->waitcount);
+-		kfree(callback);
+-		rdt_last_cmd_puts("Task exited\n");
+-	} else {
+-		/*
+-		 * For ctrl_mon groups move both closid and rmid.
+-		 * For monitor groups, can move the tasks only from
+-		 * their parent CTRL group.
+-		 */
+-		if (rdtgrp->type == RDTCTRL_GROUP) {
+-			tsk->closid = rdtgrp->closid;
++
++	if (rdtgrp->type == RDTCTRL_GROUP) {
++		tsk->closid = rdtgrp->closid;
++		tsk->rmid = rdtgrp->mon.rmid;
++	} else if (rdtgrp->type == RDTMON_GROUP) {
++		if (rdtgrp->mon.parent->closid == tsk->closid) {
+ 			tsk->rmid = rdtgrp->mon.rmid;
+-		} else if (rdtgrp->type == RDTMON_GROUP) {
+-			if (rdtgrp->mon.parent->closid == tsk->closid) {
+-				tsk->rmid = rdtgrp->mon.rmid;
+-			} else {
+-				rdt_last_cmd_puts("Can't move task to different control group\n");
+-				ret = -EINVAL;
+-			}
++		} else {
++			rdt_last_cmd_puts("Can't move task to different control group\n");
++			return -EINVAL;
+ 		}
+ 	}
+-	return ret;
++
++	/*
++	 * Ensure the task's closid and rmid are written before determining if
++	 * the task is current that will decide if it will be interrupted.
++	 */
++	barrier();
++
++	/*
++	 * By now, the task's closid and rmid are set. If the task is current
++	 * on a CPU, the PQR_ASSOC MSR needs to be updated to make the resource
++	 * group go into effect. If the task is not current, the MSR will be
++	 * updated when the task is scheduled in.
++	 */
++	update_task_closid_rmid(tsk);
++
++	return 0;
+ }
+ 
+ /**
 
 
