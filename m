@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 808722F79A1
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 829932F79AB
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388256AbhAOMjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:39:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46210 "EHLO mail.kernel.org"
+        id S1733269AbhAOMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:39:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387713AbhAOMjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:39:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE091235F8;
-        Fri, 15 Jan 2021 12:38:47 +0000 (UTC)
+        id S2388284AbhAOMjb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:39:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23D2D235F9;
+        Fri, 15 Jan 2021 12:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714328;
-        bh=TveOYa+LMTSthBO63qsOiK/LZioXtOenl+OY9Ieh5ko=;
+        s=korg; t=1610714330;
+        bh=OfHwcpKeF5C1319OmThlbPWXSa63NkVHz8FSKR2z9AM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WUlNNusOMRDeQKa060w7eMYUYQXUlYAr5igSzPReQwRxPWN/1ZwlG8VLkMn/kizt
-         UQuWS/jSp/rqoMtcC8F8/KWlrAP7VzCxJB+sOD8unIdApxOnoB4+mZtQQzO2ni9Y9+
-         y0BQT5OQ6NFkpQaskoTmBSOed5jdN7eSr2y8FOKs=
+        b=JVcouQSxwVThOvN1YUCc4OuNMs2125ed3BF1z3XuQwWp5UUN/d0XrAMAV0CAhaDDF
+         cpDsxlQ6o9jGadMNYl3k7wB881Pzrr0H+DHQ9YdurAVpQTDwY/wSYoYB3wbln7dZlV
+         i81CCrBsLxxGZ9Tg2tb3ljdLVR2zZscvuU0/aoW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaolei Wang <xiaolei.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 086/103] regmap: debugfs: Fix a memory leak when calling regmap_attach_dev
-Date:   Fri, 15 Jan 2021 13:28:19 +0100
-Message-Id: <20210115122010.175920983@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 087/103] wan: ds26522: select CONFIG_BITREVERSE
+Date:   Fri, 15 Jan 2021 13:28:20 +0100
+Message-Id: <20210115122010.224549699@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -39,75 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolei Wang <xiaolei.wang@windriver.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit cffa4b2122f5f3e53cf3d529bbc74651f95856d5 upstream.
+commit 69931e11288520c250152180ecf9b6ac5e6e40ed upstream.
 
-After initializing the regmap through
-syscon_regmap_lookup_by_compatible, then regmap_attach_dev to the
-device, because the debugfs_name has been allocated, there is no
-need to redistribute it again
+Without this, the driver runs into a link failure
 
-unreferenced object 0xd8399b80 (size 64):
-  comm "swapper/0", pid 1, jiffies 4294937641 (age 278.590s)
-  hex dump (first 32 bytes):
-	64 75 6d 6d 79 2d 69 6f 6d 75 78 63 2d 67 70 72
-dummy-iomuxc-gpr
-	40 32 30 65 34 30 30 30 00 7f 52 5b d8 7e 42 69
-@20e4000..R[.~Bi
-  backtrace:
-    [<ca384d6f>] kasprintf+0x2c/0x54
-    [<6ad3bbc2>] regmap_debugfs_init+0xdc/0x2fc
-    [<bc4181da>] __regmap_init+0xc38/0xd88
-    [<1f7e0609>] of_syscon_register+0x168/0x294
-    [<735e8766>] device_node_get_regmap+0x6c/0x98
-    [<d96c8982>] imx6ul_init_machine+0x20/0x88
-    [<0456565b>] customize_machine+0x1c/0x30
-    [<d07393d8>] do_one_initcall+0x80/0x3ac
-    [<7e584867>] kernel_init_freeable+0x170/0x1f0
-    [<80074741>] kernel_init+0x8/0x120
-    [<285d6f28>] ret_from_fork+0x14/0x20
-    [<00000000>] 0x0
+arm-linux-gnueabi-ld: drivers/net/wan/slic_ds26522.o: in function `slic_ds26522_probe':
+slic_ds26522.c:(.text+0x100c): undefined reference to `byte_rev_table'
+arm-linux-gnueabi-ld: slic_ds26522.c:(.text+0x1cdc): undefined reference to `byte_rev_table'
+arm-linux-gnueabi-ld: drivers/net/wan/slic_ds26522.o: in function `slic_write':
+slic_ds26522.c:(.text+0x1e4c): undefined reference to `byte_rev_table'
 
-Fixes: 9b947a13e7f6 ("regmap: use debugfs even when no device")
-Signed-off-by: Xiaolei Wang <xiaolei.wang@windriver.com>
-Link: https://lore.kernel.org/r/20201229105046.41984-1-xiaolei.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c37d4a0085c5 ("Maxim/driver: Add driver for maxim ds26522")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/regmap/regmap-debugfs.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/wan/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -582,18 +582,25 @@ void regmap_debugfs_init(struct regmap *
- 		devname = dev_name(map->dev);
- 
- 	if (name) {
--		map->debugfs_name = kasprintf(GFP_KERNEL, "%s-%s",
-+		if (!map->debugfs_name) {
-+			map->debugfs_name = kasprintf(GFP_KERNEL, "%s-%s",
- 					      devname, name);
-+			if (!map->debugfs_name)
-+				return;
-+		}
- 		name = map->debugfs_name;
- 	} else {
- 		name = devname;
- 	}
- 
- 	if (!strcmp(name, "dummy")) {
--		kfree(map->debugfs_name);
-+		if (!map->debugfs_name)
-+			kfree(map->debugfs_name);
- 
- 		map->debugfs_name = kasprintf(GFP_KERNEL, "dummy%d",
- 						dummy_index);
-+		if (!map->debugfs_name)
-+				return;
- 		name = map->debugfs_name;
- 		dummy_index++;
- 	}
+--- a/drivers/net/wan/Kconfig
++++ b/drivers/net/wan/Kconfig
+@@ -282,6 +282,7 @@ config SLIC_DS26522
+ 	tristate "Slic Maxim ds26522 card support"
+ 	depends on SPI
+ 	depends on FSL_SOC || ARCH_MXC || ARCH_LAYERSCAPE || COMPILE_TEST
++	select BITREVERSE
+ 	help
+ 	  This module initializes and configures the slic maxim card
+ 	  in T1 or E1 mode.
 
 
