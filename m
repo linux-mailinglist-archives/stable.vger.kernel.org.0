@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632C12F7AAC
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 139642F7981
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387695AbhAOMfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:35:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
+        id S2387980AbhAOMh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:37:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726370AbhAOMfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:35:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 972352339D;
-        Fri, 15 Jan 2021 12:34:49 +0000 (UTC)
+        id S2387959AbhAOMh0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:37:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A07D207C4;
+        Fri, 15 Jan 2021 12:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714090;
-        bh=6OZyMcU+zl2kq58WqMVWZUBKCu7pBODU2jmb9OsoJfw=;
+        s=korg; t=1610714231;
+        bh=eMJwKpa0bJnF8vt7pd700QRe790C5p5wZsTNaF13/Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFnn0kWEE2xwB0kgAbIzkmJImQ4FtArCzP6k6aoqUTma7lEmgL0F/x3JzVz7ffEBz
-         wUfebfCOmxfpehVbG6WU5b62t4yvv/b1I6yVVs9OQBBeVLoS/23YsJTFL9qXHmmGS5
-         CdGSf0stW183V5Mv0cz6QA93PDI0X0vWGTiFvf0Q=
+        b=09FG7DAsTo5n/94D9wx/dPV6fB3bkUyN5aUZeh+bXwtPPonrD8OvElAJB2x3LS7rQ
+         Nw50HmritLgG1UweW5hDZo1gcEIBfmd545xwcflwq/eq8VHuT6xt3rY+ZvlZg5gMqu
+         nnr2MlrS0RT/fV1GvLe3gEI2EEMY3wi7k65s8bvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 14/62] octeontx2-af: fix memory leak of lmac and lmac->name
+Subject: [PATCH 5.10 043/103] net: dsa: lantiq_gswip: Exclude RMII from modes that report 1 GbE
 Date:   Fri, 15 Jan 2021 13:27:36 +0100
-Message-Id: <20210115121959.093997021@linuxfoundation.org>
+Message-Id: <20210115122008.141653968@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit ac7996d680d8b4a51bb99bbdcee3dc838b985498 ]
+[ Upstream commit 3545454c7801e391b0d966f82c98614d45394770 ]
 
-Currently the error return paths don't kfree lmac and lmac->name
-leading to some memory leaks.  Fix this by adding two error return
-paths that kfree these objects
+Exclude RMII from modes that report 1 GbE support. Reduced MII supports
+up to 100 MbE.
 
-Addresses-Coverity: ("Resource leak")
-Fixes: 1463f382f58d ("octeontx2-af: Add support for CGX link management")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210107123916.189748-1-colin.king@canonical.com
+Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210107195818.3878-1-olek2@wp.pl
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/cgx.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/dsa/lantiq_gswip.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/cgx.c
-@@ -725,8 +725,10 @@ static int cgx_lmac_init(struct cgx *cgx
- 		if (!lmac)
- 			return -ENOMEM;
- 		lmac->name = kcalloc(1, sizeof("cgx_fwi_xxx_yyy"), GFP_KERNEL);
--		if (!lmac->name)
--			return -ENOMEM;
-+		if (!lmac->name) {
-+			err = -ENOMEM;
-+			goto err_lmac_free;
-+		}
- 		sprintf(lmac->name, "cgx_fwi_%d_%d", cgx->cgx_id, i);
- 		lmac->lmac_id = i;
- 		lmac->cgx = cgx;
-@@ -737,7 +739,7 @@ static int cgx_lmac_init(struct cgx *cgx
- 						 CGX_LMAC_FWI + i * 9),
- 				   cgx_fwi_event_handler, 0, lmac->name, lmac);
- 		if (err)
--			return err;
-+			goto err_irq;
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1436,11 +1436,12 @@ static void gswip_phylink_validate(struc
+ 	phylink_set(mask, Pause);
+ 	phylink_set(mask, Asym_Pause);
  
- 		/* Enable interrupt */
- 		cgx_write(cgx, lmac->lmac_id, CGXX_CMRX_INT_ENA_W1S,
-@@ -748,6 +750,12 @@ static int cgx_lmac_init(struct cgx *cgx
+-	/* With the exclusion of MII and Reverse MII, we support Gigabit,
+-	 * including Half duplex
++	/* With the exclusion of MII, Reverse MII and Reduced MII, we
++	 * support Gigabit, including Half duplex
+ 	 */
+ 	if (state->interface != PHY_INTERFACE_MODE_MII &&
+-	    state->interface != PHY_INTERFACE_MODE_REVMII) {
++	    state->interface != PHY_INTERFACE_MODE_REVMII &&
++	    state->interface != PHY_INTERFACE_MODE_RMII) {
+ 		phylink_set(mask, 1000baseT_Full);
+ 		phylink_set(mask, 1000baseT_Half);
  	}
- 
- 	return cgx_lmac_verify_fwi_version(cgx);
-+
-+err_irq:
-+	kfree(lmac->name);
-+err_lmac_free:
-+	kfree(lmac);
-+	return err;
- }
- 
- static int cgx_lmac_exit(struct cgx *cgx)
 
 
