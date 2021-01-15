@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182372F7A1A
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE8F2F794D
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387407AbhAOMht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:37:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45172 "EHLO mail.kernel.org"
+        id S2387512AbhAOMel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:34:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732742AbhAOMhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:37:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D34B2333E;
-        Fri, 15 Jan 2021 12:37:06 +0000 (UTC)
+        id S1731964AbhAOMel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BFAE23403;
+        Fri, 15 Jan 2021 12:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714226;
-        bh=Z5gmgD1+kH2CxThF3Zvj/1SwPnxkUKRFMkSMu/H1pok=;
+        s=korg; t=1610714065;
+        bh=zVYmo3XbiPazUYCL6CR1z8pddrVJw7YXSaK4MqQj8u8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMWxzuDyRoxbLvuGLUDHKXgt9OOHQQL29saW4i5cZFPfUj9luHfO3ZzaXQRgB4rtL
-         G0Cs48YzGjqoDLROmohWETAK1/oNz3elkdR21WQn1x/k6yZh/Z6ijob/syvS6CI/Q+
-         bWfA40JJdoklHb6a4VUYUYEi3xykl6u98ohMZMEQ=
+        b=nGVgBVD2juqVWT8N/7v/+VV4S/3i4e9niIPOmLCq2sPGQdsdvjKproDyx5pO8kvpY
+         Z1ICoWjU292r7kWkU2n1AJDYPVUSUbmVKI2SKtTcvrpeZ9hOPDRQ+LVcQlZb0zUUT6
+         YTfCuHrllgJReDz4Ct4P/e6hzztfe0ZlXFMYqVx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Christian Perle <christian.perle@secunet.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 041/103] s390/qeth: fix locking for discipline setup / removal
-Date:   Fri, 15 Jan 2021 13:27:34 +0100
-Message-Id: <20210115122008.044338888@linuxfoundation.org>
+Subject: [PATCH 5.4 13/62] net: ip: always refragment ip defragmented packets
+Date:   Fri, 15 Jan 2021 13:27:35 +0100
+Message-Id: <20210115121959.044430145@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit b41b554c1ee75070a14c02a88496b1f231c7eacc ]
+[ Upstream commit bb4cc1a18856a73f0ff5137df0c2a31f4c50f6cf ]
 
-Due to insufficient locking, qeth_core_set_online() and
-qeth_dev_layer2_store() can run in parallel, both attempting to load &
-setup the discipline (and stepping on each other toes along the way).
-A similar race can also occur between qeth_core_remove_device() and
-qeth_dev_layer2_store().
+Conntrack reassembly records the largest fragment size seen in IPCB.
+However, when this gets forwarded/transmitted, fragmentation will only
+be forced if one of the fragmented packets had the DF bit set.
 
-Access to .discipline is meant to be protected by the discipline_mutex,
-so add/expand the locking in qeth_core_remove_device() and
-qeth_core_set_online().
-Adjust the locking in qeth_l*_remove_device() accordingly, as it's now
-handled by the callers in a consistent manner.
+In that case, a flag in IPCB will force fragmentation even if the
+MTU is large enough.
 
-Based on an initial patch by Ursula Braun.
+This should work fine, but this breaks with ip tunnels.
+Consider client that sends a UDP datagram of size X to another host.
 
-Fixes: 9dc48ccc68b9 ("qeth: serialize sysfs-triggered device configurations")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+The client fragments the datagram, so two packets, of size y and z, are
+sent. DF bit is not set on any of these packets.
+
+Middlebox netfilter reassembles those packets back to single size-X
+packet, before routing decision.
+
+packet-size-vs-mtu checks in ip_forward are irrelevant, because DF bit
+isn't set.  At output time, ip refragmentation is skipped as well
+because x is still smaller than the mtu of the output device.
+
+If ttransmit device is an ip tunnel, the packet size increases to
+x+overhead.
+
+Also, tunnel might be configured to force DF bit on outer header.
+
+In this case, packet will be dropped (exceeds MTU) and an ICMP error is
+generated back to sender.
+
+But sender already respects the announced MTU, all the packets that
+it sent did fit the announced mtu.
+
+Force refragmentation as per original sizes unconditionally so ip tunnel
+will encapsulate the fragments instead.
+
+The only other solution I see is to place ip refragmentation in
+the ip_tunnel code to handle this case.
+
+Fixes: d6b915e29f4ad ("ip_fragment: don't forward defragmented DF packet")
+Reported-by: Christian Perle <christian.perle@secunet.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/net/qeth_core_main.c |    7 +++++--
- drivers/s390/net/qeth_l2_main.c   |    5 +----
- drivers/s390/net/qeth_l3_main.c   |    5 +----
- 3 files changed, 7 insertions(+), 10 deletions(-)
+ net/ipv4/ip_output.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6361,6 +6361,7 @@ static int qeth_core_probe_device(struct
- 		break;
- 	default:
- 		card->info.layer_enforced = true;
-+		/* It's so early that we don't need the discipline_mutex yet. */
- 		rc = qeth_core_load_discipline(card, enforced_disc);
- 		if (rc)
- 			goto err_load;
-@@ -6393,10 +6394,12 @@ static void qeth_core_remove_device(stru
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -303,7 +303,7 @@ static int __ip_finish_output(struct net
+ 	if (skb_is_gso(skb))
+ 		return ip_finish_output_gso(net, sk, skb, mtu);
  
- 	QETH_CARD_TEXT(card, 2, "removedv");
+-	if (skb->len > mtu || (IPCB(skb)->flags & IPSKB_FRAG_PMTU))
++	if (skb->len > mtu || IPCB(skb)->frag_max_size)
+ 		return ip_fragment(net, sk, skb, mtu, ip_finish_output2);
  
-+	mutex_lock(&card->discipline_mutex);
- 	if (card->discipline) {
- 		card->discipline->remove(gdev);
- 		qeth_core_free_discipline(card);
- 	}
-+	mutex_unlock(&card->discipline_mutex);
- 
- 	qeth_free_qdio_queues(card);
- 
-@@ -6411,6 +6414,7 @@ static int qeth_core_set_online(struct c
- 	int rc = 0;
- 	enum qeth_discipline_id def_discipline;
- 
-+	mutex_lock(&card->discipline_mutex);
- 	if (!card->discipline) {
- 		def_discipline = IS_IQD(card) ? QETH_DISCIPLINE_LAYER3 :
- 						QETH_DISCIPLINE_LAYER2;
-@@ -6424,11 +6428,10 @@ static int qeth_core_set_online(struct c
- 		}
- 	}
- 
--	mutex_lock(&card->discipline_mutex);
- 	rc = qeth_set_online(card, card->discipline);
--	mutex_unlock(&card->discipline_mutex);
- 
- err:
-+	mutex_unlock(&card->discipline_mutex);
- 	return rc;
- }
- 
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2207,11 +2207,8 @@ static void qeth_l2_remove_device(struct
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
--	if (gdev->state == CCWGROUP_ONLINE) {
--		mutex_lock(&card->discipline_mutex);
-+	if (gdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
--		mutex_unlock(&card->discipline_mutex);
--	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1973,11 +1973,8 @@ static void qeth_l3_remove_device(struct
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
--	if (cgdev->state == CCWGROUP_ONLINE) {
--		mutex_lock(&card->discipline_mutex);
-+	if (cgdev->state == CCWGROUP_ONLINE)
- 		qeth_set_offline(card, card->discipline, false);
--		mutex_unlock(&card->discipline_mutex);
--	}
- 
- 	cancel_work_sync(&card->close_dev_work);
- 	if (card->dev->reg_state == NETREG_REGISTERED)
+ 	return ip_finish_output2(net, sk, skb);
 
 
