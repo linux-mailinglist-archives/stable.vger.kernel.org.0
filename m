@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119AA2F7917
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7502F7ACE
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:56:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732569AbhAOMbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:31:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
+        id S2387639AbhAOMzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:55:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732552AbhAOMbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC8C723356;
-        Fri, 15 Jan 2021 12:30:47 +0000 (UTC)
+        id S2387640AbhAOMfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00644223E0;
+        Fri, 15 Jan 2021 12:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713848;
-        bh=gQXy+mR9D1IBVflhFmLHtMzWnt6Si8GyfQOWY9wZi1k=;
+        s=korg; t=1610714105;
+        bh=Qe4Gq1BiktvxjL/ZaekxISO/O3xNb6cvTOm77gyAm74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Blx4PZ5ahhfrk4vXLn2Jz7LHg+Tc5+Vn+nuUzSQXEjNuU4YIS8FBs9pFBuM71SZM6
-         0H0LW6bDbJkZ4jGriXLYGF0cq+l9CFCmUEgA0tMLw1+PIO6ekMZ3V4H5OByC2x1A1V
-         VJfYjJ+QEt9y60+brcKfijayNXXrUV53Zey0D4Co=
+        b=v7RY86qbKJF9QPaKX8IZBHPaq/gR0b++N2FQxn+nseBdv9RCytlfMjkqGnhBkph46
+         7WZfipB/MUkhRbd+Bn4rwNktFpyvYVpf+JSNNhho/RvR9K0LQbmGUpXoz2iigjxXoM
+         c+f8SHzScgkLwZvqmJzgXSMoUV9rsUwC8wdWFp6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Perle <christian.perle@secunet.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 08/25] net: ip: always refragment ip defragmented packets
-Date:   Fri, 15 Jan 2021 13:27:39 +0100
-Message-Id: <20210115121957.096031181@linuxfoundation.org>
+Subject: [PATCH 5.4 18/62] net: dsa: lantiq_gswip: Exclude RMII from modes that report 1 GbE
+Date:   Fri, 15 Jan 2021 13:27:40 +0100
+Message-Id: <20210115121959.282968059@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
-References: <20210115121956.679956165@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit bb4cc1a18856a73f0ff5137df0c2a31f4c50f6cf ]
+[ Upstream commit 3545454c7801e391b0d966f82c98614d45394770 ]
 
-Conntrack reassembly records the largest fragment size seen in IPCB.
-However, when this gets forwarded/transmitted, fragmentation will only
-be forced if one of the fragmented packets had the DF bit set.
+Exclude RMII from modes that report 1 GbE support. Reduced MII supports
+up to 100 MbE.
 
-In that case, a flag in IPCB will force fragmentation even if the
-MTU is large enough.
-
-This should work fine, but this breaks with ip tunnels.
-Consider client that sends a UDP datagram of size X to another host.
-
-The client fragments the datagram, so two packets, of size y and z, are
-sent. DF bit is not set on any of these packets.
-
-Middlebox netfilter reassembles those packets back to single size-X
-packet, before routing decision.
-
-packet-size-vs-mtu checks in ip_forward are irrelevant, because DF bit
-isn't set.  At output time, ip refragmentation is skipped as well
-because x is still smaller than the mtu of the output device.
-
-If ttransmit device is an ip tunnel, the packet size increases to
-x+overhead.
-
-Also, tunnel might be configured to force DF bit on outer header.
-
-In this case, packet will be dropped (exceeds MTU) and an ICMP error is
-generated back to sender.
-
-But sender already respects the announced MTU, all the packets that
-it sent did fit the announced mtu.
-
-Force refragmentation as per original sizes unconditionally so ip tunnel
-will encapsulate the fragments instead.
-
-The only other solution I see is to place ip refragmentation in
-the ip_tunnel code to handle this case.
-
-Fixes: d6b915e29f4ad ("ip_fragment: don't forward defragmented DF packet")
-Reported-by: Christian Perle <christian.perle@secunet.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 14fceff4771e ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210107195818.3878-1-olek2@wp.pl
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_output.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/lantiq_gswip.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -300,7 +300,7 @@ static int ip_finish_output(struct net *
- 	if (skb_is_gso(skb))
- 		return ip_finish_output_gso(net, sk, skb, mtu);
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1419,11 +1419,12 @@ static void gswip_phylink_validate(struc
+ 	phylink_set(mask, Pause);
+ 	phylink_set(mask, Asym_Pause);
  
--	if (skb->len > mtu || (IPCB(skb)->flags & IPSKB_FRAG_PMTU))
-+	if (skb->len > mtu || IPCB(skb)->frag_max_size)
- 		return ip_fragment(net, sk, skb, mtu, ip_finish_output2);
- 
- 	return ip_finish_output2(net, sk, skb);
+-	/* With the exclusion of MII and Reverse MII, we support Gigabit,
+-	 * including Half duplex
++	/* With the exclusion of MII, Reverse MII and Reduced MII, we
++	 * support Gigabit, including Half duplex
+ 	 */
+ 	if (state->interface != PHY_INTERFACE_MODE_MII &&
+-	    state->interface != PHY_INTERFACE_MODE_REVMII) {
++	    state->interface != PHY_INTERFACE_MODE_REVMII &&
++	    state->interface != PHY_INTERFACE_MODE_RMII) {
+ 		phylink_set(mask, 1000baseT_Full);
+ 		phylink_set(mask, 1000baseT_Half);
+ 	}
 
 
