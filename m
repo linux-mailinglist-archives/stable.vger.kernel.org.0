@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 469F52F7B04
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FAD22F795D
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733108AbhAOM50 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:57:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41144 "EHLO mail.kernel.org"
+        id S1732014AbhAOMfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:35:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387456AbhAOMeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C992336F;
-        Fri, 15 Jan 2021 12:33:34 +0000 (UTC)
+        id S2387630AbhAOMfO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:35:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF442333E;
+        Fri, 15 Jan 2021 12:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714015;
-        bh=YCuT/meOWi39fL2ZvWvY68jiEeri71aX+oqCkmAL4ec=;
+        s=korg; t=1610714074;
+        bh=os7dohcj4+JctHTLwnzDesgBjZRrYjO2vXdt/AByoF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mP1C+16JZ2/3LTtcQci6mG2CpAAFudOQtiSB0rcbnFcbQLjojzuPfNnRgaas1sXy1
-         YvhjTVg0L9Icu2RdtHtzPsP9YW55udvi23Z6+KjCiR4KH+R0omM8Kz9RASgyfteWI6
-         sR5F58uiHdDsrdFFHOAChF3FaY4yk47VQaAslAbk=
+        b=E2BjGDEF896uNVTPC5++D8gMt4Q7VDZdOOyx98/3gt0cDHVilxfPb5F6kUb9bVpuZ
+         n3w+wep9ve4+/Xg06cqbsMB+mQ9TLA6o3mZFQN7igzbvO20x9c8KNMczOj5ITc5QXa
+         XF4EFrbRJtr9xBu3hbin5ilW4DAkHYIOjcbtYFrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Linhua Xu <linhua.xu@unisoc.com>,
         Chunyan Zhang <chunyan.zhang@unisoc.com>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 25/43] i2c: sprd: use a specific timeout to avoid system hang up issue
-Date:   Fri, 15 Jan 2021 13:27:55 +0100
-Message-Id: <20210115121958.272354531@linuxfoundation.org>
+Subject: [PATCH 5.4 34/62] i2c: sprd: use a specific timeout to avoid system hang up issue
+Date:   Fri, 15 Jan 2021 13:27:56 +0100
+Message-Id: <20210115122000.049519779@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
+References: <20210115121958.391610178@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/i2c/busses/i2c-sprd.c
 +++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -71,6 +71,8 @@
+@@ -72,6 +72,8 @@
  
  /* timeout (ms) for pm runtime autosuspend */
  #define SPRD_I2C_PM_TIMEOUT	1000
