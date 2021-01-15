@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E292F7AD8
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:56:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4512F79B7
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387587AbhAOMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:35:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
+        id S1731503AbhAOMkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:40:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387586AbhAOMfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:35:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E64C2256F;
-        Fri, 15 Jan 2021 12:34:47 +0000 (UTC)
+        id S2388389AbhAOMj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:39:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 188D22333E;
+        Fri, 15 Jan 2021 12:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714087;
-        bh=e+Ad1xVCP6360ODNJ3AXbV2DBzNaz5/GhxxnnKuCGgw=;
+        s=korg; t=1610714357;
+        bh=Lgw0Ce23wn/kr4A8Sthgtv3KdFHeTQmZsWY0kU1VoDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vh46HN7mZGcDbts5wPRWAjVkzi1gl+zzUowT1NFCnPa1w9lA4T4lNGNoMqS8J5Qc3
-         0PfgZbhV4k6RP1pV2dfaUagMKlL6uXRzc8wHAAmTinWPpcV1umBATad/s2E0+Ze0WY
-         J/DXBZhR4WZpvS6jNCoGhRmigT7DfvM5q3n3ZXGQ=
+        b=1V8ugR1dX37n3c2J6HpQBPhOss3rnM0I+4wpYv6IxGaq7PDpVRS6N8VIQ1ipLxXpB
+         7YwTOfgxmhIpo7Ie9BCRUQerhJL1Uo4tdYPU8ttjjH+r1w4TEX0QvWjrtyLNrm+FrE
+         tPhYdquLu4+v5fcm7EpO1hmixq7ZVsd+kpMr99dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 40/62] spi: spi-geni-qcom: Fix geni_spi_isr() NULL dereference in timeout case
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 069/103] dmaengine: milbeaut-xdmac: Fix a resource leak in the error handling path of the probe function
 Date:   Fri, 15 Jan 2021 13:28:02 +0100
-Message-Id: <20210115122000.333323971@linuxfoundation.org>
+Message-Id: <20210115122009.380222848@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 4aa1464acbe3697710279a4bd65cb4801ed30425 upstream.
+commit d645148cc82ca7fbacaa601414a552184e9c6dd3 upstream.
 
-In commit 7ba9bdcb91f6 ("spi: spi-geni-qcom: Don't keep a local state
-variable") we changed handle_fifo_timeout() so that we set
-"mas->cur_xfer" to NULL to make absolutely sure that we don't mess
-with the buffers from the previous transfer in the timeout case.
+'disable_xdmac()' should be called in the error handling path of the
+probe function to undo a previous 'enable_xdmac()' call, as already
+done in the remove function.
 
-Unfortunately, this caused the IRQ handler to dereference NULL in some
-cases.  One case:
-
-  CPU0                           CPU1
-  ----                           ----
-                                 setup_fifo_xfer()
-                                  geni_se_setup_m_cmd()
-                                 <hardware starts transfer>
-                                 <transfer completes in hardware>
-                                 <hardware sets M_RX_FIFO_WATERMARK_EN in m_irq>
-                                 ...
-                                 handle_fifo_timeout()
-                                  spin_lock_irq(mas->lock)
-                                  mas->cur_xfer = NULL
-                                  geni_se_cancel_m_cmd()
-                                  spin_unlock_irq(mas->lock)
-
-  geni_spi_isr()
-   spin_lock(mas->lock)
-   if (m_irq & M_RX_FIFO_WATERMARK_EN)
-    geni_spi_handle_rx()
-     mas->cur_xfer NULL dereference!
-
-tl;dr: Seriously delayed interrupts for RX/TX can lead to timeout
-handling setting mas->cur_xfer to NULL.
-
-Let's check for the NULL transfer in the TX and RX cases and reset the
-watermark or clear out the fifo respectively to put the hardware back
-into a sane state.
-
-NOTE: things still could get confused if we get timeouts all the way
-through handle_fifo_timeout() and then start a new transfer because
-interrupts from the old transfer / cancel / abort could still be
-pending.  A future patch will help this corner case.
-
-Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20201217142842.v3.1.I99ee04f0cb823415df59bd4f550d6ff5756e43d6@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a6e9be055d47 ("dmaengine: milbeaut-xdmac: Add XDMAC driver for Milbeaut platforms")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201219132800.183254-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-geni-qcom.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/dma/milbeaut-xdmac.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-geni-qcom.c
-+++ b/drivers/spi/spi-geni-qcom.c
-@@ -415,6 +415,12 @@ static void geni_spi_handle_tx(struct sp
- 	unsigned int bytes_per_fifo_word = geni_byte_per_fifo_word(mas);
- 	unsigned int i = 0;
+--- a/drivers/dma/milbeaut-xdmac.c
++++ b/drivers/dma/milbeaut-xdmac.c
+@@ -351,7 +351,7 @@ static int milbeaut_xdmac_probe(struct p
  
-+	/* Stop the watermark IRQ if nothing to send */
-+	if (!mas->cur_xfer) {
-+		writel(0, se->base + SE_GENI_TX_WATERMARK_REG);
-+		return false;
-+	}
-+
- 	max_bytes = (mas->tx_fifo_depth - mas->tx_wm) * bytes_per_fifo_word;
- 	if (mas->tx_rem_bytes < max_bytes)
- 		max_bytes = mas->tx_rem_bytes;
-@@ -454,6 +460,14 @@ static void geni_spi_handle_rx(struct sp
- 		if (rx_last_byte_valid && rx_last_byte_valid < 4)
- 			rx_bytes -= bytes_per_fifo_word - rx_last_byte_valid;
- 	}
-+
-+	/* Clear out the FIFO and bail if nowhere to put it */
-+	if (!mas->cur_xfer) {
-+		for (i = 0; i < DIV_ROUND_UP(rx_bytes, bytes_per_fifo_word); i++)
-+			readl(se->base + SE_GENI_RX_FIFOn);
-+		return;
-+	}
-+
- 	if (mas->rx_rem_bytes < rx_bytes)
- 		rx_bytes = mas->rx_rem_bytes;
+ 	ret = dma_async_device_register(ddev);
+ 	if (ret)
+-		return ret;
++		goto disable_xdmac;
+ 
+ 	ret = of_dma_controller_register(dev->of_node,
+ 					 of_dma_simple_xlate, mdev);
+@@ -364,6 +364,8 @@ static int milbeaut_xdmac_probe(struct p
+ 
+ unregister_dmac:
+ 	dma_async_device_unregister(ddev);
++disable_xdmac:
++	disable_xdmac(mdev);
+ 	return ret;
+ }
  
 
 
