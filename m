@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8462F79D1
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9822F79C6
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387567AbhAOMlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:41:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
+        id S1732241AbhAOMkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:40:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387951AbhAOMjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:39:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4BB2236FB;
-        Fri, 15 Jan 2021 12:39:32 +0000 (UTC)
+        id S1732518AbhAOMkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:40:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA18022473;
+        Fri, 15 Jan 2021 12:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714373;
-        bh=YP0QJrLt9+sIQ+vdkJAmq2AUxdYw6Epdt6kg/byRdYw=;
+        s=korg; t=1610714375;
+        bh=BZ6cIZlB4mtdKRPbOHb00MVj9CI+bHWvyL/IGzvS16c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lziS5b9Cy/FlotUPRdKIqCYbJswTXLRUPa2MO0Iq3H6ObOeRyVfZ8QExX/bNq3f5
-         WVT3R4xZAAqJy1U21zUK5XE7i7iKhhsYcASLYzU+n/EWGqtlX3b3gYE8lP2oJYAo6b
-         bmjXDcf8LKRp1N1qsAloFp73zSwMoEO512nrfVwU=
+        b=v0w2moq+wFVChlUWfZlFtzM1P3qr/J5e8XrVa4F2lyB/H9byPSn3N0IfSwrJzrK95
+         eQiL6eDNm2TThydcet4hQtydlIxdWPUTWvO/bwq0gVtmPo1ofD+tgItkZWbi3EGZ9E
+         K2EFibpQX3E/YNxZIudI6pzkepj/Ogj0rK9X2PSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+825f0f9657d4e528046e@syzkaller.appspotmail.com,
-        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 099/103] block: fix use-after-free in disk_part_iter_next
-Date:   Fri, 15 Jan 2021 13:28:32 +0100
-Message-Id: <20210115122010.792392492@linuxfoundation.org>
+        syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 100/103] net: drop bogus skb with CHECKSUM_PARTIAL and offset beyond end of trimmed packet
+Date:   Fri, 15 Jan 2021 13:28:33 +0100
+Message-Id: <20210115122010.839782359@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -41,46 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit aebf5db917055b38f4945ed6d621d9f07a44ff30 upstream.
+commit 54970a2fbb673f090b7f02d7f57b10b2e0707155 upstream.
 
-Make sure that bdgrab() is done on the 'block_device' instance before
-referring to it for avoiding use-after-free.
+syzbot reproduces BUG_ON in skb_checksum_help():
+tun creates (bogus) skb with huge partial-checksummed area and
+small ip packet inside. Then ip_rcv trims the skb based on size
+of internal ip packet, after that csum offset points beyond of
+trimmed skb. Then checksum_tg() called via netfilter hook
+triggers BUG_ON:
 
-Cc: <stable@vger.kernel.org>
-Reported-by: syzbot+825f0f9657d4e528046e@syzkaller.appspotmail.com
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+        offset = skb_checksum_start_offset(skb);
+        BUG_ON(offset >= skb_headlen(skb));
+
+To work around the problem this patch forces pskb_trim_rcsum_slow()
+to return -EINVAL in described scenario. It allows its callers to
+drop such kind of packets.
+
+Link: https://syzkaller.appspot.com/bug?id=b419a5ca95062664fe1a60b764621eb4526e2cd0
+Reported-by: syzbot+7010af67ced6105e5ab6@syzkaller.appspotmail.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/1b2494af-2c56-8ee2-7bc0-923fcad1cdf8@virtuozzo.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/genhd.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/core/skbuff.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -256,14 +256,17 @@ struct hd_struct *disk_part_iter_next(st
- 		part = rcu_dereference(ptbl->part[piter->idx]);
- 		if (!part)
- 			continue;
-+		get_device(part_to_dev(part));
-+		piter->part = part;
- 		if (!part_nr_sects_read(part) &&
- 		    !(piter->flags & DISK_PITER_INCL_EMPTY) &&
- 		    !(piter->flags & DISK_PITER_INCL_EMPTY_PART0 &&
--		      piter->idx == 0))
-+		      piter->idx == 0)) {
-+			put_device(part_to_dev(part));
-+			piter->part = NULL;
- 			continue;
-+		}
- 
--		get_device(part_to_dev(part));
--		piter->part = part;
- 		piter->idx += inc;
- 		break;
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2011,6 +2011,12 @@ int pskb_trim_rcsum_slow(struct sk_buff
+ 		skb->csum = csum_block_sub(skb->csum,
+ 					   skb_checksum(skb, len, delta, 0),
+ 					   len);
++	} else if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		int hdlen = (len > skb_headlen(skb)) ? skb_headlen(skb) : len;
++		int offset = skb_checksum_start_offset(skb) + skb->csum_offset;
++
++		if (offset + sizeof(__sum16) > hdlen)
++			return -EINVAL;
  	}
+ 	return __pskb_trim(skb, len);
+ }
 
 
