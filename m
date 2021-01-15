@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F162F7BCE
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6599B2F7BD2
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733290AbhAONF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36246 "EHLO mail.kernel.org"
+        id S1732750AbhAONGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 08:06:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732610AbhAOMb0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAFCA2333E;
-        Fri, 15 Jan 2021 12:30:58 +0000 (UTC)
+        id S1732600AbhAOMbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D90542388B;
+        Fri, 15 Jan 2021 12:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713859;
-        bh=C4QXe8+HEIga6AqCcUTyir1PTpQjRJx+AJkHUyp9Hrk=;
+        s=korg; t=1610713815;
+        bh=n761rq/3t9boAak4A1iA/Jpi2B9RN4fWjzunJ+GcDYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wm/lns3aie/0Jq4gGZ13kl9JJ1KYRcVylFIgF+oIBlcIcincpV68ecS8kfm1TxppD
-         9qEhs6v7Xr9QUXG8ZQNrZkKXMdFPKzWf5KjOfeCQj/vVNxDNZSYGILYE68s5usMBai
-         NTQdYmI0Uckvsr5MLlOAP74Om1fRpaEN+7/o/j78=
+        b=ukR/dY8/LTD1BtNQOm414zPyVWHt5YvUShnm/lmyz9BY6eMrZyhkxndlooOJcUgwG
+         jQIMi5IHpc7dFeCd9Hm+ZyIIVRvNv7va+R2sTXZSrFaE0soj+hTCyMRygKJjRXgdnm
+         EweI6TfOgUSfqcAehfxfehwpTM4/gapfD0Ke+SU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
-        Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 10/28] ubifs: wbuf: Dont leak kernel memory to flash
+        stable@vger.kernel.org,
+        Shravya Kumbham <shravya.kumbham@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.9 16/25] dmaengine: xilinx_dma: check dma_async_device_register return value
 Date:   Fri, 15 Jan 2021 13:27:47 +0100
-Message-Id: <20210115121957.258514238@linuxfoundation.org>
+Message-Id: <20210115121957.484683526@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
-References: <20210115121956.731354372@linuxfoundation.org>
+In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
+References: <20210115121956.679956165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Shravya Kumbham <shravya.kumbham@xilinx.com>
 
-commit 20f1431160c6b590cdc269a846fc5a448abf5b98 upstream
+commit 99974aedbd73523969afb09f33c6e3047cd0ddae upstream.
 
-Write buffers use a kmalloc()'ed buffer, they can leak
-up to seven bytes of kernel memory to flash if writes are not
-aligned.
-So use ubifs_pad() to fill these gaps with padding bytes.
-This was never a problem while scanning because the scanner logic
-manually aligns node lengths and skips over these gaps.
+dma_async_device_register() can return non-zero error code. Add
+condition to check the return value of dma_async_device_register
+function and handle the error path.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 1e51764a3c2ac05a2 ("UBIFS: add new flash file system")
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Addresses-Coverity: Event check_return.
+Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
+Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1608722462-29519-2-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ubifs/io.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -331,7 +331,7 @@ void ubifs_pad(const struct ubifs_info *
- {
- 	uint32_t crc;
- 
--	ubifs_assert(pad >= 0 && !(pad & 7));
-+	ubifs_assert(pad >= 0);
- 
- 	if (pad >= UBIFS_PAD_NODE_SZ) {
- 		struct ubifs_ch *ch = buf;
-@@ -727,6 +727,10 @@ int ubifs_wbuf_write_nolock(struct ubifs
- 		 * write-buffer.
- 		 */
- 		memcpy(wbuf->buf + wbuf->used, buf, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + wbuf->used + len, aligned_len - len);
-+		}
- 
- 		if (aligned_len == wbuf->avail) {
- 			dbg_io("flush jhead %s wbuf to LEB %d:%d",
-@@ -819,13 +823,18 @@ int ubifs_wbuf_write_nolock(struct ubifs
+---
+ drivers/dma/xilinx/xilinx_dma.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2630,7 +2630,11 @@ static int xilinx_dma_probe(struct platf
  	}
  
- 	spin_lock(&wbuf->lock);
--	if (aligned_len)
-+	if (aligned_len) {
- 		/*
- 		 * And now we have what's left and what does not take whole
- 		 * max. write unit, so write it to the write-buffer and we are
- 		 * done.
- 		 */
- 		memcpy(wbuf->buf, buf + written, len);
-+		if (aligned_len > len) {
-+			ubifs_assert(aligned_len - len < 8);
-+			ubifs_pad(c, wbuf->buf + len, aligned_len - len);
-+		}
+ 	/* Register the DMA engine with the core */
+-	dma_async_device_register(&xdev->common);
++	err = dma_async_device_register(&xdev->common);
++	if (err) {
++		dev_err(xdev->dev, "failed to register the dma device\n");
++		goto error;
 +	}
  
- 	if (c->leb_size - wbuf->offs >= c->max_write_size)
- 		wbuf->size = c->max_write_size;
+ 	err = of_dma_controller_register(node, of_dma_xilinx_xlate,
+ 					 xdev);
 
 
