@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952582F79E2
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76DB32F7AE2
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730630AbhAOMmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:42:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46614 "EHLO mail.kernel.org"
+        id S1733310AbhAOMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:34:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733000AbhAOMja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:39:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEEF122473;
-        Fri, 15 Jan 2021 12:39:14 +0000 (UTC)
+        id S2387411AbhAOMeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:34:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0556023136;
+        Fri, 15 Jan 2021 12:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714355;
-        bh=rSih70okvAofANG/VIkYzxE2fl9zFMm++0vCfDGt0EQ=;
+        s=korg; t=1610714006;
+        bh=pFEZn7e8aaz0Dah5R4LTyV/HwgbH9/jP5oTMkHsNmWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMo5gx0CjDiPXotXSpenkIusfL12e6VvMQBQ64jw2YcolS5vhCsOG9F4riaSLyJQ9
-         w6sRdPQ3nFhVpiYEAVqjtqj4CFt/Ll82ZwPzNh7iWsIcED6ejajlDn7Fo76fepGnWO
-         G48Wt1V7MkUpkN2o+LDSOOQJjwDjmrQoqShKnxwg=
+        b=hxppn74lR8PRWvlGlC+lnLiBqRujz4WtVJN42Gsun62wAm+HK4/Gde93aC18izdJM
+         eBa0d++baIRiA8STusPgWYsAHmHoylLVtADVr1VDimzLBhF2qmUh1QBxNE0eMxSR/7
+         fvCbhTgPRfJ7wpM4YqFtkM4IPRe/B/3fLe/C/pFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Shravya Kumbham <shravya.kumbham@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 068/103] dmaengine: mediatek: mtk-hsdma: Fix a resource leak in the error handling path of the probe function
+Subject: [PATCH 4.19 31/43] dmaengine: xilinx_dma: fix mixed_enum_type coverity warning
 Date:   Fri, 15 Jan 2021 13:28:01 +0100
-Message-Id: <20210115122009.331777361@linuxfoundation.org>
+Message-Id: <20210115121958.556041435@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
-References: <20210115122006.047132306@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Shravya Kumbham <shravya.kumbham@xilinx.com>
 
-commit 33cbd54dc515cc04b5a603603414222b4bb1448d upstream.
+commit 2d5efea64472469117dc1a9a39530069e95b21e9 upstream.
 
-'mtk_hsdma_hw_deinit()' should be called in the error handling path of the
-probe function to undo a previous 'mtk_hsdma_hw_init()' call, as already
-done in the remove function.
+Typecast the fls(width -1) with (enum dmaengine_alignment) in
+xilinx_dma_chan_probe function to fix the coverity warning.
 
-Fixes: 548c4597e984 ("dmaengine: mediatek: Add MediaTek High-Speed DMA controller for MT7622 and MT7623 SoC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201219124718.182664-1-christophe.jaillet@wanadoo.fr
+Addresses-Coverity: Event mixed_enum_type.
+Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
+Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1608722462-29519-4-git-send-email-radhey.shyam.pandey@xilinx.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/mediatek/mtk-hsdma.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/xilinx/xilinx_dma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/mediatek/mtk-hsdma.c
-+++ b/drivers/dma/mediatek/mtk-hsdma.c
-@@ -1007,6 +1007,7 @@ static int mtk_hsdma_probe(struct platfo
- 	return 0;
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2426,7 +2426,7 @@ static int xilinx_dma_chan_probe(struct
+ 		has_dre = false;
  
- err_free:
-+	mtk_hsdma_hw_deinit(hsdma);
- 	of_dma_controller_free(pdev->dev.of_node);
- err_unregister:
- 	dma_async_device_unregister(dd);
+ 	if (!has_dre)
+-		xdev->common.copy_align = fls(width - 1);
++		xdev->common.copy_align = (enum dmaengine_alignment)fls(width - 1);
+ 
+ 	if (of_device_is_compatible(node, "xlnx,axi-vdma-mm2s-channel") ||
+ 	    of_device_is_compatible(node, "xlnx,axi-dma-mm2s-channel") ||
 
 
