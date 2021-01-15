@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6954A2F7A80
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBB92F7912
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387756AbhAOMfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:35:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
+        id S1732286AbhAOMa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387751AbhAOMfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:35:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91CD3235F9;
-        Fri, 15 Jan 2021 12:35:11 +0000 (UTC)
+        id S1732335AbhAOMa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 548A2238EC;
+        Fri, 15 Jan 2021 12:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714112;
-        bh=UPK2wr1C0tq+9x7urNAkWTBAnGfruomE3IzDJbT1LQI=;
+        s=korg; t=1610713801;
+        bh=Ga0NYENILrBNF9VVtN6sxeXlzBL70PaQJUPnZkNZZnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+8sv91LbbvRJ4101rP5xEyP/CGK7bdeOr4To1G5DOzbkxv5siv7HpChZSBrEbFN3
-         MA0dCc5k0u7OC4QQI2VwLGmdLcOd9J8X8XBCMro0qhmLEzhC3QPkqbuWngfJvKnF9Y
-         Mb4BaZIef59Fy5kV56ZxNLSX8jqXMhKk7TOCsIPA=
+        b=V7wBLEWuLyK8+OQtVdEYhiAwgB8LPpz2StwABjl9iNVRQKE9++ycgNGc/RcrOvR7Y
+         xXk7UpXs0yfxIMmCH+5HRAJO7d11mcs5sEmKzUlFkot3fZLpgDj9OwddpquVrMUnTI
+         0DmvDN+bErfX04NMG33eA7iG3sjMtv8gmDrN5WEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 11/62] tools: selftests: add test for changing routes with PTMU exceptions
+        stable@vger.kernel.org, David Disseldorp <ddiss@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bart.vanassche@sandisk.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 02/25] target: simplify XCOPY wwn->se_dev lookup helper
 Date:   Fri, 15 Jan 2021 13:27:33 +0100
-Message-Id: <20210115121958.947465732@linuxfoundation.org>
+Message-Id: <20210115121956.804545587@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
+References: <20210115121956.679956165@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,126 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Tranchetti <stranche@codeaurora.org>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit 5316a7c0130acf09bfc8bb0092407006010fcccc ]
+[ Upstream commit 94aae4caacda89a1bdb7198b260f4ca3595b7ed7 ]
 
-Adds new 2 new tests to the PTMU script: pmtu_ipv4/6_route_change.
+target_xcopy_locate_se_dev_e4() is used to locate an se_dev, based on
+the WWN provided with the XCOPY request. Remove a couple of unneeded
+arguments, and rely on the caller for the src/dst test.
 
-These tests explicitly test for a recently discovered problem in the
-IPv6 routing framework where PMTU exceptions were not properly released
-when replacing a route via "ip route change ...".
-
-After creating PMTU exceptions, the route from the device A to R1 will be
-replaced with a new route, then device A will be deleted. If the PMTU
-exceptions were properly cleaned up by the kernel, this device deletion
-will succeed. Otherwise, the unregistration of the device will stall, and
-messages such as the following will be logged in dmesg:
-
-unregister_netdevice: waiting for veth_A-R1 to become free. Usage count = 4
-
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/1609892546-11389-2-git-send-email-stranche@quicinc.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Bart Van Assche <bart.vanassche@sandisk.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/pmtu.sh |   71 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 69 insertions(+), 2 deletions(-)
+ drivers/target/target_core_xcopy.c | 28 +++++++++-------------------
+ 1 file changed, 9 insertions(+), 19 deletions(-)
 
---- a/tools/testing/selftests/net/pmtu.sh
-+++ b/tools/testing/selftests/net/pmtu.sh
-@@ -119,7 +119,15 @@
- # - list_flush_ipv6_exception
- #	Using the same topology as in pmtu_ipv6, create exceptions, and check
- #	they are shown when listing exception caches, gone after flushing them
--
-+#
-+# - pmtu_ipv4_route_change
-+#	Use the same topology as in pmtu_ipv4, but issue a route replacement
-+#	command and delete the corresponding device afterward. This tests for
-+#	proper cleanup of the PMTU exceptions by the route replacement path.
-+#	Device unregistration should complete successfully
-+#
-+# - pmtu_ipv6_route_change
-+#	Same as above but with IPv6
- 
- # Kselftest framework requirement - SKIP code is 4.
- ksft_skip=4
-@@ -161,7 +169,9 @@ tests="
- 	cleanup_ipv4_exception		ipv4: cleanup of cached exceptions	1
- 	cleanup_ipv6_exception		ipv6: cleanup of cached exceptions	1
- 	list_flush_ipv4_exception	ipv4: list and flush cached exceptions	1
--	list_flush_ipv6_exception	ipv6: list and flush cached exceptions	1"
-+	list_flush_ipv6_exception	ipv6: list and flush cached exceptions	1
-+	pmtu_ipv4_route_change		ipv4: PMTU exception w/route replace	1
-+	pmtu_ipv6_route_change		ipv6: PMTU exception w/route replace	1"
- 
- NS_A="ns-A"
- NS_B="ns-B"
-@@ -1316,6 +1326,63 @@ test_list_flush_ipv6_exception() {
- 	return ${fail}
+diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
+index a63b2fff82cc6..c4bd86976e450 100644
+--- a/drivers/target/target_core_xcopy.c
++++ b/drivers/target/target_core_xcopy.c
+@@ -52,18 +52,13 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
+ 	return 0;
  }
  
-+test_pmtu_ipvX_route_change() {
-+	family=${1}
-+
-+	setup namespaces routing || return 2
-+	trace "${ns_a}"  veth_A-R1    "${ns_r1}" veth_R1-A \
-+	      "${ns_r1}" veth_R1-B    "${ns_b}"  veth_B-R1 \
-+	      "${ns_a}"  veth_A-R2    "${ns_r2}" veth_R2-A \
-+	      "${ns_r2}" veth_R2-B    "${ns_b}"  veth_B-R2
-+
-+	if [ ${family} -eq 4 ]; then
-+		ping=ping
-+		dst1="${prefix4}.${b_r1}.1"
-+		dst2="${prefix4}.${b_r2}.1"
-+		gw="${prefix4}.${a_r1}.2"
-+	else
-+		ping=${ping6}
-+		dst1="${prefix6}:${b_r1}::1"
-+		dst2="${prefix6}:${b_r2}::1"
-+		gw="${prefix6}:${a_r1}::2"
-+	fi
-+
-+	# Set up initial MTU values
-+	mtu "${ns_a}"  veth_A-R1 2000
-+	mtu "${ns_r1}" veth_R1-A 2000
-+	mtu "${ns_r1}" veth_R1-B 1400
-+	mtu "${ns_b}"  veth_B-R1 1400
-+
-+	mtu "${ns_a}"  veth_A-R2 2000
-+	mtu "${ns_r2}" veth_R2-A 2000
-+	mtu "${ns_r2}" veth_R2-B 1500
-+	mtu "${ns_b}"  veth_B-R2 1500
-+
-+	# Create route exceptions
-+	run_cmd ${ns_a} ${ping} -q -M want -i 0.1 -w 1 -s 1800 ${dst1}
-+	run_cmd ${ns_a} ${ping} -q -M want -i 0.1 -w 1 -s 1800 ${dst2}
-+
-+	# Check that exceptions have been created with the correct PMTU
-+	pmtu_1="$(route_get_dst_pmtu_from_exception "${ns_a}" ${dst1})"
-+	check_pmtu_value "1400" "${pmtu_1}" "exceeding MTU" || return 1
-+	pmtu_2="$(route_get_dst_pmtu_from_exception "${ns_a}" ${dst2})"
-+	check_pmtu_value "1500" "${pmtu_2}" "exceeding MTU" || return 1
-+
-+	# Replace the route from A to R1
-+	run_cmd ${ns_a} ip route change default via ${gw}
-+
-+	# Delete the device in A
-+	run_cmd ${ns_a} ip link del "veth_A-R1"
-+}
-+
-+test_pmtu_ipv4_route_change() {
-+	test_pmtu_ipvX_route_change 4
-+}
-+
-+test_pmtu_ipv6_route_change() {
-+	test_pmtu_ipvX_route_change 6
-+}
-+
- usage() {
- 	echo
- 	echo "$0 [OPTIONS] [TEST]..."
+-static int target_xcopy_locate_se_dev_e4(struct se_cmd *se_cmd, struct xcopy_op *xop,
+-					bool src)
++static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
++					struct se_device **found_dev)
+ {
+ 	struct se_device *se_dev;
+-	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN], *dev_wwn;
++	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
+ 	int rc;
+ 
+-	if (src)
+-		dev_wwn = &xop->dst_tid_wwn[0];
+-	else
+-		dev_wwn = &xop->src_tid_wwn[0];
+-
+ 	mutex_lock(&g_device_mutex);
+ 	list_for_each_entry(se_dev, &g_device_list, g_dev_node) {
+ 
+@@ -77,15 +72,8 @@ static int target_xcopy_locate_se_dev_e4(struct se_cmd *se_cmd, struct xcopy_op
+ 		if (rc != 0)
+ 			continue;
+ 
+-		if (src) {
+-			xop->dst_dev = se_dev;
+-			pr_debug("XCOPY 0xe4: Setting xop->dst_dev: %p from located"
+-				" se_dev\n", xop->dst_dev);
+-		} else {
+-			xop->src_dev = se_dev;
+-			pr_debug("XCOPY 0xe4: Setting xop->src_dev: %p from located"
+-				" se_dev\n", xop->src_dev);
+-		}
++		*found_dev = se_dev;
++		pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
+ 
+ 		rc = target_depend_item(&se_dev->dev_group.cg_item);
+ 		if (rc != 0) {
+@@ -242,9 +230,11 @@ static int target_xcopy_parse_target_descriptors(struct se_cmd *se_cmd,
+ 	}
+ 
+ 	if (xop->op_origin == XCOL_SOURCE_RECV_OP)
+-		rc = target_xcopy_locate_se_dev_e4(se_cmd, xop, true);
++		rc = target_xcopy_locate_se_dev_e4(xop->dst_tid_wwn,
++						&xop->dst_dev);
+ 	else
+-		rc = target_xcopy_locate_se_dev_e4(se_cmd, xop, false);
++		rc = target_xcopy_locate_se_dev_e4(xop->src_tid_wwn,
++						&xop->src_dev);
+ 	/*
+ 	 * If a matching IEEE NAA 0x83 descriptor for the requested device
+ 	 * is not located on this node, return COPY_ABORTED with ASQ/ASQC
+-- 
+2.27.0
+
 
 
