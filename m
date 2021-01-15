@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FBC42F7AF5
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE082F7A20
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:47:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387706AbhAOM4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:56:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41338 "EHLO mail.kernel.org"
+        id S1733047AbhAOMpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:45:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387521AbhAOMep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE9C2256F;
-        Fri, 15 Jan 2021 12:34:29 +0000 (UTC)
+        id S1731350AbhAOMiM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:38:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D920A22473;
+        Fri, 15 Jan 2021 12:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714069;
-        bh=Lr2E47ovMLNH5cjAfP0XE+8hZ6zMuDZnDmwq6ILvmos=;
+        s=korg; t=1610714277;
+        bh=I6ahcIlSY4WZ1+YM5bz9xxfpeSXZAbpokCAoOh9w/8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7G3UPeyfpP4wK4hPa+/QBPzpRsIH/b5HJ4A7atmEjOF0f0mBgLuCzUiS4wru5xtI
-         Z6lobYaEeAVuu8k9WN2VpXk2PtT7Q7gdpmka86cB9J2mDabmC/0x+yZryXkD3CMrry
-         X2GCM/FaLCUQMEtqy/8wi7VFes6NGbQFym5lzy5o=
+        b=svtesNsONVYdwPA/b3B6y4CJNUysVMs5CoJK99zPyqCqSL4PbvRxVeCqXA+9/f/KV
+         XapZXljLsxee6OPb4PsN1V+r2pA3XntM2i4RMBPkg4Q3nK6FulJGYtYD+AIjesxwQI
+         SQBfVau3n/Qzmp5Orf4h9VwM8VtEmTsCQFP6vjRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 32/62] HID: wacom: Fix memory leakage caused by kfifo_alloc
-Date:   Fri, 15 Jan 2021 13:27:54 +0100
-Message-Id: <20210115121959.960347166@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Guskov <rguskov@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 062/103] spi: stm32: FIFO threshold level - fix align packet size
+Date:   Fri, 15 Jan 2021 13:27:55 +0100
+Message-Id: <20210115122009.046794550@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
+References: <20210115122006.047132306@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,108 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping Cheng <pinglinux@gmail.com>
+From: Roman Guskov <rguskov@dh-electronics.com>
 
-commit 37309f47e2f5674f3e86cb765312ace42cfcedf5 upstream.
+commit a590370d918fc66c62df6620445791fbe840344a upstream.
 
-As reported by syzbot below, kfifo_alloc'd memory would not be freed
-if a non-zero return value is triggered in wacom_probe. This patch
-creates and uses devm_kfifo_alloc to allocate and free itself.
+if cur_bpw <= 8 and xfer_len < 4 then the value of fthlv will be 1 and
+SPI registers content may have been lost.
 
-BUG: memory leak
-unreferenced object 0xffff88810dc44a00 (size 512):
-  comm "kworker/1:2", pid 3674, jiffies 4294943617 (age 14.100s)
-  hex dump (first 32 bytes):
-   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-   [<0000000023e1afac>] kmalloc_array include/linux/slab.h:592 [inline]
-   [<0000000023e1afac>] __kfifo_alloc+0xad/0x100 lib/kfifo.c:43
-   [<00000000c477f737>] wacom_probe+0x1a1/0x3b0 drivers/hid/wacom_sys.c:2727
-   [<00000000b3109aca>] hid_device_probe+0x16b/0x210 drivers/hid/hid-core.c:2281
-   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
-   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
-   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
-   [<00000000efb7c59e>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
-   [<0000000024ab1590>] __device_attach+0x122/0x250 drivers/base/dd.c:912
-   [<000000004c7ac048>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
-   [<00000000b93050a3>] device_add+0x5ac/0xc30 drivers/base/core.c:2936
-   [<00000000e5b46ea5>] hid_add_device+0x151/0x390 drivers/hid/hid-core.c:2437
-   [<00000000c6add147>] usbhid_probe+0x412/0x560 drivers/hid/usbhid/hid-core.c:1407
-   [<00000000c33acdb4>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-   [<00000000aff7c640>] really_probe+0x159/0x480 drivers/base/dd.c:554
-   [<00000000778d0bc3>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
-   [<000000005108dbb5>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+* If SPI data register is accessed as a 16-bit register and DSIZE <= 8bit,
+  better to select FTHLV = 2, 4, 6 etc
 
-https://syzkaller.appspot.com/bug?extid=5b49c9695968d7250a26
+* If SPI data register is accessed as a 32-bit register and DSIZE > 8bit,
+  better to select FTHLV = 2, 4, 6 etc, while if DSIZE <= 8bit,
+  better to select FTHLV = 4, 8, 12 etc
 
-Reported-by: syzbot+5b49c9695968d7250a26@syzkaller.appspotmail.com
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Roman Guskov <rguskov@dh-electronics.com>
+Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
+Reviewed-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20201221123532.27272-1-rguskov@dh-electronics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_sys.c |   35 ++++++++++++++++++++++++++++++++---
- 1 file changed, 32 insertions(+), 3 deletions(-)
+ drivers/spi/spi-stm32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1270,6 +1270,37 @@ static int wacom_devm_sysfs_create_group
- 					       group);
- }
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -493,9 +493,9 @@ static u32 stm32h7_spi_prepare_fthlv(str
  
-+static void wacom_devm_kfifo_release(struct device *dev, void *res)
-+{
-+	struct kfifo_rec_ptr_2 *devres = res;
-+
-+	kfifo_free(devres);
-+}
-+
-+static int wacom_devm_kfifo_alloc(struct wacom *wacom)
-+{
-+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct kfifo_rec_ptr_2 *pen_fifo = &wacom_wac->pen_fifo;
-+	int error;
-+
-+	pen_fifo = devres_alloc(wacom_devm_kfifo_release,
-+			      sizeof(struct kfifo_rec_ptr_2),
-+			      GFP_KERNEL);
-+
-+	if (!pen_fifo)
-+		return -ENOMEM;
-+
-+	error = kfifo_alloc(pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
-+	if (error) {
-+		devres_free(pen_fifo);
-+		return error;
-+	}
-+
-+	devres_add(&wacom->hdev->dev, pen_fifo);
-+
-+	return 0;
-+}
-+
- enum led_brightness wacom_leds_brightness_get(struct wacom_led *led)
- {
- 	struct wacom *wacom = led->wacom;
-@@ -2724,7 +2755,7 @@ static int wacom_probe(struct hid_device
- 	if (features->check_for_hid_type && features->hid_type != hdev->type)
- 		return -ENODEV;
+ 	/* align packet size with data registers access */
+ 	if (spi->cur_bpw > 8)
+-		fthlv -= (fthlv % 2); /* multiple of 2 */
++		fthlv += (fthlv % 2) ? 1 : 0;
+ 	else
+-		fthlv -= (fthlv % 4); /* multiple of 4 */
++		fthlv += (fthlv % 4) ? (4 - (fthlv % 4)) : 0;
  
--	error = kfifo_alloc(&wacom_wac->pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
-+	error = wacom_devm_kfifo_alloc(wacom);
- 	if (error)
- 		return error;
- 
-@@ -2786,8 +2817,6 @@ static void wacom_remove(struct hid_devi
- 
- 	if (wacom->wacom_wac.features.type != REMOTE)
- 		wacom_release_resources(wacom);
--
--	kfifo_free(&wacom_wac->pen_fifo);
- }
- 
- #ifdef CONFIG_PM
+ 	if (!fthlv)
+ 		fthlv = 1;
 
 
