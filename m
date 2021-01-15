@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA602F7B36
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B19962F7B73
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733193AbhAOMdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:33:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
+        id S1732908AbhAOMcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733154AbhAOMdh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:33:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 962DC235F8;
-        Fri, 15 Jan 2021 12:33:21 +0000 (UTC)
+        id S1732902AbhAOMcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:32:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9BD42339D;
+        Fri, 15 Jan 2021 12:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714002;
-        bh=TDDpXuBgLVCiAQrY2XBfhsvvI8CTbty4gxeGpYh89g8=;
+        s=korg; t=1610713905;
+        bh=yyKG51TFr5nmyyBWUHygy67mu7D8MjIYdZJXAt2amRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSOeeDcJkX+BFZb3fmsDKNlFzJiq9T/8CTPqwU1SiIEUaogL3b/Hjq6nWAEin2U+C
-         CGGh22iNFBMGMYHjZ1eYcpk33d2G5Bqv6T2Um9y6uccdCA4ZxUvDJCDenia6yGV8+s
-         0d9b5gUms6FFJIkuGkfC807lv0htZvZPEyDlu+ns=
+        b=K4vlsCG986xQT/iGOLIIDIcZPtyyiBZcVgfzsyA+DyZ7oRU6tfVCUVz9v4fm4aG59
+         rnbNM6lveDS2KO/G+fePGOMgneie4FR1qAF93V6aPo94JU24mg07XjIHqwrc2qmDHQ
+         sMJw9DzB8hGXptSLOdE6NNxB+B4DgttLlavwanDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 29/43] dmaengine: xilinx_dma: check dma_async_device_register return value
-Date:   Fri, 15 Jan 2021 13:27:59 +0100
-Message-Id: <20210115121958.458407619@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 4.14 23/28] net/mlx5e: Fix memleak in mlx5e_create_l2_table_groups
+Date:   Fri, 15 Jan 2021 13:28:00 +0100
+Message-Id: <20210115121957.908836920@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
+References: <20210115121956.731354372@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 99974aedbd73523969afb09f33c6e3047cd0ddae upstream.
+commit 5b0bb12c58ac7d22e05b5bfdaa30a116c8c32e32 upstream.
 
-dma_async_device_register() can return non-zero error code. Add
-condition to check the return value of dma_async_device_register
-function and handle the error path.
+When mlx5_create_flow_group() fails, ft->g should be
+freed just like when kvzalloc() fails. The caller of
+mlx5e_create_l2_table_groups() does not catch this
+issue on failure, which leads to memleak.
 
-Addresses-Coverity: Event check_return.
-Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Link: https://lore.kernel.org/r/1608722462-29519-2-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 33cfaaa8f36f ("net/mlx5e: Split the main flow steering table")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/xilinx/xilinx_dma.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_fs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2713,7 +2713,11 @@ static int xilinx_dma_probe(struct platf
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+@@ -1226,6 +1226,7 @@ err_destroy_groups:
+ 	ft->g[ft->num_groups] = NULL;
+ 	mlx5e_destroy_groups(ft);
+ 	kvfree(in);
++	kfree(ft->g);
  
- 	/* Register the DMA engine with the core */
--	dma_async_device_register(&xdev->common);
-+	err = dma_async_device_register(&xdev->common);
-+	if (err) {
-+		dev_err(xdev->dev, "failed to register the dma device\n");
-+		goto error;
-+	}
- 
- 	err = of_dma_controller_register(node, of_dma_xilinx_xlate,
- 					 xdev);
+ 	return err;
+ }
 
 
