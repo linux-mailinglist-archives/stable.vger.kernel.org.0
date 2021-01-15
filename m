@@ -2,152 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C38AD2F821B
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 18:23:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4428B2F825B
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 18:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727859AbhAORWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 12:22:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45140 "EHLO
+        id S1726019AbhAORaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 12:30:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727876AbhAORWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 12:22:08 -0500
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA1EC0613C1;
-        Fri, 15 Jan 2021 09:21:27 -0800 (PST)
-Received: by mail-lf1-x12a.google.com with SMTP id v67so14253781lfa.0;
-        Fri, 15 Jan 2021 09:21:27 -0800 (PST)
+        with ESMTP id S1727957AbhAORaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Jan 2021 12:30:14 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6627BC061793
+        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 09:29:34 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id t29so788413pfg.11
+        for <stable@vger.kernel.org>; Fri, 15 Jan 2021 09:29:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=QMmi0FiVN5Cp+wQqEnMWwUuN5A0IFrb/oyH6nkhKchE=;
-        b=jG1XP3AcqNCblv1qXe5AjSjMBYYK5Kz59EVyhMXaPHZ0dBEPvgBjpishmsxGgts2Bs
-         btCo+2EP5lMzugLeGBR7GOPppvRpZMWOZkr9BvMk2Hq6GFhJfG3FrryLLfjp588kW+8h
-         xAmhRpLqzSxd4L4IVDIt+ys0k4ZCrCdflxAoMCle/PbzDd1ygAcC8YPU76kOSgeXCmG1
-         iRKHI6vl/NgtEZ1KLriVeB7NMoXmFrgnQSfFP2kMYK+K+4WiziCPLcjO4jTx7lBMdlMe
-         RrCfenHCAXFtEfq88MFD9NvEfjmigfEwqDcu8F8+0gwXw/ysJl1fX99MadcloLjlLd7V
-         WMdw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qBUrD67E9FG1a51IiH6aN+aIAm3sV7KLKkP0kJNn0tU=;
+        b=yhUU6xTjeipFnHpH/zYG4mRVaA1JAXy0X41NToQE6O8TfpooR/O4f3v3YKEaqSk3r8
+         Rs6No55GY7ESh0soMltH64Wn9vVq4RW4hhqZVssy2ZV39tr1kA+T9j3/HNpXYA52wVSV
+         A1aHPbntFPvPHe1Zb2uopZ+cUikfl4Um8CFlCi5Evu4ZlId1j1g4Saig1XeeBhqITHW3
+         Is+YEnIcsSMH0kqP16JA1FmvYmsGj9zQl3wnv6CWNN9SwbNEduchk0TZr4ZtHw9ZUOoc
+         1APrM91wary0m+J7GVO6wFerM/l1SXzWwh1Z6L7cNVOC9n0Rjv7KCDd0ve5KLEYj4yvZ
+         I5sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QMmi0FiVN5Cp+wQqEnMWwUuN5A0IFrb/oyH6nkhKchE=;
-        b=sBDMWXyyLCxjRGoO9jh8GnLoTZhtv1mUP3fYVqTiEWoz+99eLaB2lbwd4ASdNZDq5C
-         YpaWP1YvQIFKFyxo8NKMx2JaaUl6e+/KvQr1zT3GrIfsqg441+ZZFhiFYke6lEmNfwJz
-         XSFdSzbaoPylL6dXd4Ifs1AwT11/lnkFdXzpUE6WvjkkPEcdGiB8sRiHk5V44ywmFHzI
-         pPHZPTwsuT+l7i88Ww//G7rl5qR9giizPyJrD+cxTbP5Ru3GP96lJ/zJ5hDrgjzDUFse
-         X4uStXYbj+8Qm/jZyZWe3efdTINomN25OnxYOtGARA2didoLzppRG93ESh5g22TieN42
-         uZOA==
-X-Gm-Message-State: AOAM532M7atSwVC5hhoYWBG3xd5i8lG972T0R9b9FBssG6x1uikYwhrV
-        0LXvIyFvrjZMvkWiKkIzX3LO6JXZvGo=
-X-Google-Smtp-Source: ABdhPJy4NpPDHIUkWz8c0QwaaqaiZwWyk3xmk8Bbh5vDr/Ll94AaVLDJP0qbWcMdDUyp+32ET6A2kw==
-X-Received: by 2002:ac2:4e92:: with SMTP id o18mr5557431lfr.576.1610731286280;
-        Fri, 15 Jan 2021 09:21:26 -0800 (PST)
-Received: from [192.168.1.101] ([178.176.73.247])
-        by smtp.gmail.com with ESMTPSA id n7sm526185lfu.123.2021.01.15.09.21.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Jan 2021 09:21:25 -0800 (PST)
-Subject: Re: [PATCH 1/2] xhci: make sure TRB is fully written before giving it
- to the controller
-To:     David Laight <David.Laight@ACULAB.COM>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Ross Zwisler <zwisler@google.com>
-References: <20210115161907.2875631-1-mathias.nyman@linux.intel.com>
- <20210115161907.2875631-2-mathias.nyman@linux.intel.com>
- <42c6632e-28f1-9aae-e1a6-3525bb493c58@gmail.com>
- <b70e0bb512d44f00ac5f8380ba450ba6@AcuMS.aculab.com>
-From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Message-ID: <f439cf12-106f-3634-397f-dc17a4d0e94d@gmail.com>
-Date:   Fri, 15 Jan 2021 20:21:24 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qBUrD67E9FG1a51IiH6aN+aIAm3sV7KLKkP0kJNn0tU=;
+        b=aqcIEFgFG+adxwVqiIBz4imwafCPbtA3OjrGr30pI2f+WK6Tvyv4rAp9mk7cZ3gejl
+         baojZggPW6epI0qRGSvSxa9bfrNpX8bXYIEhOFb9UeTQwpvcXJ3CyyGHV4bbE2GEy1fz
+         x+Ai5SaNvocqZNizpv/2XpQ9GtMK7YUC3Dj+H5YOwvS8rbGo09yyp2+8bbdGOgzIWKD/
+         cWkTqUDIzQLNJzgDJzJ7ODtMHJjsAyEsgGgJL81eoVXWaQOmJ0VjMhqbetUZkeIJBJ7x
+         RqwCoQuiIboJ8RHAN+abHlfy8PUfzc7U81XmoOabNf/JeWuB559LLIy9gI74ePViCiAA
+         YSNA==
+X-Gm-Message-State: AOAM533xQBzfPzU9wFooqo47HK9XbsuAuQ68VXUPGOA5LhUzb5NcEcOK
+        cIG2aq85KzxjfT6kcY1GABb80i3JtbyHgA==
+X-Google-Smtp-Source: ABdhPJxCZ+X2/L7S257APmnNsxjcPF0t1xZOeG8os5of6IwpC9neVxEIF1gcHIHT2lwSqS9MgdpStw==
+X-Received: by 2002:a62:d14f:0:b029:1ae:72f9:254c with SMTP id t15-20020a62d14f0000b02901ae72f9254cmr13565671pfl.38.1610731773433;
+        Fri, 15 Jan 2021 09:29:33 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c23sm9284246pgc.72.2021.01.15.09.29.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Jan 2021 09:29:32 -0800 (PST)
+Message-ID: <6001d0fc.1c69fb81.5ef4b.693c@mx.google.com>
+Date:   Fri, 15 Jan 2021 09:29:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <b70e0bb512d44f00ac5f8380ba450ba6@AcuMS.aculab.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.251-25-gf56a3ca86b32
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 108 runs,
+ 5 regressions (v4.9.251-25-gf56a3ca86b32)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/15/21 7:50 PM, David Laight wrote:
-> From: Sergei Shtylyov
->> Sent: 15 January 2021 16:40
->>
->> On 1/15/21 7:19 PM, Mathias Nyman wrote:
->>
->>> Once the command ring doorbell is rung the xHC controller will parse all
->>> command TRBs on the command ring that have the cycle bit set properly.
->>>
->>> If the driver just started writing the next command TRB to the ring when
->>> hardware finished the previous TRB, then HW might fetch an incomplete TRB
->>> as long as its cycle bit set correctly.
->>>
->>> A command TRB is 16 bytes (128 bits) long.
->>> Driver writes the command TRB in four 32 bit chunks, with the chunk
->>> containing the cycle bit last. This does however not guarantee that
->>> chunks actually get written in that order.
->>>
->>> This was detected in stress testing when canceling URBs with several
->>> connected USB devices.
->>> Two consecutive "Set TR Dequeue pointer" commands got queued right
->>> after each other, and the second one was only partially written when
->>> the controller parsed it, causing the dequeue pointer to be set
->>> to bogus values. This was seen as error messages:
->>>
->>> "Mismatch between completed Set TR Deq Ptr command & xHCI internal state"
->>>
->>> Solution is to add a write memory barrier before writing the cycle bit.
->>>
->>> Cc: <stable@vger.kernel.org>
->>> Tested-by: Ross Zwisler <zwisler@google.com>
->>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
->>> ---
->>>  drivers/usb/host/xhci-ring.c | 2 ++
->>>  1 file changed, 2 insertions(+)
->>>
->>> diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
->>> index 5677b81c0915..cf0c93a90200 100644
->>> --- a/drivers/usb/host/xhci-ring.c
->>> +++ b/drivers/usb/host/xhci-ring.c
->>> @@ -2931,6 +2931,8 @@ static void queue_trb(struct xhci_hcd *xhci, struct xhci_ring *ring,
->>>  	trb->field[0] = cpu_to_le32(field1);
->>>  	trb->field[1] = cpu_to_le32(field2);
->>>  	trb->field[2] = cpu_to_le32(field3);
->>> +	/* make sure TRB is fully written before giving it to the controller */
->>> +	wmb();
->>
->>    Have you tried the lighter barrier, dma_wmb()? IIRC, it exists for these exact cases...
-> 
-> Isn't dma_wmb() needed between the last memory write and the io_write to the doorbell?
+stable-rc/queue/4.9 baseline: 108 runs, 5 regressions (v4.9.251-25-gf56a3ca=
+86b32)
 
-   No.
+Regressions Summary
+-------------------
 
-> Here we need to ensure the two memory writes aren't re-ordered.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
 
-   No, we need all 3 ring memory writes to be ordered such that they all happen before the 4th
-write. It's not wonder this bug hasn't been noticed before -- x86 has strong write ordering
-unlike ARM/etc.
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-> Apart from alpha isn't a barrier() likely to be enough for that.
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-   Not sure -- we don't have any barriers before the equivalents of a doorbell write
-in e.g. the Renesas Ehter driver.
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-> It is worth checking that the failing compiles didn't have the writes reordered.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-  The writes are reordered not because of the compiler -- the read/write reordering is a
-CPU feature (on at least non-x86). :-)
 
-> 	David
-> 
->>
->>>  	trb->field[3] = cpu_to_le32(field4);
->>>
->>>  	trace_xhci_queue_trb(ring, trb);
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.251-25-gf56a3ca86b32/plan/baseline/
 
-MBR, Sergei
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.251-25-gf56a3ca86b32
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f56a3ca86b32fa12f6fcc727200490940073077f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+panda                | arm  | lab-collabora | gcc-8    | omap2plus_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60019e6d835400acd4c94cc8
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60019e6d835400a=
+cd4c94ccd
+        failing since 0 day (last pass: v4.9.251-9-gaad962dcf3ae2, first fa=
+il: v4.9.251-25-gcf38131e4e86)
+        2 lines
+
+    2021-01-15 13:53:45.431000+00:00  [   20.940063] usbcore: registered ne=
+w interface driver smsc95xx
+    2021-01-15 13:53:45.477000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/126
+    2021-01-15 13:53:45.486000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-01-15 13:53:45.503000+00:00  [   21.008941] <LAVA_SIGNAL_TESTCASE =
+TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60019c1bae07ae09c7c94cec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60019c1bae07ae09c7c94=
+ced
+        failing since 62 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60019c0eae07ae09c7c94cd7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60019c0eae07ae09c7c94=
+cd8
+        failing since 62 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60019c44d51e231451c94cd4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60019c44d51e231451c94=
+cd5
+        failing since 62 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6001aea8c27e80d757c94cdc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.251-2=
+5-gf56a3ca86b32/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6001aea8c27e80d757c94=
+cdd
+        failing since 62 days (last pass: v4.9.243-16-gd8d67e375b0a, first =
+fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
