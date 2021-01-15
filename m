@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6762F7A4B
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7052F7A78
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387528AbhAOMgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:36:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
+        id S2387648AbhAOMuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:50:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727049AbhAOMgj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:36:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AEE723339;
-        Fri, 15 Jan 2021 12:35:57 +0000 (UTC)
+        id S2387866AbhAOMgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:36:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BFDC2333E;
+        Fri, 15 Jan 2021 12:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714158;
-        bh=VGjfxo49qGfCTA4seUT7fLdP3HpLzhrYb5zoRhdpNgg=;
+        s=korg; t=1610714160;
+        bh=Cvi3CRNV4SotntnQAX140U/CyWala0nsSyzl8btecWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxsN06O7NnACaqGc5+KelF6kknSv7IhwDb6uhg5p5cEhPf/9wrDwT8cUtiU9tHPIM
-         ER5v0utEqEEyuwHo1JkLFtHUFfBo2lr4jUy8hkH+u3GmhDFEeUF9s1xn+cVBfSb6Xl
-         IKTJU9BMoou09arc7HAwZXUplipqc9kNqZxEkX7I=
+        b=aJ0pHFEd+ILZ2IRTvlSON/7J4pevQOqOiS+vsvyGMTzLEU5ss6gp2U3GX5oJywqlE
+         mtA/VWQ9MM1wzXjQj+TohHpTJ17j/lMYx/ljohupr/wuYHWj9/9HwAsR3mtxVHebyQ
+         tyzxc4CmlCskYdvZA4ymDU7ZRzBg0IkYvgwcTx9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/103] btrfs: skip unnecessary searches for xattrs when logging an inode
-Date:   Fri, 15 Jan 2021 13:27:03 +0100
-Message-Id: <20210115122006.546113060@linuxfoundation.org>
+Subject: [PATCH 5.10 011/103] btrfs: fix deadlock when cloning inline extent and low on free metadata space
+Date:   Fri, 15 Jan 2021 13:27:04 +0100
+Message-Id: <20210115122006.590309221@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -43,170 +43,325 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit f2f121ab500d0457cc9c6f54269d21ffdf5bd304 ]
+[ Upstream commit 3d45f221ce627d13e2e6ef3274f06750c84a6542 ]
 
-Every time we log an inode we lookup in the fs/subvol tree for xattrs and
-if we have any, log them into the log tree. However it is very common to
-have inodes without any xattrs, so doing the search wastes times, but more
-importantly it adds contention on the fs/subvol tree locks, either making
-the logging code block and wait for tree locks or making the logging code
-making other concurrent operations block and wait.
+When cloning an inline extent there are cases where we can not just copy
+the inline extent from the source range to the target range (e.g. when the
+target range starts at an offset greater than zero). In such cases we copy
+the inline extent's data into a page of the destination inode and then
+dirty that page. However, after that we will need to start a transaction
+for each processed extent and, if we are ever low on available metadata
+space, we may need to flush existing delalloc for all dirty inodes in an
+attempt to release metadata space - if that happens we may deadlock:
 
-The most typical use cases where xattrs are used are when capabilities or
-ACLs are defined for an inode, or when SELinux is enabled.
+* the async reclaim task queued a delalloc work to flush delalloc for
+  the destination inode of the clone operation;
 
-This change makes the logging code detect when an inode does not have
-xattrs and skip the xattrs search the next time the inode is logged,
-unless the inode is evicted and loaded again or a xattr is added to the
-inode. Therefore skipping the search for xattrs on inodes that don't ever
-have xattrs and are fsynced with some frequency.
+* the task executing that delalloc work gets blocked waiting for the
+  range with the dirty page to be unlocked, which is currently locked
+  by the task doing the clone operation;
 
-The following script that calls dbench was used to measure the impact of
-this change on a VM with 8 CPUs, 16Gb of ram, using a raw NVMe device
-directly (no intermediary filesystem on the host) and using a non-debug
-kernel (default configuration on Debian distributions):
+* the async reclaim task blocks waiting for the delalloc work to complete;
 
-  $ cat test.sh
-  #!/bin/bash
+* the cloning task is waiting on the waitqueue of its reservation ticket
+  while holding the range with the dirty page locked in the inode's
+  io_tree;
 
-  DEV=/dev/sdk
-  MNT=/mnt/sdk
-  MOUNT_OPTIONS="-o ssd"
+* if metadata space is not released by some other task (like delalloc for
+  some other inode completing for example), the clone task waits forever
+  and as a consequence the delalloc work and async reclaim tasks will hang
+  forever as well. Releasing more space on the other hand may require
+  starting a transaction, which will hang as well when trying to reserve
+  metadata space, resulting in a deadlock between all these tasks.
 
-  mkfs.btrfs -f -m single -d single $DEV
-  mount $MOUNT_OPTIONS $DEV $MNT
+When this happens, traces like the following show up in dmesg/syslog:
 
-  dbench -D $MNT -t 200 40
+  [87452.323003] INFO: task kworker/u16:11:1810830 blocked for more than 120 seconds.
+  [87452.323644]       Tainted: G    B   W         5.10.0-rc4-btrfs-next-73 #1
+  [87452.324248] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [87452.324852] task:kworker/u16:11  state:D stack:    0 pid:1810830 ppid:     2 flags:0x00004000
+  [87452.325520] Workqueue: btrfs-flush_delalloc btrfs_work_helper [btrfs]
+  [87452.326136] Call Trace:
+  [87452.326737]  __schedule+0x5d1/0xcf0
+  [87452.327390]  schedule+0x45/0xe0
+  [87452.328174]  lock_extent_bits+0x1e6/0x2d0 [btrfs]
+  [87452.328894]  ? finish_wait+0x90/0x90
+  [87452.329474]  btrfs_invalidatepage+0x32c/0x390 [btrfs]
+  [87452.330133]  ? __mod_memcg_state+0x8e/0x160
+  [87452.330738]  __extent_writepage+0x2d4/0x400 [btrfs]
+  [87452.331405]  extent_write_cache_pages+0x2b2/0x500 [btrfs]
+  [87452.332007]  ? lock_release+0x20e/0x4c0
+  [87452.332557]  ? trace_hardirqs_on+0x1b/0xf0
+  [87452.333127]  extent_writepages+0x43/0x90 [btrfs]
+  [87452.333653]  ? lock_acquire+0x1a3/0x490
+  [87452.334177]  do_writepages+0x43/0xe0
+  [87452.334699]  ? __filemap_fdatawrite_range+0xa4/0x100
+  [87452.335720]  __filemap_fdatawrite_range+0xc5/0x100
+  [87452.336500]  btrfs_run_delalloc_work+0x17/0x40 [btrfs]
+  [87452.337216]  btrfs_work_helper+0xf1/0x600 [btrfs]
+  [87452.337838]  process_one_work+0x24e/0x5e0
+  [87452.338437]  worker_thread+0x50/0x3b0
+  [87452.339137]  ? process_one_work+0x5e0/0x5e0
+  [87452.339884]  kthread+0x153/0x170
+  [87452.340507]  ? kthread_mod_delayed_work+0xc0/0xc0
+  [87452.341153]  ret_from_fork+0x22/0x30
+  [87452.341806] INFO: task kworker/u16:1:2426217 blocked for more than 120 seconds.
+  [87452.342487]       Tainted: G    B   W         5.10.0-rc4-btrfs-next-73 #1
+  [87452.343274] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [87452.344049] task:kworker/u16:1   state:D stack:    0 pid:2426217 ppid:     2 flags:0x00004000
+  [87452.344974] Workqueue: events_unbound btrfs_async_reclaim_metadata_space [btrfs]
+  [87452.345655] Call Trace:
+  [87452.346305]  __schedule+0x5d1/0xcf0
+  [87452.346947]  ? kvm_clock_read+0x14/0x30
+  [87452.347676]  ? wait_for_completion+0x81/0x110
+  [87452.348389]  schedule+0x45/0xe0
+  [87452.349077]  schedule_timeout+0x30c/0x580
+  [87452.349718]  ? _raw_spin_unlock_irqrestore+0x3c/0x60
+  [87452.350340]  ? lock_acquire+0x1a3/0x490
+  [87452.351006]  ? try_to_wake_up+0x7a/0xa20
+  [87452.351541]  ? lock_release+0x20e/0x4c0
+  [87452.352040]  ? lock_acquired+0x199/0x490
+  [87452.352517]  ? wait_for_completion+0x81/0x110
+  [87452.353000]  wait_for_completion+0xab/0x110
+  [87452.353490]  start_delalloc_inodes+0x2af/0x390 [btrfs]
+  [87452.353973]  btrfs_start_delalloc_roots+0x12d/0x250 [btrfs]
+  [87452.354455]  flush_space+0x24f/0x660 [btrfs]
+  [87452.355063]  btrfs_async_reclaim_metadata_space+0x1bb/0x480 [btrfs]
+  [87452.355565]  process_one_work+0x24e/0x5e0
+  [87452.356024]  worker_thread+0x20f/0x3b0
+  [87452.356487]  ? process_one_work+0x5e0/0x5e0
+  [87452.356973]  kthread+0x153/0x170
+  [87452.357434]  ? kthread_mod_delayed_work+0xc0/0xc0
+  [87452.357880]  ret_from_fork+0x22/0x30
+  (...)
+  < stack traces of several tasks waiting for the locks of the inodes of the
+    clone operation >
+  (...)
+  [92867.444138] RSP: 002b:00007ffc3371bbe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000052
+  [92867.444624] RAX: ffffffffffffffda RBX: 00007ffc3371bea0 RCX: 00007f61efe73f97
+  [92867.445116] RDX: 0000000000000000 RSI: 0000560fbd5d7a40 RDI: 0000560fbd5d8960
+  [92867.445595] RBP: 00007ffc3371beb0 R08: 0000000000000001 R09: 0000000000000003
+  [92867.446070] R10: 00007ffc3371b996 R11: 0000000000000246 R12: 0000000000000000
+  [92867.446820] R13: 000000000000001f R14: 00007ffc3371bea0 R15: 00007ffc3371beb0
+  [92867.447361] task:fsstress        state:D stack:    0 pid:2508238 ppid:2508153 flags:0x00004000
+  [92867.447920] Call Trace:
+  [92867.448435]  __schedule+0x5d1/0xcf0
+  [92867.448934]  ? _raw_spin_unlock_irqrestore+0x3c/0x60
+  [92867.449423]  schedule+0x45/0xe0
+  [92867.449916]  __reserve_bytes+0x4a4/0xb10 [btrfs]
+  [92867.450576]  ? finish_wait+0x90/0x90
+  [92867.451202]  btrfs_reserve_metadata_bytes+0x29/0x190 [btrfs]
+  [92867.451815]  btrfs_block_rsv_add+0x1f/0x50 [btrfs]
+  [92867.452412]  start_transaction+0x2d1/0x760 [btrfs]
+  [92867.453216]  clone_copy_inline_extent+0x333/0x490 [btrfs]
+  [92867.453848]  ? lock_release+0x20e/0x4c0
+  [92867.454539]  ? btrfs_search_slot+0x9a7/0xc30 [btrfs]
+  [92867.455218]  btrfs_clone+0x569/0x7e0 [btrfs]
+  [92867.455952]  btrfs_clone_files+0xf6/0x150 [btrfs]
+  [92867.456588]  btrfs_remap_file_range+0x324/0x3d0 [btrfs]
+  [92867.457213]  do_clone_file_range+0xd4/0x1f0
+  [92867.457828]  vfs_clone_file_range+0x4d/0x230
+  [92867.458355]  ? lock_release+0x20e/0x4c0
+  [92867.458890]  ioctl_file_clone+0x8f/0xc0
+  [92867.459377]  do_vfs_ioctl+0x342/0x750
+  [92867.459913]  __x64_sys_ioctl+0x62/0xb0
+  [92867.460377]  do_syscall_64+0x33/0x80
+  [92867.460842]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  (...)
+  < stack traces of more tasks blocked on metadata reservation like the clone
+    task above, because the async reclaim task has deadlocked >
+  (...)
 
-  umount $MNT
+Another thing to notice is that the worker task that is deadlocked when
+trying to flush the destination inode of the clone operation is at
+btrfs_invalidatepage(). This is simply because the clone operation has a
+destination offset greater than the i_size and we only update the i_size
+of the destination file after cloning an extent (just like we do in the
+buffered write path).
 
-The results before this change:
+Since the async reclaim path uses btrfs_start_delalloc_roots() to trigger
+the flushing of delalloc for all inodes that have delalloc, add a runtime
+flag to an inode to signal it should not be flushed, and for inodes with
+that flag set, start_delalloc_inodes() will simply skip them. When the
+cloning code needs to dirty a page to copy an inline extent, set that flag
+on the inode and then clear it when the clone operation finishes.
 
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    5761605     0.172   312.057
- Close        4232452     0.002    10.927
- Rename        243937     1.406   277.344
- Unlink       1163456     0.631   298.402
- Deltree          160    11.581   221.107
- Mkdir             80     0.003     0.005
- Qpathinfo    5221410     0.065   122.309
- Qfileinfo     915432     0.001     3.333
- Qfsinfo       957555     0.003     3.992
- Sfileinfo     469244     0.023    20.494
- Find         2018865     0.448   123.659
- WriteX       2874851     0.049   118.529
- ReadX        9030579     0.004    21.654
- LockX          18754     0.003     4.423
- UnlockX        18754     0.002     0.331
- Flush         403792    10.944   359.494
+This could be sporadically triggered with test case generic/269 from
+fstests, which exercises many fsstress processes running in parallel with
+several dd processes filling up the entire filesystem.
 
-Throughput 908.444 MB/sec  40 clients  40 procs  max_latency=359.500 ms
-
-The results after this change:
-
- Operation      Count    AvgLat    MaxLat
- ----------------------------------------
- NTCreateX    6442521     0.159   230.693
- Close        4732357     0.002    10.972
- Rename        272809     1.293   227.398
- Unlink       1301059     0.563   218.500
- Deltree          160     7.796    54.887
- Mkdir             80     0.008     0.478
- Qpathinfo    5839452     0.047   124.330
- Qfileinfo    1023199     0.001     4.996
- Qfsinfo      1070760     0.003     5.709
- Sfileinfo     524790     0.033    21.765
- Find         2257658     0.314   125.611
- WriteX       3211520     0.040   232.135
- ReadX        10098969     0.004    25.340
- LockX          20974     0.003     1.569
- UnlockX        20974     0.002     3.475
- Flush         451553    10.287   331.037
-
-Throughput 1011.77 MB/sec  40 clients  40 procs  max_latency=331.045 ms
-
-+10.8% throughput, -8.2% max latency
-
+CC: stable@vger.kernel.org # 5.9+
+Fixes: 05a5a7621ce6 ("Btrfs: implement full reflink support for inline extents")
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/btrfs_inode.h | 7 +++++++
- fs/btrfs/tree-log.c    | 8 ++++++++
- fs/btrfs/xattr.c       | 4 +++-
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ fs/btrfs/btrfs_inode.h |  9 +++++++++
+ fs/btrfs/ctree.h       |  3 ++-
+ fs/btrfs/dev-replace.c |  2 +-
+ fs/btrfs/inode.c       | 15 +++++++++++----
+ fs/btrfs/ioctl.c       |  2 +-
+ fs/btrfs/reflink.c     | 15 +++++++++++++++
+ fs/btrfs/space-info.c  |  2 +-
+ 7 files changed, 40 insertions(+), 8 deletions(-)
 
 diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
-index 92dd86bceae31..c974f7fe614ac 100644
+index c974f7fe614ac..8de4bf8edb9c0 100644
 --- a/fs/btrfs/btrfs_inode.h
 +++ b/fs/btrfs/btrfs_inode.h
-@@ -35,6 +35,13 @@ enum {
- 	BTRFS_INODE_IN_DELALLOC_LIST,
- 	BTRFS_INODE_HAS_PROPS,
- 	BTRFS_INODE_SNAPSHOT_FLUSH,
+@@ -42,6 +42,15 @@ enum {
+ 	 * to an inode.
+ 	 */
+ 	BTRFS_INODE_NO_XATTRS,
 +	/*
-+	 * Set and used when logging an inode and it serves to signal that an
-+	 * inode does not have xattrs, so subsequent fsyncs can avoid searching
-+	 * for xattrs to log. This bit must be cleared whenever a xattr is added
-+	 * to an inode.
++	 * Set when we are in a context where we need to start a transaction and
++	 * have dirty pages with the respective file range locked. This is to
++	 * ensure that when reserving space for the transaction, if we are low
++	 * on available space and need to flush delalloc, we will not flush
++	 * delalloc for this inode, because that could result in a deadlock (on
++	 * the file range, inode's io_tree).
 +	 */
-+	BTRFS_INODE_NO_XATTRS,
++	BTRFS_INODE_NO_DELALLOC_FLUSH,
  };
  
  /* in memory btrfs inode */
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 56cbc1706b6f7..5b11bb9770664 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4571,6 +4571,10 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- 	const u64 ino = btrfs_ino(inode);
- 	int ins_nr = 0;
- 	int start_slot = 0;
-+	bool found_xattrs = false;
-+
-+	if (test_bit(BTRFS_INODE_NO_XATTRS, &inode->runtime_flags))
-+		return 0;
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index 62461239600fc..e01545538e07f 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3001,7 +3001,8 @@ int btrfs_truncate_inode_items(struct btrfs_trans_handle *trans,
+ 			       u32 min_type);
  
- 	key.objectid = ino;
- 	key.type = BTRFS_XATTR_ITEM_KEY;
-@@ -4609,6 +4613,7 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- 			start_slot = slot;
- 		ins_nr++;
- 		path->slots[0]++;
-+		found_xattrs = true;
- 		cond_resched();
- 	}
- 	if (ins_nr > 0) {
-@@ -4618,6 +4623,9 @@ static int btrfs_log_all_xattrs(struct btrfs_trans_handle *trans,
- 			return ret;
- 	}
+ int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
+-int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr);
++int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
++			       bool in_reclaim_context);
+ int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
+ 			      unsigned int extra_bits,
+ 			      struct extent_state **cached_state);
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index 10638537b9ef3..d297804631829 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -703,7 +703,7 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
+ 	 * flush all outstanding I/O and inode extent mappings before the
+ 	 * copy operation is declared as being finished
+ 	 */
+-	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX);
++	ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
+ 	if (ret) {
+ 		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+ 		return ret;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 7e8d8169779d2..07479250221da 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9389,7 +9389,8 @@ static struct btrfs_delalloc_work *btrfs_alloc_delalloc_work(struct inode *inode
+  * some fairly slow code that needs optimization. This walks the list
+  * of all the inodes with pending delalloc and forces them to disk.
+  */
+-static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot)
++static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot,
++				 bool in_reclaim_context)
+ {
+ 	struct btrfs_inode *binode;
+ 	struct inode *inode;
+@@ -9410,6 +9411,11 @@ static int start_delalloc_inodes(struct btrfs_root *root, u64 *nr, bool snapshot
  
-+	if (!found_xattrs)
-+		set_bit(BTRFS_INODE_NO_XATTRS, &inode->runtime_flags);
+ 		list_move_tail(&binode->delalloc_inodes,
+ 			       &root->delalloc_inodes);
 +
- 	return 0;
++		if (in_reclaim_context &&
++		    test_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &binode->runtime_flags))
++			continue;
++
+ 		inode = igrab(&binode->vfs_inode);
+ 		if (!inode) {
+ 			cond_resched_lock(&root->delalloc_lock);
+@@ -9463,10 +9469,11 @@ int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
+ 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+ 		return -EROFS;
+ 
+-	return start_delalloc_inodes(root, &nr, true);
++	return start_delalloc_inodes(root, &nr, true, false);
  }
  
-diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 95d9aebff2c4b..e51774201d53b 100644
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -213,9 +213,11 @@ int btrfs_setxattr(struct btrfs_trans_handle *trans, struct inode *inode,
- 	}
+-int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr)
++int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
++			       bool in_reclaim_context)
+ {
+ 	struct btrfs_root *root;
+ 	struct list_head splice;
+@@ -9489,7 +9496,7 @@ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr)
+ 			       &fs_info->delalloc_roots);
+ 		spin_unlock(&fs_info->delalloc_root_lock);
+ 
+-		ret = start_delalloc_inodes(root, &nr, false);
++		ret = start_delalloc_inodes(root, &nr, false, in_reclaim_context);
+ 		btrfs_put_root(root);
+ 		if (ret < 0)
+ 			goto out;
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index e8ca229a216be..bd46e107f955e 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -4940,7 +4940,7 @@ long btrfs_ioctl(struct file *file, unsigned int
+ 	case BTRFS_IOC_SYNC: {
+ 		int ret;
+ 
+-		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX);
++		ret = btrfs_start_delalloc_roots(fs_info, U64_MAX, false);
+ 		if (ret)
+ 			return ret;
+ 		ret = btrfs_sync_fs(inode->i_sb, 1);
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index 99aa87c089121..a646af95dd100 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -89,6 +89,19 @@ static int copy_inline_to_page(struct btrfs_inode *inode,
+ 	if (ret)
+ 		goto out_unlock;
+ 
++	/*
++	 * After dirtying the page our caller will need to start a transaction,
++	 * and if we are low on metadata free space, that can cause flushing of
++	 * delalloc for all inodes in order to get metadata space released.
++	 * However we are holding the range locked for the whole duration of
++	 * the clone/dedupe operation, so we may deadlock if that happens and no
++	 * other task releases enough space. So mark this inode as not being
++	 * possible to flush to avoid such deadlock. We will clear that flag
++	 * when we finish cloning all extents, since a transaction is started
++	 * after finding each extent to clone.
++	 */
++	set_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &inode->runtime_flags);
++
+ 	if (comp_type == BTRFS_COMPRESS_NONE) {
+ 		char *map;
+ 
+@@ -547,6 +560,8 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
  out:
  	btrfs_free_path(path);
--	if (!ret)
-+	if (!ret) {
- 		set_bit(BTRFS_INODE_COPY_EVERYTHING,
- 			&BTRFS_I(inode)->runtime_flags);
-+		clear_bit(BTRFS_INODE_NO_XATTRS, &BTRFS_I(inode)->runtime_flags);
-+	}
+ 	kvfree(buf);
++	clear_bit(BTRFS_INODE_NO_DELALLOC_FLUSH, &BTRFS_I(inode)->runtime_flags);
++
  	return ret;
  }
  
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index 64099565ab8f5..67e55c5479b8e 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -532,7 +532,7 @@ static void shrink_delalloc(struct btrfs_fs_info *fs_info,
+ 
+ 	loops = 0;
+ 	while ((delalloc_bytes || dio_bytes) && loops < 3) {
+-		btrfs_start_delalloc_roots(fs_info, items);
++		btrfs_start_delalloc_roots(fs_info, items, true);
+ 
+ 		loops++;
+ 		if (wait_ordered && !trans) {
 -- 
 2.27.0
 
