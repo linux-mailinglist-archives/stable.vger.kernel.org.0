@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BA292F7A60
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:50:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC1A2F797C
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731876AbhAOMsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:48:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
+        id S1731808AbhAOMhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:37:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733177AbhAOMg7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:36:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6FD0224F9;
-        Fri, 15 Jan 2021 12:36:17 +0000 (UTC)
+        id S2387926AbhAOMhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:37:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EE102333E;
+        Fri, 15 Jan 2021 12:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714178;
-        bh=xmGdFyXcWNlh85b0/RPOnpzQtGmYGEUCreiFzb5RBFA=;
+        s=korg; t=1610714182;
+        bh=WAlLl7PYYBOVPCotAWulBRPxe6pbZEEzwlAtwi3Y+Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNKOQ0pMh8Eb3buz/PvNFQq9vjwyzrUrnjEdbSyO1z6+SsA4ZhtijRTLU/uyA1spn
-         fPk0bNSf3vLILaB1Y7bPo+CWwh1cR/QMDoWvqvT4mqawXeRMqcx70pkNx801vvtmsj
-         s+Olhxft+jD7nLD39kRQf5UpqNajxtGhtlNmiZYE=
+        b=x8KIXC+ulwqRFigXimtmrv2TdgUhwjBY0MzsvHiWxuumkdkj9jX+KI9QhSZAorGPq
+         Rfwi/Yxs8dxSrfkIJKtvf8fnhxnJcSd3IusbNdC/1tCzahWp/OSC39wm1khc2D/osm
+         iA9i+0fb+KAw5XKBN+vlB6AinC70V+S+wMZU4egk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 019/103] net: stmmac: dwmac-sun8i: Balance internal PHY power
-Date:   Fri, 15 Jan 2021 13:27:12 +0100
-Message-Id: <20210115122006.978229674@linuxfoundation.org>
+Subject: [PATCH 5.10 020/103] net: stmmac: dwmac-sun8i: Balance syscon (de)initialization
+Date:   Fri, 15 Jan 2021 13:27:13 +0100
+Message-Id: <20210115122007.026169586@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115122006.047132306@linuxfoundation.org>
 References: <20210115122006.047132306@linuxfoundation.org>
@@ -41,112 +41,208 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit b8239638853e3e37b287e4bd4d57b41f14c78550 ]
+[ Upstream commit 9b1e39cf5dd81f33186cdb950fcf75a121f1a9a7 ]
 
-sun8i_dwmac_exit calls sun8i_dwmac_unpower_internal_phy, but
-sun8i_dwmac_init did not call sun8i_dwmac_power_internal_phy. This
-caused PHY power to remain off after a suspend/resume cycle. Fix this by
-recording if PHY power should be restored, and if so, restoring it.
+Previously, sun8i_dwmac_set_syscon was called from a chain of functions
+in several different files:
+    sun8i_dwmac_probe
+      stmmac_dvr_probe
+        stmmac_hw_init
+          stmmac_hwif_init
+            sun8i_dwmac_setup
+              sun8i_dwmac_set_syscon
+which made the lifetime of the syscon values hard to reason about. Part
+of the problem is that there is no similar platform driver callback from
+stmmac_dvr_remove. As a result, the driver unset the syscon value in
+sun8i_dwmac_exit, but this leaves it uninitialized after a suspend/
+resume cycle. It was also unset a second time (outside sun8i_dwmac_exit)
+in the probe error path.
 
+Move the init to the earliest available place in sun8i_dwmac_probe
+(after stmmac_probe_config_dt, which initializes plat_dat), and the
+deinit to the corresponding position in the cleanup order.
+
+Since priv is not filled in until stmmac_dvr_probe, this requires
+changing the sun8i_dwmac_set_syscon parameters to priv's two relevant
+members.
+
+Fixes: 9f93ac8d4085 ("net-next: stmmac: Add dwmac-sun8i")
 Fixes: 634db83b8265 ("net: stmmac: dwmac-sun8i: Handle integrated/external MDIOs")
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |   31 ++++++++++++++++------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |   50 +++++++++++-----------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
 
 --- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
 +++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -64,6 +64,7 @@ struct emac_variant {
-  * @variant:	reference to the current board variant
-  * @regmap:	regmap for using the syscon
-  * @internal_phy_powered: Does the internal PHY is enabled
-+ * @use_internal_phy: Is the internal PHY selected for use
-  * @mux_handle:	Internal pointer used by mdio-mux lib
-  */
- struct sunxi_priv_data {
-@@ -74,6 +75,7 @@ struct sunxi_priv_data {
- 	const struct emac_variant *variant;
- 	struct regmap_field *regmap_field;
- 	bool internal_phy_powered;
-+	bool use_internal_phy;
- 	void *mux_handle;
- };
- 
-@@ -539,8 +541,11 @@ static const struct stmmac_dma_ops sun8i
- 	.dma_interrupt = sun8i_dwmac_dma_interrupt,
- };
- 
-+static int sun8i_dwmac_power_internal_phy(struct stmmac_priv *priv);
-+
- static int sun8i_dwmac_init(struct platform_device *pdev, void *priv)
- {
-+	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct sunxi_priv_data *gmac = priv;
- 	int ret;
- 
-@@ -554,13 +559,25 @@ static int sun8i_dwmac_init(struct platf
- 
- 	ret = clk_prepare_enable(gmac->tx_clk);
- 	if (ret) {
--		if (gmac->regulator)
--			regulator_disable(gmac->regulator);
- 		dev_err(&pdev->dev, "Could not enable AHB clock\n");
--		return ret;
-+		goto err_disable_regulator;
-+	}
-+
-+	if (gmac->use_internal_phy) {
-+		ret = sun8i_dwmac_power_internal_phy(netdev_priv(ndev));
-+		if (ret)
-+			goto err_disable_clk;
- 	}
- 
- 	return 0;
-+
-+err_disable_clk:
-+	clk_disable_unprepare(gmac->tx_clk);
-+err_disable_regulator:
-+	if (gmac->regulator)
-+		regulator_disable(gmac->regulator);
-+
-+	return ret;
+@@ -898,22 +898,23 @@ static int sun8i_dwmac_register_mdio_mux
+ 	return ret;
  }
  
- static void sun8i_dwmac_core_init(struct mac_device_info *hw,
-@@ -831,7 +848,6 @@ static int mdio_mux_syscon_switch_fn(int
- 	struct sunxi_priv_data *gmac = priv->plat->bsp_priv;
+-static int sun8i_dwmac_set_syscon(struct stmmac_priv *priv)
++static int sun8i_dwmac_set_syscon(struct device *dev,
++				  struct plat_stmmacenet_data *plat)
+ {
+-	struct sunxi_priv_data *gmac = priv->plat->bsp_priv;
+-	struct device_node *node = priv->device->of_node;
++	struct sunxi_priv_data *gmac = plat->bsp_priv;
++	struct device_node *node = dev->of_node;
+ 	int ret;
  	u32 reg, val;
- 	int ret = 0;
--	bool need_power_ephy = false;
  
- 	if (current_child ^ desired_child) {
- 		regmap_field_read(gmac->regmap_field, &reg);
-@@ -839,13 +855,12 @@ static int mdio_mux_syscon_switch_fn(int
- 		case DWMAC_SUN8I_MDIO_MUX_INTERNAL_ID:
- 			dev_info(priv->device, "Switch mux to internal PHY");
- 			val = (reg & ~H3_EPHY_MUX_MASK) | H3_EPHY_SELECT;
--
--			need_power_ephy = true;
-+			gmac->use_internal_phy = true;
- 			break;
- 		case DWMAC_SUN8I_MDIO_MUX_EXTERNAL_ID:
- 			dev_info(priv->device, "Switch mux to external PHY");
- 			val = (reg & ~H3_EPHY_MUX_MASK) | H3_EPHY_SHUTDOWN;
--			need_power_ephy = false;
-+			gmac->use_internal_phy = false;
- 			break;
- 		default:
- 			dev_err(priv->device, "Invalid child ID %x\n",
-@@ -853,7 +868,7 @@ static int mdio_mux_syscon_switch_fn(int
+ 	ret = regmap_field_read(gmac->regmap_field, &val);
+ 	if (ret) {
+-		dev_err(priv->device, "Fail to read from regmap field.\n");
++		dev_err(dev, "Fail to read from regmap field.\n");
+ 		return ret;
+ 	}
+ 
+ 	reg = gmac->variant->default_syscon_value;
+ 	if (reg != val)
+-		dev_warn(priv->device,
++		dev_warn(dev,
+ 			 "Current syscon value is not the default %x (expect %x)\n",
+ 			 val, reg);
+ 
+@@ -926,9 +927,9 @@ static int sun8i_dwmac_set_syscon(struct
+ 		/* Force EPHY xtal frequency to 24MHz. */
+ 		reg |= H3_EPHY_CLK_SEL;
+ 
+-		ret = of_mdio_parse_addr(priv->device, priv->plat->phy_node);
++		ret = of_mdio_parse_addr(dev, plat->phy_node);
+ 		if (ret < 0) {
+-			dev_err(priv->device, "Could not parse MDIO addr\n");
++			dev_err(dev, "Could not parse MDIO addr\n");
+ 			return ret;
+ 		}
+ 		/* of_mdio_parse_addr returns a valid (0 ~ 31) PHY
+@@ -944,17 +945,17 @@ static int sun8i_dwmac_set_syscon(struct
+ 
+ 	if (!of_property_read_u32(node, "allwinner,tx-delay-ps", &val)) {
+ 		if (val % 100) {
+-			dev_err(priv->device, "tx-delay must be a multiple of 100\n");
++			dev_err(dev, "tx-delay must be a multiple of 100\n");
  			return -EINVAL;
  		}
- 		regmap_field_write(gmac->regmap_field, val);
--		if (need_power_ephy) {
-+		if (gmac->use_internal_phy) {
- 			ret = sun8i_dwmac_power_internal_phy(priv);
- 			if (ret)
- 				return ret;
+ 		val /= 100;
+-		dev_dbg(priv->device, "set tx-delay to %x\n", val);
++		dev_dbg(dev, "set tx-delay to %x\n", val);
+ 		if (val <= gmac->variant->tx_delay_max) {
+ 			reg &= ~(gmac->variant->tx_delay_max <<
+ 				 SYSCON_ETXDC_SHIFT);
+ 			reg |= (val << SYSCON_ETXDC_SHIFT);
+ 		} else {
+-			dev_err(priv->device, "Invalid TX clock delay: %d\n",
++			dev_err(dev, "Invalid TX clock delay: %d\n",
+ 				val);
+ 			return -EINVAL;
+ 		}
+@@ -962,17 +963,17 @@ static int sun8i_dwmac_set_syscon(struct
+ 
+ 	if (!of_property_read_u32(node, "allwinner,rx-delay-ps", &val)) {
+ 		if (val % 100) {
+-			dev_err(priv->device, "rx-delay must be a multiple of 100\n");
++			dev_err(dev, "rx-delay must be a multiple of 100\n");
+ 			return -EINVAL;
+ 		}
+ 		val /= 100;
+-		dev_dbg(priv->device, "set rx-delay to %x\n", val);
++		dev_dbg(dev, "set rx-delay to %x\n", val);
+ 		if (val <= gmac->variant->rx_delay_max) {
+ 			reg &= ~(gmac->variant->rx_delay_max <<
+ 				 SYSCON_ERXDC_SHIFT);
+ 			reg |= (val << SYSCON_ERXDC_SHIFT);
+ 		} else {
+-			dev_err(priv->device, "Invalid RX clock delay: %d\n",
++			dev_err(dev, "Invalid RX clock delay: %d\n",
+ 				val);
+ 			return -EINVAL;
+ 		}
+@@ -983,7 +984,7 @@ static int sun8i_dwmac_set_syscon(struct
+ 	if (gmac->variant->support_rmii)
+ 		reg &= ~SYSCON_RMII_EN;
+ 
+-	switch (priv->plat->interface) {
++	switch (plat->interface) {
+ 	case PHY_INTERFACE_MODE_MII:
+ 		/* default */
+ 		break;
+@@ -997,8 +998,8 @@ static int sun8i_dwmac_set_syscon(struct
+ 		reg |= SYSCON_RMII_EN | SYSCON_ETCS_EXT_GMII;
+ 		break;
+ 	default:
+-		dev_err(priv->device, "Unsupported interface mode: %s",
+-			phy_modes(priv->plat->interface));
++		dev_err(dev, "Unsupported interface mode: %s",
++			phy_modes(plat->interface));
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1023,8 +1024,6 @@ static void sun8i_dwmac_exit(struct plat
+ 			sun8i_dwmac_unpower_internal_phy(gmac);
+ 	}
+ 
+-	sun8i_dwmac_unset_syscon(gmac);
+-
+ 	clk_disable_unprepare(gmac->tx_clk);
+ 
+ 	if (gmac->regulator)
+@@ -1059,16 +1058,11 @@ static struct mac_device_info *sun8i_dwm
+ {
+ 	struct mac_device_info *mac;
+ 	struct stmmac_priv *priv = ppriv;
+-	int ret;
+ 
+ 	mac = devm_kzalloc(priv->device, sizeof(*mac), GFP_KERNEL);
+ 	if (!mac)
+ 		return NULL;
+ 
+-	ret = sun8i_dwmac_set_syscon(priv);
+-	if (ret)
+-		return NULL;
+-
+ 	mac->pcsr = priv->ioaddr;
+ 	mac->mac = &sun8i_dwmac_ops;
+ 	mac->dma = &sun8i_dwmac_dma_ops;
+@@ -1224,10 +1218,14 @@ static int sun8i_dwmac_probe(struct plat
+ 	plat_dat->exit = sun8i_dwmac_exit;
+ 	plat_dat->setup = sun8i_dwmac_setup;
+ 
+-	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
++	ret = sun8i_dwmac_set_syscon(&pdev->dev, plat_dat);
+ 	if (ret)
+ 		goto dwmac_deconfig;
+ 
++	ret = sun8i_dwmac_init(pdev, plat_dat->bsp_priv);
++	if (ret)
++		goto dwmac_syscon;
++
+ 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (ret)
+ 		goto dwmac_exit;
+@@ -1256,11 +1254,12 @@ static int sun8i_dwmac_probe(struct plat
+ dwmac_mux:
+ 	reset_control_put(gmac->rst_ephy);
+ 	clk_put(gmac->ephy_clk);
+-	sun8i_dwmac_unset_syscon(gmac);
+ dwmac_remove:
+ 	stmmac_dvr_remove(&pdev->dev);
+ dwmac_exit:
+ 	sun8i_dwmac_exit(pdev, gmac);
++dwmac_syscon:
++	sun8i_dwmac_unset_syscon(gmac);
+ dwmac_deconfig:
+ 	stmmac_remove_config_dt(pdev, plat_dat);
+ 
+@@ -1281,6 +1280,7 @@ static int sun8i_dwmac_remove(struct pla
+ 	}
+ 
+ 	stmmac_pltfr_remove(pdev);
++	sun8i_dwmac_unset_syscon(gmac);
+ 
+ 	return 0;
+ }
 
 
