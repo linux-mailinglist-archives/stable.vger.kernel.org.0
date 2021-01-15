@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBEBE2F7BB1
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:07:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 512CF2F7BA2
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:04:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732562AbhAOMbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:31:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36440 "EHLO mail.kernel.org"
+        id S1732726AbhAOMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:31:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732558AbhAOMbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:31:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1143B22473;
-        Fri, 15 Jan 2021 12:30:49 +0000 (UTC)
+        id S1732712AbhAOMbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:31:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCC5D22473;
+        Fri, 15 Jan 2021 12:31:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713850;
-        bh=+naoE5RLeCxDZeFBlgzO+70Duj3VqGSf3t05YwDSO3E=;
+        s=korg; t=1610713881;
+        bh=uMdNXkUexgJkUkxCn8w7XcmVpbwfHk3wbYFwk5yKHz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCVwD7TO1fxBGerG4c+y2v4p8enGs+Nqb6mIE+Y/EWIfmbrNm1bY6EfKU2a+M9XFn
-         A9yWGKgpcZhrBKZUMK/rblSKtxSlp1+jpVVMwxD9ZauBxG3r5HGwqJVxXakWmtTvWy
-         QWkG1IglRLXz+fon+OiH2hqAfmqQ7ShQ66iYKca4=
+        b=QaZ1kYt/Ga0g9tQ8p/nML3FIuf1bpb0qsZTGkf9FC02muEDqRCwdpZyQ61+Gvq704
+         uIAUK2I0Lv9GeGijO027z4zen2iSjxpeTUBjtvaLJBCEtKdFIDrQ1u6i2RZrf0wrCp
+         amDlVsT0GINtzl/+ry5CNoUZLdUY5eAyS8fgshZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 09/25] net: fix pmtu check in nopmtudisc mode
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 03/28] net: vlan: avoid leaks on register_vlan_dev() failures
 Date:   Fri, 15 Jan 2021 13:27:40 +0100
-Message-Id: <20210115121957.144368290@linuxfoundation.org>
+Message-Id: <20210115121956.910353121@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121956.679956165@linuxfoundation.org>
-References: <20210115121956.679956165@linuxfoundation.org>
+In-Reply-To: <20210115121956.731354372@linuxfoundation.org>
+References: <20210115121956.731354372@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 50c661670f6a3908c273503dfa206dfc7aa54c07 ]
+[ Upstream commit 55b7ab1178cbf41f979ff83236d3321ad35ed2ad ]
 
-For some reason ip_tunnel insist on setting the DF bit anyway when the
-inner header has the DF bit set, EVEN if the tunnel was configured with
-'nopmtudisc'.
+VLAN checks for NETREG_UNINITIALIZED to distinguish between
+registration failure and unregistration in progress.
 
-This means that the script added in the previous commit
-cannot be made to work by adding the 'nopmtudisc' flag to the
-ip tunnel configuration. Doing so breaks connectivity even for the
-without-conntrack/netfilter scenario.
+Since commit cb626bf566eb ("net-sysfs: Fix reference count leak")
+registration failure may, however, result in NETREG_UNREGISTERED
+as well as NETREG_UNINITIALIZED.
 
-When nopmtudisc is set, the tunnel will skip the mtu check, so no
-icmp error is sent to client. Then, because inner header has DF set,
-the outer header gets added with DF bit set as well.
+This fix is similer to cebb69754f37 ("rtnetlink: Fix
+memory(net_device) leak when ->newlink fails")
 
-IP stack then sends an error to itself because the packet exceeds
-the device MTU.
-
-Fixes: 23a3647bc4f93 ("ip_tunnels: Use skb-len to PMTU check.")
-Cc: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: cb626bf566eb ("net-sysfs: Fix reference count leak")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/8021q/vlan.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -743,7 +743,11 @@ void ip_tunnel_xmit(struct sk_buff *skb,
- 		goto tx_error;
- 	}
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -272,7 +272,8 @@ static int register_vlan_device(struct n
+ 	return 0;
  
--	if (tnl_update_pmtu(dev, skb, rt, tnl_params->frag_off, inner_iph)) {
-+	df = tnl_params->frag_off;
-+	if (skb->protocol == htons(ETH_P_IP) && !tunnel->ignore_df)
-+		df |= (inner_iph->frag_off & htons(IP_DF));
-+
-+	if (tnl_update_pmtu(dev, skb, rt, df, inner_iph)) {
- 		ip_rt_put(rt);
- 		goto tx_error;
- 	}
-@@ -771,10 +775,6 @@ void ip_tunnel_xmit(struct sk_buff *skb,
- 			ttl = ip4_dst_hoplimit(&rt->dst);
- 	}
- 
--	df = tnl_params->frag_off;
--	if (skb->protocol == htons(ETH_P_IP) && !tunnel->ignore_df)
--		df |= (inner_iph->frag_off&htons(IP_DF));
--
- 	max_headroom = LL_RESERVED_SPACE(rt->dst.dev) + sizeof(struct iphdr)
- 			+ rt->dst.header_len + ip_encap_hlen(&tunnel->encap);
- 	if (max_headroom > dev->needed_headroom)
+ out_free_newdev:
+-	if (new_dev->reg_state == NETREG_UNINITIALIZED)
++	if (new_dev->reg_state == NETREG_UNINITIALIZED ||
++	    new_dev->reg_state == NETREG_UNREGISTERED)
+ 		free_netdev(new_dev);
+ 	return err;
+ }
 
 
