@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2626A2F7C0D
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4043D2F7BFB
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730195AbhAONIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
+        id S1731111AbhAOMaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732001AbhAOMao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:30:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 655EA23359;
-        Fri, 15 Jan 2021 12:29:39 +0000 (UTC)
+        id S1732134AbhAOMaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9670923356;
+        Fri, 15 Jan 2021 12:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713779;
-        bh=XKgiajTu+HVz3vlQtjB2OADN1vzKXJqxGgK3oPODjTE=;
+        s=korg; t=1610713782;
+        bh=a3aBdZm8dV/Bub/c4/6P6HE7kFP2TaG3fxG112kOtPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oB2nQUmvWQ+kMKtB0kF3llZJncAFjuLUjsexlwlXUPkuCk6DMtef+KfgsvW8I3DJM
-         ntXIbbGVZ1mU1wSzyyd2zKuGempD04mZzA4dDc5I8utSW6wvJ9R1M6VXT/yXmjBzcQ
-         jx4zdiw14s0SrwUAw0doTF+CZt49Nx9K+iTCe5fs=
+        b=tGQM75mEhv7uN4AHaciSxSw3ny8wTVpMvErFeo4FKqSBN0cslm0nZgeLgnoNfAZfz
+         N/gg688D0Uw5GT1yF/PJay4BR3Lve3QEB2H0sGH6535nZlSloz/NBiTMsOHDVSwdIB
+         28AqpAKolBbrV+E+yFrxz7DP8f2qV16ivUPoQC4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christoph Hellwig <hch@lst.de>,
         Bart Van Assche <bart.vanassche@sandisk.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 02/18] target: bounds check XCOPY segment descriptor list
-Date:   Fri, 15 Jan 2021 13:27:30 +0100
-Message-Id: <20210115121955.231591863@linuxfoundation.org>
+Subject: [PATCH 4.4 03/18] target: simplify XCOPY wwn->se_dev lookup helper
+Date:   Fri, 15 Jan 2021 13:27:31 +0100
+Message-Id: <20210115121955.281900571@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
 References: <20210115121955.112329537@linuxfoundation.org>
@@ -43,71 +43,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit af9f62c1686268c0517b289274d38f3a03bebd2a ]
+[ Upstream commit 94aae4caacda89a1bdb7198b260f4ca3595b7ed7 ]
 
-Check the length of the XCOPY request segment descriptor list against
-the value advertised via the MAXIMUM SEGMENT DESCRIPTOR COUNT field in
-the RECEIVE COPY OPERATING PARAMETERS response.
-
-spc4r37 6.4.3.5 states:
-  If the number of segment descriptors exceeds the allowed number, the
-  copy manager shall terminate the command with CHECK CONDITION status,
-  with the sense key set to ILLEGAL REQUEST, and the additional sense
-  code set to TOO MANY SEGMENT DESCRIPTORS.
-
-This functionality is testable using the libiscsi
-ExtendedCopy.DescrLimits test.
+target_xcopy_locate_se_dev_e4() is used to locate an se_dev, based on
+the WWN provided with the XCOPY request. Remove a couple of unneeded
+arguments, and rely on the caller for the src/dst test.
 
 Signed-off-by: David Disseldorp <ddiss@suse.de>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Bart Van Assche <bart.vanassche@sandisk.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_xcopy.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/target/target_core_xcopy.c | 28 +++++++++-------------------
+ 1 file changed, 9 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
-index 6415e9b09a529..cd71957c7075f 100644
+index cd71957c7075f..c7bd27bfe3d8c 100644
 --- a/drivers/target/target_core_xcopy.c
 +++ b/drivers/target/target_core_xcopy.c
-@@ -305,17 +305,26 @@ static int target_xcopy_parse_segdesc_02(struct se_cmd *se_cmd, struct xcopy_op
+@@ -52,18 +52,13 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
+ 	return 0;
+ }
  
- static int target_xcopy_parse_segment_descriptors(struct se_cmd *se_cmd,
- 				struct xcopy_op *xop, unsigned char *p,
--				unsigned int sdll)
-+				unsigned int sdll, sense_reason_t *sense_ret)
+-static int target_xcopy_locate_se_dev_e4(struct se_cmd *se_cmd, struct xcopy_op *xop,
+-					bool src)
++static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
++					struct se_device **found_dev)
  {
- 	unsigned char *desc = p;
- 	unsigned int start = 0;
- 	int offset = sdll % XCOPY_SEGMENT_DESC_LEN, rc, ret = 0;
+ 	struct se_device *se_dev;
+-	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN], *dev_wwn;
++	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
+ 	int rc;
  
-+	*sense_ret = TCM_INVALID_PARAMETER_LIST;
-+
- 	if (offset != 0) {
- 		pr_err("XCOPY segment descriptor list length is not"
- 			" multiple of %d\n", XCOPY_SEGMENT_DESC_LEN);
- 		return -EINVAL;
+-	if (src)
+-		dev_wwn = &xop->dst_tid_wwn[0];
+-	else
+-		dev_wwn = &xop->src_tid_wwn[0];
+-
+ 	mutex_lock(&g_device_mutex);
+ 	list_for_each_entry(se_dev, &g_device_list, g_dev_node) {
+ 
+@@ -77,15 +72,8 @@ static int target_xcopy_locate_se_dev_e4(struct se_cmd *se_cmd, struct xcopy_op
+ 		if (rc != 0)
+ 			continue;
+ 
+-		if (src) {
+-			xop->dst_dev = se_dev;
+-			pr_debug("XCOPY 0xe4: Setting xop->dst_dev: %p from located"
+-				" se_dev\n", xop->dst_dev);
+-		} else {
+-			xop->src_dev = se_dev;
+-			pr_debug("XCOPY 0xe4: Setting xop->src_dev: %p from located"
+-				" se_dev\n", xop->src_dev);
+-		}
++		*found_dev = se_dev;
++		pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
+ 
+ 		rc = target_depend_item(&se_dev->dev_group.cg_item);
+ 		if (rc != 0) {
+@@ -242,9 +230,11 @@ static int target_xcopy_parse_target_descriptors(struct se_cmd *se_cmd,
  	}
-+	if (sdll > RCR_OP_MAX_SG_DESC_COUNT * XCOPY_SEGMENT_DESC_LEN) {
-+		pr_err("XCOPY supports %u segment descriptor(s), sdll: %u too"
-+			" large..\n", RCR_OP_MAX_SG_DESC_COUNT, sdll);
-+		/* spc4r37 6.4.3.5 SEGMENT DESCRIPTOR LIST LENGTH field */
-+		*sense_ret = TCM_TOO_MANY_SEGMENT_DESCS;
-+		return -EINVAL;
-+	}
  
- 	while (start < sdll) {
- 		/*
-@@ -913,7 +922,8 @@ sense_reason_t target_do_xcopy(struct se_cmd *se_cmd)
- 	seg_desc = &p[16];
- 	seg_desc += (rc * XCOPY_TARGET_DESC_LEN);
- 
--	rc = target_xcopy_parse_segment_descriptors(se_cmd, xop, seg_desc, sdll);
-+	rc = target_xcopy_parse_segment_descriptors(se_cmd, xop, seg_desc,
-+						    sdll, &ret);
- 	if (rc <= 0) {
- 		xcopy_pt_undepend_remotedev(xop);
- 		goto out;
+ 	if (xop->op_origin == XCOL_SOURCE_RECV_OP)
+-		rc = target_xcopy_locate_se_dev_e4(se_cmd, xop, true);
++		rc = target_xcopy_locate_se_dev_e4(xop->dst_tid_wwn,
++						&xop->dst_dev);
+ 	else
+-		rc = target_xcopy_locate_se_dev_e4(se_cmd, xop, false);
++		rc = target_xcopy_locate_se_dev_e4(xop->src_tid_wwn,
++						&xop->src_dev);
+ 	/*
+ 	 * If a matching IEEE NAA 0x83 descriptor for the requested device
+ 	 * is not located on this node, return COPY_ABORTED with ASQ/ASQC
 -- 
 2.27.0
 
