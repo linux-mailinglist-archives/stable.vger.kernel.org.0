@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 884F92F7B6A
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:02:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB922F7BFC
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 14:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733185AbhAONBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 08:01:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39354 "EHLO mail.kernel.org"
+        id S1732218AbhAOMat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:30:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731599AbhAOMc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:32:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC3F12333E;
-        Fri, 15 Jan 2021 12:32:39 +0000 (UTC)
+        id S1732214AbhAOMat (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:30:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2976223370;
+        Fri, 15 Jan 2021 12:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610713960;
-        bh=7ZpCsSK2RVJ+ZQfyxTBYcdk3EMLC1D20DrcLXb0mkK0=;
+        s=korg; t=1610713788;
+        bh=ZuQboh6gdy7fBB0NZFtfHFJ+8D8Z+kY0IYsRUmcNjSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I32R426q0z8+sCMO9doLFkR9HTo6yV6Ijw1IFiVNunkLX1qjcQXQi4s4/VjNC2DbZ
-         c+b701JH/xxdwys+JmQcrjz+AcFMQF4EzH7/yDsKjViBQc4ecbH1O449AzDudHn6HW
-         7Zk65gtLhYDUVdfSi6Dyr9b49ksGlDLfDj2RVUAk=
+        b=qrX3dWiS0juzX/82VkadiqwBdOnwzH3YMJ962ncv8mYIp3++pYrq39GfkquZUxWUu
+         s2JecdshOYssUzdAJwSx9GjNM6tCTdtoweESCmX72KWmWLO/+QWe5Q6E04psYSFn/S
+         VaxK9B50DOkI6nckq7lVdD5j7aFD0oVY+9B4IRbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 04/43] net: stmmac: dwmac-sun8i: Balance internal PHY power
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        David Disseldorp <ddiss@suse.de>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 06/18] scsi: target: Fix XCOPY NAA identifier lookup
 Date:   Fri, 15 Jan 2021 13:27:34 +0100
-Message-Id: <20210115121957.263251610@linuxfoundation.org>
+Message-Id: <20210115121955.423464201@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
-References: <20210115121957.037407908@linuxfoundation.org>
+In-Reply-To: <20210115121955.112329537@linuxfoundation.org>
+References: <20210115121955.112329537@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,114 +42,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: David Disseldorp <ddiss@suse.de>
 
-[ Upstream commit b8239638853e3e37b287e4bd4d57b41f14c78550 ]
+[ Upstream commit 2896c93811e39d63a4d9b63ccf12a8fbc226e5e4 ]
 
-sun8i_dwmac_exit calls sun8i_dwmac_unpower_internal_phy, but
-sun8i_dwmac_init did not call sun8i_dwmac_power_internal_phy. This
-caused PHY power to remain off after a suspend/resume cycle. Fix this by
-recording if PHY power should be restored, and if so, restoring it.
+When attempting to match EXTENDED COPY CSCD descriptors with corresponding
+se_devices, target_xcopy_locate_se_dev_e4() currently iterates over LIO's
+global devices list which includes all configured backstores.
 
-Fixes: 634db83b8265 ("net: stmmac: dwmac-sun8i: Handle integrated/external MDIOs")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change ensures that only initiator-accessible backstores are
+considered during CSCD descriptor lookup, according to the session's
+se_node_acl LUN list.
+
+To avoid LUN removal race conditions, device pinning is changed from being
+configfs based to instead using the se_node_acl lun_ref.
+
+Reference: CVE-2020-28374
+Fixes: cbf031f425fd ("target: Add support for EXTENDED_COPY copy offload emulation")
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |   31 ++++++++++++++++------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/target/target_core_xcopy.c | 119 +++++++++++++++++------------
+ drivers/target/target_core_xcopy.h |   1 +
+ 2 files changed, 71 insertions(+), 49 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -73,6 +73,7 @@ struct emac_variant {
-  * @variant:	reference to the current board variant
-  * @regmap:	regmap for using the syscon
-  * @internal_phy_powered: Does the internal PHY is enabled
-+ * @use_internal_phy: Is the internal PHY selected for use
-  * @mux_handle:	Internal pointer used by mdio-mux lib
-  */
- struct sunxi_priv_data {
-@@ -83,6 +84,7 @@ struct sunxi_priv_data {
- 	const struct emac_variant *variant;
- 	struct regmap_field *regmap_field;
- 	bool internal_phy_powered;
-+	bool use_internal_phy;
- 	void *mux_handle;
- };
- 
-@@ -518,8 +520,11 @@ static const struct stmmac_dma_ops sun8i
- 	.dma_interrupt = sun8i_dwmac_dma_interrupt,
- };
- 
-+static int sun8i_dwmac_power_internal_phy(struct stmmac_priv *priv);
-+
- static int sun8i_dwmac_init(struct platform_device *pdev, void *priv)
- {
-+	struct net_device *ndev = platform_get_drvdata(pdev);
- 	struct sunxi_priv_data *gmac = priv;
- 	int ret;
- 
-@@ -533,13 +538,25 @@ static int sun8i_dwmac_init(struct platf
- 
- 	ret = clk_prepare_enable(gmac->tx_clk);
- 	if (ret) {
--		if (gmac->regulator)
--			regulator_disable(gmac->regulator);
- 		dev_err(&pdev->dev, "Could not enable AHB clock\n");
--		return ret;
-+		goto err_disable_regulator;
-+	}
-+
-+	if (gmac->use_internal_phy) {
-+		ret = sun8i_dwmac_power_internal_phy(netdev_priv(ndev));
-+		if (ret)
-+			goto err_disable_clk;
- 	}
- 
+diff --git a/drivers/target/target_core_xcopy.c b/drivers/target/target_core_xcopy.c
+index b0e8f432c7205..9587375122295 100644
+--- a/drivers/target/target_core_xcopy.c
++++ b/drivers/target/target_core_xcopy.c
+@@ -52,60 +52,83 @@ static int target_xcopy_gen_naa_ieee(struct se_device *dev, unsigned char *buf)
  	return 0;
-+
-+err_disable_clk:
-+	clk_disable_unprepare(gmac->tx_clk);
-+err_disable_regulator:
-+	if (gmac->regulator)
-+		regulator_disable(gmac->regulator);
-+
-+	return ret;
  }
  
- static void sun8i_dwmac_core_init(struct mac_device_info *hw,
-@@ -809,7 +826,6 @@ static int mdio_mux_syscon_switch_fn(int
- 	struct sunxi_priv_data *gmac = priv->plat->bsp_priv;
- 	u32 reg, val;
- 	int ret = 0;
--	bool need_power_ephy = false;
- 
- 	if (current_child ^ desired_child) {
- 		regmap_field_read(gmac->regmap_field, &reg);
-@@ -817,13 +833,12 @@ static int mdio_mux_syscon_switch_fn(int
- 		case DWMAC_SUN8I_MDIO_MUX_INTERNAL_ID:
- 			dev_info(priv->device, "Switch mux to internal PHY");
- 			val = (reg & ~H3_EPHY_MUX_MASK) | H3_EPHY_SELECT;
+-struct xcopy_dev_search_info {
+-	const unsigned char *dev_wwn;
+-	struct se_device *found_dev;
+-};
 -
--			need_power_ephy = true;
-+			gmac->use_internal_phy = true;
- 			break;
- 		case DWMAC_SUN8I_MDIO_MUX_EXTERNAL_ID:
- 			dev_info(priv->device, "Switch mux to external PHY");
- 			val = (reg & ~H3_EPHY_MUX_MASK) | H3_EPHY_SHUTDOWN;
--			need_power_ephy = false;
-+			gmac->use_internal_phy = false;
- 			break;
- 		default:
- 			dev_err(priv->device, "Invalid child ID %x\n",
-@@ -831,7 +846,7 @@ static int mdio_mux_syscon_switch_fn(int
- 			return -EINVAL;
- 		}
- 		regmap_field_write(gmac->regmap_field, val);
--		if (need_power_ephy) {
-+		if (gmac->use_internal_phy) {
- 			ret = sun8i_dwmac_power_internal_phy(priv);
- 			if (ret)
- 				return ret;
++/**
++ * target_xcopy_locate_se_dev_e4_iter - compare XCOPY NAA device identifiers
++ *
++ * @se_dev: device being considered for match
++ * @dev_wwn: XCOPY requested NAA dev_wwn
++ * @return: 1 on match, 0 on no-match
++ */
+ static int target_xcopy_locate_se_dev_e4_iter(struct se_device *se_dev,
+-					      void *data)
++					      const unsigned char *dev_wwn)
+ {
+-	struct xcopy_dev_search_info *info = data;
+ 	unsigned char tmp_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
+ 	int rc;
+ 
+-	if (!se_dev->dev_attrib.emulate_3pc)
++	if (!se_dev->dev_attrib.emulate_3pc) {
++		pr_debug("XCOPY: emulate_3pc disabled on se_dev %p\n", se_dev);
+ 		return 0;
++	}
+ 
+ 	memset(&tmp_dev_wwn[0], 0, XCOPY_NAA_IEEE_REGEX_LEN);
+ 	target_xcopy_gen_naa_ieee(se_dev, &tmp_dev_wwn[0]);
+ 
+-	rc = memcmp(&tmp_dev_wwn[0], info->dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
+-	if (rc != 0)
+-		return 0;
+-
+-	info->found_dev = se_dev;
+-	pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
+-
+-	rc = target_depend_item(&se_dev->dev_group.cg_item);
++	rc = memcmp(&tmp_dev_wwn[0], dev_wwn, XCOPY_NAA_IEEE_REGEX_LEN);
+ 	if (rc != 0) {
+-		pr_err("configfs_depend_item attempt failed: %d for se_dev: %p\n",
+-		       rc, se_dev);
+-		return rc;
++		pr_debug("XCOPY: skip non-matching: %*ph\n",
++			 XCOPY_NAA_IEEE_REGEX_LEN, tmp_dev_wwn);
++		return 0;
+ 	}
++	pr_debug("XCOPY 0xe4: located se_dev: %p\n", se_dev);
+ 
+-	pr_debug("Called configfs_depend_item for se_dev: %p se_dev->se_dev_group: %p\n",
+-		 se_dev, &se_dev->dev_group);
+ 	return 1;
+ }
+ 
+-static int target_xcopy_locate_se_dev_e4(const unsigned char *dev_wwn,
+-					struct se_device **found_dev)
++static int target_xcopy_locate_se_dev_e4(struct se_session *sess,
++					const unsigned char *dev_wwn,
++					struct se_device **_found_dev,
++					struct percpu_ref **_found_lun_ref)
+ {
+-	struct xcopy_dev_search_info info;
+-	int ret;
+-
+-	memset(&info, 0, sizeof(info));
+-	info.dev_wwn = dev_wwn;
+-
+-	ret = target_for_each_device(target_xcopy_locate_se_dev_e4_iter, &info);
+-	if (ret == 1) {
+-		*found_dev = info.found_dev;
+-		return 0;
+-	} else {
+-		pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
+-		return -EINVAL;
++	struct se_dev_entry *deve;
++	struct se_node_acl *nacl;
++	struct se_lun *this_lun = NULL;
++	struct se_device *found_dev = NULL;
++
++	/* cmd with NULL sess indicates no associated $FABRIC_MOD */
++	if (!sess)
++		goto err_out;
++
++	pr_debug("XCOPY 0xe4: searching for: %*ph\n",
++		 XCOPY_NAA_IEEE_REGEX_LEN, dev_wwn);
++
++	nacl = sess->se_node_acl;
++	rcu_read_lock();
++	hlist_for_each_entry_rcu(deve, &nacl->lun_entry_hlist, link) {
++		struct se_device *this_dev;
++		int rc;
++
++		this_lun = rcu_dereference(deve->se_lun);
++		this_dev = rcu_dereference_raw(this_lun->lun_se_dev);
++
++		rc = target_xcopy_locate_se_dev_e4_iter(this_dev, dev_wwn);
++		if (rc) {
++			if (percpu_ref_tryget_live(&this_lun->lun_ref))
++				found_dev = this_dev;
++			break;
++		}
+ 	}
++	rcu_read_unlock();
++	if (found_dev == NULL)
++		goto err_out;
++
++	pr_debug("lun_ref held for se_dev: %p se_dev->se_dev_group: %p\n",
++		 found_dev, &found_dev->dev_group);
++	*_found_dev = found_dev;
++	*_found_lun_ref = &this_lun->lun_ref;
++	return 0;
++err_out:
++	pr_debug_ratelimited("Unable to locate 0xe4 descriptor for EXTENDED_COPY\n");
++	return -EINVAL;
+ }
+ 
+ static int target_xcopy_parse_tiddesc_e4(struct se_cmd *se_cmd, struct xcopy_op *xop,
+@@ -248,12 +271,16 @@ static int target_xcopy_parse_target_descriptors(struct se_cmd *se_cmd,
+ 
+ 	switch (xop->op_origin) {
+ 	case XCOL_SOURCE_RECV_OP:
+-		rc = target_xcopy_locate_se_dev_e4(xop->dst_tid_wwn,
+-						&xop->dst_dev);
++		rc = target_xcopy_locate_se_dev_e4(se_cmd->se_sess,
++						xop->dst_tid_wwn,
++						&xop->dst_dev,
++						&xop->remote_lun_ref);
+ 		break;
+ 	case XCOL_DEST_RECV_OP:
+-		rc = target_xcopy_locate_se_dev_e4(xop->src_tid_wwn,
+-						&xop->src_dev);
++		rc = target_xcopy_locate_se_dev_e4(se_cmd->se_sess,
++						xop->src_tid_wwn,
++						&xop->src_dev,
++						&xop->remote_lun_ref);
+ 		break;
+ 	default:
+ 		pr_err("XCOPY CSCD descriptor IDs not found in CSCD list - "
+@@ -397,18 +424,12 @@ static int xcopy_pt_get_cmd_state(struct se_cmd *se_cmd)
+ 
+ static void xcopy_pt_undepend_remotedev(struct xcopy_op *xop)
+ {
+-	struct se_device *remote_dev;
+-
+ 	if (xop->op_origin == XCOL_SOURCE_RECV_OP)
+-		remote_dev = xop->dst_dev;
++		pr_debug("putting dst lun_ref for %p\n", xop->dst_dev);
+ 	else
+-		remote_dev = xop->src_dev;
+-
+-	pr_debug("Calling configfs_undepend_item for"
+-		  " remote_dev: %p remote_dev->dev_group: %p\n",
+-		  remote_dev, &remote_dev->dev_group.cg_item);
++		pr_debug("putting src lun_ref for %p\n", xop->src_dev);
+ 
+-	target_undepend_item(&remote_dev->dev_group.cg_item);
++	percpu_ref_put(xop->remote_lun_ref);
+ }
+ 
+ static void xcopy_pt_release_cmd(struct se_cmd *se_cmd)
+diff --git a/drivers/target/target_core_xcopy.h b/drivers/target/target_core_xcopy.h
+index 700a981c7b415..7db8d0c9223f8 100644
+--- a/drivers/target/target_core_xcopy.h
++++ b/drivers/target/target_core_xcopy.h
+@@ -19,6 +19,7 @@ struct xcopy_op {
+ 	struct se_device *dst_dev;
+ 	unsigned char dst_tid_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
+ 	unsigned char local_dev_wwn[XCOPY_NAA_IEEE_REGEX_LEN];
++	struct percpu_ref *remote_lun_ref;
+ 
+ 	sector_t src_lba;
+ 	sector_t dst_lba;
+-- 
+2.27.0
+
 
 
