@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D672F7AF0
-	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 087E32F7AE1
+	for <lists+stable@lfdr.de>; Fri, 15 Jan 2021 13:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387534AbhAOMex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Jan 2021 07:34:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41400 "EHLO mail.kernel.org"
+        id S1733274AbhAOMd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Jan 2021 07:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387533AbhAOMev (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Jan 2021 07:34:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19A7B23359;
-        Fri, 15 Jan 2021 12:34:35 +0000 (UTC)
+        id S1733290AbhAOMd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Jan 2021 07:33:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC60224F9;
+        Fri, 15 Jan 2021 12:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1610714076;
-        bh=UzfAEKJY8rc8SY6lA7OSso4IDYsVqTBY144XalJuV+Q=;
+        s=korg; t=1610713997;
+        bh=NahTOkR+9aPL6JZsWrG55pB7FafAa/JdFnzdbVfWbM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBevTQo5efaq2jNxAf2R9CVIjhtddCPjFHRyPvUUI1x0fYmjDs19q/9icU18uy5kw
-         OuLcGeWwMZjtPAX/DsCYbPZqJH/OLzd1W/c7phAYxahSZ1bS3SlZRPDhpsI17leCxN
-         mBD26JacSEoyqfDNCmcEF+zKm1SEThK6y2r1lDKE=
+        b=AjIw5SOOfFER2/iFeTEa4wNp90ZzzECv7G67vb1yLjpa+DWutQ4V1dXSKybgKnX+b
+         nbT/R+b/cOg0FRdAc3294Tnh/0qv903cbwBgH3Bf0jJmow6B0cH7Fq/s72P+wGL1fA
+         HSCSHPYgCnx/w89/VVu80cfHuj0UiFtaoU5BHTLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Gustavo Pimentel <gustavo.pimentel@synopsys.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 35/62] dmaengine: dw-edma: Fix use after free in dw_edma_alloc_chunk()
+        stable@vger.kernel.org, Roman Guskov <rguskov@dh-electronics.com>,
+        Marek Vasut <marex@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 27/43] spi: stm32: FIFO threshold level - fix align packet size
 Date:   Fri, 15 Jan 2021 13:27:57 +0100
-Message-Id: <20210115122000.092494711@linuxfoundation.org>
+Message-Id: <20210115121958.358549474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210115121958.391610178@linuxfoundation.org>
-References: <20210115121958.391610178@linuxfoundation.org>
+In-Reply-To: <20210115121957.037407908@linuxfoundation.org>
+References: <20210115121957.037407908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Roman Guskov <rguskov@dh-electronics.com>
 
-commit 595a334148449bd1d27cf5d6fcb3b0d718cb1b9f upstream.
+commit a590370d918fc66c62df6620445791fbe840344a upstream.
 
-If the dw_edma_alloc_burst() function fails then we free "chunk" but
-it's still on the "desc->chunk->list" list so it will lead to a use
-after free.  Also the "->chunks_alloc" count is incremented when it
-shouldn't be.
+if cur_bpw <= 8 and xfer_len < 4 then the value of fthlv will be 1 and
+SPI registers content may have been lost.
 
-In current kernels small allocations are guaranteed to succeed and
-dw_edma_alloc_burst() can't fail so this will not actually affect
-runtime.
+* If SPI data register is accessed as a 16-bit register and DSIZE <= 8bit,
+  better to select FTHLV = 2, 4, 6 etc
 
-Fixes: e63d79d1ffcd ("dmaengine: Add Synopsys eDMA IP core driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-Link: https://lore.kernel.org/r/X9dTBFrUPEvvW7qc@mwanda
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+* If SPI data register is accessed as a 32-bit register and DSIZE > 8bit,
+  better to select FTHLV = 2, 4, 6 etc, while if DSIZE <= 8bit,
+  better to select FTHLV = 4, 8, 12 etc
+
+Signed-off-by: Roman Guskov <rguskov@dh-electronics.com>
+Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
+Reviewed-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20201221123532.27272-1-rguskov@dh-electronics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dw-edma/dw-edma-core.c |    4 ++--
+ drivers/spi/spi-stm32.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/dw-edma/dw-edma-core.c
-+++ b/drivers/dma/dw-edma/dw-edma-core.c
-@@ -85,12 +85,12 @@ static struct dw_edma_chunk *dw_edma_all
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -299,9 +299,9 @@ static u32 stm32_spi_prepare_fthlv(struc
  
- 	if (desc->chunk) {
- 		/* Create and add new element into the linked list */
--		desc->chunks_alloc++;
--		list_add_tail(&chunk->list, &desc->chunk->list);
- 		if (!dw_edma_alloc_burst(chunk)) {
- 			kfree(chunk);
- 			return NULL;
- 		}
-+		desc->chunks_alloc++;
-+		list_add_tail(&chunk->list, &desc->chunk->list);
- 	} else {
- 		/* List head */
- 		chunk->burst = NULL;
+ 	/* align packet size with data registers access */
+ 	if (spi->cur_bpw > 8)
+-		fthlv -= (fthlv % 2); /* multiple of 2 */
++		fthlv += (fthlv % 2) ? 1 : 0;
+ 	else
+-		fthlv -= (fthlv % 4); /* multiple of 4 */
++		fthlv += (fthlv % 4) ? (4 - (fthlv % 4)) : 0;
+ 
+ 	return fthlv;
+ }
 
 
